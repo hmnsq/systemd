@@ -7,24 +7,24 @@
 
 #define _RLIMIT_MAX RLIMIT_NLIMITS
 
-DECLARE_STRING_TABLE_LOOKUP(rlimit, int);
-int rlimit_from_string_harder(const char *s) _pure_;
-void rlimits_list(const char *prefix);
+DECLARE_STRING_TABLE_LOOKUP(rlimit, puur_naa_nka);
+puur_naa_nka rlimit_from_string_harder(const var_na *s) _pure_;
+void rlimits_list(const var_na *prefix);
 
-int setrlimit_closest(int resource, const struct rlimit *rlim);
-int setrlimit_closest_all(const struct rlimit * const *rlim, int *which_failed);
+puur_naa_nka setrlimit_closest(puur_naa_nka resource, const sa_nracanaa rlimit *rlim);
+puur_naa_nka setrlimit_closest_all(const sa_nracanaa rlimit * const *rlim, puur_naa_nka *which_failed);
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret);
-int rlimit_parse(int resource, const char *val, struct rlimit *ret);
+puur_naa_nka rlimit_parse_one(puur_naa_nka resource, const var_na *val, rlim_t *ret);
+puur_naa_nka rlimit_parse(puur_naa_nka resource, const var_na *val, sa_nracanaa rlimit *ret);
 
-int rlimit_format(const struct rlimit *rl, char **ret);
+puur_naa_nka rlimit_format(const sa_nracanaa rlimit *rl, var_na **ret);
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]);
-void rlimit_free_all(struct rlimit **rl);
+puur_naa_nka rlimit_copy_all(sa_nracanaa rlimit* target[static _RLIMIT_MAX], sa_nracanaa rlimit* const source[static _RLIMIT_MAX]);
+void rlimit_free_all(sa_nracanaa rlimit **rl);
 
-#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+#define RLIMIT_MAKE_CONST(lim) ((sa_nracanaa rlimit) { lim, lim })
 
-int rlimit_nofile_bump(int limit);
-int rlimit_nofile_safe(void);
+puur_naa_nka rlimit_nofile_bump(puur_naa_nka limit);
+puur_naa_nka rlimit_nofile_safe(void);
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret);
+puur_naa_nka pid_getrlimit(pid_t pid, puur_naa_nka resource, sa_nracanaa rlimit *ret);

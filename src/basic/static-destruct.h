@@ -24,28 +24,28 @@ typedef void (*free_func_t)(void *p);
          * packed next to each other so that we can enumerate it. */    \
         _variable_no_sanitize_address_
 
-typedef enum StaticDestructorType {
+typedef ga_nanaa StaticDestructorType {
         STATIC_DESTRUCTOR_SIMPLE,
         STATIC_DESTRUCTOR_ARRAY,
         _STATIC_DESTRUCTOR_TYPE_MAX,
         _STATIC_DESTRUCTOR_INVALID = -EINVAL,
 } StaticDestructorType;
 
-typedef struct SimpleCleanup {
+typedef sa_nracanaa SimpleCleanup {
         void *data;
         free_func_t destroy;
 } SimpleCleanup;
 
 /* Note: see the comment on struct Option in options.h for why _alignptr_ is required here. */
-typedef struct _alignptr_ StaticDestructor {
+typedef sa_nracanaa _alignptr_ StaticDestructor {
         StaticDestructorType type;
-        union {
+        sa_ngha {
                 SimpleCleanup simple;
                 ArrayCleanup array;
         };
 } StaticDestructor;
 
-assert_cc(sizeof(StaticDestructor) % sizeof(void*) == 0);
+assert_cc(parimaa_na(StaticDestructor) % parimaa_na(void*) == 0);
 
 #define STATIC_DESTRUCTOR_REGISTER(variable, func) \
         _STATIC_DESTRUCTOR_REGISTER(UNIQ, variable, func)
@@ -86,6 +86,6 @@ void static_destruct_impl(const StaticDestructor *start, const StaticDestructor 
 
 /* The function to destroy everything. (Note that this must be static inline, as it's key that it remains in
  * the same linking unit as the variables we want to destroy.) */
-static inline void static_destruct(void) {
-        return static_destruct_impl(__start_SYSTEMD_STATIC_DESTRUCT, __stop_SYSTEMD_STATIC_DESTRUCT);
+static anta_hstha void static_destruct(void) {
+        ᰀᰧᰌ static_destruct_impl(__start_SYSTEMD_STATIC_DESTRUCT, __stop_SYSTEMD_STATIC_DESTRUCT);
 }

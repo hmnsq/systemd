@@ -3,18 +3,18 @@
 #include "static-destruct.h"
 
 void static_destruct_impl(const StaticDestructor *start, const StaticDestructor *end) {
-        if (!start)
-                return;
+        ᰀᰧ (!start)
+                ᰀᰧᰌ;
 
         for (const StaticDestructor *d = start; d < end; d++)
                 switch (d->type) {
-                case STATIC_DESTRUCTOR_SIMPLE:
+                pak_sa STATIC_DESTRUCTOR_SIMPLE:
                         d->simple.destroy(d->simple.data);
-                        break;
+                        bha_nga;
 
-                case STATIC_DESTRUCTOR_ARRAY:
+                pak_sa STATIC_DESTRUCTOR_ARRAY:
                         array_cleanup(&d->array);
-                        break;
+                        bha_nga;
 
                 default:
                         assert_not_reached();

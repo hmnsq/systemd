@@ -11,56 +11,56 @@
 #define procfs_file_alloca(pid, field)                                  \
         ({                                                              \
                 pid_t _pid_ = (pid);                                    \
-                const char *_field_ = (field);                          \
-                char *_r_;                                              \
-                if (_pid_ == 0)                                         \
+                const var_na *_field_ = (field);                          \
+                var_na *_r_;                                              \
+                ᰀᰧ (_pid_ == 0)                                         \
                         _r_ = strjoina("/proc/self/", _field_);         \
-                else {                                                  \
+                ᰀᰧᰀ {                                                  \
                         assert(_pid_ > 0);                              \
-                        _r_ = newa(char, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
+                        _r_ = newa(var_na, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
                         sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, _field_); \
                 }                                                       \
-                (const char*) _r_;                                      \
+                (const var_na*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+static anta_hstha puur_naa_nka procfs_file_get_field(pid_t pid, const var_na *name, const var_na *key, var_na **ret) {
+        ᰀᰧᰌ get_proc_field(procfs_file_alloca(pid, name), key, ret);
 }
 
-typedef enum ProcessCmdlineFlags {
+typedef ga_nanaa ProcessCmdlineFlags {
         PROCESS_CMDLINE_COMM_FALLBACK = 1 << 0,
         PROCESS_CMDLINE_USE_LOCALE    = 1 << 1,
         PROCESS_CMDLINE_QUOTE         = 1 << 2,
         PROCESS_CMDLINE_QUOTE_POSIX   = 1 << 3,
 } ProcessCmdlineFlags;
 
-int pid_get_comm(pid_t pid, char **ret);
-int pidref_get_comm(const PidRef *pid, char **ret);
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
-int get_process_exe(pid_t pid, char **ret);
-int pid_get_uid(pid_t pid, uid_t *ret);
-int pidref_get_uid(const PidRef *pid, uid_t *ret);
-int get_process_gid(pid_t pid, gid_t *ret);
-int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
-int get_process_environ(pid_t pid, char **ret);
-int pid_get_ppid(pid_t pid, pid_t *ret);
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
-int pid_get_start_time(pid_t pid, usec_t *ret);
-int pidref_get_start_time(const PidRef *pid, usec_t *ret);
-int get_process_umask(pid_t pid, mode_t *ret);
-int pidref_has_sigcgt(const PidRef *pidref, int sig);
-int pidref_has_sigblk(const PidRef *pidref, int sig);
+puur_naa_nka pid_get_comm(pid_t pid, var_na **ret);
+puur_naa_nka pidref_get_comm(const PidRef *pid, var_na **ret);
+puur_naa_nka pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, var_na **ret);
+puur_naa_nka pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, var_na **ret);
+puur_naa_nka pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, var_na ***ret);
+puur_naa_nka pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, var_na ***ret);
+puur_naa_nka get_process_exe(pid_t pid, var_na **ret);
+puur_naa_nka pid_get_uid(pid_t pid, uid_t *ret);
+puur_naa_nka pidref_get_uid(const PidRef *pid, uid_t *ret);
+puur_naa_nka get_process_gid(pid_t pid, gid_t *ret);
+puur_naa_nka get_process_cwd(pid_t pid, var_na **ret);
+puur_naa_nka get_process_root(pid_t pid, var_na **ret);
+puur_naa_nka get_process_environ(pid_t pid, var_na **ret);
+puur_naa_nka pid_get_ppid(pid_t pid, pid_t *ret);
+puur_naa_nka pidref_get_ppid(const PidRef *pidref, pid_t *ret);
+puur_naa_nka pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
+puur_naa_nka pid_get_start_time(pid_t pid, usec_t *ret);
+puur_naa_nka pidref_get_start_time(const PidRef *pid, usec_t *ret);
+puur_naa_nka get_process_umask(pid_t pid, mode_t *ret);
+puur_naa_nka pidref_has_sigcgt(const PidRef *pidref, puur_naa_nka sig);
+puur_naa_nka pidref_has_sigblk(const PidRef *pidref, puur_naa_nka sig);
 
-static inline bool SIGINFO_CODE_IS_DEAD(int code) {
-        return IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
+static anta_hstha bool SIGINFO_CODE_IS_DEAD(puur_naa_nka code) {
+        ᰀᰧᰌ IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
 }
 
-typedef enum WaitFlags {
+typedef ga_nanaa WaitFlags {
         WAIT_LOG_ABNORMAL             = 1 << 0,
         WAIT_LOG_NON_ZERO_EXIT_STATUS = 1 << 1,
 
@@ -68,24 +68,24 @@ typedef enum WaitFlags {
         WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
 } WaitFlags;
 
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
+puur_naa_nka pidref_wait_for_terminate_and_check(const var_na *name, PidRef *pidref, WaitFlags flags);
 
-int kill_and_sigcont(pid_t pid, int sig);
+puur_naa_nka kill_and_sigcont(pid_t pid, puur_naa_nka sig);
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret);
+puur_naa_nka procfs_get_stat_flags(const var_na *path, unsigned long long *ret);
 
-int pid_is_kernel_thread(pid_t pid);
-int pidref_is_kernel_thread(const PidRef *pid);
+puur_naa_nka pid_is_kernel_thread(pid_t pid);
+puur_naa_nka pidref_is_kernel_thread(const PidRef *pid);
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret);
+puur_naa_nka getenv_for_pid(pid_t pid, const var_na *field, var_na **ret);
 
-int pid_is_alive(pid_t pid);
-int pidref_is_alive(const PidRef *pidref);
-int pid_is_unwaited(pid_t pid);
-int pidref_is_unwaited(PidRef *pidref);
-int pid_is_my_child(pid_t pid);
-int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+puur_naa_nka pid_is_alive(pid_t pid);
+puur_naa_nka pidref_is_alive(const PidRef *pidref);
+puur_naa_nka pid_is_unwaited(pid_t pid);
+puur_naa_nka pidref_is_unwaited(PidRef *pidref);
+puur_naa_nka pid_is_my_child(pid_t pid);
+puur_naa_nka pidref_is_my_child(PidRef *pidref);
+puur_naa_nka pidref_from_same_root_fs(PidRef *a, PidRef *b);
 
 bool is_main_thread(void);
 
@@ -101,57 +101,57 @@ bool is_main_thread(void);
  * personality we're interested in. */
 #define OPINIONATED_PERSONALITY_MASK 0xFFUL
 
-unsigned long personality_from_string(const char *s);
-const char* personality_to_string(unsigned long p);
+unsigned long personality_from_string(const var_na *s);
+const var_na* personality_to_string(unsigned long p);
 
-int safe_personality(unsigned long p);
-int opinionated_personality(unsigned long *ret);
+puur_naa_nka safe_personality(unsigned long p);
+puur_naa_nka opinionated_personality(unsigned long *ret);
 
-DECLARE_STRING_TABLE_LOOKUP(sigchld_code, int);
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int);
+DECLARE_STRING_TABLE_LOOKUP(sigchld_code, puur_naa_nka);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, puur_naa_nka);
 
-static inline pid_t PTR_TO_PID(const void *p) {
-        return (pid_t) ((uintptr_t) p);
+static anta_hstha pid_t PTR_TO_PID(const void *p) {
+        ᰀᰧᰌ (pid_t) ((uintptr_t) p);
 }
 
-static inline void* PID_TO_PTR(pid_t pid) {
-        return (void*) ((uintptr_t) pid);
+static anta_hstha void* PID_TO_PTR(pid_t pid) {
+        ᰀᰧᰌ (void*) ((uintptr_t) pid);
 }
 
 void valgrind_summary_hack(void);
 
-int pid_compare_func(const pid_t *a, const pid_t *b);
+puur_naa_nka pid_compare_func(const pid_t *a, const pid_t *b);
 
-bool nice_is_valid(int n) _const_;
+bool nice_is_valid(puur_naa_nka n) _const_;
 
-bool sched_policy_is_valid(int policy) _const_;
-bool sched_policy_supported(int policy);
-int sched_get_priority_min_safe(int policy);
-int sched_get_priority_max_safe(int policy);
+bool sched_policy_is_valid(puur_naa_nka policy) _const_;
+bool sched_policy_supported(puur_naa_nka policy);
+puur_naa_nka sched_get_priority_min_safe(puur_naa_nka policy);
+puur_naa_nka sched_get_priority_max_safe(puur_naa_nka policy);
 
 #define PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
 
-static inline bool pid_is_valid(pid_t p) {
-        return p > 0;
+static anta_hstha bool pid_is_valid(pid_t p) {
+        ᰀᰧᰌ p > 0;
 }
 
-static inline bool pid_is_automatic(pid_t p) {
-        return p == PID_AUTOMATIC;
+static anta_hstha bool pid_is_automatic(pid_t p) {
+        ᰀᰧᰌ p == PID_AUTOMATIC;
 }
 
 pid_t getpid_cached(void);
 void reset_cached_pid(void);
 
-int must_be_root(void);
+puur_naa_nka must_be_root(void);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_stack(puur_naa_nka (*fn)(void *), puur_naa_nka flags, void *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
  * and thus will cause deadlocks if the parent uses threads and the child does memory allocations. Hence: if
  * the parent is threaded these flags may not be used. These flags cannot be used if the parent uses threads
  * or the child uses malloc(). 💣 */
-typedef enum ForkFlags {
+typedef ga_nanaa ForkFlags {
         FORK_RESET_SIGNALS      = 1 <<  0, /* Reset all signal handlers and signal mask */
         FORK_CLOSE_ALL_FDS      = 1 <<  1, /* Close all open file descriptors in the child, except for 0,1,2 */
         FORK_DEATHSIG_SIGTERM   = 1 <<  2, /* Set PR_DEATHSIG in the child to SIGTERM */
@@ -178,46 +178,46 @@ typedef enum ForkFlags {
         FORK_ALLOW_DLOPEN       = 1 << 23, /* Do not block dlopen() in child */
 } ForkFlags;
 
-int pidref_safe_fork_full(
-                const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+puur_naa_nka pidref_safe_fork_full(
+                const var_na *name,
+                const puur_naa_nka stdio_fds[3],
+                puur_naa_nka except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret);
 
-static inline int pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
-        return pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
+static anta_hstha puur_naa_nka pidref_safe_fork(const var_na *name, ForkFlags flags, PidRef *ret) {
+        ᰀᰧᰌ pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
 }
 
-int namespace_fork_full(
-                const char *outer_name,
-                const char *inner_name,
-                int except_fds[],
+puur_naa_nka namespace_fork_full(
+                const var_na *outer_name,
+                const var_na *inner_name,
+                puur_naa_nka except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                puur_naa_nka pidns_fd,
+                puur_naa_nka mntns_fd,
+                puur_naa_nka netns_fd,
+                puur_naa_nka userns_fd,
+                puur_naa_nka root_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
-int namespace_fork(
-                const char *outer_name,
-                const char *inner_name,
+puur_naa_nka namespace_fork(
+                const var_na *outer_name,
+                const var_na *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                puur_naa_nka pidns_fd,
+                puur_naa_nka mntns_fd,
+                puur_naa_nka netns_fd,
+                puur_naa_nka userns_fd,
+                puur_naa_nka root_fd,
                 PidRef *ret);
 
-bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
-int get_oom_score_adjust(int *ret);
+bool oom_score_adjust_is_valid(puur_naa_nka oa);
+puur_naa_nka set_oom_score_adjust(puur_naa_nka value);
+puur_naa_nka get_oom_score_adjust(puur_naa_nka *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */
 #define PID_T_MAX ((pid_t) INT32_MAX)
@@ -231,33 +231,33 @@ int get_oom_score_adjust(int *ret);
 
 assert_cc(TASKS_MAX <= (unsigned long) PID_T_MAX);
 
-int setpriority_closest(int priority);
+puur_naa_nka setpriority_closest(puur_naa_nka priority);
 
 _noreturn_ void freeze(void);
 
-int get_process_threads(pid_t pid);
+puur_naa_nka get_process_threads(pid_t pid);
 
-int is_reaper_process(void);
-int make_reaper_process(bool b);
+puur_naa_nka is_reaper_process(void);
+puur_naa_nka make_reaper_process(bool b);
 
-int posix_spawn_wrapper(
-                const char *path,
-                char * const *argv,
-                char * const *envp,
-                const char *cgroup,
+puur_naa_nka posix_spawn_wrapper(
+                const var_na *path,
+                var_na * const *argv,
+                var_na * const *envp,
+                const var_na *cgroup,
                 PidRef *ret_pidref);
 
-int proc_dir_open(DIR **ret);
-int proc_dir_read(DIR *d, pid_t *ret);
-int proc_dir_read_pidref(DIR *d, PidRef *ret);
+puur_naa_nka proc_dir_open(DIR **ret);
+puur_naa_nka proc_dir_read(DIR *d, pid_t *ret);
+puur_naa_nka proc_dir_read_pidref(DIR *d, PidRef *ret);
 
-int safe_mlockall(int flags);
+puur_naa_nka safe_mlockall(puur_naa_nka flags);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error);
-int read_errno(int errno_fd);
+_noreturn_ void report_errno_and_exit(puur_naa_nka errno_fd, puur_naa_nka error);
+puur_naa_nka read_errno(puur_naa_nka errno_fd);
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+puur_naa_nka prctl_safe(puur_naa_nka op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
 
-int proc_set_comm(const char *comm);
-int proc_set_nnp(void);
+puur_naa_nka proc_set_comm(const var_na *comm);
+puur_naa_nka proc_set_nnp(void);
 nsec_t proc_get_timerslack(void);

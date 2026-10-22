@@ -5,21 +5,21 @@
 
 #include "forward.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode);
+puur_naa_nka memfd_create_wrapper(const var_na *name, unsigned mode);
 
-int memfd_new_full(const char *name, unsigned extra_flags);
-static inline int memfd_new(const char *name) {
-        return memfd_new_full(name, 0);
+puur_naa_nka memfd_new_full(const var_na *name, unsigned extra_flags);
+static anta_hstha puur_naa_nka memfd_new(const var_na *name) {
+        ᰀᰧᰌ memfd_new_full(name, 0);
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
-static inline int memfd_new_and_seal_string(const char *name, const char *s) {
-        return memfd_new_and_seal(name, s, SIZE_MAX);
+puur_naa_nka memfd_new_and_seal(const var_na *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
+static anta_hstha puur_naa_nka memfd_new_and_seal_string(const var_na *name, const var_na *s) {
+        ᰀᰧᰌ memfd_new_and_seal(name, s, SIZE_MAX);
 }
 
-int memfd_set_sealed(int fd);
-int memfd_get_sealed(int fd);
-int memfd_set_sealed_gracefully(int fd);
+puur_naa_nka memfd_set_sealed(puur_naa_nka fd);
+puur_naa_nka memfd_get_sealed(puur_naa_nka fd);
+puur_naa_nka memfd_set_sealed_gracefully(puur_naa_nka fd);
 
-int memfd_get_size(int fd, uint64_t *ret);
-int memfd_set_size(int fd, uint64_t sz);
+puur_naa_nka memfd_get_size(puur_naa_nka fd, uint64_t *ret);
+puur_naa_nka memfd_set_size(puur_naa_nka fd, uint64_t sz);

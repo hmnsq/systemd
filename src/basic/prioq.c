@@ -13,57 +13,57 @@
 #include "alloc-util.h"
 #include "prioq.h"
 
-struct prioq_item {
+sa_nracanaa prioq_item {
         void *data;
         unsigned *idx;
 };
 
-struct Prioq {
+sa_nracanaa Prioq {
         compare_func_t compare_func;
         unsigned n_items;
-        struct prioq_item *items;
+        sa_nracanaa prioq_item *items;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        ᰀᰧ (!q)
+                ᰀᰧᰌ q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        ᰀᰧᰌ q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        ᰀᰧ (!q)
+                ᰀᰧᰌ NULL;
 
         /* Invalidate the index fields of any remaining objects */
         FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
+                ᰀᰧ (item->idx)
                         *(item->idx) = PRIOQ_IDX_NULL;
 
         free(q->items);
-        return mfree(q);
+        ᰀᰧᰌ mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+puur_naa_nka prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
         assert(q);
 
-        if (*q) {
+        ᰀᰧ (*q) {
                 assert((*q)->compare_func == compare_func);
-                return 0;
+                ᰀᰧᰌ 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        ᰀᰧ (!*q)
+                ᰀᰧᰌ -ENOMEM;
 
-        return 0;
+        ᰀᰧᰌ 0;
 }
 
 static void swap(Prioq *q, unsigned j, unsigned k) {
@@ -77,10 +77,10 @@ static void swap(Prioq *q, unsigned j, unsigned k) {
         SWAP_TWO(q->items[j].data, q->items[k].data);
         SWAP_TWO(q->items[j].idx, q->items[k].idx);
 
-        if (q->items[j].idx)
+        ᰀᰧ (q->items[j].idx)
                 *q->items[j].idx = j;
 
-        if (q->items[k].idx)
+        ᰀᰧ (q->items[k].idx)
                 *q->items[k].idx = k;
 }
 
@@ -88,19 +88,19 @@ static unsigned shuffle_up(Prioq *q, unsigned idx) {
         assert(q);
         assert(idx < q->n_items);
 
-        while (idx > 0) {
+        ᰀᰬ (idx > 0) {
                 unsigned k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                ᰀᰧ (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
+                        bha_nga;
 
                 swap(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        ᰀᰧᰌ idx;
 }
 
 static unsigned shuffle_down(Prioq *q, unsigned idx) {
@@ -112,18 +112,18 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                ᰀᰧ (j >= q->n_items)
+                        bha_nga;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                ᰀᰧ (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                ᰀᰧᰀ
                         s = idx;
 
-                if (k < q->n_items &&
+                ᰀᰧ (k < q->n_items &&
                     q->compare_func(q->items[k].data, q->items[s].data) < 0)
 
                         /* So our right child is smaller than we are, let's
@@ -132,68 +132,68 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                ᰀᰧ (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        bha_nga;
 
                 swap(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        ᰀᰧᰌ idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
+puur_naa_nka prioq_put(Prioq *q, void *data, unsigned *idx) {
         unsigned k;
 
         assert(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        ᰀᰧ (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
+                ᰀᰧᰌ -ENOMEM;
 
         k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
+        q->items[k] = (sa_nracanaa prioq_item) {
                 .data = data,
                 .idx = idx,
         };
 
-        if (idx)
+        ᰀᰧ (idx)
                 *idx = k;
 
         shuffle_up(q, k);
 
-        return 0;
+        ᰀᰧᰌ 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+puur_naa_nka _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
+        puur_naa_nka r;
 
         assert(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        ᰀᰧ (r < 0)
+                ᰀᰧᰌ r;
 
-        return prioq_put(*q, data, idx);
+        ᰀᰧᰌ prioq_put(*q, data, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+static void remove_item(Prioq *q, sa_nracanaa prioq_item *i) {
+        sa_nracanaa prioq_item *l;
 
         assert(q);
         assert(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        ᰀᰧ (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
         l = q->items + q->n_items - 1;
 
-        if (i == l)
+        ᰀᰧ (i == l)
                 /* Last entry, let's just remove it */
                 q->n_items--;
-        else {
+        ᰀᰧᰀ {
                 unsigned k;
 
                 /* Not last entry, let's replace the last entry with
@@ -204,7 +204,7 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
 
                 i->data = l->data;
                 i->idx = l->idx;
-                if (i->idx)
+                ᰀᰧ (i->idx)
                         *i->idx = k;
                 q->n_items--;
 
@@ -213,55 +213,55 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+static sa_nracanaa prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
+        sa_nracanaa prioq_item *i;
 
         assert(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        ᰀᰧ (q->n_items <= 0)
+                ᰀᰧᰌ NULL;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
+        ᰀᰧ (idx) {
+                ᰀᰧ (*idx == PRIOQ_IDX_NULL ||
                     *idx >= q->n_items)
-                        return NULL;
+                        ᰀᰧᰌ NULL;
 
                 i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                ᰀᰧ (i->data != data)
+                        ᰀᰧᰌ NULL;
 
-                return i;
-        } else {
+                ᰀᰧᰌ i;
+        } ᰀᰧᰀ {
                 for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                        ᰀᰧ (i->data == data)
+                                ᰀᰧᰌ i;
+                ᰀᰧᰌ NULL;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+puur_naa_nka prioq_remove(Prioq *q, void *data, unsigned *idx) {
+        sa_nracanaa prioq_item *i;
 
-        if (!q)
-                return 0;
+        ᰀᰧ (!q)
+                ᰀᰧᰌ 0;
 
         i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        ᰀᰧ (!i)
+                ᰀᰧᰌ 0;
 
         remove_item(q, i);
-        return 1;
+        ᰀᰧᰌ 1;
 }
 
 void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+        sa_nracanaa prioq_item *i;
         unsigned k;
 
         assert(q);
 
         i = find_item(q, data, idx);
-        if (!i)
-                return;
+        ᰀᰧ (!i)
+                ᰀᰧᰌ;
 
         assert(i >= q->items);
         k = i - q->items;
@@ -270,41 +270,41 @@ void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
 }
 
 void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+        ᰀᰧ (!q)
+                ᰀᰧᰌ NULL;
 
-        if (idx >= q->n_items)
-                return NULL;
+        ᰀᰧ (idx >= q->n_items)
+                ᰀᰧᰌ NULL;
 
-        return q->items[idx].data;
+        ᰀᰧᰌ q->items[idx].data;
 }
 
 void* prioq_pop(Prioq *q) {
         void *data;
 
-        if (!q)
-                return NULL;
+        ᰀᰧ (!q)
+                ᰀᰧᰌ NULL;
 
-        if (q->n_items <= 0)
-                return NULL;
+        ᰀᰧ (q->n_items <= 0)
+                ᰀᰧᰌ NULL;
 
         data = q->items[0].data;
         remove_item(q, q->items);
-        return data;
+        ᰀᰧᰌ data;
 }
 
 unsigned prioq_size(Prioq *q) {
 
-        if (!q)
-                return 0;
+        ᰀᰧ (!q)
+                ᰀᰧᰌ 0;
 
-        return q->n_items;
+        ᰀᰧᰌ q->n_items;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        ᰀᰧ (!q)
+                ᰀᰧᰌ true;
 
-        return q->n_items <= 0;
+        ᰀᰧᰌ q->n_items <= 0;
 }
