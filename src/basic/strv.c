@@ -1,217 +1,217 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
+#ضمن <fnmatch.h>
+#ضمن <stdio.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "gunicode.h"
-#include "hashmap.h"
-#include "log.h"
-#include "memory-util.h"
-#include "sort-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#ضمن "alloc-util.h"
+#ضمن "env-util.h"
+#ضمن "escape.h"
+#ضمن "extract-word.h"
+#ضمن "fileio.h"
+#ضمن "gunicode.h"
+#ضمن "hashmap.h"
+#ضمن "log.h"
+#ضمن "memory-util.h"
+#ضمن "sort-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "utf8.h"
 
-char* strv_find(char * const *l, const char *name) {
-        assert(name);
-
-        STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
-
-        return NULL;
-}
-
-char* strv_find_case(char * const *l, const char *name) {
-        assert(name);
+حرف* strv_find(حرف * ثابت *l, ثابت حرف *name) {
+        أكد(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                אם (streq(*i, name))
+                        החזר *i;
 
-        return NULL;
+        החזר عدم;
 }
 
-char* strv_find_prefix(char * const *l, const char *name) {
-        assert(name);
+حرف* strv_find_case(حرف * ثابت *l, ثابت حرف *name) {
+        أكد(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                אם (strcaseeq(*i, name))
+                        החזר *i;
 
-        return NULL;
+        החזר عدم;
 }
 
-char* strv_find_startswith(char * const *l, const char *name) {
-        assert(name);
+حرف* strv_find_prefix(حرف * ثابت *l, ثابت حرف *name) {
+        أكد(name);
+
+        STRV_FOREACH(i, l)
+                אם (startswith(*i, name))
+                        החזר *i;
+
+        החזר عدم;
+}
+
+حرف* strv_find_startswith(حرف * ثابت *l, ثابت حرف *name) {
+        أكد(name);
 
         /* Like strv_find_prefix, but actually returns only the
          * suffix, not the whole item */
 
         STRV_FOREACH(i, l) {
-                char *e;
+                حرف *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                אם (e)
+                        החזר e;
         }
 
-        return NULL;
+        החזר عدم;
 }
 
-static char* strv_find_closest_prefix(char * const *l, const char *name) {
+ساكن حرف* strv_find_closest_prefix(حرف * ثابت *l, ثابت حرف *name) {
         size_t best_distance = SIZE_MAX;
-        char *best = NULL;
+        حرف *best = عدم;
 
-        assert(name);
+        أكد(name);
 
         STRV_FOREACH(s, l) {
-                char *e = startswith(*s, name);
-                if (!e)
-                        continue;
+                حرف *e = startswith(*s, name);
+                אם (!e)
+                        استمر;
 
                 size_t n = strlen(e);
-                if (n < best_distance) {
+                אם (n < best_distance) {
                         best_distance = n;
                         best = *s;
                 }
         }
 
-        return best;
+        החזר best;
 }
 
-static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
+ساكن حرف* strv_find_closest_by_levenshtein(حرف * ثابت *l, ثابت حرف *name) {
         ssize_t best_distance = SSIZE_MAX;
-        char *best = NULL;
+        حرف *best = عدم;
 
-        assert(name);
+        أكد(name);
 
         STRV_FOREACH(i, l) {
                 ssize_t distance;
 
                 distance = strlevenshtein(*i, name);
-                if (distance < 0) {
+                אם (distance < 0) {
                         log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                        החזר عدم;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
-                        continue;
+                אם (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                        استمر;
 
-                if (distance < best_distance) {
+                אם (distance < best_distance) {
                         best_distance = distance;
                         best = *i;
                 }
         }
 
-        return best;
+        החזר best;
 }
 
-char* strv_find_closest(char * const *l, const char *name) {
-        assert(name);
+حرف* strv_find_closest(حرف * ثابت *l, ثابت حرف *name) {
+        أكد(name);
 
         /* Be more helpful to the user, and give a hint what the user might have wanted to type. We search
          * with two mechanisms: a simple prefix match and – if that didn't yield results –, a Levenshtein
          * word distance based match. */
 
-        char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        حرف *found = strv_find_closest_prefix(l, name);
+        אם (found)
+                החזר found;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        החזר strv_find_closest_by_levenshtein(l, name);
 }
 
-char* strv_find_first_field(char * const *needles, char * const *haystack) {
+حرف* strv_find_first_field(حرف * ثابت *needles, حرف * ثابت *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                حرف *value = strv_env_pairs_get((حرف **)haystack, *k);
+                אם (value)
+                        החזר value;
         }
 
-        return NULL;
+        החזר عدم;
 }
 
-char** strv_free(char **l) {
+حرف** strv_free(حرف **l) {
         STRV_FOREACH(k, l)
-                free(*k);
+                حرر(*k);
 
-        return mfree(l);
+        החזר mfree(l);
 }
 
-char** strv_free_erase(char **l) {
+حرف** strv_free_erase(حرف **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        החזר mfree(l);
 }
 
-void strv_free_many(char ***strvs, size_t n) {
-        assert(strvs || n == 0);
+فراغ strv_free_many(حرف ***strvs, size_t n) {
+        أكد(strvs || n == 0);
 
         FOREACH_ARRAY (i, strvs, n)
                 strv_free(*i);
 
-        free(strvs);
+        حرر(strvs);
 }
 
-char** strv_copy_n(char * const *l, size_t n) {
-        _cleanup_strv_free_ char **result = NULL;
-        char **k;
+حرف** strv_copy_n(حرف * ثابت *l, size_t n) {
+        _cleanup_strv_free_ حرف **result = عدم;
+        حرف **k;
 
-        result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        result = new(حرف*, MIN(strv_length(l), n) + 1);
+        אם (!result)
+                החזר عدم;
 
         k = result;
         STRV_FOREACH(i, l) {
-                if (n == 0)
-                        break;
+                אם (n == 0)
+                        اكسر;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                אם (!*k)
+                        החזר عدم;
                 k++;
 
-                if (n != SIZE_MAX)
+                אם (n != SIZE_MAX)
                         n--;
         }
 
-        *k = NULL;
-        return TAKE_PTR(result);
+        *k = عدم;
+        החזר TAKE_PTR(result);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
-        assert(ret);
+صحيح strv_copy_unless_empty(حرف * ثابت *l, حرف ***ret) {
+        أكد(ret);
 
-        if (strv_isempty(l)) {
-                *ret = NULL;
-                return 0;
+        אם (strv_isempty(l)) {
+                *ret = عدم;
+                החזר 0;
         }
 
-        char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        حرف **copy = strv_copy(l);
+        אם (!copy)
+                החזר -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        החזר 1;
 }
 
-size_t strv_length(char * const *l) {
+size_t strv_length(حرف * ثابت *l) {
         size_t n = 0;
 
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        החזר n;
 }
 
-char** strv_new_ap(const char *x, va_list ap) {
-        _cleanup_strv_free_ char **a = NULL;
+حرف** strv_new_ap(ثابت حرف *x, va_list ap) {
+        _cleanup_strv_free_ حرف **a = عدم;
         size_t n = 0, i = 0;
         va_list aq;
 
@@ -221,320 +221,320 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        עבור (ثابت حرف *s = x; s; s = va_arg(aq, ثابت حرف*)) {
+                אם (s == STRV_IGNORE)
+                        استمر;
 
                 n++;
         }
         va_end(aq);
 
-        a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        a = new(حرف*, n+1);
+        אם (!a)
+                החזר عدم;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        עבור (ثابت حرف *s = x; s; s = va_arg(ap, ثابت حرف*)) {
+                אם (s == STRV_IGNORE)
+                        استمر;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                אם (!a[i])
+                        החזר عدم;
 
                 i++;
         }
 
-        a[i] = NULL;
+        a[i] = عدم;
 
-        return TAKE_PTR(a);
+        החזר TAKE_PTR(a);
 }
 
-char** strv_new_internal(const char *x, ...) {
-        char **r;
+حرف** strv_new_internal(ثابت حرف *x, ...) {
+        حرف **r;
         va_list ap;
 
         va_start(ap, x);
         r = strv_new_ap(x, ap);
         va_end(ap);
 
-        return r;
+        החזר r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
+صحيح strv_extend_strv(حرف ***a, حرف * ثابت *b, bool filter_duplicates) {
         size_t p, q, i = 0;
 
-        assert(a);
+        أكد(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        אם (q == 0)
+                החזר 0;
 
         p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        אם (p >= SIZE_MAX - q)
+                החזר -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        حرف **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), حجم(حرف *));
+        אם (!t)
+                החזר -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = عدم;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
-                        continue;
+                אם (filter_duplicates && strv_contains(t, *s))
+                        استمر;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
-                        goto rollback;
+                אם (!t[p+i])
+                        اذهب rollback;
 
                 i++;
-                t[p+i] = NULL;
+                t[p+i] = عدم;
         }
 
-        assert(i <= q);
+        أكد(i <= q);
 
-        return (int) i;
+        החזר (صحيح) i;
 
 rollback:
         free_many_charp(t + p, i);
-        t[p] = NULL;
-        return -ENOMEM;
+        t[p] = عدم;
+        החזר -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
-        _cleanup_strv_free_ char **b_consume = b;
+صحيح strv_extend_strv_consume(حرف ***a, حرف **b, bool filter_duplicates) {
+        _cleanup_strv_free_ حرف **b_consume = b;
         size_t p, q, i;
 
-        assert(a);
+        أكد(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        אם (q == 0)
+                החזר 0;
 
         p = strv_length(*a);
-        if (p == 0) {
+        אם (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                אם (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                החזר strv_length(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        אם (p >= SIZE_MAX - q)
+                החזר -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        حرف **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), حجم(حرف *));
+        אם (!t)
+                החזר -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = عدم;
         *a = t;
 
-        if (!filter_duplicates) {
-                *mempcpy_typesafe(t + p, b, q) = NULL;
+        אם (!filter_duplicates) {
+                *mempcpy_typesafe(t + p, b, q) = عدم;
                 i = q;
-        } else {
+        } אחרת {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
-                                free(*s);
-                                continue;
+                        אם (strv_contains(t, *s)) {
+                                حرر(*s);
+                                استمر;
                         }
 
                         t[p+i] = *s;
 
                         i++;
-                        t[p+i] = NULL;
+                        t[p+i] = عدم;
                 }
         }
 
-        assert(i <= q);
+        أكد(i <= q);
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        החזר (صحيح) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+صحيح strv_extend_strv_biconcat(حرف ***a, ثابت حرف *prefix, ثابت حرف* ثابت *b, ثابت حرف *suffix) {
+        صحيح r;
 
-        assert(a);
+        أكد(a);
 
         STRV_FOREACH(s, b) {
-                char *v;
+                حرف *v;
 
                 v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                אם (!v)
+                        החזר -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
         }
 
-        return 0;
+        החזר 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+صحيح strv_split_newlines_full(حرف ***ret, ثابت حرف *s, ExtractFlags flags) {
+        _cleanup_strv_free_ حرف **l = عدم;
         size_t n;
-        int r;
+        صحيح r;
 
-        assert(ret);
-        assert(s);
+        أكد(ret);
+        أكد(s);
 
         /* Special version of strv_split_full() that splits on newlines and
          * suppresses an empty string at the end. */
 
         r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
         n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        אם (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        החזר n;
 }
 
-char** strv_split_newlines(const char *s) {
-        char **ret;
+حرف** strv_split_newlines(ثابت حرف *s) {
+        حرف **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        אם (strv_split_newlines_full(&ret, s, 0) < 0)
+                החזר عدم;
 
-        return ret;
+        החזר ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+صحيح strv_split_full(حرف ***t, ثابت حرف *s, ثابت حرف *separators, ExtractFlags flags) {
+        _cleanup_strv_free_ حرف **l = عدم;
         size_t n = 0;
-        int r;
+        صحيح r;
 
-        assert(t);
-        assert(s);
+        أكد(t);
+        أكد(s);
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
+        עבור (;;) {
+                _cleanup_free_ حرف *word = عدم;
 
                 r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                אם (r < 0)
+                        החזר r;
+                אם (r == 0)
+                        اكسر;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                אם (!GREEDY_REALLOC(l, n + 2))
+                        החזר -ENOMEM;
 
                 l[n++] = TAKE_PTR(word);
-                l[n] = NULL;
+                l[n] = عدم;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        אם (!l) {
+                l = new0(حرف*, 1);
+                אם (!l)
+                        החזר -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        החזר (صحيح) n;
 }
 
-char** strv_split(const char *s, const char *separators) {
-        char **ret;
+حرف** strv_split(ثابت حرف *s, ثابت حرف *separators) {
+        حرف **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        אם (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
+                החזר عدم;
 
-        return ret;
+        החזר ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
-        char **l;
-        int r;
+صحيح strv_split_and_extend_full(حرف ***t, ثابت حرف *s, ثابت حرف *separators, bool filter_duplicates, ExtractFlags flags) {
+        حرف **l;
+        صحيح r;
 
-        assert(t);
-        assert(s);
+        أكد(t);
+        أكد(s);
 
         r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
-        return (int) strv_length(*t);
+        החזר (صحيح) strv_length(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+صحيح strv_split_and_extend(حرف ***t, ثابت حرف *s, ثابت حرف *separators, bool filter_duplicates) {
+        החזר strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+صحيح strv_split_colon_pairs(حرف ***t, ثابت حرف *s) {
+        _cleanup_strv_free_ حرف **l = عدم;
         size_t n = 0;
-        int r;
+        صحيح r;
 
-        assert(t);
-        assert(s);
+        أكد(t);
+        أكد(s);
 
-        for (;;) {
-                _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
+        עבור (;;) {
+                _cleanup_free_ حرف *first = عدم, *second = عدم, *tuple = عدم, *second_or_empty = عدم;
 
-                r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&s, &tuple, عدم, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
+                אם (r < 0)
+                        החזר r;
+                אם (r == 0)
+                        اكسر;
 
-                const char *p = tuple;
+                ثابت حرف *p = tuple;
                 r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        continue;
+                אם (r < 0)
+                        החזר r;
+                אם (r == 0)
+                        استمر;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                אם (!isempty(p))
+                        החזר -EINVAL;
 
                 second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                אם (!second_or_empty)
+                        החזר -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                אם (!GREEDY_REALLOC(l, n + 3))
+                        החזר -ENOMEM;
 
                 l[n++] = TAKE_PTR(first);
                 l[n++] = TAKE_PTR(second_or_empty);
 
-                l[n] = NULL;
+                l[n] = عدم;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        אם (!l) {
+                l = new0(حرف*, 1);
+                אם (!l)
+                        החזר -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        החזר (صحيح) n;
 }
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
-        char *r, *e;
+حرف* strv_join_full(حرف * ثابت *l, ثابت حرف *separator, ثابت حرف *prefix) {
+        حرف *r, *e;
         size_t n, k, m;
 
-        if (!separator)
+        אם (!separator)
                 separator = " ";
 
         k = strlen(separator);
@@ -542,22 +542,22 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                אם (s != l)
                         n += k;
 
                 n += m + strlen(*s);
         }
 
-        r = new(char, n+1);
-        if (!r)
-                return NULL;
+        r = new(حرف, n+1);
+        אם (!r)
+                החזר عدم;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                אם (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
+                אם (prefix)
                         e = stpcpy(e, prefix);
 
                 e = stpcpy(e, *s);
@@ -565,683 +565,683 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         *e = 0;
 
-        return r;
+        החזר r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+صحيح strv_push_with_size(حرف ***l, size_t *n, حرف *value) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
          * If value is empty, no action is taken and *n is not set. */
 
-        assert(l);
+        أكد(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        אם (!value)
+                החזר 0;
 
         size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
+        אם (size == SIZE_MAX)
                 size = strv_length(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        אם (size > SIZE_MAX-2)
+                החזר -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        حرف **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), حجم(حرف*));
+        אם (!c)
+                החזר -ENOMEM;
 
         c[size] = value;
-        c[size+1] = NULL;
+        c[size+1] = عدم;
 
         *l = c;
-        if (n)
+        אם (n)
                 *n = size + 1;
-        return 0;
+        החזר 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
-        char **c;
+صحيح strv_push_pair(حرف ***l, حرف *a, حرف *b) {
+        حرف **c;
         size_t n;
 
-        assert(l);
+        أكد(l);
 
-        if (!a && !b)
-                return 0;
+        אם (!a && !b)
+                החזר 0;
 
         n = strv_length(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        אם (n > SIZE_MAX-3)
+                החזר -ENOMEM;
 
         /* increase and check for overflow */
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), حجم(حرف*));
+        אם (!c)
+                החזר -ENOMEM;
 
-        if (a)
+        אם (a)
                 c[n++] = a;
-        if (b)
+        אם (b)
                 c[n++] = b;
-        c[n] = NULL;
+        c[n] = عدم;
 
         *l = c;
-        return 0;
+        החזר 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
-        char **c;
+صحيح strv_insert(حرف ***l, size_t position, حرف *value) {
+        حرف **c;
         size_t n, m;
 
-        assert(l);
+        أكد(l);
 
-        if (!value)
-                return 0;
+        אם (!value)
+                החזר 0;
 
         n = strv_length(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        אם (n > SIZE_MAX - 2)
+                החזר -ENOMEM;
         m = n + 2;
 
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), حجم(حرف*));
+        אם (!c)
+                החזר -ENOMEM;
 
-        if (n > position)
-                memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
+        אם (n > position)
+                memmove(c + position + 1, c + position, (n - position) * حجم(حرف*));
 
         c[position] = value;
-        c[n + 1] = NULL;
+        c[n + 1] = عدم;
 
         *l = c;
-        return 0;
+        החזר 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+صحيح strv_consume_with_size(حرف ***l, size_t *n, حرف *value) {
+        صحيح r;
 
         r = strv_push_with_size(l, n, value);
-        if (r < 0)
-                free(value);
+        אם (r < 0)
+                حرر(value);
 
-        return r;
+        החזר r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+صحيح strv_consume_pair(حرف ***l, حرف *a, حرف *b) {
+        صحيح r;
 
         r = strv_push_pair(l, a, b);
-        if (r < 0) {
-                free(a);
-                free(b);
+        אם (r < 0) {
+                حرر(a);
+                حرر(b);
         }
 
-        return r;
+        החזר r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+صحيح strv_consume_prepend(حرف ***l, حرف *value) {
+        صحيح r;
 
         r = strv_push_prepend(l, value);
-        if (r < 0)
-                free(value);
+        אם (r < 0)
+                حرر(value);
 
-        return r;
+        החזר r;
 }
 
-int strv_prepend(char ***l, const char *value) {
-        char *v;
+صحيح strv_prepend(حرف ***l, ثابت حرف *value) {
+        حرف *v;
 
-        if (!value)
-                return 0;
+        אם (!value)
+                החזר 0;
 
         v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        אם (!v)
+                החזר -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        החזר strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
-        char *v;
+صحيح strv_extend_with_size(حرف ***l, size_t *n, ثابت حرف *value) {
+        حرف *v;
 
-        if (!value)
-                return 0;
+        אם (!value)
+                החזר 0;
 
         v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        אם (!v)
+                החזר -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        החזר strv_consume_with_size(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+صحيح strv_extend_many_internal(حرف ***l, ثابت حرف *value, ...) {
         va_list ap;
         size_t n, m;
-        int r;
+        صحيح r;
 
-        assert(l);
+        أكد(l);
 
         m = n = strv_length(*l);
 
         r = 0;
         va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        עבור (ثابت حرف *s = value; s != POINTER_MAX; s = va_arg(ap, ثابت حرف*)) {
+                אם (!s)
+                        استمر;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                אם (m > SIZE_MAX-1) { /* overflow */
                         r = -ENOMEM;
-                        break;
+                        اكسر;
                 }
                 m++;
         }
         va_end(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        אם (r < 0)
+                החזר r;
+        אם (m > SIZE_MAX-1)
+                החזר -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        حرف **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), حجم(حرف*));
+        אם (!c)
+                החזר -ENOMEM;
         *l = c;
 
         r = 0;
         size_t i = n;
         va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        עבור (ثابت حرف *s = value; s != POINTER_MAX; s = va_arg(ap, ثابت حرف*)) {
+                אם (!s)
+                        استمر;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                אם (!c[i]) {
                         r = -ENOMEM;
-                        break;
+                        اكسر;
                 }
                 i++;
         }
         va_end(ap);
 
-        if (r < 0) {
+        אם (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                עבור (size_t j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                החזר r;
         }
 
-        c[i] = NULL;
-        return 0;
+        c[i] = عدم;
+        החזר 0;
 }
 
-char** strv_uniq(char **l) {
+حرف** strv_uniq(حرف **l) {
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        החזר l;
 }
 
-bool strv_is_uniq(char * const *l) {
+bool strv_is_uniq(حرف * ثابت *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                אם (strv_contains(i+1, *i))
+                        החזר false;
 
-        return true;
+        החזר true;
 }
 
-char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+حرف** strv_remove(حرف **l, ثابت حرف *s) {
+        אם (!l)
+                החזר عدم;
 
-        assert(s);
+        أكد(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
-                        free(*f);
-                else
+        حرف **f, **t;
+        עבור (f = t = l; *f; f++)
+                אם (streq(*f, s))
+                        حرر(*f);
+                אחרת
                         *(t++) = *f;
 
-        *t = NULL;
-        return l;
+        *t = عدم;
+        החזר l;
 }
 
-char** strv_remove_strv(char **l, char *const*ll) {
+حرف** strv_remove_strv(حرف **l, حرف *ثابت*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        אם (strv_isempty(l))
+                החזר l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        החזר l;
 }
 
-bool strv_overlap(char * const *a, char * const *b) {
+bool strv_overlap(حرف * ثابت *a, حرف * ثابت *b) {
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                אם (strv_contains(b, *i))
+                        החזר true;
 
-        return false;
+        החזר false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+ساكن صحيح str_compare(حرف * ثابت *a, حرف * ثابت *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        החזר strcmp(*a, *b);
 }
 
-char** strv_sort(char **l) {
+حرف** strv_sort(حرف **l) {
         typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+        החזר l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
-        assert(compare);
+حرف** strv_sort_uniq_full(حرف **l, صحيح (*compare)(حرف * ثابت *a, حرف * ثابت *b)) {
+        أكد(compare);
 
-        if (strv_isempty(l))
-                return l;
+        אם (strv_isempty(l))
+                החזר l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
 
         typesafe_qsort(l, strv_length(l), compare);
 
-        char **tail = l + 1;
+        حرف **tail = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
-                        free(*i);
-                else
+                אם (compare(i, tail - 1) == 0)
+                        حرر(*i);
+                אחרת
                         *(tail++) = *i;
 
-        *tail = NULL;
-        return l;
+        *tail = عدم;
+        החזר l;
 }
 
-char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+حرف** strv_sort_uniq(حرف **l) {
+        החזר strv_sort_uniq_full(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+صحيح strv_compare(حرف * ثابت *a, حرف * ثابت *b) {
+        صحيح r;
 
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        אם (strv_isempty(a)) {
+                אם (strv_isempty(b))
+                        החזר 0;
+                אחרת
+                        החזר -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        אם (strv_isempty(b))
+                החזר 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        עבור ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                אם (r != 0)
+                        החזר r;
         }
 
-        return 0;
+        החזר 0;
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) {
+bool strv_equal_ignore_order(حرف * ثابت *a, حرف * ثابت *b) {
 
         /* Just like strv_equal(), but doesn't care about the order of elements or about redundant entries
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        אם (a == b)
+                החזר true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                אם (!strv_contains(b, *i))
+                        החזר false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                אם (!strv_contains(a, *i))
+                        החזר false;
 
-        return true;
+        החזר true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+فراغ strv_print_full(حرف * ثابت *l, ثابت حرف *prefix) {
         STRV_FOREACH(s, l)
                 printf("%s%s\n", strempty(prefix), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
+صحيح strv_extendf_with_size(حرف ***l, size_t *n, ثابت حرف *format, ...) {
         va_list ap;
-        char *x;
-        int r;
+        حرف *x;
+        صحيح r;
 
         va_start(ap, format);
         r = vasprintf(&x, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        אם (r < 0)
+                החזר -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        החזר strv_consume_with_size(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
+صحيح strv_extend_joined_with_size_sentinel(حرف ***l, size_t *n, ...) {
         va_list ap;
 
         va_start(ap, n);
-        char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
+        حرف *x = strextendv_with_separator(/* x= */ عدم, /* separator= */ عدم, ap);
         va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        אם (!x)
+                החזר -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        החזר strv_consume_with_size(l, n, x);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l) {
+حرف* startswith_strv_internal(ثابت حرف *s, حرف * ثابت *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                حرف *found = (حرف*) startswith(s, *i);
+                אם (found)
+                        החזר found;
         }
 
-        return NULL;
+        החזר عدم;
 }
 
-char* endswith_strv_internal(const char *s, char * const *l) {
+حرف* endswith_strv_internal(ثابت حرف *s, حرف * ثابت *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                حرف *found = (حرف*) endswith(s, *i);
+                אם (found)
+                        החזר found;
         }
 
-        return NULL;
+        החזר عدم;
 }
 
-char** strv_reverse(char **l) {
+حرف** strv_reverse(حرف **l) {
         size_t n;
 
         n = strv_length(l);
-        if (n <= 1)
-                return l;
+        אם (n <= 1)
+                החזר l;
 
-        for (size_t i = 0; i < n / 2; i++)
+        עבור (size_t i = 0; i < n / 2; i++)
                 SWAP_TWO(l[i], l[n-1-i]);
 
-        return l;
+        החזר l;
 }
 
-char** strv_shell_escape(char **l, const char *bad) {
+حرف** strv_shell_escape(حرف **l, ثابت حرف *bad) {
         /* Escapes every character in every string in l that is in bad,
          * edits in-place, does not roll-back on error. */
 
         STRV_FOREACH(s, l) {
-                char *v;
+                حرف *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                אם (!v)
+                        החזר عدم;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        החזר l;
 }
 
 bool strv_fnmatch_full(
-                char* const* patterns,
-                const char *s,
-                int flags,
+                حرف* ثابت* patterns,
+                ثابت حرف *s,
+                صحيح flags,
                 size_t *ret_matched_pos) {
 
-        assert(s);
+        أكد(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        אם (patterns)
+                עבור (size_t i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        אם (fnmatch(patterns[i], s, flags) == 0) {
+                                אם (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                החזר true;
                         }
 
-        if (ret_matched_pos)
+        אם (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        החזר false;
 }
 
-char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+حرف** strv_skip(حرف **l, size_t n) {
+        כלעוד (n > 0) {
+                אם (strv_isempty(l))
+                        החזר عدم;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        אם (strv_isempty(l))
+                החזר عدم;
+        החזר l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+صحيح strv_extend_n(حرف ***l, ثابت حرف *value, size_t n) {
         size_t i, k;
-        char **nl;
+        حرف **nl;
 
-        assert(l);
+        أكد(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        אם (!value)
+                החזר 0;
+        אם (n == 0)
+                החזר 0;
 
         /* Adds the value n times to l */
 
         k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        אם (n >= SIZE_MAX - k)
+                החזר -ENOMEM;
 
-        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), حجم(حرف *));
+        אם (!nl)
+                החזר -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
+        עבור (i = k; i < k + n; i++) {
                 nl[i] = strdup(value);
-                if (!nl[i])
-                        goto rollback;
+                אם (!nl[i])
+                        اذهب rollback;
         }
-        nl[i] = NULL;
+        nl[i] = عدم;
 
-        return 0;
+        החזר 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
-                free(nl[j]);
-        nl[k] = NULL;
+        עבור (size_t j = k; j < i; j++)
+                حرر(nl[j]);
+        nl[k] = عدم;
 
-        return -ENOMEM;
+        החזר -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
-        char *j;
+صحيح strv_extend_assignment(حرف ***l, ثابت حرف *lhs, ثابت حرف *rhs) {
+        حرف *j;
 
-        assert(l);
-        assert(lhs);
+        أكد(l);
+        أكد(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        אם (!rhs) /* value is optional, in which case we suppress the field */
+                החזר 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        אם (!j)
+                החזר -ENOMEM;
 
-        return strv_consume(l, j);
+        החזר strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+صحيح fputstrv(FILE *f, حرف * ثابت *l, ثابت حرف *separator, bool *space) {
         bool b = false;
-        int r;
+        صحيح r;
 
-        assert(f);
+        أكد(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        אם (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
         }
 
-        return 0;
+        החזר 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+فراغ string_strv_hashmap_remove(Hashmap *h, ثابت حرف *key, ثابت حرف *value) {
+        أكد(key);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+        אם (value) {
+                حرف **l = hashmap_get(h, key);
+                אם (!l)
+                        החזר;
 
                 strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                אם (!strv_isempty(l))
+                        החזר;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        _unused_ _cleanup_free_ حرف *key_free = عدم;
+        strv_free(hashmap_remove2(h, key, (فراغ**) &key_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
+فراغ string_strv_ordered_hashmap_remove(OrderedHashmap *h, ثابت حرف *key, ثابت حرف *value) {
         string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
-        char **l;
-        int r;
+ساكن صحيح string_strv_hashmap_put_internal(Hashmap *h, ثابت حرف *key, ثابت حرف *value) {
+        حرف **l;
+        صحيح r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        أكد(h);
+        أكد(key);
+        أكد(value);
 
         l = hashmap_get(h, key);
-        if (l) {
+        אם (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                אם (strv_contains(l, value))
+                        החזר 0;
 
                 r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+        } אחרת {
                 /* No list for this key exists yet, create one */
-                _cleanup_strv_free_ char **l2 = NULL;
-                _cleanup_free_ char *t = NULL;
+                _cleanup_strv_free_ حرف **l2 = عدم;
+                _cleanup_free_ حرف *t = عدم;
 
                 t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                אם (!t)
+                        החזר -ENOMEM;
 
                 r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        החזר 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+صحيح string_strv_hashmap_put(Hashmap **h, ثابت حرف *key, ثابت حرف *value) {
+        صحيح r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        أكد(h);
+        أكد(key);
+        أكد(value);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        החזר string_strv_hashmap_put_internal(*h, key, value);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+صحيح string_strv_ordered_hashmap_put(OrderedHashmap **h, ثابت حرف *key, ثابت حرف *value) {
+        صحيح r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        أكد(h);
+        أكد(key);
+        أكد(value);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        החזר string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
 }
 
-static int rebreak_flush_line(
-                char ***broken,
-                const char *start,
-                const char *end,
+ساكن صحيح rebreak_flush_line(
+                حرف ***broken,
+                ثابت حرف *start,
+                ثابت حرف *end,
                 bool in_prefix,
-                const char *whitespace_begin,
-                const char *whitespace_end) {
+                ثابت حرف *whitespace_begin,
+                ثابت حرف *whitespace_end) {
 
-        assert(broken);
-        assert(start);
-        assert(end >= start);
+        أكد(broken);
+        أكد(start);
+        أكد(end >= start);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        אם (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
+                החזר strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
+        אם (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
                 end = whitespace_begin;
 
-        _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        _cleanup_free_ حرف *truncated = strndup(start, end - start);
+        אם (!truncated)
+                החזר -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        החזר strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
-        _cleanup_strv_free_ char **broken = NULL;
-        int r;
+صحيح strv_rebreak_lines(حرف **l, size_t width, حرف ***ret) {
+        _cleanup_strv_free_ حرف **broken = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* Implements a simple UTF-8 line breaking algorithm
          *
@@ -1250,44 +1250,44 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        אם (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                אם (!broken)
+                        החזר -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                החזר 0;
         }
 
         STRV_FOREACH(i, l) {
-                const char *start = *i, *whitespace_begin = NULL, *whitespace_end = NULL;
+                ثابت حرف *start = *i, *whitespace_begin = عدم, *whitespace_end = عدم;
                 bool in_prefix = true; /* still in the whitespace in the beginning of the line? */
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
                 size_t w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                עבור (ثابت حرف *p = start; *p != 0; ) {
+                        אם (strchr(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
                                 r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                אם (r < 0)
+                                        החזר r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
                                 start = p;
                                 in_prefix = true;
                                 after_newline = true;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = عدم;
                                 w = 0;
-                                continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                                استمر;
+                        } אחרת אם (strchr(WHITESPACE, *p)) {
+                                אם (!in_prefix && (!whitespace_begin || whitespace_end)) {
                                         whitespace_begin = p;
-                                        whitespace_end = NULL;
+                                        whitespace_end = عدم;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
+                        } אחרת {
+                                אם (whitespace_begin && !whitespace_end)
                                         whitespace_end = p;
 
                                 in_prefix = false;
@@ -1298,31 +1298,31 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        صحيح cw = utf8_char_console_width(p);
+                        אם (cw < 0)
+                                החזר log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
-                                _cleanup_free_ char *truncated = NULL;
+                        אם (w > width && whitespace_begin && whitespace_end) {
+                                _cleanup_free_ حرف *truncated = عدم;
 
                                 truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                אם (!truncated)
+                                        החזר -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                אם (r < 0)
+                                        החזר r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
                                  * the new line yet, hence reset the width and reprocess it. */
                                 p = start = whitespace_end;
                                 after_newline = false;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = عدم;
                                 w = 0;
-                                continue;
+                                استمر;
                         }
 
                         p = utf8_next_char(p);
@@ -1331,38 +1331,38 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                 /* Process rest of the line, except if all that's left after the last newline we already
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
-                assert(start);
-                if (after_newline && in_prefix)
-                        continue;
+                أكد(start);
+                אם (after_newline && in_prefix)
+                        استمر;
 
                 r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        החזר 0;
 }
 
-char** strv_filter_prefix(char * const *l, const char *prefix) {
+حرف** strv_filter_prefix(حرف * ثابت *l, ثابت حرف *prefix) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        אם (isempty(prefix))
+                החזר strv_copy(l);
 
-        _cleanup_strv_free_ char **f = NULL;
+        _cleanup_strv_free_ حرف **f = عدم;
         size_t sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
-                        continue;
+                אם (!startswith(*i, prefix))
+                        استمر;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                אם (strv_extend_with_size(&f, &sz, *i) < 0)
+                        החזר عدم;
         }
 
-        return TAKE_PTR(f);
+        החזר TAKE_PTR(f);
 }
 
-const char* const strv_empty[] = { NULL };
+ثابت حرف* ثابت strv_empty[] = { عدم };

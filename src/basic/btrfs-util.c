@@ -1,94 +1,94 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/btrfs.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
+#ضمن <linux/btrfs.h>
+#ضمن <sys/ioctl.h>
+#ضمن <sys/stat.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "path-util.h"
-#include "string-util.h"
+#ضمن "alloc-util.h"
+#ضمن "btrfs-util.h"
+#ضمن "errno-util.h"
+#ضمن "fd-util.h"
+#ضمن "fs-util.h"
+#ضمن "path-util.h"
+#ضمن "string-util.h"
 
-int btrfs_validate_subvolume_name(const char *name) {
+صحيح btrfs_validate_subvolume_name(ثابت حرف *name) {
 
-        if (!filename_is_valid(name))
-                return -EINVAL;
+        אם (!filename_is_valid(name))
+                החזר -EINVAL;
 
-        if (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
-                return -E2BIG;
+        אם (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
+                החזר -E2BIG;
 
-        return 0;
+        החזר 0;
 }
 
-static int extract_subvolume_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+ساكن صحيح extract_subvolume_name(ثابت حرف *path, حرف **ret) {
+        _cleanup_free_ حرف *fn = عدم;
+        صحيح r;
 
-        assert(path);
-        assert(ret);
+        أكد(path);
+        أكد(ret);
 
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
         r = btrfs_validate_subvolume_name(fn);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        החזר 0;
 }
 
-int btrfs_subvol_make(int dir_fd, const char *path) {
-        struct btrfs_ioctl_vol_args args = {};
-        _cleanup_free_ char *subvolume = NULL, *parent = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+صحيح btrfs_subvol_make(صحيح dir_fd, ثابت حرف *path) {
+        بنية btrfs_ioctl_vol_args args = {};
+        _cleanup_free_ حرف *subvolume = عدم, *parent = عدم;
+        _cleanup_close_ صحيح fd = -EBADF;
+        صحيح r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(!isempty(path));
+        أكد(wildcard_fd_is_valid(dir_fd));
+        أكد(!isempty(path));
 
         r = extract_subvolume_name(path, &subvolume);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
         r = path_extract_directory(path, &parent);
-        if (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
-                return r;
+        אם (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
+                החזר r;
 
         fd = xopenat(dir_fd, parent ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        אם (fd < 0)
+                החזר fd;
 
-        strncpy(args.name, subvolume, sizeof(args.name)-1);
+        strncpy(args.name, subvolume, حجم(args.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        החזר RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
 }
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode) {
+صحيح btrfs_subvol_make_fallback(صحيح dir_fd, ثابت حرف *path, mode_t mode) {
         mode_t old, combined;
-        int r;
+        صحيح r;
 
-        assert(path);
+        أكد(path);
 
         /* Let's work like mkdir(), i.e. take the specified mode, and mask it with the current umask. */
         old = umask(~mode);
         combined = old | ~mode;
-        if (combined != ~mode)
+        אם (combined != ~mode)
                 umask(combined);
         r = btrfs_subvol_make(dir_fd, path);
         umask(old);
 
-        if (r >= 0)
-                return 1; /* subvol worked */
-        if (!ERRNO_IS_NOT_SUPPORTED(r))
-                return r;
+        אם (r >= 0)
+                החזר 1; /* subvol worked */
+        אם (!ERRNO_IS_NOT_SUPPORTED(r))
+                החזר r;
 
-        if (mkdirat(dir_fd, path, mode) < 0)
-                return -errno;
+        אם (mkdirat(dir_fd, path, mode) < 0)
+                החזר -errno;
 
-        return 0; /* plain directory */
+        החזר 0; /* plain directory */
 }

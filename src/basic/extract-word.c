@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "utf8.h"
+#ضمن "alloc-util.h"
+#ضمن "escape.h"
+#ضمن "extract-word.h"
+#ضمن "log.h"
+#ضمن "string-util.h"
+#ضمن "utf8.h"
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
-        _cleanup_free_ char *s = NULL;
+صحيح extract_first_word(ثابت حرف **p, حرف **ret, ثابت حرف *separators, ExtractFlags flags) {
+        _cleanup_free_ حرف *s = عدم;
         size_t sz = 0;
-        char quote = 0;                 /* 0 or ' or " */
+        حرف quote = 0;                 /* 0 or ' or " */
         bool backslash = false;         /* whether we've just seen a backslash */
-        char c;
-        int r;
+        حرف c;
+        صحيح r;
 
-        assert(p);
-        assert(ret);
-        assert(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
+        أكد(p);
+        أكد(ret);
+        أكد(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
 
         /* Bail early if called after last value or with no input */
-        if (!*p)
-                goto finish;
+        אם (!*p)
+                اذهب finish;
         c = **p;
 
-        if (!separators)
+        אם (!separators)
                 separators = WHITESPACE;
 
         /* Parses the first word of a string, and returns it in
@@ -32,36 +32,36 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
          * (because of an uneven number of quotes or similar), leaves
          * the pointer *p at the first invalid character. */
 
-        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
-                if (!GREEDY_REALLOC(s, sz+1))
-                        return -ENOMEM;
+        אם (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
+                אם (!GREEDY_REALLOC(s, sz+1))
+                        החזר -ENOMEM;
 
-        for (;; (*p)++, c = **p) {
-                if (c == 0)
-                        goto finish_force_terminate;
-                else if (strchr(separators, c)) {
-                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+        עבור (;; (*p)++, c = **p) {
+                אם (c == 0)
+                        اذهب finish_force_terminate;
+                אחרת אם (strchr(separators, c)) {
+                        אם (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                אם (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                         (*p)++;
-                                goto finish_force_next;
+                                اذهب finish_force_next;
                         }
-                } else {
+                } אחרת {
                         /* We found a non-blank character, so we will always
                          * want to return a string (even if it is empty),
                          * allocate it here. */
-                        if (!GREEDY_REALLOC(s, sz+1))
-                                return -ENOMEM;
-                        break;
+                        אם (!GREEDY_REALLOC(s, sz+1))
+                                החזר -ENOMEM;
+                        اكسر;
                 }
         }
 
-        for (;; (*p)++, c = **p) {
-                if (backslash) {
-                        if (!GREEDY_REALLOC(s, sz+7))
-                                return -ENOMEM;
+        עבור (;; (*p)++, c = **p) {
+                אם (backslash) {
+                        אם (!GREEDY_REALLOC(s, sz+7))
+                                החזר -ENOMEM;
 
-                        if (c == 0) {
-                                if ((flags & EXTRACT_UNESCAPE_RELAX) &&
+                        אם (c == 0) {
+                                אם ((flags & EXTRACT_UNESCAPE_RELAX) &&
                                     (quote == 0 || flags & EXTRACT_RELAX)) {
                                         /* If we find an unquoted trailing backslash and we're in
                                          * EXTRACT_UNESCAPE_RELAX mode, keep it verbatim in the
@@ -71,211 +71,211 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
                                          * mode, EXTRACT_UNESCAPE_RELAX mode does not allow them.
                                          */
                                         s[sz++] = '\\';
-                                        goto finish_force_terminate;
+                                        اذهب finish_force_terminate;
                                 }
-                                if (flags & EXTRACT_RELAX)
-                                        goto finish_force_terminate;
-                                return -EINVAL;
+                                אם (flags & EXTRACT_RELAX)
+                                        اذهب finish_force_terminate;
+                                החזר -EINVAL;
                         }
 
-                        if (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
+                        אם (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
                                 bool eight_bit = false;
                                 char32_t u;
 
-                                if ((flags & EXTRACT_CUNESCAPE) &&
+                                אם ((flags & EXTRACT_CUNESCAPE) &&
                                     (r = cunescape_one(*p, SIZE_MAX, &u, &eight_bit, false)) >= 0) {
                                         /* A valid escaped sequence */
-                                        assert(r >= 1);
+                                        أكد(r >= 1);
 
                                         (*p) += r - 1;
 
-                                        if (eight_bit)
+                                        אם (eight_bit)
                                                 s[sz++] = u;
-                                        else
+                                        אחרת
                                                 sz += utf8_encode_unichar(s + sz, u);
-                                } else if ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
+                                } אחרת אם ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
                                            (strchr(separators, **p) || **p == '\\'))
                                         /* An escaped separator char or the escape char itself */
                                         s[sz++] = c;
-                                else if (flags & EXTRACT_UNESCAPE_RELAX) {
+                                אחרת אם (flags & EXTRACT_UNESCAPE_RELAX) {
                                         s[sz++] = '\\';
                                         s[sz++] = c;
-                                } else
-                                        return -EINVAL;
-                        } else
+                                } אחרת
+                                        החזר -EINVAL;
+                        } אחרת
                                 s[sz++] = c;
 
                         backslash = false;
 
-                } else if (quote != 0) {     /* inside either single or double quotes */
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0) {
-                                        if (flags & EXTRACT_RELAX)
-                                                goto finish_force_terminate;
-                                        return -EINVAL;
-                                } else if (c == quote) {        /* found the end quote */
+                } אחרת אם (quote != 0) {     /* inside either single or double quotes */
+                        עבור (;; (*p)++, c = **p) {
+                                אם (c == 0) {
+                                        אם (flags & EXTRACT_RELAX)
+                                                اذهب finish_force_terminate;
+                                        החזר -EINVAL;
+                                } אחרת אם (c == quote) {        /* found the end quote */
                                         quote = 0;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        אם (flags & EXTRACT_UNQUOTE)
+                                                اكسر;
+                                } אחרת אם (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
+                                        اكسر;
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                אם (!GREEDY_REALLOC(s, sz+2))
+                                        החזר -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote == 0)
-                                        break;
+                                אם (quote == 0)
+                                        اكسر;
                         }
 
-                } else {
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0)
-                                        goto finish_force_terminate;
-                                else if (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
+                } אחרת {
+                        עבור (;; (*p)++, c = **p) {
+                                אם (c == 0)
+                                        اذهب finish_force_terminate;
+                                אחרת אם (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
                                         quote = c;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        אם (flags & EXTRACT_UNQUOTE)
+                                                اكسر;
+                                } אחרת אם (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
-                                } else if (strchr(separators, c)) {
-                                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        اكسر;
+                                } אחרת אם (strchr(separators, c)) {
+                                        אם (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                                אם (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                         (*p)++;
-                                                goto finish_force_next;
+                                                اذهب finish_force_next;
                                         }
-                                        if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        אם (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                 /* Skip additional coalesced separators. */
-                                                for (;; (*p)++, c = **p) {
-                                                        if (c == 0)
-                                                                goto finish_force_terminate;
-                                                        if (!strchr(separators, c))
-                                                                break;
+                                                עבור (;; (*p)++, c = **p) {
+                                                        אם (c == 0)
+                                                                اذهب finish_force_terminate;
+                                                        אם (!strchr(separators, c))
+                                                                اكسر;
                                                 }
-                                        goto finish;
+                                        اذهب finish;
 
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                אם (!GREEDY_REALLOC(s, sz+2))
+                                        החזר -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote != 0)
-                                        break;
+                                אם (quote != 0)
+                                        اكسر;
                         }
                 }
         }
 
 finish_force_terminate:
-        *p = NULL;
+        *p = عدم;
 finish:
-        if (!s) {
-                *p = NULL;
-                *ret = NULL;
-                return 0;
+        אם (!s) {
+                *p = عدم;
+                *ret = عدم;
+                החזר 0;
         }
 
 finish_force_next:
         s[sz] = 0;
         *ret = TAKE_PTR(s);
 
-        return 1;
+        החזר 1;
 }
 
-int extract_first_word_and_warn(
-                const char **p,
-                char **ret,
-                const char *separators,
+صحيح extract_first_word_and_warn(
+                ثابت حرف **p,
+                حرف **ret,
+                ثابت حرف *separators,
                 ExtractFlags flags,
-                const char *unit,
-                const char *filename,
+                ثابت حرف *unit,
+                ثابت حرف *filename,
                 unsigned line,
-                const char *rvalue) {
+                ثابت حرف *rvalue) {
 
         /* Try to unquote it, if it fails, warn about it and try again
          * but this time using EXTRACT_UNESCAPE_RELAX to keep the
          * backslashes verbatim in invalid escape sequences. */
 
-        const char *save;
-        int r;
+        ثابت حرف *save;
+        صحيح r;
 
-        assert(p);
-        assert(ret);
+        أكد(p);
+        أكد(ret);
 
         save = *p;
         r = extract_first_word(p, ret, separators, flags);
-        if (r >= 0)
-                return r;
+        אם (r >= 0)
+                החזר r;
 
-        if (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
+        אם (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
 
                 /* Retry it with EXTRACT_UNESCAPE_RELAX. */
                 *p = save;
                 r = extract_first_word(p, ret, separators, flags|EXTRACT_UNESCAPE_RELAX);
-                if (r >= 0) {
+                אם (r >= 0) {
                         /* It worked this time, hence it must have been an invalid escape sequence. */
                         log_syntax(unit, LOG_WARNING, filename, line, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
-                        return r;
+                        החזר r;
                 }
 
                 /* If it's still EINVAL; then it must be unbalanced quoting, report this. */
-                if (r == -EINVAL)
-                        return log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
+                אם (r == -EINVAL)
+                        החזר log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
         }
 
         /* Can be any error, report it */
-        return log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
+        החזר log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
 }
 
 /* We pass ExtractFlags as unsigned int (to avoid undefined behaviour when passing
  * an object that undergoes default argument promotion as an argument to va_start).
  * Let's make sure that ExtractFlags fits into an unsigned int. */
-assert_cc(sizeof(enum ExtractFlags) <= sizeof(unsigned));
+assert_cc(حجم(تعداد ExtractFlags) <= حجم(unsigned));
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
+صحيح extract_many_words_internal(ثابت حرف **p, ثابت حرف *separators, unsigned flags, ...) {
         va_list ap;
         unsigned n = 0;
-        int r;
+        صحيح r;
 
         /* Parses a number of words from a string, stripping any quotes if necessary. */
 
-        assert(p);
+        أكد(p);
 
         /* Count how many words are expected */
         va_start(ap, flags);
-        while (va_arg(ap, char**))
+        כלעוד (va_arg(ap, حرف**))
                 n++;
         va_end(ap);
 
-        if (n == 0)
-                return 0;
+        אם (n == 0)
+                החזר 0;
 
         /* Read all words into a temporary array */
-        char **l = newa0(char*, n);
+        حرف **l = newa0(حرف*, n);
         unsigned c;
 
-        for (c = 0; c < n; c++) {
+        עבור (c = 0; c < n; c++) {
                 r = extract_first_word(p, &l[c], separators, flags);
-                if (r < 0) {
+                אם (r < 0) {
                         free_many_charp(l, c);
-                        return r;
+                        החזר r;
                 }
-                if (r == 0)
-                        break;
+                אם (r == 0)
+                        اكسر;
         }
 
         /* If we managed to parse all words, return them in the passed in parameters */
         va_start(ap, flags);
         FOREACH_ARRAY(i, l, n) {
-                char **v = ASSERT_PTR(va_arg(ap, char**));
+                حرف **v = ASSERT_PTR(va_arg(ap, حرف**));
                 *v = *i;
         }
         va_end(ap);
 
-        return c;
+        החזר c;
 }

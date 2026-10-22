@@ -1,312 +1,312 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "build.h"
-#include "env-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "version.h"
+#ضمن "alloc-util.h"
+#ضمن "ansi-color.h"
+#ضمن "build.h"
+#ضمن "env-util.h"
+#ضمن "extract-word.h"
+#ضمن "log.h"
+#ضمن "string-util.h"
+#ضمن "version.h"
 
-const char* const systemd_features =
+ثابت حرف* ثابت systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#אם HAVE_PAM
         "+PAM"
-#else
+#אחרת
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#אם HAVE_AUDIT
         " +AUDIT"
-#else
+#אחרת
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#אם HAVE_SELINUX
         " +SELINUX"
-#else
+#אחרת
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#אם HAVE_APPARMOR
         " +APPARMOR"
-#else
+#אחרת
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#אם ENABLE_IMA
         " +IMA"
-#else
+#אחרת
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#אם ENABLE_IPE
         " +IPE"
-#else
+#אחרת
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#אם ENABLE_SMACK
         " +SMACK"
-#else
+#אחרת
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#אם HAVE_SECCOMP
         " +SECCOMP"
-#else
+#אחרת
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#אם HAVE_GNUTLS
         " +GNUTLS"
-#else
+#אחרת
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#אם HAVE_OPENSSL
         " +OPENSSL"
-#else
+#אחרת
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#אם HAVE_ACL
         " +ACL"
-#else
+#אחרת
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#אם HAVE_BLKID
         " +BLKID"
-#else
+#אחרת
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#אם HAVE_LIBCURL
         " +CURL"
-#else
+#אחרת
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#אם HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#אחרת
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#אם HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#אחרת
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#אם HAVE_LIBIDN2
         " +IDN2"
-#else
+#אחרת
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#אם HAVE_KMOD
         " +KMOD"
-#else
+#אחרת
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#אם HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#אחרת
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#אם HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#אחרת
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#אם HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#אחרת
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#אם HAVE_PCRE2
         " +PCRE2"
-#else
+#אחרת
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#אם HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#אחרת
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#אם HAVE_P11KIT
         " +P11KIT"
-#else
+#אחרת
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#אם HAVE_QRENCODE
         " +QRENCODE"
-#else
+#אחרת
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#אם HAVE_TPM2
         " +TPM2"
-#else
+#אחרת
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#אם HAVE_BZIP2
         " +BZIP2"
-#else
+#אחרת
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#אם HAVE_LZ4
         " +LZ4"
-#else
+#אחרת
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#אם HAVE_XZ
         " +XZ"
-#else
+#אחרת
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#אם HAVE_ZLIB
         " +ZLIB"
-#else
+#אחרת
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#אם HAVE_ZSTD
         " +ZSTD"
-#else
+#אחרת
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#אם BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#אחרת
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#אם HAVE_VMLINUX_H
         " +BTF"
-#else
+#אחרת
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#אם HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#אחרת
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#אם ENABLE_UTMP
         " +UTMP"
-#else
+#אחרת
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#אם HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#אחרת
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#אם EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
-#elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
+#وإلاإذا EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#אחרת
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+ساكن حرف* systemd_features_with_color(فراغ) {
+        ثابت حرف *p = systemd_features;
+        _cleanup_free_ حرف *ret = عدم;
+        صحيح r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        עבור (;;) {
+                _cleanup_free_ حرف *word = عدم;
+                حرف *q;
 
-                r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                r = extract_first_word(&p, &word, عدم, 0);
+                אם (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        החזר عدم;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                אם (r == 0)
+                        החזר TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                אם (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        החזר عدم;
                 }
 
-                if (word[0] == '+')
+                אם (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                אחרת אם (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                אחרת
                         q = strextend(&ret, word);
-                if (!q) {
+                אם (!q) {
                         log_oom_warning();
-                        return NULL;
+                        החזר عدم;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+صحيح version(فراغ) {
+        _cleanup_free_ حرف *b = عدم;
 
-        if (colors_enabled())
+        אם (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        החזר 0;
 }
 
-int version_only(void) {
+صحيح version_only(فراغ) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        החזר 0;
 }
 
-bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+bool experimental_enabled(فراغ) {
+#אם EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        החזר false;
+#אחרת
+        صحيح r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        אם (r >= 0)
+                החזר r;
+        אם (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        החזר EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

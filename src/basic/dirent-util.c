@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/stat.h>
+#ضمن <fcntl.h>
+#ضمن <sys/stat.h>
 
-#include "dirent-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
+#ضمن "dirent-util.h"
+#ضمن "path-util.h"
+#ضمن "stat-util.h"
+#ضمن "string-util.h"
 
-int dirent_ensure_type(int dir_fd, struct dirent *de) {
-        int r;
+صحيح dirent_ensure_type(صحيح dir_fd, بنية dirent *de) {
+        صحيح r;
 
-        assert(dir_fd >= 0);
-        assert(de);
+        أكد(dir_fd >= 0);
+        أكد(de);
 
-        if (de->d_type != DT_UNKNOWN)
-                return 0;
+        אם (de->d_type != DT_UNKNOWN)
+                החזר 0;
 
-        if (dot_or_dot_dot(de->d_name)) {
+        אם (dot_or_dot_dot(de->d_name)) {
                 de->d_type = DT_DIR;
-                return 0;
+                החזר 0;
         }
 
         /* Let's ask only for the type, nothing else. */
-        struct statx sx;
+        بنية statx sx;
         r = xstatx_full(dir_fd,
                         de->d_name,
                         AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT,
@@ -32,81 +32,81 @@ int dirent_ensure_type(int dir_fd, struct dirent *de) {
                         /* optional_mask= */ STATX_INO,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
-        assert(FLAGS_SET(sx.stx_mask, STATX_TYPE));
+        أكد(FLAGS_SET(sx.stx_mask, STATX_TYPE));
         de->d_type = IFTODT(sx.stx_mode);
 
         /* If the inode is passed too, update the field, i.e. report most recent data */
-        if (FLAGS_SET(sx.stx_mask, STATX_INO))
+        אם (FLAGS_SET(sx.stx_mask, STATX_INO))
                 de->d_ino = sx.stx_ino;
 
-        return 0;
+        החזר 0;
 }
 
-bool dirent_is_file(const struct dirent *de) {
-        assert(de);
+bool dirent_is_file(ثابت بنية dirent *de) {
+        أكد(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        אם (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                החזר false;
 
-        if (hidden_or_backup_file(de->d_name))
-                return false;
+        אם (hidden_or_backup_file(de->d_name))
+                החזר false;
 
-        return true;
+        החזר true;
 }
 
-bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) {
-        assert(de);
+bool dirent_is_file_with_suffix(ثابت بنية dirent *de, ثابت حرف *suffix) {
+        أكد(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        אם (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                החזר false;
 
-        if (de->d_name[0] == '.')
-                return false;
+        אם (de->d_name[0] == '.')
+                החזר false;
 
-        if (!suffix)
-                return true;
+        אם (!suffix)
+                החזר true;
 
-        return endswith(de->d_name, suffix);
+        החזר endswith(de->d_name, suffix);
 }
 
-struct dirent* readdir_ensure_type(DIR *d) {
-        int r;
+بنية dirent* readdir_ensure_type(DIR *d) {
+        صحيح r;
 
-        assert(d);
+        أكد(d);
 
         /* Like readdir(), but fills in .d_type if it is DT_UNKNOWN */
 
-        for (;;) {
-                struct dirent *de;
+        עבור (;;) {
+                بنية dirent *de;
 
                 errno = 0;
                 de = readdir(d);
-                if (!de)
-                        return NULL;
+                אם (!de)
+                        החזר عدم;
 
                 r = dirent_ensure_type(dirfd(d), de);
-                if (r >= 0)
-                        return de;
-                if (r != -ENOENT) {
+                אם (r >= 0)
+                        החזר de;
+                אם (r != -ENOENT) {
                         errno = -r; /* We want to be compatible with readdir(), hence propagate error via errno here */
-                        return NULL;
+                        החזר عدم;
                 }
 
                 /* Vanished by now? Then skip immediately to next */
         }
 }
 
-struct dirent* readdir_no_dot(DIR *d) {
-        assert(d);
+بنية dirent* readdir_no_dot(DIR *d) {
+        أكد(d);
 
-        for (;;) {
-                struct dirent *de;
+        עבור (;;) {
+                بنية dirent *de;
 
                 de = readdir_ensure_type(d);
-                if (!de || !dot_or_dot_dot(de->d_name))
-                        return de;
+                אם (!de || !dot_or_dot_dot(de->d_name))
+                        החזר de;
         }
 }

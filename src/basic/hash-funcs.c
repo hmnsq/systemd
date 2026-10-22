@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <string.h>
-#include <sys/sysmacros.h>
+#ضمن <stdlib.h>
+#ضمن <string.h>
+#ضمن <sys/sysmacros.h>
 
-#include "hash-funcs.h"
-#include "path-util.h"
-#include "siphash24.h"
-#include "strv.h"
+#ضمن "hash-funcs.h"
+#ضمن "path-util.h"
+#ضمن "siphash24.h"
+#ضمن "strv.h"
 
-void string_hash_func(const char *p, struct siphash *state) {
+فراغ string_hash_func(ثابت حرف *p, بنية siphash *state) {
         siphash24_compress(p, strlen(p) + 1, state);
 }
 
 DEFINE_HASH_OPS(string_hash_ops,
-                char, string_hash_func, string_compare_func);
+                حرف, string_hash_func, string_compare_func);
 DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
                 string_hash_ops_free,
-                char, string_hash_func, string_compare_func, free);
+                حرف, string_hash_func, string_compare_func, حرر);
 DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
                 string_hash_ops_value_free,
-                char, string_hash_func, string_compare_func,
-                void, free);
+                حرف, string_hash_func, string_compare_func,
+                فراغ, حرر);
 DEFINE_HASH_OPS_FULL(
                 string_hash_ops_free_free,
-                char, string_hash_func, string_compare_func, free,
-                void, free);
+                حرف, string_hash_func, string_compare_func, حرر,
+                فراغ, حرر);
 DEFINE_HASH_OPS_FULL(
                 string_hash_ops_free_strv_free,
-                char, string_hash_func, string_compare_func, free,
-                char*, strv_free);
+                حرف, string_hash_func, string_compare_func, حرر,
+                حرف*, strv_free);
 
-void path_hash_func(const char *p, struct siphash *state) {
+فراغ path_hash_func(ثابت حرف *p, بنية siphash *state) {
         bool add_slash = false;
 
-        assert(p);
-        assert(state);
+        أكد(p);
+        أكد(state);
 
         /* Calculates a hash for a path in a way this duplicate inner slashes don't make a differences, and also
          * whether there's a trailing slash or not. This fits well with the semantics of path_compare(), which does
@@ -43,24 +43,24 @@ void path_hash_func(const char *p, struct siphash *state) {
          * which begin in a slash or not) will hash differently though. */
 
         /* if path is absolute, add one "/" to the hash. */
-        if (path_is_absolute(p))
+        אם (path_is_absolute(p))
                 siphash24_compress_byte('/', state);
 
-        for (;;) {
-                const char *e;
-                int r;
+        עבור (;;) {
+                ثابت حرف *e;
+                صحيح r;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        return;
+                אם (r == 0)
+                        החזר;
 
-                if (add_slash)
+                אם (add_slash)
                         siphash24_compress_byte('/', state);
 
-                if (r < 0) {
+                אם (r < 0) {
                         /* if a component is invalid, then add remaining part as a string. */
                         string_hash_func(p, state);
-                        return;
+                        החזר;
                 }
 
                 /* Add this component to the hash. */
@@ -71,48 +71,48 @@ void path_hash_func(const char *p, struct siphash *state) {
 }
 
 DEFINE_HASH_OPS(path_hash_ops,
-                char, path_hash_func, path_compare);
+                حرف, path_hash_func, path_compare);
 DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
                 path_hash_ops_free,
-                char, path_hash_func, path_compare, free);
+                حرف, path_hash_func, path_compare, حرر);
 DEFINE_HASH_OPS_FULL(
                 path_hash_ops_free_free,
-                char, path_hash_func, path_compare, free,
-                void, free);
+                حرف, path_hash_func, path_compare, حرر,
+                فراغ, حرر);
 
-void trivial_hash_func(const void *p, struct siphash *state) {
+فراغ trivial_hash_func(ثابت فراغ *p, بنية siphash *state) {
         siphash24_compress_typesafe(p, state);
 }
 
-int trivial_compare_func(const void *a, const void *b) {
-        return CMP(a, b);
+صحيح trivial_compare_func(ثابت فراغ *a, ثابت فراغ *b) {
+        החזר CMP(a, b);
 }
 
 DEFINE_HASH_OPS(trivial_hash_ops,
-                void, trivial_hash_func, trivial_compare_func);
+                فراغ, trivial_hash_func, trivial_compare_func);
 DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
                 trivial_hash_ops_free,
-                void, trivial_hash_func, trivial_compare_func, free);
+                فراغ, trivial_hash_func, trivial_compare_func, حرر);
 DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
                 trivial_hash_ops_value_free,
-                void, trivial_hash_func, trivial_compare_func,
-                void, free);
+                فراغ, trivial_hash_func, trivial_compare_func,
+                فراغ, حرر);
 DEFINE_HASH_OPS_FULL(
                 trivial_hash_ops_free_free,
-                void, trivial_hash_func, trivial_compare_func, free,
-                void, free);
+                فراغ, trivial_hash_func, trivial_compare_func, حرر,
+                فراغ, حرر);
 
-void uint64_hash_func(const uint64_t *p, struct siphash *state) {
-        assert(p);
+فراغ uint64_hash_func(ثابت uint64_t *p, بنية siphash *state) {
+        أكد(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 
-int uint64_compare_func(const uint64_t *a, const uint64_t *b) {
-        assert(a);
-        assert(b);
+صحيح uint64_compare_func(ثابت uint64_t *a, ثابت uint64_t *b) {
+        أكد(a);
+        أكد(b);
 
-        return CMP(*a, *b);
+        החזר CMP(*a, *b);
 }
 
 DEFINE_HASH_OPS(uint64_hash_ops,
@@ -120,27 +120,27 @@ DEFINE_HASH_OPS(uint64_hash_ops,
 DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
                 uint64_hash_ops_value_free,
                 uint64_t, uint64_hash_func, uint64_compare_func,
-                void, free);
+                فراغ, حرر);
 
-#if SIZEOF_DEV_T != 8
-void devt_hash_func(const dev_t *p, struct siphash *state) {
-        assert(p);
+#אם SIZEOF_DEV_T != 8
+فراغ devt_hash_func(ثابت dev_t *p, بنية siphash *state) {
+        أكد(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 #endif
 
-int devt_compare_func(const dev_t *a, const dev_t *b) {
-        int r;
+صحيح devt_compare_func(ثابت dev_t *a, ثابت dev_t *b) {
+        صحيح r;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
         r = CMP(major(*a), major(*b));
-        if (r != 0)
-                return r;
+        אם (r != 0)
+                החזר r;
 
-        return CMP(minor(*a), minor(*b));
+        החזר CMP(minor(*a), minor(*b));
 }
 
 DEFINE_HASH_OPS(devt_hash_ops, dev_t, devt_hash_func, devt_compare_func);

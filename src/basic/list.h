@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
@@ -14,26 +14,26 @@
 
 /* Initialize the list's head */
 #define LIST_HEAD_INIT(head)                                            \
-        do {                                                            \
-                (head) = NULL;                                          \
-        } while (false)
+        עשה {                                                            \
+                (head) = عدم;                                          \
+        } כלעוד (false)
 
 /* Initialize a list item */
 #define LIST_INIT(name,item)                                            \
-        do {                                                            \
+        עשה {                                                            \
                 typeof(*(item)) *_item = (item);                        \
-                assert(_item);                                          \
-                _item->name##_prev = _item->name##_next = NULL;         \
-        } while (false)
+                أكد(_item);                                          \
+                _item->name##_prev = _item->name##_next = عدم;         \
+        } כלעוד (false)
 
 /* Prepend an item to the list */
 #define LIST_PREPEND(name,head,item)                                    \
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if ((_item->name##_next = *_head))                      \
+                أكد(_item);                                          \
+                אם ((_item->name##_next = *_head))                      \
                         _item->name##_next->name##_prev = _item;        \
-                _item->name##_prev = NULL;                              \
+                _item->name##_prev = عدم;                              \
                 *_head = _item;                                         \
                 _item;                                                  \
         })
@@ -50,16 +50,16 @@
 #define LIST_REMOVE(name,head,item)                                     \
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if (_item->name##_next)                                 \
+                أكد(_item);                                          \
+                אם (_item->name##_next)                                 \
                         _item->name##_next->name##_prev = _item->name##_prev; \
-                if (_item->name##_prev)                                 \
+                אם (_item->name##_prev)                                 \
                         _item->name##_prev->name##_next = _item->name##_next; \
-                else {                                                  \
-                        assert(*_head == _item);                        \
+                אחרת {                                                  \
+                        أكد(*_head == _item);                        \
                         *_head = _item->name##_next;                    \
                 }                                                       \
-                _item->name##_next = _item->name##_prev = NULL;         \
+                _item->name##_next = _item->name##_prev = عدم;         \
                 _item;                                                  \
         })
 
@@ -67,7 +67,7 @@
 #define LIST_FIND_HEAD(name,item)                                       \
         ({                                                              \
                 typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_prev)                     \
+                כלעוד (_item && _item->name##_prev)                     \
                         _item = _item->name##_prev;                     \
                 _item;                                                  \
         })
@@ -76,7 +76,7 @@
 #define LIST_FIND_TAIL(name,item)                                       \
         ({                                                              \
                 typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_next)                     \
+                כלעוד (_item && _item->name##_next)                     \
                         _item = _item->name##_next;                     \
                 _item;                                                  \
         })
@@ -85,14 +85,14 @@
 #define LIST_INSERT_AFTER(name,head,a,b)                                \
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if ((_b->name##_next = *_head))                 \
+                أكد(_b);                                             \
+                אם (!_a) {                                              \
+                        אם ((_b->name##_next = *_head))                 \
                                 _b->name##_next->name##_prev = _b;      \
-                        _b->name##_prev = NULL;                         \
+                        _b->name##_prev = عدم;                         \
                         *_head = _b;                                    \
-                } else {                                                \
-                        if ((_b->name##_next = _a->name##_next))        \
+                } אחרת {                                                \
+                        אם ((_b->name##_next = _a->name##_next))        \
                                 _b->name##_next->name##_prev = _b;      \
                         _b->name##_prev = _a;                           \
                         _a->name##_next = _b;                           \
@@ -104,24 +104,24 @@
 #define LIST_INSERT_BEFORE(name,head,a,b)                               \
         ({                                                              \
                 typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if (!*_head) {                                  \
-                                _b->name##_next = NULL;                 \
-                                _b->name##_prev = NULL;                 \
+                أكد(_b);                                             \
+                אם (!_a) {                                              \
+                        אם (!*_head) {                                  \
+                                _b->name##_next = عدم;                 \
+                                _b->name##_prev = عدم;                 \
                                 *_head = _b;                            \
-                        } else {                                        \
+                        } אחרת {                                        \
                                 typeof(*(head)) *_tail = (head);        \
-                                while (_tail->name##_next)              \
+                                כלעוד (_tail->name##_next)              \
                                         _tail = _tail->name##_next;     \
-                                _b->name##_next = NULL;                 \
+                                _b->name##_next = عدم;                 \
                                 _b->name##_prev = _tail;                \
                                 _tail->name##_next = _b;                \
                         }                                               \
-                } else {                                                \
-                        if ((_b->name##_prev = _a->name##_prev))        \
+                } אחרת {                                                \
+                        אם ((_b->name##_prev = _a->name##_prev))        \
                                 _b->name##_prev->name##_next = _b;      \
-                        else                                            \
+                        אחרת                                            \
                                 *_head = _b;                            \
                         _b->name##_next = _a;                           \
                         _a->name##_prev = _b;                           \
@@ -139,24 +139,24 @@
  * loop. Hence, do not declare the same variable in the outer scope. Sometimes, we set 'head' through
  * hashmap_get(). In that case, you need to explicitly cast the result. */
 #define LIST_FOREACH_WITH_NEXT(name,i,n,head)                           \
-        for (typeof(*(head)) *n, *i = (head); i && (n = i->name##_next, true); i = n)
+        עבור (typeof(*(head)) *n, *i = (head); i && (n = i->name##_next, true); i = n)
 
 #define LIST_FOREACH(name,i,head)                                       \
         LIST_FOREACH_WITH_NEXT(name, i, UNIQ_T(n, UNIQ), head)
 
 #define _LIST_FOREACH_WITH_PREV(name,i,p,start)                         \
-        for (typeof(*(start)) *p, *i = (start); i && (p = i->name##_prev, true); i = p)
+        עבור (typeof(*(start)) *p, *i = (start); i && (p = i->name##_prev, true); i = p)
 
 #define LIST_FOREACH_BACKWARDS(name,i,start)                            \
         _LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), start)
 
 /* Iterate through all the members of the list p is included in, but skip over p */
 #define LIST_FOREACH_OTHERS(name,i,p)                                   \
-        for (typeof(*(p)) *_p = (p), *i = ({                            \
+        עבור (typeof(*(p)) *_p = (p), *i = ({                            \
                                 typeof(*_p) *_j = _p;                   \
-                                while (_j && _j->name##_prev)           \
+                                כלעוד (_j && _j->name##_prev)           \
                                         _j = _j->name##_prev;           \
-                                if (_j == _p)                           \
+                                אם (_j == _p)                           \
                                         _j = _p->name##_next;           \
                                 _j;                                     \
                         });                                             \
@@ -165,23 +165,23 @@
 
 /* Loop starting from p->next until p->prev. p can be adjusted meanwhile. */
 #define LIST_LOOP_BUT_ONE(name,i,head,p)                                \
-        for (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (head); \
+        עבור (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (head); \
              i != (p);                                                  \
              i = i->name##_next ? i->name##_next : (head))
 
 /* Join two lists tail to head: a->b, c->d to a->b->c->d and de-initialise second list */
 #define LIST_JOIN(name,a,b)                                             \
         ({                                                              \
-                assert(b);                                              \
-                if (!(a))                                               \
+                أكد(b);                                              \
+                אם (!(a))                                               \
                         (a) = (b);                                      \
-                else {                                                  \
+                אחרת {                                                  \
                         typeof(*(a)) *_head = (b), *_tail;              \
                         _tail = LIST_FIND_TAIL(name, (a));              \
                         _tail->name##_next = _head;                     \
                         _head->name##_prev = _tail;                     \
                 }                                                       \
-                (b) = NULL;                                             \
+                (b) = عدم;                                             \
                 a;                                                      \
         })
 
@@ -189,7 +189,7 @@
         ({                                                              \
                 typeof(a)* _a = &(a);                                   \
                 typeof(a) _p = *_a;                                     \
-                if (_p)                                                 \
+                אם (_p)                                                 \
                         LIST_REMOVE(name, *_a, _p);                     \
                 _p;                                                     \
         })
@@ -201,7 +201,7 @@
 #define _LIST_CLEAR(name, head, free_func, elem)        \
         ({                                              \
                 typeof(head) elem;                      \
-                while ((elem = LIST_POP(name, head)))   \
+                כלעוד ((elem = LIST_POP(name, head)))   \
                         free_func(elem);                \
                 head;                                   \
         })

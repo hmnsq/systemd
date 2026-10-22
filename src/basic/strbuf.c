@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#ضمن <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#ضمن "alloc-util.h"
+#ضمن "sort-util.h"
+#ضمن "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+بنية strbuf* strbuf_new(فراغ) {
+        _cleanup_(strbuf_freep) بنية strbuf *str = عدم;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(بنية strbuf, 1);
+        אם (!str)
+                החזר عدم;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (بنية strbuf) {
+                .buf = new0(حرف, 1),
+                .root = new0(بنية strbuf_node, 1),
                 .len = 1,
                 .nodes_count = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        אם (!str->buf || !str->root)
+                החזר عدم;
 
-        return TAKE_PTR(str);
+        החזר TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+ساكن بنية strbuf_node* strbuf_node_cleanup(بنية strbuf_node *node) {
+        أكد(node);
 
         FOREACH_ARRAY(child, node->children, node->children_count)
                 strbuf_node_cleanup(child->child);
 
-        free(node->children);
-        return mfree(node);
+        حرر(node->children);
+        החזר mfree(node);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+فراغ strbuf_complete(بنية strbuf *str) {
+        אם (!str || !str->root)
+                החזר;
 
         str->root = strbuf_node_cleanup(str->root);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+بنية strbuf* strbuf_free(بنية strbuf *str) {
+        אם (!str)
+                החזר عدم;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        حرر(str->buf);
+        החזר mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+ساكن صحيح strbuf_children_cmp(ثابت بنية strbuf_child_entry *n1, ثابت بنية strbuf_child_entry *n2) {
+        أكد(n1);
+        أكد(n2);
 
-        return CMP(n1->c, n2->c);
+        החזר CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+ساكن فراغ bubbleinsert(بنية strbuf_node *node,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         بنية strbuf_node *node_child) {
 
-        struct strbuf_child_entry new = {
+        بنية strbuf_child_entry new = {
                 .c = c,
                 .child = node_child,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        صحيح left = 0, right = ASSERT_PTR(node)->children_count;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
+        כלעוד (right > left) {
+                صحيح middle = (right + left) / 2 ;
+                אם (strbuf_children_cmp(&node->children[middle], &new) <= 0)
                         left = middle + 1;
-                else
+                אחרת
                         right = middle;
         }
 
         memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
+                حجم(بنية strbuf_child_entry) * (node->children_count - left));
         node->children[left] = new;
 
         node->children_count++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_add_string_full(بنية strbuf *str, ثابت حرف *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        أكد(str);
+        أكد(s || len == 0);
 
-        if (len == SIZE_MAX)
+        אם (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (!str->root)
-                return -EINVAL;
+        אם (!str->root)
+                החזר -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
         str->in_count++;
-        if (len == 0) {
+        אם (len == 0) {
                 str->dedup_count++;
-                return 0;
+                החזר 0;
         }
         str->in_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        بنية strbuf_node *node = str->root;
+        עבור (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
                 off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                אם (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
                         str->dedup_count++;
-                        return off;
+                        החזר off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
+                بنية strbuf_child_entry *child, search = { .c = c };
                 child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
+                אם (!child)
+                        اكسر;
                 node = child->child;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        אם (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                החזר -ENOMEM;
         off = str->len;
         memcpy(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ بنية strbuf_node *node_child = عدم;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
+        node_child = new(بنية strbuf_node, 1);
+        אם (!node_child)
+                החזר -ENOMEM;
+        *node_child = (بنية strbuf_node) {
                 .value_off = off,
                 .value_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        אם (!GREEDY_REALLOC(node->children, node->children_count + 1))
+                החזר -ENOMEM;
 
         str->nodes_count++;
 
         bubbleinsert(node, c, TAKE_PTR(node_child));
 
-        return off;
+        החזר off;
 }

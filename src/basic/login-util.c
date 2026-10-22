@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ضمن <unistd.h>
 
-#include "login-util.h"
-#include "string-util.h"
+#ضمن "login-util.h"
+#ضمن "string-util.h"
 
-bool session_id_valid(const char *id) {
+bool session_id_valid(ثابت حرف *id) {
 
-        if (isempty(id))
-                return false;
+        אם (isempty(id))
+                החזר false;
 
-        return in_charset(id, ALPHANUMERICAL);
+        החזר in_charset(id, ALPHANUMERICAL);
 }
 
-bool logind_running(void) {
-        return access("/run/systemd/seats/", F_OK) >= 0;
+bool logind_running(فراغ) {
+        החזר access("/run/systemd/seats/", F_OK) >= 0;
 }

@@ -1,216 +1,216 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/falloc.h>
-#include <stdlib.h>
-#include <sys/file.h>
-#include <sys/mount.h>
-#include <unistd.h>
+#ضمن <linux/falloc.h>
+#ضمن <stdlib.h>
+#ضمن <sys/file.h>
+#ضمن <sys/mount.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "chattr-util.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "hostname-util.h"
-#include "label-util.h"
-#include "lock-util.h"
-#include "log.h"
-#include "mkdir.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "random-util.h"
-#include "ratelimit.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "tmpfile-util.h"
-#include "umask-util.h"
+#ضمن "alloc-util.h"
+#ضمن "btrfs-util.h"
+#ضمن "chattr-util.h"
+#ضمن "dirent-util.h"
+#ضمن "errno-util.h"
+#ضمن "fd-util.h"
+#ضمن "fs-util.h"
+#ضمن "hostname-util.h"
+#ضمن "label-util.h"
+#ضمن "lock-util.h"
+#ضمن "log.h"
+#ضمن "mkdir.h"
+#ضمن "path-util.h"
+#ضمن "process-util.h"
+#ضمن "random-util.h"
+#ضمن "ratelimit.h"
+#ضمن "stat-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "time-util.h"
+#ضمن "tmpfile-util.h"
+#ضمن "umask-util.h"
 
-int rmdir_parents(const char *path, const char *stop) {
-        char *p;
-        int r;
+صحيح rmdir_parents(ثابت حرف *path, ثابت حرف *stop) {
+        حرف *p;
+        صحيح r;
 
-        assert(path);
-        assert(stop);
+        أكد(path);
+        أكد(stop);
 
-        if (!path_is_safe(path))
-                return -EINVAL;
+        אם (!path_is_safe(path))
+                החזר -EINVAL;
 
-        if (!path_is_safe(stop))
-                return -EINVAL;
+        אם (!path_is_safe(stop))
+                החזר -EINVAL;
 
         p = strdupa_safe(path);
 
-        for (;;) {
-                char *slash = NULL;
+        עבור (;;) {
+                حرف *slash = عدم;
 
                 /* skip the last component. */
-                r = path_find_last_component(p, /* accept_dot_dot= */ false, (const char **) &slash, NULL);
-                if (r <= 0)
-                        return r;
-                if (slash == p)
-                        return 0;
+                r = path_find_last_component(p, /* accept_dot_dot= */ false, (ثابت حرف **) &slash, عدم);
+                אם (r <= 0)
+                        החזר r;
+                אם (slash == p)
+                        החזר 0;
 
-                assert(*slash == '/');
+                أكد(*slash == '/');
                 *slash = '\0';
 
-                if (path_startswith_full(stop, p, PATH_STARTSWITH_REFUSE_DOT_DOT))
-                        return 0;
+                אם (path_startswith_full(stop, p, PATH_STARTSWITH_REFUSE_DOT_DOT))
+                        החזר 0;
 
-                if (rmdir(p) < 0 && errno != ENOENT)
-                        return -errno;
+                אם (rmdir(p) < 0 && errno != ENOENT)
+                        החזר -errno;
         }
 }
 
-int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath) {
-        int r;
+صحيح rename_noreplace(صحيح olddirfd, ثابت حرف *oldpath, صحيح newdirfd, ثابت حرف *newpath) {
+        صحيح r;
 
-        assert(olddirfd >= 0 || olddirfd == AT_FDCWD);
-        assert(oldpath);
-        assert(newdirfd >= 0 || newdirfd == AT_FDCWD);
-        assert(newpath);
+        أكد(olddirfd >= 0 || olddirfd == AT_FDCWD);
+        أكد(oldpath);
+        أكد(newdirfd >= 0 || newdirfd == AT_FDCWD);
+        أكد(newpath);
 
         /* Try the ideal approach first */
-        if (renameat2(olddirfd, oldpath, newdirfd, newpath, RENAME_NOREPLACE) >= 0)
-                return 0;
+        אם (renameat2(olddirfd, oldpath, newdirfd, newpath, RENAME_NOREPLACE) >= 0)
+                החזר 0;
 
         /* renameat2() exists since Linux 3.15, btrfs and FAT added support for it later. If it is not implemented,
          * fall back to a different method. */
-        if (!ERRNO_IS_NOT_SUPPORTED(errno) && errno != EINVAL)
-                return -errno;
+        אם (!ERRNO_IS_NOT_SUPPORTED(errno) && errno != EINVAL)
+                החזר -errno;
 
         /* Let's try to use linkat()+unlinkat() as fallback. This doesn't work on directories and on some file systems
          * that do not support hard links (such as FAT, most prominently), but for files it's pretty close to what we
          * want — though not atomic (i.e. for a short period both the new and the old filename will exist). */
-        if (linkat(olddirfd, oldpath, newdirfd, newpath, 0) >= 0) {
+        אם (linkat(olddirfd, oldpath, newdirfd, newpath, 0) >= 0) {
 
                 r = RET_NERRNO(unlinkat(olddirfd, oldpath, 0));
-                if (r < 0) {
-                        (void) unlinkat(newdirfd, newpath, 0);
-                        return r;
+                אם (r < 0) {
+                        (فراغ) unlinkat(newdirfd, newpath, 0);
+                        החזר r;
                 }
 
-                return 0;
+                החזר 0;
         }
 
-        if (!ERRNO_IS_NOT_SUPPORTED(errno) && !IN_SET(errno, EINVAL, EPERM)) /* FAT returns EPERM on link()… */
-                return -errno;
+        אם (!ERRNO_IS_NOT_SUPPORTED(errno) && !IN_SET(errno, EINVAL, EPERM)) /* FAT returns EPERM on link()… */
+                החזר -errno;
 
         /* OK, neither RENAME_NOREPLACE nor linkat()+unlinkat() worked. Let's then fall back to the racy TOCTOU
          * vulnerable accessat(F_OK) check followed by classic, replacing renameat(), we have nothing better. */
 
-        if (faccessat(newdirfd, newpath, F_OK, AT_SYMLINK_NOFOLLOW) >= 0)
-                return -EEXIST;
-        if (errno != ENOENT)
-                return -errno;
+        אם (faccessat(newdirfd, newpath, F_OK, AT_SYMLINK_NOFOLLOW) >= 0)
+                החזר -EEXIST;
+        אם (errno != ENOENT)
+                החזר -errno;
 
-        return RET_NERRNO(renameat(olddirfd, oldpath, newdirfd, newpath));
+        החזר RET_NERRNO(renameat(olddirfd, oldpath, newdirfd, newpath));
 }
 
-int readlinkat_malloc(int fd, const char *p, char **ret) {
+صحيح readlinkat_malloc(صحيح fd, ثابت حرف *p, حرف **ret) {
         size_t l = PATH_MAX;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
+        أكد(fd >= 0 || fd == AT_FDCWD);
 
-        if (fd < 0 && isempty(p))
-                return -EISDIR; /* In this case, the fd points to the current working directory, and is
+        אם (fd < 0 && isempty(p))
+                החזר -EISDIR; /* In this case, the fd points to the current working directory, and is
                                  * definitely not a symlink. Let's return earlier. */
 
-        for (;;) {
-                _cleanup_free_ char *c = NULL;
+        עבור (;;) {
+                _cleanup_free_ حرف *c = عدم;
                 ssize_t n;
 
-                c = new(char, l+1);
-                if (!c)
-                        return -ENOMEM;
+                c = new(حرف, l+1);
+                אם (!c)
+                        החזר -ENOMEM;
 
                 n = readlinkat(fd, strempty(p), c, l);
-                if (n < 0)
-                        return -errno;
+                אם (n < 0)
+                        החזר -errno;
 
-                if ((size_t) n < l) {
+                אם ((size_t) n < l) {
                         c[n] = 0;
 
-                        if (ret)
+                        אם (ret)
                                 *ret = TAKE_PTR(c);
 
-                        return 0;
+                        החזר 0;
                 }
 
-                if (l > (SSIZE_MAX-1)/2) /* readlinkat() returns an ssize_t, and we want an extra byte for a
+                אם (l > (SSIZE_MAX-1)/2) /* readlinkat() returns an ssize_t, and we want an extra byte for a
                                           * trailing NUL, hence do an overflow check relative to SSIZE_MAX-1
                                           * here */
-                        return -EFBIG;
+                        החזר -EFBIG;
 
                 l *= 2;
         }
 }
 
-int readlink_value(const char *p, char **ret) {
-        _cleanup_free_ char *link = NULL, *name = NULL;
-        int r;
+صحيح readlink_value(ثابت حرف *p, حرف **ret) {
+        _cleanup_free_ حرف *link = عدم, *name = عدم;
+        صحيح r;
 
-        assert(p);
-        assert(ret);
+        أكد(p);
+        أكد(ret);
 
         r = readlink_malloc(p, &link);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
         r = path_extract_filename(link, &name);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY)
-                return -EINVAL;
+        אם (r < 0)
+                החזר r;
+        אם (r == O_DIRECTORY)
+                החזר -EINVAL;
 
         *ret = TAKE_PTR(name);
-        return 0;
+        החזר 0;
 }
 
-int readlink_and_make_absolute(const char *p, char **ret) {
-        _cleanup_free_ char *target = NULL;
-        int r;
+صحيح readlink_and_make_absolute(ثابت حرف *p, حرف **ret) {
+        _cleanup_free_ حرف *target = عدم;
+        صحيح r;
 
-        assert(p);
-        assert(ret);
+        أكد(p);
+        أكد(ret);
 
         r = readlink_malloc(p, &target);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
-        return file_in_same_dir(p, target, ret);
+        החזר file_in_same_dir(p, target, ret);
 }
 
-int chmod_and_chown_at(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح chmod_and_chown_at(صحيح dir_fd, ثابت حرف *path, mode_t mode, uid_t uid, gid_t gid) {
+        _cleanup_close_ صحيح fd = -EBADF;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        if (path) {
+        אם (path) {
                 /* Let's acquire an O_PATH fd, as precaution to change mode/owner on the same file */
                 fd = openat(dir_fd, path, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-                if (fd < 0)
-                        return -errno;
+                אם (fd < 0)
+                        החזר -errno;
                 dir_fd = fd;
 
-        } else if (dir_fd == AT_FDCWD) {
+        } אחרת אם (dir_fd == AT_FDCWD) {
                 /* Let's acquire an O_PATH fd of the current directory */
                 fd = openat(dir_fd, ".", O_PATH|O_CLOEXEC|O_NOFOLLOW|O_DIRECTORY);
-                if (fd < 0)
-                        return -errno;
+                אם (fd < 0)
+                        החזר -errno;
                 dir_fd = fd;
         }
 
-        return fchmod_and_chown(dir_fd, mode, uid, gid);
+        החזר fchmod_and_chown(dir_fd, mode, uid, gid);
 }
 
-int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t uid, gid_t gid) {
+صحيح fchmod_and_chown_with_fallback(صحيح fd, ثابت حرف *path, mode_t mode, uid_t uid, gid_t gid) {
         bool do_chown, do_chmod;
-        struct stat st;
-        int r;
+        بنية stat st;
+        صحيح r;
 
         /* Change ownership and access mode of the specified fd. Tries to do so safely, ensuring that at no
          * point in time the access mode is above the old access mode under the old ownership or the new
@@ -224,8 +224,8 @@ int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t 
          * /proc will be mounted, but in certain improperly assembled environments it might not be. This is
          * less secure (potential TOCTOU), so should only be used after consideration. */
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        אם (fstat(fd, &st) < 0)
+                החזר -errno;
 
         do_chown =
                 (uid != UID_INVALID && st.st_uid != uid) ||
@@ -237,53 +237,53 @@ int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t 
                  do_chown); /* If we change ownership, make sure we reset the mode afterwards, since chown()
                              * modifies the access mode too */
 
-        if (mode == MODE_INVALID)
+        אם (mode == MODE_INVALID)
                 mode = st.st_mode; /* If we only shall do a chown(), save original mode, since chown() might break it. */
-        else if ((mode & S_IFMT) != 0 && ((mode ^ st.st_mode) & S_IFMT) != 0)
-                return -EINVAL; /* insist on the right file type if it was specified */
+        אחרת אם ((mode & S_IFMT) != 0 && ((mode ^ st.st_mode) & S_IFMT) != 0)
+                החזר -EINVAL; /* insist on the right file type if it was specified */
 
-        if (do_chown && do_chmod) {
+        אם (do_chown && do_chmod) {
                 mode_t minimal = st.st_mode & mode; /* the subset of the old and the new mask */
 
-                if (((minimal ^ st.st_mode) & 07777) != 0) {
+                אם (((minimal ^ st.st_mode) & 07777) != 0) {
                         r = fchmod_opath(fd, minimal & 07777);
-                        if (r < 0) {
-                                if (!path || r != -ENOSYS)
-                                        return r;
+                        אם (r < 0) {
+                                אם (!path || r != -ENOSYS)
+                                        החזר r;
 
                                 /* Fallback path which doesn't use /proc/self/fd/. */
-                                if (chmod(path, minimal & 07777) < 0)
-                                        return -errno;
+                                אם (chmod(path, minimal & 07777) < 0)
+                                        החזר -errno;
                         }
                 }
         }
 
-        if (do_chown)
-                if (fchownat(fd, "", uid, gid, AT_EMPTY_PATH) < 0)
-                        return -errno;
+        אם (do_chown)
+                אם (fchownat(fd, "", uid, gid, AT_EMPTY_PATH) < 0)
+                        החזר -errno;
 
-        if (do_chmod) {
+        אם (do_chmod) {
                 r = fchmod_opath(fd, mode & 07777);
-                if (r < 0) {
-                        if (!path || r != -ENOSYS)
-                                return r;
+                אם (r < 0) {
+                        אם (!path || r != -ENOSYS)
+                                החזר r;
 
                         /* Fallback path which doesn't use /proc/self/fd/. */
-                        if (chmod(path, mode & 07777) < 0)
-                                return -errno;
+                        אם (chmod(path, mode & 07777) < 0)
+                                החזר -errno;
                 }
         }
 
-        return do_chown || do_chmod;
+        החזר do_chown || do_chmod;
 }
 
-int fchmod_umask(int fd, mode_t m) {
+صحيح fchmod_umask(صحيح fd, mode_t m) {
         _cleanup_umask_ mode_t u = umask(0777);
 
-        return RET_NERRNO(fchmod(fd, m & (~u)));
+        החזר RET_NERRNO(fchmod(fd, m & (~u)));
 }
 
-int fchmod_opath(int fd, mode_t m) {
+صحيح fchmod_opath(صحيح fd, mode_t m) {
         /* This function operates also on fd that might have been opened with
          * O_PATH. The tool set we have is non-intuitive:
          * - fchmod(2) only operates on open files (i. e., fds with an open file description);
@@ -298,121 +298,121 @@ int fchmod_opath(int fd, mode_t m) {
          * We try to use fchmodat(3) first, and on EINVAL fall back to fchmodat2(), and, if that is also not
          * supported, resort to the /proc/self/fd dance. */
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        if (fchmodat(fd, "", m, AT_EMPTY_PATH) >= 0)
-                return 0;
-        if (errno == EINVAL && fchmodat2(fd, "", m, AT_EMPTY_PATH) >= 0) /* glibc too old? */
-                return 0;
-        if (!IN_SET(errno, ENOSYS, EPERM)) /* Some container managers block unknown syscalls with EPERM */
-                return -errno;
+        אם (fchmodat(fd, "", m, AT_EMPTY_PATH) >= 0)
+                החזר 0;
+        אם (errno == EINVAL && fchmodat2(fd, "", m, AT_EMPTY_PATH) >= 0) /* glibc too old? */
+                החזר 0;
+        אם (!IN_SET(errno, ENOSYS, EPERM)) /* Some container managers block unknown syscalls with EPERM */
+                החזר -errno;
 
-        if (chmod(FORMAT_PROC_FD_PATH(fd), m) < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        אם (chmod(FORMAT_PROC_FD_PATH(fd), m) < 0) {
+                אם (errno != ENOENT)
+                        החזר -errno;
 
-                return proc_fd_enoent_errno();
+                החזר proc_fd_enoent_errno();
         }
 
-        return 0;
+        החזר 0;
 }
 
-int futimens_opath(int fd, const struct timespec ts[2]) {
+صحيح futimens_opath(صحيح fd, ثابت بنية timespec ts[2]) {
         /* Similar to fchmod_opath() but for futimens() */
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        return RET_NERRNO(utimensat(fd, "", ts, AT_EMPTY_PATH));
+        החזר RET_NERRNO(utimensat(fd, "", ts, AT_EMPTY_PATH));
 }
 
-int stat_warn_permissions(const char *path, const struct stat *st) {
-        assert(path);
-        assert(st);
+صحيح stat_warn_permissions(ثابت حرف *path, ثابت بنية stat *st) {
+        أكد(path);
+        أكد(st);
 
         /* Don't complain if we are reading something that is not a file, for example /dev/null */
-        if (!S_ISREG(st->st_mode))
-                return 0;
+        אם (!S_ISREG(st->st_mode))
+                החזר 0;
 
-        if (st->st_mode & 0111)
+        אם (st->st_mode & 0111)
                 log_warning("Configuration file %s is marked executable. Please remove executable permission bits. Proceeding anyway.", path);
 
-        if (st->st_mode & 0002)
+        אם (st->st_mode & 0002)
                 log_warning("Configuration file %s is marked world-writable. Please remove world writability permission bits. Proceeding anyway.", path);
 
-        if (getpid_cached() == 1 && (st->st_mode & 0044) != 0044)
+        אם (getpid_cached() == 1 && (st->st_mode & 0044) != 0044)
                 log_warning("Configuration file %s is marked world-inaccessible. This has no effect as configuration data is accessible via APIs without restrictions. Proceeding anyway.", path);
 
-        return 0;
+        החזר 0;
 }
 
-int fd_warn_permissions(const char *path, int fd) {
-        struct stat st;
+صحيح fd_warn_permissions(ثابت حرف *path, صحيح fd) {
+        بنية stat st;
 
-        assert(path);
-        assert(fd >= 0);
+        أكد(path);
+        أكد(fd >= 0);
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        אם (fstat(fd, &st) < 0)
+                החזר -errno;
 
-        return stat_warn_permissions(path, &st);
+        החזר stat_warn_permissions(path, &st);
 }
 
-int access_nofollow(const char *path, int mode) {
-        return RET_NERRNO(faccessat(AT_FDCWD, path, mode, AT_SYMLINK_NOFOLLOW));
+صحيح access_nofollow(ثابت حرف *path, صحيح mode) {
+        החזר RET_NERRNO(faccessat(AT_FDCWD, path, mode, AT_SYMLINK_NOFOLLOW));
 }
 
-int access_fd(int fd, int mode) {
+صحيح access_fd(صحيح fd, صحيح mode) {
         /* Like access() but operates on an already open fd */
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(access(".", mode));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(access("/", mode));
+        אם (fd == AT_FDCWD)
+                החזר RET_NERRNO(access(".", mode));
+        אם (fd == XAT_FDROOT)
+                החזר RET_NERRNO(access("/", mode));
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        return RET_NERRNO(faccessat(fd, "", mode, AT_EMPTY_PATH));
+        החזר RET_NERRNO(faccessat(fd, "", mode, AT_EMPTY_PATH));
 }
 
-int touch_fd(int fd, usec_t stamp) {
-        assert(fd >= 0);
+صحيح touch_fd(صحيح fd, usec_t stamp) {
+        أكد(fd >= 0);
 
-        if (stamp == USEC_INFINITY)
-                return futimens_opath(fd, /* ts= */ NULL);
+        אם (stamp == USEC_INFINITY)
+                החזר futimens_opath(fd, /* ts= */ عدم);
 
-        struct timespec ts[2];
+        بنية timespec ts[2];
         timespec_store(ts + 0, stamp);
         ts[1] = ts[0];
-        return futimens_opath(fd, ts);
+        החזר futimens_opath(fd, ts);
 }
 
-int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode) {
-        _cleanup_close_ int fd = -EBADF;
-        int ret;
+صحيح touch_file(ثابت حرف *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode) {
+        _cleanup_close_ صحيح fd = -EBADF;
+        صحيح ret;
 
-        assert(path);
+        أكد(path);
 
         /* Note that touch_file() does not follow symlinks: if invoked on an existing symlink, then it is the symlink
          * itself which is updated, not its target
          *
          * Returns the first error we encounter, but tries to apply as much as possible. */
 
-        if (parents)
-                (void) mkdir_parents(path, 0755);
+        אם (parents)
+                (فراغ) mkdir_parents(path, 0755);
 
         /* Initially, we try to open the node with O_PATH, so that we get a reference to the node. This is useful in
          * case the path refers to an existing device or socket node, as we can open it successfully in all cases, and
          * won't trigger any driver magic or so. */
         fd = open(path, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-        if (fd < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        אם (fd < 0) {
+                אם (errno != ENOENT)
+                        החזר -errno;
 
                 /* if the node doesn't exist yet, we create it, but with O_EXCL, so that we only create a regular file
                  * here, and nothing else */
                 fd = open(path, O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC, IN_SET(mode, 0, MODE_INVALID) ? 0644 : mode);
-                if (fd < 0)
-                        return -errno;
+                אם (fd < 0)
+                        החזר -errno;
         }
 
         /* Let's make a path from the fd, and operate on that. With this logic, we can adjust the access mode,
@@ -420,305 +420,305 @@ int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gi
          * something fchown(), fchmod(), futimensat() don't allow. */
         ret = fchmod_and_chown(fd, mode, uid, gid);
 
-        return RET_GATHER(ret, touch_fd(fd, stamp));
+        החזר RET_GATHER(ret, touch_fd(fd, stamp));
 }
 
-int touch(const char *path) {
-        return touch_file(path, false, USEC_INFINITY, UID_INVALID, GID_INVALID, MODE_INVALID);
+صحيح touch(ثابت حرف *path) {
+        החזר touch_file(path, false, USEC_INFINITY, UID_INVALID, GID_INVALID, MODE_INVALID);
 }
 
-int symlinkat_idempotent(const char *target, int atfd, const char *linkpath, bool make_relative) {
-        _cleanup_free_ char *relpath = NULL;
-        int r;
+صحيح symlinkat_idempotent(ثابت حرف *target, صحيح atfd, ثابت حرف *linkpath, bool make_relative) {
+        _cleanup_free_ حرف *relpath = عدم;
+        صحيح r;
 
-        assert(target);
-        assert(linkpath);
+        أكد(target);
+        أكد(linkpath);
 
-        if (make_relative) {
+        אם (make_relative) {
                 r = path_make_relative_parent(linkpath, target, &relpath);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 target = relpath;
         }
 
-        if (symlinkat(target, atfd, linkpath) < 0) {
-                _cleanup_free_ char *p = NULL;
+        אם (symlinkat(target, atfd, linkpath) < 0) {
+                _cleanup_free_ حرف *p = عدم;
 
-                if (errno != EEXIST)
-                        return -errno;
+                אם (errno != EEXIST)
+                        החזר -errno;
 
                 r = readlinkat_malloc(atfd, linkpath, &p);
-                if (r == -EINVAL) /* Not a symlink? In that case return the original error we encountered: -EEXIST */
-                        return -EEXIST;
-                if (r < 0) /* Any other error? In that case propagate it as is */
-                        return r;
+                אם (r == -EINVAL) /* Not a symlink? In that case return the original error we encountered: -EEXIST */
+                        החזר -EEXIST;
+                אם (r < 0) /* Any other error? In that case propagate it as is */
+                        החזר r;
 
-                if (!streq(p, target)) /* Not the symlink we want it to be? In that case, propagate the original -EEXIST */
-                        return -EEXIST;
+                אם (!streq(p, target)) /* Not the symlink we want it to be? In that case, propagate the original -EEXIST */
+                        החזר -EEXIST;
         }
 
-        return 0;
+        החזר 0;
 }
 
-int symlinkat_atomic_full_label(const char *target, int atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context) {
-        int r;
+صحيح symlinkat_atomic_full_label(ثابت حرف *target, صحيح atfd, ثابت حرف *linkpath, SymlinkFlags flags, LabelContext *label_context) {
+        صحيح r;
 
-        assert(target);
-        assert(linkpath);
+        أكد(target);
+        أكد(linkpath);
 
-        _cleanup_free_ char *relpath = NULL;
-        if (FLAGS_SET(flags, SYMLINK_MAKE_RELATIVE)) {
+        _cleanup_free_ حرف *relpath = عدم;
+        אם (FLAGS_SET(flags, SYMLINK_MAKE_RELATIVE)) {
                 r = path_make_relative_parent(linkpath, target, &relpath);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 target = relpath;
         }
 
-        _cleanup_free_ char *t = NULL;
-        r = tempfn_random(linkpath, NULL, &t);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *t = عدم;
+        r = tempfn_random(linkpath, عدم, &t);
+        אם (r < 0)
+                החזר r;
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, SYMLINK_LABEL)) {
+        אם (FLAGS_SET(flags, SYMLINK_LABEL)) {
                 r = label_ops_pre(atfd, linkpath, S_IFLNK, label_context);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 call_label_ops_post = true;
         }
 
         r = RET_NERRNO(symlinkat(target, atfd, t));
-        if (call_label_ops_post)
+        אם (call_label_ops_post)
                 RET_GATHER(r, label_ops_post(atfd, t, /* created= */ r >= 0, label_context));
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
         r = RET_NERRNO(renameat(atfd, t, atfd, linkpath));
-        if (r < 0) {
-                (void) unlinkat(atfd, t, 0);
-                return r;
+        אם (r < 0) {
+                (فراغ) unlinkat(atfd, t, 0);
+                החזר r;
         }
 
-        return 0;
+        החזר 0;
 }
 
-int mknodat_atomic(int atfd, const char *path, mode_t mode, dev_t dev) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+صحيح mknodat_atomic(صحيح atfd, ثابت حرف *path, mode_t mode, dev_t dev) {
+        _cleanup_free_ حرف *t = عدم;
+        صحيح r;
 
-        assert(path);
+        أكد(path);
 
-        r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random(path, عدم, &t);
+        אם (r < 0)
+                החזר r;
 
-        if (mknodat(atfd, t, mode, dev) < 0)
-                return -errno;
+        אם (mknodat(atfd, t, mode, dev) < 0)
+                החזר -errno;
 
         r = RET_NERRNO(renameat(atfd, t, atfd, path));
-        if (r < 0) {
-                (void) unlinkat(atfd, t, 0);
-                return r;
+        אם (r < 0) {
+                (فراغ) unlinkat(atfd, t, 0);
+                החזר r;
         }
 
-        return 0;
+        החזר 0;
 }
 
-int mkfifoat_atomic(int dir_fd, const char *path, mode_t mode) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+صحيح mkfifoat_atomic(صحيح dir_fd, ثابت حرف *path, mode_t mode) {
+        _cleanup_free_ حرف *t = عدم;
+        صحيح r;
 
-        assert(path);
+        أكد(path);
 
         /* We're only interested in the (random) filename.  */
-        r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random(path, عدم, &t);
+        אם (r < 0)
+                החזר r;
 
-        if (mkfifoat(dir_fd, t, mode) < 0)
-                return -errno;
+        אם (mkfifoat(dir_fd, t, mode) < 0)
+                החזר -errno;
 
         r = RET_NERRNO(renameat(dir_fd, t, dir_fd, path));
-        if (r < 0) {
-                (void) unlinkat(dir_fd, t, 0);
-                return r;
+        אם (r < 0) {
+                (فراغ) unlinkat(dir_fd, t, 0);
+                החזר r;
         }
 
-        return 0;
+        החזר 0;
 }
 
-int get_files_in_directory(const char *path, char ***ret_list) {
-        _cleanup_strv_free_ char **l = NULL;
-        _cleanup_closedir_ DIR *d = NULL;
+صحيح get_files_in_directory(ثابت حرف *path, حرف ***ret_list) {
+        _cleanup_strv_free_ حرف **l = عدم;
+        _cleanup_closedir_ DIR *d = عدم;
         size_t n = 0;
 
-        assert(path);
+        أكد(path);
 
         /* Returns all files in a directory in *list, and the number
          * of files as return value. If list is NULL returns only the
          * number. */
 
         d = opendir(path);
-        if (!d)
-                return -errno;
+        אם (!d)
+                החזר -errno;
 
-        FOREACH_DIRENT_ALL(de, d, return -errno) {
-                if (!dirent_is_file(de))
-                        continue;
+        FOREACH_DIRENT_ALL(de, d, החזר -errno) {
+                אם (!dirent_is_file(de))
+                        استمر;
 
-                if (ret_list) {
+                אם (ret_list) {
                         /* one extra slot is needed for the terminating NULL */
-                        if (!GREEDY_REALLOC(l, n + 2))
-                                return -ENOMEM;
+                        אם (!GREEDY_REALLOC(l, n + 2))
+                                החזר -ENOMEM;
 
                         l[n] = strdup(de->d_name);
-                        if (!l[n])
-                                return -ENOMEM;
+                        אם (!l[n])
+                                החזר -ENOMEM;
 
-                        l[++n] = NULL;
-                } else
+                        l[++n] = عدم;
+                } אחרת
                         n++;
         }
 
-        if (ret_list)
+        אם (ret_list)
                 *ret_list = TAKE_PTR(l);
 
-        return n;
+        החזר n;
 }
 
-static int getenv_tmp_dir(const char **ret_path) {
-        int r, ret = 0;
+ساكن صحيح getenv_tmp_dir(ثابت حرف **ret_path) {
+        صحيح r, ret = 0;
 
-        assert(ret_path);
+        أكد(ret_path);
 
         /* We use the same order of environment variables python uses in tempfile.gettempdir():
          * https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir */
         FOREACH_STRING(n, "TMPDIR", "TEMP", "TMP") {
-                const char *e;
+                ثابت حرف *e;
 
                 e = secure_getenv(n);
-                if (!e)
-                        continue;
-                if (!path_is_absolute(e)) {
+                אם (!e)
+                        استمر;
+                אם (!path_is_absolute(e)) {
                         r = -ENOTDIR;
-                        goto next;
+                        اذهب next;
                 }
-                if (!path_is_normalized(e)) {
+                אם (!path_is_normalized(e)) {
                         r = -EPERM;
-                        goto next;
+                        اذهب next;
                 }
 
                 r = is_dir(e, true);
-                if (r < 0)
-                        goto next;
-                if (r == 0) {
+                אם (r < 0)
+                        اذهب next;
+                אם (r == 0) {
                         r = -ENOTDIR;
-                        goto next;
+                        اذهب next;
                 }
 
                 *ret_path = e;
-                return 1;
+                החזר 1;
 
         next:
                 /* Remember first error, to make this more debuggable */
-                if (ret >= 0)
+                אם (ret >= 0)
                         ret = r;
         }
 
-        if (ret < 0)
-                return ret;
+        אם (ret < 0)
+                החזר ret;
 
-        *ret_path = NULL;
-        return ret;
+        *ret_path = عدم;
+        החזר ret;
 }
 
-static int tmp_dir_internal(const char *def, const char **ret) {
-        const char *e;
-        int r, k;
+ساكن صحيح tmp_dir_internal(ثابت حرف *def, ثابت حرف **ret) {
+        ثابت حرف *e;
+        صحيح r, k;
 
-        assert(def);
-        assert(ret);
+        أكد(def);
+        أكد(ret);
 
         r = getenv_tmp_dir(&e);
-        if (r > 0) {
+        אם (r > 0) {
                 *ret = e;
-                return 0;
+                החזר 0;
         }
 
         k = is_dir(def, /* follow= */ true);
-        if (k == 0)
+        אם (k == 0)
                 k = -ENOTDIR;
-        if (k < 0)
-                return RET_GATHER(r, k);
+        אם (k < 0)
+                החזר RET_GATHER(r, k);
 
         *ret = def;
-        return 0;
+        החזר 0;
 }
 
-int var_tmp_dir(const char **ret) {
-        assert(ret);
+صحيح var_tmp_dir(ثابت حرف **ret) {
+        أكد(ret);
 
         /* Returns the location for "larger" temporary files, that is backed by physical storage if available, and thus
          * even might survive a boot: /var/tmp. If $TMPDIR (or related environment variables) are set, its value is
          * returned preferably however. Note that both this function and tmp_dir() below are affected by $TMPDIR,
          * making it a variable that overrides all temporary file storage locations. */
 
-        return tmp_dir_internal("/var/tmp", ret);
+        החזר tmp_dir_internal("/var/tmp", ret);
 }
 
-int tmp_dir(const char **ret) {
-        assert(ret);
+صحيح tmp_dir(ثابت حرف **ret) {
+        أكد(ret);
 
         /* Similar to var_tmp_dir() above, but returns the location for "smaller" temporary files, which is usually
          * backed by an in-memory file system: /tmp. */
 
-        return tmp_dir_internal("/tmp", ret);
+        החזר tmp_dir_internal("/tmp", ret);
 }
 
-int unlink_or_warn(const char *filename) {
-        assert(filename);
+صحيح unlink_or_warn(ثابت حرف *filename) {
+        أكد(filename);
 
-        if (unlink(filename) < 0 && errno != ENOENT)
+        אם (unlink(filename) < 0 && errno != ENOENT)
                 /* If the file doesn't exist and the fs simply was read-only (in which
                  * case unlink() returns EROFS even if the file doesn't exist), don't
                  * complain */
-                if (errno != EROFS || access(filename, F_OK) >= 0)
-                        return log_error_errno(errno, "Failed to remove \"%s\": %m", filename);
+                אם (errno != EROFS || access(filename, F_OK) >= 0)
+                        החזר log_error_errno(errno, "Failed to remove \"%s\": %m", filename);
 
-        return 0;
+        החזר 0;
 }
 
-char *rmdir_and_free(char *p) {
+حرف *rmdir_and_free(حرف *p) {
         PROTECT_ERRNO;
 
-        if (!p)
-                return NULL;
+        אם (!p)
+                החזר عدم;
 
-        (void) rmdir(p);
-        return mfree(p);
+        (فراغ) rmdir(p);
+        החזר mfree(p);
 }
 
-char* unlink_and_free(char *p) {
+حرف* unlink_and_free(حرف *p) {
         PROTECT_ERRNO;
 
-        if (!p)
-                return NULL;
+        אם (!p)
+                החזר عدم;
 
-        (void) unlink(p);
-        return mfree(p);
+        (فراغ) unlink(p);
+        החזר mfree(p);
 }
 
-int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
-        _cleanup_close_ int truncate_fd = -EBADF;
-        struct stat st;
+صحيح unlinkat_deallocate(صحيح fd, ثابت حرف *name, UnlinkDeallocateFlags flags) {
+        _cleanup_close_ صحيح truncate_fd = -EBADF;
+        بنية stat st;
         off_t l, bs;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert(name);
-        assert((flags & ~(UNLINK_REMOVEDIR|UNLINK_ERASE)) == 0);
+        أكد(fd >= 0 || fd == AT_FDCWD);
+        أكد(name);
+        أكد((flags & ~(UNLINK_REMOVEDIR|UNLINK_ERASE)) == 0);
 
         /* Operates like unlinkat() but also deallocates the file contents if it is a regular file and there's no other
          * link to it. This is useful to ensure that other processes that might have the file open for reading won't be
@@ -736,39 +736,39 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
          * Note that we attempt deallocation, but failure to succeed with that is not considered fatal, as long as the
          * primary job – to delete the file – is accomplished. */
 
-        if (!FLAGS_SET(flags, UNLINK_REMOVEDIR)) {
+        אם (!FLAGS_SET(flags, UNLINK_REMOVEDIR)) {
                 truncate_fd = openat(fd, name, O_WRONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW|O_NONBLOCK);
-                if (truncate_fd < 0) {
+                אם (truncate_fd < 0) {
 
                         /* If this failed because the file doesn't exist propagate the error right-away. Also,
                          * AT_REMOVEDIR wasn't set, and we tried to open the file for writing, which means EISDIR is
                          * returned when this is a directory but we are not supposed to delete those, hence propagate
                          * the error right-away too. */
-                        if (IN_SET(errno, ENOENT, EISDIR))
-                                return -errno;
+                        אם (IN_SET(errno, ENOENT, EISDIR))
+                                החזר -errno;
 
-                        if (errno != ELOOP) /* don't complain if this is a symlink */
+                        אם (errno != ELOOP) /* don't complain if this is a symlink */
                                 log_debug_errno(errno, "Failed to open file '%s' for deallocation, ignoring: %m", name);
                 }
         }
 
-        if (unlinkat(fd, name, FLAGS_SET(flags, UNLINK_REMOVEDIR) ? AT_REMOVEDIR : 0) < 0)
-                return -errno;
+        אם (unlinkat(fd, name, FLAGS_SET(flags, UNLINK_REMOVEDIR) ? AT_REMOVEDIR : 0) < 0)
+                החזר -errno;
 
-        if (truncate_fd < 0) /* Don't have a file handle, can't do more ☹️ */
-                return 0;
+        אם (truncate_fd < 0) /* Don't have a file handle, can't do more ☹️ */
+                החזר 0;
 
-        if (fstat(truncate_fd, &st) < 0) {
+        אם (fstat(truncate_fd, &st) < 0) {
                 log_debug_errno(errno, "Failed to stat file '%s' for deallocation, ignoring: %m", name);
-                return 0;
+                החזר 0;
         }
 
-        if (!S_ISREG(st.st_mode))
-                return 0;
+        אם (!S_ISREG(st.st_mode))
+                החזר 0;
 
-        if (FLAGS_SET(flags, UNLINK_ERASE) && st.st_size > 0 && st.st_nlink == 0) {
+        אם (FLAGS_SET(flags, UNLINK_ERASE) && st.st_size > 0 && st.st_nlink == 0) {
                 uint64_t left = st.st_size;
-                char buffer[64 * 1024];
+                حرف buffer[64 * 1024];
 
                 /* If erasing is requested, let's overwrite the file with random data once before deleting
                  * it. This isn't going to give you shred(1) semantics, but hopefully should be good enough
@@ -778,31 +778,31 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
                  * is still linked by someone else and we'll leave it to them to remove it securely
                  * eventually! */
 
-                random_bytes(buffer, sizeof(buffer));
+                random_bytes(buffer, حجم(buffer));
 
-                while (left > 0) {
+                כלעוד (left > 0) {
                         ssize_t n;
 
-                        n = write(truncate_fd, buffer, MIN(sizeof(buffer), left));
-                        if (n < 0) {
+                        n = اكتب(truncate_fd, buffer, MIN(حجم(buffer), left));
+                        אם (n < 0) {
                                 log_debug_errno(errno, "Failed to erase data in file '%s', ignoring.", name);
-                                break;
+                                اكسر;
                         }
 
-                        assert(left >= (size_t) n);
+                        أكد(left >= (size_t) n);
                         left -= n;
                 }
 
                 /* Let's refresh metadata */
-                if (fstat(truncate_fd, &st) < 0) {
+                אם (fstat(truncate_fd, &st) < 0) {
                         log_debug_errno(errno, "Failed to stat file '%s' for deallocation, ignoring: %m", name);
-                        return 0;
+                        החזר 0;
                 }
         }
 
         /* Don't deallocate if there's nothing to deallocate or if the file is linked elsewhere */
-        if (st.st_blocks == 0 || st.st_nlink > 0)
-                return 0;
+        אם (st.st_blocks == 0 || st.st_nlink > 0)
+                החזר 0;
 
         /* If this is a regular file, it actually took up space on disk and there are no other links it's time to
          * punch-hole/truncate this to release the disk space. */
@@ -810,52 +810,52 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
         bs = MAX(st.st_blksize, 512);
         l = ROUND_UP(st.st_size, bs); /* Round up to next block size */
 
-        if (fallocate(truncate_fd, FALLOC_FL_PUNCH_HOLE|FALLOC_FL_KEEP_SIZE, 0, l) >= 0)
-                return 0; /* Successfully punched a hole! 😊 */
+        אם (fallocate(truncate_fd, FALLOC_FL_PUNCH_HOLE|FALLOC_FL_KEEP_SIZE, 0, l) >= 0)
+                החזר 0; /* Successfully punched a hole! 😊 */
 
         /* Fall back to truncation */
-        if (ftruncate(truncate_fd, 0) < 0) {
+        אם (ftruncate(truncate_fd, 0) < 0) {
                 log_debug_errno(errno, "Failed to truncate file to 0, ignoring: %m");
-                return 0;
+                החזר 0;
         }
 
-        return 0;
+        החזר 0;
 }
 
-int open_parent_at(int dir_fd, const char *path, int flags, mode_t mode) {
-        _cleanup_free_ char *parent = NULL;
-        int r;
+صحيح open_parent_at(صحيح dir_fd, ثابت حرف *path, صحيح flags, mode_t mode) {
+        _cleanup_free_ حرف *parent = عدم;
+        صحيح r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(path);
 
         r = path_extract_directory(path, &parent);
-        if (r == -EDESTADDRREQ) {
+        אם (r == -EDESTADDRREQ) {
                 parent = strdup(".");
-                if (!parent)
-                        return -ENOMEM;
-        } else if (r == -EADDRNOTAVAIL) {
+                אם (!parent)
+                        החזר -ENOMEM;
+        } אחרת אם (r == -EADDRNOTAVAIL) {
                 parent = strdup(path);
-                if (!parent)
-                        return -ENOMEM;
-        } else if (r < 0)
-                return r;
+                אם (!parent)
+                        החזר -ENOMEM;
+        } אחרת אם (r < 0)
+                החזר r;
 
         /* Let's insist on O_DIRECTORY since the parent of a file or directory is a directory. Except if we open an
          * O_TMPFILE file, because in that case we are actually create a regular file below the parent directory. */
 
-        if (!FLAGS_SET(flags, O_TMPFILE))
+        אם (!FLAGS_SET(flags, O_TMPFILE))
                 flags |= O_DIRECTORY;
 
-        return RET_NERRNO(openat(dir_fd, parent, flags, mode));
+        החזר RET_NERRNO(openat(dir_fd, parent, flags, mode));
 }
 
-int conservative_renameat(
-                int olddirfd, const char *oldpath,
-                int newdirfd, const char *newpath) {
+صحيح conservative_renameat(
+                صحيح olddirfd, ثابت حرف *oldpath,
+                صحيح newdirfd, ثابت حرف *newpath) {
 
-        _cleanup_close_ int old_fd = -EBADF, new_fd = -EBADF;
-        struct stat old_stat, new_stat;
+        _cleanup_close_ صحيح old_fd = -EBADF, new_fd = -EBADF;
+        بنية stat old_stat, new_stat;
 
         /* Renames the old path to the new path, much like renameat() — except if both are regular files and
          * have the exact same contents and basic file attributes already. In that case remove the new file
@@ -865,189 +865,189 @@ int conservative_renameat(
          * events is an optimization only, not more. */
 
         old_fd = openat(olddirfd, oldpath, O_CLOEXEC|O_RDONLY|O_NOCTTY|O_NOFOLLOW);
-        if (old_fd < 0)
-                goto do_rename;
+        אם (old_fd < 0)
+                اذهب do_rename;
 
         new_fd = openat(newdirfd, newpath, O_CLOEXEC|O_RDONLY|O_NOCTTY|O_NOFOLLOW);
-        if (new_fd < 0)
-                goto do_rename;
+        אם (new_fd < 0)
+                اذهب do_rename;
 
-        if (fstat(old_fd, &old_stat) < 0)
-                goto do_rename;
+        אם (fstat(old_fd, &old_stat) < 0)
+                اذهب do_rename;
 
-        if (!S_ISREG(old_stat.st_mode))
-                goto do_rename;
+        אם (!S_ISREG(old_stat.st_mode))
+                اذهب do_rename;
 
-        if (fstat(new_fd, &new_stat) < 0)
-                goto do_rename;
+        אם (fstat(new_fd, &new_stat) < 0)
+                اذهب do_rename;
 
-        if (stat_inode_same(&new_stat, &old_stat))
-                goto is_same;
+        אם (stat_inode_same(&new_stat, &old_stat))
+                اذهب is_same;
 
-        if (old_stat.st_mode != new_stat.st_mode ||
+        אם (old_stat.st_mode != new_stat.st_mode ||
             old_stat.st_size != new_stat.st_size ||
             old_stat.st_uid != new_stat.st_uid ||
             old_stat.st_gid != new_stat.st_gid)
-                goto do_rename;
+                اذهب do_rename;
 
-        for (;;) {
+        עבור (;;) {
                 uint8_t buf1[16*1024];
-                uint8_t buf2[sizeof(buf1)];
+                uint8_t buf2[حجم(buf1)];
                 ssize_t l1, l2;
 
-                l1 = read(old_fd, buf1, sizeof(buf1));
-                if (l1 < 0)
-                        goto do_rename;
+                l1 = اقرأ(old_fd, buf1, حجم(buf1));
+                אם (l1 < 0)
+                        اذهب do_rename;
 
-                if (l1 == sizeof(buf1))
+                אם (l1 == حجم(buf1))
                         /* Read the full block, hence read a full block in the other file too */
 
-                        l2 = read(new_fd, buf2, l1);
-                else {
-                        assert((size_t) l1 < sizeof(buf1));
+                        l2 = اقرأ(new_fd, buf2, l1);
+                אחרת {
+                        أكد((size_t) l1 < حجم(buf1));
 
                         /* Short read. This hence was the last block in the first file, and then came
                          * EOF. Read one byte more in the second file, so that we can verify we hit EOF there
                          * too. */
 
-                        assert((size_t) (l1 + 1) <= sizeof(buf2));
-                        l2 = read(new_fd, buf2, l1 + 1);
+                        أكد((size_t) (l1 + 1) <= حجم(buf2));
+                        l2 = اقرأ(new_fd, buf2, l1 + 1);
                 }
-                if (l2 != l1)
-                        goto do_rename;
+                אם (l2 != l1)
+                        اذهب do_rename;
 
-                if (memcmp(buf1, buf2, l1) != 0)
-                        goto do_rename;
+                אם (memcmp(buf1, buf2, l1) != 0)
+                        اذهب do_rename;
 
-                if ((size_t) l1 < sizeof(buf1)) /* We hit EOF on the first file, and the second file too, hence exit
+                אם ((size_t) l1 < حجم(buf1)) /* We hit EOF on the first file, and the second file too, hence exit
                                                  * now. */
-                        break;
+                        اكسر;
         }
 
 is_same:
         /* Everything matches? Then don't rename, instead remove the source file, and leave the existing
          * destination in place */
 
-        if (unlinkat(olddirfd, oldpath, 0) < 0)
-                goto do_rename;
+        אם (unlinkat(olddirfd, oldpath, 0) < 0)
+                اذهب do_rename;
 
-        return 0;
+        החזר 0;
 
 do_rename:
-        if (renameat(olddirfd, oldpath, newdirfd, newpath) < 0)
-                return -errno;
+        אם (renameat(olddirfd, oldpath, newdirfd, newpath) < 0)
+                החזר -errno;
 
-        return 1;
+        החזר 1;
 }
 
-int posix_fallocate_loop(int fd, uint64_t offset, uint64_t size) {
+صحيح posix_fallocate_loop(صحيح fd, uint64_t offset, uint64_t size) {
         RateLimit rl;
-        int r;
+        صحيح r;
 
         r = posix_fallocate(fd, offset, size); /* returns positive errnos on error */
-        if (r != EINTR)
-                return -r; /* Let's return negative errnos, like common in our codebase */
+        אם (r != EINTR)
+                החזר -r; /* Let's return negative errnos, like common in our codebase */
 
         /* On EINTR try a couple of times more, but protect against busy looping
          * (not more than 16 times per 10s) */
-        rl = (const RateLimit) { 10 * USEC_PER_SEC, 16 };
-        while (ratelimit_below(&rl)) {
+        rl = (ثابت RateLimit) { 10 * USEC_PER_SEC, 16 };
+        כלעוד (ratelimit_below(&rl)) {
                 r = posix_fallocate(fd, offset, size);
-                if (r != EINTR)
-                        return -r;
+                אם (r != EINTR)
+                        החזר -r;
         }
 
-        return -EINTR;
+        החזר -EINTR;
 }
 
-int parse_cifs_service(
-                const char *s,
-                char **ret_host,
-                char **ret_service,
-                char **ret_path) {
+صحيح parse_cifs_service(
+                ثابت حرف *s,
+                حرف **ret_host,
+                حرف **ret_service,
+                حرف **ret_path) {
 
-        _cleanup_free_ char *h = NULL, *ss = NULL, *x = NULL;
-        const char *p, *e, *d;
-        char delimiter;
+        _cleanup_free_ حرف *h = عدم, *ss = عدم, *x = عدم;
+        ثابت حرف *p, *e, *d;
+        حرف delimiter;
 
         /* Parses a CIFS service in form of //host/service/path… and splitting it in three parts. The last
          * part is optional, in which case NULL is returned there. To maximize compatibility syntax with
          * backslashes instead of slashes is accepted too. */
 
-        if (!s)
-                return -EINVAL;
+        אם (!s)
+                החזר -EINVAL;
 
         p = startswith(s, "//");
-        if (!p) {
+        אם (!p) {
                 p = startswith(s, "\\\\");
-                if (!p)
-                        return -EINVAL;
+                אם (!p)
+                        החזר -EINVAL;
         }
 
         delimiter = s[0];
         e = strchr(p, delimiter);
-        if (!e)
-                return -EINVAL;
+        אם (!e)
+                החזר -EINVAL;
 
         h = strndup(p, e - p);
-        if (!h)
-                return -ENOMEM;
+        אם (!h)
+                החזר -ENOMEM;
 
-        if (!hostname_is_valid(h, 0))
-                return -EINVAL;
+        אם (!hostname_is_valid(h, 0))
+                החזר -EINVAL;
 
         e++;
 
         d = strchrnul(e, delimiter);
 
         ss = strndup(e, d - e);
-        if (!ss)
-                return -ENOMEM;
+        אם (!ss)
+                החזר -ENOMEM;
 
-        if (!filename_is_valid(ss))
-                return -EINVAL;
+        אם (!filename_is_valid(ss))
+                החזר -EINVAL;
 
-        if (!isempty(d)) {
+        אם (!isempty(d)) {
                 x = strdup(skip_leading_chars(d, CHAR_TO_STR(delimiter)));
-                if (!x)
-                        return -EINVAL;
+                אם (!x)
+                        החזר -EINVAL;
 
                 /* Make sure to convert Windows-style "\" → Unix-style / */
-                for (char *i = x; *i; i++)
-                        if (*i == delimiter)
+                עבור (حرف *i = x; *i; i++)
+                        אם (*i == delimiter)
                                 *i = '/';
 
-                if (!path_is_valid(x))
-                        return -EINVAL;
+                אם (!path_is_valid(x))
+                        החזר -EINVAL;
 
                 path_simplify(x);
-                if (!path_is_normalized(x))
-                        return -EINVAL;
+                אם (!path_is_normalized(x))
+                        החזר -EINVAL;
         }
 
-        if (ret_host)
+        אם (ret_host)
                 *ret_host = TAKE_PTR(h);
-        if (ret_service)
+        אם (ret_service)
                 *ret_service = TAKE_PTR(ss);
-        if (ret_path)
+        אם (ret_path)
                 *ret_path = TAKE_PTR(x);
 
-        return 0;
+        החזר 0;
 }
 
-int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
-        _cleanup_close_ int fd = -EBADF, parent_fd = -EBADF;
-        _cleanup_free_ char *fname = NULL, *parent = NULL;
-        int r;
+صحيح open_mkdir_at_full_label(صحيح dirfd, ثابت حرف *path, صحيح flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
+        _cleanup_close_ صحيح fd = -EBADF, parent_fd = -EBADF;
+        _cleanup_free_ حرف *fname = عدم, *parent = عدم;
+        صحيح r;
 
         /* Creates a directory with mkdirat() and then opens it, in the "most atomic" fashion we can
          * do. Guarantees that the returned fd refers to a directory. If O_EXCL is specified will fail if the
          * dir already exists. Otherwise will open an existing dir, but only if it is one.  */
 
-        if (flags & ~(O_RDONLY|O_CLOEXEC|O_DIRECTORY|O_EXCL|O_NOATIME|O_NOFOLLOW|O_PATH))
-                return -EINVAL;
-        if ((flags & O_ACCMODE_STRICT) != O_RDONLY)
-                return -EINVAL;
+        אם (flags & ~(O_RDONLY|O_CLOEXEC|O_DIRECTORY|O_EXCL|O_NOATIME|O_NOFOLLOW|O_PATH))
+                החזר -EINVAL;
+        אם ((flags & O_ACCMODE_STRICT) != O_RDONLY)
+                החזר -EINVAL;
 
         /* Note that O_DIRECTORY|O_NOFOLLOW is implied, but we allow specifying it anyway. The following
          * flags actually make sense to specify: O_CLOEXEC, O_EXCL, O_NOATIME, O_PATH */
@@ -1055,33 +1055,33 @@ int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags 
         /* If this is not a valid filename, it's a path. Let's open the parent directory then, so
          * that we can pin it, and operate below it. */
         r = path_extract_directory(path, &parent);
-        if (r < 0) {
-                if (!IN_SET(r, -EDESTADDRREQ, -EADDRNOTAVAIL))
-                        return r;
-        } else {
+        אם (r < 0) {
+                אם (!IN_SET(r, -EDESTADDRREQ, -EADDRNOTAVAIL))
+                        החזר r;
+        } אחרת {
                 r = path_extract_filename(path, &fname);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 parent_fd = openat(dirfd, parent, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (parent_fd < 0)
-                        return -errno;
+                אם (parent_fd < 0)
+                        החזר -errno;
 
                 dirfd = parent_fd;
                 path = fname;
         }
 
         fd = xopenat_full_label(dirfd, path, flags|O_CREAT|O_DIRECTORY|O_NOFOLLOW, xopen_flags, mode, label_context);
-        if (IN_SET(fd, -ELOOP, -ENOTDIR))
-                return -EEXIST;
-        if (fd < 0)
-                return fd;
+        אם (IN_SET(fd, -ELOOP, -ENOTDIR))
+                החזר -EEXIST;
+        אם (fd < 0)
+                החזר fd;
 
-        return TAKE_FD(fd);
+        החזר TAKE_FD(fd);
 }
 
-int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, bool *ret_newly_created) {
-        int fd;
+صحيح openat_report_new(صحيح dirfd, ثابت حرف *pathname, صحيح flags, mode_t mode, bool *ret_newly_created) {
+        صحيح fd;
 
         /* Just like openat(), but adds one thing: optionally returns whether we created the file anew or if
          * it already existed before. This is only relevant if O_CREAT is set without O_EXCL, and thus will
@@ -1092,46 +1092,46 @@ int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, b
          * follow it when creating a new one (because that's a terrible UNIX misfeature and generally a
          * security hole). */
 
-        if (!FLAGS_SET(flags, O_CREAT) || FLAGS_SET(flags, O_EXCL)) {
+        אם (!FLAGS_SET(flags, O_CREAT) || FLAGS_SET(flags, O_EXCL)) {
                 fd = openat(dirfd, pathname, flags, mode);
-                if (fd < 0)
-                        return -errno;
+                אם (fd < 0)
+                        החזר -errno;
 
-                if (ret_newly_created)
+                אם (ret_newly_created)
                         *ret_newly_created = FLAGS_SET(flags, O_CREAT);
-                return fd;
+                החזר fd;
         }
 
-        for (unsigned attempts = 7;;) {
+        עבור (unsigned attempts = 7;;) {
                 /* First, attempt to open without O_CREAT/O_EXCL, i.e. open existing file */
                 fd = openat(dirfd, pathname, flags & ~(O_CREAT | O_EXCL), mode);
-                if (fd >= 0) {
-                        if (ret_newly_created)
+                אם (fd >= 0) {
+                        אם (ret_newly_created)
                                 *ret_newly_created = false;
-                        return fd;
+                        החזר fd;
                 }
-                if (errno != ENOENT)
-                        return -errno;
+                אם (errno != ENOENT)
+                        החזר -errno;
 
                 /* So the file didn't exist yet, hence create it with O_CREAT/O_EXCL/O_NOFOLLOW. */
                 fd = openat(dirfd, pathname, flags | O_CREAT | O_EXCL | O_NOFOLLOW, mode);
-                if (fd >= 0) {
-                        if (ret_newly_created)
+                אם (fd >= 0) {
+                        אם (ret_newly_created)
                                 *ret_newly_created = true;
-                        return fd;
+                        החזר fd;
                 }
-                if (errno != EEXIST)
-                        return -errno;
+                אם (errno != EEXIST)
+                        החזר -errno;
 
                 /* Hmm, so now we got EEXIST? Then someone might have created the file between the first and
                  * second call to openat(). Let's try again but with a limit so we don't spin forever. */
 
-                if (--attempts == 0) /* Give up eventually, somebody is playing with us */
-                        return -EEXIST;
+                אם (--attempts == 0) /* Give up eventually, somebody is playing with us */
+                        החזר -EEXIST;
         }
 }
 
-static int openat_with_automount(int dir_fd, const char *path, int open_flags, mode_t mode) {
+ساكن صحيح openat_with_automount(صحيح dir_fd, ثابت حرف *path, صحيح open_flags, mode_t mode) {
         /* When XO_TRIGGER_AUTOMOUNT is set we want to trigger automounts on the path. open() with O_PATH
          * does not do that, so we use open_tree() without OPEN_TREE_CLONE which is equivalent to open() with
          * O_PATH except that it does trigger automounts. Some sandboxes reject open_tree() with EPERM or
@@ -1139,60 +1139,60 @@ static int openat_with_automount(int dir_fd, const char *path, int open_flags, m
          * mount namespace anyway. open_tree() only ever returns O_PATH fds, so this helper is for O_PATH
          * acquisition only. */
 
-        static bool can_open_tree = true;
+        ساكن bool can_open_tree = true;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
-        assert(FLAGS_SET(open_flags, O_PATH));
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(path);
+        أكد(FLAGS_SET(open_flags, O_PATH));
 
-        if (can_open_tree) {
-                int fd = RET_NERRNO(open_tree(dir_fd, path,
+        אם (can_open_tree) {
+                صحيح fd = RET_NERRNO(open_tree(dir_fd, path,
                                               OPEN_TREE_CLOEXEC |
                                               (FLAGS_SET(open_flags, O_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0)));
-                if (fd >= 0) {
+                אם (fd >= 0) {
                         /* open_tree() doesn't honor O_DIRECTORY, so enforce it ourselves to match
                          * the openat() fallback's behavior. */
-                        if (FLAGS_SET(open_flags, O_DIRECTORY)) {
-                                int q = fd_verify_directory(fd);
-                                if (q < 0) {
+                        אם (FLAGS_SET(open_flags, O_DIRECTORY)) {
+                                صحيح q = fd_verify_directory(fd);
+                                אם (q < 0) {
                                         safe_close(fd);
-                                        return q;
+                                        החזר q;
                                 }
                         }
 
-                        return fd;
+                        החזר fd;
                 }
-                if (fd != -EPERM && !ERRNO_IS_NEG_NOT_SUPPORTED(fd))
-                        return fd;
+                אם (fd != -EPERM && !ERRNO_IS_NEG_NOT_SUPPORTED(fd))
+                        החזר fd;
 
                 can_open_tree = false;
         }
 
-        return RET_NERRNO(openat(dir_fd, path, open_flags, mode));
+        החזר RET_NERRNO(openat(dir_fd, path, open_flags, mode));
 }
 
-int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح xopenat_full_label(صحيح dir_fd, ثابت حرف *path, صحيح open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
+        _cleanup_close_ صحيح fd = -EBADF;
         bool made_dir = false, made_file = false;
-        int r;
+        صحيح r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
+        أكد(wildcard_fd_is_valid(dir_fd));
 
         /* An inode can only be one of a directory, a regular file or a socket at the same time. */
-        assert(FLAGS_SET(open_flags, O_DIRECTORY) + FLAGS_SET(xopen_flags, XO_REGULAR) + FLAGS_SET(xopen_flags, XO_SOCKET) <= 1);
+        أكد(FLAGS_SET(open_flags, O_DIRECTORY) + FLAGS_SET(xopen_flags, XO_REGULAR) + FLAGS_SET(xopen_flags, XO_SOCKET) <= 1);
         /* Sockets cannot be open()ed, only pinned via O_PATH. */
-        assert(!FLAGS_SET(xopen_flags, XO_SOCKET) || FLAGS_SET(open_flags, O_PATH));
+        أكد(!FLAGS_SET(xopen_flags, XO_SOCKET) || FLAGS_SET(open_flags, O_PATH));
         /* XO_TRIGGER_AUTOMOUNT requires O_PATH and does not support creating inodes. XO_SUBVOLUME
          * requires O_CREAT, and XO_COW/XO_NOCOW need a writable fd for their chattr ioctl, so none are
          * compatible with XO_TRIGGER_AUTOMOUNT. */
-        assert(!FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) ||
+        أكد(!FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) ||
                (FLAGS_SET(open_flags, O_PATH) && !FLAGS_SET(open_flags, O_CREAT)));
-        assert(!(FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) && FLAGS_SET(xopen_flags, XO_SUBVOLUME)));
-        assert(!(FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) && (xopen_flags & (XO_COW|XO_NOCOW))));
-        assert((xopen_flags & (XO_COW|XO_NOCOW)) != (XO_COW|XO_NOCOW));
+        أكد(!(FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) && FLAGS_SET(xopen_flags, XO_SUBVOLUME)));
+        أكد(!(FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) && (xopen_flags & (XO_COW|XO_NOCOW))));
+        أكد((xopen_flags & (XO_COW|XO_NOCOW)) != (XO_COW|XO_NOCOW));
 
         /* Don't specify an access mode if you want auto mode. */
-        assert(!FLAGS_SET(xopen_flags, XO_AUTO_RW_RO) || (open_flags & O_ACCMODE_STRICT) == 0);
+        أكد(!FLAGS_SET(xopen_flags, XO_AUTO_RW_RO) || (open_flags & O_ACCMODE_STRICT) == 0);
 
         /* This is like openat(), but has a few tricks up its sleeves, extending behaviour:
          *
@@ -1219,55 +1219,55 @@ int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags 
          *   • If XO_AUTO_RW_RO is specified and the file cannot be opened in O_RDWR mode due to EACCES/EROFS or similar, retry in O_RDONLY mode.
          */
 
-        if (mode == MODE_INVALID)
+        אם (mode == MODE_INVALID)
                 mode = (open_flags & O_DIRECTORY) ? 0755 : 0644;
 
-        if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
-                if (open_flags & O_DIRECTORY) {
+        אם (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                אם (open_flags & O_DIRECTORY) {
                         /* Directories can only be opened in read-only mode */
                         xopen_flags &= ~XO_AUTO_RW_RO;
                         open_flags |= O_RDONLY;
-                } else if (open_flags & O_PATH)
+                } אחרת אם (open_flags & O_PATH)
                         /* O_PATH is incompatible with O_RDONLY/O_RDWR → fail */
-                        return -EINVAL;
+                        החזר -EINVAL;
         }
 
-        if (isempty(path)) {
-                assert(!FLAGS_SET(open_flags, O_CREAT|O_EXCL));
+        אם (isempty(path)) {
+                أكد(!FLAGS_SET(open_flags, O_CREAT|O_EXCL));
                 open_flags &= ~O_NOFOLLOW;
 
-                if (FLAGS_SET(xopen_flags, XO_REGULAR)) {
+                אם (FLAGS_SET(xopen_flags, XO_REGULAR)) {
                         r = fd_verify_regular(dir_fd);
-                        if (r < 0)
-                                return r;
+                        אם (r < 0)
+                                החזר r;
                 }
 
-                if (FLAGS_SET(xopen_flags, XO_SOCKET)) {
+                אם (FLAGS_SET(xopen_flags, XO_SOCKET)) {
                         r = fd_verify_socket(dir_fd);
-                        if (r < 0)
-                                return r;
+                        אם (r < 0)
+                                החזר r;
                 }
 
-                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                אם (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                         /* First try: in r/w mode */
                         fd = fd_reopen(dir_fd, open_flags|O_RDWR);
-                        if (!ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) && fd != -EISDIR)
-                                return TAKE_FD(fd);
+                        אם (!ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) && fd != -EISDIR)
+                                החזר TAKE_FD(fd);
 
                         open_flags |= O_RDONLY;
                 }
 
-                return fd_reopen(dir_fd, open_flags);
+                החזר fd_reopen(dir_fd, open_flags);
         }
 
-        _cleanup_close_ int _dir_fd = -EBADF;
-        if (dir_fd == XAT_FDROOT) {
-                if (path_is_absolute(path))
+        _cleanup_close_ صحيح _dir_fd = -EBADF;
+        אם (dir_fd == XAT_FDROOT) {
+                אם (path_is_absolute(path))
                         dir_fd = AT_FDCWD;
-                else {
+                אחרת {
                         _dir_fd = open("/", O_CLOEXEC|O_DIRECTORY|O_PATH);
-                        if (_dir_fd < 0)
-                                return -errno;
+                        אם (_dir_fd < 0)
+                                החזר -errno;
 
                         dir_fd = _dir_fd;
                 }
@@ -1275,328 +1275,328 @@ int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags 
 
         bool call_label_ops_post = false;
 
-        if (FLAGS_SET(open_flags, O_CREAT) && FLAGS_SET(xopen_flags, XO_LABEL)) {
+        אם (FLAGS_SET(open_flags, O_CREAT) && FLAGS_SET(xopen_flags, XO_LABEL)) {
                 r = label_ops_pre(dir_fd, path, FLAGS_SET(open_flags, O_DIRECTORY) ? S_IFDIR : S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 call_label_ops_post = true;
         }
 
-        if (FLAGS_SET(open_flags, O_DIRECTORY|O_CREAT)) {
-                if (FLAGS_SET(xopen_flags, XO_SUBVOLUME))
+        אם (FLAGS_SET(open_flags, O_DIRECTORY|O_CREAT)) {
+                אם (FLAGS_SET(xopen_flags, XO_SUBVOLUME))
                         r = btrfs_subvol_make_fallback(dir_fd, path, mode);
-                else
+                אחרת
                         r = RET_NERRNO(mkdirat(dir_fd, path, mode));
-                if (r == -EEXIST) {
-                        if (FLAGS_SET(open_flags, O_EXCL))
-                                return -EEXIST;
-                } else if (r < 0)
-                        return r;
-                else
+                אם (r == -EEXIST) {
+                        אם (FLAGS_SET(open_flags, O_EXCL))
+                                החזר -EEXIST;
+                } אחרת אם (r < 0)
+                        החזר r;
+                אחרת
                         made_dir = true;
 
                 open_flags &= ~(O_EXCL|O_CREAT);
         }
 
-        if (FLAGS_SET(xopen_flags, XO_REGULAR)) {
+        אם (FLAGS_SET(xopen_flags, XO_REGULAR)) {
                 /* Guarantee we return a regular fd only, and don't open the file unless we verified it
                  * first */
 
-                if (FLAGS_SET(open_flags, O_PATH)) {
+                אם (FLAGS_SET(open_flags, O_PATH)) {
                         fd = FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) ?
                                 openat_with_automount(dir_fd, path, open_flags, mode) :
                                 RET_NERRNO(openat(dir_fd, path, open_flags, mode));
-                        if (fd < 0) {
+                        אם (fd < 0) {
                                 r = fd;
-                                goto error;
+                                اذهب error;
                         }
 
                         r = fd_verify_regular(fd);
-                        if (r < 0)
-                                goto error;
+                        אם (r < 0)
+                                اذهب error;
 
-                } else if (FLAGS_SET(open_flags, O_CREAT|O_EXCL)) {
+                } אחרת אם (FLAGS_SET(open_flags, O_CREAT|O_EXCL)) {
                         /* In O_EXCL mode we can just create the thing, everything is dealt with for us */
 
-                        if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                        אם (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                                 fd = RET_NERRNO(openat(dir_fd, path, open_flags|O_RDWR, mode));
-                                if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
+                                אם (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
                                         open_flags |= O_RDONLY;
-                                else if (fd < 0) {
+                                אחרת אם (fd < 0) {
                                         r = fd;
-                                        goto error;
+                                        اذهب error;
                                 }
                         }
 
-                        if (fd < 0) {
+                        אם (fd < 0) {
                                 fd = openat(dir_fd, path, open_flags, mode);
-                                if (fd < 0) {
+                                אם (fd < 0) {
                                         r = -errno;
-                                        goto error;
+                                        اذهب error;
                                 }
                         }
 
                         made_file = true;
-                } else {
+                } אחרת {
                         /* Otherwise pin the inode first via O_PATH */
-                        _cleanup_close_ int inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC|(open_flags & O_NOFOLLOW));
-                        if (inode_fd < 0) {
-                                if (errno != ENOENT || !FLAGS_SET(open_flags, O_CREAT)) {
+                        _cleanup_close_ صحيح inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC|(open_flags & O_NOFOLLOW));
+                        אם (inode_fd < 0) {
+                                אם (errno != ENOENT || !FLAGS_SET(open_flags, O_CREAT)) {
                                         r = -errno;
-                                        goto error;
+                                        اذهب error;
                                 }
 
                                 /* Doesn't exist yet, then try to create it */
                                 open_flags |= O_EXCL;
 
-                                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                                אם (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                                         fd = RET_NERRNO(openat(dir_fd, path, open_flags|O_RDWR, mode));
-                                        if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
+                                        אם (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
                                                 open_flags |= O_RDONLY;
-                                        else if (fd < 0) {
+                                        אחרת אם (fd < 0) {
                                                 r = fd;
-                                                goto error;
+                                                اذهب error;
                                         }
                                 }
 
-                                if (fd < 0) {
+                                אם (fd < 0) {
                                         fd = openat(dir_fd, path, open_flags, mode);
-                                        if (fd < 0) {
+                                        אם (fd < 0) {
                                                 r = -errno;
-                                                goto error;
+                                                اذهب error;
                                         }
                                 }
 
                                 made_file = true;
-                        } else {
+                        } אחרת {
                                 /* OK, we pinned it. Now verify it's actually a regular file, and then reopen it */
                                 r = fd_verify_regular(inode_fd);
-                                if (r < 0)
-                                        goto error;
+                                אם (r < 0)
+                                        اذهب error;
 
                                 open_flags &= ~(O_NOFOLLOW|O_CREAT);
 
-                                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                                אם (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                                         fd = fd_reopen(inode_fd, open_flags|O_RDWR);
-                                        if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
+                                        אם (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
                                                 open_flags |= O_RDONLY;
-                                        else if (fd < 0) {
+                                        אחרת אם (fd < 0) {
                                                 r = fd;
-                                                goto error;
+                                                اذهب error;
                                         }
                                 }
 
-                                if (fd < 0) {
+                                אם (fd < 0) {
                                         fd = fd_reopen(inode_fd, open_flags);
-                                        if (fd < 0) {
+                                        אם (fd < 0) {
                                                 r = fd;
-                                                goto error;
+                                                اذهب error;
                                         }
                                 }
                         }
                 }
-        } else if (FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT)) {
+        } אחרת אם (FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT)) {
                 fd = openat_with_automount(dir_fd, path, open_flags, mode);
-                if (fd < 0) {
+                אם (fd < 0) {
                         r = fd;
-                        goto error;
+                        اذهب error;
                 }
-        } else {
+        } אחרת {
                 /* XO_SOCKET also lands here: it requires O_PATH (see asserts above) so openat() pins
                  * the inode without connecting, and fd_verify_socket() below enforces the type. */
-                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                אם (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                         fd = openat_report_new(dir_fd, path, O_RDWR|open_flags, mode, &made_file);
-                        if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) || fd == -EISDIR)
+                        אם (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) || fd == -EISDIR)
                                 open_flags |= O_RDONLY;
-                        else if (fd < 0) {
+                        אחרת אם (fd < 0) {
                                 r = fd;
-                                goto error;
+                                اذهب error;
                         }
                 }
 
-                if (fd < 0) {
+                אם (fd < 0) {
                         fd = openat_report_new(dir_fd, path, open_flags, mode, &made_file);
-                        if (fd < 0) {
+                        אם (fd < 0) {
                                 r = fd;
-                                goto error;
+                                اذهب error;
                         }
                 }
         }
 
-        if (FLAGS_SET(xopen_flags, XO_SOCKET)) {
+        אם (FLAGS_SET(xopen_flags, XO_SOCKET)) {
                 r = fd_verify_socket(fd);
-                if (r < 0)
-                        goto error;
+                אם (r < 0)
+                        اذهب error;
         }
 
-        if (call_label_ops_post) {
+        אם (call_label_ops_post) {
                 call_label_ops_post = false;
 
-                r = label_ops_post(fd, /* path= */ NULL, made_file || made_dir, label_context);
-                if (r < 0)
-                        goto error;
+                r = label_ops_post(fd, /* path= */ عدم, made_file || made_dir, label_context);
+                אם (r < 0)
+                        اذهب error;
         }
 
-        if (xopen_flags & (XO_COW|XO_NOCOW)) {
+        אם (xopen_flags & (XO_COW|XO_NOCOW)) {
                 r = chattr_fd(fd, FLAGS_SET(xopen_flags, XO_NOCOW) ? FS_NOCOW_FL : 0, FS_NOCOW_FL);
-                if (r < 0 && !ERRNO_IS_IOCTL_NOT_SUPPORTED(r))
-                        goto error;
+                אם (r < 0 && !ERRNO_IS_IOCTL_NOT_SUPPORTED(r))
+                        اذهب error;
         }
 
-        return TAKE_FD(fd);
+        החזר TAKE_FD(fd);
 
 error:
-        if (call_label_ops_post)
-                (void) label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : path, made_dir || made_file, label_context);
+        אם (call_label_ops_post)
+                (فراغ) label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? عدم : path, made_dir || made_file, label_context);
 
-        if (made_dir || made_file)
-                (void) unlinkat(dir_fd, path, made_dir ? AT_REMOVEDIR : 0);
+        אם (made_dir || made_file)
+                (فراغ) unlinkat(dir_fd, path, made_dir ? AT_REMOVEDIR : 0);
 
-        return r;
+        החזר r;
 }
 
-int xopenat_lock_full_label(
-                int dir_fd,
-                const char *path,
-                int open_flags,
+صحيح xopenat_lock_full_label(
+                صحيح dir_fd,
+                ثابت حرف *path,
+                صحيح open_flags,
                 XOpenFlags xopen_flags,
                 mode_t mode,
                 LockType locktype,
-                int operation,
+                صحيح operation,
                 LabelContext *label_context) {
 
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ صحيح fd = -EBADF;
+        صحيح r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(IN_SET(operation & ~LOCK_NB, LOCK_EX, LOCK_SH));
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(IN_SET(operation & ~LOCK_NB, LOCK_EX, LOCK_SH));
 
         /* POSIX/UNPOSIX locks don't work on directories (errno is set to -EBADF so let's return early with
          * the same error here). */
-        if (FLAGS_SET(open_flags, O_DIRECTORY) && !IN_SET(locktype, LOCK_BSD, LOCK_NONE))
-                return -EBADF;
+        אם (FLAGS_SET(open_flags, O_DIRECTORY) && !IN_SET(locktype, LOCK_BSD, LOCK_NONE))
+                החזר -EBADF;
 
-        for (;;) {
-                struct stat st;
+        עבור (;;) {
+                بنية stat st;
 
                 fd = xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, label_context);
-                if (fd < 0)
-                        return fd;
+                אם (fd < 0)
+                        החזר fd;
 
                 r = lock_generic(fd, locktype, operation);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
 
                 /* If we acquired the lock, let's check if the file/directory still exists in the file
                  * system. If not, then the previous exclusive owner removed it and then closed it. In such a
                  * case our acquired lock is worthless, hence try again. */
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
-                if (st.st_nlink > 0)
-                        break;
+                אם (fstat(fd, &st) < 0)
+                        החזר -errno;
+                אם (st.st_nlink > 0)
+                        اكسر;
 
                 fd = safe_close(fd);
         }
 
-        return TAKE_FD(fd);
+        החזר TAKE_FD(fd);
 }
 
-int link_fd(int fd, int newdirfd, const char *newpath) {
-        int r;
+صحيح link_fd(صحيح fd, صحيح newdirfd, ثابت حرف *newpath) {
+        صحيح r;
 
-        assert(fd >= 0);
-        assert(newdirfd >= 0 || newdirfd == AT_FDCWD);
-        assert(newpath);
+        أكد(fd >= 0);
+        أكد(newdirfd >= 0 || newdirfd == AT_FDCWD);
+        أكد(newpath);
 
         /* Try to link via AT_EMPTY_PATH first. This fails with ENOENT if we don't have CAP_DAC_READ_SEARCH
          * on kernels < 6.10, in which case we'd then resort to /proc/self/fd/ dance.
          *
          * See also: https://github.com/torvalds/linux/commit/42bd2af5950456d46fdaa91c3a8fb02e680f19f5 */
         r = RET_NERRNO(linkat(fd, "", newdirfd, newpath, AT_EMPTY_PATH));
-        if (r == -ENOENT) {
+        אם (r == -ENOENT) {
                 r = RET_NERRNO(linkat(AT_FDCWD, FORMAT_PROC_FD_PATH(fd), newdirfd, newpath, AT_SYMLINK_FOLLOW));
-                if (r == -ENOENT && proc_mounted() == 0) /* No proc_fd_enoent_errno() here because we don't
+                אם (r == -ENOENT && proc_mounted() == 0) /* No proc_fd_enoent_errno() here because we don't
                                                             know if it's the target path that's missing. */
-                        return -ENOSYS;
+                        החזר -ENOSYS;
         }
 
-        return r;
+        החזר r;
 }
 
-int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath) {
-        _cleanup_close_ int old_fd = -EBADF;
-        int r;
+صحيح linkat_replace(صحيح olddirfd, ثابت حرف *oldpath, صحيح newdirfd, ثابت حرف *newpath) {
+        _cleanup_close_ صحيح old_fd = -EBADF;
+        صحيح r;
 
-        assert(olddirfd >= 0 || olddirfd == AT_FDCWD);
-        assert(newdirfd >= 0 || newdirfd == AT_FDCWD);
-        assert(!isempty(newpath)); /* source path is optional, but the target path is not */
+        أكد(olddirfd >= 0 || olddirfd == AT_FDCWD);
+        أكد(newdirfd >= 0 || newdirfd == AT_FDCWD);
+        أكد(!isempty(newpath)); /* source path is optional, but the target path is not */
 
         /* Like linkat() but replaces the target if needed. Is a NOP if source and target already share the
          * same inode. */
 
-        if (olddirfd == AT_FDCWD && isempty(oldpath)) /* Refuse operating on the cwd (which is a dir, and dirs can't be hardlinked) */
-                return -EISDIR;
+        אם (olddirfd == AT_FDCWD && isempty(oldpath)) /* Refuse operating on the cwd (which is a dir, and dirs can't be hardlinked) */
+                החזר -EISDIR;
 
-        if (path_implies_directory(oldpath)) /* Refuse these definite directories early */
-                return -EISDIR;
+        אם (path_implies_directory(oldpath)) /* Refuse these definite directories early */
+                החזר -EISDIR;
 
-        if (path_implies_directory(newpath))
-                return -EISDIR;
+        אם (path_implies_directory(newpath))
+                החזר -EISDIR;
 
         /* First, try to link this directly */
-        if (oldpath)
+        אם (oldpath)
                 r = RET_NERRNO(linkat(olddirfd, oldpath, newdirfd, newpath, 0));
-        else
+        אחרת
                 r = link_fd(olddirfd, newdirfd, newpath);
-        if (r >= 0)
-                return 0;
-        if (r != -EEXIST)
-                return r;
+        אם (r >= 0)
+                החזר 0;
+        אם (r != -EEXIST)
+                החזר r;
 
         old_fd = xopenat(olddirfd, oldpath, O_PATH|O_CLOEXEC);
-        if (old_fd < 0)
-                return old_fd;
+        אם (old_fd < 0)
+                החזר old_fd;
 
-        struct stat old_st;
-        if (fstat(old_fd, &old_st) < 0)
-                return -errno;
+        بنية stat old_st;
+        אם (fstat(old_fd, &old_st) < 0)
+                החזר -errno;
 
-        if (S_ISDIR(old_st.st_mode)) /* Don't bother if we are operating on a directory */
-                return -EISDIR;
+        אם (S_ISDIR(old_st.st_mode)) /* Don't bother if we are operating on a directory */
+                החזר -EISDIR;
 
-        struct stat new_st;
-        if (fstatat(newdirfd, newpath, &new_st, AT_SYMLINK_NOFOLLOW) < 0)
-                return -errno;
+        بنية stat new_st;
+        אם (fstatat(newdirfd, newpath, &new_st, AT_SYMLINK_NOFOLLOW) < 0)
+                החזר -errno;
 
-        if (S_ISDIR(new_st.st_mode)) /* Refuse replacing directories */
-                return -EEXIST;
+        אם (S_ISDIR(new_st.st_mode)) /* Refuse replacing directories */
+                החזר -EEXIST;
 
-        if (stat_inode_same(&old_st, &new_st)) /* Already the same inode? Then shortcut this */
-                return 0;
+        אם (stat_inode_same(&old_st, &new_st)) /* Already the same inode? Then shortcut this */
+                החזר 0;
 
-        _cleanup_free_ char *tmp_path = NULL;
-        r = tempfn_random(newpath, /* extra= */ NULL, &tmp_path);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *tmp_path = عدم;
+        r = tempfn_random(newpath, /* extra= */ عدم, &tmp_path);
+        אם (r < 0)
+                החזר r;
 
         r = link_fd(old_fd, newdirfd, tmp_path);
-        if (r < 0) {
-                if (!ERRNO_IS_PRIVILEGE(r))
-                        return r;
+        אם (r < 0) {
+                אם (!ERRNO_IS_PRIVILEGE(r))
+                        החזר r;
 
                 /* If that didn't work due to permissions then go via the path of the dentry */
                 r = RET_NERRNO(linkat(olddirfd, oldpath, newdirfd, tmp_path, 0));
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
         }
 
         r = RET_NERRNO(renameat(newdirfd, tmp_path, newdirfd, newpath));
-        if (r < 0) {
-                (void) unlinkat(newdirfd, tmp_path, /* flags= */ 0);
-                return r;
+        אם (r < 0) {
+                (فراغ) unlinkat(newdirfd, tmp_path, /* flags= */ 0);
+                החזר r;
         }
 
-        return 0;
+        החזר 0;
 }

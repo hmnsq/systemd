@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <langinfo.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ضمن <fcntl.h>
+#ضمن <langinfo.h>
+#ضمن <stdlib.h>
+#ضمن <sys/mman.h>
+#ضمن <sys/stat.h>
+#ضمن <unistd.h>
 
-#include "dirent-util.h"
-#include "env-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "locale-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "set.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#ضمن "dirent-util.h"
+#ضمن "env-util.h"
+#ضمن "fd-util.h"
+#ضمن "fileio.h"
+#ضمن "locale-util.h"
+#ضمن "log.h"
+#ضمن "memory-util.h"
+#ضمن "path-util.h"
+#ضمن "process-util.h"
+#ضمن "set.h"
+#ضمن "stat-util.h"
+#ضمن "string-table.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "utf8.h"
 
-static char* normalize_locale(const char *name) {
-        const char *e;
+ساكن حرف* normalize_locale(ثابت حرف *name) {
+        ثابت حرف *e;
 
         /* Locale names are weird: glibc has some magic rules when looking for the charset name on disk: it
          * lowercases everything, and removes most special chars. This means the official .UTF-8 suffix
@@ -33,39 +33,39 @@ static char* normalize_locale(const char *name) {
          * that for UTF-8 however, since it's kinda the only charset that matters. */
 
         e = endswith(name, ".utf8");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        אם (e) {
+                _cleanup_free_ حرف *prefix = عدم;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                אם (!prefix)
+                        החזר عدم;
 
-                return strjoin(prefix, ".UTF-8");
+                החזר strjoin(prefix, ".UTF-8");
         }
 
         e = strstr(name, ".utf8@");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        אם (e) {
+                _cleanup_free_ حرف *prefix = عدم;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                אם (!prefix)
+                        החזר عدم;
 
-                return strjoin(prefix, ".UTF-8@", e + 6);
+                החזר strjoin(prefix, ".UTF-8@", e + 6);
         }
 
-        return strdup(name);
+        החזר strdup(name);
 }
 
 #ifdef __GLIBC__
-static const char* get_locale_dir(void) {
-        return secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
+ساكن ثابت حرف* get_locale_dir(فراغ) {
+        החזר secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
 }
 
-static int add_locales_from_archive(Set *locales) {
+ساكن صحيح add_locales_from_archive(Set *locales) {
         /* Stolen from glibc... */
 
-        struct locarhead {
+        بنية locarhead {
                 uint32_t magic;
                 /* Serial number.  */
                 uint32_t serial;
@@ -87,7 +87,7 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t sumhash_size;
         };
 
-        struct namehashent {
+        بنية namehashent {
                 /* Hash value of the name.  */
                 uint32_t hashval;
                 /* Offset of the name in the string table.  */
@@ -96,321 +96,321 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t locrec_offset;
         };
 
-        int r;
+        صحيح r;
 
-        assert(locales);
+        أكد(locales);
 
-        _cleanup_free_ char *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
-        if (!locale_archive_file)
-                return -ENOMEM;
+        _cleanup_free_ حرف *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
+        אם (!locale_archive_file)
+                החזר -ENOMEM;
 
-        _cleanup_close_ int fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return errno == ENOENT ? 0 : -errno;
+        _cleanup_close_ صحيح fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
+        אם (fd < 0)
+                החזר errno == ENOENT ? 0 : -errno;
 
-        struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        بنية stat st;
+        אם (fstat(fd, &st) < 0)
+                החזר -errno;
 
         r = stat_verify_regular(&st);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 
-        if (st.st_size < (off_t) sizeof(struct locarhead))
-                return -EBADMSG;
+        אם (st.st_size < (off_t) حجم(بنية locarhead))
+                החזר -EBADMSG;
 
-        if (file_offset_beyond_memory_size(st.st_size))
-                return -EFBIG;
+        אם (file_offset_beyond_memory_size(st.st_size))
+                החזר -EFBIG;
 
-        void *p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-        if (p == MAP_FAILED)
-                return -errno;
+        فراغ *p = mmap(عدم, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+        אם (p == MAP_FAILED)
+                החזר -errno;
 
-        const struct namehashent *e;
-        const struct locarhead *h = p;
-        if (h->magic != 0xde020109 ||
+        ثابت بنية namehashent *e;
+        ثابت بنية locarhead *h = p;
+        אם (h->magic != 0xde020109 ||
             h->namehash_offset + h->namehash_size > st.st_size ||
             h->string_offset + h->string_size > st.st_size ||
             h->locrectab_offset + h->locrectab_size > st.st_size ||
             h->sumhash_offset + h->sumhash_size > st.st_size) {
                 r = -EBADMSG;
-                goto finish;
+                اذهب finish;
         }
 
-        e = (const struct namehashent*) ((const uint8_t*) p + h->namehash_offset);
-        for (size_t i = 0; i < h->namehash_size; i++) {
-                char *z;
+        e = (ثابت بنية namehashent*) ((ثابت uint8_t*) p + h->namehash_offset);
+        עבור (size_t i = 0; i < h->namehash_size; i++) {
+                حرف *z;
 
-                if (e[i].locrec_offset == 0)
-                        continue;
+                אם (e[i].locrec_offset == 0)
+                        استمر;
 
-                if (!utf8_is_valid((char*) p + e[i].name_offset))
-                        continue;
+                אם (!utf8_is_valid((حرف*) p + e[i].name_offset))
+                        استمر;
 
-                z = normalize_locale((char*) p + e[i].name_offset);
-                if (!z) {
+                z = normalize_locale((حرف*) p + e[i].name_offset);
+                אם (!z) {
                         r = -ENOMEM;
-                        goto finish;
+                        اذهب finish;
                 }
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        goto finish;
+                אם (r < 0)
+                        اذهب finish;
         }
 
         r = 0;
 
 finish:
         munmap_safe(p, st.st_size);
-        return r;
+        החזר r;
 }
 
-static int add_locales_from_libdir(Set *locales) {
-        _cleanup_closedir_ DIR *dir = NULL;
-        int r;
+ساكن صحيح add_locales_from_libdir(Set *locales) {
+        _cleanup_closedir_ DIR *dir = عدم;
+        صحيح r;
 
-        assert(locales);
+        أكد(locales);
 
         dir = opendir(get_locale_dir());
-        if (!dir)
-                return errno == ENOENT ? 0 : -errno;
+        אם (!dir)
+                החזר errno == ENOENT ? 0 : -errno;
 
-        FOREACH_DIRENT(de, dir, return -errno) {
-                char *z;
+        FOREACH_DIRENT(de, dir, החזר -errno) {
+                حرف *z;
 
-                if (de->d_type != DT_DIR)
-                        continue;
+                אם (de->d_type != DT_DIR)
+                        استمر;
 
                 z = normalize_locale(de->d_name);
-                if (!z)
-                        return -ENOMEM;
+                אם (!z)
+                        החזר -ENOMEM;
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        return r;
+                אם (r < 0)
+                        החזר r;
         }
 
-        return 0;
+        החזר 0;
 }
 
-#else
+#אחרת
 
-static const char* const musl_locale_dirs[] = {
+ساكن ثابت حرف* ثابت musl_locale_dirs[] = {
         "/etc/musl/locale",
         "/usr/share/musl/locale",
         "/share/musl/locale",
         "/usr/share/i18n/locales/musl", // compat with musl-locales 0.1.0
-        NULL
+        عدم
 };
 
-static int add_locales_for_musl(Set *locales) {
-        int r;
+ساكن صحيح add_locales_for_musl(Set *locales) {
+        صحيح r;
 
-        assert(locales);
+        أكد(locales);
 
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        ثابت حرف *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
                 _cleanup_closedir_ DIR *dir = opendir(*d);
-                if (!dir)
-                        continue;
+                אם (!dir)
+                        استمر;
 
-                FOREACH_DIRENT(de, dir, return -errno) {
-                        if (de->d_type != DT_REG)
-                                continue;
+                FOREACH_DIRENT(de, dir, החזר -errno) {
+                        אם (de->d_type != DT_REG)
+                                استمر;
 
-                        char *z = normalize_locale(de->d_name);
-                        if (!z)
-                                return -ENOMEM;
+                        حرف *z = normalize_locale(de->d_name);
+                        אם (!z)
+                                החזר -ENOMEM;
 
                         r = set_consume(locales, z);
-                        if (r < 0)
-                                return r;
+                        אם (r < 0)
+                                החזר r;
                 }
         }
 
-        return 0;
+        החזר 0;
 }
 #endif
 
-int get_locales(char ***ret) {
-        _cleanup_set_free_ Set *locales = NULL;
-        int r;
+صحيح get_locales(حرف ***ret) {
+        _cleanup_set_free_ Set *locales = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         locales = set_new(&string_hash_ops_free);
-        if (!locales)
-                return -ENOMEM;
+        אם (!locales)
+                החזר -ENOMEM;
 
 #ifdef __GLIBC__
         r = add_locales_from_archive(locales);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        אם (r < 0 && r != -ENOENT)
+                החזר r;
 
         r = add_locales_from_libdir(locales);
-        if (r < 0)
-                return r;
-#else
+        אם (r < 0)
+                החזר r;
+#אחרת
         r = add_locales_for_musl(locales);
-        if (r < 0)
-                return r;
+        אם (r < 0)
+                החזר r;
 #endif
 
-        char *locale;
+        حرف *locale;
         SET_FOREACH(locale, locales) {
                 r = locale_is_installed(locale);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        free(set_remove(locales, locale));
+                אם (r < 0)
+                        החזר r;
+                אם (r == 0)
+                        حرر(set_remove(locales, locale));
         }
 
-        _cleanup_strv_free_ char **l = set_to_strv(&locales);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ حرف **l = set_to_strv(&locales);
+        אם (!l)
+                החזר -ENOMEM;
 
         r = getenv_bool("SYSTEMD_LIST_NON_UTF8_LOCALES");
-        if (r <= 0) {
-                if (!IN_SET(r, -ENXIO, 0))
+        אם (r <= 0) {
+                אם (!IN_SET(r, -ENXIO, 0))
                         log_debug_errno(r, "Failed to parse $SYSTEMD_LIST_NON_UTF8_LOCALES as boolean, ignoring: %m");
 
                 /* Filter out non-UTF-8 locales, because it's 2019, by default */
-                char **b = l;
+                حرف **b = l;
                 STRV_FOREACH(a, l)
-                        if (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
+                        אם (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
                                 *(b++) = *a;
-                        else
-                                free(*a);
+                        אחרת
+                                حرر(*a);
 
-                *b = NULL;
+                *b = عدم;
         }
 
         strv_sort(l);
 
         *ret = TAKE_PTR(l);
 
-        return 0;
+        החזר 0;
 }
 
-bool locale_is_valid(const char *name) {
+bool locale_is_valid(ثابت حرف *name) {
 
-        if (isempty(name))
-                return false;
+        אם (isempty(name))
+                החזר false;
 
-        if (strlen(name) >= 128)
-                return false;
+        אם (strlen(name) >= 128)
+                החזר false;
 
-        if (!utf8_is_valid(name))
-                return false;
+        אם (!utf8_is_valid(name))
+                החזר false;
 
-        if (!filename_is_valid(name))
-                return false;
+        אם (!filename_is_valid(name))
+                החזר false;
 
         /* Locales look like: ll_CC.ENC@variant, where ll and CC are alphabetic, ENC is alphanumeric with
          * dashes, and variant seems to be alphabetic.
          * See: https://www.gnu.org/software/gettext/manual/html_node/Locale-Names.html */
-        if (!in_charset(name, ALPHANUMERICAL "_.-@"))
-                return false;
+        אם (!in_charset(name, ALPHANUMERICAL "_.-@"))
+                החזר false;
 
-        return true;
+        החזר true;
 }
 
-int locale_is_installed(const char *name) {
-        if (!locale_is_valid(name))
-                return false;
+صحيح locale_is_installed(ثابت حرف *name) {
+        אם (!locale_is_valid(name))
+                החזר false;
 
-        if (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
-                return true;
+        אם (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
+                החזר true;
 
 #ifdef __GLIBC__
         _cleanup_(freelocalep) locale_t loc = newlocale(LC_ALL_MASK, name, (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return errno == ENOMEM ? -ENOMEM : false;
+        אם (loc == (locale_t) 0)
+                החזר errno == ENOMEM ? -ENOMEM : false;
 
-        return true;
-#else
+        החזר true;
+#אחרת
         /* musl also has C.UTF-8 as builtin */
-        if (streq(name, "C.UTF-8"))
-                return true;
+        אם (streq(name, "C.UTF-8"))
+                החזר true;
 
         /* musl's newlocale() always succeeds and provides a fake locale object even when the locale does
          * not exist. Hence, we need to explicitly check if the locale file exists. */
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        ثابت حرف *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
-                _cleanup_free_ char *p = path_join(*d, name);
-                if (!p)
-                        return -ENOMEM;
+                _cleanup_free_ حرف *p = path_join(*d, name);
+                אם (!p)
+                        החזר -ENOMEM;
 
-                if (access(p, F_OK) >= 0)
-                        return true;
+                אם (access(p, F_OK) >= 0)
+                        החזר true;
         }
 
-        return false;
+        החזר false;
 #endif
 }
 
-static bool is_locale_utf8_impl(void) {
-        const char *set;
-        int r;
+ساكن bool is_locale_utf8_impl(فراغ) {
+        ثابت حرف *set;
+        صحيح r;
 
         /* Note that we default to 'true' here, since today UTF8 is pretty much supported everywhere. */
 
         r = secure_getenv_bool("SYSTEMD_UTF8");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        אם (r >= 0)
+                החזר r;
+        אם (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_UTF8, ignoring: %m");
 
         /* This function may be called from libsystemd, and setlocale() is not thread safe. Assuming yes. */
-        if (!is_main_thread())
-                return true;
+        אם (!is_main_thread())
+                החזר true;
 
-        if (!setlocale(LC_ALL, ""))
-                return true;
+        אם (!setlocale(LC_ALL, ""))
+                החזר true;
 
         set = nl_langinfo(CODESET);
-        if (!set || streq(set, "UTF-8"))
-                return true;
+        אם (!set || streq(set, "UTF-8"))
+                החזר true;
 
-        set = setlocale(LC_CTYPE, NULL);
-        if (!set)
-                return true;
+        set = setlocale(LC_CTYPE, عدم);
+        אם (!set)
+                החזר true;
 
         /* Unless LC_CTYPE is explicitly overridden, return true. Because here CTYPE is effectively unset
          * and everything can do to UTF-8 nowadays. */
-        return STR_IN_SET(set, "C", "POSIX") &&
+        החזר STR_IN_SET(set, "C", "POSIX") &&
                 !getenv("LC_ALL") &&
                 !getenv("LC_CTYPE") &&
                 !getenv("LANG");
 }
 
-bool is_locale_utf8(void) {
-        static int cached = -1;
+bool is_locale_utf8(فراغ) {
+        ساكن صحيح cached = -1;
 
-        if (cached < 0)
+        אם (cached < 0)
                 cached = is_locale_utf8_impl();
 
-        return cached;
+        החזר cached;
 }
 
-void locale_variables_free(char *l[_VARIABLE_LC_MAX]) {
+فراغ locale_variables_free(حرف *l[_VARIABLE_LC_MAX]) {
         free_many_charp(l, _VARIABLE_LC_MAX);
 }
 
-void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]) {
-        assert(l);
+فراغ locale_variables_simplify(حرف *l[_VARIABLE_LC_MAX]) {
+        أكد(l);
 
-        for (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
-                if (p == VARIABLE_LANG)
-                        continue;
-                if (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
+        עבור (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
+                אם (p == VARIABLE_LANG)
+                        استمر;
+                אם (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
                         l[p] = mfree(l[p]);
         }
 }
 
-static const char * const locale_variable_table[_VARIABLE_LC_MAX] = {
+ساكن ثابت حرف * ثابت locale_variable_table[_VARIABLE_LC_MAX] = {
         [VARIABLE_LANG]              = "LANG",
         [VARIABLE_LANGUAGE]          = "LANGUAGE",
         [VARIABLE_LC_CTYPE]          = "LC_CTYPE",
