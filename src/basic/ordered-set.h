@@ -1,84 +1,84 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "hashmap.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
+#ಅನ್ತರ್ಭಾವ "hashmap.h"
 
-typedef struct OrderedSet OrderedSet;
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ OrderedSet OrderedSet;
 
-static inline OrderedSet* ordered_set_new(const struct hash_ops *ops) {
-        return (OrderedSet*) ordered_hashmap_new(ops);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ OrderedSet* ordered_set_new(ಧ್ರುವ ಸಂರಚನಾ hash_ops *ops) {
+        ಪ್ರತ್ಯಾಗಮ (OrderedSet*) ordered_hashmap_new(ops);
 }
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops);
+ಪೂರ್ಣಾಙ್ಕ ordered_set_ensure_allocated(OrderedSet **s, ಧ್ರುವ ಸಂರಚನಾ hash_ops *ops);
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p);
+ಪೂರ್ಣಾಙ್ಕ ordered_set_ensure_put(OrderedSet **s, ಧ್ರುವ ಸಂರಚನಾ hash_ops *ops, ಶೂನ್ಯ *p);
 
-static inline void ordered_set_clear(OrderedSet *s) {
-        return ordered_hashmap_clear((OrderedHashmap*) s);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ ordered_set_clear(OrderedSet *s) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_clear((OrderedHashmap*) s);
 }
 
-static inline OrderedSet* ordered_set_free(OrderedSet *s) {
-        return (OrderedSet*) ordered_hashmap_free((OrderedHashmap*) s);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ OrderedSet* ordered_set_free(OrderedSet *s) {
+        ಪ್ರತ್ಯಾಗಮ (OrderedSet*) ordered_hashmap_free((OrderedHashmap*) s);
 }
 
-static inline int ordered_set_contains(OrderedSet *s, const void *p) {
-        return ordered_hashmap_contains((OrderedHashmap*) s, p);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ ordered_set_contains(OrderedSet *s, ಧ್ರುವ ಶೂನ್ಯ *p) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_contains((OrderedHashmap*) s, p);
 }
 
-static inline int ordered_set_put(OrderedSet *s, void *p) {
-        return ordered_hashmap_put((OrderedHashmap*) s, p, p);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ ordered_set_put(OrderedSet *s, ಶೂನ್ಯ *p) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_put((OrderedHashmap*) s, p, p);
 }
 
-static inline void *ordered_set_get(OrderedSet *s, const void *p) {
-        return ordered_hashmap_get((OrderedHashmap*) s, p);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ *ordered_set_get(OrderedSet *s, ಧ್ರುವ ಶೂನ್ಯ *p) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_get((OrderedHashmap*) s, p);
 }
 
-static inline unsigned ordered_set_size(OrderedSet *s) {
-        return ordered_hashmap_size((OrderedHashmap*) s);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ unsigned ordered_set_size(OrderedSet *s) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_size((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_isempty(OrderedSet *s) {
-        return ordered_hashmap_isempty((OrderedHashmap*) s);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool ordered_set_isempty(OrderedSet *s) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_isempty((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_iterate(OrderedSet *s, Iterator *i, void **value) {
-        return ordered_hashmap_iterate((OrderedHashmap*) s, i, value, NULL);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool ordered_set_iterate(OrderedSet *s, Iterator *i, ಶೂನ್ಯ **ಮೌಲ್ಯ) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_iterate((OrderedHashmap*) s, i, ಮೌಲ್ಯ, ರಿಕ್ತ);
 }
 
-static inline void* ordered_set_remove(OrderedSet *s, void *p) {
-        return ordered_hashmap_remove((OrderedHashmap*) s, p);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ* ordered_set_remove(OrderedSet *s, ಶೂನ್ಯ *p) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_remove((OrderedHashmap*) s, p);
 }
 
-static inline void* ordered_set_first(OrderedSet *s) {
-        return ordered_hashmap_first((OrderedHashmap*) s);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ* ordered_set_first(OrderedSet *s) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_first((OrderedHashmap*) s);
 }
 
-static inline void* ordered_set_steal_first(OrderedSet *s) {
-        return ordered_hashmap_steal_first((OrderedHashmap*) s);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ* ordered_set_steal_first(OrderedSet *s) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_steal_first((OrderedHashmap*) s);
 }
 
-static inline char** ordered_set_get_strv(OrderedSet *s) {
-        return _hashmap_get_strv(HASHMAP_BASE((OrderedHashmap*) s));
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ವರ್ಣ** ordered_set_get_strv(OrderedSet *s) {
+        ಪ್ರತ್ಯಾಗಮ _hashmap_get_strv(HASHMAP_BASE((OrderedHashmap*) s));
 }
 
-static inline int ordered_set_reserve(OrderedSet *s, unsigned entries_add) {
-        return ordered_hashmap_reserve((OrderedHashmap*) s, entries_add);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ ordered_set_reserve(OrderedSet *s, unsigned entries_add) {
+        ಪ್ರತ್ಯಾಗಮ ordered_hashmap_reserve((OrderedHashmap*) s, entries_add);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p);
+ಪೂರ್ಣಾಙ್ಕ ordered_set_consume(OrderedSet *s, ಶೂನ್ಯ *p);
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p);
+ಪೂರ್ಣಾಙ್ಕ ordered_set_put_strdup_full(OrderedSet **s, ಧ್ರುವ ಸಂರಚನಾ hash_ops *hash_ops, ಧ್ರುವ ವರ್ಣ *p);
 #define ordered_set_put_strdup(s, p) ordered_set_put_strdup_full(s, &string_hash_ops_free, p)
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l);
+ಪೂರ್ಣಾಙ್ಕ ordered_set_put_strdupv_full(OrderedSet **s, ಧ್ರುವ ಸಂರಚನಾ hash_ops *hash_ops, ವರ್ಣ **l);
 #define ordered_set_put_strdupv(s, l) ordered_set_put_strdupv_full(s, &string_hash_ops_free, l)
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l);
+ಪೂರ್ಣಾಙ್ಕ ordered_set_put_string_set_full(OrderedSet **s, ಧ್ರುವ ಸಂರಚನಾ hash_ops *hash_ops, OrderedSet *l);
 #define ordered_set_put_string_set(s, l) ordered_set_put_string_set_full(s, &string_hash_ops_free, l)
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s);
+ಶೂನ್ಯ ordered_set_print(FILE *f, ಧ್ರುವ ವರ್ಣ *field, OrderedSet *s);
 
 #define _ORDERED_SET_FOREACH(e, s, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (void**)&(e)); )
+        ಪ್ರತಿ (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (ಶೂನ್ಯ**)&(e)); )
 #define ORDERED_SET_FOREACH(e, s) \
         _ORDERED_SET_FOREACH(e, s, UNIQ_T(i, UNIQ))
 

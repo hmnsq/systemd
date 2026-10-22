@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "../fundamental/assert-util.h"
-#include "../fundamental/cleanup-util.h" /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ "../fundamental/assert-util.h"
+#ಅನ್ತರ್ಭಾವ "../fundamental/cleanup-util.h" /* IWYU pragma: export */
 
-typedef void (*free_func_t)(void *p);
-typedef void* (*mfree_func_t)(void *p);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಶೂನ್ಯ (*free_func_t)(ಶೂನ್ಯ *p);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಶೂನ್ಯ* (*mfree_func_t)(ಶೂನ್ಯ *p);
 
 #define free_and_replace_full(a, b, free_func)  \
         ({                                      \
@@ -13,7 +13,7 @@ typedef void* (*mfree_func_t)(void *p);
                 typeof(b)* _b = &(b);           \
                 free_func(*_a);                 \
                 *_a = *_b;                      \
-                *_b = NULL;                     \
+                *_b = ರಿಕ್ತ;                     \
                 0;                              \
         })
 
@@ -30,42 +30,42 @@ typedef void* (*mfree_func_t)(void *p);
 
 #define _DEFINE_TRIVIAL_REF_FUNC(type, name, scope)                                     \
         scope type *name##_ref(type *p) {                                               \
-                if (!p)                                                                 \
-                        return NULL;                                                    \
+                ಯದಿ (!p)                                                                 \
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;                                                    \
                                                                                         \
                 /* For type check. */                                                   \
                 unsigned *q = &p->n_ref;                                                \
-                assert(*q > 0);                                                         \
+                ಪ್ರತಿಜ್ಞಾ(*q > 0);                                                         \
                 assert_se(*q < UINT_MAX);                                               \
                                                                                         \
                 (*q)++;                                                                 \
-                return p;                                                               \
+                ಪ್ರತ್ಯಾಗಮ p;                                                               \
         }
 
 #define _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, scope)                        \
         scope type *name##_unref(type *p) {                                             \
-                if (!p)                                                                 \
-                        return NULL;                                                    \
+                ಯದಿ (!p)                                                                 \
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;                                                    \
                                                                                         \
-                assert(p->n_ref > 0);                                                   \
+                ಪ್ರತಿಜ್ಞಾ(p->n_ref > 0);                                                   \
                 p->n_ref--;                                                             \
-                if (p->n_ref > 0)                                                       \
-                        return NULL;                                                    \
+                ಯದಿ (p->n_ref > 0)                                                       \
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;                                                    \
                                                                                         \
-                return free_func(p);                                                    \
+                ಪ್ರತ್ಯಾಗಮ free_func(p);                                                    \
         }
 
 #define DEFINE_TRIVIAL_REF_FUNC(type, name)     \
         _DEFINE_TRIVIAL_REF_FUNC(type, name,)
 #define DEFINE_PRIVATE_TRIVIAL_REF_FUNC(type, name)     \
-        _DEFINE_TRIVIAL_REF_FUNC(type, name, static)
+        _DEFINE_TRIVIAL_REF_FUNC(type, name, ಸ್ಥಿರ)
 #define DEFINE_PUBLIC_TRIVIAL_REF_FUNC(type, name)      \
         _DEFINE_TRIVIAL_REF_FUNC(type, name, _public_)
 
 #define DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
         _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func,)
 #define DEFINE_PRIVATE_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
-        _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, static)
+        _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, ಸ್ಥಿರ)
 #define DEFINE_PUBLIC_TRIVIAL_UNREF_FUNC(type, name, free_func)         \
         _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, _public_)
 
@@ -91,11 +91,11 @@ typedef void* (*mfree_func_t)(void *p);
         DEFINE_PUBLIC_TRIVIAL_REF_FUNC(type, name);                    \
         DEFINE_PUBLIC_TRIVIAL_UNREF_FUNC(type, name, free_func);
 
-typedef void (*void_func_t)(void);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಶೂನ್ಯ (*void_func_t)(ಶೂನ್ಯ);
 
-static inline void dispatch_void_func(void_func_t *f) {
-        assert(f);
-        assert(*f);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ dispatch_void_func(void_func_t *f) {
+        ಪ್ರತಿಜ್ಞಾ(f);
+        ಪ್ರತಿಜ್ಞಾ(*f);
         (*f)();
 }
 

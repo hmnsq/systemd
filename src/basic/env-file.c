@@ -1,660 +1,660 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "env-file.h"
+#ಅನ್ತರ್ಭಾವ "env-util.h"
+#ಅನ್ತರ್ಭಾವ "escape.h"
+#ಅನ್ತರ್ಭಾವ "fd-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "fs-util.h"
+#ಅನ್ತರ್ಭಾವ "label-util.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
+#ಅನ್ತರ್ಭಾವ "tmpfile-util.h"
+#ಅನ್ತರ್ಭಾವ "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ (*ತಳ್ಳು_env_func_t)(
+                ಧ್ರುವ ವರ್ಣ *filename,
+                unsigned ಸಾಲು,
+                ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ,
+                ವರ್ಣ *ಮೌಲ್ಯ,
+                ಶೂನ್ಯ *userdata);
 
-static int parse_env_file_internal(
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ parse_env_file_internal(
                 FILE *f,
-                const char *fname,
-                push_env_func_t push,
-                void *userdata) {
+                ಧ್ರುವ ವರ್ಣ *fname,
+                ತಳ್ಳು_env_func_t ತಳ್ಳು,
+                ಶೂನ್ಯ *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
-        int r;
+        size_t n_ಕೀಲಿ = 0, n_ಮೌಲ್ಯ = 0, last_ಮೌಲ್ಯ_whitespace = SIZE_MAX, last_ಕೀಲಿ_whitespace = SIZE_MAX;
+        _cleanup_free_ ವರ್ಣ *contents = ರಿಕ್ತ, *ಕೀಲಿ = ರಿಕ್ತ, *ಮೌಲ್ಯ = ರಿಕ್ತ;
+        unsigned ಸಾಲು = 1;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+        ಗಣನಾ {
+                PRE_ಕೀಲಿ,
+                ಕೀಲಿ_2,
+                PRE_ಮೌಲ್ಯ,
+                ಮೌಲ್ಯ_2,
+                ಮೌಲ್ಯ_ESCAPE,
+                SINGLE_QUOTE_ಮೌಲ್ಯ,
+                DOUBLE_QUOTE_ಮೌಲ್ಯ,
+                DOUBLE_QUOTE_ಮೌಲ್ಯ_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_ಕೀಲಿ;
 
-        assert(f || fname);
-        assert(push);
+        ಪ್ರತಿಜ್ಞಾ(f || fname);
+        ಪ್ರತಿಜ್ಞಾ(ತಳ್ಳು);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        ಯದಿ (f)
+                r = read_full_stream(f, &contents, ರಿಕ್ತ);
+        ಅನ್ಯಥಾ
+                r = read_full_file(fname, &contents, ರಿಕ್ತ);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        ಪ್ರತಿ (ವರ್ಣ *p = contents; *p; p++) {
+                ವರ್ಣ c = *p;
 
-                switch (state) {
+                ವಿಕಲ್ಪ (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                ಪಕ್ಷ PRE_ಕೀಲಿ:
+                        ಯದಿ (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                        ಅನ್ಯಥಾ ಯದಿ (!strchr(WHITESPACE, c)) {
+                                state = ಕೀಲಿ_2;
+                                last_ಕೀಲಿ_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                ಯದಿ (!GREEDY_REALLOC(ಕೀಲಿ, n_ಕೀಲಿ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                                key[n_key++] = c;
+                                ಕೀಲಿ[n_ಕೀಲಿ++] = c;
                         }
-                        break;
+                        ಭಙ್ಗ;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
-                        } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                ಪಕ್ಷ ಕೀಲಿ_2:
+                        ಯದಿ (strchr(NEWLINE, c)) {
+                                state = PRE_ಕೀಲಿ;
+                                ಸಾಲು++;
+                                n_ಕೀಲಿ = 0;
+                        } ಅನ್ಯಥಾ ಯದಿ (c == '=') {
+                                state = PRE_ಮೌಲ್ಯ;
+                                last_ಮೌಲ್ಯ_whitespace = SIZE_MAX;
+                        } ಅನ್ಯಥಾ {
+                                ಯದಿ (!strchr(WHITESPACE, c))
+                                        last_ಕೀಲಿ_whitespace = SIZE_MAX;
+                                ಅನ್ಯಥಾ ಯದಿ (last_ಕೀಲಿ_whitespace == SIZE_MAX)
+                                         last_ಕೀಲಿ_whitespace = n_ಕೀಲಿ;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                ಯದಿ (!GREEDY_REALLOC(ಕೀಲಿ, n_ಕೀಲಿ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                                key[n_key++] = c;
+                                ಕೀಲಿ[n_ಕೀಲಿ++] = c;
                         }
 
-                        break;
+                        ಭಙ್ಗ;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                ಪಕ್ಷ PRE_ಮೌಲ್ಯ:
+                        ಯದಿ (strchr(NEWLINE, c)) {
+                                state = PRE_ಕೀಲಿ;
+                                ಸಾಲು++;
+                                ಕೀಲಿ[n_ಕೀಲಿ] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                ಯದಿ (ಮೌಲ್ಯ)
+                                        ಮೌಲ್ಯ[n_ಮೌಲ್ಯ] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                ಯದಿ (last_ಕೀಲಿ_whitespace != SIZE_MAX)
+                                        ಕೀಲಿ[last_ಕೀಲಿ_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = ತಳ್ಳು(fname, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ, userdata);
+                                ಯದಿ (r < 0)
+                                        ಪ್ರತ್ಯಾಗಮ r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_ಕೀಲಿ = 0;
+                                ಮೌಲ್ಯ = ರಿಕ್ತ;
+                                n_ಮೌಲ್ಯ = 0;
 
-                        } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
-                                state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                        } ಅನ್ಯಥಾ ಯದಿ (c == '\'')
+                                state = SINGLE_QUOTE_ಮೌಲ್ಯ;
+                        ಅನ್ಯಥಾ ಯದಿ (c == '"')
+                                state = DOUBLE_QUOTE_ಮೌಲ್ಯ;
+                        ಅನ್ಯಥಾ ಯದಿ (c == '\\')
+                                state = ಮೌಲ್ಯ_ESCAPE;
+                        ಅನ್ಯಥಾ ಯದಿ (!strchr(WHITESPACE, c)) {
+                                state = ಮೌಲ್ಯ_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ಯದಿ (!GREEDY_REALLOC(ಮೌಲ್ಯ, n_ಮೌಲ್ಯ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                                value[n_value++] = c;
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = c;
                         }
 
-                        break;
+                        ಭಙ್ಗ;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                ಪಕ್ಷ ಮೌಲ್ಯ_2:
+                        ಯದಿ (strchr(NEWLINE, c)) {
+                                state = PRE_ಕೀಲಿ;
+                                ಸಾಲು++;
 
-                                key[n_key] = 0;
+                                ಕೀಲಿ[n_ಕೀಲಿ] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                ಯದಿ (ಮೌಲ್ಯ)
+                                        ಮೌಲ್ಯ[n_ಮೌಲ್ಯ] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                ಯದಿ (last_ಮೌಲ್ಯ_whitespace != SIZE_MAX)
+                                        ಮೌಲ್ಯ[last_ಮೌಲ್ಯ_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                ಯದಿ (last_ಕೀಲಿ_whitespace != SIZE_MAX)
+                                        ಕೀಲಿ[last_ಕೀಲಿ_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = ತಳ್ಳು(fname, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ, userdata);
+                                ಯದಿ (r < 0)
+                                        ಪ್ರತ್ಯಾಗಮ r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_ಕೀಲಿ = 0;
+                                ಮೌಲ್ಯ = ರಿಕ್ತ;
+                                n_ಮೌಲ್ಯ = 0;
 
-                        } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                        } ಅನ್ಯಥಾ ಯದಿ (c == '\\') {
+                                state = ಮೌಲ್ಯ_ESCAPE;
+                                last_ಮೌಲ್ಯ_whitespace = SIZE_MAX;
+                        } ಅನ್ಯಥಾ {
+                                ಯದಿ (!strchr(WHITESPACE, c))
+                                        last_ಮೌಲ್ಯ_whitespace = SIZE_MAX;
+                                ಅನ್ಯಥಾ ಯದಿ (last_ಮೌಲ್ಯ_whitespace == SIZE_MAX)
+                                        last_ಮೌಲ್ಯ_whitespace = n_ಮೌಲ್ಯ;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ಯದಿ (!GREEDY_REALLOC(ಮೌಲ್ಯ, n_ಮೌಲ್ಯ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                                value[n_value++] = c;
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = c;
                         }
 
-                        break;
+                        ಭಙ್ಗ;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                ಪಕ್ಷ ಮೌಲ್ಯ_ESCAPE:
+                        state = ಮೌಲ್ಯ_2;
 
-                        if (!strchr(NEWLINE, c)) {
+                        ಯದಿ (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ಯದಿ (!GREEDY_REALLOC(ಮೌಲ್ಯ, n_ಮೌಲ್ಯ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                                value[n_value++] = c;
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = c;
                         }
-                        break;
+                        ಭಙ್ಗ;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
-                                state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                ಪಕ್ಷ SINGLE_QUOTE_ಮೌಲ್ಯ:
+                        ಯದಿ (c == '\'')
+                                state = PRE_ಮೌಲ್ಯ;
+                        ಅನ್ಯಥಾ {
+                                ಯದಿ (!GREEDY_REALLOC(ಮೌಲ್ಯ, n_ಮೌಲ್ಯ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                                value[n_value++] = c;
-                        }
-
-                        break;
-
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
-                                state = PRE_VALUE;
-                        else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-
-                                value[n_value++] = c;
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = c;
                         }
 
-                        break;
+                        ಭಙ್ಗ;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                ಪಕ್ಷ DOUBLE_QUOTE_ಮೌಲ್ಯ:
+                        ಯದಿ (c == '"')
+                                state = PRE_ಮೌಲ್ಯ;
+                        ಅನ್ಯಥಾ ಯದಿ (c == '\\')
+                                state = DOUBLE_QUOTE_ಮೌಲ್ಯ_ESCAPE;
+                        ಅನ್ಯಥಾ {
+                                ಯದಿ (!GREEDY_REALLOC(ಮೌಲ್ಯ, n_ಮೌಲ್ಯ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = c;
+                        }
+
+                        ಭಙ್ಗ;
+
+                ಪಕ್ಷ DOUBLE_QUOTE_ಮೌಲ್ಯ_ESCAPE:
+                        state = DOUBLE_QUOTE_ಮೌಲ್ಯ;
+
+                        ಯದಿ (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-                                value[n_value++] = c;
-                        } else if (c != '\n') {
+                                ಯದಿ (!GREEDY_REALLOC(ಮೌಲ್ಯ, n_ಮೌಲ್ಯ+2))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = c;
+                        } ಅನ್ಯಥಾ ಯದಿ (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                ಯದಿ (!GREEDY_REALLOC(ಮೌಲ್ಯ, n_ಮೌಲ್ಯ+3))
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = '\\';
+                                ಮೌಲ್ಯ[n_ಮೌಲ್ಯ++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        ಭಙ್ಗ;
 
-                case COMMENT:
-                        if (c == '\\')
+                ಪಕ್ಷ COMMENT:
+                        ಯದಿ (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                        ಅನ್ಯಥಾ ಯದಿ (strchr(NEWLINE, c)) {
+                                state = PRE_ಕೀಲಿ;
+                                ಸಾಲು++;
                         }
-                        break;
+                        ಭಙ್ಗ;
 
-                case COMMENT_ESCAPE:
+                ಪಕ್ಷ COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                        } else
+                        ಯದಿ (strchr(NEWLINE, c)) {
+                                state = PRE_ಕೀಲಿ;
+                                ಸಾಲು++;
+                        } ಅನ್ಯಥಾ
                                 state = COMMENT;
-                        break;
+                        ಭಙ್ಗ;
                 }
         }
 
-        if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+        ಯದಿ (IN_SET(state,
+                   PRE_ಮೌಲ್ಯ,
+                   ಮೌಲ್ಯ_2,
+                   ಮೌಲ್ಯ_ESCAPE,
+                   SINGLE_QUOTE_ಮೌಲ್ಯ,
+                   DOUBLE_QUOTE_ಮೌಲ್ಯ,
+                   DOUBLE_QUOTE_ಮೌಲ್ಯ_ESCAPE)) {
 
-                key[n_key] = 0;
+                ಕೀಲಿ[n_ಕೀಲಿ] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                ಯದಿ (ಮೌಲ್ಯ)
+                        ಮೌಲ್ಯ[n_ಮೌಲ್ಯ] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                ಯದಿ (state == ಮೌಲ್ಯ_2)
+                        ಯದಿ (last_ಮೌಲ್ಯ_whitespace != SIZE_MAX)
+                                ಮೌಲ್ಯ[last_ಮೌಲ್ಯ_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                ಯದಿ (last_ಕೀಲಿ_whitespace != SIZE_MAX)
+                        ಕೀಲಿ[last_ಕೀಲಿ_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                r = ತಳ್ಳು(fname, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ, userdata);
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
 
-                value = NULL;
+                ಮೌಲ್ಯ = ರಿಕ್ತ;
         }
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ check_utf8ness_and_warn(
+                ಧ್ರುವ ವರ್ಣ *filename, unsigned ಸಾಲು,
+                ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ವರ್ಣ *ಮೌಲ್ಯ) {
 
-        assert(key);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        ಯದಿ (!utf8_is_valid(ಕೀಲಿ)) {
+                _cleanup_free_ ವರ್ಣ *p = ರಿಕ್ತ;
 
-                p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(ಕೀಲಿ);
+                ಪ್ರತ್ಯಾಗಮ log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), ಸಾಲು, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        ಯದಿ (ಮೌಲ್ಯ && !utf8_is_valid(ಮೌಲ್ಯ)) {
+                _cleanup_free_ ವರ್ಣ *p = ರಿಕ್ತ;
 
-                p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(ಮೌಲ್ಯ);
+                ಪ್ರತ್ಯಾಗಮ log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), ಸಾಲು, ಕೀಲಿ, p);
         }
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ parse_env_file_ತಳ್ಳು(
+                ಧ್ರುವ ವರ್ಣ *filename, unsigned ಸಾಲು,
+                ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ವರ್ಣ *ಮೌಲ್ಯ,
+                ಶೂನ್ಯ *userdata) {
 
-        const char *k;
+        ಧ್ರುವ ವರ್ಣ *k;
         va_list aq, *ap = userdata;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(key);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        ಯಾವತ್ ((k = va_arg(aq, ಧ್ರುವ ವರ್ಣ *))) {
+                ವರ್ಣ **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, ವರ್ಣ **);
 
-                if (streq(key, k)) {
+                ಯದಿ (streq(ಕೀಲಿ, k)) {
                         va_end(aq);
-                        free_and_replace(*v, value);
+                        free_and_replace(*v, ಮೌಲ್ಯ);
 
-                        return 1;
+                        ಪ್ರತ್ಯಾಗಮ 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        ಮುಕ್ತ(ಮೌಲ್ಯ);
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int parse_env_filev(
+ಪೂರ್ಣಾಙ್ಕ parse_env_filev(
                 FILE *f,
-                const char *fname,
+                ಧ್ರುವ ವರ್ಣ *fname,
                 va_list ap) {
 
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
         va_list aq;
 
-        assert(f || fname);
+        ಪ್ರತಿಜ್ಞಾ(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_ತಳ್ಳು, &aq);
         va_end(aq);
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
+ಪೂರ್ಣಾಙ್ಕ parse_env_file_fdv(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *fname, va_list ap) {
+        _cleanup_fclose_ FILE *f = ರಿಕ್ತ;
         va_list aq;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_ತಳ್ಳು, &aq);
         va_end(aq);
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int parse_env_file_sentinel(
+ಪೂರ್ಣಾಙ್ಕ parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                ಧ್ರುವ ವರ್ಣ *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(f || fname);
+        ಪ್ರತಿಜ್ಞಾ(f || fname);
 
         va_start(ap, fname);
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+ಪೂರ್ಣಾಙ್ಕ parse_env_file_fd_sentinel(
+                ಪೂರ್ಣಾಙ್ಕ fd,
+                ಧ್ರುವ ವರ್ಣ *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
         va_start(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int parse_env_datav(
-                const char *data,
+ಪೂರ್ಣಾಙ್ಕ parse_env_datav(
+                ಧ್ರುವ ವರ್ಣ *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                ಧ್ರುವ ವರ್ಣ *fname, /* only used for logging */
                 va_list ap) {
 
-        assert(data);
+        ಪ್ರತಿಜ್ಞಾ(data);
 
-        if (size == SIZE_MAX)
+        ಯದಿ (size == SIZE_MAX)
                 size = strlen_ptr(data);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ FILE *f = fmemopen_unlocked((ಶೂನ್ಯ*) data, size, "r");
+        ಯದಿ (!f)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        ಪ್ರತ್ಯಾಗಮ parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
+ಪೂರ್ಣಾಙ್ಕ parse_env_data_sentinel(
+                ಧ್ರುವ ವರ್ಣ *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                ಧ್ರುವ ವರ್ಣ *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
         va_start(ap, fname);
         r = parse_env_datav(data, size, fname, ap);
         va_end(ap);
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ load_env_file_ತಳ್ಳು(
+                ಧ್ರುವ ವರ್ಣ *filename, unsigned ಸಾಲು,
+                ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ವರ್ಣ *ಮೌಲ್ಯ,
+                ಶೂನ್ಯ *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        ವರ್ಣ ***m = userdata;
+        ವರ್ಣ *p;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(key);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        p = strjoin(ಕೀಲಿ, "=", ಮೌಲ್ಯ);
+        ಯದಿ (!p)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        free(value);
-        return 0;
+        ಮುಕ್ತ(ಮೌಲ್ಯ);
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ load_env_file(FILE *f, ಧ್ರುವ ವರ್ಣ *fname, ವರ್ಣ ***ret) {
+        _cleanup_strv_free_ ವರ್ಣ **m = ರಿಕ್ತ;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(f || fname);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(f || fname);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_ತಳ್ಳು, &m);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ load_env_file_ತಳ್ಳು_pairs(
+                ಧ್ರುವ ವರ್ಣ *filename, unsigned ಸಾಲು,
+                ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ವರ್ಣ *ಮೌಲ್ಯ,
+                ಶೂನ್ಯ *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        ವರ್ಣ ***m = ASSERT_PTR(userdata);
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(key);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        ಪ್ರತಿ (ವರ್ಣ **t = *m; t && *t; t += 2)
+                ಯದಿ (streq(t[0], ಕೀಲಿ)) {
+                        ಯದಿ (ಮೌಲ್ಯ)
+                                ಪ್ರತ್ಯಾಗಮ free_and_replace(t[1], ಮೌಲ್ಯ);
+                        ಅನ್ಯಥಾ
+                                ಪ್ರತ್ಯಾಗಮ free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        r = strv_extend(m, ಕೀಲಿ);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        ಯದಿ (ಮೌಲ್ಯ)
+                ಪ್ರತ್ಯಾಗಮ strv_ತಳ್ಳು(m, ಮೌಲ್ಯ);
+        ಅನ್ಯಥಾ
+                ಪ್ರತ್ಯಾಗಮ strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ load_env_file_pairs(FILE *f, ಧ್ರುವ ವರ್ಣ *fname, ವರ್ಣ ***ret) {
+        _cleanup_strv_free_ ವರ್ಣ **m = ರಿಕ್ತ;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(f || fname);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(f || fname);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_ತಳ್ಳು_pairs, &m);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ load_env_file_pairs_fd(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *fname, ವರ್ಣ ***ret) {
+        _cleanup_fclose_ FILE *f = ರಿಕ್ತ;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(fd >= 0);
+        ಪ್ರತಿಜ್ಞಾ(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        return load_env_file_pairs(f, fname, ret);
+        ಪ್ರತ್ಯಾಗಮ load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ merge_env_file_ತಳ್ಳು(
+                ಧ್ರುವ ವರ್ಣ *filename, unsigned ಸಾಲು,
+                ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ವರ್ಣ *ಮೌಲ್ಯ,
+                ಶೂನ್ಯ *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        ವರ್ಣ ***env = ASSERT_PTR(userdata);
+        ವರ್ಣ *expanded_ಮೌಲ್ಯ;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(key);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+        ಯದಿ (!ಮೌಲ್ಯ) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), ಸಾಲು, ಕೀಲಿ);
+                ಪ್ರತ್ಯಾಗಮ 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+        ಯದಿ (!env_name_is_valid(ಕೀಲಿ)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), ಸಾಲು, ಕೀಲಿ);
+                ಮುಕ್ತ(ಮೌಲ್ಯ);
+                ಪ್ರತ್ಯಾಗಮ 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(ಮೌಲ್ಯ,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                        &expanded_ಮೌಲ್ಯ);
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), ಸಾಲು, ಮೌಲ್ಯ);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(ಮೌಲ್ಯ, expanded_ಮೌಲ್ಯ);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ);
 
-        return load_env_file_push(filename, line, key, value, env);
+        ಪ್ರತ್ಯಾಗಮ load_env_file_ತಳ್ಳು(filename, ಸಾಲು, ಕೀಲಿ, ಮೌಲ್ಯ, env);
 }
 
-int merge_env_file(
-                char ***env,
+ಪೂರ್ಣಾಙ್ಕ merge_env_file(
+                ವರ್ಣ ***env,
                 FILE *f,
-                const char *fname) {
+                ಧ್ರುವ ವರ್ಣ *fname) {
 
-        assert(env);
-        assert(f || fname);
+        ಪ್ರತಿಜ್ಞಾ(env);
+        ಪ್ರತಿಜ್ಞಾ(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        ಪ್ರತ್ಯಾಗಮ parse_env_file_internal(f, fname, merge_env_file_ತಳ್ಳು, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+ಸ್ಥಿರ ಶೂನ್ಯ env_file_fputs_escaped(FILE *f, ಧ್ರುವ ವರ್ಣ *p) {
+        ಪ್ರತಿಜ್ಞಾ(f);
+        ಪ್ರತಿಜ್ಞಾ(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        ಯದಿ (string_has_cc(p, ರಿಕ್ತ) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                ಪ್ರತಿ (; *p; p++) {
+                        ಯದಿ (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } ಅನ್ಯಥಾ
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+ಶೂನ್ಯ env_file_fputs_assignment(FILE *f, ಧ್ರುವ ವರ್ಣ *k, ಧ್ರುವ ವರ್ಣ *v) {
+        ಪ್ರತಿಜ್ಞಾ(f);
+        ಪ್ರತಿಜ್ಞಾ(k);
 
-        if (!v)
-                return;
+        ಯದಿ (!v)
+                ಪ್ರತ್ಯಾಗಮ;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+ಸ್ಥಿರ ಶೂನ್ಯ write_env_var(FILE *f, ಧ್ರುವ ವರ್ಣ *v) {
+        ಧ್ರುವ ವರ್ಣ *p;
 
-        assert(f);
-        assert(v);
+        ಪ್ರತಿಜ್ಞಾ(f);
+        ಪ್ರತಿಜ್ಞಾ(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        ಯದಿ (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                ಪ್ರತ್ಯಾಗಮ;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ write_env_file_label(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fname, ವರ್ಣ **headers, ವರ್ಣ **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        ಪ್ರತಿಜ್ಞಾ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ಪ್ರತಿಜ್ಞಾ(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        ಯದಿ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ FILE *f = ರಿಕ್ತ;
+        _cleanup_free_ ವರ್ಣ *p = ರಿಕ್ತ;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        ಯದಿ (r < 0) {
+                ಯದಿ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+                        (ಶೂನ್ಯ) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                ಪ್ರತ್ಯಾಗಮ r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        ಯದಿ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ ರಿಕ್ತ, /* created= */ true, label_context);
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+                ಪ್ರತಿಜ್ಞಾ(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+ಪೂರ್ಣಾಙ್ಕ write_vconsole_conf(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fname, ವರ್ಣ **l) {
+        ವರ್ಣ **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        ಪ್ರತ್ಯಾಗಮ write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ ರಿಕ್ತ);
 }

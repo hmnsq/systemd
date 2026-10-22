@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-typedef enum Glyph {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ Glyph {
         GLYPH_SPACE,
-        GLYPH_TREE_VERTICAL,
-        GLYPH_TREE_BRANCH,
-        GLYPH_TREE_RIGHT,
-        GLYPH_TREE_SPACE,
-        GLYPH_TREE_TOP,
+        GLYPH_ವೃಕ್ಷ_VERTICAL,
+        GLYPH_ವೃಕ್ಷ_BRANCH,
+        GLYPH_ವೃಕ್ಷ_ಬಲ,
+        GLYPH_ವೃಕ್ಷ_SPACE,
+        GLYPH_ವೃಕ್ಷ_ತುದಿ,
         GLYPH_VERTICAL_DOTTED,
         GLYPH_HORIZONTAL_DOTTED,
         GLYPH_HORIZONTAL_FAT,
@@ -28,8 +28,8 @@ typedef enum Glyph {
         GLYPH_SIGMA,
         GLYPH_ARROW_UP,
         GLYPH_ARROW_DOWN,
-        GLYPH_ARROW_LEFT,
-        GLYPH_ARROW_RIGHT,
+        GLYPH_ARROW_ಎಡ,
+        GLYPH_ARROW_ಬಲ,
         GLYPH_ELLIPSIS,
         GLYPH_EXTERNAL_LINK,
         _GLYPH_FIRST_EMOJI,
@@ -40,12 +40,12 @@ typedef enum Glyph {
         GLYPH_SLIGHTLY_UNHAPPY_SMILEY,
         GLYPH_UNHAPPY_SMILEY,
         GLYPH_DEPRESSED_SMILEY,
-        GLYPH_LOCK_AND_KEY,
+        GLYPH_LOCK_AND_ಕೀಲಿ,
         GLYPH_TOUCH,
         GLYPH_RECYCLING,
         GLYPH_DOWNLOAD,
         GLYPH_SPARKLES,
-        GLYPH_LOW_BATTERY,
+        GLYPH_ಕೆಳಗಿನ_BATTERY,
         GLYPH_WARNING_SIGN,
         GLYPH_COMPUTER_DISK,
         GLYPH_WORLD,
@@ -68,22 +68,22 @@ typedef enum Glyph {
         _GLYPH_INVALID = -EINVAL,
 } Glyph;
 
-bool emoji_enabled(void);
+bool emoji_enabled(ಶೂನ್ಯ);
 
-const char* glyph_full(Glyph code, bool force_utf) _const_;
+ಧ್ರುವ ವರ್ಣ* glyph_full(Glyph code, bool force_utf) _const_;
 
-static inline const char* glyph(Glyph code) {
-        return glyph_full(code, false);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಧ್ರುವ ವರ್ಣ* glyph(Glyph code) {
+        ಪ್ರತ್ಯಾಗಮ glyph_full(code, false);
 }
 
-static inline const char* optional_glyph(Glyph code) {
-        return emoji_enabled() ? glyph(code) : "";
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಧ್ರುವ ವರ್ಣ* optional_glyph(Glyph code) {
+        ಪ್ರತ್ಯಾಗಮ emoji_enabled() ? glyph(code) : "";
 }
 
-static inline const char* glyph_check_mark(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಧ್ರುವ ವರ್ಣ* glyph_check_mark(bool b) {
+        ಪ್ರತ್ಯಾಗಮ b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
 }
 
-static inline const char* glyph_check_mark_space(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : " ";
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಧ್ರುವ ವರ್ಣ* glyph_check_mark_space(bool b) {
+        ಪ್ರತ್ಯಾಗಮ b ? glyph(GLYPH_CHECK_MARK) : " ";
 }

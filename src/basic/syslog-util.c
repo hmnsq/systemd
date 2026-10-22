@@ -1,60 +1,60 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <syslog.h>
+#ಅನ್ತರ್ಭಾವ <syslog.h>
 
-#include "sd-id128.h"
+#ಅನ್ತರ್ಭಾವ "sd-id128.h"
 
-#include "hexdecoct.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "syslog-util.h"
-#include "unit-name.h"
+#ಅನ್ತರ್ಭಾವ "hexdecoct.h"
+#ಅನ್ತರ್ಭಾವ "string-table.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "syslog-util.h"
+#ಅನ್ತರ್ಭಾವ "unit-name.h"
 
-int syslog_parse_priority(const char **p, int *priority, bool with_facility) {
-        int a = 0, b = 0, c = 0;
-        const char *end;
+ಪೂರ್ಣಾಙ್ಕ syslog_parse_priority(ಧ್ರುವ ವರ್ಣ **p, ಪೂರ್ಣಾಙ್ಕ *priority, bool with_facility) {
+        ಪೂರ್ಣಾಙ್ಕ a = 0, b = 0, c = 0;
+        ಧ್ರುವ ವರ್ಣ *end;
         size_t k;
 
-        assert(p);
-        assert(*p);
-        assert(priority);
+        ಪ್ರತಿಜ್ಞಾ(p);
+        ಪ್ರತಿಜ್ಞಾ(*p);
+        ಪ್ರತಿಜ್ಞಾ(priority);
 
-        if ((*p)[0] != '<')
-                return 0;
+        ಯದಿ ((*p)[0] != '<')
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         end = strchr(*p, '>');
-        if (!end)
-                return 0;
+        ಯದಿ (!end)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         k = end - *p;
-        assert(k > 0);
+        ಪ್ರತಿಜ್ಞಾ(k > 0);
 
-        if (k == 2)
+        ಯದಿ (k == 2)
                 c = undecchar((*p)[1]);
-        else if (k == 3) {
+        ಅನ್ಯಥಾ ಯದಿ (k == 3) {
                 b = undecchar((*p)[1]);
                 c = undecchar((*p)[2]);
-        } else if (k == 4) {
+        } ಅನ್ಯಥಾ ಯದಿ (k == 4) {
                 a = undecchar((*p)[1]);
                 b = undecchar((*p)[2]);
                 c = undecchar((*p)[3]);
-        } else
-                return 0;
+        } ಅನ್ಯಥಾ
+                ಪ್ರತ್ಯಾಗಮ 0;
 
-        if (a < 0 || b < 0 || c < 0 ||
+        ಯದಿ (a < 0 || b < 0 || c < 0 ||
             (!with_facility && (a || b || c > 7)))
-                return 0;
+                ಪ್ರತ್ಯಾಗಮ 0;
 
-        if (with_facility)
+        ಯದಿ (with_facility)
                 *priority = a*100 + b*10 + c;
-        else
+        ಅನ್ಯಥಾ
                 *priority = (*priority & LOG_FACMASK) | c;
 
         *p += k + 1;
-        return 1;
+        ಪ್ರತ್ಯಾಗಮ 1;
 }
 
-static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
+ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ *ಧ್ರುವ log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_KERN)]     = "kern",
         [LOG_FAC(LOG_USER)]     = "user",
         [LOG_FAC(LOG_MAIL)]     = "mail",
@@ -77,13 +77,13 @@ static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_LOCAL7)]   = "local7",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, int, LOG_FAC(~0));
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, ಪೂರ್ಣಾಙ್ಕ, LOG_FAC(~0));
 
-bool log_facility_unshifted_is_valid(int facility) {
-        return facility >= 0 && facility <= LOG_FAC(~0);
+bool log_facility_unshifted_is_valid(ಪೂರ್ಣಾಙ್ಕ facility) {
+        ಪ್ರತ್ಯಾಗಮ facility >= 0 && facility <= LOG_FAC(~0);
 }
 
-static const char *const log_level_table[] = {
+ಸ್ಥಿರ ಧ್ರುವ ವರ್ಣ *ಧ್ರುವ log_level_table[] = {
         [LOG_EMERG]   = "emerg",
         [LOG_ALERT]   = "alert",
         [LOG_CRIT]    = "crit",
@@ -94,30 +94,30 @@ static const char *const log_level_table[] = {
         [LOG_DEBUG]   = "debug",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, int, LOG_DEBUG);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, ಪೂರ್ಣಾಙ್ಕ, LOG_DEBUG);
 
-bool log_level_is_valid(int level) {
-        return level >= 0 && level <= LOG_DEBUG;
+bool log_level_is_valid(ಪೂರ್ಣಾಙ್ಕ level) {
+        ಪ್ರತ್ಯಾಗಮ level >= 0 && level <= LOG_DEBUG;
 }
 
 /* The maximum size for a log namespace length. This is the file name size limit 255 minus the size of a
  * formatted machine ID minus a separator char */
 #define LOG_NAMESPACE_MAX (NAME_MAX - (SD_ID128_STRING_MAX - 1) - 1)
 
-bool log_namespace_name_valid(const char *s) {
+bool log_namespace_name_valid(ಧ್ರುವ ವರ್ಣ *s) {
         /* Let's make sure the namespace fits in a filename that is prefixed with the machine ID and a dot
          * (so that /var/log/journal/<machine-id>.<namespace> can be created based on it). Also make sure it
          * is suitable as unit instance name, and does not contain fishy characters. */
 
         /* Let's avoid globbing for now */
-        if (!string_is_safe(s, STRING_FILENAME))
-                return false;
+        ಯದಿ (!string_is_safe(s, STRING_FILENAME))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        if (strlen(s) > LOG_NAMESPACE_MAX)
-                return false;
+        ಯದಿ (strlen(s) > LOG_NAMESPACE_MAX)
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        if (!unit_instance_is_valid(s))
-                return false;
+        ಯದಿ (!unit_instance_is_valid(s))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        return true;
+        ಪ್ರತ್ಯಾಗಮ true;
 }

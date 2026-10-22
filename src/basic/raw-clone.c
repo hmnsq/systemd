@@ -4,13 +4,13 @@
   Copyright © 2016 Michael Karcher
 ***/
 
-#include <errno.h>                      /* IWYU pragma: keep */
-#include <sched.h>
-#include <sys/syscall.h>                /* IWYU pragma: keep */
-#include <unistd.h>
+#ಅನ್ತರ್ಭಾವ <errno.h>                      /* IWYU pragma: keep */
+#ಅನ್ತರ್ಭಾವ <sched.h>
+#ಅನ್ತರ್ಭಾವ <sys/syscall.h>                /* IWYU pragma: keep */
+#ಅನ್ತರ್ಭಾವ <unistd.h>
 
-#include "process-util.h"
-#include "raw-clone.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "raw-clone.h"
 
 /**
  * raw_clone() - uses clone to create a new process with clone flags
@@ -37,12 +37,12 @@
 pid_t raw_clone(unsigned long flags) {
         pid_t ret;
 
-        assert((flags & (CLONE_VM|CLONE_PARENT_SETTID|CLONE_CHILD_SETTID|CLONE_CHILD_CLEARTID|CLONE_SETTLS|CLONE_PIDFD)) == 0);
-#if defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
+        ಪ್ರತಿಜ್ಞಾ((flags & (CLONE_VM|CLONE_PARENT_SETTID|CLONE_CHILD_SETTID|CLONE_CHILD_CLEARTID|CLONE_SETTLS|CLONE_PIDFD)) == 0);
+#ಯದಿ defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
         /* On s390/s390x and cris the order of the first and second arguments
          * of the raw clone() system call is reversed. */
-        ret = (pid_t) syscall(__NR_clone, NULL, flags);
-#elif defined(__sparc__)
+        ret = (pid_t) syscall(__NR_clone, ರಿಕ್ತ, flags);
+#ನೋಚೇದ್ಯದಿ defined(__sparc__)
         {
                 /**
                  * sparc always returns the other process id in %o0, and
@@ -50,14 +50,14 @@ pid_t raw_clone(unsigned long flags) {
                  * %o1. Inline assembly is needed to get the flag returned
                  * in %o1.
                  */
-                int in_child, child_pid, error;
+                ಪೂರ್ಣಾಙ್ಕ in_child, child_pid, error;
 
-                asm volatile("mov %3, %%g1\n\t"
+                asm ಚಞ್ಚಲ("mov %3, %%g1\n\t"
                              "mov %4, %%o0\n\t"
                              "mov 0 , %%o1\n\t"
-#if defined(__arch64__)
+#ಯದಿ defined(__arch64__)
                              "t 0x6d\n\t"
-#else
+#ಅನ್ಯಥಾ
                              "t 0x10\n\t"
 #endif
                              "addx %%g0, 0, %2\n\t"
@@ -67,18 +67,18 @@ pid_t raw_clone(unsigned long flags) {
                              "i"(__NR_clone), "r"(flags) :
                              "%o1", "%o0", "%g1", "cc" );
 
-                if (error) {
+                ಯದಿ (error) {
                         errno = child_pid;
                         ret = -1;
-                } else
+                } ಅನ್ಯಥಾ
                         ret = in_child ? 0 : child_pid;
         }
-#else
-        ret = (pid_t) syscall(__NR_clone, flags, NULL);
+#ಅನ್ಯಥಾ
+        ret = (pid_t) syscall(__NR_clone, flags, ರಿಕ್ತ);
 #endif
 
-        if (ret == 0)
+        ಯದಿ (ret == 0)
                 reset_cached_pid();
 
-        return ret;
+        ಪ್ರತ್ಯಾಗಮ ret;
 }

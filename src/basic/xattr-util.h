@@ -1,59 +1,59 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-int getxattr_at_malloc(int fd, const char *path, const char *name, int at_flags, char **ret, size_t *ret_size);
-static inline int getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
+ಪೂರ್ಣಾಙ್ಕ getxattr_at_malloc(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *name, ಪೂರ್ಣಾಙ್ಕ at_flags, ವರ್ಣ **ret, size_t *ret_size);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ getxattr_malloc(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *name, ವರ್ಣ **ret, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
 }
-static inline int lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ lgetxattr_malloc(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *name, ವರ್ಣ **ret, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
 }
-static inline int fgetxattr_malloc(int fd, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
-}
-
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags);
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv);
-
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret);
-static inline int listxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
-}
-static inline int llistxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, 0, ret);
-}
-static inline int flistxattr_malloc(int fd, char **ret) {
-        return listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ fgetxattr_malloc(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *name, ವರ್ಣ **ret, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ getxattr_at_malloc(fd, ರಿಕ್ತ, name, AT_EMPTY_PATH, ret, ret_size);
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
+ಪೂರ್ಣಾಙ್ಕ getxattr_at_bool(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *name, ಪೂರ್ಣಾಙ್ಕ at_flags);
+ಪೂರ್ಣಾಙ್ಕ getxattr_at_strv(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *name, ಪೂರ್ಣಾಙ್ಕ at_flags, ವರ್ಣ ***ret_strv);
+
+ಪೂರ್ಣಾಙ್ಕ listxattr_at_malloc(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *path, ಪೂರ್ಣಾಙ್ಕ at_flags, ವರ್ಣ **ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ listxattr_malloc(ಧ್ರುವ ವರ್ಣ *path, ವರ್ಣ **ret) {
+        ಪ್ರತ್ಯಾಗಮ listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ llistxattr_malloc(ಧ್ರುವ ವರ್ಣ *path, ವರ್ಣ **ret) {
+        ಪ್ರತ್ಯಾಗಮ listxattr_at_malloc(AT_FDCWD, path, 0, ret);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ flistxattr_malloc(ಪೂರ್ಣಾಙ್ಕ fd, ವರ್ಣ **ret) {
+        ಪ್ರತ್ಯಾಗಮ listxattr_at_malloc(fd, ರಿಕ್ತ, AT_EMPTY_PATH, ret);
+}
+
+ಪೂರ್ಣಾಙ್ಕ xsetxattr_full(
+                ಪೂರ್ಣಾಙ್ಕ fd,
+                ಧ್ರುವ ವರ್ಣ *path,
+                ಪೂರ್ಣಾಙ್ಕ at_flags,
+                ಧ್ರುವ ವರ್ಣ *name,
+                ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ,
                 size_t size,
-                int xattr_flags);
-static inline int xsetxattr(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+                ಪೂರ್ಣಾಙ್ಕ xattr_flags);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ xsetxattr(
+                ಪೂರ್ಣಾಙ್ಕ fd,
+                ಧ್ರುವ ವರ್ಣ *path,
+                ಪೂರ್ಣಾಙ್ಕ at_flags,
+                ಧ್ರುವ ವರ್ಣ *name,
+                ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪ್ರತ್ಯಾಗಮ xsetxattr_full(fd, path, at_flags, name, ಮೌಲ್ಯ, SIZE_MAX, 0);
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);
+ಪೂರ್ಣಾಙ್ಕ xsetxattr_strv(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *path, ಪೂರ್ಣಾಙ್ಕ at_flags, ಧ್ರುವ ವರ್ಣ *name, ವರ್ಣ * ಧ್ರುವ *l);
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name);
+ಪೂರ್ಣಾಙ್ಕ xremovexattr(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *path, ಪೂರ್ಣಾಙ್ಕ at_flags, ಧ್ರುವ ವರ್ಣ *name);
 
-int fd_setcrtime(int fd, usec_t usec);
-int getcrtime_at(int fd, const char *path, int at_flags, usec_t *ret);
-static inline int fd_getcrtime(int fd, usec_t *ret) {
-        return getcrtime_at(fd, NULL, 0, ret);
+ಪೂರ್ಣಾಙ್ಕ fd_setcrtime(ಪೂರ್ಣಾಙ್ಕ fd, usec_t usec);
+ಪೂರ್ಣಾಙ್ಕ getcrtime_at(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *path, ಪೂರ್ಣಾಙ್ಕ at_flags, usec_t *ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ fd_getcrtime(ಪೂರ್ಣಾಙ್ಕ fd, usec_t *ret) {
+        ಪ್ರತ್ಯಾಗಮ getcrtime_at(fd, ರಿಕ್ತ, 0, ret);
 }
 
-bool xattr_is_acl(const char *name);
-bool xattr_is_selinux(const char *name);
+bool xattr_is_acl(ಧ್ರುವ ವರ್ಣ *name);
+bool xattr_is_selinux(ಧ್ರುವ ವರ್ಣ *name);

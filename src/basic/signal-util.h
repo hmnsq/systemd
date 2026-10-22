@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <signal.h>     /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ <signal.h>     /* IWYU pragma: export */
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-int reset_all_signal_handlers(void);
-int reset_signal_mask(void);
+ಪೂರ್ಣಾಙ್ಕ reset_all_signal_handlers(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ reset_signal_mask(ಶೂನ್ಯ);
 
-int sigaction_many_internal(const struct sigaction *sa, ...);
+ಪೂರ್ಣಾಙ್ಕ sigaction_many_internal(ಧ್ರುವ ಸಂರಚನಾ sigaction *sa, ...);
 
 #define ignore_signals(...)                                             \
         sigaction_many_internal(                                        \
@@ -25,61 +25,61 @@ int sigaction_many_internal(const struct sigaction *sa, ...);
 #define sigaction_many(sa, ...)                                         \
         sigaction_many_internal(sa, __VA_ARGS__, -1)
 
-int sigset_add_many_internal(sigset_t *ss, ...);
+ಪೂರ್ಣಾಙ್ಕ sigset_add_many_internal(sigset_t *ss, ...);
 #define sigset_add_many(...) sigset_add_many_internal(__VA_ARGS__, -1)
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...);
+ಪೂರ್ಣಾಙ್ಕ sigprocmask_many_internal(ಪೂರ್ಣಾಙ್ಕ how, sigset_t *ret_old_mask, ...);
 #define sigprocmask_many(...) sigprocmask_many_internal(__VA_ARGS__, -1)
 
-DECLARE_STRING_TABLE_LOOKUP(signal, int);
-const char* signal_code_to_string(int signo, int code) _const_;
+DECLARE_STRING_TABLE_LOOKUP(ಸಙ್ಕೇತ, ಪೂರ್ಣಾಙ್ಕ);
+ಧ್ರುವ ವರ್ಣ* signal_code_to_string(ಪೂರ್ಣಾಙ್ಕ signo, ಪೂರ್ಣಾಙ್ಕ code) _const_;
 
-void nop_signal_handler(int sig);
+ಶೂನ್ಯ nop_signal_handler(ಪೂರ್ಣಾಙ್ಕ sig);
 
-static inline void block_signals_reset(sigset_t **ss) {
-        assert(ss);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ block_signals_reset(sigset_t **ss) {
+        ಪ್ರತಿಜ್ಞಾ(ss);
 
-        if (!*ss)
-                return;
+        ಯದಿ (!*ss)
+                ಪ್ರತ್ಯಾಗಮ;
 
-        assert_log(sigprocmask(SIG_SETMASK, *ss, NULL) >= 0);
+        assert_log(sigprocmask(SIG_SETMASK, *ss, ರಿಕ್ತ) >= 0);
 }
 
 #define BLOCK_SIGNALS(...)                                              \
         sigset_t _saved_sigset;                                         \
         _cleanup_(block_signals_reset) _unused_ sigset_t *_saved_sigsetp = \
                 assert_log(sigprocmask_many(SIG_BLOCK, &_saved_sigset, __VA_ARGS__) >= 0) ? \
-                &_saved_sigset : NULL;
+                &_saved_sigset : ರಿಕ್ತ;
 
 #define SIGNO_INVALID (-EINVAL)
 
-static inline bool SIGNAL_VALID(int signo) {
-        return signo > 0 && signo < _NSIG;
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool SIGNAL_VALID(ಪೂರ್ಣಾಙ್ಕ signo) {
+        ಪ್ರತ್ಯಾಗಮ signo > 0 && signo < _NSIG;
 }
 
-static inline const char* signal_to_string_with_check(int n) {
-        if (!SIGNAL_VALID(n))
-                return NULL;
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಧ್ರುವ ವರ್ಣ* signal_to_string_with_check(ಪೂರ್ಣಾಙ್ಕ n) {
+        ಯದಿ (!SIGNAL_VALID(n))
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        return signal_to_string(n);
+        ಪ್ರತ್ಯಾಗಮ signal_to_string(n);
 }
 
-int signal_is_blocked(int sig);
+ಪೂರ್ಣಾಙ್ಕ signal_is_blocked(ಪೂರ್ಣಾಙ್ಕ sig);
 
-int autoreaping_enabled(void);
+ಪೂರ್ಣಾಙ್ಕ autoreaping_enabled(ಶೂನ್ಯ);
 
-int pop_pending_signal_internal(int sig, ...);
-#define pop_pending_signal(...) pop_pending_signal_internal(__VA_ARGS__, -1)
+ಪೂರ್ಣಾಙ್ಕ ತೆಗೆ_pending_signal_internal(ಪೂರ್ಣಾಙ್ಕ sig, ...);
+#define ತೆಗೆ_pending_signal(...) ತೆಗೆ_pending_signal_internal(__VA_ARGS__, -1)
 
-void propagate_signal(int sig, siginfo_t *siginfo);
+ಶೂನ್ಯ propagate_signal(ಪೂರ್ಣಾಙ್ಕ sig, siginfo_t *siginfo);
 
-extern const struct sigaction sigaction_ignore;
-extern const struct sigaction sigaction_default;
-extern const struct sigaction sigaction_nop_nocldstop;
+ಬಾಹ್ಯ ಧ್ರುವ ಸಂರಚನಾ sigaction sigaction_ignore;
+ಬಾಹ್ಯ ಧ್ರುವ ಸಂರಚನಾ sigaction sigaction_default;
+ಬಾಹ್ಯ ಧ್ರುವ ಸಂರಚನಾ sigaction sigaction_nop_nocldstop;
 
-int parse_signo(const char *s, int *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_signo(ಧ್ರುವ ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ *ret);
 
-static inline bool si_code_from_process(int si_code) {
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool si_code_from_process(ಪೂರ್ಣಾಙ್ಕ si_code) {
         /* Returns true if the .si_code field of siginfo_t or the .ssi_code field of struct signalfd_siginfo
          * indicate that the signal originates from a userspace process, and hence the .si_pid/.ssi_pid field
          * is valid. This check is not obvious, since on one hand SI_USER/SI_QUEUE are supposed to be the
@@ -98,7 +98,7 @@ static inline bool si_code_from_process(int si_code) {
          *
          * From: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html */
 
-        return si_code < 0 || IN_SET(si_code, SI_USER, SI_QUEUE);
+        ಪ್ರತ್ಯಾಗಮ si_code < 0 || IN_SET(si_code, SI_USER, SI_QUEUE);
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext);
+ಶೂನ್ಯ sigterm_process_group_handler(ಪೂರ್ಣಾಙ್ಕ ಸಙ್ಕೇತ, siginfo_t *info, ಶೂನ್ಯ *ucontext);

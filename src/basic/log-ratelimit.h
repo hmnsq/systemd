@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "log.h"
-#include "ratelimit.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "ratelimit.h"
 
-typedef struct LogRateLimit {
-        int error;
-        int level;
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ LogRateLimit {
+        ಪೂರ್ಣಾಙ್ಕ error;
+        ಪೂರ್ಣಾಙ್ಕ level;
         RateLimit ratelimit;
 } LogRateLimit;
 
-#define log_ratelimit_internal(_level, _error, _ratelimit, _file, _line, _func, _format, ...)        \
+#define log_ratelimit_internal(_level, _error, _ratelimit, _file, ಸಾಲು_2, _func, _format, ...)        \
 ({                                                                              \
-        int _log_ratelimit_error = (_error);                                    \
-        int _log_ratelimit_level = (_level);                                    \
-        static LogRateLimit _log_ratelimit = {                                  \
+        ಪೂರ್ಣಾಙ್ಕ _log_ratelimit_error = (_error);                                    \
+        ಪೂರ್ಣಾಙ್ಕ _log_ratelimit_level = (_level);                                    \
+        ಸ್ಥಿರ LogRateLimit _log_ratelimit = {                                  \
                 .ratelimit = (_ratelimit),                                      \
         };                                                                      \
-        unsigned _num_dropped_errors = ratelimit_num_dropped(&_log_ratelimit.ratelimit); \
-        if (_log_ratelimit_error != _log_ratelimit.error || _log_ratelimit_level != _log_ratelimit.level) { \
+        unsigned ಅಂಕೆ_dropped_errors = ratelimit_ಅಂಕೆ_dropped(&_log_ratelimit.ratelimit); \
+        ಯದಿ (_log_ratelimit_error != _log_ratelimit.error || _log_ratelimit_level != _log_ratelimit.level) { \
                 ratelimit_reset(&_log_ratelimit.ratelimit);                     \
                 _log_ratelimit.error = _log_ratelimit_error;                    \
                 _log_ratelimit.level = _log_ratelimit_level;                    \
         }                                                                       \
-        if (log_get_max_level() == LOG_DEBUG || ratelimit_below(&_log_ratelimit.ratelimit)) \
-                _log_ratelimit_error = _num_dropped_errors > 0                  \
-                ? log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, _line, _func, _format " (Dropped %u similar message(s))", ##__VA_ARGS__, _num_dropped_errors) \
-                : log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, _line, _func, _format, ##__VA_ARGS__); \
+        ಯದಿ (log_get_max_level() == LOG_DEBUG || ratelimit_below(&_log_ratelimit.ratelimit)) \
+                _log_ratelimit_error = ಅಂಕೆ_dropped_errors > 0                  \
+                ? log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, ಸಾಲು_2, _func, _format " (Dropped %u similar message(s))", ##__VA_ARGS__, ಅಂಕೆ_dropped_errors) \
+                : log_internal(_log_ratelimit_level, _log_ratelimit_error, _file, ಸಾಲು_2, _func, _format, ##__VA_ARGS__); \
         _log_ratelimit_error;                                                   \
 })
 
 #define log_ratelimit_full_errno(level, error, _ratelimit, format, ...)             \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                ಪೂರ್ಣಾಙ್ಕ _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_ratelimit_internal(_level, _e, _ratelimit, PROJECT_FILE, __LINE__, __func__, format, ##__VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        : -ERRNO_ಮೌಲ್ಯ(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 

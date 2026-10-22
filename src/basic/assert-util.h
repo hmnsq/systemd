@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#ಅನ್ತರ್ಭಾವ "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(ಶೂನ್ಯ) _weak_ _pure_;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+ಶೂನ್ಯ log_assert_failed_return(ಧ್ರುವ ವರ್ಣ *text, ಧ್ರುವ ವರ್ಣ *file, ಪೂರ್ಣಾಙ್ಕ ಸಾಲು, ಧ್ರುವ ವರ್ಣ *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#define assert_log(ಅಭಿವ್ಯಕ್ತಿ)                                                \
+        (_likely_(ಅಭಿವ್ಯಕ್ತಿ) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#define assert_return(ಅಭಿವ್ಯಕ್ತಿ, r)                                          \
+        ಕುರು {                                                            \
+                ಯದಿ (!assert_log(ಅಭಿವ್ಯಕ್ತಿ))                                  \
+                        ಪ್ರತ್ಯಾಗಮ (r);                                     \
+        } ಯಾವತ್ (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#define assert_return_errno(ಅಭಿವ್ಯಕ್ತಿ, r, err)                               \
+        ಕುರು {                                                            \
+                ಯದಿ (!assert_log(ಅಭಿವ್ಯಕ್ತಿ)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        ಪ್ರತ್ಯಾಗಮ (r);                                     \
                 }                                                       \
-        } while (false)
+        } ಯಾವತ್ (false)

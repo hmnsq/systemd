@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
-#include "web-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "path-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
+#ಅನ್ತರ್ಭಾವ "utf8.h"
+#ಅನ್ತರ್ಭಾವ "web-util.h"
 
-bool http_url_is_valid(const char *url) {
-        const char *p;
+bool http_url_is_valid(ಧ್ರುವ ವರ್ಣ *url) {
+        ಧ್ರುವ ವರ್ಣ *p;
 
-        if (isempty(url))
-                return false;
+        ಯದಿ (isempty(url))
+                ಪ್ರತ್ಯಾಗಮ false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        ಯದಿ (!p)
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        if (isempty(p))
-                return false;
+        ಯದಿ (isempty(p))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        return ascii_is_valid(p);
+        ಪ್ರತ್ಯಾಗಮ ascii_is_valid(p);
 }
 
-bool file_url_is_valid(const char *url) {
-        const char *p;
+bool file_url_is_valid(ಧ್ರುವ ವರ್ಣ *url) {
+        ಧ್ರುವ ವರ್ಣ *p;
 
-        if (isempty(url))
-                return false;
+        ಯದಿ (isempty(url))
+                ಪ್ರತ್ಯಾಗಮ false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        ಯದಿ (isempty(p))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        return ascii_is_valid(p);
+        ಪ್ರತ್ಯಾಗಮ ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
-        const char *p, *e;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ provider_url_parse(ಧ್ರುವ ವರ್ಣ *url, ವರ್ಣ **ret_socket, ವರ್ಣ **ret_resource) {
+        ಧ್ರುವ ವರ್ಣ *p, *e;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        ಯದಿ (isempty(url))
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        ಯದಿ (!p)
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        ಯದಿ (!e || e == p)
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
+        ಯದಿ (e[1] != '/')
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-        _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ ವರ್ಣ *s = strndup(p, e - p);
+        ಯದಿ (!s)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        ಯದಿ (!path_is_absolute(s) || !path_is_normalized(s))
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-        const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        ಧ್ರುವ ವರ್ಣ *resource = e + 2;
+        ಯದಿ (isempty(resource))
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
+        ಯದಿ (path_is_absolute(resource) || !path_is_normalized(resource))
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
+        ಯದಿ (string_has_cc(resource, /* ok= */ ರಿಕ್ತ) || strpbrk(resource, "?#"))
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        if (ret_socket)
+        ಯದಿ (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+bool provider_url_is_valid(ಧ್ರುವ ವರ್ಣ *url) {
+        ಪ್ರತ್ಯಾಗಮ provider_url_parse(url, /* ret_socket= */ ರಿಕ್ತ, /* ret_resource= */ ರಿಕ್ತ) >= 0;
 }
 
-bool documentation_url_is_valid(const char *url) {
-        const char *p;
+bool documentation_url_is_valid(ಧ್ರುವ ವರ್ಣ *url) {
+        ಧ್ರುವ ವರ್ಣ *p;
 
-        if (isempty(url))
-                return false;
+        ಯದಿ (isempty(url))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        ಯದಿ (http_url_is_valid(url) || file_url_is_valid(url))
+                ಪ್ರತ್ಯಾಗಮ true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        ಯದಿ (isempty(p))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        return ascii_is_valid(p);
+        ಪ್ರತ್ಯಾಗಮ ascii_is_valid(p);
 }
 
-bool http_header_valid(const char *header) {
-        return header &&
+bool http_header_valid(ಧ್ರುವ ವರ್ಣ *header) {
+        ಪ್ರತ್ಯಾಗಮ header &&
                 ascii_is_valid(header) &&
-                !string_has_cc(header, /* ok= */ NULL) &&
+                !string_has_cc(header, /* ok= */ ರಿಕ್ತ) &&
                 strchr(header, ':');
 }
 
-bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+bool http_etag_is_valid(ಧ್ರುವ ವರ್ಣ *etag) {
+        ಯದಿ (isempty(etag))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        ಯದಿ (!endswith(etag, "\""))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        ಯದಿ (!STARTSWITH_SET(etag, "\"", "W/\""))
+                ಪ್ರತ್ಯಾಗಮ false;
 
-        return true;
+        ಪ್ರತ್ಯಾಗಮ true;
 }

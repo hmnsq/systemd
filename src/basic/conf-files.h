@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/stat.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-typedef enum ConfFilesFlags {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ ConfFilesFlags {
         CONF_FILES_EXECUTABLE               = 1 << 0, /* inode must be marked executable */
         CONF_FILES_REGULAR                  = 1 << 1, /* inode must be regular file */
         CONF_FILES_DIRECTORY                = 1 << 2, /* inode must be directory */
@@ -15,65 +15,65 @@ typedef enum ConfFilesFlags {
         CONF_FILES_FILTER_MASKED            = CONF_FILES_FILTER_MASKED_BY_SYMLINK | CONF_FILES_FILTER_MASKED_BY_EMPTY,
         CONF_FILES_TRUNCATE_SUFFIX          = 1 << 6, /* truncate specified suffix from return filename or path */
         CONF_FILES_WARN                     = 1 << 7, /* warn on some errors */
-        CONF_FILES_DONT_PREFIX_ROOT         = 1 << 8, /* don't prefix the specified root path to the resulting paths */
+        CONF_FILES_DONT_PREFIX_ಬೇರು         = 1 << 8, /* don't prefix the specified root path to the resulting paths */
 } ConfFilesFlags;
 
-typedef struct ConfFile {
-        char *filename;      /* filename of the discovered file (i.e. without any directory prefix) */
-        char *result;        /* full path to the file (with the directory prefix fully resolved, but the filename part left as is) */
-        char *original_path; /* full path to the file (original – non-resolved – directory prefix + filename part left as is) */
-        char *resolved_path; /* fully resolved path to the file with both directory prefix and filename fully resolved */
-        int fd;              /* O_PATH fd to resolved_path, -EBADF if resolved_path does not exist */
-        struct stat st;      /* stat of the file. */
+ಪ್ರಕಾರನಿರ್ದೇಶ ಸಂರಚನಾ ConfFile {
+        ವರ್ಣ *filename;      /* filename of the discovered file (i.e. without any directory prefix) */
+        ವರ್ಣ *result;        /* full path to the file (with the directory prefix fully resolved, but the filename part left as is) */
+        ವರ್ಣ *original_path; /* full path to the file (original – non-resolved – directory prefix + filename part left as is) */
+        ವರ್ಣ *resolved_path; /* fully resolved path to the file with both directory prefix and filename fully resolved */
+        ಪೂರ್ಣಾಙ್ಕ fd;              /* O_PATH fd to resolved_path, -EBADF if resolved_path does not exist */
+        ಸಂರಚನಾ stat st;      /* stat of the file. */
 } ConfFile;
 
 ConfFile* conf_file_free(ConfFile *c);
 DEFINE_TRIVIAL_CLEANUP_FUNC(ConfFile*, conf_file_free);
-void conf_file_free_array(ConfFile **array, size_t n);
+ಶೂನ್ಯ conf_file_free_array(ConfFile **array, size_t n);
 
-int conf_file_new_at(const char *path, const char *root, int rfd, ConfFilesFlags flags, ConfFile **ret);
-int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, ConfFile **ret);
+ಪೂರ್ಣಾಙ್ಕ conf_file_new_at(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ಪೂರ್ಣಾಙ್ಕ rfd, ConfFilesFlags flags, ConfFile **ret);
+ಪೂರ್ಣಾಙ್ಕ conf_file_new(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ConfFilesFlags flags, ConfFile **ret);
 
-int conf_files_list(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dir);
-int conf_files_list_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dir);
-int conf_files_list_strv(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char* const* dirs);
-int conf_files_list_strv_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char * const *dirs);
-int conf_files_list_nulstr(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs);
-int conf_files_list_nulstr_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list(ವರ್ಣ ***ret, ಧ್ರುವ ವರ್ಣ *suffix, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dir);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_at(ವರ್ಣ ***ret, ಧ್ರುವ ವರ್ಣ *suffix, ಪೂರ್ಣಾಙ್ಕ rfd, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dir);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_strv(ವರ್ಣ ***ret, ಧ್ರುವ ವರ್ಣ *suffix, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ* dirs);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_strv_at(ವರ್ಣ ***ret, ಧ್ರುವ ವರ್ಣ *suffix, ಪೂರ್ಣಾಙ್ಕ rfd, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ *dirs);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_nulstr(ವರ್ಣ ***ret, ಧ್ರುವ ವರ್ಣ *suffix, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dirs);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_nulstr_at(ವರ್ಣ ***ret, ಧ್ರುವ ವರ್ಣ *suffix, ಪೂರ್ಣಾಙ್ಕ rfd, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dirs);
 
-int conf_files_list_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_strv_full(const char *suffix, const char *root, ConfFilesFlags flags, const char * const *dirs, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_strv_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char * const *dirs, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_nulstr_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_nulstr_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_full(ಧ್ರುವ ವರ್ಣ *suffix, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dir, ConfFile ***ret_files, size_t *ret_n_files);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_at_full(ಧ್ರುವ ವರ್ಣ *suffix, ಪೂರ್ಣಾಙ್ಕ rfd, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dir, ConfFile ***ret_files, size_t *ret_n_files);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_strv_full(ಧ್ರುವ ವರ್ಣ *suffix, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_strv_at_full(ಧ್ರುವ ವರ್ಣ *suffix, ಪೂರ್ಣಾಙ್ಕ rfd, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_nulstr_full(ಧ್ರುವ ವರ್ಣ *suffix, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_nulstr_at_full(ಧ್ರುವ ವರ್ಣ *suffix, ಪೂರ್ಣಾಙ್ಕ rfd, ConfFilesFlags flags, ಧ್ರುವ ವರ್ಣ *dirs, ConfFile ***ret_files, size_t *ret_n_files);
 
-int conf_files_list_with_replacement(
-                const char *root,
-                char **config_dirs,
-                const char *replacement,
-                char ***ret_files,
-                char **ret_inserted);
-int conf_files_list_dropins(
-                char ***ret,
-                const char *dropin_dirname,
-                const char *root,
-                int root_fd,
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_with_replacement(
+                ಧ್ರುವ ವರ್ಣ *ಬೇರು,
+                ವರ್ಣ **config_dirs,
+                ಧ್ರುವ ವರ್ಣ *replacement,
+                ವರ್ಣ ***ret_files,
+                ವರ್ಣ **ret_inserted);
+ಪೂರ್ಣಾಙ್ಕ conf_files_list_dropins(
+                ವರ್ಣ ***ret,
+                ಧ್ರುವ ವರ್ಣ *dropin_dirname,
+                ಧ್ರುವ ವರ್ಣ *ಬೇರು,
+                ಪೂರ್ಣಾಙ್ಕ ಬೇರು_fd,
                 ConfFilesFlags flags,
-                const char * const *dirs);
+                ಧ್ರುವ ವರ್ಣ * ಧ್ರುವ *dirs);
 
-typedef int parse_line_t(
-                const char *fname,
-                unsigned line,
-                const char *buffer,
+ಪ್ರಕಾರನಿರ್ದೇಶ ಪೂರ್ಣಾಙ್ಕ parse_ಸಾಲು_t(
+                ಧ್ರುವ ವರ್ಣ *fname,
+                unsigned ಸಾಲು,
+                ಧ್ರುವ ವರ್ಣ *buffer,
                 bool *invalid_config,
-                void *userdata);
+                ಶೂನ್ಯ *userdata);
 
-int conf_file_read(
-                const char *root,
-                const char **config_dirs,
-                const char *fn,
-                parse_line_t parse_line,
-                void *userdata,
+ಪೂರ್ಣಾಙ್ಕ conf_file_read(
+                ಧ್ರುವ ವರ್ಣ *ಬೇರು,
+                ಧ್ರುವ ವರ್ಣ **config_dirs,
+                ಧ್ರುವ ವರ್ಣ *fn,
+                parse_ಸಾಲು_t parse_ಸಾಲು,
+                ಶೂನ್ಯ *userdata,
                 bool ignore_enoent,
                 bool *invalid_config);

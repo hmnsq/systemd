@@ -1,79 +1,79 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-struct iovec_wrapper {
-        struct iovec *iovec;
-        size_t count;
+ಸಂರಚನಾ iovec_wrapper {
+        ಸಂರಚನಾ iovec *iovec;
+        size_t ಎಣಿಕೆ;
 };
 
-void iovw_done_free(struct iovec_wrapper *iovw);
-void iovw_done(struct iovec_wrapper *iovw);
+ಶೂನ್ಯ iovw_done_free(ಸಂರಚನಾ iovec_wrapper *iovw);
+ಶೂನ್ಯ iovw_done(ಸಂರಚನಾ iovec_wrapper *iovw);
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free);
+ಸಂರಚನಾ iovec_wrapper* iovw_free(ಸಂರಚನಾ iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ಸಂರಚನಾ iovec_wrapper*, iovw_free);
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free_free);
+ಸಂರಚನಾ iovec_wrapper* iovw_free_free(ಸಂರಚನಾ iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ಸಂರಚನಾ iovec_wrapper*, iovw_free_free);
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) _pure_;
-static inline bool iovw_equal(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        return iovw_compare(a, b) == 0;
-}
-
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_put(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_put_full(iovw, false, data, len);
-}
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_put_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_put_iov_full(iovw, false, iov);
-}
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_put_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_put_iovw_full(iovw, false, source);
-}
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_consume(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_consume_full(iovw, false, data, len);
-}
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov);
-static inline int iovw_consume_iov(struct iovec_wrapper *iovw, struct iovec *iov) {
-        return iovw_consume_iov_full(iovw, false, iov);
-}
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len);
-static inline int iovw_extend(struct iovec_wrapper *iovw, const void *data, size_t len) {
-        return iovw_extend_full(iovw, false, data, len);
-}
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_extend_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_extend_iov_full(iovw, false, iov);
-}
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_extend_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_extend_iovw_full(iovw, false, source);
+ಪೂರ್ಣಾಙ್ಕ iovw_compare(ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *a, ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *b) _pure_;
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool iovw_equal(ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *a, ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *b) {
+        ಪ್ರತ್ಯಾಗಮ iovw_compare(a, b) == 0;
 }
 
-static inline bool iovw_isempty(const struct iovec_wrapper *iovw) {
-        return !iovw || iovw->count == 0;
+ಪೂರ್ಣಾಙ್ಕ iovw_put_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಶೂನ್ಯ *data, size_t len);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_put(ಸಂರಚನಾ iovec_wrapper *iovw, ಶೂನ್ಯ *data, size_t len) {
+        ಪ್ರತ್ಯಾಗಮ iovw_put_full(iovw, false, data, len);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_put_iov_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಧ್ರುವ ಸಂರಚನಾ iovec *iov);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_put_iov(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ಸಂರಚನಾ iovec *iov) {
+        ಪ್ರತ್ಯಾಗಮ iovw_put_iov_full(iovw, false, iov);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_put_iovw_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *source);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_put_iovw(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *source) {
+        ಪ್ರತ್ಯಾಗಮ iovw_put_iovw_full(iovw, false, source);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_consume_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಶೂನ್ಯ *data, size_t len);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_consume(ಸಂರಚನಾ iovec_wrapper *iovw, ಶೂನ್ಯ *data, size_t len) {
+        ಪ್ರತ್ಯಾಗಮ iovw_consume_full(iovw, false, data, len);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_consume_iov_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಸಂರಚನಾ iovec *iov);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_consume_iov(ಸಂರಚನಾ iovec_wrapper *iovw, ಸಂರಚನಾ iovec *iov) {
+        ಪ್ರತ್ಯಾಗಮ iovw_consume_iov_full(iovw, false, iov);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_extend_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಧ್ರುವ ಶೂನ್ಯ *data, size_t len);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_extend(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ಶೂನ್ಯ *data, size_t len) {
+        ಪ್ರತ್ಯಾಗಮ iovw_extend_full(iovw, false, data, len);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_extend_iov_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಧ್ರುವ ಸಂರಚನಾ iovec *iov);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_extend_iov(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ಸಂರಚನಾ iovec *iov) {
+        ಪ್ರತ್ಯಾಗಮ iovw_extend_iov_full(iovw, false, iov);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_extend_iovw_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool accept_zero, ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *source);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_extend_iovw(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *source) {
+        ಪ್ರತ್ಯಾಗಮ iovw_extend_iovw_full(iovw, false, source);
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value);
-static inline int iovw_put_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, false, field, value);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool iovw_isempty(ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *iovw) {
+        ಪ್ರತ್ಯಾಗಮ !iovw || iovw->ಎಣಿಕೆ == 0;
 }
-static inline int iovw_replace_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, true, field, value);
+
+ಪೂರ್ಣಾಙ್ಕ iovw_put_string_field_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool replace, ಧ್ರುವ ವರ್ಣ *field, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_put_string_field(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ವರ್ಣ *field, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪ್ರತ್ಯಾಗಮ iovw_put_string_field_full(iovw, false, field, ಮೌಲ್ಯ);
 }
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) _printf_(4, 5);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ iovw_replace_string_field(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ವರ್ಣ *field, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪ್ರತ್ಯಾಗಮ iovw_put_string_field_full(iovw, true, field, ಮೌಲ್ಯ);
+}
+ಪೂರ್ಣಾಙ್ಕ iovw_put_string_fieldf_full(ಸಂರಚನಾ iovec_wrapper *iovw, bool replace, ಧ್ರುವ ವರ್ಣ *field, ಧ್ರುವ ವರ್ಣ *format, ...) _printf_(4, 5);
 #define iovw_put_string_fieldf(iovw, ...)     iovw_put_string_fieldf_full(iovw, false, __VA_ARGS__)
 #define iovw_replace_string_fieldf(iovw, ...) iovw_put_string_fieldf_full(iovw, true, __VA_ARGS__)
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value);
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new);
-size_t iovw_size(const struct iovec_wrapper *iovw);
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret);
-char* iovw_to_cstring(const struct iovec_wrapper *iovw);
+ಪೂರ್ಣಾಙ್ಕ iovw_put_string_field_free(ಸಂರಚನಾ iovec_wrapper *iovw, ಧ್ರುವ ವರ್ಣ *field, ವರ್ಣ *ಮೌಲ್ಯ);
+ಶೂನ್ಯ iovw_rebase(ಸಂರಚನಾ iovec_wrapper *iovw, ಶೂನ್ಯ *old, ಶೂನ್ಯ *new);
+size_t iovw_size(ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *iovw);
+ಪೂರ್ಣಾಙ್ಕ iovw_concat(ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *iovw, ಸಂರಚನಾ iovec *ret);
+ವರ್ಣ* iovw_to_cstring(ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *iovw);
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret);
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret);
+ಪೂರ್ಣಾಙ್ಕ iovec_split(ಧ್ರುವ ಸಂರಚನಾ iovec *iov, size_t length_size, ಸಂರಚನಾ iovec_wrapper *ret);
+ಪೂರ್ಣಾಙ್ಕ iovw_merge(ಧ್ರುವ ಸಂರಚನಾ iovec_wrapper *iovw, size_t length_size, ಸಂರಚನಾ iovec *ret);

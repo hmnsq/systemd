@@ -5,9 +5,9 @@
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
 
-#include <stdlib.h>
+#ಅನ್ತರ್ಭಾವ <stdlib.h>
 
-#include "gunicode.h"
+#ಅನ್ತರ್ಭಾವ "gunicode.h"
 
 #define unichar uint32_t
 
@@ -24,36 +24,36 @@
  *
  * Return value: a pointer to the found character.
  **/
-char *
-utf8_prev_char (const char *p)
+ವರ್ಣ *
+utf8_prev_char (ಧ್ರುವ ವರ್ಣ *p)
 {
-  assert(p);
+  ಪ್ರತಿಜ್ಞಾ(p);
 
-  for (;;)
+  ಪ್ರತಿ (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      ಯದಿ ((*p & 0xc0) != 0x80)
+        ಪ್ರತ್ಯಾಗಮ (ವರ್ಣ *)p;
     }
 }
 
-struct Interval
+ಸಂರಚನಾ Interval
 {
   unichar start, end;
 };
 
-static int
-interval_compare (const void *key, const void *elt)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ
+interval_compare (ಧ್ರುವ ಶೂನ್ಯ *ಕೀಲಿ, ಧ್ರುವ ಶೂನ್ಯ *elt)
 {
-  unichar c = (unichar) (long) (key);
-  struct Interval *interval = (struct Interval *)elt;
+  unichar c = (unichar) (long) (ಕೀಲಿ);
+  ಸಂರಚನಾ Interval *interval = (ಸಂರಚನಾ Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  ಯದಿ (c < interval->start)
+    ಪ್ರತ್ಯಾಗಮ -1;
+  ಯದಿ (c > interval->end)
+    ಪ್ರತ್ಯಾಗಮ +1;
 
-  return 0;
+  ಪ್ರತ್ಯಾಗಮ 0;
 }
 
 /*
@@ -82,7 +82,7 @@ bool
 unichar_iswide (unichar c)
 {
   /* See NOTE earlier for how to update this table. */
-  static const struct Interval wide[] = {
+  ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ Interval wide[] = {
     {0x1100, 0x115F}, {0x2329, 0x232A}, {0x2E80, 0x2E99}, {0x2E9B, 0x2EF3},
     {0x2F00, 0x2FD5}, {0x2FF0, 0x2FFB}, {0x3000, 0x303E}, {0x3041, 0x3096},
     {0x3099, 0x30FF}, {0x3105, 0x312D}, {0x3131, 0x318E}, {0x3190, 0x31BA},
@@ -96,14 +96,14 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  ಯದಿ (bsearch ((ಶೂನ್ಯ *)(uintptr_t)c, wide, ELEMENTSOF(wide), ಪರಿಮಾಣ wide[0],
                interval_compare))
-    return true;
+    ಪ್ರತ್ಯಾಗಮ true;
 
-  return false;
+  ಪ್ರತ್ಯಾಗಮ false;
 }
 
-const char utf8_skip_data[256] = {
+ಧ್ರುವ ವರ್ಣ utf8_skip_data[256] = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

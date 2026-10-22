@@ -1,217 +1,217 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
+#ಅನ್ತರ್ಭಾವ <fnmatch.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "gunicode.h"
-#include "hashmap.h"
-#include "log.h"
-#include "memory-util.h"
-#include "sort-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "env-util.h"
+#ಅನ್ತರ್ಭಾವ "escape.h"
+#ಅನ್ತರ್ಭಾವ "extract-word.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "gunicode.h"
+#ಅನ್ತರ್ಭಾವ "hashmap.h"
+#ಅನ್ತರ್ಭಾವ "log.h"
+#ಅನ್ತರ್ಭಾವ "memory-util.h"
+#ಅನ್ತರ್ಭಾವ "sort-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
+#ಅನ್ತರ್ಭಾವ "strv.h"
+#ಅನ್ತರ್ಭಾವ "utf8.h"
 
-char* strv_find(char * const *l, const char *name) {
-        assert(name);
-
-        STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
-
-        return NULL;
-}
-
-char* strv_find_case(char * const *l, const char *name) {
-        assert(name);
+ವರ್ಣ* strv_find(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *name) {
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                ಯದಿ (streq(*i, name))
+                        ಪ್ರತ್ಯಾಗಮ *i;
 
-        return NULL;
+        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-char* strv_find_prefix(char * const *l, const char *name) {
-        assert(name);
+ವರ್ಣ* strv_find_case(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *name) {
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                ಯದಿ (strcaseeq(*i, name))
+                        ಪ್ರತ್ಯಾಗಮ *i;
 
-        return NULL;
+        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-char* strv_find_startswith(char * const *l, const char *name) {
-        assert(name);
+ವರ್ಣ* strv_find_prefix(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *name) {
+        ಪ್ರತಿಜ್ಞಾ(name);
+
+        STRV_FOREACH(i, l)
+                ಯದಿ (startswith(*i, name))
+                        ಪ್ರತ್ಯಾಗಮ *i;
+
+        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
+}
+
+ವರ್ಣ* strv_find_startswith(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *name) {
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         /* Like strv_find_prefix, but actually returns only the
          * suffix, not the whole item */
 
         STRV_FOREACH(i, l) {
-                char *e;
+                ವರ್ಣ *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                ಯದಿ (e)
+                        ಪ್ರತ್ಯಾಗಮ e;
         }
 
-        return NULL;
+        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-static char* strv_find_closest_prefix(char * const *l, const char *name) {
+ಸ್ಥಿರ ವರ್ಣ* strv_find_closest_prefix(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *name) {
         size_t best_distance = SIZE_MAX;
-        char *best = NULL;
+        ವರ್ಣ *best = ರಿಕ್ತ;
 
-        assert(name);
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         STRV_FOREACH(s, l) {
-                char *e = startswith(*s, name);
-                if (!e)
-                        continue;
+                ವರ್ಣ *e = startswith(*s, name);
+                ಯದಿ (!e)
+                        ಅನುವರ್ತ;
 
                 size_t n = strlen(e);
-                if (n < best_distance) {
+                ಯದಿ (n < best_distance) {
                         best_distance = n;
                         best = *s;
                 }
         }
 
-        return best;
+        ಪ್ರತ್ಯಾಗಮ best;
 }
 
-static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
+ಸ್ಥಿರ ವರ್ಣ* strv_find_closest_by_levenshtein(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *name) {
         ssize_t best_distance = SSIZE_MAX;
-        char *best = NULL;
+        ವರ್ಣ *best = ರಿಕ್ತ;
 
-        assert(name);
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         STRV_FOREACH(i, l) {
                 ssize_t distance;
 
                 distance = strlevenshtein(*i, name);
-                if (distance < 0) {
+                ಯದಿ (distance < 0) {
                         log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
-                        continue;
+                ಯದಿ (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                        ಅನುವರ್ತ;
 
-                if (distance < best_distance) {
+                ಯದಿ (distance < best_distance) {
                         best_distance = distance;
                         best = *i;
                 }
         }
 
-        return best;
+        ಪ್ರತ್ಯಾಗಮ best;
 }
 
-char* strv_find_closest(char * const *l, const char *name) {
-        assert(name);
+ವರ್ಣ* strv_find_closest(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *name) {
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         /* Be more helpful to the user, and give a hint what the user might have wanted to type. We search
          * with two mechanisms: a simple prefix match and – if that didn't yield results –, a Levenshtein
          * word distance based match. */
 
-        char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        ವರ್ಣ *found = strv_find_closest_prefix(l, name);
+        ಯದಿ (found)
+                ಪ್ರತ್ಯಾಗಮ found;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        ಪ್ರತ್ಯಾಗಮ strv_find_closest_by_levenshtein(l, name);
 }
 
-char* strv_find_first_field(char * const *needles, char * const *haystack) {
+ವರ್ಣ* strv_find_first_field(ವರ್ಣ * ಧ್ರುವ *needles, ವರ್ಣ * ಧ್ರುವ *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                ವರ್ಣ *ಮೌಲ್ಯ = strv_env_pairs_get((ವರ್ಣ **)haystack, *k);
+                ಯದಿ (ಮೌಲ್ಯ)
+                        ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯ;
         }
 
-        return NULL;
+        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-char** strv_free(char **l) {
+ವರ್ಣ** strv_free(ವರ್ಣ **l) {
         STRV_FOREACH(k, l)
-                free(*k);
+                ಮುಕ್ತ(*k);
 
-        return mfree(l);
+        ಪ್ರತ್ಯಾಗಮ mfree(l);
 }
 
-char** strv_free_erase(char **l) {
+ವರ್ಣ** strv_free_erase(ವರ್ಣ **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        ಪ್ರತ್ಯಾಗಮ mfree(l);
 }
 
-void strv_free_many(char ***strvs, size_t n) {
-        assert(strvs || n == 0);
+ಶೂನ್ಯ strv_free_many(ವರ್ಣ ***strvs, size_t n) {
+        ಪ್ರತಿಜ್ಞಾ(strvs || n == 0);
 
         FOREACH_ARRAY (i, strvs, n)
                 strv_free(*i);
 
-        free(strvs);
+        ಮುಕ್ತ(strvs);
 }
 
-char** strv_copy_n(char * const *l, size_t n) {
-        _cleanup_strv_free_ char **result = NULL;
-        char **k;
+ವರ್ಣ** strv_copy_n(ವರ್ಣ * ಧ್ರುವ *l, size_t n) {
+        _cleanup_strv_free_ ವರ್ಣ **result = ರಿಕ್ತ;
+        ವರ್ಣ **k;
 
-        result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        result = new(ವರ್ಣ*, MIN(strv_length(l), n) + 1);
+        ಯದಿ (!result)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
         k = result;
         STRV_FOREACH(i, l) {
-                if (n == 0)
-                        break;
+                ಯದಿ (n == 0)
+                        ಭಙ್ಗ;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                ಯದಿ (!*k)
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
                 k++;
 
-                if (n != SIZE_MAX)
+                ಯದಿ (n != SIZE_MAX)
                         n--;
         }
 
-        *k = NULL;
-        return TAKE_PTR(result);
+        *k = ರಿಕ್ತ;
+        ಪ್ರತ್ಯಾಗಮ TAKE_PTR(result);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
-        assert(ret);
+ಪೂರ್ಣಾಙ್ಕ strv_copy_unless_empty(ವರ್ಣ * ಧ್ರುವ *l, ವರ್ಣ ***ret) {
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        if (strv_isempty(l)) {
-                *ret = NULL;
-                return 0;
+        ಯದಿ (strv_isempty(l)) {
+                *ret = ರಿಕ್ತ;
+                ಪ್ರತ್ಯಾಗಮ 0;
         }
 
-        char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        ವರ್ಣ **copy = strv_copy(l);
+        ಯದಿ (!copy)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        ಪ್ರತ್ಯಾಗಮ 1;
 }
 
-size_t strv_length(char * const *l) {
+size_t strv_length(ವರ್ಣ * ಧ್ರುವ *l) {
         size_t n = 0;
 
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        ಪ್ರತ್ಯಾಗಮ n;
 }
 
-char** strv_new_ap(const char *x, va_list ap) {
-        _cleanup_strv_free_ char **a = NULL;
+ವರ್ಣ** strv_new_ap(ಧ್ರುವ ವರ್ಣ *x, va_list ap) {
+        _cleanup_strv_free_ ವರ್ಣ **a = ರಿಕ್ತ;
         size_t n = 0, i = 0;
         va_list aq;
 
@@ -221,320 +221,320 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        ಪ್ರತಿ (ಧ್ರುವ ವರ್ಣ *s = x; s; s = va_arg(aq, ಧ್ರುವ ವರ್ಣ*)) {
+                ಯದಿ (s == STRV_IGNORE)
+                        ಅನುವರ್ತ;
 
                 n++;
         }
         va_end(aq);
 
-        a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        a = new(ವರ್ಣ*, n+1);
+        ಯದಿ (!a)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        ಪ್ರತಿ (ಧ್ರುವ ವರ್ಣ *s = x; s; s = va_arg(ap, ಧ್ರುವ ವರ್ಣ*)) {
+                ಯದಿ (s == STRV_IGNORE)
+                        ಅನುವರ್ತ;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                ಯದಿ (!a[i])
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
                 i++;
         }
 
-        a[i] = NULL;
+        a[i] = ರಿಕ್ತ;
 
-        return TAKE_PTR(a);
+        ಪ್ರತ್ಯಾಗಮ TAKE_PTR(a);
 }
 
-char** strv_new_internal(const char *x, ...) {
-        char **r;
+ವರ್ಣ** strv_new_internal(ಧ್ರುವ ವರ್ಣ *x, ...) {
+        ವರ್ಣ **r;
         va_list ap;
 
         va_start(ap, x);
         r = strv_new_ap(x, ap);
         va_end(ap);
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
+ಪೂರ್ಣಾಙ್ಕ strv_extend_strv(ವರ್ಣ ***a, ವರ್ಣ * ಧ್ರುವ *b, bool filter_duplicates) {
         size_t p, q, i = 0;
 
-        assert(a);
+        ಪ್ರತಿಜ್ಞಾ(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        ಯದಿ (q == 0)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        ಯದಿ (p >= SIZE_MAX - q)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        ವರ್ಣ **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), ಪರಿಮಾಣ(ವರ್ಣ *));
+        ಯದಿ (!t)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ರಿಕ್ತ;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
-                        continue;
+                ಯದಿ (filter_duplicates && strv_contains(t, *s))
+                        ಅನುವರ್ತ;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
-                        goto rollback;
+                ಯದಿ (!t[p+i])
+                        ಗಚ್ಛ rollback;
 
                 i++;
-                t[p+i] = NULL;
+                t[p+i] = ರಿಕ್ತ;
         }
 
-        assert(i <= q);
+        ಪ್ರತಿಜ್ಞಾ(i <= q);
 
-        return (int) i;
+        ಪ್ರತ್ಯಾಗಮ (ಪೂರ್ಣಾಙ್ಕ) i;
 
 rollback:
         free_many_charp(t + p, i);
-        t[p] = NULL;
-        return -ENOMEM;
+        t[p] = ರಿಕ್ತ;
+        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
-        _cleanup_strv_free_ char **b_consume = b;
+ಪೂರ್ಣಾಙ್ಕ strv_extend_strv_consume(ವರ್ಣ ***a, ವರ್ಣ **b, bool filter_duplicates) {
+        _cleanup_strv_free_ ವರ್ಣ **b_consume = b;
         size_t p, q, i;
 
-        assert(a);
+        ಪ್ರತಿಜ್ಞಾ(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        ಯದಿ (q == 0)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         p = strv_length(*a);
-        if (p == 0) {
+        ಯದಿ (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                ಯದಿ (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                ಪ್ರತ್ಯಾಗಮ strv_length(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        ಯದಿ (p >= SIZE_MAX - q)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        ವರ್ಣ **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), ಪರಿಮಾಣ(ವರ್ಣ *));
+        ಯದಿ (!t)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ರಿಕ್ತ;
         *a = t;
 
-        if (!filter_duplicates) {
-                *mempcpy_typesafe(t + p, b, q) = NULL;
+        ಯದಿ (!filter_duplicates) {
+                *mempcpy_typesafe(t + p, b, q) = ರಿಕ್ತ;
                 i = q;
-        } else {
+        } ಅನ್ಯಥಾ {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
-                                free(*s);
-                                continue;
+                        ಯದಿ (strv_contains(t, *s)) {
+                                ಮುಕ್ತ(*s);
+                                ಅನುವರ್ತ;
                         }
 
                         t[p+i] = *s;
 
                         i++;
-                        t[p+i] = NULL;
+                        t[p+i] = ರಿಕ್ತ;
                 }
         }
 
-        assert(i <= q);
+        ಪ್ರತಿಜ್ಞಾ(i <= q);
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        ಪ್ರತ್ಯಾಗಮ (ಪೂರ್ಣಾಙ್ಕ) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ strv_extend_strv_biconcat(ವರ್ಣ ***a, ಧ್ರುವ ವರ್ಣ *prefix, ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ *b, ಧ್ರುವ ವರ್ಣ *suffix) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(a);
+        ಪ್ರತಿಜ್ಞಾ(a);
 
         STRV_FOREACH(s, b) {
-                char *v;
+                ವರ್ಣ *v;
 
                 v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                ಯದಿ (!v)
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
         }
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+ಪೂರ್ಣಾಙ್ಕ strv_split_newlines_full(ವರ್ಣ ***ret, ಧ್ರುವ ವರ್ಣ *s, ExtractFlags flags) {
+        _cleanup_strv_free_ ವರ್ಣ **l = ರಿಕ್ತ;
         size_t n;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(ret);
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(ret);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         /* Special version of strv_split_full() that splits on newlines and
          * suppresses an empty string at the end. */
 
         r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        ಯದಿ (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        ಪ್ರತ್ಯಾಗಮ n;
 }
 
-char** strv_split_newlines(const char *s) {
-        char **ret;
+ವರ್ಣ** strv_split_newlines(ಧ್ರುವ ವರ್ಣ *s) {
+        ವರ್ಣ **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        ಯದಿ (strv_split_newlines_full(&ret, s, 0) < 0)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        return ret;
+        ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+ಪೂರ್ಣಾಙ್ಕ strv_split_full(ವರ್ಣ ***t, ಧ್ರುವ ವರ್ಣ *s, ಧ್ರುವ ವರ್ಣ *separators, ExtractFlags flags) {
+        _cleanup_strv_free_ ವರ್ಣ **l = ರಿಕ್ತ;
         size_t n = 0;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(t);
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(t);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
+        ಪ್ರತಿ (;;) {
+                _cleanup_free_ ವರ್ಣ *word = ರಿಕ್ತ;
 
                 r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
+                ಯದಿ (r == 0)
+                        ಭಙ್ಗ;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                ಯದಿ (!GREEDY_REALLOC(l, n + 2))
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
                 l[n++] = TAKE_PTR(word);
-                l[n] = NULL;
+                l[n] = ರಿಕ್ತ;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        ಯದಿ (!l) {
+                l = new0(ವರ್ಣ*, 1);
+                ಯದಿ (!l)
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        ಪ್ರತ್ಯಾಗಮ (ಪೂರ್ಣಾಙ್ಕ) n;
 }
 
-char** strv_split(const char *s, const char *separators) {
-        char **ret;
+ವರ್ಣ** strv_split(ಧ್ರುವ ವರ್ಣ *s, ಧ್ರುವ ವರ್ಣ *separators) {
+        ವರ್ಣ **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        ಯದಿ (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        return ret;
+        ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
-        char **l;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ strv_split_and_extend_full(ವರ್ಣ ***t, ಧ್ರುವ ವರ್ಣ *s, ಧ್ರುವ ವರ್ಣ *separators, bool filter_duplicates, ExtractFlags flags) {
+        ವರ್ಣ **l;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(t);
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(t);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        return (int) strv_length(*t);
+        ಪ್ರತ್ಯಾಗಮ (ಪೂರ್ಣಾಙ್ಕ) strv_length(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+ಪೂರ್ಣಾಙ್ಕ strv_split_and_extend(ವರ್ಣ ***t, ಧ್ರುವ ವರ್ಣ *s, ಧ್ರುವ ವರ್ಣ *separators, bool filter_duplicates) {
+        ಪ್ರತ್ಯಾಗಮ strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+ಪೂರ್ಣಾಙ್ಕ strv_split_colon_pairs(ವರ್ಣ ***t, ಧ್ರುವ ವರ್ಣ *s) {
+        _cleanup_strv_free_ ವರ್ಣ **l = ರಿಕ್ತ;
         size_t n = 0;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(t);
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(t);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        for (;;) {
-                _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
+        ಪ್ರತಿ (;;) {
+                _cleanup_free_ ವರ್ಣ *first = ರಿಕ್ತ, *second = ರಿಕ್ತ, *tuple = ರಿಕ್ತ, *second_or_empty = ರಿಕ್ತ;
 
-                r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&s, &tuple, ರಿಕ್ತ, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
+                ಯದಿ (r == 0)
+                        ಭಙ್ಗ;
 
-                const char *p = tuple;
-                r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
+                ಧ್ರುವ ವರ್ಣ *p = tuple;
+                r = extract_many_ಪದಗಳು(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        continue;
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
+                ಯದಿ (r == 0)
+                        ಅನುವರ್ತ;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                ಯದಿ (!isempty(p))
+                        ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
                 second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                ಯದಿ (!second_or_empty)
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                ಯದಿ (!GREEDY_REALLOC(l, n + 3))
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
                 l[n++] = TAKE_PTR(first);
                 l[n++] = TAKE_PTR(second_or_empty);
 
-                l[n] = NULL;
+                l[n] = ರಿಕ್ತ;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        ಯದಿ (!l) {
+                l = new0(ವರ್ಣ*, 1);
+                ಯದಿ (!l)
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        ಪ್ರತ್ಯಾಗಮ (ಪೂರ್ಣಾಙ್ಕ) n;
 }
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
-        char *r, *e;
+ವರ್ಣ* strv_join_full(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *separator, ಧ್ರುವ ವರ್ಣ *prefix) {
+        ವರ್ಣ *r, *e;
         size_t n, k, m;
 
-        if (!separator)
+        ಯದಿ (!separator)
                 separator = " ";
 
         k = strlen(separator);
@@ -542,22 +542,22 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                ಯದಿ (s != l)
                         n += k;
 
                 n += m + strlen(*s);
         }
 
-        r = new(char, n+1);
-        if (!r)
-                return NULL;
+        r = new(ವರ್ಣ, n+1);
+        ಯದಿ (!r)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                ಯದಿ (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
+                ಯದಿ (prefix)
                         e = stpcpy(e, prefix);
 
                 e = stpcpy(e, *s);
@@ -565,683 +565,683 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         *e = 0;
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+ಪೂರ್ಣಾಙ್ಕ strv_ತಳ್ಳು_with_size(ವರ್ಣ ***l, size_t *n, ವರ್ಣ *ಮೌಲ್ಯ) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
          * If value is empty, no action is taken and *n is not set. */
 
-        assert(l);
+        ಪ್ರತಿಜ್ಞಾ(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        ಯದಿ (!ಮೌಲ್ಯ)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
+        ಯದಿ (size == SIZE_MAX)
                 size = strv_length(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        ಯದಿ (size > SIZE_MAX-2)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        ವರ್ಣ **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), ಪರಿಮಾಣ(ವರ್ಣ*));
+        ಯದಿ (!c)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        c[size] = value;
-        c[size+1] = NULL;
+        c[size] = ಮೌಲ್ಯ;
+        c[size+1] = ರಿಕ್ತ;
 
         *l = c;
-        if (n)
+        ಯದಿ (n)
                 *n = size + 1;
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
-        char **c;
+ಪೂರ್ಣಾಙ್ಕ strv_ತಳ್ಳು_pair(ವರ್ಣ ***l, ವರ್ಣ *a, ವರ್ಣ *b) {
+        ವರ್ಣ **c;
         size_t n;
 
-        assert(l);
+        ಪ್ರತಿಜ್ಞಾ(l);
 
-        if (!a && !b)
-                return 0;
+        ಯದಿ (!a && !b)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         n = strv_length(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        ಯದಿ (n > SIZE_MAX-3)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
         /* increase and check for overflow */
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), ಪರಿಮಾಣ(ವರ್ಣ*));
+        ಯದಿ (!c)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        if (a)
+        ಯದಿ (a)
                 c[n++] = a;
-        if (b)
+        ಯದಿ (b)
                 c[n++] = b;
-        c[n] = NULL;
+        c[n] = ರಿಕ್ತ;
 
         *l = c;
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
-        char **c;
+ಪೂರ್ಣಾಙ್ಕ strv_ಸೇರಿಸು(ವರ್ಣ ***l, size_t position, ವರ್ಣ *ಮೌಲ್ಯ) {
+        ವರ್ಣ **c;
         size_t n, m;
 
-        assert(l);
+        ಪ್ರತಿಜ್ಞಾ(l);
 
-        if (!value)
-                return 0;
+        ಯದಿ (!ಮೌಲ್ಯ)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         n = strv_length(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        ಯದಿ (n > SIZE_MAX - 2)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
         m = n + 2;
 
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), ಪರಿಮಾಣ(ವರ್ಣ*));
+        ಯದಿ (!c)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        if (n > position)
-                memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
+        ಯದಿ (n > position)
+                memmove(c + position + 1, c + position, (n - position) * ಪರಿಮಾಣ(ವರ್ಣ*));
 
-        c[position] = value;
-        c[n + 1] = NULL;
+        c[position] = ಮೌಲ್ಯ;
+        c[n + 1] = ರಿಕ್ತ;
 
         *l = c;
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ strv_consume_with_size(ವರ್ಣ ***l, size_t *n, ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        r = strv_push_with_size(l, n, value);
-        if (r < 0)
-                free(value);
+        r = strv_ತಳ್ಳು_with_size(l, n, ಮೌಲ್ಯ);
+        ಯದಿ (r < 0)
+                ಮುಕ್ತ(ಮೌಲ್ಯ);
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ strv_consume_pair(ವರ್ಣ ***l, ವರ್ಣ *a, ವರ್ಣ *b) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        r = strv_push_pair(l, a, b);
-        if (r < 0) {
-                free(a);
-                free(b);
+        r = strv_ತಳ್ಳು_pair(l, a, b);
+        ಯದಿ (r < 0) {
+                ಮುಕ್ತ(a);
+                ಮುಕ್ತ(b);
         }
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ strv_consume_prepend(ವರ್ಣ ***l, ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        r = strv_push_prepend(l, value);
-        if (r < 0)
-                free(value);
+        r = strv_ತಳ್ಳು_prepend(l, ಮೌಲ್ಯ);
+        ಯದಿ (r < 0)
+                ಮುಕ್ತ(ಮೌಲ್ಯ);
 
-        return r;
+        ಪ್ರತ್ಯಾಗಮ r;
 }
 
-int strv_prepend(char ***l, const char *value) {
-        char *v;
+ಪೂರ್ಣಾಙ್ಕ strv_prepend(ವರ್ಣ ***l, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ವರ್ಣ *v;
 
-        if (!value)
-                return 0;
+        ಯದಿ (!ಮೌಲ್ಯ)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(ಮೌಲ್ಯ);
+        ಯದಿ (!v)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        ಪ್ರತ್ಯಾಗಮ strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
-        char *v;
+ಪೂರ್ಣಾಙ್ಕ strv_extend_with_size(ವರ್ಣ ***l, size_t *n, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ವರ್ಣ *v;
 
-        if (!value)
-                return 0;
+        ಯದಿ (!ಮೌಲ್ಯ)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(ಮೌಲ್ಯ);
+        ಯದಿ (!v)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        ಪ್ರತ್ಯಾಗಮ strv_consume_with_size(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+ಪೂರ್ಣಾಙ್ಕ strv_extend_many_internal(ವರ್ಣ ***l, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ, ...) {
         va_list ap;
         size_t n, m;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(l);
+        ಪ್ರತಿಜ್ಞಾ(l);
 
         m = n = strv_length(*l);
 
         r = 0;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, ಮೌಲ್ಯ);
+        ಪ್ರತಿ (ಧ್ರುವ ವರ್ಣ *s = ಮೌಲ್ಯ; s != POINTER_MAX; s = va_arg(ap, ಧ್ರುವ ವರ್ಣ*)) {
+                ಯದಿ (!s)
+                        ಅನುವರ್ತ;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                ಯದಿ (m > SIZE_MAX-1) { /* overflow */
                         r = -ENOMEM;
-                        break;
+                        ಭಙ್ಗ;
                 }
                 m++;
         }
         va_end(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
+        ಯದಿ (m > SIZE_MAX-1)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        ವರ್ಣ **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), ಪರಿಮಾಣ(ವರ್ಣ*));
+        ಯದಿ (!c)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
         *l = c;
 
         r = 0;
         size_t i = n;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, ಮೌಲ್ಯ);
+        ಪ್ರತಿ (ಧ್ರುವ ವರ್ಣ *s = ಮೌಲ್ಯ; s != POINTER_MAX; s = va_arg(ap, ಧ್ರುವ ವರ್ಣ*)) {
+                ಯದಿ (!s)
+                        ಅನುವರ್ತ;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                ಯದಿ (!c[i]) {
                         r = -ENOMEM;
-                        break;
+                        ಭಙ್ಗ;
                 }
                 i++;
         }
         va_end(ap);
 
-        if (r < 0) {
+        ಯದಿ (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                ಪ್ರತಿ (size_t j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                ಪ್ರತ್ಯಾಗಮ r;
         }
 
-        c[i] = NULL;
-        return 0;
+        c[i] = ರಿಕ್ತ;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-char** strv_uniq(char **l) {
+ವರ್ಣ** strv_uniq(ವರ್ಣ **l) {
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
-bool strv_is_uniq(char * const *l) {
+bool strv_is_uniq(ವರ್ಣ * ಧ್ರುವ *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                ಯದಿ (strv_contains(i+1, *i))
+                        ಪ್ರತ್ಯಾಗಮ false;
 
-        return true;
+        ಪ್ರತ್ಯಾಗಮ true;
 }
 
-char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+ವರ್ಣ** strv_remove(ವರ್ಣ **l, ಧ್ರುವ ವರ್ಣ *s) {
+        ಯದಿ (!l)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
-                        free(*f);
-                else
+        ವರ್ಣ **f, **t;
+        ಪ್ರತಿ (f = t = l; *f; f++)
+                ಯದಿ (streq(*f, s))
+                        ಮುಕ್ತ(*f);
+                ಅನ್ಯಥಾ
                         *(t++) = *f;
 
-        *t = NULL;
-        return l;
+        *t = ರಿಕ್ತ;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
-char** strv_remove_strv(char **l, char *const*ll) {
+ವರ್ಣ** strv_remove_strv(ವರ್ಣ **l, ವರ್ಣ *ಧ್ರುವ*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        ಯದಿ (strv_isempty(l))
+                ಪ್ರತ್ಯಾಗಮ l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
-bool strv_overlap(char * const *a, char * const *b) {
+bool strv_overlap(ವರ್ಣ * ಧ್ರುವ *a, ವರ್ಣ * ಧ್ರುವ *b) {
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                ಯದಿ (strv_contains(b, *i))
+                        ಪ್ರತ್ಯಾಗಮ true;
 
-        return false;
+        ಪ್ರತ್ಯಾಗಮ false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ str_compare(ವರ್ಣ * ಧ್ರುವ *a, ವರ್ಣ * ಧ್ರುವ *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        ಪ್ರತ್ಯಾಗಮ strcmp(*a, *b);
 }
 
-char** strv_sort(char **l) {
+ವರ್ಣ** strv_sort(ವರ್ಣ **l) {
         typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
-        assert(compare);
+ವರ್ಣ** strv_sort_uniq_full(ವರ್ಣ **l, ಪೂರ್ಣಾಙ್ಕ (*compare)(ವರ್ಣ * ಧ್ರುವ *a, ವರ್ಣ * ಧ್ರುವ *b)) {
+        ಪ್ರತಿಜ್ಞಾ(compare);
 
-        if (strv_isempty(l))
-                return l;
+        ಯದಿ (strv_isempty(l))
+                ಪ್ರತ್ಯಾಗಮ l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
 
         typesafe_qsort(l, strv_length(l), compare);
 
-        char **tail = l + 1;
+        ವರ್ಣ **tail = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
-                        free(*i);
-                else
+                ಯದಿ (compare(i, tail - 1) == 0)
+                        ಮುಕ್ತ(*i);
+                ಅನ್ಯಥಾ
                         *(tail++) = *i;
 
-        *tail = NULL;
-        return l;
+        *tail = ರಿಕ್ತ;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
-char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+ವರ್ಣ** strv_sort_uniq(ವರ್ಣ **l) {
+        ಪ್ರತ್ಯಾಗಮ strv_sort_uniq_full(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ strv_compare(ವರ್ಣ * ಧ್ರುವ *a, ವರ್ಣ * ಧ್ರುವ *b) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        ಯದಿ (strv_isempty(a)) {
+                ಯದಿ (strv_isempty(b))
+                        ಪ್ರತ್ಯಾಗಮ 0;
+                ಅನ್ಯಥಾ
+                        ಪ್ರತ್ಯಾಗಮ -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        ಯದಿ (strv_isempty(b))
+                ಪ್ರತ್ಯಾಗಮ 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        ಪ್ರತಿ ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                ಯದಿ (r != 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
         }
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) {
+bool strv_equal_ignore_order(ವರ್ಣ * ಧ್ರುವ *a, ವರ್ಣ * ಧ್ರುವ *b) {
 
         /* Just like strv_equal(), but doesn't care about the order of elements or about redundant entries
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        ಯದಿ (a == b)
+                ಪ್ರತ್ಯಾಗಮ true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                ಯದಿ (!strv_contains(b, *i))
+                        ಪ್ರತ್ಯಾಗಮ false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                ಯದಿ (!strv_contains(a, *i))
+                        ಪ್ರತ್ಯಾಗಮ false;
 
-        return true;
+        ಪ್ರತ್ಯಾಗಮ true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+ಶೂನ್ಯ strv_print_full(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *prefix) {
         STRV_FOREACH(s, l)
                 printf("%s%s\n", strempty(prefix), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
+ಪೂರ್ಣಾಙ್ಕ strv_extendf_with_size(ವರ್ಣ ***l, size_t *n, ಧ್ರುವ ವರ್ಣ *format, ...) {
         va_list ap;
-        char *x;
-        int r;
+        ವರ್ಣ *x;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
         va_start(ap, format);
         r = vasprintf(&x, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        ಪ್ರತ್ಯಾಗಮ strv_consume_with_size(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
+ಪೂರ್ಣಾಙ್ಕ strv_extend_joined_with_size_sentinel(ವರ್ಣ ***l, size_t *n, ...) {
         va_list ap;
 
         va_start(ap, n);
-        char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
+        ವರ್ಣ *x = strextendv_with_separator(/* x= */ ರಿಕ್ತ, /* separator= */ ರಿಕ್ತ, ap);
         va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        ಯದಿ (!x)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        ಪ್ರತ್ಯಾಗಮ strv_consume_with_size(l, n, x);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l) {
+ವರ್ಣ* startswith_strv_internal(ಧ್ರುವ ವರ್ಣ *s, ವರ್ಣ * ಧ್ರುವ *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                ವರ್ಣ *found = (ವರ್ಣ*) startswith(s, *i);
+                ಯದಿ (found)
+                        ಪ್ರತ್ಯಾಗಮ found;
         }
 
-        return NULL;
+        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-char* endswith_strv_internal(const char *s, char * const *l) {
+ವರ್ಣ* endswith_strv_internal(ಧ್ರುವ ವರ್ಣ *s, ವರ್ಣ * ಧ್ರುವ *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                ವರ್ಣ *found = (ವರ್ಣ*) endswith(s, *i);
+                ಯದಿ (found)
+                        ಪ್ರತ್ಯಾಗಮ found;
         }
 
-        return NULL;
+        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-char** strv_reverse(char **l) {
+ವರ್ಣ** strv_reverse(ವರ್ಣ **l) {
         size_t n;
 
         n = strv_length(l);
-        if (n <= 1)
-                return l;
+        ಯದಿ (n <= 1)
+                ಪ್ರತ್ಯಾಗಮ l;
 
-        for (size_t i = 0; i < n / 2; i++)
+        ಪ್ರತಿ (size_t i = 0; i < n / 2; i++)
                 SWAP_TWO(l[i], l[n-1-i]);
 
-        return l;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
-char** strv_shell_escape(char **l, const char *bad) {
+ವರ್ಣ** strv_shell_escape(ವರ್ಣ **l, ಧ್ರುವ ವರ್ಣ *bad) {
         /* Escapes every character in every string in l that is in bad,
          * edits in-place, does not roll-back on error. */
 
         STRV_FOREACH(s, l) {
-                char *v;
+                ವರ್ಣ *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                ಯದಿ (!v)
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
 bool strv_fnmatch_full(
-                char* const* patterns,
-                const char *s,
-                int flags,
+                ವರ್ಣ* ಧ್ರುವ* patterns,
+                ಧ್ರುವ ವರ್ಣ *s,
+                ಪೂರ್ಣಾಙ್ಕ flags,
                 size_t *ret_matched_pos) {
 
-        assert(s);
+        ಪ್ರತಿಜ್ಞಾ(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        ಯದಿ (patterns)
+                ಪ್ರತಿ (size_t i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        ಯದಿ (fnmatch(patterns[i], s, flags) == 0) {
+                                ಯದಿ (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                ಪ್ರತ್ಯಾಗಮ true;
                         }
 
-        if (ret_matched_pos)
+        ಯದಿ (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        ಪ್ರತ್ಯಾಗಮ false;
 }
 
-char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+ವರ್ಣ** strv_skip(ವರ್ಣ **l, size_t n) {
+        ಯಾವತ್ (n > 0) {
+                ಯದಿ (strv_isempty(l))
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        ಯದಿ (strv_isempty(l))
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
+        ಪ್ರತ್ಯಾಗಮ l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+ಪೂರ್ಣಾಙ್ಕ strv_extend_n(ವರ್ಣ ***l, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ, size_t n) {
         size_t i, k;
-        char **nl;
+        ವರ್ಣ **nl;
 
-        assert(l);
+        ಪ್ರತಿಜ್ಞಾ(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        ಯದಿ (!ಮೌಲ್ಯ)
+                ಪ್ರತ್ಯಾಗಮ 0;
+        ಯದಿ (n == 0)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         /* Adds the value n times to l */
 
         k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        ಯದಿ (n >= SIZE_MAX - k)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), ಪರಿಮಾಣ(ವರ್ಣ *));
+        ಯದಿ (!nl)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
-                nl[i] = strdup(value);
-                if (!nl[i])
-                        goto rollback;
+        ಪ್ರತಿ (i = k; i < k + n; i++) {
+                nl[i] = strdup(ಮೌಲ್ಯ);
+                ಯದಿ (!nl[i])
+                        ಗಚ್ಛ rollback;
         }
-        nl[i] = NULL;
+        nl[i] = ರಿಕ್ತ;
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
-                free(nl[j]);
-        nl[k] = NULL;
+        ಪ್ರತಿ (size_t j = k; j < i; j++)
+                ಮುಕ್ತ(nl[j]);
+        nl[k] = ರಿಕ್ತ;
 
-        return -ENOMEM;
+        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
-        char *j;
+ಪೂರ್ಣಾಙ್ಕ strv_extend_assignment(ವರ್ಣ ***l, ಧ್ರುವ ವರ್ಣ *lhs, ಧ್ರುವ ವರ್ಣ *rhs) {
+        ವರ್ಣ *j;
 
-        assert(l);
-        assert(lhs);
+        ಪ್ರತಿಜ್ಞಾ(l);
+        ಪ್ರತಿಜ್ಞಾ(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        ಯದಿ (!rhs) /* value is optional, in which case we suppress the field */
+                ಪ್ರತ್ಯಾಗಮ 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        ಯದಿ (!j)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        return strv_consume(l, j);
+        ಪ್ರತ್ಯಾಗಮ strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+ಪೂರ್ಣಾಙ್ಕ fputstrv(FILE *f, ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *separator, bool *space) {
         bool b = false;
-        int r;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(f);
+        ಪ್ರತಿಜ್ಞಾ(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        ಯದಿ (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
         }
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+ಶೂನ್ಯ string_strv_hashmap_remove(Hashmap *h, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+        ಯದಿ (ಮೌಲ್ಯ) {
+                ವರ್ಣ **l = hashmap_get(h, ಕೀಲಿ);
+                ಯದಿ (!l)
+                        ಪ್ರತ್ಯಾಗಮ;
 
-                strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                strv_remove(l, ಮೌಲ್ಯ);
+                ಯದಿ (!strv_isempty(l))
+                        ಪ್ರತ್ಯಾಗಮ;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        _unused_ _cleanup_free_ ವರ್ಣ *ಕೀಲಿ_free = ರಿಕ್ತ;
+        strv_free(hashmap_remove2(h, ಕೀಲಿ, (ಶೂನ್ಯ**) &ಕೀಲಿ_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
-        string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
+ಶೂನ್ಯ string_strv_ordered_hashmap_remove(OrderedHashmap *h, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        string_strv_hashmap_remove(PLAIN_HASHMAP(h), ಕೀಲಿ, ಮೌಲ್ಯ);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
-        char **l;
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ string_strv_hashmap_put_internal(Hashmap *h, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ವರ್ಣ **l;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        ಪ್ರತಿಜ್ಞಾ(h);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
 
-        l = hashmap_get(h, key);
-        if (l) {
+        l = hashmap_get(h, ಕೀಲಿ);
+        ಯದಿ (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                ಯದಿ (strv_contains(l, ಮೌಲ್ಯ))
+                        ಪ್ರತ್ಯಾಗಮ 0;
 
-                r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l, ಮೌಲ್ಯ);
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
 
-                assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+                assert_se(hashmap_update(h, ಕೀಲಿ, l) >= 0);
+        } ಅನ್ಯಥಾ {
                 /* No list for this key exists yet, create one */
-                _cleanup_strv_free_ char **l2 = NULL;
-                _cleanup_free_ char *t = NULL;
+                _cleanup_strv_free_ ವರ್ಣ **l2 = ರಿಕ್ತ;
+                _cleanup_free_ ವರ್ಣ *t = ರಿಕ್ತ;
 
-                t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                t = strdup(ಕೀಲಿ);
+                ಯದಿ (!t)
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-                r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l2, ಮೌಲ್ಯ);
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        ಪ್ರತ್ಯಾಗಮ 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ string_strv_hashmap_put(Hashmap **h, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        ಪ್ರತಿಜ್ಞಾ(h);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        ಪ್ರತ್ಯಾಗಮ string_strv_hashmap_put_internal(*h, ಕೀಲಿ, ಮೌಲ್ಯ);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ string_strv_ordered_hashmap_put(OrderedHashmap **h, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        ಪ್ರತಿಜ್ಞಾ(h);
+        ಪ್ರತಿಜ್ಞಾ(ಕೀಲಿ);
+        ಪ್ರತಿಜ್ಞಾ(ಮೌಲ್ಯ);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        ಪ್ರತ್ಯಾಗಮ string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), ಕೀಲಿ, ಮೌಲ್ಯ);
 }
 
-static int rebreak_flush_line(
-                char ***broken,
-                const char *start,
-                const char *end,
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ rebreak_flush_ಸಾಲು(
+                ವರ್ಣ ***broken,
+                ಧ್ರುವ ವರ್ಣ *start,
+                ಧ್ರುವ ವರ್ಣ *end,
                 bool in_prefix,
-                const char *whitespace_begin,
-                const char *whitespace_end) {
+                ಧ್ರುವ ವರ್ಣ *whitespace_begin,
+                ಧ್ರುವ ವರ್ಣ *whitespace_end) {
 
-        assert(broken);
-        assert(start);
-        assert(end >= start);
+        ಪ್ರತಿಜ್ಞಾ(broken);
+        ಪ್ರತಿಜ್ಞಾ(start);
+        ಪ್ರತಿಜ್ಞಾ(end >= start);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        ಯದಿ (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
+                ಪ್ರತ್ಯಾಗಮ strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
+        ಯದಿ (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
                 end = whitespace_begin;
 
-        _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        _cleanup_free_ ವರ್ಣ *truncated = strndup(start, end - start);
+        ಯದಿ (!truncated)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        ಪ್ರತ್ಯಾಗಮ strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
-        _cleanup_strv_free_ char **broken = NULL;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ strv_rebreak_ಸಾಲುಗಳು(ವರ್ಣ **l, size_t width, ವರ್ಣ ***ret) {
+        _cleanup_strv_free_ ವರ್ಣ **broken = ರಿಕ್ತ;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* Implements a simple UTF-8 line breaking algorithm
          *
@@ -1250,44 +1250,44 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        ಯದಿ (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                ಯದಿ (!broken)
+                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                ಪ್ರತ್ಯಾಗಮ 0;
         }
 
         STRV_FOREACH(i, l) {
-                const char *start = *i, *whitespace_begin = NULL, *whitespace_end = NULL;
+                ಧ್ರುವ ವರ್ಣ *start = *i, *whitespace_begin = ರಿಕ್ತ, *whitespace_end = ರಿಕ್ತ;
                 bool in_prefix = true; /* still in the whitespace in the beginning of the line? */
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
                 size_t w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                ಪ್ರತಿ (ಧ್ರುವ ವರ್ಣ *p = start; *p != 0; ) {
+                        ಯದಿ (strchr(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
-                                r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                r = rebreak_flush_ಸಾಲು(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
+                                ಯದಿ (r < 0)
+                                        ಪ್ರತ್ಯಾಗಮ r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
                                 start = p;
                                 in_prefix = true;
                                 after_newline = true;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = ರಿಕ್ತ;
                                 w = 0;
-                                continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                                ಅನುವರ್ತ;
+                        } ಅನ್ಯಥಾ ಯದಿ (strchr(WHITESPACE, *p)) {
+                                ಯದಿ (!in_prefix && (!whitespace_begin || whitespace_end)) {
                                         whitespace_begin = p;
-                                        whitespace_end = NULL;
+                                        whitespace_end = ರಿಕ್ತ;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
+                        } ಅನ್ಯಥಾ {
+                                ಯದಿ (whitespace_begin && !whitespace_end)
                                         whitespace_end = p;
 
                                 in_prefix = false;
@@ -1298,31 +1298,31 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        ಪೂರ್ಣಾಙ್ಕ cw = utf8_char_console_width(p);
+                        ಯದಿ (cw < 0)
+                                ಪ್ರತ್ಯಾಗಮ log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
-                                _cleanup_free_ char *truncated = NULL;
+                        ಯದಿ (w > width && whitespace_begin && whitespace_end) {
+                                _cleanup_free_ ವರ್ಣ *truncated = ರಿಕ್ತ;
 
                                 truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                ಯದಿ (!truncated)
+                                        ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                ಯದಿ (r < 0)
+                                        ಪ್ರತ್ಯಾಗಮ r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
                                  * the new line yet, hence reset the width and reprocess it. */
                                 p = start = whitespace_end;
                                 after_newline = false;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = ರಿಕ್ತ;
                                 w = 0;
-                                continue;
+                                ಅನುವರ್ತ;
                         }
 
                         p = utf8_next_char(p);
@@ -1331,38 +1331,38 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                 /* Process rest of the line, except if all that's left after the last newline we already
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
-                assert(start);
-                if (after_newline && in_prefix)
-                        continue;
+                ಪ್ರತಿಜ್ಞಾ(start);
+                ಯದಿ (after_newline && in_prefix)
+                        ಅನುವರ್ತ;
 
-                r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                r = rebreak_flush_ಸಾಲು(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-char** strv_filter_prefix(char * const *l, const char *prefix) {
+ವರ್ಣ** strv_filter_prefix(ವರ್ಣ * ಧ್ರುವ *l, ಧ್ರುವ ವರ್ಣ *prefix) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        ಯದಿ (isempty(prefix))
+                ಪ್ರತ್ಯಾಗಮ strv_copy(l);
 
-        _cleanup_strv_free_ char **f = NULL;
+        _cleanup_strv_free_ ವರ್ಣ **f = ರಿಕ್ತ;
         size_t sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
-                        continue;
+                ಯದಿ (!startswith(*i, prefix))
+                        ಅನುವರ್ತ;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                ಯದಿ (strv_extend_with_size(&f, &sz, *i) < 0)
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
         }
 
-        return TAKE_PTR(f);
+        ಪ್ರತ್ಯಾಗಮ TAKE_PTR(f);
 }
 
-const char* const strv_empty[] = { NULL };
+ಧ್ರುವ ವರ್ಣ* ಧ್ರುವ strv_empty[] = { ರಿಕ್ತ };

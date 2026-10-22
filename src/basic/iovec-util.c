@@ -1,58 +1,58 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "iovec-util.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "iovec-util.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-static const uint8_t nul_byte = 0;
+ಸ್ಥಿರ ಧ್ರುವ uint8_t nul_byte = 0;
 
-const struct iovec iovec_nul_byte = {
-        .iov_base = (void*) &nul_byte,
+ಧ್ರುವ ಸಂರಚನಾ iovec iovec_nul_byte = {
+        .iov_base = (ಶೂನ್ಯ*) &nul_byte,
         .iov_len = 1,
 };
 
-const struct iovec iovec_empty = {
-        .iov_base = (void*) &nul_byte,
+ಧ್ರುವ ಸಂರಚನಾ iovec iovec_empty = {
+        .iov_base = (ಶೂನ್ಯ*) &nul_byte,
         .iov_len = 0,
 };
 
-int iovec_alloc(size_t n, struct iovec *ret) {
-        assert(ret);
+ಪೂರ್ಣಾಙ್ಕ iovec_alloc(size_t n, ಸಂರಚನಾ iovec *ret) {
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        void *buf = malloc(n ?: 1);
-        if (!buf)
-                return -ENOMEM;
+        ಶೂನ್ಯ *buf = malloc(n ?: 1);
+        ಯದಿ (!buf)
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
         *ret = IOVEC_MAKE(buf, n);
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) {
+size_t iovec_total_size(ಧ್ರುವ ಸಂರಚನಾ iovec *iovec, size_t n) {
         size_t sum = 0;
 
-        assert(iovec || n == 0);
+        ಪ್ರತಿಜ್ಞಾ(iovec || n == 0);
 
         FOREACH_ARRAY(j, iovec, n) {
-                if (j->iov_len > SIZE_MAX - sum)
-                        return SIZE_MAX; /* Indicate overflow. */
+                ಯದಿ (j->iov_len > SIZE_MAX - sum)
+                        ಪ್ರತ್ಯಾಗಮ SIZE_MAX; /* Indicate overflow. */
                 sum += j->iov_len;
         }
 
-        return sum;
+        ಪ್ರತ್ಯಾಗಮ sum;
 }
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) {
-        assert(iovec || n == 0);
+bool iovec_inc_many(ಸಂರಚನಾ iovec *iovec, size_t n, size_t k) {
+        ಪ್ರತಿಜ್ಞಾ(iovec || n == 0);
 
         /* Returns true if there is nothing else to send (bytes written cover all of the iovec),
          * false if there's still work to do. */
 
         bool have = false;
         FOREACH_ARRAY(j, iovec, n) {
-                if (j->iov_len == 0)
-                        continue;
-                if (k == 0)
-                        return false;
+                ಯದಿ (j->iov_len == 0)
+                        ಅನುವರ್ತ;
+                ಯದಿ (k == 0)
+                        ಪ್ರತ್ಯಾಗಮ false;
 
                 size_t sub = MIN(j->iov_len, k);
                 iovec_inc(j, sub);
@@ -61,21 +61,21 @@ bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) {
                 have = have || iovec_is_set(j);
         }
 
-        assert(k == 0); /* Anything else would mean that we wrote more bytes than available,
+        ಪ್ರತಿಜ್ಞಾ(k == 0); /* Anything else would mean that we wrote more bytes than available,
                          * or the kernel reported writing more bytes than sent. */
 
-        return !have;
+        ಪ್ರತ್ಯಾಗಮ !have;
 }
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s) {
-        assert(iovec);
+ಸಂರಚನಾ iovec* iovec_make_string(ಸಂರಚನಾ iovec *iovec, ಧ್ರುವ ವರ್ಣ *s) {
+        ಪ್ರತಿಜ್ಞಾ(iovec);
 
         *iovec = IOVEC_MAKE(s, strlen_ptr(s));
-        return iovec;
+        ಪ್ರತ್ಯಾಗಮ iovec;
 }
 
-void iovec_erase(struct iovec *iovec) {
-        assert(iovec);
+ಶೂನ್ಯ iovec_erase(ಸಂರಚನಾ iovec *iovec) {
+        ಪ್ರತಿಜ್ಞಾ(iovec);
 
         /* Unlike iovec_done_erase(), which derives the buffer size with MALLOC_SIZEOF_SAFE(), this uses
          * iov_len as the buffer size. Hence, it can be used with iovec referring to a static array or a
@@ -83,116 +83,116 @@ void iovec_erase(struct iovec *iovec) {
         explicit_bzero_safe(iovec->iov_base, iovec->iov_len);
 }
 
-void iovec_done_erase(struct iovec *iovec) {
-        assert(iovec);
+ಶೂನ್ಯ iovec_done_erase(ಸಂರಚನಾ iovec *iovec) {
+        ಪ್ರತಿಜ್ಞಾ(iovec);
 
         iovec->iov_base = erase_and_free(iovec->iov_base);
         iovec->iov_len = 0;
 }
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value) {
-        char *x;
+ವರ್ಣ* set_iovec_string_field(ಸಂರಚನಾ iovec *iovec, size_t *n_iovec, ಧ್ರುವ ವರ್ಣ *field, ಧ್ರುವ ವರ್ಣ *ಮೌಲ್ಯ) {
+        ವರ್ಣ *x;
 
-        assert(iovec);
-        assert(n_iovec);
+        ಪ್ರತಿಜ್ಞಾ(iovec);
+        ಪ್ರತಿಜ್ಞಾ(n_iovec);
 
-        x = strjoin(field, value);
-        if (x)
+        x = strjoin(field, ಮೌಲ್ಯ);
+        ಯದಿ (x)
                 iovec[(*n_iovec)++] = IOVEC_MAKE_STRING(x);
-        return x;
+        ಪ್ರತ್ಯಾಗಮ x;
 }
 
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value) {
-        char *x;
+ವರ್ಣ* set_iovec_string_field_free(ಸಂರಚನಾ iovec *iovec, size_t *n_iovec, ಧ್ರುವ ವರ್ಣ *field, ವರ್ಣ *ಮೌಲ್ಯ) {
+        ವರ್ಣ *x;
 
-        assert(iovec);
-        assert(n_iovec);
+        ಪ್ರತಿಜ್ಞಾ(iovec);
+        ಪ್ರತಿಜ್ಞಾ(n_iovec);
 
-        x = set_iovec_string_field(iovec, n_iovec, field, value);
-        free(value);
-        return x;
+        x = set_iovec_string_field(iovec, n_iovec, field, ಮೌಲ್ಯ);
+        ಮುಕ್ತ(ಮೌಲ್ಯ);
+        ಪ್ರತ್ಯಾಗಮ x;
 }
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) {
-        assert(iovec || n_iovec == 0);
+ಶೂನ್ಯ iovec_array_free(ಸಂರಚನಾ iovec *iovec, size_t n_iovec) {
+        ಪ್ರತಿಜ್ಞಾ(iovec || n_iovec == 0);
 
         FOREACH_ARRAY(i, iovec, n_iovec)
-                free(i->iov_base);
+                ಮುಕ್ತ(i->iov_base);
 
-        free(iovec);
+        ಮುಕ್ತ(iovec);
 }
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) {
+ಪೂರ್ಣಾಙ್ಕ iovec_memcmp(ಧ್ರುವ ಸಂರಚನಾ iovec *a, ಧ್ರುವ ಸಂರಚನಾ iovec *b) {
 
-        if (a == b)
-                return 0;
+        ಯದಿ (a == b)
+                ಪ್ರತ್ಯಾಗಮ 0;
 
-        return memcmp_nn(a ? a->iov_base : NULL,
+        ಪ್ರತ್ಯಾಗಮ memcmp_nn(a ? a->iov_base : ರಿಕ್ತ,
                          a ? a->iov_len : 0,
-                         b ? b->iov_base : NULL,
+                         b ? b->iov_base : ರಿಕ್ತ,
                          b ? b->iov_len : 0);
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret) {
-        assert(ret);
+ಸಂರಚನಾ iovec* iovec_memdup(ಧ್ರುವ ಸಂರಚನಾ iovec *source, ಸಂರಚನಾ iovec *ret) {
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        if (!iovec_is_set(source))
-                *ret = (struct iovec) {};
-        else {
-                void *p = memdup(source->iov_base, source->iov_len);
-                if (!p)
-                        return NULL;
+        ಯದಿ (!iovec_is_set(source))
+                *ret = (ಸಂರಚನಾ iovec) {};
+        ಅನ್ಯಥಾ {
+                ಶೂನ್ಯ *p = memdup(source->iov_base, source->iov_len);
+                ಯದಿ (!p)
+                        ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
                 *ret = IOVEC_MAKE(p, source->iov_len);
         }
 
-        return ret;
+        ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source) {
-        assert(iovec);
+ಪೂರ್ಣಾಙ್ಕ iovec_done_and_memdup(ಸಂರಚನಾ iovec *iovec, ಧ್ರುವ ಸಂರಚನಾ iovec *source) {
+        ಪ್ರತಿಜ್ಞಾ(iovec);
 
-        if (iovec_equal(iovec, source))
-                return 0;
+        ಯದಿ (iovec_equal(iovec, source))
+                ಪ್ರತ್ಯಾಗಮ 0;
 
-        struct iovec copy;
-        if (!iovec_memdup(source, &copy))
-                return -ENOMEM;
+        ಸಂರಚನಾ iovec copy;
+        ಯದಿ (!iovec_memdup(source, &copy))
+                ಪ್ರತ್ಯಾಗಮ -ENOMEM;
 
         iovec_done(iovec);
         *iovec = copy;
-        return 1;
+        ಪ್ರತ್ಯಾಗಮ 1;
 }
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append) {
-        assert(iovec_is_valid(iovec));
+ಸಂರಚನಾ iovec* iovec_append(ಸಂರಚನಾ iovec *iovec, ಧ್ರುವ ಸಂರಚನಾ iovec *append) {
+        ಪ್ರತಿಜ್ಞಾ(iovec_is_valid(iovec));
 
-        if (!iovec_is_set(append))
-                return iovec;
+        ಯದಿ (!iovec_is_set(append))
+                ಪ್ರತ್ಯಾಗಮ iovec;
 
-        if (!greedy_realloc_append(&iovec->iov_base, &iovec->iov_len, append->iov_base, append->iov_len, 1))
-                return NULL;
+        ಯದಿ (!greedy_realloc_append(&iovec->iov_base, &iovec->iov_len, append->iov_base, append->iov_len, 1))
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        return iovec;
+        ಪ್ರತ್ಯಾಗಮ iovec;
 }
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n) {
+ಸಂರಚನಾ iovec* iovec_consume(ಸಂರಚನಾ iovec *iovec, size_t n) {
 
         /* Similar to iovec_inc(), but instead of moving the pointer ahead we copy the data via memmove() and
          * thus the pointer stays fixed, but the data moves */
 
-        if (!iovec)
-                return NULL;
+        ಯದಿ (!iovec)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        if (n > iovec->iov_len)
-                return NULL;
+        ಯದಿ (n > iovec->iov_len)
+                ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
-        if (n == 0) /* NOP — note that this is fine on an empty (or even unset) iovec, so that consuming an
+        ಯದಿ (n == 0) /* NOP — note that this is fine on an empty (or even unset) iovec, so that consuming an
                      * iovec we already fully drained continues to be a valid (if pointless) operation. */
-                return iovec;
+                ಪ್ರತ್ಯಾಗಮ iovec;
 
         iovec->iov_len -= n;
 
         memmove(ASSERT_PTR(iovec->iov_base), (uint8_t*) iovec->iov_base + n, iovec->iov_len);
-        return iovec;
+        ಪ್ರತ್ಯಾಗಮ iovec;
 }

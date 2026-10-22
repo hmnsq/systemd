@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#ಅನ್ತರ್ಭಾವ <linux/if_arp.h>
+#ಅನ್ತರ್ಭಾವ <linux/if_infiniband.h>
+#ಅನ್ತರ್ಭಾವ <netinet/in.h>
+#ಅನ್ತರ್ಭಾವ <string.h>
 
-#include "arphrd-util.h"
+#ಅನ್ತರ್ಭಾವ "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ arphrd_name* lookup_arphrd(ಪಞ್ಜಿಕಾ ಧ್ರುವ ವರ್ಣ *str, ಪಞ್ಜಿಕಾ GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#ಅನ್ತರ್ಭಾವ "arphrd-from-name.inc"
+#ಅನ್ತರ್ಭಾವ "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+ಪೂರ್ಣಾಙ್ಕ arphrd_from_name(ಧ್ರುವ ವರ್ಣ *name) {
+        ಧ್ರುವ ಸಂರಚನಾ arphrd_name *sc;
 
-        assert(name);
+        ಪ್ರತಿಜ್ಞಾ(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ಯದಿ (!sc)
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-        return sc->id;
+        ಪ್ರತ್ಯಾಗಮ sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+        ವಿಕಲ್ಪ (arphrd) {
+        ಪಕ್ಷ ARPHRD_ETHER:
+                ಪ್ರತ್ಯಾಗಮ ETH_ALEN;
+        ಪಕ್ಷ ARPHRD_INFINIBAND:
+                ಪ್ರತ್ಯಾಗಮ INFINIBAND_ALEN;
+        ಪಕ್ಷ ARPHRD_TUNNEL:
+        ಪಕ್ಷ ARPHRD_SIT:
+        ಪಕ್ಷ ARPHRD_IPGRE:
+                ಪ್ರತ್ಯಾಗಮ ಪರಿಮಾಣ(ಸಂರಚನಾ in_addr);
+        ಪಕ್ಷ ARPHRD_TUNNEL6:
+        ಪಕ್ಷ ARPHRD_IP6GRE:
+                ಪ್ರತ್ಯಾಗಮ ಪರಿಮಾಣ(ಸಂರಚನಾ in6_addr);
+        ಸ್ವಭಾವ:
+                ಪ್ರತ್ಯಾಗಮ 0;
         }
 }

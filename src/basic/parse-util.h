@@ -1,28 +1,28 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-typedef unsigned long loadavg_t;
+ಪ್ರಕಾರನಿರ್ದೇಶ unsigned long loadavg_t;
 
-int parse_boolean(const char *v) _pure_;
-int parse_tristate_full(const char *v, const char *third, int *ret);
-static inline int parse_tristate(const char *v, int *ret) {
-        return parse_tristate_full(v, NULL, ret);
+ಪೂರ್ಣಾಙ್ಕ parse_boolean(ಧ್ರುವ ವರ್ಣ *v) _pure_;
+ಪೂರ್ಣಾಙ್ಕ parse_tristate_full(ಧ್ರುವ ವರ್ಣ *v, ಧ್ರುವ ವರ್ಣ *third, ಪೂರ್ಣಾಙ್ಕ *ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ parse_tristate(ಧ್ರುವ ವರ್ಣ *v, ಪೂರ್ಣಾಙ್ಕ *ret) {
+        ಪ್ರತ್ಯಾಗಮ parse_tristate_full(v, ರಿಕ್ತ, ret);
 }
-int parse_pid(const char *s, pid_t *ret);
-int parse_mode(const char *s, mode_t *ret);
-int parse_ifindex(const char *s);
-int parse_mtu(int family, const char *s, uint32_t *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_pid(ಧ್ರುವ ವರ್ಣ *s, pid_t *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_mode(ಧ್ರುವ ವರ್ಣ *s, mode_t *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_ifindex(ಧ್ರುವ ವರ್ಣ *s);
+ಪೂರ್ಣಾಙ್ಕ parse_mtu(ಪೂರ್ಣಾಙ್ಕ family, ಧ್ರುವ ವರ್ಣ *s, uint32_t *ret);
 
-int parse_size(const char *t, uint64_t base, uint64_t *size);
-int parse_sector_size(const char *t, uint64_t *ret);
-int parse_range(const char *t, unsigned *lower, unsigned *upper);
-int parse_errno(const char *t);
-int parse_fd(const char *t);
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy);
+ಪೂರ್ಣಾಙ್ಕ parse_size(ಧ್ರುವ ವರ್ಣ *t, uint64_t base, uint64_t *size);
+ಪೂರ್ಣಾಙ್ಕ parse_sector_size(ಧ್ರುವ ವರ್ಣ *t, uint64_t *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_range(ಧ್ರುವ ವರ್ಣ *t, unsigned *lower, unsigned *upper);
+ಪೂರ್ಣಾಙ್ಕ parse_errno(ಧ್ರುವ ವರ್ಣ *t);
+ಪೂರ್ಣಾಙ್ಕ parse_fd(ಧ್ರುವ ವರ್ಣ *t);
+ಪೂರ್ಣಾಙ್ಕ parse_user_shell(ಧ್ರುವ ವರ್ಣ *s, ವರ್ಣ **ret_sh, bool *ret_copy);
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current);
+ಪೂರ್ಣಾಙ್ಕ parse_capability_set(ಧ್ರುವ ವರ್ಣ *s, uint64_t initial, uint64_t *current);
 
 #define SAFE_ATO_REFUSE_PLUS_MINUS (1U << 30)
 #define SAFE_ATO_REFUSE_LEADING_ZERO (1U << 29)
@@ -30,119 +30,119 @@ int parse_capability_set(const char *s, uint64_t initial, uint64_t *current);
 #define SAFE_ATO_ALL_FLAGS (SAFE_ATO_REFUSE_PLUS_MINUS|SAFE_ATO_REFUSE_LEADING_ZERO|SAFE_ATO_REFUSE_LEADING_WHITESPACE)
 #define SAFE_ATO_MASK_FLAGS(base) ((base) & ~SAFE_ATO_ALL_FLAGS)
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u);
-static inline int safe_atou(const char *s, unsigned *ret_u) {
-        return safe_atou_full(s, 0, ret_u);
+ಪೂರ್ಣಾಙ್ಕ safe_atou_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, unsigned *ret_u);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atou(ಧ್ರುವ ವರ್ಣ *s, unsigned *ret_u) {
+        ಪ್ರತ್ಯಾಗಮ safe_atou_full(s, 0, ret_u);
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret);
+ಪೂರ್ಣಾಙ್ಕ safe_atou_bounded(ಧ್ರುವ ವರ್ಣ *s, unsigned min, unsigned max, unsigned *ret);
 
-int safe_atoi(const char *s, int *ret_i);
-int safe_atolli(const char *s, long long *ret_lli);
+ಪೂರ್ಣಾಙ್ಕ safe_atoi(ಧ್ರುವ ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ *ret_i);
+ಪೂರ್ಣಾಙ್ಕ safe_atolli(ಧ್ರುವ ವರ್ಣ *s, long long *ret_lli);
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret);
+ಪೂರ್ಣಾಙ್ಕ safe_atou8_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, uint8_t *ret);
 
-static inline int safe_atou8(const char *s, uint8_t *ret) {
-        return safe_atou8_full(s, 0, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atou8(ಧ್ರುವ ವರ್ಣ *s, uint8_t *ret) {
+        ಪ್ರತ್ಯಾಗಮ safe_atou8_full(s, 0, ret);
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret);
+ಪೂರ್ಣಾಙ್ಕ safe_atou16_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, uint16_t *ret);
 
-static inline int safe_atou16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 0, ret);
-}
-
-static inline int safe_atoux16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 16, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atou16(ಧ್ರುವ ವರ್ಣ *s, uint16_t *ret) {
+        ಪ್ರತ್ಯಾಗಮ safe_atou16_full(s, 0, ret);
 }
 
-int safe_atoi16(const char *s, int16_t *ret);
-
-static inline int safe_atou32_full(const char *s, unsigned base, uint32_t *ret_u) {
-        assert_cc(sizeof(uint32_t) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atoux16(ಧ್ರುವ ವರ್ಣ *s, uint16_t *ret) {
+        ಪ್ರತ್ಯಾಗಮ safe_atou16_full(s, 16, ret);
 }
 
-static inline int safe_atou32(const char *s, uint32_t *ret_u) {
-        return safe_atou32_full(s, 0, (unsigned*) ret_u);
+ಪೂರ್ಣಾಙ್ಕ safe_atoi16(ಧ್ರುವ ವರ್ಣ *s, int16_t *ret);
+
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atou32_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, uint32_t *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(uint32_t) == ಪರಿಮಾಣ(unsigned));
+        ಪ್ರತ್ಯಾಗಮ safe_atou_full(s, base, (unsigned*) ret_u);
 }
 
-static inline int safe_atoi32(const char *s, int32_t *ret_i) {
-        assert_cc(sizeof(int32_t) == sizeof(int));
-        return safe_atoi(s, (int*) ret_i);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atou32(ಧ್ರುವ ವರ್ಣ *s, uint32_t *ret_u) {
+        ಪ್ರತ್ಯಾಗಮ safe_atou32_full(s, 0, (unsigned*) ret_u);
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu);
-
-static inline int safe_atollu(const char *s, unsigned long long *ret_llu) {
-        return safe_atollu_full(s, 0, ret_llu);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atoi32(ಧ್ರುವ ವರ್ಣ *s, int32_t *ret_i) {
+        assert_cc(ಪರಿಮಾಣ(int32_t) == ಪರಿಮಾಣ(ಪೂರ್ಣಾಙ್ಕ));
+        ಪ್ರತ್ಯಾಗಮ safe_atoi(s, (ಪೂರ್ಣಾಙ್ಕ*) ret_i);
 }
 
-static inline int safe_atou64_full(const char *s, unsigned base, uint64_t *ret_u) {
-        assert_cc(sizeof(uint64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
+ಪೂರ್ಣಾಙ್ಕ safe_atollu_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, unsigned long long *ret_llu);
+
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atollu(ಧ್ರುವ ವರ್ಣ *s, unsigned long long *ret_llu) {
+        ಪ್ರತ್ಯಾಗಮ safe_atollu_full(s, 0, ret_llu);
 }
 
-static inline int safe_atou64(const char *s, uint64_t *ret_u) {
-        return safe_atou64_full(s, 0, ret_u);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atou64_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, uint64_t *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(uint64_t) == ಪರಿಮಾಣ(unsigned long long));
+        ಪ್ರತ್ಯಾಗಮ safe_atollu_full(s, base, (unsigned long long*) ret_u);
 }
 
-static inline int safe_atoi64(const char *s, int64_t *ret_i) {
-        assert_cc(sizeof(int64_t) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_i);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atou64(ಧ್ರುವ ವರ್ಣ *s, uint64_t *ret_u) {
+        ಪ್ರತ್ಯಾಗಮ safe_atou64_full(s, 0, ret_u);
 }
 
-static inline int safe_atoux64(const char *s, uint64_t *ret) {
-        assert_cc(sizeof(int64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, 16, (unsigned long long*) ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atoi64(ಧ್ರುವ ವರ್ಣ *s, int64_t *ret_i) {
+        assert_cc(ಪರಿಮಾಣ(int64_t) == ಪರಿಮಾಣ(long long));
+        ಪ್ರತ್ಯಾಗಮ safe_atolli(s, (long long*) ret_i);
 }
 
-#if LONG_MAX == INT_MAX
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(int));
-        return safe_atoi(s, (int*) ret_u);
-}
-#else
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_u);
-}
-#endif
-
-static inline int safe_atolu(const char *s, unsigned long *ret_u) {
-        return safe_atolu_full(s, 0, ret_u);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atoux64(ಧ್ರುವ ವರ್ಣ *s, uint64_t *ret) {
+        assert_cc(ಪರಿಮಾಣ(int64_t) == ಪರಿಮಾಣ(unsigned long long));
+        ಪ್ರತ್ಯಾಗಮ safe_atollu_full(s, 16, (unsigned long long*) ret);
 }
 
-#if SIZE_MAX == UINT_MAX
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned));
-        return safe_atou(s, (unsigned *) ret_u);
+#ಯದಿ LONG_MAX == INT_MAX
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atolu_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, unsigned long *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(unsigned long) == ಪರಿಮಾಣ(unsigned));
+        ಪ್ರತ್ಯಾಗಮ safe_atou_full(s, base, (unsigned*) ret_u);
 }
-#else
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned long));
-        return safe_atolu(s, ret_u);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atoli(ಧ್ರುವ ವರ್ಣ *s, long *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(long) == ಪರಿಮಾಣ(ಪೂರ್ಣಾಙ್ಕ));
+        ಪ್ರತ್ಯಾಗಮ safe_atoi(s, (ಪೂರ್ಣಾಙ್ಕ*) ret_u);
+}
+#ಅನ್ಯಥಾ
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atolu_full(ಧ್ರುವ ವರ್ಣ *s, unsigned base, unsigned long *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(unsigned long) == ಪರಿಮಾಣ(unsigned long long));
+        ಪ್ರತ್ಯಾಗಮ safe_atollu_full(s, base, (unsigned long long*) ret_u);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atoli(ಧ್ರುವ ವರ್ಣ *s, long *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(long) == ಪರಿಮಾಣ(long long));
+        ಪ್ರತ್ಯಾಗಮ safe_atolli(s, (long long*) ret_u);
 }
 #endif
 
-int safe_atod(const char *s, double *ret_d);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atolu(ಧ್ರುವ ವರ್ಣ *s, unsigned long *ret_u) {
+        ಪ್ರತ್ಯಾಗಮ safe_atolu_full(s, 0, ret_u);
+}
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res);
+#ಯದಿ SIZE_MAX == UINT_MAX
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atozu(ಧ್ರುವ ವರ್ಣ *s, size_t *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(size_t) == ಪರಿಮಾಣ(unsigned));
+        ಪ್ರತ್ಯಾಗಮ safe_atou(s, (unsigned *) ret_u);
+}
+#ಅನ್ಯಥಾ
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ safe_atozu(ಧ್ರುವ ವರ್ಣ *s, size_t *ret_u) {
+        assert_cc(ಪರಿಮಾಣ(size_t) == ಪರಿಮಾಣ(unsigned long));
+        ಪ್ರತ್ಯಾಗಮ safe_atolu(s, ret_u);
+}
+#endif
 
-int parse_nice(const char *s, int *ret);
+ಪೂರ್ಣಾಙ್ಕ safe_atod(ಧ್ರುವ ವರ್ಣ *s, ದ್ವಿಗುಣ *ret_d);
 
-int parse_ip_port(const char *s, uint16_t *ret);
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero);
+ಪೂರ್ಣಾಙ್ಕ parse_fractional_part_u(ಧ್ರುವ ವರ್ಣ **p, size_t digits, unsigned *res);
 
-int parse_oom_score_adjust(const char *s, int *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_nice(ಧ್ರುವ ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ *ret);
+
+ಪೂರ್ಣಾಙ್ಕ parse_ip_port(ಧ್ರುವ ವರ್ಣ *s, uint16_t *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_ip_port_range(ಧ್ರುವ ವರ್ಣ *s, uint16_t *low, uint16_t *high, bool allow_zero);
+
+ಪೂರ್ಣಾಙ್ಕ parse_oom_score_adjust(ಧ್ರುವ ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ *ret);
 
 /* Implement floating point using fixed integers, to improve performance when
  * calculating load averages. These macros can be used to extract the integer
@@ -154,7 +154,7 @@ int parse_oom_score_adjust(const char *s, int *ret);
 
 /* Given a Linux load average (e.g. decimal number 34.89 where 34 is passed as i and 89 is passed as f), convert it
  * to a loadavg_t. */
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret);
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret);
+ಪೂರ್ಣಾಙ್ಕ store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret);
+ಪೂರ್ಣಾಙ್ಕ parse_loadavg_fixed_point(ಧ್ರುವ ವರ್ಣ *s, loadavg_t *ret);
 
-bool nft_identifier_valid(const char *id);
+bool nft_identifier_valid(ಧ್ರುವ ವರ್ಣ *id);

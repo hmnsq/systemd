@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#ಅನ್ತರ್ಭಾವ "alloc-util.h"
+#ಅನ್ತರ್ಭಾವ "audit-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "parse-util.h"
+#ಅನ್ತರ್ಭಾವ "pidref.h"
+#ಅನ್ತರ್ಭಾವ "process-util.h"
+#ಅನ್ತರ್ಭಾವ "stat-util.h"
+#ಅನ್ತರ್ಭಾವ "user-util.h"
+#ಅನ್ತರ್ಭಾವ "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ audit_read_field(ಧ್ರುವ PidRef *pid, ಧ್ರುವ ವರ್ಣ *field, ವರ್ಣ **ret) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(field);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(field);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        ಯದಿ (!pidref_is_set(pid))
+                ಪ್ರತ್ಯಾಗಮ -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        ಯದಿ (detect_container() > 0)
+                ಪ್ರತ್ಯಾಗಮ -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        ಧ್ರುವ ವರ್ಣ *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ ವರ್ಣ *s = ರಿಕ್ತ;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_full_virtual_file(p, &s, /* ret_size= */ ರಿಕ್ತ);
+        ಯದಿ (r == -ENOENT) {
+                ಯದಿ (proc_mounted() == 0)
+                        ಪ್ರತ್ಯಾಗಮ -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } ಅನ್ಯಥಾ ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        ಯದಿ (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                ಪ್ರತ್ಯಾಗಮ -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ audit_session_from_pid(ಧ್ರುವ PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ ವರ್ಣ *s = ರಿಕ್ತ;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        ಯದಿ (!audit_session_is_valid(u))
+                ಪ್ರತ್ಯಾಗಮ -ENODATA;
 
-        if (ret_id)
+        ಯದಿ (ret_id)
                 *ret_id = u;
 
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ audit_loginuid_from_pid(ಧ್ರುವ PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ ವರ್ಣ *s = ರಿಕ್ತ;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        ಯದಿ (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                ಪ್ರತ್ಯಾಗಮ -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        ಪ್ರತ್ಯಾಗಮ parse_uid(s, ret_uid);
 }

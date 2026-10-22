@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <signal.h>
+#ಅನ್ತರ್ಭಾವ <signal.h>
 
-#include "fileio.h"
-#include "format-util.h"
-#include "forward.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "fileio.h"
+#ಅನ್ತರ್ಭಾವ "format-util.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
 #define procfs_file_alloca(pid, field)                                  \
         ({                                                              \
                 pid_t _pid_ = (pid);                                    \
-                const char *_field_ = (field);                          \
-                char *_r_;                                              \
-                if (_pid_ == 0)                                         \
+                ಧ್ರುವ ವರ್ಣ *_field_ = (field);                          \
+                ವರ್ಣ *_r_;                                              \
+                ಯದಿ (_pid_ == 0)                                         \
                         _r_ = strjoina("/proc/self/", _field_);         \
-                else {                                                  \
-                        assert(_pid_ > 0);                              \
-                        _r_ = newa(char, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
+                ಅನ್ಯಥಾ {                                                  \
+                        ಪ್ರತಿಜ್ಞಾ(_pid_ > 0);                              \
+                        _r_ = newa(ವರ್ಣ, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
                         sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, _field_); \
                 }                                                       \
-                (const char*) _r_;                                      \
+                (ಧ್ರುವ ವರ್ಣ*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ procfs_file_get_field(pid_t pid, ಧ್ರುವ ವರ್ಣ *name, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ವರ್ಣ **ret) {
+        ಪ್ರತ್ಯಾಗಮ get_proc_field(procfs_file_alloca(pid, name), ಕೀಲಿ, ret);
 }
 
-typedef enum ProcessCmdlineFlags {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ ProcessCmdlineFlags {
         PROCESS_CMDLINE_COMM_FALLBACK = 1 << 0,
         PROCESS_CMDLINE_USE_LOCALE    = 1 << 1,
         PROCESS_CMDLINE_QUOTE         = 1 << 2,
         PROCESS_CMDLINE_QUOTE_POSIX   = 1 << 3,
 } ProcessCmdlineFlags;
 
-int pid_get_comm(pid_t pid, char **ret);
-int pidref_get_comm(const PidRef *pid, char **ret);
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
-int get_process_exe(pid_t pid, char **ret);
-int pid_get_uid(pid_t pid, uid_t *ret);
-int pidref_get_uid(const PidRef *pid, uid_t *ret);
-int get_process_gid(pid_t pid, gid_t *ret);
-int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
-int get_process_environ(pid_t pid, char **ret);
-int pid_get_ppid(pid_t pid, pid_t *ret);
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
-int pid_get_start_time(pid_t pid, usec_t *ret);
-int pidref_get_start_time(const PidRef *pid, usec_t *ret);
-int get_process_umask(pid_t pid, mode_t *ret);
-int pidref_has_sigcgt(const PidRef *pidref, int sig);
-int pidref_has_sigblk(const PidRef *pidref, int sig);
+ಪೂರ್ಣಾಙ್ಕ pid_get_comm(pid_t pid, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_get_comm(ಧ್ರುವ PidRef *pid, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_get_cmdline(ಧ್ರುವ PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, ವರ್ಣ ***ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_get_cmdline_strv(ಧ್ರುವ PidRef *pid, ProcessCmdlineFlags flags, ವರ್ಣ ***ret);
+ಪೂರ್ಣಾಙ್ಕ get_process_exe(pid_t pid, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ pid_get_uid(pid_t pid, uid_t *ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_get_uid(ಧ್ರುವ PidRef *pid, uid_t *ret);
+ಪೂರ್ಣಾಙ್ಕ get_process_gid(pid_t pid, gid_t *ret);
+ಪೂರ್ಣಾಙ್ಕ get_process_cwd(pid_t pid, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ get_process_ಬೇರು(pid_t pid, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ get_process_environ(pid_t pid, ವರ್ಣ **ret);
+ಪೂರ್ಣಾಙ್ಕ pid_get_ppid(pid_t pid, pid_t *ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_get_ppid(ಧ್ರುವ PidRef *pidref, pid_t *ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_get_ppid_as_pidref(ಧ್ರುವ PidRef *pidref, PidRef *ret);
+ಪೂರ್ಣಾಙ್ಕ pid_get_start_time(pid_t pid, usec_t *ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_get_start_time(ಧ್ರುವ PidRef *pid, usec_t *ret);
+ಪೂರ್ಣಾಙ್ಕ get_process_umask(pid_t pid, mode_t *ret);
+ಪೂರ್ಣಾಙ್ಕ pidref_has_sigcgt(ಧ್ರುವ PidRef *pidref, ಪೂರ್ಣಾಙ್ಕ sig);
+ಪೂರ್ಣಾಙ್ಕ pidref_has_sigblk(ಧ್ರುವ PidRef *pidref, ಪೂರ್ಣಾಙ್ಕ sig);
 
-static inline bool SIGINFO_CODE_IS_DEAD(int code) {
-        return IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool SIGINFO_CODE_IS_DEAD(ಪೂರ್ಣಾಙ್ಕ code) {
+        ಪ್ರತ್ಯಾಗಮ IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
 }
 
-typedef enum WaitFlags {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ WaitFlags {
         WAIT_LOG_ABNORMAL             = 1 << 0,
         WAIT_LOG_NON_ZERO_EXIT_STATUS = 1 << 1,
 
@@ -68,26 +68,26 @@ typedef enum WaitFlags {
         WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
 } WaitFlags;
 
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
+ಪೂರ್ಣಾಙ್ಕ pidref_wait_for_terminate_and_check(ಧ್ರುವ ವರ್ಣ *name, PidRef *pidref, WaitFlags flags);
 
-int kill_and_sigcont(pid_t pid, int sig);
+ಪೂರ್ಣಾಙ್ಕ kill_and_sigcont(pid_t pid, ಪೂರ್ಣಾಙ್ಕ sig);
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret);
+ಪೂರ್ಣಾಙ್ಕ procfs_get_stat_flags(ಧ್ರುವ ವರ್ಣ *path, unsigned long long *ret);
 
-int pid_is_kernel_thread(pid_t pid);
-int pidref_is_kernel_thread(const PidRef *pid);
+ಪೂರ್ಣಾಙ್ಕ pid_is_kernel_thread(pid_t pid);
+ಪೂರ್ಣಾಙ್ಕ pidref_is_kernel_thread(ಧ್ರುವ PidRef *pid);
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret);
+ಪೂರ್ಣಾಙ್ಕ getenv_for_pid(pid_t pid, ಧ್ರುವ ವರ್ಣ *field, ವರ್ಣ **ret);
 
-int pid_is_alive(pid_t pid);
-int pidref_is_alive(const PidRef *pidref);
-int pid_is_unwaited(pid_t pid);
-int pidref_is_unwaited(PidRef *pidref);
-int pid_is_my_child(pid_t pid);
-int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+ಪೂರ್ಣಾಙ್ಕ pid_is_alive(pid_t pid);
+ಪೂರ್ಣಾಙ್ಕ pidref_is_alive(ಧ್ರುವ PidRef *pidref);
+ಪೂರ್ಣಾಙ್ಕ pid_is_unwaited(pid_t pid);
+ಪೂರ್ಣಾಙ್ಕ pidref_is_unwaited(PidRef *pidref);
+ಪೂರ್ಣಾಙ್ಕ pid_is_my_child(pid_t pid);
+ಪೂರ್ಣಾಙ್ಕ pidref_is_my_child(PidRef *pidref);
+ಪೂರ್ಣಾಙ್ಕ pidref_from_same_ಬೇರು_fs(PidRef *a, PidRef *b);
 
-bool is_main_thread(void);
+bool is_main_thread(ಶೂನ್ಯ);
 
 #ifndef PERSONALITY_INVALID
 /* personality(2) documents that 0xFFFFFFFFUL is used for querying the
@@ -101,57 +101,57 @@ bool is_main_thread(void);
  * personality we're interested in. */
 #define OPINIONATED_PERSONALITY_MASK 0xFFUL
 
-unsigned long personality_from_string(const char *s);
-const char* personality_to_string(unsigned long p);
+unsigned long personality_from_string(ಧ್ರುವ ವರ್ಣ *s);
+ಧ್ರುವ ವರ್ಣ* personality_to_string(unsigned long p);
 
-int safe_personality(unsigned long p);
-int opinionated_personality(unsigned long *ret);
+ಪೂರ್ಣಾಙ್ಕ safe_personality(unsigned long p);
+ಪೂರ್ಣಾಙ್ಕ opinionated_personality(unsigned long *ret);
 
-DECLARE_STRING_TABLE_LOOKUP(sigchld_code, int);
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int);
+DECLARE_STRING_TABLE_LOOKUP(sigchld_code, ಪೂರ್ಣಾಙ್ಕ);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, ಪೂರ್ಣಾಙ್ಕ);
 
-static inline pid_t PTR_TO_PID(const void *p) {
-        return (pid_t) ((uintptr_t) p);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ pid_t PTR_TO_PID(ಧ್ರುವ ಶೂನ್ಯ *p) {
+        ಪ್ರತ್ಯಾಗಮ (pid_t) ((uintptr_t) p);
 }
 
-static inline void* PID_TO_PTR(pid_t pid) {
-        return (void*) ((uintptr_t) pid);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ* PID_TO_PTR(pid_t pid) {
+        ಪ್ರತ್ಯಾಗಮ (ಶೂನ್ಯ*) ((uintptr_t) pid);
 }
 
-void valgrind_summary_hack(void);
+ಶೂನ್ಯ valgrind_summary_hack(ಶೂನ್ಯ);
 
-int pid_compare_func(const pid_t *a, const pid_t *b);
+ಪೂರ್ಣಾಙ್ಕ pid_compare_func(ಧ್ರುವ pid_t *a, ಧ್ರುವ pid_t *b);
 
-bool nice_is_valid(int n) _const_;
+bool nice_is_valid(ಪೂರ್ಣಾಙ್ಕ n) _const_;
 
-bool sched_policy_is_valid(int policy) _const_;
-bool sched_policy_supported(int policy);
-int sched_get_priority_min_safe(int policy);
-int sched_get_priority_max_safe(int policy);
+bool sched_policy_is_valid(ಪೂರ್ಣಾಙ್ಕ policy) _const_;
+bool sched_policy_supported(ಪೂರ್ಣಾಙ್ಕ policy);
+ಪೂರ್ಣಾಙ್ಕ sched_get_priority_min_safe(ಪೂರ್ಣಾಙ್ಕ policy);
+ಪೂರ್ಣಾಙ್ಕ sched_get_priority_max_safe(ಪೂರ್ಣಾಙ್ಕ policy);
 
 #define PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
 
-static inline bool pid_is_valid(pid_t p) {
-        return p > 0;
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool pid_is_valid(pid_t p) {
+        ಪ್ರತ್ಯಾಗಮ p > 0;
 }
 
-static inline bool pid_is_automatic(pid_t p) {
-        return p == PID_AUTOMATIC;
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool pid_is_automatic(pid_t p) {
+        ಪ್ರತ್ಯಾಗಮ p == PID_AUTOMATIC;
 }
 
-pid_t getpid_cached(void);
-void reset_cached_pid(void);
+pid_t getpid_cached(ಶೂನ್ಯ);
+ಶೂನ್ಯ reset_cached_pid(ಶೂನ್ಯ);
 
-int must_be_root(void);
+ಪೂರ್ಣಾಙ್ಕ must_be_ಬೇರು(ಶೂನ್ಯ);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_ರಾಶಿ(ಪೂರ್ಣಾಙ್ಕ (*fn)(ಶೂನ್ಯ *), ಪೂರ್ಣಾಙ್ಕ flags, ಶೂನ್ಯ *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
  * and thus will cause deadlocks if the parent uses threads and the child does memory allocations. Hence: if
  * the parent is threaded these flags may not be used. These flags cannot be used if the parent uses threads
  * or the child uses malloc(). 💣 */
-typedef enum ForkFlags {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ ForkFlags {
         FORK_RESET_SIGNALS      = 1 <<  0, /* Reset all signal handlers and signal mask */
         FORK_CLOSE_ALL_FDS      = 1 <<  1, /* Close all open file descriptors in the child, except for 0,1,2 */
         FORK_DEATHSIG_SIGTERM   = 1 <<  2, /* Set PR_DEATHSIG in the child to SIGTERM */
@@ -178,46 +178,46 @@ typedef enum ForkFlags {
         FORK_ALLOW_DLOPEN       = 1 << 23, /* Do not block dlopen() in child */
 } ForkFlags;
 
-int pidref_safe_fork_full(
-                const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+ಪೂರ್ಣಾಙ್ಕ pidref_safe_fork_full(
+                ಧ್ರುವ ವರ್ಣ *name,
+                ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ stdio_fds[3],
+                ಪೂರ್ಣಾಙ್ಕ except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret);
 
-static inline int pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
-        return pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ pidref_safe_fork(ಧ್ರುವ ವರ್ಣ *name, ForkFlags flags, PidRef *ret) {
+        ಪ್ರತ್ಯಾಗಮ pidref_safe_fork_full(name, ರಿಕ್ತ, ರಿಕ್ತ, 0, flags, ret);
 }
 
-int namespace_fork_full(
-                const char *outer_name,
-                const char *inner_name,
-                int except_fds[],
+ಪೂರ್ಣಾಙ್ಕ namespace_fork_full(
+                ಧ್ರುವ ವರ್ಣ *outer_name,
+                ಧ್ರುವ ವರ್ಣ *inner_name,
+                ಪೂರ್ಣಾಙ್ಕ except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                ಪೂರ್ಣಾಙ್ಕ pidns_fd,
+                ಪೂರ್ಣಾಙ್ಕ mntns_fd,
+                ಪೂರ್ಣಾಙ್ಕ netns_fd,
+                ಪೂರ್ಣಾಙ್ಕ userns_fd,
+                ಪೂರ್ಣಾಙ್ಕ ಬೇರು_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
-int namespace_fork(
-                const char *outer_name,
-                const char *inner_name,
+ಪೂರ್ಣಾಙ್ಕ namespace_fork(
+                ಧ್ರುವ ವರ್ಣ *outer_name,
+                ಧ್ರುವ ವರ್ಣ *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                ಪೂರ್ಣಾಙ್ಕ pidns_fd,
+                ಪೂರ್ಣಾಙ್ಕ mntns_fd,
+                ಪೂರ್ಣಾಙ್ಕ netns_fd,
+                ಪೂರ್ಣಾಙ್ಕ userns_fd,
+                ಪೂರ್ಣಾಙ್ಕ ಬೇರು_fd,
                 PidRef *ret);
 
-bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
-int get_oom_score_adjust(int *ret);
+bool oom_score_adjust_is_valid(ಪೂರ್ಣಾಙ್ಕ oa);
+ಪೂರ್ಣಾಙ್ಕ set_oom_score_adjust(ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ get_oom_score_adjust(ಪೂರ್ಣಾಙ್ಕ *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */
 #define PID_T_MAX ((pid_t) INT32_MAX)
@@ -231,33 +231,33 @@ int get_oom_score_adjust(int *ret);
 
 assert_cc(TASKS_MAX <= (unsigned long) PID_T_MAX);
 
-int setpriority_closest(int priority);
+ಪೂರ್ಣಾಙ್ಕ setpriority_closest(ಪೂರ್ಣಾಙ್ಕ priority);
 
-_noreturn_ void freeze(void);
+_noreturn_ ಶೂನ್ಯ freeze(ಶೂನ್ಯ);
 
-int get_process_threads(pid_t pid);
+ಪೂರ್ಣಾಙ್ಕ get_process_threads(pid_t pid);
 
-int is_reaper_process(void);
-int make_reaper_process(bool b);
+ಪೂರ್ಣಾಙ್ಕ is_reaper_process(ಶೂನ್ಯ);
+ಪೂರ್ಣಾಙ್ಕ make_reaper_process(bool b);
 
-int posix_spawn_wrapper(
-                const char *path,
-                char * const *argv,
-                char * const *envp,
-                const char *cgroup,
+ಪೂರ್ಣಾಙ್ಕ posix_spawn_wrapper(
+                ಧ್ರುವ ವರ್ಣ *path,
+                ವರ್ಣ * ಧ್ರುವ *argv,
+                ವರ್ಣ * ಧ್ರುವ *envp,
+                ಧ್ರುವ ವರ್ಣ *cgroup,
                 PidRef *ret_pidref);
 
-int proc_dir_open(DIR **ret);
-int proc_dir_read(DIR *d, pid_t *ret);
-int proc_dir_read_pidref(DIR *d, PidRef *ret);
+ಪೂರ್ಣಾಙ್ಕ proc_dir_open(DIR **ret);
+ಪೂರ್ಣಾಙ್ಕ proc_dir_read(DIR *d, pid_t *ret);
+ಪೂರ್ಣಾಙ್ಕ proc_dir_read_pidref(DIR *d, PidRef *ret);
 
-int safe_mlockall(int flags);
+ಪೂರ್ಣಾಙ್ಕ safe_mlockall(ಪೂರ್ಣಾಙ್ಕ flags);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error);
-int read_errno(int errno_fd);
+_noreturn_ ಶೂನ್ಯ report_errno_and_exit(ಪೂರ್ಣಾಙ್ಕ errno_fd, ಪೂರ್ಣಾಙ್ಕ error);
+ಪೂರ್ಣಾಙ್ಕ read_errno(ಪೂರ್ಣಾಙ್ಕ errno_fd);
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+ಪೂರ್ಣಾಙ್ಕ prctl_safe(ಪೂರ್ಣಾಙ್ಕ op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
 
-int proc_set_comm(const char *comm);
-int proc_set_nnp(void);
-nsec_t proc_get_timerslack(void);
+ಪೂರ್ಣಾಙ್ಕ proc_set_comm(ಧ್ರುವ ವರ್ಣ *comm);
+ಪೂರ್ಣಾಙ್ಕ proc_set_nnp(ಶೂನ್ಯ);
+nsec_t proc_get_timerslack(ಶೂನ್ಯ);

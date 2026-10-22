@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ಅನ್ತರ್ಭಾವ "forward.h"
 
-#define LONG_LINE_MAX (1U*1024U*1024U)
+#define LONG_ಸಾಲು_MAX (1U*1024U*1024U)
 
-typedef enum {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ {
         WRITE_STRING_FILE_CREATE                     = 1 << 0,
         WRITE_STRING_FILE_TRUNCATE                   = 1 << 1,
         WRITE_STRING_FILE_ATOMIC                     = 1 << 2,
@@ -23,7 +23,7 @@ typedef enum {
         WRITE_STRING_FILE_OPEN_NONBLOCKING           = 1 << 14,
 } WriteStringFileFlags;
 
-typedef enum {
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ {
         READ_FULL_FILE_SECURE              = 1 << 0, /* erase any buffers we employ internally, after use */
         READ_FULL_FILE_UNBASE64            = 1 << 1, /* base64 decode what we read */
         READ_FULL_FILE_UNHEX               = 1 << 2, /* hex decode what we read */
@@ -33,148 +33,148 @@ typedef enum {
         READ_FULL_FILE_VERIFY_REGULAR      = 1 << 6, /* before reading, verify this is a regular file */
 } ReadFullFileFlags;
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret);
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret);
-FILE* take_fdopen(int *fd, const char *options);
-DIR* take_fdopendir(int *dfd);
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc);
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode);
+ಪೂರ್ಣಾಙ್ಕ fdopen_unlocked(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *options, FILE **ret);
+ಪೂರ್ಣಾಙ್ಕ take_fdopen_unlocked(ಪೂರ್ಣಾಙ್ಕ *fd, ಧ್ರುವ ವರ್ಣ *options, FILE **ret);
+FILE* take_fdopen(ಪೂರ್ಣಾಙ್ಕ *fd, ಧ್ರುವ ವರ್ಣ *options);
+DIR* take_fdopendir(ಪೂರ್ಣಾಙ್ಕ *dfd);
+FILE* open_memstream_unlocked(ವರ್ಣ **ptr, size_t *sizeloc);
+FILE* fmemopen_unlocked(ಶೂನ್ಯ *buf, size_t size, ಧ್ರುವ ವರ್ಣ *mode);
 
-int write_string_stream_full(FILE *f, const char *line, WriteStringFileFlags flags, const struct timespec *ts);
-static inline int write_string_stream(FILE *f, const char *line, WriteStringFileFlags flags) {
-        return write_string_stream_full(f, line, flags, NULL);
-}
-
-int write_string_file_full_label(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn, LabelContext *label_context);
-static inline int write_string_file_full(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn) {
-        return write_string_file_full_label(dir_fd, fn, line, flags, ts, label_fn, /* label_context= */ NULL);
-}
-static inline int write_string_file_at(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_full(dir_fd, fn, line, flags, NULL, NULL);
-}
-static inline int write_string_file_fd(int dir_fd, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(dir_fd, NULL, line, flags);
-}
-static inline int write_string_file(const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(AT_FDCWD, fn, line, flags);
-}
-int write_string_filef(const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(3, 4);
-int write_string_filef_at(int dir_fd, const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(4, 5);
-
-int write_base64_file_at(int dir_fd, const char *fn, const struct iovec *data, WriteStringFileFlags flags);
-
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret);
-static inline int read_one_line_file(const char *filename, char **ret) {
-        return read_one_line_file_at(AT_FDCWD, filename, ret);
-}
-int read_boolean_file_at(int dir_fd, const char *filename);
-static inline int read_boolean_file(const char *filename) {
-        return read_boolean_file_at(AT_FDCWD, filename);
-}
-int read_full_file_full(int dir_fd, const char *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, const char *bind_name, char **ret_contents, size_t *ret_size);
-static inline int read_full_file_at(int dir_fd, const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_full_file_full(dir_fd, filename, UINT64_MAX, SIZE_MAX, 0, NULL, ret_contents, ret_size);
-}
-static inline int read_full_file(const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_full_file_full(AT_FDCWD, filename, UINT64_MAX, SIZE_MAX, 0, NULL, ret_contents, ret_size);
+ಪೂರ್ಣಾಙ್ಕ write_string_stream_full(FILE *f, ಧ್ರುವ ವರ್ಣ *ಸಾಲು, WriteStringFileFlags flags, ಧ್ರುವ ಸಂರಚನಾ timespec *ts);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ write_string_stream(FILE *f, ಧ್ರುವ ವರ್ಣ *ಸಾಲು, WriteStringFileFlags flags) {
+        ಪ್ರತ್ಯಾಗಮ write_string_stream_full(f, ಸಾಲು, flags, ರಿಕ್ತ);
 }
 
-int read_virtual_file_at(int dir_fd, const char *filename, size_t max_size, char **ret_contents, size_t *ret_size);
-static inline int read_virtual_file_fd(int fd, size_t max_size, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file_at(fd, NULL, max_size, ret_contents, ret_size);
+ಪೂರ್ಣಾಙ್ಕ write_string_file_full_label(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fn, ಧ್ರುವ ವರ್ಣ *ಸಾಲು, WriteStringFileFlags flags, ಧ್ರುವ ಸಂರಚನಾ timespec *ts, ಧ್ರುವ ವರ್ಣ *label_fn, LabelContext *label_context);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ write_string_file_full(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fn, ಧ್ರುವ ವರ್ಣ *ಸಾಲು, WriteStringFileFlags flags, ಧ್ರುವ ಸಂರಚನಾ timespec *ts, ಧ್ರುವ ವರ್ಣ *label_fn) {
+        ಪ್ರತ್ಯಾಗಮ write_string_file_full_label(dir_fd, fn, ಸಾಲು, flags, ts, label_fn, /* label_context= */ ರಿಕ್ತ);
 }
-static inline int read_virtual_file(const char *filename, size_t max_size, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file_at(AT_FDCWD, filename, max_size, ret_contents, ret_size);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ write_string_file_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fn, ಧ್ರುವ ವರ್ಣ *ಸಾಲು, WriteStringFileFlags flags) {
+        ಪ್ರತ್ಯಾಗಮ write_string_file_full(dir_fd, fn, ಸಾಲು, flags, ರಿಕ್ತ, ರಿಕ್ತ);
 }
-static inline int read_full_virtual_file(const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file(filename, SIZE_MAX, ret_contents, ret_size);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ write_string_file_fd(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *ಸಾಲು, WriteStringFileFlags flags) {
+        ಪ್ರತ್ಯಾಗಮ write_string_file_at(dir_fd, ರಿಕ್ತ, ಸಾಲು, flags);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ write_string_file(ಧ್ರುವ ವರ್ಣ *fn, ಧ್ರುವ ವರ್ಣ *ಸಾಲು, WriteStringFileFlags flags) {
+        ಪ್ರತ್ಯಾಗಮ write_string_file_at(AT_FDCWD, fn, ಸಾಲು, flags);
+}
+ಪೂರ್ಣಾಙ್ಕ write_string_filef(ಧ್ರುವ ವರ್ಣ *fn, WriteStringFileFlags flags, ಧ್ರುವ ವರ್ಣ *format, ...) _printf_(3, 4);
+ಪೂರ್ಣಾಙ್ಕ write_string_filef_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fn, WriteStringFileFlags flags, ಧ್ರುವ ವರ್ಣ *format, ...) _printf_(4, 5);
+
+ಪೂರ್ಣಾಙ್ಕ write_base64_file_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fn, ಧ್ರುವ ಸಂರಚನಾ iovec *data, WriteStringFileFlags flags);
+
+ಪೂರ್ಣಾಙ್ಕ read_one_ಸಾಲು_file_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *filename, ವರ್ಣ **ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_one_ಸಾಲು_file(ಧ್ರುವ ವರ್ಣ *filename, ವರ್ಣ **ret) {
+        ಪ್ರತ್ಯಾಗಮ read_one_ಸಾಲು_file_at(AT_FDCWD, filename, ret);
+}
+ಪೂರ್ಣಾಙ್ಕ read_boolean_file_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *filename);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_boolean_file(ಧ್ರುವ ವರ್ಣ *filename) {
+        ಪ್ರತ್ಯಾಗಮ read_boolean_file_at(AT_FDCWD, filename);
+}
+ಪೂರ್ಣಾಙ್ಕ read_full_file_full(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, ಧ್ರುವ ವರ್ಣ *bind_name, ವರ್ಣ **ret_contents, size_t *ret_size);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_full_file_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *filename, ವರ್ಣ **ret_contents, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ read_full_file_full(dir_fd, filename, UINT64_MAX, SIZE_MAX, 0, ರಿಕ್ತ, ret_contents, ret_size);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_full_file(ಧ್ರುವ ವರ್ಣ *filename, ವರ್ಣ **ret_contents, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ read_full_file_full(AT_FDCWD, filename, UINT64_MAX, SIZE_MAX, 0, ರಿಕ್ತ, ret_contents, ret_size);
 }
 
-int read_full_stream_full(FILE *f, const char *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, char **ret_contents, size_t *ret_size);
-static inline int read_full_stream(FILE *f, char **ret_contents, size_t *ret_size) {
-        return read_full_stream_full(f, NULL, UINT64_MAX, SIZE_MAX, 0, ret_contents, ret_size);
+ಪೂರ್ಣಾಙ್ಕ read_virtual_file_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *filename, size_t max_size, ವರ್ಣ **ret_contents, size_t *ret_size);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_virtual_file_fd(ಪೂರ್ಣಾಙ್ಕ fd, size_t max_size, ವರ್ಣ **ret_contents, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ read_virtual_file_at(fd, ರಿಕ್ತ, max_size, ret_contents, ret_size);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_virtual_file(ಧ್ರುವ ವರ್ಣ *filename, size_t max_size, ವರ್ಣ **ret_contents, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ read_virtual_file_at(AT_FDCWD, filename, max_size, ret_contents, ret_size);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_full_virtual_file(ಧ್ರುವ ವರ್ಣ *filename, ವರ್ಣ **ret_contents, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ read_virtual_file(filename, SIZE_MAX, ret_contents, ret_size);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl);
+ಪೂರ್ಣಾಙ್ಕ read_full_stream_full(FILE *f, ಧ್ರುವ ವರ್ಣ *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, ವರ್ಣ **ret_contents, size_t *ret_size);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_full_stream(FILE *f, ವರ್ಣ **ret_contents, size_t *ret_size) {
+        ಪ್ರತ್ಯಾಗಮ read_full_stream_full(f, ರಿಕ್ತ, UINT64_MAX, SIZE_MAX, 0, ret_contents, ret_size);
+}
 
-int script_get_shebang_interpreter(const char *path, char **ret);
+ಪೂರ್ಣಾಙ್ಕ verify_file_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *fn, ಧ್ರುವ ವರ್ಣ *blob, bool accept_extra_nl);
 
-int get_proc_field(const char *path, const char *key, char **ret);
+ಪೂರ್ಣಾಙ್ಕ script_get_shebang_interpreter(ಧ್ರುವ ವರ್ಣ *path, ವರ್ಣ **ret);
 
-DIR* xopendirat(int dir_fd, const char *path, int flags);
+ಪೂರ್ಣಾಙ್ಕ get_proc_field(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *ಕೀಲಿ, ವರ್ಣ **ret);
 
-typedef enum XfopenFlags {
+DIR* xopendirat(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *path, ಪೂರ್ಣಾಙ್ಕ flags);
+
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ XfopenFlags {
         XFOPEN_UNLOCKED = 1 << 0, /* call __fsetlocking(FSETLOCKING_BYCALLER) after opened */
         XFOPEN_SOCKET   = 1 << 1, /* also try to open unix socket */
 } XfopenFlags;
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+ಪೂರ್ಣಾಙ್ಕ xfopenat_full(
+                ಪೂರ್ಣಾಙ್ಕ dir_fd,
+                ಧ್ರುವ ವರ್ಣ *path,
+                ಧ್ರುವ ವರ್ಣ *mode,
+                ಪೂರ್ಣಾಙ್ಕ open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
+                ಧ್ರುವ ವರ್ಣ *bind_name,
                 FILE **ret);
-static inline int xfopenat(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
-        return xfopenat_full(dir_fd, path, mode, open_flags, 0, NULL, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ xfopenat(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *mode, ಪೂರ್ಣಾಙ್ಕ open_flags, FILE **ret) {
+        ಪ್ರತ್ಯಾಗಮ xfopenat_full(dir_fd, path, mode, open_flags, 0, ರಿಕ್ತ, ret);
 }
-static inline int fopen_unlocked_at(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
-        return xfopenat_full(dir_fd, path, mode, open_flags, XFOPEN_UNLOCKED, NULL, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ fopen_unlocked_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *mode, ಪೂರ್ಣಾಙ್ಕ open_flags, FILE **ret) {
+        ಪ್ರತ್ಯಾಗಮ xfopenat_full(dir_fd, path, mode, open_flags, XFOPEN_UNLOCKED, ರಿಕ್ತ, ret);
 }
-static inline int fopen_unlocked(const char *path, const char *mode, FILE **ret) {
-        return fopen_unlocked_at(AT_FDCWD, path, mode, 0, ret);
-}
-
-int fdopen_independent(int fd, const char *mode, FILE **ret);
-
-int search_and_open(const char *path, int mode, const char *root, char **search, int *ret_fd, char **ret_path);
-static inline int search_and_access(const char *path, int mode, const char *root, char**search, char **ret_path) {
-        return search_and_open(path, mode, root, search, NULL, ret_path);
-}
-int search_and_fopen(const char *path, const char *mode, const char *root, const char **search, FILE **ret_file, char **ret_path);
-int search_and_fopen_nulstr(const char *path, const char *mode, const char *root, const char *search, FILE **ret_file, char **ret_path);
-
-int fflush_and_check(FILE *f);
-int fflush_sync_and_check(FILE *f);
-
-int write_timestamp_file_atomic(const char *fn, usec_t n);
-int read_timestamp_file(const char *fn, usec_t *ret);
-
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space);
-int fputs_with_newline(FILE *f, const char *s);
-
-typedef enum ReadLineFlags {
-        READ_LINE_ONLY_NUL  = 1 << 0,
-        READ_LINE_IS_A_TTY  = 1 << 1,
-        READ_LINE_NOT_A_TTY = 1 << 2,
-} ReadLineFlags;
-
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret);
-static inline int read_line(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, 0, ret);
-}
-static inline int read_nul_string(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, READ_LINE_ONLY_NUL, ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ fopen_unlocked(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *mode, FILE **ret) {
+        ಪ್ರತ್ಯಾಗಮ fopen_unlocked_at(AT_FDCWD, path, mode, 0, ret);
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret);
+ಪೂರ್ಣಾಙ್ಕ fdopen_independent(ಪೂರ್ಣಾಙ್ಕ fd, ಧ್ರುವ ವರ್ಣ *mode, FILE **ret);
 
-static inline bool file_offset_beyond_memory_size(off_t x) {
-        if (x < 0) /* off_t is signed, filter that out */
-                return false;
-        return (uint64_t) x > (uint64_t) SIZE_MAX;
+ಪೂರ್ಣಾಙ್ಕ ಹುಡುಕು_and_open(ಧ್ರುವ ವರ್ಣ *path, ಪೂರ್ಣಾಙ್ಕ mode, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ವರ್ಣ **ಹುಡುಕು, ಪೂರ್ಣಾಙ್ಕ *ret_fd, ವರ್ಣ **ret_path);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ ಹುಡುಕು_and_access(ಧ್ರುವ ವರ್ಣ *path, ಪೂರ್ಣಾಙ್ಕ mode, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ವರ್ಣ**ಹುಡುಕು, ವರ್ಣ **ret_path) {
+        ಪ್ರತ್ಯಾಗಮ ಹುಡುಕು_and_open(path, mode, ಬೇರು, ಹುಡುಕು, ರಿಕ್ತ, ret_path);
+}
+ಪೂರ್ಣಾಙ್ಕ ಹುಡುಕು_and_fopen(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *mode, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ಧ್ರುವ ವರ್ಣ **ಹುಡುಕು, FILE **ret_file, ವರ್ಣ **ret_path);
+ಪೂರ್ಣಾಙ್ಕ ಹುಡುಕು_and_fopen_nulstr(ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ವರ್ಣ *mode, ಧ್ರುವ ವರ್ಣ *ಬೇರು, ಧ್ರುವ ವರ್ಣ *ಹುಡುಕು, FILE **ret_file, ವರ್ಣ **ret_path);
+
+ಪೂರ್ಣಾಙ್ಕ fflush_and_check(FILE *f);
+ಪೂರ್ಣಾಙ್ಕ fflush_sync_and_check(FILE *f);
+
+ಪೂರ್ಣಾಙ್ಕ write_timestamp_file_atomic(ಧ್ರುವ ವರ್ಣ *fn, usec_t n);
+ಪೂರ್ಣಾಙ್ಕ read_timestamp_file(ಧ್ರುವ ವರ್ಣ *fn, usec_t *ret);
+
+ಪೂರ್ಣಾಙ್ಕ fputs_with_separator(FILE *f, ಧ್ರುವ ವರ್ಣ *s, ಧ್ರುವ ವರ್ಣ *separator, bool *space);
+ಪೂರ್ಣಾಙ್ಕ fputs_with_newline(FILE *f, ಧ್ರುವ ವರ್ಣ *s);
+
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ Read_ಸಾಲು_Flags {
+        READ_ಸಾಲು_ONLY_NUL  = 1 << 0,
+        READ_ಸಾಲು_IS_A_TTY  = 1 << 1,
+        READ_ಸಾಲು_NOT_A_TTY = 1 << 2,
+} Read_ಸಾಲು_Flags;
+
+ಪೂರ್ಣಾಙ್ಕ read_ಸಾಲು_full(FILE *f, size_t limit, Read_ಸಾಲು_Flags flags, ವರ್ಣ **ret);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_ಸಾಲು(FILE *f, size_t limit, ವರ್ಣ **ret) {
+        ಪ್ರತ್ಯಾಗಮ read_ಸಾಲು_full(f, limit, 0, ret);
+}
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಪೂರ್ಣಾಙ್ಕ read_nul_string(FILE *f, size_t limit, ವರ್ಣ **ret) {
+        ಪ್ರತ್ಯಾಗಮ read_ಸಾಲು_full(f, limit, READ_ಸಾಲು_ONLY_NUL, ret);
 }
 
-int safe_fgetc(FILE *f, char *ret);
+ಪೂರ್ಣಾಙ್ಕ read_stripped_ಸಾಲು(FILE *f, size_t limit, ವರ್ಣ **ret);
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line);
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ bool file_offset_beyond_memory_size(off_t x) {
+        ಯದಿ (x < 0) /* off_t is signed, filter that out */
+                ಪ್ರತ್ಯಾಗಮ false;
+        ಪ್ರತ್ಯಾಗಮ (uint64_t) x > (uint64_t) SIZE_MAX;
+}
 
-int fopen_mode_to_flags(const char *mode);
+ಪೂರ್ಣಾಙ್ಕ safe_fgetc(FILE *f, ವರ್ಣ *ret);
 
-typedef enum WriteDataFileFlags {
+ಪೂರ್ಣಾಙ್ಕ warn_file_is_world_accessible(ಧ್ರುವ ವರ್ಣ *filename, ಸಂರಚನಾ stat *st, ಧ್ರುವ ವರ್ಣ *unit, unsigned ಸಾಲು);
+
+ಪೂರ್ಣಾಙ್ಕ fopen_mode_to_flags(ಧ್ರುವ ವರ್ಣ *mode);
+
+ಪ್ರಕಾರನಿರ್ದೇಶ ಗಣನಾ WriteDataFileFlags {
         WRITE_DATA_FILE_MKDIR_0755 = 1 << 0,
         WRITE_DATA_FILE_MODE_0400  = 1 << 1,
 } WriteDataFileFlags;
 
-int write_data_file_atomic_at(int dir_fd, const char *path, const struct iovec *iovec, WriteDataFileFlags flags);
+ಪೂರ್ಣಾಙ್ಕ write_data_file_atomic_at(ಪೂರ್ಣಾಙ್ಕ dir_fd, ಧ್ರುವ ವರ್ಣ *path, ಧ್ರುವ ಸಂರಚನಾ iovec *iovec, WriteDataFileFlags flags);

@@ -1,103 +1,103 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <net/ethernet.h>
-#include <net/if_arp.h>
-#include <stdio.h>
+#ಅನ್ತರ್ಭಾವ <net/ethernet.h>
+#ಅನ್ತರ್ಭಾವ <net/if_arp.h>
+#ಅನ್ತರ್ಭಾವ <stdio.h>
 
-#include "ether-addr-util.h"
-#include "hash-funcs.h"
-#include "hexdecoct.h"
-#include "in-addr-util.h"
-#include "memory-util.h"
-#include "siphash24.h"
-#include "string-util.h"
+#ಅನ್ತರ್ಭಾವ "ether-addr-util.h"
+#ಅನ್ತರ್ಭಾವ "hash-funcs.h"
+#ಅನ್ತರ್ಭಾವ "hexdecoct.h"
+#ಅನ್ತರ್ಭಾವ "in-addr-util.h"
+#ಅನ್ತರ್ಭಾವ "memory-util.h"
+#ಅನ್ತರ್ಭಾವ "siphash24.h"
+#ಅನ್ತರ್ಭಾವ "string-util.h"
 
-char* hw_addr_to_string_full(
-                const struct hw_addr_data *addr,
+ವರ್ಣ* hw_addr_to_string_full(
+                ಧ್ರುವ ಸಂರಚನಾ hw_addr_data *addr,
                 HardwareAddressToStringFlags flags,
-                char buffer[static HW_ADDR_TO_STRING_MAX]) {
+                ವರ್ಣ buffer[ಸ್ಥಿರ HW_ADDR_TO_STRING_MAX]) {
 
-        assert(addr);
-        assert(buffer);
-        assert(addr->length <= HW_ADDR_MAX_SIZE);
+        ಪ್ರತಿಜ್ಞಾ(addr);
+        ಪ್ರತಿಜ್ಞಾ(buffer);
+        ಪ್ರತಿಜ್ಞಾ(addr->length <= HW_ADDR_MAX_SIZE);
 
-        for (size_t i = 0, j = 0; i < addr->length; i++) {
+        ಪ್ರತಿ (size_t i = 0, j = 0; i < addr->length; i++) {
                 buffer[j++] = hexchar(addr->bytes[i] >> 4);
                 buffer[j++] = hexchar(addr->bytes[i] & 0x0f);
-                if (!FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON))
+                ಯದಿ (!FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON))
                         buffer[j++] = ':';
         }
 
         buffer[addr->length == 0 || FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON) ?
                addr->length * 2 :
                addr->length * 3 - 1] = '\0';
-        return buffer;
+        ಪ್ರತ್ಯಾಗಮ buffer;
 }
 
-struct hw_addr_data *hw_addr_set(struct hw_addr_data *addr, const uint8_t *bytes, size_t length) {
-        assert(addr);
-        assert(length <= HW_ADDR_MAX_SIZE);
+ಸಂರಚನಾ hw_addr_data *hw_addr_set(ಸಂರಚನಾ hw_addr_data *addr, ಧ್ರುವ uint8_t *bytes, size_t length) {
+        ಪ್ರತಿಜ್ಞಾ(addr);
+        ಪ್ರತಿಜ್ಞಾ(length <= HW_ADDR_MAX_SIZE);
 
         addr->length = length;
         memcpy_safe(addr->bytes, bytes, length);
-        return addr;
+        ಪ್ರತ್ಯಾಗಮ addr;
 }
 
-int hw_addr_compare(const struct hw_addr_data *a, const struct hw_addr_data *b) {
-        int r;
+ಪೂರ್ಣಾಙ್ಕ hw_addr_compare(ಧ್ರುವ ಸಂರಚನಾ hw_addr_data *a, ಧ್ರುವ ಸಂರಚನಾ hw_addr_data *b) {
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(a);
-        assert(b);
+        ಪ್ರತಿಜ್ಞಾ(a);
+        ಪ್ರತಿಜ್ಞಾ(b);
 
         r = CMP(a->length, b->length);
-        if (r != 0)
-                return r;
+        ಯದಿ (r != 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
-        return memcmp(a->bytes, b->bytes, a->length);
+        ಪ್ರತ್ಯಾಗಮ memcmp(a->bytes, b->bytes, a->length);
 }
 
-void hw_addr_hash_func(const struct hw_addr_data *p, struct siphash *state) {
-        assert(p);
-        assert(state);
+ಶೂನ್ಯ hw_addr_hash_func(ಧ್ರುವ ಸಂರಚನಾ hw_addr_data *p, ಸಂರಚನಾ siphash *state) {
+        ಪ್ರತಿಜ್ಞಾ(p);
+        ಪ್ರತಿಜ್ಞಾ(state);
 
         siphash24_compress_typesafe(p->length, state);
         siphash24_compress_safe(p->bytes, p->length, state);
 }
 
-bool hw_addr_is_null(const struct hw_addr_data *addr) {
-        assert(addr);
-        return addr->length == 0 || memeqzero(addr->bytes, addr->length);
+bool hw_addr_is_null(ಧ್ರುವ ಸಂರಚನಾ hw_addr_data *addr) {
+        ಪ್ರತಿಜ್ಞಾ(addr);
+        ಪ್ರತ್ಯಾಗಮ addr->length == 0 || memeqzero(addr->bytes, addr->length);
 }
 
-bool hw_addr_is_valid(const struct hw_addr_data *addr, uint16_t iftype) {
-        assert(addr);
+bool hw_addr_is_valid(ಧ್ರುವ ಸಂರಚನಾ hw_addr_data *addr, uint16_t iftype) {
+        ಪ್ರತಿಜ್ಞಾ(addr);
 
-        switch (iftype) {
-        case ARPHRD_ETHER:
+        ವಿಕಲ್ಪ (iftype) {
+        ಪಕ್ಷ ARPHRD_ETHER:
                 /* Refuse all zero and all 0xFF. */
-                if (addr->length != ETH_ALEN)
-                        return false;
+                ಯದಿ (addr->length != ETH_ALEN)
+                        ಪ್ರತ್ಯಾಗಮ false;
 
-                return !ether_addr_is_null(&addr->ether) && !ether_addr_is_broadcast(&addr->ether);
+                ಪ್ರತ್ಯಾಗಮ !ether_addr_is_null(&addr->ether) && !ether_addr_is_broadcast(&addr->ether);
 
-        case ARPHRD_INFINIBAND:
+        ಪಕ್ಷ ARPHRD_INFINIBAND:
                 /* The last 8 bytes cannot be zero. */
-                if (addr->length != INFINIBAND_ALEN)
-                        return false;
+                ಯದಿ (addr->length != INFINIBAND_ALEN)
+                        ಪ್ರತ್ಯಾಗಮ false;
 
-                return !memeqzero(addr->bytes + INFINIBAND_ALEN - 8, 8);
+                ಪ್ರತ್ಯಾಗಮ !memeqzero(addr->bytes + INFINIBAND_ALEN - 8, 8);
 
-        default:
-                return false;
+        ಸ್ವಭಾವ:
+                ಪ್ರತ್ಯಾಗಮ false;
         }
 }
 
-DEFINE_HASH_OPS(hw_addr_hash_ops, struct hw_addr_data, hw_addr_hash_func, hw_addr_compare);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(hw_addr_hash_ops_free, struct hw_addr_data, hw_addr_hash_func, hw_addr_compare, free);
+DEFINE_HASH_OPS(hw_addr_hash_ops, ಸಂರಚನಾ hw_addr_data, hw_addr_hash_func, hw_addr_compare);
+DEFINE_HASH_OPS_WITH_ಕೀಲಿ_DESTRUCTOR(hw_addr_hash_ops_free, ಸಂರಚನಾ hw_addr_data, hw_addr_hash_func, hw_addr_compare, ಮುಕ್ತ);
 
-char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR_TO_STRING_MAX]) {
-        assert(addr);
-        assert(buffer);
+ವರ್ಣ* ether_addr_to_string(ಧ್ರುವ ಸಂರಚನಾ ether_addr *addr, ವರ್ಣ buffer[ETHER_ADDR_TO_STRING_MAX]) {
+        ಪ್ರತಿಜ್ಞಾ(addr);
+        ಪ್ರತಿಜ್ಞಾ(buffer);
 
         /* Like ether_ntoa() but uses %02x instead of %x to print
          * ethernet addresses, which makes them look less funny. Also,
@@ -111,97 +111,97 @@ char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR
                 addr->ether_addr_octet[4],
                 addr->ether_addr_octet[5]);
 
-        return buffer;
+        ಪ್ರತ್ಯಾಗಮ buffer;
 }
 
-int ether_addr_compare(const struct ether_addr *a, const struct ether_addr *b) {
-        assert(a);
-        assert(b);
+ಪೂರ್ಣಾಙ್ಕ ether_addr_compare(ಧ್ರುವ ಸಂರಚನಾ ether_addr *a, ಧ್ರುವ ಸಂರಚನಾ ether_addr *b) {
+        ಪ್ರತಿಜ್ಞಾ(a);
+        ಪ್ರತಿಜ್ಞಾ(b);
 
-        return memcmp(a, b, ETH_ALEN);
+        ಪ್ರತ್ಯಾಗಮ memcmp(a, b, ETH_ALEN);
 }
 
-static void ether_addr_hash_func(const struct ether_addr *p, struct siphash *state) {
-        assert(p);
+ಸ್ಥಿರ ಶೂನ್ಯ ether_addr_hash_func(ಧ್ರುವ ಸಂರಚನಾ ether_addr *p, ಸಂರಚನಾ siphash *state) {
+        ಪ್ರತಿಜ್ಞಾ(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 
-bool ether_addr_is_broadcast(const struct ether_addr *addr) {
-        assert(addr);
-        return memeqbyte(0xff, addr->ether_addr_octet, ETH_ALEN);
+bool ether_addr_is_broadcast(ಧ್ರುವ ಸಂರಚನಾ ether_addr *addr) {
+        ಪ್ರತಿಜ್ಞಾ(addr);
+        ಪ್ರತ್ಯಾಗಮ memeqbyte(0xff, addr->ether_addr_octet, ETH_ALEN);
 }
 
-DEFINE_HASH_OPS(ether_addr_hash_ops, struct ether_addr, ether_addr_hash_func, ether_addr_compare);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(ether_addr_hash_ops_free, struct ether_addr, ether_addr_hash_func, ether_addr_compare, free);
+DEFINE_HASH_OPS(ether_addr_hash_ops, ಸಂರಚನಾ ether_addr, ether_addr_hash_func, ether_addr_compare);
+DEFINE_HASH_OPS_WITH_ಕೀಲಿ_DESTRUCTOR(ether_addr_hash_ops_free, ಸಂರಚನಾ ether_addr, ether_addr_hash_func, ether_addr_compare, ಮುಕ್ತ);
 
-static int parse_hw_addr_one_field(const char **s, char sep, size_t len, uint8_t *buf) {
-        const char *hex = HEXDIGITS, *p;
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ parse_hw_addr_one_field(ಧ್ರುವ ವರ್ಣ **s, ವರ್ಣ sep, size_t len, uint8_t *buf) {
+        ಧ್ರುವ ವರ್ಣ *hex = HEXDIGITS, *p;
         uint16_t data = 0;
         bool cont;
 
-        assert(s);
-        assert(*s);
-        assert(IN_SET(len, 1, 2));
-        assert(buf);
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಪ್ರತಿಜ್ಞಾ(*s);
+        ಪ್ರತಿಜ್ಞಾ(IN_SET(len, 1, 2));
+        ಪ್ರತಿಜ್ಞಾ(buf);
 
         p = *s;
 
-        for (size_t i = 0; i < len * 2; i++) {
-                const char *hexoff;
+        ಪ್ರತಿ (size_t i = 0; i < len * 2; i++) {
+                ಧ್ರುವ ವರ್ಣ *hexoff;
                 size_t x;
 
-                if (*p == '\0' || *p == sep) {
-                        if (i == 0)
-                                return -EINVAL;
-                        break;
+                ಯದಿ (*p == '\0' || *p == sep) {
+                        ಯದಿ (i == 0)
+                                ಪ್ರತ್ಯಾಗಮ -EINVAL;
+                        ಭಙ್ಗ;
                 }
 
                 hexoff = strchr(hex, *p);
-                if (!hexoff)
-                        return -EINVAL;
+                ಯದಿ (!hexoff)
+                        ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-                assert(hexoff >= hex);
+                ಪ್ರತಿಜ್ಞಾ(hexoff >= hex);
                 x = hexoff - hex;
-                if (x >= 16)
+                ಯದಿ (x >= 16)
                         x -= 6; /* A-F */
 
-                assert(x < 16);
+                ಪ್ರತಿಜ್ಞಾ(x < 16);
                 data <<= 4;
                 data += x;
 
                 p++;
         }
 
-        if (*p != '\0' && *p != sep)
-                return -EINVAL;
+        ಯದಿ (*p != '\0' && *p != sep)
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-        switch (len) {
-        case 1:
+        ವಿಕಲ್ಪ (len) {
+        ಪಕ್ಷ 1:
                 buf[0] = data;
-                break;
-        case 2:
+                ಭಙ್ಗ;
+        ಪಕ್ಷ 2:
                 buf[0] = (data & 0xff00) >> 8;
                 buf[1] = data & 0xff;
-                break;
-        default:
+                ಭಙ್ಗ;
+        ಸ್ವಭಾವ:
                 assert_not_reached();
         }
 
         cont = *p == sep;
         *s = p + cont;
-        return cont;
+        ಪ್ರತ್ಯಾಗಮ cont;
 }
 
-int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *ret) {
+ಪೂರ್ಣಾಙ್ಕ parse_hw_addr_full(ಧ್ರುವ ವರ್ಣ *s, size_t expected_len, ಸಂರಚನಾ hw_addr_data *ret) {
         size_t field_size, max_len, len = 0;
         uint8_t bytes[HW_ADDR_MAX_SIZE];
-        char sep;
-        int r;
+        ವರ್ಣ sep;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(s);
-        assert(expected_len <= HW_ADDR_MAX_SIZE || expected_len == SIZE_MAX);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಪ್ರತಿಜ್ಞಾ(expected_len <= HW_ADDR_MAX_SIZE || expected_len == SIZE_MAX);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         /* This accepts the following formats:
          *
@@ -221,20 +221,20 @@ int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *
          * Otherwise: accepts addresses with matching length.
          */
 
-        if (IN_SET(expected_len, 0, sizeof(struct in_addr), sizeof(struct in6_addr))) {
-                union in_addr_union a;
-                int family;
+        ಯದಿ (IN_SET(expected_len, 0, ಪರಿಮಾಣ(ಸಂರಚನಾ in_addr), ಪರಿಮಾಣ(ಸಂರಚನಾ in6_addr))) {
+                ಸಙ್ಘ in_addr_union a;
+                ಪೂರ್ಣಾಙ್ಕ family;
 
-                if (expected_len == 0)
+                ಯದಿ (expected_len == 0)
                         r = in_addr_from_string_auto(s, &family, &a);
-                else {
-                        family = expected_len == sizeof(struct in_addr) ? AF_INET : AF_INET6;
+                ಅನ್ಯಥಾ {
+                        family = expected_len == ಪರಿಮಾಣ(ಸಂರಚನಾ in_addr) ? AF_INET : AF_INET6;
                         r = in_addr_from_string(family, s, &a);
                 }
-                if (r >= 0) {
+                ಯದಿ (r >= 0) {
                         ret->length = FAMILY_ADDRESS_SIZE(family);
                         memcpy(ret->bytes, a.bytes, ret->length);
-                        return 0;
+                        ಪ್ರತ್ಯಾಗಮ 0;
                 }
         }
 
@@ -243,80 +243,80 @@ int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *
                 expected_len == SIZE_MAX ? HW_ADDR_MAX_SIZE : expected_len;
         sep = s[strspn(s, HEXDIGITS)];
 
-        if (sep == '.')
+        ಯದಿ (sep == '.')
                 field_size = 2;
-        else if (IN_SET(sep, ':', '-'))
+        ಅನ್ಯಥಾ ಯದಿ (IN_SET(sep, ':', '-'))
                 field_size = 1;
-        else
-                return -EINVAL;
+        ಅನ್ಯಥಾ
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-        if (max_len % field_size != 0)
-                return -EINVAL;
+        ಯದಿ (max_len % field_size != 0)
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-        for (size_t i = 0; i < max_len / field_size; i++) {
+        ಪ್ರತಿ (size_t i = 0; i < max_len / field_size; i++) {
                 r = parse_hw_addr_one_field(&s, sep, field_size, bytes + i * field_size);
-                if (r < 0)
-                        return r;
-                if (r == 0) {
+                ಯದಿ (r < 0)
+                        ಪ್ರತ್ಯಾಗಮ r;
+                ಯದಿ (r == 0) {
                         len = (i + 1) * field_size;
-                        break;
+                        ಭಙ್ಗ;
                 }
         }
 
-        if (len == 0)
-                return -EINVAL;
+        ಯದಿ (len == 0)
+                ಪ್ರತ್ಯಾಗಮ -EINVAL;
 
-        if (expected_len == 0) {
-                if (!IN_SET(len, 4, 16, ETH_ALEN, INFINIBAND_ALEN))
-                        return -EINVAL;
-        } else if (expected_len != SIZE_MAX) {
-                if (len != expected_len)
-                        return -EINVAL;
+        ಯದಿ (expected_len == 0) {
+                ಯದಿ (!IN_SET(len, 4, 16, ETH_ALEN, INFINIBAND_ALEN))
+                        ಪ್ರತ್ಯಾಗಮ -EINVAL;
+        } ಅನ್ಯಥಾ ಯದಿ (expected_len != SIZE_MAX) {
+                ಯದಿ (len != expected_len)
+                        ಪ್ರತ್ಯಾಗಮ -EINVAL;
         }
 
         ret->length = len;
         memcpy(ret->bytes, bytes, ret->length);
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int parse_ether_addr(const char *s, struct ether_addr *ret) {
-        struct hw_addr_data a;
-        int r;
+ಪೂರ್ಣಾಙ್ಕ parse_ether_addr(ಧ್ರುವ ವರ್ಣ *s, ಸಂರಚನಾ ether_addr *ret) {
+        ಸಂರಚನಾ hw_addr_data a;
+        ಪೂರ್ಣಾಙ್ಕ r;
 
-        assert(s);
-        assert(ret);
+        ಪ್ರತಿಜ್ಞಾ(s);
+        ಪ್ರತಿಜ್ಞಾ(ret);
 
         r = parse_hw_addr_full(s, ETH_ALEN, &a);
-        if (r < 0)
-                return r;
+        ಯದಿ (r < 0)
+                ಪ್ರತ್ಯಾಗಮ r;
 
         *ret = a.ether;
-        return 0;
+        ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-void ether_addr_mark_random(struct ether_addr *addr) {
-        assert(addr);
+ಶೂನ್ಯ ether_addr_mark_random(ಸಂರಚನಾ ether_addr *addr) {
+        ಪ್ರತಿಜ್ಞಾ(addr);
 
         /* see eth_random_addr in the kernel */
         addr->ether_addr_octet[0] &= 0xfe;        /* clear multicast bit */
         addr->ether_addr_octet[0] |= 0x02;        /* set local assignment bit (IEEE802) */
 }
 
-int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type) {
-        assert(bcast_addr);
+ಪೂರ್ಣಾಙ್ಕ hw_addr_ensure_broadcast(ಸಂರಚನಾ hw_addr_data *bcast_addr, uint16_t arp_type) {
+        ಪ್ರತಿಜ್ಞಾ(bcast_addr);
 
-        if (!hw_addr_is_null(bcast_addr))
-                return 0;
+        ಯದಿ (!hw_addr_is_null(bcast_addr))
+                ಪ್ರತ್ಯಾಗಮ 0;
 
-        switch (arp_type) {
-        case ARPHRD_ETHER:
-                *bcast_addr = (struct hw_addr_data) {
+        ವಿಕಲ್ಪ (arp_type) {
+        ಪಕ್ಷ ARPHRD_ETHER:
+                *bcast_addr = (ಸಂರಚನಾ hw_addr_data) {
                         .length = ETH_ALEN,
                         .ether = {{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }},
                 };
-                return 0;
-        case ARPHRD_INFINIBAND:
-                *bcast_addr = (struct hw_addr_data) {
+                ಪ್ರತ್ಯಾಗಮ 0;
+        ಪಕ್ಷ ARPHRD_INFINIBAND:
+                *bcast_addr = (ಸಂರಚನಾ hw_addr_data) {
                         .length = INFINIBAND_ALEN,
                         .infiniband = {
                                 0x00, 0xff, 0xff, 0xff, 0xff, 0x12, 0x40, 0x1b,
@@ -324,8 +324,8 @@ int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type)
                                 0xff, 0xff, 0xff, 0xff,
                         },
                 };
-                return 0;
-        default:
-                return -EAFNOSUPPORT;
+                ಪ್ರತ್ಯಾಗಮ 0;
+        ಸ್ವಭಾವ:
+                ಪ್ರತ್ಯಾಗಮ -EAFNOSUPPORT;
         }
 }
