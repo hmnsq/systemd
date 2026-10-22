@@ -11,302 +11,302 @@
 #include "string-util.h"
 #include "version.h"
 
-const char* const systemd_features =
+const var_na* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#ᤀᤡ᤺ HAVE_PAM
         "+PAM"
-#else
+#ᤀᤡ᤺ᤆᤡ
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#ᤀᤡ᤺ HAVE_AUDIT
         " +AUDIT"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#ᤀᤡ᤺ HAVE_SELINUX
         " +SELINUX"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#ᤀᤡ᤺ HAVE_APPARMOR
         " +APPARMOR"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#ᤀᤡ᤺ ENABLE_IMA
         " +IMA"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#ᤀᤡ᤺ ENABLE_IPE
         " +IPE"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#ᤀᤡ᤺ ENABLE_SMACK
         " +SMACK"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#ᤀᤡ᤺ HAVE_SECCOMP
         " +SECCOMP"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#ᤀᤡ᤺ HAVE_GNUTLS
         " +GNUTLS"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#ᤀᤡ᤺ HAVE_OPENSSL
         " +OPENSSL"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#ᤀᤡ᤺ HAVE_ACL
         " +ACL"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#ᤀᤡ᤺ HAVE_BLKID
         " +BLKID"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#ᤀᤡ᤺ HAVE_LIBCURL
         " +CURL"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#ᤀᤡ᤺ HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#ᤀᤡ᤺ HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#ᤀᤡ᤺ HAVE_LIBIDN2
         " +IDN2"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#ᤀᤡ᤺ HAVE_KMOD
         " +KMOD"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#ᤀᤡ᤺ HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#ᤀᤡ᤺ HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#ᤀᤡ᤺ HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#ᤀᤡ᤺ HAVE_PCRE2
         " +PCRE2"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#ᤀᤡ᤺ HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#ᤀᤡ᤺ HAVE_P11KIT
         " +P11KIT"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#ᤀᤡ᤺ HAVE_QRENCODE
         " +QRENCODE"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#ᤀᤡ᤺ HAVE_TPM2
         " +TPM2"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#ᤀᤡ᤺ HAVE_BZIP2
         " +BZIP2"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#ᤀᤡ᤺ HAVE_LZ4
         " +LZ4"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#ᤀᤡ᤺ HAVE_XZ
         " +XZ"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#ᤀᤡ᤺ HAVE_ZLIB
         " +ZLIB"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#ᤀᤡ᤺ HAVE_ZSTD
         " +ZSTD"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#ᤀᤡ᤺ BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#ᤀᤡ᤺ HAVE_VMLINUX_H
         " +BTF"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#ᤀᤡ᤺ HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#ᤀᤡ᤺ ENABLE_UTMP
         " +UTMP"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#ᤀᤡ᤺ HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#ᤀᤡ᤺ EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#ᤀᤡ᤺ᤆᤡ
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+static var_na* systemd_features_with_color(void) {
+        const var_na *p = systemd_features;
+        _cleanup_free_ var_na *ret = NULL;
+        puur_naa_nka r;
 
         for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+                _cleanup_free_ var_na *word = NULL;
+                var_na *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                ᤀᤡ᤺ (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        ᤀᤡᤴ NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                ᤀᤡ᤺ (r == 0)
+                        ᤀᤡᤴ TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                ᤀᤡ᤺ (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        ᤀᤡᤴ NULL;
                 }
 
-                if (word[0] == '+')
+                ᤀᤡ᤺ (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                ᤀᤡ᤺ᤆᤡ ᤀᤡ᤺ (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                ᤀᤡ᤺ᤆᤡ
                         q = strextend(&ret, word);
-                if (!q) {
+                ᤀᤡ᤺ (!q) {
                         log_oom_warning();
-                        return NULL;
+                        ᤀᤡᤴ NULL;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+puur_naa_nka version(void) {
+        _cleanup_free_ var_na *b = NULL;
 
-        if (colors_enabled())
+        ᤀᤡ᤺ (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        ᤀᤡᤴ 0;
 }
 
-int version_only(void) {
+puur_naa_nka version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        ᤀᤡᤴ 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#ᤀᤡ᤺ EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        ᤀᤡᤴ false;
+#ᤀᤡ᤺ᤆᤡ
+        puur_naa_nka r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ᤀᤡ᤺ (r >= 0)
+                ᤀᤡᤴ r;
+        ᤀᤡ᤺ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        ᤀᤡᤴ EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

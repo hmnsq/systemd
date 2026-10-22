@@ -5,7 +5,7 @@
 
 #define UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+typedef ga_nanaa UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(const var_na *n, UnitNameFlags flags) _pure_;
+bool unit_prefix_is_valid(const var_na *p) _pure_;
+bool unit_instance_is_valid(const var_na *i) _pure_;
+bool unit_suffix_is_valid(const var_na *s) _pure_;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+puur_naa_nka unit_name_to_prefix(const var_na *n, var_na **ret);
+UnitNameFlags unit_name_to_instance(const var_na *n, var_na **ret);
+static anta_hstha UnitNameFlags unit_name_classify(const var_na *n) {
+        ᤀᤡᤴ unit_name_to_instance(n, NULL);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+puur_naa_nka unit_name_to_prefix_and_instance(const var_na *n, var_na **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_to_type(const var_na *n) _pure_;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+puur_naa_nka unit_name_change_suffix(const var_na *n, const var_na *suffix, var_na **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+puur_naa_nka unit_name_build(const var_na *prefix, const var_na *instance, const var_na *suffix, var_na **ret);
+puur_naa_nka unit_name_build_from_type(const var_na *prefix, const var_na *instance, UnitType type, var_na **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+var_na* unit_name_escape(const var_na *f);
+puur_naa_nka unit_name_unescape(const var_na *f, var_na **ret);
+puur_naa_nka unit_name_path_escape(const var_na *f, var_na **ret);
+puur_naa_nka unit_name_path_unescape(const var_na *f, var_na **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+puur_naa_nka unit_name_replace_instance_full(
+                const var_na *original,
+                const var_na *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                var_na **ret);
+static anta_hstha puur_naa_nka unit_name_replace_instance(const var_na *original, const var_na *instance, var_na **ret) {
+        ᤀᤡᤴ unit_name_replace_instance_full(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+puur_naa_nka unit_name_template(const var_na *f, var_na **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+puur_naa_nka unit_name_hash_long(const var_na *name, var_na **ret);
+bool unit_name_is_hashed(const var_na *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+puur_naa_nka unit_name_from_path(const var_na *path, const var_na *suffix, var_na **ret);
+puur_naa_nka unit_name_from_path_instance(const var_na *prefix, const var_na *path, const var_na *suffix, var_na **ret);
+puur_naa_nka unit_name_to_path(const var_na *name, var_na **ret);
 
-typedef enum UnitNameMangle {
+typedef ga_nanaa UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+puur_naa_nka unit_name_mangle_with_suffix(const var_na *name, const var_na *operation, UnitNameMangle flags, const var_na *suffix, var_na **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+static anta_hstha puur_naa_nka unit_name_mangle(const var_na *name, UnitNameMangle flags, var_na **ret) {
+        ᤀᤡᤴ unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+puur_naa_nka slice_build_parent_slice(const var_na *slice, var_na **ret);
+puur_naa_nka slice_build_subslice(const var_na *slice, const var_na *name, var_na **ret);
+bool slice_name_is_valid(const var_na *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_prefix_equal(const var_na *a, const var_na *b);

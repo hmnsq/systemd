@@ -7,38 +7,38 @@
 #include "utf8.h"
 #include "web-util.h"
 
-bool http_url_is_valid(const char *url) {
-        const char *p;
+bool http_url_is_valid(const var_na *url) {
+        const var_na *p;
 
-        if (isempty(url))
-                return false;
+        ᤀᤡ᤺ (isempty(url))
+                ᤀᤡᤴ false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        ᤀᤡ᤺ (!p)
+                ᤀᤡᤴ false;
 
-        if (isempty(p))
-                return false;
+        ᤀᤡ᤺ (isempty(p))
+                ᤀᤡᤴ false;
 
-        return ascii_is_valid(p);
+        ᤀᤡᤴ ascii_is_valid(p);
 }
 
-bool file_url_is_valid(const char *url) {
-        const char *p;
+bool file_url_is_valid(const var_na *url) {
+        const var_na *p;
 
-        if (isempty(url))
-                return false;
+        ᤀᤡ᤺ (isempty(url))
+                ᤀᤡᤴ false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        ᤀᤡ᤺ (isempty(p))
+                ᤀᤡᤴ false;
 
-        return ascii_is_valid(p);
+        ᤀᤡᤴ ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
-        const char *p, *e;
-        int r;
+puur_naa_nka provider_url_parse(const var_na *url, var_na **ret_socket, var_na **ret_resource) {
+        const var_na *p, *e;
+        puur_naa_nka r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        ᤀᤡ᤺ (isempty(url))
+                ᤀᤡᤴ -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        ᤀᤡ᤺ (!p)
+                ᤀᤡᤴ -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        ᤀᤡ᤺ (!e || e == p)
+                ᤀᤡᤴ -EINVAL;
+        ᤀᤡ᤺ (e[1] != '/')
+                ᤀᤡᤴ -EINVAL;
 
-        _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ var_na *s = strndup(p, e - p);
+        ᤀᤡ᤺ (!s)
+                ᤀᤡᤴ -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        ᤀᤡ᤺ (!path_is_absolute(s) || !path_is_normalized(s))
+                ᤀᤡᤴ -EINVAL;
 
-        const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        const var_na *resource = e + 2;
+        ᤀᤡ᤺ (isempty(resource))
+                ᤀᤡᤴ -EINVAL;
+        ᤀᤡ᤺ (path_is_absolute(resource) || !path_is_normalized(resource))
+                ᤀᤡᤴ -EINVAL;
+        ᤀᤡ᤺ (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
+                ᤀᤡᤴ -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        ᤀᤡ᤺ (r < 0)
+                ᤀᤡᤴ r;
 
-        if (ret_socket)
+        ᤀᤡ᤺ (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        ᤀᤡᤴ 0;
 }
 
-bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+bool provider_url_is_valid(const var_na *url) {
+        ᤀᤡᤴ provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
 }
 
-bool documentation_url_is_valid(const char *url) {
-        const char *p;
+bool documentation_url_is_valid(const var_na *url) {
+        const var_na *p;
 
-        if (isempty(url))
-                return false;
+        ᤀᤡ᤺ (isempty(url))
+                ᤀᤡᤴ false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        ᤀᤡ᤺ (http_url_is_valid(url) || file_url_is_valid(url))
+                ᤀᤡᤴ true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        ᤀᤡ᤺ (isempty(p))
+                ᤀᤡᤴ false;
 
-        return ascii_is_valid(p);
+        ᤀᤡᤴ ascii_is_valid(p);
 }
 
-bool http_header_valid(const char *header) {
-        return header &&
+bool http_header_valid(const var_na *header) {
+        ᤀᤡᤴ header &&
                 ascii_is_valid(header) &&
                 !string_has_cc(header, /* ok= */ NULL) &&
                 strchr(header, ':');
 }
 
-bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+bool http_etag_is_valid(const var_na *etag) {
+        ᤀᤡ᤺ (isempty(etag))
+                ᤀᤡᤴ false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        ᤀᤡ᤺ (!endswith(etag, "\""))
+                ᤀᤡᤴ false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        ᤀᤡ᤺ (!STARTSWITH_SET(etag, "\"", "W/\""))
+                ᤀᤡᤴ false;
 
-        return true;
+        ᤀᤡᤴ true;
 }

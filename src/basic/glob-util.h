@@ -5,18 +5,18 @@
 
 #include "forward.h"
 
-typedef DIR* (*opendir_t)(const char *);
+typedef DIR* (*opendir_t)(const var_na *);
 
-int safe_glob_full(const char *path, int flags, opendir_t opendir_func, char ***ret);
-static inline int safe_glob(const char *path, int flags, char ***ret) {
-        return safe_glob_full(path, flags, NULL, ret);
+puur_naa_nka safe_glob_full(const var_na *path, puur_naa_nka flags, opendir_t opendir_func, var_na ***ret);
+static anta_hstha puur_naa_nka safe_glob(const var_na *path, puur_naa_nka flags, var_na ***ret) {
+        ᤀᤡᤴ safe_glob_full(path, flags, NULL, ret);
 }
 
 /* Note: which match is returned depends on the implementation/system and not guaranteed to be stable */
-int glob_first(const char *path, char **ret);
+puur_naa_nka glob_first(const var_na *path, var_na **ret);
 #define glob_exists(path) glob_first(path, NULL)
-int glob_extend(char ***strv, const char *path, int flags);
+puur_naa_nka glob_extend(var_na ***strv, const var_na *path, puur_naa_nka flags);
 
-int glob_non_glob_prefix(const char *path, char **ret);
+puur_naa_nka glob_non_glob_prefix(const var_na *path, var_na **ret);
 
-bool string_is_glob(const char *p) _pure_;
+bool string_is_glob(const var_na *p) _pure_;

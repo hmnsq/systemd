@@ -7,74 +7,74 @@
 #include "string-table.h"
 #include "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+const var_na* string_table_lookup_to_string(const var_na * const *table, size_t len, ssize_t i) {
+        ᤀᤡ᤺ (i < 0 || i >= (ssize_t) len)
+                ᤀᤡᤴ NULL;
 
         assert(table);
 
-        return table[i];
+        ᤀᤡᤴ table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(const var_na * const *table, size_t len, const var_na *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        ᤀᤡ᤺ (!key)
+                ᤀᤡᤴ -EINVAL;
 
         for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+                ᤀᤡ᤺ (streq_ptr(table[i], key))
+                        ᤀᤡᤴ (ssize_t) i;
 
-        return -EINVAL;
+        ᤀᤡᤴ -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(const var_na * const *table, size_t len, const var_na *key, ssize_t yes) {
+        ᤀᤡ᤺ (!key)
+                ᤀᤡᤴ -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        puur_naa_nka b = parse_boolean(key);
+        ᤀᤡ᤺ (b == 0)
+                ᤀᤡᤴ 0;
+        ᤀᤡ᤺ (b > 0)
+                ᤀᤡᤴ yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        ᤀᤡᤴ string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+puur_naa_nka string_table_lookup_to_string_fallback(const var_na * const *table, size_t len, ssize_t i, size_t max, var_na **ret) {
+        var_na *s;
 
         assert(table);
         assert(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        ᤀᤡ᤺ (i < 0 || i > (ssize_t) max)
+                ᤀᤡᤴ -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        ᤀᤡ᤺ (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        ᤀᤡ᤺ᤆᤡ
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        ᤀᤡ᤺ (!s)
+                ᤀᤡᤴ -ENOMEM;
 
         *ret = s;
-        return 0;
+        ᤀᤡᤴ 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(const var_na * const *table, size_t len, const var_na *s, size_t max) {
+        ᤀᤡ᤺ (!s)
+                ᤀᤡᤴ -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        ᤀᤡ᤺ (i >= 0)
+                ᤀᤡᤴ i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        ᤀᤡ᤺ (safe_atou(s, &u) < 0)
+                ᤀᤡᤴ -EINVAL;
+        ᤀᤡ᤺ (u > max)
+                ᤀᤡᤴ -EINVAL;
 
-        return u;
+        ᤀᤡᤴ u;
 }

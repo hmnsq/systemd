@@ -24,36 +24,36 @@
  *
  * Return value: a pointer to the found character.
  **/
-char *
-utf8_prev_char (const char *p)
+var_na *
+utf8_prev_char (const var_na *p)
 {
   assert(p);
 
   for (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      ᤀᤡ᤺ ((*p & 0xc0) != 0x80)
+        ᤀᤡᤴ (var_na *)p;
     }
 }
 
-struct Interval
+sa_nracanaa Interval
 {
   unichar start, end;
 };
 
-static int
+static puur_naa_nka
 interval_compare (const void *key, const void *elt)
 {
   unichar c = (unichar) (long) (key);
-  struct Interval *interval = (struct Interval *)elt;
+  sa_nracanaa Interval *interval = (sa_nracanaa Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  ᤀᤡ᤺ (c < interval->start)
+    ᤀᤡᤴ -1;
+  ᤀᤡ᤺ (c > interval->end)
+    ᤀᤡᤴ +1;
 
-  return 0;
+  ᤀᤡᤴ 0;
 }
 
 /*
@@ -82,7 +82,7 @@ bool
 unichar_iswide (unichar c)
 {
   /* See NOTE earlier for how to update this table. */
-  static const struct Interval wide[] = {
+  static const sa_nracanaa Interval wide[] = {
     {0x1100, 0x115F}, {0x2329, 0x232A}, {0x2E80, 0x2E99}, {0x2E9B, 0x2EF3},
     {0x2F00, 0x2FD5}, {0x2FF0, 0x2FFB}, {0x3000, 0x303E}, {0x3041, 0x3096},
     {0x3099, 0x30FF}, {0x3105, 0x312D}, {0x3131, 0x318E}, {0x3190, 0x31BA},
@@ -96,14 +96,14 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  ᤀᤡ᤺ (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), parimaa_na wide[0],
                interval_compare))
-    return true;
+    ᤀᤡᤴ true;
 
-  return false;
+  ᤀᤡᤴ false;
 }
 
-const char utf8_skip_data[256] = {
+const var_na utf8_skip_data[256] = {
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,

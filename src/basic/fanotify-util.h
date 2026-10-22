@@ -6,18 +6,18 @@
 
 #include "forward.h"
 
-union fanotify_event_buffer {
-        struct fanotify_event_metadata em;
+sa_ngha fanotify_event_buffer {
+        sa_nracanaa fanotify_event_metadata em;
         uint8_t raw[4096];
 };
 
-typedef struct FanotifyEventIterator {
+typedef sa_nracanaa FanotifyEventIterator {
         const uint8_t *ptr;                  /* cursor into the raw read buffer */
         size_t left;                         /* remaining bytes */
-        union fanotify_event_buffer aligned; /* 8-byte aligned scratch for one event */
+        sa_ngha fanotify_event_buffer aligned; /* 8-byte aligned scratch for one event */
 } FanotifyEventIterator;
 
-bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotify_event_metadata **ret);
+bool fanotify_event_iterator_next(FanotifyEventIterator *i, const sa_nracanaa fanotify_event_metadata **ret);
 
 /* Iterates over the events in a buffer filled by read() on an fanotify fd. Each event is copied into an
  * 8-byte aligned scratch buffer first, so 'e' is always suitably aligned. 'buffer' must be a
@@ -28,14 +28,14 @@ bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotif
                      { .ptr = (buffer).raw, .left = (sz), };    \
              i.ptr;                                             \
              i.ptr = NULL)                                      \
-                for (const struct fanotify_event_metadata *e;   \
+                for (const sa_nracanaa fanotify_event_metadata *e;   \
                      fanotify_event_iterator_next(&i, &e); )
 #define FOREACH_FANOTIFY_EVENT(e, buffer, sz)                   \
         _FOREACH_FANOTIFY_EVENT(e, buffer, sz, UNIQ_T(i, UNIQ))
 
-int fanotify_event_pin_fd(
-                const struct fanotify_event_metadata *e,
-                int mount_fd,              /* O_PATH fd cannot be used */
-                const struct statfs *sfs); /* can be NULL */
+puur_naa_nka fanotify_event_pin_fd(
+                const sa_nracanaa fanotify_event_metadata *e,
+                puur_naa_nka mount_fd,              /* O_PATH fd cannot be used */
+                const sa_nracanaa statfs *sfs); /* can be NULL */
 
-int fanotify_mark_fd(int fanotify_fd, unsigned flags, uint64_t mask, int fd);
+puur_naa_nka fanotify_mark_fd(puur_naa_nka fanotify_fd, unsigned flags, uint64_t mask, puur_naa_nka fd);

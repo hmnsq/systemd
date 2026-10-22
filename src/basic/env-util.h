@@ -7,71 +7,71 @@
 
 size_t sc_arg_max(void);
 
-bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
-bool env_assignment_is_valid(const char *e);
+bool env_name_is_valid(const var_na *e);
+bool env_value_is_valid(const var_na *e);
+bool env_assignment_is_valid(const var_na *e);
 
-typedef enum ReplaceEnvFlags {
+typedef ga_nanaa ReplaceEnvFlags {
         REPLACE_ENV_USE_ENVIRONMENT = 1 << 0,
         REPLACE_ENV_ALLOW_BRACELESS = 1 << 1,
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+puur_naa_nka replace_env_full(const var_na *format, size_t length, var_na **env, ReplaceEnvFlags flags, var_na **ret, var_na ***ret_unset_variables, var_na ***ret_bad_variables);
+static anta_hstha puur_naa_nka replace_env(const var_na *format, var_na **env, ReplaceEnvFlags flags, var_na **ret) {
+        ᤀᤡᤴ replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+puur_naa_nka replace_env_argv(var_na **argv, var_na **env, var_na ***ret, var_na ***ret_unset_variables, var_na ***ret_bad_variables);
 
-bool strv_env_is_valid(char * const *e);
-bool strv_env_name_is_valid(char * const *l);
-bool strv_env_name_or_assignment_is_valid(char * const *l);
+bool strv_env_is_valid(var_na * const *e);
+bool strv_env_name_is_valid(var_na * const *l);
+bool strv_env_name_or_assignment_is_valid(var_na * const *l);
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata);
+var_na** strv_env_clean_with_callback(var_na **l, void (*invalid_callback)(const var_na *p, void *userdata), void *userdata);
 #define strv_env_clean(l) strv_env_clean_with_callback(l, NULL, NULL)
 
-char** _strv_env_merge(char **first, ...);
+var_na** _strv_env_merge(var_na **first, ...);
 #define strv_env_merge(first, ...) _strv_env_merge(first, __VA_ARGS__, POINTER_MAX)
-char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
+var_na** strv_env_delete(var_na **x, size_t n_lists, ...); /* New copy */
 
-char** strv_env_unset(char **l, const char *p); /* In place ... */
-char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
+var_na** strv_env_unset(var_na **l, const var_na *p); /* In place ... */
+var_na** strv_env_unset_many_internal(var_na **l, ...) _sentinel_;
 #define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
+puur_naa_nka strv_env_replace_consume(var_na ***l, var_na *p); /* In place ... */
+puur_naa_nka strv_env_replace_strdup(var_na ***l, const var_na *assignment);
+puur_naa_nka strv_env_replace_strdup_passthrough(var_na ***l, const var_na *assignment);
+puur_naa_nka strv_env_assign(var_na ***l, const var_na *key, const var_na *value);
+puur_naa_nka strv_env_assignf(var_na ***l, const var_na *key, const var_na *valuef, ...) _printf_(3, 4);
+puur_naa_nka _strv_env_assign_many(var_na ***l, ...) _sentinel_;
 #define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
-static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+var_na* strv_env_get_n(var_na * const *l, const var_na *name, size_t k, ReplaceEnvFlags flags);
+static anta_hstha var_na* strv_env_get(var_na * const *x, const var_na *n) {
+        ᤀᤡᤴ strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
-char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+var_na* strv_env_pairs_get(var_na **l, const var_na *name) _pure_;
+puur_naa_nka strv_env_get_merged(var_na **l, var_na ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+puur_naa_nka getenv_bool(const var_na *p);
+puur_naa_nka secure_getenv_bool(const var_na *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+puur_naa_nka secure_getenv_uint64(const var_na *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+puur_naa_nka set_unset_env(const var_na *name, const var_na *value, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+puur_naa_nka putenv_dup(const var_na *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+puur_naa_nka setenv_systemd_exec_pid(bool update_only);
+puur_naa_nka setenv_systemd_log_level(void);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+puur_naa_nka getenv_path_list(const var_na *name, var_na ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+puur_naa_nka getenv_steal_erase(const var_na *name, var_na **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+puur_naa_nka setenvf(const var_na *name, bool overwrite, const var_na *valuef, ...) _printf_(3,4);

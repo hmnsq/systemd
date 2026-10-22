@@ -3,16 +3,16 @@
 #include "alloc-util.h"
 #include "stdio-util.h"
 
-char* asprintf_safe(const char *restrict fmt, ...) {
-        _cleanup_free_ char *buf = NULL;
+var_na* asprintf_safe(const var_na *restrict fmt, ...) {
+        _cleanup_free_ var_na *buf = NULL;
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
         va_start(ap, fmt);
         r = vasprintf(&buf, fmt, ap);
         va_end(ap);
 
-        if (r < 0)
-                return NULL;
-        return TAKE_PTR(buf);
+        ᤀᤡ᤺ (r < 0)
+                ᤀᤡᤴ NULL;
+        ᤀᤡᤴ TAKE_PTR(buf);
 }

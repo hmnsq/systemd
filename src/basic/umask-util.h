@@ -5,7 +5,7 @@
 
 #include "forward.h"
 
-static inline void umaskp(mode_t *u) {
+static anta_hstha void umaskp(mode_t *u) {
         umask(*u);
 }
 
