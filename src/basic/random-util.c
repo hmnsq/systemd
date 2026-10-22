@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <elf.h>
-#include <fcntl.h>
-#include <linux/random.h>
-#include <string.h>
-#include <sys/auxv.h>
-#include <sys/ioctl.h>
-#include <sys/random.h>
-#include <threads.h>
-#include <unistd.h>
+#অন্তর্ভাব <elf.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <linux/random.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <sys/auxv.h>
+#অন্তর্ভাব <sys/ioctl.h>
+#অন্তর্ভাব <sys/random.h>
+#অন্তর্ভাব <threads.h>
+#অন্তর্ভাব <unistd.h>
 
-#include "alloc-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "pidfd-util.h"
-#include "process-util.h"
-#include "random-util.h"
-#include "sha256.h"
-#include "time-util.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "fd-util.h"
+#অন্তর্ভাব "fileio.h"
+#অন্তর্ভাব "io-util.h"
+#অন্তর্ভাব "iovec-util.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "parse-util.h"
+#অন্তর্ভাব "pidfd-util.h"
+#অন্তর্ভাব "process-util.h"
+#অন্তর্ভাব "random-util.h"
+#অন্তর্ভাব "sha256.h"
+#অন্তর্ভাব "time-util.h"
 
 /* This is a "best effort" kind of thing, but has no real security value. So, this should only be used by
  * random_bytes(), which is not meant for crypto. This could be made better, but we're *not* trying to roll a
  * userspace prng here, or even have forward secrecy, but rather just do the shortest thing that is at least
  * better than libc rand(). */
-static void fallback_random_bytes(void *p, size_t n) {
-        static thread_local uint64_t fallback_counter = 0;
-        struct {
-                char label[32];
+স্থির শূন্য fallback_random_bytes(শূন্য *p, size_t n) {
+        স্থির thread_local uint64_t fallback_counter = 0;
+        সংরচনা {
+                বর্ণ label[32];
                 uint64_t call_id, block_id;
                 usec_t stamp_mono, stamp_real;
                 pid_t pid, tid;
@@ -45,20 +45,20 @@ static void fallback_random_bytes(void *p, size_t n) {
                 .tid = gettid(),
         };
 
-        memcpy(state.label, "systemd fallback random bytes v1", sizeof(state.label));
-        memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), sizeof(state.auxval));
-        (void) pidfd_get_inode_id_self_cached(&state.pidfdid);
+        memcpy(state.label, "systemd fallback random bytes v1", পরিমাণ(state.label));
+        memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), পরিমাণ(state.auxval));
+        (শূন্য) pidfd_get_inode_id_self_cached(&state.pidfdid);
 
-        while (n > 0) {
-                struct sha256_ctx ctx;
+        যাবত্ (n > 0) {
+                সংরচনা sha256_ctx ctx;
 
                 sha256_init_ctx(&ctx);
-                sha256_process_bytes(&state, sizeof(state), &ctx);
-                if (n < SHA256_DIGEST_SIZE) {
+                sha256_process_bytes(&state, পরিমাণ(state), &ctx);
+                যদি (n < SHA256_DIGEST_SIZE) {
                         uint8_t partial[SHA256_DIGEST_SIZE];
                         sha256_finish_ctx(&ctx, partial);
                         memcpy(p, partial, n);
-                        break;
+                        ভঙ্গ;
                 }
                 sha256_finish_ctx(&ctx, p);
                 p = (uint8_t *) p + SHA256_DIGEST_SIZE;
@@ -67,65 +67,65 @@ static void fallback_random_bytes(void *p, size_t n) {
         }
 }
 
-void random_bytes(void *p, size_t n) {
-        assert(p || n == 0);
+শূন্য random_bytes(শূন্য *p, size_t n) {
+        প্রতিজ্ঞা(p || n == 0);
 
-        if (n == 0)
-                return;
+        যদি (n == 0)
+                প্রত্যাগম;
 
-        for (;;) {
+        প্রতি (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, GRND_INSECURE);
-                if (l <= 0)
-                        break; /* Unexpected error. Give up and fallback to /dev/urandom. */
+                যদি (l <= 0)
+                        ভঙ্গ; /* Unexpected error. Give up and fallback to /dev/urandom. */
 
-                if ((size_t) l == n)
-                        return; /* Done reading, success. */
+                যদি ((size_t) l == n)
+                        প্রত্যাগম; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
                 /* Interrupted by a signal; keep going. */
         }
 
-        _cleanup_close_ int fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
-                return;
+        _cleanup_close_ পূর্ণাঙ্ক fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
+        যদি (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
+                প্রত্যাগম;
 
         /* This is a terrible fallback. Oh well. */
         fallback_random_bytes(p, n);
 }
 
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
-        assert(ret);
+পূর্ণাঙ্ক random_bytes_allocate_iovec(size_t n, সংরচনা iovec *ret) {
+        প্রতিজ্ঞা(ret);
 
-        void *p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        শূন্য *p = malloc(MAX(n, 1U));
+        যদি (!p)
+                প্রত্যাগম -ENOMEM;
 
         random_bytes(p, n);
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int crypto_random_bytes(void *p, size_t n) {
-        assert(p || n == 0);
+পূর্ণাঙ্ক crypto_random_bytes(শূন্য *p, size_t n) {
+        প্রতিজ্ঞা(p || n == 0);
 
-        if (n == 0)
-                return 0;
+        যদি (n == 0)
+                প্রত্যাগম 0;
 
-        for (;;) {
+        প্রতি (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, 0);
-                if (l < 0)
-                        return -errno;
-                if (l == 0)
-                        return -EIO; /* Weird, should never happen. */
+                যদি (l < 0)
+                        প্রত্যাগম -errno;
+                যদি (l == 0)
+                        প্রত্যাগম -EIO; /* Weird, should never happen. */
 
-                if ((size_t) l == n)
-                        return 0; /* Done reading, success. */
+                যদি ((size_t) l == n)
+                        প্রত্যাগম 0; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
@@ -133,89 +133,89 @@ int crypto_random_bytes(void *p, size_t n) {
         }
 }
 
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
-        _cleanup_free_ void *p = NULL;
-        int r;
+পূর্ণাঙ্ক crypto_random_bytes_allocate_iovec(size_t n, সংরচনা iovec *ret) {
+        _cleanup_free_ শূন্য *p = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        যদি (!p)
+                প্রত্যাগম -ENOMEM;
 
         r = crypto_random_bytes(p, n);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        প্রত্যাগম 0;
 }
 
-size_t random_pool_size(void) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+size_t random_pool_size(শূন্য) {
+        _cleanup_free_ বর্ণ *s = রিক্ত;
+        পূর্ণাঙ্ক r;
 
         /* Read pool size, if possible */
-        r = read_one_line_file("/proc/sys/kernel/random/poolsize", &s);
-        if (r < 0)
+        r = read_one_সারি_file("/proc/sys/kernel/random/poolsize", &s);
+        যদি (r < 0)
                 log_debug_errno(r, "Failed to read pool size from kernel: %m");
-        else {
+        অন্যথা {
                 unsigned sz;
 
                 r = safe_atou(s, &sz);
-                if (r < 0)
+                যদি (r < 0)
                         log_debug_errno(r, "Failed to parse pool size: %s", s);
-                else
+                অন্যথা
                         /* poolsize is in bits on 2.6, but we want bytes */
-                        return CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
+                        প্রত্যাগম CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
         }
 
         /* Use the minimum as default, if we can't retrieve the correct value */
-        return RANDOM_POOL_SIZE_MIN;
+        প্রত্যাগম RANDOM_POOL_SIZE_MIN;
 }
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int r;
+পূর্ণাঙ্ক random_write_entropy(পূর্ণাঙ্ক fd, ধ্রুব শূন্য *seed, size_t size, bool credit) {
+        _cleanup_close_ পূর্ণাঙ্ক opened_fd = -EBADF;
+        পূর্ণাঙ্ক r;
 
-        assert(seed || size == 0);
+        প্রতিজ্ঞা(seed || size == 0);
 
-        if (size == 0)
-                return 0;
+        যদি (size == 0)
+                প্রত্যাগম 0;
 
-        if (fd < 0) {
+        যদি (fd < 0) {
                 opened_fd = open("/dev/urandom", O_WRONLY|O_CLOEXEC|O_NOCTTY);
-                if (opened_fd < 0)
-                        return -errno;
+                যদি (opened_fd < 0)
+                        প্রত্যাগম -errno;
 
                 fd = opened_fd;
         }
 
-        if (credit) {
-                _cleanup_free_ struct rand_pool_info *info = NULL;
+        যদি (credit) {
+                _cleanup_free_ সংরচনা rand_pool_info *info = রিক্ত;
 
                 /* The kernel API only accepts "int" as entropy count (which is in bits), let's avoid any
                  * chance for confusion here. */
-                if (size > INT_MAX / 8)
-                        return -EOVERFLOW;
+                যদি (size > INT_MAX / 8)
+                        প্রত্যাগম -EOVERFLOW;
 
-                info = malloc(offsetof(struct rand_pool_info, buf) + size);
-                if (!info)
-                        return -ENOMEM;
+                info = malloc(offsetof(সংরচনা rand_pool_info, buf) + size);
+                যদি (!info)
+                        প্রত্যাগম -ENOMEM;
 
                 info->entropy_count = size * 8;
                 info->buf_size = size;
                 memcpy(info->buf, seed, size);
 
-                if (ioctl(fd, RNDADDENTROPY, info) < 0)
-                        return -errno;
-        } else {
+                যদি (ioctl(fd, RNDADDENTROPY, info) < 0)
+                        প্রত্যাগম -errno;
+        } অন্যথা {
                 r = loop_write(fd, seed, size);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        return 1;
+        প্রত্যাগম 1;
 }
 
 uint64_t random_u64_range(uint64_t m) {
@@ -223,16 +223,16 @@ uint64_t random_u64_range(uint64_t m) {
 
         /* Generates a random number in the range 0…m-1, unbiased. (Java's algorithm) */
 
-        if (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
-                return random_u64();
-        if (m == 1)
-                return 0;
+        যদি (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
+                প্রত্যাগম random_u64();
+        যদি (m == 1)
+                প্রত্যাগম 0;
 
         remainder = UINT64_MAX % m;
 
-        do {
+        কুরু {
                 x = random_u64();
-        } while (x >= UINT64_MAX - remainder);
+        } যাবত্ (x >= UINT64_MAX - remainder);
 
-        return x % m;
+        প্রত্যাগম x % m;
 }

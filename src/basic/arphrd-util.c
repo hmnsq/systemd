@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#অন্তর্ভাব <linux/if_arp.h>
+#অন্তর্ভাব <linux/if_infiniband.h>
+#অন্তর্ভাব <netinet/in.h>
+#অন্তর্ভাব <string.h>
 
-#include "arphrd-util.h"
+#অন্তর্ভাব "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+স্থির ধ্রুব সংরচনা arphrd_name* lookup_arphrd(পঞ্জিকা ধ্রুব বর্ণ *str, পঞ্জিকা GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#অন্তর্ভাব "arphrd-from-name.inc"
+#অন্তর্ভাব "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+পূর্ণাঙ্ক arphrd_from_name(ধ্রুব বর্ণ *name) {
+        ধ্রুব সংরচনা arphrd_name *sc;
 
-        assert(name);
+        প্রতিজ্ঞা(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        যদি (!sc)
+                প্রত্যাগম -EINVAL;
 
-        return sc->id;
+        প্রত্যাগম sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+        বিকল্প (arphrd) {
+        পক্ষ ARPHRD_ETHER:
+                প্রত্যাগম ETH_ALEN;
+        পক্ষ ARPHRD_INFINIBAND:
+                প্রত্যাগম INFINIBAND_ALEN;
+        পক্ষ ARPHRD_TUNNEL:
+        পক্ষ ARPHRD_SIT:
+        পক্ষ ARPHRD_IPGRE:
+                প্রত্যাগম পরিমাণ(সংরচনা in_addr);
+        পক্ষ ARPHRD_TUNNEL6:
+        পক্ষ ARPHRD_IP6GRE:
+                প্রত্যাগম পরিমাণ(সংরচনা in6_addr);
+        স্বভাব:
+                প্রত্যাগম 0;
         }
 }

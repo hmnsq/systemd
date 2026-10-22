@@ -1,227 +1,227 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
+#অন্তর্ভাব <string.h>
 
-#include "alloc-util.h"
-#include "forward.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "forward.h"
 
-#include "../fundamental/string-util.h" /* IWYU pragma: export */
+#অন্তর্ভাব "../fundamental/string-util.h" /* IWYU pragma: export */
 
-static inline char* strstr_ptr_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
-        return (char*) strstr(haystack, needle);
+স্থির অন্তঃস্থ বর্ণ* strstr_ptr_internal(ধ্রুব বর্ণ *haystack, ধ্রুব বর্ণ *needle) {
+        যদি (!haystack || !needle)
+                প্রত্যাগম রিক্ত;
+        প্রত্যাগম (বর্ণ*) strstr(haystack, needle);
 }
 
 #define strstr_ptr(haystack, needle) \
         const_generic(haystack, strstr_ptr_internal(haystack, needle))
 
-static inline char* strstrafter_internal(const char *haystack, const char *needle) {
+স্থির অন্তঃস্থ বর্ণ* strstrafter_internal(ধ্রুব বর্ণ *haystack, ধ্রুব বর্ণ *needle) {
         /* Returns NULL if not found, or pointer to first character after needle if found */
 
-        char *p = (char*) strstr_ptr(haystack, needle);
-        if (!p)
-                return NULL;
+        বর্ণ *p = (বর্ণ*) strstr_ptr(haystack, needle);
+        যদি (!p)
+                প্রত্যাগম রিক্ত;
 
-        return p + strlen(needle);
+        প্রত্যাগম p + strlen(needle);
 }
 
 #define strstrafter(haystack, needle) \
         const_generic(haystack, strstrafter_internal(haystack, needle))
 
-static inline const char* strnull(const char *s) {
-        return s ?: "(null)";
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* strnull(ধ্রুব বর্ণ *s) {
+        প্রত্যাগম s ?: "(null)";
 }
 
-static inline const char* strna(const char *s) {
-        return s ?: "n/a";
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* strna(ধ্রুব বর্ণ *s) {
+        প্রত্যাগম s ?: "n/a";
 }
 
-static inline const char* true_false(bool b) {
-        return b ? "true" : "false";
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* true_false(bool b) {
+        প্রত্যাগম b ? "true" : "false";
 }
 
-static inline const char* plus_minus(bool b) {
-        return b ? "+" : "-";
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* plus_minus(bool b) {
+        প্রত্যাগম b ? "+" : "-";
 }
 
-static inline const char* one_zero(bool b) {
-        return b ? "1" : "0";
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* one_zero(bool b) {
+        প্রত্যাগম b ? "1" : "0";
 }
 
-static inline const char* enable_disable(bool b) {
-        return b ? "enable" : "disable";
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* enable_disable(bool b) {
+        প্রত্যাগম b ? "enable" : "disable";
 }
 
-static inline const char* enabled_disabled(bool b) {
-        return b ? "enabled" : "disabled";
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* enabled_disabled(bool b) {
+        প্রত্যাগম b ? "enabled" : "disabled";
 }
 
 /* This macro's return pointer will have the "const" qualifier set or unset the same way as the input
  * pointer. */
 #define empty_to_null(p)                                \
         ({                                              \
-                const char *_p = (p);                   \
-                (typeof(p)) (isempty(_p) ? NULL : _p);  \
+                ধ্রুব বর্ণ *_p = (p);                   \
+                (typeof(p)) (isempty(_p) ? রিক্ত : _p);  \
         })
 
-static inline const char* empty_to_na(const char *p) {
-        return isempty(p) ? "n/a" : p;
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* empty_to_na(ধ্রুব বর্ণ *p) {
+        প্রত্যাগম isempty(p) ? "n/a" : p;
 }
 
-static inline const char* empty_to_dash(const char *str) {
-        return isempty(str) ? "-" : str;
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* empty_to_dash(ধ্রুব বর্ণ *str) {
+        প্রত্যাগম isempty(str) ? "-" : str;
 }
 
-static inline bool empty_or_dash(const char *str) {
-        return !str ||
+স্থির অন্তঃস্থ bool empty_or_dash(ধ্রুব বর্ণ *str) {
+        প্রত্যাগম !str ||
                 str[0] == 0 ||
                 (str[0] == '-' && str[1] == 0);
 }
 
-static inline const char* empty_or_dash_to_null(const char *p) {
-        return empty_or_dash(p) ? NULL : p;
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* empty_or_dash_to_null(ধ্রুব বর্ণ *p) {
+        প্রত্যাগম empty_or_dash(p) ? রিক্ত : p;
 }
 #define empty_or_dash_to_null(p)                                \
         ({                                                      \
-                const char *_p = (p);                           \
-                (typeof(p)) (empty_or_dash(_p) ? NULL : _p);    \
+                ধ্রুব বর্ণ *_p = (p);                           \
+                (typeof(p)) (empty_or_dash(_p) ? রিক্ত : _p);    \
         })
 
-char* first_word(const char *s, const char *word) _pure_;
+বর্ণ* first_word(ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *word) _pure_;
 
-char* strextendn(char **x, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+বর্ণ* strextendn(বর্ণ **x, ধ্রুব বর্ণ *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-#define strjoin(a, ...) strextend_with_separator_internal(NULL, NULL, a, __VA_ARGS__, NULL)
+#define strjoin(a, ...) strextend_with_separator_internal(রিক্ত, রিক্ত, a, __VA_ARGS__, রিক্ত)
 
 #define strjoina(a, ...)                                                \
         ({                                                              \
-                const char *_appendees_[] = { a, __VA_ARGS__ };         \
-                char *_d_, *_p_;                                        \
+                ধ্রুব বর্ণ *_appendees_[] = { a, __VA_ARGS__ };         \
+                বর্ণ *_d_, *_p_;                                        \
                 size_t _len_ = 0;                                       \
                 size_t _i_;                                             \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                প্রতি (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _len_ += strlen(_appendees_[_i_]);              \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                _p_ = _d_ = newa(বর্ণ, _len_ + 1);                      \
+                প্রতি (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _p_ = stpcpy(_p_, _appendees_[_i_]);            \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-char* strstrip(char *s);
-char* delete_chars(char *s, const char *bad);
-char* delete_trailing_chars(char *s, const char *bad);
-char* truncate_nl_full(char *s, size_t *ret_len);
-static inline char* truncate_nl(char *s) {
-        return truncate_nl_full(s, NULL);
+বর্ণ* strstrip(বর্ণ *s);
+বর্ণ* delete_chars(বর্ণ *s, ধ্রুব বর্ণ *bad);
+বর্ণ* delete_trailing_chars(বর্ণ *s, ধ্রুব বর্ণ *bad);
+বর্ণ* truncate_nl_full(বর্ণ *s, size_t *ret_len);
+স্থির অন্তঃস্থ বর্ণ* truncate_nl(বর্ণ *s) {
+        প্রত্যাগম truncate_nl_full(s, রিক্ত);
 }
 
-static inline char* skip_leading_chars(const char *s, const char *bad) {
-        if (!s)
-                return NULL;
+স্থির অন্তঃস্থ বর্ণ* skip_leading_chars(ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *bad) {
+        যদি (!s)
+                প্রত্যাগম রিক্ত;
 
-        if (!bad)
+        যদি (!bad)
                 bad = WHITESPACE;
 
-        return (char*) s + strspn(s, bad);
+        প্রত্যাগম (বর্ণ*) s + strspn(s, bad);
 }
 
-char ascii_tolower(char x) _const_;
-char* ascii_strlower(char *s);
-char* ascii_strlower_n(char *s, size_t n);
+বর্ণ ascii_tolower(বর্ণ x) _const_;
+বর্ণ* ascii_strlower(বর্ণ *s);
+বর্ণ* ascii_strlower_n(বর্ণ *s, size_t n);
 
-char ascii_toupper(char x) _const_;
-char* ascii_strupper(char *s);
+বর্ণ ascii_toupper(বর্ণ x) _const_;
+বর্ণ* ascii_strupper(বর্ণ *s);
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n);
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m);
+পূর্ণাঙ্ক ascii_strcasecmp_n(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b, size_t n);
+পূর্ণাঙ্ক ascii_strcasecmp_nn(ধ্রুব বর্ণ *a, size_t n, ধ্রুব বর্ণ *b, size_t m);
 
-bool chars_intersect(const char *a, const char *b) _pure_;
+bool chars_intersect(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b) _pure_;
 
-static inline bool _pure_ in_charset(const char *s, const char *charset) {
-        assert(s);
-        assert(charset);
-        return s[strspn(s, charset)] == '\0';
+স্থির অন্তঃস্থ bool _pure_ in_charset(ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *charset) {
+        প্রতিজ্ঞা(s);
+        প্রতিজ্ঞা(charset);
+        প্রত্যাগম s[strspn(s, charset)] == '\0';
 }
 
-static inline bool char_is_cc(char p) {
+স্থির অন্তঃস্থ bool char_is_cc(বর্ণ p) {
         /* char is unsigned on some architectures, e.g. aarch64. So, compiler may warn the condition
          * p >= 0 is always true. See #19543. Hence, let's cast to unsigned before the comparison. Note
          * that the cast in the right hand side is redundant, as according to the C standard, compilers
          * automatically cast a signed value to unsigned when comparing with an unsigned variable. Just
          * for safety and readability. */
-        return (uint8_t) p < (uint8_t) ' ' || p == 127;
+        প্রত্যাগম (uint8_t) p < (uint8_t) ' ' || p == 127;
 }
-bool string_has_cc(const char *p, const char *ok) _pure_;
+bool string_has_cc(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *ok) _pure_;
 
-char* ellipsize_mem(const char *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
-static inline char* ellipsize(const char *s, size_t length, unsigned percent) {
-        return ellipsize_mem(s, strlen(s), length, percent);
+বর্ণ* ellipsize_mem(ধ্রুব বর্ণ *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
+স্থির অন্তঃস্থ বর্ণ* ellipsize(ধ্রুব বর্ণ *s, size_t length, unsigned percent) {
+        প্রত্যাগম ellipsize_mem(s, strlen(s), length, percent);
 }
 
-char* cellescape(char *buf, size_t len, const char *s);
+বর্ণ* cellescape(বর্ণ *buf, size_t len, ধ্রুব বর্ণ *s);
 
 /* This limit is arbitrary, enough to give some idea what the string contains */
 #define CELLESCAPE_DEFAULT_LENGTH 64
 
-char* strshorten(char *s, size_t l);
+বর্ণ* strshorten(বর্ণ *s, size_t l);
 
-int strgrowpad0(char **s, size_t l);
+পূর্ণাঙ্ক strgrowpad0(বর্ণ **s, size_t l);
 
-char* strreplace(const char *text, const char *old_string, const char *new_string);
+বর্ণ* strreplace(ধ্রুব বর্ণ *text, ধ্রুব বর্ণ *old_string, ধ্রুব বর্ণ *new_string);
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]);
+বর্ণ* strip_tab_ansi(বর্ণ **ibuf, size_t *_isz, size_t highlight[2]);
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap);
-char* strextend_with_separator_internal(char **x, const char *separator, ...) _sentinel_;
-#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, NULL)
-#define strextend(x, ...) strextend_with_separator_internal(x, NULL, __VA_ARGS__, NULL)
+বর্ণ* strextendv_with_separator(বর্ণ **x, ধ্রুব বর্ণ *separator, va_list ap);
+বর্ণ* strextend_with_separator_internal(বর্ণ **x, ধ্রুব বর্ণ *separator, ...) _sentinel_;
+#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, রিক্ত)
+#define strextend(x, ...) strextend_with_separator_internal(x, রিক্ত, __VA_ARGS__, রিক্ত)
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) _printf_(3,4);
-#define strextendf(x, ...) strextendf_with_separator(x, NULL, __VA_ARGS__)
+পূর্ণাঙ্ক strextendf_with_separator(বর্ণ **x, ধ্রুব বর্ণ *separator, ধ্রুব বর্ণ *format, ...) _printf_(3,4);
+#define strextendf(x, ...) strextendf_with_separator(x, রিক্ত, __VA_ARGS__)
 
 #define strprepend_with_separator(x, separator, ...)                            \
         ({                                                                      \
-                char **_p_ = ASSERT_PTR(x), *_s_;                               \
-                _s_ = strextend_with_separator_internal(NULL, (separator), __VA_ARGS__, empty_to_null(*_p_), NULL); \
-                if (_s_) {                                                      \
-                        free(*_p_);                                             \
+                বর্ণ **_p_ = ASSERT_PTR(x), *_s_;                               \
+                _s_ = strextend_with_separator_internal(রিক্ত, (separator), __VA_ARGS__, empty_to_null(*_p_), রিক্ত); \
+                যদি (_s_) {                                                      \
+                        মুক্ত(*_p_);                                             \
                         *_p_ = _s_;                                             \
                 }                                                               \
                 _s_;                                                            \
         })
-#define strprepend(x, ...) strprepend_with_separator(x, NULL, __VA_ARGS__)
+#define strprepend(x, ...) strprepend_with_separator(x, রিক্ত, __VA_ARGS__)
 
-char* strrep(const char *s, size_t n);
+বর্ণ* strrep(ধ্রুব বর্ণ *s, size_t n);
 
 #define strrepa(s, n)                                                   \
         ({                                                              \
-                const char *_sss_ = (s);                                \
+                ধ্রুব বর্ণ *_sss_ = (s);                                \
                 size_t _nnn_ = (n), _len_ = strlen(_sss_);              \
                 assert_se(MUL_ASSIGN_SAFE(&_len_, _nnn_));              \
-                char *_d_, *_p_;                                        \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
+                বর্ণ *_d_, *_p_;                                        \
+                _p_ = _d_ = newa(বর্ণ, _len_ + 1);                      \
+                প্রতি (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
                         _p_ = stpcpy(_p_, _sss_);                       \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second);
+পূর্ণাঙ্ক split_pair(ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *sep, বর্ণ **ret_first, বর্ণ **ret_second);
 
-int free_and_strdup(char **p, const char *s);
-int free_and_strdup_warn(char **p, const char *s);
-int free_and_strndup(char **p, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+পূর্ণাঙ্ক free_and_strdup(বর্ণ **p, ধ্রুব বর্ণ *s);
+পূর্ণাঙ্ক free_and_strdup_warn(বর্ণ **p, ধ্রুব বর্ণ *s);
+পূর্ণাঙ্ক free_and_strndup(বর্ণ **p, ধ্রুব বর্ণ *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-int strdup_to_full(char **ret, const char *src);
-static inline int strdup_to(char **ret, const char *src) {
-        int r = strdup_to_full(ASSERT_PTR(ret), src);
-        return r < 0 ? r : 0;  /* Suppress return value of 1. */
+পূর্ণাঙ্ক strdup_to_full(বর্ণ **ret, ধ্রুব বর্ণ *src);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক strdup_to(বর্ণ **ret, ধ্রুব বর্ণ *src) {
+        পূর্ণাঙ্ক r = strdup_to_full(ASSERT_PTR(ret), src);
+        প্রত্যাগম r < 0 ? r : 0;  /* Suppress return value of 1. */
 }
 
-typedef enum StringSafeFlags {
+প্রকারনির্দেশ গণনা StringSafeFlags {
         STRING_ASCII               = 1 << 0, /* Verify string is 7-Bit ASCII (rather than just UTF-8) */
         STRING_ALLOW_EMPTY         = 1 << 1, /* Allow empty strings */
         STRING_ALLOW_NEWLINES      = 1 << 2, /* Allow newlines (\n) */
@@ -233,10 +233,10 @@ typedef enum StringSafeFlags {
         STRING_DISALLOW_WHITESPACE = 1 << 8, /* Refuse whitespace (space, tab, newline, …) */
 } StringSafeFlags;
 
-bool string_is_safe(const char *p, StringSafeFlags flags) _pure_;
+bool string_is_safe(ধ্রুব বর্ণ *p, StringSafeFlags flags) _pure_;
 
 DISABLE_WARNING_STRINGOP_TRUNCATION;
-static inline void strncpy_exact(char *buf, const char *src, size_t buf_len) {
+স্থির অন্তঃস্থ শূন্য strncpy_exact(বর্ণ *buf, ধ্রুব বর্ণ *src, size_t buf_len) {
         strncpy(buf, src, buf_len);
 }
 REENABLE_WARNING;
@@ -244,38 +244,38 @@ REENABLE_WARNING;
 /* Like startswith_no_case(), but operates on arbitrary memory blocks.
  * It works only for ASCII strings.
  */
-static inline void* memory_startswith_no_case(const void *p, size_t sz, const char *token) {
-        assert(token);
+স্থির অন্তঃস্থ শূন্য* memory_startswith_no_case(ধ্রুব শূন্য *p, size_t sz, ধ্রুব বর্ণ *token) {
+        প্রতিজ্ঞা(token);
 
         size_t n = strlen(token);
-        if (sz < n)
-                return NULL;
+        যদি (sz < n)
+                প্রত্যাগম রিক্ত;
 
-        assert(p);
+        প্রতিজ্ঞা(p);
 
-        for (size_t i = 0; i < n; i++)
-                if (ascii_tolower(((char *)p)[i]) != ascii_tolower(token[i]))
-                        return NULL;
+        প্রতি (size_t i = 0; i < n; i++)
+                যদি (ascii_tolower(((বর্ণ *)p)[i]) != ascii_tolower(token[i]))
+                        প্রত্যাগম রিক্ত;
 
-        return (uint8_t*) p + n;
+        প্রত্যাগম (uint8_t*) p + n;
 }
 
-char* str_realloc(char *p);
-char* string_erase(char *x);
+বর্ণ* str_realloc(বর্ণ *p);
+বর্ণ* string_erase(বর্ণ *x);
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret);
-int string_extract_line(const char *s, size_t i, char **ret);
+পূর্ণাঙ্ক string_truncate_সারিগুলি(ধ্রুব বর্ণ *s, size_t n_সারিগুলি, বর্ণ **ret);
+পূর্ণাঙ্ক string_extract_সারি(ধ্রুব বর্ণ *s, size_t i, বর্ণ **ret);
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
-static inline int string_contains_word(const char *string, const char *separators, const char *word) {
-        return string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
+পূর্ণাঙ্ক string_contains_word_strv(ধ্রুব বর্ণ *string, ধ্রুব বর্ণ *separators, বর্ণ * ধ্রুব *শব্দগুলি, ধ্রুব বর্ণ **ret_word);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক string_contains_word(ধ্রুব বর্ণ *string, ধ্রুব বর্ণ *separators, ধ্রুব বর্ণ *word) {
+        প্রত্যাগম string_contains_word_strv(string, separators, STRV_MAKE(word), রিক্ত);
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok);
+bool streq_skip_trailing_chars(ধ্রুব বর্ণ *s1, ধ্রুব বর্ণ *s2, ধ্রুব বর্ণ *ok);
 
-char* string_replace_char(char *str, char old_char, char new_char);
+বর্ণ* string_replace_char(বর্ণ *str, বর্ণ old_char, বর্ণ new_char);
 
-typedef enum MakeCStringMode {
+প্রকারনির্দেশ গণনা MakeCStringMode {
         MAKE_CSTRING_REFUSE_TRAILING_NUL,
         MAKE_CSTRING_ALLOW_TRAILING_NUL,
         MAKE_CSTRING_REQUIRE_TRAILING_NUL,
@@ -283,55 +283,55 @@ typedef enum MakeCStringMode {
         _MAKE_CSTRING_MODE_INVALID = -1,
 } MakeCStringMode;
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret);
+পূর্ণাঙ্ক make_cstring(ধ্রুব শূন্য *s, size_t n, MakeCStringMode mode, বর্ণ **ret);
 
-size_t strspn_from_end(const char *str, const char *accept) _pure_;
-size_t strnspn(const char *str, const char *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
+size_t strspn_from_end(ধ্রুব বর্ণ *str, ধ্রুব বর্ণ *accept) _pure_;
+size_t strnspn(ধ্রুব বর্ণ *str, ধ্রুব বর্ণ *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
 
-char* strdupspn(const char *a, const char *accept);
-char* strdupcspn(const char *a, const char *reject);
+বর্ণ* strdupspn(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *accept);
+বর্ণ* strdupcspn(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *reject);
 
 /* These are like strdupa()/strndupa(), but honour ALLOCA_MAX */
 #define strdupa_safe(s)                                                 \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strlen(_t));                \
+                ধ্রুব বর্ণ *_t = (s);                                   \
+                (বর্ণ*) memdupa_suffix0(_t, strlen(_t));                \
         })
 
 #define strndupa_safe(s, n)                                             \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strnlen(_t, n));            \
+                ধ্রুব বর্ণ *_t = (s);                                   \
+                (বর্ণ*) memdupa_suffix0(_t, strnlen(_t, n));            \
         })
 
-char* find_line_startswith_internal(const char *haystack, const char *needle);
-#define find_line_startswith(haystack, needle) \
-        const_generic(haystack, find_line_startswith_internal(haystack, needle))
+বর্ণ* find_সারি_startswith_internal(ধ্রুব বর্ণ *haystack, ধ্রুব বর্ণ *needle);
+#define find_সারি_startswith(haystack, needle) \
+        const_generic(haystack, find_সারি_startswith_internal(haystack, needle))
 
-char* find_line_internal(const char *haystack, const char *needle);
-#define find_line(haystack, needle) \
-        const_generic(haystack, find_line_internal(haystack, needle))
+বর্ণ* find_সারি_internal(ধ্রুব বর্ণ *haystack, ধ্রুব বর্ণ *needle);
+#define find_সারি(haystack, needle) \
+        const_generic(haystack, find_সারি_internal(haystack, needle))
 
-char* find_line_after_internal(const char *haystack, const char *needle);
-#define find_line_after(haystack, needle) \
-        const_generic(haystack, find_line_after_internal(haystack, needle))
+বর্ণ* find_সারি_after_internal(ধ্রুব বর্ণ *haystack, ধ্রুব বর্ণ *needle);
+#define find_সারি_after(haystack, needle) \
+        const_generic(haystack, find_সারি_after_internal(haystack, needle))
 
-typedef enum VersionFlags {
+প্রকারনির্দেশ গণনা VersionFlags {
         VERSION_ALLOW_EMPTY      = 1 << 0,
         VERSION_ALLOW_UNDERSCORE = 1 << 1, /* Allow "_" as separator (recommended separator) */
         VERSION_ALLOW_PLUS       = 1 << 2, /* Allow "+" as separator (sometimes used as separator for boot attempt counters) */
 } VersionFlags;
 
-bool version_is_valid(const char *s, VersionFlags flags) _pure_;
+bool version_is_valid(ধ্রুব বর্ণ *s, VersionFlags flags) _pure_;
 
-ssize_t strlevenshtein(const char *x, const char *y);
+ssize_t strlevenshtein(ধ্রুব বর্ণ *x, ধ্রুব বর্ণ *y);
 
-char* strrstr_internal(const char *haystack, const char *needle) _pure_;
+বর্ণ* strrstr_internal(ধ্রুব বর্ণ *haystack, ধ্রুব বর্ণ *needle) _pure_;
 #define strrstr(haystack, needle) \
         const_generic(haystack, strrstr_internal(haystack, needle))
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) _pure_;
+বর্ণ* strrstr_no_case_internal(ধ্রুব বর্ণ *haystack, ধ্রুব বর্ণ *needle) _pure_;
 #define strrstr_no_case(haystack, needle) \
         const_generic(haystack, strrstr_no_case_internal(haystack, needle))
 
-size_t str_common_prefix(const char *a, const char *b) _pure_;
+size_t str_common_prefix(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b) _pure_;

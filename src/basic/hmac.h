@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "sha256.h"
+#অন্তর্ভাব "forward.h"
+#অন্তর্ভাব "sha256.h"
 
 /* Unoptimized implementation based on FIPS 198. 'res' has to be allocated by
  * the caller. Prefer external OpenSSL functions, and use this only when
  * linking to OpenSSL is not desirable (eg: libsystemd.so). */
-void hmac_sha256(const void *key, size_t key_size, const void *input, size_t input_size, uint8_t res[static SHA256_DIGEST_SIZE]);
+শূন্য hmac_sha256(ধ্রুব শূন্য *চাবি, size_t চাবি_size, ধ্রুব শূন্য *প্রবেশ, size_t প্রবেশ_size, uint8_t res[স্থির SHA256_DIGEST_SIZE]);

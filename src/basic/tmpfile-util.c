@@ -1,138 +1,138 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "random-util.h"
-#include "string-util.h"
-#include "sync-util.h"
-#include "tmpfile-util.h"
-#include "umask-util.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "errno-util.h"
+#অন্তর্ভাব "fd-util.h"
+#অন্তর্ভাব "fileio.h"
+#অন্তর্ভাব "fs-util.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "path-util.h"
+#অন্তর্ভাব "random-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "sync-util.h"
+#অন্তর্ভাব "tmpfile-util.h"
+#অন্তর্ভাব "umask-util.h"
 
-static int fopen_temporary_internal(int dir_fd, const char *path, FILE **ret_file) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+স্থির পূর্ণাঙ্ক fopen_temporary_internal(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, FILE **ret_file) {
+        _cleanup_fclose_ FILE *f = রিক্ত;
+        _cleanup_close_ পূর্ণাঙ্ক fd = -EBADF;
+        পূর্ণাঙ্ক r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        প্রতিজ্ঞা(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        প্রতিজ্ঞা(path);
 
         fd = openat(dir_fd, path, O_CLOEXEC|O_NOCTTY|O_RDWR|O_CREAT|O_EXCL, 0600);
-        if (fd < 0)
-                return -errno;
+        যদি (fd < 0)
+                প্রত্যাগম -errno;
 
         /* This assumes that returned FILE object is short-lived and used within the same single-threaded
          * context and never shared externally, hence locking is not necessary. */
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0) {
-                (void) unlinkat(dir_fd, path, 0);
-                return r;
+        যদি (r < 0) {
+                (শূন্য) unlinkat(dir_fd, path, 0);
+                প্রত্যাগম r;
         }
 
-        if (ret_file)
+        যদি (ret_file)
                 *ret_file = TAKE_PTR(f);
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+পূর্ণাঙ্ক fopen_temporary_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, FILE **ret_file, বর্ণ **ret_path) {
+        _cleanup_free_ বর্ণ *t = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        প্রতিজ্ঞা(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        প্রতিজ্ঞা(path);
 
-        r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random(path, রিক্ত, &t);
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        if (ret_path)
+        যদি (ret_path)
                 *ret_path = TAKE_PTR(t);
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+পূর্ণাঙ্ক fopen_temporary_child_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, FILE **ret_file, বর্ণ **ret_path) {
+        _cleanup_free_ বর্ণ *t = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        প্রতিজ্ঞা(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        if (!path) {
+        যদি (!path) {
                 r = tmp_dir(&path);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        r = tempfn_random_child(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random_child(path, রিক্ত, &t);
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        if (ret_path)
+        যদি (ret_path)
                 *ret_path = TAKE_PTR(t);
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
 /* This is much like mkostemp() but is subject to umask(). */
-int mkostemp_safe(char *pattern) {
-        assert(pattern);
+পূর্ণাঙ্ক mkostemp_safe(বর্ণ *pattern) {
+        প্রতিজ্ঞা(pattern);
         BLOCK_WITH_UMASK(0077);
-        return RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
+        প্রত্যাগম RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
 }
 
-int fmkostemp_safe(char *pattern, const char *mode, FILE **ret_f) {
-        _cleanup_close_ int fd = -EBADF;
+পূর্ণাঙ্ক fmkostemp_safe(বর্ণ *pattern, ধ্রুব বর্ণ *mode, FILE **ret_f) {
+        _cleanup_close_ পূর্ণাঙ্ক fd = -EBADF;
         FILE *f;
 
-        assert(ret_f);
+        প্রতিজ্ঞা(ret_f);
 
         fd = mkostemp_safe(pattern);
-        if (fd < 0)
-                return fd;
+        যদি (fd < 0)
+                প্রত্যাগম fd;
 
         f = take_fdopen(&fd, mode);
-        if (!f)
-                return -errno;
+        যদি (!f)
+                প্রত্যাগম -errno;
 
         *ret_f = f;
-        return 0;
+        প্রত্যাগম 0;
 }
 
-void unlink_tempfilep(char (*p)[]) {
-        assert(p);
+শূন্য unlink_tempfilep(বর্ণ (*p)[]) {
+        প্রতিজ্ঞা(p);
 
         /* If the file is created with mkstemp(), it will (almost always) change the suffix.
          * Treat this as a sign that the file was successfully created. We ignore both the rare case
          * where the original suffix is used and unlink failures. */
 
-        if (!endswith(*p, ".XXXXXX"))
-                (void) unlink(*p);
+        যদি (!endswith(*p, ".XXXXXX"))
+                (শূন্য) unlink(*p);
 }
 
-static int tempfn_build(const char *p, const char *pre, const char *post, bool child, char **ret) {
-        _cleanup_free_ char *d = NULL, *fn = NULL, *nf = NULL, *result = NULL;
+স্থির পূর্ণাঙ্ক tempfn_build(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *pre, ধ্রুব বর্ণ *post, bool child, বর্ণ **ret) {
+        _cleanup_free_ বর্ণ *d = রিক্ত, *fn = রিক্ত, *nf = রিক্ত, *result = রিক্ত;
         size_t len_pre, len_post, len_add;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(p);
-        assert(ret);
+        প্রতিজ্ঞা(p);
+        প্রতিজ্ঞা(ret);
 
         /*
          * Turns this:
@@ -143,54 +143,54 @@ static int tempfn_build(const char *p, const char *pre, const char *post, bool c
          *         /foo/bar/.#<pre>waldo<post> (child == false)
          */
 
-        if (pre && strchr(pre, '/'))
-                return -EINVAL;
+        যদি (pre && strchr(pre, '/'))
+                প্রত্যাগম -EINVAL;
 
-        if (post && strchr(post, '/'))
-                return -EINVAL;
+        যদি (post && strchr(post, '/'))
+                প্রত্যাগম -EINVAL;
 
         len_pre = strlen_ptr(pre);
         len_post = strlen_ptr(post);
         /* NAME_MAX is counted *without* the trailing NUL byte. */
-        if (len_pre > NAME_MAX - STRLEN(".#") ||
+        যদি (len_pre > NAME_MAX - STRLEN(".#") ||
             len_post > NAME_MAX - STRLEN(".#") - len_pre)
-                return -EINVAL;
+                প্রত্যাগম -EINVAL;
 
         len_add = len_pre + len_post + STRLEN(".#");
 
-        if (child) {
+        যদি (child) {
                 d = strdup(p);
-                if (!d)
-                        return -ENOMEM;
-        } else {
+                যদি (!d)
+                        প্রত্যাগম -ENOMEM;
+        } অন্যথা {
                 r = path_split_prefix_filename(p, &d, &fn);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
                 /* Truncate the filename if it would become too long after mangling. */
                 strshorten(fn, NAME_MAX - len_add);
         }
 
         nf = strjoin(".#", strempty(pre), strempty(fn), strempty(post));
-        if (!nf)
-                return -ENOMEM;
+        যদি (!nf)
+                প্রত্যাগম -ENOMEM;
 
-        if (d) {
-                if (!path_extend(&d, nf))
-                        return -ENOMEM;
+        যদি (d) {
+                যদি (!path_extend(&d, nf))
+                        প্রত্যাগম -ENOMEM;
 
                 result = path_simplify(TAKE_PTR(d));
-        } else
+        } অন্যথা
                 result = TAKE_PTR(nf);
 
-        if (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
-                return -EINVAL;
+        যদি (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
+                প্রত্যাগম -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
+পূর্ণাঙ্ক tempfn_xxxxxx(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *extra, বর্ণ **ret) {
         /*
          * Turns this:
          *         /foo/bar/waldo
@@ -199,14 +199,14 @@ int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldoXXXXXX
          */
 
-        return tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
+        প্রত্যাগম tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
 }
 
-int tempfn_random(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
+পূর্ণাঙ্ক tempfn_random(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *extra, বর্ণ **ret) {
+        _cleanup_free_ বর্ণ *s = রিক্ত;
 
-        assert(p);
-        assert(ret);
+        প্রতিজ্ঞা(p);
+        প্রতিজ্ঞা(ret);
 
         /*
          * Turns this:
@@ -216,17 +216,17 @@ int tempfn_random(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldobaa2a261115984a9
          */
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        যদি (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                প্রত্যাগম -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ false, ret);
+        প্রত্যাগম tempfn_build(p, extra, s, /* child= */ false, ret);
 }
 
-int tempfn_random_child(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+পূর্ণাঙ্ক tempfn_random_child(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *extra, বর্ণ **ret) {
+        _cleanup_free_ বর্ণ *s = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         /* Turns this:
          *         /foo/bar/waldo
@@ -234,220 +234,220 @@ int tempfn_random_child(const char *p, const char *extra, char **ret) {
          *         /foo/bar/waldo/.#<extra>3c2b6219aa75d7d0
          */
 
-        if (!p) {
+        যদি (!p) {
                 r = tmp_dir(&p);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        যদি (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                প্রত্যাগম -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ true, ret);
+        প্রত্যাগম tempfn_build(p, extra, s, /* child= */ true, ret);
 }
 
-int open_tmpfile_unlinkable(const char *directory, int flags) {
-        int r;
+পূর্ণাঙ্ক open_tmpfile_unlinkable(ধ্রুব বর্ণ *directory, পূর্ণাঙ্ক flags) {
+        পূর্ণাঙ্ক r;
 
-        if (!directory) {
+        যদি (!directory) {
                 r = tmp_dir(&directory);
-                if (r < 0)
-                        return r;
-        } else if (isempty(directory))
-                return -EINVAL;
+                যদি (r < 0)
+                        প্রত্যাগম r;
+        } অন্যথা যদি (isempty(directory))
+                প্রত্যাগম -EINVAL;
 
         /* Returns an unlinked temporary file that cannot be linked into the file system anymore */
 
         /* Try O_TMPFILE first, if it is supported */
-        int fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
-        if (fd >= 0)
-                return fd;
+        পূর্ণাঙ্ক fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
+        যদি (fd >= 0)
+                প্রত্যাগম fd;
 
         /* Fall back to unguessable name + unlinking */
-        _cleanup_free_ char *p = path_join(directory, "/systemd-tmp-XXXXXX");
-        if (!p)
-                return -ENOMEM;
+        _cleanup_free_ বর্ণ *p = path_join(directory, "/systemd-tmp-XXXXXX");
+        যদি (!p)
+                প্রত্যাগম -ENOMEM;
 
         fd = mkostemp_safe(p);
-        if (fd < 0)
-                return fd;
+        যদি (fd < 0)
+                প্রত্যাগম fd;
 
-        (void) unlink(p);
+        (শূন্য) unlink(p);
 
-        return fd;
+        প্রত্যাগম fd;
 }
 
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path) {
-        int r;
+পূর্ণাঙ্ক open_tmpfile_linkable_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *target, পূর্ণাঙ্ক flags, বর্ণ **ret_path) {
+        পূর্ণাঙ্ক r;
 
-        assert(target);
-        assert(ret_path);
+        প্রতিজ্ঞা(target);
+        প্রতিজ্ঞা(ret_path);
 
         /* Don't allow O_EXCL, as that has a special meaning for O_TMPFILE */
-        assert((flags & O_EXCL) == 0);
+        প্রতিজ্ঞা((flags & O_EXCL) == 0);
 
         /* Creates a temporary file, that shall be renamed to "target" later. If possible, this uses O_TMPFILE – in
          * which case "ret_path" will be returned as NULL. If not possible the temporary path name used is returned in
          * "ret_path". Use link_tmpfile() below to rename the result after writing the file in full. */
 
-        int fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
-        if (fd >= 0) {
-                *ret_path = NULL;
-                return fd;
+        পূর্ণাঙ্ক fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
+        যদি (fd >= 0) {
+                *ret_path = রিক্ত;
+                প্রত্যাগম fd;
         }
 
-        if (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
+        যদি (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
                 log_debug_errno(fd, "Failed to use O_TMPFILE for %s: %m", target);
 
-        _cleanup_free_ char *tmp = NULL;
-        r = tempfn_random(target, NULL, &tmp);
-        if (r < 0)
-                return r;
+        _cleanup_free_ বর্ণ *tmp = রিক্ত;
+        r = tempfn_random(target, রিক্ত, &tmp);
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         fd = openat(dir_fd, tmp, O_CREAT|O_EXCL|O_NOFOLLOW|O_NOCTTY|flags, 0640);
-        if (fd < 0)
-                return -errno;
+        যদি (fd < 0)
+                প্রত্যাগম -errno;
 
         *ret_path = TAKE_PTR(tmp);
 
-        return fd;
+        প্রত্যাগম fd;
 }
 
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file) {
-        _cleanup_free_ char *path = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
+পূর্ণাঙ্ক fopen_tmpfile_linkable_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *target, পূর্ণাঙ্ক flags, বর্ণ **ret_path, FILE **ret_file) {
+        _cleanup_free_ বর্ণ *path = রিক্ত;
+        _cleanup_fclose_ FILE *f = রিক্ত;
+        _cleanup_close_ পূর্ণাঙ্ক fd = -EBADF;
 
-        assert(target);
-        assert(ret_file);
-        assert(ret_path);
+        প্রতিজ্ঞা(target);
+        প্রতিজ্ঞা(ret_file);
+        প্রতিজ্ঞা(ret_path);
 
         fd = open_tmpfile_linkable_at(dir_fd, target, flags, &path);
-        if (fd < 0)
-                return fd;
+        যদি (fd < 0)
+                প্রত্যাগম fd;
 
         f = take_fdopen(&fd, "w");
-        if (!f)
-                return -ENOMEM;
+        যদি (!f)
+                প্রত্যাগম -ENOMEM;
 
         *ret_path = TAKE_PTR(path);
         *ret_file = TAKE_PTR(f);
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int r;
+পূর্ণাঙ্ক link_tmpfile_at(পূর্ণাঙ্ক fd, পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *target, LinkTmpfileFlags flags) {
+        পূর্ণাঙ্ক r;
 
-        assert(fd >= 0);
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(target);
+        প্রতিজ্ঞা(fd >= 0);
+        প্রতিজ্ঞা(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        প্রতিজ্ঞা(target);
 
         /* Moves a temporary file created with open_tmpfile() above into its final place. If "path" is NULL
          * an fd created with O_TMPFILE is assumed, and linkat() is used. Otherwise it is assumed O_TMPFILE
          * is not supported on the directory, and renameat2() is used instead. */
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
-                return -errno;
+        যদি (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
+                প্রত্যাগম -errno;
 
-        if (path) {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
+        যদি (path) {
+                যদি (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
                         r = RET_NERRNO(renameat(dir_fd, path, dir_fd, target));
-                else
+                অন্যথা
                         r = rename_noreplace(dir_fd, path, dir_fd, target);
-        } else {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
-                        r = linkat_replace(fd, /* oldpath= */ NULL, dir_fd, target);
-                else
+        } অন্যথা {
+                যদি (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
+                        r = linkat_replace(fd, /* oldpath= */ রিক্ত, dir_fd, target);
+                অন্যথা
                         r = link_fd(fd, dir_fd, target);
         }
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
+        যদি (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
                 r = fsync_full(fd);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int fd, r;
+পূর্ণাঙ্ক flink_tmpfile_at(FILE *f, পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *target, LinkTmpfileFlags flags) {
+        পূর্ণাঙ্ক fd, r;
 
-        assert(f);
-        assert(target);
+        প্রতিজ্ঞা(f);
+        প্রতিজ্ঞা(target);
 
         fd = fileno(f);
-        if (fd < 0) /* Not all FILE* objects encapsulate fds */
-                return -EBADF;
+        যদি (fd < 0) /* Not all FILE* objects encapsulate fds */
+                প্রত্যাগম -EBADF;
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return link_tmpfile_at(fd, dir_fd, path, target, flags);
+        প্রত্যাগম link_tmpfile_at(fd, dir_fd, path, target, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+পূর্ণাঙ্ক mkdtemp_malloc(ধ্রুব বর্ণ *template, বর্ণ **ret) {
+        _cleanup_free_ বর্ণ *p = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
-        if (template)
+        যদি (template)
                 p = strdup(template);
-        else {
-                const char *tmp;
+        অন্যথা {
+                ধ্রুব বর্ণ *tmp;
 
                 r = tmp_dir(&tmp);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
                 p = path_join(tmp, "XXXXXX");
         }
-        if (!p)
-                return -ENOMEM;
+        যদি (!p)
+                প্রত্যাগম -ENOMEM;
 
-        if (!mkdtemp(p))
-                return -errno;
+        যদি (!mkdtemp(p))
+                প্রত্যাগম -errno;
 
         *ret = TAKE_PTR(p);
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int mkdtemp_open(const char *template, int flags, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int fd, r;
+পূর্ণাঙ্ক mkdtemp_open(ধ্রুব বর্ণ *template, পূর্ণাঙ্ক flags, বর্ণ **ret) {
+        _cleanup_free_ বর্ণ *p = রিক্ত;
+        পূর্ণাঙ্ক fd, r;
 
         r = mkdtemp_malloc(template, &p);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         fd = RET_NERRNO(open(p, O_DIRECTORY|O_CLOEXEC|flags));
-        if (fd < 0) {
-                (void) rmdir(p);
-                return fd;
+        যদি (fd < 0) {
+                (শূন্য) rmdir(p);
+                প্রত্যাগম fd;
         }
 
-        if (ret)
+        যদি (ret)
                 *ret = TAKE_PTR(p);
 
-        return fd;
+        প্রত্যাগম fd;
 }
 
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d) {
-        assert(d);
+শূন্য cleanup_tmpfile_data_done(সংরচনা cleanup_tmpfile_data *d) {
+        প্রতিজ্ঞা(d);
 
-        if (!d->dir_fd ||
+        যদি (!d->dir_fd ||
             (*d->dir_fd < 0 && *d->dir_fd != AT_FDCWD) ||
             !d->filename ||
             !*d->filename)
-                return;
+                প্রত্যাগম;
 
         PROTECT_ERRNO;
 
-        (void) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
-        d->dir_fd = NULL;
-        d->filename = NULL;
+        (শূন্য) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
+        d->dir_fd = রিক্ত;
+        d->filename = রিক্ত;
 }

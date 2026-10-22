@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#অন্তর্ভাব <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#অন্তর্ভাব "parse-util.h"
+#অন্তর্ভাব "stdio-util.h"
+#অন্তর্ভাব "string-table.h"
+#অন্তর্ভাব "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+ধ্রুব বর্ণ* string_table_lookup_to_string(ধ্রুব বর্ণ * ধ্রুব *table, size_t len, ssize_t i) {
+        যদি (i < 0 || i >= (ssize_t) len)
+                প্রত্যাগম রিক্ত;
 
-        assert(table);
+        প্রতিজ্ঞা(table);
 
-        return table[i];
+        প্রত্যাগম table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(ধ্রুব বর্ণ * ধ্রুব *table, size_t len, ধ্রুব বর্ণ *চাবি) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        যদি (!চাবি)
+                প্রত্যাগম -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        প্রতি (size_t i = 0; i < len; ++i)
+                যদি (streq_ptr(table[i], চাবি))
+                        প্রত্যাগম (ssize_t) i;
 
-        return -EINVAL;
+        প্রত্যাগম -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(ধ্রুব বর্ণ * ধ্রুব *table, size_t len, ধ্রুব বর্ণ *চাবি, ssize_t yes) {
+        যদি (!চাবি)
+                প্রত্যাগম -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        পূর্ণাঙ্ক b = parse_boolean(চাবি);
+        যদি (b == 0)
+                প্রত্যাগম 0;
+        যদি (b > 0)
+                প্রত্যাগম yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        প্রত্যাগম string_table_lookup_from_string(table, len, চাবি);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+পূর্ণাঙ্ক string_table_lookup_to_string_fallback(ধ্রুব বর্ণ * ধ্রুব *table, size_t len, ssize_t i, size_t max, বর্ণ **ret) {
+        বর্ণ *s;
 
-        assert(table);
-        assert(ret);
+        প্রতিজ্ঞা(table);
+        প্রতিজ্ঞা(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        যদি (i < 0 || i > (ssize_t) max)
+                প্রত্যাগম -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        যদি (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        অন্যথা
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        যদি (!s)
+                প্রত্যাগম -ENOMEM;
 
         *ret = s;
-        return 0;
+        প্রত্যাগম 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(ধ্রুব বর্ণ * ধ্রুব *table, size_t len, ধ্রুব বর্ণ *s, size_t max) {
+        যদি (!s)
+                প্রত্যাগম -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        যদি (i >= 0)
+                প্রত্যাগম i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        যদি (safe_atou(s, &u) < 0)
+                প্রত্যাগম -EINVAL;
+        যদি (u > max)
+                প্রত্যাগম -EINVAL;
 
-        return u;
+        প্রত্যাগম u;
 }

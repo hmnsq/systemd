@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-struct strbuf {
-        char *buf;
+সংরচনা strbuf {
+        বর্ণ *buf;
         size_t len;
-        struct strbuf_node *root;
+        সংরচনা strbuf_গ্রন্থি *মূল;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_গুনতি;
+        size_t in_গুনতি;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_গুনতি;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+সংরচনা strbuf_গ্রন্থি {
+        size_t মান_off;
+        size_t মান_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        সংরচনা strbuf_child_entry *children;
+        uint8_t children_গুনতি;
 };
 
-struct strbuf_child_entry {
+সংরচনা strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        সংরচনা strbuf_গ্রন্থি *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+সংরচনা strbuf* strbuf_new(শূন্য);
+ssize_t strbuf_add_string_full(সংরচনা strbuf *str, ধ্রুব বর্ণ *s, size_t len);
+স্থির অন্তঃস্থ ssize_t strbuf_add_string(সংরচনা strbuf *str, ধ্রুব বর্ণ *s) {
+        প্রত্যাগম strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+শূন্য strbuf_complete(সংরচনা strbuf *str);
+সংরচনা strbuf* strbuf_free(সংরচনা strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(সংরচনা strbuf*, strbuf_free);

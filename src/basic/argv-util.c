@@ -1,24 +1,24 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sched.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/prctl.h> /* IWYU pragma: keep */
+#অন্তর্ভাব <sched.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <sys/mman.h>
+#অন্তর্ভাব <sys/prctl.h> /* IWYU pragma: keep */
 
-#include "argv-util.h"
-#include "capability-util.h"
-#include "errno-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
+#অন্তর্ভাব "argv-util.h"
+#অন্তর্ভাব "capability-util.h"
+#অন্তর্ভাব "errno-util.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "memory-util.h"
+#অন্তর্ভাব "parse-util.h"
+#অন্তর্ভাব "path-util.h"
+#অন্তর্ভাব "process-util.h"
+#অন্তর্ভাব "string-util.h"
 
-int saved_argc = 0;
-char **saved_argv = NULL;
+পূর্ণাঙ্ক saved_argc = 0;
+বর্ণ **saved_argv = রিক্ত;
 
-void save_argc_argv(int argc, char **argv) {
+শূন্য save_argc_argv(পূর্ণাঙ্ক argc, বর্ণ **argv) {
         /* Protect against CVE-2021-4034 style attacks */
         assert_se(argc > 0);
         assert_se(argv);
@@ -28,89 +28,89 @@ void save_argc_argv(int argc, char **argv) {
         saved_argv = argv;
 }
 
-bool invoked_as(char *argv[], const char *token) {
-        const char *progname = empty_to_null(secure_getenv("SYSTEMD_INVOKED_AS"));
+bool invoked_as(বর্ণ *argv[], ধ্রুব বর্ণ *token) {
+        ধ্রুব বর্ণ *progname = empty_to_null(secure_getenv("SYSTEMD_INVOKED_AS"));
 
-        if (!progname && argv)
+        যদি (!progname && argv)
                 progname = argv[0];
 
-        if (isempty(progname) || isempty(token))
-                return false;
+        যদি (isempty(progname) || isempty(token))
+                প্রত্যাগম false;
 
-        return strstr(last_path_component(progname), token);
+        প্রত্যাগম strstr(last_path_component(progname), token);
 }
 
-bool invoked_by_systemd(void) {
-        static int cached = -1;
-        int r;
+bool invoked_by_systemd(শূন্য) {
+        স্থির পূর্ণাঙ্ক cached = -1;
+        পূর্ণাঙ্ক r;
 
-        if (cached >= 0)
-                return cached;
+        যদি (cached >= 0)
+                প্রত্যাগম cached;
 
         /* If the process is directly executed by PID1 (e.g. ExecStart= or generator), systemd-importd,
          * or systemd-homed, then $SYSTEMD_EXEC_PID= is set, and read the command line. */
-        const char *e = getenv("SYSTEMD_EXEC_PID");
-        if (!e)
-                return (cached = false);
+        ধ্রুব বর্ণ *e = getenv("SYSTEMD_EXEC_PID");
+        যদি (!e)
+                প্রত্যাগম (cached = false);
 
-        if (streq(e, "*"))
+        যদি (streq(e, "*"))
                 /* For testing. */
-                return (cached = true);
+                প্রত্যাগম (cached = true);
 
         pid_t p;
         r = parse_pid(e, &p);
-        if (r < 0) {
+        যদি (r < 0) {
                 /* We know that systemd sets the variable correctly. Something else must have set it. */
                 log_debug_errno(r, "Failed to parse \"SYSTEMD_EXEC_PID=%s\", ignoring: %m", e);
-                return (cached = false);
+                প্রত্যাগম (cached = false);
         }
 
         cached = getpid_cached() == p;
-        return cached;
+        প্রত্যাগম cached;
 }
 
-static int update_argv(const char name[], size_t l) {
-        static int can_do = -1;
-        int r;
+স্থির পূর্ণাঙ্ক update_argv(ধ্রুব বর্ণ name[], size_t l) {
+        স্থির পূর্ণাঙ্ক can_do = -1;
+        পূর্ণাঙ্ক r;
 
-        assert(name);
-        assert(l < SIZE_MAX);
+        প্রতিজ্ঞা(name);
+        প্রতিজ্ঞা(l < SIZE_MAX);
 
-        if (can_do == 0)
-                return 0;
+        যদি (can_do == 0)
+                প্রত্যাগম 0;
         can_do = false; /* We'll set it to true only if the whole process works */
 
         /* Calling prctl() with PR_SET_MM_ARG_{START,END} requires CAP_SYS_RESOURCE so let's use this as quick bypass
          * check, to avoid calling mmap() should PR_SET_MM_ARG_{START,END} fail with EPERM later on anyway. */
         r = have_effective_cap(CAP_SYS_RESOURCE);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to check if we have enough privileges: %m");
-        if (r == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(EPERM),
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to check if we have enough privileges: %m");
+        যদি (r == 0)
+                প্রত্যাগম log_debug_errno(SYNTHETIC_ERRNO(EPERM),
                                        "Skipping PR_SET_MM, as we don't have privileges.");
 
-        static size_t mm_size = 0;
-        static char *mm = NULL;
+        স্থির size_t mm_size = 0;
+        স্থির বর্ণ *mm = রিক্ত;
 
-        if (mm_size < l+1) {
+        যদি (mm_size < l+1) {
                 size_t nn_size;
-                char *nn;
+                বর্ণ *nn;
 
                 nn_size = PAGE_ALIGN(l+1);
-                if (nn_size >= SIZE_MAX)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The requested argument is too long.");
+                যদি (nn_size >= SIZE_MAX)
+                        প্রত্যাগম log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The requested argument is too long.");
 
-                nn = mmap(NULL, nn_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-                if (nn == MAP_FAILED)
-                        return log_debug_errno(errno, "mmap() failed: %m");
+                nn = mmap(রিক্ত, nn_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+                যদি (nn == MAP_FAILED)
+                        প্রত্যাগম log_debug_errno(errno, "mmap() failed: %m");
 
                 strncpy(nn, name, nn_size);
 
                 /* Now, let's tell the kernel about this new memory */
                 r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_START, (unsigned long) nn, 0, 0);
-                if (ERRNO_IS_NEG_PRIVILEGE(r))
-                        return log_debug_errno(r, "PR_SET_MM_ARG_START failed: %m");
-                if (r < 0) {
+                যদি (ERRNO_IS_NEG_PRIVILEGE(r))
+                        প্রত্যাগম log_debug_errno(r, "PR_SET_MM_ARG_START failed: %m");
+                যদি (r < 0) {
                         /* HACK: prctl() API is kind of dumb on this point.  The existing end address may already be
                          * below the desired start address, in which case the kernel may have kicked this back due
                          * to a range-check failure (see linux/kernel/sys.c:validate_prctl_map() to see this in
@@ -122,21 +122,21 @@ static int update_argv(const char name[], size_t l) {
                         log_debug_errno(r, "PR_SET_MM_ARG_START failed, attempting PR_SET_MM_ARG_END hack: %m");
 
                         r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_END, (unsigned long) nn + l + 1, 0, 0);
-                        if (r < 0) {
+                        যদি (r < 0) {
                                 log_debug_errno(r, "PR_SET_MM_ARG_END hack failed, proceeding without: %m");
                                 munmap_safe(nn, nn_size);
-                                return r;
+                                প্রত্যাগম r;
                         }
 
                         r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_START, (unsigned long) nn, 0, 0);
-                        if (r < 0)
-                                return log_debug_errno(r, "PR_SET_MM_ARG_START still failed, proceeding without: %m");
-                } else {
+                        যদি (r < 0)
+                                প্রত্যাগম log_debug_errno(r, "PR_SET_MM_ARG_START still failed, proceeding without: %m");
+                } অন্যথা {
                         /* And update the end pointer to the new end, too. If this fails, we don't really know what
                          * to do, it's pretty unlikely that we can rollback, hence we'll just accept the failure,
                          * and continue. */
                         r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_END, (unsigned long) nn + l + 1, 0, 0);
-                        if (r < 0)
+                        যদি (r < 0)
                                 log_debug_errno(r, "PR_SET_MM_ARG_END failed, proceeding without: %m");
                 }
 
@@ -144,22 +144,22 @@ static int update_argv(const char name[], size_t l) {
 
                 mm = nn;
                 mm_size = nn_size;
-        } else {
+        } অন্যথা {
                 strncpy(mm, name, mm_size);
 
                 /* Update the end pointer, continuing regardless of any failure. */
                 r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_END, (unsigned long) mm + l + 1, 0, 0);
-                if (r < 0)
+                যদি (r < 0)
                         log_debug_errno(r, "PR_SET_MM_ARG_END failed, proceeding without: %m");
         }
 
         can_do = true;
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int rename_process_full(const char *comm, const char *invocation) {
+পূর্ণাঙ্ক rename_process_full(ধ্রুব বর্ণ *comm, ধ্রুব বর্ণ *invocation) {
         bool truncated = false;
-        int r;
+        পূর্ণাঙ্ক r;
 
         /* This is a like a poor man's setproctitle(). It changes the comm field by the name specified by
          * 'comm', and changes argv[0] and the glibc's internally used names of the process
@@ -170,11 +170,11 @@ int rename_process_full(const char *comm, const char *invocation) {
          *
          * Returns 0 if a name was set but truncated, > 0 if it was set but not truncated. */
 
-        if (isempty(comm))
-                return -EINVAL; /* let's not confuse users unnecessarily with an empty name */
+        যদি (isempty(comm))
+                প্রত্যাগম -EINVAL; /* let's not confuse users unnecessarily with an empty name */
 
-        if (!is_main_thread())
-                return -EPERM; /* Let's not allow setting the process name from other threads than the main one, as we
+        যদি (!is_main_thread())
+                প্রত্যাগম -EPERM; /* Let's not allow setting the process name from other threads than the main one, as we
                                 * cache things without locking, and we make assumptions that PR_SET_NAME sets the
                                 * process name that isn't correct on any other threads */
 
@@ -183,55 +183,55 @@ int rename_process_full(const char *comm, const char *invocation) {
         /* First step, change the comm field. The main thread's comm is identical to the process comm. This means we
          * can use PR_SET_NAME, which sets the thread name for the calling thread. */
         r = proc_set_comm(comm);
-        if (r < 0)
+        যদি (r < 0)
                 log_debug_errno(r, "PR_SET_NAME failed: %m");
-        if (l >= TASK_COMM_LEN) /* Linux userspace process names can be 15 chars at max */
+        যদি (l >= TASK_COMM_LEN) /* Linux userspace process names can be 15 chars at max */
                 truncated = true;
 
         /* If nothing specified, fall back to comm. */
-        if (isempty(invocation))
+        যদি (isempty(invocation))
                 invocation = comm;
 
         l = strlen(invocation);
 
         /* Second step, change glibc's ID of the process name. */
-        if (program_invocation_name) {
+        যদি (program_invocation_name) {
                 size_t k;
 
                 k = strlen(program_invocation_name);
                 strncpy(program_invocation_name, invocation, k);
-                if (l > k)
+                যদি (l > k)
                         truncated = true;
 
                 /* Also update the short name. */
-                char *p = strrchr(program_invocation_name, '/');
+                বর্ণ *p = strrchr(program_invocation_name, '/');
                 program_invocation_short_name = p ? p + 1 : program_invocation_name;
         }
 
         /* Third step, completely replace the argv[] array the kernel maintains for us. This requires privileges, but
          * has the advantage that the argv[] array is exactly what we want it to be, and not filled up with zeros at
          * the end. This is the best option for changing /proc/self/cmdline. */
-        (void) update_argv(invocation, l);
+        (শূন্য) update_argv(invocation, l);
 
         /* Fourth step: in all cases we'll also update the original argv[], so that our own code gets it right too if
          * it still looks here */
-        if (saved_argc > 0) {
-                if (saved_argv[0]) {
+        যদি (saved_argc > 0) {
+                যদি (saved_argv[0]) {
                         size_t k;
 
                         k = strlen(saved_argv[0]);
                         strncpy(saved_argv[0], invocation, k);
-                        if (l > k)
+                        যদি (l > k)
                                 truncated = true;
                 }
 
-                for (int i = 1; i < saved_argc; i++) {
-                        if (!saved_argv[i])
-                                break;
+                প্রতি (পূর্ণাঙ্ক i = 1; i < saved_argc; i++) {
+                        যদি (!saved_argv[i])
+                                ভঙ্গ;
 
                         memzero(saved_argv[i], strlen(saved_argv[i]));
                 }
         }
 
-        return !truncated;
+        প্রত্যাগম !truncated;
 }

@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <net/if.h>
+#অন্তর্ভাব <net/if.h>
 
-typedef enum {
+প্রকারনির্দেশ গণনা {
         FORMAT_IFNAME_IFINDEX              = 1 << 0,
         FORMAT_IFNAME_IFINDEX_WITH_PERCENT = (1 << 1) | FORMAT_IFNAME_IFINDEX,
 } FormatIfnameFlag;
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]);
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret);
+পূর্ণাঙ্ক format_ifname_full(পূর্ণাঙ্ক ifindex, FormatIfnameFlag flag, বর্ণ buf[স্থির IF_NAMESIZE]);
+পূর্ণাঙ্ক format_ifname_full_alloc(পূর্ণাঙ্ক ifindex, FormatIfnameFlag flag, বর্ণ **ret);
 
-static inline int format_ifname(int ifindex, char buf[static IF_NAMESIZE]) {
-        return format_ifname_full(ifindex, 0, buf);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক format_ifname(পূর্ণাঙ্ক ifindex, বর্ণ buf[স্থির IF_NAMESIZE]) {
+        প্রত্যাগম format_ifname_full(ifindex, 0, buf);
 }
-static inline int format_ifname_alloc(int ifindex, char **ret) {
-        return format_ifname_full_alloc(ifindex, 0, ret);
-}
-
-static inline char* _format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        (void) format_ifname_full(ifindex, flag, buf);
-        return buf;
+স্থির অন্তঃস্থ পূর্ণাঙ্ক format_ifname_alloc(পূর্ণাঙ্ক ifindex, বর্ণ **ret) {
+        প্রত্যাগম format_ifname_full_alloc(ifindex, 0, ret);
 }
 
-#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (char[IF_NAMESIZE]){})
-#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (char[IF_NAMESIZE]){})
+স্থির অন্তঃস্থ বর্ণ* _format_ifname_full(পূর্ণাঙ্ক ifindex, FormatIfnameFlag flag, বর্ণ buf[স্থির IF_NAMESIZE]) {
+        (শূন্য) format_ifname_full(ifindex, flag, buf);
+        প্রত্যাগম buf;
+}
+
+#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (বর্ণ[IF_NAMESIZE]){})
+#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (বর্ণ[IF_NAMESIZE]){})

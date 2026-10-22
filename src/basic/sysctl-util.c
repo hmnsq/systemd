@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#অন্তর্ভাব <stdio.h>
 
-#include "af-list.h"
-#include "alloc-util.h"
-#include "fileio.h"
-#include "hashmap.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "string-util.h"
-#include "sysctl-util.h"
+#অন্তর্ভাব "af-list.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "fileio.h"
+#অন্তর্ভাব "hashmap.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "parse-util.h"
+#অন্তর্ভাব "path-util.h"
+#অন্তর্ভাব "socket-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "sysctl-util.h"
 
-char* sysctl_normalize(char *s) {
-        char *n;
+বর্ণ* sysctl_normalize(বর্ণ *s) {
+        বর্ণ *n;
 
-        assert(s);
+        প্রতিজ্ঞা(s);
 
         n = strpbrk(s, "/.");
 
@@ -24,101 +24,101 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        যদি (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
-                do {
-                        if (*n == '.')
+                কুরু {
+                        যদি (*n == '.')
                                 *n = '/';
-                        else
+                        অন্যথা
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } যাবত্ (n);
 
         path_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
+        যদি (s[0] == '/' && s[1] != 0)
                 memmove(s, s+1, strlen(s));
 
-        return s;
+        প্রত্যাগম s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
-        _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+স্থির পূর্ণাঙ্ক shadow_update(Hashmap **shadow, ধ্রুব বর্ণ *property, ধ্রুব বর্ণ *মান) {
+        _cleanup_free_ বর্ণ *k = রিক্ত, *v = রিক্ত, *cur_k = রিক্ত, *cur_v = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(property);
-        assert(value);
+        প্রতিজ্ঞা(property);
+        প্রতিজ্ঞা(মান);
 
-        if (!shadow)
-                return 0;
+        যদি (!shadow)
+                প্রত্যাগম 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        যদি (!k)
+                প্রত্যাগম -ENOMEM;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(মান);
+        যদি (!v)
+                প্রত্যাগম -ENOMEM;
 
-        cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
+        cur_v = hashmap_remove2(*shadow, k, (শূন্য**)&cur_k);
 
         r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
-                assert(r != -EEXIST);
+        যদি (r < 0) {
+                প্রতিজ্ঞা(r != -EEXIST);
 
-                return r;
+                প্রত্যাগম r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
-        char *p;
-        int r;
+পূর্ণাঙ্ক sysctl_write_full(ধ্রুব বর্ণ *property, ধ্রুব বর্ণ *মান, Hashmap **shadow) {
+        বর্ণ *p;
+        পূর্ণাঙ্ক r;
 
-        assert(property);
-        assert(value);
+        প্রতিজ্ঞা(property);
+        প্রতিজ্ঞা(মান);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        যদি (!path_is_normalized(p))
+                প্রত্যাগম -EINVAL;
 
-        log_debug("Setting '%s' to '%s'", p, value);
+        log_debug("Setting '%s' to '%s'", p, মান);
 
-        r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        r = shadow_update(shadow, p, মান);
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        প্রত্যাগম write_string_file(p, মান, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
-        _cleanup_free_ char *v = NULL;
+পূর্ণাঙ্ক sysctl_writef(ধ্রুব বর্ণ *property, ধ্রুব বর্ণ *format, ...) {
+        _cleanup_free_ বর্ণ *v = রিক্ত;
         va_list ap;
-        int r;
+        পূর্ণাঙ্ক r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        যদি (r < 0)
+                প্রত্যাগম -ENOMEM;
 
-        return sysctl_write(property, v);
+        প্রত্যাগম sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+পূর্ণাঙ্ক sysctl_write_verify(ধ্রুব বর্ণ *property, ধ্রুব বর্ণ *মান) {
+        পূর্ণাঙ্ক r;
 
-        assert(property);
-        assert(value);
+        প্রতিজ্ঞা(property);
+        প্রতিজ্ঞা(মান);
 
         /* Some sysctl settings accept invalid values on write, but refuses on read. E.g. coredump pattern,
          * be1e0283021ec73c2eb92839db9a471a068709d9 (v6.17) and 7d7c1fb85cba5627bbe741fb7539c709435e3848
@@ -126,18 +126,18 @@ int sysctl_write_verify(const char *property, const char *value) {
          * 304aa560385720baf3660fe8500f6dd425b63ea9 (v6.17.5). Let's first save the original value, and
          * restore to the saved value if the new value is refused. */
 
-        _cleanup_free_ char *original = NULL;
+        _cleanup_free_ বর্ণ *original = রিক্ত;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        যদি (r >= 0 && streq(original, মান))
+                প্রত্যাগম 0; /* Already set. */
 
-        r = sysctl_write(property, value);
-        if (r >= 0) {
-                _cleanup_free_ char *current = NULL;
+        r = sysctl_write(property, মান);
+        যদি (r >= 0) {
+                _cleanup_free_ বর্ণ *current = রিক্ত;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                যদি (r >= 0) {
+                        যদি (streq(current, মান))
+                                প্রত্যাগম 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
-                (void) sysctl_write(property, original);
+        যদি (original)
+                (শূন্য) sysctl_write(property, original);
 
-        return r;
+        প্রত্যাগম r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+স্থির ধ্রুব বর্ণ* af_to_sysctl_dir(পূর্ণাঙ্ক af) {
+        যদি (af == AF_MPLS)
+                প্রত্যাগম "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        প্রত্যাগম af_to_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+পূর্ণাঙ্ক sysctl_write_ip_property(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *property, ধ্রুব বর্ণ *মান, Hashmap **shadow) {
+        ধ্রুব বর্ণ *p;
 
-        assert(property);
-        assert(value);
+        প্রতিজ্ঞা(property);
+        প্রতিজ্ঞা(মান);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        যদি (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                প্রত্যাগম -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        যদি (ifname) {
+                যদি (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        প্রত্যাগম -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } অন্যথা
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        প্রত্যাগম sysctl_write_full(p, মান, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+পূর্ণাঙ্ক sysctl_write_ip_property_boolean(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *property, bool মান, Hashmap **shadow) {
+        প্রত্যাগম sysctl_write_ip_property(af, ifname, property, one_zero(মান), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+পূর্ণাঙ্ক sysctl_write_ip_neighbor_property(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *property, ধ্রুব বর্ণ *মান, Hashmap **shadow) {
+        ধ্রুব বর্ণ *p;
 
-        assert(property);
-        assert(value);
-        assert(ifname);
+        প্রতিজ্ঞা(property);
+        প্রতিজ্ঞা(মান);
+        প্রতিজ্ঞা(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        যদি (!IN_SET(af, AF_INET, AF_INET6))
+                প্রত্যাগম -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        যদি (ifname) {
+                যদি (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        প্রত্যাগম -EINVAL;
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
+        } অন্যথা
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        প্রত্যাগম sysctl_write_full(p, মান, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
-        char buf[DECIMAL_STR_MAX(uint32_t)];
-        xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+পূর্ণাঙ্ক sysctl_write_ip_neighbor_property_uint32(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *property, uint32_t মান, Hashmap **shadow) {
+        বর্ণ buf[DECIMAL_STR_MAX(uint32_t)];
+        xsprintf(buf, "%u", মান);
+        প্রত্যাগম sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
-        char *p;
-        int r;
+পূর্ণাঙ্ক sysctl_read(ধ্রুব বর্ণ *property, বর্ণ **ret) {
+        বর্ণ *p;
+        পূর্ণাঙ্ক r;
 
-        assert(property);
+        প্রতিজ্ঞা(property);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        যদি (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                প্রত্যাগম -EINVAL;
 
-        r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        r = read_full_virtual_file(p, ret, রিক্ত);
+        যদি (r < 0)
+                প্রত্যাগম r;
+        যদি (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        প্রত্যাগম r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
-        const char *p;
+পূর্ণাঙ্ক sysctl_read_ip_property(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *property, বর্ণ **ret) {
+        ধ্রুব বর্ণ *p;
 
-        assert(property);
+        প্রতিজ্ঞা(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        যদি (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                প্রত্যাগম -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        যদি (ifname) {
+                যদি (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        প্রত্যাগম -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } অন্যথা
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        প্রত্যাগম sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+পূর্ণাঙ্ক sysctl_read_ip_property_int(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *property, পূর্ণাঙ্ক *ret) {
+        _cleanup_free_ বর্ণ *s = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return safe_atoi(s, ret);
+        প্রত্যাগম safe_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+পূর্ণাঙ্ক sysctl_read_ip_property_uint32(পূর্ণাঙ্ক af, ধ্রুব বর্ণ *ifname, ধ্রুব বর্ণ *property, uint32_t *ret) {
+        _cleanup_free_ বর্ণ *s = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return safe_atou32(s, ret);
+        প্রত্যাগম safe_atou32(s, ret);
 }

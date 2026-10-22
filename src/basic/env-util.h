@@ -1,77 +1,77 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
 #define ENVIRONMENT_ASSIGNMENTS_MAX 16384U
 
-size_t sc_arg_max(void);
+size_t sc_arg_max(শূন্য);
 
-bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
-bool env_assignment_is_valid(const char *e);
+bool env_name_is_valid(ধ্রুব বর্ণ *e);
+bool env_মান_is_valid(ধ্রুব বর্ণ *e);
+bool env_assignment_is_valid(ধ্রুব বর্ণ *e);
 
-typedef enum ReplaceEnvFlags {
+প্রকারনির্দেশ গণনা ReplaceEnvFlags {
         REPLACE_ENV_USE_ENVIRONMENT = 1 << 0,
         REPLACE_ENV_ALLOW_BRACELESS = 1 << 1,
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+পূর্ণাঙ্ক replace_env_full(ধ্রুব বর্ণ *format, size_t length, বর্ণ **env, ReplaceEnvFlags flags, বর্ণ **ret, বর্ণ ***ret_unset_variables, বর্ণ ***ret_bad_variables);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক replace_env(ধ্রুব বর্ণ *format, বর্ণ **env, ReplaceEnvFlags flags, বর্ণ **ret) {
+        প্রত্যাগম replace_env_full(format, SIZE_MAX, env, flags, ret, রিক্ত, রিক্ত);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+পূর্ণাঙ্ক replace_env_argv(বর্ণ **argv, বর্ণ **env, বর্ণ ***ret, বর্ণ ***ret_unset_variables, বর্ণ ***ret_bad_variables);
 
-bool strv_env_is_valid(char * const *e);
-bool strv_env_name_is_valid(char * const *l);
-bool strv_env_name_or_assignment_is_valid(char * const *l);
+bool strv_env_is_valid(বর্ণ * ধ্রুব *e);
+bool strv_env_name_is_valid(বর্ণ * ধ্রুব *l);
+bool strv_env_name_or_assignment_is_valid(বর্ণ * ধ্রুব *l);
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata);
-#define strv_env_clean(l) strv_env_clean_with_callback(l, NULL, NULL)
+বর্ণ** strv_env_clean_with_callback(বর্ণ **l, শূন্য (*invalid_callback)(ধ্রুব বর্ণ *p, শূন্য *userdata), শূন্য *userdata);
+#define strv_env_clean(l) strv_env_clean_with_callback(l, রিক্ত, রিক্ত)
 
-char** _strv_env_merge(char **first, ...);
+বর্ণ** _strv_env_merge(বর্ণ **first, ...);
 #define strv_env_merge(first, ...) _strv_env_merge(first, __VA_ARGS__, POINTER_MAX)
-char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
+বর্ণ** strv_env_delete(বর্ণ **x, size_t n_lists, ...); /* New copy */
 
-char** strv_env_unset(char **l, const char *p); /* In place ... */
-char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
-#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
-#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
+বর্ণ** strv_env_unset(বর্ণ **l, ধ্রুব বর্ণ *p); /* In place ... */
+বর্ণ** strv_env_unset_many_internal(বর্ণ **l, ...) _sentinel_;
+#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, রিক্ত)
+পূর্ণাঙ্ক strv_env_replace_consume(বর্ণ ***l, বর্ণ *p); /* In place ... */
+পূর্ণাঙ্ক strv_env_replace_strdup(বর্ণ ***l, ধ্রুব বর্ণ *assignment);
+পূর্ণাঙ্ক strv_env_replace_strdup_passthrough(বর্ণ ***l, ধ্রুব বর্ণ *assignment);
+পূর্ণাঙ্ক strv_env_assign(বর্ণ ***l, ধ্রুব বর্ণ *চাবি, ধ্রুব বর্ণ *মান);
+পূর্ণাঙ্ক strv_env_assignf(বর্ণ ***l, ধ্রুব বর্ণ *চাবি, ধ্রুব বর্ণ *valuef, ...) _printf_(3, 4);
+পূর্ণাঙ্ক _strv_env_assign_many(বর্ণ ***l, ...) _sentinel_;
+#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, রিক্ত)
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
-static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+বর্ণ* strv_env_get_n(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name, size_t k, ReplaceEnvFlags flags);
+স্থির অন্তঃস্থ বর্ণ* strv_env_get(বর্ণ * ধ্রুব *x, ধ্রুব বর্ণ *n) {
+        প্রত্যাগম strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
-char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+বর্ণ* strv_env_pairs_get(বর্ণ **l, ধ্রুব বর্ণ *name) _pure_;
+পূর্ণাঙ্ক strv_env_get_merged(বর্ণ **l, বর্ণ ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+পূর্ণাঙ্ক getenv_bool(ধ্রুব বর্ণ *p);
+পূর্ণাঙ্ক secure_getenv_bool(ধ্রুব বর্ণ *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+পূর্ণাঙ্ক secure_getenv_uint64(ধ্রুব বর্ণ *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+পূর্ণাঙ্ক set_unset_env(ধ্রুব বর্ণ *name, ধ্রুব বর্ণ *মান, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+পূর্ণাঙ্ক putenv_dup(ধ্রুব বর্ণ *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+পূর্ণাঙ্ক setenv_systemd_exec_pid(bool update_only);
+পূর্ণাঙ্ক setenv_systemd_log_level(শূন্য);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+পূর্ণাঙ্ক getenv_path_list(ধ্রুব বর্ণ *name, বর্ণ ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+পূর্ণাঙ্ক getenv_steal_erase(ধ্রুব বর্ণ *name, বর্ণ **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+পূর্ণাঙ্ক setenvf(ধ্রুব বর্ণ *name, bool overwrite, ধ্রুব বর্ণ *valuef, ...) _printf_(3,4);

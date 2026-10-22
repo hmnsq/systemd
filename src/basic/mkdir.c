@@ -1,26 +1,26 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#অন্তর্ভাব <unistd.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "format-util.h"
-#include "fs-util.h"
-#include "hashmap.h"
-#include "log.h"
-#include "mkdir.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
-#include "user-util.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "btrfs-util.h"
+#অন্তর্ভাব "chase.h"
+#অন্তর্ভাব "errno-util.h"
+#অন্তর্ভাব "fd-util.h"
+#অন্তর্ভাব "format-util.h"
+#অন্তর্ভাব "fs-util.h"
+#অন্তর্ভাব "hashmap.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "mkdir.h"
+#অন্তর্ভাব "path-util.h"
+#অন্তর্ভাব "stat-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "time-util.h"
+#অন্তর্ভাব "user-util.h"
 
-int mkdirat_safe_internal(
-                int dir_fd,
-                const char *path,
+পূর্ণাঙ্ক mkdirat_safe_internal(
+                পূর্ণাঙ্ক dir_fd,
+                ধ্রুব বর্ণ *path,
                 mode_t mode,
                 uid_t uid,
                 gid_t gid,
@@ -28,247 +28,247 @@ int mkdirat_safe_internal(
                 mkdirat_func_t _mkdirat,
                 LabelContext *label_context) {
 
-        struct stat st;
-        int r;
+        সংরচনা stat st;
+        পূর্ণাঙ্ক r;
 
-        assert(path);
-        assert(mode != MODE_INVALID);
-        assert(_mkdirat);
+        প্রতিজ্ঞা(path);
+        প্রতিজ্ঞা(mode != MODE_INVALID);
+        প্রতিজ্ঞা(_mkdirat);
 
         r = _mkdirat(dir_fd, path, mode, label_context);
-        if (r >= 0)
-                return chmod_and_chown_at(dir_fd, path, mode, uid, gid);
-        if (r != -EEXIST)
-                return r;
+        যদি (r >= 0)
+                প্রত্যাগম chmod_and_chown_at(dir_fd, path, mode, uid, gid);
+        যদি (r != -EEXIST)
+                প্রত্যাগম r;
 
-        if (fstatat(dir_fd, path, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                return -errno;
+        যদি (fstatat(dir_fd, path, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                প্রত্যাগম -errno;
 
-        if ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
-                _cleanup_free_ char *p = NULL;
+        যদি ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
+                _cleanup_free_ বর্ণ *p = রিক্ত;
 
-                r = chaseat(XAT_FDROOT, dir_fd, path, CHASE_NONEXISTENT, &p, NULL);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return mkdirat_safe_internal(dir_fd, p, mode, uid, gid,
+                r = chaseat(XAT_FDROOT, dir_fd, path, CHASE_NONEXISTENT, &p, রিক্ত);
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r == 0)
+                        প্রত্যাগম mkdirat_safe_internal(dir_fd, p, mode, uid, gid,
                                                      flags & ~MKDIR_FOLLOW_SYMLINK,
                                                      _mkdirat, label_context);
 
-                if (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                        return -errno;
+                যদি (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                        প্রত্যাগম -errno;
         }
 
-        if (flags & MKDIR_IGNORE_EXISTING)
-                return 0;
+        যদি (flags & MKDIR_IGNORE_EXISTING)
+                প্রত্যাগম 0;
 
-        if (!S_ISDIR(st.st_mode))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
+        যদি (!S_ISDIR(st.st_mode))
+                প্রত্যাগম log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
                                       "Path \"%s\" already exists and is not a directory, refusing.", path);
 
-        if ((st.st_mode & ~mode & 0777) != 0)
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+        যদি ((st.st_mode & ~mode & 0777) != 0)
+                প্রত্যাগম log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but has mode %04o that is too permissive (%04o was requested), refusing.",
                                       path, st.st_mode & 0777, mode);
 
-        if ((uid != UID_INVALID && st.st_uid != uid) ||
+        যদি ((uid != UID_INVALID && st.st_uid != uid) ||
             (gid != GID_INVALID && st.st_gid != gid))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+                প্রত্যাগম log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but is owned by "UID_FMT":"GID_FMT" (%s:%s was requested), refusing.",
                                       path, st.st_uid, st.st_gid, uid != UID_INVALID ? FORMAT_UID(uid) : "-",
                                       gid != UID_INVALID ? FORMAT_GID(gid) : "-");
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int mkdirat_errno_wrapper(int dirfd, const char *pathname, mode_t mode, LabelContext *label_context) {
-        return RET_NERRNO(mkdirat(dirfd, pathname, mode));
+পূর্ণাঙ্ক mkdirat_errno_wrapper(পূর্ণাঙ্ক dirfd, ধ্রুব বর্ণ *pathname, mode_t mode, LabelContext *label_context) {
+        প্রত্যাগম RET_NERRNO(mkdirat(dirfd, pathname, mode));
 }
 
-int mkdirat_safe(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+পূর্ণাঙ্ক mkdirat_safe(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
+        প্রত্যাগম mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ রিক্ত);
 }
 
-int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        const char *e = NULL;
-        int r;
+পূর্ণাঙ্ক mkdirat_parents_internal(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        ধ্রুব বর্ণ *e = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(path);
-        assert(_mkdirat);
+        প্রতিজ্ঞা(path);
+        প্রতিজ্ঞা(_mkdirat);
 
-        if (isempty(path))
-                return 0;
+        যদি (isempty(path))
+                প্রত্যাগম 0;
 
-        if (!path_is_safe(path))
-                return -ENOTDIR;
+        যদি (!path_is_safe(path))
+                প্রত্যাগম -ENOTDIR;
 
         /* return immediately if directory exists */
-        r = path_find_last_component(path, /* accept_dot_dot= */ false, &e, NULL);
-        if (r <= 0) /* r == 0 means path is equivalent to prefix. */
-                return r;
-        if (e == path)
-                return 0;
+        r = path_find_last_component(path, /* accept_dot_dot= */ false, &e, রিক্ত);
+        যদি (r <= 0) /* r == 0 means path is equivalent to prefix. */
+                প্রত্যাগম r;
+        যদি (e == path)
+                প্রত্যাগম 0;
 
-        assert(e > path);
-        assert(*e == '/');
+        প্রতিজ্ঞা(e > path);
+        প্রতিজ্ঞা(*e == '/');
 
         /* drop the last component */
         path = strndupa_safe(path, e - path);
         r = is_dir_at(dir_fd, path, /* follow= */ true);
-        if (r > 0)
-                return 0;
-        if (r == 0)
-                return -ENOTDIR;
+        যদি (r > 0)
+                প্রত্যাগম 0;
+        যদি (r == 0)
+                প্রত্যাগম -ENOTDIR;
 
         /* create every parent directory in the path, except the last component */
-        for (const char *p = path;;) {
-                char *s;
-                int n;
+        প্রতি (ধ্রুব বর্ণ *p = path;;) {
+                বর্ণ *s;
+                পূর্ণাঙ্ক n;
 
-                n = path_find_first_component(&p, /* accept_dot_dot= */ false, (const char **) &s);
-                if (n <= 0)
-                        return n;
+                n = path_find_first_component(&p, /* accept_dot_dot= */ false, (ধ্রুব বর্ণ **) &s);
+                যদি (n <= 0)
+                        প্রত্যাগম n;
 
-                assert(p);
-                assert(s >= path);
-                assert(IN_SET(s[n], '/', '\0'));
+                প্রতিজ্ঞা(p);
+                প্রতিজ্ঞা(s >= path);
+                প্রতিজ্ঞা(IN_SET(s[n], '/', '\0'));
 
                 s[n] = '\0';
 
                 r = mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags | MKDIR_IGNORE_EXISTING, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+                যদি (r < 0 && r != -EEXIST)
+                        প্রত্যাগম r;
 
                 s[n] = *p == '\0' ? '\0' : '/';
         }
 }
 
-int mkdir_parents_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        _cleanup_close_ int fd = AT_FDCWD;
-        const char *p;
+পূর্ণাঙ্ক mkdir_parents_internal(ধ্রুব বর্ণ *prefix, ধ্রুব বর্ণ *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        _cleanup_close_ পূর্ণাঙ্ক fd = AT_FDCWD;
+        ধ্রুব বর্ণ *p;
 
-        assert(path);
-        assert(_mkdirat);
+        প্রতিজ্ঞা(path);
+        প্রতিজ্ঞা(_mkdirat);
 
-        if (prefix) {
+        যদি (prefix) {
                 p = path_startswith_full(path, prefix, PATH_STARTSWITH_REFUSE_DOT_DOT);
-                if (!p)
-                        return -EINVAL;
+                যদি (!p)
+                        প্রত্যাগম -EINVAL;
 
                 fd = open(prefix, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
-        } else
+                যদি (fd < 0)
+                        প্রত্যাগম -errno;
+        } অন্যথা
                 p = path;
 
-        return mkdirat_parents_internal(fd, p, mode, uid, gid, flags, _mkdirat, label_context);
+        প্রত্যাগম mkdirat_parents_internal(fd, p, mode, uid, gid, flags, _mkdirat, label_context);
 }
 
-int mkdirat_parents(int dir_fd, const char *path, mode_t mode) {
-        return mkdirat_parents_internal(dir_fd, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+পূর্ণাঙ্ক mkdirat_parents(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, mode_t mode) {
+        প্রত্যাগম mkdirat_parents_internal(dir_fd, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ রিক্ত);
 }
 
-int mkdir_parents_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_parents_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+পূর্ণাঙ্ক mkdir_parents_safe(ধ্রুব বর্ণ *prefix, ধ্রুব বর্ণ *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
+        প্রত্যাগম mkdir_parents_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ রিক্ত);
 }
 
-int mkdir_p_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        int r;
+পূর্ণাঙ্ক mkdir_p_internal(ধ্রুব বর্ণ *prefix, ধ্রুব বর্ণ *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        পূর্ণাঙ্ক r;
 
         /* Like mkdir -p */
 
-        assert(_mkdirat);
+        প্রতিজ্ঞা(_mkdirat);
 
         r = mkdir_parents_internal(prefix, path, mode, uid, gid, flags | MKDIR_FOLLOW_SYMLINK, _mkdirat, label_context);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        if (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
+        যদি (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
                 r = _mkdirat(AT_FDCWD, path, mode, label_context);
-                if (r < 0 && (r != -EEXIST || is_dir(path, true) <= 0))
-                        return r;
-        } else {
+                যদি (r < 0 && (r != -EEXIST || is_dir(path, true) <= 0))
+                        প্রত্যাগম r;
+        } অন্যথা {
                 r = mkdir_safe_internal(path, mode, uid, gid, flags, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+                যদি (r < 0 && r != -EEXIST)
+                        প্রত্যাগম r;
         }
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int mkdir_p(const char *path, mode_t mode) {
-        return mkdir_p_internal(/* prefix= */ NULL, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+পূর্ণাঙ্ক mkdir_p(ধ্রুব বর্ণ *path, mode_t mode) {
+        প্রত্যাগম mkdir_p_internal(/* prefix= */ রিক্ত, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ রিক্ত);
 }
 
-int mkdir_p_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_p_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+পূর্ণাঙ্ক mkdir_p_safe(ধ্রুব বর্ণ *prefix, ধ্রুব বর্ণ *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
+        প্রত্যাগম mkdir_p_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ রিক্ত);
 }
 
-int mkdir_p_root_full(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
-        _cleanup_free_ char *pp = NULL, *bn = NULL;
-        _cleanup_close_ int dfd = -EBADF;
-        int r;
+পূর্ণাঙ্ক mkdir_p_মূল_full(ধ্রুব বর্ণ *মূল, ধ্রুব বর্ণ *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
+        _cleanup_free_ বর্ণ *pp = রিক্ত, *bn = রিক্ত;
+        _cleanup_close_ পূর্ণাঙ্ক dfd = -EBADF;
+        পূর্ণাঙ্ক r;
 
-        assert(p);
+        প্রতিজ্ঞা(p);
 
         r = path_extract_directory(p, &pp);
-        if (r == -EDESTADDRREQ) {
+        যদি (r == -EDESTADDRREQ) {
                 /* only fname is passed, no prefix to operate on */
                 dfd = open(".", O_RDONLY|O_CLOEXEC|O_DIRECTORY);
-                if (dfd < 0)
-                        return -errno;
-        } else if (r == -EADDRNOTAVAIL)
+                যদি (dfd < 0)
+                        প্রত্যাগম -errno;
+        } অন্যথা যদি (r == -EADDRNOTAVAIL)
                 /* only root dir or "." was passed, i.e. there is no parent to extract, in that case there's nothing to do. */
-                return 0;
-        else if (r < 0)
-                return r;
-        else {
+                প্রত্যাগম 0;
+        অন্যথা যদি (r < 0)
+                প্রত্যাগম r;
+        অন্যথা {
                 /* Extracting the parent dir worked, hence we aren't top-level? Recurse up first. */
-                r = mkdir_p_root_full(root, pp, uid, gid, m, ts, subvolumes);
-                if (r < 0)
-                        return r;
+                r = mkdir_p_মূল_full(মূল, pp, uid, gid, m, ts, subvolumes);
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
-                dfd = chase_and_open(pp, root, CHASE_PREFIX_ROOT, O_CLOEXEC|O_DIRECTORY, NULL);
-                if (dfd < 0)
-                        return dfd;
+                dfd = chase_and_open(pp, মূল, CHASE_PREFIX_মূল, O_CLOEXEC|O_DIRECTORY, রিক্ত);
+                যদি (dfd < 0)
+                        প্রত্যাগম dfd;
         }
 
         r = path_extract_filename(p, &bn);
-        if (r == -EADDRNOTAVAIL) /* Already top-level */
-                return 0;
-        if (r < 0)
-                return r;
+        যদি (r == -EADDRNOTAVAIL) /* Already top-level */
+                প্রত্যাগম 0;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         XOpenFlags flags = 0;
-        if (hashmap_contains(subvolumes, p)) {
+        যদি (hashmap_contains(subvolumes, p)) {
                 flags = XO_SUBVOLUME;
-                if ((PTR_TO_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
+                যদি ((PTR_TO_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
                         flags |= XO_NOCOW;
         }
 
-        _cleanup_close_ int nfd = xopenat_full(
+        _cleanup_close_ পূর্ণাঙ্ক nfd = xopenat_full(
                                 dfd, bn,
                                 O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,
                                 flags,
                                 m);
-        if (nfd == -EEXIST)
-                return 0;
-        if (nfd < 0)
-                return nfd;
+        যদি (nfd == -EEXIST)
+                প্রত্যাগম 0;
+        যদি (nfd < 0)
+                প্রত্যাগম nfd;
 
-        if ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
-                return -errno;
+        যদি ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
+                প্রত্যাগম -errno;
 
-        if (ts != USEC_INFINITY) {
-                struct timespec tspec;
+        যদি (ts != USEC_INFINITY) {
+                সংরচনা timespec tspec;
                 timespec_store(&tspec, ts);
 
-                if (futimens(dfd, (const struct timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
-                        return -errno;
+                যদি (futimens(dfd, (ধ্রুব সংরচনা timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
+                        প্রত্যাগম -errno;
 
-                if (futimens(nfd, (const struct timespec[2]) { tspec, tspec }) < 0)
-                        return -errno;
+                যদি (futimens(nfd, (ধ্রুব সংরচনা timespec[2]) { tspec, tspec }) < 0)
+                        প্রত্যাগম -errno;
         }
 
-        return 1;
+        প্রত্যাগম 1;
 }

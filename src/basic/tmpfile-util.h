@@ -1,61 +1,61 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_at(AT_FDCWD, path, ret_file, ret_path);
+পূর্ণাঙ্ক fopen_temporary_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, FILE **ret_file, বর্ণ **ret_path);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক fopen_temporary(ধ্রুব বর্ণ *path, FILE **ret_file, বর্ণ **ret_path) {
+        প্রত্যাগম fopen_temporary_at(AT_FDCWD, path, ret_file, ret_path);
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary_child(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_child_at(AT_FDCWD, path, ret_file, ret_path);
+পূর্ণাঙ্ক fopen_temporary_child_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, FILE **ret_file, বর্ণ **ret_path);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক fopen_temporary_child(ধ্রুব বর্ণ *path, FILE **ret_file, বর্ণ **ret_path) {
+        প্রত্যাগম fopen_temporary_child_at(AT_FDCWD, path, ret_file, ret_path);
 }
 
-int mkostemp_safe(char *pattern);
-int fmkostemp_safe(char *pattern, const char *mode, FILE**_f);
+পূর্ণাঙ্ক mkostemp_safe(বর্ণ *pattern);
+পূর্ণাঙ্ক fmkostemp_safe(বর্ণ *pattern, ধ্রুব বর্ণ *mode, FILE**_f);
 
-void unlink_tempfilep(char (*p)[]);
+শূন্য unlink_tempfilep(বর্ণ (*p)[]);
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret);
-int tempfn_random(const char *p, const char *extra, char **ret);
-int tempfn_random_child(const char *p, const char *extra, char **ret);
+পূর্ণাঙ্ক tempfn_xxxxxx(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *extra, বর্ণ **ret);
+পূর্ণাঙ্ক tempfn_random(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *extra, বর্ণ **ret);
+পূর্ণাঙ্ক tempfn_random_child(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *extra, বর্ণ **ret);
 
-int open_tmpfile_unlinkable(const char *directory, int flags);
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path);
-static inline int open_tmpfile_linkable(const char *target, int flags, char **ret_path) {
-        return open_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path);
+পূর্ণাঙ্ক open_tmpfile_unlinkable(ধ্রুব বর্ণ *directory, পূর্ণাঙ্ক flags);
+পূর্ণাঙ্ক open_tmpfile_linkable_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *target, পূর্ণাঙ্ক flags, বর্ণ **ret_path);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক open_tmpfile_linkable(ধ্রুব বর্ণ *target, পূর্ণাঙ্ক flags, বর্ণ **ret_path) {
+        প্রত্যাগম open_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path);
 }
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file);
-static inline int fopen_tmpfile_linkable(const char *target, int flags, char **ret_path, FILE **ret_file) {
-        return fopen_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path, ret_file);
+পূর্ণাঙ্ক fopen_tmpfile_linkable_at(পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *target, পূর্ণাঙ্ক flags, বর্ণ **ret_path, FILE **ret_file);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক fopen_tmpfile_linkable(ধ্রুব বর্ণ *target, পূর্ণাঙ্ক flags, বর্ণ **ret_path, FILE **ret_file) {
+        প্রত্যাগম fopen_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path, ret_file);
 }
 
-typedef enum LinkTmpfileFlags {
+প্রকারনির্দেশ গণনা LinkTmpfileFlags {
         LINK_TMPFILE_REPLACE = 1 << 0,
         LINK_TMPFILE_SYNC    = 1 << 1,
 } LinkTmpfileFlags;
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int link_tmpfile(int fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return link_tmpfile_at(fd, AT_FDCWD, path, target, flags);
+পূর্ণাঙ্ক link_tmpfile_at(পূর্ণাঙ্ক fd, পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *target, LinkTmpfileFlags flags);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক link_tmpfile(পূর্ণাঙ্ক fd, ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *target, LinkTmpfileFlags flags) {
+        প্রত্যাগম link_tmpfile_at(fd, AT_FDCWD, path, target, flags);
 }
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int flink_tmpfile(FILE *f, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return flink_tmpfile_at(f, AT_FDCWD, path, target, flags);
+পূর্ণাঙ্ক flink_tmpfile_at(FILE *f, পূর্ণাঙ্ক dir_fd, ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *target, LinkTmpfileFlags flags);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক flink_tmpfile(FILE *f, ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *target, LinkTmpfileFlags flags) {
+        প্রত্যাগম flink_tmpfile_at(f, AT_FDCWD, path, target, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret);
-int mkdtemp_open(const char *template, int flags, char **ret);
+পূর্ণাঙ্ক mkdtemp_malloc(ধ্রুব বর্ণ *template, বর্ণ **ret);
+পূর্ণাঙ্ক mkdtemp_open(ধ্রুব বর্ণ *template, পূর্ণাঙ্ক flags, বর্ণ **ret);
 
 /* A helper for removing link_tmpfile_at() via _cleanup_() */
-struct cleanup_tmpfile_data {
-        int *dir_fd;
-        char **filename;
+সংরচনা cleanup_tmpfile_data {
+        পূর্ণাঙ্ক *dir_fd;
+        বর্ণ **filename;
 };
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d);
+শূন্য cleanup_tmpfile_data_done(সংরচনা cleanup_tmpfile_data *d);
 #define _CLEANUP_TMPFILE_AT(u, dir_fd, filename)                        \
-        _unused_ _cleanup_(cleanup_tmpfile_data_done) struct cleanup_tmpfile_data UNIQ_T(cta, u) = { &(dir_fd), &(filename) }
+        _unused_ _cleanup_(cleanup_tmpfile_data_done) সংরচনা cleanup_tmpfile_data UNIQ_T(cta, u) = { &(dir_fd), &(filename) }
 #define CLEANUP_TMPFILE_AT(dir_fd, filename)                            \
         _CLEANUP_TMPFILE_AT(UNIQ, dir_fd, filename)

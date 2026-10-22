@@ -1,24 +1,24 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "nulstr-util.h"
-#include "set.h"
-#include "string-util.h"
-#include "strv.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "nulstr-util.h"
+#অন্তর্ভাব "set.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "strv.h"
 
-const char* nulstr_get(const char *nulstr, const char *needle) {
-        if (!nulstr)
-                return NULL;
+ধ্রুব বর্ণ* nulstr_get(ধ্রুব বর্ণ *nulstr, ধ্রুব বর্ণ *needle) {
+        যদি (!nulstr)
+                প্রত্যাগম রিক্ত;
 
         NULSTR_FOREACH(i, nulstr)
-                if (streq(i, needle))
-                        return i;
+                যদি (streq(i, needle))
+                        প্রত্যাগম i;
 
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
-char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) {
-        _cleanup_strv_free_ char **v = NULL;
+বর্ণ** strv_parse_nulstr_full(ধ্রুব বর্ণ *s, size_t l, bool drop_trailing_nuls) {
+        _cleanup_strv_free_ বর্ণ **v = রিক্ত;
         size_t c = 0, i = 0;
 
         /* l is the length of the input data, which will be split at NULs into elements of the resulting
@@ -29,49 +29,49 @@ char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) 
          * Note that contrary to a normal nulstr which cannot contain empty strings, because the input data
          * is terminated by any two consequent NUL bytes, this parser accepts empty strings in s. */
 
-        assert(s || l <= 0);
+        প্রতিজ্ঞা(s || l <= 0);
 
-        if (drop_trailing_nuls)
-                while (l > 0 && s[l-1] == '\0')
+        যদি (drop_trailing_nuls)
+                যাবত্ (l > 0 && s[l-1] == '\0')
                         l--;
 
-        if (l <= 0)
-                return new0(char*, 1);
+        যদি (l <= 0)
+                প্রত্যাগম new0(বর্ণ*, 1);
 
-        for (const char *p = s; p < s + l; p++)
-                if (*p == 0)
+        প্রতি (ধ্রুব বর্ণ *p = s; p < s + l; p++)
+                যদি (*p == 0)
                         c++;
 
-        if (s[l-1] != 0)
+        যদি (s[l-1] != 0)
                 c++;
 
-        v = new0(char*, c+1);
-        if (!v)
-                return NULL;
+        v = new0(বর্ণ*, c+1);
+        যদি (!v)
+                প্রত্যাগম রিক্ত;
 
-        for (const char *p = s; p < s + l;) {
-                const char *e;
+        প্রতি (ধ্রুব বর্ণ *p = s; p < s + l;) {
+                ধ্রুব বর্ণ *e;
 
                 e = memchr(p, 0, s + l - p);
 
                 v[i] = memdup_suffix0(p, e ? e - p : s + l - p);
-                if (!v[i])
-                        return NULL;
+                যদি (!v[i])
+                        প্রত্যাগম রিক্ত;
                 i++;
 
-                if (!e)
-                        break;
+                যদি (!e)
+                        ভঙ্গ;
 
                 p = e + 1;
         }
 
-        assert(i == c);
+        প্রতিজ্ঞা(i == c);
 
-        return TAKE_PTR(v);
+        প্রত্যাগম TAKE_PTR(v);
 }
 
-char** strv_split_nulstr(const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+বর্ণ** strv_split_nulstr(ধ্রুব বর্ণ *s) {
+        _cleanup_strv_free_ বর্ণ **l = রিক্ত;
 
         /* This parses a nulstr, without specification of size, and stops at an empty string. This cannot
          * parse nulstrs with embedded empty strings hence, as an empty string is an end marker. Use
@@ -79,14 +79,14 @@ char** strv_split_nulstr(const char *s) {
          * size to be specified) */
 
         NULSTR_FOREACH(i, s)
-                if (strv_extend(&l, i) < 0)
-                        return NULL;
+                যদি (strv_extend(&l, i) < 0)
+                        প্রত্যাগম রিক্ত;
 
-        return l ? TAKE_PTR(l) : strv_new(NULL);
+        প্রত্যাগম l ? TAKE_PTR(l) : strv_new(রিক্ত);
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
-        _cleanup_free_ char *m = NULL;
+পূর্ণাঙ্ক strv_make_nulstr(বর্ণ * ধ্রুব *l, বর্ণ **ret, size_t *ret_size) {
+        _cleanup_free_ বর্ণ *m = রিক্ত;
         size_t n = 0;
 
         /* Builds a nulstr and returns it together with the size. An extra NUL byte will be appended (⚠️ but
@@ -99,48 +99,48 @@ int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
          * NUL bytes (which it will, if not empty). To ensure that this assumption *always* holds, we'll
          * return a buffer with two NUL bytes in that case, but return a size of zero. */
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         STRV_FOREACH(i, l) {
                 size_t z;
 
                 z = strlen(*i) + 1;
 
-                if (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
-                        return -ENOMEM;
+                যদি (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
+                        প্রত্যাগম -ENOMEM;
 
                 memcpy(m + n, *i, z);
                 n += z;
         }
 
-        if (!m) {
+        যদি (!m) {
                 /* return a buffer with an extra NUL, so that the assumption that we always have two trailing NULs holds */
-                m = new0(char, 2);
-                if (!m)
-                        return -ENOMEM;
+                m = new0(বর্ণ, 2);
+                যদি (!m)
+                        প্রত্যাগম -ENOMEM;
 
                 n = 0;
-        } else
+        } অন্যথা
                 /* Extra NUL is not counted in size returned */
                 m[n] = '\0';
 
         *ret = TAKE_PTR(m);
-        if (ret_size)
+        যদি (ret_size)
                 *ret_size = n;
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
+পূর্ণাঙ্ক set_make_nulstr(Set *s, বর্ণ **ret, size_t *ret_size) {
         /* Use _cleanup_free_ instead of _cleanup_strv_free_ because we need to clean the strv only, not
          * the strings owned by the set. */
-        _cleanup_free_ char **strv = NULL;
+        _cleanup_free_ বর্ণ **strv = রিক্ত;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         strv = set_get_strv(s);
-        if (!strv)
-                return -ENOMEM;
+        যদি (!strv)
+                প্রত্যাগম -ENOMEM;
 
-        return strv_make_nulstr(strv, ret, ret_size);
+        প্রত্যাগম strv_make_nulstr(strv, ret, ret_size);
 }

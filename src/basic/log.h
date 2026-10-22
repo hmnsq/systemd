@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
-#include <syslog.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <string.h>
+#অন্তর্ভাব <syslog.h>
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-typedef enum LogTarget{
+প্রকারনির্দেশ গণনা LogTarget{
         LOG_TARGET_CONSOLE,
         LOG_TARGET_KMSG,
         LOG_TARGET_JOURNAL,
@@ -27,175 +27,175 @@ typedef enum LogTarget{
 #define LOG_NULL (LOG_EMERG - 1)
 assert_cc(LOG_NULL == -1);
 
-#define SYNTHETIC_ERRNO(num)                (ABS(num) | (1 << 30))
+#define SYNTHETIC_ERRNO(অঙ্ক)                (ABS(অঙ্ক) | (1 << 30))
 #define IS_SYNTHETIC_ERRNO(val)             (((val) >> 30) == 1)
-#define ERRNO_VALUE(val)                    (ABS(val) & ~(1 << 30))
+#define ERRNO_মান(val)                    (ABS(val) & ~(1 << 30))
 
 /* The callback function to be invoked when syntax warnings are seen
  * in the unit files. */
-typedef void (*log_syntax_callback_t)(const char *unit, int level, void *userdata);
-void set_log_syntax_callback(log_syntax_callback_t cb, void *userdata);
+প্রকারনির্দেশ শূন্য (*log_syntax_callback_t)(ধ্রুব বর্ণ *unit, পূর্ণাঙ্ক level, শূন্য *userdata);
+শূন্য set_log_syntax_callback(log_syntax_callback_t cb, শূন্য *userdata);
 
-static inline void clear_log_syntax_callback(dummy_t *dummy) {
-          set_log_syntax_callback(/* cb= */ NULL, /* userdata= */ NULL);
+স্থির অন্তঃস্থ শূন্য clear_log_syntax_callback(dummy_t *dummy) {
+          set_log_syntax_callback(/* cb= */ রিক্ত, /* userdata= */ রিক্ত);
 }
 
 DECLARE_STRING_TABLE_LOOKUP(log_target, LogTarget);
-void log_set_target(LogTarget target);
-void log_set_target_and_open(LogTarget target);
-int log_set_target_from_string(const char *e);
-LogTarget log_get_target(void) _pure_;
-void log_settle_target(void);
+শূন্য log_set_target(LogTarget target);
+শূন্য log_set_target_and_open(LogTarget target);
+পূর্ণাঙ্ক log_set_target_from_string(ধ্রুব বর্ণ *e);
+LogTarget log_get_target(শূন্য) _pure_;
+শূন্য log_settle_target(শূন্য);
 
-int log_set_max_level(int level);
-int log_set_max_level_from_string(const char *e);
-int log_get_max_level(void) _pure_;
-int log_get_target_max_level(LogTarget target);
-int log_max_levels_to_string(int level, char **ret);
+পূর্ণাঙ্ক log_set_max_level(পূর্ণাঙ্ক level);
+পূর্ণাঙ্ক log_set_max_level_from_string(ধ্রুব বর্ণ *e);
+পূর্ণাঙ্ক log_get_max_level(শূন্য) _pure_;
+পূর্ণাঙ্ক log_get_target_max_level(LogTarget target);
+পূর্ণাঙ্ক log_max_levels_to_string(পূর্ণাঙ্ক level, বর্ণ **ret);
 
-void log_set_facility(int facility);
+শূন্য log_set_facility(পূর্ণাঙ্ক facility);
 
-void log_show_color(bool b);
-bool log_get_show_color(void) _pure_;
-void log_show_location(bool b);
-bool log_get_show_location(void) _pure_;
-void log_show_time(bool b);
-bool log_get_show_time(void) _pure_;
-void log_show_tid(bool b);
-bool log_get_show_tid(void) _pure_;
-void log_show_executable(bool b);
-bool log_get_show_executable(void) _pure_;
+শূন্য log_show_color(bool b);
+bool log_get_show_color(শূন্য) _pure_;
+শূন্য log_show_location(bool b);
+bool log_get_show_location(শূন্য) _pure_;
+শূন্য log_show_time(bool b);
+bool log_get_show_time(শূন্য) _pure_;
+শূন্য log_show_tid(bool b);
+bool log_get_show_tid(শূন্য) _pure_;
+শূন্য log_show_executable(bool b);
+bool log_get_show_executable(শূন্য) _pure_;
 
-int log_show_color_from_string(const char *e);
-int log_show_location_from_string(const char *e);
-int log_show_time_from_string(const char *e);
-int log_show_tid_from_string(const char *e);
-int log_show_executable_from_string(const char *e);
+পূর্ণাঙ্ক log_show_color_from_string(ধ্রুব বর্ণ *e);
+পূর্ণাঙ্ক log_show_location_from_string(ধ্রুব বর্ণ *e);
+পূর্ণাঙ্ক log_show_time_from_string(ধ্রুব বর্ণ *e);
+পূর্ণাঙ্ক log_show_tid_from_string(ধ্রুব বর্ণ *e);
+পূর্ণাঙ্ক log_show_executable_from_string(ধ্রুব বর্ণ *e);
 
 /* Functions below that open and close logs or configure logging based on the
  * environment should not be called from library code — this is always a job
  * for the application itself. */
 
-bool stderr_is_journal(void);
-int log_open(void);
-void log_close(void);
-void log_forget_fds(void);
+bool stderr_is_journal(শূন্য);
+পূর্ণাঙ্ক log_open(শূন্য);
+শূন্য log_close(শূন্য);
+শূন্য log_forget_fds(শূন্য);
 
-void log_parse_environment_variables(void);
-void log_parse_environment(void);
+শূন্য log_parse_environment_variables(শূন্য);
+শূন্য log_parse_environment(শূন্য);
 
-int log_dispatch_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                char *buffer);
+পূর্ণাঙ্ক log_dispatch_internal(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *object_field,
+                ধ্রুব বর্ণ *object,
+                ধ্রুব বর্ণ *extra_field,
+                ধ্রুব বর্ণ *extra,
+                বর্ণ *buffer);
 
-int log_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(6,7);
+পূর্ণাঙ্ক log_internal(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *format, ...) _printf_(6,7);
 
-int log_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format,
+পূর্ণাঙ্ক log_internalv(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *format,
                 va_list ap) _printf_(6,0);
 
-int log_object_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format,
+পূর্ণাঙ্ক log_object_internalv(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *object_field,
+                ধ্রুব বর্ণ *object,
+                ধ্রুব বর্ণ *extra_field,
+                ধ্রুব বর্ণ *extra,
+                ধ্রুব বর্ণ *format,
                 va_list ap) _printf_(10,0);
 
-int log_object_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format, ...) _printf_(10,11);
+পূর্ণাঙ্ক log_object_internal(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *object_field,
+                ধ্রুব বর্ণ *object,
+                ধ্রুব বর্ণ *extra_field,
+                ধ্রুব বর্ণ *extra,
+                ধ্রুব বর্ণ *format, ...) _printf_(10,11);
 
-int log_struct_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _sentinel_;
+পূর্ণাঙ্ক log_struct_internal(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *format, ...) _sentinel_;
 
-int log_oom_internal(
-                int level,
-                const char *file,
-                int line,
-                const char *func);
+পূর্ণাঙ্ক log_oom_internal(
+                পূর্ণাঙ্ক level,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func);
 
-int log_format_iovec(
-                struct iovec *iovec,
+পূর্ণাঙ্ক log_format_iovec(
+                সংরচনা iovec *iovec,
                 size_t iovec_len,
                 size_t *n,
                 bool newline_separator,
-                int error,
-                const char *format,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *format,
                 va_list ap) _printf_(6, 0);
 
-int log_struct_iovec_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const struct iovec *input_iovec,
-                size_t n_input_iovec);
+পূর্ণাঙ্ক log_struct_iovec_internal(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব সংরচনা iovec *প্রবেশ_iovec,
+                size_t n_প্রবেশ_iovec);
 
 /* This modifies the buffer passed! */
-int log_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                char *buffer);
+পূর্ণাঙ্ক log_dump_internal(
+                পূর্ণাঙ্ক level,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                বর্ণ *buffer);
 
 #define log_dispatch(level, error, buffer)                              \
-        log_dispatch_internal(level, error, PROJECT_FILE, __LINE__, __func__, NULL, NULL, NULL, NULL, buffer)
+        log_dispatch_internal(level, error, PROJECT_FILE, __LINE__, __func__, রিক্ত, রিক্ত, রিক্ত, রিক্ত, buffer)
 
 /* Logging with level */
 #define log_full_errno_zerook(level, error, ...)                        \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                পূর্ণাঙ্ক _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_internal(_level, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        : -ERRNO_মান(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 
-#if BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
-#  define ASSERT_NON_ZERO(x) assert((x) != 0)
-#  define ASSERT_UNDERFLOW(x) assert((x) >= INT_MIN)
-#else
+#যদি BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
+#  define ASSERT_NON_ZERO(x) প্রতিজ্ঞা((x) != 0)
+#  define ASSERT_UNDERFLOW(x) প্রতিজ্ঞা((x) >= INT_MIN)
+#অন্যথা
 #  define ASSERT_NON_ZERO(x)
 #  define ASSERT_UNDERFLOW(x)
 #endif
@@ -208,17 +208,17 @@ int log_dump_internal(
                 int64_t _error = (error);                               \
                 ASSERT_UNDERFLOW(_error);                               \
                 ASSERT_NON_ZERO(_error);                                \
-                log_full_errno_zerook(level, (int)_error, __VA_ARGS__); \
+                log_full_errno_zerook(level, (পূর্ণাঙ্ক)_error, __VA_ARGS__); \
         })
 
 #define log_full(level, fmt, ...)                                      \
         ({                                                             \
-                if (BUILD_MODE_DEVELOPER)                              \
-                        assert(!strstr(fmt, "%m"));                    \
-                (void) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
+                যদি (BUILD_MODE_DEVELOPER)                              \
+                        প্রতিজ্ঞা(!strstr(fmt, "%m"));                    \
+                (শূন্য) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
         })
 
-int log_emergency_level(void);
+পূর্ণাঙ্ক log_emergency_level(শূন্য);
 
 /* Normal logging */
 #define log_debug(...)     log_full(LOG_DEBUG,   __VA_ARGS__)
@@ -241,35 +241,35 @@ int log_emergency_level(void);
  * time it is called. */
 #define log_once(level, ...)                                             \
         ({                                                               \
-                if (ONCE)                                                \
+                যদি (ONCE)                                                \
                         log_full(level, __VA_ARGS__);                    \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                অন্যথা যদি (LOG_PRI(level) != LOG_DEBUG)                    \
                         log_debug(__VA_ARGS__);                          \
         })
 
 #define log_once_errno(level, error, ...)                                \
         ({                                                               \
-                int _err = (error);                                      \
-                if (ONCE)                                                \
+                পূর্ণাঙ্ক _err = (error);                                      \
+                যদি (ONCE)                                                \
                         _err = log_full_errno(level, _err, __VA_ARGS__); \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                অন্যথা যদি (LOG_PRI(level) != LOG_DEBUG)                    \
                         _err = log_debug_errno(_err, __VA_ARGS__);       \
-                else                                                     \
-                        _err = -ERRNO_VALUE(_err);                       \
+                অন্যথা                                                     \
+                        _err = -ERRNO_মান(_err);                       \
                 _err;                                                    \
         })
 
-#if LOG_TRACE
+#যদি LOG_TRACE
 #  define log_trace(...)          log_debug(__VA_ARGS__)
 #  define log_trace_errno(...)    log_debug_errno(__VA_ARGS__)
-#else
-#  define log_trace(...)          do {} while (0)
-#  define log_trace_errno(e, ...) (-ERRNO_VALUE(e))
+#অন্যথা
+#  define log_trace(...)          কুরু {} যাবত্ (0)
+#  define log_trace_errno(e, ...) (-ERRNO_মান(e))
 #endif
 
 /* Structured logging */
 #define log_struct_errno(level, error, ...)                             \
-        log_struct_internal(level, error, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__, NULL)
+        log_struct_internal(level, error, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__, রিক্ত)
 #define log_struct(level, ...) log_struct_errno(level, 0, __VA_ARGS__)
 
 #define log_struct_iovec_errno(level, error, iovec, n_iovec)            \
@@ -279,9 +279,9 @@ int log_emergency_level(void);
 /* Like log_struct(), but with log_once() semantics */
 #define log_struct_once(level, ...)                                     \
         ({                                                              \
-                if (ONCE)                                               \
+                যদি (ONCE)                                               \
                         log_struct(level, __VA_ARGS__);                 \
-                else if (LOG_PRI(level) != LOG_DEBUG)                   \
+                অন্যথা যদি (LOG_PRI(level) != LOG_DEBUG)                   \
                         log_struct(LOG_DEBUG, __VA_ARGS__);             \
         })
 
@@ -294,111 +294,111 @@ int log_emergency_level(void);
 #define log_oom_debug()     log_oom_full(LOG_DEBUG)
 #define log_oom_warning()   log_oom_full(LOG_WARNING)
 
-bool log_on_console(void) _pure_;
+bool log_on_console(শূন্য) _pure_;
 
 /* Helper to wrap the main message in structured logging. The macro doesn't do much,
  * except to provide visual grouping of the format string and its arguments. */
 #ifdef __COVERITY__
 /* Coverity does not like the concatenation of multiple formats and arguments. Let's replace each format
  * string with a dummy string. The validity of the formats is hopefully checked by other CIs. */
-#  define LOG_ITEM(fmt, ...)    "dummy", NULL, ##__VA_ARGS__
-#elif LOG_MESSAGE_VERIFICATION
+#  define LOG_ITEM(fmt, ...)    "dummy", রিক্ত, ##__VA_ARGS__
+#নোচেদ্যদি LOG_MESSAGE_VERIFICATION
 /* Do a fake formatting of the message string to let the scanner verify the arguments against the format
  * message. The variable will never be set to true, but we don't tell the compiler that :) */
-extern bool _log_message_dummy;
+বাহ্য bool _log_message_dummy;
 #  define LOG_ITEM(fmt, ...) "%.0d" fmt, (_log_message_dummy && printf(fmt, ##__VA_ARGS__)), ##__VA_ARGS__
-#else
+#অন্যথা
 #  define LOG_ITEM(fmt, ...) fmt, ##__VA_ARGS__
 #endif
 
 #define LOG_MESSAGE(fmt, ...) LOG_ITEM("MESSAGE=" fmt, ##__VA_ARGS__)
 #define LOG_MESSAGE_ID(id)    LOG_ITEM("MESSAGE_ID=" id)
 
-void log_received_signal(int level, const struct signalfd_siginfo *si);
+শূন্য log_received_signal(পূর্ণাঙ্ক level, ধ্রুব সংরচনা signalfd_siginfo *si);
 
 /* If turned on, any requests for a log target involving "syslog" will be implicitly upgraded to the equivalent journal target */
-void log_set_upgrade_syslog_to_journal(bool b);
+শূন্য log_set_upgrade_syslog_to_journal(bool b);
 
 /* If turned on, and log_open() is called, we'll not use STDERR_FILENO for logging ever, but rather open /dev/console */
-void log_set_always_reopen_console(bool b);
+শূন্য log_set_always_reopen_console(bool b);
 
 /* If turned on, we'll open the log stream implicitly if needed on each individual log call. This is normally not
  * desired as we want to reuse our logging streams. It is useful however  */
-void log_set_open_when_needed(bool b);
+শূন্য log_set_open_when_needed(bool b);
 
 /* If turned on, then we'll never use IPC-based logging, i.e. never log to syslog or the journal. We'll only log to
  * stderr, the console or kmsg */
-void log_set_prohibit_ipc(bool b);
+শূন্য log_set_prohibit_ipc(bool b);
 
-int log_dup_console(void);
+পূর্ণাঙ্ক log_dup_console(শূন্য);
 
-int log_syntax_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(9, 10);
+পূর্ণাঙ্ক log_syntax_internal(
+                ধ্রুব বর্ণ *unit,
+                পূর্ণাঙ্ক level,
+                ধ্রুব বর্ণ *config_file,
+                unsigned config_সারি,
+                পূর্ণাঙ্ক error,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *format, ...) _printf_(9, 10);
 
-int log_syntax_invalid_utf8_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                const char *file,
-                int line,
-                const char *func,
-                const char *rvalue);
+পূর্ণাঙ্ক log_syntax_invalid_utf8_internal(
+                ধ্রুব বর্ণ *unit,
+                পূর্ণাঙ্ক level,
+                ধ্রুব বর্ণ *config_file,
+                unsigned config_সারি,
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *rvalue);
 
-int log_syntax_parse_error_internal(
-                const char *unit,
-                const char *config_file,
-                unsigned config_line,
-                int error,
+পূর্ণাঙ্ক log_syntax_parse_error_internal(
+                ধ্রুব বর্ণ *unit,
+                ধ্রুব বর্ণ *config_file,
+                unsigned config_সারি,
+                পূর্ণাঙ্ক error,
                 bool critical, /* When true, propagate the passed error, otherwise this always returns 0. */
-                const char *file,
-                int line,
-                const char *func,
-                const char *lvalue,
-                const char *rvalue);
+                ধ্রুব বর্ণ *file,
+                পূর্ণাঙ্ক সারি,
+                ধ্রুব বর্ণ *func,
+                ধ্রুব বর্ণ *lvalue,
+                ধ্রুব বর্ণ *rvalue);
 
-#define log_syntax(unit, level, config_file, config_line, error, ...)   \
+#define log_syntax(unit, level, config_file, config_সারি, error, ...)   \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                পূর্ণাঙ্ক _level = (level), _e = (error);                     \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_internal(unit, _level, config_file, config_line, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        ? log_syntax_internal(unit, _level, config_file, config_সারি, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
+                        : -ERRNO_মান(_e);                             \
         })
 
-#define log_syntax_invalid_utf8(unit, level, config_file, config_line, rvalue) \
+#define log_syntax_invalid_utf8(unit, level, config_file, config_সারি, rvalue) \
         ({                                                              \
-                int _level = (level);                                   \
+                পূর্ণাঙ্ক _level = (level);                                   \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_line, PROJECT_FILE, __LINE__, __func__, rvalue) \
+                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_সারি, PROJECT_FILE, __LINE__, __func__, rvalue) \
                         : -EINVAL;                                      \
         })
 
-#define log_syntax_parse_error_full(unit, config_file, config_line, error, critical, lvalue, rvalue) \
-        log_syntax_parse_error_internal(unit, config_file, config_line, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
+#define log_syntax_parse_error_full(unit, config_file, config_সারি, error, critical, lvalue, rvalue) \
+        log_syntax_parse_error_internal(unit, config_file, config_সারি, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
 
-#define log_syntax_parse_error(unit, config_file, config_line, error, lvalue, rvalue) \
-        log_syntax_parse_error_full(unit, config_file, config_line, error, /* critical= */ false, lvalue, rvalue)
+#define log_syntax_parse_error(unit, config_file, config_সারি, error, lvalue, rvalue) \
+        log_syntax_parse_error_full(unit, config_file, config_সারি, error, /* critical= */ false, lvalue, rvalue)
 
 #define DEBUG_LOGGING _unlikely_(log_get_max_level() >= LOG_DEBUG)
 
-void log_setup(void);
+শূন্য log_setup(শূন্য);
 
-const char* _log_set_prefix(const char *prefix, bool force);
+ধ্রুব বর্ণ* _log_set_prefix(ধ্রুব বর্ণ *prefix, bool force);
 
-void log_prefix_swap(const char **prefix);
-static inline const char* _log_unset_prefixp(const char **p) {
-        assert(p);
+শূন্য log_prefix_swap(ধ্রুব বর্ণ **prefix);
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* _log_unset_prefixp(ধ্রুব বর্ণ **p) {
+        প্রতিজ্ঞা(p);
         _log_set_prefix(*p, true);
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
 #define LOG_SET_PREFIX(prefix) \
-        _cleanup_(_log_unset_prefixp) _unused_ const char *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);
+        _cleanup_(_log_unset_prefixp) _unused_ ধ্রুব বর্ণ *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);

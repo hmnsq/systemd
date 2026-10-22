@@ -1,217 +1,217 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
+#অন্তর্ভাব <fnmatch.h>
+#অন্তর্ভাব <stdio.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "gunicode.h"
-#include "hashmap.h"
-#include "log.h"
-#include "memory-util.h"
-#include "sort-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "env-util.h"
+#অন্তর্ভাব "escape.h"
+#অন্তর্ভাব "extract-word.h"
+#অন্তর্ভাব "fileio.h"
+#অন্তর্ভাব "gunicode.h"
+#অন্তর্ভাব "hashmap.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "memory-util.h"
+#অন্তর্ভাব "sort-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "strv.h"
+#অন্তর্ভাব "utf8.h"
 
-char* strv_find(char * const *l, const char *name) {
-        assert(name);
-
-        STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
-
-        return NULL;
-}
-
-char* strv_find_case(char * const *l, const char *name) {
-        assert(name);
+বর্ণ* strv_find(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name) {
+        প্রতিজ্ঞা(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                যদি (streq(*i, name))
+                        প্রত্যাগম *i;
 
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
-char* strv_find_prefix(char * const *l, const char *name) {
-        assert(name);
+বর্ণ* strv_find_case(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name) {
+        প্রতিজ্ঞা(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                যদি (strcaseeq(*i, name))
+                        প্রত্যাগম *i;
 
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
-char* strv_find_startswith(char * const *l, const char *name) {
-        assert(name);
+বর্ণ* strv_find_prefix(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name) {
+        প্রতিজ্ঞা(name);
+
+        STRV_FOREACH(i, l)
+                যদি (startswith(*i, name))
+                        প্রত্যাগম *i;
+
+        প্রত্যাগম রিক্ত;
+}
+
+বর্ণ* strv_find_startswith(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name) {
+        প্রতিজ্ঞা(name);
 
         /* Like strv_find_prefix, but actually returns only the
          * suffix, not the whole item */
 
         STRV_FOREACH(i, l) {
-                char *e;
+                বর্ণ *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                যদি (e)
+                        প্রত্যাগম e;
         }
 
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
-static char* strv_find_closest_prefix(char * const *l, const char *name) {
+স্থির বর্ণ* strv_find_closest_prefix(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name) {
         size_t best_distance = SIZE_MAX;
-        char *best = NULL;
+        বর্ণ *best = রিক্ত;
 
-        assert(name);
+        প্রতিজ্ঞা(name);
 
         STRV_FOREACH(s, l) {
-                char *e = startswith(*s, name);
-                if (!e)
-                        continue;
+                বর্ণ *e = startswith(*s, name);
+                যদি (!e)
+                        অনুবর্ত;
 
                 size_t n = strlen(e);
-                if (n < best_distance) {
+                যদি (n < best_distance) {
                         best_distance = n;
                         best = *s;
                 }
         }
 
-        return best;
+        প্রত্যাগম best;
 }
 
-static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
+স্থির বর্ণ* strv_find_closest_by_levenshtein(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name) {
         ssize_t best_distance = SSIZE_MAX;
-        char *best = NULL;
+        বর্ণ *best = রিক্ত;
 
-        assert(name);
+        প্রতিজ্ঞা(name);
 
         STRV_FOREACH(i, l) {
                 ssize_t distance;
 
                 distance = strlevenshtein(*i, name);
-                if (distance < 0) {
+                যদি (distance < 0) {
                         log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                        প্রত্যাগম রিক্ত;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
-                        continue;
+                যদি (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                        অনুবর্ত;
 
-                if (distance < best_distance) {
+                যদি (distance < best_distance) {
                         best_distance = distance;
                         best = *i;
                 }
         }
 
-        return best;
+        প্রত্যাগম best;
 }
 
-char* strv_find_closest(char * const *l, const char *name) {
-        assert(name);
+বর্ণ* strv_find_closest(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *name) {
+        প্রতিজ্ঞা(name);
 
         /* Be more helpful to the user, and give a hint what the user might have wanted to type. We search
          * with two mechanisms: a simple prefix match and – if that didn't yield results –, a Levenshtein
          * word distance based match. */
 
-        char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        বর্ণ *found = strv_find_closest_prefix(l, name);
+        যদি (found)
+                প্রত্যাগম found;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        প্রত্যাগম strv_find_closest_by_levenshtein(l, name);
 }
 
-char* strv_find_first_field(char * const *needles, char * const *haystack) {
+বর্ণ* strv_find_first_field(বর্ণ * ধ্রুব *needles, বর্ণ * ধ্রুব *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                বর্ণ *মান = strv_env_pairs_get((বর্ণ **)haystack, *k);
+                যদি (মান)
+                        প্রত্যাগম মান;
         }
 
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
-char** strv_free(char **l) {
+বর্ণ** strv_free(বর্ণ **l) {
         STRV_FOREACH(k, l)
-                free(*k);
+                মুক্ত(*k);
 
-        return mfree(l);
+        প্রত্যাগম mfree(l);
 }
 
-char** strv_free_erase(char **l) {
+বর্ণ** strv_free_erase(বর্ণ **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        প্রত্যাগম mfree(l);
 }
 
-void strv_free_many(char ***strvs, size_t n) {
-        assert(strvs || n == 0);
+শূন্য strv_free_many(বর্ণ ***strvs, size_t n) {
+        প্রতিজ্ঞা(strvs || n == 0);
 
         FOREACH_ARRAY (i, strvs, n)
                 strv_free(*i);
 
-        free(strvs);
+        মুক্ত(strvs);
 }
 
-char** strv_copy_n(char * const *l, size_t n) {
-        _cleanup_strv_free_ char **result = NULL;
-        char **k;
+বর্ণ** strv_copy_n(বর্ণ * ধ্রুব *l, size_t n) {
+        _cleanup_strv_free_ বর্ণ **result = রিক্ত;
+        বর্ণ **k;
 
-        result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        result = new(বর্ণ*, MIN(strv_length(l), n) + 1);
+        যদি (!result)
+                প্রত্যাগম রিক্ত;
 
         k = result;
         STRV_FOREACH(i, l) {
-                if (n == 0)
-                        break;
+                যদি (n == 0)
+                        ভঙ্গ;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                যদি (!*k)
+                        প্রত্যাগম রিক্ত;
                 k++;
 
-                if (n != SIZE_MAX)
+                যদি (n != SIZE_MAX)
                         n--;
         }
 
-        *k = NULL;
-        return TAKE_PTR(result);
+        *k = রিক্ত;
+        প্রত্যাগম TAKE_PTR(result);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
-        assert(ret);
+পূর্ণাঙ্ক strv_copy_unless_empty(বর্ণ * ধ্রুব *l, বর্ণ ***ret) {
+        প্রতিজ্ঞা(ret);
 
-        if (strv_isempty(l)) {
-                *ret = NULL;
-                return 0;
+        যদি (strv_isempty(l)) {
+                *ret = রিক্ত;
+                প্রত্যাগম 0;
         }
 
-        char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        বর্ণ **copy = strv_copy(l);
+        যদি (!copy)
+                প্রত্যাগম -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        প্রত্যাগম 1;
 }
 
-size_t strv_length(char * const *l) {
+size_t strv_length(বর্ণ * ধ্রুব *l) {
         size_t n = 0;
 
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        প্রত্যাগম n;
 }
 
-char** strv_new_ap(const char *x, va_list ap) {
-        _cleanup_strv_free_ char **a = NULL;
+বর্ণ** strv_new_ap(ধ্রুব বর্ণ *x, va_list ap) {
+        _cleanup_strv_free_ বর্ণ **a = রিক্ত;
         size_t n = 0, i = 0;
         va_list aq;
 
@@ -221,320 +221,320 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        প্রতি (ধ্রুব বর্ণ *s = x; s; s = va_arg(aq, ধ্রুব বর্ণ*)) {
+                যদি (s == STRV_IGNORE)
+                        অনুবর্ত;
 
                 n++;
         }
         va_end(aq);
 
-        a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        a = new(বর্ণ*, n+1);
+        যদি (!a)
+                প্রত্যাগম রিক্ত;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        প্রতি (ধ্রুব বর্ণ *s = x; s; s = va_arg(ap, ধ্রুব বর্ণ*)) {
+                যদি (s == STRV_IGNORE)
+                        অনুবর্ত;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                যদি (!a[i])
+                        প্রত্যাগম রিক্ত;
 
                 i++;
         }
 
-        a[i] = NULL;
+        a[i] = রিক্ত;
 
-        return TAKE_PTR(a);
+        প্রত্যাগম TAKE_PTR(a);
 }
 
-char** strv_new_internal(const char *x, ...) {
-        char **r;
+বর্ণ** strv_new_internal(ধ্রুব বর্ণ *x, ...) {
+        বর্ণ **r;
         va_list ap;
 
         va_start(ap, x);
         r = strv_new_ap(x, ap);
         va_end(ap);
 
-        return r;
+        প্রত্যাগম r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
+পূর্ণাঙ্ক strv_extend_strv(বর্ণ ***a, বর্ণ * ধ্রুব *b, bool filter_duplicates) {
         size_t p, q, i = 0;
 
-        assert(a);
+        প্রতিজ্ঞা(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        যদি (q == 0)
+                প্রত্যাগম 0;
 
         p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        যদি (p >= SIZE_MAX - q)
+                প্রত্যাগম -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        বর্ণ **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), পরিমাণ(বর্ণ *));
+        যদি (!t)
+                প্রত্যাগম -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = রিক্ত;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
-                        continue;
+                যদি (filter_duplicates && strv_contains(t, *s))
+                        অনুবর্ত;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
-                        goto rollback;
+                যদি (!t[p+i])
+                        গচ্ছ rollback;
 
                 i++;
-                t[p+i] = NULL;
+                t[p+i] = রিক্ত;
         }
 
-        assert(i <= q);
+        প্রতিজ্ঞা(i <= q);
 
-        return (int) i;
+        প্রত্যাগম (পূর্ণাঙ্ক) i;
 
 rollback:
         free_many_charp(t + p, i);
-        t[p] = NULL;
-        return -ENOMEM;
+        t[p] = রিক্ত;
+        প্রত্যাগম -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
-        _cleanup_strv_free_ char **b_consume = b;
+পূর্ণাঙ্ক strv_extend_strv_consume(বর্ণ ***a, বর্ণ **b, bool filter_duplicates) {
+        _cleanup_strv_free_ বর্ণ **b_consume = b;
         size_t p, q, i;
 
-        assert(a);
+        প্রতিজ্ঞা(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        যদি (q == 0)
+                প্রত্যাগম 0;
 
         p = strv_length(*a);
-        if (p == 0) {
+        যদি (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                যদি (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                প্রত্যাগম strv_length(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        যদি (p >= SIZE_MAX - q)
+                প্রত্যাগম -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        বর্ণ **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), পরিমাণ(বর্ণ *));
+        যদি (!t)
+                প্রত্যাগম -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = রিক্ত;
         *a = t;
 
-        if (!filter_duplicates) {
-                *mempcpy_typesafe(t + p, b, q) = NULL;
+        যদি (!filter_duplicates) {
+                *mempcpy_typesafe(t + p, b, q) = রিক্ত;
                 i = q;
-        } else {
+        } অন্যথা {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
-                                free(*s);
-                                continue;
+                        যদি (strv_contains(t, *s)) {
+                                মুক্ত(*s);
+                                অনুবর্ত;
                         }
 
                         t[p+i] = *s;
 
                         i++;
-                        t[p+i] = NULL;
+                        t[p+i] = রিক্ত;
                 }
         }
 
-        assert(i <= q);
+        প্রতিজ্ঞা(i <= q);
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        প্রত্যাগম (পূর্ণাঙ্ক) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+পূর্ণাঙ্ক strv_extend_strv_biconcat(বর্ণ ***a, ধ্রুব বর্ণ *prefix, ধ্রুব বর্ণ* ধ্রুব *b, ধ্রুব বর্ণ *suffix) {
+        পূর্ণাঙ্ক r;
 
-        assert(a);
+        প্রতিজ্ঞা(a);
 
         STRV_FOREACH(s, b) {
-                char *v;
+                বর্ণ *v;
 
                 v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                যদি (!v)
+                        প্রত্যাগম -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+পূর্ণাঙ্ক strv_split_newlines_full(বর্ণ ***ret, ধ্রুব বর্ণ *s, ExtractFlags flags) {
+        _cleanup_strv_free_ বর্ণ **l = রিক্ত;
         size_t n;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(ret);
-        assert(s);
+        প্রতিজ্ঞা(ret);
+        প্রতিজ্ঞা(s);
 
         /* Special version of strv_split_full() that splits on newlines and
          * suppresses an empty string at the end. */
 
         r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        যদি (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        প্রত্যাগম n;
 }
 
-char** strv_split_newlines(const char *s) {
-        char **ret;
+বর্ণ** strv_split_newlines(ধ্রুব বর্ণ *s) {
+        বর্ণ **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        যদি (strv_split_newlines_full(&ret, s, 0) < 0)
+                প্রত্যাগম রিক্ত;
 
-        return ret;
+        প্রত্যাগম ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+পূর্ণাঙ্ক strv_split_full(বর্ণ ***t, ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *separators, ExtractFlags flags) {
+        _cleanup_strv_free_ বর্ণ **l = রিক্ত;
         size_t n = 0;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(t);
-        assert(s);
+        প্রতিজ্ঞা(t);
+        প্রতিজ্ঞা(s);
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
+        প্রতি (;;) {
+                _cleanup_free_ বর্ণ *word = রিক্ত;
 
                 r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r == 0)
+                        ভঙ্গ;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                যদি (!GREEDY_REALLOC(l, n + 2))
+                        প্রত্যাগম -ENOMEM;
 
                 l[n++] = TAKE_PTR(word);
-                l[n] = NULL;
+                l[n] = রিক্ত;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        যদি (!l) {
+                l = new0(বর্ণ*, 1);
+                যদি (!l)
+                        প্রত্যাগম -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        প্রত্যাগম (পূর্ণাঙ্ক) n;
 }
 
-char** strv_split(const char *s, const char *separators) {
-        char **ret;
+বর্ণ** strv_split(ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *separators) {
+        বর্ণ **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        যদি (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
+                প্রত্যাগম রিক্ত;
 
-        return ret;
+        প্রত্যাগম ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
-        char **l;
-        int r;
+পূর্ণাঙ্ক strv_split_and_extend_full(বর্ণ ***t, ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *separators, bool filter_duplicates, ExtractFlags flags) {
+        বর্ণ **l;
+        পূর্ণাঙ্ক r;
 
-        assert(t);
-        assert(s);
+        প্রতিজ্ঞা(t);
+        প্রতিজ্ঞা(s);
 
         r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return (int) strv_length(*t);
+        প্রত্যাগম (পূর্ণাঙ্ক) strv_length(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+পূর্ণাঙ্ক strv_split_and_extend(বর্ণ ***t, ধ্রুব বর্ণ *s, ধ্রুব বর্ণ *separators, bool filter_duplicates) {
+        প্রত্যাগম strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+পূর্ণাঙ্ক strv_split_colon_pairs(বর্ণ ***t, ধ্রুব বর্ণ *s) {
+        _cleanup_strv_free_ বর্ণ **l = রিক্ত;
         size_t n = 0;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(t);
-        assert(s);
+        প্রতিজ্ঞা(t);
+        প্রতিজ্ঞা(s);
 
-        for (;;) {
-                _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
+        প্রতি (;;) {
+                _cleanup_free_ বর্ণ *first = রিক্ত, *second = রিক্ত, *tuple = রিক্ত, *second_or_empty = রিক্ত;
 
-                r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&s, &tuple, রিক্ত, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r == 0)
+                        ভঙ্গ;
 
-                const char *p = tuple;
-                r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
+                ধ্রুব বর্ণ *p = tuple;
+                r = extract_many_শব্দগুলি(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        continue;
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r == 0)
+                        অনুবর্ত;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                যদি (!isempty(p))
+                        প্রত্যাগম -EINVAL;
 
                 second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                যদি (!second_or_empty)
+                        প্রত্যাগম -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                যদি (!GREEDY_REALLOC(l, n + 3))
+                        প্রত্যাগম -ENOMEM;
 
                 l[n++] = TAKE_PTR(first);
                 l[n++] = TAKE_PTR(second_or_empty);
 
-                l[n] = NULL;
+                l[n] = রিক্ত;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        যদি (!l) {
+                l = new0(বর্ণ*, 1);
+                যদি (!l)
+                        প্রত্যাগম -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        প্রত্যাগম (পূর্ণাঙ্ক) n;
 }
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
-        char *r, *e;
+বর্ণ* strv_join_full(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *separator, ধ্রুব বর্ণ *prefix) {
+        বর্ণ *r, *e;
         size_t n, k, m;
 
-        if (!separator)
+        যদি (!separator)
                 separator = " ";
 
         k = strlen(separator);
@@ -542,22 +542,22 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                যদি (s != l)
                         n += k;
 
                 n += m + strlen(*s);
         }
 
-        r = new(char, n+1);
-        if (!r)
-                return NULL;
+        r = new(বর্ণ, n+1);
+        যদি (!r)
+                প্রত্যাগম রিক্ত;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                যদি (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
+                যদি (prefix)
                         e = stpcpy(e, prefix);
 
                 e = stpcpy(e, *s);
@@ -565,683 +565,683 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         *e = 0;
 
-        return r;
+        প্রত্যাগম r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+পূর্ণাঙ্ক strv_ঠেলো_with_size(বর্ণ ***l, size_t *n, বর্ণ *মান) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
          * If value is empty, no action is taken and *n is not set. */
 
-        assert(l);
+        প্রতিজ্ঞা(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        যদি (!মান)
+                প্রত্যাগম 0;
 
         size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
+        যদি (size == SIZE_MAX)
                 size = strv_length(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        যদি (size > SIZE_MAX-2)
+                প্রত্যাগম -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        বর্ণ **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), পরিমাণ(বর্ণ*));
+        যদি (!c)
+                প্রত্যাগম -ENOMEM;
 
-        c[size] = value;
-        c[size+1] = NULL;
+        c[size] = মান;
+        c[size+1] = রিক্ত;
 
         *l = c;
-        if (n)
+        যদি (n)
                 *n = size + 1;
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
-        char **c;
+পূর্ণাঙ্ক strv_ঠেলো_pair(বর্ণ ***l, বর্ণ *a, বর্ণ *b) {
+        বর্ণ **c;
         size_t n;
 
-        assert(l);
+        প্রতিজ্ঞা(l);
 
-        if (!a && !b)
-                return 0;
+        যদি (!a && !b)
+                প্রত্যাগম 0;
 
         n = strv_length(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        যদি (n > SIZE_MAX-3)
+                প্রত্যাগম -ENOMEM;
 
         /* increase and check for overflow */
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), পরিমাণ(বর্ণ*));
+        যদি (!c)
+                প্রত্যাগম -ENOMEM;
 
-        if (a)
+        যদি (a)
                 c[n++] = a;
-        if (b)
+        যদি (b)
                 c[n++] = b;
-        c[n] = NULL;
+        c[n] = রিক্ত;
 
         *l = c;
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
-        char **c;
+পূর্ণাঙ্ক strv_ঢোকাও(বর্ণ ***l, size_t position, বর্ণ *মান) {
+        বর্ণ **c;
         size_t n, m;
 
-        assert(l);
+        প্রতিজ্ঞা(l);
 
-        if (!value)
-                return 0;
+        যদি (!মান)
+                প্রত্যাগম 0;
 
         n = strv_length(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        যদি (n > SIZE_MAX - 2)
+                প্রত্যাগম -ENOMEM;
         m = n + 2;
 
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), পরিমাণ(বর্ণ*));
+        যদি (!c)
+                প্রত্যাগম -ENOMEM;
 
-        if (n > position)
-                memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
+        যদি (n > position)
+                memmove(c + position + 1, c + position, (n - position) * পরিমাণ(বর্ণ*));
 
-        c[position] = value;
-        c[n + 1] = NULL;
+        c[position] = মান;
+        c[n + 1] = রিক্ত;
 
         *l = c;
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+পূর্ণাঙ্ক strv_consume_with_size(বর্ণ ***l, size_t *n, বর্ণ *মান) {
+        পূর্ণাঙ্ক r;
 
-        r = strv_push_with_size(l, n, value);
-        if (r < 0)
-                free(value);
+        r = strv_ঠেলো_with_size(l, n, মান);
+        যদি (r < 0)
+                মুক্ত(মান);
 
-        return r;
+        প্রত্যাগম r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+পূর্ণাঙ্ক strv_consume_pair(বর্ণ ***l, বর্ণ *a, বর্ণ *b) {
+        পূর্ণাঙ্ক r;
 
-        r = strv_push_pair(l, a, b);
-        if (r < 0) {
-                free(a);
-                free(b);
+        r = strv_ঠেলো_pair(l, a, b);
+        যদি (r < 0) {
+                মুক্ত(a);
+                মুক্ত(b);
         }
 
-        return r;
+        প্রত্যাগম r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+পূর্ণাঙ্ক strv_consume_prepend(বর্ণ ***l, বর্ণ *মান) {
+        পূর্ণাঙ্ক r;
 
-        r = strv_push_prepend(l, value);
-        if (r < 0)
-                free(value);
+        r = strv_ঠেলো_prepend(l, মান);
+        যদি (r < 0)
+                মুক্ত(মান);
 
-        return r;
+        প্রত্যাগম r;
 }
 
-int strv_prepend(char ***l, const char *value) {
-        char *v;
+পূর্ণাঙ্ক strv_prepend(বর্ণ ***l, ধ্রুব বর্ণ *মান) {
+        বর্ণ *v;
 
-        if (!value)
-                return 0;
+        যদি (!মান)
+                প্রত্যাগম 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(মান);
+        যদি (!v)
+                প্রত্যাগম -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        প্রত্যাগম strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
-        char *v;
+পূর্ণাঙ্ক strv_extend_with_size(বর্ণ ***l, size_t *n, ধ্রুব বর্ণ *মান) {
+        বর্ণ *v;
 
-        if (!value)
-                return 0;
+        যদি (!মান)
+                প্রত্যাগম 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(মান);
+        যদি (!v)
+                প্রত্যাগম -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        প্রত্যাগম strv_consume_with_size(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+পূর্ণাঙ্ক strv_extend_many_internal(বর্ণ ***l, ধ্রুব বর্ণ *মান, ...) {
         va_list ap;
         size_t n, m;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(l);
+        প্রতিজ্ঞা(l);
 
         m = n = strv_length(*l);
 
         r = 0;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, মান);
+        প্রতি (ধ্রুব বর্ণ *s = মান; s != POINTER_MAX; s = va_arg(ap, ধ্রুব বর্ণ*)) {
+                যদি (!s)
+                        অনুবর্ত;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                যদি (m > SIZE_MAX-1) { /* overflow */
                         r = -ENOMEM;
-                        break;
+                        ভঙ্গ;
                 }
                 m++;
         }
         va_end(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        যদি (r < 0)
+                প্রত্যাগম r;
+        যদি (m > SIZE_MAX-1)
+                প্রত্যাগম -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        বর্ণ **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), পরিমাণ(বর্ণ*));
+        যদি (!c)
+                প্রত্যাগম -ENOMEM;
         *l = c;
 
         r = 0;
         size_t i = n;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, মান);
+        প্রতি (ধ্রুব বর্ণ *s = মান; s != POINTER_MAX; s = va_arg(ap, ধ্রুব বর্ণ*)) {
+                যদি (!s)
+                        অনুবর্ত;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                যদি (!c[i]) {
                         r = -ENOMEM;
-                        break;
+                        ভঙ্গ;
                 }
                 i++;
         }
         va_end(ap);
 
-        if (r < 0) {
+        যদি (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                প্রতি (size_t j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                প্রত্যাগম r;
         }
 
-        c[i] = NULL;
-        return 0;
+        c[i] = রিক্ত;
+        প্রত্যাগম 0;
 }
 
-char** strv_uniq(char **l) {
+বর্ণ** strv_uniq(বর্ণ **l) {
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        প্রত্যাগম l;
 }
 
-bool strv_is_uniq(char * const *l) {
+bool strv_is_uniq(বর্ণ * ধ্রুব *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                যদি (strv_contains(i+1, *i))
+                        প্রত্যাগম false;
 
-        return true;
+        প্রত্যাগম true;
 }
 
-char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+বর্ণ** strv_remove(বর্ণ **l, ধ্রুব বর্ণ *s) {
+        যদি (!l)
+                প্রত্যাগম রিক্ত;
 
-        assert(s);
+        প্রতিজ্ঞা(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
-                        free(*f);
-                else
+        বর্ণ **f, **t;
+        প্রতি (f = t = l; *f; f++)
+                যদি (streq(*f, s))
+                        মুক্ত(*f);
+                অন্যথা
                         *(t++) = *f;
 
-        *t = NULL;
-        return l;
+        *t = রিক্ত;
+        প্রত্যাগম l;
 }
 
-char** strv_remove_strv(char **l, char *const*ll) {
+বর্ণ** strv_remove_strv(বর্ণ **l, বর্ণ *ধ্রুব*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        যদি (strv_isempty(l))
+                প্রত্যাগম l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        প্রত্যাগম l;
 }
 
-bool strv_overlap(char * const *a, char * const *b) {
+bool strv_overlap(বর্ণ * ধ্রুব *a, বর্ণ * ধ্রুব *b) {
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                যদি (strv_contains(b, *i))
+                        প্রত্যাগম true;
 
-        return false;
+        প্রত্যাগম false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+স্থির পূর্ণাঙ্ক str_compare(বর্ণ * ধ্রুব *a, বর্ণ * ধ্রুব *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        প্রত্যাগম strcmp(*a, *b);
 }
 
-char** strv_sort(char **l) {
+বর্ণ** strv_sort(বর্ণ **l) {
         typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+        প্রত্যাগম l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
-        assert(compare);
+বর্ণ** strv_sort_uniq_full(বর্ণ **l, পূর্ণাঙ্ক (*compare)(বর্ণ * ধ্রুব *a, বর্ণ * ধ্রুব *b)) {
+        প্রতিজ্ঞা(compare);
 
-        if (strv_isempty(l))
-                return l;
+        যদি (strv_isempty(l))
+                প্রত্যাগম l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
 
         typesafe_qsort(l, strv_length(l), compare);
 
-        char **tail = l + 1;
+        বর্ণ **tail = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
-                        free(*i);
-                else
+                যদি (compare(i, tail - 1) == 0)
+                        মুক্ত(*i);
+                অন্যথা
                         *(tail++) = *i;
 
-        *tail = NULL;
-        return l;
+        *tail = রিক্ত;
+        প্রত্যাগম l;
 }
 
-char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+বর্ণ** strv_sort_uniq(বর্ণ **l) {
+        প্রত্যাগম strv_sort_uniq_full(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+পূর্ণাঙ্ক strv_compare(বর্ণ * ধ্রুব *a, বর্ণ * ধ্রুব *b) {
+        পূর্ণাঙ্ক r;
 
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        যদি (strv_isempty(a)) {
+                যদি (strv_isempty(b))
+                        প্রত্যাগম 0;
+                অন্যথা
+                        প্রত্যাগম -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        যদি (strv_isempty(b))
+                প্রত্যাগম 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        প্রতি ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                যদি (r != 0)
+                        প্রত্যাগম r;
         }
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) {
+bool strv_equal_ignore_order(বর্ণ * ধ্রুব *a, বর্ণ * ধ্রুব *b) {
 
         /* Just like strv_equal(), but doesn't care about the order of elements or about redundant entries
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        যদি (a == b)
+                প্রত্যাগম true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                যদি (!strv_contains(b, *i))
+                        প্রত্যাগম false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                যদি (!strv_contains(a, *i))
+                        প্রত্যাগম false;
 
-        return true;
+        প্রত্যাগম true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+শূন্য strv_print_full(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *prefix) {
         STRV_FOREACH(s, l)
                 printf("%s%s\n", strempty(prefix), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
+পূর্ণাঙ্ক strv_extendf_with_size(বর্ণ ***l, size_t *n, ধ্রুব বর্ণ *format, ...) {
         va_list ap;
-        char *x;
-        int r;
+        বর্ণ *x;
+        পূর্ণাঙ্ক r;
 
         va_start(ap, format);
         r = vasprintf(&x, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        যদি (r < 0)
+                প্রত্যাগম -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        প্রত্যাগম strv_consume_with_size(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
+পূর্ণাঙ্ক strv_extend_joined_with_size_sentinel(বর্ণ ***l, size_t *n, ...) {
         va_list ap;
 
         va_start(ap, n);
-        char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
+        বর্ণ *x = strextendv_with_separator(/* x= */ রিক্ত, /* separator= */ রিক্ত, ap);
         va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        যদি (!x)
+                প্রত্যাগম -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        প্রত্যাগম strv_consume_with_size(l, n, x);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l) {
+বর্ণ* startswith_strv_internal(ধ্রুব বর্ণ *s, বর্ণ * ধ্রুব *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                বর্ণ *found = (বর্ণ*) startswith(s, *i);
+                যদি (found)
+                        প্রত্যাগম found;
         }
 
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
-char* endswith_strv_internal(const char *s, char * const *l) {
+বর্ণ* endswith_strv_internal(ধ্রুব বর্ণ *s, বর্ণ * ধ্রুব *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                বর্ণ *found = (বর্ণ*) endswith(s, *i);
+                যদি (found)
+                        প্রত্যাগম found;
         }
 
-        return NULL;
+        প্রত্যাগম রিক্ত;
 }
 
-char** strv_reverse(char **l) {
+বর্ণ** strv_reverse(বর্ণ **l) {
         size_t n;
 
         n = strv_length(l);
-        if (n <= 1)
-                return l;
+        যদি (n <= 1)
+                প্রত্যাগম l;
 
-        for (size_t i = 0; i < n / 2; i++)
+        প্রতি (size_t i = 0; i < n / 2; i++)
                 SWAP_TWO(l[i], l[n-1-i]);
 
-        return l;
+        প্রত্যাগম l;
 }
 
-char** strv_shell_escape(char **l, const char *bad) {
+বর্ণ** strv_shell_escape(বর্ণ **l, ধ্রুব বর্ণ *bad) {
         /* Escapes every character in every string in l that is in bad,
          * edits in-place, does not roll-back on error. */
 
         STRV_FOREACH(s, l) {
-                char *v;
+                বর্ণ *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                যদি (!v)
+                        প্রত্যাগম রিক্ত;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        প্রত্যাগম l;
 }
 
 bool strv_fnmatch_full(
-                char* const* patterns,
-                const char *s,
-                int flags,
+                বর্ণ* ধ্রুব* patterns,
+                ধ্রুব বর্ণ *s,
+                পূর্ণাঙ্ক flags,
                 size_t *ret_matched_pos) {
 
-        assert(s);
+        প্রতিজ্ঞা(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        যদি (patterns)
+                প্রতি (size_t i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        যদি (fnmatch(patterns[i], s, flags) == 0) {
+                                যদি (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                প্রত্যাগম true;
                         }
 
-        if (ret_matched_pos)
+        যদি (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        প্রত্যাগম false;
 }
 
-char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+বর্ণ** strv_skip(বর্ণ **l, size_t n) {
+        যাবত্ (n > 0) {
+                যদি (strv_isempty(l))
+                        প্রত্যাগম রিক্ত;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        যদি (strv_isempty(l))
+                প্রত্যাগম রিক্ত;
+        প্রত্যাগম l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+পূর্ণাঙ্ক strv_extend_n(বর্ণ ***l, ধ্রুব বর্ণ *মান, size_t n) {
         size_t i, k;
-        char **nl;
+        বর্ণ **nl;
 
-        assert(l);
+        প্রতিজ্ঞা(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        যদি (!মান)
+                প্রত্যাগম 0;
+        যদি (n == 0)
+                প্রত্যাগম 0;
 
         /* Adds the value n times to l */
 
         k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        যদি (n >= SIZE_MAX - k)
+                প্রত্যাগম -ENOMEM;
 
-        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), পরিমাণ(বর্ণ *));
+        যদি (!nl)
+                প্রত্যাগম -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
-                nl[i] = strdup(value);
-                if (!nl[i])
-                        goto rollback;
+        প্রতি (i = k; i < k + n; i++) {
+                nl[i] = strdup(মান);
+                যদি (!nl[i])
+                        গচ্ছ rollback;
         }
-        nl[i] = NULL;
+        nl[i] = রিক্ত;
 
-        return 0;
+        প্রত্যাগম 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
-                free(nl[j]);
-        nl[k] = NULL;
+        প্রতি (size_t j = k; j < i; j++)
+                মুক্ত(nl[j]);
+        nl[k] = রিক্ত;
 
-        return -ENOMEM;
+        প্রত্যাগম -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
-        char *j;
+পূর্ণাঙ্ক strv_extend_assignment(বর্ণ ***l, ধ্রুব বর্ণ *lhs, ধ্রুব বর্ণ *rhs) {
+        বর্ণ *j;
 
-        assert(l);
-        assert(lhs);
+        প্রতিজ্ঞা(l);
+        প্রতিজ্ঞা(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        যদি (!rhs) /* value is optional, in which case we suppress the field */
+                প্রত্যাগম 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        যদি (!j)
+                প্রত্যাগম -ENOMEM;
 
-        return strv_consume(l, j);
+        প্রত্যাগম strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+পূর্ণাঙ্ক fputstrv(FILE *f, বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *separator, bool *space) {
         bool b = false;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(f);
+        প্রতিজ্ঞা(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        যদি (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+শূন্য string_strv_hashmap_remove(Hashmap *h, ধ্রুব বর্ণ *চাবি, ধ্রুব বর্ণ *মান) {
+        প্রতিজ্ঞা(চাবি);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+        যদি (মান) {
+                বর্ণ **l = hashmap_get(h, চাবি);
+                যদি (!l)
+                        প্রত্যাগম;
 
-                strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                strv_remove(l, মান);
+                যদি (!strv_isempty(l))
+                        প্রত্যাগম;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        _unused_ _cleanup_free_ বর্ণ *চাবি_free = রিক্ত;
+        strv_free(hashmap_remove2(h, চাবি, (শূন্য**) &চাবি_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
-        string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
+শূন্য string_strv_ordered_hashmap_remove(OrderedHashmap *h, ধ্রুব বর্ণ *চাবি, ধ্রুব বর্ণ *মান) {
+        string_strv_hashmap_remove(PLAIN_HASHMAP(h), চাবি, মান);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
-        char **l;
-        int r;
+স্থির পূর্ণাঙ্ক string_strv_hashmap_put_internal(Hashmap *h, ধ্রুব বর্ণ *চাবি, ধ্রুব বর্ণ *মান) {
+        বর্ণ **l;
+        পূর্ণাঙ্ক r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        প্রতিজ্ঞা(h);
+        প্রতিজ্ঞা(চাবি);
+        প্রতিজ্ঞা(মান);
 
-        l = hashmap_get(h, key);
-        if (l) {
+        l = hashmap_get(h, চাবি);
+        যদি (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                যদি (strv_contains(l, মান))
+                        প্রত্যাগম 0;
 
-                r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l, মান);
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
-                assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+                assert_se(hashmap_update(h, চাবি, l) >= 0);
+        } অন্যথা {
                 /* No list for this key exists yet, create one */
-                _cleanup_strv_free_ char **l2 = NULL;
-                _cleanup_free_ char *t = NULL;
+                _cleanup_strv_free_ বর্ণ **l2 = রিক্ত;
+                _cleanup_free_ বর্ণ *t = রিক্ত;
 
-                t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                t = strdup(চাবি);
+                যদি (!t)
+                        প্রত্যাগম -ENOMEM;
 
-                r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l2, মান);
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        প্রত্যাগম 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+পূর্ণাঙ্ক string_strv_hashmap_put(Hashmap **h, ধ্রুব বর্ণ *চাবি, ধ্রুব বর্ণ *মান) {
+        পূর্ণাঙ্ক r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        প্রতিজ্ঞা(h);
+        প্রতিজ্ঞা(চাবি);
+        প্রতিজ্ঞা(মান);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        প্রত্যাগম string_strv_hashmap_put_internal(*h, চাবি, মান);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+পূর্ণাঙ্ক string_strv_ordered_hashmap_put(OrderedHashmap **h, ধ্রুব বর্ণ *চাবি, ধ্রুব বর্ণ *মান) {
+        পূর্ণাঙ্ক r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        প্রতিজ্ঞা(h);
+        প্রতিজ্ঞা(চাবি);
+        প্রতিজ্ঞা(মান);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        প্রত্যাগম string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), চাবি, মান);
 }
 
-static int rebreak_flush_line(
-                char ***broken,
-                const char *start,
-                const char *end,
+স্থির পূর্ণাঙ্ক rebreak_flush_সারি(
+                বর্ণ ***broken,
+                ধ্রুব বর্ণ *start,
+                ধ্রুব বর্ণ *end,
                 bool in_prefix,
-                const char *whitespace_begin,
-                const char *whitespace_end) {
+                ধ্রুব বর্ণ *whitespace_begin,
+                ধ্রুব বর্ণ *whitespace_end) {
 
-        assert(broken);
-        assert(start);
-        assert(end >= start);
+        প্রতিজ্ঞা(broken);
+        প্রতিজ্ঞা(start);
+        প্রতিজ্ঞা(end >= start);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        যদি (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
+                প্রত্যাগম strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
+        যদি (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
                 end = whitespace_begin;
 
-        _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        _cleanup_free_ বর্ণ *truncated = strndup(start, end - start);
+        যদি (!truncated)
+                প্রত্যাগম -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        প্রত্যাগম strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
-        _cleanup_strv_free_ char **broken = NULL;
-        int r;
+পূর্ণাঙ্ক strv_rebreak_সারিগুলি(বর্ণ **l, size_t width, বর্ণ ***ret) {
+        _cleanup_strv_free_ বর্ণ **broken = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         /* Implements a simple UTF-8 line breaking algorithm
          *
@@ -1250,44 +1250,44 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        যদি (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                যদি (!broken)
+                        প্রত্যাগম -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                প্রত্যাগম 0;
         }
 
         STRV_FOREACH(i, l) {
-                const char *start = *i, *whitespace_begin = NULL, *whitespace_end = NULL;
+                ধ্রুব বর্ণ *start = *i, *whitespace_begin = রিক্ত, *whitespace_end = রিক্ত;
                 bool in_prefix = true; /* still in the whitespace in the beginning of the line? */
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
                 size_t w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                প্রতি (ধ্রুব বর্ণ *p = start; *p != 0; ) {
+                        যদি (strchr(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
-                                r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                r = rebreak_flush_সারি(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
+                                যদি (r < 0)
+                                        প্রত্যাগম r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
                                 start = p;
                                 in_prefix = true;
                                 after_newline = true;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = রিক্ত;
                                 w = 0;
-                                continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                                অনুবর্ত;
+                        } অন্যথা যদি (strchr(WHITESPACE, *p)) {
+                                যদি (!in_prefix && (!whitespace_begin || whitespace_end)) {
                                         whitespace_begin = p;
-                                        whitespace_end = NULL;
+                                        whitespace_end = রিক্ত;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
+                        } অন্যথা {
+                                যদি (whitespace_begin && !whitespace_end)
                                         whitespace_end = p;
 
                                 in_prefix = false;
@@ -1298,31 +1298,31 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        পূর্ণাঙ্ক cw = utf8_char_console_width(p);
+                        যদি (cw < 0)
+                                প্রত্যাগম log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
-                                _cleanup_free_ char *truncated = NULL;
+                        যদি (w > width && whitespace_begin && whitespace_end) {
+                                _cleanup_free_ বর্ণ *truncated = রিক্ত;
 
                                 truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                যদি (!truncated)
+                                        প্রত্যাগম -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                যদি (r < 0)
+                                        প্রত্যাগম r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
                                  * the new line yet, hence reset the width and reprocess it. */
                                 p = start = whitespace_end;
                                 after_newline = false;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = রিক্ত;
                                 w = 0;
-                                continue;
+                                অনুবর্ত;
                         }
 
                         p = utf8_next_char(p);
@@ -1331,38 +1331,38 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                 /* Process rest of the line, except if all that's left after the last newline we already
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
-                assert(start);
-                if (after_newline && in_prefix)
-                        continue;
+                প্রতিজ্ঞা(start);
+                যদি (after_newline && in_prefix)
+                        অনুবর্ত;
 
-                r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                r = rebreak_flush_সারি(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        প্রত্যাগম 0;
 }
 
-char** strv_filter_prefix(char * const *l, const char *prefix) {
+বর্ণ** strv_filter_prefix(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *prefix) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        যদি (isempty(prefix))
+                প্রত্যাগম strv_copy(l);
 
-        _cleanup_strv_free_ char **f = NULL;
+        _cleanup_strv_free_ বর্ণ **f = রিক্ত;
         size_t sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
-                        continue;
+                যদি (!startswith(*i, prefix))
+                        অনুবর্ত;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                যদি (strv_extend_with_size(&f, &sz, *i) < 0)
+                        প্রত্যাগম রিক্ত;
         }
 
-        return TAKE_PTR(f);
+        প্রত্যাগম TAKE_PTR(f);
 }
 
-const char* const strv_empty[] = { NULL };
+ধ্রুব বর্ণ* ধ্রুব strv_empty[] = { রিক্ত };

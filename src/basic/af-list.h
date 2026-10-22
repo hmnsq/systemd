@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-const char* af_to_name(int id) _const_;
-int af_from_name(const char *name) _pure_;
+ধ্রুব বর্ণ* af_to_name(পূর্ণাঙ্ক id) _const_;
+পূর্ণাঙ্ক af_from_name(ধ্রুব বর্ণ *name) _pure_;
 
-const char* af_to_name_short(int id) _const_;
+ধ্রুব বর্ণ* af_to_name_short(পূর্ণাঙ্ক id) _const_;
 
-const char* af_to_ipv4_ipv6(int id) _const_;
-int af_from_ipv4_ipv6(const char *af) _pure_;
+ধ্রুব বর্ণ* af_to_ipv4_ipv6(পূর্ণাঙ্ক id) _const_;
+পূর্ণাঙ্ক af_from_ipv4_ipv6(ধ্রুব বর্ণ *af) _pure_;
 
-int af_max(void) _const_;
+পূর্ণাঙ্ক af_max(শূন্য) _const_;

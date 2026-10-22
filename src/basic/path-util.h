@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
 #define PATH_SPLIT_BIN(x) x "sbin:" x "bin"
 #define PATH_SPLIT_BIN_NULSTR(x) x "sbin\0" x "bin\0"
@@ -9,185 +9,185 @@
 #define PATH_MERGED_BIN(x) x "bin"
 #define PATH_MERGED_BIN_NULSTR(x) x "bin\0"
 
-#define DEFAULT_PATH_WITH_FULL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
-#define DEFAULT_PATH_WITH_LOCAL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
-#define DEFAULT_PATH_WITHOUT_SBIN PATH_MERGED_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
+#define DEFAULT_PATH_WITH_FULL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") EXTRA_EXEC_অনুসন্ধান_PATH_SUFFIX
+#define DEFAULT_PATH_WITH_LOCAL_SBIN PATH_SPLIT_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_অনুসন্ধান_PATH_SUFFIX
+#define DEFAULT_PATH_WITHOUT_SBIN PATH_MERGED_BIN("/usr/local/") ":" PATH_MERGED_BIN("/usr/") EXTRA_EXEC_অনুসন্ধান_PATH_SUFFIX
 
-#define DEFAULT_PATH_COMPAT PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") ":" PATH_SPLIT_BIN("/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
+#define DEFAULT_PATH_COMPAT PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") ":" PATH_SPLIT_BIN("/") EXTRA_EXEC_অনুসন্ধান_PATH_SUFFIX
 
-const char* default_PATH(void);
+ধ্রুব বর্ণ* default_PATH(শূন্য);
 
-static inline const char* default_user_PATH(void) {
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* default_user_PATH(শূন্য) {
 #ifdef DEFAULT_USER_PATH
-        return DEFAULT_USER_PATH EXTRA_EXEC_SEARCH_PATH_SUFFIX;
-#else
-        return default_PATH();
+        প্রত্যাগম DEFAULT_USER_PATH EXTRA_EXEC_অনুসন্ধান_PATH_SUFFIX;
+#অন্যথা
+        প্রত্যাগম default_PATH();
 #endif
 }
 
-bool is_path(const char *p) _pure_;
+bool is_path(ধ্রুব বর্ণ *p) _pure_;
 
-static inline bool path_is_absolute(const char *p) {
-        if (!p) /* A NULL pointer is definitely not an absolute path */
-                return false;
+স্থির অন্তঃস্থ bool path_is_absolute(ধ্রুব বর্ণ *p) {
+        যদি (!p) /* A NULL pointer is definitely not an absolute path */
+                প্রত্যাগম false;
 
-        return p[0] == '/';
+        প্রত্যাগম p[0] == '/';
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret);
-char* path_make_absolute(const char *p, const char *prefix);
-int safe_getcwd(char **ret);
-int path_make_absolute_cwd(const char *p, char **ret);
-int path_make_relative(const char *from, const char *to, char **ret);
-int path_make_relative_parent(const char *from_child, const char *to, char **ret);
+পূর্ণাঙ্ক path_split_and_make_absolute(ধ্রুব বর্ণ *p, বর্ণ ***ret);
+বর্ণ* path_make_absolute(ধ্রুব বর্ণ *p, ধ্রুব বর্ণ *prefix);
+পূর্ণাঙ্ক safe_getcwd(বর্ণ **ret);
+পূর্ণাঙ্ক path_make_absolute_cwd(ধ্রুব বর্ণ *p, বর্ণ **ret);
+পূর্ণাঙ্ক path_make_relative(ধ্রুব বর্ণ *from, ধ্রুব বর্ণ *to, বর্ণ **ret);
+পূর্ণাঙ্ক path_make_relative_parent(ধ্রুব বর্ণ *from_child, ধ্রুব বর্ণ *to, বর্ণ **ret);
 
-typedef enum PathStartWithFlags {
+প্রকারনির্দেশ গণনা PathStartWithFlags {
         PATH_STARTSWITH_REFUSE_DOT_DOT       = 1U << 0,
         PATH_STARTSWITH_RETURN_LEADING_SLASH = 1U << 1,
 } PathStartWithFlags;
 
-char* path_startswith_full(const char *path, const char *prefix, PathStartWithFlags flags) _pure_;
-static inline char* path_startswith(const char *path, const char *prefix) {
-        return path_startswith_full(path, prefix, 0);
+বর্ণ* path_startswith_full(ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *prefix, PathStartWithFlags flags) _pure_;
+স্থির অন্তঃস্থ বর্ণ* path_startswith(ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *prefix) {
+        প্রত্যাগম path_startswith_full(path, prefix, 0);
 }
 
-int path_compare(const char *a, const char *b) _pure_;
-static inline bool path_equal(const char *a, const char *b) {
-        return path_compare(a, b) == 0;
+পূর্ণাঙ্ক path_compare(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b) _pure_;
+স্থির অন্তঃস্থ bool path_equal(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b) {
+        প্রত্যাগম path_compare(a, b) == 0;
 }
 
-int path_compare_filename(const char *a, const char *b);
-static inline bool path_equal_filename(const char *a, const char *b) {
-        return path_compare_filename(a, b) == 0;
+পূর্ণাঙ্ক path_compare_filename(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b);
+স্থির অন্তঃস্থ bool path_equal_filename(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b) {
+        প্রত্যাগম path_compare_filename(a, b) == 0;
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags);
-static inline bool path_equal_or_inode_same(const char *a, const char *b, int flags) {
-        return path_equal_or_inode_same_full(a, b, flags) > 0;
+পূর্ণাঙ্ক path_equal_or_inode_same_full(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b, পূর্ণাঙ্ক flags);
+স্থির অন্তঃস্থ bool path_equal_or_inode_same(ধ্রুব বর্ণ *a, ধ্রুব বর্ণ *b, পূর্ণাঙ্ক flags) {
+        প্রত্যাগম path_equal_or_inode_same_full(a, b, flags) > 0;
 }
 
-char* path_extend_internal(char **x, ...);
+বর্ণ* path_extend_internal(বর্ণ **x, ...);
 #define path_extend(x, ...) path_extend_internal(x, __VA_ARGS__, POINTER_MAX)
-#define path_join(...) path_extend_internal(NULL, __VA_ARGS__, POINTER_MAX)
+#define path_join(...) path_extend_internal(রিক্ত, __VA_ARGS__, POINTER_MAX)
 
-char* skip_leading_slash(const char *p) _pure_;
+বর্ণ* skip_leading_slash(ধ্রুব বর্ণ *p) _pure_;
 
-typedef enum PathSimplifyFlags {
+প্রকারনির্দেশ গণনা PathSimplifyFlags {
         PATH_SIMPLIFY_KEEP_TRAILING_SLASH = 1 << 0,
 } PathSimplifyFlags;
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags);
-static inline char* path_simplify(char *path) {
-        return path_simplify_full(path, 0);
+বর্ণ* path_simplify_full(বর্ণ *path, PathSimplifyFlags flags);
+স্থির অন্তঃস্থ বর্ণ* path_simplify(বর্ণ *path) {
+        প্রত্যাগম path_simplify_full(path, 0);
 }
 
-int path_simplify_alloc(const char *path, char **ret);
+পূর্ণাঙ্ক path_simplify_alloc(ধ্রুব বর্ণ *path, বর্ণ **ret);
 
 /* Note: the search terminates on the first NULL item. */
 #define PATH_IN_SET(p, ...) path_strv_contains(STRV_MAKE(__VA_ARGS__), p)
 
-char* path_startswith_strv(const char *p, char * const *strv);
+বর্ণ* path_startswith_strv(ধ্রুব বর্ণ *p, বর্ণ * ধ্রুব *strv);
 #define PATH_STARTSWITH_SET(p, ...) path_startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-int path_strv_make_absolute_cwd(char **l);
-char** path_strv_resolve(char **l, const char *root);
-char** path_strv_resolve_uniq(char **l, const char *root);
+পূর্ণাঙ্ক path_strv_make_absolute_cwd(বর্ণ **l);
+বর্ণ** path_strv_resolve(বর্ণ **l, ধ্রুব বর্ণ *মূল);
+বর্ণ** path_strv_resolve_uniq(বর্ণ **l, ধ্রুব বর্ণ *মূল);
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd);
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
+পূর্ণাঙ্ক open_and_check_executable(ধ্রুব বর্ণ *name, ধ্রুব বর্ণ *মূল, বর্ণ **ret_path, পূর্ণাঙ্ক *ret_fd);
+পূর্ণাঙ্ক find_executable_full(
+                ধ্রুব বর্ণ *name,
+                ধ্রুব বর্ণ *মূল,
+                বর্ণ * ধ্রুব *exec_অনুসন্ধান_path,
                 bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd);
-static inline int find_executable(const char *name, char **ret_filename) {
-        return find_executable_full(name, /* root= */ NULL, NULL, true, ret_filename, NULL);
+                বর্ণ **ret_filename,
+                পূর্ণাঙ্ক *ret_fd);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক find_executable(ধ্রুব বর্ণ *name, বর্ণ **ret_filename) {
+        প্রত্যাগম find_executable_full(name, /* root= */ রিক্ত, রিক্ত, true, ret_filename, রিক্ত);
 }
 
-int fsck_exists(void);
-int fsck_exists_for_fstype(const char *fstype);
+পূর্ণাঙ্ক fsck_exists(শূন্য);
+পূর্ণাঙ্ক fsck_exists_for_fstype(ধ্রুব বর্ণ *fstype);
 
 /* Iterates through the path prefixes of the specified path, going up
  * the tree, to root. Also returns "" (and not "/"!) for the root
  * directory. Excludes the specified directory itself */
 #define PATH_FOREACH_PREFIX(prefix, path)                               \
-        for (char *_slash = ({                                          \
+        প্রতি (বর্ণ *_slash = ({                                          \
                                 path_simplify(strcpy(prefix, path));    \
-                                streq(prefix, "/") ? NULL : strrchr(prefix, '/'); \
+                                streq(prefix, "/") ? রিক্ত : strrchr(prefix, '/'); \
                         });                                             \
              _slash && ((*_slash = 0), true);                           \
              _slash = strrchr((prefix), '/'))
 
 /* Same as PATH_FOREACH_PREFIX but also includes the specified path itself */
 #define PATH_FOREACH_PREFIX_MORE(prefix, path)                          \
-        for (char *_slash = ({                                          \
+        প্রতি (বর্ণ *_slash = ({                                          \
                                 path_simplify(strcpy(prefix, path));    \
-                                if (streq(prefix, "/"))                 \
+                                যদি (streq(prefix, "/"))                 \
                                         prefix[0] = 0;                  \
                                 strrchr(prefix, 0);                     \
                         });                                             \
              _slash && ((*_slash = 0), true);                           \
              _slash = strrchr((prefix), '/'))
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret);
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret);
-const char* last_path_component(const char *path);
+পূর্ণাঙ্ক path_find_first_component(ধ্রুব বর্ণ **p, bool accept_dot_dot, ধ্রুব বর্ণ **ret);
+পূর্ণাঙ্ক path_find_last_component(ধ্রুব বর্ণ *path, bool accept_dot_dot, ধ্রুব বর্ণ **next, ধ্রুব বর্ণ **ret);
+ধ্রুব বর্ণ* last_path_component(ধ্রুব বর্ণ *path);
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename);
-static inline int path_extract_filename(const char *path, char **ret) {
-        return path_split_prefix_filename(path, NULL, ret);
+পূর্ণাঙ্ক path_split_prefix_filename(ধ্রুব বর্ণ *path, বর্ণ **ret_dir, বর্ণ **ret_filename);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক path_extract_filename(ধ্রুব বর্ণ *path, বর্ণ **ret) {
+        প্রত্যাগম path_split_prefix_filename(path, রিক্ত, ret);
 }
-static inline int path_extract_directory(const char *path, char **ret) {
-        int r = path_split_prefix_filename(path, ret, NULL);
-        return r < 0 ? r : 0; /* suppress O_DIRECTORY */
-}
-
-bool filename_part_is_valid(const char *p) _pure_;
-bool filename_is_valid(const char *p) _pure_;
-bool path_is_valid_full(const char *p, bool accept_dot_dot) _pure_;
-static inline bool path_is_valid(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ true);
-}
-static inline bool path_is_safe(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ false);
-}
-bool path_is_normalized(const char *p) _pure_;
-static inline bool filename_or_absolute_path_is_valid(const char *p) {
-        if (path_is_absolute(p))
-                return path_is_valid(p);
-
-        return filename_is_valid(p);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক path_extract_directory(ধ্রুব বর্ণ *path, বর্ণ **ret) {
+        পূর্ণাঙ্ক r = path_split_prefix_filename(path, ret, রিক্ত);
+        প্রত্যাগম r < 0 ? r : 0; /* suppress O_DIRECTORY */
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret);
+bool filename_part_is_valid(ধ্রুব বর্ণ *p) _pure_;
+bool filename_is_valid(ধ্রুব বর্ণ *p) _pure_;
+bool path_is_valid_full(ধ্রুব বর্ণ *p, bool accept_dot_dot) _pure_;
+স্থির অন্তঃস্থ bool path_is_valid(ধ্রুব বর্ণ *p) {
+        প্রত্যাগম path_is_valid_full(p, /* accept_dot_dot= */ true);
+}
+স্থির অন্তঃস্থ bool path_is_safe(ধ্রুব বর্ণ *p) {
+        প্রত্যাগম path_is_valid_full(p, /* accept_dot_dot= */ false);
+}
+bool path_is_normalized(ধ্রুব বর্ণ *p) _pure_;
+স্থির অন্তঃস্থ bool filename_or_absolute_path_is_valid(ধ্রুব বর্ণ *p) {
+        যদি (path_is_absolute(p))
+                প্রত্যাগম path_is_valid(p);
 
-bool hidden_or_backup_file(const char *filename) _pure_;
+        প্রত্যাগম filename_is_valid(p);
+}
 
-bool is_device_path(const char *path) _pure_;
+পূর্ণাঙ্ক file_in_same_dir(ধ্রুব বর্ণ *path, ধ্রুব বর্ণ *filename, বর্ণ **ret);
 
-bool valid_device_node_path(const char *path) _pure_;
-bool valid_device_allow_pattern(const char *path) _pure_;
+bool hidden_or_backup_file(ধ্রুব বর্ণ *filename) _pure_;
 
-bool dot_or_dot_dot(const char *path) _pure_;
+bool is_device_path(ধ্রুব বর্ণ *path) _pure_;
 
-bool path_implies_directory(const char *path) _pure_;
+bool valid_device_গ্রন্থি_path(ধ্রুব বর্ণ *path) _pure_;
+bool valid_device_allow_pattern(ধ্রুব বর্ণ *path) _pure_;
 
-static inline const char* skip_dev_prefix(const char *p) {
-        const char *e;
+bool dot_or_dot_dot(ধ্রুব বর্ণ *path) _pure_;
+
+bool path_implies_directory(ধ্রুব বর্ণ *path) _pure_;
+
+স্থির অন্তঃস্থ ধ্রুব বর্ণ* skip_dev_prefix(ধ্রুব বর্ণ *p) {
+        ধ্রুব বর্ণ *e;
 
         /* Drop any /dev prefix if there is any */
 
         e = path_startswith(p, "/dev/");
 
-        return e ?: p;
+        প্রত্যাগম e ?: p;
 }
 
-bool empty_or_root(const char *path) _pure_;
-const char* empty_to_root(const char *path) _pure_;
-int empty_or_root_harder_to_null(const char **path);
+bool empty_or_মূল(ধ্রুব বর্ণ *path) _pure_;
+ধ্রুব বর্ণ* empty_to_মূল(ধ্রুব বর্ণ *path) _pure_;
+পূর্ণাঙ্ক empty_or_মূল_harder_to_null(ধ্রুব বর্ণ **path);
 
-bool path_strv_contains(char * const *l, const char *path);
-bool prefixed_path_strv_contains(char * const *l, const char *path);
+bool path_strv_contains(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *path);
+bool prefixed_path_strv_contains(বর্ণ * ধ্রুব *l, ধ্রুব বর্ণ *path);
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret);
+পূর্ণাঙ্ক path_glob_can_match(ধ্রুব বর্ণ *pattern, ধ্রুব বর্ণ *prefix, বর্ণ **ret);

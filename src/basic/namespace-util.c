@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/magic.h>
-#include <linux/nsfs.h>
-#include <linux/sockios.h>
-#include <sched.h>
-#include <sys/ioctl.h>
-#include <sys/mount.h>
-#include <unistd.h>
+#অন্তর্ভাব <fcntl.h>
+#অন্তর্ভাব <linux/magic.h>
+#অন্তর্ভাব <linux/nsfs.h>
+#অন্তর্ভাব <linux/sockios.h>
+#অন্তর্ভাব <sched.h>
+#অন্তর্ভাব <sys/ioctl.h>
+#অন্তর্ভাব <sys/mount.h>
+#অন্তর্ভাব <unistd.h>
 
-#include "capability-util.h"
-#include "dlfcn-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "namespace-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidfd-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "uid-range.h"
-#include "unaligned.h"
-#include "user-util.h"
+#অন্তর্ভাব "capability-util.h"
+#অন্তর্ভাব "dlfcn-util.h"
+#অন্তর্ভাব "errno-util.h"
+#অন্তর্ভাব "fd-util.h"
+#অন্তর্ভাব "fileio.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "mountpoint-util.h"
+#অন্তর্ভাব "namespace-util.h"
+#অন্তর্ভাব "parse-util.h"
+#অন্তর্ভাব "path-util.h"
+#অন্তর্ভাব "pidfd-util.h"
+#অন্তর্ভাব "pidref.h"
+#অন্তর্ভাব "process-util.h"
+#অন্তর্ভাব "stat-util.h"
+#অন্তর্ভাব "stdio-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "uid-range.h"
+#অন্তর্ভাব "unaligned.h"
+#অন্তর্ভাব "user-util.h"
 
-const struct namespace_info namespace_info[_NAMESPACE_TYPE_MAX + 1] = {
+ধ্রুব সংরচনা namespace_info namespace_info[_NAMESPACE_TYPE_MAX + 1] = {
         [NAMESPACE_CGROUP] =  { "cgroup", "ns/cgroup", CLONE_NEWCGROUP, PIDFD_GET_CGROUP_NAMESPACE, PROC_CGROUP_INIT_INO },
         [NAMESPACE_IPC]    =  { "ipc",    "ns/ipc",    CLONE_NEWIPC,    PIDFD_GET_IPC_NAMESPACE,    PROC_IPC_INIT_INO    },
         [NAMESPACE_NET]    =  { "net",    "ns/net",    CLONE_NEWNET,    PIDFD_GET_NET_NAMESPACE,    0                    },
@@ -47,200 +47,200 @@ const struct namespace_info namespace_info[_NAMESPACE_TYPE_MAX + 1] = {
 #define pid_namespace_path(pid, type) procfs_file_alloca(pid, namespace_info[type].proc_path)
 
 NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag) {
-        for (NamespaceType t = 0; t < _NAMESPACE_TYPE_MAX; t++)
-                if (((namespace_info[t].clone_flag ^ clone_flag) & (CLONE_NEWCGROUP|CLONE_NEWIPC|CLONE_NEWNET|CLONE_NEWNS|CLONE_NEWPID|CLONE_NEWUSER|CLONE_NEWUTS|CLONE_NEWTIME)) == 0)
-                        return t;
+        প্রতি (NamespaceType t = 0; t < _NAMESPACE_TYPE_MAX; t++)
+                যদি (((namespace_info[t].clone_flag ^ clone_flag) & (CLONE_NEWCGROUP|CLONE_NEWIPC|CLONE_NEWNET|CLONE_NEWNS|CLONE_NEWPID|CLONE_NEWUSER|CLONE_NEWUTS|CLONE_NEWTIME)) == 0)
+                        প্রত্যাগম t;
 
-        return _NAMESPACE_TYPE_INVALID;
+        প্রত্যাগম _NAMESPACE_TYPE_INVALID;
 }
 
 bool namespace_type_supported(NamespaceType type) {
-        assert(type >= 0 && type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(type >= 0 && type < _NAMESPACE_TYPE_MAX);
 
-        const char *p = pid_namespace_path(0, type);
-        return access(p, F_OK) >= 0;
+        ধ্রুব বর্ণ *p = pid_namespace_path(0, type);
+        প্রত্যাগম access(p, F_OK) >= 0;
 }
 
-static int pidref_namespace_open_by_type_internal(const PidRef *pidref, NamespaceType type, bool *need_verify) {
-        int r;
+স্থির পূর্ণাঙ্ক pidref_namespace_open_by_type_internal(ধ্রুব PidRef *pidref, NamespaceType type, bool *need_verify) {
+        পূর্ণাঙ্ক r;
 
-        assert(pidref_is_set(pidref));
-        assert(type >= 0 && type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(pidref_is_set(pidref));
+        প্রতিজ্ঞা(type >= 0 && type < _NAMESPACE_TYPE_MAX);
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        যদি (pidref_is_remote(pidref))
+                প্রত্যাগম -EREMOTE;
 
-        if (pidref->fd >= 0) {
+        যদি (pidref->fd >= 0) {
                 r = pidfd_get_namespace(pidref->fd, namespace_info[type].pidfd_get_ns_ioctl_cmd);
-                if (r == -ENOPKG)
-                        return log_debug_errno(
+                যদি (r == -ENOPKG)
+                        প্রত্যাগম log_debug_errno(
                                         r,
                                         "Cannot open %s namespace for PID "PID_FMT" as the namespace type is not supported by the kernel",
                                         namespace_info[type].proc_name, pidref->pid);
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return r;
+                যদি (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        প্রত্যাগম r;
         }
 
-        if (need_verify) /* The caller shall call pidref_verify() later */
+        যদি (need_verify) /* The caller shall call pidref_verify() later */
                 *need_verify = true;
 
-        _cleanup_close_ int nsfd = -EBADF;
-        const char *p;
+        _cleanup_close_ পূর্ণাঙ্ক nsfd = -EBADF;
+        ধ্রুব বর্ণ *p;
 
         p = pid_namespace_path(pidref->pid, type);
         nsfd = RET_NERRNO(open(p, O_RDONLY|O_NOCTTY|O_CLOEXEC));
-        if (nsfd == -ENOENT) {
+        যদি (nsfd == -ENOENT) {
                 r = proc_mounted();
-                if (r == 0)
+                যদি (r == 0)
                         /* /proc/ is not available or not set up properly, we're most likely in some chroot environment. */
-                        return log_debug_errno(
+                        প্রত্যাগম log_debug_errno(
                                         SYNTHETIC_ERRNO(ENOSYS),
                                         "Cannot open %s namespace for PID "PID_FMT" as /proc is not mounted",
                                         namespace_info[type].proc_name, pidref->pid);
-                if (r > 0)
+                যদি (r > 0)
                         /* If /proc/ is definitely around then this means the namespace type is not supported */
-                        return log_debug_errno(
+                        প্রত্যাগম log_debug_errno(
                                         SYNTHETIC_ERRNO(ENOPKG),
                                         "Cannot open %s namespace for PID "PID_FMT" via /proc as the namespace type is not supported by the kernel",
                                         namespace_info[type].proc_name, pidref->pid);
 
                 /* can't determine? then propagate original error */
         }
-        if (nsfd < 0)
-                return nsfd;
+        যদি (nsfd < 0)
+                প্রত্যাগম nsfd;
 
-        if (!need_verify) { /* Otherwise we verify on our own */
+        যদি (!need_verify) { /* Otherwise we verify on our own */
                 r = pidref_verify(pidref);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        return TAKE_FD(nsfd);
+        প্রত্যাগম TAKE_FD(nsfd);
 }
 
-int pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type) {
-        return pidref_namespace_open_by_type_internal(pidref, type, NULL);
+পূর্ণাঙ্ক pidref_namespace_open_by_type(ধ্রুব PidRef *pidref, NamespaceType type) {
+        প্রত্যাগম pidref_namespace_open_by_type_internal(pidref, type, রিক্ত);
 }
 
-int namespace_open_by_type(NamespaceType type) {
+পূর্ণাঙ্ক namespace_open_by_type(NamespaceType type) {
         _cleanup_(pidref_done) PidRef self = PIDREF_NULL;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(type >= 0 && type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(type >= 0 && type < _NAMESPACE_TYPE_MAX);
 
         r = pidref_set_self(&self);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return pidref_namespace_open_by_type(&self, type);
+        প্রত্যাগম pidref_namespace_open_by_type(&self, type);
 }
 
-int pidref_namespace_open(
-                const PidRef *pidref,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd) {
+পূর্ণাঙ্ক pidref_namespace_open(
+                ধ্রুব PidRef *pidref,
+                পূর্ণাঙ্ক *ret_pidns_fd,
+                পূর্ণাঙ্ক *ret_mntns_fd,
+                পূর্ণাঙ্ক *ret_netns_fd,
+                পূর্ণাঙ্ক *ret_userns_fd,
+                পূর্ণাঙ্ক *ret_মূল_fd) {
 
-        _cleanup_close_ int pidns_fd = -EBADF, mntns_fd = -EBADF, netns_fd = -EBADF,
-                userns_fd = -EBADF, root_fd = -EBADF;
+        _cleanup_close_ পূর্ণাঙ্ক pidns_fd = -EBADF, mntns_fd = -EBADF, netns_fd = -EBADF,
+                userns_fd = -EBADF, মূল_fd = -EBADF;
         bool need_verify = false;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(pidref_is_set(pidref));
+        প্রতিজ্ঞা(pidref_is_set(pidref));
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        যদি (pidref_is_remote(pidref))
+                প্রত্যাগম -EREMOTE;
 
-        if (ret_pidns_fd) {
+        যদি (ret_pidns_fd) {
                 pidns_fd = pidref_namespace_open_by_type_internal(pidref, NAMESPACE_PID, &need_verify);
-                if (pidns_fd < 0)
-                        return pidns_fd;
+                যদি (pidns_fd < 0)
+                        প্রত্যাগম pidns_fd;
         }
 
-        if (ret_mntns_fd) {
+        যদি (ret_mntns_fd) {
                 mntns_fd = pidref_namespace_open_by_type_internal(pidref, NAMESPACE_MOUNT, &need_verify);
-                if (mntns_fd < 0)
-                        return mntns_fd;
+                যদি (mntns_fd < 0)
+                        প্রত্যাগম mntns_fd;
         }
 
-        if (ret_netns_fd) {
+        যদি (ret_netns_fd) {
                 netns_fd = pidref_namespace_open_by_type_internal(pidref, NAMESPACE_NET, &need_verify);
-                if (netns_fd < 0)
-                        return netns_fd;
+                যদি (netns_fd < 0)
+                        প্রত্যাগম netns_fd;
         }
 
-        if (ret_userns_fd) {
+        যদি (ret_userns_fd) {
                 userns_fd = pidref_namespace_open_by_type_internal(pidref, NAMESPACE_USER, &need_verify);
-                if (userns_fd < 0 && userns_fd != -ENOPKG)
-                        return userns_fd;
+                যদি (userns_fd < 0 && userns_fd != -ENOPKG)
+                        প্রত্যাগম userns_fd;
         }
 
-        if (ret_root_fd) {
-                const char *root;
+        যদি (ret_মূল_fd) {
+                ধ্রুব বর্ণ *মূল;
 
-                root = procfs_file_alloca(pidref->pid, "root");
-                root_fd = RET_NERRNO(open(root, O_CLOEXEC|O_DIRECTORY));
-                if (root_fd == -ENOENT && proc_mounted() == 0)
-                        return -ENOSYS;
-                if (root_fd < 0)
-                        return root_fd;
+                মূল = procfs_file_alloca(pidref->pid, "root");
+                মূল_fd = RET_NERRNO(open(মূল, O_CLOEXEC|O_DIRECTORY));
+                যদি (মূল_fd == -ENOENT && proc_mounted() == 0)
+                        প্রত্যাগম -ENOSYS;
+                যদি (মূল_fd < 0)
+                        প্রত্যাগম মূল_fd;
 
                 need_verify = true;
         }
 
-        if (need_verify) {
+        যদি (need_verify) {
                 r = pidref_verify(pidref);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
         }
 
-        if (ret_pidns_fd)
+        যদি (ret_pidns_fd)
                 *ret_pidns_fd = TAKE_FD(pidns_fd);
 
-        if (ret_mntns_fd)
+        যদি (ret_mntns_fd)
                 *ret_mntns_fd = TAKE_FD(mntns_fd);
 
-        if (ret_netns_fd)
+        যদি (ret_netns_fd)
                 *ret_netns_fd = TAKE_FD(netns_fd);
 
-        if (ret_userns_fd)
+        যদি (ret_userns_fd)
                 *ret_userns_fd = TAKE_FD(userns_fd);
 
-        if (ret_root_fd)
-                *ret_root_fd = TAKE_FD(root_fd);
+        যদি (ret_মূল_fd)
+                *ret_মূল_fd = TAKE_FD(মূল_fd);
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int namespace_open(
+পূর্ণাঙ্ক namespace_open(
                 pid_t pid,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd) {
+                পূর্ণাঙ্ক *ret_pidns_fd,
+                পূর্ণাঙ্ক *ret_mntns_fd,
+                পূর্ণাঙ্ক *ret_netns_fd,
+                পূর্ণাঙ্ক *ret_userns_fd,
+                পূর্ণাঙ্ক *ret_মূল_fd) {
 
         _cleanup_(pidref_done) PidRef pidref = PIDREF_NULL;
-        int r;
+        পূর্ণাঙ্ক r;
 
         r = pidref_set_pid(&pidref, pid);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return pidref_namespace_open(&pidref, ret_pidns_fd, ret_mntns_fd, ret_netns_fd, ret_userns_fd, ret_root_fd);
+        প্রত্যাগম pidref_namespace_open(&pidref, ret_pidns_fd, ret_mntns_fd, ret_netns_fd, ret_userns_fd, ret_মূল_fd);
 }
 
-int namespace_enter_full(
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+পূর্ণাঙ্ক namespace_enter_full(
+                পূর্ণাঙ্ক pidns_fd,
+                পূর্ণাঙ্ক mntns_fd,
+                পূর্ণাঙ্ক netns_fd,
+                পূর্ণাঙ্ক userns_fd,
+                পূর্ণাঙ্ক মূল_fd,
                 NamespaceEnterFlags flags) {
 
-        int r;
+        পূর্ণাঙ্ক r;
 
         /* Block dlopen() now, to avoid us inadvertently loading shared library from another namespace */
         block_dlopen();
@@ -248,365 +248,365 @@ int namespace_enter_full(
          /* Join namespaces, but only if we're not part of them already. This is important if we don't
           * necessarily own the namespace in question, as kernel would unconditionally return EPERM otherwise. */
 
-        if (pidns_fd >= 0) {
+        যদি (pidns_fd >= 0) {
                 r = is_our_namespace(pidns_fd, NAMESPACE_PID);
-                if (r < 0)
-                        return r;
-                if (r > 0)
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r > 0)
                         pidns_fd = -EBADF;
         }
 
-        if (mntns_fd >= 0) {
+        যদি (mntns_fd >= 0) {
                 r = is_our_namespace(mntns_fd, NAMESPACE_MOUNT);
-                if (r < 0)
-                        return r;
-                if (r > 0)
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r > 0)
                         mntns_fd = -EBADF;
         }
 
-        if (netns_fd >= 0) {
+        যদি (netns_fd >= 0) {
                 r = is_our_namespace(netns_fd, NAMESPACE_NET);
-                if (r < 0)
-                        return r;
-                if (r > 0)
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r > 0)
                         netns_fd = -EBADF;
         }
 
-        if (userns_fd >= 0) {
+        যদি (userns_fd >= 0) {
                 /* Can't setns to your own userns, since then you could escalate from non-root to root in
                  * your own namespace, so check if namespaces are equal before attempting to enter. */
 
                 r = is_our_namespace(userns_fd, NAMESPACE_USER);
-                if (r < 0)
-                        return r;
-                if (r > 0)
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r > 0)
                         userns_fd = -EBADF;
         }
 
         /* Determine this before joining anything, as /proc might not be available afterwards. */
         bool keep_uid_gid = false;
-        if (userns_fd >= 0 && FLAGS_SET(flags, NAMESPACE_ENTER_KEEP_UID_GID_IF_ROOT_UNMAPPED)) {
-                r = userns_has_root_mapping(userns_fd);
-                if (r < 0)
-                        return r;
+        যদি (userns_fd >= 0 && FLAGS_SET(flags, NAMESPACE_ENTER_KEEP_UID_GID_IF_মূল_UNMAPPED)) {
+                r = userns_has_মূল_mapping(userns_fd);
+                যদি (r < 0)
+                        প্রত্যাগম r;
                 keep_uid_gid = r == 0;
         }
 
         r = have_effective_cap(CAP_SYS_ADMIN);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         bool have_cap_sys_admin = r > 0;
 
-        if (!have_cap_sys_admin) {
+        যদি (!have_cap_sys_admin) {
                 /* If we don't have CAP_SYS_ADMIN in our own user namespace, our best bet is to enter the
                  * user namespace first (if we got one) to get CAP_SYS_ADMIN within the child user namespace,
                  * and then hope the other namespaces are owned by the child user namespace. If they aren't,
                  * we'll just get an EPERM later on when trying to setns() to them. If there's no namespace
                  * left to join, there's nothing to need privileges for. */
 
-                if (userns_fd >= 0) {
-                        if (setns(userns_fd, CLONE_NEWUSER) < 0)
-                                return -errno;
-                } else if (pidns_fd >= 0 || mntns_fd >= 0 || netns_fd >= 0 || root_fd >= 0)
-                        return log_debug_errno(
+                যদি (userns_fd >= 0) {
+                        যদি (setns(userns_fd, CLONE_NEWUSER) < 0)
+                                প্রত্যাগম -errno;
+                } অন্যথা যদি (pidns_fd >= 0 || mntns_fd >= 0 || netns_fd >= 0 || মূল_fd >= 0)
+                        প্রত্যাগম log_debug_errno(
                                         SYNTHETIC_ERRNO(EPERM),
                                         "Need CAP_SYS_ADMIN or a child user namespace to enter namespaces.");
         }
 
-        if (pidns_fd >= 0)
-                if (setns(pidns_fd, CLONE_NEWPID) < 0)
-                        return -errno;
+        যদি (pidns_fd >= 0)
+                যদি (setns(pidns_fd, CLONE_NEWPID) < 0)
+                        প্রত্যাগম -errno;
 
-        if (mntns_fd >= 0)
-                if (setns(mntns_fd, CLONE_NEWNS) < 0)
-                        return -errno;
+        যদি (mntns_fd >= 0)
+                যদি (setns(mntns_fd, CLONE_NEWNS) < 0)
+                        প্রত্যাগম -errno;
 
-        if (netns_fd >= 0)
-                if (setns(netns_fd, CLONE_NEWNET) < 0)
-                        return -errno;
+        যদি (netns_fd >= 0)
+                যদি (setns(netns_fd, CLONE_NEWNET) < 0)
+                        প্রত্যাগম -errno;
 
-        if (userns_fd >= 0 && have_cap_sys_admin)
-                if (setns(userns_fd, CLONE_NEWUSER) < 0)
-                        return -errno;
+        যদি (userns_fd >= 0 && have_cap_sys_admin)
+                যদি (setns(userns_fd, CLONE_NEWUSER) < 0)
+                        প্রত্যাগম -errno;
 
-        if (root_fd >= 0) {
-                if (fchdir(root_fd) < 0)
-                        return -errno;
+        যদি (মূল_fd >= 0) {
+                যদি (fchdir(মূল_fd) < 0)
+                        প্রত্যাগম -errno;
 
-                if (chroot(".") < 0)
-                        return -errno;
+                যদি (chroot(".") < 0)
+                        প্রত্যাগম -errno;
         }
 
-        if (userns_fd < 0)
-                return 0;
+        যদি (userns_fd < 0)
+                প্রত্যাগম 0;
 
         /* Drop supplementary groups where possible. setgroups() may be denied, either via
          * /proc/self/setgroups or by policy (e.g. a BPF LSM), in which case there's nothing we can do
          * about them. */
-        r = maybe_setgroups(/* size= */ 0, /* list= */ NULL);
-        if (r < 0)
+        r = maybe_setgroups(/* size= */ 0, /* list= */ রিক্ত);
+        যদি (r < 0)
                 log_debug_errno(r, "Unable to drop supplementary groups, ignoring: %m");
 
-        if (keep_uid_gid)
-                return 0;
+        যদি (keep_uid_gid)
+                প্রত্যাগম 0;
 
         /* Joining a user namespace preserves the underlying UID/GID. Require becoming root to succeed, as
          * otherwise we'd continue running with our original identity inside the namespace. */
-        if (setresgid(0, 0, 0) < 0)
-                return log_debug_errno(errno, "Failed to become root group in user namespace: %m");
+        যদি (setresgid(0, 0, 0) < 0)
+                প্রত্যাগম log_debug_errno(errno, "Failed to become root group in user namespace: %m");
 
-        if (setresuid(0, 0, 0) < 0)
-                return log_debug_errno(errno, "Failed to become root in user namespace: %m");
+        যদি (setresuid(0, 0, 0) < 0)
+                প্রত্যাগম log_debug_errno(errno, "Failed to become root in user namespace: %m");
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int fd_is_namespace(int fd, NamespaceType type) {
-        int r;
+পূর্ণাঙ্ক fd_is_namespace(পূর্ণাঙ্ক fd, NamespaceType type) {
+        পূর্ণাঙ্ক r;
 
         /* Checks whether the specified file descriptor refers to a namespace (of type if type != _NAMESPACE_INVALID). */
 
-        assert(fd >= 0);
-        assert(type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(fd >= 0);
+        প্রতিজ্ঞা(type < _NAMESPACE_TYPE_MAX);
 
         r = fd_is_fs_type(fd, NSFS_MAGIC);
-        if (r <= 0)
-                return r;
+        যদি (r <= 0)
+                প্রত্যাগম r;
 
-        if (type < 0)
-                return true;
+        যদি (type < 0)
+                প্রত্যাগম true;
 
-        int clone_flag = ioctl(fd, NS_GET_NSTYPE);
-        if (clone_flag < 0) {
-                if (errno != ENOTTY)
-                        return -errno;
+        পূর্ণাঙ্ক clone_flag = ioctl(fd, NS_GET_NSTYPE);
+        যদি (clone_flag < 0) {
+                যদি (errno != ENOTTY)
+                        প্রত্যাগম -errno;
 
                 // FIXME: This compatibility code path shall be removed once kernel 6.3
                 //        becomes the new minimal baseline
                 /* Before Linux 6.3, nsfs ioctls lack 32-bit compat support on 64-bit kernels.
                  * The nsfs link name also identifies the type, e.g. "mnt:[4026531841]". */
-                _cleanup_free_ char *path = NULL;
+                _cleanup_free_ বর্ণ *path = রিক্ত;
                 r = fd_get_path(fd, &path);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
                 /* Bind-mounted namespaces expose their mount path instead of the nsfs link name. */
-                if (path_is_absolute(path))
-                        return -ENOTTY;
+                যদি (path_is_absolute(path))
+                        প্রত্যাগম -ENOTTY;
 
-                const char *p = startswith(path, namespace_info[type].proc_name);
-                if (!p)
-                        return false;
+                ধ্রুব বর্ণ *p = startswith(path, namespace_info[type].proc_name);
+                যদি (!p)
+                        প্রত্যাগম false;
 
-                return startswith(p, ":[") != NULL;
+                প্রত্যাগম startswith(p, ":[") != রিক্ত;
         }
 
         NamespaceType found_type = clone_flag_to_namespace_type(clone_flag);
-        if (found_type < 0)
-                return -EBADF; /* Uh? Unknown namespace type? */
+        যদি (found_type < 0)
+                প্রত্যাগম -EBADF; /* Uh? Unknown namespace type? */
 
-        return found_type == type;
+        প্রত্যাগম found_type == type;
 }
 
-int is_our_namespace(int fd, NamespaceType type) {
-        int r;
+পূর্ণাঙ্ক is_our_namespace(পূর্ণাঙ্ক fd, NamespaceType type) {
+        পূর্ণাঙ্ক r;
 
-        assert(fd >= 0);
-        assert(type >= 0 && type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(fd >= 0);
+        প্রতিজ্ঞা(type >= 0 && type < _NAMESPACE_TYPE_MAX);
 
         r = fd_is_namespace(fd, type);
         /* If neither the ioctl nor the nsfs link name identifies the type, we can still recognize our own
          * namespace by inode. */
-        if (r < 0 && r != -ENOTTY)
-                return r;
-        if (r == 0) /* Not a namespace or not of the right type? */
-                return -EUCLEAN;
+        যদি (r < 0 && r != -ENOTTY)
+                প্রত্যাগম r;
+        যদি (r == 0) /* Not a namespace or not of the right type? */
+                প্রত্যাগম -EUCLEAN;
 
         bool type_verified = r > 0;
 
-        _cleanup_close_ int our_ns = namespace_open_by_type(type);
-        if (our_ns < 0)
-                return our_ns;
+        _cleanup_close_ পূর্ণাঙ্ক our_ns = namespace_open_by_type(type);
+        যদি (our_ns < 0)
+                প্রত্যাগম our_ns;
 
         r = fd_inode_same(fd, our_ns);
-        if (r == 0 && !type_verified)
-                return -ENOTTY;
+        যদি (r == 0 && !type_verified)
+                প্রত্যাগম -ENOTTY;
 
-        return r;
+        প্রত্যাগম r;
 }
 
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        int r;
+পূর্ণাঙ্ক are_our_namespaces(পূর্ণাঙ্ক pidns_fd, পূর্ণাঙ্ক mntns_fd, পূর্ণাঙ্ক netns_fd, পূর্ণাঙ্ক userns_fd, পূর্ণাঙ্ক মূল_fd) {
+        পূর্ণাঙ্ক r;
 
-        if (pidns_fd >= 0) {
+        যদি (pidns_fd >= 0) {
                 r = is_our_namespace(pidns_fd, NAMESPACE_PID);
-                if (r <= 0)
-                        return r;
+                যদি (r <= 0)
+                        প্রত্যাগম r;
         }
 
-        if (mntns_fd >= 0) {
+        যদি (mntns_fd >= 0) {
                 r = is_our_namespace(mntns_fd, NAMESPACE_MOUNT);
-                if (r <= 0)
-                        return r;
+                যদি (r <= 0)
+                        প্রত্যাগম r;
         }
 
-        if (netns_fd >= 0) {
+        যদি (netns_fd >= 0) {
                 r = is_our_namespace(netns_fd, NAMESPACE_NET);
-                if (r <= 0)
-                        return r;
+                যদি (r <= 0)
+                        প্রত্যাগম r;
         }
 
-        if (userns_fd >= 0) {
+        যদি (userns_fd >= 0) {
                 r = is_our_namespace(userns_fd, NAMESPACE_USER);
-                if (r <= 0)
-                        return r;
+                যদি (r <= 0)
+                        প্রত্যাগম r;
         }
 
-        if (root_fd >= 0) {
-                r = dir_fd_is_root(root_fd);
-                if (r <= 0)
-                        return r;
+        যদি (মূল_fd >= 0) {
+                r = dir_fd_is_মূল(মূল_fd);
+                যদি (r <= 0)
+                        প্রত্যাগম r;
         }
 
-        return true;
+        প্রত্যাগম true;
 }
 
-int network_namespace_is_init(int socket_fd) {
-        struct stat a, b;
-        int r;
+পূর্ণাঙ্ক network_namespace_is_init(পূর্ণাঙ্ক socket_fd) {
+        সংরচনা stat a, b;
+        পূর্ণাঙ্ক r;
 
         /* This works only when privileged. */
 
         r = RET_NERRNO(stat(pid_namespace_path(1, NAMESPACE_NET), &a));
-        if (r == -ENOENT) {
+        যদি (r == -ENOENT) {
                 /* If the /proc/ns/<type> API is not around in /proc/ then ns is off in the kernel and we are in the init ns */
                 r = proc_mounted();
-                if (r < 0)
-                        return -ENOENT; /* If we can't determine if /proc/ is mounted propagate original error */
+                যদি (r < 0)
+                        প্রত্যাগম -ENOENT; /* If we can't determine if /proc/ is mounted propagate original error */
 
-                return r ? true : -ENOSYS;
+                প্রত্যাগম r ? true : -ENOSYS;
         }
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        if (socket_fd >= 0) {
-                _cleanup_close_ int netns = ioctl(socket_fd, SIOCGSKNS);
-                if (netns < 0)
-                        return -errno;
+        যদি (socket_fd >= 0) {
+                _cleanup_close_ পূর্ণাঙ্ক netns = ioctl(socket_fd, SIOCGSKNS);
+                যদি (netns < 0)
+                        প্রত্যাগম -errno;
 
-                if (fstat(netns, &b) < 0)
-                        return -errno;
-        } else {
-                if (stat(pid_namespace_path(0, NAMESPACE_NET), &b) < 0)
-                        return -errno;
+                যদি (fstat(netns, &b) < 0)
+                        প্রত্যাগম -errno;
+        } অন্যথা {
+                যদি (stat(pid_namespace_path(0, NAMESPACE_NET), &b) < 0)
+                        প্রত্যাগম -errno;
         }
 
-        return stat_inode_same(&a, &b);
+        প্রত্যাগম stat_inode_same(&a, &b);
 }
 
-int namespace_is_init(NamespaceType type) {
-        int r;
+পূর্ণাঙ্ক namespace_is_init(NamespaceType type) {
+        পূর্ণাঙ্ক r;
 
-        assert(type >= 0);
-        assert(type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(type >= 0);
+        প্রতিজ্ঞা(type < _NAMESPACE_TYPE_MAX);
 
-        if (type == NAMESPACE_NET)
-                return network_namespace_is_init(/* socket_fd= */ -EBADF);
+        যদি (type == NAMESPACE_NET)
+                প্রত্যাগম network_namespace_is_init(/* socket_fd= */ -EBADF);
 
-        if (namespace_info[type].root_inode == 0)
-                return -EBADR; /* Cannot answer this question */
+        যদি (namespace_info[type].মূল_inode == 0)
+                প্রত্যাগম -EBADR; /* Cannot answer this question */
 
-        const char *p = pid_namespace_path(0, type);
+        ধ্রুব বর্ণ *p = pid_namespace_path(0, type);
 
-        struct stat st;
+        সংরচনা stat st;
         r = RET_NERRNO(stat(p, &st));
-        if (r == -ENOENT) {
+        যদি (r == -ENOENT) {
                 /* If the /proc/ns/<type> API is not around in /proc/ then ns is off in the kernel and we are in the init ns */
                 r = proc_mounted();
-                if (r < 0)
-                        return -ENOENT; /* If we can't determine if /proc/ is mounted propagate original error */
+                যদি (r < 0)
+                        প্রত্যাগম -ENOENT; /* If we can't determine if /proc/ is mounted propagate original error */
 
-                return r ? true : -ENOSYS;
+                প্রত্যাগম r ? true : -ENOSYS;
         }
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        return st.st_ino == namespace_info[type].root_inode;
+        প্রত্যাগম st.st_ino == namespace_info[type].মূল_inode;
 }
 
-int pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type) {
-        _cleanup_close_ int ns1 = -EBADF, ns2 = -EBADF;
+পূর্ণাঙ্ক pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type) {
+        _cleanup_close_ পূর্ণাঙ্ক ns1 = -EBADF, ns2 = -EBADF;
 
         /* Accepts NULL to indicate our own process */
 
-        assert(!pid1 || pidref_is_set(pid1));
-        assert(!pid2 || pidref_is_set(pid2));
-        assert(type >= 0 && type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(!pid1 || pidref_is_set(pid1));
+        প্রতিজ্ঞা(!pid2 || pidref_is_set(pid2));
+        প্রতিজ্ঞা(type >= 0 && type < _NAMESPACE_TYPE_MAX);
 
-        if (pidref_equal(pid1, pid2))
-                return true;
+        যদি (pidref_equal(pid1, pid2))
+                প্রত্যাগম true;
 
-        if (!pid1)
+        যদি (!pid1)
                 ns1 = namespace_open_by_type(type);
-        else
+        অন্যথা
                 ns1 = pidref_namespace_open_by_type(pid1, type);
-        if (ns1 < 0)
-                return ns1;
+        যদি (ns1 < 0)
+                প্রত্যাগম ns1;
 
-        if (!pid2)
+        যদি (!pid2)
                 ns2 = namespace_open_by_type(type);
-        else
+        অন্যথা
                 ns2 = pidref_namespace_open_by_type(pid2, type);
-        if (ns2 < 0)
-                return ns2;
+        যদি (ns2 < 0)
+                প্রত্যাগম ns2;
 
-        return fd_inode_same(ns1, ns2);
+        প্রত্যাগম fd_inode_same(ns1, ns2);
 }
 
-int in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type) {
-        assert(pid1 >= 0);
-        assert(pid2 >= 0);
-        return pidref_in_same_namespace(pid1 == 0 ? NULL : &PIDREF_MAKE_FROM_PID(pid1),
-                                        pid2 == 0 ? NULL : &PIDREF_MAKE_FROM_PID(pid2),
+পূর্ণাঙ্ক in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type) {
+        প্রতিজ্ঞা(pid1 >= 0);
+        প্রতিজ্ঞা(pid2 >= 0);
+        প্রত্যাগম pidref_in_same_namespace(pid1 == 0 ? রিক্ত : &PIDREF_MAKE_FROM_PID(pid1),
+                                        pid2 == 0 ? রিক্ত : &PIDREF_MAKE_FROM_PID(pid2),
                                         type);
 }
 
-int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret) {
-        int r;
+পূর্ণাঙ্ক namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret) {
+        পূর্ণাঙ্ক r;
 
         /* Note: we don't bother with pidref_is_set()/pidref_is_remote() here, as the first call we do,
          * pidref_get_ppid_as_pidref() calls those anyway */
 
-        assert(type >= 0 && type < _NAMESPACE_TYPE_MAX);
-        assert(ret);
+        প্রতিজ্ঞা(type >= 0 && type < _NAMESPACE_TYPE_MAX);
+        প্রতিজ্ঞা(ret);
 
         _cleanup_(pidref_done) PidRef current = PIDREF_NULL;
         PidRef *c = pidref;
 
-        for (;;) {
+        প্রতি (;;) {
                 _cleanup_(pidref_done) PidRef parent = PIDREF_NULL;
 
                 r = pidref_get_ppid_as_pidref(c, &parent);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        প্রত্যাগম r;
 
                 r = pidref_in_same_namespace(c, &parent, type);
-                if (r < 0)
-                        return r;
-                if (r == 0) {
+                যদি (r < 0)
+                        প্রত্যাগম r;
+                যদি (r == 0) {
                         /* If the parent and the child are not in the same namespace, then the child is
                          * the leader we are looking for. */
 
-                        if (pidref_is_set(&current))
+                        যদি (pidref_is_set(&current))
                                 *ret = TAKE_PIDREF(current);
-                        else {
+                        অন্যথা {
                                 r = pidref_copy(c, ret);
-                                if (r < 0)
-                                        return r;
+                                যদি (r < 0)
+                                        প্রত্যাগম r;
                         }
 
-                        return 0;
+                        প্রত্যাগম 0;
                 }
 
                 pidref_done(&current);
@@ -615,27 +615,27 @@ int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret) {
         }
 }
 
-int detach_mount_namespace(void) {
+পূর্ণাঙ্ক detach_mount_namespace(শূন্য) {
         /* Detaches the mount namespace, disabling propagation from our namespace to the host. Sets
          * propagation first to MS_SLAVE for all mounts (disabling propagation), and then back to MS_SHARED
          * (so that we create a new peer group).  */
 
-        if (unshare(CLONE_NEWNS) < 0)
-                return log_debug_errno(errno, "Failed to acquire mount namespace: %m");
+        যদি (unshare(CLONE_NEWNS) < 0)
+                প্রত্যাগম log_debug_errno(errno, "Failed to acquire mount namespace: %m");
 
-        if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0)
-                return log_debug_errno(errno, "Failed to set mount propagation to MS_SLAVE for all mounts: %m");
+        যদি (mount(রিক্ত, "/", রিক্ত, MS_SLAVE | MS_REC, রিক্ত) < 0)
+                প্রত্যাগম log_debug_errno(errno, "Failed to set mount propagation to MS_SLAVE for all mounts: %m");
 
-        if (mount(NULL, "/", NULL, MS_SHARED | MS_REC, NULL) < 0)
-                return log_debug_errno(errno, "Failed to set mount propagation back to MS_SHARED for all mounts: %m");
+        যদি (mount(রিক্ত, "/", রিক্ত, MS_SHARED | MS_REC, রিক্ত) < 0)
+                প্রত্যাগম log_debug_errno(errno, "Failed to set mount propagation back to MS_SHARED for all mounts: %m");
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid) {
+পূর্ণাঙ্ক detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid) {
         uid_t from_uid;
         gid_t from_gid;
-        int r;
+        পূর্ণাঙ্ক r;
 
         /* Tried detach_mount_namespace() first. If that doesn't work due to permissions, opens up an
          * unprivileged user namespace with a mapping of the originating UID/GID to the specified target
@@ -653,344 +653,344 @@ int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid) {
          *
          * Yes, that's quite a difference. */
 
-        if (!uid_is_valid(target_uid))
-                return -EINVAL;
-        if (!gid_is_valid(target_gid))
-                return -EINVAL;
+        যদি (!uid_is_valid(target_uid))
+                প্রত্যাগম -EINVAL;
+        যদি (!gid_is_valid(target_gid))
+                প্রত্যাগম -EINVAL;
 
         r = detach_mount_namespace();
-        if (r != -EPERM)
-                return r;
+        যদি (r != -EPERM)
+                প্রত্যাগম r;
 
         from_uid = getuid();
         from_gid = getgid();
 
-        if (unshare(CLONE_NEWUSER) < 0)
-                return log_debug_errno(errno, "Failed to acquire user namespace: %m");
+        যদি (unshare(CLONE_NEWUSER) < 0)
+                প্রত্যাগম log_debug_errno(errno, "Failed to acquire user namespace: %m");
 
         r = write_string_filef("/proc/self/uid_map", 0,
                                UID_FMT " " UID_FMT " 1\n", target_uid, from_uid);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write uid map: %m");
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to write uid map: %m");
 
         r = write_string_file("/proc/self/setgroups", "deny", 0);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write setgroups file: %m");
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to write setgroups file: %m");
 
         r = write_string_filef("/proc/self/gid_map", 0,
                                GID_FMT " " GID_FMT " 1\n", target_gid, from_gid);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write gid map: %m");
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to write gid map: %m");
 
-        return detach_mount_namespace();
+        প্রত্যাগম detach_mount_namespace();
 }
 
-int detach_mount_namespace_userns(int userns_fd) {
-        int r;
+পূর্ণাঙ্ক detach_mount_namespace_userns(পূর্ণাঙ্ক userns_fd) {
+        পূর্ণাঙ্ক r;
 
-        assert(userns_fd >= 0);
+        প্রতিজ্ঞা(userns_fd >= 0);
 
-        if (setns(userns_fd, CLONE_NEWUSER) < 0)
-                return log_debug_errno(errno, "Failed to join user namespace: %m");
+        যদি (setns(userns_fd, CLONE_NEWUSER) < 0)
+                প্রত্যাগম log_debug_errno(errno, "Failed to join user namespace: %m");
 
         r = reset_uid_gid();
-        if (r < 0)
-                return log_debug_errno(r, "Failed to become root in user namespace: %m");
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to become root in user namespace: %m");
 
-        return detach_mount_namespace();
+        প্রত্যাগম detach_mount_namespace();
 }
 
-int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range) {
-        _cleanup_free_ char *buffer = NULL;
-        const char *range, *shift;
-        int r;
+পূর্ণাঙ্ক parse_userns_uid_range(ধ্রুব বর্ণ *s, uid_t *ret_uid_shift, uid_t *ret_uid_range) {
+        _cleanup_free_ বর্ণ *buffer = রিক্ত;
+        ধ্রুব বর্ণ *range, *shift;
+        পূর্ণাঙ্ক r;
         uid_t uid_shift, uid_range = 65536;
 
-        assert(s);
+        প্রতিজ্ঞা(s);
 
         range = strchr(s, ':');
-        if (range) {
+        যদি (range) {
                 buffer = strndup(s, range - s);
-                if (!buffer)
-                        return log_oom();
+                যদি (!buffer)
+                        প্রত্যাগম log_oom();
                 shift = buffer;
 
                 range++;
                 r = safe_atou32(range, &uid_range);
-                if (r < 0)
-                        return log_error_errno(r, "Failed to parse UID range \"%s\": %m", range);
-        } else
+                যদি (r < 0)
+                        প্রত্যাগম log_error_errno(r, "Failed to parse UID range \"%s\": %m", range);
+        } অন্যথা
                 shift = s;
 
         r = parse_uid(shift, &uid_shift);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse UID \"%s\": %m", s);
+        যদি (r < 0)
+                প্রত্যাগম log_error_errno(r, "Failed to parse UID \"%s\": %m", s);
 
-        if (!userns_shift_range_valid(uid_shift, uid_range))
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL), "UID range cannot be empty or go beyond " UID_FMT ".", UID_INVALID);
+        যদি (!userns_shift_range_valid(uid_shift, uid_range))
+                প্রত্যাগম log_error_errno(SYNTHETIC_ERRNO(EINVAL), "UID range cannot be empty or go beyond " UID_FMT ".", UID_INVALID);
 
-        if (ret_uid_shift)
+        যদি (ret_uid_shift)
                 *ret_uid_shift = uid_shift;
 
-        if (ret_uid_range)
+        যদি (ret_uid_range)
                 *ret_uid_range = uid_range;
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int userns_acquire_empty(void) {
+পূর্ণাঙ্ক userns_acquire_empty(শূন্য) {
         _cleanup_(pidref_done_sigkill_wait) PidRef pid = PIDREF_NULL;
-        int r;
+        পূর্ণাঙ্ক r;
 
         r = pidref_safe_fork("(sd-mkuserns)", FORK_CLOSE_ALL_FDS|FORK_DEATHSIG_SIGKILL|FORK_NEW_USERNS|FORK_FREEZE, &pid);
-        if (r < 0)
-                return r;
-        assert(r > 0);
+        যদি (r < 0)
+                প্রত্যাগম r;
+        প্রতিজ্ঞা(r > 0);
 
-        return pidref_namespace_open_by_type(&pid, NAMESPACE_USER);
+        প্রত্যাগম pidref_namespace_open_by_type(&pid, NAMESPACE_USER);
 }
 
-int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny) {
-        char path[STRLEN("/proc//setgroups") + DECIMAL_STR_MAX(pid_t) + 1];
+পূর্ণাঙ্ক userns_acquire(ধ্রুব বর্ণ *uid_map, ধ্রুব বর্ণ *gid_map, bool setgroups_deny) {
+        বর্ণ path[STRLEN("/proc//setgroups") + DECIMAL_STR_MAX(pid_t) + 1];
         _cleanup_(pidref_done_sigkill_wait) PidRef pid = PIDREF_NULL;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(uid_map);
-        assert(gid_map);
+        প্রতিজ্ঞা(uid_map);
+        প্রতিজ্ঞা(gid_map);
 
         /* Forks off a process in a new userns, configures the specified uidmap/gidmap, acquires an fd to it,
          * and then kills the process again. This way we have a userns fd that is not bound to any
          * process. We can use that for file system mounts and similar. */
 
         r = pidref_safe_fork("(sd-mkuserns)", FORK_CLOSE_ALL_FDS|FORK_DEATHSIG_SIGKILL|FORK_NEW_USERNS|FORK_FREEZE, &pid);
-        if (r < 0)
-                return r;
-        assert(r > 0);
+        যদি (r < 0)
+                প্রত্যাগম r;
+        প্রতিজ্ঞা(r > 0);
 
         xsprintf(path, "/proc/" PID_FMT "/uid_map", pid.pid);
         r = write_string_file(path, uid_map, WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write UID map: %m");
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to write UID map: %m");
 
-        if (setgroups_deny) {
+        যদি (setgroups_deny) {
                 xsprintf(path, "/proc/" PID_FMT "/setgroups", pid.pid);
                 r = write_string_file(path, "deny", WRITE_STRING_FILE_DISABLE_BUFFER);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to write setgroups file: %m");
+                যদি (r < 0)
+                        প্রত্যাগম log_debug_errno(r, "Failed to write setgroups file: %m");
         }
 
         xsprintf(path, "/proc/" PID_FMT "/gid_map", pid.pid);
         r = write_string_file(path, gid_map, WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write GID map: %m");
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to write GID map: %m");
 
-        return pidref_namespace_open_by_type(&pid, NAMESPACE_USER);
+        প্রত্যাগম pidref_namespace_open_by_type(&pid, NAMESPACE_USER);
 }
 
-int userns_acquire_self_root(void) {
+পূর্ণাঙ্ক userns_acquire_self_মূল(শূন্য) {
 
         /* Returns a user namespace with only our own uid/gid mapped to root, and everything else unmapped.
          *
          * Note: this can be acquired unprivileged! */
 
-        _cleanup_free_ char *uid_map = NULL, *gid_map = NULL;
-        if (asprintf(&uid_map, "0 " UID_FMT " 1", getuid()) < 0)
-                return -ENOMEM;
-        if (asprintf(&gid_map, "0 " GID_FMT " 1", getgid()) < 0)
-                return -ENOMEM;
+        _cleanup_free_ বর্ণ *uid_map = রিক্ত, *gid_map = রিক্ত;
+        যদি (asprintf(&uid_map, "0 " UID_FMT " 1", getuid()) < 0)
+                প্রত্যাগম -ENOMEM;
+        যদি (asprintf(&gid_map, "0 " GID_FMT " 1", getgid()) < 0)
+                প্রত্যাগম -ENOMEM;
 
-        return userns_acquire(uid_map, gid_map, /* setgroups_deny= */ true);
+        প্রত্যাগম userns_acquire(uid_map, gid_map, /* setgroups_deny= */ true);
 }
 
-int userns_enter_and_pin(int userns_fd, PidRef *ret) {
-        _cleanup_close_pair_ int pfd[2] = EBADF_PAIR;
+পূর্ণাঙ্ক userns_enter_and_pin(পূর্ণাঙ্ক userns_fd, PidRef *ret) {
+        _cleanup_close_pair_ পূর্ণাঙ্ক pfd[2] = EBADF_PAIR;
         _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
         ssize_t n;
-        char x;
-        int r;
+        বর্ণ x;
+        পূর্ণাঙ্ক r;
 
-        assert(userns_fd >= 0);
-        assert(ret);
+        প্রতিজ্ঞা(userns_fd >= 0);
+        প্রতিজ্ঞা(ret);
 
-        if (pipe2(pfd, O_CLOEXEC) < 0)
-                return -errno;
+        যদি (pipe2(pfd, O_CLOEXEC) < 0)
+                প্রত্যাগম -errno;
 
         r = pidref_safe_fork_full(
                         "(sd-pinuserns)",
-                        /* stdio_fds= */ NULL,
-                        (int[]) { pfd[1], userns_fd }, 2,
+                        /* stdio_fds= */ রিক্ত,
+                        (পূর্ণাঙ্ক[]) { pfd[1], userns_fd }, 2,
                         FORK_CLOSE_ALL_FDS|FORK_REOPEN_LOG|FORK_DEATHSIG_SIGKILL,
                         &pidref);
-        if (r < 0)
-                return r;
-        if (r == 0) {
+        যদি (r < 0)
+                প্রত্যাগম r;
+        যদি (r == 0) {
                 /* Child. */
 
-                if (setns(userns_fd, CLONE_NEWUSER) < 0) {
+                যদি (setns(userns_fd, CLONE_NEWUSER) < 0) {
                         log_debug_errno(errno, "Failed to join userns: %m");
                         _exit(EXIT_FAILURE);
                 }
 
                 userns_fd = safe_close(userns_fd);
 
-                n = write(pfd[1], &(const char) { 'x' }, 1);
-                if (n < 0) {
+                n = লিখ(pfd[1], &(ধ্রুব বর্ণ) { 'x' }, 1);
+                যদি (n < 0) {
                         log_debug_errno(errno, "Failed to write to pipe: %m");
                         _exit(EXIT_FAILURE);
                 }
-                assert(n == 1);
+                প্রতিজ্ঞা(n == 1);
 
                 freeze();
         }
 
         pfd[1] = safe_close(pfd[1]);
 
-        n = read(pfd[0], &x, 1);
-        if (n < 0)
-                return -errno;
-        if (n == 0)
-                return -EPROTO;
-        assert(n == 1);
-        assert(x == 'x');
+        n = পঠ(pfd[0], &x, 1);
+        যদি (n < 0)
+                প্রত্যাগম -errno;
+        যদি (n == 0)
+                প্রত্যাগম -EPROTO;
+        প্রতিজ্ঞা(n == 1);
+        প্রতিজ্ঞা(x == 'x');
 
         *ret = TAKE_PIDREF(pidref);
-        return 0;
+        প্রত্যাগম 0;
 }
 
-bool userns_supported(void) {
-        return access("/proc/self/uid_map", F_OK) >= 0;
+bool userns_supported(শূন্য) {
+        প্রত্যাগম access("/proc/self/uid_map", F_OK) >= 0;
 }
 
-int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid) {
+পূর্ণাঙ্ক userns_get_base_uid(পূর্ণাঙ্ক userns_fd, uid_t *ret_uid, gid_t *ret_gid) {
         _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(userns_fd >= 0);
+        প্রতিজ্ঞা(userns_fd >= 0);
 
         r = userns_enter_and_pin(userns_fd, &pidref);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         uid_t uid;
-        r = uid_map_search_root(pidref.pid, UID_RANGE_USERNS_OUTSIDE, &uid);
-        if (r < 0)
-                return r;
+        r = uid_map_অনুসন্ধান_মূল(pidref.pid, UID_RANGE_USERNS_OUTSIDE, &uid);
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         gid_t gid;
-        r = uid_map_search_root(pidref.pid, GID_RANGE_USERNS_OUTSIDE, &gid);
-        if (r < 0)
-                return r;
+        r = uid_map_অনুসন্ধান_মূল(pidref.pid, GID_RANGE_USERNS_OUTSIDE, &gid);
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        if (!ret_gid && uid != gid)
-                return -EUCLEAN;
+        যদি (!ret_gid && uid != gid)
+                প্রত্যাগম -EUCLEAN;
 
-        if (ret_uid)
+        যদি (ret_uid)
                 *ret_uid = uid;
-        if (ret_gid)
+        যদি (ret_gid)
                 *ret_gid = gid;
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-int userns_has_root_mapping(int userns_fd) {
-        _cleanup_(uid_range_freep) UIDRange *uid_range = NULL, *gid_range = NULL;
+পূর্ণাঙ্ক userns_has_মূল_mapping(পূর্ণাঙ্ক userns_fd) {
+        _cleanup_(uid_range_freep) UIDRange *uid_range = রিক্ত, *gid_range = রিক্ত;
         _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(userns_fd >= 0);
+        প্রতিজ্ঞা(userns_fd >= 0);
 
         r = userns_enter_and_pin(userns_fd, &pidref);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        const char *p = procfs_file_alloca(pidref.pid, "uid_map");
+        ধ্রুব বর্ণ *p = procfs_file_alloca(pidref.pid, "uid_map");
         r = uid_range_load_userns(p, UID_RANGE_USERNS_INSIDE, &uid_range);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         p = procfs_file_alloca(pidref.pid, "gid_map");
         r = uid_range_load_userns(p, GID_RANGE_USERNS_INSIDE, &gid_range);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
         /* The maps can be written only once. While they are empty the namespace is still being set up and
          * root might yet get mapped, so refuse to answer rather than guess. */
-        if (uid_range_is_empty(uid_range) || uid_range_is_empty(gid_range))
-                return log_debug_errno(SYNTHETIC_ERRNO(ENODATA),
+        যদি (uid_range_is_empty(uid_range) || uid_range_is_empty(gid_range))
+                প্রত্যাগম log_debug_errno(SYNTHETIC_ERRNO(ENODATA),
                                        "User namespace has no UID/GID mapping yet.");
 
-        return uid_range_contains(uid_range, 0) && uid_range_contains(gid_range, 0);
+        প্রত্যাগম uid_range_contains(uid_range, 0) && uid_range_contains(gid_range, 0);
 }
 
-int process_is_owned_by_uid(const PidRef *pidref, uid_t uid) {
-        int r;
+পূর্ণাঙ্ক process_is_owned_by_uid(ধ্রুব PidRef *pidref, uid_t uid) {
+        পূর্ণাঙ্ক r;
 
         /* Checks if the specified process either is owned directly by the specified user, or if it is inside
          * a user namespace owned by it. */
 
-        assert(uid_is_valid(uid));
+        প্রতিজ্ঞা(uid_is_valid(uid));
 
         uid_t process_uid;
         r = pidref_get_uid(pidref, &process_uid);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to get UID of process " PID_FMT ": %m", pidref ? pidref->pid : 0);
-        if (process_uid == uid)
-                return true;
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to get UID of process " PID_FMT ": %m", pidref ? pidref->pid : 0);
+        যদি (process_uid == uid)
+                প্রত্যাগম true;
 
         log_debug("Process " PID_FMT " has UID " UID_FMT ", which doesn't match expected UID " UID_FMT ", checking user namespace ownership.",
                   pidref->pid, process_uid, uid);
 
-        _cleanup_close_ int userns_fd = -EBADF;
+        _cleanup_close_ পূর্ণাঙ্ক userns_fd = -EBADF;
         userns_fd = pidref_namespace_open_by_type(pidref, NAMESPACE_USER);
-        if (userns_fd == -ENOPKG) /* If userns is not supported, then they don't matter for ownership */
-                return false;
-        if (userns_fd < 0)
-                return log_debug_errno(userns_fd, "Failed to open user namespace of process " PID_FMT ": %m", pidref->pid);
+        যদি (userns_fd == -ENOPKG) /* If userns is not supported, then they don't matter for ownership */
+                প্রত্যাগম false;
+        যদি (userns_fd < 0)
+                প্রত্যাগম log_debug_errno(userns_fd, "Failed to open user namespace of process " PID_FMT ": %m", pidref->pid);
 
-        for (unsigned iteration = 0;; iteration++) {
+        প্রতি (unsigned iteration = 0;; iteration++) {
                 uid_t ns_uid;
 
                 /* This process is in our own userns? Then we are done, in our own userns only the UIDs
                  * themselves matter. */
                 r = is_our_namespace(userns_fd, NAMESPACE_USER);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to check if user namespace of process " PID_FMT " is our own (iteration %u): %m", pidref->pid, iteration);
-                if (r > 0) {
+                যদি (r < 0)
+                        প্রত্যাগম log_debug_errno(r, "Failed to check if user namespace of process " PID_FMT " is our own (iteration %u): %m", pidref->pid, iteration);
+                যদি (r > 0) {
                         log_debug("User namespace of process " PID_FMT " is our own namespace (iteration %u), not owned by expected UID.", pidref->pid, iteration);
-                        return false;
+                        প্রত্যাগম false;
                 }
 
-                if (ioctl(userns_fd, NS_GET_OWNER_UID, &ns_uid) < 0)
-                        return log_debug_errno(errno, "Failed to get owner UID of user namespace of process " PID_FMT " (iteration %u): %m", pidref->pid, iteration);
-                if (ns_uid == uid) {
+                যদি (ioctl(userns_fd, NS_GET_OWNER_UID, &ns_uid) < 0)
+                        প্রত্যাগম log_debug_errno(errno, "Failed to get owner UID of user namespace of process " PID_FMT " (iteration %u): %m", pidref->pid, iteration);
+                যদি (ns_uid == uid) {
                         log_debug("User namespace of process " PID_FMT " is owned by UID " UID_FMT " (iteration %u), ownership check passed.", pidref->pid, uid, iteration);
-                        return true;
+                        প্রত্যাগম true;
                 }
 
                 log_debug("User namespace of process " PID_FMT " is owned by UID " UID_FMT ", expected UID " UID_FMT " (iteration %u), going up the tree.",
                           pidref->pid, ns_uid, uid, iteration);
 
                 /* Paranoia check */
-                if (iteration > 16)
-                        return log_debug_errno(SYNTHETIC_ERRNO(ELOOP), "Giving up while tracing parents of user namespaces after %u steps.", iteration);
+                যদি (iteration > 16)
+                        প্রত্যাগম log_debug_errno(SYNTHETIC_ERRNO(ELOOP), "Giving up while tracing parents of user namespaces after %u steps.", iteration);
 
                 /* Go up the tree */
-                _cleanup_close_ int parent_fd = ioctl(userns_fd, NS_GET_USERNS);
-                if (parent_fd < 0) {
-                        if (errno == EPERM) { /* EPERM means we left our own userns */
+                _cleanup_close_ পূর্ণাঙ্ক parent_fd = ioctl(userns_fd, NS_GET_USERNS);
+                যদি (parent_fd < 0) {
+                        যদি (errno == EPERM) { /* EPERM means we left our own userns */
                                 log_debug("NS_GET_USERNS ioctl returned EPERM for process " PID_FMT " (iteration %u), left our own userns.", pidref->pid, iteration);
-                                return false;
+                                প্রত্যাগম false;
                         }
 
-                        return log_debug_errno(errno, "NS_GET_USERNS ioctl failed for process " PID_FMT " (iteration %u): %m", pidref->pid, iteration);
+                        প্রত্যাগম log_debug_errno(errno, "NS_GET_USERNS ioctl failed for process " PID_FMT " (iteration %u): %m", pidref->pid, iteration);
                 }
 
                 close_and_replace(userns_fd, parent_fd);
         }
 }
 
-int namespace_open_by_id(uint64_t ns_id) {
-        int r;
+পূর্ণাঙ্ক namespace_open_by_id(uint64_t ns_id) {
+        পূর্ণাঙ্ক r;
 
         /* Looks up a namespace by its unique boot-stable identifier and returns an O_PATH fd to it.
          * Requires kernel ≥ 6.13.
@@ -1003,26 +1003,26 @@ int namespace_open_by_id(uint64_t ns_id) {
          * with "kernel refused us", we refuse early with -EPERM when we aren't in the initial
          * user/pid namespace or missing CAP_SYS_ADMIN and let the caller skip the check. */
 
-        if (ns_id == 0)
-                return -EINVAL;
+        যদি (ns_id == 0)
+                প্রত্যাগম -EINVAL;
 
         r = namespace_is_init(NAMESPACE_USER);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM;
+        যদি (r < 0)
+                প্রত্যাগম r;
+        যদি (r == 0)
+                প্রত্যাগম -EPERM;
 
         r = namespace_is_init(NAMESPACE_PID);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM;
+        যদি (r < 0)
+                প্রত্যাগম r;
+        যদি (r == 0)
+                প্রত্যাগম -EPERM;
 
         r = have_effective_cap(CAP_SYS_ADMIN);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM;
+        যদি (r < 0)
+                প্রত্যাগম r;
+        যদি (r == 0)
+                প্রত্যাগম -EPERM;
 
         /* The natural way to write this would be a compound designated initializer:
          *
@@ -1037,11 +1037,11 @@ int namespace_open_by_id(uint64_t ns_id) {
          * are not covered by the partial struct initializer and end up as stack garbage. Zero the
          * entire union first, then fill in the fields explicitly. */
 
-        union {
-                struct file_handle file_handle;
-                uint8_t space[offsetof(struct file_handle, f_handle) + sizeof(struct nsfs_file_handle)];
+        সঙ্ঘ {
+                সংরচনা file_handle file_handle;
+                uint8_t space[offsetof(সংরচনা file_handle, f_handle) + পরিমাণ(সংরচনা nsfs_file_handle)];
         } fh = {};
-        fh.file_handle.handle_bytes = sizeof(struct nsfs_file_handle);
+        fh.file_handle.handle_bytes = পরিমাণ(সংরচনা nsfs_file_handle);
         fh.file_handle.handle_type = FILEID_NSFS;
 
         /* The first 8 bytes of struct nsfs_file_handle (see <linux/nsfs.h>, uapi since kernel v6.18)
@@ -1050,64 +1050,64 @@ int namespace_open_by_id(uint64_t ns_id) {
          * 04173501a69e ("nstree: allow lookup solely based on inode"). */
         unaligned_write_ne64(fh.file_handle.f_handle, ns_id);
 
-        return RET_NERRNO(open_by_handle_at(FD_NSFS_ROOT, &fh.file_handle, O_PATH|O_CLOEXEC));
+        প্রত্যাগম RET_NERRNO(open_by_handle_at(FD_NSFS_মূল, &fh.file_handle, O_PATH|O_CLOEXEC));
 }
 
-int is_idmapping_supported(const char *path) {
-        _cleanup_close_ int mount_fd = -EBADF, userns_fd = -EBADF, dir_fd = -EBADF;
-        int r;
+পূর্ণাঙ্ক is_idmapping_supported(ধ্রুব বর্ণ *path) {
+        _cleanup_close_ পূর্ণাঙ্ক mount_fd = -EBADF, userns_fd = -EBADF, dir_fd = -EBADF;
+        পূর্ণাঙ্ক r;
 
-        assert(path);
+        প্রতিজ্ঞা(path);
 
-        if (!mount_new_api_supported())
-                return false;
+        যদি (!mount_new_api_supported())
+                প্রত্যাগম false;
 
-        userns_fd = r = userns_acquire_self_root();
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || ERRNO_IS_NEG_PRIVILEGE(r) || r == -EINVAL)
-                return false;
-        if (r == -ENOSPC) {
+        userns_fd = r = userns_acquire_self_মূল();
+        যদি (ERRNO_IS_NEG_NOT_SUPPORTED(r) || ERRNO_IS_NEG_PRIVILEGE(r) || r == -EINVAL)
+                প্রত্যাগম false;
+        যদি (r == -ENOSPC) {
                 log_debug_errno(r, "Failed to acquire new user namespace, user.max_user_namespaces seems to be exhausted or maybe even zero, assuming ID-mapping is not supported: %m");
-                return false;
+                প্রত্যাগম false;
         }
-        if (r < 0)
-                return log_debug_errno(r, "Failed to acquire new user namespace for checking if '%s' supports ID-mapping: %m", path);
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to acquire new user namespace for checking if '%s' supports ID-mapping: %m", path);
 
         dir_fd = r = RET_NERRNO(open(path, O_RDONLY | O_CLOEXEC | O_NOFOLLOW));
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                return false;
-        if (r < 0)
-                return log_debug_errno(r, "Failed to open '%s', cannot determine if ID-mapping is supported: %m", path);
+        যদি (ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                প্রত্যাগম false;
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to open '%s', cannot determine if ID-mapping is supported: %m", path);
 
         mount_fd = r = RET_NERRNO(open_tree(dir_fd, "", AT_EMPTY_PATH | OPEN_TREE_CLONE | OPEN_TREE_CLOEXEC));
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || ERRNO_IS_NEG_PRIVILEGE(r) || r == -EINVAL)
-                return false;
-        if (r < 0)
-                return log_debug_errno(r, "Failed to open mount tree '%s', cannot determine if ID-mapping is supported: %m", path);
+        যদি (ERRNO_IS_NEG_NOT_SUPPORTED(r) || ERRNO_IS_NEG_PRIVILEGE(r) || r == -EINVAL)
+                প্রত্যাগম false;
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to open mount tree '%s', cannot determine if ID-mapping is supported: %m", path);
 
         r = RET_NERRNO(mount_setattr(mount_fd, "", AT_EMPTY_PATH,
-                       &(struct mount_attr) {
+                       &(সংরচনা mount_attr) {
                                 .attr_set = MOUNT_ATTR_IDMAP | MOUNT_ATTR_NOSUID | MOUNT_ATTR_NOEXEC | MOUNT_ATTR_RDONLY | MOUNT_ATTR_NODEV,
                                 .userns_fd = userns_fd,
-                        }, sizeof(struct mount_attr)));
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || ERRNO_IS_NEG_PRIVILEGE(r) || r == -EINVAL)
-                return false;
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set mount attribute to '%s', cannot determine if ID-mapping is supported: %m", path);
+                        }, পরিমাণ(সংরচনা mount_attr)));
+        যদি (ERRNO_IS_NEG_NOT_SUPPORTED(r) || ERRNO_IS_NEG_PRIVILEGE(r) || r == -EINVAL)
+                প্রত্যাগম false;
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to set mount attribute to '%s', cannot determine if ID-mapping is supported: %m", path);
 
-        return true;
+        প্রত্যাগম true;
 }
 
-int netns_acquire(void) {
+পূর্ণাঙ্ক netns_acquire(শূন্য) {
         _cleanup_(pidref_done_sigkill_wait) PidRef pid = PIDREF_NULL;
-        int r;
+        পূর্ণাঙ্ক r;
 
         /* Forks off a process in a new network namespace, acquires a network namespace fd, and then kills
          * the process again. This way we have a netns fd that is not bound to any process. */
 
         r = pidref_safe_fork("(sd-mknetns)", FORK_CLOSE_ALL_FDS|FORK_DEATHSIG_SIGKILL|FORK_NEW_NETNS|FORK_FREEZE, &pid);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to fork process into new netns: %m");
-        assert(r > 0);
+        যদি (r < 0)
+                প্রত্যাগম log_debug_errno(r, "Failed to fork process into new netns: %m");
+        প্রতিজ্ঞা(r > 0);
 
-        return pidref_namespace_open_by_type(&pid, NAMESPACE_NET);
+        প্রত্যাগম pidref_namespace_open_by_type(&pid, NAMESPACE_NET);
 }

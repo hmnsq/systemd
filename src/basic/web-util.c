@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
-#include "web-util.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "path-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "strv.h"
+#অন্তর্ভাব "utf8.h"
+#অন্তর্ভাব "web-util.h"
 
-bool http_url_is_valid(const char *url) {
-        const char *p;
+bool http_url_is_valid(ধ্রুব বর্ণ *url) {
+        ধ্রুব বর্ণ *p;
 
-        if (isempty(url))
-                return false;
+        যদি (isempty(url))
+                প্রত্যাগম false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        যদি (!p)
+                প্রত্যাগম false;
 
-        if (isempty(p))
-                return false;
+        যদি (isempty(p))
+                প্রত্যাগম false;
 
-        return ascii_is_valid(p);
+        প্রত্যাগম ascii_is_valid(p);
 }
 
-bool file_url_is_valid(const char *url) {
-        const char *p;
+bool file_url_is_valid(ধ্রুব বর্ণ *url) {
+        ধ্রুব বর্ণ *p;
 
-        if (isempty(url))
-                return false;
+        যদি (isempty(url))
+                প্রত্যাগম false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        যদি (isempty(p))
+                প্রত্যাগম false;
 
-        return ascii_is_valid(p);
+        প্রত্যাগম ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
-        const char *p, *e;
-        int r;
+পূর্ণাঙ্ক provider_url_parse(ধ্রুব বর্ণ *url, বর্ণ **ret_socket, বর্ণ **ret_resource) {
+        ধ্রুব বর্ণ *p, *e;
+        পূর্ণাঙ্ক r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        যদি (isempty(url))
+                প্রত্যাগম -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        যদি (!p)
+                প্রত্যাগম -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        যদি (!e || e == p)
+                প্রত্যাগম -EINVAL;
+        যদি (e[1] != '/')
+                প্রত্যাগম -EINVAL;
 
-        _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ বর্ণ *s = strndup(p, e - p);
+        যদি (!s)
+                প্রত্যাগম -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        যদি (!path_is_absolute(s) || !path_is_normalized(s))
+                প্রত্যাগম -EINVAL;
 
-        const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        ধ্রুব বর্ণ *resource = e + 2;
+        যদি (isempty(resource))
+                প্রত্যাগম -EINVAL;
+        যদি (path_is_absolute(resource) || !path_is_normalized(resource))
+                প্রত্যাগম -EINVAL;
+        যদি (string_has_cc(resource, /* ok= */ রিক্ত) || strpbrk(resource, "?#"))
+                প্রত্যাগম -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                প্রত্যাগম r;
 
-        if (ret_socket)
+        যদি (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        প্রত্যাগম 0;
 }
 
-bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+bool provider_url_is_valid(ধ্রুব বর্ণ *url) {
+        প্রত্যাগম provider_url_parse(url, /* ret_socket= */ রিক্ত, /* ret_resource= */ রিক্ত) >= 0;
 }
 
-bool documentation_url_is_valid(const char *url) {
-        const char *p;
+bool documentation_url_is_valid(ধ্রুব বর্ণ *url) {
+        ধ্রুব বর্ণ *p;
 
-        if (isempty(url))
-                return false;
+        যদি (isempty(url))
+                প্রত্যাগম false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        যদি (http_url_is_valid(url) || file_url_is_valid(url))
+                প্রত্যাগম true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        যদি (isempty(p))
+                প্রত্যাগম false;
 
-        return ascii_is_valid(p);
+        প্রত্যাগম ascii_is_valid(p);
 }
 
-bool http_header_valid(const char *header) {
-        return header &&
+bool http_header_valid(ধ্রুব বর্ণ *header) {
+        প্রত্যাগম header &&
                 ascii_is_valid(header) &&
-                !string_has_cc(header, /* ok= */ NULL) &&
+                !string_has_cc(header, /* ok= */ রিক্ত) &&
                 strchr(header, ':');
 }
 
-bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+bool http_etag_is_valid(ধ্রুব বর্ণ *etag) {
+        যদি (isempty(etag))
+                প্রত্যাগম false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        যদি (!endswith(etag, "\""))
+                প্রত্যাগম false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        যদি (!STARTSWITH_SET(etag, "\"", "W/\""))
+                প্রত্যাগম false;
 
-        return true;
+        প্রত্যাগম true;
 }
