@@ -1,64 +1,64 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "ratelimit.h"
-#include "time-util.h"
+#ضمن "ratelimit.h"
+#ضمن "time-util.h"
 
 /* Modelled after Linux' lib/ratelimit.c by Dave Young
  * <hidave.darkstar@gmail.com>, which is licensed GPLv2. */
 
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
-        assert(rl);
+        أكد(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        إذا (!ratelimit_configured(rl))
+                أرجع true;
 
-        if (rl->begin <= 0 ||
+        إذا (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
-                rl->num = 1;     /* Reset counter */
-                return true;
+                rl->رقم = 1;     /* Reset counter */
+                أرجع true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        إذا (_unlikely_(rl->رقم == UINT_MAX))
+                أرجع false;
 
-        rl->num++;
-        return rl->num <= rl->burst;
+        rl->رقم++;
+        أرجع rl->رقم <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
-        assert(rl);
+        أكد(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        إذا (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                أرجع true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        أرجع ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
-unsigned ratelimit_num_dropped(const RateLimit *rl) {
-        assert(rl);
+unsigned ratelimit_رقم_dropped(ثابت RateLimit *rl) {
+        أكد(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        إذا (rl->رقم == UINT_MAX) /* overflow, return as special case */
+                أرجع UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        أرجع LESS_BY(rl->رقم, rl->burst);
 }
 
-usec_t ratelimit_end(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_end(ثابت RateLimit *rl) {
+        أكد(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        إذا (rl->begin == 0)
+                أرجع 0;
 
-        return usec_add(rl->begin, rl->interval);
+        أرجع usec_add(rl->begin, rl->interval);
 }
 
-usec_t ratelimit_left(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_يسار(ثابت RateLimit *rl) {
+        أكد(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        إذا (rl->begin == 0)
+                أرجع 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        أرجع usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }
