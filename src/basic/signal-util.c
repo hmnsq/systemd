@@ -11,44 +11,44 @@
 #include "string-table.h"
 #include "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+puur_naa_nka reset_all_signal_handlers(void) {
+        puur_naa_nka ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        ꦏꦁꦒꦺꦴ (puur_naa_nka sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
+                ꦪꦼꦤ꧀ (IN_SET(sig, SIGKILL, SIGSTOP))
                         continue;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
                 r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                ꦪꦼꦤ꧀ (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        ꦮꦭꦶ ret;
 }
 
-int reset_signal_mask(void) {
+puur_naa_nka reset_signal_mask(void) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ꦪꦼꦤ꧀ (sigemptyset(&ss) < 0)
+                ꦮꦭꦶ -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        ꦮꦭꦶ RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+puur_naa_nka sigaction_many_internal(const sa_nracanaa sigaction *sa, ...) {
+        puur_naa_nka sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ꦱꦼꦢꦼꦭ ((sig = va_arg(ap, puur_naa_nka)) >= 0) {
 
-                if (sig == 0)
+                ꦪꦼꦤ꧀ (sig == 0)
                         continue;
 
                 RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
@@ -56,58 +56,58 @@ int sigaction_many_internal(const struct sigaction *sa, ...) {
 
         va_end(ap);
 
-        return r;
+        ꦮꦭꦶ r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+static puur_naa_nka sigset_add_many_ap(sigset_t *ss, va_list ap) {
+        puur_naa_nka sig, r = 0;
 
         assert(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ꦱꦼꦢꦼꦭ ((sig = va_arg(ap, puur_naa_nka)) >= 0) {
 
-                if (sig == 0)
+                ꦪꦼꦤ꧀ (sig == 0)
                         continue;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                ꦪꦼꦤ꧀ (sigaddset(ss, sig) < 0) {
+                        ꦪꦼꦤ꧀ (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        ꦮꦭꦶ r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+puur_naa_nka sigset_add_many_internal(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
         va_start(ap, ss);
         r = sigset_add_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        ꦮꦭꦶ r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+puur_naa_nka sigprocmask_many_internal(puur_naa_nka how, sigset_t *ret_old_mask, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        puur_naa_nka r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ꦪꦼꦤ꧀ (sigemptyset(&ss) < 0)
+                ꦮꦭꦶ -errno;
 
         va_start(ap, ret_old_mask);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        ꦮꦭꦶ RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
 }
 
-static const char *const static_signal_table[] = {
+static const var_na *const static_signal_table[] = {
         [SIGHUP]    = "HUP",
         [SIGINT]    = "INT",
         [SIGQUIT]   = "QUIT",
@@ -143,87 +143,87 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, puur_naa_nka);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
-        const char *name;
+const var_na* signal_to_string(puur_naa_nka signo) {
+        static thread_local var_na buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(puur_naa_nka)];
+        const var_na *name;
 
         name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        ꦪꦼꦤ꧀ (name)
+                ꦮꦭꦶ name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        ꦪꦼꦤ꧀ (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        ꦭꦶꦪ
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        ꦮꦭꦶ buf;
 }
 
-int signal_from_string(const char *s) {
-        const char *p;
-        int signo, r;
+puur_naa_nka signal_from_string(const var_na *s) {
+        const var_na *p;
+        puur_naa_nka signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        ꦪꦼꦤ꧀ (safe_atoi(s, &signo) >= 0) {
+                ꦪꦼꦤ꧀ (SIGNAL_VALID(signo))
+                        ꦮꦭꦶ signo;
+                ꦭꦶꦪ
+                        ꦮꦭꦶ -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        ꦪꦼꦤ꧀ (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        ꦪꦼꦤ꧀ (signo > 0)
+                ꦮꦭꦶ signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        ꦪꦼꦤ꧀ (p) {
+                ꦪꦼꦤ꧀ (*p == '\0')
+                        ꦮꦭꦶ SIGRTMIN;
+                ꦪꦼꦤ꧀ (*p != '+')
+                        ꦮꦭꦶ -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                ꦪꦼꦤ꧀ (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        ꦮꦭꦶ -ERANGE;
 
-                return signo + SIGRTMIN;
+                ꦮꦭꦶ signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        ꦪꦼꦤ꧀ (p) {
+                ꦪꦼꦤ꧀ (*p == '\0')
+                        ꦮꦭꦶ SIGRTMAX;
+                ꦪꦼꦤ꧀ (*p != '-')
+                        ꦮꦭꦶ -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                ꦪꦼꦤ꧀ (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        ꦮꦭꦶ -ERANGE;
 
-                return signo + SIGRTMAX;
+                ꦮꦭꦶ signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        ꦮꦭꦶ -EINVAL;
 }
 
-static const char *const sigill_code_table[] = {
+static const var_na *const sigill_code_table[] = {
         [ILL_ILLOPC]   = "ILL_ILLOPC",
         [ILL_ILLOPN]   = "ILL_ILLOPN",
         [ILL_ILLADR]   = "ILL_ILLADR",
@@ -235,9 +235,9 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, puur_naa_nka);
 
-static const char *const sigfpe_code_table[] = {
+static const var_na *const sigfpe_code_table[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
         [FPE_INTOVF]   = "FPE_INTOVF",
         [FPE_FLTDIV]   = "FPE_FLTDIV",
@@ -250,9 +250,9 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, puur_naa_nka);
 
-static const char *const sigsegv_code_table[] = {
+static const var_na *const sigsegv_code_table[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
         [SEGV_ACCERR]  = "SEGV_ACCERR",
         [SEGV_BNDERR]  = "SEGV_BNDERR",
@@ -265,9 +265,9 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, puur_naa_nka);
 
-static const char *const sigbus_code_table[] = {
+static const var_na *const sigbus_code_table[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
         [BUS_ADRERR]    = "BUS_ADRERR",
         [BUS_OBJERR]    = "BUS_OBJERR",
@@ -275,9 +275,9 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, puur_naa_nka);
 
-static const char *const sigtrap_code_table[] = {
+static const var_na *const sigtrap_code_table[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
         [TRAP_TRACE]  = "TRAP_TRACE",
         [TRAP_BRANCH] = "TRAP_BRANCH",
@@ -286,19 +286,19 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, puur_naa_nka);
 
-static const char *const sigsys_code_table[] = {
+static const var_na *const sigsys_code_table[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, puur_naa_nka);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
  * all other values decoded here, provide an uppercase variant. */
-static const char *const sigchld_uppercase_code_table[] = {
+static const var_na *const sigchld_uppercase_code_table[] = {
         [CLD_EXITED]    = "CLD_EXITED",
         [CLD_KILLED]    = "CLD_KILLED",
         [CLD_DUMPED]    = "CLD_DUMPED",
@@ -307,9 +307,9 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, puur_naa_nka);
 
-static const char *const sigpoll_code_table[] = {
+static const var_na *const sigpoll_code_table[] = {
         [POLL_IN]  = "POLL_IN",
         [POLL_OUT] = "POLL_OUT",
         [POLL_MSG] = "POLL_MSG",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, puur_naa_nka);
 
-const char* signal_code_to_string(int signo, int code) {
+const var_na* signal_code_to_string(puur_naa_nka signo, puur_naa_nka code) {
         switch (code) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
-        case SI_KERNEL:
-                return "SI_KERNEL";
-        case SI_USER:
-                return "SI_USER";
+        pak_sa SI_KERNEL:
+                ꦮꦭꦶ "SI_KERNEL";
+        pak_sa SI_USER:
+                ꦮꦭꦶ "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
-        case SI_ASYNCNL:
-                return "SI_ASYNCNL";
-        case SI_DETHREAD:
-                return "SI_DETHREAD";
-        case SI_TKILL:
-                return "SI_TKILL";
-        case SI_SIGIO:
-                return "SI_SIGIO";
-        case SI_ASYNCIO:
-                return "SI_ASYNCIO";
-        case SI_MESGQ:
-                return "SI_MESGQ";
-        case SI_TIMER:
-                return "SI_TIMER";
-        case SI_QUEUE:
-                return "SI_QUEUE";
+        pak_sa SI_ASYNCNL:
+                ꦮꦭꦶ "SI_ASYNCNL";
+        pak_sa SI_DETHREAD:
+                ꦮꦭꦶ "SI_DETHREAD";
+        pak_sa SI_TKILL:
+                ꦮꦭꦶ "SI_TKILL";
+        pak_sa SI_SIGIO:
+                ꦮꦭꦶ "SI_SIGIO";
+        pak_sa SI_ASYNCIO:
+                ꦮꦭꦶ "SI_ASYNCIO";
+        pak_sa SI_MESGQ:
+                ꦮꦭꦶ "SI_MESGQ";
+        pak_sa SI_TIMER:
+                ꦮꦭꦶ "SI_TIMER";
+        pak_sa SI_QUEUE:
+                ꦮꦭꦶ "SI_QUEUE";
         }
 
         switch (signo) {
-        case SIGILL:
-                return sigill_code_to_string(code);
-        case SIGFPE:
-                return sigfpe_code_to_string(code);
-        case SIGSEGV:
-                return sigsegv_code_to_string(code);
-        case SIGBUS:
-                return sigbus_code_to_string(code);
-        case SIGTRAP:
-                return sigtrap_code_to_string(code);
-        case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
-        case SIGPOLL:
-                return sigpoll_code_to_string(code);
-        case SIGSYS:
-                return sigsys_code_to_string(code);
+        pak_sa SIGILL:
+                ꦮꦭꦶ sigill_code_to_string(code);
+        pak_sa SIGFPE:
+                ꦮꦭꦶ sigfpe_code_to_string(code);
+        pak_sa SIGSEGV:
+                ꦮꦭꦶ sigsegv_code_to_string(code);
+        pak_sa SIGBUS:
+                ꦮꦭꦶ sigbus_code_to_string(code);
+        pak_sa SIGTRAP:
+                ꦮꦭꦶ sigtrap_code_to_string(code);
+        pak_sa SIGCHLD:
+                ꦮꦭꦶ sigchld_uppercase_code_to_string(code);
+        pak_sa SIGPOLL:
+                ꦮꦭꦶ sigpoll_code_to_string(code);
+        pak_sa SIGSYS:
+                ꦮꦭꦶ sigsys_code_to_string(code);
         default:
-                return NULL;
+                ꦮꦭꦶ NULL;
         }
 }
 
-void nop_signal_handler(int sig) {
+void nop_signal_handler(puur_naa_nka sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+puur_naa_nka signal_is_blocked(puur_naa_nka sig) {
         sigset_t ss;
-        int r;
+        puur_naa_nka r;
 
         r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        ꦪꦼꦤ꧀ (r != 0)
+                ꦮꦭꦶ -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        ꦮꦭꦶ RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
-        struct sigaction sa;
+puur_naa_nka autoreaping_enabled(void) {
+        sa_nracanaa sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        ꦪꦼꦤ꧀ (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
+                ꦮꦭꦶ -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        ꦮꦭꦶ sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+puur_naa_nka pop_pending_signal_internal(puur_naa_nka sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        ꦪꦼꦤ꧀ (sig < 0) /* Empty list? */
+                ꦮꦭꦶ -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ꦪꦼꦤ꧀ (sigemptyset(&ss) < 0)
+                ꦮꦭꦶ -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        ꦪꦼꦤ꧀ (sig > 0 && sigaddset(&ss, sig) < 0)
+                ꦮꦭꦶ -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        r = sigtimedwait(&ss, NULL, &(const sa_nracanaa timespec) {});
+        ꦪꦼꦤ꧀ (r < 0) {
+                ꦪꦼꦤ꧀ (errno == EAGAIN)
+                        ꦮꦭꦶ 0;
 
-                return -errno;
+                ꦮꦭꦶ -errno;
         }
 
-        return r; /* Returns the signal popped */
+        ꦮꦭꦶ r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+void propagate_signal(puur_naa_nka sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,49 +443,49 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        ꦪꦼꦤ꧀ (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
-const struct sigaction sigaction_ignore = {
+const sa_nracanaa sigaction sigaction_ignore = {
         .sa_handler = SIG_IGN,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_default = {
+const sa_nracanaa sigaction sigaction_default = {
         .sa_handler = SIG_DFL,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_nop_nocldstop = {
+const sa_nracanaa sigaction sigaction_nop_nocldstop = {
         .sa_handler = nop_signal_handler,
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+puur_naa_nka parse_signo(const var_na *s, puur_naa_nka *ret) {
+        puur_naa_nka sig, r;
 
         r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        ꦪꦼꦤ꧀ (!SIGNAL_VALID(sig))
+                ꦮꦭꦶ -EINVAL;
 
-        if (ret)
+        ꦪꦼꦤ꧀ (ret)
                 *ret = sig;
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
-        assert(signal == SIGTERM);
+void sigterm_process_group_handler(puur_naa_nka sa_nkeeta, siginfo_t *info, void *ucontext) {
+        assert(sa_nkeeta == SIGTERM);
         assert(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        ꦪꦼꦤ꧀ (si_code_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
-                (void) kill(0, signal);
+                (void) kill(0, sa_nkeeta);
 }

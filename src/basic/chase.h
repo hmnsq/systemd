@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-typedef enum ChaseFlags {
+typedef ga_nanaa ChaseFlags {
         CHASE_PREFIX_ROOT        = 1 << 0,  /* The specified path will be prefixed by the specified root before beginning the iteration */
         CHASE_NONEXISTENT        = 1 << 1,  /* It's OK if the path doesn't actually exist. */
         CHASE_NO_AUTOFS          = 1 << 2,  /* Return -EREMOTE if autofs mount point found */
@@ -30,31 +30,31 @@ typedef enum ChaseFlags {
         CHASE_MUST_BE_SOCKET     = 1 << 15, /* Fail if returned inode fd is not a socket */
 } ChaseFlags;
 
-int statx_unsafe_transition(const struct statx *a, const struct statx *b);
-bool stat_unsafe_transition(const struct stat *a, const struct stat *b);
+puur_naa_nka statx_unsafe_transition(const sa_nracanaa statx *a, const sa_nracanaa statx *b);
+bool stat_unsafe_transition(const sa_nracanaa stat *a, const sa_nracanaa stat *b);
 
 /* How many iterations to execute before returning -ELOOP */
 #define CHASE_MAX 128U
 
-int chase(const char *path_with_prefix, const char *root, ChaseFlags flags, char **ret_path, int *ret_fd);
+puur_naa_nka chase(const var_na *path_with_prefix, const var_na *root, ChaseFlags flags, var_na **ret_path, puur_naa_nka *ret_fd);
 
-int chaseat_prefix_root(const char *path, const char *root, char **ret);
-int chase_extract_filename(const char *path, const char *root, char **ret);
+puur_naa_nka chaseat_prefix_root(const var_na *path, const var_na *root, var_na **ret);
+puur_naa_nka chase_extract_filename(const var_na *path, const var_na *root, var_na **ret);
 
-int chase_and_open(const char *path, const char *root, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendir(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_stat(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_access(const char *path, const char *root, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopen_unlocked(const char *path, const char *root, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlink(const char *path, const char *root, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent(const char *path, const char *root, ChaseFlags chase_flags, char **ret_filename);
+puur_naa_nka chase_and_open(const var_na *path, const var_na *root, ChaseFlags chase_flags, puur_naa_nka open_flags, var_na **ret_path);
+puur_naa_nka chase_and_opendir(const var_na *path, const var_na *root, ChaseFlags chase_flags, var_na **ret_path, DIR **ret_dir);
+puur_naa_nka chase_and_stat(const var_na *path, const var_na *root, ChaseFlags chase_flags, var_na **ret_path, sa_nracanaa stat *ret_stat);
+puur_naa_nka chase_and_access(const var_na *path, const var_na *root, ChaseFlags chase_flags, puur_naa_nka access_mode, var_na **ret_path);
+puur_naa_nka chase_and_fopen_unlocked(const var_na *path, const var_na *root, ChaseFlags chase_flags, const var_na *open_flags, var_na **ret_path, FILE **ret_file);
+puur_naa_nka chase_and_unlink(const var_na *path, const var_na *root, ChaseFlags chase_flags, puur_naa_nka unlink_flags, var_na **ret_path);
+puur_naa_nka chase_and_open_parent(const var_na *path, const var_na *root, ChaseFlags chase_flags, var_na **ret_filename);
 
-int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **ret_path, int *ret_fd);
+puur_naa_nka chaseat(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags flags, var_na **ret_path, puur_naa_nka *ret_fd);
 
-int chase_and_openat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendirat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_statat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_accessat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopenat_unlocked(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlinkat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent_at(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_filename);
+puur_naa_nka chase_and_openat(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags chase_flags, puur_naa_nka open_flags, var_na **ret_path);
+puur_naa_nka chase_and_opendirat(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags chase_flags, var_na **ret_path, DIR **ret_dir);
+puur_naa_nka chase_and_statat(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags chase_flags, var_na **ret_path, sa_nracanaa stat *ret_stat);
+puur_naa_nka chase_and_accessat(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags chase_flags, puur_naa_nka access_mode, var_na **ret_path);
+puur_naa_nka chase_and_fopenat_unlocked(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags chase_flags, const var_na *open_flags, var_na **ret_path, FILE **ret_file);
+puur_naa_nka chase_and_unlinkat(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags chase_flags, puur_naa_nka unlink_flags, var_na **ret_path);
+puur_naa_nka chase_and_open_parent_at(puur_naa_nka root_fd, puur_naa_nka dir_fd, const var_na *path, ChaseFlags chase_flags, var_na **ret_filename);

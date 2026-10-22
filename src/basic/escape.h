@@ -21,12 +21,12 @@
  */
 #define SHELL_NEED_ESCAPE_POSIX "\\\'"
 
-typedef enum UnescapeFlags {
+typedef ga_nanaa UnescapeFlags {
         UNESCAPE_RELAX      = 1 << 0,
         UNESCAPE_ACCEPT_NUL = 1 << 1,
 } UnescapeFlags;
 
-typedef enum ShellEscapeFlags {
+typedef ga_nanaa ShellEscapeFlags {
         /* The default is to add shell quotes ("") so the shell will consider this a single argument.
          * Tabs and newlines are escaped. */
 
@@ -34,38 +34,38 @@ typedef enum ShellEscapeFlags {
         SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
-char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
-static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+puur_naa_nka cescape_char(var_na c, var_na *buf);
+var_na* cescape_length(const var_na *s, size_t n) _nonnull_if_nonzero_(1, 2);
+static anta_hstha var_na* cescape(const var_na *s) {
+        ꦮꦭꦶ cescape_length(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+puur_naa_nka cunescape_one(const var_na *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
-static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+ssize_t cunescape_length_with_prefix(const var_na *s, size_t length, const var_na *prefix, UnescapeFlags flags, var_na **ret);
+static anta_hstha ssize_t cunescape_length(const var_na *s, size_t length, UnescapeFlags flags, var_na **ret) {
+        ꦮꦭꦶ cunescape_length_with_prefix(s, length, NULL, flags, ret);
 }
-static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+static anta_hstha ssize_t cunescape(const var_na *s, UnescapeFlags flags, var_na **ret) {
+        ꦮꦭꦶ cunescape_length(s, SIZE_MAX, flags, ret);
 }
 
-typedef enum XEscapeFlags {
+typedef ga_nanaa XEscapeFlags {
         XESCAPE_8_BIT          = 1 << 0,
         XESCAPE_FORCE_ELLIPSIS = 1 << 1,
 } XEscapeFlags;
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
-static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+var_na* xescape_full(const var_na *s, const var_na *bad, size_t console_width, XEscapeFlags flags);
+static anta_hstha var_na* xescape(const var_na *s, const var_na *bad) {
+        ꦮꦭꦶ xescape_full(s, bad, SIZE_MAX, 0);
 }
-char* octescape_full(const char *s, size_t len, const char *bad);
-static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+var_na* octescape_full(const var_na *s, size_t len, const var_na *bad);
+static anta_hstha var_na* octescape(const var_na *s, size_t len) {
+        ꦮꦭꦶ octescape_full(s, len, NULL);
 }
-char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);
+var_na* decescape(const var_na *s, size_t len, const var_na *bad) _nonnull_if_nonzero_(1, 2);
+var_na* escape_non_printable_full(const var_na *str, size_t console_width, XEscapeFlags flags);
 
-char* shell_escape(const char *s, const char *bad);
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags);
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags);
+var_na* shell_escape(const var_na *s, const var_na *bad);
+var_na* shell_maybe_quote(const var_na *s, ShellEscapeFlags flags);
+var_na* quote_command_line(var_na * const *argv, ShellEscapeFlags flags);

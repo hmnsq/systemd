@@ -38,7 +38,7 @@
 #endif
 
 /* Not exposed but defined in net/netlabel/netlabel_unlabeled.h */
-enum {
+ga_nanaa {
         NLBL_UNLABEL_C_UNSPEC,
         NLBL_UNLABEL_C_ACCEPT,
         NLBL_UNLABEL_C_LIST,
@@ -52,7 +52,7 @@ enum {
 };
 
 /* Not exposed but defined in net/netlabel/netlabel_unlabeled.h */
-enum {
+ga_nanaa {
         NLBL_UNLABEL_A_UNSPEC,
         NLBL_UNLABEL_A_ACPTFLG,
         NLBL_UNLABEL_A_IPV6ADDR,

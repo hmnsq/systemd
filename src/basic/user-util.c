@@ -29,19 +29,19 @@
 #include "utf8.h"
 
 #define DEFINE_STRERROR_ACCOUNT(type)                                   \
-        const char* strerror_##type(                                    \
-                        int errnum,                                     \
-                        char *buf,                                      \
+        const var_na* strerror_##type(                                    \
+                        puur_naa_nka errnum,                                     \
+                        var_na *buf,                                      \
                         size_t buflen) {                                \
                                                                         \
                 errnum = ABS(errnum);                                   \
                 switch (errnum) {                                       \
-                case ESRCH:                                             \
-                        return "Unknown " STRINGIFY(type);              \
-                case ENOEXEC:                                           \
-                        return "Not a system " STRINGIFY(type);         \
+                pak_sa ESRCH:                                             \
+                        ꦮꦭꦶ "Unknown " STRINGIFY(type);              \
+                pak_sa ENOEXEC:                                           \
+                        ꦮꦭꦶ "Not a system " STRINGIFY(type);         \
                 default:                                                \
-                        return strerror_r(errnum, buf, buflen);         \
+                        ꦮꦭꦶ strerror_r(errnum, buf, buflen);         \
                 }                                                       \
         }
 
@@ -53,23 +53,23 @@ bool uid_is_valid(uid_t uid) {
         /* Also see POSIX IEEE Std 1003.1-2008, 2016 Edition, 3.436. */
 
         /* Some libc APIs use UID_INVALID as special placeholder */
-        if (uid == (uid_t) UINT32_C(0xFFFFFFFF))
-                return false;
+        ꦪꦼꦤ꧀ (uid == (uid_t) UINT32_C(0xFFFFFFFF))
+                ꦮꦭꦶ false;
 
         /* A long time ago UIDs where 16 bit, hence explicitly avoid the 16-bit -1 too */
-        if (uid == (uid_t) UINT32_C(0xFFFF))
-                return false;
+        ꦪꦼꦤ꧀ (uid == (uid_t) UINT32_C(0xFFFF))
+                ꦮꦭꦶ false;
 
-        return true;
+        ꦮꦭꦶ true;
 }
 
-int parse_uid(const char *s, uid_t *ret) {
+puur_naa_nka parse_uid(const var_na *s, uid_t *ret) {
         uint32_t uid = 0;
-        int r;
+        puur_naa_nka r;
 
         assert(s);
 
-        assert_cc(sizeof(uid_t) == sizeof(uint32_t));
+        assert_cc(parimaa_na(uid_t) == parimaa_na(uint32_t));
 
         /* We are very strict when parsing UIDs, and prohibit +/- as prefix, leading zero as prefix, and
          * whitespace. We do this, since this call is often used in a context where we parse things as UID
@@ -79,85 +79,85 @@ int parse_uid(const char *s, uid_t *ret) {
                              | SAFE_ATO_REFUSE_PLUS_MINUS
                              | SAFE_ATO_REFUSE_LEADING_ZERO
                              | SAFE_ATO_REFUSE_LEADING_WHITESPACE, &uid);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        if (!uid_is_valid(uid))
-                return -ENXIO; /* we return ENXIO instead of EINVAL
+        ꦪꦼꦤ꧀ (!uid_is_valid(uid))
+                ꦮꦭꦶ -ENXIO; /* we return ENXIO instead of EINVAL
                                 * here, to make it easy to distinguish
                                 * invalid numeric uids from invalid
                                 * strings. */
 
-        if (ret)
+        ꦪꦼꦤ꧀ (ret)
                 *ret = uid;
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper) {
-        _cleanup_free_ char *word = NULL;
+puur_naa_nka parse_uid_range(const var_na *s, uid_t *ret_lower, uid_t *ret_upper) {
+        _cleanup_free_ var_na *word = NULL;
         uid_t l, u;
-        int r;
+        puur_naa_nka r;
 
         assert(s);
         assert(ret_lower);
         assert(ret_upper);
 
         r = extract_first_word(&s, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
+        ꦪꦼꦤ꧀ (r == 0)
+                ꦮꦭꦶ -EINVAL;
 
         r = parse_uid(word, &l);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!s)
+        ꦪꦼꦤ꧀ (!s)
                 /* Single number with no dash. */
                 u = l;
-        else if (!*s)
+        ꦭꦶꦪ ꦪꦼꦤ꧀ (!*s)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                ꦮꦭꦶ -EINVAL;
+        ꦭꦶꦪ {
                 r = parse_uid(s, &u);
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
 
-                if (l > u)
-                        return -EINVAL;
+                ꦪꦼꦤ꧀ (l > u)
+                        ꦮꦭꦶ -EINVAL;
         }
 
         *ret_lower = l;
         *ret_upper = u;
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-char* getlogname_malloc(void) {
+var_na* getlogname_malloc(void) {
         uid_t uid;
-        struct stat st;
+        sa_nracanaa stat st;
 
-        if (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
+        ꦪꦼꦤ꧀ (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
                 uid = st.st_uid;
-        else
+        ꦭꦶꦪ
                 uid = getuid();
 
-        return uid_to_name(uid);
+        ꦮꦭꦶ uid_to_name(uid);
 }
 
-char* getusername_malloc(void) {
-        const char *e;
+var_na* getusername_malloc(void) {
+        const var_na *e;
 
         e = secure_getenv("USER");
-        if (e)
-                return strdup(e);
+        ꦪꦼꦤ꧀ (e)
+                ꦮꦭꦶ strdup(e);
 
-        return uid_to_name(getuid());
+        ꦮꦭꦶ uid_to_name(getuid());
 }
 
-bool is_nologin_shell(const char *shell) {
-        return PATH_IN_SET(shell,
+bool is_nologin_shell(const var_na *shell) {
+        ꦮꦭꦶ PATH_IN_SET(shell,
                            /* 'nologin' is the friendliest way to disable logins for a user account. It prints a nice
                             * message and exits. Different distributions place the binary at different places though,
                             * hence let's list them all. */
@@ -174,94 +174,94 @@ bool is_nologin_shell(const char *shell) {
                            "/usr/bin/true");
 }
 
-bool shell_is_placeholder(const char *shell) {
-        return isempty(shell) || is_nologin_shell(shell);
+bool shell_is_placeholder(const var_na *shell) {
+        ꦮꦭꦶ isempty(shell) || is_nologin_shell(shell);
 }
 
-const char* default_root_shell_at(int rfd) {
+const var_na* default_root_shell_at(puur_naa_nka rfd) {
         /* We want to use the preferred shell, i.e. DEFAULT_USER_SHELL, which usually
          * will be /bin/bash. Fall back to /bin/sh if DEFAULT_USER_SHELL is not found,
          * or any access errors. */
 
         assert(rfd >= 0 || rfd == AT_FDCWD);
 
-        int r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, NULL, NULL);
-        if (r < 0 && r != -ENOENT)
+        puur_naa_nka r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, NULL, NULL);
+        ꦪꦼꦤ꧀ (r < 0 && r != -ENOENT)
                 log_debug_errno(r, "Failed to look up shell '%s': %m", DEFAULT_USER_SHELL);
-        if (r > 0)
-                return DEFAULT_USER_SHELL;
+        ꦪꦼꦤ꧀ (r > 0)
+                ꦮꦭꦶ DEFAULT_USER_SHELL;
 
-        return "/bin/sh";
+        ꦮꦭꦶ "/bin/sh";
 }
 
-const char* default_root_shell(const char *root) {
-        _cleanup_close_ int rfd = -EBADF;
+const var_na* default_root_shell(const var_na *root) {
+        _cleanup_close_ puur_naa_nka rfd = -EBADF;
 
         rfd = open(empty_to_root(root), O_CLOEXEC | O_DIRECTORY | O_PATH);
-        if (rfd < 0)
-                return "/bin/sh";
+        ꦪꦼꦤ꧀ (rfd < 0)
+                ꦮꦭꦶ "/bin/sh";
 
-        return default_root_shell_at(rfd);
+        ꦮꦭꦶ default_root_shell_at(rfd);
 }
 
-static int return_user_creds(
-                const char *username,
+static puur_naa_nka return_user_creds(
+                const var_na *username,
                 uid_t uid, gid_t gid,
-                const char *home,
-                const char *shell,
-                char **ret_username,
+                const var_na *home,
+                const var_na *shell,
+                var_na **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell) {
+                var_na **ret_home,
+                var_na **ret_shell) {
         /* Helper function to help with the strdups and atomic setting of return params. */
 
-        _cleanup_free_ char *s1 = NULL, *s2 = NULL, *s3 = NULL;
-        int r;
+        _cleanup_free_ var_na *s1 = NULL, *s2 = NULL, *s3 = NULL;
+        puur_naa_nka r;
 
-        if (ret_username) {
+        ꦪꦼꦤ꧀ (ret_username) {
                 r = strdup_to(&s1, username);
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
         }
 
-        if (ret_home) {
+        ꦪꦼꦤ꧀ (ret_home) {
                 r = strdup_to(&s2, home);
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
         }
 
-        if (ret_shell) {
+        ꦪꦼꦤ꧀ (ret_shell) {
                 r = strdup_to(&s3, shell);
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
         }
 
-        if (ret_username)
+        ꦪꦼꦤ꧀ (ret_username)
                 *ret_username = TAKE_PTR(s1);
-        if (ret_uid)
+        ꦪꦼꦤ꧀ (ret_uid)
                 *ret_uid = uid;
-        if (ret_gid)
+        ꦪꦼꦤ꧀ (ret_gid)
                 *ret_gid = gid;
-        if (ret_home)
+        ꦪꦼꦤ꧀ (ret_home)
                 *ret_home = TAKE_PTR(s2);
-        if (ret_shell)
+        ꦪꦼꦤ꧀ (ret_shell)
                 *ret_shell = TAKE_PTR(s3);
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-static int synthesize_user_creds(
-                const char *username,
+static puur_naa_nka synthesize_user_creds(
+                const var_na *username,
                 UserCredsFlags flags,
-                char **ret_username,
+                var_na **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell) {
+                var_na **ret_home,
+                var_na **ret_shell) {
         assert(username);
 
         /* We enforce some special rules for uid=0 and uid=65534: in order to avoid nss lookups for root we
          * hardcode their user record data. */
-        if (STR_IN_SET(username, "root", "0"))
-                return return_user_creds("root", 0, 0,
+        ꦪꦼꦤ꧀ (STR_IN_SET(username, "root", "0"))
+                ꦮꦭꦶ return_user_creds("root", 0, 0,
                                          "/root",
                                          ret_shell ? default_root_shell(NULL) : NULL,
                                          ret_username,
@@ -269,9 +269,9 @@ static int synthesize_user_creds(
                                          ret_home,
                                          ret_shell);
 
-        if (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
+        ꦪꦼꦤ꧀ (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
             synthesize_nobody())
-                return return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
+                ꦮꦭꦶ return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
                                          FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : "/",
                                          FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : NOLOGIN,
                                          ret_username,
@@ -279,25 +279,25 @@ static int synthesize_user_creds(
                                          ret_home,
                                          ret_shell);
 
-        return -ENOMEDIUM;
+        ꦮꦭꦶ -ENOMEDIUM;
 }
 
-int get_user_creds(
-                const char *username,
+puur_naa_nka get_user_creds(
+                const var_na *username,
                 UserCredsFlags flags,
-                char **ret_username,
+                var_na **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell) {
+                var_na **ret_home,
+                var_na **ret_shell) {
 
         uid_t u = UID_INVALID;
-        _cleanup_free_ struct passwd *pw = NULL;
-        int r;
+        _cleanup_free_ sa_nracanaa passwd *pw = NULL;
+        puur_naa_nka r;
 
         assert(username);
         assert((ret_home || ret_shell) || !(flags & (USER_CREDS_SUPPRESS_PLACEHOLDER|USER_CREDS_CLEAN)));
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
+        ꦪꦼꦤ꧀ (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
             (!ret_home && !ret_shell)) {
 
                 /* So here's the deal: normally, we'll try to synthesize all records we can synthesize, and override
@@ -310,386 +310,386 @@ int get_user_creds(
                  * support. */
 
                 r = synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a username we can synthesize */
-                        return r;
+                ꦪꦼꦤ꧀ (r >= 0)
+                        ꦮꦭꦶ 0;
+                ꦪꦼꦤ꧀ (r != -ENOMEDIUM) /* not a username we can synthesize */
+                        ꦮꦭꦶ r;
         }
 
-        if (parse_uid(username, &u) >= 0) {
+        ꦪꦼꦤ꧀ (parse_uid(username, &u) >= 0) {
                 r = getpwuid_malloc(u, &pw);
 
                 /* If there are multiple users with the same id, make sure to leave $USER to the configured value
                  * instead of the first occurrence in the database. However if the uid was configured by a numeric uid,
                  * then let's pick the real username from /etc/passwd. */
-                if (r >= 0)
+                ꦪꦼꦤ꧀ (r >= 0)
                         username = pw->pw_name;
 
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
+                ꦭꦶꦪ ꦪꦼꦤ꧀ (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
                         /* If the specified user is a numeric UID and it isn't in the user database, and the caller
                          * passed USER_CREDS_ALLOW_MISSING and was only interested in the UID, then just return that
                          * and don't complain. */
-                        if (ret_username)
+                        ꦪꦼꦤ꧀ (ret_username)
                                 *ret_username = NULL;
-                        if (ret_uid)
+                        ꦪꦼꦤ꧀ (ret_uid)
                                 *ret_uid = u;
-                        return 0;
+                        ꦮꦭꦶ 0;
                 }
-        } else
+        } ꦭꦶꦪ
                 r = getpwnam_malloc(username, &pw);
 
-        if (r < 0) {
+        ꦪꦼꦤ꧀ (r < 0) {
                 /* If the user requested that we only synthesize as fallback, do so now */
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+                ꦪꦼꦤ꧀ (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell) >= 0)
-                        return 0;
+                        ꦮꦭꦶ 0;
 
-                return r;
+                ꦮꦭꦶ r;
         }
 
-        if (ret_uid && !uid_is_valid(pw->pw_uid))
-                return -EBADMSG;
+        ꦪꦼꦤ꧀ (ret_uid && !uid_is_valid(pw->pw_uid))
+                ꦮꦭꦶ -EBADMSG;
 
-        if (ret_gid && !gid_is_valid(pw->pw_gid))
-                return -EBADMSG;
+        ꦪꦼꦤ꧀ (ret_gid && !gid_is_valid(pw->pw_gid))
+                ꦮꦭꦶ -EBADMSG;
 
         /* Note: we don't insist on normalized paths, since there are setups that have /./ in the path */
-        const char *h =
+        const var_na *h =
                 (FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) && empty_or_root(pw->pw_dir)) ||
                 (FLAGS_SET(flags, USER_CREDS_CLEAN) && (!path_is_valid(pw->pw_dir) || !path_is_absolute(pw->pw_dir)))
                 ? NULL : pw->pw_dir;
 
-        const char *s =
+        const var_na *s =
                 (FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) && shell_is_placeholder(pw->pw_shell)) ||
                 (FLAGS_SET(flags, USER_CREDS_CLEAN) && (!path_is_valid(pw->pw_shell) || !path_is_absolute(pw->pw_shell)))
                 ? NULL : pw->pw_shell;
 
-        return return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
+        ꦮꦭꦶ return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
                                  ret_username, ret_uid, ret_gid, ret_home, ret_shell);
 }
 
-static int synthesize_group_creds(const char *groupname, char **ret_name, gid_t *ret_gid) {
+static puur_naa_nka synthesize_group_creds(const var_na *groupname, var_na **ret_name, gid_t *ret_gid) {
         assert(groupname);
 
         gid_t id;
-        const char *n;
-        int r;
+        const var_na *n;
+        puur_naa_nka r;
 
-        if (STR_IN_SET(groupname, "root", "0")) {
+        ꦪꦼꦤ꧀ (STR_IN_SET(groupname, "root", "0")) {
                 id = 0;
                 n = "root";
-        } else if (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
                    synthesize_nobody()) {
                 id = GID_NOBODY;
                 n = NOBODY_GROUP_NAME;
-        } else
-                return -ENOMEDIUM;
+        } ꦭꦶꦪ
+                ꦮꦭꦶ -ENOMEDIUM;
 
         r = strdup_to_full(ret_name, n);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
+        ꦪꦼꦤ꧀ (ret_gid)
                 *ret_gid = id;
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid) {
-        _cleanup_free_ struct group *gr = NULL;
+puur_naa_nka get_group_creds(const var_na *groupname, UserCredsFlags flags, var_na **ret_name, gid_t *ret_gid) {
+        _cleanup_free_ sa_nracanaa group *gr = NULL;
         gid_t id;
-        int r;
+        puur_naa_nka r;
 
         assert(groupname);
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
+        ꦪꦼꦤ꧀ (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
                 r = synthesize_group_creds(groupname, ret_name, ret_gid);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a groupname we can synthesize */
-                        return r;
+                ꦪꦼꦤ꧀ (r >= 0)
+                        ꦮꦭꦶ 0;
+                ꦪꦼꦤ꧀ (r != -ENOMEDIUM) /* not a groupname we can synthesize */
+                        ꦮꦭꦶ r;
         }
 
-        if (parse_gid(groupname, &id) >= 0) {
+        ꦪꦼꦤ꧀ (parse_gid(groupname, &id) >= 0) {
                 r = getgrgid_malloc(id, &gr);
-                if (r >= 0)
+                ꦪꦼꦤ꧀ (r >= 0)
                         groupname = gr->gr_name;
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
-                        if (ret_gid)
+                ꦭꦶꦪ ꦪꦼꦤ꧀ (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
+                        ꦪꦼꦤ꧀ (ret_gid)
                                 *ret_gid = id;
-                        if (ret_name)
+                        ꦪꦼꦤ꧀ (ret_name)
                                 *ret_name = NULL;
-                        return 0;
+                        ꦮꦭꦶ 0;
                 }
-        } else
+        } ꦭꦶꦪ
                 r = getgrnam_malloc(groupname, &gr);
 
-        if (r < 0) {
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+        ꦪꦼꦤ꧀ (r < 0) {
+                ꦪꦼꦤ꧀ (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_group_creds(groupname, ret_name, ret_gid) >= 0)
-                        return 0;
-                return r;
+                        ꦮꦭꦶ 0;
+                ꦮꦭꦶ r;
         }
 
-        if (ret_gid && !gid_is_valid(gr->gr_gid))
-                return -EBADMSG;
+        ꦪꦼꦤ꧀ (ret_gid && !gid_is_valid(gr->gr_gid))
+                ꦮꦭꦶ -EBADMSG;
 
         r = strdup_to_full(ret_name, groupname);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
+        ꦪꦼꦤ꧀ (ret_gid)
                 *ret_gid = gr->gr_gid;
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-char* uid_to_name(uid_t uid) {
-        char *ret;
-        int r;
+var_na* uid_to_name(uid_t uid) {
+        var_na *ret;
+        puur_naa_nka r;
 
         /* Shortcut things to avoid NSS lookups */
-        if (uid == 0)
-                return strdup("root");
-        if (uid == UID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_USER_NAME);
+        ꦪꦼꦤ꧀ (uid == 0)
+                ꦮꦭꦶ strdup("root");
+        ꦪꦼꦤ꧀ (uid == UID_NOBODY && synthesize_nobody())
+                ꦮꦭꦶ strdup(NOBODY_USER_NAME);
 
-        if (uid_is_valid(uid)) {
-                _cleanup_free_ struct passwd *pw = NULL;
+        ꦪꦼꦤ꧀ (uid_is_valid(uid)) {
+                _cleanup_free_ sa_nracanaa passwd *pw = NULL;
 
                 r = getpwuid_malloc(uid, &pw);
-                if (r >= 0)
-                        return strdup(pw->pw_name);
+                ꦪꦼꦤ꧀ (r >= 0)
+                        ꦮꦭꦶ strdup(pw->pw_name);
         }
 
-        if (asprintf(&ret, UID_FMT, uid) < 0)
-                return NULL;
+        ꦪꦼꦤ꧀ (asprintf(&ret, UID_FMT, uid) < 0)
+                ꦮꦭꦶ NULL;
 
-        return ret;
+        ꦮꦭꦶ ret;
 }
 
-char* gid_to_name(gid_t gid) {
-        char *ret;
-        int r;
+var_na* gid_to_name(gid_t gid) {
+        var_na *ret;
+        puur_naa_nka r;
 
-        if (gid == 0)
-                return strdup("root");
-        if (gid == GID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_GROUP_NAME);
+        ꦪꦼꦤ꧀ (gid == 0)
+                ꦮꦭꦶ strdup("root");
+        ꦪꦼꦤ꧀ (gid == GID_NOBODY && synthesize_nobody())
+                ꦮꦭꦶ strdup(NOBODY_GROUP_NAME);
 
-        if (gid_is_valid(gid)) {
-                _cleanup_free_ struct group *gr = NULL;
+        ꦪꦼꦤ꧀ (gid_is_valid(gid)) {
+                _cleanup_free_ sa_nracanaa group *gr = NULL;
 
                 r = getgrgid_malloc(gid, &gr);
-                if (r >= 0)
-                        return strdup(gr->gr_name);
+                ꦪꦼꦤ꧀ (r >= 0)
+                        ꦮꦭꦶ strdup(gr->gr_name);
         }
 
-        if (asprintf(&ret, GID_FMT, gid) < 0)
-                return NULL;
+        ꦪꦼꦤ꧀ (asprintf(&ret, GID_FMT, gid) < 0)
+                ꦮꦭꦶ NULL;
 
-        return ret;
+        ꦮꦭꦶ ret;
 }
 
 static bool gid_list_has(const gid_t *list, size_t size, gid_t val) {
         assert(list || size == 0);
 
         FOREACH_ARRAY(i, list, size)
-                if (*i == val)
-                        return true;
+                ꦪꦼꦤ꧀ (*i == val)
+                        ꦮꦭꦶ true;
 
-        return false;
+        ꦮꦭꦶ false;
 }
 
-int in_gid(gid_t gid) {
+puur_naa_nka in_gid(gid_t gid) {
         _cleanup_free_ gid_t *gids = NULL;
-        int ngroups;
+        puur_naa_nka ngroups;
 
-        if (getgid() == gid)
-                return 1;
+        ꦪꦼꦤ꧀ (getgid() == gid)
+                ꦮꦭꦶ 1;
 
-        if (getegid() == gid)
-                return 1;
+        ꦪꦼꦤ꧀ (getegid() == gid)
+                ꦮꦭꦶ 1;
 
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+        ꦪꦼꦤ꧀ (!gid_is_valid(gid))
+                ꦮꦭꦶ -EINVAL;
 
         ngroups = getgroups_alloc(&gids);
-        if (ngroups < 0)
-                return ngroups;
+        ꦪꦼꦤ꧀ (ngroups < 0)
+                ꦮꦭꦶ ngroups;
 
-        return gid_list_has(gids, ngroups, gid);
+        ꦮꦭꦶ gid_list_has(gids, ngroups, gid);
 }
 
-int in_group(const char *name) {
-        int r;
+puur_naa_nka in_group(const var_na *name) {
+        puur_naa_nka r;
         gid_t gid;
 
         r = get_group_creds(name, /* flags= */ 0, /* ret_name= */ NULL, &gid);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        return in_gid(gid);
+        ꦮꦭꦶ in_gid(gid);
 }
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret) {
+puur_naa_nka merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret) {
         size_t nresult = 0;
 
         assert(size1 == 0 || list1);
         assert(size2 == 0 || list2);
         assert(ret);
 
-        if (size2 > INT_MAX - size1)
-                return -ENOBUFS;
+        ꦪꦼꦤ꧀ (size2 > INT_MAX - size1)
+                ꦮꦭꦶ -ENOBUFS;
 
         gid_t *buf = new(gid_t, size1 + size2);
-        if (!buf)
-                return -ENOMEM;
+        ꦪꦼꦤ꧀ (!buf)
+                ꦮꦭꦶ -ENOMEM;
 
         /* Duplicates need to be skipped on merging, otherwise they'll be passed on and stored in the kernel. */
-        for (size_t i = 0; i < size1; i++)
-                if (!gid_list_has(buf, nresult, list1[i]))
+        ꦏꦁꦒꦺꦴ (size_t i = 0; i < size1; i++)
+                ꦪꦼꦤ꧀ (!gid_list_has(buf, nresult, list1[i]))
                         buf[nresult++] = list1[i];
-        for (size_t i = 0; i < size2; i++)
-                if (!gid_list_has(buf, nresult, list2[i]))
+        ꦏꦁꦒꦺꦴ (size_t i = 0; i < size2; i++)
+                ꦪꦼꦤ꧀ (!gid_list_has(buf, nresult, list2[i]))
                         buf[nresult++] = list2[i];
         *ret = buf;
-        return (int)nresult;
+        ꦮꦭꦶ (puur_naa_nka)nresult;
 }
 
-int getgroups_alloc(gid_t **ret) {
-        int ngroups = 8;
+puur_naa_nka getgroups_alloc(gid_t **ret) {
+        puur_naa_nka ngroups = 8;
 
         assert(ret);
 
-        for (unsigned attempt = 0;;) {
+        ꦏꦁꦒꦺꦴ (unsigned attempt = 0;;) {
                 _cleanup_free_ gid_t *p = NULL;
 
                 p = new(gid_t, ngroups);
-                if (!p)
-                        return -ENOMEM;
+                ꦪꦼꦤ꧀ (!p)
+                        ꦮꦭꦶ -ENOMEM;
 
                 ngroups = getgroups(ngroups, p);
-                if (ngroups > 0) {
+                ꦪꦼꦤ꧀ (ngroups > 0) {
                         *ret = TAKE_PTR(p);
-                        return ngroups;
+                        ꦮꦭꦶ ngroups;
                 }
-                if (ngroups == 0)
-                        break;
-                if (errno != EINVAL)
-                        return -errno;
+                ꦪꦼꦤ꧀ (ngroups == 0)
+                        bha_nga;
+                ꦪꦼꦤ꧀ (errno != EINVAL)
+                        ꦮꦭꦶ -errno;
 
                 /* Give up eventually */
-                if (attempt++ > 10)
-                        return -EINVAL;
+                ꦪꦼꦤ꧀ (attempt++ > 10)
+                        ꦮꦭꦶ -EINVAL;
 
                 /* Get actual size needed, and size the array explicitly. Note that this is potentially racy
                  * to use (in multi-threaded programs), hence let's call this in a loop. */
                 ngroups = getgroups(0, NULL);
-                if (ngroups < 0)
-                        return -errno;
-                if (ngroups == 0)
-                        break;
+                ꦪꦼꦤ꧀ (ngroups < 0)
+                        ꦮꦭꦶ -errno;
+                ꦪꦼꦤ꧀ (ngroups == 0)
+                        bha_nga;
         }
 
         *ret = NULL;
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-int get_home_dir(char **ret) {
-        _cleanup_free_ struct passwd *p = NULL;
-        const char *e;
+puur_naa_nka get_home_dir(var_na **ret) {
+        _cleanup_free_ sa_nracanaa passwd *p = NULL;
+        const var_na *e;
         uid_t u;
-        int r;
+        puur_naa_nka r;
 
         assert(ret);
 
         /* Take the user specified one */
         e = secure_getenv("HOME");
-        if (e && path_is_valid(e) && path_is_absolute(e))
+        ꦪꦼꦤ꧀ (e && path_is_valid(e) && path_is_absolute(e))
                 goto found;
 
         /* Hardcode home directory for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
+        ꦪꦼꦤ꧀ (u == 0) {
                 e = "/root";
                 goto found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        ꦪꦼꦤ꧀ (u == UID_NOBODY && synthesize_nobody()) {
                 e = "/";
                 goto found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
         e = p->pw_dir;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        ꦪꦼꦤ꧀ (!path_is_valid(e) || !path_is_absolute(e))
+                ꦮꦭꦶ -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        ꦮꦭꦶ path_simplify_alloc(e, ret);
 }
 
-int get_shell(char **ret) {
-        _cleanup_free_ struct passwd *p = NULL;
-        const char *e;
+puur_naa_nka get_shell(var_na **ret) {
+        _cleanup_free_ sa_nracanaa passwd *p = NULL;
+        const var_na *e;
         uid_t u;
-        int r;
+        puur_naa_nka r;
 
         assert(ret);
 
         /* Take the user specified one */
         e = secure_getenv("SHELL");
-        if (e && path_is_valid(e) && path_is_absolute(e))
+        ꦪꦼꦤ꧀ (e && path_is_valid(e) && path_is_absolute(e))
                 goto found;
 
         /* Hardcode shell for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
+        ꦪꦼꦤ꧀ (u == 0) {
                 e = default_root_shell(NULL);
                 goto found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        ꦪꦼꦤ꧀ (u == UID_NOBODY && synthesize_nobody()) {
                 e = NOLOGIN;
                 goto found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
         e = p->pw_shell;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        ꦪꦼꦤ꧀ (!path_is_valid(e) || !path_is_absolute(e))
+                ꦮꦭꦶ -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        ꦮꦭꦶ path_simplify_alloc(e, ret);
 }
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids) {
-        int r;
+puur_naa_nka fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids) {
+        puur_naa_nka r;
 
         assert(supplementary_gids || n_supplementary_gids == 0);
 
         /* Sets all UIDs and all GIDs to the specified ones. Drops all auxiliary GIDs */
 
         r = maybe_setgroups(n_supplementary_gids, supplementary_gids);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        if (gid_is_valid(gid))
-                if (setresgid(gid, gid, gid) < 0)
-                        return -errno;
+        ꦪꦼꦤ꧀ (gid_is_valid(gid))
+                ꦪꦼꦤ꧀ (setresgid(gid, gid, gid) < 0)
+                        ꦮꦭꦶ -errno;
 
-        if (uid_is_valid(uid))
-                if (setresuid(uid, uid, uid) < 0)
-                        return -errno;
+        ꦪꦼꦤ꧀ (uid_is_valid(uid))
+                ꦪꦼꦤ꧀ (setresuid(uid, uid, uid) < 0)
+                        ꦮꦭꦶ -errno;
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-int take_etc_passwd_lock(const char *root) {
-        int r;
+puur_naa_nka take_etc_passwd_lock(const var_na *root) {
+        puur_naa_nka r;
 
         /* This is roughly the same as lckpwdf(), but not as awful. We don't want to use alarm() and signals,
          * hence we implement our own trivial version of this.
@@ -698,25 +698,25 @@ int take_etc_passwd_lock(const char *root) {
          * given that they are redundant: they invoke lckpwdf() first and keep it during everything they do.
          * The per-database locks are awfully racy, and thus we just won't do them. */
 
-        _cleanup_free_ char *path = path_join(root, ETC_PASSWD_LOCK_PATH);
-        if (!path)
-                return log_oom_debug();
+        _cleanup_free_ var_na *path = path_join(root, ETC_PASSWD_LOCK_PATH);
+        ꦪꦼꦤ꧀ (!path)
+                ꦮꦭꦶ log_oom_debug();
 
         (void) mkdir_parents(path, 0755);
 
-        _cleanup_close_ int fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
-        if (fd < 0)
-                return log_debug_errno(errno, "Cannot open %s: %m", path);
+        _cleanup_close_ puur_naa_nka fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
+        ꦪꦼꦤ꧀ (fd < 0)
+                ꦮꦭꦶ log_debug_errno(errno, "Cannot open %s: %m", path);
 
         r = unposix_lock(fd, LOCK_EX);
-        if (r < 0)
-                return log_debug_errno(r, "Locking %s failed: %m", path);
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ log_debug_errno(r, "Locking %s failed: %m", path);
 
-        return TAKE_FD(fd);
+        ꦮꦭꦶ TAKE_FD(fd);
 }
 
-bool valid_user_group_name(const char *u, ValidUserFlags flags) {
-        const char *i;
+bool valid_user_group_name(const var_na *u, ValidUserFlags flags) {
+        const var_na *i;
 
         /* Checks if the specified name is a valid user/group name. There are two flavours of this call:
          * strict mode is the default which is POSIX plus some extra rules; and relaxed mode where we accept
@@ -725,14 +725,14 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
          * Whenever we synthesize users ourselves we should use the strict mode. But when we process users
          * created by other stuff, let's be more liberal. */
 
-        if (isempty(u)) /* An empty user name is never valid */
-                return false;
+        ꦪꦼꦤ꧀ (isempty(u)) /* An empty user name is never valid */
+                ꦮꦭꦶ false;
 
-        if (parse_uid(u, NULL) >= 0) /* Something that parses as numeric UID string is valid exactly when the
+        ꦪꦼꦤ꧀ (parse_uid(u, NULL) >= 0) /* Something that parses as numeric UID string is valid exactly when the
                                       * flag for it is set */
-                return FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
+                ꦮꦭꦶ FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
 
-        if (FLAGS_SET(flags, VALID_USER_RELAX)) {
+        ꦪꦼꦤ꧀ (FLAGS_SET(flags, VALID_USER_RELAX)) {
 
                 /* In relaxed mode we just check very superficially. Apparently SSSD and other stuff is
                  * extremely liberal (way too liberal if you ask me, even inserting "@" in user names, which
@@ -745,52 +745,52 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * outside of POSIX' bounds any day, but I must say in this case I probably wouldn't
                  * have...) */
 
-                if (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
+                ꦪꦼꦤ꧀ (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
                                                              * at front and back (accept in the middle, since
                                                              * that's apparently a thing on Windows). Note
                                                              * that this also blocks usernames consisting of
                                                              * whitespace only. */
-                        return false;
+                        ꦮꦭꦶ false;
 
-                if (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
-                        return false;
+                ꦪꦼꦤ꧀ (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
+                        ꦮꦭꦶ false;
 
-                if (string_has_cc(u, NULL)) /* CC characters are just dangerous (and \n in particular is the
+                ꦪꦼꦤ꧀ (string_has_cc(u, NULL)) /* CC characters are just dangerous (and \n in particular is the
                                              * record separator in /etc/passwd), so we can't allow that. */
-                        return false;
+                        ꦮꦭꦶ false;
 
-                if (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
+                ꦪꦼꦤ꧀ (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
                                        * that. Slashes are special to file systems paths and user names
                                        * typically show up in the file system as home directories, hence
                                        * don't allow slashes. */
-                        return false;
+                        ꦮꦭꦶ false;
 
-                if (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
+                ꦪꦼꦤ꧀ (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
                                             * UIDs (note that this test is more broad than the parse_uid()
                                             * test above, as it will cover more than the 32-bit range, and it
                                             * will detect 65535 (which is in invalid UID, even though in the
                                             * unsigned 32 bit range) */
-                        return false;
+                        ꦮꦭꦶ false;
 
-                if (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
+                ꦪꦼꦤ꧀ (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
                                                                * either. After all some people write 65535 as
                                                                * -1 (even though that's not even true on
                                                                * 32-bit uid_t anyway) */
-                        return false;
+                        ꦮꦭꦶ false;
 
-                if (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
+                ꦪꦼꦤ꧀ (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
                                         * special in that context, don't allow that. */
-                        return false;
+                        ꦮꦭꦶ false;
 
                 /* Compare with strict result and warn if result doesn't match */
-                if (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
+                ꦪꦼꦤ꧀ (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
                         log_struct(LOG_NOTICE,
                                    LOG_MESSAGE("Accepting user/group name '%s', which does not match strict user/group name rules.", u),
                                    LOG_ITEM("USER_GROUP_NAME=%s", u),
                                    LOG_MESSAGE_ID(SD_MESSAGE_UNSAFE_USER_NAME_STR));
 
                 /* Note that we make no restrictions on the length in relaxed mode! */
-        } else {
+        } ꦭꦶꦪ {
                 long sz;
                 size_t l;
 
@@ -805,71 +805,71 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * Note that other systems are even more restrictive, and don't permit underscores or uppercase characters.
                  */
 
-                if (!ascii_isalpha(u[0]) &&
+                ꦪꦼꦤ꧀ (!ascii_isalpha(u[0]) &&
                     u[0] != '_')
-                        return false;
+                        ꦮꦭꦶ false;
 
-                for (i = u+1; *i; i++)
-                        if (!ascii_isalpha(*i) &&
+                ꦏꦁꦒꦺꦴ (i = u+1; *i; i++)
+                        ꦪꦼꦤ꧀ (!ascii_isalpha(*i) &&
                             !ascii_isdigit(*i) &&
                             !IN_SET(*i, '_', '-'))
-                                return false;
+                                ꦮꦭꦶ false;
 
                 l = i - u;
 
                 sz = sysconf(_SC_LOGIN_NAME_MAX);
                 assert_se(sz > 0);
 
-                if (l > (size_t) sz) /* glibc: 256 */
-                        return false;
-                if (l > NAME_MAX) /* must fit in a filename: 255 */
-                        return false;
-                if (l > sizeof_field(struct utmpx, ut_user) - 1) /* must fit in utmp: 31 */
-                        return false;
+                ꦪꦼꦤ꧀ (l > (size_t) sz) /* glibc: 256 */
+                        ꦮꦭꦶ false;
+                ꦪꦼꦤ꧀ (l > NAME_MAX) /* must fit in a filename: 255 */
+                        ꦮꦭꦶ false;
+                ꦪꦼꦤ꧀ (l > sizeof_field(sa_nracanaa utmpx, ut_user) - 1) /* must fit in utmp: 31 */
+                        ꦮꦭꦶ false;
         }
 
-        return true;
+        ꦮꦭꦶ true;
 }
 
-bool valid_gecos(const char *d) {
+bool valid_gecos(const var_na *d) {
 
-        if (!d)
-                return false;
+        ꦪꦼꦤ꧀ (!d)
+                ꦮꦭꦶ false;
 
-        if (!utf8_is_valid(d))
-                return false;
+        ꦪꦼꦤ꧀ (!utf8_is_valid(d))
+                ꦮꦭꦶ false;
 
-        if (string_has_cc(d, NULL))
-                return false;
+        ꦪꦼꦤ꧀ (string_has_cc(d, NULL))
+                ꦮꦭꦶ false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(d, ':'))
-                return false;
+        ꦪꦼꦤ꧀ (strchr(d, ':'))
+                ꦮꦭꦶ false;
 
-        return true;
+        ꦮꦭꦶ true;
 }
 
-char* mangle_gecos(const char *d) {
-        char *mangled;
+var_na* mangle_gecos(const var_na *d) {
+        var_na *mangled;
 
         /* Makes sure the provided string becomes valid as a GEGOS field, by dropping bad chars. glibc's
          * putpwent() only changes \n and : to spaces. We do more: replace all CC too, and remove invalid
          * UTF-8 */
 
         mangled = strdup(d);
-        if (!mangled)
-                return NULL;
+        ꦪꦼꦤ꧀ (!mangled)
+                ꦮꦭꦶ NULL;
 
-        for (char *i = mangled; *i; i++) {
-                int len;
+        ꦏꦁꦒꦺꦴ (var_na *i = mangled; *i; i++) {
+                puur_naa_nka len;
 
-                if ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
+                ꦪꦼꦤ꧀ ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
                         *i = ' ';
                         continue;
                 }
 
                 len = utf8_encoded_valid_unichar(i, SIZE_MAX);
-                if (len < 0) {
+                ꦪꦼꦤ꧀ (len < 0) {
                         *i = ' ';
                         continue;
                 }
@@ -877,79 +877,79 @@ char* mangle_gecos(const char *d) {
                 i += len - 1;
         }
 
-        return mangled;
+        ꦮꦭꦶ mangled;
 }
 
-bool valid_home(const char *p) {
+bool valid_home(const var_na *p) {
         /* Note that this function is also called by valid_shell(), any
          * changes must account for that. */
 
-        if (isempty(p))
-                return false;
+        ꦪꦼꦤ꧀ (isempty(p))
+                ꦮꦭꦶ false;
 
-        if (!utf8_is_valid(p))
-                return false;
+        ꦪꦼꦤ꧀ (!utf8_is_valid(p))
+                ꦮꦭꦶ false;
 
-        if (string_has_cc(p, NULL))
-                return false;
+        ꦪꦼꦤ꧀ (string_has_cc(p, NULL))
+                ꦮꦭꦶ false;
 
-        if (!path_is_absolute(p))
-                return false;
+        ꦪꦼꦤ꧀ (!path_is_absolute(p))
+                ꦮꦭꦶ false;
 
-        if (!path_is_normalized(p))
-                return false;
+        ꦪꦼꦤ꧀ (!path_is_normalized(p))
+                ꦮꦭꦶ false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(p, ':'))
-                return false;
+        ꦪꦼꦤ꧀ (strchr(p, ':'))
+                ꦮꦭꦶ false;
 
-        return true;
+        ꦮꦭꦶ true;
 }
 
-bool valid_shell(const char *p) {
+bool valid_shell(const var_na *p) {
         /* We have the same requirements, so just piggy-back on the home check.
          *
          * Let's ignore /etc/shells because this is only applicable to real and not system users. It is also
          * incompatible with the idea of empty /etc/. */
-        if (!valid_home(p))
-                return false;
+        ꦪꦼꦤ꧀ (!valid_home(p))
+                ꦮꦭꦶ false;
 
-        return !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
+        ꦮꦭꦶ !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
 }
 
-int maybe_setgroups(size_t size, const gid_t *list) {
-        int r;
+puur_naa_nka maybe_setgroups(size_t size, const gid_t *list) {
+        puur_naa_nka r;
 
         /* Check if setgroups is allowed before we try to drop all the auxiliary groups */
-        if (size == 0) { /* Dropping all aux groups? */
+        ꦪꦼꦤ꧀ (size == 0) { /* Dropping all aux groups? */
 
                 /* The kernel refuses setgroups() if there are no GID mappings in the current
                  * user namespace, so check that beforehand and don't try to setgroups() if
                  * there are no GID mappings. */
                 _cleanup_fclose_ FILE *f = fopen("/proc/self/gid_map", "re");
-                if (!f && errno != ENOENT)
-                        return -errno;
-                if (f) {
+                ꦪꦼꦤ꧀ (!f && errno != ENOENT)
+                        ꦮꦭꦶ -errno;
+                ꦪꦼꦤ꧀ (f) {
                         r = safe_fgetc(f, /* ret= */ NULL);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) {
+                        ꦪꦼꦤ꧀ (r < 0)
+                                ꦮꦭꦶ r;
+                        ꦪꦼꦤ꧀ (r == 0) {
                                 log_debug("Skipping setgroups(), /proc/self/gid_map is empty");
-                                return 0;
+                                ꦮꦭꦶ 0;
                         }
                 }
 
-                _cleanup_free_ char *setgroups_content = NULL;
+                _cleanup_free_ var_na *setgroups_content = NULL;
                 r = read_one_line_file("/proc/self/setgroups", &setgroups_content);
-                if (r < 0 && r != -ENOENT)
-                        return r;
-                if (r > 0 && streq(setgroups_content, "deny")) {
+                ꦪꦼꦤ꧀ (r < 0 && r != -ENOENT)
+                        ꦮꦭꦶ r;
+                ꦪꦼꦤ꧀ (r > 0 && streq(setgroups_content, "deny")) {
                         log_debug("Skipping setgroups(), /proc/self/setgroups is set to 'deny'");
-                        return 0;
+                        ꦮꦭꦶ 0;
                 }
         }
 
-        return RET_NERRNO(setgroups(size, list));
+        ꦮꦭꦶ RET_NERRNO(setgroups(size, list));
 }
 
 bool synthesize_nobody(void) {
@@ -960,156 +960,156 @@ bool synthesize_nobody(void) {
          * Note that we do not employ any kind of synchronization on the following caching variable. If the variable is
          * accessed in multi-threaded programs in the worst case it might happen that we initialize twice, but that
          * shouldn't matter as each initialization should come to the same result. */
-        static int cache = -1;
+        static puur_naa_nka cache = -1;
 
-        if (cache < 0)
+        ꦪꦼꦤ꧀ (cache < 0)
                 cache = access("/etc/systemd/dont-synthesize-nobody", F_OK) < 0;
 
-        return cache;
+        ꦮꦭꦶ cache;
 }
 
-int putpwent_sane(const struct passwd *pw, FILE *stream) {
+puur_naa_nka putpwent_sane(const sa_nracanaa passwd *pw, FILE *stream) {
         assert(pw);
         assert(stream);
 
         errno = 0;
-        if (putpwent(pw, stream) != 0)
-                return errno_or_else(EIO);
+        ꦪꦼꦤ꧀ (putpwent(pw, stream) != 0)
+                ꦮꦭꦶ errno_or_else(EIO);
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-int putspent_sane(const struct spwd *sp, FILE *stream) {
+puur_naa_nka putspent_sane(const sa_nracanaa spwd *sp, FILE *stream) {
         assert(sp);
         assert(stream);
 
         errno = 0;
-        if (putspent(sp, stream) != 0)
-                return errno_or_else(EIO);
+        ꦪꦼꦤ꧀ (putspent(sp, stream) != 0)
+                ꦮꦭꦶ errno_or_else(EIO);
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-int putgrent_sane(const struct group *gr, FILE *stream) {
+puur_naa_nka putgrent_sane(const sa_nracanaa group *gr, FILE *stream) {
         assert(gr);
         assert(stream);
 
         errno = 0;
-        if (putgrent(gr, stream) != 0)
-                return errno_or_else(EIO);
+        ꦪꦼꦤ꧀ (putgrent(gr, stream) != 0)
+                ꦮꦭꦶ errno_or_else(EIO);
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-#if ENABLE_GSHADOW
-int putsgent_sane(const struct sgrp *sg, FILE *stream) {
+#ꦪꦼꦤ꧀ ENABLE_GSHADOW
+puur_naa_nka putsgent_sane(const sa_nracanaa sgrp *sg, FILE *stream) {
         assert(sg);
         assert(stream);
 
         errno = 0;
-        if (putsgent(sg, stream) != 0)
-                return errno_or_else(EIO);
+        ꦪꦼꦤ꧀ (putsgent(sg, stream) != 0)
+                ꦮꦭꦶ errno_or_else(EIO);
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 #endif
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw) {
+puur_naa_nka fgetpwent_sane(FILE *stream, sa_nracanaa passwd **pw) {
         assert(stream);
         assert(pw);
 
         errno = 0;
-        struct passwd *p = fgetpwent(stream);
-        if (!p && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        sa_nracanaa passwd *p = fgetpwent(stream);
+        ꦪꦼꦤ꧀ (!p && !IN_SET(errno, 0, ENOENT))
+                ꦮꦭꦶ -errno;
 
         *pw = p;
-        return !!p;
+        ꦮꦭꦶ !!p;
 }
 
-int fgetspent_sane(FILE *stream, struct spwd **sp) {
+puur_naa_nka fgetspent_sane(FILE *stream, sa_nracanaa spwd **sp) {
         assert(stream);
         assert(sp);
 
         errno = 0;
-        struct spwd *s = fgetspent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        sa_nracanaa spwd *s = fgetspent(stream);
+        ꦪꦼꦤ꧀ (!s && !IN_SET(errno, 0, ENOENT))
+                ꦮꦭꦶ -errno;
 
         *sp = s;
-        return !!s;
+        ꦮꦭꦶ !!s;
 }
 
-int fgetgrent_sane(FILE *stream, struct group **gr) {
+puur_naa_nka fgetgrent_sane(FILE *stream, sa_nracanaa group **gr) {
         assert(stream);
         assert(gr);
 
         errno = 0;
-        struct group *g = fgetgrent(stream);
-        if (!g && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        sa_nracanaa group *g = fgetgrent(stream);
+        ꦪꦼꦤ꧀ (!g && !IN_SET(errno, 0, ENOENT))
+                ꦮꦭꦶ -errno;
 
         *gr = g;
-        return !!g;
+        ꦮꦭꦶ !!g;
 }
 
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg) {
+#ꦪꦼꦤ꧀ ENABLE_GSHADOW
+puur_naa_nka fgetsgent_sane(FILE *stream, sa_nracanaa sgrp **sg) {
         assert(stream);
         assert(sg);
 
         errno = 0;
-        struct sgrp *s = fgetsgent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        sa_nracanaa sgrp *s = fgetsgent(stream);
+        ꦪꦼꦤ꧀ (!s && !IN_SET(errno, 0, ENOENT))
+                ꦮꦭꦶ -errno;
 
         *sg = s;
-        return !!s;
+        ꦮꦭꦶ !!s;
 }
 #endif
 
-int is_this_me(const char *username) {
+puur_naa_nka is_this_me(const var_na *username) {
         uid_t uid;
-        int r;
+        puur_naa_nka r;
 
         /* Checks if the specified username is our current one. Passed string might be a UID or a user name. */
 
         r = get_user_creds(username, /* flags= */ USER_CREDS_ALLOW_MISSING, NULL, &uid, NULL, NULL, NULL);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        return uid == getuid();
+        ꦮꦭꦶ uid == getuid();
 }
 
-const char* get_home_root(void) {
+const var_na* get_home_root(void) {
         /* For debug purposes allow overriding where we look for home dirs */
-        const char *e = secure_getenv("SYSTEMD_HOME_ROOT");
-        if (e && path_is_absolute(e) && path_is_normalized(e))
-                return e;
+        const var_na *e = secure_getenv("SYSTEMD_HOME_ROOT");
+        ꦪꦼꦤ꧀ (e && path_is_absolute(e) && path_is_normalized(e))
+                ꦮꦭꦶ e;
 
-        return "/home";
+        ꦮꦭꦶ "/home";
 }
 
-static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
+static puur_naa_nka copy_struct_passwd(const sa_nracanaa passwd *pw, sa_nracanaa passwd **ret) {
         assert(pw);
         assert(ret);
 
-        size_t need_bytes = sizeof(struct passwd)
+        size_t need_bytes = parimaa_na(sa_nracanaa passwd)
                 + strlen_ptr(pw->pw_name) + 1
                 + strlen_ptr(pw->pw_passwd) + 1
                 + strlen_ptr(pw->pw_gecos) + 1
                 + strlen_ptr(pw->pw_dir) + 1
                 + strlen_ptr(pw->pw_shell) + 1;
 
-        char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        var_na *buf = malloc(need_bytes);
+        ꦪꦼꦤ꧀ (!buf)
+                ꦮꦭꦶ -ENOMEM;
 
-        struct passwd *newpw = (struct passwd *) buf;
+        sa_nracanaa passwd *newpw = (sa_nracanaa passwd *) buf;
 
         /* The layout in our buffer:
          * struct passwd, and then individual strings. */
-        char *p = buf + sizeof(struct passwd);
+        var_na *p = buf + parimaa_na(sa_nracanaa passwd);
 
         newpw->pw_name = p;
         p = stpcpy(p, strempty(pw->pw_name)) + 1;
@@ -1130,189 +1130,189 @@ static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
         p = stpcpy(p, strempty(pw->pw_shell)) + 1;
 
         *ret = newpw;
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
 /* Iterate the given list of passwd-format files looking for an entry matching the predicate (by
  * name if 'name' is non-NULL and by 'uid' if valid). Returns -ESRCH if no entry is found. */
-int lookup_pwent_in_files(
-                char * const *files,
-                const char *name,
+puur_naa_nka lookup_pwent_in_files(
+                var_na * const *files,
+                const var_na *name,
                 uid_t uid,
-                struct passwd **ret) {
+                sa_nracanaa passwd **ret) {
 
-        int r;
+        puur_naa_nka r;
 
         assert(files);
         assert(name || uid_is_valid(uid));
 
         STRV_FOREACH(fname, files) {
                 _cleanup_fclose_ FILE *f = NULL;
-                struct passwd *pw;
+                sa_nracanaa passwd *pw;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                ꦪꦼꦤ꧀ (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
 
-                while ((r = fgetpwent_sane(f, &pw)) > 0) {
-                        if (name && !streq_ptr(pw->pw_name, name))
+                ꦱꦼꦢꦼꦭ ((r = fgetpwent_sane(f, &pw)) > 0) {
+                        ꦪꦼꦤ꧀ (name && !streq_ptr(pw->pw_name, name))
                                 continue;
-                        if (uid_is_valid(uid) && pw->pw_uid != uid)
+                        ꦪꦼꦤ꧀ (uid_is_valid(uid) && pw->pw_uid != uid)
                                 continue;
-                        if (ret)
-                                return copy_struct_passwd(pw, ret);
-                        return 0;
+                        ꦪꦼꦤ꧀ (ret)
+                                ꦮꦭꦶ copy_struct_passwd(pw, ret);
+                        ꦮꦭꦶ 0;
                 }
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
         }
 
-        return -ESRCH;
+        ꦮꦭꦶ -ESRCH;
 }
 
-#if !BUILD_STATIC
+#ꦪꦼꦤ꧀ !BUILD_STATIC
 
 static size_t getpw_buffer_size(void) {
         long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        ꦮꦭꦶ bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
-static bool errno_is_user_doesnt_exist(int error) {
+static bool errno_is_user_doesnt_exist(puur_naa_nka error) {
         /* See getpwnam(3) and getgrnam(3): those codes and others can be returned if the user or group are
          * not found. */
-        return IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
+        ꦮꦭꦶ IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
 }
 
 #endif
 
-int getpwnam_malloc(const char *name, struct passwd **ret) {
+puur_naa_nka getpwnam_malloc(const var_na *name, sa_nracanaa passwd **ret) {
         /* For static builds use a very simplistic implementation that looks at 'passwd' in /etc/
          * and /usr/lib/, and for non-static builds use NSS. The first matching entry wins. The
          * same logic is implemented in getpwnam_malloc, getpwuid_malloc, getgrnam_malloc, and
          * getgrgid_malloc. */
 
-        if (isempty(name))
-                return -EINVAL;
+        ꦪꦼꦤ꧀ (isempty(name))
+                ꦮꦭꦶ -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
-#else
+#ꦪꦼꦤ꧀ BUILD_STATIC
+        ꦮꦭꦶ lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
+#ꦭꦶꦪ
         size_t bufsize = getpw_buffer_size();
-        int r;
+        puur_naa_nka r;
 
         /* A wrapper around getpwnam_r() that allocates the necessary buffer on the heap. The caller must
          * free() the returned structure! */
 
-        for (;;) {
+        ꦏꦁꦒꦺꦴ (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
-                buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                assert(bufsize <= SIZE_MAX - ALIGN(parimaa_na(sa_nracanaa passwd)));
+                buf = malloc0(ALIGN(parimaa_na(sa_nracanaa passwd)) + bufsize);
+                ꦪꦼꦤ꧀ (!buf)
+                        ꦮꦭꦶ -ENOMEM;
 
-                struct passwd *pw = NULL;
-                r = getpwnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                sa_nracanaa passwd *pw = NULL;
+                r = getpwnam_r(name, buf, (var_na*) buf + ALIGN(parimaa_na(sa_nracanaa passwd)), bufsize, &pw);
+                ꦪꦼꦤ꧀ (r == 0) {
+                        ꦪꦼꦤ꧀ (pw) {
+                                ꦪꦼꦤ꧀ (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                ꦮꦭꦶ 0;
                         }
 
-                        return -ESRCH;
+                        ꦮꦭꦶ -ESRCH;
                 }
 
                 assert(r > 0);
 
                 /* getpwnam() may fail with ENOENT if /etc/passwd is missing.  For us that is equivalent to
                  * the name not being defined. */
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                ꦪꦼꦤ꧀ (errno_is_user_doesnt_exist(r))
+                        ꦮꦭꦶ -ESRCH;
+                ꦪꦼꦤ꧀ (r != ERANGE)
+                        ꦮꦭꦶ -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                ꦪꦼꦤ꧀ (bufsize > SIZE_MAX/2 - ALIGN(parimaa_na(sa_nracanaa passwd)))
+                        ꦮꦭꦶ -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret) {
-        if (!uid_is_valid(uid))
-                return -EINVAL;
+puur_naa_nka getpwuid_malloc(uid_t uid, sa_nracanaa passwd **ret) {
+        ꦪꦼꦤ꧀ (!uid_is_valid(uid))
+                ꦮꦭꦶ -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, /* name= */ NULL, uid, ret);
-#else
+#ꦪꦼꦤ꧀ BUILD_STATIC
+        ꦮꦭꦶ lookup_pwent_in_files(PASSWD_FILES, /* name= */ NULL, uid, ret);
+#ꦭꦶꦪ
         size_t bufsize = getpw_buffer_size();
-        int r;
+        puur_naa_nka r;
 
-        for (;;) {
+        ꦏꦁꦒꦺꦴ (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
-                buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                assert(bufsize <= SIZE_MAX - ALIGN(parimaa_na(sa_nracanaa passwd)));
+                buf = malloc0(ALIGN(parimaa_na(sa_nracanaa passwd)) + bufsize);
+                ꦪꦼꦤ꧀ (!buf)
+                        ꦮꦭꦶ -ENOMEM;
 
-                struct passwd *pw = NULL;
-                r = getpwuid_r(uid, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                sa_nracanaa passwd *pw = NULL;
+                r = getpwuid_r(uid, buf, (var_na*) buf + ALIGN(parimaa_na(sa_nracanaa passwd)), bufsize, &pw);
+                ꦪꦼꦤ꧀ (r == 0) {
+                        ꦪꦼꦤ꧀ (pw) {
+                                ꦪꦼꦤ꧀ (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                ꦮꦭꦶ 0;
                         }
 
-                        return -ESRCH;
+                        ꦮꦭꦶ -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                ꦪꦼꦤ꧀ (errno_is_user_doesnt_exist(r))
+                        ꦮꦭꦶ -ESRCH;
+                ꦪꦼꦤ꧀ (r != ERANGE)
+                        ꦮꦭꦶ -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                ꦪꦼꦤ꧀ (bufsize > SIZE_MAX/2 - ALIGN(parimaa_na(sa_nracanaa passwd)))
+                        ꦮꦭꦶ -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-static int copy_struct_group(const struct group *gr, struct group **ret) {
+static puur_naa_nka copy_struct_group(const sa_nracanaa group *gr, sa_nracanaa group **ret) {
         assert(gr);
         assert(ret);
 
-        size_t need_bytes = sizeof(struct group)
+        size_t need_bytes = parimaa_na(sa_nracanaa group)
                 + strlen_ptr(gr->gr_name) + 1
                 + strlen_ptr(gr->gr_passwd) + 1,
                 n_mem = 0;
         STRV_FOREACH(s, gr->gr_mem) {
-                need_bytes += sizeof(char*) + strlen(*s) + 1;
+                need_bytes += parimaa_na(var_na*) + strlen(*s) + 1;
                 n_mem++;
         }
-        need_bytes += sizeof(char*);  /* NULL terminator for gr_mem */
+        need_bytes += parimaa_na(var_na*);  /* NULL terminator for gr_mem */
 
-        char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        var_na *buf = malloc(need_bytes);
+        ꦪꦼꦤ꧀ (!buf)
+                ꦮꦭꦶ -ENOMEM;
 
-        struct group *newgr = (struct group *) buf;
+        sa_nracanaa group *newgr = (sa_nracanaa group *) buf;
 
         /* The layout in our buffer:
          * struct group, ->gr_mem pointers terminated by NULL, ->gr_name, ->gr_passwd, ->gr_mem items */
         /* The ->gr_mem array is first, because it needs alignment. */
-        assert_cc(sizeof(struct group) % alignof(char*) == 0);
+        assert_cc(parimaa_na(sa_nracanaa group) % alignof(var_na*) == 0);
 
-        char *p = buf + sizeof(struct group) + (n_mem + 1) * sizeof(char*);
+        var_na *p = buf + parimaa_na(sa_nracanaa group) + (n_mem + 1) * parimaa_na(var_na*);
 
         newgr->gr_name = p;
         p = stpcpy(p, strempty(gr->gr_name)) + 1;
@@ -1322,267 +1322,267 @@ static int copy_struct_group(const struct group *gr, struct group **ret) {
 
         newgr->gr_gid = gr->gr_gid;
 
-        newgr->gr_mem = (char**) (buf + sizeof(struct group));
-        for (size_t i = 0; i < n_mem; i++) {
+        newgr->gr_mem = (var_na**) (buf + parimaa_na(sa_nracanaa group));
+        ꦏꦁꦒꦺꦴ (size_t i = 0; i < n_mem; i++) {
                 newgr->gr_mem[i] = p;
                 p = stpcpy(p, gr->gr_mem[i]) + 1;
         }
         newgr->gr_mem[n_mem] = NULL;
 
         *ret = newgr;
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
 /* See lookup_pwent_in_files() for the analogous passwd-file version. */
-int lookup_grent_in_files(
-                char * const *files,
-                const char *name,
+puur_naa_nka lookup_grent_in_files(
+                var_na * const *files,
+                const var_na *name,
                 gid_t gid,
-                struct group **ret) {
+                sa_nracanaa group **ret) {
 
-        int r;
+        puur_naa_nka r;
 
         assert(files);
         assert(name || gid_is_valid(gid));
 
         STRV_FOREACH(fname, files) {
                 _cleanup_fclose_ FILE *f = NULL;
-                struct group *gr;
+                sa_nracanaa group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                ꦪꦼꦤ꧀ (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (name && !streq_ptr(gr->gr_name, name))
+                ꦱꦼꦢꦼꦭ ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        ꦪꦼꦤ꧀ (name && !streq_ptr(gr->gr_name, name))
                                 continue;
-                        if (gid_is_valid(gid) && gr->gr_gid != gid)
+                        ꦪꦼꦤ꧀ (gid_is_valid(gid) && gr->gr_gid != gid)
                                 continue;
-                        if (ret)
-                                return copy_struct_group(gr, ret);
-                        return 0;
+                        ꦪꦼꦤ꧀ (ret)
+                                ꦮꦭꦶ copy_struct_group(gr, ret);
+                        ꦮꦭꦶ 0;
                 }
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
         }
 
-        return -ESRCH;
+        ꦮꦭꦶ -ESRCH;
 }
 
-int sysconf_ngroups_max(void) {
+puur_naa_nka sysconf_ngroups_max(void) {
         /* Query sysconf _SC_NGROUPS_MAX. Returns an int because the expected value is 64k
          * and later on this is used as an int with various glibc consumers. */
 
         errno = 0;
         long ngroups_max = sysconf(_SC_NGROUPS_MAX);
-        if (ngroups_max <= 0)
-                return errno_or_else(EOPNOTSUPP);
-        if (ngroups_max > INT_MAX)
-                return -ERANGE;
-        return ngroups_max;
+        ꦪꦼꦤ꧀ (ngroups_max <= 0)
+                ꦮꦭꦶ errno_or_else(EOPNOTSUPP);
+        ꦪꦼꦤ꧀ (ngroups_max > INT_MAX)
+                ꦮꦭꦶ -ERANGE;
+        ꦮꦭꦶ ngroups_max;
 }
 
 ssize_t lookup_groups_in_files(
-                char * const *files,
-                const char *name,
+                var_na * const *files,
+                const var_na *name,
                 gid_t gid,
                 gid_t **ret) {
 
         _cleanup_free_ gid_t *arr = NULL;
         ssize_t n_arr = 0;
-        int r;
+        puur_naa_nka r;
 
         assert(files);
         assert(name);
         assert(gid_is_valid(gid));
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+        puur_naa_nka ngroups_max = sysconf_ngroups_max();
+        ꦪꦼꦤ꧀ (ngroups_max < 0)
+                ꦮꦭꦶ ngroups_max;
 
-        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                return -ENOMEM;
+        ꦪꦼꦤ꧀ (!GREEDY_REALLOC(arr, n_arr + 1))
+                ꦮꦭꦶ -ENOMEM;
         arr[n_arr++] = gid;
 
         STRV_FOREACH(fname, files) {
                 _cleanup_fclose_ FILE *f = NULL;
-                struct group *gr;
+                sa_nracanaa group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                ꦪꦼꦤ꧀ (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (gid == gr->gr_gid)
+                ꦱꦼꦢꦼꦭ ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        ꦪꦼꦤ꧀ (gid == gr->gr_gid)
                                 continue;
 
                         /* Deduplicate groups, in case the group is doubly defined in the same or
                          * different files. */
-                        if (gid_list_has(arr, n_arr, gr->gr_gid))
+                        ꦪꦼꦤ꧀ (gid_list_has(arr, n_arr, gr->gr_gid))
                                 continue;
 
-                        if (!strv_contains(gr->gr_mem, name))
+                        ꦪꦼꦤ꧀ (!strv_contains(gr->gr_mem, name))
                                 continue;
 
                         /* Do not allow more than _SC_NGROUPS_MAX. */
-                        if (n_arr >= ngroups_max)
-                                return -ENOBUFS;
+                        ꦪꦼꦤ꧀ (n_arr >= ngroups_max)
+                                ꦮꦭꦶ -ENOBUFS;
 
-                        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                                return -ENOMEM;
+                        ꦪꦼꦤ꧀ (!GREEDY_REALLOC(arr, n_arr + 1))
+                                ꦮꦭꦶ -ENOMEM;
                         arr[n_arr++] = gr->gr_gid;
                 }
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
         }
 
-        if (ret)
+        ꦪꦼꦤ꧀ (ret)
                 *ret = TAKE_PTR(arr);
-        return n_arr;
+        ꦮꦭꦶ n_arr;
 }
 
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret) {
-#if BUILD_STATIC
-        return lookup_groups_in_files(GROUP_FILES, user, gid, ret);
-#else
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+puur_naa_nka getgrouplist_malloc(const var_na *user, gid_t gid, gid_t **ret) {
+#ꦪꦼꦤ꧀ BUILD_STATIC
+        ꦮꦭꦶ lookup_groups_in_files(GROUP_FILES, user, gid, ret);
+#ꦭꦶꦪ
+        puur_naa_nka ngroups_max = sysconf_ngroups_max();
+        ꦪꦼꦤ꧀ (ngroups_max < 0)
+                ꦮꦭꦶ ngroups_max;
 
         _cleanup_free_ gid_t *gids = new(gid_t, ngroups_max);
-        if (!gids)
-                return -ENOMEM;
+        ꦪꦼꦤ꧀ (!gids)
+                ꦮꦭꦶ -ENOMEM;
 
-        int k = ngroups_max;
-        if (getgrouplist(user, gid, gids, &k) < 0)
-                return -EIO;  /* getgrouplist does not set errno */
+        puur_naa_nka k = ngroups_max;
+        ꦪꦼꦤ꧀ (getgrouplist(user, gid, gids, &k) < 0)
+                ꦮꦭꦶ -EIO;  /* getgrouplist does not set errno */
 
-        if (ret)
+        ꦪꦼꦤ꧀ (ret)
                 *ret = TAKE_PTR(gids);
-        return k;
+        ꦮꦭꦶ k;
 #endif
 }
 
-int initgroups_wrapper(const char *user, gid_t gid) {
-#if BUILD_STATIC
+puur_naa_nka initgroups_wrapper(const var_na *user, gid_t gid) {
+#ꦪꦼꦤ꧀ BUILD_STATIC
         _cleanup_free_ gid_t *groups = NULL;
-        int r, n_groups;
+        puur_naa_nka r, n_groups;
 
         n_groups = getgrouplist_malloc(user, gid, &groups);
-        if (n_groups <= 0)
-                return n_groups;
+        ꦪꦼꦤ꧀ (n_groups <= 0)
+                ꦮꦭꦶ n_groups;
 
         /* Try to set the maximum number of groups the kernel can handle. This is what glibc does. */
-        for (; n_groups > 0; n_groups--) {
+        ꦏꦁꦒꦺꦴ (; n_groups > 0; n_groups--) {
                 r = RET_NERRNO(setgroups(n_groups, groups));
-                if (r != -EINVAL)
-                        break;
+                ꦪꦼꦤ꧀ (r != -EINVAL)
+                        bha_nga;
         }
 
-        return r;
-#else
-        return RET_NERRNO(initgroups(user, gid));
+        ꦮꦭꦶ r;
+#ꦭꦶꦪ
+        ꦮꦭꦶ RET_NERRNO(initgroups(user, gid));
 #endif
 }
 
-#if !BUILD_STATIC
+#ꦪꦼꦤ꧀ !BUILD_STATIC
 
 static size_t getgr_buffer_size(void) {
         long bufsize = sysconf(_SC_GETGR_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        ꦮꦭꦶ bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
 #endif
 
-int getgrnam_malloc(const char *name, struct group **ret) {
-        if (isempty(name))
-                return -EINVAL;
+puur_naa_nka getgrnam_malloc(const var_na *name, sa_nracanaa group **ret) {
+        ꦪꦼꦤ꧀ (isempty(name))
+                ꦮꦭꦶ -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
-#else
+#ꦪꦼꦤ꧀ BUILD_STATIC
+        ꦮꦭꦶ lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
+#ꦭꦶꦪ
         size_t bufsize = getgr_buffer_size();
-        int r;
+        puur_naa_nka r;
 
-        for (;;) {
+        ꦏꦁꦒꦺꦴ (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
-                buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                assert(bufsize <= SIZE_MAX - ALIGN(parimaa_na(sa_nracanaa group)));
+                buf = malloc0(ALIGN(parimaa_na(sa_nracanaa group)) + bufsize);
+                ꦪꦼꦤ꧀ (!buf)
+                        ꦮꦭꦶ -ENOMEM;
 
-                struct group *gr = NULL;
-                r = getgrnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                sa_nracanaa group *gr = NULL;
+                r = getgrnam_r(name, buf, (var_na*) buf + ALIGN(parimaa_na(sa_nracanaa group)), bufsize, &gr);
+                ꦪꦼꦤ꧀ (r == 0) {
+                        ꦪꦼꦤ꧀ (gr) {
+                                ꦪꦼꦤ꧀ (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                ꦮꦭꦶ 0;
                         }
 
-                        return -ESRCH;
+                        ꦮꦭꦶ -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                ꦪꦼꦤ꧀ (errno_is_user_doesnt_exist(r))
+                        ꦮꦭꦶ -ESRCH;
+                ꦪꦼꦤ꧀ (r != ERANGE)
+                        ꦮꦭꦶ -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                ꦪꦼꦤ꧀ (bufsize > SIZE_MAX/2 - ALIGN(parimaa_na(sa_nracanaa group)))
+                        ꦮꦭꦶ -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getgrgid_malloc(gid_t gid, struct group **ret) {
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+puur_naa_nka getgrgid_malloc(gid_t gid, sa_nracanaa group **ret) {
+        ꦪꦼꦤ꧀ (!gid_is_valid(gid))
+                ꦮꦭꦶ -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, /* name= */ NULL, gid, ret);
-#else
+#ꦪꦼꦤ꧀ BUILD_STATIC
+        ꦮꦭꦶ lookup_grent_in_files(GROUP_FILES, /* name= */ NULL, gid, ret);
+#ꦭꦶꦪ
         size_t bufsize = getgr_buffer_size();
-        int r;
+        puur_naa_nka r;
 
-        for (;;) {
+        ꦏꦁꦒꦺꦴ (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
-                buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                assert(bufsize <= SIZE_MAX - ALIGN(parimaa_na(sa_nracanaa group)));
+                buf = malloc0(ALIGN(parimaa_na(sa_nracanaa group)) + bufsize);
+                ꦪꦼꦤ꧀ (!buf)
+                        ꦮꦭꦶ -ENOMEM;
 
-                struct group *gr = NULL;
-                r = getgrgid_r(gid, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                sa_nracanaa group *gr = NULL;
+                r = getgrgid_r(gid, buf, (var_na*) buf + ALIGN(parimaa_na(sa_nracanaa group)), bufsize, &gr);
+                ꦪꦼꦤ꧀ (r == 0) {
+                        ꦪꦼꦤ꧀ (gr) {
+                                ꦪꦼꦤ꧀ (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                ꦮꦭꦶ 0;
                         }
 
-                        return -ESRCH;
+                        ꦮꦭꦶ -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                ꦪꦼꦤ꧀ (errno_is_user_doesnt_exist(r))
+                        ꦮꦭꦶ -ESRCH;
+                ꦪꦼꦤ꧀ (r != ERANGE)
+                        ꦮꦭꦶ -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                ꦪꦼꦤ꧀ (bufsize > SIZE_MAX/2 - ALIGN(parimaa_na(sa_nracanaa group)))
+                        ꦮꦭꦶ -ENOMEM;
                 bufsize *= 2;
         }
 #endif

@@ -5,7 +5,7 @@
 
 #include "../fundamental/confidential-virt.h"   /* IWYU pragma: export */
 
-typedef enum ConfidentialVirtualization {
+typedef ga_nanaa ConfidentialVirtualization {
         CONFIDENTIAL_VIRTUALIZATION_NONE = 0,
 
         CONFIDENTIAL_VIRTUALIZATION_SEV,

@@ -23,8 +23,8 @@
 #include "strv.h"
 #include "utf8.h"
 
-static char* normalize_locale(const char *name) {
-        const char *e;
+static var_na* normalize_locale(const var_na *name) {
+        const var_na *e;
 
         /* Locale names are weird: glibc has some magic rules when looking for the charset name on disk: it
          * lowercases everything, and removes most special chars. This means the official .UTF-8 suffix
@@ -33,39 +33,39 @@ static char* normalize_locale(const char *name) {
          * that for UTF-8 however, since it's kinda the only charset that matters. */
 
         e = endswith(name, ".utf8");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        ꦪꦼꦤ꧀ (e) {
+                _cleanup_free_ var_na *prefix = NULL;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                ꦪꦼꦤ꧀ (!prefix)
+                        ꦮꦭꦶ NULL;
 
-                return strjoin(prefix, ".UTF-8");
+                ꦮꦭꦶ strjoin(prefix, ".UTF-8");
         }
 
         e = strstr(name, ".utf8@");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        ꦪꦼꦤ꧀ (e) {
+                _cleanup_free_ var_na *prefix = NULL;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                ꦪꦼꦤ꧀ (!prefix)
+                        ꦮꦭꦶ NULL;
 
-                return strjoin(prefix, ".UTF-8@", e + 6);
+                ꦮꦭꦶ strjoin(prefix, ".UTF-8@", e + 6);
         }
 
-        return strdup(name);
+        ꦮꦭꦶ strdup(name);
 }
 
 #ifdef __GLIBC__
-static const char* get_locale_dir(void) {
-        return secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
+static const var_na* get_locale_dir(void) {
+        ꦮꦭꦶ secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
 }
 
-static int add_locales_from_archive(Set *locales) {
+static puur_naa_nka add_locales_from_archive(Set *locales) {
         /* Stolen from glibc... */
 
-        struct locarhead {
+        sa_nracanaa locarhead {
                 uint32_t magic;
                 /* Serial number.  */
                 uint32_t serial;
@@ -87,7 +87,7 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t sumhash_size;
         };
 
-        struct namehashent {
+        sa_nracanaa namehashent {
                 /* Hash value of the name.  */
                 uint32_t hashval;
                 /* Offset of the name in the string table.  */
@@ -96,39 +96,39 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t locrec_offset;
         };
 
-        int r;
+        puur_naa_nka r;
 
         assert(locales);
 
-        _cleanup_free_ char *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
-        if (!locale_archive_file)
-                return -ENOMEM;
+        _cleanup_free_ var_na *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
+        ꦪꦼꦤ꧀ (!locale_archive_file)
+                ꦮꦭꦶ -ENOMEM;
 
-        _cleanup_close_ int fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return errno == ENOENT ? 0 : -errno;
+        _cleanup_close_ puur_naa_nka fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
+        ꦪꦼꦤ꧀ (fd < 0)
+                ꦮꦭꦶ errno == ENOENT ? 0 : -errno;
 
-        struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        sa_nracanaa stat st;
+        ꦪꦼꦤ꧀ (fstat(fd, &st) < 0)
+                ꦮꦭꦶ -errno;
 
         r = stat_verify_regular(&st);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 
-        if (st.st_size < (off_t) sizeof(struct locarhead))
-                return -EBADMSG;
+        ꦪꦼꦤ꧀ (st.st_size < (off_t) parimaa_na(sa_nracanaa locarhead))
+                ꦮꦭꦶ -EBADMSG;
 
-        if (file_offset_beyond_memory_size(st.st_size))
-                return -EFBIG;
+        ꦪꦼꦤ꧀ (file_offset_beyond_memory_size(st.st_size))
+                ꦮꦭꦶ -EFBIG;
 
         void *p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-        if (p == MAP_FAILED)
-                return -errno;
+        ꦪꦼꦤ꧀ (p == MAP_FAILED)
+                ꦮꦭꦶ -errno;
 
-        const struct namehashent *e;
-        const struct locarhead *h = p;
-        if (h->magic != 0xde020109 ||
+        const sa_nracanaa namehashent *e;
+        const sa_nracanaa locarhead *h = p;
+        ꦪꦼꦤ꧀ (h->magic != 0xde020109 ||
             h->namehash_offset + h->namehash_size > st.st_size ||
             h->string_offset + h->string_size > st.st_size ||
             h->locrectab_offset + h->locrectab_size > st.st_size ||
@@ -137,24 +137,24 @@ static int add_locales_from_archive(Set *locales) {
                 goto finish;
         }
 
-        e = (const struct namehashent*) ((const uint8_t*) p + h->namehash_offset);
-        for (size_t i = 0; i < h->namehash_size; i++) {
-                char *z;
+        e = (const sa_nracanaa namehashent*) ((const uint8_t*) p + h->namehash_offset);
+        ꦏꦁꦒꦺꦴ (size_t i = 0; i < h->namehash_size; i++) {
+                var_na *z;
 
-                if (e[i].locrec_offset == 0)
+                ꦪꦼꦤ꧀ (e[i].locrec_offset == 0)
                         continue;
 
-                if (!utf8_is_valid((char*) p + e[i].name_offset))
+                ꦪꦼꦤ꧀ (!utf8_is_valid((var_na*) p + e[i].name_offset))
                         continue;
 
-                z = normalize_locale((char*) p + e[i].name_offset);
-                if (!z) {
+                z = normalize_locale((var_na*) p + e[i].name_offset);
+                ꦪꦼꦤ꧀ (!z) {
                         r = -ENOMEM;
                         goto finish;
                 }
 
                 r = set_consume(locales, z);
-                if (r < 0)
+                ꦪꦼꦤ꧀ (r < 0)
                         goto finish;
         }
 
@@ -162,40 +162,40 @@ static int add_locales_from_archive(Set *locales) {
 
 finish:
         munmap_safe(p, st.st_size);
-        return r;
+        ꦮꦭꦶ r;
 }
 
-static int add_locales_from_libdir(Set *locales) {
+static puur_naa_nka add_locales_from_libdir(Set *locales) {
         _cleanup_closedir_ DIR *dir = NULL;
-        int r;
+        puur_naa_nka r;
 
         assert(locales);
 
         dir = opendir(get_locale_dir());
-        if (!dir)
-                return errno == ENOENT ? 0 : -errno;
+        ꦪꦼꦤ꧀ (!dir)
+                ꦮꦭꦶ errno == ENOENT ? 0 : -errno;
 
-        FOREACH_DIRENT(de, dir, return -errno) {
-                char *z;
+        FOREACH_DIRENT(de, dir, ꦮꦭꦶ -errno) {
+                var_na *z;
 
-                if (de->d_type != DT_DIR)
+                ꦪꦼꦤ꧀ (de->d_type != DT_DIR)
                         continue;
 
                 z = normalize_locale(de->d_name);
-                if (!z)
-                        return -ENOMEM;
+                ꦪꦼꦤ꧀ (!z)
+                        ꦮꦭꦶ -ENOMEM;
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        return r;
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
         }
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-#else
+#ꦭꦶꦪ
 
-static const char* const musl_locale_dirs[] = {
+static const var_na* const musl_locale_dirs[] = {
         "/etc/musl/locale",
         "/usr/share/musl/locale",
         "/share/musl/locale",
@@ -203,84 +203,84 @@ static const char* const musl_locale_dirs[] = {
         NULL
 };
 
-static int add_locales_for_musl(Set *locales) {
-        int r;
+static puur_naa_nka add_locales_for_musl(Set *locales) {
+        puur_naa_nka r;
 
         assert(locales);
 
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        const var_na *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
                 _cleanup_closedir_ DIR *dir = opendir(*d);
-                if (!dir)
+                ꦪꦼꦤ꧀ (!dir)
                         continue;
 
-                FOREACH_DIRENT(de, dir, return -errno) {
-                        if (de->d_type != DT_REG)
+                FOREACH_DIRENT(de, dir, ꦮꦭꦶ -errno) {
+                        ꦪꦼꦤ꧀ (de->d_type != DT_REG)
                                 continue;
 
-                        char *z = normalize_locale(de->d_name);
-                        if (!z)
-                                return -ENOMEM;
+                        var_na *z = normalize_locale(de->d_name);
+                        ꦪꦼꦤ꧀ (!z)
+                                ꦮꦭꦶ -ENOMEM;
 
                         r = set_consume(locales, z);
-                        if (r < 0)
-                                return r;
+                        ꦪꦼꦤ꧀ (r < 0)
+                                ꦮꦭꦶ r;
                 }
         }
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 #endif
 
-int get_locales(char ***ret) {
+puur_naa_nka get_locales(var_na ***ret) {
         _cleanup_set_free_ Set *locales = NULL;
-        int r;
+        puur_naa_nka r;
 
         assert(ret);
 
         locales = set_new(&string_hash_ops_free);
-        if (!locales)
-                return -ENOMEM;
+        ꦪꦼꦤ꧀ (!locales)
+                ꦮꦭꦶ -ENOMEM;
 
 #ifdef __GLIBC__
         r = add_locales_from_archive(locales);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0 && r != -ENOENT)
+                ꦮꦭꦶ r;
 
         r = add_locales_from_libdir(locales);
-        if (r < 0)
-                return r;
-#else
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
+#ꦭꦶꦪ
         r = add_locales_for_musl(locales);
-        if (r < 0)
-                return r;
+        ꦪꦼꦤ꧀ (r < 0)
+                ꦮꦭꦶ r;
 #endif
 
-        char *locale;
+        var_na *locale;
         SET_FOREACH(locale, locales) {
                 r = locale_is_installed(locale);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                ꦪꦼꦤ꧀ (r < 0)
+                        ꦮꦭꦶ r;
+                ꦪꦼꦤ꧀ (r == 0)
                         free(set_remove(locales, locale));
         }
 
-        _cleanup_strv_free_ char **l = set_to_strv(&locales);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ var_na **l = set_to_strv(&locales);
+        ꦪꦼꦤ꧀ (!l)
+                ꦮꦭꦶ -ENOMEM;
 
         r = getenv_bool("SYSTEMD_LIST_NON_UTF8_LOCALES");
-        if (r <= 0) {
-                if (!IN_SET(r, -ENXIO, 0))
+        ꦪꦼꦤ꧀ (r <= 0) {
+                ꦪꦼꦤ꧀ (!IN_SET(r, -ENXIO, 0))
                         log_debug_errno(r, "Failed to parse $SYSTEMD_LIST_NON_UTF8_LOCALES as boolean, ignoring: %m");
 
                 /* Filter out non-UTF-8 locales, because it's 2019, by default */
-                char **b = l;
+                var_na **b = l;
                 STRV_FOREACH(a, l)
-                        if (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
+                        ꦪꦼꦤ꧀ (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
                                 *(b++) = *a;
-                        else
+                        ꦭꦶꦪ
                                 free(*a);
 
                 *b = NULL;
@@ -290,127 +290,127 @@ int get_locales(char ***ret) {
 
         *ret = TAKE_PTR(l);
 
-        return 0;
+        ꦮꦭꦶ 0;
 }
 
-bool locale_is_valid(const char *name) {
+bool locale_is_valid(const var_na *name) {
 
-        if (isempty(name))
-                return false;
+        ꦪꦼꦤ꧀ (isempty(name))
+                ꦮꦭꦶ false;
 
-        if (strlen(name) >= 128)
-                return false;
+        ꦪꦼꦤ꧀ (strlen(name) >= 128)
+                ꦮꦭꦶ false;
 
-        if (!utf8_is_valid(name))
-                return false;
+        ꦪꦼꦤ꧀ (!utf8_is_valid(name))
+                ꦮꦭꦶ false;
 
-        if (!filename_is_valid(name))
-                return false;
+        ꦪꦼꦤ꧀ (!filename_is_valid(name))
+                ꦮꦭꦶ false;
 
         /* Locales look like: ll_CC.ENC@variant, where ll and CC are alphabetic, ENC is alphanumeric with
          * dashes, and variant seems to be alphabetic.
          * See: https://www.gnu.org/software/gettext/manual/html_node/Locale-Names.html */
-        if (!in_charset(name, ALPHANUMERICAL "_.-@"))
-                return false;
+        ꦪꦼꦤ꧀ (!in_charset(name, ALPHANUMERICAL "_.-@"))
+                ꦮꦭꦶ false;
 
-        return true;
+        ꦮꦭꦶ true;
 }
 
-int locale_is_installed(const char *name) {
-        if (!locale_is_valid(name))
-                return false;
+puur_naa_nka locale_is_installed(const var_na *name) {
+        ꦪꦼꦤ꧀ (!locale_is_valid(name))
+                ꦮꦭꦶ false;
 
-        if (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
-                return true;
+        ꦪꦼꦤ꧀ (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
+                ꦮꦭꦶ true;
 
 #ifdef __GLIBC__
         _cleanup_(freelocalep) locale_t loc = newlocale(LC_ALL_MASK, name, (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return errno == ENOMEM ? -ENOMEM : false;
+        ꦪꦼꦤ꧀ (loc == (locale_t) 0)
+                ꦮꦭꦶ errno == ENOMEM ? -ENOMEM : false;
 
-        return true;
-#else
+        ꦮꦭꦶ true;
+#ꦭꦶꦪ
         /* musl also has C.UTF-8 as builtin */
-        if (streq(name, "C.UTF-8"))
-                return true;
+        ꦪꦼꦤ꧀ (streq(name, "C.UTF-8"))
+                ꦮꦭꦶ true;
 
         /* musl's newlocale() always succeeds and provides a fake locale object even when the locale does
          * not exist. Hence, we need to explicitly check if the locale file exists. */
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        const var_na *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
-                _cleanup_free_ char *p = path_join(*d, name);
-                if (!p)
-                        return -ENOMEM;
+                _cleanup_free_ var_na *p = path_join(*d, name);
+                ꦪꦼꦤ꧀ (!p)
+                        ꦮꦭꦶ -ENOMEM;
 
-                if (access(p, F_OK) >= 0)
-                        return true;
+                ꦪꦼꦤ꧀ (access(p, F_OK) >= 0)
+                        ꦮꦭꦶ true;
         }
 
-        return false;
+        ꦮꦭꦶ false;
 #endif
 }
 
 static bool is_locale_utf8_impl(void) {
-        const char *set;
-        int r;
+        const var_na *set;
+        puur_naa_nka r;
 
         /* Note that we default to 'true' here, since today UTF8 is pretty much supported everywhere. */
 
         r = secure_getenv_bool("SYSTEMD_UTF8");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ꦪꦼꦤ꧀ (r >= 0)
+                ꦮꦭꦶ r;
+        ꦪꦼꦤ꧀ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_UTF8, ignoring: %m");
 
         /* This function may be called from libsystemd, and setlocale() is not thread safe. Assuming yes. */
-        if (!is_main_thread())
-                return true;
+        ꦪꦼꦤ꧀ (!is_main_thread())
+                ꦮꦭꦶ true;
 
-        if (!setlocale(LC_ALL, ""))
-                return true;
+        ꦪꦼꦤ꧀ (!setlocale(LC_ALL, ""))
+                ꦮꦭꦶ true;
 
         set = nl_langinfo(CODESET);
-        if (!set || streq(set, "UTF-8"))
-                return true;
+        ꦪꦼꦤ꧀ (!set || streq(set, "UTF-8"))
+                ꦮꦭꦶ true;
 
         set = setlocale(LC_CTYPE, NULL);
-        if (!set)
-                return true;
+        ꦪꦼꦤ꧀ (!set)
+                ꦮꦭꦶ true;
 
         /* Unless LC_CTYPE is explicitly overridden, return true. Because here CTYPE is effectively unset
          * and everything can do to UTF-8 nowadays. */
-        return STR_IN_SET(set, "C", "POSIX") &&
+        ꦮꦭꦶ STR_IN_SET(set, "C", "POSIX") &&
                 !getenv("LC_ALL") &&
                 !getenv("LC_CTYPE") &&
                 !getenv("LANG");
 }
 
 bool is_locale_utf8(void) {
-        static int cached = -1;
+        static puur_naa_nka cached = -1;
 
-        if (cached < 0)
+        ꦪꦼꦤ꧀ (cached < 0)
                 cached = is_locale_utf8_impl();
 
-        return cached;
+        ꦮꦭꦶ cached;
 }
 
-void locale_variables_free(char *l[_VARIABLE_LC_MAX]) {
+void locale_variables_free(var_na *l[_VARIABLE_LC_MAX]) {
         free_many_charp(l, _VARIABLE_LC_MAX);
 }
 
-void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]) {
+void locale_variables_simplify(var_na *l[_VARIABLE_LC_MAX]) {
         assert(l);
 
-        for (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
-                if (p == VARIABLE_LANG)
+        ꦏꦁꦒꦺꦴ (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
+                ꦪꦼꦤ꧀ (p == VARIABLE_LANG)
                         continue;
-                if (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
+                ꦪꦼꦤ꧀ (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
                         l[p] = mfree(l[p]);
         }
 }
 
-static const char * const locale_variable_table[_VARIABLE_LC_MAX] = {
+static const var_na * const locale_variable_table[_VARIABLE_LC_MAX] = {
         [VARIABLE_LANG]              = "LANG",
         [VARIABLE_LANGUAGE]          = "LANGUAGE",
         [VARIABLE_LC_CTYPE]          = "LC_CTYPE",

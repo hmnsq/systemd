@@ -22,7 +22,7 @@ void hmac_sha256(const void *key,
         CLEANUP_ERASE(outer_padding); /* carries key ^ 0x5c, trivially reversible to the original key */
         uint8_t replacement_key[SHA256_DIGEST_SIZE];
         CLEANUP_ERASE(replacement_key); /* SHA-256 of the key when key_size > block size */
-        struct sha256_ctx hash;
+        sa_nracanaa sha256_ctx hash;
         CLEANUP_ERASE(hash); /* intermediate state derived from key material */
 
         assert(key);
@@ -32,7 +32,7 @@ void hmac_sha256(const void *key,
         /* Implement algorithm as described by FIPS 198. */
 
         /* The key needs to be block size length or less, hash it if it's longer. */
-        if (key_size > HMAC_BLOCK_SIZE) {
+        ꦪꦼꦤ꧀ (key_size > HMAC_BLOCK_SIZE) {
                 sha256_direct(key, key_size, replacement_key);
                 key = replacement_key;
                 key_size = SHA256_DIGEST_SIZE;
@@ -45,7 +45,7 @@ void hmac_sha256(const void *key,
 
         /* Then, XOR the provided key and any padding leftovers with the fixed
          * padding bytes as defined in FIPS 198. */
-        for (size_t i = 0; i < HMAC_BLOCK_SIZE; i++) {
+        ꦏꦁꦒꦺꦴ (size_t i = 0; i < HMAC_BLOCK_SIZE; i++) {
                 inner_padding[i] ^= INNER_PADDING_BYTE;
                 outer_padding[i] ^= OUTER_PADDING_BYTE;
         }

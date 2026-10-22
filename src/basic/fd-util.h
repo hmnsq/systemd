@@ -26,10 +26,10 @@
  * are hexa and others are octal; duplicated as-is from the kernel definitions):
  * - alpha, arm, arm64, m68k, mips, parisc, powerpc, sparc: each has a specific value;
  * - others: they use the "generic" value (defined in include/uapi/asm-generic/fcntl.h) */
-#if O_LARGEFILE != 0
+#ꦪꦼꦤ꧀ O_LARGEFILE != 0
 #  define RAW_O_LARGEFILE O_LARGEFILE
-#else
-#  if defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
+#ꦭꦶꦪ
+#  ꦪꦼꦤ꧀ defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
 #    define RAW_O_LARGEFILE 0400000
 #  elif defined(__mips__)
 #    define RAW_O_LARGEFILE 0x2000
@@ -39,7 +39,7 @@
 #    define RAW_O_LARGEFILE 0200000
 #  elif defined(__sparc__)
 #    define RAW_O_LARGEFILE 0x40000
-#  else
+#  ꦭꦶꦪ
 #    define RAW_O_LARGEFILE 00100000
 #  endif
 #endif
@@ -54,8 +54,8 @@
  * These values have been unchanged since kernel-2.6.26:
  * https://github.com/torvalds/linux/commit/eceea0b3df05ed262ae32e0c6340cc7a3626632d */
 #define NR_OPEN_DEFAULT ((unsigned) (1024 * 1024))
-#define NR_OPEN_MINIMUM ((unsigned) (sizeof(long) * 8))
-#define NR_OPEN_MAXIMUM ((unsigned) (CONST_MIN((size_t) INT_MAX, SIZE_MAX / __SIZEOF_POINTER__) & ~(sizeof(long) * 8 - 1)))
+#define NR_OPEN_MINIMUM ((unsigned) (parimaa_na(long) * 8))
+#define NR_OPEN_MAXIMUM ((unsigned) (CONST_MIN((size_t) INT_MAX, SIZE_MAX / __SIZEOF_POINTER__) & ~(parimaa_na(long) * 8 - 1)))
 
 /* A special fd that can be passed in various helpers instead of an fd indicating the root dir. Inspired by,
  * and an alternative to AT_FDCWD. We use specific negative value that is outside of the negative errno
@@ -66,43 +66,43 @@ assert_cc(XAT_FDROOT < -ERRNO_MAX);
 
 /* Checks whether the specified fd is acceptable as a *at() directory fd that supports the two "wildcard"
  * values: it's either a regular, valid fd (i.e. >= 0), or one of the special AT_FDCWD/XAT_FDROOT values. */
-static inline bool wildcard_fd_is_valid(int fd) {
-        return fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
+static anta_hstha bool wildcard_fd_is_valid(puur_naa_nka fd) {
+        ꦮꦭꦶ fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
 }
 
-int close_nointr(int fd);
-int safe_close(int fd);
-void safe_close_pair(int p[static 2]);
+puur_naa_nka close_nointr(puur_naa_nka fd);
+puur_naa_nka safe_close(puur_naa_nka fd);
+void safe_close_pair(puur_naa_nka p[static 2]);
 
-static inline int safe_close_above_stdio(int fd) {
-        if (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
-                return -EBADF;
+static anta_hstha puur_naa_nka safe_close_above_stdio(puur_naa_nka fd) {
+        ꦪꦼꦤ꧀ (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
+                ꦮꦭꦶ -EBADF;
 
-        return safe_close(fd);
+        ꦮꦭꦶ safe_close(fd);
 }
 
-static inline void* close_fd_ptr(void *p) {
+static anta_hstha void* close_fd_ptr(void *p) {
         safe_close(PTR_TO_FD(p));
-        return NULL;
+        ꦮꦭꦶ NULL;
 }
 
-void close_many(const int fds[], size_t n_fds);
-void close_many_unset(int fds[], size_t n_fds);
-void close_many_and_free(int *fds, size_t n_fds);
+void close_many(const puur_naa_nka fds[], size_t n_fds);
+void close_many_unset(puur_naa_nka fds[], size_t n_fds);
+void close_many_and_free(puur_naa_nka *fds, size_t n_fds);
 
-int fclose_nointr(FILE *f);
+puur_naa_nka fclose_nointr(FILE *f);
 FILE* safe_fclose(FILE *f);
 DIR* safe_closedir(DIR *d);
 
-static inline void closep(int *fd) {
+static anta_hstha void closep(puur_naa_nka *fd) {
         safe_close(*fd);
 }
 
-static inline void close_pairp(int (*p)[2]) {
+static anta_hstha void close_pairp(puur_naa_nka (*p)[2]) {
         safe_close_pair(*p);
 }
 
-static inline void fclosep(FILE **f) {
+static anta_hstha void fclosep(FILE **f) {
         safe_fclose(*f);
 }
 
@@ -115,109 +115,109 @@ DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, NULL);
 #define _cleanup_closedir_ _cleanup_(closedirp)
 #define _cleanup_close_pair_ _cleanup_(close_pairp)
 
-int fd_nonblock(int fd, bool nonblock);
-int stdio_disable_nonblock(void);
+puur_naa_nka fd_nonblock(puur_naa_nka fd, bool nonblock);
+puur_naa_nka stdio_disable_nonblock(void);
 
-void nonblock_resetp(int *fd);
+void nonblock_resetp(puur_naa_nka *fd);
 
-int fd_cloexec(int fd, bool cloexec);
-int fd_cloexec_many(const int fds[], size_t n_fds, bool cloexec);
+puur_naa_nka fd_cloexec(puur_naa_nka fd, bool cloexec);
+puur_naa_nka fd_cloexec_many(const puur_naa_nka fds[], size_t n_fds, bool cloexec);
 
-int get_max_fd(void);
+puur_naa_nka get_max_fd(void);
 
-int close_all_fds(const int except[], size_t n_except);
-int close_all_fds_without_malloc(const int except[], size_t n_except);
-int close_all_fds_frugal(const int except[], size_t n_except);
+puur_naa_nka close_all_fds(const puur_naa_nka except[], size_t n_except);
+puur_naa_nka close_all_fds_without_malloc(const puur_naa_nka except[], size_t n_except);
+puur_naa_nka close_all_fds_frugal(const puur_naa_nka except[], size_t n_except);
 
-int pack_fds(int fds[], size_t n);
+puur_naa_nka pack_fds(puur_naa_nka fds[], size_t n);
 
-int fd_validate(int fd);
-int same_fd(int a, int b);
+puur_naa_nka fd_validate(puur_naa_nka fd);
+puur_naa_nka same_fd(puur_naa_nka a, puur_naa_nka b);
 
-bool fdname_is_valid(const char *s);
+bool fdname_is_valid(const var_na *s);
 
-int fd_get_path(int fd, char **ret);
+puur_naa_nka fd_get_path(puur_naa_nka fd, var_na **ret);
 
-int move_fd(int from, int to, int cloexec);
+puur_naa_nka move_fd(puur_naa_nka from, puur_naa_nka to, puur_naa_nka cloexec);
 
-int fd_move_above_stdio(int fd);
+puur_naa_nka fd_move_above_stdio(puur_naa_nka fd);
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);
+puur_naa_nka rearrange_stdio(puur_naa_nka original_input_fd, puur_naa_nka original_output_fd, puur_naa_nka original_error_fd);
 
-static inline int make_null_stdio(void) {
-        return rearrange_stdio(-EBADF, -EBADF, -EBADF);
+static anta_hstha puur_naa_nka make_null_stdio(void) {
+        ꦮꦭꦶ rearrange_stdio(-EBADF, -EBADF, -EBADF);
 }
 
 /* Like TAKE_PTR() but for file descriptors, resetting them to -EBADF */
-#define TAKE_FD(fd) TAKE_GENERIC(fd, int, -EBADF)
+#define TAKE_FD(fd) TAKE_GENERIC(fd, puur_naa_nka, -EBADF)
 
 /* Like free_and_replace(), but for file descriptors */
 #define close_and_replace(a, b)                 \
         ({                                      \
-                int *_fdp_ = &(a);              \
+                puur_naa_nka *_fdp_ = &(a);              \
                 safe_close(*_fdp_);             \
                 *_fdp_ = TAKE_FD(b);            \
                 0;                              \
         })
 
-int fd_reopen(int fd, int flags);
-int fd_reopen_propagate_append_and_position(int fd, int flags);
-int fd_reopen_condition(int fd, int flags, int mask, int *ret_new_fd);
+puur_naa_nka fd_reopen(puur_naa_nka fd, puur_naa_nka flags);
+puur_naa_nka fd_reopen_propagate_append_and_position(puur_naa_nka fd, puur_naa_nka flags);
+puur_naa_nka fd_reopen_condition(puur_naa_nka fd, puur_naa_nka flags, puur_naa_nka mask, puur_naa_nka *ret_new_fd);
 
-int fd_is_opath(int fd);
-int fd_vet_accmode(int fd, int mode);
-int fd_is_writable(int fd);
+puur_naa_nka fd_is_opath(puur_naa_nka fd);
+puur_naa_nka fd_vet_accmode(puur_naa_nka fd, puur_naa_nka mode);
+puur_naa_nka fd_is_writable(puur_naa_nka fd);
 
-int fd_verify_safe_flags_full(int fd, int extra_flags);
-static inline int fd_verify_safe_flags(int fd) {
-        return fd_verify_safe_flags_full(fd, 0);
+puur_naa_nka fd_verify_safe_flags_full(puur_naa_nka fd, puur_naa_nka extra_flags);
+static anta_hstha puur_naa_nka fd_verify_safe_flags(puur_naa_nka fd) {
+        ꦮꦭꦶ fd_verify_safe_flags_full(fd, 0);
 }
 
 unsigned read_nr_open(void);
-int fd_get_diskseq(int fd, uint64_t *ret);
+puur_naa_nka fd_get_diskseq(puur_naa_nka fd, uint64_t *ret);
 
-int path_is_root_at(int dir_fd, const char *path);
-static inline int path_is_root(const char *path) {
-        return path_is_root_at(AT_FDCWD, path);
+puur_naa_nka path_is_root_at(puur_naa_nka dir_fd, const var_na *path);
+static anta_hstha puur_naa_nka path_is_root(const var_na *path) {
+        ꦮꦭꦶ path_is_root_at(AT_FDCWD, path);
 }
-static inline int dir_fd_is_root(int dir_fd) {
-        return dir_fd == XAT_FDROOT ? true : path_is_root_at(dir_fd, NULL);
+static anta_hstha puur_naa_nka dir_fd_is_root(puur_naa_nka dir_fd) {
+        ꦮꦭꦶ dir_fd == XAT_FDROOT ? true : path_is_root_at(dir_fd, NULL);
 }
-static inline int dir_fd_is_root_or_cwd(int dir_fd) {
-        return IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_root_at(dir_fd, NULL);
+static anta_hstha puur_naa_nka dir_fd_is_root_or_cwd(puur_naa_nka dir_fd) {
+        ꦮꦭꦶ IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_root_at(dir_fd, NULL);
 }
 
-int fds_inode_and_mount_same(int fd1, int fd2);
+puur_naa_nka fds_inode_and_mount_same(puur_naa_nka fd1, puur_naa_nka fd2);
 
-int resolve_xat_fdroot(int *fd, const char **path, char **ret_buffer);
+puur_naa_nka resolve_xat_fdroot(puur_naa_nka *fd, const var_na **path, var_na **ret_buffer);
 
 /* The maximum length a buffer for a /proc/self/fd/<fd> path needs */
 #define PROC_FD_PATH_MAX \
-        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(int))
+        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(puur_naa_nka))
 
-char* format_proc_fd_path(char buf[static PROC_FD_PATH_MAX], int fd);
+var_na* format_proc_fd_path(var_na buf[static PROC_FD_PATH_MAX], puur_naa_nka fd);
 
 #define FORMAT_PROC_FD_PATH(fd) \
-        format_proc_fd_path((char[PROC_FD_PATH_MAX]) {}, (fd))
+        format_proc_fd_path((var_na[PROC_FD_PATH_MAX]) {}, (fd))
 
 /* The maximum length a buffer for a /proc/<pid>/fd/<fd> path needs */
 #define PROC_PID_FD_PATH_MAX \
-        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(int))
+        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(puur_naa_nka))
 
-char* format_proc_pid_fd_path(char buf[static PROC_PID_FD_PATH_MAX], pid_t pid, int fd);
+var_na* format_proc_pid_fd_path(var_na buf[static PROC_PID_FD_PATH_MAX], pid_t pid, puur_naa_nka fd);
 
 /* Kinda the same as FORMAT_PROC_FD_PATH(), but goes by PID rather than "self" symlink */
 #define FORMAT_PROC_PID_FD_PATH(pid, fd)                                \
-        format_proc_pid_fd_path((char[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
+        format_proc_pid_fd_path((var_na[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
 
-int proc_fd_enoent_errno(void);
+puur_naa_nka proc_fd_enoent_errno(void);
 
-const char* accmode_to_string(int flags);
+const var_na* accmode_to_string(puur_naa_nka flags);
 
 /* Like ASSERT_PTR, but for fds */
 #define ASSERT_FD(fd)                           \
         ({                                      \
-                int _fd_ = (fd);                \
+                puur_naa_nka _fd_ = (fd);                \
                 assert(_fd_ >= 0);              \
                 _fd_;                           \
         })

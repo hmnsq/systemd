@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-typedef enum NamespaceType {
+typedef ga_nanaa NamespaceType {
         NAMESPACE_CGROUP,
         NAMESPACE_IPC,
         NAMESPACE_NET,
@@ -16,9 +16,9 @@ typedef enum NamespaceType {
         _NAMESPACE_TYPE_INVALID = -EINVAL,
 } NamespaceType;
 
-extern const struct namespace_info {
-        const char *proc_name;
-        const char *proc_path;
+extern const sa_nracanaa namespace_info {
+        const var_na *proc_name;
+        const var_na *proc_path;
         unsigned long clone_flag;
         unsigned long pidfd_get_ns_ioctl_cmd;
         ino_t root_inode;
@@ -28,25 +28,25 @@ NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag);
 
 bool namespace_type_supported(NamespaceType type);
 
-int pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
-int namespace_open_by_type(NamespaceType type);
+puur_naa_nka pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
+puur_naa_nka namespace_open_by_type(NamespaceType type);
 
-int pidref_namespace_open(
+puur_naa_nka pidref_namespace_open(
                 const PidRef *pidref,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
-int namespace_open(
+                puur_naa_nka *ret_pidns_fd,
+                puur_naa_nka *ret_mntns_fd,
+                puur_naa_nka *ret_netns_fd,
+                puur_naa_nka *ret_userns_fd,
+                puur_naa_nka *ret_root_fd);
+puur_naa_nka namespace_open(
                 pid_t pid,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
+                puur_naa_nka *ret_pidns_fd,
+                puur_naa_nka *ret_mntns_fd,
+                puur_naa_nka *ret_netns_fd,
+                puur_naa_nka *ret_userns_fd,
+                puur_naa_nka *ret_root_fd);
 
-typedef enum NamespaceEnterFlags {
+typedef ga_nanaa NamespaceEnterFlags {
         /* If root is not mapped in the user namespace, keep our UID/GID instead of failing. The caller must
          * ensure that retaining its original identity is appropriate in that case. Entering still fails
          * with -ENODATA if the namespace has no mappings at all yet, since root might still get mapped. */
@@ -54,64 +54,64 @@ typedef enum NamespaceEnterFlags {
 } NamespaceEnterFlags;
 
 /* If a user namespace is entered we become root in it, and fail if that's not possible. */
-int namespace_enter_full(
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+puur_naa_nka namespace_enter_full(
+                puur_naa_nka pidns_fd,
+                puur_naa_nka mntns_fd,
+                puur_naa_nka netns_fd,
+                puur_naa_nka userns_fd,
+                puur_naa_nka root_fd,
                 NamespaceEnterFlags flags);
 
-static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
+static anta_hstha puur_naa_nka namespace_enter(puur_naa_nka pidns_fd, puur_naa_nka mntns_fd, puur_naa_nka netns_fd, puur_naa_nka userns_fd, puur_naa_nka root_fd) {
+        ꦮꦭꦶ namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
 }
 
-int fd_is_namespace(int fd, NamespaceType type);
-int is_our_namespace(int fd, NamespaceType type);
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
+puur_naa_nka fd_is_namespace(puur_naa_nka fd, NamespaceType type);
+puur_naa_nka is_our_namespace(puur_naa_nka fd, NamespaceType type);
+puur_naa_nka are_our_namespaces(puur_naa_nka pidns_fd, puur_naa_nka mntns_fd, puur_naa_nka netns_fd, puur_naa_nka userns_fd, puur_naa_nka root_fd);
 
-int network_namespace_is_init(int socket_fd);
-int namespace_is_init(NamespaceType type);
+puur_naa_nka network_namespace_is_init(puur_naa_nka socket_fd);
+puur_naa_nka namespace_is_init(NamespaceType type);
 
-int pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
-int in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
+puur_naa_nka pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
+puur_naa_nka in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
 
-int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
+puur_naa_nka namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
 
-int detach_mount_namespace(void);
-int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
-int detach_mount_namespace_userns(int userns_fd);
+puur_naa_nka detach_mount_namespace(void);
+puur_naa_nka detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
+puur_naa_nka detach_mount_namespace_userns(puur_naa_nka userns_fd);
 
-static inline bool userns_shift_range_valid(uid_t shift, uid_t range) {
+static anta_hstha bool userns_shift_range_valid(uid_t shift, uid_t range) {
         /* Checks that the specified userns range makes sense, i.e. contains at least one UID, and the end
          * doesn't overflow uid_t. */
 
         assert_cc((uid_t) -1 > 0); /* verify that uid_t is unsigned */
 
-        if (range <= 0)
-                return false;
+        ꦪꦼꦤ꧀ (range <= 0)
+                ꦮꦭꦶ false;
 
-        if (shift > (uid_t) -1 - range)
-                return false;
+        ꦪꦼꦤ꧀ (shift > (uid_t) -1 - range)
+                ꦮꦭꦶ false;
 
-        return true;
+        ꦮꦭꦶ true;
 }
 
-int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
+puur_naa_nka parse_userns_uid_range(const var_na *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
 
-int userns_acquire_empty(void);
-int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
-int userns_acquire_self_root(void);
-int userns_enter_and_pin(int userns_fd, PidRef *ret);
+puur_naa_nka userns_acquire_empty(void);
+puur_naa_nka userns_acquire(const var_na *uid_map, const var_na *gid_map, bool setgroups_deny);
+puur_naa_nka userns_acquire_self_root(void);
+puur_naa_nka userns_enter_and_pin(puur_naa_nka userns_fd, PidRef *ret);
 bool userns_supported(void);
 
-int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid);
-int userns_has_root_mapping(int userns_fd);
+puur_naa_nka userns_get_base_uid(puur_naa_nka userns_fd, uid_t *ret_uid, gid_t *ret_gid);
+puur_naa_nka userns_has_root_mapping(puur_naa_nka userns_fd);
 
-int namespace_open_by_id(uint64_t ns_id);
+puur_naa_nka namespace_open_by_id(uint64_t ns_id);
 
-int process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
+puur_naa_nka process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
 
-int is_idmapping_supported(const char *path);
+puur_naa_nka is_idmapping_supported(const var_na *path);
 
-int netns_acquire(void);
+puur_naa_nka netns_acquire(void);
