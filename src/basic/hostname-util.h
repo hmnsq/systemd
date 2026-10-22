@@ -1,57 +1,57 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "strv.h"
+#ضمن "forward.h"
+#ضمن "strv.h"
 
 /* HOST_NAME_MAX should be 64 on linux, but musl uses the one by POSIX (255). */
 #define LINUX_HOST_NAME_MAX CONST_MIN((size_t) HOST_NAME_MAX, (size_t) 64)
 
-char* get_default_hostname_raw(void);
+حرف* get_default_hostname_raw(فراغ);
 
-bool valid_ldh_char(char c) _const_;
+bool valid_ldh_char(حرف c) _const_;
 
-typedef enum ValidHostnameFlags {
+تعريفنوع تعداد ValidHostnameFlags {
         VALID_HOSTNAME_TRAILING_DOT  = 1 << 0,   /* Accept trailing dot on multi-label names */
         VALID_HOSTNAME_DOT_HOST      = 1 << 1,   /* Accept ".host" as valid hostname */
         VALID_HOSTNAME_QUESTION_MARK = 1 << 2,   /* Accept "?" as place holder for hashed machine ID value */
         VALID_HOSTNAME_WORD_TOKEN    = 1 << 3,   /* Accept "$" as place holder for a word list substitution */
 } ValidHostnameFlags;
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) _pure_;
-char* hostname_cleanup(char *s);
+bool hostname_is_valid(ثابت حرف *s, ValidHostnameFlags flags) _pure_;
+حرف* hostname_cleanup(حرف *s);
 
-bool is_localhost(const char *hostname);
+bool is_localhost(ثابت حرف *hostname);
 
-static inline bool is_gateway_hostname(const char *hostname) {
+ساكن مضمن bool is_gateway_hostname(ثابت حرف *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "gateway" host. */
-        return STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
+        أرجع STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
 }
 
-static inline bool is_outbound_hostname(const char *hostname) {
+ساكن مضمن bool is_outbound_hostname(ثابت حرف *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "outbound" host. */
-        return STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
+        أرجع STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
 }
 
-static inline bool is_dns_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
+ساكن مضمن bool is_dns_stub_hostname(ثابت حرف *hostname) {
+        أرجع STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
 }
 
-static inline bool is_dns_proxy_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
+ساكن مضمن bool is_dns_proxy_stub_hostname(ثابت حرف *hostname) {
+        أرجع STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
 }
 
-const char* etc_hostname(void);
-const char* etc_machine_info(void);
+ثابت حرف* etc_hostname(فراغ);
+ثابت حرف* etc_machine_info(فراغ);
 
-int get_pretty_hostname(char **ret);
+صحيح get_pretty_hostname(حرف **ret);
 
-int machine_spec_valid(const char *s);
-int split_user_at_host(const char *s, char **ret_user, char **ret_host);
+صحيح machine_spec_valid(ثابت حرف *s);
+صحيح split_user_at_host(ثابت حرف *s, حرف **ret_user, حرف **ret_host);
 
 #define MACHINE_TAGS_MAX 1024U
 
-bool machine_tag_is_valid(const char *s);
-int machine_tag_list_is_valid(char **l);
-int machine_tags_from_string(const char *s, bool graceful, char ***ret);
-int machine_tags_from_strv(char **l, bool graceful, char ***ret);
+bool machine_tag_is_valid(ثابت حرف *s);
+صحيح machine_tag_list_is_valid(حرف **l);
+صحيح machine_tags_from_string(ثابت حرف *s, bool graceful, حرف ***ret);
+صحيح machine_tags_from_strv(حرف **l, bool graceful, حرف ***ret);
