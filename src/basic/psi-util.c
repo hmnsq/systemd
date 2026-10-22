@@ -14,90 +14,90 @@
 #include "string-util.h"
 #include "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
+පූර්ණ_සංඛ්‍යා read_resource_pressure(const var_na *path, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ var_na *line = NULL;
         _cleanup_fclose_ FILE *f = NULL;
         unsigned field_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        const var_na *cline;
+        var_na *word;
+        පූර්ණ_සංඛ්‍යා r;
 
         assert(path);
         assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
         assert(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        const var_na *t = ASSERT_PTR(pressure_type_to_string(type));
 
         r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        නම් (r < 0)
+                ආපසු r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        සඳහා (;;) {
+                _cleanup_free_ var_na *l = NULL;
+                var_na *w;
 
                 r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                නම් (r < 0)
+                        ආපසු r;
+                නම් (r == 0)
+                        bha_nga;
 
                 w = first_word(l, t);
-                if (w) {
+                නම් (w) {
                         line = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        bha_nga;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        නම් (!line)
+                ආපසු -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        අතරතුර ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
+                _cleanup_free_ var_na *w = word;
+                const var_na *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                නම් ((v = startswith(w, "avg10="))) {
+                        නම් (field_filled & (1U << 0))
+                                ආපසු -EINVAL;
 
                         field_filled |= 1U << 0;
                         r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                } නැතහොත් නම් ((v = startswith(w, "avg60="))) {
+                        නම් (field_filled & (1U << 1))
+                                ආපසු -EINVAL;
 
                         field_filled |= 1U << 1;
                         r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                } නැතහොත් නම් ((v = startswith(w, "avg300="))) {
+                        නම් (field_filled & (1U << 2))
+                                ආපසු -EINVAL;
 
                         field_filled |= 1U << 2;
                         r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                } නැතහොත් නම් ((v = startswith(w, "total="))) {
+                        නම් (field_filled & (1U << 3))
+                                ආපසු -EINVAL;
 
                         field_filled |= 1U << 3;
                         r = safe_atou64(v, &rp.total);
-                } else
+                } නැතහොත්
                         continue;
 
-                if (r < 0)
-                        return r;
+                නම් (r < 0)
+                        ආපසු r;
         }
 
-        if (r < 0)
-                return r;
+        නම් (r < 0)
+                ආපසු r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        නම් (field_filled != 15U)
+                ආපසු -EINVAL;
 
         *ret = rp;
-        return 0;
+        ආපසු 0;
 }
 
 const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
@@ -118,7 +118,7 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
+static const var_na* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
         [PRESSURE_MEMORY] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
@@ -126,30 +126,30 @@ static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+static const var_na* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
         [PRESSURE_TYPE_FULL] = "full",
 };
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+පූර්ණ_සංඛ්‍යා is_pressure_supported(void) {
+        static thread_local පූර්ණ_සංඛ්‍යා cached = -1;
+        පූර්ණ_සංඛ්‍යා r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        නම් (cached >= 0)
+                ආපසු cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
                 r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                නම් (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        ආපසු (cached = false);
+                නම් (r < 0)
+                        ආපසු r;
         }
 
-        return (cached = true);
+        ආපසු (cached = true);
 }

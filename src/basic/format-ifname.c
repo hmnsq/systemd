@@ -4,35 +4,35 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(පූර්ණ_සංඛ්‍යා) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+පූර්ණ_සංඛ්‍යා format_ifname_full(පූර්ණ_සංඛ්‍යා ifindex, FormatIfnameFlag flag, var_na buf[static IF_NAMESIZE]) {
+        නම් (ifindex <= 0)
+                ආපසු -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        නම් (if_indextoname(ifindex, buf))
+                ආපසු 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        නම් (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                ආපසු -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        නම් (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        නැතහොත්
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        ආපසු 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
-        char buf[IF_NAMESIZE];
-        int r;
+පූර්ණ_සංඛ්‍යා format_ifname_full_alloc(පූර්ණ_සංඛ්‍යා ifindex, FormatIfnameFlag flag, var_na **ret) {
+        var_na buf[IF_NAMESIZE];
+        පූර්ණ_සංඛ්‍යා r;
 
         assert(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        නම් (r < 0)
+                ආපසු r;
 
-        return strdup_to(ret, buf);
+        ආපසු strdup_to(ret, buf);
 }

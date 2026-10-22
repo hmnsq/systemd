@@ -6,4 +6,4 @@
 void sigbus_install(void);
 void sigbus_reset(void);
 
-int sigbus_pop(void **ret);
+පූර්ණ_සංඛ්‍යා sigbus_pop(void **ret);

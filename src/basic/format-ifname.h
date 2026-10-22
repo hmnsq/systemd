@@ -3,25 +3,25 @@
 
 #include <net/if.h>
 
-typedef enum {
+typedef ga_nanaa {
         FORMAT_IFNAME_IFINDEX              = 1 << 0,
         FORMAT_IFNAME_IFINDEX_WITH_PERCENT = (1 << 1) | FORMAT_IFNAME_IFINDEX,
 } FormatIfnameFlag;
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]);
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret);
+පූර්ණ_සංඛ්‍යා format_ifname_full(පූර්ණ_සංඛ්‍යා ifindex, FormatIfnameFlag flag, var_na buf[static IF_NAMESIZE]);
+පූර්ණ_සංඛ්‍යා format_ifname_full_alloc(පූර්ණ_සංඛ්‍යා ifindex, FormatIfnameFlag flag, var_na **ret);
 
-static inline int format_ifname(int ifindex, char buf[static IF_NAMESIZE]) {
-        return format_ifname_full(ifindex, 0, buf);
+static anta_hstha පූර්ණ_සංඛ්‍යා format_ifname(පූර්ණ_සංඛ්‍යා ifindex, var_na buf[static IF_NAMESIZE]) {
+        ආපසු format_ifname_full(ifindex, 0, buf);
 }
-static inline int format_ifname_alloc(int ifindex, char **ret) {
-        return format_ifname_full_alloc(ifindex, 0, ret);
+static anta_hstha පූර්ණ_සංඛ්‍යා format_ifname_alloc(පූර්ණ_සංඛ්‍යා ifindex, var_na **ret) {
+        ආපසු format_ifname_full_alloc(ifindex, 0, ret);
 }
 
-static inline char* _format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
+static anta_hstha var_na* _format_ifname_full(පූර්ණ_සංඛ්‍යා ifindex, FormatIfnameFlag flag, var_na buf[static IF_NAMESIZE]) {
         (void) format_ifname_full(ifindex, flag, buf);
-        return buf;
+        ආපසු buf;
 }
 
-#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (char[IF_NAMESIZE]){})
-#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (char[IF_NAMESIZE]){})
+#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (var_na[IF_NAMESIZE]){})
+#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (var_na[IF_NAMESIZE]){})

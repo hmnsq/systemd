@@ -9,56 +9,56 @@
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
         assert(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        නම් (!ratelimit_configured(rl))
+                ආපසු true;
 
-        if (rl->begin <= 0 ||
+        නම් (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
                 rl->num = 1;     /* Reset counter */
-                return true;
+                ආපසු true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        නම් (_unlikely_(rl->num == UINT_MAX))
+                ආපසු false;
 
         rl->num++;
-        return rl->num <= rl->burst;
+        ආපසු rl->num <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
         assert(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        නම් (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                ආපසු true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        ආපසු ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
 unsigned ratelimit_num_dropped(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        නම් (rl->num == UINT_MAX) /* overflow, return as special case */
+                ආපසු UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        ආපසු LESS_BY(rl->num, rl->burst);
 }
 
 usec_t ratelimit_end(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        නම් (rl->begin == 0)
+                ආපසු 0;
 
-        return usec_add(rl->begin, rl->interval);
+        ආපසු usec_add(rl->begin, rl->interval);
 }
 
 usec_t ratelimit_left(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        නම් (rl->begin == 0)
+                ආපසු 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        ආපසු usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

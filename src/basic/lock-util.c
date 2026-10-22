@@ -19,27 +19,27 @@
 #include "string-util.h"
 #include "time-util.h"
 
-int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret) {
-        _cleanup_close_ int fd = -EBADF, dfd = -EBADF;
-        _cleanup_free_ char *t = NULL;
+පූර්ණ_සංඛ්‍යා make_lock_file_at(පූර්ණ_සංඛ්‍යා dir_fd, const var_na *p, පූර්ණ_සංඛ්‍යා operation, LockFile *ret) {
+        _cleanup_close_ පූර්ණ_සංඛ්‍යා fd = -EBADF, dfd = -EBADF;
+        _cleanup_free_ var_na *t = NULL;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(p);
         assert(IN_SET(operation & ~LOCK_NB, LOCK_EX, LOCK_SH));
         assert(ret);
 
-        if (isempty(p))
-                return -EINVAL;
+        නම් (isempty(p))
+                ආපසු -EINVAL;
 
         /* We use UNPOSIX locks as they have nice semantics, and are mostly compatible with NFS. */
 
         dfd = fd_reopen(dir_fd, O_CLOEXEC|O_PATH|O_DIRECTORY);
-        if (dfd < 0)
-                return dfd;
+        නම් (dfd < 0)
+                ආපසු dfd;
 
         t = strdup(p);
-        if (!t)
-                return -ENOMEM;
+        නම් (!t)
+                ආපසු -ENOMEM;
 
         fd = xopenat_lock_full(dfd,
                                p,
@@ -48,8 +48,8 @@ int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret) {
                                0600,
                                LOCK_UNPOSIX,
                                operation);
-        if (fd < 0)
-                return fd == -EAGAIN ? -EBUSY : fd;
+        නම් (fd < 0)
+                ආපසු fd == -EAGAIN ? -EBUSY : fd;
 
         *ret = (LockFile) {
                 .dir_fd = TAKE_FD(dfd),
@@ -58,46 +58,46 @@ int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret) {
                 .operation = operation,
         };
 
-        return 0;
+        ආපසු 0;
 }
 
-int make_lock_file_for(const char *p, int operation, LockFile *ret) {
-        _cleanup_free_ char *fn = NULL, *dn = NULL, *t = NULL;
-        int r;
+පූර්ණ_සංඛ්‍යා make_lock_file_for(const var_na *p, පූර්ණ_සංඛ්‍යා operation, LockFile *ret) {
+        _cleanup_free_ var_na *fn = NULL, *dn = NULL, *t = NULL;
+        පූර්ණ_සංඛ්‍යා r;
 
         assert(p);
         assert(ret);
 
         r = path_split_prefix_filename(p, &dn, &fn);
-        if (r < 0)
-                return r;
+        නම් (r < 0)
+                ආපසු r;
 
-        if (dn)
+        නම් (dn)
                 t = strjoin(dn, "/.#", fn, ".lck");
-        else
+        නැතහොත්
                 t = strjoin(".#", fn, ".lck");
-        if (!t)
-                return -ENOMEM;
+        නම් (!t)
+                ආපසු -ENOMEM;
 
-        return make_lock_file(t, operation, ret);
+        ආපසු make_lock_file(t, operation, ret);
 }
 
 void release_lock_file(LockFile *f) {
-        if (!f)
-                return;
+        නම් (!f)
+                ආපසු;
 
-        if (f->path) {
+        නම් (f->path) {
 
                 /* If we are the exclusive owner we can safely delete
                  * the lock file itself. If we are not the exclusive
                  * owner, we can try becoming it. */
 
-                if (f->fd >= 0 &&
+                නම් (f->fd >= 0 &&
                     (f->operation & ~LOCK_NB) == LOCK_SH &&
                     unposix_lock(f->fd, LOCK_EX|LOCK_NB) >= 0)
                         f->operation = LOCK_EX|LOCK_NB;
 
-                if ((f->operation & ~LOCK_NB) == LOCK_EX)
+                නම් ((f->operation & ~LOCK_NB) == LOCK_EX)
                         (void) unlinkat(f->dir_fd, f->path, 0);
 
                 f->path = mfree(f->path);
@@ -108,31 +108,31 @@ void release_lock_file(LockFile *f) {
         f->operation = 0;
 }
 
-static int fcntl_lock(int fd, int operation, bool ofd) {
-        int cmd, type, r;
+static පූර්ණ_සංඛ්‍යා fcntl_lock(පූර්ණ_සංඛ්‍යා fd, පූර්ණ_සංඛ්‍යා operation, bool ofd) {
+        පූර්ණ_සංඛ්‍යා cmd, type, r;
 
         assert(fd >= 0);
 
-        if (ofd)
+        නම් (ofd)
                 cmd = (operation & LOCK_NB) ? F_OFD_SETLK : F_OFD_SETLKW;
-        else
+        නැතහොත්
                 cmd = (operation & LOCK_NB) ? F_SETLK : F_SETLKW;
 
         switch (operation & ~LOCK_NB) {
-                case LOCK_EX:
+                pak_sa LOCK_EX:
                         type = F_WRLCK;
-                        break;
-                case LOCK_SH:
+                        bha_nga;
+                pak_sa LOCK_SH:
                         type = F_RDLCK;
-                        break;
-                case LOCK_UN:
+                        bha_nga;
+                pak_sa LOCK_UN:
                         type = F_UNLCK;
-                        break;
+                        bha_nga;
                 default:
                         assert_not_reached();
         }
 
-        r = RET_NERRNO(fcntl(fd, cmd, &(struct flock) {
+        r = RET_NERRNO(fcntl(fd, cmd, &(sa_nracanaa flock) {
                 .l_type = type,
                 .l_whence = SEEK_SET,
                 .l_start = 0,
@@ -146,59 +146,59 @@ static int fcntl_lock(int fd, int operation, bool ofd) {
          * F_SETLK that might return EACCES on some platforms (although the Linux implementation doesn't
          * seem to), as F_SETLKW and F_OFD_SETLKW block so this is not an issue, and F_OFD_SETLK is documented
          * to only return EAGAIN if the lock is already held. */
-        if ((operation & LOCK_NB) && r == -EACCES)
+        නම් ((operation & LOCK_NB) && r == -EACCES)
                 r = -EAGAIN;
 
-        return r;
+        ආපසු r;
 }
 
-int posix_lock(int fd, int operation) {
-        return fcntl_lock(fd, operation, /* ofd= */ false);
+පූර්ණ_සංඛ්‍යා posix_lock(පූර්ණ_සංඛ්‍යා fd, පූර්ණ_සංඛ්‍යා operation) {
+        ආපසු fcntl_lock(fd, operation, /* ofd= */ false);
 }
 
-int unposix_lock(int fd, int operation) {
-        return fcntl_lock(fd, operation, /* ofd= */ true);
+පූර්ණ_සංඛ්‍යා unposix_lock(පූර්ණ_සංඛ්‍යා fd, පූර්ණ_සංඛ්‍යා operation) {
+        ආපසු fcntl_lock(fd, operation, /* ofd= */ true);
 }
 
-void posix_unlockpp(int **fd) {
+void posix_unlockpp(පූර්ණ_සංඛ්‍යා **fd) {
         assert(fd);
 
-        if (!*fd || **fd < 0)
-                return;
+        නම් (!*fd || **fd < 0)
+                ආපසු;
 
         (void) fcntl_lock(**fd, LOCK_UN, /* ofd= */ false);
         *fd = NULL;
 }
 
-void unposix_unlockpp(int **fd) {
+void unposix_unlockpp(පූර්ණ_සංඛ්‍යා **fd) {
         assert(fd);
 
-        if (!*fd || **fd < 0)
-                return;
+        නම් (!*fd || **fd < 0)
+                ආපසු;
 
         (void) fcntl_lock(**fd, LOCK_UN, /* ofd= */ true);
         *fd = NULL;
 }
 
-int lock_generic(int fd, LockType type, int operation) {
+පූර්ණ_සංඛ්‍යා lock_generic(පූර්ණ_සංඛ්‍යා fd, LockType type, පූර්ණ_සංඛ්‍යා operation) {
         assert(fd >= 0);
 
         switch (type) {
-        case LOCK_NONE:
-                return 0;
-        case LOCK_BSD:
-                return RET_NERRNO(flock(fd, operation));
-        case LOCK_POSIX:
-                return posix_lock(fd, operation);
-        case LOCK_UNPOSIX:
-                return unposix_lock(fd, operation);
+        pak_sa LOCK_NONE:
+                ආපසු 0;
+        pak_sa LOCK_BSD:
+                ආපසු RET_NERRNO(flock(fd, operation));
+        pak_sa LOCK_POSIX:
+                ආපසු posix_lock(fd, operation);
+        pak_sa LOCK_UNPOSIX:
+                ආපසු unposix_lock(fd, operation);
         default:
                 assert_not_reached();
         }
 }
 
-int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeout) {
-        int r;
+පූර්ණ_සංඛ්‍යා lock_generic_with_timeout(පූර්ණ_සංඛ්‍යා fd, LockType type, පූර්ණ_සංඛ්‍යා operation, usec_t timeout) {
+        පූර්ණ_සංඛ්‍යා r;
 
         assert(fd >= 0);
 
@@ -210,23 +210,23 @@ int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeo
          * from any process that has access to the fd. POSIX locks OTOH are process-bound, and hence if we'd
          * acquire them in a child process they'd remain unlocked in the parent. */
 
-        if (type == LOCK_NONE)
-                return 0;
-        if (!IN_SET(type, LOCK_BSD, LOCK_UNPOSIX)) /* Not for POSIX locks, see above. */
-                return -EOPNOTSUPP;
+        නම් (type == LOCK_NONE)
+                ආපසු 0;
+        නම් (!IN_SET(type, LOCK_BSD, LOCK_UNPOSIX)) /* Not for POSIX locks, see above. */
+                ආපසු -EOPNOTSUPP;
 
         /* First, try without forking anything off */
         r = lock_generic(fd, type, operation | (timeout == USEC_INFINITY ? 0 : LOCK_NB));
-        if (r != -EAGAIN || timeout == 0 || FLAGS_SET(operation, LOCK_NB))
-                return r;
+        නම් (r != -EAGAIN || timeout == 0 || FLAGS_SET(operation, LOCK_NB))
+                ආපසු r;
 
         /* If that didn't work, try with a child */
         _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
         r = pidref_safe_fork("(sd-flock)", FORK_RESET_SIGNALS|FORK_DEATHSIG_SIGKILL, &pidref);
-        if (r < 0)
-                return log_error_errno(r, "Failed to flock block device in child process: %m");
-        if (r == 0) {
-                if (lock_generic(fd, type, operation) < 0) {
+        නම් (r < 0)
+                ආපසු log_error_errno(r, "Failed to flock block device in child process: %m");
+        නම් (r == 0) {
+                නම් (lock_generic(fd, type, operation) < 0) {
                         log_error_errno(errno, "Unable to get an exclusive lock on the device: %m");
                         _exit(EXIT_FAILURE);
                 }
@@ -236,22 +236,22 @@ int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeo
 
         siginfo_t status;
         r = pidref_wait_for_terminate_full(&pidref, timeout, &status);
-        if (r < 0)
-                return r;
+        නම් (r < 0)
+                ආපසු r;
 
         pidref_done(&pidref);
 
         switch (status.si_code) {
 
-        case CLD_EXITED:
-                if (status.si_status != EXIT_SUCCESS)
-                        return -EPROTO;
+        pak_sa CLD_EXITED:
+                නම් (status.si_status != EXIT_SUCCESS)
+                        ආපසු -EPROTO;
 
-                return 0;
+                ආපසු 0;
 
-        case CLD_KILLED:
-        case CLD_DUMPED:
-                return -EPROTO;
+        pak_sa CLD_KILLED:
+        pak_sa CLD_DUMPED:
+                ආපසු -EPROTO;
 
         default:
                 assert_not_reached();

@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-typedef enum ProcCmdlineFlags {
+typedef ga_nanaa ProcCmdlineFlags {
         PROC_CMDLINE_RD_STRICT          = 1 << 0, /* Only look at options with the "rd." prefix when in the initrd and only
                                                    * at options without the prefix when not in the initrd.
                                                    */
@@ -15,23 +15,23 @@ typedef enum ProcCmdlineFlags {
                                                    * when the key is not present on the command line. */
 } ProcCmdlineFlags;
 
-typedef int (*proc_cmdline_parse_t)(const char *key, const char *value, void *data);
+typedef පූර්ණ_සංඛ්‍යා (*proc_cmdline_parse_t)(const var_na *key, const var_na *value, void *data);
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret);
+පූර්ණ_සංඛ්‍යා proc_cmdline_filter_pid1_args(var_na **argv, var_na ***ret);
 
-int proc_cmdline(char **ret);
-int proc_cmdline_strv(char ***ret);
+පූර්ණ_සංඛ්‍යා proc_cmdline(var_na **ret);
+පූර්ණ_සංඛ්‍යා proc_cmdline_strv(var_na ***ret);
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse, void *userdata, ProcCmdlineFlags flags);
+පූර්ණ_සංඛ්‍යා proc_cmdline_parse(proc_cmdline_parse_t parse, void *userdata, ProcCmdlineFlags flags);
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value);
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret);
+පූර්ණ_සංඛ්‍යා proc_cmdline_get_key(const var_na *key, ProcCmdlineFlags flags, var_na **ret_value);
+පූර්ණ_සංඛ්‍යා proc_cmdline_get_bool(const var_na *key, ProcCmdlineFlags flags, bool *ret);
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...);
+පූර්ණ_සංඛ්‍යා proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...);
 #define proc_cmdline_get_key_many(flags, ...) proc_cmdline_get_key_many_internal(flags, __VA_ARGS__, NULL)
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix);
-bool proc_cmdline_key_streq(const char *x, const char *y);
+var_na* proc_cmdline_key_startswith(const var_na *s, const var_na *prefix);
+bool proc_cmdline_key_streq(const var_na *x, const var_na *y);
 
 /* A little helper call, to be used in proc_cmdline_parse_t callbacks */
-bool proc_cmdline_value_missing(const char *key, const char *value);
+bool proc_cmdline_value_missing(const var_na *key, const var_na *value);

@@ -38,7 +38,7 @@ pid_t raw_clone(unsigned long flags) {
         pid_t ret;
 
         assert((flags & (CLONE_VM|CLONE_PARENT_SETTID|CLONE_CHILD_SETTID|CLONE_CHILD_CLEARTID|CLONE_SETTLS|CLONE_PIDFD)) == 0);
-#if defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
+#නම් defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
         /* On s390/s390x and cris the order of the first and second arguments
          * of the raw clone() system call is reversed. */
         ret = (pid_t) syscall(__NR_clone, NULL, flags);
@@ -50,14 +50,14 @@ pid_t raw_clone(unsigned long flags) {
                  * %o1. Inline assembly is needed to get the flag returned
                  * in %o1.
                  */
-                int in_child, child_pid, error;
+                පූර්ණ_සංඛ්‍යා in_child, child_pid, error;
 
-                asm volatile("mov %3, %%g1\n\t"
+                asm ca_ncala("mov %3, %%g1\n\t"
                              "mov %4, %%o0\n\t"
                              "mov 0 , %%o1\n\t"
-#if defined(__arch64__)
+#නම් defined(__arch64__)
                              "t 0x6d\n\t"
-#else
+#නැතහොත්
                              "t 0x10\n\t"
 #endif
                              "addx %%g0, 0, %2\n\t"
@@ -67,18 +67,18 @@ pid_t raw_clone(unsigned long flags) {
                              "i"(__NR_clone), "r"(flags) :
                              "%o1", "%o0", "%g1", "cc" );
 
-                if (error) {
+                නම් (error) {
                         errno = child_pid;
                         ret = -1;
-                } else
+                } නැතහොත්
                         ret = in_child ? 0 : child_pid;
         }
-#else
+#නැතහොත්
         ret = (pid_t) syscall(__NR_clone, flags, NULL);
 #endif
 
-        if (ret == 0)
+        නම් (ret == 0)
                 reset_cached_pid();
 
-        return ret;
+        ආපසු ret;
 }

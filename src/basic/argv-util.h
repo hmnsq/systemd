@@ -3,15 +3,15 @@
 
 #include "forward.h"
 
-extern int saved_argc;
-extern char **saved_argv;
+extern පූර්ණ_සංඛ්‍යා saved_argc;
+extern var_na **saved_argv;
 
-void save_argc_argv(int argc, char **argv);
+void save_argc_argv(පූර්ණ_සංඛ්‍යා argc, var_na **argv);
 
-bool invoked_as(char *argv[], const char *token);
+bool invoked_as(var_na *argv[], const var_na *token);
 bool invoked_by_systemd(void) _const_;
 
-int rename_process_full(const char *comm, const char *invocation);
-static inline int rename_process(const char *name) {
-        return rename_process_full(name, name);
+පූර්ණ_සංඛ්‍යා rename_process_full(const var_na *comm, const var_na *invocation);
+static anta_hstha පූර්ණ_සංඛ්‍යා rename_process(const var_na *name) {
+        ආපසු rename_process_full(name, name);
 }

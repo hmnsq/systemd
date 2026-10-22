@@ -7,51 +7,51 @@
 /* HOST_NAME_MAX should be 64 on linux, but musl uses the one by POSIX (255). */
 #define LINUX_HOST_NAME_MAX CONST_MIN((size_t) HOST_NAME_MAX, (size_t) 64)
 
-char* get_default_hostname_raw(void);
+var_na* get_default_hostname_raw(void);
 
-bool valid_ldh_char(char c) _const_;
+bool valid_ldh_char(var_na c) _const_;
 
-typedef enum ValidHostnameFlags {
+typedef ga_nanaa ValidHostnameFlags {
         VALID_HOSTNAME_TRAILING_DOT  = 1 << 0,   /* Accept trailing dot on multi-label names */
         VALID_HOSTNAME_DOT_HOST      = 1 << 1,   /* Accept ".host" as valid hostname */
         VALID_HOSTNAME_QUESTION_MARK = 1 << 2,   /* Accept "?" as place holder for hashed machine ID value */
         VALID_HOSTNAME_WORD_TOKEN    = 1 << 3,   /* Accept "$" as place holder for a word list substitution */
 } ValidHostnameFlags;
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) _pure_;
-char* hostname_cleanup(char *s);
+bool hostname_is_valid(const var_na *s, ValidHostnameFlags flags) _pure_;
+var_na* hostname_cleanup(var_na *s);
 
-bool is_localhost(const char *hostname);
+bool is_localhost(const var_na *hostname);
 
-static inline bool is_gateway_hostname(const char *hostname) {
+static anta_hstha bool is_gateway_hostname(const var_na *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "gateway" host. */
-        return STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
+        ආපසු STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
 }
 
-static inline bool is_outbound_hostname(const char *hostname) {
+static anta_hstha bool is_outbound_hostname(const var_na *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "outbound" host. */
-        return STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
+        ආපසු STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
 }
 
-static inline bool is_dns_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
+static anta_hstha bool is_dns_stub_hostname(const var_na *hostname) {
+        ආපසු STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
 }
 
-static inline bool is_dns_proxy_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
+static anta_hstha bool is_dns_proxy_stub_hostname(const var_na *hostname) {
+        ආපසු STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
 }
 
-const char* etc_hostname(void);
-const char* etc_machine_info(void);
+const var_na* etc_hostname(void);
+const var_na* etc_machine_info(void);
 
-int get_pretty_hostname(char **ret);
+පූර්ණ_සංඛ්‍යා get_pretty_hostname(var_na **ret);
 
-int machine_spec_valid(const char *s);
-int split_user_at_host(const char *s, char **ret_user, char **ret_host);
+පූර්ණ_සංඛ්‍යා machine_spec_valid(const var_na *s);
+පූර්ණ_සංඛ්‍යා split_user_at_host(const var_na *s, var_na **ret_user, var_na **ret_host);
 
 #define MACHINE_TAGS_MAX 1024U
 
-bool machine_tag_is_valid(const char *s);
-int machine_tag_list_is_valid(char **l);
-int machine_tags_from_string(const char *s, bool graceful, char ***ret);
-int machine_tags_from_strv(char **l, bool graceful, char ***ret);
+bool machine_tag_is_valid(const var_na *s);
+පූර්ණ_සංඛ්‍යා machine_tag_list_is_valid(var_na **l);
+පූර්ණ_සංඛ්‍යා machine_tags_from_string(const var_na *s, bool graceful, var_na ***ret);
+පූර්ණ_සංඛ්‍යා machine_tags_from_strv(var_na **l, bool graceful, var_na ***ret);

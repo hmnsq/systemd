@@ -8,81 +8,81 @@
 #include "ordered-set.h"
 #include "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
+පූර්ණ_සංඛ්‍යා ordered_set_ensure_allocated(OrderedSet **s, const sa_nracanaa hash_ops *ops) {
         assert(s);
 
-        if (*s)
-                return 0;
+        නම් (*s)
+                ආපසු 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        නම් (!*s)
+                ආපසු -ENOMEM;
 
-        return 0;
+        ආපසු 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+පූර්ණ_සංඛ්‍යා ordered_set_ensure_put(OrderedSet **s, const sa_nracanaa hash_ops *ops, void *p) {
+        පූර්ණ_සංඛ්‍යා r;
 
         assert(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        නම් (r < 0)
+                ආපසු r;
 
-        return ordered_set_put(*s, p);
+        ආපසු ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+පූර්ණ_සංඛ්‍යා ordered_set_consume(OrderedSet *s, void *p) {
+        පූර්ණ_සංඛ්‍යා r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
+        නම් (r <= 0)
                 free(p);
 
-        return r;
+        ආපසු r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+පූර්ණ_සංඛ්‍යා ordered_set_put_strdup_full(OrderedSet **s, const sa_nracanaa hash_ops *hash_ops, const var_na *p) {
+        var_na *c;
+        පූර්ණ_සංඛ්‍යා r;
 
         assert(s);
         assert(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        නම් (r < 0)
+                ආපසු r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        නම් (ordered_set_contains(*s, p))
+                ආපසු 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        නම් (!c)
+                ආපසු -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        ආපසු ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+පූර්ණ_සංඛ්‍යා ordered_set_put_strdupv_full(OrderedSet **s, const sa_nracanaa hash_ops *hash_ops, var_na **l) {
+        පූර්ණ_සංඛ්‍යා r, ret = 0;
 
         assert(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                නම් (r < 0)
+                        ආපසු r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        ආපසු ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+පූර්ණ_සංඛ්‍යා ordered_set_put_string_set_full(OrderedSet **s, const sa_nracanaa hash_ops *hash_ops, OrderedSet *l) {
+        පූර්ණ_සංඛ්‍යා r, ret = 0;
+        var_na *p;
 
         assert(s);
 
@@ -90,24 +90,24 @@ int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                නම් (r < 0)
+                        ආපසු r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        ආපසු ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+void ordered_set_print(FILE *f, const var_na *field, OrderedSet *s) {
         bool space = false;
-        char *p;
+        var_na *p;
 
         assert(f);
         assert(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        නම් (ordered_set_isempty(s))
+                ආපසු;
 
         fputs(field, f);
 

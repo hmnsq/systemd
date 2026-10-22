@@ -3,12 +3,12 @@
 
 #include "forward.h"
 
-const char* af_to_name(int id) _const_;
-int af_from_name(const char *name) _pure_;
+const var_na* af_to_name(පූර්ණ_සංඛ්‍යා id) _const_;
+පූර්ණ_සංඛ්‍යා af_from_name(const var_na *name) _pure_;
 
-const char* af_to_name_short(int id) _const_;
+const var_na* af_to_name_short(පූර්ණ_සංඛ්‍යා id) _const_;
 
-const char* af_to_ipv4_ipv6(int id) _const_;
-int af_from_ipv4_ipv6(const char *af) _pure_;
+const var_na* af_to_ipv4_ipv6(පූර්ණ_සංඛ්‍යා id) _const_;
+පූර්ණ_සංඛ්‍යා af_from_ipv4_ipv6(const var_na *af) _pure_;
 
-int af_max(void) _const_;
+පූර්ණ_සංඛ්‍යා af_max(void) _const_;

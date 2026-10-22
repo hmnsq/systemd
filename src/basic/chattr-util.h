@@ -32,36 +32,36 @@
          FS_NOCOW_FL        |                   \
          FS_PROJINHERIT_FL)
 
-typedef enum ChattrApplyFlags {
+typedef ga_nanaa ChattrApplyFlags {
         CHATTR_FALLBACK_BITWISE       = 1 << 0,
         CHATTR_WARN_UNSUPPORTED_FLAGS = 1 << 1,
 } ChattrApplyFlags;
 
-int chattr_full(int dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
-static inline int chattr_at(int dir_fd, const char *path, unsigned value, unsigned mask) {
-        return chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
+පූර්ණ_සංඛ්‍යා chattr_full(පූර්ණ_සංඛ්‍යා dir_fd, const var_na *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
+static anta_hstha පූර්ණ_සංඛ්‍යා chattr_at(පූර්ණ_සංඛ්‍යා dir_fd, const var_na *path, unsigned value, unsigned mask) {
+        ආපසු chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_fd(int fd, unsigned value, unsigned mask) {
-        return chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
+static anta_hstha පූර්ණ_සංඛ්‍යා chattr_fd(පූර්ණ_සංඛ්‍යා fd, unsigned value, unsigned mask) {
+        ආපසු chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_path(const char *path, unsigned value, unsigned mask) {
-        return chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
+static anta_hstha පූර්ණ_සංඛ්‍යා chattr_path(const var_na *path, unsigned value, unsigned mask) {
+        ආපසු chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
 }
 
-int read_attr_fd(int fd, unsigned *ret);
-int read_attr_at(int dir_fd, const char *path, unsigned *ret);
-int read_fs_xattr_fd(int fd, uint32_t *ret_xflags, uint32_t *ret_projid);
+පූර්ණ_සංඛ්‍යා read_attr_fd(පූර්ණ_සංඛ්‍යා fd, unsigned *ret);
+පූර්ණ_සංඛ්‍යා read_attr_at(පූර්ණ_සංඛ්‍යා dir_fd, const var_na *path, unsigned *ret);
+පූර්ණ_සංඛ්‍යා read_fs_xattr_fd(පූර්ණ_සංඛ්‍යා fd, uint32_t *ret_xflags, uint32_t *ret_projid);
 
-int set_proj_id(int fd, uint32_t proj_id);
-int set_proj_id_recursive(int fd, uint32_t proj_id);
+පූර්ණ_සංඛ්‍යා set_proj_id(පූර්ණ_සංඛ්‍යා fd, uint32_t proj_id);
+පූර්ණ_සංඛ්‍යා set_proj_id_recursive(පූර්ණ_සංඛ්‍යා fd, uint32_t proj_id);
 
 /* Combination of chattr flags, that should be appropriate for secrets stored on disk: Secure Remove +
  * Exclusion from Dumping + Synchronous Writing (i.e. not caching in memory) + In-Place Updating (i.e. not
  * spurious copies). */
 #define CHATTR_SECRET_FLAGS (FS_SECRM_FL|FS_NODUMP_FL|FS_SYNC_FL|FS_NOCOW_FL)
 
-static inline int chattr_secret(int fd, ChattrApplyFlags flags) {
-        return chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
+static anta_hstha පූර්ණ_සංඛ්‍යා chattr_secret(පූර්ණ_සංඛ්‍යා fd, ChattrApplyFlags flags) {
+        ආපසු chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
 }
 
 bool inode_type_can_chattr(mode_t mode);
