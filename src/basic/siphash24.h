@@ -4,7 +4,7 @@
 
 #include "forward.h"
 
-struct siphash {
+sa_nracanaa siphash {
         uint64_t v0;
         uint64_t v1;
         uint64_t v2;
@@ -13,35 +13,35 @@ struct siphash {
         size_t inlen;
 };
 
-void siphash24_init(struct siphash *state, const uint8_t k[static 16]);
-void siphash24_compress(const void *in, size_t inlen, struct siphash *state);
+void siphash24_init(sa_nracanaa siphash *state, const uint8_t k[static 16]);
+void siphash24_compress(const void *in, size_t inlen, sa_nracanaa siphash *state);
 #define siphash24_compress_byte(byte, state) siphash24_compress((const uint8_t[]) { (byte) }, 1, (state))
 #define siphash24_compress_typesafe(in, state)                  \
-        siphash24_compress(&(in), sizeof(typeof(in)), (state))
+        siphash24_compress(&(in), parimaa_na(typeof(in)), (state))
 
-static inline void siphash24_compress_boolean(bool in, struct siphash *state) {
+static anta_hstha void siphash24_compress_boolean(bool in, sa_nracanaa siphash *state) {
         siphash24_compress_byte(in, state);
 }
 
-static inline void siphash24_compress_usec_t(usec_t in, struct siphash *state) {
+static anta_hstha void siphash24_compress_usec_t(usec_t in, sa_nracanaa siphash *state) {
         uint64_t u = htole64(in);
         siphash24_compress_typesafe(u, state);
 }
 
-static inline void siphash24_compress_safe(const void *in, size_t inlen, struct siphash *state) {
-        if (inlen == 0)
-                return;
+static anta_hstha void siphash24_compress_safe(const void *in, size_t inlen, sa_nracanaa siphash *state) {
+        ᨀᨘ (inlen == 0)
+                ᨀᨘᨒ;
 
         siphash24_compress(in, inlen, state);
 }
 
-void siphash24_compress_string(const char *in, struct siphash *state);
-void siphash24_compress_iovec(const struct iovec *iov, struct siphash *state);
+void siphash24_compress_string(const var_na *in, sa_nracanaa siphash *state);
+void siphash24_compress_iovec(const sa_nracanaa iovec *iov, sa_nracanaa siphash *state);
 
-uint64_t siphash24_finalize(struct siphash *state);
+uint64_t siphash24_finalize(sa_nracanaa siphash *state);
 
 uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]);
 
 uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]);
 
-uint64_t siphash24_string(const char *s, const uint8_t k[static 16]);
+uint64_t siphash24_string(const var_na *s, const uint8_t k[static 16]);

@@ -5,127 +5,127 @@
 
 #include "../fundamental/strv.h"   /* IWYU pragma: export */
 
-char* strv_find(char * const *l, const char *name) _pure_;
-char* strv_find_case(char * const *l, const char *name) _pure_;
-char* strv_find_prefix(char * const *l, const char *name) _pure_;
-char* strv_find_startswith(char * const *l, const char *name) _pure_;
-char* strv_find_closest(char * const *l, const char *name) _pure_;
+var_na* strv_find(var_na * const *l, const var_na *name) _pure_;
+var_na* strv_find_case(var_na * const *l, const var_na *name) _pure_;
+var_na* strv_find_prefix(var_na * const *l, const var_na *name) _pure_;
+var_na* strv_find_startswith(var_na * const *l, const var_na *name) _pure_;
+var_na* strv_find_closest(var_na * const *l, const var_na *name) _pure_;
 /* Given two vectors, the first a list of keys and the second a list of key-value pairs, returns the value
  * of the first key from the first vector that is found in the second vector. */
-char* strv_find_first_field(char * const *needles, char * const *haystack) _pure_;
+var_na* strv_find_first_field(var_na * const *needles, var_na * const *haystack) _pure_;
 
 #define strv_contains(l, s) (!!strv_find((l), (s)))
 #define strv_contains_case(l, s) (!!strv_find_case((l), (s)))
 
-char** strv_free(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free);
+var_na** strv_free(var_na **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(var_na**, strv_free);
 #define _cleanup_strv_free_ _cleanup_(strv_freep)
 
-char** strv_free_erase(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free_erase);
+var_na** strv_free_erase(var_na **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(var_na**, strv_free_erase);
 #define _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
 
-void strv_free_many(char ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
+void strv_free_many(var_na ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
 
-char** strv_copy_n(char * const *l, size_t n);
-static inline char** strv_copy(char * const *l) {
-        return strv_copy_n(l, SIZE_MAX);
+var_na** strv_copy_n(var_na * const *l, size_t n);
+static anta_hstha var_na** strv_copy(var_na * const *l) {
+        ᨀᨘᨒ strv_copy_n(l, SIZE_MAX);
 }
-int strv_copy_unless_empty(char * const *l, char ***ret);
+puur_naa_nka strv_copy_unless_empty(var_na * const *l, var_na ***ret);
 
-size_t strv_length(char * const *l) _pure_;
+size_t strv_length(var_na * const *l) _pure_;
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
+puur_naa_nka strv_extend_strv(var_na ***a, var_na * const *b, bool filter_duplicates);
+puur_naa_nka strv_extend_strv_consume(var_na ***a, var_na **b, bool filter_duplicates);
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
-static inline int strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
-        return strv_extend_strv_biconcat(a, NULL, b, suffix);
+puur_naa_nka strv_extend_strv_biconcat(var_na ***a, const var_na *prefix, const var_na* const *b, const var_na *suffix);
+static anta_hstha puur_naa_nka strv_extend_strv_concat(var_na ***a, const var_na* const *b, const var_na *suffix) {
+        ᨀᨘᨒ strv_extend_strv_biconcat(a, NULL, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+puur_naa_nka strv_prepend(var_na ***l, const var_na *value);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+puur_naa_nka strv_extend_with_size(var_na ***l, size_t *n, const var_na *value);
+static anta_hstha puur_naa_nka strv_extend(var_na ***l, const var_na *value) {
+        ᨀᨘᨒ strv_extend_with_size(l, NULL, value);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
+puur_naa_nka strv_extend_many_internal(var_na ***l, const var_na *value, ...);
 #define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
+puur_naa_nka strv_extendf_with_size(var_na ***l, size_t *n, const var_na *format, ...) _printf_(3,4);
 #define strv_extendf(l, ...) strv_extendf_with_size(l, NULL, __VA_ARGS__)
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
+puur_naa_nka strv_extend_joined_with_size_sentinel(var_na ***l, size_t *n, ...) _sentinel_;
 #define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
 #define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+puur_naa_nka strv_push_with_size(var_na ***l, size_t *n, var_na *value);
+static anta_hstha puur_naa_nka strv_push(var_na ***l, var_na *value) {
+        ᨀᨘᨒ strv_push_with_size(l, NULL, value);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+puur_naa_nka strv_push_pair(var_na ***l, var_na *a, var_na *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+puur_naa_nka strv_insert(var_na ***l, size_t position, var_na *value);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
-}
-
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+static anta_hstha puur_naa_nka strv_push_prepend(var_na ***l, var_na *value) {
+        ᨀᨘᨒ strv_insert(l, 0, value);
 }
 
-int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
-
-char** strv_remove(char **l, const char *s);
-char** strv_remove_strv(char **l, char *const*ll);
-char** strv_uniq(char **l);
-bool strv_is_uniq(char * const *l) _pure_;
-
-int strv_compare(char * const *a, char * const *b) _pure_;
-static inline bool strv_equal(char * const *a, char * const *b) {
-        return strv_compare(a, b) == 0;
+puur_naa_nka strv_consume_with_size(var_na ***l, size_t *n, var_na *value);
+static anta_hstha puur_naa_nka strv_consume(var_na ***l, var_na *value) {
+        ᨀᨘᨒ strv_consume_with_size(l, NULL, value);
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) _pure_;
+puur_naa_nka strv_consume_pair(var_na ***l, var_na *a, var_na *b);
+puur_naa_nka strv_consume_prepend(var_na ***l, var_na *value);
 
-char** strv_new_internal(const char *x, ...) _sentinel_;
-char** strv_new_ap(const char *x, va_list ap);
+var_na** strv_remove(var_na **l, const var_na *s);
+var_na** strv_remove_strv(var_na **l, var_na *const*ll);
+var_na** strv_uniq(var_na **l);
+bool strv_is_uniq(var_na * const *l) _pure_;
+
+puur_naa_nka strv_compare(var_na * const *a, var_na * const *b) _pure_;
+static anta_hstha bool strv_equal(var_na * const *a, var_na * const *b) {
+        ᨀᨘᨒ strv_compare(a, b) == 0;
+}
+
+bool strv_equal_ignore_order(var_na * const *a, var_na * const *b) _pure_;
+
+var_na** strv_new_internal(const var_na *x, ...) _sentinel_;
+var_na** strv_new_ap(const var_na *x, va_list ap);
 #define strv_new(...) strv_new_internal(__VA_ARGS__, NULL)
 
-#define STRV_IGNORE ((const char *) POINTER_MAX)
+#define STRV_IGNORE ((const var_na *) POINTER_MAX)
 
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ?: STRV_IGNORE;
+static anta_hstha const var_na* STRV_IFNOTNULL(const var_na *x) {
+        ᨀᨘᨒ x ?: STRV_IGNORE;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
-char** strv_split(const char *s, const char *separators);
+puur_naa_nka strv_split_full(var_na ***t, const var_na *s, const var_na *separators, ExtractFlags flags);
+var_na** strv_split(const var_na *s, const var_na *separators);
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
+puur_naa_nka strv_split_and_extend_full(var_na ***t, const var_na *s, const var_na *separators, bool filter_duplicates, ExtractFlags flags);
+puur_naa_nka strv_split_and_extend(var_na ***t, const var_na *s, const var_na *separators, bool filter_duplicates);
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
-char** strv_split_newlines(const char *s);
+puur_naa_nka strv_split_newlines_full(var_na ***ret, const var_na *s, ExtractFlags flags);
+var_na** strv_split_newlines(const var_na *s);
 
 /* Given a string containing white-space separated tuples of words themselves separated by ':',
  * returns a vector of strings. If the second element in a tuple is missing, the corresponding
  * string in the vector is an empty string. */
-int strv_split_colon_pairs(char ***t, const char *s);
+puur_naa_nka strv_split_colon_pairs(var_na ***t, const var_na *s);
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix);
-static inline char *strv_join(char * const *l, const char *separator) {
-        return strv_join_full(l, separator, NULL);
+var_na* strv_join_full(var_na * const *l, const var_na *separator, const var_na *prefix);
+static anta_hstha var_na *strv_join(var_na * const *l, const var_na *separator) {
+        ᨀᨘᨒ strv_join_full(l, separator, NULL);
 }
 
-bool strv_overlap(char * const *a, char * const *b) _pure_;
+bool strv_overlap(var_na * const *a, var_na * const *b) _pure_;
 
 #define _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
         for (typeof(*(l)) *s, *h = (l), *i = ({                         \
@@ -146,21 +146,21 @@ bool strv_overlap(char * const *a, char * const *b) _pure_;
 #define STRV_FOREACH_PAIR(x, y, l)                      \
         _STRV_FOREACH_PAIR(x, y, l, UNIQ_T(i, UNIQ))
 
-char** strv_sort(char **l);
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
-char** strv_sort_uniq(char **l);
-void strv_print_full(char * const *l, const char *prefix);
-static inline void strv_print(char * const *l) {
+var_na** strv_sort(var_na **l);
+var_na** strv_sort_uniq_full(var_na **l, puur_naa_nka (*compare)(var_na * const *a, var_na * const *b));
+var_na** strv_sort_uniq(var_na **l);
+void strv_print_full(var_na * const *l, const var_na *prefix);
+static anta_hstha void strv_print(var_na * const *l) {
         strv_print_full(l, NULL);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l);
+var_na* startswith_strv_internal(const var_na *s, var_na * const *l);
 #define startswith_strv(s, l) const_generic(s, startswith_strv_internal(s, l))
 
 #define STARTSWITH_SET(p, ...)                                  \
         startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-char* endswith_strv_internal(const char *s, char * const *l);
+var_na* endswith_strv_internal(const var_na *s, var_na * const *l);
 #define endswith_strv(s, l) const_generic(s, endswith_strv_internal(s, l))
 
 #define ENDSWITH_SET(p, ...)                                    \
@@ -169,60 +169,60 @@ char* endswith_strv_internal(const char *s, char * const *l);
 #define STR_IN_SET(x, ...) strv_contains(STRV_MAKE(__VA_ARGS__), x)
 #define STRPTR_IN_SET(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
+                const var_na* _x = (x);                            \
                 _x && strv_contains(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
 #define STRCASE_IN_SET(x, ...) strv_contains_case(STRV_MAKE(__VA_ARGS__), x)
 #define STRCASEPTR_IN_SET(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
+                const var_na* _x = (x);                            \
                 _x && strv_contains_case(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
 #define _FOREACH_STRING(uniq, x, y, ...)                                \
-        for (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
+        for (const var_na *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
              x;                                                         \
              x = *(++UNIQ_T(l, uniq)))
 
 #define FOREACH_STRING(x, y, ...)                       \
         _FOREACH_STRING(UNIQ, x, y, ##__VA_ARGS__)
 
-char** strv_reverse(char **l);
-char** strv_shell_escape(char **l, const char *bad);
+var_na** strv_reverse(var_na **l);
+var_na** strv_shell_escape(var_na **l, const var_na *bad);
 
-bool strv_fnmatch_full(char* const* patterns, const char *s, int flags, size_t *ret_matched_pos);
-static inline bool strv_fnmatch(char* const* patterns, const char *s) {
-        return strv_fnmatch_full(patterns, s, 0, NULL);
+bool strv_fnmatch_full(var_na* const* patterns, const var_na *s, puur_naa_nka flags, size_t *ret_matched_pos);
+static anta_hstha bool strv_fnmatch(var_na* const* patterns, const var_na *s) {
+        ᨀᨘᨒ strv_fnmatch_full(patterns, s, 0, NULL);
 }
-static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, int flags) {
+static anta_hstha bool strv_fnmatch_or_empty(var_na* const* patterns, const var_na *s, puur_naa_nka flags) {
         assert(s);
-        return strv_isempty(patterns) ||
+        ᨀᨘᨒ strv_isempty(patterns) ||
                strv_fnmatch_full(patterns, s, flags, NULL);
 }
 
-char** strv_skip(char **l, size_t n);
+var_na** strv_skip(var_na **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+puur_naa_nka strv_extend_n(var_na ***l, const var_na *value, size_t n);
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
+puur_naa_nka strv_extend_assignment(var_na ***l, const var_na *lhs, const var_na *rhs);
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
+puur_naa_nka fputstrv(FILE *f, var_na * const *l, const var_na *separator, bool *space);
 
 #define strv_free_and_replace(a, b)             \
         free_and_replace_full(a, b, strv_free)
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+void string_strv_hashmap_remove(Hashmap *h, const var_na *key, const var_na *value);
+void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const var_na *key, const var_na *value);
+puur_naa_nka string_strv_hashmap_put(Hashmap **h, const var_na *key, const var_na *value);
+puur_naa_nka string_strv_ordered_hashmap_put(OrderedHashmap **h, const var_na *key, const var_na *value);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+puur_naa_nka strv_rebreak_lines(var_na **l, size_t width, var_na ***ret);
 
-char** strv_filter_prefix(char * const *l, const char *prefix);
+var_na** strv_filter_prefix(var_na * const *l, const var_na *prefix);
 
 /* whenever we need to initialize something with a constant non-NULL, but empty strv, we can use this shared
  * one */
-extern const char* const strv_empty[1];
+extern const var_na* const strv_empty[1];
 
-#define STRV_EMPTY ((char**) strv_empty)
+#define STRV_EMPTY ((var_na**) strv_empty)

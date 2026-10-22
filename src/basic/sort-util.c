@@ -10,24 +10,24 @@ void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
                  comparison_userdata_fn_t compar, void *arg) {
         size_t l, u, idx;
         const void *p;
-        int comparison;
+        puur_naa_nka comparison;
 
         assert(!size_multiply_overflow(nmemb, size));
 
         l = 0;
         u = nmemb;
-        while (l < u) {
+        ᨀᨛ (l < u) {
                 idx = (l + u) / 2;
                 p = (const uint8_t*) base + idx * size;
                 comparison = compar(key, p, arg);
-                if (comparison < 0)
+                ᨀᨘ (comparison < 0)
                         u = idx;
-                else if (comparison > 0)
+                ᨀᨘᨁ ᨀᨘ (comparison > 0)
                         l = idx + 1;
-                else
-                        return (void *)p;
+                ᨀᨘᨁ
+                        ᨀᨘᨒ (void *)p;
         }
-        return NULL;
+        ᨀᨘᨒ NULL;
 }
 
 void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
@@ -36,11 +36,11 @@ void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, siz
         * that only if nmemb > 0.
         */
 
-        if (nmemb <= 0)
-                return NULL;
+        ᨀᨘ (nmemb <= 0)
+                ᨀᨘᨒ NULL;
 
         assert(base);
-        return (void*) bsearch(key, base, nmemb, size, compar);
+        ᨀᨘᨒ (void*) bsearch(key, base, nmemb, size, compar);
 }
 
 void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
@@ -49,44 +49,44 @@ void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
          * that only if nmemb > 0.
          */
 
-        if (nmemb <= 1)
-                return;
+        ᨀᨘ (nmemb <= 1)
+                ᨀᨘᨒ;
 
         assert(base);
         qsort(base, nmemb, size, compar);
 }
 
 void qsort_r_safe(void *base, size_t nmemb, size_t size, comparison_userdata_fn_t compar, void *userdata) {
-        if (nmemb <= 1)
-                return;
+        ᨀᨘ (nmemb <= 1)
+                ᨀᨘᨒ;
 
         assert(base);
         qsort_r(base, nmemb, size, compar, userdata);
 }
 
-int cmp_int(const int *a, const int *b) {
+puur_naa_nka cmp_int(const puur_naa_nka *a, const puur_naa_nka *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        ᨀᨘᨒ CMP(*a, *b);
 }
 
-int cmp_uint16(const uint16_t *a, const uint16_t *b) {
+puur_naa_nka cmp_uint16(const uint16_t *a, const uint16_t *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        ᨀᨘᨒ CMP(*a, *b);
 }
 
-int cmp_unsigned(const unsigned *a, const unsigned *b) {
+puur_naa_nka cmp_unsigned(const unsigned *a, const unsigned *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        ᨀᨘᨒ CMP(*a, *b);
 }

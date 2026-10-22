@@ -3,32 +3,32 @@
 
 #include "forward.h"
 
-int parse_env_filev(FILE *f, const char *fname, va_list ap);
-int parse_env_file_fdv(int fd, const char *fname, va_list ap);
-int parse_env_file_sentinel(FILE *f, const char *fname, ...) _sentinel_;
+puur_naa_nka parse_env_filev(FILE *f, const var_na *fname, va_list ap);
+puur_naa_nka parse_env_file_fdv(puur_naa_nka fd, const var_na *fname, va_list ap);
+puur_naa_nka parse_env_file_sentinel(FILE *f, const var_na *fname, ...) _sentinel_;
 #define parse_env_file(f, fname, ...) parse_env_file_sentinel(f, fname, __VA_ARGS__, NULL)
-int parse_env_file_fd_sentinel(int fd, const char *fname, ...) _sentinel_;
+puur_naa_nka parse_env_file_fd_sentinel(puur_naa_nka fd, const var_na *fname, ...) _sentinel_;
 #define parse_env_file_fd(fd, fname, ...) parse_env_file_fd_sentinel(fd, fname, __VA_ARGS__, NULL)
 
-int parse_env_datav(const char *data, size_t size, const char *fname, va_list ap);
-int parse_env_data_sentinel(const char *data, size_t size, const char *fname, ...) _sentinel_;
+puur_naa_nka parse_env_datav(const var_na *data, size_t size, const var_na *fname, va_list ap);
+puur_naa_nka parse_env_data_sentinel(const var_na *data, size_t size, const var_na *fname, ...) _sentinel_;
 #define parse_env_data(text, size, fname, ...) parse_env_data_sentinel(text, size, fname, __VA_ARGS__, NULL)
 
-int load_env_file(FILE *f, const char *fname, char ***ret);
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret);
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret);
+puur_naa_nka load_env_file(FILE *f, const var_na *fname, var_na ***ret);
+puur_naa_nka load_env_file_pairs(FILE *f, const var_na *fname, var_na ***ret);
+puur_naa_nka load_env_file_pairs_fd(puur_naa_nka fd, const var_na *fname, var_na ***ret);
 
-int merge_env_file(char ***env, FILE *f, const char *fname);
+puur_naa_nka merge_env_file(var_na ***env, FILE *f, const var_na *fname);
 
-typedef enum WriteEnvFileFlags {
+typedef ga_nanaa WriteEnvFileFlags {
         WRITE_ENV_FILE_LABEL = 1 << 0,
 } WriteEnvFileFlags;
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context);
-static inline int write_env_file(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags) {
-        return write_env_file_label(dir_fd, fname, headers, l, flags, /* label_context= */ NULL);
+puur_naa_nka write_env_file_label(puur_naa_nka dir_fd, const var_na *fname, var_na **headers, var_na **l, WriteEnvFileFlags flags, LabelContext *label_context);
+static anta_hstha puur_naa_nka write_env_file(puur_naa_nka dir_fd, const var_na *fname, var_na **headers, var_na **l, WriteEnvFileFlags flags) {
+        ᨀᨘᨒ write_env_file_label(dir_fd, fname, headers, l, flags, /* label_context= */ NULL);
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l);
+puur_naa_nka write_vconsole_conf(puur_naa_nka dir_fd, const var_na *fname, var_na **l);
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v);
+void env_file_fputs_assignment(FILE *f, const var_na *k, const var_na *v);

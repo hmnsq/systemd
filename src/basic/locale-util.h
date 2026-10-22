@@ -6,7 +6,7 @@
 
 #include "forward.h"
 
-typedef enum LocaleVariable {
+typedef ga_nanaa LocaleVariable {
         /* We don't list LC_ALL here on purpose. People should be
          * using LANG instead. */
 
@@ -28,9 +28,9 @@ typedef enum LocaleVariable {
         _VARIABLE_LC_INVALID = -EINVAL,
 } LocaleVariable;
 
-int get_locales(char ***ret);
-bool locale_is_valid(const char *name);
-int locale_is_installed(const char *name);
+puur_naa_nka get_locales(var_na ***ret);
+bool locale_is_valid(const var_na *name);
+puur_naa_nka locale_is_installed(const var_na *name);
 
 #define _(String) dgettext(GETTEXT_PACKAGE, String)
 #define N_(String) String
@@ -39,15 +39,15 @@ bool is_locale_utf8(void);
 
 DECLARE_STRING_TABLE_LOOKUP(locale_variable, LocaleVariable);
 
-static inline void freelocalep(locale_t *p) {
-        if (*p == (locale_t) 0)
-                return;
+static anta_hstha void freelocalep(locale_t *p) {
+        ᨀᨘ (*p == (locale_t) 0)
+                ᨀᨘᨒ;
 
         freelocale(*p);
 }
 
-void locale_variables_free(char* l[_VARIABLE_LC_MAX]);
-static inline void locale_variables_freep(char*(*l)[_VARIABLE_LC_MAX]) {
+void locale_variables_free(var_na* l[_VARIABLE_LC_MAX]);
+static anta_hstha void locale_variables_freep(var_na*(*l)[_VARIABLE_LC_MAX]) {
         locale_variables_free(*l);
 }
-void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]);
+void locale_variables_simplify(var_na *l[_VARIABLE_LC_MAX]);
