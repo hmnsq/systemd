@@ -1,106 +1,106 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <threads.h>
+#شامل <stdio.h>
+#شامل <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "psi-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
+#شامل "alloc-util.h"
+#شامل "errno-util.h"
+#شامل "extract-word.h"
+#شامل "fd-util.h"
+#شامل "fileio.h"
+#شامل "parse-util.h"
+#شامل "psi-util.h"
+#شامل "string-table.h"
+#شامل "string-util.h"
+#شامل "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
+صحیح read_resource_pressure(ثابت نویسه *path, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ نویسه *سطر = پوچ;
+        _cleanup_fclose_ FILE *f = پوچ;
         unsigned field_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        ثابت نویسه *cline;
+        نویسه *word;
+        صحیح r;
 
-        assert(path);
-        assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
-        assert(ret);
+        أكد(path);
+        أكد(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
+        أكد(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        ثابت نویسه *t = ASSERT_PTR(pressure_type_to_string(type));
 
         r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        برای (;;) {
+                _cleanup_free_ نویسه *l = پوچ;
+                نویسه *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_سطر(f, LONG_سطر_MAX, &l);
+                اگر (r < 0)
+                        بازگشت r;
+                اگر (r == 0)
+                        بشکن;
 
                 w = first_word(l, t);
-                if (w) {
-                        line = TAKE_PTR(l);
+                اگر (w) {
+                        سطر = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        بشکن;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        اگر (!سطر)
+                بازگشت -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        وقتی ((r = extract_first_word(&cline, &word, پوچ, 0)) > 0) {
+                _cleanup_free_ نویسه *w = word;
+                ثابت نویسه *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                اگر ((v = startswith(w, "avg10="))) {
+                        اگر (field_filled & (1U << 0))
+                                بازگشت -EINVAL;
 
                         field_filled |= 1U << 0;
                         r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                } وگرنه اگر ((v = startswith(w, "avg60="))) {
+                        اگر (field_filled & (1U << 1))
+                                بازگشت -EINVAL;
 
                         field_filled |= 1U << 1;
                         r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                } وگرنه اگر ((v = startswith(w, "avg300="))) {
+                        اگر (field_filled & (1U << 2))
+                                بازگشت -EINVAL;
 
                         field_filled |= 1U << 2;
                         r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                } وگرنه اگر ((v = startswith(w, "total="))) {
+                        اگر (field_filled & (1U << 3))
+                                بازگشت -EINVAL;
 
                         field_filled |= 1U << 3;
                         r = safe_atou64(v, &rp.total);
-                } else
-                        continue;
+                } وگرنه
+                        ادامه;
 
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        اگر (field_filled != 15U)
+                بازگشت -EINVAL;
 
         *ret = rp;
-        return 0;
+        بازگشت 0;
 }
 
-const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
+ثابت PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         [PRESSURE_MEMORY] = {
                 .name      = "memory",
                 .env_watch = "MEMORY_PRESSURE_WATCH",
@@ -118,7 +118,7 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
+ایستا ثابت نویسه* ثابت pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
         [PRESSURE_MEMORY] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
@@ -126,30 +126,30 @@ static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+ایستا ثابت نویسه* ثابت pressure_type_table[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
         [PRESSURE_TYPE_FULL] = "full",
 };
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+صحیح is_pressure_supported(تهی) {
+        ایستا thread_local صحیح cached = -1;
+        صحیح r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        اگر (cached >= 0)
+                بازگشت cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
-                r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                r = read_virtual_file(p, 0, پوچ, پوچ);
+                اگر (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        بازگشت (cached = false);
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        return (cached = true);
+        بازگشت (cached = true);
 }

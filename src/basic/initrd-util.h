@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-bool in_initrd(void);
-void in_initrd_force(bool value);
+bool in_initrd(تهی);
+تهی in_initrd_force(bool مقدار);
 
-int in_first_boot(void);
+صحیح in_first_boot(تهی);

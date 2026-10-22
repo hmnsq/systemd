@@ -1,75 +1,75 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "memstream-util.h"
+#شامل "alloc-util.h"
+#شامل "fd-util.h"
+#شامل "fileio.h"
+#شامل "log.h"
+#شامل "memstream-util.h"
 
-void memstream_done(MemStream *m) {
-        assert(m);
+تهی memstream_done(MemStream *m) {
+        أكد(m);
 
         /* First, close file stream, as the buffer may be reallocated on close. */
         safe_fclose(m->f);
 
         /* Then, free buffer. */
-        free(m->buf);
+        آزاد(m->buf);
 }
 
 FILE* memstream_init(MemStream *m) {
-        assert(m);
-        assert(!m->f);
+        أكد(m);
+        أكد(!m->f);
 
         m->f = open_memstream_unlocked(&m->buf, &m->sz);
-        return m->f;
+        بازگشت m->f;
 }
 
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
-        int r;
+صحیح memstream_finalize(MemStream *m, نویسه **ret_buf, size_t *ret_size) {
+        صحیح r;
 
-        assert(m);
-        assert(m->f);
-        assert(ret_buf);
+        أكد(m);
+        أكد(m->f);
+        أكد(ret_buf);
 
         /* Add terminating NUL, so that the output buffer is a valid string. */
         fputc('\0', m->f);
 
         r = fflush_and_check(m->f);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
         m->f = safe_fclose(m->f);
 
         /* On fclose(), the buffer may be reallocated, and may trigger OOM. */
-        if (!m->buf)
-                return -ENOMEM;
+        اگر (!m->buf)
+                بازگشت -ENOMEM;
 
-        assert(m->sz > 0);
+        أكد(m->sz > 0);
 
         *ret_buf = TAKE_PTR(m->buf);
-        if (ret_size)
+        اگر (ret_size)
                 *ret_size = m->sz - 1;
 
         m->sz = 0; /* For safety when the MemStream object will be reused later. */
-        return 0;
+        بازگشت 0;
 }
 
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
+صحیح memstream_dump_internal(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
                 MemStream *m) {
 
-        _cleanup_free_ char *buf = NULL;
-        int r;
+        _cleanup_free_ نویسه *buf = پوچ;
+        صحیح r;
 
-        assert(m);
+        أكد(m);
 
-        r = memstream_finalize(m, &buf, NULL);
-        if (r < 0)
-                return log_full_errno(level, r, "Failed to flush memstream: %m");
+        r = memstream_finalize(m, &buf, پوچ);
+        اگر (r < 0)
+                بازگشت log_full_errno(level, r, "Failed to flush memstream: %m");
 
-        return log_dump_internal(level, error, file, line, func, buf);
+        بازگشت log_dump_internal(level, error, file, سطر, func, buf);
 }

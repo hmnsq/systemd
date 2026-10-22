@@ -1,77 +1,77 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
 #define ENVIRONMENT_ASSIGNMENTS_MAX 16384U
 
-size_t sc_arg_max(void);
+size_t sc_arg_max(تهی);
 
-bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
-bool env_assignment_is_valid(const char *e);
+bool env_name_is_valid(ثابت نویسه *e);
+bool env_مقدار_is_valid(ثابت نویسه *e);
+bool env_assignment_is_valid(ثابت نویسه *e);
 
-typedef enum ReplaceEnvFlags {
+تعریفنوع شمارش ReplaceEnvFlags {
         REPLACE_ENV_USE_ENVIRONMENT = 1 << 0,
         REPLACE_ENV_ALLOW_BRACELESS = 1 << 1,
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+صحیح replace_env_full(ثابت نویسه *format, size_t length, نویسه **env, ReplaceEnvFlags flags, نویسه **ret, نویسه ***ret_unset_variables, نویسه ***ret_bad_variables);
+ایستا درونخطی صحیح replace_env(ثابت نویسه *format, نویسه **env, ReplaceEnvFlags flags, نویسه **ret) {
+        بازگشت replace_env_full(format, SIZE_MAX, env, flags, ret, پوچ, پوچ);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+صحیح replace_env_argv(نویسه **argv, نویسه **env, نویسه ***ret, نویسه ***ret_unset_variables, نویسه ***ret_bad_variables);
 
-bool strv_env_is_valid(char * const *e);
-bool strv_env_name_is_valid(char * const *l);
-bool strv_env_name_or_assignment_is_valid(char * const *l);
+bool strv_env_is_valid(نویسه * ثابت *e);
+bool strv_env_name_is_valid(نویسه * ثابت *l);
+bool strv_env_name_or_assignment_is_valid(نویسه * ثابت *l);
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata);
-#define strv_env_clean(l) strv_env_clean_with_callback(l, NULL, NULL)
+نویسه** strv_env_clean_with_callback(نویسه **l, تهی (*invalid_callback)(ثابت نویسه *p, تهی *userdata), تهی *userdata);
+#define strv_env_clean(l) strv_env_clean_with_callback(l, پوچ, پوچ)
 
-char** _strv_env_merge(char **first, ...);
+نویسه** _strv_env_merge(نویسه **first, ...);
 #define strv_env_merge(first, ...) _strv_env_merge(first, __VA_ARGS__, POINTER_MAX)
-char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
+نویسه** strv_env_delete(نویسه **x, size_t n_lists, ...); /* New copy */
 
-char** strv_env_unset(char **l, const char *p); /* In place ... */
-char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
-#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
-#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
+نویسه** strv_env_unset(نویسه **l, ثابت نویسه *p); /* In place ... */
+نویسه** strv_env_unset_many_internal(نویسه **l, ...) _sentinel_;
+#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, پوچ)
+صحیح strv_env_replace_consume(نویسه ***l, نویسه *p); /* In place ... */
+صحیح strv_env_replace_strdup(نویسه ***l, ثابت نویسه *assignment);
+صحیح strv_env_replace_strdup_passthrough(نویسه ***l, ثابت نویسه *assignment);
+صحیح strv_env_assign(نویسه ***l, ثابت نویسه *کلید, ثابت نویسه *مقدار);
+صحیح strv_env_assignf(نویسه ***l, ثابت نویسه *کلید, ثابت نویسه *valuef, ...) _printf_(3, 4);
+صحیح _strv_env_assign_many(نویسه ***l, ...) _sentinel_;
+#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, پوچ)
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
-static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+نویسه* strv_env_get_n(نویسه * ثابت *l, ثابت نویسه *name, size_t k, ReplaceEnvFlags flags);
+ایستا درونخطی نویسه* strv_env_get(نویسه * ثابت *x, ثابت نویسه *n) {
+        بازگشت strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
-char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+نویسه* strv_env_pairs_get(نویسه **l, ثابت نویسه *name) _pure_;
+صحیح strv_env_get_merged(نویسه **l, نویسه ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+صحیح getenv_bool(ثابت نویسه *p);
+صحیح secure_getenv_bool(ثابت نویسه *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+صحیح secure_getenv_uint64(ثابت نویسه *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+صحیح set_unset_env(ثابت نویسه *name, ثابت نویسه *مقدار, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+صحیح putenv_dup(ثابت نویسه *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+صحیح setenv_systemd_exec_pid(bool update_only);
+صحیح setenv_systemd_log_level(تهی);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+صحیح getenv_path_list(ثابت نویسه *name, نویسه ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+صحیح getenv_steal_erase(ثابت نویسه *name, نویسه **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+صحیح setenvf(ثابت نویسه *name, bool overwrite, ثابت نویسه *valuef, ...) _printf_(3,4);

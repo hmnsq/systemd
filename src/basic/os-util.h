@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-typedef enum ImageClass {
+تعریفنوع شمارش ImageClass {
         IMAGE_MACHINE,
         IMAGE_PORTABLE,
         IMAGE_SYSEXT,
@@ -20,41 +20,41 @@ DECLARE_STRING_TABLE_LOOKUP(image_class, ImageClass);
  * for sysext images and for /etc/extension-release.d/extension-release.NAME for confext images
  * in accordance with the OS extension specification, rather than for /usr/lib/ or /etc/os-release. */
 
-bool image_name_is_valid(const char *s) _pure_;
-int path_extract_image_name(const char *path, char **ret);
+bool image_name_is_valid(ثابت نویسه *s) _pure_;
+صحیح path_extract_image_name(ثابت نویسه *path, نویسه **ret);
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check);
-static inline int path_is_os_tree(const char *path) {
-        return path_is_extension_tree(_IMAGE_CLASS_INVALID, path, NULL, false);
+صحیح path_is_extension_درخت(ImageClass image_class, ثابت نویسه *path, ثابت نویسه *extension, bool relax_extension_release_check);
+ایستا درونخطی صحیح path_is_os_درخت(ثابت نویسه *path) {
+        بازگشت path_is_extension_درخت(_IMAGE_CLASS_INVALID, path, پوچ, false);
 }
-int fd_is_os_tree(int fd);
+صحیح fd_is_os_درخت(صحیح fd);
 
-int open_extension_release(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_extension_release_at(int rfd, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_os_release(const char *root, char **ret_path, int *ret_fd);
-int open_os_release_at(int rfd, char **ret_path, int *ret_fd);
+صحیح open_extension_release(ثابت نویسه *ریشه, ImageClass image_class, ثابت نویسه *extension, bool relax_extension_release_check, نویسه **ret_path, صحیح *ret_fd);
+صحیح open_extension_release_at(صحیح rfd, ImageClass image_class, ثابت نویسه *extension, bool relax_extension_release_check, نویسه **ret_path, صحیح *ret_fd);
+صحیح open_os_release(ثابت نویسه *ریشه, نویسه **ret_path, صحیح *ret_fd);
+صحیح open_os_release_at(صحیح rfd, نویسه **ret_path, صحیح *ret_fd);
 
-int parse_extension_release_sentinel(const char *root, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
-#define parse_extension_release(root, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_sentinel(root, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
-#define parse_os_release(root, ...)                                     \
-        parse_extension_release_sentinel(root, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+صحیح parse_extension_release_sentinel(ثابت نویسه *ریشه, ImageClass image_class, bool relax_extension_release_check, ثابت نویسه *extension, ...) _sentinel_;
+#define parse_extension_release(ریشه, image_class, extension, relax_extension_release_check, ...) \
+        parse_extension_release_sentinel(ریشه, image_class, relax_extension_release_check, extension, __VA_ARGS__, پوچ)
+#define parse_os_release(ریشه, ...)                                     \
+        parse_extension_release_sentinel(ریشه, _IMAGE_CLASS_INVALID, false, پوچ, __VA_ARGS__, پوچ)
 
-int parse_extension_release_at_sentinel(int rfd, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
+صحیح parse_extension_release_at_sentinel(صحیح rfd, ImageClass image_class, bool relax_extension_release_check, ثابت نویسه *extension, ...) _sentinel_;
 #define parse_extension_release_at(rfd, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
+        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, پوچ)
 #define parse_os_release_at(rfd, ...)                                     \
-        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, پوچ, __VA_ARGS__, پوچ)
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret);
-static inline int load_os_release_pairs(const char *root, char ***ret) {
-        return load_extension_release_pairs(root, _IMAGE_CLASS_INVALID, NULL, false, ret);
+صحیح load_extension_release_pairs(ثابت نویسه *ریشه, ImageClass image_class, ثابت نویسه *extension, bool relax_extension_release_check, نویسه ***ret);
+ایستا درونخطی صحیح load_os_release_pairs(ثابت نویسه *ریشه, نویسه ***ret) {
+        بازگشت load_extension_release_pairs(ریشه, _IMAGE_CLASS_INVALID, پوچ, false, ret);
 }
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret);
+صحیح load_os_release_pairs_with_prefix(ثابت نویسه *ریشه, ثابت نویسه *prefix, نویسه ***ret);
 
-int os_release_support_ended(const char *support_end, bool quiet, usec_t *ret_eol);
+صحیح os_release_support_ended(ثابت نویسه *support_end, bool quiet, usec_t *ret_eol);
 
-const char* os_release_pretty_name(const char *pretty_name, const char *name);
+ثابت نویسه* os_release_pretty_name(ثابت نویسه *pretty_name, ثابت نویسه *name);
 
-bool use_fancy_name(const char *fancy_name);
-char *unescape_fancy_name(char **fancy_name);
+bool use_fancy_name(ثابت نویسه *fancy_name);
+نویسه *unescape_fancy_name(نویسه **fancy_name);

@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <stdio.h>
-#include <string.h>
-#include <syslog.h>
+#شامل <stdio.h>
+#شامل <string.h>
+#شامل <syslog.h>
 
-#include "forward.h"
+#شامل "forward.h"
 
-typedef enum LogTarget{
+تعریفنوع شمارش LogTarget{
         LOG_TARGET_CONSOLE,
         LOG_TARGET_KMSG,
         LOG_TARGET_JOURNAL,
@@ -27,175 +27,175 @@ typedef enum LogTarget{
 #define LOG_NULL (LOG_EMERG - 1)
 assert_cc(LOG_NULL == -1);
 
-#define SYNTHETIC_ERRNO(num)                (ABS(num) | (1 << 30))
+#define SYNTHETIC_ERRNO(رقم)                (ABS(رقم) | (1 << 30))
 #define IS_SYNTHETIC_ERRNO(val)             (((val) >> 30) == 1)
-#define ERRNO_VALUE(val)                    (ABS(val) & ~(1 << 30))
+#define ERRNO_مقدار(val)                    (ABS(val) & ~(1 << 30))
 
 /* The callback function to be invoked when syntax warnings are seen
  * in the unit files. */
-typedef void (*log_syntax_callback_t)(const char *unit, int level, void *userdata);
-void set_log_syntax_callback(log_syntax_callback_t cb, void *userdata);
+تعریفنوع تهی (*log_syntax_callback_t)(ثابت نویسه *unit, صحیح level, تهی *userdata);
+تهی set_log_syntax_callback(log_syntax_callback_t cb, تهی *userdata);
 
-static inline void clear_log_syntax_callback(dummy_t *dummy) {
-          set_log_syntax_callback(/* cb= */ NULL, /* userdata= */ NULL);
+ایستا درونخطی تهی clear_log_syntax_callback(dummy_t *dummy) {
+          set_log_syntax_callback(/* cb= */ پوچ, /* userdata= */ پوچ);
 }
 
 DECLARE_STRING_TABLE_LOOKUP(log_target, LogTarget);
-void log_set_target(LogTarget target);
-void log_set_target_and_open(LogTarget target);
-int log_set_target_from_string(const char *e);
-LogTarget log_get_target(void) _pure_;
-void log_settle_target(void);
+تهی log_set_target(LogTarget target);
+تهی log_set_target_and_open(LogTarget target);
+صحیح log_set_target_from_string(ثابت نویسه *e);
+LogTarget log_get_target(تهی) _pure_;
+تهی log_settle_target(تهی);
 
-int log_set_max_level(int level);
-int log_set_max_level_from_string(const char *e);
-int log_get_max_level(void) _pure_;
-int log_get_target_max_level(LogTarget target);
-int log_max_levels_to_string(int level, char **ret);
+صحیح log_set_max_level(صحیح level);
+صحیح log_set_max_level_from_string(ثابت نویسه *e);
+صحیح log_get_max_level(تهی) _pure_;
+صحیح log_get_target_max_level(LogTarget target);
+صحیح log_max_levels_to_string(صحیح level, نویسه **ret);
 
-void log_set_facility(int facility);
+تهی log_set_facility(صحیح facility);
 
-void log_show_color(bool b);
-bool log_get_show_color(void) _pure_;
-void log_show_location(bool b);
-bool log_get_show_location(void) _pure_;
-void log_show_time(bool b);
-bool log_get_show_time(void) _pure_;
-void log_show_tid(bool b);
-bool log_get_show_tid(void) _pure_;
-void log_show_executable(bool b);
-bool log_get_show_executable(void) _pure_;
+تهی log_show_color(bool b);
+bool log_get_show_color(تهی) _pure_;
+تهی log_show_location(bool b);
+bool log_get_show_location(تهی) _pure_;
+تهی log_show_time(bool b);
+bool log_get_show_time(تهی) _pure_;
+تهی log_show_tid(bool b);
+bool log_get_show_tid(تهی) _pure_;
+تهی log_show_executable(bool b);
+bool log_get_show_executable(تهی) _pure_;
 
-int log_show_color_from_string(const char *e);
-int log_show_location_from_string(const char *e);
-int log_show_time_from_string(const char *e);
-int log_show_tid_from_string(const char *e);
-int log_show_executable_from_string(const char *e);
+صحیح log_show_color_from_string(ثابت نویسه *e);
+صحیح log_show_location_from_string(ثابت نویسه *e);
+صحیح log_show_time_from_string(ثابت نویسه *e);
+صحیح log_show_tid_from_string(ثابت نویسه *e);
+صحیح log_show_executable_from_string(ثابت نویسه *e);
 
 /* Functions below that open and close logs or configure logging based on the
  * environment should not be called from library code — this is always a job
  * for the application itself. */
 
-bool stderr_is_journal(void);
-int log_open(void);
-void log_close(void);
-void log_forget_fds(void);
+bool stderr_is_journal(تهی);
+صحیح log_open(تهی);
+تهی log_close(تهی);
+تهی log_forget_fds(تهی);
 
-void log_parse_environment_variables(void);
-void log_parse_environment(void);
+تهی log_parse_environment_variables(تهی);
+تهی log_parse_environment(تهی);
 
-int log_dispatch_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                char *buffer);
+صحیح log_dispatch_internal(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *object_field,
+                ثابت نویسه *object,
+                ثابت نویسه *extra_field,
+                ثابت نویسه *extra,
+                نویسه *buffer);
 
-int log_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(6,7);
+صحیح log_internal(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *format, ...) _printf_(6,7);
 
-int log_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format,
+صحیح log_internalv(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *format,
                 va_list ap) _printf_(6,0);
 
-int log_object_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format,
+صحیح log_object_internalv(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *object_field,
+                ثابت نویسه *object,
+                ثابت نویسه *extra_field,
+                ثابت نویسه *extra,
+                ثابت نویسه *format,
                 va_list ap) _printf_(10,0);
 
-int log_object_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format, ...) _printf_(10,11);
+صحیح log_object_internal(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *object_field,
+                ثابت نویسه *object,
+                ثابت نویسه *extra_field,
+                ثابت نویسه *extra,
+                ثابت نویسه *format, ...) _printf_(10,11);
 
-int log_struct_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _sentinel_;
+صحیح log_struct_internal(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *format, ...) _sentinel_;
 
-int log_oom_internal(
-                int level,
-                const char *file,
-                int line,
-                const char *func);
+صحیح log_oom_internal(
+                صحیح level,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func);
 
-int log_format_iovec(
-                struct iovec *iovec,
+صحیح log_format_iovec(
+                ساختار iovec *iovec,
                 size_t iovec_len,
                 size_t *n,
                 bool newline_separator,
-                int error,
-                const char *format,
+                صحیح error,
+                ثابت نویسه *format,
                 va_list ap) _printf_(6, 0);
 
-int log_struct_iovec_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const struct iovec *input_iovec,
-                size_t n_input_iovec);
+صحیح log_struct_iovec_internal(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت ساختار iovec *درون_داد_iovec,
+                size_t n_درون_داد_iovec);
 
 /* This modifies the buffer passed! */
-int log_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                char *buffer);
+صحیح log_dump_internal(
+                صحیح level,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                نویسه *buffer);
 
 #define log_dispatch(level, error, buffer)                              \
-        log_dispatch_internal(level, error, PROJECT_FILE, __LINE__, __func__, NULL, NULL, NULL, NULL, buffer)
+        log_dispatch_internal(level, error, PROJECT_FILE, __LINE__, __func__, پوچ, پوچ, پوچ, پوچ, buffer)
 
 /* Logging with level */
 #define log_full_errno_zerook(level, error, ...)                        \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                صحیح _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_internal(_level, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        : -ERRNO_مقدار(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 
-#if BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
-#  define ASSERT_NON_ZERO(x) assert((x) != 0)
-#  define ASSERT_UNDERFLOW(x) assert((x) >= INT_MIN)
-#else
+#اگر BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
+#  define ASSERT_NON_ZERO(x) أكد((x) != 0)
+#  define ASSERT_UNDERFLOW(x) أكد((x) >= INT_MIN)
+#وگرنه
 #  define ASSERT_NON_ZERO(x)
 #  define ASSERT_UNDERFLOW(x)
 #endif
@@ -208,17 +208,17 @@ int log_dump_internal(
                 int64_t _error = (error);                               \
                 ASSERT_UNDERFLOW(_error);                               \
                 ASSERT_NON_ZERO(_error);                                \
-                log_full_errno_zerook(level, (int)_error, __VA_ARGS__); \
+                log_full_errno_zerook(level, (صحیح)_error, __VA_ARGS__); \
         })
 
 #define log_full(level, fmt, ...)                                      \
         ({                                                             \
-                if (BUILD_MODE_DEVELOPER)                              \
-                        assert(!strstr(fmt, "%m"));                    \
-                (void) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
+                اگر (BUILD_MODE_DEVELOPER)                              \
+                        أكد(!strstr(fmt, "%m"));                    \
+                (تهی) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
         })
 
-int log_emergency_level(void);
+صحیح log_emergency_level(تهی);
 
 /* Normal logging */
 #define log_debug(...)     log_full(LOG_DEBUG,   __VA_ARGS__)
@@ -241,35 +241,35 @@ int log_emergency_level(void);
  * time it is called. */
 #define log_once(level, ...)                                             \
         ({                                                               \
-                if (ONCE)                                                \
+                اگر (ONCE)                                                \
                         log_full(level, __VA_ARGS__);                    \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                وگرنه اگر (LOG_PRI(level) != LOG_DEBUG)                    \
                         log_debug(__VA_ARGS__);                          \
         })
 
 #define log_once_errno(level, error, ...)                                \
         ({                                                               \
-                int _err = (error);                                      \
-                if (ONCE)                                                \
+                صحیح _err = (error);                                      \
+                اگر (ONCE)                                                \
                         _err = log_full_errno(level, _err, __VA_ARGS__); \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                وگرنه اگر (LOG_PRI(level) != LOG_DEBUG)                    \
                         _err = log_debug_errno(_err, __VA_ARGS__);       \
-                else                                                     \
-                        _err = -ERRNO_VALUE(_err);                       \
+                وگرنه                                                     \
+                        _err = -ERRNO_مقدار(_err);                       \
                 _err;                                                    \
         })
 
-#if LOG_TRACE
+#اگر LOG_TRACE
 #  define log_trace(...)          log_debug(__VA_ARGS__)
 #  define log_trace_errno(...)    log_debug_errno(__VA_ARGS__)
-#else
-#  define log_trace(...)          do {} while (0)
-#  define log_trace_errno(e, ...) (-ERRNO_VALUE(e))
+#وگرنه
+#  define log_trace(...)          انجامبده {} وقتی (0)
+#  define log_trace_errno(e, ...) (-ERRNO_مقدار(e))
 #endif
 
 /* Structured logging */
 #define log_struct_errno(level, error, ...)                             \
-        log_struct_internal(level, error, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__, NULL)
+        log_struct_internal(level, error, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__, پوچ)
 #define log_struct(level, ...) log_struct_errno(level, 0, __VA_ARGS__)
 
 #define log_struct_iovec_errno(level, error, iovec, n_iovec)            \
@@ -279,9 +279,9 @@ int log_emergency_level(void);
 /* Like log_struct(), but with log_once() semantics */
 #define log_struct_once(level, ...)                                     \
         ({                                                              \
-                if (ONCE)                                               \
+                اگر (ONCE)                                               \
                         log_struct(level, __VA_ARGS__);                 \
-                else if (LOG_PRI(level) != LOG_DEBUG)                   \
+                وگرنه اگر (LOG_PRI(level) != LOG_DEBUG)                   \
                         log_struct(LOG_DEBUG, __VA_ARGS__);             \
         })
 
@@ -294,111 +294,111 @@ int log_emergency_level(void);
 #define log_oom_debug()     log_oom_full(LOG_DEBUG)
 #define log_oom_warning()   log_oom_full(LOG_WARNING)
 
-bool log_on_console(void) _pure_;
+bool log_on_console(تهی) _pure_;
 
 /* Helper to wrap the main message in structured logging. The macro doesn't do much,
  * except to provide visual grouping of the format string and its arguments. */
 #ifdef __COVERITY__
 /* Coverity does not like the concatenation of multiple formats and arguments. Let's replace each format
  * string with a dummy string. The validity of the formats is hopefully checked by other CIs. */
-#  define LOG_ITEM(fmt, ...)    "dummy", NULL, ##__VA_ARGS__
-#elif LOG_MESSAGE_VERIFICATION
+#  define LOG_ITEM(fmt, ...)    "dummy", پوچ, ##__VA_ARGS__
+#وگرنهاگر LOG_MESSAGE_VERIFICATION
 /* Do a fake formatting of the message string to let the scanner verify the arguments against the format
  * message. The variable will never be set to true, but we don't tell the compiler that :) */
-extern bool _log_message_dummy;
+بیرونی bool _log_message_dummy;
 #  define LOG_ITEM(fmt, ...) "%.0d" fmt, (_log_message_dummy && printf(fmt, ##__VA_ARGS__)), ##__VA_ARGS__
-#else
+#وگرنه
 #  define LOG_ITEM(fmt, ...) fmt, ##__VA_ARGS__
 #endif
 
 #define LOG_MESSAGE(fmt, ...) LOG_ITEM("MESSAGE=" fmt, ##__VA_ARGS__)
 #define LOG_MESSAGE_ID(id)    LOG_ITEM("MESSAGE_ID=" id)
 
-void log_received_signal(int level, const struct signalfd_siginfo *si);
+تهی log_received_signal(صحیح level, ثابت ساختار signalfd_siginfo *si);
 
 /* If turned on, any requests for a log target involving "syslog" will be implicitly upgraded to the equivalent journal target */
-void log_set_upgrade_syslog_to_journal(bool b);
+تهی log_set_upgrade_syslog_to_journal(bool b);
 
 /* If turned on, and log_open() is called, we'll not use STDERR_FILENO for logging ever, but rather open /dev/console */
-void log_set_always_reopen_console(bool b);
+تهی log_set_always_reopen_console(bool b);
 
 /* If turned on, we'll open the log stream implicitly if needed on each individual log call. This is normally not
  * desired as we want to reuse our logging streams. It is useful however  */
-void log_set_open_when_needed(bool b);
+تهی log_set_open_when_needed(bool b);
 
 /* If turned on, then we'll never use IPC-based logging, i.e. never log to syslog or the journal. We'll only log to
  * stderr, the console or kmsg */
-void log_set_prohibit_ipc(bool b);
+تهی log_set_prohibit_ipc(bool b);
 
-int log_dup_console(void);
+صحیح log_dup_console(تهی);
 
-int log_syntax_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(9, 10);
+صحیح log_syntax_internal(
+                ثابت نویسه *unit,
+                صحیح level,
+                ثابت نویسه *config_file,
+                unsigned config_سطر,
+                صحیح error,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *format, ...) _printf_(9, 10);
 
-int log_syntax_invalid_utf8_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                const char *file,
-                int line,
-                const char *func,
-                const char *rvalue);
+صحیح log_syntax_invalid_utf8_internal(
+                ثابت نویسه *unit,
+                صحیح level,
+                ثابت نویسه *config_file,
+                unsigned config_سطر,
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *rvalue);
 
-int log_syntax_parse_error_internal(
-                const char *unit,
-                const char *config_file,
-                unsigned config_line,
-                int error,
+صحیح log_syntax_parse_error_internal(
+                ثابت نویسه *unit,
+                ثابت نویسه *config_file,
+                unsigned config_سطر,
+                صحیح error,
                 bool critical, /* When true, propagate the passed error, otherwise this always returns 0. */
-                const char *file,
-                int line,
-                const char *func,
-                const char *lvalue,
-                const char *rvalue);
+                ثابت نویسه *file,
+                صحیح سطر,
+                ثابت نویسه *func,
+                ثابت نویسه *lvalue,
+                ثابت نویسه *rvalue);
 
-#define log_syntax(unit, level, config_file, config_line, error, ...)   \
+#define log_syntax(unit, level, config_file, config_سطر, error, ...)   \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                صحیح _level = (level), _e = (error);                     \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_internal(unit, _level, config_file, config_line, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
-                        : -ERRNO_VALUE(_e);                             \
+                        ? log_syntax_internal(unit, _level, config_file, config_سطر, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
+                        : -ERRNO_مقدار(_e);                             \
         })
 
-#define log_syntax_invalid_utf8(unit, level, config_file, config_line, rvalue) \
+#define log_syntax_invalid_utf8(unit, level, config_file, config_سطر, rvalue) \
         ({                                                              \
-                int _level = (level);                                   \
+                صحیح _level = (level);                                   \
                 (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_line, PROJECT_FILE, __LINE__, __func__, rvalue) \
+                        ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_سطر, PROJECT_FILE, __LINE__, __func__, rvalue) \
                         : -EINVAL;                                      \
         })
 
-#define log_syntax_parse_error_full(unit, config_file, config_line, error, critical, lvalue, rvalue) \
-        log_syntax_parse_error_internal(unit, config_file, config_line, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
+#define log_syntax_parse_error_full(unit, config_file, config_سطر, error, critical, lvalue, rvalue) \
+        log_syntax_parse_error_internal(unit, config_file, config_سطر, error, critical, PROJECT_FILE, __LINE__, __func__, lvalue, rvalue)
 
-#define log_syntax_parse_error(unit, config_file, config_line, error, lvalue, rvalue) \
-        log_syntax_parse_error_full(unit, config_file, config_line, error, /* critical= */ false, lvalue, rvalue)
+#define log_syntax_parse_error(unit, config_file, config_سطر, error, lvalue, rvalue) \
+        log_syntax_parse_error_full(unit, config_file, config_سطر, error, /* critical= */ false, lvalue, rvalue)
 
 #define DEBUG_LOGGING _unlikely_(log_get_max_level() >= LOG_DEBUG)
 
-void log_setup(void);
+تهی log_setup(تهی);
 
-const char* _log_set_prefix(const char *prefix, bool force);
+ثابت نویسه* _log_set_prefix(ثابت نویسه *prefix, bool force);
 
-void log_prefix_swap(const char **prefix);
-static inline const char* _log_unset_prefixp(const char **p) {
-        assert(p);
+تهی log_prefix_swap(ثابت نویسه **prefix);
+ایستا درونخطی ثابت نویسه* _log_unset_prefixp(ثابت نویسه **p) {
+        أكد(p);
         _log_set_prefix(*p, true);
-        return NULL;
+        بازگشت پوچ;
 }
 
 #define LOG_SET_PREFIX(prefix) \
-        _cleanup_(_log_unset_prefixp) _unused_ const char *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);
+        _cleanup_(_log_unset_prefixp) _unused_ ثابت نویسه *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);

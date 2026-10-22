@@ -1,116 +1,116 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/stat.h>           /* IWYU pragma: export */
-#include <sys/statfs.h>         /* IWYU pragma: export */
+#شامل <sys/stat.h>           /* IWYU pragma: export */
+#شامل <sys/statfs.h>         /* IWYU pragma: export */
 
-#include "forward.h"
+#شامل "forward.h"
 
-int stat_verify_regular(const struct stat *st);
-int statx_verify_regular(const struct statx *stx);
-int verify_regular_at(int fd, const char *path, bool follow);
-int fd_verify_regular(int fd);
+صحیح stat_verify_regular(ثابت ساختار stat *st);
+صحیح statx_verify_regular(ثابت ساختار statx *stx);
+صحیح verify_regular_at(صحیح fd, ثابت نویسه *path, bool follow);
+صحیح fd_verify_regular(صحیح fd);
 
-int stat_verify_directory(const struct stat *st);
-int statx_verify_directory(const struct statx *stx);
-int fd_verify_directory(int fd);
-int is_dir_at(int fd, const char *path, bool follow);
-int is_dir(const char *path, bool follow);
+صحیح stat_verify_directory(ثابت ساختار stat *st);
+صحیح statx_verify_directory(ثابت ساختار statx *stx);
+صحیح fd_verify_directory(صحیح fd);
+صحیح is_dir_at(صحیح fd, ثابت نویسه *path, bool follow);
+صحیح is_dir(ثابت نویسه *path, bool follow);
 
-int stat_verify_symlink(const struct stat *st);
-int fd_verify_symlink(int fd);
-int is_symlink(const char *path);
+صحیح stat_verify_symlink(ثابت ساختار stat *st);
+صحیح fd_verify_symlink(صحیح fd);
+صحیح is_symlink(ثابت نویسه *path);
 
-int stat_verify_socket(const struct stat *st);
-int statx_verify_socket(const struct statx *stx);
-int fd_verify_socket(int fd);
-int is_socket(const char *path);
+صحیح stat_verify_socket(ثابت ساختار stat *st);
+صحیح statx_verify_socket(ثابت ساختار statx *stx);
+صحیح fd_verify_socket(صحیح fd);
+صحیح is_socket(ثابت نویسه *path);
 
-int stat_verify_linked(const struct stat *st);
-int fd_verify_linked(int fd);
+صحیح stat_verify_linked(ثابت ساختار stat *st);
+صحیح fd_verify_linked(صحیح fd);
 
-int stat_verify_block(const struct stat *st);
-int fd_verify_block(int fd);
+صحیح stat_verify_block(ثابت ساختار stat *st);
+صحیح fd_verify_block(صحیح fd);
 
-int stat_verify_char(const struct stat *st);
+صحیح stat_verify_char(ثابت ساختار stat *st);
 
-int stat_verify_device_node(const struct stat *st);
-int is_device_node(const char *path);
+صحیح stat_verify_device_گره(ثابت ساختار stat *st);
+صحیح is_device_گره(ثابت نویسه *path);
 
-int stat_verify_regular_or_block(const struct stat *st);
-int fd_verify_regular_or_block(int fd);
+صحیح stat_verify_regular_or_block(ثابت ساختار stat *st);
+صحیح fd_verify_regular_or_block(صحیح fd);
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup);
-static inline int dir_is_empty(const char *path, bool ignore_hidden_or_backup) {
-        return dir_is_empty_at(AT_FDCWD, path, ignore_hidden_or_backup);
+صحیح dir_is_empty_at(صحیح dir_fd, ثابت نویسه *path, bool ignore_hidden_or_backup);
+ایستا درونخطی صحیح dir_is_empty(ثابت نویسه *path, bool ignore_hidden_or_backup) {
+        بازگشت dir_is_empty_at(AT_FDCWD, path, ignore_hidden_or_backup);
 }
 
-bool stat_may_be_dev_null(struct stat *st) _pure_;
-bool stat_is_empty(struct stat *st) _pure_;
-static inline bool null_or_empty(struct stat *st) {
-        return stat_may_be_dev_null(st) || stat_is_empty(st);
+bool stat_may_be_dev_null(ساختار stat *st) _pure_;
+bool stat_is_empty(ساختار stat *st) _pure_;
+ایستا درونخطی bool null_or_empty(ساختار stat *st) {
+        بازگشت stat_may_be_dev_null(st) || stat_is_empty(st);
 }
-int null_or_empty_path_with_root(const char *fn, const char *root);
+صحیح null_or_empty_path_with_ریشه(ثابت نویسه *fn, ثابت نویسه *ریشه);
 
-static inline int null_or_empty_path(const char *fn) {
-        return null_or_empty_path_with_root(fn, NULL);
+ایستا درونخطی صحیح null_or_empty_path(ثابت نویسه *fn) {
+        بازگشت null_or_empty_path_with_ریشه(fn, پوچ);
 }
 
-typedef enum XStatXFlags {
+تعریفنوع شمارش XStatXFlags {
         XSTATX_MNT_ID_BEST = 1 << 0, /* Like STATX_MNT_ID_UNIQUE if available, STATX_MNT_ID otherwise */
 } XStatXFlags;
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+صحیح xstatx_full(صحیح fd,
+                ثابت نویسه *path,
+                صحیح statx_flags,
                 XStatXFlags xstatx_flags,
                 unsigned mandatory_mask,
                 unsigned optional_mask,
                 uint64_t mandatory_attributes,
-                struct statx *ret);
+                ساختار statx *ret);
 
-static inline int xstatx(
-                int fd,
-                const char *path,
-                int statx_flags,
+ایستا درونخطی صحیح xstatx(
+                صحیح fd,
+                ثابت نویسه *path,
+                صحیح statx_flags,
                 unsigned mandatory_mask,
-                struct statx *ret) {
+                ساختار statx *ret) {
 
-        return xstatx_full(fd, path, statx_flags, 0, mandatory_mask, 0, 0, ret);
+        بازگشت xstatx_full(fd, path, statx_flags, 0, mandatory_mask, 0, 0, ret);
 }
 
-int fd_is_read_only_fs(int fd);
-int path_is_read_only_fs(const char *path);
+صحیح fd_is_read_only_fs(صحیح fd);
+صحیح path_is_read_only_fs(ثابت نویسه *path);
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags);
-static inline int inode_same(const char *filea, const char *fileb, int flags) {
-        return inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
+صحیح inode_same_at(صحیح fda, ثابت نویسه *filea, صحیح fdb, ثابت نویسه *fileb, صحیح flags);
+ایستا درونخطی صحیح inode_same(ثابت نویسه *filea, ثابت نویسه *fileb, صحیح flags) {
+        بازگشت inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
 }
-static inline int fd_inode_same(int fda, int fdb) {
-        return inode_same_at(fda, NULL, fdb, NULL, AT_EMPTY_PATH);
+ایستا درونخطی صحیح fd_inode_same(صحیح fda, صحیح fdb) {
+        بازگشت inode_same_at(fda, پوچ, fdb, پوچ, AT_EMPTY_PATH);
 }
 
 /* The .f_type field of struct statfs is really weird defined on
  * different archs. Let's give its type a name. */
-typedef typeof_field(struct statfs, f_type) statfs_f_type_t;
+تعریفنوع typeof_field(ساختار statfs, f_type) statfs_f_type_t;
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) _pure_;
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value);
-static inline int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
-        return is_fs_type_at(fd, NULL, magic_value);
+bool is_fs_type(ثابت ساختار statfs *s, statfs_f_type_t magic_مقدار) _pure_;
+صحیح is_fs_type_at(صحیح dir_fd, ثابت نویسه *path, statfs_f_type_t magic_مقدار);
+ایستا درونخطی صحیح fd_is_fs_type(صحیح fd, statfs_f_type_t magic_مقدار) {
+        بازگشت is_fs_type_at(fd, پوچ, magic_مقدار);
 }
-static inline int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
-        return is_fs_type_at(AT_FDCWD, path, magic_value);
+ایستا درونخطی صحیح path_is_fs_type(ثابت نویسه *path, statfs_f_type_t magic_مقدار) {
+        بازگشت is_fs_type_at(AT_FDCWD, path, magic_مقدار);
 }
 
-bool is_temporary_fs(const struct statfs *s) _pure_;
-bool is_network_fs(const struct statfs *s) _pure_;
+bool is_temporary_fs(ثابت ساختار statfs *s) _pure_;
+bool is_network_fs(ثابت ساختار statfs *s) _pure_;
 
-int fd_is_temporary_fs(int fd);
-int fd_is_network_fs(int fd);
+صحیح fd_is_temporary_fs(صحیح fd);
+صحیح fd_is_network_fs(صحیح fd);
 
-int path_is_temporary_fs(const char *path);
-int path_is_network_fs(const char *path);
+صحیح path_is_temporary_fs(ثابت نویسه *path);
+صحیح path_is_network_fs(ثابت نویسه *path);
 
 /* Because statfs.t_type can be int on some architectures, we have to cast
  * the const magic to the type, otherwise the compiler warns about
@@ -118,29 +118,29 @@ int path_is_network_fs(const char *path);
  */
 #define F_TYPE_EQUAL(a, b) (a == (typeof(a)) b)
 
-int proc_mounted(void);
+صحیح proc_mounted(تهی);
 
-bool stat_inode_same(const struct stat *a, const struct stat *b);
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b);
+bool stat_inode_same(ثابت ساختار stat *a, ثابت ساختار stat *b);
+bool stat_inode_unmodified(ثابت ساختار stat *a, ثابت ساختار stat *b);
 
-bool statx_inode_same(const struct statx *a, const struct statx *b);
-int statx_mount_same(const struct statx *a, const struct statx *b);
+bool statx_inode_same(ثابت ساختار statx *a, ثابت ساختار statx *b);
+صحیح statx_mount_same(ثابت ساختار statx *a, ثابت ساختار statx *b);
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret);
+صحیح xstatfsat(صحیح dir_fd, ثابت نویسه *path, ساختار statfs *ret);
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) _pure_;
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) _pure_;
+usec_t statx_timestamp_load(ثابت ساختار statx_timestamp *ts) _pure_;
+nsec_t statx_timestamp_load_nsec(ثابت ساختار statx_timestamp *ts) _pure_;
 
 /* This compares inode number, backing device and inode type, but not modification info */
-void inode_hash_func(const struct stat *q, struct siphash *state);
-int inode_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_hash_ops;
+تهی inode_hash_func(ثابت ساختار stat *q, ساختار siphash *state);
+صحیح inode_compare_func(ثابت ساختار stat *a, ثابت ساختار stat *b);
+بیرونی ثابت ساختار hash_ops inode_hash_ops;
 
 /* This is a more thorough version of the above, and also checks the mtimes, the size, and the rdev. It does
  * not check "external" attributes such as access mode or ownership. */
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state);
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_unmodified_hash_ops;
+تهی inode_unmodified_hash_func(ثابت ساختار stat *q, ساختار siphash *state);
+صحیح inode_unmodified_compare_func(ثابت ساختار stat *a, ثابت ساختار stat *b);
+بیرونی ثابت ساختار hash_ops inode_unmodified_hash_ops;
 
 DECLARE_STRING_TABLE_LOOKUP(inode_type, mode_t);
 
@@ -149,21 +149,21 @@ DECLARE_STRING_TABLE_LOOKUP(inode_type, mode_t);
  * to its originating superblock, regardless if the fs is block based or virtual (we also check for .st_mode
  * being MODE_INVALID, since we use that as an invalid marker for separate mode_t fields). For "struct statx"
  * we use the .stx_mask field, which must be non-zero if any of the fields have already been initialized. */
-static inline bool stat_is_set(const struct stat *st) {
-        return st && st->st_dev != 0 && st->st_mode != MODE_INVALID;
+ایستا درونخطی bool stat_is_set(ثابت ساختار stat *st) {
+        بازگشت st && st->st_dev != 0 && st->st_mode != MODE_INVALID;
 }
-static inline bool statx_is_set(const struct statx *sx) {
-        return sx && sx->stx_mask != 0;
+ایستا درونخطی bool statx_is_set(ثابت ساختار statx *sx) {
+        بازگشت sx && sx->stx_mask != 0;
 }
-static inline bool statfs_is_set(const struct statfs *sfs) {
-        return sfs && sfs->f_type != 0;
+ایستا درونخطی bool statfs_is_set(ثابت ساختار statfs *sfs) {
+        بازگشت sfs && sfs->f_type != 0;
 }
 
-static inline bool inode_type_can_hardlink(mode_t m) {
+ایستا درونخطی bool inode_type_can_hardlink(mode_t m) {
         /* returns true for all inode types that support hardlinks on linux. Note this is effectively all
          * inode types except for directories (and those weird misc fds such as eventfds() that have no inode
          * type). */
-        return IN_SET(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
+        بازگشت IN_SET(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret);
+صحیح vfs_free_bytes(صحیح fd, uint64_t *ret);

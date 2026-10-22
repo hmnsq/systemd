@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-typedef enum ExtractFlags {
+تعریفنوع شمارش ExtractFlags {
         EXTRACT_RELAX                    = 1 << 0, /* Allow unbalanced quote and eat up trailing backslash. */
         EXTRACT_CUNESCAPE                = 1 << 1, /* Unescape known escape sequences. */
         EXTRACT_UNESCAPE_RELAX           = 1 << 2, /* Allow and keep unknown escape sequences, allow and keep trailing backslash. */
@@ -17,9 +17,9 @@ typedef enum ExtractFlags {
         /* Note that if no flags are specified, escaped escape characters will be silently stripped. */
 } ExtractFlags;
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags);
-int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned line, const char *rvalue);
+صحیح extract_first_word(ثابت نویسه **p, نویسه **ret, ثابت نویسه *separators, ExtractFlags flags);
+صحیح extract_first_word_and_warn(ثابت نویسه **p, نویسه **ret, ثابت نویسه *separators, ExtractFlags flags, ثابت نویسه *unit, ثابت نویسه *filename, unsigned سطر, ثابت نویسه *rvalue);
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
-#define extract_many_words(p, separators, flags, ...) \
-        extract_many_words_internal(p, separators, flags, ##__VA_ARGS__, NULL)
+صحیح extract_many_واژگان_internal(ثابت نویسه **p, ثابت نویسه *separators, unsigned flags, ...) _sentinel_;
+#define extract_many_واژگان(p, separators, flags, ...) \
+        extract_many_واژگان_internal(p, separators, flags, ##__VA_ARGS__, پوچ)

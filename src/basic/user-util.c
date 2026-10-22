@@ -1,47 +1,47 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <utmpx.h>
+#شامل <fcntl.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <sys/file.h>
+#شامل <sys/stat.h>
+#شامل <unistd.h>
+#شامل <utmpx.h>
 
-#include "sd-messages.h"
+#شامل "sd-messages.h"
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "lock-util.h"
-#include "log.h"
-#include "mkdir.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "terminal-util.h"
-#include "user-util.h"
-#include "utf8.h"
+#شامل "alloc-util.h"
+#شامل "chase.h"
+#شامل "errno-util.h"
+#شامل "extract-word.h"
+#شامل "fd-util.h"
+#شامل "fileio.h"
+#شامل "format-util.h"
+#شامل "lock-util.h"
+#شامل "log.h"
+#شامل "mkdir.h"
+#شامل "parse-util.h"
+#شامل "path-util.h"
+#شامل "string-util.h"
+#شامل "strv.h"
+#شامل "terminal-util.h"
+#شامل "user-util.h"
+#شامل "utf8.h"
 
 #define DEFINE_STRERROR_ACCOUNT(type)                                   \
-        const char* strerror_##type(                                    \
-                        int errnum,                                     \
-                        char *buf,                                      \
+        ثابت نویسه* strerror_##type(                                    \
+                        صحیح errnum,                                     \
+                        نویسه *buf,                                      \
                         size_t buflen) {                                \
                                                                         \
                 errnum = ABS(errnum);                                   \
-                switch (errnum) {                                       \
-                case ESRCH:                                             \
-                        return "Unknown " STRINGIFY(type);              \
-                case ENOEXEC:                                           \
-                        return "Not a system " STRINGIFY(type);         \
-                default:                                                \
-                        return strerror_r(errnum, buf, buflen);         \
+                انتخاب (errnum) {                                       \
+                حالت ESRCH:                                             \
+                        بازگشت "Unknown " STRINGIFY(type);              \
+                حالت ENOEXEC:                                           \
+                        بازگشت "Not a system " STRINGIFY(type);         \
+                پیشفرض:                                                \
+                        بازگشت strerror_r(errnum, buf, buflen);         \
                 }                                                       \
         }
 
@@ -53,23 +53,23 @@ bool uid_is_valid(uid_t uid) {
         /* Also see POSIX IEEE Std 1003.1-2008, 2016 Edition, 3.436. */
 
         /* Some libc APIs use UID_INVALID as special placeholder */
-        if (uid == (uid_t) UINT32_C(0xFFFFFFFF))
-                return false;
+        اگر (uid == (uid_t) UINT32_C(0xFFFFFFFF))
+                بازگشت false;
 
         /* A long time ago UIDs where 16 bit, hence explicitly avoid the 16-bit -1 too */
-        if (uid == (uid_t) UINT32_C(0xFFFF))
-                return false;
+        اگر (uid == (uid_t) UINT32_C(0xFFFF))
+                بازگشت false;
 
-        return true;
+        بازگشت true;
 }
 
-int parse_uid(const char *s, uid_t *ret) {
+صحیح parse_uid(ثابت نویسه *s, uid_t *ret) {
         uint32_t uid = 0;
-        int r;
+        صحیح r;
 
-        assert(s);
+        أكد(s);
 
-        assert_cc(sizeof(uid_t) == sizeof(uint32_t));
+        assert_cc(اندازه(uid_t) == اندازه(uint32_t));
 
         /* We are very strict when parsing UIDs, and prohibit +/- as prefix, leading zero as prefix, and
          * whitespace. We do this, since this call is often used in a context where we parse things as UID
@@ -79,85 +79,85 @@ int parse_uid(const char *s, uid_t *ret) {
                              | SAFE_ATO_REFUSE_PLUS_MINUS
                              | SAFE_ATO_REFUSE_LEADING_ZERO
                              | SAFE_ATO_REFUSE_LEADING_WHITESPACE, &uid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        if (!uid_is_valid(uid))
-                return -ENXIO; /* we return ENXIO instead of EINVAL
+        اگر (!uid_is_valid(uid))
+                بازگشت -ENXIO; /* we return ENXIO instead of EINVAL
                                 * here, to make it easy to distinguish
                                 * invalid numeric uids from invalid
                                 * strings. */
 
-        if (ret)
+        اگر (ret)
                 *ret = uid;
 
-        return 0;
+        بازگشت 0;
 }
 
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper) {
-        _cleanup_free_ char *word = NULL;
+صحیح parse_uid_range(ثابت نویسه *s, uid_t *ret_lower, uid_t *ret_upper) {
+        _cleanup_free_ نویسه *word = پوچ;
         uid_t l, u;
-        int r;
+        صحیح r;
 
-        assert(s);
-        assert(ret_lower);
-        assert(ret_upper);
+        أكد(s);
+        أكد(ret_lower);
+        أكد(ret_upper);
 
         r = extract_first_word(&s, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        اگر (r < 0)
+                بازگشت r;
+        اگر (r == 0)
+                بازگشت -EINVAL;
 
         r = parse_uid(word, &l);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!s)
+        اگر (!s)
                 /* Single number with no dash. */
                 u = l;
-        else if (!*s)
+        وگرنه اگر (!*s)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                بازگشت -EINVAL;
+        وگرنه {
                 r = parse_uid(s, &u);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
 
-                if (l > u)
-                        return -EINVAL;
+                اگر (l > u)
+                        بازگشت -EINVAL;
         }
 
         *ret_lower = l;
         *ret_upper = u;
-        return 0;
+        بازگشت 0;
 }
 
-char* getlogname_malloc(void) {
+نویسه* getlogname_malloc(تهی) {
         uid_t uid;
-        struct stat st;
+        ساختار stat st;
 
-        if (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
+        اگر (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
                 uid = st.st_uid;
-        else
+        وگرنه
                 uid = getuid();
 
-        return uid_to_name(uid);
+        بازگشت uid_to_name(uid);
 }
 
-char* getusername_malloc(void) {
-        const char *e;
+نویسه* getusername_malloc(تهی) {
+        ثابت نویسه *e;
 
         e = secure_getenv("USER");
-        if (e)
-                return strdup(e);
+        اگر (e)
+                بازگشت strdup(e);
 
-        return uid_to_name(getuid());
+        بازگشت uid_to_name(getuid());
 }
 
-bool is_nologin_shell(const char *shell) {
-        return PATH_IN_SET(shell,
+bool is_nologin_shell(ثابت نویسه *shell) {
+        بازگشت PATH_IN_SET(shell,
                            /* 'nologin' is the friendliest way to disable logins for a user account. It prints a nice
                             * message and exits. Different distributions place the binary at different places though,
                             * hence let's list them all. */
@@ -174,130 +174,130 @@ bool is_nologin_shell(const char *shell) {
                            "/usr/bin/true");
 }
 
-bool shell_is_placeholder(const char *shell) {
-        return isempty(shell) || is_nologin_shell(shell);
+bool shell_is_placeholder(ثابت نویسه *shell) {
+        بازگشت isempty(shell) || is_nologin_shell(shell);
 }
 
-const char* default_root_shell_at(int rfd) {
+ثابت نویسه* default_ریشه_shell_at(صحیح rfd) {
         /* We want to use the preferred shell, i.e. DEFAULT_USER_SHELL, which usually
          * will be /bin/bash. Fall back to /bin/sh if DEFAULT_USER_SHELL is not found,
          * or any access errors. */
 
-        assert(rfd >= 0 || rfd == AT_FDCWD);
+        أكد(rfd >= 0 || rfd == AT_FDCWD);
 
-        int r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, NULL, NULL);
-        if (r < 0 && r != -ENOENT)
+        صحیح r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, پوچ, پوچ);
+        اگر (r < 0 && r != -ENOENT)
                 log_debug_errno(r, "Failed to look up shell '%s': %m", DEFAULT_USER_SHELL);
-        if (r > 0)
-                return DEFAULT_USER_SHELL;
+        اگر (r > 0)
+                بازگشت DEFAULT_USER_SHELL;
 
-        return "/bin/sh";
+        بازگشت "/bin/sh";
 }
 
-const char* default_root_shell(const char *root) {
-        _cleanup_close_ int rfd = -EBADF;
+ثابت نویسه* default_ریشه_shell(ثابت نویسه *ریشه) {
+        _cleanup_close_ صحیح rfd = -EBADF;
 
-        rfd = open(empty_to_root(root), O_CLOEXEC | O_DIRECTORY | O_PATH);
-        if (rfd < 0)
-                return "/bin/sh";
+        rfd = open(empty_to_ریشه(ریشه), O_CLOEXEC | O_DIRECTORY | O_PATH);
+        اگر (rfd < 0)
+                بازگشت "/bin/sh";
 
-        return default_root_shell_at(rfd);
+        بازگشت default_ریشه_shell_at(rfd);
 }
 
-static int return_user_creds(
-                const char *username,
+ایستا صحیح return_user_creds(
+                ثابت نویسه *username,
                 uid_t uid, gid_t gid,
-                const char *home,
-                const char *shell,
-                char **ret_username,
+                ثابت نویسه *home,
+                ثابت نویسه *shell,
+                نویسه **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell) {
+                نویسه **ret_home,
+                نویسه **ret_shell) {
         /* Helper function to help with the strdups and atomic setting of return params. */
 
-        _cleanup_free_ char *s1 = NULL, *s2 = NULL, *s3 = NULL;
-        int r;
+        _cleanup_free_ نویسه *s1 = پوچ, *s2 = پوچ, *s3 = پوچ;
+        صحیح r;
 
-        if (ret_username) {
+        اگر (ret_username) {
                 r = strdup_to(&s1, username);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        if (ret_home) {
+        اگر (ret_home) {
                 r = strdup_to(&s2, home);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        if (ret_shell) {
+        اگر (ret_shell) {
                 r = strdup_to(&s3, shell);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        if (ret_username)
+        اگر (ret_username)
                 *ret_username = TAKE_PTR(s1);
-        if (ret_uid)
+        اگر (ret_uid)
                 *ret_uid = uid;
-        if (ret_gid)
+        اگر (ret_gid)
                 *ret_gid = gid;
-        if (ret_home)
+        اگر (ret_home)
                 *ret_home = TAKE_PTR(s2);
-        if (ret_shell)
+        اگر (ret_shell)
                 *ret_shell = TAKE_PTR(s3);
-        return 0;
+        بازگشت 0;
 }
 
-static int synthesize_user_creds(
-                const char *username,
+ایستا صحیح synthesize_user_creds(
+                ثابت نویسه *username,
                 UserCredsFlags flags,
-                char **ret_username,
+                نویسه **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell) {
-        assert(username);
+                نویسه **ret_home,
+                نویسه **ret_shell) {
+        أكد(username);
 
         /* We enforce some special rules for uid=0 and uid=65534: in order to avoid nss lookups for root we
          * hardcode their user record data. */
-        if (STR_IN_SET(username, "root", "0"))
-                return return_user_creds("root", 0, 0,
+        اگر (STR_IN_SET(username, "root", "0"))
+                بازگشت return_user_creds("root", 0, 0,
                                          "/root",
-                                         ret_shell ? default_root_shell(NULL) : NULL,
+                                         ret_shell ? default_ریشه_shell(پوچ) : پوچ,
                                          ret_username,
                                          ret_uid, ret_gid,
                                          ret_home,
                                          ret_shell);
 
-        if (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
+        اگر (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
             synthesize_nobody())
-                return return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
-                                         FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : "/",
-                                         FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : NOLOGIN,
+                بازگشت return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
+                                         FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? پوچ : "/",
+                                         FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? پوچ : NOLOGIN,
                                          ret_username,
                                          ret_uid, ret_gid,
                                          ret_home,
                                          ret_shell);
 
-        return -ENOMEDIUM;
+        بازگشت -ENOMEDIUM;
 }
 
-int get_user_creds(
-                const char *username,
+صحیح get_user_creds(
+                ثابت نویسه *username,
                 UserCredsFlags flags,
-                char **ret_username,
+                نویسه **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell) {
+                نویسه **ret_home,
+                نویسه **ret_shell) {
 
         uid_t u = UID_INVALID;
-        _cleanup_free_ struct passwd *pw = NULL;
-        int r;
+        _cleanup_free_ ساختار passwd *pw = پوچ;
+        صحیح r;
 
-        assert(username);
-        assert((ret_home || ret_shell) || !(flags & (USER_CREDS_SUPPRESS_PLACEHOLDER|USER_CREDS_CLEAN)));
+        أكد(username);
+        أكد((ret_home || ret_shell) || !(flags & (USER_CREDS_SUPPRESS_PLACEHOLDER|USER_CREDS_CLEAN)));
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
+        اگر (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
             (!ret_home && !ret_shell)) {
 
                 /* So here's the deal: normally, we'll try to synthesize all records we can synthesize, and override
@@ -310,386 +310,386 @@ int get_user_creds(
                  * support. */
 
                 r = synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a username we can synthesize */
-                        return r;
+                اگر (r >= 0)
+                        بازگشت 0;
+                اگر (r != -ENOMEDIUM) /* not a username we can synthesize */
+                        بازگشت r;
         }
 
-        if (parse_uid(username, &u) >= 0) {
+        اگر (parse_uid(username, &u) >= 0) {
                 r = getpwuid_malloc(u, &pw);
 
                 /* If there are multiple users with the same id, make sure to leave $USER to the configured value
                  * instead of the first occurrence in the database. However if the uid was configured by a numeric uid,
                  * then let's pick the real username from /etc/passwd. */
-                if (r >= 0)
+                اگر (r >= 0)
                         username = pw->pw_name;
 
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
+                وگرنه اگر (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
                         /* If the specified user is a numeric UID and it isn't in the user database, and the caller
                          * passed USER_CREDS_ALLOW_MISSING and was only interested in the UID, then just return that
                          * and don't complain. */
-                        if (ret_username)
-                                *ret_username = NULL;
-                        if (ret_uid)
+                        اگر (ret_username)
+                                *ret_username = پوچ;
+                        اگر (ret_uid)
                                 *ret_uid = u;
-                        return 0;
+                        بازگشت 0;
                 }
-        } else
+        } وگرنه
                 r = getpwnam_malloc(username, &pw);
 
-        if (r < 0) {
+        اگر (r < 0) {
                 /* If the user requested that we only synthesize as fallback, do so now */
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+                اگر (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell) >= 0)
-                        return 0;
+                        بازگشت 0;
 
-                return r;
+                بازگشت r;
         }
 
-        if (ret_uid && !uid_is_valid(pw->pw_uid))
-                return -EBADMSG;
+        اگر (ret_uid && !uid_is_valid(pw->pw_uid))
+                بازگشت -EBADMSG;
 
-        if (ret_gid && !gid_is_valid(pw->pw_gid))
-                return -EBADMSG;
+        اگر (ret_gid && !gid_is_valid(pw->pw_gid))
+                بازگشت -EBADMSG;
 
         /* Note: we don't insist on normalized paths, since there are setups that have /./ in the path */
-        const char *h =
-                (FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) && empty_or_root(pw->pw_dir)) ||
+        ثابت نویسه *h =
+                (FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) && empty_or_ریشه(pw->pw_dir)) ||
                 (FLAGS_SET(flags, USER_CREDS_CLEAN) && (!path_is_valid(pw->pw_dir) || !path_is_absolute(pw->pw_dir)))
-                ? NULL : pw->pw_dir;
+                ? پوچ : pw->pw_dir;
 
-        const char *s =
+        ثابت نویسه *s =
                 (FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) && shell_is_placeholder(pw->pw_shell)) ||
                 (FLAGS_SET(flags, USER_CREDS_CLEAN) && (!path_is_valid(pw->pw_shell) || !path_is_absolute(pw->pw_shell)))
-                ? NULL : pw->pw_shell;
+                ? پوچ : pw->pw_shell;
 
-        return return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
+        بازگشت return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
                                  ret_username, ret_uid, ret_gid, ret_home, ret_shell);
 }
 
-static int synthesize_group_creds(const char *groupname, char **ret_name, gid_t *ret_gid) {
-        assert(groupname);
+ایستا صحیح synthesize_group_creds(ثابت نویسه *groupname, نویسه **ret_name, gid_t *ret_gid) {
+        أكد(groupname);
 
         gid_t id;
-        const char *n;
-        int r;
+        ثابت نویسه *n;
+        صحیح r;
 
-        if (STR_IN_SET(groupname, "root", "0")) {
+        اگر (STR_IN_SET(groupname, "root", "0")) {
                 id = 0;
                 n = "root";
-        } else if (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
+        } وگرنه اگر (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
                    synthesize_nobody()) {
                 id = GID_NOBODY;
                 n = NOBODY_GROUP_NAME;
-        } else
-                return -ENOMEDIUM;
+        } وگرنه
+                بازگشت -ENOMEDIUM;
 
         r = strdup_to_full(ret_name, n);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        اگر (r < 0)
+                بازگشت r;
+        اگر (ret_gid)
                 *ret_gid = id;
-        return 0;
+        بازگشت 0;
 }
 
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid) {
-        _cleanup_free_ struct group *gr = NULL;
+صحیح get_group_creds(ثابت نویسه *groupname, UserCredsFlags flags, نویسه **ret_name, gid_t *ret_gid) {
+        _cleanup_free_ ساختار group *gr = پوچ;
         gid_t id;
-        int r;
+        صحیح r;
 
-        assert(groupname);
+        أكد(groupname);
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
+        اگر (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
                 r = synthesize_group_creds(groupname, ret_name, ret_gid);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a groupname we can synthesize */
-                        return r;
+                اگر (r >= 0)
+                        بازگشت 0;
+                اگر (r != -ENOMEDIUM) /* not a groupname we can synthesize */
+                        بازگشت r;
         }
 
-        if (parse_gid(groupname, &id) >= 0) {
+        اگر (parse_gid(groupname, &id) >= 0) {
                 r = getgrgid_malloc(id, &gr);
-                if (r >= 0)
+                اگر (r >= 0)
                         groupname = gr->gr_name;
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
-                        if (ret_gid)
+                وگرنه اگر (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
+                        اگر (ret_gid)
                                 *ret_gid = id;
-                        if (ret_name)
-                                *ret_name = NULL;
-                        return 0;
+                        اگر (ret_name)
+                                *ret_name = پوچ;
+                        بازگشت 0;
                 }
-        } else
+        } وگرنه
                 r = getgrnam_malloc(groupname, &gr);
 
-        if (r < 0) {
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+        اگر (r < 0) {
+                اگر (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_group_creds(groupname, ret_name, ret_gid) >= 0)
-                        return 0;
-                return r;
+                        بازگشت 0;
+                بازگشت r;
         }
 
-        if (ret_gid && !gid_is_valid(gr->gr_gid))
-                return -EBADMSG;
+        اگر (ret_gid && !gid_is_valid(gr->gr_gid))
+                بازگشت -EBADMSG;
 
         r = strdup_to_full(ret_name, groupname);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        اگر (r < 0)
+                بازگشت r;
+        اگر (ret_gid)
                 *ret_gid = gr->gr_gid;
-        return 0;
+        بازگشت 0;
 }
 
-char* uid_to_name(uid_t uid) {
-        char *ret;
-        int r;
+نویسه* uid_to_name(uid_t uid) {
+        نویسه *ret;
+        صحیح r;
 
         /* Shortcut things to avoid NSS lookups */
-        if (uid == 0)
-                return strdup("root");
-        if (uid == UID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_USER_NAME);
+        اگر (uid == 0)
+                بازگشت strdup("root");
+        اگر (uid == UID_NOBODY && synthesize_nobody())
+                بازگشت strdup(NOBODY_USER_NAME);
 
-        if (uid_is_valid(uid)) {
-                _cleanup_free_ struct passwd *pw = NULL;
+        اگر (uid_is_valid(uid)) {
+                _cleanup_free_ ساختار passwd *pw = پوچ;
 
                 r = getpwuid_malloc(uid, &pw);
-                if (r >= 0)
-                        return strdup(pw->pw_name);
+                اگر (r >= 0)
+                        بازگشت strdup(pw->pw_name);
         }
 
-        if (asprintf(&ret, UID_FMT, uid) < 0)
-                return NULL;
+        اگر (asprintf(&ret, UID_FMT, uid) < 0)
+                بازگشت پوچ;
 
-        return ret;
+        بازگشت ret;
 }
 
-char* gid_to_name(gid_t gid) {
-        char *ret;
-        int r;
+نویسه* gid_to_name(gid_t gid) {
+        نویسه *ret;
+        صحیح r;
 
-        if (gid == 0)
-                return strdup("root");
-        if (gid == GID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_GROUP_NAME);
+        اگر (gid == 0)
+                بازگشت strdup("root");
+        اگر (gid == GID_NOBODY && synthesize_nobody())
+                بازگشت strdup(NOBODY_GROUP_NAME);
 
-        if (gid_is_valid(gid)) {
-                _cleanup_free_ struct group *gr = NULL;
+        اگر (gid_is_valid(gid)) {
+                _cleanup_free_ ساختار group *gr = پوچ;
 
                 r = getgrgid_malloc(gid, &gr);
-                if (r >= 0)
-                        return strdup(gr->gr_name);
+                اگر (r >= 0)
+                        بازگشت strdup(gr->gr_name);
         }
 
-        if (asprintf(&ret, GID_FMT, gid) < 0)
-                return NULL;
+        اگر (asprintf(&ret, GID_FMT, gid) < 0)
+                بازگشت پوچ;
 
-        return ret;
+        بازگشت ret;
 }
 
-static bool gid_list_has(const gid_t *list, size_t size, gid_t val) {
-        assert(list || size == 0);
+ایستا bool gid_list_has(ثابت gid_t *list, size_t size, gid_t val) {
+        أكد(list || size == 0);
 
         FOREACH_ARRAY(i, list, size)
-                if (*i == val)
-                        return true;
+                اگر (*i == val)
+                        بازگشت true;
 
-        return false;
+        بازگشت false;
 }
 
-int in_gid(gid_t gid) {
-        _cleanup_free_ gid_t *gids = NULL;
-        int ngroups;
+صحیح in_gid(gid_t gid) {
+        _cleanup_free_ gid_t *gids = پوچ;
+        صحیح ngroups;
 
-        if (getgid() == gid)
-                return 1;
+        اگر (getgid() == gid)
+                بازگشت 1;
 
-        if (getegid() == gid)
-                return 1;
+        اگر (getegid() == gid)
+                بازگشت 1;
 
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+        اگر (!gid_is_valid(gid))
+                بازگشت -EINVAL;
 
         ngroups = getgroups_alloc(&gids);
-        if (ngroups < 0)
-                return ngroups;
+        اگر (ngroups < 0)
+                بازگشت ngroups;
 
-        return gid_list_has(gids, ngroups, gid);
+        بازگشت gid_list_has(gids, ngroups, gid);
 }
 
-int in_group(const char *name) {
-        int r;
+صحیح in_group(ثابت نویسه *name) {
+        صحیح r;
         gid_t gid;
 
-        r = get_group_creds(name, /* flags= */ 0, /* ret_name= */ NULL, &gid);
-        if (r < 0)
-                return r;
+        r = get_group_creds(name, /* flags= */ 0, /* ret_name= */ پوچ, &gid);
+        اگر (r < 0)
+                بازگشت r;
 
-        return in_gid(gid);
+        بازگشت in_gid(gid);
 }
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret) {
+صحیح merge_gid_lists(ثابت gid_t *list1, size_t size1, ثابت gid_t *list2, size_t size2, gid_t **ret) {
         size_t nresult = 0;
 
-        assert(size1 == 0 || list1);
-        assert(size2 == 0 || list2);
-        assert(ret);
+        أكد(size1 == 0 || list1);
+        أكد(size2 == 0 || list2);
+        أكد(ret);
 
-        if (size2 > INT_MAX - size1)
-                return -ENOBUFS;
+        اگر (size2 > INT_MAX - size1)
+                بازگشت -ENOBUFS;
 
         gid_t *buf = new(gid_t, size1 + size2);
-        if (!buf)
-                return -ENOMEM;
+        اگر (!buf)
+                بازگشت -ENOMEM;
 
         /* Duplicates need to be skipped on merging, otherwise they'll be passed on and stored in the kernel. */
-        for (size_t i = 0; i < size1; i++)
-                if (!gid_list_has(buf, nresult, list1[i]))
+        برای (size_t i = 0; i < size1; i++)
+                اگر (!gid_list_has(buf, nresult, list1[i]))
                         buf[nresult++] = list1[i];
-        for (size_t i = 0; i < size2; i++)
-                if (!gid_list_has(buf, nresult, list2[i]))
+        برای (size_t i = 0; i < size2; i++)
+                اگر (!gid_list_has(buf, nresult, list2[i]))
                         buf[nresult++] = list2[i];
         *ret = buf;
-        return (int)nresult;
+        بازگشت (صحیح)nresult;
 }
 
-int getgroups_alloc(gid_t **ret) {
-        int ngroups = 8;
+صحیح getgroups_alloc(gid_t **ret) {
+        صحیح ngroups = 8;
 
-        assert(ret);
+        أكد(ret);
 
-        for (unsigned attempt = 0;;) {
-                _cleanup_free_ gid_t *p = NULL;
+        برای (unsigned attempt = 0;;) {
+                _cleanup_free_ gid_t *p = پوچ;
 
                 p = new(gid_t, ngroups);
-                if (!p)
-                        return -ENOMEM;
+                اگر (!p)
+                        بازگشت -ENOMEM;
 
                 ngroups = getgroups(ngroups, p);
-                if (ngroups > 0) {
+                اگر (ngroups > 0) {
                         *ret = TAKE_PTR(p);
-                        return ngroups;
+                        بازگشت ngroups;
                 }
-                if (ngroups == 0)
-                        break;
-                if (errno != EINVAL)
-                        return -errno;
+                اگر (ngroups == 0)
+                        بشکن;
+                اگر (errno != EINVAL)
+                        بازگشت -errno;
 
                 /* Give up eventually */
-                if (attempt++ > 10)
-                        return -EINVAL;
+                اگر (attempt++ > 10)
+                        بازگشت -EINVAL;
 
                 /* Get actual size needed, and size the array explicitly. Note that this is potentially racy
                  * to use (in multi-threaded programs), hence let's call this in a loop. */
-                ngroups = getgroups(0, NULL);
-                if (ngroups < 0)
-                        return -errno;
-                if (ngroups == 0)
-                        break;
+                ngroups = getgroups(0, پوچ);
+                اگر (ngroups < 0)
+                        بازگشت -errno;
+                اگر (ngroups == 0)
+                        بشکن;
         }
 
-        *ret = NULL;
-        return 0;
+        *ret = پوچ;
+        بازگشت 0;
 }
 
-int get_home_dir(char **ret) {
-        _cleanup_free_ struct passwd *p = NULL;
-        const char *e;
+صحیح get_home_dir(نویسه **ret) {
+        _cleanup_free_ ساختار passwd *p = پوچ;
+        ثابت نویسه *e;
         uid_t u;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* Take the user specified one */
         e = secure_getenv("HOME");
-        if (e && path_is_valid(e) && path_is_absolute(e))
-                goto found;
+        اگر (e && path_is_valid(e) && path_is_absolute(e))
+                برو found;
 
         /* Hardcode home directory for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
+        اگر (u == 0) {
                 e = "/root";
-                goto found;
+                برو found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        اگر (u == UID_NOBODY && synthesize_nobody()) {
                 e = "/";
-                goto found;
+                برو found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
         e = p->pw_dir;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        اگر (!path_is_valid(e) || !path_is_absolute(e))
+                بازگشت -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        بازگشت path_simplify_alloc(e, ret);
 }
 
-int get_shell(char **ret) {
-        _cleanup_free_ struct passwd *p = NULL;
-        const char *e;
+صحیح get_shell(نویسه **ret) {
+        _cleanup_free_ ساختار passwd *p = پوچ;
+        ثابت نویسه *e;
         uid_t u;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* Take the user specified one */
         e = secure_getenv("SHELL");
-        if (e && path_is_valid(e) && path_is_absolute(e))
-                goto found;
+        اگر (e && path_is_valid(e) && path_is_absolute(e))
+                برو found;
 
         /* Hardcode shell for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
-                e = default_root_shell(NULL);
-                goto found;
+        اگر (u == 0) {
+                e = default_ریشه_shell(پوچ);
+                برو found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        اگر (u == UID_NOBODY && synthesize_nobody()) {
                 e = NOLOGIN;
-                goto found;
+                برو found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
         e = p->pw_shell;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        اگر (!path_is_valid(e) || !path_is_absolute(e))
+                بازگشت -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        بازگشت path_simplify_alloc(e, ret);
 }
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids) {
-        int r;
+صحیح fully_set_uid_gid(uid_t uid, gid_t gid, ثابت gid_t supplementary_gids[], size_t n_supplementary_gids) {
+        صحیح r;
 
-        assert(supplementary_gids || n_supplementary_gids == 0);
+        أكد(supplementary_gids || n_supplementary_gids == 0);
 
         /* Sets all UIDs and all GIDs to the specified ones. Drops all auxiliary GIDs */
 
         r = maybe_setgroups(n_supplementary_gids, supplementary_gids);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        if (gid_is_valid(gid))
-                if (setresgid(gid, gid, gid) < 0)
-                        return -errno;
+        اگر (gid_is_valid(gid))
+                اگر (setresgid(gid, gid, gid) < 0)
+                        بازگشت -errno;
 
-        if (uid_is_valid(uid))
-                if (setresuid(uid, uid, uid) < 0)
-                        return -errno;
+        اگر (uid_is_valid(uid))
+                اگر (setresuid(uid, uid, uid) < 0)
+                        بازگشت -errno;
 
-        return 0;
+        بازگشت 0;
 }
 
-int take_etc_passwd_lock(const char *root) {
-        int r;
+صحیح take_etc_passwd_lock(ثابت نویسه *ریشه) {
+        صحیح r;
 
         /* This is roughly the same as lckpwdf(), but not as awful. We don't want to use alarm() and signals,
          * hence we implement our own trivial version of this.
@@ -698,25 +698,25 @@ int take_etc_passwd_lock(const char *root) {
          * given that they are redundant: they invoke lckpwdf() first and keep it during everything they do.
          * The per-database locks are awfully racy, and thus we just won't do them. */
 
-        _cleanup_free_ char *path = path_join(root, ETC_PASSWD_LOCK_PATH);
-        if (!path)
-                return log_oom_debug();
+        _cleanup_free_ نویسه *path = path_join(ریشه, ETC_PASSWD_LOCK_PATH);
+        اگر (!path)
+                بازگشت log_oom_debug();
 
-        (void) mkdir_parents(path, 0755);
+        (تهی) mkdir_parents(path, 0755);
 
-        _cleanup_close_ int fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
-        if (fd < 0)
-                return log_debug_errno(errno, "Cannot open %s: %m", path);
+        _cleanup_close_ صحیح fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
+        اگر (fd < 0)
+                بازگشت log_debug_errno(errno, "Cannot open %s: %m", path);
 
         r = unposix_lock(fd, LOCK_EX);
-        if (r < 0)
-                return log_debug_errno(r, "Locking %s failed: %m", path);
+        اگر (r < 0)
+                بازگشت log_debug_errno(r, "Locking %s failed: %m", path);
 
-        return TAKE_FD(fd);
+        بازگشت TAKE_FD(fd);
 }
 
-bool valid_user_group_name(const char *u, ValidUserFlags flags) {
-        const char *i;
+bool valid_user_group_name(ثابت نویسه *u, ValidUserFlags flags) {
+        ثابت نویسه *i;
 
         /* Checks if the specified name is a valid user/group name. There are two flavours of this call:
          * strict mode is the default which is POSIX plus some extra rules; and relaxed mode where we accept
@@ -725,14 +725,14 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
          * Whenever we synthesize users ourselves we should use the strict mode. But when we process users
          * created by other stuff, let's be more liberal. */
 
-        if (isempty(u)) /* An empty user name is never valid */
-                return false;
+        اگر (isempty(u)) /* An empty user name is never valid */
+                بازگشت false;
 
-        if (parse_uid(u, NULL) >= 0) /* Something that parses as numeric UID string is valid exactly when the
+        اگر (parse_uid(u, پوچ) >= 0) /* Something that parses as numeric UID string is valid exactly when the
                                       * flag for it is set */
-                return FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
+                بازگشت FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
 
-        if (FLAGS_SET(flags, VALID_USER_RELAX)) {
+        اگر (FLAGS_SET(flags, VALID_USER_RELAX)) {
 
                 /* In relaxed mode we just check very superficially. Apparently SSSD and other stuff is
                  * extremely liberal (way too liberal if you ask me, even inserting "@" in user names, which
@@ -745,52 +745,52 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * outside of POSIX' bounds any day, but I must say in this case I probably wouldn't
                  * have...) */
 
-                if (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
+                اگر (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
                                                              * at front and back (accept in the middle, since
                                                              * that's apparently a thing on Windows). Note
                                                              * that this also blocks usernames consisting of
                                                              * whitespace only. */
-                        return false;
+                        بازگشت false;
 
-                if (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
-                        return false;
+                اگر (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
+                        بازگشت false;
 
-                if (string_has_cc(u, NULL)) /* CC characters are just dangerous (and \n in particular is the
+                اگر (string_has_cc(u, پوچ)) /* CC characters are just dangerous (and \n in particular is the
                                              * record separator in /etc/passwd), so we can't allow that. */
-                        return false;
+                        بازگشت false;
 
-                if (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
+                اگر (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
                                        * that. Slashes are special to file systems paths and user names
                                        * typically show up in the file system as home directories, hence
                                        * don't allow slashes. */
-                        return false;
+                        بازگشت false;
 
-                if (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
+                اگر (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
                                             * UIDs (note that this test is more broad than the parse_uid()
                                             * test above, as it will cover more than the 32-bit range, and it
                                             * will detect 65535 (which is in invalid UID, even though in the
                                             * unsigned 32 bit range) */
-                        return false;
+                        بازگشت false;
 
-                if (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
+                اگر (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
                                                                * either. After all some people write 65535 as
                                                                * -1 (even though that's not even true on
                                                                * 32-bit uid_t anyway) */
-                        return false;
+                        بازگشت false;
 
-                if (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
+                اگر (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
                                         * special in that context, don't allow that. */
-                        return false;
+                        بازگشت false;
 
                 /* Compare with strict result and warn if result doesn't match */
-                if (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
+                اگر (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
                         log_struct(LOG_NOTICE,
                                    LOG_MESSAGE("Accepting user/group name '%s', which does not match strict user/group name rules.", u),
                                    LOG_ITEM("USER_GROUP_NAME=%s", u),
                                    LOG_MESSAGE_ID(SD_MESSAGE_UNSAFE_USER_NAME_STR));
 
                 /* Note that we make no restrictions on the length in relaxed mode! */
-        } else {
+        } وگرنه {
                 long sz;
                 size_t l;
 
@@ -805,154 +805,154 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * Note that other systems are even more restrictive, and don't permit underscores or uppercase characters.
                  */
 
-                if (!ascii_isalpha(u[0]) &&
+                اگر (!ascii_isalpha(u[0]) &&
                     u[0] != '_')
-                        return false;
+                        بازگشت false;
 
-                for (i = u+1; *i; i++)
-                        if (!ascii_isalpha(*i) &&
+                برای (i = u+1; *i; i++)
+                        اگر (!ascii_isalpha(*i) &&
                             !ascii_isdigit(*i) &&
                             !IN_SET(*i, '_', '-'))
-                                return false;
+                                بازگشت false;
 
                 l = i - u;
 
                 sz = sysconf(_SC_LOGIN_NAME_MAX);
                 assert_se(sz > 0);
 
-                if (l > (size_t) sz) /* glibc: 256 */
-                        return false;
-                if (l > NAME_MAX) /* must fit in a filename: 255 */
-                        return false;
-                if (l > sizeof_field(struct utmpx, ut_user) - 1) /* must fit in utmp: 31 */
-                        return false;
+                اگر (l > (size_t) sz) /* glibc: 256 */
+                        بازگشت false;
+                اگر (l > NAME_MAX) /* must fit in a filename: 255 */
+                        بازگشت false;
+                اگر (l > sizeof_field(ساختار utmpx, ut_user) - 1) /* must fit in utmp: 31 */
+                        بازگشت false;
         }
 
-        return true;
+        بازگشت true;
 }
 
-bool valid_gecos(const char *d) {
+bool valid_gecos(ثابت نویسه *d) {
 
-        if (!d)
-                return false;
+        اگر (!d)
+                بازگشت false;
 
-        if (!utf8_is_valid(d))
-                return false;
+        اگر (!utf8_is_valid(d))
+                بازگشت false;
 
-        if (string_has_cc(d, NULL))
-                return false;
+        اگر (string_has_cc(d, پوچ))
+                بازگشت false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(d, ':'))
-                return false;
+        اگر (strchr(d, ':'))
+                بازگشت false;
 
-        return true;
+        بازگشت true;
 }
 
-char* mangle_gecos(const char *d) {
-        char *mangled;
+نویسه* mangle_gecos(ثابت نویسه *d) {
+        نویسه *mangled;
 
         /* Makes sure the provided string becomes valid as a GEGOS field, by dropping bad chars. glibc's
          * putpwent() only changes \n and : to spaces. We do more: replace all CC too, and remove invalid
          * UTF-8 */
 
         mangled = strdup(d);
-        if (!mangled)
-                return NULL;
+        اگر (!mangled)
+                بازگشت پوچ;
 
-        for (char *i = mangled; *i; i++) {
-                int len;
+        برای (نویسه *i = mangled; *i; i++) {
+                صحیح len;
 
-                if ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
+                اگر ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
                         *i = ' ';
-                        continue;
+                        ادامه;
                 }
 
                 len = utf8_encoded_valid_unichar(i, SIZE_MAX);
-                if (len < 0) {
+                اگر (len < 0) {
                         *i = ' ';
-                        continue;
+                        ادامه;
                 }
 
                 i += len - 1;
         }
 
-        return mangled;
+        بازگشت mangled;
 }
 
-bool valid_home(const char *p) {
+bool valid_home(ثابت نویسه *p) {
         /* Note that this function is also called by valid_shell(), any
          * changes must account for that. */
 
-        if (isempty(p))
-                return false;
+        اگر (isempty(p))
+                بازگشت false;
 
-        if (!utf8_is_valid(p))
-                return false;
+        اگر (!utf8_is_valid(p))
+                بازگشت false;
 
-        if (string_has_cc(p, NULL))
-                return false;
+        اگر (string_has_cc(p, پوچ))
+                بازگشت false;
 
-        if (!path_is_absolute(p))
-                return false;
+        اگر (!path_is_absolute(p))
+                بازگشت false;
 
-        if (!path_is_normalized(p))
-                return false;
+        اگر (!path_is_normalized(p))
+                بازگشت false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(p, ':'))
-                return false;
+        اگر (strchr(p, ':'))
+                بازگشت false;
 
-        return true;
+        بازگشت true;
 }
 
-bool valid_shell(const char *p) {
+bool valid_shell(ثابت نویسه *p) {
         /* We have the same requirements, so just piggy-back on the home check.
          *
          * Let's ignore /etc/shells because this is only applicable to real and not system users. It is also
          * incompatible with the idea of empty /etc/. */
-        if (!valid_home(p))
-                return false;
+        اگر (!valid_home(p))
+                بازگشت false;
 
-        return !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
+        بازگشت !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
 }
 
-int maybe_setgroups(size_t size, const gid_t *list) {
-        int r;
+صحیح maybe_setgroups(size_t size, ثابت gid_t *list) {
+        صحیح r;
 
         /* Check if setgroups is allowed before we try to drop all the auxiliary groups */
-        if (size == 0) { /* Dropping all aux groups? */
+        اگر (size == 0) { /* Dropping all aux groups? */
 
                 /* The kernel refuses setgroups() if there are no GID mappings in the current
                  * user namespace, so check that beforehand and don't try to setgroups() if
                  * there are no GID mappings. */
                 _cleanup_fclose_ FILE *f = fopen("/proc/self/gid_map", "re");
-                if (!f && errno != ENOENT)
-                        return -errno;
-                if (f) {
-                        r = safe_fgetc(f, /* ret= */ NULL);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) {
+                اگر (!f && errno != ENOENT)
+                        بازگشت -errno;
+                اگر (f) {
+                        r = safe_fgetc(f, /* ret= */ پوچ);
+                        اگر (r < 0)
+                                بازگشت r;
+                        اگر (r == 0) {
                                 log_debug("Skipping setgroups(), /proc/self/gid_map is empty");
-                                return 0;
+                                بازگشت 0;
                         }
                 }
 
-                _cleanup_free_ char *setgroups_content = NULL;
-                r = read_one_line_file("/proc/self/setgroups", &setgroups_content);
-                if (r < 0 && r != -ENOENT)
-                        return r;
-                if (r > 0 && streq(setgroups_content, "deny")) {
+                _cleanup_free_ نویسه *setgroups_content = پوچ;
+                r = read_one_سطر_file("/proc/self/setgroups", &setgroups_content);
+                اگر (r < 0 && r != -ENOENT)
+                        بازگشت r;
+                اگر (r > 0 && streq(setgroups_content, "deny")) {
                         log_debug("Skipping setgroups(), /proc/self/setgroups is set to 'deny'");
-                        return 0;
+                        بازگشت 0;
                 }
         }
 
-        return RET_NERRNO(setgroups(size, list));
+        بازگشت RET_NERRNO(setgroups(size, list));
 }
 
-bool synthesize_nobody(void) {
+bool synthesize_nobody(تهی) {
         /* Returns true when we shall synthesize the "nobody" user (which we do by default). This can be turned off by
          * touching /etc/systemd/dont-synthesize-nobody in order to provide upgrade compatibility with legacy systems
          * that used the "nobody" user name and group name for other UIDs/GIDs than 65534.
@@ -960,156 +960,156 @@ bool synthesize_nobody(void) {
          * Note that we do not employ any kind of synchronization on the following caching variable. If the variable is
          * accessed in multi-threaded programs in the worst case it might happen that we initialize twice, but that
          * shouldn't matter as each initialization should come to the same result. */
-        static int cache = -1;
+        ایستا صحیح cache = -1;
 
-        if (cache < 0)
+        اگر (cache < 0)
                 cache = access("/etc/systemd/dont-synthesize-nobody", F_OK) < 0;
 
-        return cache;
+        بازگشت cache;
 }
 
-int putpwent_sane(const struct passwd *pw, FILE *stream) {
-        assert(pw);
-        assert(stream);
+صحیح putpwent_sane(ثابت ساختار passwd *pw, FILE *stream) {
+        أكد(pw);
+        أكد(stream);
 
         errno = 0;
-        if (putpwent(pw, stream) != 0)
-                return errno_or_else(EIO);
+        اگر (putpwent(pw, stream) != 0)
+                بازگشت errno_or_else(EIO);
 
-        return 0;
+        بازگشت 0;
 }
 
-int putspent_sane(const struct spwd *sp, FILE *stream) {
-        assert(sp);
-        assert(stream);
+صحیح putspent_sane(ثابت ساختار spwd *sp, FILE *stream) {
+        أكد(sp);
+        أكد(stream);
 
         errno = 0;
-        if (putspent(sp, stream) != 0)
-                return errno_or_else(EIO);
+        اگر (putspent(sp, stream) != 0)
+                بازگشت errno_or_else(EIO);
 
-        return 0;
+        بازگشت 0;
 }
 
-int putgrent_sane(const struct group *gr, FILE *stream) {
-        assert(gr);
-        assert(stream);
+صحیح putgrent_sane(ثابت ساختار group *gr, FILE *stream) {
+        أكد(gr);
+        أكد(stream);
 
         errno = 0;
-        if (putgrent(gr, stream) != 0)
-                return errno_or_else(EIO);
+        اگر (putgrent(gr, stream) != 0)
+                بازگشت errno_or_else(EIO);
 
-        return 0;
+        بازگشت 0;
 }
 
-#if ENABLE_GSHADOW
-int putsgent_sane(const struct sgrp *sg, FILE *stream) {
-        assert(sg);
-        assert(stream);
+#اگر ENABLE_GSHADOW
+صحیح putsgent_sane(ثابت ساختار sgrp *sg, FILE *stream) {
+        أكد(sg);
+        أكد(stream);
 
         errno = 0;
-        if (putsgent(sg, stream) != 0)
-                return errno_or_else(EIO);
+        اگر (putsgent(sg, stream) != 0)
+                بازگشت errno_or_else(EIO);
 
-        return 0;
+        بازگشت 0;
 }
 #endif
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw) {
-        assert(stream);
-        assert(pw);
+صحیح fgetpwent_sane(FILE *stream, ساختار passwd **pw) {
+        أكد(stream);
+        أكد(pw);
 
         errno = 0;
-        struct passwd *p = fgetpwent(stream);
-        if (!p && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        ساختار passwd *p = fgetpwent(stream);
+        اگر (!p && !IN_SET(errno, 0, ENOENT))
+                بازگشت -errno;
 
         *pw = p;
-        return !!p;
+        بازگشت !!p;
 }
 
-int fgetspent_sane(FILE *stream, struct spwd **sp) {
-        assert(stream);
-        assert(sp);
+صحیح fgetspent_sane(FILE *stream, ساختار spwd **sp) {
+        أكد(stream);
+        أكد(sp);
 
         errno = 0;
-        struct spwd *s = fgetspent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        ساختار spwd *s = fgetspent(stream);
+        اگر (!s && !IN_SET(errno, 0, ENOENT))
+                بازگشت -errno;
 
         *sp = s;
-        return !!s;
+        بازگشت !!s;
 }
 
-int fgetgrent_sane(FILE *stream, struct group **gr) {
-        assert(stream);
-        assert(gr);
+صحیح fgetgrent_sane(FILE *stream, ساختار group **gr) {
+        أكد(stream);
+        أكد(gr);
 
         errno = 0;
-        struct group *g = fgetgrent(stream);
-        if (!g && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        ساختار group *g = fgetgrent(stream);
+        اگر (!g && !IN_SET(errno, 0, ENOENT))
+                بازگشت -errno;
 
         *gr = g;
-        return !!g;
+        بازگشت !!g;
 }
 
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg) {
-        assert(stream);
-        assert(sg);
+#اگر ENABLE_GSHADOW
+صحیح fgetsgent_sane(FILE *stream, ساختار sgrp **sg) {
+        أكد(stream);
+        أكد(sg);
 
         errno = 0;
-        struct sgrp *s = fgetsgent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        ساختار sgrp *s = fgetsgent(stream);
+        اگر (!s && !IN_SET(errno, 0, ENOENT))
+                بازگشت -errno;
 
         *sg = s;
-        return !!s;
+        بازگشت !!s;
 }
 #endif
 
-int is_this_me(const char *username) {
+صحیح is_this_me(ثابت نویسه *username) {
         uid_t uid;
-        int r;
+        صحیح r;
 
         /* Checks if the specified username is our current one. Passed string might be a UID or a user name. */
 
-        r = get_user_creds(username, /* flags= */ USER_CREDS_ALLOW_MISSING, NULL, &uid, NULL, NULL, NULL);
-        if (r < 0)
-                return r;
+        r = get_user_creds(username, /* flags= */ USER_CREDS_ALLOW_MISSING, پوچ, &uid, پوچ, پوچ, پوچ);
+        اگر (r < 0)
+                بازگشت r;
 
-        return uid == getuid();
+        بازگشت uid == getuid();
 }
 
-const char* get_home_root(void) {
+ثابت نویسه* get_home_ریشه(تهی) {
         /* For debug purposes allow overriding where we look for home dirs */
-        const char *e = secure_getenv("SYSTEMD_HOME_ROOT");
-        if (e && path_is_absolute(e) && path_is_normalized(e))
-                return e;
+        ثابت نویسه *e = secure_getenv("SYSTEMD_HOME_ROOT");
+        اگر (e && path_is_absolute(e) && path_is_normalized(e))
+                بازگشت e;
 
-        return "/home";
+        بازگشت "/home";
 }
 
-static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
-        assert(pw);
-        assert(ret);
+ایستا صحیح copy_struct_passwd(ثابت ساختار passwd *pw, ساختار passwd **ret) {
+        أكد(pw);
+        أكد(ret);
 
-        size_t need_bytes = sizeof(struct passwd)
+        size_t need_bytes = اندازه(ساختار passwd)
                 + strlen_ptr(pw->pw_name) + 1
                 + strlen_ptr(pw->pw_passwd) + 1
                 + strlen_ptr(pw->pw_gecos) + 1
                 + strlen_ptr(pw->pw_dir) + 1
                 + strlen_ptr(pw->pw_shell) + 1;
 
-        char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        نویسه *buf = malloc(need_bytes);
+        اگر (!buf)
+                بازگشت -ENOMEM;
 
-        struct passwd *newpw = (struct passwd *) buf;
+        ساختار passwd *newpw = (ساختار passwd *) buf;
 
         /* The layout in our buffer:
          * struct passwd, and then individual strings. */
-        char *p = buf + sizeof(struct passwd);
+        نویسه *p = buf + اندازه(ساختار passwd);
 
         newpw->pw_name = p;
         p = stpcpy(p, strempty(pw->pw_name)) + 1;
@@ -1130,189 +1130,189 @@ static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
         p = stpcpy(p, strempty(pw->pw_shell)) + 1;
 
         *ret = newpw;
-        return 0;
+        بازگشت 0;
 }
 
 /* Iterate the given list of passwd-format files looking for an entry matching the predicate (by
  * name if 'name' is non-NULL and by 'uid' if valid). Returns -ESRCH if no entry is found. */
-int lookup_pwent_in_files(
-                char * const *files,
-                const char *name,
+صحیح lookup_pwent_in_files(
+                نویسه * ثابت *files,
+                ثابت نویسه *name,
                 uid_t uid,
-                struct passwd **ret) {
+                ساختار passwd **ret) {
 
-        int r;
+        صحیح r;
 
-        assert(files);
-        assert(name || uid_is_valid(uid));
+        أكد(files);
+        أكد(name || uid_is_valid(uid));
 
         STRV_FOREACH(fname, files) {
-                _cleanup_fclose_ FILE *f = NULL;
-                struct passwd *pw;
+                _cleanup_fclose_ FILE *f = پوچ;
+                ساختار passwd *pw;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
-                        continue;
-                if (r < 0)
-                        return r;
+                اگر (r == -ENOENT)
+                        ادامه;
+                اگر (r < 0)
+                        بازگشت r;
 
-                while ((r = fgetpwent_sane(f, &pw)) > 0) {
-                        if (name && !streq_ptr(pw->pw_name, name))
-                                continue;
-                        if (uid_is_valid(uid) && pw->pw_uid != uid)
-                                continue;
-                        if (ret)
-                                return copy_struct_passwd(pw, ret);
-                        return 0;
+                وقتی ((r = fgetpwent_sane(f, &pw)) > 0) {
+                        اگر (name && !streq_ptr(pw->pw_name, name))
+                                ادامه;
+                        اگر (uid_is_valid(uid) && pw->pw_uid != uid)
+                                ادامه;
+                        اگر (ret)
+                                بازگشت copy_struct_passwd(pw, ret);
+                        بازگشت 0;
                 }
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        return -ESRCH;
+        بازگشت -ESRCH;
 }
 
-#if !BUILD_STATIC
+#اگر !BUILD_STATIC
 
-static size_t getpw_buffer_size(void) {
+ایستا size_t getpw_buffer_size(تهی) {
         long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        بازگشت bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
-static bool errno_is_user_doesnt_exist(int error) {
+ایستا bool errno_is_user_doesnt_exist(صحیح error) {
         /* See getpwnam(3) and getgrnam(3): those codes and others can be returned if the user or group are
          * not found. */
-        return IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
+        بازگشت IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
 }
 
 #endif
 
-int getpwnam_malloc(const char *name, struct passwd **ret) {
+صحیح getpwnam_malloc(ثابت نویسه *name, ساختار passwd **ret) {
         /* For static builds use a very simplistic implementation that looks at 'passwd' in /etc/
          * and /usr/lib/, and for non-static builds use NSS. The first matching entry wins. The
          * same logic is implemented in getpwnam_malloc, getpwuid_malloc, getgrnam_malloc, and
          * getgrgid_malloc. */
 
-        if (isempty(name))
-                return -EINVAL;
+        اگر (isempty(name))
+                بازگشت -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
-#else
+#اگر BUILD_STATIC
+        بازگشت lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
+#وگرنه
         size_t bufsize = getpw_buffer_size();
-        int r;
+        صحیح r;
 
         /* A wrapper around getpwnam_r() that allocates the necessary buffer on the heap. The caller must
          * free() the returned structure! */
 
-        for (;;) {
-                _cleanup_free_ void *buf = NULL;
+        برای (;;) {
+                _cleanup_free_ تهی *buf = پوچ;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
-                buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                أكد(bufsize <= SIZE_MAX - ALIGN(اندازه(ساختار passwd)));
+                buf = malloc0(ALIGN(اندازه(ساختار passwd)) + bufsize);
+                اگر (!buf)
+                        بازگشت -ENOMEM;
 
-                struct passwd *pw = NULL;
-                r = getpwnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                ساختار passwd *pw = پوچ;
+                r = getpwnam_r(name, buf, (نویسه*) buf + ALIGN(اندازه(ساختار passwd)), bufsize, &pw);
+                اگر (r == 0) {
+                        اگر (pw) {
+                                اگر (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                بازگشت 0;
                         }
 
-                        return -ESRCH;
+                        بازگشت -ESRCH;
                 }
 
-                assert(r > 0);
+                أكد(r > 0);
 
                 /* getpwnam() may fail with ENOENT if /etc/passwd is missing.  For us that is equivalent to
                  * the name not being defined. */
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                اگر (errno_is_user_doesnt_exist(r))
+                        بازگشت -ESRCH;
+                اگر (r != ERANGE)
+                        بازگشت -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                اگر (bufsize > SIZE_MAX/2 - ALIGN(اندازه(ساختار passwd)))
+                        بازگشت -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret) {
-        if (!uid_is_valid(uid))
-                return -EINVAL;
+صحیح getpwuid_malloc(uid_t uid, ساختار passwd **ret) {
+        اگر (!uid_is_valid(uid))
+                بازگشت -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, /* name= */ NULL, uid, ret);
-#else
+#اگر BUILD_STATIC
+        بازگشت lookup_pwent_in_files(PASSWD_FILES, /* name= */ پوچ, uid, ret);
+#وگرنه
         size_t bufsize = getpw_buffer_size();
-        int r;
+        صحیح r;
 
-        for (;;) {
-                _cleanup_free_ void *buf = NULL;
+        برای (;;) {
+                _cleanup_free_ تهی *buf = پوچ;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
-                buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                أكد(bufsize <= SIZE_MAX - ALIGN(اندازه(ساختار passwd)));
+                buf = malloc0(ALIGN(اندازه(ساختار passwd)) + bufsize);
+                اگر (!buf)
+                        بازگشت -ENOMEM;
 
-                struct passwd *pw = NULL;
-                r = getpwuid_r(uid, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                ساختار passwd *pw = پوچ;
+                r = getpwuid_r(uid, buf, (نویسه*) buf + ALIGN(اندازه(ساختار passwd)), bufsize, &pw);
+                اگر (r == 0) {
+                        اگر (pw) {
+                                اگر (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                بازگشت 0;
                         }
 
-                        return -ESRCH;
+                        بازگشت -ESRCH;
                 }
 
-                assert(r > 0);
+                أكد(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                اگر (errno_is_user_doesnt_exist(r))
+                        بازگشت -ESRCH;
+                اگر (r != ERANGE)
+                        بازگشت -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                اگر (bufsize > SIZE_MAX/2 - ALIGN(اندازه(ساختار passwd)))
+                        بازگشت -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-static int copy_struct_group(const struct group *gr, struct group **ret) {
-        assert(gr);
-        assert(ret);
+ایستا صحیح copy_struct_group(ثابت ساختار group *gr, ساختار group **ret) {
+        أكد(gr);
+        أكد(ret);
 
-        size_t need_bytes = sizeof(struct group)
+        size_t need_bytes = اندازه(ساختار group)
                 + strlen_ptr(gr->gr_name) + 1
                 + strlen_ptr(gr->gr_passwd) + 1,
                 n_mem = 0;
         STRV_FOREACH(s, gr->gr_mem) {
-                need_bytes += sizeof(char*) + strlen(*s) + 1;
+                need_bytes += اندازه(نویسه*) + strlen(*s) + 1;
                 n_mem++;
         }
-        need_bytes += sizeof(char*);  /* NULL terminator for gr_mem */
+        need_bytes += اندازه(نویسه*);  /* NULL terminator for gr_mem */
 
-        char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        نویسه *buf = malloc(need_bytes);
+        اگر (!buf)
+                بازگشت -ENOMEM;
 
-        struct group *newgr = (struct group *) buf;
+        ساختار group *newgr = (ساختار group *) buf;
 
         /* The layout in our buffer:
          * struct group, ->gr_mem pointers terminated by NULL, ->gr_name, ->gr_passwd, ->gr_mem items */
         /* The ->gr_mem array is first, because it needs alignment. */
-        assert_cc(sizeof(struct group) % alignof(char*) == 0);
+        assert_cc(اندازه(ساختار group) % alignof(نویسه*) == 0);
 
-        char *p = buf + sizeof(struct group) + (n_mem + 1) * sizeof(char*);
+        نویسه *p = buf + اندازه(ساختار group) + (n_mem + 1) * اندازه(نویسه*);
 
         newgr->gr_name = p;
         p = stpcpy(p, strempty(gr->gr_name)) + 1;
@@ -1322,267 +1322,267 @@ static int copy_struct_group(const struct group *gr, struct group **ret) {
 
         newgr->gr_gid = gr->gr_gid;
 
-        newgr->gr_mem = (char**) (buf + sizeof(struct group));
-        for (size_t i = 0; i < n_mem; i++) {
+        newgr->gr_mem = (نویسه**) (buf + اندازه(ساختار group));
+        برای (size_t i = 0; i < n_mem; i++) {
                 newgr->gr_mem[i] = p;
                 p = stpcpy(p, gr->gr_mem[i]) + 1;
         }
-        newgr->gr_mem[n_mem] = NULL;
+        newgr->gr_mem[n_mem] = پوچ;
 
         *ret = newgr;
-        return 0;
+        بازگشت 0;
 }
 
 /* See lookup_pwent_in_files() for the analogous passwd-file version. */
-int lookup_grent_in_files(
-                char * const *files,
-                const char *name,
+صحیح lookup_grent_in_files(
+                نویسه * ثابت *files,
+                ثابت نویسه *name,
                 gid_t gid,
-                struct group **ret) {
+                ساختار group **ret) {
 
-        int r;
+        صحیح r;
 
-        assert(files);
-        assert(name || gid_is_valid(gid));
+        أكد(files);
+        أكد(name || gid_is_valid(gid));
 
         STRV_FOREACH(fname, files) {
-                _cleanup_fclose_ FILE *f = NULL;
-                struct group *gr;
+                _cleanup_fclose_ FILE *f = پوچ;
+                ساختار group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
-                        continue;
-                if (r < 0)
-                        return r;
+                اگر (r == -ENOENT)
+                        ادامه;
+                اگر (r < 0)
+                        بازگشت r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (name && !streq_ptr(gr->gr_name, name))
-                                continue;
-                        if (gid_is_valid(gid) && gr->gr_gid != gid)
-                                continue;
-                        if (ret)
-                                return copy_struct_group(gr, ret);
-                        return 0;
+                وقتی ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        اگر (name && !streq_ptr(gr->gr_name, name))
+                                ادامه;
+                        اگر (gid_is_valid(gid) && gr->gr_gid != gid)
+                                ادامه;
+                        اگر (ret)
+                                بازگشت copy_struct_group(gr, ret);
+                        بازگشت 0;
                 }
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        return -ESRCH;
+        بازگشت -ESRCH;
 }
 
-int sysconf_ngroups_max(void) {
+صحیح sysconf_ngroups_max(تهی) {
         /* Query sysconf _SC_NGROUPS_MAX. Returns an int because the expected value is 64k
          * and later on this is used as an int with various glibc consumers. */
 
         errno = 0;
         long ngroups_max = sysconf(_SC_NGROUPS_MAX);
-        if (ngroups_max <= 0)
-                return errno_or_else(EOPNOTSUPP);
-        if (ngroups_max > INT_MAX)
-                return -ERANGE;
-        return ngroups_max;
+        اگر (ngroups_max <= 0)
+                بازگشت errno_or_else(EOPNOTSUPP);
+        اگر (ngroups_max > INT_MAX)
+                بازگشت -ERANGE;
+        بازگشت ngroups_max;
 }
 
 ssize_t lookup_groups_in_files(
-                char * const *files,
-                const char *name,
+                نویسه * ثابت *files,
+                ثابت نویسه *name,
                 gid_t gid,
                 gid_t **ret) {
 
-        _cleanup_free_ gid_t *arr = NULL;
+        _cleanup_free_ gid_t *arr = پوچ;
         ssize_t n_arr = 0;
-        int r;
+        صحیح r;
 
-        assert(files);
-        assert(name);
-        assert(gid_is_valid(gid));
+        أكد(files);
+        أكد(name);
+        أكد(gid_is_valid(gid));
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+        صحیح ngroups_max = sysconf_ngroups_max();
+        اگر (ngroups_max < 0)
+                بازگشت ngroups_max;
 
-        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                return -ENOMEM;
+        اگر (!GREEDY_REALLOC(arr, n_arr + 1))
+                بازگشت -ENOMEM;
         arr[n_arr++] = gid;
 
         STRV_FOREACH(fname, files) {
-                _cleanup_fclose_ FILE *f = NULL;
-                struct group *gr;
+                _cleanup_fclose_ FILE *f = پوچ;
+                ساختار group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
-                        continue;
-                if (r < 0)
-                        return r;
+                اگر (r == -ENOENT)
+                        ادامه;
+                اگر (r < 0)
+                        بازگشت r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (gid == gr->gr_gid)
-                                continue;
+                وقتی ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        اگر (gid == gr->gr_gid)
+                                ادامه;
 
                         /* Deduplicate groups, in case the group is doubly defined in the same or
                          * different files. */
-                        if (gid_list_has(arr, n_arr, gr->gr_gid))
-                                continue;
+                        اگر (gid_list_has(arr, n_arr, gr->gr_gid))
+                                ادامه;
 
-                        if (!strv_contains(gr->gr_mem, name))
-                                continue;
+                        اگر (!strv_contains(gr->gr_mem, name))
+                                ادامه;
 
                         /* Do not allow more than _SC_NGROUPS_MAX. */
-                        if (n_arr >= ngroups_max)
-                                return -ENOBUFS;
+                        اگر (n_arr >= ngroups_max)
+                                بازگشت -ENOBUFS;
 
-                        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                                return -ENOMEM;
+                        اگر (!GREEDY_REALLOC(arr, n_arr + 1))
+                                بازگشت -ENOMEM;
                         arr[n_arr++] = gr->gr_gid;
                 }
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PTR(arr);
-        return n_arr;
+        بازگشت n_arr;
 }
 
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret) {
-#if BUILD_STATIC
-        return lookup_groups_in_files(GROUP_FILES, user, gid, ret);
-#else
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+صحیح getgrouplist_malloc(ثابت نویسه *user, gid_t gid, gid_t **ret) {
+#اگر BUILD_STATIC
+        بازگشت lookup_groups_in_files(GROUP_FILES, user, gid, ret);
+#وگرنه
+        صحیح ngroups_max = sysconf_ngroups_max();
+        اگر (ngroups_max < 0)
+                بازگشت ngroups_max;
 
         _cleanup_free_ gid_t *gids = new(gid_t, ngroups_max);
-        if (!gids)
-                return -ENOMEM;
+        اگر (!gids)
+                بازگشت -ENOMEM;
 
-        int k = ngroups_max;
-        if (getgrouplist(user, gid, gids, &k) < 0)
-                return -EIO;  /* getgrouplist does not set errno */
+        صحیح k = ngroups_max;
+        اگر (getgrouplist(user, gid, gids, &k) < 0)
+                بازگشت -EIO;  /* getgrouplist does not set errno */
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PTR(gids);
-        return k;
+        بازگشت k;
 #endif
 }
 
-int initgroups_wrapper(const char *user, gid_t gid) {
-#if BUILD_STATIC
-        _cleanup_free_ gid_t *groups = NULL;
-        int r, n_groups;
+صحیح initgroups_wrapper(ثابت نویسه *user, gid_t gid) {
+#اگر BUILD_STATIC
+        _cleanup_free_ gid_t *groups = پوچ;
+        صحیح r, n_groups;
 
         n_groups = getgrouplist_malloc(user, gid, &groups);
-        if (n_groups <= 0)
-                return n_groups;
+        اگر (n_groups <= 0)
+                بازگشت n_groups;
 
         /* Try to set the maximum number of groups the kernel can handle. This is what glibc does. */
-        for (; n_groups > 0; n_groups--) {
+        برای (; n_groups > 0; n_groups--) {
                 r = RET_NERRNO(setgroups(n_groups, groups));
-                if (r != -EINVAL)
-                        break;
+                اگر (r != -EINVAL)
+                        بشکن;
         }
 
-        return r;
-#else
-        return RET_NERRNO(initgroups(user, gid));
+        بازگشت r;
+#وگرنه
+        بازگشت RET_NERRNO(initgroups(user, gid));
 #endif
 }
 
-#if !BUILD_STATIC
+#اگر !BUILD_STATIC
 
-static size_t getgr_buffer_size(void) {
+ایستا size_t getgr_buffer_size(تهی) {
         long bufsize = sysconf(_SC_GETGR_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        بازگشت bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
 #endif
 
-int getgrnam_malloc(const char *name, struct group **ret) {
-        if (isempty(name))
-                return -EINVAL;
+صحیح getgrnam_malloc(ثابت نویسه *name, ساختار group **ret) {
+        اگر (isempty(name))
+                بازگشت -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
-#else
+#اگر BUILD_STATIC
+        بازگشت lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
+#وگرنه
         size_t bufsize = getgr_buffer_size();
-        int r;
+        صحیح r;
 
-        for (;;) {
-                _cleanup_free_ void *buf = NULL;
+        برای (;;) {
+                _cleanup_free_ تهی *buf = پوچ;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
-                buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                أكد(bufsize <= SIZE_MAX - ALIGN(اندازه(ساختار group)));
+                buf = malloc0(ALIGN(اندازه(ساختار group)) + bufsize);
+                اگر (!buf)
+                        بازگشت -ENOMEM;
 
-                struct group *gr = NULL;
-                r = getgrnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                ساختار group *gr = پوچ;
+                r = getgrnam_r(name, buf, (نویسه*) buf + ALIGN(اندازه(ساختار group)), bufsize, &gr);
+                اگر (r == 0) {
+                        اگر (gr) {
+                                اگر (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                بازگشت 0;
                         }
 
-                        return -ESRCH;
+                        بازگشت -ESRCH;
                 }
 
-                assert(r > 0);
+                أكد(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                اگر (errno_is_user_doesnt_exist(r))
+                        بازگشت -ESRCH;
+                اگر (r != ERANGE)
+                        بازگشت -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                اگر (bufsize > SIZE_MAX/2 - ALIGN(اندازه(ساختار group)))
+                        بازگشت -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getgrgid_malloc(gid_t gid, struct group **ret) {
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+صحیح getgrgid_malloc(gid_t gid, ساختار group **ret) {
+        اگر (!gid_is_valid(gid))
+                بازگشت -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, /* name= */ NULL, gid, ret);
-#else
+#اگر BUILD_STATIC
+        بازگشت lookup_grent_in_files(GROUP_FILES, /* name= */ پوچ, gid, ret);
+#وگرنه
         size_t bufsize = getgr_buffer_size();
-        int r;
+        صحیح r;
 
-        for (;;) {
-                _cleanup_free_ void *buf = NULL;
+        برای (;;) {
+                _cleanup_free_ تهی *buf = پوچ;
 
                 /* Silence static analyzers */
-                assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
-                buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                أكد(bufsize <= SIZE_MAX - ALIGN(اندازه(ساختار group)));
+                buf = malloc0(ALIGN(اندازه(ساختار group)) + bufsize);
+                اگر (!buf)
+                        بازگشت -ENOMEM;
 
-                struct group *gr = NULL;
-                r = getgrgid_r(gid, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                ساختار group *gr = پوچ;
+                r = getgrgid_r(gid, buf, (نویسه*) buf + ALIGN(اندازه(ساختار group)), bufsize, &gr);
+                اگر (r == 0) {
+                        اگر (gr) {
+                                اگر (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                بازگشت 0;
                         }
 
-                        return -ESRCH;
+                        بازگشت -ESRCH;
                 }
 
-                assert(r > 0);
+                أكد(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                اگر (errno_is_user_doesnt_exist(r))
+                        بازگشت -ESRCH;
+                اگر (r != ERANGE)
+                        بازگشت -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                اگر (bufsize > SIZE_MAX/2 - ALIGN(اندازه(ساختار group)))
+                        بازگشت -ENOMEM;
                 bufsize *= 2;
         }
 #endif

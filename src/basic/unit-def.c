@@ -1,46 +1,46 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "bus-label.h"
-#include "glyph-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "unit-def.h"
-#include "unit-name.h"
+#شامل "alloc-util.h"
+#شامل "bus-label.h"
+#شامل "glyph-util.h"
+#شامل "string-table.h"
+#شامل "string-util.h"
+#شامل "unit-def.h"
+#شامل "unit-name.h"
 
-char* unit_dbus_path_from_name(const char *name) {
-        _cleanup_free_ char *e = NULL;
+نویسه* unit_dbus_path_from_name(ثابت نویسه *name) {
+        _cleanup_free_ نویسه *e = پوچ;
 
-        assert(name);
+        أكد(name);
 
         e = bus_label_escape(name);
-        if (!e)
-                return NULL;
+        اگر (!e)
+                بازگشت پوچ;
 
-        return strjoin("/org/freedesktop/systemd1/unit/", e);
+        بازگشت strjoin("/org/freedesktop/systemd1/unit/", e);
 }
 
-int unit_name_from_dbus_path(const char *path, char **name) {
-        const char *e;
-        char *n;
+صحیح unit_name_from_dbus_path(ثابت نویسه *path, نویسه **name) {
+        ثابت نویسه *e;
+        نویسه *n;
 
-        assert(name);
+        أكد(name);
 
         e = startswith(path, "/org/freedesktop/systemd1/unit/");
-        if (!e)
-                return -EINVAL;
+        اگر (!e)
+                بازگشت -EINVAL;
 
         n = bus_label_unescape(e);
-        if (!n)
-                return -ENOMEM;
+        اگر (!n)
+                بازگشت -ENOMEM;
 
         *name = n;
-        return 0;
+        بازگشت 0;
 }
 
-const char* unit_dbus_interface_from_type(UnitType t) {
+ثابت نویسه* unit_dbus_interface_from_type(UnitType t) {
 
-        static const char *const table[_UNIT_TYPE_MAX] = {
+        ایستا ثابت نویسه *ثابت table[_UNIT_TYPE_MAX] = {
                 [UNIT_SERVICE]   = "org.freedesktop.systemd1.Service",
                 [UNIT_SOCKET]    = "org.freedesktop.systemd1.Socket",
                 [UNIT_TARGET]    = "org.freedesktop.systemd1.Target",
@@ -54,33 +54,33 @@ const char* unit_dbus_interface_from_type(UnitType t) {
                 [UNIT_SCOPE]     = "org.freedesktop.systemd1.Scope",
         };
 
-        if (t < 0)
-                return NULL;
-        if (t >= _UNIT_TYPE_MAX)
-                return NULL;
+        اگر (t < 0)
+                بازگشت پوچ;
+        اگر (t >= _UNIT_TYPE_MAX)
+                بازگشت پوچ;
 
-        return table[t];
+        بازگشت table[t];
 }
 
-const char* unit_dbus_interface_from_name(const char *name) {
+ثابت نویسه* unit_dbus_interface_from_name(ثابت نویسه *name) {
         UnitType t;
 
         t = unit_name_to_type(name);
-        if (t < 0)
-                return NULL;
+        اگر (t < 0)
+                بازگشت پوچ;
 
-        return unit_dbus_interface_from_type(t);
+        بازگشت unit_dbus_interface_from_type(t);
 }
 
-const char* unit_type_to_capitalized_string(UnitType t) {
-        const char *di = unit_dbus_interface_from_type(t);
-        if (!di)
-                return NULL;
+ثابت نویسه* unit_type_to_capitalized_string(UnitType t) {
+        ثابت نویسه *di = unit_dbus_interface_from_type(t);
+        اگر (!di)
+                بازگشت پوچ;
 
-        return ASSERT_PTR(startswith(di, "org.freedesktop.systemd1."));
+        بازگشت ASSERT_PTR(startswith(di, "org.freedesktop.systemd1."));
 }
 
-static const char* const unit_type_table[_UNIT_TYPE_MAX] = {
+ایستا ثابت نویسه* ثابت unit_type_table[_UNIT_TYPE_MAX] = {
         [UNIT_SERVICE]   = "service",
         [UNIT_SOCKET]    = "socket",
         [UNIT_TARGET]    = "target",
@@ -96,7 +96,7 @@ static const char* const unit_type_table[_UNIT_TYPE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(unit_type, UnitType);
 
-static const char* const unit_load_state_table[_UNIT_LOAD_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت unit_load_state_table[_UNIT_LOAD_STATE_MAX] = {
         [UNIT_STUB]        = "stub",
         [UNIT_LOADED]      = "loaded",
         [UNIT_NOT_FOUND]   = "not-found",
@@ -109,7 +109,7 @@ static const char* const unit_load_state_table[_UNIT_LOAD_STATE_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(unit_load_state, UnitLoadState);
 
 /* Keep in sync with man/unit-states.xml */
-static const char* const unit_active_state_table[_UNIT_ACTIVE_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت unit_active_state_table[_UNIT_ACTIVE_STATE_MAX] = {
         [UNIT_ACTIVE]       = "active",
         [UNIT_RELOADING]    = "reloading",
         [UNIT_INACTIVE]     = "inactive",
@@ -122,7 +122,7 @@ static const char* const unit_active_state_table[_UNIT_ACTIVE_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(unit_active_state, UnitActiveState);
 
-static const char* const freezer_state_table[_FREEZER_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت freezer_state_table[_FREEZER_STATE_MAX] = {
         [FREEZER_RUNNING]            = "running",
         [FREEZER_FREEZING]           = "freezing",
         [FREEZER_FREEZING_BY_PARENT] = "freezing-by-parent",
@@ -134,7 +134,7 @@ static const char* const freezer_state_table[_FREEZER_STATE_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(freezer_state, FreezerState);
 
 /* Maps in-progress freezer states to the corresponding finished state */
-static const FreezerState freezer_state_finish_table[_FREEZER_STATE_MAX] = {
+ایستا ثابت FreezerState freezer_state_finish_table[_FREEZER_STATE_MAX] = {
         [FREEZER_FREEZING]           = FREEZER_FROZEN,
         [FREEZER_FREEZING_BY_PARENT] = FREEZER_FROZEN_BY_PARENT,
         [FREEZER_THAWING]            = FREEZER_RUNNING,
@@ -146,23 +146,23 @@ static const FreezerState freezer_state_finish_table[_FREEZER_STATE_MAX] = {
 };
 
 FreezerState freezer_state_finish(FreezerState state) {
-        assert(state >= 0);
-        assert(state < _FREEZER_STATE_MAX);
+        أكد(state >= 0);
+        أكد(state < _FREEZER_STATE_MAX);
 
-        return freezer_state_finish_table[state];
+        بازگشت freezer_state_finish_table[state];
 }
 
 FreezerState freezer_state_objective(FreezerState state) {
         FreezerState objective;
 
         objective = freezer_state_finish(state);
-        if (objective == FREEZER_FROZEN_BY_PARENT)
+        اگر (objective == FREEZER_FROZEN_BY_PARENT)
                 objective = FREEZER_FROZEN;
 
-        return objective;
+        بازگشت objective;
 }
 
-static const char* const unit_marker_table[_UNIT_MARKER_MAX] = {
+ایستا ثابت نویسه* ثابت unit_marker_table[_UNIT_MARKER_MAX] = {
         [UNIT_MARKER_NEEDS_RELOAD]  = "needs-reload",
         [UNIT_MARKER_NEEDS_RESTART] = "needs-restart",
         [UNIT_MARKER_NEEDS_STOP]    = "needs-stop",
@@ -171,7 +171,7 @@ static const char* const unit_marker_table[_UNIT_MARKER_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(unit_marker, UnitMarker);
 
-static const char* const automount_state_table[_AUTOMOUNT_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت automount_state_table[_AUTOMOUNT_STATE_MAX] = {
         [AUTOMOUNT_DEAD]    = "dead",
         [AUTOMOUNT_WAITING] = "waiting",
         [AUTOMOUNT_RUNNING] = "running",
@@ -180,7 +180,7 @@ static const char* const automount_state_table[_AUTOMOUNT_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(automount_state, AutomountState);
 
-static const char* const device_state_table[_DEVICE_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت device_state_table[_DEVICE_STATE_MAX] = {
         [DEVICE_DEAD]      = "dead",
         [DEVICE_TENTATIVE] = "tentative",
         [DEVICE_PLUGGED]   = "plugged",
@@ -188,7 +188,7 @@ static const char* const device_state_table[_DEVICE_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(device_state, DeviceState);
 
-static const char* const mount_state_table[_MOUNT_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت mount_state_table[_MOUNT_STATE_MAX] = {
         [MOUNT_DEAD]               = "dead",
         [MOUNT_MOUNTING]           = "mounting",
         [MOUNT_MOUNTING_DONE]      = "mounting-done",
@@ -205,7 +205,7 @@ static const char* const mount_state_table[_MOUNT_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(mount_state, MountState);
 
-static const char* const path_state_table[_PATH_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت path_state_table[_PATH_STATE_MAX] = {
         [PATH_DEAD]    = "dead",
         [PATH_WAITING] = "waiting",
         [PATH_RUNNING] = "running",
@@ -214,7 +214,7 @@ static const char* const path_state_table[_PATH_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(path_state, PathState);
 
-static const char* const scope_state_table[_SCOPE_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت scope_state_table[_SCOPE_STATE_MAX] = {
         [SCOPE_DEAD]         = "dead",
         [SCOPE_START_CHOWN]  = "start-chown",
         [SCOPE_RUNNING]      = "running",
@@ -226,7 +226,7 @@ static const char* const scope_state_table[_SCOPE_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(scope_state, ScopeState);
 
-static const char* const service_state_table[_SERVICE_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت service_state_table[_SERVICE_STATE_MAX] = {
         [SERVICE_DEAD]                       = "dead",
         [SERVICE_CONDITION]                  = "condition",
         [SERVICE_START_PRE]                  = "start-pre",
@@ -261,14 +261,14 @@ static const char* const service_state_table[_SERVICE_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(service_state, ServiceState);
 
-static const char* const slice_state_table[_SLICE_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت slice_state_table[_SLICE_STATE_MAX] = {
         [SLICE_DEAD]   = "dead",
         [SLICE_ACTIVE] = "active",
 };
 
 DEFINE_STRING_TABLE_LOOKUP(slice_state, SliceState);
 
-static const char* const socket_state_table[_SOCKET_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت socket_state_table[_SOCKET_STATE_MAX] = {
         [SOCKET_DEAD]             = "dead",
         [SOCKET_START_PRE]        = "start-pre",
         [SOCKET_START_OPEN]       = "start-open",
@@ -289,7 +289,7 @@ static const char* const socket_state_table[_SOCKET_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(socket_state, SocketState);
 
-static const char* const swap_state_table[_SWAP_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت swap_state_table[_SWAP_STATE_MAX] = {
         [SWAP_DEAD]                 = "dead",
         [SWAP_ACTIVATING]           = "activating",
         [SWAP_ACTIVATING_DONE]      = "activating-done",
@@ -303,14 +303,14 @@ static const char* const swap_state_table[_SWAP_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(swap_state, SwapState);
 
-static const char* const target_state_table[_TARGET_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت target_state_table[_TARGET_STATE_MAX] = {
         [TARGET_DEAD]   = "dead",
         [TARGET_ACTIVE] = "active",
 };
 
 DEFINE_STRING_TABLE_LOOKUP(target_state, TargetState);
 
-static const char* const timer_state_table[_TIMER_STATE_MAX] = {
+ایستا ثابت نویسه* ثابت timer_state_table[_TIMER_STATE_MAX] = {
         [TIMER_DEAD]    = "dead",
         [TIMER_WAITING] = "waiting",
         [TIMER_RUNNING] = "running",
@@ -320,7 +320,7 @@ static const char* const timer_state_table[_TIMER_STATE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(timer_state, TimerState);
 
-static const char* const unit_dependency_table[_UNIT_DEPENDENCY_MAX] = {
+ایستا ثابت نویسه* ثابت unit_dependency_table[_UNIT_DEPENDENCY_MAX] = {
         [UNIT_REQUIRES]               = "Requires",
         [UNIT_REQUISITE]              = "Requisite",
         [UNIT_WANTS]                  = "Wants",
@@ -357,7 +357,7 @@ static const char* const unit_dependency_table[_UNIT_DEPENDENCY_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(unit_dependency, UnitDependency);
 
 bool unit_dependency_can_be_transient(UnitDependency d) {
-        return IN_SET(d,
+        بازگشت IN_SET(d,
                       UNIT_REQUIRES,
                       UNIT_REQUISITE,
                       UNIT_WANTS,
@@ -376,11 +376,11 @@ bool unit_dependency_can_be_transient(UnitDependency d) {
                       UNIT_JOINS_NAMESPACE_OF);
 }
 
-void unit_types_list(void) {
+تهی unit_types_list(تهی) {
         DUMP_STRING_TABLE(unit_dependency, UnitDependency, _UNIT_DEPENDENCY_MAX);
 }
 
-static const char* const notify_access_table[_NOTIFY_ACCESS_MAX] = {
+ایستا ثابت نویسه* ثابت notify_access_table[_NOTIFY_ACCESS_MAX] = {
         [NOTIFY_NONE] = "none",
         [NOTIFY_MAIN] = "main",
         [NOTIFY_EXEC] = "exec",
@@ -389,7 +389,7 @@ static const char* const notify_access_table[_NOTIFY_ACCESS_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(notify_access, NotifyAccess);
 
-static const char* const job_mode_table[_JOB_MODE_MAX] = {
+ایستا ثابت نویسه* ثابت job_mode_table[_JOB_MODE_MAX] = {
         [JOB_FAIL]                 = "fail",
         [JOB_LENIENT]              = "lenient",
         [JOB_REPLACE]              = "replace",
@@ -405,7 +405,7 @@ static const char* const job_mode_table[_JOB_MODE_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(job_mode, JobMode);
 
 /* This table maps ExecDirectoryType to the setting it is configured with in the unit */
-static const char* const exec_directory_type_table[_EXEC_DIRECTORY_TYPE_MAX] = {
+ایستا ثابت نویسه* ثابت exec_directory_type_table[_EXEC_DIRECTORY_TYPE_MAX] = {
         [EXEC_DIRECTORY_RUNTIME]       = "RuntimeDirectory",
         [EXEC_DIRECTORY_STATE]         = "StateDirectory",
         [EXEC_DIRECTORY_CACHE]         = "CacheDirectory",
@@ -416,7 +416,7 @@ static const char* const exec_directory_type_table[_EXEC_DIRECTORY_TYPE_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(exec_directory_type, ExecDirectoryType);
 
 /* D-Bus properties carrying the symlink destinations and flags for each directory type. */
-static const char* const exec_directory_type_symlink_table[_EXEC_DIRECTORY_TYPE_MAX] = {
+ایستا ثابت نویسه* ثابت exec_directory_type_symlink_table[_EXEC_DIRECTORY_TYPE_MAX] = {
         [EXEC_DIRECTORY_RUNTIME]       = "RuntimeDirectorySymlink",
         [EXEC_DIRECTORY_STATE]         = "StateDirectorySymlink",
         [EXEC_DIRECTORY_CACHE]         = "CacheDirectorySymlink",
@@ -427,7 +427,7 @@ static const char* const exec_directory_type_symlink_table[_EXEC_DIRECTORY_TYPE_
 DEFINE_STRING_TABLE_LOOKUP(exec_directory_type_symlink, ExecDirectoryType);
 
 Glyph unit_active_state_to_glyph(UnitActiveState state) {
-        static const Glyph map[_UNIT_ACTIVE_STATE_MAX] = {
+        ایستا ثابت Glyph map[_UNIT_ACTIVE_STATE_MAX] = {
                 [UNIT_ACTIVE]       = GLYPH_BLACK_CIRCLE,
                 [UNIT_RELOADING]    = GLYPH_CIRCLE_ARROW,
                 [UNIT_REFRESHING]   = GLYPH_CIRCLE_ARROW,
@@ -438,9 +438,9 @@ Glyph unit_active_state_to_glyph(UnitActiveState state) {
                 [UNIT_MAINTENANCE]  = GLYPH_WHITE_CIRCLE,
         };
 
-        if (state < 0)
-                return _GLYPH_INVALID;
+        اگر (state < 0)
+                بازگشت _GLYPH_INVALID;
 
-        assert(state < _UNIT_ACTIVE_STATE_MAX);
-        return map[state];
+        أكد(state < _UNIT_ACTIVE_STATE_MAX);
+        بازگشت map[state];
 }

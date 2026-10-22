@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#شامل "fileio.h"
+#شامل "ordered-set.h"
+#شامل "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+صحیح ordered_set_ensure_allocated(OrderedSet **s, ثابت ساختار hash_ops *ops) {
+        أكد(s);
 
-        if (*s)
-                return 0;
+        اگر (*s)
+                بازگشت 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        اگر (!*s)
+                بازگشت -ENOMEM;
 
-        return 0;
+        بازگشت 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+صحیح ordered_set_ensure_put(OrderedSet **s, ثابت ساختار hash_ops *ops, تهی *p) {
+        صحیح r;
 
-        assert(s);
+        أكد(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        return ordered_set_put(*s, p);
+        بازگشت ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+صحیح ordered_set_consume(OrderedSet *s, تهی *p) {
+        صحیح r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        اگر (r <= 0)
+                آزاد(p);
 
-        return r;
+        بازگشت r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+صحیح ordered_set_put_strdup_full(OrderedSet **s, ثابت ساختار hash_ops *hash_ops, ثابت نویسه *p) {
+        نویسه *c;
+        صحیح r;
 
-        assert(s);
-        assert(p);
+        أكد(s);
+        أكد(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        اگر (ordered_set_contains(*s, p))
+                بازگشت 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        اگر (!c)
+                بازگشت -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        بازگشت ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+صحیح ordered_set_put_strdupv_full(OrderedSet **s, ثابت ساختار hash_ops *hash_ops, نویسه **l) {
+        صحیح r, ret = 0;
 
-        assert(s);
+        أكد(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        بازگشت ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+صحیح ordered_set_put_string_set_full(OrderedSet **s, ثابت ساختار hash_ops *hash_ops, OrderedSet *l) {
+        صحیح r, ret = 0;
+        نویسه *p;
 
-        assert(s);
+        أكد(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        بازگشت ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+تهی ordered_set_print(FILE *f, ثابت نویسه *field, OrderedSet *s) {
         bool space = false;
-        char *p;
+        نویسه *p;
 
-        assert(f);
-        assert(field);
+        أكد(f);
+        أكد(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        اگر (ordered_set_isempty(s))
+                بازگشت;
 
         fputs(field, f);
 
         ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+                fputs_with_separator(f, p, پوچ, &space);
 
         fputc('\n', f);
 }

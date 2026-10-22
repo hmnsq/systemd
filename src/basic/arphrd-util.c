@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#شامل <linux/if_arp.h>
+#شامل <linux/if_infiniband.h>
+#شامل <netinet/in.h>
+#شامل <string.h>
 
-#include "arphrd-util.h"
+#شامل "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+ایستا ثابت ساختار arphrd_name* lookup_arphrd(ثبات ثابت نویسه *str, ثبات GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#شامل "arphrd-from-name.inc"
+#شامل "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+صحیح arphrd_from_name(ثابت نویسه *name) {
+        ثابت ساختار arphrd_name *sc;
 
-        assert(name);
+        أكد(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        اگر (!sc)
+                بازگشت -EINVAL;
 
-        return sc->id;
+        بازگشت sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+        انتخاب (arphrd) {
+        حالت ARPHRD_ETHER:
+                بازگشت ETH_ALEN;
+        حالت ARPHRD_INFINIBAND:
+                بازگشت INFINIBAND_ALEN;
+        حالت ARPHRD_TUNNEL:
+        حالت ARPHRD_SIT:
+        حالت ARPHRD_IPGRE:
+                بازگشت اندازه(ساختار in_addr);
+        حالت ARPHRD_TUNNEL6:
+        حالت ARPHRD_IP6GRE:
+                بازگشت اندازه(ساختار in6_addr);
+        پیشفرض:
+                بازگشت 0;
         }
 }

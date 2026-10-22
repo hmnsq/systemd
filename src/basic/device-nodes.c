@@ -1,91 +1,91 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
+#شامل <stdio.h>
+#شامل <string.h>
+#شامل <sys/stat.h>
 
-#include "device-nodes.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "utf8.h"
+#شامل "device-nodes.h"
+#شامل "path-util.h"
+#شامل "stat-util.h"
+#شامل "stdio-util.h"
+#شامل "string-util.h"
+#شامل "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+صحیح allow_listed_char_for_devnode(نویسه c, ثابت نویسه *additional) {
+        بازگشت
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
                 strchr("#+-.:=@_", c) ||
                 (additional && strchr(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
+صحیح encode_devnode_name(ثابت نویسه *str, نویسه *str_enc, size_t len) {
         size_t i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        اگر (!str || !str_enc)
+                بازگشت -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        برای (i = 0, j = 0; str[i] != '\0'; i++) {
+                صحیح seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                اگر (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        اگر (len-j < (size_t) seqlen)
+                                بازگشت -EINVAL;
 
                         memcpy(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } وگرنه اگر (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], پوچ)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        اگر (len-j < 5)
+                                بازگشت -EINVAL;
 
-                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
+                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned نویسه) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } وگرنه {
+                        اگر (len-j < 1)
+                                بازگشت -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        اگر (len-j < 1)
+                بازگشت -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        بازگشت 0;
 }
 
-int devnode_same(const char *a, const char *b) {
-        struct stat sa, sb;
-        int r;
+صحیح devnode_same(ثابت نویسه *a, ثابت نویسه *b) {
+        ساختار stat sa, sb;
+        صحیح r;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        اگر (!valid_device_گره_path(a) || !valid_device_گره_path(b))
+                بازگشت -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        اگر (stat(a, &sa) < 0)
+                بازگشت -errno;
+        r = stat_verify_device_گره(&sa);
+        اگر (r < 0)
+                بازگشت r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        اگر (stat(b, &sb) < 0)
+                بازگشت -errno;
+        r = stat_verify_device_گره(&sb);
+        اگر (r < 0)
+                بازگشت r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        اگر (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                بازگشت false;
 
-        return sa.st_rdev == sb.st_rdev;
+        بازگشت sa.st_rdev == sb.st_rdev;
 }

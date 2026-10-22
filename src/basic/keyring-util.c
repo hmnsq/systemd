@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "keyring-util.h"
-#include "log.h"
+#شامل "alloc-util.h"
+#شامل "keyring-util.h"
+#شامل "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+صحیح keyring_read(کلید_serial_t serial, تهی **ret, size_t *ret_size) {
         size_t bufsize = 100;
 
-        for (;;) {
-                _cleanup_(erase_and_freep) uint8_t *buf = NULL;
+        برای (;;) {
+                _cleanup_(erase_and_freep) uint8_t *buf = پوچ;
                 long n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                اگر (!buf)
+                        بازگشت -ENOMEM;
 
                 n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                اگر (n < 0)
+                        بازگشت -errno;
 
-                if ((size_t) n <= bufsize) {
+                اگر ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        اگر (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
+                        اگر (ret_size)
                                 *ret_size = n;
 
-                        return 0;
+                        بازگشت 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
-        _cleanup_free_ char *tuple = NULL;
+صحیح keyring_describe(کلید_serial_t serial, نویسه **ret) {
+        _cleanup_free_ نویسه *tuple = پوچ;
         size_t sz = 64;
-        int c;
+        صحیح c;
 
-        assert(ret);
+        أكد(ret);
 
-        for (;;) {
-                tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+        برای (;;) {
+                tuple = new(نویسه, sz);
+                اگر (!tuple)
+                        بازگشت log_oom_debug();
 
                 c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                اگر (c < 0)
+                        بازگشت log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
-                        break;
+                اگر ((size_t) c <= sz)
+                        بشکن;
 
                 sz = c;
-                free(tuple);
+                آزاد(tuple);
         }
 
         /* The kernel returns a final NUL in the string, verify that. */
-        assert(tuple[c-1] == 0);
+        أكد(tuple[c-1] == 0);
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        بازگشت 0;
 }

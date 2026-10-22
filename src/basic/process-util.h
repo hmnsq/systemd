@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <signal.h>
+#شامل <signal.h>
 
-#include "fileio.h"
-#include "format-util.h"
-#include "forward.h"
-#include "string-util.h"
+#شامل "fileio.h"
+#شامل "format-util.h"
+#شامل "forward.h"
+#شامل "string-util.h"
 
 #define procfs_file_alloca(pid, field)                                  \
         ({                                                              \
                 pid_t _pid_ = (pid);                                    \
-                const char *_field_ = (field);                          \
-                char *_r_;                                              \
-                if (_pid_ == 0)                                         \
+                ثابت نویسه *_field_ = (field);                          \
+                نویسه *_r_;                                              \
+                اگر (_pid_ == 0)                                         \
                         _r_ = strjoina("/proc/self/", _field_);         \
-                else {                                                  \
-                        assert(_pid_ > 0);                              \
-                        _r_ = newa(char, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
+                وگرنه {                                                  \
+                        أكد(_pid_ > 0);                              \
+                        _r_ = newa(نویسه, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
                         sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, _field_); \
                 }                                                       \
-                (const char*) _r_;                                      \
+                (ثابت نویسه*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+ایستا درونخطی صحیح procfs_file_get_field(pid_t pid, ثابت نویسه *name, ثابت نویسه *کلید, نویسه **ret) {
+        بازگشت get_proc_field(procfs_file_alloca(pid, name), کلید, ret);
 }
 
-typedef enum ProcessCmdlineFlags {
+تعریفنوع شمارش ProcessCmdlineFlags {
         PROCESS_CMDLINE_COMM_FALLBACK = 1 << 0,
         PROCESS_CMDLINE_USE_LOCALE    = 1 << 1,
         PROCESS_CMDLINE_QUOTE         = 1 << 2,
         PROCESS_CMDLINE_QUOTE_POSIX   = 1 << 3,
 } ProcessCmdlineFlags;
 
-int pid_get_comm(pid_t pid, char **ret);
-int pidref_get_comm(const PidRef *pid, char **ret);
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
-int get_process_exe(pid_t pid, char **ret);
-int pid_get_uid(pid_t pid, uid_t *ret);
-int pidref_get_uid(const PidRef *pid, uid_t *ret);
-int get_process_gid(pid_t pid, gid_t *ret);
-int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
-int get_process_environ(pid_t pid, char **ret);
-int pid_get_ppid(pid_t pid, pid_t *ret);
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
-int pid_get_start_time(pid_t pid, usec_t *ret);
-int pidref_get_start_time(const PidRef *pid, usec_t *ret);
-int get_process_umask(pid_t pid, mode_t *ret);
-int pidref_has_sigcgt(const PidRef *pidref, int sig);
-int pidref_has_sigblk(const PidRef *pidref, int sig);
+صحیح pid_get_comm(pid_t pid, نویسه **ret);
+صحیح pidref_get_comm(ثابت PidRef *pid, نویسه **ret);
+صحیح pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, نویسه **ret);
+صحیح pidref_get_cmdline(ثابت PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, نویسه **ret);
+صحیح pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, نویسه ***ret);
+صحیح pidref_get_cmdline_strv(ثابت PidRef *pid, ProcessCmdlineFlags flags, نویسه ***ret);
+صحیح get_process_exe(pid_t pid, نویسه **ret);
+صحیح pid_get_uid(pid_t pid, uid_t *ret);
+صحیح pidref_get_uid(ثابت PidRef *pid, uid_t *ret);
+صحیح get_process_gid(pid_t pid, gid_t *ret);
+صحیح get_process_cwd(pid_t pid, نویسه **ret);
+صحیح get_process_ریشه(pid_t pid, نویسه **ret);
+صحیح get_process_environ(pid_t pid, نویسه **ret);
+صحیح pid_get_ppid(pid_t pid, pid_t *ret);
+صحیح pidref_get_ppid(ثابت PidRef *pidref, pid_t *ret);
+صحیح pidref_get_ppid_as_pidref(ثابت PidRef *pidref, PidRef *ret);
+صحیح pid_get_start_time(pid_t pid, usec_t *ret);
+صحیح pidref_get_start_time(ثابت PidRef *pid, usec_t *ret);
+صحیح get_process_umask(pid_t pid, mode_t *ret);
+صحیح pidref_has_sigcgt(ثابت PidRef *pidref, صحیح sig);
+صحیح pidref_has_sigblk(ثابت PidRef *pidref, صحیح sig);
 
-static inline bool SIGINFO_CODE_IS_DEAD(int code) {
-        return IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
+ایستا درونخطی bool SIGINFO_CODE_IS_DEAD(صحیح code) {
+        بازگشت IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
 }
 
-typedef enum WaitFlags {
+تعریفنوع شمارش WaitFlags {
         WAIT_LOG_ABNORMAL             = 1 << 0,
         WAIT_LOG_NON_ZERO_EXIT_STATUS = 1 << 1,
 
@@ -68,26 +68,26 @@ typedef enum WaitFlags {
         WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
 } WaitFlags;
 
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
+صحیح pidref_wait_for_terminate_and_check(ثابت نویسه *name, PidRef *pidref, WaitFlags flags);
 
-int kill_and_sigcont(pid_t pid, int sig);
+صحیح kill_and_sigcont(pid_t pid, صحیح sig);
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret);
+صحیح procfs_get_stat_flags(ثابت نویسه *path, unsigned long long *ret);
 
-int pid_is_kernel_thread(pid_t pid);
-int pidref_is_kernel_thread(const PidRef *pid);
+صحیح pid_is_kernel_thread(pid_t pid);
+صحیح pidref_is_kernel_thread(ثابت PidRef *pid);
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret);
+صحیح getenv_for_pid(pid_t pid, ثابت نویسه *field, نویسه **ret);
 
-int pid_is_alive(pid_t pid);
-int pidref_is_alive(const PidRef *pidref);
-int pid_is_unwaited(pid_t pid);
-int pidref_is_unwaited(PidRef *pidref);
-int pid_is_my_child(pid_t pid);
-int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+صحیح pid_is_alive(pid_t pid);
+صحیح pidref_is_alive(ثابت PidRef *pidref);
+صحیح pid_is_unwaited(pid_t pid);
+صحیح pidref_is_unwaited(PidRef *pidref);
+صحیح pid_is_my_child(pid_t pid);
+صحیح pidref_is_my_child(PidRef *pidref);
+صحیح pidref_from_same_ریشه_fs(PidRef *a, PidRef *b);
 
-bool is_main_thread(void);
+bool is_main_thread(تهی);
 
 #ifndef PERSONALITY_INVALID
 /* personality(2) documents that 0xFFFFFFFFUL is used for querying the
@@ -101,57 +101,57 @@ bool is_main_thread(void);
  * personality we're interested in. */
 #define OPINIONATED_PERSONALITY_MASK 0xFFUL
 
-unsigned long personality_from_string(const char *s);
-const char* personality_to_string(unsigned long p);
+unsigned long personality_from_string(ثابت نویسه *s);
+ثابت نویسه* personality_to_string(unsigned long p);
 
-int safe_personality(unsigned long p);
-int opinionated_personality(unsigned long *ret);
+صحیح safe_personality(unsigned long p);
+صحیح opinionated_personality(unsigned long *ret);
 
-DECLARE_STRING_TABLE_LOOKUP(sigchld_code, int);
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int);
+DECLARE_STRING_TABLE_LOOKUP(sigchld_code, صحیح);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, صحیح);
 
-static inline pid_t PTR_TO_PID(const void *p) {
-        return (pid_t) ((uintptr_t) p);
+ایستا درونخطی pid_t PTR_TO_PID(ثابت تهی *p) {
+        بازگشت (pid_t) ((uintptr_t) p);
 }
 
-static inline void* PID_TO_PTR(pid_t pid) {
-        return (void*) ((uintptr_t) pid);
+ایستا درونخطی تهی* PID_TO_PTR(pid_t pid) {
+        بازگشت (تهی*) ((uintptr_t) pid);
 }
 
-void valgrind_summary_hack(void);
+تهی valgrind_summary_hack(تهی);
 
-int pid_compare_func(const pid_t *a, const pid_t *b);
+صحیح pid_compare_func(ثابت pid_t *a, ثابت pid_t *b);
 
-bool nice_is_valid(int n) _const_;
+bool nice_is_valid(صحیح n) _const_;
 
-bool sched_policy_is_valid(int policy) _const_;
-bool sched_policy_supported(int policy);
-int sched_get_priority_min_safe(int policy);
-int sched_get_priority_max_safe(int policy);
+bool sched_policy_is_valid(صحیح policy) _const_;
+bool sched_policy_supported(صحیح policy);
+صحیح sched_get_priority_min_safe(صحیح policy);
+صحیح sched_get_priority_max_safe(صحیح policy);
 
 #define PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
 
-static inline bool pid_is_valid(pid_t p) {
-        return p > 0;
+ایستا درونخطی bool pid_is_valid(pid_t p) {
+        بازگشت p > 0;
 }
 
-static inline bool pid_is_automatic(pid_t p) {
-        return p == PID_AUTOMATIC;
+ایستا درونخطی bool pid_is_automatic(pid_t p) {
+        بازگشت p == PID_AUTOMATIC;
 }
 
-pid_t getpid_cached(void);
-void reset_cached_pid(void);
+pid_t getpid_cached(تهی);
+تهی reset_cached_pid(تهی);
 
-int must_be_root(void);
+صحیح must_be_ریشه(تهی);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_پشته(صحیح (*fn)(تهی *), صحیح flags, تهی *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
  * and thus will cause deadlocks if the parent uses threads and the child does memory allocations. Hence: if
  * the parent is threaded these flags may not be used. These flags cannot be used if the parent uses threads
  * or the child uses malloc(). 💣 */
-typedef enum ForkFlags {
+تعریفنوع شمارش ForkFlags {
         FORK_RESET_SIGNALS      = 1 <<  0, /* Reset all signal handlers and signal mask */
         FORK_CLOSE_ALL_FDS      = 1 <<  1, /* Close all open file descriptors in the child, except for 0,1,2 */
         FORK_DEATHSIG_SIGTERM   = 1 <<  2, /* Set PR_DEATHSIG in the child to SIGTERM */
@@ -178,46 +178,46 @@ typedef enum ForkFlags {
         FORK_ALLOW_DLOPEN       = 1 << 23, /* Do not block dlopen() in child */
 } ForkFlags;
 
-int pidref_safe_fork_full(
-                const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+صحیح pidref_safe_fork_full(
+                ثابت نویسه *name,
+                ثابت صحیح stdio_fds[3],
+                صحیح except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret);
 
-static inline int pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
-        return pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
+ایستا درونخطی صحیح pidref_safe_fork(ثابت نویسه *name, ForkFlags flags, PidRef *ret) {
+        بازگشت pidref_safe_fork_full(name, پوچ, پوچ, 0, flags, ret);
 }
 
-int namespace_fork_full(
-                const char *outer_name,
-                const char *inner_name,
-                int except_fds[],
+صحیح namespace_fork_full(
+                ثابت نویسه *outer_name,
+                ثابت نویسه *inner_name,
+                صحیح except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                صحیح pidns_fd,
+                صحیح mntns_fd,
+                صحیح netns_fd,
+                صحیح userns_fd,
+                صحیح ریشه_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
-int namespace_fork(
-                const char *outer_name,
-                const char *inner_name,
+صحیح namespace_fork(
+                ثابت نویسه *outer_name,
+                ثابت نویسه *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                صحیح pidns_fd,
+                صحیح mntns_fd,
+                صحیح netns_fd,
+                صحیح userns_fd,
+                صحیح ریشه_fd,
                 PidRef *ret);
 
-bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
-int get_oom_score_adjust(int *ret);
+bool oom_score_adjust_is_valid(صحیح oa);
+صحیح set_oom_score_adjust(صحیح مقدار);
+صحیح get_oom_score_adjust(صحیح *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */
 #define PID_T_MAX ((pid_t) INT32_MAX)
@@ -231,33 +231,33 @@ int get_oom_score_adjust(int *ret);
 
 assert_cc(TASKS_MAX <= (unsigned long) PID_T_MAX);
 
-int setpriority_closest(int priority);
+صحیح setpriority_closest(صحیح priority);
 
-_noreturn_ void freeze(void);
+_noreturn_ تهی freeze(تهی);
 
-int get_process_threads(pid_t pid);
+صحیح get_process_threads(pid_t pid);
 
-int is_reaper_process(void);
-int make_reaper_process(bool b);
+صحیح is_reaper_process(تهی);
+صحیح make_reaper_process(bool b);
 
-int posix_spawn_wrapper(
-                const char *path,
-                char * const *argv,
-                char * const *envp,
-                const char *cgroup,
+صحیح posix_spawn_wrapper(
+                ثابت نویسه *path,
+                نویسه * ثابت *argv,
+                نویسه * ثابت *envp,
+                ثابت نویسه *cgroup,
                 PidRef *ret_pidref);
 
-int proc_dir_open(DIR **ret);
-int proc_dir_read(DIR *d, pid_t *ret);
-int proc_dir_read_pidref(DIR *d, PidRef *ret);
+صحیح proc_dir_open(DIR **ret);
+صحیح proc_dir_read(DIR *d, pid_t *ret);
+صحیح proc_dir_read_pidref(DIR *d, PidRef *ret);
 
-int safe_mlockall(int flags);
+صحیح safe_mlockall(صحیح flags);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error);
-int read_errno(int errno_fd);
+_noreturn_ تهی report_errno_and_exit(صحیح errno_fd, صحیح error);
+صحیح read_errno(صحیح errno_fd);
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+صحیح prctl_safe(صحیح op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
 
-int proc_set_comm(const char *comm);
-int proc_set_nnp(void);
-nsec_t proc_get_timerslack(void);
+صحیح proc_set_comm(ثابت نویسه *comm);
+صحیح proc_set_nnp(تهی);
+nsec_t proc_get_timerslack(تهی);

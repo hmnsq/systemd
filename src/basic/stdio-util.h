@@ -1,72 +1,72 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <printf.h>
-#include <stdio.h>
+#شامل <printf.h>
+#شامل <stdio.h>
 
-#include "forward.h"
+#شامل "forward.h"
 
 _printf_(3, 4)
-static inline char* snprintf_ok(char *buf, size_t len, const char *format, ...) {
+ایستا درونخطی نویسه* snprintf_ok(نویسه *buf, size_t len, ثابت نویسه *format, ...) {
         va_list ap;
-        int r;
+        صحیح r;
 
         va_start(ap, format);
         r = vsnprintf(buf, len, format, ap);
         va_end(ap);
 
-        return r >= 0 && (size_t) r < len ? buf : NULL;
+        بازگشت r >= 0 && (size_t) r < len ? buf : پوچ;
 }
 
 #define xsprintf(buf, fmt, ...) \
         assert_message_se(snprintf_ok(buf, ELEMENTSOF(buf), fmt, ##__VA_ARGS__), "xsprintf: buffer too small")
 
-char* asprintf_safe(const char *restrict fmt, ...) _printf_(1, 2);
+نویسه* asprintf_safe(ثابت نویسه *restrict fmt, ...) _printf_(1, 2);
 
 #define VA_FORMAT_ADVANCE(format, ap)                                   \
-do {                                                                    \
-        int _argtypes[128];                                             \
+انجامبده {                                                                    \
+        صحیح _argtypes[128];                                             \
         size_t _i, _k;                                                  \
         /* See https://github.com/google/sanitizers/issues/992 */       \
-        if (HAS_FEATURE_MEMORY_SANITIZER)                               \
-                memset(_argtypes, 0, sizeof(_argtypes));                \
+        اگر (HAS_FEATURE_MEMORY_SANITIZER)                               \
+                memset(_argtypes, 0, اندازه(_argtypes));                \
         _k = parse_printf_format((format), ELEMENTSOF(_argtypes), _argtypes); \
-        assert(_k < ELEMENTSOF(_argtypes));                             \
-        for (_i = 0; _i < _k; _i++) {                                   \
-                if (_argtypes[_i] & PA_FLAG_PTR)  {                     \
-                        (void) va_arg(ap, void*);                       \
-                        continue;                                       \
+        أكد(_k < ELEMENTSOF(_argtypes));                             \
+        برای (_i = 0; _i < _k; _i++) {                                   \
+                اگر (_argtypes[_i] & PA_FLAG_PTR)  {                     \
+                        (تهی) va_arg(ap, تهی*);                       \
+                        ادامه;                                       \
                 }                                                       \
                                                                         \
-                switch (_argtypes[_i]) {                                \
-                case PA_INT:                                            \
-                case PA_INT|PA_FLAG_SHORT:                              \
-                case PA_CHAR:                                           \
-                        (void) va_arg(ap, int);                         \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG:                               \
-                        (void) va_arg(ap, long int);                    \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG_LONG:                          \
-                        (void) va_arg(ap, long long int);               \
-                        break;                                          \
-                case PA_WCHAR:                                          \
-                        (void) va_arg(ap, wchar_t);                     \
-                        break;                                          \
-                case PA_WSTRING:                                        \
-                case PA_STRING:                                         \
-                case PA_POINTER:                                        \
-                        (void) va_arg(ap, void*);                       \
-                        break;                                          \
-                case PA_FLOAT:                                          \
-                case PA_DOUBLE:                                         \
-                        (void) va_arg(ap, double);                      \
-                        break;                                          \
-                case PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
-                        (void) va_arg(ap, long double);                 \
-                        break;                                          \
-                default:                                                \
+                انتخاب (_argtypes[_i]) {                                \
+                حالت PA_INT:                                            \
+                حالت PA_INT|PA_FLAG_SHORT:                              \
+                حالت PA_CHAR:                                           \
+                        (تهی) va_arg(ap, صحیح);                         \
+                        بشکن;                                          \
+                حالت PA_INT|PA_FLAG_LONG:                               \
+                        (تهی) va_arg(ap, long صحیح);                    \
+                        بشکن;                                          \
+                حالت PA_INT|PA_FLAG_LONG_LONG:                          \
+                        (تهی) va_arg(ap, long long صحیح);               \
+                        بشکن;                                          \
+                حالت PA_WCHAR:                                          \
+                        (تهی) va_arg(ap, wchar_t);                     \
+                        بشکن;                                          \
+                حالت PA_WSTRING:                                        \
+                حالت PA_STRING:                                         \
+                حالت PA_POINTER:                                        \
+                        (تهی) va_arg(ap, تهی*);                       \
+                        بشکن;                                          \
+                حالت PA_FLOAT:                                          \
+                حالت PA_DOUBLE:                                         \
+                        (تهی) va_arg(ap, دوگانه);                      \
+                        بشکن;                                          \
+                حالت PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
+                        (تهی) va_arg(ap, long دوگانه);                 \
+                        بشکن;                                          \
+                پیشفرض:                                                \
                         assert_not_reached();                           \
                 }                                                       \
         }                                                               \
-} while (false)
+} وقتی (false)

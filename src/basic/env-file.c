@@ -1,660 +1,660 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#شامل <sys/stat.h>
+#شامل <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#شامل "alloc-util.h"
+#شامل "env-file.h"
+#شامل "env-util.h"
+#شامل "escape.h"
+#شامل "fd-util.h"
+#شامل "fileio.h"
+#شامل "fs-util.h"
+#شامل "label-util.h"
+#شامل "log.h"
+#شامل "string-util.h"
+#شامل "strv.h"
+#شامل "tmpfile-util.h"
+#شامل "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+تعریفنوع صحیح (*افزودن_env_func_t)(
+                ثابت نویسه *filename,
+                unsigned سطر,
+                ثابت نویسه *کلید,
+                نویسه *مقدار,
+                تهی *userdata);
 
-static int parse_env_file_internal(
+ایستا صحیح parse_env_file_internal(
                 FILE *f,
-                const char *fname,
-                push_env_func_t push,
-                void *userdata) {
+                ثابت نویسه *fname,
+                افزودن_env_func_t افزودن,
+                تهی *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
-        int r;
+        size_t n_کلید = 0, n_مقدار = 0, last_مقدار_whitespace = SIZE_MAX, last_کلید_whitespace = SIZE_MAX;
+        _cleanup_free_ نویسه *contents = پوچ, *کلید = پوچ, *مقدار = پوچ;
+        unsigned سطر = 1;
+        صحیح r;
 
-        enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+        شمارش {
+                PRE_کلید,
+                کلید_2,
+                PRE_مقدار,
+                مقدار_2,
+                مقدار_ESCAPE,
+                SINGLE_QUOTE_مقدار,
+                DOUBLE_QUOTE_مقدار,
+                DOUBLE_QUOTE_مقدار_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_کلید;
 
-        assert(f || fname);
-        assert(push);
+        أكد(f || fname);
+        أكد(افزودن);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        اگر (f)
+                r = read_full_stream(f, &contents, پوچ);
+        وگرنه
+                r = read_full_file(fname, &contents, پوچ);
+        اگر (r < 0)
+                بازگشت r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        برای (نویسه *p = contents; *p; p++) {
+                نویسه c = *p;
 
-                switch (state) {
+                انتخاب (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                حالت PRE_کلید:
+                        اگر (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                        وگرنه اگر (!strchr(WHITESPACE, c)) {
+                                state = کلید_2;
+                                last_کلید_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                اگر (!GREEDY_REALLOC(کلید, n_کلید+2))
+                                        بازگشت -ENOMEM;
 
-                                key[n_key++] = c;
+                                کلید[n_کلید++] = c;
                         }
-                        break;
+                        بشکن;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
-                        } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                حالت کلید_2:
+                        اگر (strchr(NEWLINE, c)) {
+                                state = PRE_کلید;
+                                سطر++;
+                                n_کلید = 0;
+                        } وگرنه اگر (c == '=') {
+                                state = PRE_مقدار;
+                                last_مقدار_whitespace = SIZE_MAX;
+                        } وگرنه {
+                                اگر (!strchr(WHITESPACE, c))
+                                        last_کلید_whitespace = SIZE_MAX;
+                                وگرنه اگر (last_کلید_whitespace == SIZE_MAX)
+                                         last_کلید_whitespace = n_کلید;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                اگر (!GREEDY_REALLOC(کلید, n_کلید+2))
+                                        بازگشت -ENOMEM;
 
-                                key[n_key++] = c;
+                                کلید[n_کلید++] = c;
                         }
 
-                        break;
+                        بشکن;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                حالت PRE_مقدار:
+                        اگر (strchr(NEWLINE, c)) {
+                                state = PRE_کلید;
+                                سطر++;
+                                کلید[n_کلید] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                اگر (مقدار)
+                                        مقدار[n_مقدار] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                اگر (last_کلید_whitespace != SIZE_MAX)
+                                        کلید[last_کلید_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = افزودن(fname, سطر, کلید, مقدار, userdata);
+                                اگر (r < 0)
+                                        بازگشت r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_کلید = 0;
+                                مقدار = پوچ;
+                                n_مقدار = 0;
 
-                        } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
-                                state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                        } وگرنه اگر (c == '\'')
+                                state = SINGLE_QUOTE_مقدار;
+                        وگرنه اگر (c == '"')
+                                state = DOUBLE_QUOTE_مقدار;
+                        وگرنه اگر (c == '\\')
+                                state = مقدار_ESCAPE;
+                        وگرنه اگر (!strchr(WHITESPACE, c)) {
+                                state = مقدار_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                اگر (!GREEDY_REALLOC(مقدار, n_مقدار+2))
+                                        بازگشت -ENOMEM;
 
-                                value[n_value++] = c;
+                                مقدار[n_مقدار++] = c;
                         }
 
-                        break;
+                        بشکن;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                حالت مقدار_2:
+                        اگر (strchr(NEWLINE, c)) {
+                                state = PRE_کلید;
+                                سطر++;
 
-                                key[n_key] = 0;
+                                کلید[n_کلید] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                اگر (مقدار)
+                                        مقدار[n_مقدار] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                اگر (last_مقدار_whitespace != SIZE_MAX)
+                                        مقدار[last_مقدار_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                اگر (last_کلید_whitespace != SIZE_MAX)
+                                        کلید[last_کلید_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = افزودن(fname, سطر, کلید, مقدار, userdata);
+                                اگر (r < 0)
+                                        بازگشت r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_کلید = 0;
+                                مقدار = پوچ;
+                                n_مقدار = 0;
 
-                        } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                        } وگرنه اگر (c == '\\') {
+                                state = مقدار_ESCAPE;
+                                last_مقدار_whitespace = SIZE_MAX;
+                        } وگرنه {
+                                اگر (!strchr(WHITESPACE, c))
+                                        last_مقدار_whitespace = SIZE_MAX;
+                                وگرنه اگر (last_مقدار_whitespace == SIZE_MAX)
+                                        last_مقدار_whitespace = n_مقدار;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                اگر (!GREEDY_REALLOC(مقدار, n_مقدار+2))
+                                        بازگشت -ENOMEM;
 
-                                value[n_value++] = c;
+                                مقدار[n_مقدار++] = c;
                         }
 
-                        break;
+                        بشکن;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                حالت مقدار_ESCAPE:
+                        state = مقدار_2;
 
-                        if (!strchr(NEWLINE, c)) {
+                        اگر (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                اگر (!GREEDY_REALLOC(مقدار, n_مقدار+2))
+                                        بازگشت -ENOMEM;
 
-                                value[n_value++] = c;
+                                مقدار[n_مقدار++] = c;
                         }
-                        break;
+                        بشکن;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
-                                state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                حالت SINGLE_QUOTE_مقدار:
+                        اگر (c == '\'')
+                                state = PRE_مقدار;
+                        وگرنه {
+                                اگر (!GREEDY_REALLOC(مقدار, n_مقدار+2))
+                                        بازگشت -ENOMEM;
 
-                                value[n_value++] = c;
-                        }
-
-                        break;
-
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
-                                state = PRE_VALUE;
-                        else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-
-                                value[n_value++] = c;
+                                مقدار[n_مقدار++] = c;
                         }
 
-                        break;
+                        بشکن;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                حالت DOUBLE_QUOTE_مقدار:
+                        اگر (c == '"')
+                                state = PRE_مقدار;
+                        وگرنه اگر (c == '\\')
+                                state = DOUBLE_QUOTE_مقدار_ESCAPE;
+                        وگرنه {
+                                اگر (!GREEDY_REALLOC(مقدار, n_مقدار+2))
+                                        بازگشت -ENOMEM;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                                مقدار[n_مقدار++] = c;
+                        }
+
+                        بشکن;
+
+                حالت DOUBLE_QUOTE_مقدار_ESCAPE:
+                        state = DOUBLE_QUOTE_مقدار;
+
+                        اگر (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-                                value[n_value++] = c;
-                        } else if (c != '\n') {
+                                اگر (!GREEDY_REALLOC(مقدار, n_مقدار+2))
+                                        بازگشت -ENOMEM;
+                                مقدار[n_مقدار++] = c;
+                        } وگرنه اگر (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                اگر (!GREEDY_REALLOC(مقدار, n_مقدار+3))
+                                        بازگشت -ENOMEM;
+                                مقدار[n_مقدار++] = '\\';
+                                مقدار[n_مقدار++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        بشکن;
 
-                case COMMENT:
-                        if (c == '\\')
+                حالت COMMENT:
+                        اگر (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                        وگرنه اگر (strchr(NEWLINE, c)) {
+                                state = PRE_کلید;
+                                سطر++;
                         }
-                        break;
+                        بشکن;
 
-                case COMMENT_ESCAPE:
+                حالت COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                        } else
+                        اگر (strchr(NEWLINE, c)) {
+                                state = PRE_کلید;
+                                سطر++;
+                        } وگرنه
                                 state = COMMENT;
-                        break;
+                        بشکن;
                 }
         }
 
-        if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+        اگر (IN_SET(state,
+                   PRE_مقدار,
+                   مقدار_2,
+                   مقدار_ESCAPE,
+                   SINGLE_QUOTE_مقدار,
+                   DOUBLE_QUOTE_مقدار,
+                   DOUBLE_QUOTE_مقدار_ESCAPE)) {
 
-                key[n_key] = 0;
+                کلید[n_کلید] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                اگر (مقدار)
+                        مقدار[n_مقدار] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                اگر (state == مقدار_2)
+                        اگر (last_مقدار_whitespace != SIZE_MAX)
+                                مقدار[last_مقدار_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                اگر (last_کلید_whitespace != SIZE_MAX)
+                        کلید[last_کلید_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                r = افزودن(fname, سطر, کلید, مقدار, userdata);
+                اگر (r < 0)
+                        بازگشت r;
 
-                value = NULL;
+                مقدار = پوچ;
         }
 
-        return 0;
+        بازگشت 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+ایستا صحیح check_utf8ness_and_warn(
+                ثابت نویسه *filename, unsigned سطر,
+                ثابت نویسه *کلید, نویسه *مقدار) {
 
-        assert(key);
+        أكد(کلید);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        اگر (!utf8_is_valid(کلید)) {
+                _cleanup_free_ نویسه *p = پوچ;
 
-                p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(کلید);
+                بازگشت log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), سطر, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        اگر (مقدار && !utf8_is_valid(مقدار)) {
+                _cleanup_free_ نویسه *p = پوچ;
 
-                p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(مقدار);
+                بازگشت log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), سطر, کلید, p);
         }
 
-        return 0;
+        بازگشت 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ایستا صحیح parse_env_file_افزودن(
+                ثابت نویسه *filename, unsigned سطر,
+                ثابت نویسه *کلید, نویسه *مقدار,
+                تهی *userdata) {
 
-        const char *k;
+        ثابت نویسه *k;
         va_list aq, *ap = userdata;
-        int r;
+        صحیح r;
 
-        assert(key);
+        أكد(کلید);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, سطر, کلید, مقدار);
+        اگر (r < 0)
+                بازگشت r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        وقتی ((k = va_arg(aq, ثابت نویسه *))) {
+                نویسه **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, نویسه **);
 
-                if (streq(key, k)) {
+                اگر (streq(کلید, k)) {
                         va_end(aq);
-                        free_and_replace(*v, value);
+                        free_and_replace(*v, مقدار);
 
-                        return 1;
+                        بازگشت 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        آزاد(مقدار);
 
-        return 0;
+        بازگشت 0;
 }
 
-int parse_env_filev(
+صحیح parse_env_filev(
                 FILE *f,
-                const char *fname,
+                ثابت نویسه *fname,
                 va_list ap) {
 
-        int r;
+        صحیح r;
         va_list aq;
 
-        assert(f || fname);
+        أكد(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_افزودن, &aq);
         va_end(aq);
-        return r;
+        بازگشت r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
+صحیح parse_env_file_fdv(صحیح fd, ثابت نویسه *fname, va_list ap) {
+        _cleanup_fclose_ FILE *f = پوچ;
         va_list aq;
-        int r;
+        صحیح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_افزودن, &aq);
         va_end(aq);
-        return r;
+        بازگشت r;
 }
 
-int parse_env_file_sentinel(
+صحیح parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                ثابت نویسه *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        صحیح r;
 
-        assert(f || fname);
+        أكد(f || fname);
 
         va_start(ap, fname);
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        بازگشت r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+صحیح parse_env_file_fd_sentinel(
+                صحیح fd,
+                ثابت نویسه *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        صحیح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         va_start(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        بازگشت r;
 }
 
-int parse_env_datav(
-                const char *data,
+صحیح parse_env_datav(
+                ثابت نویسه *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                ثابت نویسه *fname, /* only used for logging */
                 va_list ap) {
 
-        assert(data);
+        أكد(data);
 
-        if (size == SIZE_MAX)
+        اگر (size == SIZE_MAX)
                 size = strlen_ptr(data);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ FILE *f = fmemopen_unlocked((تهی*) data, size, "r");
+        اگر (!f)
+                بازگشت -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        بازگشت parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
+صحیح parse_env_data_sentinel(
+                ثابت نویسه *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                ثابت نویسه *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        صحیح r;
 
         va_start(ap, fname);
         r = parse_env_datav(data, size, fname, ap);
         va_end(ap);
 
-        return r;
+        بازگشت r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ایستا صحیح load_env_file_افزودن(
+                ثابت نویسه *filename, unsigned سطر,
+                ثابت نویسه *کلید, نویسه *مقدار,
+                تهی *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        نویسه ***m = userdata;
+        نویسه *p;
+        صحیح r;
 
-        assert(key);
+        أكد(کلید);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, سطر, کلید, مقدار);
+        اگر (r < 0)
+                بازگشت r;
 
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        p = strjoin(کلید, "=", مقدار);
+        اگر (!p)
+                بازگشت -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        free(value);
-        return 0;
+        آزاد(مقدار);
+        بازگشت 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+صحیح load_env_file(FILE *f, ثابت نویسه *fname, نویسه ***ret) {
+        _cleanup_strv_free_ نویسه **m = پوچ;
+        صحیح r;
 
-        assert(f || fname);
-        assert(ret);
+        أكد(f || fname);
+        أكد(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_افزودن, &m);
+        اگر (r < 0)
+                بازگشت r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        بازگشت 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ایستا صحیح load_env_file_افزودن_pairs(
+                ثابت نویسه *filename, unsigned سطر,
+                ثابت نویسه *کلید, نویسه *مقدار,
+                تهی *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        نویسه ***m = ASSERT_PTR(userdata);
+        صحیح r;
 
-        assert(key);
+        أكد(کلید);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, سطر, کلید, مقدار);
+        اگر (r < 0)
+                بازگشت r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        برای (نویسه **t = *m; t && *t; t += 2)
+                اگر (streq(t[0], کلید)) {
+                        اگر (مقدار)
+                                بازگشت free_and_replace(t[1], مقدار);
+                        وگرنه
+                                بازگشت free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        r = strv_extend(m, کلید);
+        اگر (r < 0)
+                بازگشت r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        اگر (مقدار)
+                بازگشت strv_افزودن(m, مقدار);
+        وگرنه
+                بازگشت strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+صحیح load_env_file_pairs(FILE *f, ثابت نویسه *fname, نویسه ***ret) {
+        _cleanup_strv_free_ نویسه **m = پوچ;
+        صحیح r;
 
-        assert(f || fname);
-        assert(ret);
+        أكد(f || fname);
+        أكد(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_افزودن_pairs, &m);
+        اگر (r < 0)
+                بازگشت r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        بازگشت 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+صحیح load_env_file_pairs_fd(صحیح fd, ثابت نویسه *fname, نویسه ***ret) {
+        _cleanup_fclose_ FILE *f = پوچ;
+        صحیح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
-        return load_env_file_pairs(f, fname, ret);
+        بازگشت load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ایستا صحیح merge_env_file_افزودن(
+                ثابت نویسه *filename, unsigned سطر,
+                ثابت نویسه *کلید, نویسه *مقدار,
+                تهی *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        نویسه ***env = ASSERT_PTR(userdata);
+        نویسه *expanded_مقدار;
+        صحیح r;
 
-        assert(key);
+        أكد(کلید);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+        اگر (!مقدار) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), سطر, کلید);
+                بازگشت 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+        اگر (!env_name_is_valid(کلید)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), سطر, کلید);
+                آزاد(مقدار);
+                بازگشت 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(مقدار,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                        &expanded_مقدار);
+        اگر (r < 0)
+                بازگشت log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), سطر, مقدار);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(مقدار, expanded_مقدار);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, سطر, کلید, مقدار);
 
-        return load_env_file_push(filename, line, key, value, env);
+        بازگشت load_env_file_افزودن(filename, سطر, کلید, مقدار, env);
 }
 
-int merge_env_file(
-                char ***env,
+صحیح merge_env_file(
+                نویسه ***env,
                 FILE *f,
-                const char *fname) {
+                ثابت نویسه *fname) {
 
-        assert(env);
-        assert(f || fname);
+        أكد(env);
+        أكد(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        بازگشت parse_env_file_internal(f, fname, merge_env_file_افزودن, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+ایستا تهی env_file_fputs_escaped(FILE *f, ثابت نویسه *p) {
+        أكد(f);
+        أكد(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        اگر (string_has_cc(p, پوچ) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                برای (; *p; p++) {
+                        اگر (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } وگرنه
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+تهی env_file_fputs_assignment(FILE *f, ثابت نویسه *k, ثابت نویسه *v) {
+        أكد(f);
+        أكد(k);
 
-        if (!v)
-                return;
+        اگر (!v)
+                بازگشت;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+ایستا تهی write_env_var(FILE *f, ثابت نویسه *v) {
+        ثابت نویسه *p;
 
-        assert(f);
-        assert(v);
+        أكد(f);
+        أكد(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        اگر (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                بازگشت;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+صحیح write_env_file_label(صحیح dir_fd, ثابت نویسه *fname, نویسه **headers, نویسه **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        صحیح r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        اگر (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        بازگشت r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ FILE *f = پوچ;
+        _cleanup_free_ نویسه *p = پوچ;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        اگر (r < 0) {
+                اگر (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+                        (تهی) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                بازگشت r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        اگر (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ پوچ, /* created= */ true, label_context);
+                اگر (r < 0)
+                        بازگشت r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
         STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+                أكد(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                بازگشت r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        بازگشت 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+صحیح write_vconsole_conf(صحیح dir_fd, ثابت نویسه *fname, نویسه **l) {
+        نویسه **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        بازگشت write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ پوچ);
 }

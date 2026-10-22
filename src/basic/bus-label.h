@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-char* bus_label_escape(const char *s);
-char* bus_label_unescape_n(const char *f, size_t l);
+نویسه* bus_label_escape(ثابت نویسه *s);
+نویسه* bus_label_unescape_n(ثابت نویسه *f, size_t l);
 
-static inline char* bus_label_unescape(const char *f) {
-        return bus_label_unescape_n(f, SIZE_MAX);
+ایستا درونخطی نویسه* bus_label_unescape(ثابت نویسه *f) {
+        بازگشت bus_label_unescape_n(f, SIZE_MAX);
 }

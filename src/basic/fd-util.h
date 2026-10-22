@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <dirent.h>
-#include <fcntl.h>
-#include <stdio.h>
+#شامل <dirent.h>
+#شامل <fcntl.h>
+#شامل <stdio.h>
 
-#include "forward.h"
+#شامل "forward.h"
 
 /* maximum length of fdname */
 #define FDNAME_MAX 255
@@ -26,10 +26,10 @@
  * are hexa and others are octal; duplicated as-is from the kernel definitions):
  * - alpha, arm, arm64, m68k, mips, parisc, powerpc, sparc: each has a specific value;
  * - others: they use the "generic" value (defined in include/uapi/asm-generic/fcntl.h) */
-#if O_LARGEFILE != 0
+#اگر O_LARGEFILE != 0
 #  define RAW_O_LARGEFILE O_LARGEFILE
-#else
-#  if defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
+#وگرنه
+#  اگر defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
 #    define RAW_O_LARGEFILE 0400000
 #  elif defined(__mips__)
 #    define RAW_O_LARGEFILE 0x2000
@@ -39,7 +39,7 @@
 #    define RAW_O_LARGEFILE 0200000
 #  elif defined(__sparc__)
 #    define RAW_O_LARGEFILE 0x40000
-#  else
+#  وگرنه
 #    define RAW_O_LARGEFILE 00100000
 #  endif
 #endif
@@ -54,8 +54,8 @@
  * These values have been unchanged since kernel-2.6.26:
  * https://github.com/torvalds/linux/commit/eceea0b3df05ed262ae32e0c6340cc7a3626632d */
 #define NR_OPEN_DEFAULT ((unsigned) (1024 * 1024))
-#define NR_OPEN_MINIMUM ((unsigned) (sizeof(long) * 8))
-#define NR_OPEN_MAXIMUM ((unsigned) (CONST_MIN((size_t) INT_MAX, SIZE_MAX / __SIZEOF_POINTER__) & ~(sizeof(long) * 8 - 1)))
+#define NR_OPEN_MINIMUM ((unsigned) (اندازه(long) * 8))
+#define NR_OPEN_MAXIMUM ((unsigned) (CONST_MIN((size_t) INT_MAX, SIZE_MAX / __SIZEOF_POINTER__) & ~(اندازه(long) * 8 - 1)))
 
 /* A special fd that can be passed in various helpers instead of an fd indicating the root dir. Inspired by,
  * and an alternative to AT_FDCWD. We use specific negative value that is outside of the negative errno
@@ -66,48 +66,48 @@ assert_cc(XAT_FDROOT < -ERRNO_MAX);
 
 /* Checks whether the specified fd is acceptable as a *at() directory fd that supports the two "wildcard"
  * values: it's either a regular, valid fd (i.e. >= 0), or one of the special AT_FDCWD/XAT_FDROOT values. */
-static inline bool wildcard_fd_is_valid(int fd) {
-        return fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
+ایستا درونخطی bool wildcard_fd_is_valid(صحیح fd) {
+        بازگشت fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
 }
 
-int close_nointr(int fd);
-int safe_close(int fd);
-void safe_close_pair(int p[static 2]);
+صحیح close_nointr(صحیح fd);
+صحیح safe_close(صحیح fd);
+تهی safe_close_pair(صحیح p[ایستا 2]);
 
-static inline int safe_close_above_stdio(int fd) {
-        if (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
-                return -EBADF;
+ایستا درونخطی صحیح safe_close_above_stdio(صحیح fd) {
+        اگر (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
+                بازگشت -EBADF;
 
-        return safe_close(fd);
+        بازگشت safe_close(fd);
 }
 
-static inline void* close_fd_ptr(void *p) {
+ایستا درونخطی تهی* close_fd_ptr(تهی *p) {
         safe_close(PTR_TO_FD(p));
-        return NULL;
+        بازگشت پوچ;
 }
 
-void close_many(const int fds[], size_t n_fds);
-void close_many_unset(int fds[], size_t n_fds);
-void close_many_and_free(int *fds, size_t n_fds);
+تهی close_many(ثابت صحیح fds[], size_t n_fds);
+تهی close_many_unset(صحیح fds[], size_t n_fds);
+تهی close_many_and_free(صحیح *fds, size_t n_fds);
 
-int fclose_nointr(FILE *f);
+صحیح fclose_nointr(FILE *f);
 FILE* safe_fclose(FILE *f);
 DIR* safe_closedir(DIR *d);
 
-static inline void closep(int *fd) {
+ایستا درونخطی تهی closep(صحیح *fd) {
         safe_close(*fd);
 }
 
-static inline void close_pairp(int (*p)[2]) {
+ایستا درونخطی تهی close_pairp(صحیح (*p)[2]) {
         safe_close_pair(*p);
 }
 
-static inline void fclosep(FILE **f) {
+ایستا درونخطی تهی fclosep(FILE **f) {
         safe_fclose(*f);
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, pclose, NULL);
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, pclose, پوچ);
+DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, پوچ);
 
 #define _cleanup_close_ _cleanup_(closep)
 #define _cleanup_fclose_ _cleanup_(fclosep)
@@ -115,109 +115,109 @@ DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, NULL);
 #define _cleanup_closedir_ _cleanup_(closedirp)
 #define _cleanup_close_pair_ _cleanup_(close_pairp)
 
-int fd_nonblock(int fd, bool nonblock);
-int stdio_disable_nonblock(void);
+صحیح fd_nonblock(صحیح fd, bool nonblock);
+صحیح stdio_disable_nonblock(تهی);
 
-void nonblock_resetp(int *fd);
+تهی nonblock_resetp(صحیح *fd);
 
-int fd_cloexec(int fd, bool cloexec);
-int fd_cloexec_many(const int fds[], size_t n_fds, bool cloexec);
+صحیح fd_cloexec(صحیح fd, bool cloexec);
+صحیح fd_cloexec_many(ثابت صحیح fds[], size_t n_fds, bool cloexec);
 
-int get_max_fd(void);
+صحیح get_max_fd(تهی);
 
-int close_all_fds(const int except[], size_t n_except);
-int close_all_fds_without_malloc(const int except[], size_t n_except);
-int close_all_fds_frugal(const int except[], size_t n_except);
+صحیح close_all_fds(ثابت صحیح except[], size_t n_except);
+صحیح close_all_fds_without_malloc(ثابت صحیح except[], size_t n_except);
+صحیح close_all_fds_frugal(ثابت صحیح except[], size_t n_except);
 
-int pack_fds(int fds[], size_t n);
+صحیح pack_fds(صحیح fds[], size_t n);
 
-int fd_validate(int fd);
-int same_fd(int a, int b);
+صحیح fd_validate(صحیح fd);
+صحیح same_fd(صحیح a, صحیح b);
 
-bool fdname_is_valid(const char *s);
+bool fdname_is_valid(ثابت نویسه *s);
 
-int fd_get_path(int fd, char **ret);
+صحیح fd_get_path(صحیح fd, نویسه **ret);
 
-int move_fd(int from, int to, int cloexec);
+صحیح move_fd(صحیح from, صحیح to, صحیح cloexec);
 
-int fd_move_above_stdio(int fd);
+صحیح fd_move_above_stdio(صحیح fd);
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);
+صحیح rearrange_stdio(صحیح original_درون_داد_fd, صحیح original_output_fd, صحیح original_error_fd);
 
-static inline int make_null_stdio(void) {
-        return rearrange_stdio(-EBADF, -EBADF, -EBADF);
+ایستا درونخطی صحیح make_null_stdio(تهی) {
+        بازگشت rearrange_stdio(-EBADF, -EBADF, -EBADF);
 }
 
 /* Like TAKE_PTR() but for file descriptors, resetting them to -EBADF */
-#define TAKE_FD(fd) TAKE_GENERIC(fd, int, -EBADF)
+#define TAKE_FD(fd) TAKE_GENERIC(fd, صحیح, -EBADF)
 
 /* Like free_and_replace(), but for file descriptors */
 #define close_and_replace(a, b)                 \
         ({                                      \
-                int *_fdp_ = &(a);              \
+                صحیح *_fdp_ = &(a);              \
                 safe_close(*_fdp_);             \
                 *_fdp_ = TAKE_FD(b);            \
                 0;                              \
         })
 
-int fd_reopen(int fd, int flags);
-int fd_reopen_propagate_append_and_position(int fd, int flags);
-int fd_reopen_condition(int fd, int flags, int mask, int *ret_new_fd);
+صحیح fd_reopen(صحیح fd, صحیح flags);
+صحیح fd_reopen_propagate_append_and_position(صحیح fd, صحیح flags);
+صحیح fd_reopen_condition(صحیح fd, صحیح flags, صحیح mask, صحیح *ret_new_fd);
 
-int fd_is_opath(int fd);
-int fd_vet_accmode(int fd, int mode);
-int fd_is_writable(int fd);
+صحیح fd_is_opath(صحیح fd);
+صحیح fd_vet_accmode(صحیح fd, صحیح mode);
+صحیح fd_is_writable(صحیح fd);
 
-int fd_verify_safe_flags_full(int fd, int extra_flags);
-static inline int fd_verify_safe_flags(int fd) {
-        return fd_verify_safe_flags_full(fd, 0);
+صحیح fd_verify_safe_flags_full(صحیح fd, صحیح extra_flags);
+ایستا درونخطی صحیح fd_verify_safe_flags(صحیح fd) {
+        بازگشت fd_verify_safe_flags_full(fd, 0);
 }
 
-unsigned read_nr_open(void);
-int fd_get_diskseq(int fd, uint64_t *ret);
+unsigned read_nr_open(تهی);
+صحیح fd_get_diskseq(صحیح fd, uint64_t *ret);
 
-int path_is_root_at(int dir_fd, const char *path);
-static inline int path_is_root(const char *path) {
-        return path_is_root_at(AT_FDCWD, path);
+صحیح path_is_ریشه_at(صحیح dir_fd, ثابت نویسه *path);
+ایستا درونخطی صحیح path_is_ریشه(ثابت نویسه *path) {
+        بازگشت path_is_ریشه_at(AT_FDCWD, path);
 }
-static inline int dir_fd_is_root(int dir_fd) {
-        return dir_fd == XAT_FDROOT ? true : path_is_root_at(dir_fd, NULL);
+ایستا درونخطی صحیح dir_fd_is_ریشه(صحیح dir_fd) {
+        بازگشت dir_fd == XAT_FDROOT ? true : path_is_ریشه_at(dir_fd, پوچ);
 }
-static inline int dir_fd_is_root_or_cwd(int dir_fd) {
-        return IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_root_at(dir_fd, NULL);
+ایستا درونخطی صحیح dir_fd_is_ریشه_or_cwd(صحیح dir_fd) {
+        بازگشت IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_ریشه_at(dir_fd, پوچ);
 }
 
-int fds_inode_and_mount_same(int fd1, int fd2);
+صحیح fds_inode_and_mount_same(صحیح fd1, صحیح fd2);
 
-int resolve_xat_fdroot(int *fd, const char **path, char **ret_buffer);
+صحیح resolve_xat_fdroot(صحیح *fd, ثابت نویسه **path, نویسه **ret_buffer);
 
 /* The maximum length a buffer for a /proc/self/fd/<fd> path needs */
 #define PROC_FD_PATH_MAX \
-        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(int))
+        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(صحیح))
 
-char* format_proc_fd_path(char buf[static PROC_FD_PATH_MAX], int fd);
+نویسه* format_proc_fd_path(نویسه buf[ایستا PROC_FD_PATH_MAX], صحیح fd);
 
 #define FORMAT_PROC_FD_PATH(fd) \
-        format_proc_fd_path((char[PROC_FD_PATH_MAX]) {}, (fd))
+        format_proc_fd_path((نویسه[PROC_FD_PATH_MAX]) {}, (fd))
 
 /* The maximum length a buffer for a /proc/<pid>/fd/<fd> path needs */
 #define PROC_PID_FD_PATH_MAX \
-        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(int))
+        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(صحیح))
 
-char* format_proc_pid_fd_path(char buf[static PROC_PID_FD_PATH_MAX], pid_t pid, int fd);
+نویسه* format_proc_pid_fd_path(نویسه buf[ایستا PROC_PID_FD_PATH_MAX], pid_t pid, صحیح fd);
 
 /* Kinda the same as FORMAT_PROC_FD_PATH(), but goes by PID rather than "self" symlink */
 #define FORMAT_PROC_PID_FD_PATH(pid, fd)                                \
-        format_proc_pid_fd_path((char[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
+        format_proc_pid_fd_path((نویسه[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
 
-int proc_fd_enoent_errno(void);
+صحیح proc_fd_enoent_errno(تهی);
 
-const char* accmode_to_string(int flags);
+ثابت نویسه* accmode_to_string(صحیح flags);
 
 /* Like ASSERT_PTR, but for fds */
 #define ASSERT_FD(fd)                           \
         ({                                      \
-                int _fd_ = (fd);                \
-                assert(_fd_ >= 0);              \
+                صحیح _fd_ = (fd);                \
+                أكد(_fd_ >= 0);              \
                 _fd_;                           \
         })

@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-struct strbuf {
-        char *buf;
+ساختار strbuf {
+        نویسه *buf;
         size_t len;
-        struct strbuf_node *root;
+        ساختار strbuf_گره *ریشه;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_شمار;
+        size_t in_شمار;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_شمار;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+ساختار strbuf_گره {
+        size_t مقدار_off;
+        size_t مقدار_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        ساختار strbuf_child_entry *children;
+        uint8_t children_شمار;
 };
 
-struct strbuf_child_entry {
+ساختار strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        ساختار strbuf_گره *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+ساختار strbuf* strbuf_new(تهی);
+ssize_t strbuf_add_string_full(ساختار strbuf *str, ثابت نویسه *s, size_t len);
+ایستا درونخطی ssize_t strbuf_add_string(ساختار strbuf *str, ثابت نویسه *s) {
+        بازگشت strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+تهی strbuf_complete(ساختار strbuf *str);
+ساختار strbuf* strbuf_free(ساختار strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ساختار strbuf*, strbuf_free);

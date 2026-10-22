@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
+#شامل <string.h>
 
-#include "forward.h"
+#شامل "forward.h"
 
 #define NULSTR_FOREACH(i, l)                                    \
-        for (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
+        برای (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
 
 #define NULSTR_FOREACH_PAIR(i, j, l)                             \
-        for (typeof(*(l)) *(i) = (l), *(j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
+        برای (typeof(*(l)) *(i) = (l), *(j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
 
-const char* nulstr_get(const char *nulstr, const char *needle);
-static inline bool nulstr_contains(const char *nulstr, const char *needle) {
-        return nulstr_get(nulstr, needle);
+ثابت نویسه* nulstr_get(ثابت نویسه *nulstr, ثابت نویسه *needle);
+ایستا درونخطی bool nulstr_contains(ثابت نویسه *nulstr, ثابت نویسه *needle) {
+        بازگشت nulstr_get(nulstr, needle);
 }
 
-char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls);
-static inline char** strv_parse_nulstr(const char *s, size_t l) {
-        return strv_parse_nulstr_full(s, l, false);
+نویسه** strv_parse_nulstr_full(ثابت نویسه *s, size_t l, bool drop_trailing_nuls);
+ایستا درونخطی نویسه** strv_parse_nulstr(ثابت نویسه *s, size_t l) {
+        بازگشت strv_parse_nulstr_full(s, l, false);
 }
-char** strv_split_nulstr(const char *s);
-static inline int strv_from_nulstr(char ***ret, const char *nulstr) {
-        char **t;
+نویسه** strv_split_nulstr(ثابت نویسه *s);
+ایستا درونخطی صحیح strv_from_nulstr(نویسه ***ret, ثابت نویسه *nulstr) {
+        نویسه **t;
 
-        assert(ret);
+        أكد(ret);
 
         t = strv_split_nulstr(nulstr);
-        if (!t)
-                return -ENOMEM;
+        اگر (!t)
+                بازگشت -ENOMEM;
 
         *ret = t;
-        return 0;
+        بازگشت 0;
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size);
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size);
+صحیح strv_make_nulstr(نویسه * ثابت *l, نویسه **ret, size_t *ret_size);
+صحیح set_make_nulstr(Set *s, نویسه **ret, size_t *ret_size);

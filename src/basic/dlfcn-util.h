@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <dlfcn.h>      /* IWYU pragma: export */
+#شامل <dlfcn.h>      /* IWYU pragma: export */
 
-#include "forward.h"
+#شامل "forward.h"
 
-void* safe_dlclose(void *dl);
+تهی* safe_dlclose(تهی *dl);
 
-static inline void dlclosep(void **dlp) {
+ایستا درونخطی تهی dlclosep(تهی **dlp) {
         safe_dlclose(*dlp);
 }
 
-int dlopen_verbose(void **dlp, const char *filename, int log_level);
-int dlsym_many_or_warn_sentinel(void *dl, int log_level, ...) _sentinel_;
-int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_level, ...) _sentinel_;
+صحیح dlopen_verbose(تهی **dlp, ثابت نویسه *filename, صحیح log_level);
+صحیح dlsym_many_or_warn_sentinel(تهی *dl, صحیح log_level, ...) _sentinel_;
+صحیح dlopen_many_sym_or_warn_sentinel(تهی **dlp, ثابت نویسه *filename, صحیح log_level, ...) _sentinel_;
 
 #define dlsym_many_or_warn(dl, log_level, ...) \
-        dlsym_many_or_warn_sentinel(dl, log_level, __VA_ARGS__, NULL)
+        dlsym_many_or_warn_sentinel(dl, log_level, __VA_ARGS__, پوچ)
 #define dlopen_many_sym_or_warn(dlp, filename, log_level, ...) \
-        dlopen_many_sym_or_warn_sentinel(dlp, filename, log_level, __VA_ARGS__, NULL)
+        dlopen_many_sym_or_warn_sentinel(dlp, filename, log_level, __VA_ARGS__, پوچ)
 
-#define DLSYM_PROTOTYPE(symbol)                \
-        typeof(symbol)* sym_##symbol
+#define DLSYM_PROTOTYPE(نماد)                \
+        typeof(نماد)* sym_##symbol
 
 /* Macro useful for putting together variable/symbol name pairs when calling dlsym_many_or_warn(). Assumes
  * that each library symbol to resolve will be placed in a variable with the "sym_" prefix, i.e. a symbol
@@ -41,15 +41,15 @@ int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_l
  * sufficient. */
 #define DLSYM_OPTIONAL(dl, name)                                                                \
         ({                                                                                      \
-                (void) dlerror();                                                               \
+                (تهی) dlerror();                                                               \
                 typeof(sym_##name) _v = (typeof(sym_##name)) dlsym((dl), #name);                \
-                if (_v) sym_##name = _v;                                                        \
+                اگر (_v) sym_##name = _v;                                                        \
         })
 
 /* If called dlopen_many_sym_or_warn() will fail with EPERM. This can be used to block lazy loading of shared
  * libs, if we transfer a process into a different namespace. Note that this does not work for all calls of
  * dlopen(), just those through our dlopen_safe() wrapper (which we use comprehensively in our
  * codebase). This hence has *no* effect on NSS. (Would be great if we could change that...) */
-void block_dlopen(void);
+تهی block_dlopen(تهی);
 
-int dlopen_safe(const char *filename, void **ret, const char **reterr_dlerror);
+صحیح dlopen_safe(ثابت نویسه *filename, تهی **ret, ثابت نویسه **reterr_dlerror);

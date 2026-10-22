@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-int capsule_name_is_valid(const char *name);
+صحیح capsule_name_is_valid(ثابت نویسه *name);

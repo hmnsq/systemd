@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "static-destruct.h"
+#شامل "static-destruct.h"
 
-void static_destruct_impl(const StaticDestructor *start, const StaticDestructor *end) {
-        if (!start)
-                return;
+تهی static_destruct_impl(ثابت StaticDestructor *start, ثابت StaticDestructor *end) {
+        اگر (!start)
+                بازگشت;
 
-        for (const StaticDestructor *d = start; d < end; d++)
-                switch (d->type) {
-                case STATIC_DESTRUCTOR_SIMPLE:
+        برای (ثابت StaticDestructor *d = start; d < end; d++)
+                انتخاب (d->type) {
+                حالت STATIC_DESTRUCTOR_SIMPLE:
                         d->simple.destroy(d->simple.data);
-                        break;
+                        بشکن;
 
-                case STATIC_DESTRUCTOR_ARRAY:
+                حالت STATIC_DESTRUCTOR_ARRAY:
                         array_cleanup(&d->array);
-                        break;
+                        بشکن;
 
-                default:
+                پیشفرض:
                         assert_not_reached();
                 }
 }

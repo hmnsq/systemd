@@ -1,112 +1,112 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <string.h>
+#شامل <stdlib.h>
+#شامل <string.h>
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "hexdecoct.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#شامل "alloc-util.h"
+#شامل "escape.h"
+#شامل "hexdecoct.h"
+#شامل "string-util.h"
+#شامل "strv.h"
+#شامل "utf8.h"
 
-int cescape_char(char c, char *buf) {
-        char *buf_old = buf;
+صحیح cescape_char(نویسه c, نویسه *buf) {
+        نویسه *buf_old = buf;
 
         /* Needs space for 4 characters in the buffer */
 
-        switch (c) {
+        انتخاب (c) {
 
-                case '\a':
+                حالت '\a':
                         *(buf++) = '\\';
                         *(buf++) = 'a';
-                        break;
-                case '\b':
+                        بشکن;
+                حالت '\b':
                         *(buf++) = '\\';
                         *(buf++) = 'b';
-                        break;
-                case '\f':
+                        بشکن;
+                حالت '\f':
                         *(buf++) = '\\';
                         *(buf++) = 'f';
-                        break;
-                case '\n':
+                        بشکن;
+                حالت '\n':
                         *(buf++) = '\\';
                         *(buf++) = 'n';
-                        break;
-                case '\r':
+                        بشکن;
+                حالت '\r':
                         *(buf++) = '\\';
                         *(buf++) = 'r';
-                        break;
-                case '\t':
+                        بشکن;
+                حالت '\t':
                         *(buf++) = '\\';
                         *(buf++) = 't';
-                        break;
-                case '\v':
+                        بشکن;
+                حالت '\v':
                         *(buf++) = '\\';
                         *(buf++) = 'v';
-                        break;
-                case '\\':
+                        بشکن;
+                حالت '\\':
                         *(buf++) = '\\';
                         *(buf++) = '\\';
-                        break;
-                case '"':
+                        بشکن;
+                حالت '"':
                         *(buf++) = '\\';
                         *(buf++) = '"';
-                        break;
-                case '\'':
+                        بشکن;
+                حالت '\'':
                         *(buf++) = '\\';
                         *(buf++) = '\'';
-                        break;
+                        بشکن;
 
-                default:
+                پیشفرض:
                         /* For special chars we prefer octal over
                          * hexadecimal encoding, simply because glib's
                          * g_strescape() does the same */
-                        if ((c < ' ') || (c >= 127)) {
+                        اگر ((c < ' ') || (c >= 127)) {
                                 *(buf++) = '\\';
-                                *(buf++) = octchar((unsigned char) c >> 6);
-                                *(buf++) = octchar((unsigned char) c >> 3);
-                                *(buf++) = octchar((unsigned char) c);
-                        } else
+                                *(buf++) = octchar((unsigned نویسه) c >> 6);
+                                *(buf++) = octchar((unsigned نویسه) c >> 3);
+                                *(buf++) = octchar((unsigned نویسه) c);
+                        } وگرنه
                                 *(buf++) = c;
-                        break;
+                        بشکن;
         }
 
-        return buf - buf_old;
+        بازگشت buf - buf_old;
 }
 
-char* cescape_length(const char *s, size_t n) {
-        const char *f;
-        char *r, *t;
+نویسه* cescape_length(ثابت نویسه *s, size_t n) {
+        ثابت نویسه *f;
+        نویسه *r, *t;
 
         /* Does C style string escaping. May be reversed with cunescape(). */
 
-        assert(s || n == 0);
+        أكد(s || n == 0);
 
-        if (n == SIZE_MAX)
+        اگر (n == SIZE_MAX)
                 n = strlen(s);
 
-        if (n > (SIZE_MAX - 1) / 4)
-                return NULL;
+        اگر (n > (SIZE_MAX - 1) / 4)
+                بازگشت پوچ;
 
-        r = new(char, n*4 + 1);
-        if (!r)
-                return NULL;
+        r = new(نویسه, n*4 + 1);
+        اگر (!r)
+                بازگشت پوچ;
 
-        for (f = s, t = r; f < s + n; f++)
+        برای (f = s, t = r; f < s + n; f++)
                 t += cescape_char(*f, t);
 
         *t = 0;
 
-        return r;
+        بازگشت r;
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
-        int r = 1;
+صحیح cunescape_one(ثابت نویسه *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
+        صحیح r = 1;
 
-        assert(p);
-        assert(ret);
-        assert(eight_bit);
+        أكد(p);
+        أكد(ret);
+        أكد(eight_bit);
 
         /* Unescapes C style. Returns the unescaped character in ret.
          * Sets *eight_bit to true if the escaped sequence either fits in
@@ -114,267 +114,267 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
          * instead be copied directly.
          */
 
-        if (length != SIZE_MAX && length < 1)
-                return -EINVAL;
+        اگر (length != SIZE_MAX && length < 1)
+                بازگشت -EINVAL;
 
-        switch (p[0]) {
+        انتخاب (p[0]) {
 
-        case 'a':
+        حالت 'a':
                 *ret = '\a';
-                break;
-        case 'b':
+                بشکن;
+        حالت 'b':
                 *ret = '\b';
-                break;
-        case 'f':
+                بشکن;
+        حالت 'f':
                 *ret = '\f';
-                break;
-        case 'n':
+                بشکن;
+        حالت 'n':
                 *ret = '\n';
-                break;
-        case 'r':
+                بشکن;
+        حالت 'r':
                 *ret = '\r';
-                break;
-        case 't':
+                بشکن;
+        حالت 't':
                 *ret = '\t';
-                break;
-        case 'v':
+                بشکن;
+        حالت 'v':
                 *ret = '\v';
-                break;
-        case '\\':
+                بشکن;
+        حالت '\\':
                 *ret = '\\';
-                break;
-        case '"':
+                بشکن;
+        حالت '"':
                 *ret = '"';
-                break;
-        case '\'':
+                بشکن;
+        حالت '\'':
                 *ret = '\'';
-                break;
+                بشکن;
 
-        case 's':
+        حالت 's':
                 /* This is an extension of the XDG syntax files */
                 *ret = ' ';
-                break;
+                بشکن;
 
-        case 'x': {
+        حالت 'x': {
                 /* hexadecimal encoding */
-                int a, b;
+                صحیح a, b;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                اگر (length != SIZE_MAX && length < 3)
+                        بازگشت -EINVAL;
 
                 a = unhexchar(p[1]);
-                if (a < 0)
-                        return -EINVAL;
+                اگر (a < 0)
+                        بازگشت -EINVAL;
 
                 b = unhexchar(p[2]);
-                if (b < 0)
-                        return -EINVAL;
+                اگر (b < 0)
+                        بازگشت -EINVAL;
 
                 /* Don't allow NUL bytes */
-                if (a == 0 && b == 0 && !accept_nul)
-                        return -EINVAL;
+                اگر (a == 0 && b == 0 && !accept_nul)
+                        بازگشت -EINVAL;
 
                 *ret = (a << 4U) | b;
                 *eight_bit = true;
                 r = 3;
-                break;
+                بشکن;
         }
 
-        case 'u': {
+        حالت 'u': {
                 /* C++11 style 16-bit unicode */
 
-                int a[4];
+                صحیح a[4];
                 size_t i;
                 uint32_t c;
 
-                if (length != SIZE_MAX && length < 5)
-                        return -EINVAL;
+                اگر (length != SIZE_MAX && length < 5)
+                        بازگشت -EINVAL;
 
-                for (i = 0; i < 4; i++) {
+                برای (i = 0; i < 4; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        اگر (a[i] < 0)
+                                بازگشت a[i];
                 }
 
                 c = ((uint32_t) a[0] << 12U) | ((uint32_t) a[1] << 8U) | ((uint32_t) a[2] << 4U) | (uint32_t) a[3];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                اگر (c == 0 && !accept_nul)
+                        بازگشت -EINVAL;
 
                 /* Don't allow UTF-16 surrogates, they cannot be encoded as valid UTF-8. Note we
                  * deliberately do *not* use unichar_is_valid() here (unlike the \U case below):
                  * it also rejects noncharacters such as U+FFFE, which callers legitimately round-trip
                  * through \u (e.g. systemd.mount-extra= parsing, see test-fstab-generator). */
-                if (utf16_is_surrogate(c))
-                        return -EINVAL;
+                اگر (utf16_is_surrogate(c))
+                        بازگشت -EINVAL;
 
                 *ret = c;
                 r = 5;
-                break;
+                بشکن;
         }
 
-        case 'U': {
+        حالت 'U': {
                 /* C++11 style 32-bit unicode */
 
-                int a[8];
+                صحیح a[8];
                 size_t i;
                 char32_t c;
 
-                if (length != SIZE_MAX && length < 9)
-                        return -EINVAL;
+                اگر (length != SIZE_MAX && length < 9)
+                        بازگشت -EINVAL;
 
-                for (i = 0; i < 8; i++) {
+                برای (i = 0; i < 8; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        اگر (a[i] < 0)
+                                بازگشت a[i];
                 }
 
                 c = ((uint32_t) a[0] << 28U) | ((uint32_t) a[1] << 24U) | ((uint32_t) a[2] << 20U) | ((uint32_t) a[3] << 16U) |
                     ((uint32_t) a[4] << 12U) | ((uint32_t) a[5] <<  8U) | ((uint32_t) a[6] <<  4U) |  (uint32_t) a[7];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                اگر (c == 0 && !accept_nul)
+                        بازگشت -EINVAL;
 
                 /* Don't allow invalid code points */
-                if (!unichar_is_valid(c))
-                        return -EINVAL;
+                اگر (!unichar_is_valid(c))
+                        بازگشت -EINVAL;
 
                 *ret = c;
                 r = 9;
-                break;
+                بشکن;
         }
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7': {
+        حالت '0':
+        حالت '1':
+        حالت '2':
+        حالت '3':
+        حالت '4':
+        حالت '5':
+        حالت '6':
+        حالت '7': {
                 /* octal encoding */
-                int a, b, c;
+                صحیح a, b, c;
                 char32_t m;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                اگر (length != SIZE_MAX && length < 3)
+                        بازگشت -EINVAL;
 
                 a = unoctchar(p[0]);
-                if (a < 0)
-                        return -EINVAL;
+                اگر (a < 0)
+                        بازگشت -EINVAL;
 
                 b = unoctchar(p[1]);
-                if (b < 0)
-                        return -EINVAL;
+                اگر (b < 0)
+                        بازگشت -EINVAL;
 
                 c = unoctchar(p[2]);
-                if (c < 0)
-                        return -EINVAL;
+                اگر (c < 0)
+                        بازگشت -EINVAL;
 
                 /* don't allow NUL bytes */
-                if (a == 0 && b == 0 && c == 0 && !accept_nul)
-                        return -EINVAL;
+                اگر (a == 0 && b == 0 && c == 0 && !accept_nul)
+                        بازگشت -EINVAL;
 
                 /* Don't allow bytes above 255 */
                 m = ((uint32_t) a << 6U) | ((uint32_t) b << 3U) | (uint32_t) c;
-                if (m > 255)
-                        return -EINVAL;
+                اگر (m > 255)
+                        بازگشت -EINVAL;
 
                 *ret = m;
                 *eight_bit = true;
                 r = 3;
-                break;
+                بشکن;
         }
 
-        default:
-                return -EINVAL;
+        پیشفرض:
+                بازگشت -EINVAL;
         }
 
-        return r;
+        بازگشت r;
 }
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret) {
-        _cleanup_free_ char *ans = NULL;
-        char *t;
-        const char *f;
+ssize_t cunescape_length_with_prefix(ثابت نویسه *s, size_t length, ثابت نویسه *prefix, UnescapeFlags flags, نویسه **ret) {
+        _cleanup_free_ نویسه *ans = پوچ;
+        نویسه *t;
+        ثابت نویسه *f;
         size_t pl;
-        int r;
+        صحیح r;
 
-        assert(s);
-        assert(ret);
+        أكد(s);
+        أكد(ret);
 
         /* Undoes C style string escaping, and optionally prefixes it. */
 
-        if (length == SIZE_MAX)
+        اگر (length == SIZE_MAX)
                 length = strlen(s);
 
         pl = strlen_ptr(prefix);
 
-        ans = new(char, pl+length+1);
-        if (!ans)
-                return -ENOMEM;
+        ans = new(نویسه, pl+length+1);
+        اگر (!ans)
+                بازگشت -ENOMEM;
 
-        if (prefix)
+        اگر (prefix)
                 memcpy(ans, prefix, pl);
 
-        for (f = s, t = ans + pl; f < s + length; f++) {
+        برای (f = s, t = ans + pl; f < s + length; f++) {
                 size_t remaining;
                 bool eight_bit = false;
                 char32_t u;
 
                 remaining = s + length - f;
-                assert(remaining > 0);
+                أكد(remaining > 0);
 
-                if (*f != '\\') {
+                اگر (*f != '\\') {
                         /* A literal, copy verbatim */
                         *(t++) = *f;
-                        continue;
+                        ادامه;
                 }
 
-                if (remaining == 1) {
-                        if (flags & UNESCAPE_RELAX) {
+                اگر (remaining == 1) {
+                        اگر (flags & UNESCAPE_RELAX) {
                                 /* A trailing backslash, copy verbatim */
                                 *(t++) = *f;
-                                continue;
+                                ادامه;
                         }
 
-                        return -EINVAL;
+                        بازگشت -EINVAL;
                 }
 
                 r = cunescape_one(f + 1, remaining - 1, &u, &eight_bit, flags & UNESCAPE_ACCEPT_NUL);
-                if (r < 0) {
-                        if (flags & UNESCAPE_RELAX) {
+                اگر (r < 0) {
+                        اگر (flags & UNESCAPE_RELAX) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '\\';
-                                continue;
+                                ادامه;
                         }
 
-                        return r;
+                        بازگشت r;
                 }
 
                 f += r;
-                if (eight_bit)
+                اگر (eight_bit)
                         /* One byte? Set directly as specified */
                         *(t++) = u;
-                else
+                وگرنه
                         /* Otherwise encode as multi-byte UTF-8 */
                         t += utf8_encode_unichar(t, u);
         }
 
         *t = 0;
 
-        assert(t >= ans); /* Let static analyzers know that the answer is non-negative. */
+        أكد(t >= ans); /* Let static analyzers know that the answer is non-negative. */
         *ret = TAKE_PTR(ans);
-        return t - *ret;
+        بازگشت t - *ret;
 }
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags) {
-        char *ans, *t, *prev, *prev2;
-        const char *f;
+نویسه* xescape_full(ثابت نویسه *s, ثابت نویسه *bad, size_t console_width, XEscapeFlags flags) {
+        نویسه *ans, *t, *prev, *prev2;
+        ثابت نویسه *f;
 
-        assert(s);
+        أكد(s);
 
         /* Escapes all chars in bad, in addition to \ and all special chars, in \xFF style escaping. May be
          * reversed with cunescape(). If XESCAPE_8_BIT is specified, characters >= 127 are let through
@@ -383,44 +383,44 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
          * If console_width is reached, or XESCAPE_FORCE_ELLIPSIS is set, output is truncated and "..." is
          * appended. */
 
-        if (console_width == 0)
-                return strdup("");
+        اگر (console_width == 0)
+                بازگشت strdup("");
 
         size_t len_forced_ellipsis = FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
         size_t len_s = strlen(s);
 
         size_t len_body = MIN(console_width, SIZE_MAX - 1); /* We need room for the NUL byte */
-        if (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
+        اگر (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
                 len_body = len_s * 4 + len_forced_ellipsis;
 
-        ans = new(char, len_body + 1);
-        if (!ans)
-                return NULL;
+        ans = new(نویسه, len_body + 1);
+        اگر (!ans)
+                بازگشت پوچ;
 
-        for (f = s, t = prev = prev2 = ans; ; f++) {
-                char *tmp_t = t;
+        برای (f = s, t = prev = prev2 = ans; ; f++) {
+                نویسه *tmp_t = t;
 
-                if (!*f) {
-                        if (len_forced_ellipsis != 0)
-                                break;
+                اگر (!*f) {
+                        اگر (len_forced_ellipsis != 0)
+                                بشکن;
 
                         *t = 0;
-                        return ans;
+                        بازگشت ans;
                 }
 
-                if ((unsigned char) *f < ' ' ||
-                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned char) *f >= 127) ||
+                اگر ((unsigned نویسه) *f < ' ' ||
+                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned نویسه) *f >= 127) ||
                     *f == '\\' || (bad && strchr(bad, *f))) {
-                        if ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
-                                break;
+                        اگر ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
+                                بشکن;
 
                         *(t++) = '\\';
                         *(t++) = 'x';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else {
-                        if ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
-                                break;
+                } وگرنه {
+                        اگر ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
+                                بشکن;
 
                         *(t++) = *f;
                 }
@@ -433,166 +433,166 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
         /* We can just write where we want, since chars are one-byte */
         size_t c = MIN(len_body, STRLEN("...")); /* If the console is too narrow, write fewer dots */
         size_t off;
-        if (len_body - c >= (size_t) (t - ans))
+        اگر (len_body - c >= (size_t) (t - ans))
                 off = (size_t) (t - ans);
-        else if (len_body - c >= (size_t) (prev - ans))
+        وگرنه اگر (len_body - c >= (size_t) (prev - ans))
                 off = (size_t) (prev - ans);
-        else if (len_body - c >= (size_t) (prev2 - ans))
+        وگرنه اگر (len_body - c >= (size_t) (prev2 - ans))
                 off = (size_t) (prev2 - ans);
-        else
+        وگرنه
                 off = len_body - c;
-        assert(off <= (size_t) (t - ans));
+        أكد(off <= (size_t) (t - ans));
 
         memcpy(ans + off, "...", c);
         ans[off + c] = '\0';
-        return ans;
+        بازگشت ans;
 }
 
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags) {
-        if (FLAGS_SET(flags, XESCAPE_8_BIT))
-                return xescape_full(str, /* bad= */ NULL, console_width, flags);
-        else
-                return utf8_escape_non_printable_full(str,
+نویسه* escape_non_printable_full(ثابت نویسه *str, size_t console_width, XEscapeFlags flags) {
+        اگر (FLAGS_SET(flags, XESCAPE_8_BIT))
+                بازگشت xescape_full(str, /* bad= */ پوچ, console_width, flags);
+        وگرنه
+                بازگشت utf8_escape_non_printable_full(str,
                                                       console_width,
                                                       FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS));
 }
 
-char* octescape_full(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+نویسه* octescape_full(ثابت نویسه *s, size_t len, ثابت نویسه *bad) {
+        نویسه *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn octal style escaping. May be
          * reversed with cunescape(). */
 
-        assert(s || len == 0);
+        أكد(s || len == 0);
 
-        if (len == SIZE_MAX)
+        اگر (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        اگر (len > (SIZE_MAX - 1) / 4)
+                بازگشت پوچ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(نویسه, len * 4 + 1);
+        اگر (!buf)
+                بازگشت پوچ;
 
-        for (size_t i = 0; i < len; i++) {
+        برای (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
+                اگر (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u >> 6);
                         *(t++) = '0' + ((u >> 3) & 7);
                         *(t++) = '0' + (u & 7);
-                } else
+                } وگرنه
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        بازگشت buf;
 }
 
-char* decescape(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+نویسه* decescape(ثابت نویسه *s, size_t len, ثابت نویسه *bad) {
+        نویسه *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn decimal style escaping. */
 
-        assert(s || len == 0);
+        أكد(s || len == 0);
 
-        if (len == SIZE_MAX)
+        اگر (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        اگر (len > (SIZE_MAX - 1) / 4)
+                بازگشت پوچ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(نویسه, len * 4 + 1);
+        اگر (!buf)
+                بازگشت پوچ;
 
-        for (size_t i = 0; i < len; i++) {
+        برای (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
+                اگر (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u / 100);
                         *(t++) = '0' + ((u / 10) % 10);
                         *(t++) = '0' + (u % 10);
-                } else
+                } وگرنه
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        بازگشت buf;
 }
 
-static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
-        assert(bad);
-        assert(t);
-        assert(s);
+ایستا نویسه* strcpy_backslash_escaped(نویسه *t, ثابت نویسه *s, ثابت نویسه *bad) {
+        أكد(bad);
+        أكد(t);
+        أكد(s);
 
-        while (*s) {
-                int l = utf8_encoded_valid_unichar(s, SIZE_MAX);
+        وقتی (*s) {
+                صحیح l = utf8_encoded_valid_unichar(s, SIZE_MAX);
 
-                if (char_is_cc(*s) || l < 0)
+                اگر (char_is_cc(*s) || l < 0)
                         t += cescape_char(*(s++), t);
-                else if (l == 1) {
-                        if (*s == '\\' || strchr(bad, *s))
+                وگرنه اگر (l == 1) {
+                        اگر (*s == '\\' || strchr(bad, *s))
                                 *(t++) = '\\';
                         *(t++) = *(s++);
-                } else {
+                } وگرنه {
                         t = mempcpy(t, s, l);
                         s += l;
                 }
         }
 
-        return t;
+        بازگشت t;
 }
 
-char* shell_escape(const char *s, const char *bad) {
-        char *buf, *t;
+نویسه* shell_escape(ثابت نویسه *s, ثابت نویسه *bad) {
+        نویسه *buf, *t;
 
-        buf = new(char, strlen(s)*4+1);
-        if (!buf)
-                return NULL;
+        buf = new(نویسه, strlen(s)*4+1);
+        اگر (!buf)
+                بازگشت پوچ;
 
         t = strcpy_backslash_escaped(buf, s, bad);
         *t = 0;
 
-        return buf;
+        بازگشت buf;
 }
 
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
-        const char *p;
-        char *buf, *t;
+نویسه* shell_maybe_quote(ثابت نویسه *s, ShellEscapeFlags flags) {
+        ثابت نویسه *p;
+        نویسه *buf, *t;
 
-        assert(s);
+        أكد(s);
 
         /* Encloses a string in quotes if necessary to make it OK as a shell string. */
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
-                return strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
+        اگر (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
+                بازگشت strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
 
-        for (p = s; *p; ) {
-                int l = utf8_encoded_valid_unichar(p, SIZE_MAX);
+        برای (p = s; *p; ) {
+                صحیح l = utf8_encoded_valid_unichar(p, SIZE_MAX);
 
-                if (char_is_cc(*p) || l < 0 ||
+                اگر (char_is_cc(*p) || l < 0 ||
                     strchr(WHITESPACE SHELL_NEED_QUOTES, *p))
-                        break;
+                        بشکن;
 
                 p += l;
         }
 
-        if (!*p)
-                return strdup(s);
+        اگر (!*p)
+                بازگشت strdup(s);
 
-        buf = new(char, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
-        if (!buf)
-                return NULL;
+        buf = new(نویسه, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
+        اگر (!buf)
+                بازگشت پوچ;
 
         t = buf;
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
+        اگر (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
                 *(t++) = '$';
                 *(t++) = '\'';
-        } else
+        } وگرنه
                 *(t++) = '"';
 
         t = mempcpy(t, s, p - s);
@@ -600,30 +600,30 @@ char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
         t = strcpy_backslash_escaped(t, p,
                                      FLAGS_SET(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
+        اگر (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
                 *(t++) = '\'';
-        else
+        وگرنه
                 *(t++) = '"';
         *t = 0;
 
-        return str_realloc(buf);
+        بازگشت str_realloc(buf);
 }
 
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
-        _cleanup_free_ char *result = NULL;
+نویسه* quote_command_سطر(نویسه * ثابت *argv, ShellEscapeFlags flags) {
+        _cleanup_free_ نویسه *result = پوچ;
 
-        assert(argv);
+        أكد(argv);
 
         STRV_FOREACH(a, argv) {
-                _cleanup_free_ char *t = NULL;
+                _cleanup_free_ نویسه *t = پوچ;
 
                 t = shell_maybe_quote(*a, flags);
-                if (!t)
-                        return NULL;
+                اگر (!t)
+                        بازگشت پوچ;
 
-                if (!strextend_with_separator(&result, " ", t))
-                        return NULL;
+                اگر (!strextend_with_separator(&result, " ", t))
+                        بازگشت پوچ;
         }
 
-        return str_realloc(TAKE_PTR(result));
+        بازگشت str_realloc(TAKE_PTR(result));
 }

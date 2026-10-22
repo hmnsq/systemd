@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
 /* What characters are special in the shell? */
 /* must be escaped outside and inside double-quotes */
@@ -21,12 +21,12 @@
  */
 #define SHELL_NEED_ESCAPE_POSIX "\\\'"
 
-typedef enum UnescapeFlags {
+تعریفنوع شمارش UnescapeFlags {
         UNESCAPE_RELAX      = 1 << 0,
         UNESCAPE_ACCEPT_NUL = 1 << 1,
 } UnescapeFlags;
 
-typedef enum ShellEscapeFlags {
+تعریفنوع شمارش ShellEscapeFlags {
         /* The default is to add shell quotes ("") so the shell will consider this a single argument.
          * Tabs and newlines are escaped. */
 
@@ -34,38 +34,38 @@ typedef enum ShellEscapeFlags {
         SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
-char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
-static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+صحیح cescape_char(نویسه c, نویسه *buf);
+نویسه* cescape_length(ثابت نویسه *s, size_t n) _nonnull_if_nonzero_(1, 2);
+ایستا درونخطی نویسه* cescape(ثابت نویسه *s) {
+        بازگشت cescape_length(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+صحیح cunescape_one(ثابت نویسه *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
-static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+ssize_t cunescape_length_with_prefix(ثابت نویسه *s, size_t length, ثابت نویسه *prefix, UnescapeFlags flags, نویسه **ret);
+ایستا درونخطی ssize_t cunescape_length(ثابت نویسه *s, size_t length, UnescapeFlags flags, نویسه **ret) {
+        بازگشت cunescape_length_with_prefix(s, length, پوچ, flags, ret);
 }
-static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+ایستا درونخطی ssize_t cunescape(ثابت نویسه *s, UnescapeFlags flags, نویسه **ret) {
+        بازگشت cunescape_length(s, SIZE_MAX, flags, ret);
 }
 
-typedef enum XEscapeFlags {
+تعریفنوع شمارش XEscapeFlags {
         XESCAPE_8_BIT          = 1 << 0,
         XESCAPE_FORCE_ELLIPSIS = 1 << 1,
 } XEscapeFlags;
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
-static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+نویسه* xescape_full(ثابت نویسه *s, ثابت نویسه *bad, size_t console_width, XEscapeFlags flags);
+ایستا درونخطی نویسه* xescape(ثابت نویسه *s, ثابت نویسه *bad) {
+        بازگشت xescape_full(s, bad, SIZE_MAX, 0);
 }
-char* octescape_full(const char *s, size_t len, const char *bad);
-static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+نویسه* octescape_full(ثابت نویسه *s, size_t len, ثابت نویسه *bad);
+ایستا درونخطی نویسه* octescape(ثابت نویسه *s, size_t len) {
+        بازگشت octescape_full(s, len, پوچ);
 }
-char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);
+نویسه* decescape(ثابت نویسه *s, size_t len, ثابت نویسه *bad) _nonnull_if_nonzero_(1, 2);
+نویسه* escape_non_printable_full(ثابت نویسه *str, size_t console_width, XEscapeFlags flags);
 
-char* shell_escape(const char *s, const char *bad);
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags);
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags);
+نویسه* shell_escape(ثابت نویسه *s, ثابت نویسه *bad);
+نویسه* shell_maybe_quote(ثابت نویسه *s, ShellEscapeFlags flags);
+نویسه* quote_command_سطر(نویسه * ثابت *argv, ShellEscapeFlags flags);

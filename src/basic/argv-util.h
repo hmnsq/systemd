@@ -1,17 +1,17 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-extern int saved_argc;
-extern char **saved_argv;
+بیرونی صحیح saved_argc;
+بیرونی نویسه **saved_argv;
 
-void save_argc_argv(int argc, char **argv);
+تهی save_argc_argv(صحیح argc, نویسه **argv);
 
-bool invoked_as(char *argv[], const char *token);
-bool invoked_by_systemd(void) _const_;
+bool invoked_as(نویسه *argv[], ثابت نویسه *token);
+bool invoked_by_systemd(تهی) _const_;
 
-int rename_process_full(const char *comm, const char *invocation);
-static inline int rename_process(const char *name) {
-        return rename_process_full(name, name);
+صحیح rename_process_full(ثابت نویسه *comm, ثابت نویسه *invocation);
+ایستا درونخطی صحیح rename_process(ثابت نویسه *name) {
+        بازگشت rename_process_full(name, name);
 }

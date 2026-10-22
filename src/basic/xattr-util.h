@@ -1,59 +1,59 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#شامل "forward.h"
 
-int getxattr_at_malloc(int fd, const char *path, const char *name, int at_flags, char **ret, size_t *ret_size);
-static inline int getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
+صحیح getxattr_at_malloc(صحیح fd, ثابت نویسه *path, ثابت نویسه *name, صحیح at_flags, نویسه **ret, size_t *ret_size);
+ایستا درونخطی صحیح getxattr_malloc(ثابت نویسه *path, ثابت نویسه *name, نویسه **ret, size_t *ret_size) {
+        بازگشت getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
 }
-static inline int lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
+ایستا درونخطی صحیح lgetxattr_malloc(ثابت نویسه *path, ثابت نویسه *name, نویسه **ret, size_t *ret_size) {
+        بازگشت getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
 }
-static inline int fgetxattr_malloc(int fd, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
-}
-
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags);
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv);
-
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret);
-static inline int listxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
-}
-static inline int llistxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, 0, ret);
-}
-static inline int flistxattr_malloc(int fd, char **ret) {
-        return listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+ایستا درونخطی صحیح fgetxattr_malloc(صحیح fd, ثابت نویسه *name, نویسه **ret, size_t *ret_size) {
+        بازگشت getxattr_at_malloc(fd, پوچ, name, AT_EMPTY_PATH, ret, ret_size);
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
+صحیح getxattr_at_bool(صحیح fd, ثابت نویسه *path, ثابت نویسه *name, صحیح at_flags);
+صحیح getxattr_at_strv(صحیح fd, ثابت نویسه *path, ثابت نویسه *name, صحیح at_flags, نویسه ***ret_strv);
+
+صحیح listxattr_at_malloc(صحیح fd, ثابت نویسه *path, صحیح at_flags, نویسه **ret);
+ایستا درونخطی صحیح listxattr_malloc(ثابت نویسه *path, نویسه **ret) {
+        بازگشت listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
+}
+ایستا درونخطی صحیح llistxattr_malloc(ثابت نویسه *path, نویسه **ret) {
+        بازگشت listxattr_at_malloc(AT_FDCWD, path, 0, ret);
+}
+ایستا درونخطی صحیح flistxattr_malloc(صحیح fd, نویسه **ret) {
+        بازگشت listxattr_at_malloc(fd, پوچ, AT_EMPTY_PATH, ret);
+}
+
+صحیح xsetxattr_full(
+                صحیح fd,
+                ثابت نویسه *path,
+                صحیح at_flags,
+                ثابت نویسه *name,
+                ثابت نویسه *مقدار,
                 size_t size,
-                int xattr_flags);
-static inline int xsetxattr(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+                صحیح xattr_flags);
+ایستا درونخطی صحیح xsetxattr(
+                صحیح fd,
+                ثابت نویسه *path,
+                صحیح at_flags,
+                ثابت نویسه *name,
+                ثابت نویسه *مقدار) {
+        بازگشت xsetxattr_full(fd, path, at_flags, name, مقدار, SIZE_MAX, 0);
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);
+صحیح xsetxattr_strv(صحیح fd, ثابت نویسه *path, صحیح at_flags, ثابت نویسه *name, نویسه * ثابت *l);
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name);
+صحیح xremovexattr(صحیح fd, ثابت نویسه *path, صحیح at_flags, ثابت نویسه *name);
 
-int fd_setcrtime(int fd, usec_t usec);
-int getcrtime_at(int fd, const char *path, int at_flags, usec_t *ret);
-static inline int fd_getcrtime(int fd, usec_t *ret) {
-        return getcrtime_at(fd, NULL, 0, ret);
+صحیح fd_setcrtime(صحیح fd, usec_t usec);
+صحیح getcrtime_at(صحیح fd, ثابت نویسه *path, صحیح at_flags, usec_t *ret);
+ایستا درونخطی صحیح fd_getcrtime(صحیح fd, usec_t *ret) {
+        بازگشت getcrtime_at(fd, پوچ, 0, ret);
 }
 
-bool xattr_is_acl(const char *name);
-bool xattr_is_selinux(const char *name);
+bool xattr_is_acl(ثابت نویسه *name);
+bool xattr_is_selinux(ثابت نویسه *name);

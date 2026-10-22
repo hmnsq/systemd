@@ -2,47 +2,47 @@
 #pragma once
 
 /* Include here so consumers have LOCK_{EX,SH,NB} available. */
-#include <sys/file.h> /* IWYU pragma: export */
+#شامل <sys/file.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#شامل "forward.h"
 
-typedef struct LockFile {
-        int dir_fd;
-        char *path;
-        int fd;
-        int operation;
+تعریفنوع ساختار LockFile {
+        صحیح dir_fd;
+        نویسه *path;
+        صحیح fd;
+        صحیح operation;
 } LockFile;
 
-int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret);
-static inline int make_lock_file(const char *p, int operation, LockFile *ret) {
-        return make_lock_file_at(AT_FDCWD, p, operation, ret);
+صحیح make_lock_file_at(صحیح dir_fd, ثابت نویسه *p, صحیح operation, LockFile *ret);
+ایستا درونخطی صحیح make_lock_file(ثابت نویسه *p, صحیح operation, LockFile *ret) {
+        بازگشت make_lock_file_at(AT_FDCWD, p, operation, ret);
 }
-int make_lock_file_for(const char *p, int operation, LockFile *ret);
-void release_lock_file(LockFile *f);
+صحیح make_lock_file_for(ثابت نویسه *p, صحیح operation, LockFile *ret);
+تهی release_lock_file(LockFile *f);
 
 #define LOCK_FILE_INIT (LockFile) { .dir_fd = -EBADF, .fd = -EBADF }
 
 /* POSIX locks with the same interface as flock(). */
-int posix_lock(int fd, int operation);
-void posix_unlockpp(int **fd);
+صحیح posix_lock(صحیح fd, صحیح operation);
+تهی posix_unlockpp(صحیح **fd);
 
 #define CLEANUP_POSIX_UNLOCK(fd)                                   \
-        _cleanup_(posix_unlockpp) _unused_ int *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
+        _cleanup_(posix_unlockpp) _unused_ صحیح *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
 
 /* Open File Description locks with the same interface as flock(). */
-int unposix_lock(int fd, int operation);
-void unposix_unlockpp(int **fd);
+صحیح unposix_lock(صحیح fd, صحیح operation);
+تهی unposix_unlockpp(صحیح **fd);
 
 #define CLEANUP_UNPOSIX_UNLOCK(fd)                                   \
-        _cleanup_(unposix_unlockpp) _unused_ int *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
+        _cleanup_(unposix_unlockpp) _unused_ صحیح *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
 
-typedef enum LockType {
+تعریفنوع شمارش LockType {
         LOCK_NONE, /* Don't lock the file descriptor. Useful if you need to conditionally lock a file. */
         LOCK_BSD,
         LOCK_POSIX,
         LOCK_UNPOSIX,
 } LockType;
 
-int lock_generic(int fd, LockType type, int operation);
+صحیح lock_generic(صحیح fd, LockType type, صحیح operation);
 
-int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeout);
+صحیح lock_generic_with_timeout(صحیح fd, LockType type, صحیح operation, usec_t timeout);

@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "label-util.h"
+#شامل "label-util.h"
 
-static const LabelOps *label_ops = NULL;
+ایستا ثابت LabelOps *label_ops = پوچ;
 
-int label_ops_set(const LabelOps *ops) {
-        assert(ops);
+صحیح label_ops_set(ثابت LabelOps *ops) {
+        أكد(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        اگر (label_ops)
+                بازگشت -EBUSY;
 
         label_ops = ops;
-        return 0;
+        بازگشت 0;
 }
 
-void label_ops_reset(void) {
-        label_ops = NULL;
+تهی label_ops_reset(تهی) {
+        label_ops = پوچ;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+صحیح label_ops_pre(صحیح dir_fd, ثابت نویسه *path, mode_t mode, LabelContext *label_context) {
+        اگر (!label_ops || !label_ops->pre)
+                بازگشت 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        بازگشت label_ops->pre(dir_fd, path, mode, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+صحیح label_ops_post(صحیح dir_fd, ثابت نویسه *path, bool created, LabelContext *label_context) {
+        اگر (!label_ops || !label_ops->post)
+                بازگشت 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        بازگشت label_ops->post(dir_fd, path, created, label_context);
 }
