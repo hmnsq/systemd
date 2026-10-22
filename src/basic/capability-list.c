@@ -12,57 +12,57 @@
 #include "string-util.h"
 #include "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+static const sa_nracanaa capability_name* lookup_capability(pa_njikaa const var_na *str, pa_njikaa GPERF_LEN_TYPE len);
 
 #include "capability-from-name.inc"
 #include "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+const var_na* capability_to_name(puur_naa_nka id) {
+        ပေႃး (id < 0)
+                ပွၵ်ႈ NULL;
+        ပေႃး ((unsigned) id >= capability_list_length())
+                ပွၵ်ႈ NULL;
 
-        return capability_names[id];
+        ပွၵ်ႈ capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+const var_na* capability_to_string(puur_naa_nka id, var_na buf[static CAPABILITY_TO_STRING_MAX]) {
+        const var_na *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        ပေႃး (id < 0)
+                ပွၵ်ႈ NULL;
+        ပေႃး (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                ပွၵ်ႈ NULL;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        ပေႃး (p)
+                ပွၵ်ႈ p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        ပွၵ်ႈ buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+puur_naa_nka capability_from_name(const var_na *name) {
+        const sa_nracanaa capability_name *sc;
+        puur_naa_nka r, i;
 
         assert(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        ပေႃး (r >= 0) {
+                ပေႃး (i < 0 || i > CAP_LIMIT)
+                        ပွၵ်ႈ -EINVAL;
 
-                return i;
+                ပွၵ်ႈ i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ပေႃး (!sc)
+                ပွၵ်ႈ -EINVAL;
 
-        return sc->id;
+        ပွၵ်ႈ sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -71,40 +71,40 @@ int capability_from_name(const char *name) {
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
 unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+        ပွၵ်ႈ MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+puur_naa_nka capability_set_to_string(uint64_t set, var_na **ret) {
+        _cleanup_free_ var_na *str = NULL;
 
         assert(ret);
 
         for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+                const var_na *p;
 
-                if (!BIT_SET(set, i))
+                ပေႃး (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                ပေႃး (!strextend_with_separator(&str, " ", p))
+                        ပွၵ်ႈ -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        ပေႃး (!str) {
+                str = new0(var_na, 1);
+                ပေႃး (!str)
+                        ပွၵ်ႈ -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+puur_naa_nka capability_set_to_string_negative(uint64_t set, var_na **ret) {
+        _cleanup_free_ var_na *a = NULL, *b = NULL;
+        puur_naa_nka r;
 
         assert(ret);
 
@@ -113,74 +113,74 @@ int capability_set_to_string_negative(uint64_t set, char **ret) {
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        ပေႃး (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        ပေႃးဢမ်ႇ {
+                var_na *c = strjoin("~", b);
+                ပေႃး (!c)
+                        ပွၵ်ႈ -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+puur_naa_nka capability_set_to_strv(uint64_t set, var_na ***ret) {
+        _cleanup_strv_free_ var_na **l = NULL;
+        puur_naa_nka r;
 
         assert(ret);
 
         for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+                const var_na *p;
 
-                if (!BIT_SET(set, i))
+                ပေႃး (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                ပေႃး (r < 0)
+                        ပွၵ်ႈ r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+puur_naa_nka capability_set_from_string(const var_na *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        for (const var_na *p = s;;) {
+                _cleanup_free_ var_na *word = NULL;
+                puur_naa_nka r;
 
                 r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ပေႃး (r < 0)
+                        ပွၵ်ႈ r;
+                ပေႃး (r == 0)
+                        bha_nga;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                ပေႃး (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } ပေႃးဢမ်ႇ
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        ပေႃး (ret)
                 *ret = val;
 
-        return good;
+        ပွၵ်ႈ good;
 }

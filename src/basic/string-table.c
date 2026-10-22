@@ -7,74 +7,74 @@
 #include "string-table.h"
 #include "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+const var_na* string_table_lookup_to_string(const var_na * const *table, size_t len, ssize_t i) {
+        ပေႃး (i < 0 || i >= (ssize_t) len)
+                ပွၵ်ႈ NULL;
 
         assert(table);
 
-        return table[i];
+        ပွၵ်ႈ table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(const var_na * const *table, size_t len, const var_na *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        ပေႃး (!key)
+                ပွၵ်ႈ -EINVAL;
 
         for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+                ပေႃး (streq_ptr(table[i], key))
+                        ပွၵ်ႈ (ssize_t) i;
 
-        return -EINVAL;
+        ပွၵ်ႈ -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(const var_na * const *table, size_t len, const var_na *key, ssize_t yes) {
+        ပေႃး (!key)
+                ပွၵ်ႈ -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        puur_naa_nka b = parse_boolean(key);
+        ပေႃး (b == 0)
+                ပွၵ်ႈ 0;
+        ပေႃး (b > 0)
+                ပွၵ်ႈ yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        ပွၵ်ႈ string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+puur_naa_nka string_table_lookup_to_string_fallback(const var_na * const *table, size_t len, ssize_t i, size_t max, var_na **ret) {
+        var_na *s;
 
         assert(table);
         assert(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        ပေႃး (i < 0 || i > (ssize_t) max)
+                ပွၵ်ႈ -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        ပေႃး (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        ပေႃးဢမ်ႇ
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         *ret = s;
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(const var_na * const *table, size_t len, const var_na *s, size_t max) {
+        ပေႃး (!s)
+                ပွၵ်ႈ -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        ပေႃး (i >= 0)
+                ပွၵ်ႈ i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        ပေႃး (safe_atou(s, &u) < 0)
+                ပွၵ်ႈ -EINVAL;
+        ပေႃး (u > max)
+                ပွၵ်ႈ -EINVAL;
 
-        return u;
+        ပွၵ်ႈ u;
 }

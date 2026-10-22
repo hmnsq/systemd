@@ -11,302 +11,302 @@
 #include "string-util.h"
 #include "version.h"
 
-const char* const systemd_features =
+const var_na* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#ပေႃး HAVE_PAM
         "+PAM"
-#else
+#ပေႃးဢမ်ႇ
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#ပေႃး HAVE_AUDIT
         " +AUDIT"
-#else
+#ပေႃးဢမ်ႇ
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#ပေႃး HAVE_SELINUX
         " +SELINUX"
-#else
+#ပေႃးဢမ်ႇ
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#ပေႃး HAVE_APPARMOR
         " +APPARMOR"
-#else
+#ပေႃးဢမ်ႇ
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#ပေႃး ENABLE_IMA
         " +IMA"
-#else
+#ပေႃးဢမ်ႇ
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#ပေႃး ENABLE_IPE
         " +IPE"
-#else
+#ပေႃးဢမ်ႇ
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#ပေႃး ENABLE_SMACK
         " +SMACK"
-#else
+#ပေႃးဢမ်ႇ
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#ပေႃး HAVE_SECCOMP
         " +SECCOMP"
-#else
+#ပေႃးဢမ်ႇ
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#ပေႃး HAVE_GNUTLS
         " +GNUTLS"
-#else
+#ပေႃးဢမ်ႇ
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#ပေႃး HAVE_OPENSSL
         " +OPENSSL"
-#else
+#ပေႃးဢမ်ႇ
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#ပေႃး HAVE_ACL
         " +ACL"
-#else
+#ပေႃးဢမ်ႇ
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#ပေႃး HAVE_BLKID
         " +BLKID"
-#else
+#ပေႃးဢမ်ႇ
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#ပေႃး HAVE_LIBCURL
         " +CURL"
-#else
+#ပေႃးဢမ်ႇ
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#ပေႃး HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#ပေႃးဢမ်ႇ
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#ပေႃး HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#ပေႃးဢမ်ႇ
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#ပေႃး HAVE_LIBIDN2
         " +IDN2"
-#else
+#ပေႃးဢမ်ႇ
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#ပေႃး HAVE_KMOD
         " +KMOD"
-#else
+#ပေႃးဢမ်ႇ
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#ပေႃး HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#ပေႃးဢမ်ႇ
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#ပေႃး HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#ပေႃးဢမ်ႇ
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#ပေႃး HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#ပေႃးဢမ်ႇ
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#ပေႃး HAVE_PCRE2
         " +PCRE2"
-#else
+#ပေႃးဢမ်ႇ
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#ပေႃး HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#ပေႃးဢမ်ႇ
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#ပေႃး HAVE_P11KIT
         " +P11KIT"
-#else
+#ပေႃးဢမ်ႇ
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#ပေႃး HAVE_QRENCODE
         " +QRENCODE"
-#else
+#ပေႃးဢမ်ႇ
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#ပေႃး HAVE_TPM2
         " +TPM2"
-#else
+#ပေႃးဢမ်ႇ
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#ပေႃး HAVE_BZIP2
         " +BZIP2"
-#else
+#ပေႃးဢမ်ႇ
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#ပေႃး HAVE_LZ4
         " +LZ4"
-#else
+#ပေႃးဢမ်ႇ
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#ပေႃး HAVE_XZ
         " +XZ"
-#else
+#ပေႃးဢမ်ႇ
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#ပေႃး HAVE_ZLIB
         " +ZLIB"
-#else
+#ပေႃးဢမ်ႇ
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#ပေႃး HAVE_ZSTD
         " +ZSTD"
-#else
+#ပေႃးဢမ်ႇ
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#ပေႃး BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#ပေႃးဢမ်ႇ
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#ပေႃး HAVE_VMLINUX_H
         " +BTF"
-#else
+#ပေႃးဢမ်ႇ
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#ပေႃး HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#ပေႃးဢမ်ႇ
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#ပေႃး ENABLE_UTMP
         " +UTMP"
-#else
+#ပေႃးဢမ်ႇ
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#ပေႃး HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#ပေႃးဢမ်ႇ
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#ပေႃး EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#ပေႃးဢမ်ႇ
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+static var_na* systemd_features_with_color(void) {
+        const var_na *p = systemd_features;
+        _cleanup_free_ var_na *ret = NULL;
+        puur_naa_nka r;
 
         for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+                _cleanup_free_ var_na *word = NULL;
+                var_na *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                ပေႃး (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        ပွၵ်ႈ NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                ပေႃး (r == 0)
+                        ပွၵ်ႈ TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                ပေႃး (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        ပွၵ်ႈ NULL;
                 }
 
-                if (word[0] == '+')
+                ပေႃး (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                ပေႃးဢမ်ႇ ပေႃး (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                ပေႃးဢမ်ႇ
                         q = strextend(&ret, word);
-                if (!q) {
+                ပေႃး (!q) {
                         log_oom_warning();
-                        return NULL;
+                        ပွၵ်ႈ NULL;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+puur_naa_nka version(void) {
+        _cleanup_free_ var_na *b = NULL;
 
-        if (colors_enabled())
+        ပေႃး (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int version_only(void) {
+puur_naa_nka version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#ပေႃး EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        ပွၵ်ႈ false;
+#ပေႃးဢမ်ႇ
+        puur_naa_nka r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ပေႃး (r >= 0)
+                ပွၵ်ႈ r;
+        ပေႃး (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        ပွၵ်ႈ EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

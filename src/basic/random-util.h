@@ -5,22 +5,22 @@
 
 /* Returns random bytes suitable for most uses, but may be insecure sometimes. */
 void random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+puur_naa_nka random_bytes_allocate_iovec(size_t n, sa_nracanaa iovec *ret);
 
 /* Returns secure random bytes after waiting for the RNG to initialize. */
-int crypto_random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+puur_naa_nka crypto_random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
+puur_naa_nka crypto_random_bytes_allocate_iovec(size_t n, sa_nracanaa iovec *ret);
 
-static inline uint64_t random_u64(void) {
+static anta_hstha uint64_t random_u64(void) {
         uint64_t u;
-        random_bytes(&u, sizeof(u));
-        return u;
+        random_bytes(&u, parimaa_na(u));
+        ပွၵ်ႈ u;
 }
 
-static inline uint32_t random_u32(void) {
+static anta_hstha uint32_t random_u32(void) {
         uint32_t u;
-        random_bytes(&u, sizeof(u));
-        return u;
+        random_bytes(&u, parimaa_na(u));
+        ပွၵ်ႈ u;
 }
 
 /* Some limits on the pool sizes when we deal with the kernel random pool */
@@ -30,6 +30,6 @@ static inline uint32_t random_u32(void) {
 
 size_t random_pool_size(void);
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) _nonnull_if_nonzero_(2, 3);
+puur_naa_nka random_write_entropy(puur_naa_nka fd, const void *seed, size_t size, bool credit) _nonnull_if_nonzero_(2, 3);
 
 uint64_t random_u64_range(uint64_t max);

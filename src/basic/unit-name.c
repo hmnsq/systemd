@@ -33,266 +33,266 @@
 #define LONG_UNIT_NAME_HASH_KEY SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
 #define UNIT_NAME_HASH_LENGTH_CHARS 16
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) {
-        const char *e, *i, *at;
+bool unit_name_is_valid(const var_na *n, UnitNameFlags flags) {
+        const var_na *e, *i, *at;
 
         assert((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
 
-        if (_unlikely_(flags == 0))
-                return false;
+        ပေႃး (_unlikely_(flags == 0))
+                ပွၵ်ႈ false;
 
-        if (isempty(n))
-                return false;
+        ပေႃး (isempty(n))
+                ပွၵ်ႈ false;
 
-        if (strlen(n) >= UNIT_NAME_MAX)
-                return false;
+        ပေႃး (strlen(n) >= UNIT_NAME_MAX)
+                ပွၵ်ႈ false;
 
         e = strrchr(n, '.');
-        if (!e || e == n)
-                return false;
+        ပေႃး (!e || e == n)
+                ပွၵ်ႈ false;
 
-        if (unit_type_from_string(e + 1) < 0)
-                return false;
+        ပေႃး (unit_type_from_string(e + 1) < 0)
+                ပွၵ်ႈ false;
 
         for (i = n, at = NULL; i < e; i++) {
 
-                if (*i == '@' && !at)
+                ပေႃး (*i == '@' && !at)
                         at = i;
 
-                if (!strchr(VALID_CHARS_WITH_AT, *i))
-                        return false;
+                ပေႃး (!strchr(VALID_CHARS_WITH_AT, *i))
+                        ပွၵ်ႈ false;
         }
 
-        if (at == n)
-                return false;
+        ပေႃး (at == n)
+                ပွၵ်ႈ false;
 
-        if (flags & UNIT_NAME_PLAIN)
-                if (!at)
-                        return true;
+        ပေႃး (flags & UNIT_NAME_PLAIN)
+                ပေႃး (!at)
+                        ပွၵ်ႈ true;
 
-        if (flags & UNIT_NAME_INSTANCE)
-                if (at && e > at + 1)
-                        return true;
+        ပေႃး (flags & UNIT_NAME_INSTANCE)
+                ပေႃး (at && e > at + 1)
+                        ပွၵ်ႈ true;
 
-        if (flags & UNIT_NAME_TEMPLATE)
-                if (at && e == at + 1)
-                        return true;
+        ပေႃး (flags & UNIT_NAME_TEMPLATE)
+                ပေႃး (at && e == at + 1)
+                        ပွၵ်ႈ true;
 
-        return false;
+        ပွၵ်ႈ false;
 }
 
-bool unit_prefix_is_valid(const char *p) {
+bool unit_prefix_is_valid(const var_na *p) {
 
         /* We don't allow additional @ in the prefix string */
 
-        if (isempty(p))
-                return false;
+        ပေႃး (isempty(p))
+                ပွၵ်ႈ false;
 
-        return in_charset(p, VALID_CHARS);
+        ပွၵ်ႈ in_charset(p, VALID_CHARS);
 }
 
-bool unit_instance_is_valid(const char *i) {
+bool unit_instance_is_valid(const var_na *i) {
 
         /* The max length depends on the length of the string, so we
          * don't really check this here. */
 
-        if (isempty(i))
-                return false;
+        ပေႃး (isempty(i))
+                ပွၵ်ႈ false;
 
         /* We allow additional @ in the instance string, we do not
          * allow them in the prefix! */
 
-        return in_charset(i, "@" VALID_CHARS);
+        ပွၵ်ႈ in_charset(i, "@" VALID_CHARS);
 }
 
-bool unit_suffix_is_valid(const char *s) {
-        if (isempty(s))
-                return false;
+bool unit_suffix_is_valid(const var_na *s) {
+        ပေႃး (isempty(s))
+                ပွၵ်ႈ false;
 
-        if (s[0] != '.')
-                return false;
+        ပေႃး (s[0] != '.')
+                ပွၵ်ႈ false;
 
-        if (unit_type_from_string(s + 1) < 0)
-                return false;
+        ပေႃး (unit_type_from_string(s + 1) < 0)
+                ပွၵ်ႈ false;
 
-        return true;
+        ပွၵ်ႈ true;
 }
 
-int unit_name_to_prefix(const char *n, char **ret) {
-        const char *p;
-        char *s;
+puur_naa_nka unit_name_to_prefix(const var_na *n, var_na **ret) {
+        const var_na *p;
+        var_na *s;
 
         assert(n);
         assert(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                ပွၵ်ႈ -EINVAL;
 
         p = strchr(n, '@');
-        if (!p)
+        ပေႃး (!p)
                 p = strrchr(n, '.');
 
         assert_se(p);
 
         s = strndup(n, p - n);
-        if (!s)
-                return -ENOMEM;
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         *ret = s;
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-UnitNameFlags unit_name_to_instance(const char *n, char **ret) {
-        const char *p, *d;
+UnitNameFlags unit_name_to_instance(const var_na *n, var_na **ret) {
+        const var_na *p, *d;
 
         assert(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                ပွၵ်ႈ -EINVAL;
 
         /* Everything past the first @ and before the last . is the instance */
         p = strchr(n, '@');
-        if (!p) {
-                if (ret)
+        ပေႃး (!p) {
+                ပေႃး (ret)
                         *ret = NULL;
-                return UNIT_NAME_PLAIN;
+                ပွၵ်ႈ UNIT_NAME_PLAIN;
         }
 
         p++;
 
         d = strrchr(p, '.');
-        if (!d)
-                return -EINVAL;
+        ပေႃး (!d)
+                ပွၵ်ႈ -EINVAL;
 
-        if (ret) {
-                char *i = strndup(p, d-p);
-                if (!i)
-                        return -ENOMEM;
+        ပေႃး (ret) {
+                var_na *i = strndup(p, d-p);
+                ပေႃး (!i)
+                        ပွၵ်ႈ -ENOMEM;
 
                 *ret = i;
         }
-        return d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
+        ပွၵ်ႈ d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
 }
 
-int unit_name_to_prefix_and_instance(const char *n, char **ret) {
-        const char *d;
-        char *s;
+puur_naa_nka unit_name_to_prefix_and_instance(const var_na *n, var_na **ret) {
+        const var_na *d;
+        var_na *s;
 
         assert(n);
         assert(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                ပွၵ်ႈ -EINVAL;
 
         d = strrchr(n, '.');
-        if (!d)
-                return -EINVAL;
+        ပေႃး (!d)
+                ပွၵ်ႈ -EINVAL;
 
         s = strndup(n, d - n);
-        if (!s)
-                return -ENOMEM;
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         *ret = s;
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-UnitType unit_name_to_type(const char *n) {
-        const char *e;
+UnitType unit_name_to_type(const var_na *n) {
+        const var_na *e;
 
         assert(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return _UNIT_TYPE_INVALID;
+        ပေႃး (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                ပွၵ်ႈ _UNIT_TYPE_INVALID;
 
         assert_se(e = strrchr(n, '.'));
 
-        return unit_type_from_string(e + 1);
+        ပွၵ်ႈ unit_type_from_string(e + 1);
 }
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
-        _cleanup_free_ char *s = NULL;
+puur_naa_nka unit_name_change_suffix(const var_na *n, const var_na *suffix, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
         size_t a, b;
-        const char *e;
+        const var_na *e;
 
         assert(n);
         assert(suffix);
         assert(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                ပွၵ်ႈ -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ပေႃး (!unit_suffix_is_valid(suffix))
+                ပွၵ်ႈ -EINVAL;
 
         assert_se(e = strrchr(n, '.'));
 
         a = e - n;
         b = strlen(suffix);
 
-        s = new(char, a + b + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(var_na, a + b + 1);
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         strcpy(mempcpy(s, n, a), suffix);
 
         /* Make sure the name is still valid (i.e. didn't grow too large due to longer suffix) */
-        if (!unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(s, UNIT_NAME_ANY))
+                ပွၵ်ႈ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret) {
+puur_naa_nka unit_name_build(const var_na *prefix, const var_na *instance, const var_na *suffix, var_na **ret) {
         UnitType type;
 
         assert(prefix);
         assert(suffix);
         assert(ret);
 
-        if (suffix[0] != '.')
-                return -EINVAL;
+        ပေႃး (suffix[0] != '.')
+                ပွၵ်ႈ -EINVAL;
 
         type = unit_type_from_string(suffix + 1);
-        if (type < 0)
-                return type;
+        ပေႃး (type < 0)
+                ပွၵ်ႈ type;
 
-        return unit_name_build_from_type(prefix, instance, type, ret);
+        ပွၵ်ႈ unit_name_build_from_type(prefix, instance, type, ret);
 }
 
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        const char *ut;
+puur_naa_nka unit_name_build_from_type(const var_na *prefix, const var_na *instance, UnitType type, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
+        const var_na *ut;
 
         assert(prefix);
         assert(type >= 0);
         assert(type < _UNIT_TYPE_MAX);
         assert(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        ပေႃး (!unit_prefix_is_valid(prefix))
+                ပွၵ်ႈ -EINVAL;
 
         ut = unit_type_to_string(type);
 
-        if (instance) {
-                if (!unit_instance_is_valid(instance))
-                        return -EINVAL;
+        ပေႃး (instance) {
+                ပေႃး (!unit_instance_is_valid(instance))
+                        ပွၵ်ႈ -EINVAL;
 
                 s = strjoin(prefix, "@", instance, ".", ut);
-        } else
+        } ပေႃးဢမ်ႇ
                 s = strjoin(prefix, ".", ut);
-        if (!s)
-                return -ENOMEM;
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         /* Verify that this didn't grow too large (or otherwise is invalid) */
-        if (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
+                ပွၵ်ႈ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-static char *do_escape_char(char c, char *t) {
+static var_na *do_escape_char(var_na c, var_na *t) {
         assert(t);
 
         *(t++) = '\\';
@@ -300,77 +300,77 @@ static char *do_escape_char(char c, char *t) {
         *(t++) = hexchar(c >> 4);
         *(t++) = hexchar(c);
 
-        return t;
+        ပွၵ်ႈ t;
 }
 
-static char *do_escape(const char *f, char *t) {
+static var_na *do_escape(const var_na *f, var_na *t) {
         assert(f);
         assert(t);
 
         /* do not create units with a leading '.', like for "/.dotdir" mount points */
-        if (*f == '.') {
+        ပေႃး (*f == '.') {
                 t = do_escape_char(*f, t);
                 f++;
         }
 
         for (; *f; f++) {
-                if (*f == '/')
+                ပေႃး (*f == '/')
                         *(t++) = '-';
-                else if (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
+                ပေႃးဢမ်ႇ ပေႃး (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
                         t = do_escape_char(*f, t);
-                else
+                ပေႃးဢမ်ႇ
                         *(t++) = *f;
         }
 
-        return t;
+        ပွၵ်ႈ t;
 }
 
-char* unit_name_escape(const char *f) {
-        char *r, *t;
+var_na* unit_name_escape(const var_na *f) {
+        var_na *r, *t;
 
         assert(f);
 
-        r = new(char, strlen(f)*4+1);
-        if (!r)
-                return NULL;
+        r = new(var_na, strlen(f)*4+1);
+        ပေႃး (!r)
+                ပွၵ်ႈ NULL;
 
         t = do_escape(f, r);
         *t = 0;
 
-        return r;
+        ပွၵ်ႈ r;
 }
 
-int unit_name_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *r = NULL;
-        char *t;
+puur_naa_nka unit_name_unescape(const var_na *f, var_na **ret) {
+        _cleanup_free_ var_na *r = NULL;
+        var_na *t;
 
         assert(f);
         assert(ret);
 
         r = strdup(f);
-        if (!r)
-                return -ENOMEM;
+        ပေႃး (!r)
+                ပွၵ်ႈ -ENOMEM;
 
         for (t = r; *f; f++) {
-                if (*f == '-')
+                ပေႃး (*f == '-')
                         *(t++) = '/';
-                else if (*f == '\\') {
-                        int a, b;
+                ပေႃးဢမ်ႇ ပေႃး (*f == '\\') {
+                        puur_naa_nka a, b;
 
-                        if (f[1] != 'x')
-                                return -EINVAL;
+                        ပေႃး (f[1] != 'x')
+                                ပွၵ်ႈ -EINVAL;
 
                         a = unhexchar(f[2]);
-                        if (a < 0)
-                                return -EINVAL;
+                        ပေႃး (a < 0)
+                                ပွၵ်ႈ -EINVAL;
 
                         b = unhexchar(f[3]);
-                        if (b < 0)
-                                return -EINVAL;
+                        ပေႃး (b < 0)
+                                ပွၵ်ႈ -EINVAL;
 
-                        *(t++) = (char) (((uint8_t) a << 4U) | (uint8_t) b);
+                        *(t++) = (var_na) (((uint8_t) a << 4U) | (uint8_t) b);
                         f += 3;
-                } else
+                } ပေႃးဢမ်ႇ
                         *(t++) = *f;
         }
 
@@ -378,95 +378,95 @@ int unit_name_unescape(const char *f, char **ret) {
 
         *ret = TAKE_PTR(r);
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_path_escape(const char *f, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        char *s;
-        int r;
+puur_naa_nka unit_name_path_escape(const var_na *f, var_na **ret) {
+        _cleanup_free_ var_na *p = NULL;
+        var_na *s;
+        puur_naa_nka r;
 
         assert(f);
         assert(ret);
 
         r = path_simplify_alloc(f, &p);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        if (empty_or_root(p))
+        ပေႃး (empty_or_root(p))
                 s = strdup("-");
-        else {
-                if (!path_is_normalized(p))
-                        return -EINVAL;
+        ပေႃးဢမ်ႇ {
+                ပေႃး (!path_is_normalized(p))
+                        ပွၵ်ႈ -EINVAL;
 
                 /* Truncate trailing slashes and skip leading slashes */
                 delete_trailing_chars(p, "/");
                 s = unit_name_escape(skip_leading_chars(p, "/"));
         }
-        if (!s)
-                return -ENOMEM;
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         *ret = s;
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_path_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+puur_naa_nka unit_name_path_unescape(const var_na *f, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
+        puur_naa_nka r;
 
         assert(f);
 
-        if (isempty(f))
-                return -EINVAL;
+        ပေႃး (isempty(f))
+                ပွၵ်ႈ -EINVAL;
 
-        if (streq(f, "-")) {
+        ပေႃး (streq(f, "-")) {
                 s = strdup("/");
-                if (!s)
-                        return -ENOMEM;
-        } else {
-                _cleanup_free_ char *w = NULL;
+                ပေႃး (!s)
+                        ပွၵ်ႈ -ENOMEM;
+        } ပေႃးဢမ်ႇ {
+                _cleanup_free_ var_na *w = NULL;
 
                 r = unit_name_unescape(f, &w);
-                if (r < 0)
-                        return r;
+                ပေႃး (r < 0)
+                        ပွၵ်ႈ r;
 
                 /* Don't accept trailing or leading slashes */
-                if (startswith(w, "/") || endswith(w, "/"))
-                        return -EINVAL;
+                ပေႃး (startswith(w, "/") || endswith(w, "/"))
+                        ပွၵ်ႈ -EINVAL;
 
                 /* Prefix a slash again */
                 s = strjoin("/", w);
-                if (!s)
-                        return -ENOMEM;
+                ပေႃး (!s)
+                        ပွၵ်ႈ -ENOMEM;
 
-                if (!path_is_normalized(s))
-                        return -EINVAL;
+                ပေႃး (!path_is_normalized(s))
+                        ပွၵ်ႈ -EINVAL;
         }
 
-        if (ret)
+        ပေႃး (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+puur_naa_nka unit_name_replace_instance_full(
+                const var_na *original,
+                const var_na *instance,
                 bool accept_glob,
-                char **ret) {
+                var_na **ret) {
 
-        _cleanup_free_ char *s = NULL;
-        const char *prefix, *suffix;
+        _cleanup_free_ var_na *s = NULL;
+        const var_na *prefix, *suffix;
         size_t pl;
 
         assert(original);
         assert(instance);
         assert(ret);
 
-        if (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
-        if (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                ပွၵ်ႈ -EINVAL;
+        ပေႃး (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
+                ပွၵ်ႈ -EINVAL;
 
         prefix = ASSERT_PTR(strchr(original, '@'));
         suffix = ASSERT_PTR(strrchr(original, '.'));
@@ -474,11 +474,11 @@ int unit_name_replace_instance_full(
 
         pl = prefix - original + 1; /* include '@' */
 
-        s = new(char, pl + strlen(instance) + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(var_na, pl + strlen(instance) + strlen(suffix) + 1);
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#ပေႃး HAS_FEATURE_MEMORY_SANITIZER
         /* MSan doesn't like stpncpy... See also https://github.com/google/sanitizers/issues/926 */
         memzero(s, pl + strlen(instance) + strlen(suffix) + 1);
 #endif
@@ -487,84 +487,84 @@ int unit_name_replace_instance_full(
 
         /* Make sure the resulting name still is valid, i.e. didn't grow too large. Globs will be expanded
          * by clients when used, so the check is pointless. */
-        if (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        ပေႃး (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                ပွၵ်ႈ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_template(const char *f, char **ret) {
-        const char *p, *e;
-        char *s;
+puur_naa_nka unit_name_template(const var_na *f, var_na **ret) {
+        const var_na *p, *e;
+        var_na *s;
         size_t a;
 
         assert(f);
         assert(ret);
 
-        if (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                ပွၵ်ႈ -EINVAL;
 
         assert_se(p = strchr(f, '@'));
         assert_se(e = strrchr(f, '.'));
 
         a = p - f;
 
-        s = new(char, a + 1 + strlen(e) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(var_na, a + 1 + strlen(e) + 1);
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         strcpy(mempcpy(s, f, a + 1), e);
 
         *ret = s;
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-bool unit_name_is_hashed(const char *name) {
-        const char *s;
+bool unit_name_is_hashed(const var_na *name) {
+        const var_na *s;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        ပေႃး (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                ပွၵ်ႈ false;
 
         assert_se(s = strrchr(name, '.'));
 
-        if (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
-                return false;
+        ပေႃး (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
+                ပွၵ်ႈ false;
 
         s -= UNIT_NAME_HASH_LENGTH_CHARS;
-        if (s[-1] != '_')
-                return false;
+        ပေႃး (s[-1] != '_')
+                ပွၵ်ႈ false;
 
         for (size_t i = 0; i < UNIT_NAME_HASH_LENGTH_CHARS; i++)
-                if (!strchr(LOWERCASE_HEXDIGITS, s[i]))
-                        return false;
+                ပေႃး (!strchr(LOWERCASE_HEXDIGITS, s[i]))
+                        ပွၵ်ႈ false;
 
-        return true;
+        ပွၵ်ႈ true;
 }
 
-int unit_name_hash_long(const char *name, char **ret) {
-        _cleanup_free_ char *n = NULL, *hash = NULL;
-        const char *suffix;
+puur_naa_nka unit_name_hash_long(const var_na *name, var_na **ret) {
+        _cleanup_free_ var_na *n = NULL, *hash = NULL;
+        const var_na *suffix;
         le64_t h;
         size_t len;
 
         assert(ret);
 
-        if (strlen(name) < UNIT_NAME_MAX)
-                return -EMSGSIZE;
+        ပေႃး (strlen(name) < UNIT_NAME_MAX)
+                ပွၵ်ႈ -EMSGSIZE;
 
         suffix = strrchr(name, '.');
-        if (!suffix)
-                return -EINVAL;
+        ပေႃး (!suffix)
+                ပွၵ်ႈ -EINVAL;
 
-        if (unit_type_from_string(suffix+1) < 0)
-                return -EINVAL;
+        ပေႃး (unit_type_from_string(suffix+1) < 0)
+                ပွၵ်ႈ -EINVAL;
 
         h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_KEY.bytes));
 
-        hash = hexmem(&h, sizeof(h));
-        if (!hash)
-                return -ENOMEM;
+        hash = hexmem(&h, parimaa_na(h));
+        ပေႃး (!hash)
+                ပွၵ်ႈ -ENOMEM;
 
         assert_se(strlen(hash) == UNIT_NAME_HASH_LENGTH_CHARS);
 
@@ -572,109 +572,109 @@ int unit_name_hash_long(const char *name, char **ret) {
         assert(len > 0 && len < UNIT_NAME_MAX);
 
         n = strndup(name, len);
-        if (!n)
-                return -ENOMEM;
+        ပေႃး (!n)
+                ပွၵ်ႈ -ENOMEM;
 
-        if (!strextend(&n, "_", hash, suffix))
-                return -ENOMEM;
+        ပေႃး (!strextend(&n, "_", hash, suffix))
+                ပွၵ်ႈ -ENOMEM;
         assert_se(unit_name_is_valid(n, UNIT_NAME_PLAIN));
 
         *ret = TAKE_PTR(n);
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+puur_naa_nka unit_name_from_path(const var_na *path, const var_na *suffix, var_na **ret) {
+        _cleanup_free_ var_na *p = NULL, *s = NULL;
+        puur_naa_nka r;
 
         assert(path);
         assert(suffix);
         assert(ret);
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ပေႃး (!unit_suffix_is_valid(suffix))
+                ပွၵ်ႈ -EINVAL;
 
         r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
         s = strjoin(p, suffix);
-        if (!s)
-                return -ENOMEM;
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) {
-                _cleanup_free_ char *n = NULL;
+        ပေႃး (strlen(s) >= UNIT_NAME_MAX) {
+                _cleanup_free_ var_na *n = NULL;
 
                 log_debug("Unit name \"%s\" too long, falling back to hashed unit name.", s);
 
                 r = unit_name_hash_long(s, &n);
-                if (r < 0)
-                        return r;
+                ပေႃး (r < 0)
+                        ပွၵ်ႈ r;
 
                 free_and_replace(s, n);
         }
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
+                ပွၵ်ႈ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+puur_naa_nka unit_name_from_path_instance(const var_na *prefix, const var_na *path, const var_na *suffix, var_na **ret) {
+        _cleanup_free_ var_na *p = NULL, *s = NULL;
+        puur_naa_nka r;
 
         assert(prefix);
         assert(path);
         assert(suffix);
         assert(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        ပေႃး (!unit_prefix_is_valid(prefix))
+                ပွၵ်ႈ -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ပေႃး (!unit_suffix_is_valid(suffix))
+                ပွၵ်ႈ -EINVAL;
 
         r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
         s = strjoin(prefix, "@", p, suffix);
-        if (!s)
-                return -ENOMEM;
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
-                return -ENAMETOOLONG;
+        ပေႃး (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
+                ပွၵ်ႈ -ENAMETOOLONG;
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        ပေႃး (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                ပွၵ်ႈ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int unit_name_to_path(const char *name, char **ret) {
-        _cleanup_free_ char *prefix = NULL;
-        int r;
+puur_naa_nka unit_name_to_path(const var_na *name, var_na **ret) {
+        _cleanup_free_ var_na *prefix = NULL;
+        puur_naa_nka r;
 
         assert(name);
 
         r = unit_name_to_prefix(name, &prefix);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        if (unit_name_is_hashed(name))
-                return -ENAMETOOLONG;
+        ပေႃး (unit_name_is_hashed(name))
+                ပွၵ်ႈ -ENAMETOOLONG;
 
-        return unit_name_path_unescape(prefix, ret);
+        ပွၵ်ႈ unit_name_path_unescape(prefix, ret);
 }
 
-static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
-        const char *valid_chars;
+static bool do_escape_mangle(const var_na *f, bool allow_globs, var_na *t) {
+        const var_na *valid_chars;
         bool mangled = false;
 
         assert(f);
@@ -688,17 +688,17 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
         valid_chars = allow_globs ? VALID_CHARS_GLOB : VALID_CHARS_WITH_AT;
 
         for (; *f; f++)
-                if (*f == '/') {
+                ပေႃး (*f == '/') {
                         *(t++) = '-';
                         mangled = true;
-                } else if (!strchr(valid_chars, *f)) {
+                } ပေႃးဢမ်ႇ ပေႃး (!strchr(valid_chars, *f)) {
                         t = do_escape_char(*f, t);
                         mangled = true;
-                } else
+                } ပေႃးဢမ်ႇ
                         *(t++) = *f;
         *t = 0;
 
-        return mangled;
+        ပွၵ်ႈ mangled;
 }
 
 /**
@@ -708,33 +708,33 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
  *
  *  If @allow_globs, globs characters are preserved. Otherwise, they are escaped.
  */
-int unit_name_mangle_with_suffix(
-                const char *name,
-                const char *operation,
+puur_naa_nka unit_name_mangle_with_suffix(
+                const var_na *name,
+                const var_na *operation,
                 UnitNameMangle flags,
-                const char *suffix,
-                char **ret) {
+                const var_na *suffix,
+                var_na **ret) {
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ var_na *s = NULL;
         bool mangled, suggest_escape = true, warn = FLAGS_SET(flags, UNIT_NAME_MANGLE_WARN);
-        int r;
+        puur_naa_nka r;
 
         assert(name);
         assert(suffix);
         assert(ret);
 
-        if (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
-                return -EINVAL;
+        ပေႃး (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
+                ပွၵ်ႈ -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ပေႃး (!unit_suffix_is_valid(suffix))
+                ပွၵ်ႈ -EINVAL;
 
         /* Already a fully valid unit name? If so, no mangling is necessary... */
-        if (unit_name_is_valid(name, UNIT_NAME_ANY)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
-                        const char *e = ASSERT_PTR(strrchr(name, '.'));
+        ပေႃး (unit_name_is_valid(name, UNIT_NAME_ANY)) {
+                ပေႃး (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
+                        const var_na *e = ASSERT_PTR(strrchr(name, '.'));
 
-                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        ပွၵ်ႈ log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                               SYNTHETIC_ERRNO(EINVAL),
                                               "Unit name \"%s\" has unit type \"%s\", but \"%s\" is expected%s%s.",
                                               name, e + 1, suffix + 1,
@@ -745,8 +745,8 @@ int unit_name_mangle_with_suffix(
         }
 
         /* Already a fully valid globbing expression? If so, no mangling is necessary either... */
-        if (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
+        ပေႃး (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
+                ပေႃး (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
                         goto good;
                 log_full(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Glob pattern passed%s%s, but globs are not supported for this.",
@@ -754,52 +754,52 @@ int unit_name_mangle_with_suffix(
                 suggest_escape = false;
         }
 
-        if (path_is_absolute(name)) {
-                _cleanup_free_ char *n = NULL, *u = NULL;
+        ပေႃး (path_is_absolute(name)) {
+                _cleanup_free_ var_na *n = NULL, *u = NULL;
 
                 r = path_simplify_alloc(name, &n);
-                if (r < 0)
-                        return r;
+                ပေႃး (r < 0)
+                        ပွၵ်ႈ r;
 
-                if (is_device_path(n)) {
+                ပေႃး (is_device_path(n)) {
                         r = unit_name_from_path(n, ".device", &u);
-                        if (r >= 0) {
-                                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
-                                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        ပေႃး (r >= 0) {
+                                ပေႃး (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
+                                        ပွၵ်ႈ log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                               SYNTHETIC_ERRNO(EINVAL),
                                                               "Path \"%s\" resolves to unit type \"device\", but \"%s\" is expected%s%s.",
                                                               name, suffix + 1,
                                                               operation ? " " : "", strempty(operation));
 
                                 *ret = TAKE_PTR(u);
-                                return 1;
+                                ပွၵ်ႈ 1;
                         }
-                        if (r != -EINVAL)
-                                return r;
+                        ပေႃး (r != -EINVAL)
+                                ပွၵ်ႈ r;
                 }
 
                 r = unit_name_from_path(n, ".mount", &u);
-                if (r >= 0) {
-                        if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
-                                return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                ပေႃး (r >= 0) {
+                        ပေႃး (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
+                                ပွၵ်ႈ log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                       SYNTHETIC_ERRNO(EINVAL),
                                                       "Path \"%s\" resolves to unit type \"mount\", but \"%s\" is expected%s%s.",
                                                       name, suffix + 1,
                                                       operation ? " " : "", strempty(operation));
 
                         *ret = TAKE_PTR(u);
-                        return 1;
+                        ပွၵ်ႈ 1;
                 }
-                if (r != -EINVAL)
-                        return r;
+                ပေႃး (r != -EINVAL)
+                        ပွၵ်ႈ r;
         }
 
-        s = new(char, strlen(name) * 4 + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(var_na, strlen(name) * 4 + strlen(suffix) + 1);
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
         mangled = do_escape_mangle(name, FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB), s);
-        if (mangled)
+        ပေႃး (mangled)
                 log_full(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Invalid unit name \"%s\" escaped as \"%s\"%s.",
                          name, s,
@@ -807,136 +807,136 @@ int unit_name_mangle_with_suffix(
 
         /* Append a suffix if it doesn't have any, but only if this is not a glob, so that we can allow
          * "foo.*" as a valid glob. */
-        if ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
+        ပေႃး ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
                 strcat(s, suffix);
 
         /* Make sure mangling didn't grow this too large (but don't do this check if globbing is allowed,
          * since globs generally do not qualify as valid unit names) */
-        if (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        ပေႃး (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
+                ပွၵ်ႈ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 1;
+        ပွၵ်ႈ 1;
 
 good:
-        return strdup_to(ret, name);
+        ပွၵ်ႈ strdup_to(ret, name);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret) {
+puur_naa_nka slice_build_parent_slice(const var_na *slice, var_na **ret) {
         assert(slice);
         assert(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        ပေႃး (!slice_name_is_valid(slice))
+                ပွၵ်ႈ -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE)) {
+        ပေႃး (streq(slice, SPECIAL_ROOT_SLICE)) {
                 *ret = NULL;
-                return 0;
+                ပွၵ်ႈ 0;
         }
 
-        _cleanup_free_ char *s = strdup(slice);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ var_na *s = strdup(slice);
+        ပေႃး (!s)
+                ပွၵ်ႈ -ENOMEM;
 
-        char *dash = strrchr(s, '-');
-        if (!dash)
-                return strdup_to_full(ret, SPECIAL_ROOT_SLICE);
+        var_na *dash = strrchr(s, '-');
+        ပေႃး (!dash)
+                ပွၵ်ႈ strdup_to_full(ret, SPECIAL_ROOT_SLICE);
 
         /* We know that s ended with .slice before truncation, so we have enough space. */
         strcpy(dash, ".slice");
 
         *ret = TAKE_PTR(s);
-        return 1;
+        ပွၵ်ႈ 1;
 }
 
-int slice_build_subslice(const char *slice, const char *name, char **ret) {
-        char *subslice;
+puur_naa_nka slice_build_subslice(const var_na *slice, const var_na *name, var_na **ret) {
+        var_na *subslice;
 
         assert(slice);
         assert(name);
         assert(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        ပေႃး (!slice_name_is_valid(slice))
+                ပွၵ်ႈ -EINVAL;
 
-        if (!unit_prefix_is_valid(name))
-                return -EINVAL;
+        ပေႃး (!unit_prefix_is_valid(name))
+                ပွၵ်ႈ -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE))
+        ပေႃး (streq(slice, SPECIAL_ROOT_SLICE))
                 subslice = strjoin(name, ".slice");
-        else {
-                const char *e;
+        ပေႃးဢမ်ႇ {
+                const var_na *e;
 
                 assert_se(e = endswith(slice, ".slice"));
 
-                subslice = new(char, (e - slice) + 1 + strlen(name) + 6 + 1);
-                if (!subslice)
-                        return -ENOMEM;
+                subslice = new(var_na, (e - slice) + 1 + strlen(name) + 6 + 1);
+                ပေႃး (!subslice)
+                        ပွၵ်ႈ -ENOMEM;
 
                 stpcpy(stpcpy(stpcpy(mempcpy(subslice, slice, e - slice), "-"), name), ".slice");
         }
 
         *ret = subslice;
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-bool slice_name_is_valid(const char *name) {
-        const char *p, *e;
+bool slice_name_is_valid(const var_na *name) {
+        const var_na *p, *e;
         bool dash = false;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        ပေႃး (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                ပွၵ်ႈ false;
 
-        if (streq(name, SPECIAL_ROOT_SLICE))
-                return true;
+        ပေႃး (streq(name, SPECIAL_ROOT_SLICE))
+                ပွၵ်ႈ true;
 
         e = endswith(name, ".slice");
-        if (!e)
-                return false;
+        ပေႃး (!e)
+                ပွၵ်ႈ false;
 
         for (p = name; p < e; p++) {
 
-                if (*p == '-') {
+                ပေႃး (*p == '-') {
 
                         /* Don't allow initial dash */
-                        if (p == name)
-                                return false;
+                        ပေႃး (p == name)
+                                ပွၵ်ႈ false;
 
                         /* Don't allow multiple dashes */
-                        if (dash)
-                                return false;
+                        ပေႃး (dash)
+                                ပွၵ်ႈ false;
 
                         dash = true;
-                } else
+                } ပေႃးဢမ်ႇ
                         dash = false;
         }
 
         /* Don't allow trailing hash */
-        if (dash)
-                return false;
+        ပေႃး (dash)
+                ပွၵ်ႈ false;
 
-        return true;
+        ပွၵ်ႈ true;
 }
 
-bool unit_name_prefix_equal(const char *a, const char *b) {
-        const char *p, *q;
+bool unit_name_prefix_equal(const var_na *a, const var_na *b) {
+        const var_na *p, *q;
 
         assert(a);
         assert(b);
 
-        if (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
-                return false;
+        ပေႃး (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
+                ပွၵ်ႈ false;
 
         p = strchr(a, '@');
-        if (!p)
+        ပေႃး (!p)
                 p = strrchr(a, '.');
 
         q = strchr(b, '@');
-        if (!q)
+        ပေႃး (!q)
                 q = strrchr(b, '.');
 
         assert(p);
         assert(q);
 
-        return memcmp_nn(a, p - a, b, q - b) == 0;
+        ပွၵ်ႈ memcmp_nn(a, p - a, b, q - b) == 0;
 }

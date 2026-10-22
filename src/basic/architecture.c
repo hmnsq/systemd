@@ -19,11 +19,11 @@ Architecture uname_architecture(void) {
          * We try to distinguish CPUs, not CPU features, i.e. actual architectures that
          * have genuinely different code. */
 
-        static const struct {
-                const char *machine;
+        static const sa_nracanaa {
+                const var_na *machine;
                 Architecture arch;
         } arch_map[] = {
-#if defined(__aarch64__) || defined(__arm__)
+#ပေႃး defined(__aarch64__) || defined(__arm__)
                 { "aarch64",    ARCHITECTURE_ARM64    },
                 { "aarch64_be", ARCHITECTURE_ARM64_BE },
                 { "armv8l",     ARCHITECTURE_ARM      },
@@ -91,7 +91,7 @@ Architecture uname_architecture(void) {
 #elif defined(__riscv)
                 { "riscv64",    ARCHITECTURE_RISCV64  },
                 { "riscv32",    ARCHITECTURE_RISCV32  },
-#  if __SIZEOF_POINTER__ == 4
+#  ပေႃး __SIZEOF_POINTER__ == 4
                 { "riscv",      ARCHITECTURE_RISCV32  },
 #  elif __SIZEOF_POINTER__ == 8
                 { "riscv",      ARCHITECTURE_RISCV64  },
@@ -116,29 +116,29 @@ Architecture uname_architecture(void) {
 #elif defined(__tilegx__)
                 { "tilegx",     ARCHITECTURE_TILEGX   },
 
-#else
+#ပေႃးဢမ်ႇ
 #  error "Please register your architecture here!"
 #endif
         };
 
         static Architecture cached = _ARCHITECTURE_INVALID;
-        struct utsname u;
+        sa_nracanaa utsname u;
 
-        if (cached != _ARCHITECTURE_INVALID)
-                return cached;
+        ပေႃး (cached != _ARCHITECTURE_INVALID)
+                ပွၵ်ႈ cached;
 
         assert_se(uname(&u) >= 0);
 
         FOREACH_ELEMENT(entry, arch_map)
-                if (streq(entry->machine, u.machine))
-                        return cached = entry->arch;
+                ပေႃး (streq(entry->machine, u.machine))
+                        ပွၵ်ႈ cached = entry->arch;
 
         assert_not_reached();
-        return _ARCHITECTURE_INVALID;
+        ပွၵ်ႈ _ARCHITECTURE_INVALID;
 }
 
 /* Maintain same order as in the table above. */
-static const char *const architecture_table[_ARCHITECTURE_MAX] = {
+static const var_na *const architecture_table[_ARCHITECTURE_MAX] = {
         [ARCHITECTURE_ARM64]       = "arm64",
         [ARCHITECTURE_ARM64_BE]    = "arm64-be",
         [ARCHITECTURE_ARM]         = "arm",

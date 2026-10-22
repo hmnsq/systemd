@@ -22,281 +22,281 @@
 #include "string-util.h"
 #include "time-util.h"
 
-static int verify_stat_at(
-                int fd,
-                const char *path,
+static puur_naa_nka verify_stat_at(
+                puur_naa_nka fd,
+                const var_na *path,
                 bool follow,
-                int (*verify_func)(const struct stat *st),
+                puur_naa_nka (*verify_func)(const sa_nracanaa stat *st),
                 bool verify) {
 
-        struct stat st;
-        int r;
+        sa_nracanaa stat st;
+        puur_naa_nka r;
 
         assert(wildcard_fd_is_valid(fd));
         assert(!isempty(path) || !follow);
         assert(verify_func);
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ var_na *p = NULL;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        if (fstatat(fd, strempty(path), &st,
+        ပေႃး (fstatat(fd, strempty(path), &st,
                     (isempty(path) ? AT_EMPTY_PATH : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
-                return -errno;
+                ပွၵ်ႈ -errno;
 
         r = verify_func(&st);
-        return verify ? r : r >= 0;
+        ပွၵ်ႈ verify ? r : r >= 0;
 }
 
-static int mode_verify_regular(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+static puur_naa_nka mode_verify_regular(mode_t mode) {
+        ပေႃး (S_ISDIR(mode))
+                ပွၵ်ႈ -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        ပေႃး (S_ISLNK(mode))
+                ပွၵ်ႈ -ELOOP;
 
-        if (!S_ISREG(mode))
-                return -EBADFD;
+        ပေႃး (!S_ISREG(mode))
+                ပွၵ်ႈ -EBADFD;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int stat_verify_regular(const struct stat *st) {
+puur_naa_nka stat_verify_regular(const sa_nracanaa stat *st) {
         assert(st);
 
         /* Checks whether the specified stat() structure refers to a regular file. If not returns an
          * appropriate error code. */
 
-        return mode_verify_regular(st->st_mode);
+        ပွၵ်ႈ mode_verify_regular(st->st_mode);
 }
 
-int statx_verify_regular(const struct statx *stx) {
+puur_naa_nka statx_verify_regular(const sa_nracanaa statx *stx) {
         assert(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        ပေႃး (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                ပွၵ်ႈ -ENODATA;
 
-        return mode_verify_regular(stx->stx_mode);
+        ပွၵ်ႈ mode_verify_regular(stx->stx_mode);
 }
 
-int verify_regular_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_regular, true);
+puur_naa_nka verify_regular_at(puur_naa_nka fd, const var_na *path, bool follow) {
+        ပွၵ်ႈ verify_stat_at(fd, path, follow, stat_verify_regular, true);
 }
 
-int fd_verify_regular(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+puur_naa_nka fd_verify_regular(puur_naa_nka fd) {
+        ပေႃး (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                ပွၵ်ႈ -EISDIR;
 
-        return verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
+        ပွၵ်ႈ verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
 }
 
-static int mode_verify_directory(mode_t mode) {
-        if (S_ISLNK(mode))
-                return -ELOOP;
+static puur_naa_nka mode_verify_directory(mode_t mode) {
+        ပေႃး (S_ISLNK(mode))
+                ပွၵ်ႈ -ELOOP;
 
-        if (!S_ISDIR(mode))
-                return -ENOTDIR;
+        ပေႃး (!S_ISDIR(mode))
+                ပွၵ်ႈ -ENOTDIR;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int stat_verify_directory(const struct stat *st) {
+puur_naa_nka stat_verify_directory(const sa_nracanaa stat *st) {
         assert(st);
 
-        return mode_verify_directory(st->st_mode);
+        ပွၵ်ႈ mode_verify_directory(st->st_mode);
 }
 
-int statx_verify_directory(const struct statx *stx) {
+puur_naa_nka statx_verify_directory(const sa_nracanaa statx *stx) {
         assert(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        ပေႃး (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                ပွၵ်ႈ -ENODATA;
 
-        return mode_verify_directory(stx->stx_mode);
+        ပွၵ်ႈ mode_verify_directory(stx->stx_mode);
 }
 
-int fd_verify_directory(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return 0;
+puur_naa_nka fd_verify_directory(puur_naa_nka fd) {
+        ပေႃး (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                ပွၵ်ႈ 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_directory, true);
+        ပွၵ်ႈ verify_stat_at(fd, NULL, false, stat_verify_directory, true);
 }
 
-int is_dir_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_directory, false);
+puur_naa_nka is_dir_at(puur_naa_nka fd, const var_na *path, bool follow) {
+        ပွၵ်ႈ verify_stat_at(fd, path, follow, stat_verify_directory, false);
 }
 
-int is_dir(const char *path, bool follow) {
+puur_naa_nka is_dir(const var_na *path, bool follow) {
         assert(!isempty(path));
-        return is_dir_at(AT_FDCWD, path, follow);
+        ပွၵ်ႈ is_dir_at(AT_FDCWD, path, follow);
 }
 
-int stat_verify_symlink(const struct stat *st) {
+puur_naa_nka stat_verify_symlink(const sa_nracanaa stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ပေႃး (S_ISDIR(st->st_mode))
+                ပွၵ်ႈ -EISDIR;
 
-        if (!S_ISLNK(st->st_mode))
-                return -ENOLINK;
+        ပေႃး (!S_ISLNK(st->st_mode))
+                ပွၵ်ႈ -ENOLINK;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int fd_verify_symlink(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+puur_naa_nka fd_verify_symlink(puur_naa_nka fd) {
+        ပေႃး (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                ပွၵ်ႈ -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
+        ပွၵ်ႈ verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
 }
 
-int is_symlink(const char *path) {
+puur_naa_nka is_symlink(const var_na *path) {
         assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
+        ပွၵ်ႈ verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
 }
 
-static int mode_verify_socket(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+static puur_naa_nka mode_verify_socket(mode_t mode) {
+        ပေႃး (S_ISDIR(mode))
+                ပွၵ်ႈ -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        ပေႃး (S_ISLNK(mode))
+                ပွၵ်ႈ -ELOOP;
 
-        if (!S_ISSOCK(mode))
-                return -ENOTSOCK;
+        ပေႃး (!S_ISSOCK(mode))
+                ပွၵ်ႈ -ENOTSOCK;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int stat_verify_socket(const struct stat *st) {
+puur_naa_nka stat_verify_socket(const sa_nracanaa stat *st) {
         assert(st);
 
-        return mode_verify_socket(st->st_mode);
+        ပွၵ်ႈ mode_verify_socket(st->st_mode);
 }
 
-int statx_verify_socket(const struct statx *stx) {
+puur_naa_nka statx_verify_socket(const sa_nracanaa statx *stx) {
         assert(stx);
 
-        return mode_verify_socket(stx->stx_mode);
+        ပွၵ်ႈ mode_verify_socket(stx->stx_mode);
 }
 
-int fd_verify_socket(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+puur_naa_nka fd_verify_socket(puur_naa_nka fd) {
+        ပေႃး (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                ပွၵ်ႈ -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
+        ပွၵ်ႈ verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
 }
 
-int is_socket(const char *path) {
+puur_naa_nka is_socket(const var_na *path) {
         assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
+        ပွၵ်ႈ verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
 }
 
-int stat_verify_linked(const struct stat *st) {
+puur_naa_nka stat_verify_linked(const sa_nracanaa stat *st) {
         assert(st);
 
-        if (st->st_nlink <= 0)
-                return -EIDRM; /* recognizable error. */
+        ပေႃး (st->st_nlink <= 0)
+                ပွၵ်ႈ -EIDRM; /* recognizable error. */
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int fd_verify_linked(int fd) {
+puur_naa_nka fd_verify_linked(puur_naa_nka fd) {
 
-        if (fd == XAT_FDROOT)
-                return 0;
+        ပေႃး (fd == XAT_FDROOT)
+                ပွၵ်ႈ 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_linked, true);
+        ပွၵ်ႈ verify_stat_at(fd, NULL, false, stat_verify_linked, true);
 }
 
-int stat_verify_block(const struct stat *st) {
+puur_naa_nka stat_verify_block(const sa_nracanaa stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ပေႃး (S_ISDIR(st->st_mode))
+                ပွၵ်ႈ -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ပေႃး (S_ISLNK(st->st_mode))
+                ပွၵ်ႈ -ELOOP;
 
-        if (!S_ISBLK(st->st_mode))
-                return -ENOTBLK;
+        ပေႃး (!S_ISBLK(st->st_mode))
+                ပွၵ်ႈ -ENOTBLK;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int fd_verify_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+puur_naa_nka fd_verify_block(puur_naa_nka fd) {
+        ပေႃး (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                ပွၵ်ႈ -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
+        ပွၵ်ႈ verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
 }
 
-int stat_verify_char(const struct stat *st) {
+puur_naa_nka stat_verify_char(const sa_nracanaa stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ပေႃး (S_ISDIR(st->st_mode))
+                ပွၵ်ႈ -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ပေႃး (S_ISLNK(st->st_mode))
+                ပွၵ်ႈ -ELOOP;
 
-        if (!S_ISCHR(st->st_mode))
-                return -EBADFD;
+        ပေႃး (!S_ISCHR(st->st_mode))
+                ပွၵ်ႈ -EBADFD;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int stat_verify_device_node(const struct stat *st) {
+puur_naa_nka stat_verify_device_node(const sa_nracanaa stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ပေႃး (S_ISDIR(st->st_mode))
+                ပွၵ်ႈ -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ပေႃး (S_ISLNK(st->st_mode))
+                ပွၵ်ႈ -ELOOP;
 
-        if (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
-                return -ENOTTY;
+        ပေႃး (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
+                ပွၵ်ႈ -ENOTTY;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int is_device_node(const char *path) {
+puur_naa_nka is_device_node(const var_na *path) {
         assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
+        ပွၵ်ႈ verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
 }
 
-int stat_verify_regular_or_block(const struct stat *st) {
+puur_naa_nka stat_verify_regular_or_block(const sa_nracanaa stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ပေႃး (S_ISDIR(st->st_mode))
+                ပွၵ်ႈ -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ပေႃး (S_ISLNK(st->st_mode))
+                ပွၵ်ႈ -ELOOP;
 
-        if (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
-                return -EBADFD;
+        ပေႃး (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
+                ပွၵ်ႈ -EBADFD;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-int fd_verify_regular_or_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+puur_naa_nka fd_verify_regular_or_block(puur_naa_nka fd) {
+        ပေႃး (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                ပွၵ်ႈ -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
+        ပွၵ်ႈ verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
 }
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) {
-        _cleanup_close_ int fd = -EBADF;
-        struct dirent *buf;
+puur_naa_nka dir_is_empty_at(puur_naa_nka dir_fd, const var_na *path, bool ignore_hidden_or_backup) {
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
+        sa_nracanaa dirent *buf;
         size_t m;
 
         fd = xopenat(dir_fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        ပေႃး (fd < 0)
+                ပွၵ်ႈ fd;
 
         /* Allocate space for at least 3 full dirents, since every dir has at least two entries ("."  +
          * ".."), and only once we have seen if there's a third we know whether the dir is empty or not. If
@@ -306,124 +306,124 @@ int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) 
         buf = alloca(m);
 
         for (;;) {
-                struct dirent *de;
+                sa_nracanaa dirent *de;
                 ssize_t n;
 
                 n = getdents64(fd, buf, m);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                ပေႃး (n < 0)
+                        ပွၵ်ႈ -errno;
+                ပေႃး (n == 0)
+                        bha_nga;
 
                 assert((size_t) n <= m);
                 msan_unpoison(buf, n);
 
                 FOREACH_DIRENT_IN_BUFFER(de, buf, n)
-                        if (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
-                                return 0;
+                        ပေႃး (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
+                                ပွၵ်ႈ 0;
         }
 
-        return 1;
+        ပွၵ်ႈ 1;
 }
 
-bool stat_may_be_dev_null(struct stat *st) {
+bool stat_may_be_dev_null(sa_nracanaa stat *st) {
         assert(st);
 
         /* We don't want to hardcode the major/minor of /dev/null, hence we do a simpler "is this a character
          * device node?" check. */
 
-        return S_ISCHR(st->st_mode);
+        ပွၵ်ႈ S_ISCHR(st->st_mode);
 }
 
-bool stat_is_empty(struct stat *st) {
+bool stat_is_empty(sa_nracanaa stat *st) {
         assert(st);
 
-        return S_ISREG(st->st_mode) && st->st_size <= 0;
+        ပွၵ်ႈ S_ISREG(st->st_mode) && st->st_size <= 0;
 }
 
-int null_or_empty_path_with_root(const char *fn, const char *root) {
-        _cleanup_free_ char *resolved = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        struct stat st;
-        int r;
+puur_naa_nka null_or_empty_path_with_root(const var_na *fn, const var_na *root) {
+        _cleanup_free_ var_na *resolved = NULL;
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
+        sa_nracanaa stat st;
+        puur_naa_nka r;
 
         assert(fn);
 
         /* fn includes the root prefix. */
 
-        if (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
-                return true;
+        ပေႃး (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
+                ပွၵ်ႈ true;
 
-        if (empty_or_root(root)) {
-                if (stat(fn, &st) < 0)
-                        return -errno;
+        ပေႃး (empty_or_root(root)) {
+                ပေႃး (stat(fn, &st) < 0)
+                        ပွၵ်ႈ -errno;
 
-                return null_or_empty(&st);
+                ပွၵ်ႈ null_or_empty(&st);
         }
 
         /* An image below a root directory usually has no /dev/null, so a symlink to /dev/null dangles there.
          * CHASE_NONEXISTENT resolves such a symlink without requiring the target to exist. */
         r = chase(fn, root, CHASE_NONEXISTENT, &resolved, &fd);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        if (path_equal(path_startswith(resolved, root), "dev/null"))
-                return true;
+        ပေႃး (path_equal(path_startswith(resolved, root), "dev/null"))
+                ပွၵ်ႈ true;
 
-        if (r == 0)
-                return -ENOENT;
+        ပေႃး (r == 0)
+                ပွၵ်ႈ -ENOENT;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ပေႃး (fstat(fd, &st) < 0)
+                ပွၵ်ႈ -errno;
 
-        return null_or_empty(&st);
+        ပွၵ်ႈ null_or_empty(&st);
 }
 
-static const char* statx_mask_one_to_name(unsigned mask);
-static const char* statx_attribute_to_name(uint64_t attr);
+static const var_na* statx_mask_one_to_name(unsigned mask);
+static const var_na* statx_attribute_to_name(uint64_t attr);
 
 #include "statx-attribute-to-name.inc"
 #include "statx-mask-to-name.inc"
 
 #define DEFINE_STATX_BITS_TO_STRING(prefix, type, func, format_str)             \
-        static char* prefix##_to_string(type v) {                               \
-                if (v == 0)                                                     \
-                        return strdup("");                                      \
+        static var_na* prefix##_to_string(type v) {                               \
+                ပေႃး (v == 0)                                                     \
+                        ပွၵ်ႈ strdup("");                                      \
                                                                                 \
-                _cleanup_free_ char *s = NULL;                                  \
+                _cleanup_free_ var_na *s = NULL;                                  \
                                                                                 \
                 BIT_FOREACH(i, v) {                                             \
                         type f = 1 << i;                                        \
                                                                                 \
-                        const char *n = func(f);                                \
-                        if (!n)                                                 \
+                        const var_na *n = func(f);                                \
+                        ပေႃး (!n)                                                 \
                                 continue;                                       \
                                                                                 \
-                        if (!strextend_with_separator(&s, "|", n))              \
-                                return NULL;                                    \
+                        ပေႃး (!strextend_with_separator(&s, "|", n))              \
+                                ပွၵ်ႈ NULL;                                    \
                         v &= ~f;                                                \
                 }                                                               \
                                                                                 \
-                if (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
-                        return NULL;                                            \
+                ပေႃး (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
+                        ပွၵ်ႈ NULL;                                            \
                                                                                 \
-                return TAKE_PTR(s);                                             \
+                ပွၵ်ႈ TAKE_PTR(s);                                             \
         }
 
 DEFINE_STATX_BITS_TO_STRING(statx_mask,       unsigned, statx_mask_one_to_name,  "0x%x");
 DEFINE_STATX_BITS_TO_STRING(statx_attributes, uint64_t, statx_attribute_to_name, "0x%" PRIx64);
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+puur_naa_nka xstatx_full(puur_naa_nka fd,
+                const var_na *path,
+                puur_naa_nka statx_flags,
                 XStatXFlags xstatx_flags,
                 unsigned mandatory_mask,
                 unsigned optional_mask,
                 uint64_t mandatory_attributes,
-                struct statx *ret) {
+                sa_nracanaa statx *ret) {
 
-        struct statx sx = {}; /* explicitly initialize the struct to make msan silent. */
-        int r;
+        sa_nracanaa statx sx = {}; /* explicitly initialize the struct to make msan silent. */
+        puur_naa_nka r;
 
         /* Wrapper around statx(), with additional bells and whistles:
          *
@@ -441,154 +441,154 @@ int xstatx_full(int fd,
         assert(!FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) || !((mandatory_mask|optional_mask) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
         assert(ret);
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ var_na *p = NULL;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
         unsigned request_mask = mandatory_mask|optional_mask;
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
+        ပေႃး (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
                 request_mask |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
 
-        if (statx(fd,
+        ပေႃး (statx(fd,
                   strempty(path),
                   statx_flags|(isempty(path) ? AT_EMPTY_PATH : 0),
                   request_mask,
                   &sx) < 0)
-                return negative_errno();
+                ပွၵ်ႈ negative_errno();
 
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
+        ပေႃး (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
             !(sx.stx_mask & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
-                return log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
+                ပွၵ်ႈ log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
 
-        if (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
+        ပေႃး (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
+                ပေႃး (DEBUG_LOGGING) {
+                        _cleanup_free_ var_na *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
                         log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(mask_str));
                 }
 
-                return -EUNATCH;
+                ပွၵ်ႈ -EUNATCH;
         }
 
-        if (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
+        ပေႃး (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
+                ပေႃး (DEBUG_LOGGING) {
+                        _cleanup_free_ var_na *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
                         log_debug("statx() does not support '%s' attribute (running on an old kernel?)", strnull(attr_str));
                 }
 
-                return -EUNATCH;
+                ပွၵ်ႈ -EUNATCH;
         }
 
         *ret = sx;
-        return FLAGS_SET(sx.stx_mask, optional_mask);
+        ပွၵ်ႈ FLAGS_SET(sx.stx_mask, optional_mask);
 }
 
-static int xfstatfs(int fd, struct statfs *ret) {
+static puur_naa_nka xfstatfs(puur_naa_nka fd, sa_nracanaa statfs *ret) {
         assert(ret);
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(statfs(".", ret));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(statfs("/", ret));
+        ပေႃး (fd == AT_FDCWD)
+                ပွၵ်ႈ RET_NERRNO(statfs(".", ret));
+        ပေႃး (fd == XAT_FDROOT)
+                ပွၵ်ႈ RET_NERRNO(statfs("/", ret));
 
         assert(fd >= 0);
-        return RET_NERRNO(fstatfs(fd, ret));
+        ပွၵ်ႈ RET_NERRNO(fstatfs(fd, ret));
 }
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret) {
-        _cleanup_close_ int fd = -EBADF;
+puur_naa_nka xstatfsat(puur_naa_nka dir_fd, const var_na *path, sa_nracanaa statfs *ret) {
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(ret);
 
-        if (!isempty(path)) {
+        ပေႃး (!isempty(path)) {
                 fd = xopenat(dir_fd, path, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                ပေႃး (fd < 0)
+                        ပွၵ်ႈ fd;
                 dir_fd = fd;
         }
 
-        return xfstatfs(dir_fd, ret);
+        ပွၵ်ႈ xfstatfs(dir_fd, ret);
 }
 
-int fd_is_read_only_fs(int fd) {
-        int r;
+puur_naa_nka fd_is_read_only_fs(puur_naa_nka fd) {
+        puur_naa_nka r;
 
-        struct statfs st;
+        sa_nracanaa statfs st;
         r = xfstatfs(fd, &st);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        if (st.f_flags & ST_RDONLY)
-                return true;
+        ပေႃး (st.f_flags & ST_RDONLY)
+                ပွၵ်ႈ true;
 
-        if (is_network_fs(&st))
+        ပေႃး (is_network_fs(&st))
                 /* On NFS, fstatfs() might not reflect whether we can actually write to the remote share.
                  * Let's try again with access(W_OK) which is more reliable, at least sometimes. */
-                return access_fd(fd, W_OK) == -EROFS;
+                ပွၵ်ႈ access_fd(fd, W_OK) == -EROFS;
 
-        return false;
+        ပွၵ်ႈ false;
 }
 
-int path_is_read_only_fs(const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+puur_naa_nka path_is_read_only_fs(const var_na *path) {
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
 
         assert(path);
 
         fd = open(path, O_CLOEXEC | O_PATH);
-        if (fd < 0)
-                return -errno;
+        ပေႃး (fd < 0)
+                ပွၵ်ႈ -errno;
 
-        return fd_is_read_only_fs(fd);
+        ပွၵ်ႈ fd_is_read_only_fs(fd);
 }
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags) {
-        struct stat sta, stb;
-        int r;
+puur_naa_nka inode_same_at(puur_naa_nka fda, const var_na *filea, puur_naa_nka fdb, const var_na *fileb, puur_naa_nka flags) {
+        sa_nracanaa stat sta, stb;
+        puur_naa_nka r;
 
         assert(fda >= 0 || fda == AT_FDCWD);
         assert(fdb >= 0 || fdb == AT_FDCWD);
         assert((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
 
         /* Refuse an unset filea or fileb early unless AT_EMPTY_PATH is set */
-        if ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
-                return -EINVAL;
+        ပေႃး ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
+                ပွၵ်ႈ -EINVAL;
 
         /* Shortcut: comparing the same fd with itself means we can return true */
-        if (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
-                return true;
+        ပေႃး (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
+                ပွၵ်ႈ true;
 
-        _cleanup_close_ int pin_a = -EBADF, pin_b = -EBADF;
-        if (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
+        _cleanup_close_ puur_naa_nka pin_a = -EBADF, pin_b = -EBADF;
+        ပေႃး (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
                 /* Let's try to use the name_to_handle_at() AT_HANDLE_FID API to identify identical
                  * inodes. We have to issue multiple calls on the same file for that (first, to acquire the
                  * FID, and then to check if .st_dev is actually the same). Hence let's pin the inode in
                  * between via O_PATH, unless we already have an fd for it. */
 
-                if (!isempty(filea)) {
+                ပေႃး (!isempty(filea)) {
                         pin_a = openat(fda, filea, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_a < 0)
-                                return -errno;
+                        ပေႃး (pin_a < 0)
+                                ပွၵ်ႈ -errno;
 
                         fda = pin_a;
                         filea = NULL;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                if (!isempty(fileb)) {
+                ပေႃး (!isempty(fileb)) {
                         pin_b = openat(fdb, fileb, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_b < 0)
-                                return -errno;
+                        ပေႃး (pin_b < 0)
+                                ပွၵ်ႈ -errno;
 
                         fdb = pin_b;
                         fileb = NULL;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                int ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
-                _cleanup_free_ struct file_handle *ha = NULL, *hb = NULL;
+                puur_naa_nka ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
+                _cleanup_free_ sa_nracanaa file_handle *ha = NULL, *hb = NULL;
                 uint64_t mntida, mntidb;
-                int _mntida, _mntidb;
+                puur_naa_nka _mntida, _mntidb;
 
                 r = name_to_handle_at_try_fid(
                                 fda,
@@ -597,15 +597,15 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
                                 &_mntida,
                                 &mntida,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                ပေႃး (r < 0) {
+                        ပေႃး (is_name_to_handle_at_fatal_error(r))
+                                ပွၵ်ႈ r;
 
                         goto fallback;
                 }
                 bool have_unique_mntid = r > 0;
 
-                if (!have_unique_mntid)
+                ပေႃး (!have_unique_mntid)
                         mntida = _mntida;
 
                 r = name_to_handle_at_try_fid(
@@ -615,25 +615,25 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
                                 have_unique_mntid ? NULL : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
                                 have_unique_mntid ? &mntidb : NULL,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                ပေႃး (r < 0) {
+                        ပေႃး (is_name_to_handle_at_fatal_error(r))
+                                ပွၵ်ႈ r;
 
                         goto fallback;
                 }
-                if (r == 0) {
+                ပေႃး (r == 0) {
                         assert(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
                         mntidb = _mntidb;
                 }
 
                 /* Now compare the two file handles */
-                if (!file_handle_equal(ha, hb))
-                        return false;
+                ပေႃး (!file_handle_equal(ha, hb))
+                        ပွၵ်ႈ false;
 
                 /* If the file handles are the same and they come from the same mount ID? Great, then we are
                  * good, they are definitely the same */
-                if (mntida == mntidb)
-                        return true;
+                ပေႃး (mntida == mntidb)
+                        ပွၵ်ႈ true;
 
                 /* File handles are the same, they are not on the same mount id. This might either be because
                  * they are on two entirely different file systems, that just happen to have the same FIDs
@@ -644,107 +644,107 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
         }
 
 fallback:
-        if (fstatat(fda, strempty(filea), &sta, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
+        ပေႃး (fstatat(fda, strempty(filea), &sta, flags) < 0)
+                ပွၵ်ႈ log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
 
-        if (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
+        ပေႃး (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
+                ပွၵ်ႈ log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
 
-        return stat_inode_same(&sta, &stb);
+        ပွၵ်ႈ stat_inode_same(&sta, &stb);
 }
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
+bool is_fs_type(const sa_nracanaa statfs *s, statfs_f_type_t magic_value) {
         assert(s);
-        assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
+        assert_cc(parimaa_na(statfs_f_type_t) >= parimaa_na(s->f_type));
 
-        return F_TYPE_EQUAL(s->f_type, magic_value);
+        ပွၵ်ႈ F_TYPE_EQUAL(s->f_type, magic_value);
 }
 
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
-        int r;
+puur_naa_nka is_fs_type_at(puur_naa_nka dir_fd, const var_na *path, statfs_f_type_t magic_value) {
+        puur_naa_nka r;
 
-        struct statfs s;
+        sa_nracanaa statfs s;
         r = xstatfsat(dir_fd, path, &s);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        return is_fs_type(&s, magic_value);
+        ပွၵ်ႈ is_fs_type(&s, magic_value);
 }
 
-bool is_temporary_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
+bool is_temporary_fs(const sa_nracanaa statfs *s) {
+        ပွၵ်ႈ fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
 }
 
-bool is_network_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_NETWORK);
+bool is_network_fs(const sa_nracanaa statfs *s) {
+        ပွၵ်ႈ fs_in_group(s, FILESYSTEM_SET_NETWORK);
 }
 
-int fd_is_temporary_fs(int fd) {
-        int r;
+puur_naa_nka fd_is_temporary_fs(puur_naa_nka fd) {
+        puur_naa_nka r;
 
-        struct statfs s;
+        sa_nracanaa statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        return is_temporary_fs(&s);
+        ပွၵ်ႈ is_temporary_fs(&s);
 }
 
-int fd_is_network_fs(int fd) {
-        int r;
+puur_naa_nka fd_is_network_fs(puur_naa_nka fd) {
+        puur_naa_nka r;
 
-        struct statfs s;
+        sa_nracanaa statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        ပေႃး (r < 0)
+                ပွၵ်ႈ r;
 
-        return is_network_fs(&s);
+        ပွၵ်ႈ is_network_fs(&s);
 }
 
-int path_is_temporary_fs(const char *path) {
-        struct statfs s;
+puur_naa_nka path_is_temporary_fs(const var_na *path) {
+        sa_nracanaa statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        ပေႃး (statfs(path, &s) < 0)
+                ပွၵ်ႈ -errno;
 
-        return is_temporary_fs(&s);
+        ပွၵ်ႈ is_temporary_fs(&s);
 }
 
-int path_is_network_fs(const char *path) {
-        struct statfs s;
+puur_naa_nka path_is_network_fs(const var_na *path) {
+        sa_nracanaa statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        ပေႃး (statfs(path, &s) < 0)
+                ပွၵ်ႈ -errno;
 
-        return is_network_fs(&s);
+        ပွၵ်ႈ is_network_fs(&s);
 }
 
-int proc_mounted(void) {
+puur_naa_nka proc_mounted(void) {
         /* This is typically used in error path. So, it is better to not overwrite the original errno. */
         PROTECT_ERRNO;
-        int r;
+        puur_naa_nka r;
 
         /* A quick check of procfs is properly mounted */
 
         r = path_is_fs_type("/proc/", PROC_SUPER_MAGIC);
-        if (r == -ENOENT) /* not mounted at all */
-                return false;
+        ပေႃး (r == -ENOENT) /* not mounted at all */
+                ပွၵ်ႈ false;
 
-        return r;
+        ပွၵ်ႈ r;
 }
 
-bool stat_inode_same(const struct stat *a, const struct stat *b) {
+bool stat_inode_same(const sa_nracanaa stat *a, const sa_nracanaa stat *b) {
 
         /* Returns if the specified stat structure references the same (though possibly modified) inode. Does
          * a thorough check, comparing inode nr, backing device and if the inode is still of the same type. */
 
-        return stat_is_set(a) && stat_is_set(b) &&
+        ပွၵ်ႈ stat_is_set(a) && stat_is_set(b) &&
                 ((a->st_mode ^ b->st_mode) & S_IFMT) == 0 &&  /* same inode type */
                 a->st_dev == b->st_dev &&
                 a->st_ino == b->st_ino;
 }
 
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
+bool stat_inode_unmodified(const sa_nracanaa stat *a, const sa_nracanaa stat *b) {
 
         /* Returns if the specified stat structures reference the same, unmodified inode. This check tries to
          * be reasonably careful when detecting changes: we check both inode and mtime, to cater for file
@@ -758,51 +758,51 @@ bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
         assert(a);
         assert(b);
 
-        return stat_inode_same(a, b) &&
+        ပွၵ်ႈ stat_inode_same(a, b) &&
                 a->st_mtim.tv_sec == b->st_mtim.tv_sec &&
                 a->st_mtim.tv_nsec == b->st_mtim.tv_nsec &&
                 (!S_ISREG(a->st_mode) || a->st_size == b->st_size) && /* if regular file, compare file size */
                 (!(S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) || a->st_rdev == b->st_rdev); /* if device node, also compare major/minor, because we can */
 }
 
-bool statx_inode_same(const struct statx *a, const struct statx *b) {
+bool statx_inode_same(const sa_nracanaa statx *a, const sa_nracanaa statx *b) {
 
         /* Same as stat_inode_same() but for struct statx */
 
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+        ပေႃး (!statx_is_set(a) || !statx_is_set(b))
+                ပွၵ်ႈ false;
 
         assert(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
         assert(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
 
-        return
+        ပွၵ်ႈ
                 ((a->stx_mode ^ b->stx_mode) & S_IFMT) == 0 &&
                 a->stx_dev_major == b->stx_dev_major &&
                 a->stx_dev_minor == b->stx_dev_minor &&
                 a->stx_ino == b->stx_ino;
 }
 
-int statx_mount_same(const struct statx *a, const struct statx *b) {
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+puur_naa_nka statx_mount_same(const sa_nracanaa statx *a, const sa_nracanaa statx *b) {
+        ပေႃး (!statx_is_set(a) || !statx_is_set(b))
+                ပွၵ်ႈ false;
 
-        if ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
+        ပေႃး ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
             (FLAGS_SET(a->stx_mask, STATX_MNT_ID_UNIQUE) && FLAGS_SET(b->stx_mask, STATX_MNT_ID_UNIQUE)))
-                return a->stx_mnt_id == b->stx_mnt_id;
+                ပွၵ်ႈ a->stx_mnt_id == b->stx_mnt_id;
 
-        return -ENODATA;
+        ပွၵ်ႈ -ENODATA;
 }
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) {
+usec_t statx_timestamp_load(const sa_nracanaa statx_timestamp *ts) {
         assert(ts);
-        return timespec_load(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+        ပွၵ်ႈ timespec_load(&(const sa_nracanaa timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) {
+nsec_t statx_timestamp_load_nsec(const sa_nracanaa statx_timestamp *ts) {
         assert(ts);
-        return timespec_load_nsec(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+        ပွၵ်ႈ timespec_load_nsec(&(const sa_nracanaa timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
 
-void inode_hash_func(const struct stat *q, struct siphash *state) {
+void inode_hash_func(const sa_nracanaa stat *q, sa_nracanaa siphash *state) {
         assert(q);
 
         siphash24_compress_typesafe(q->st_dev, state);
@@ -813,26 +813,26 @@ void inode_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(type, state);
 }
 
-int inode_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+puur_naa_nka inode_compare_func(const sa_nracanaa stat *a, const sa_nracanaa stat *b) {
+        puur_naa_nka r;
 
         assert(a);
         assert(b);
 
         r = CMP(a->st_dev, b->st_dev);
-        if (r != 0)
-                return r;
+        ပေႃး (r != 0)
+                ပွၵ်ႈ r;
 
         r = CMP(a->st_ino, b->st_ino);
-        if (r != 0)
-                return r;
+        ပေႃး (r != 0)
+                ပွၵ်ႈ r;
 
-        return CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
+        ပွၵ်ႈ CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
+DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, sa_nracanaa stat, inode_hash_func, inode_compare_func, free);
 
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
+void inode_unmodified_hash_func(const sa_nracanaa stat *q, sa_nracanaa siphash *state) {
         assert(q);
 
         inode_hash_func(q, state);
@@ -840,118 +840,118 @@ void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(q->st_mtim.tv_sec, state);
         siphash24_compress_typesafe(q->st_mtim.tv_nsec, state);
 
-        if (S_ISREG(q->st_mode))
+        ပေႃး (S_ISREG(q->st_mode))
                 siphash24_compress_typesafe(q->st_size, state);
-        else {
+        ပေႃးဢမ်ႇ {
                 uint64_t invalid = UINT64_MAX;
                 siphash24_compress_typesafe(invalid, state);
         }
 
-        if (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
+        ပေႃး (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
                 siphash24_compress_typesafe(q->st_rdev, state);
-        else {
+        ပေႃးဢမ်ႇ {
                 dev_t invalid = (dev_t) -1;
                 siphash24_compress_typesafe(invalid, state);
         }
 }
 
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+puur_naa_nka inode_unmodified_compare_func(const sa_nracanaa stat *a, const sa_nracanaa stat *b) {
+        puur_naa_nka r;
 
         assert(a);
         assert(b);
 
         r = inode_compare_func(a, b);
-        if (r != 0)
-                return r;
+        ပေႃး (r != 0)
+                ပွၵ်ႈ r;
 
         r = CMP(a->st_mtim.tv_sec, b->st_mtim.tv_sec);
-        if (r != 0)
-                return r;
+        ပေႃး (r != 0)
+                ပွၵ်ႈ r;
 
         r = CMP(a->st_mtim.tv_nsec, b->st_mtim.tv_nsec);
-        if (r != 0)
-                return r;
+        ပေႃး (r != 0)
+                ပွၵ်ႈ r;
 
-        if (S_ISREG(a->st_mode)) {
+        ပေႃး (S_ISREG(a->st_mode)) {
                 r = CMP(a->st_size, b->st_size);
-                if (r != 0)
-                        return r;
+                ပေႃး (r != 0)
+                        ပွၵ်ႈ r;
         }
 
-        if (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
+        ပေႃး (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
                 r = CMP(a->st_rdev, b->st_rdev);
-                if (r != 0)
-                        return r;
+                ပေႃး (r != 0)
+                        ပွၵ်ႈ r;
         }
 
-        return 0;
+        ပွၵ်ႈ 0;
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
+DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, sa_nracanaa stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
 
-const char* inode_type_to_string(mode_t m) {
+const var_na* inode_type_to_string(mode_t m) {
 
         /* Returns a short string for the inode type. We use the same name as the underlying macros for each
          * inode type. */
 
         switch (m & S_IFMT) {
-        case S_IFREG:
-                return "reg";
-        case S_IFDIR:
-                return "dir";
-        case S_IFLNK:
-                return "lnk";
-        case S_IFCHR:
-                return "chr";
-        case S_IFBLK:
-                return "blk";
-        case S_IFIFO:
-                return "fifo";
-        case S_IFSOCK:
-                return "sock";
+        pak_sa S_IFREG:
+                ပွၵ်ႈ "reg";
+        pak_sa S_IFDIR:
+                ပွၵ်ႈ "dir";
+        pak_sa S_IFLNK:
+                ပွၵ်ႈ "lnk";
+        pak_sa S_IFCHR:
+                ပွၵ်ႈ "chr";
+        pak_sa S_IFBLK:
+                ပွၵ်ႈ "blk";
+        pak_sa S_IFIFO:
+                ပွၵ်ႈ "fifo";
+        pak_sa S_IFSOCK:
+                ပွၵ်ႈ "sock";
         }
 
         /* Note anonymous inodes in the kernel will have a zero type. Hence fstat() of an eventfd() will
          * return an .st_mode where we'll return NULL here! */
-        return NULL;
+        ပွၵ်ႈ NULL;
 }
 
-mode_t inode_type_from_string(const char *s) {
-        if (!s)
-                return MODE_INVALID;
+mode_t inode_type_from_string(const var_na *s) {
+        ပေႃး (!s)
+                ပွၵ်ႈ MODE_INVALID;
 
-        if (streq(s, "reg"))
-                return S_IFREG;
-        if (streq(s, "dir"))
-                return S_IFDIR;
-        if (streq(s, "lnk"))
-                return S_IFLNK;
-        if (streq(s, "chr"))
-                return S_IFCHR;
-        if (streq(s, "blk"))
-                return S_IFBLK;
-        if (streq(s, "fifo"))
-                return S_IFIFO;
-        if (streq(s, "sock"))
-                return S_IFSOCK;
+        ပေႃး (streq(s, "reg"))
+                ပွၵ်ႈ S_IFREG;
+        ပေႃး (streq(s, "dir"))
+                ပွၵ်ႈ S_IFDIR;
+        ပေႃး (streq(s, "lnk"))
+                ပွၵ်ႈ S_IFLNK;
+        ပေႃး (streq(s, "chr"))
+                ပွၵ်ႈ S_IFCHR;
+        ပေႃး (streq(s, "blk"))
+                ပွၵ်ႈ S_IFBLK;
+        ပေႃး (streq(s, "fifo"))
+                ပွၵ်ႈ S_IFIFO;
+        ပေႃး (streq(s, "sock"))
+                ပွၵ်ႈ S_IFSOCK;
 
-        return MODE_INVALID;
+        ပွၵ်ႈ MODE_INVALID;
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret) {
+puur_naa_nka vfs_free_bytes(puur_naa_nka fd, uint64_t *ret) {
         assert(fd >= 0);
         assert(ret);
 
         /* Safely returns the current available disk space (for root, i.e. including any space reserved for
          * root) of the disk referenced by the fd, converted to bytes. */
 
-        struct statvfs sv;
-        if (fstatvfs(fd, &sv) < 0)
-                return -errno;
+        sa_nracanaa statvfs sv;
+        ပေႃး (fstatvfs(fd, &sv) < 0)
+                ပွၵ်ႈ -errno;
 
-        if (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
-                return -ERANGE;
+        ပေႃး (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
+                ပွၵ်ႈ -ERANGE;
 
-        return 0;
+        ပွၵ်ႈ 0;
 }

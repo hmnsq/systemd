@@ -9,56 +9,56 @@
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
         assert(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        ပေႃး (!ratelimit_configured(rl))
+                ပွၵ်ႈ true;
 
-        if (rl->begin <= 0 ||
+        ပေႃး (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
                 rl->num = 1;     /* Reset counter */
-                return true;
+                ပွၵ်ႈ true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        ပေႃး (_unlikely_(rl->num == UINT_MAX))
+                ပွၵ်ႈ false;
 
         rl->num++;
-        return rl->num <= rl->burst;
+        ပွၵ်ႈ rl->num <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
         assert(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        ပေႃး (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                ပွၵ်ႈ true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        ပွၵ်ႈ ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
 unsigned ratelimit_num_dropped(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        ပေႃး (rl->num == UINT_MAX) /* overflow, return as special case */
+                ပွၵ်ႈ UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        ပွၵ်ႈ LESS_BY(rl->num, rl->burst);
 }
 
 usec_t ratelimit_end(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ပေႃး (rl->begin == 0)
+                ပွၵ်ႈ 0;
 
-        return usec_add(rl->begin, rl->interval);
+        ပွၵ်ႈ usec_add(rl->begin, rl->interval);
 }
 
 usec_t ratelimit_left(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ပေႃး (rl->begin == 0)
+                ပွၵ်ႈ 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        ပွၵ်ႈ usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

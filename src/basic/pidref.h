@@ -28,10 +28,10 @@
  *    process. Moreover, most operations will fail with -EREMOTE. Only PidRef structures that are not marked
  *    *unset* can be marked *remote*.
  */
-typedef struct PidRef {
+typedef sa_nracanaa PidRef {
         pid_t pid;      /* > 0 if the PidRef is set, otherwise set to INT_MIN (PID_AUTOMATIC) if automatic
                          * mode is desired, or 0 otherwise. */
-        int fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
+        puur_naa_nka fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
                          * know that the PID is not from the local machine we set this to -EREMOTE, otherwise
                          * we use -EBADF as indicator the fd is invalid. */
         uint64_t fd_id; /* the inode number of pidfd. only useful in kernel 6.9+ where pidfds live in
@@ -49,42 +49,42 @@ typedef struct PidRef {
  * pidref_set_pid() which does so *with* acquiring one, see below) */
 #define PIDREF_MAKE_FROM_PID(x) (PidRef) { .pid = (x), .fd = -EBADF }
 
-static inline bool pidref_is_set(const PidRef *pidref) {
-        return pidref && pidref->pid > 0;
+static anta_hstha bool pidref_is_set(const PidRef *pidref) {
+        ပွၵ်ႈ pidref && pidref->pid > 0;
 }
 
 bool pidref_is_automatic(const PidRef *pidref);
 
-static inline bool pidref_is_set_or_automatic(const PidRef *pidref) {
-        return pidref_is_set(pidref) || pidref_is_automatic(pidref);
+static anta_hstha bool pidref_is_set_or_automatic(const PidRef *pidref) {
+        ပွၵ်ႈ pidref_is_set(pidref) || pidref_is_automatic(pidref);
 }
 
-static inline bool pidref_is_remote(const PidRef *pidref) {
+static anta_hstha bool pidref_is_remote(const PidRef *pidref) {
         /* If the fd is set to -EREMOTE we assume PidRef does not refer to a local PID, but on another
          * machine (and we just got the PidRef initialized due to deserialization of some RPC message) */
-        return pidref_is_set(pidref) && pidref->fd == -EREMOTE;
+        ပွၵ်ႈ pidref_is_set(pidref) && pidref->fd == -EREMOTE;
 }
 
-int pidref_acquire_pidfd_id(PidRef *pidref);
+puur_naa_nka pidref_acquire_pidfd_id(PidRef *pidref);
 bool pidref_equal(PidRef *a, PidRef *b);
 
 /* This turns a pid_t into a PidRef structure, and acquires a pidfd for it, if possible. (As opposed to
  * PIDREF_MAKE_FROM_PID() above, which does not acquire a pidfd.) */
-int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags);
-static inline int pidref_set_pid(PidRef *pidref, pid_t pid) {
-        return pidref_set_pid_full(pidref, pid, /* flags= */ 0);
+puur_naa_nka pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags);
+static anta_hstha puur_naa_nka pidref_set_pid(PidRef *pidref, pid_t pid) {
+        ပွၵ်ႈ pidref_set_pid_full(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pidstr_full(PidRef *pidref, const char *pid, unsigned flags);
-static inline int pidref_set_pidstr(PidRef *pidref, const char *pid) {
-        return pidref_set_pidstr_full(pidref, pid, /* flags= */ 0);
+puur_naa_nka pidref_set_pidstr_full(PidRef *pidref, const var_na *pid, unsigned flags);
+static anta_hstha puur_naa_nka pidref_set_pidstr(PidRef *pidref, const var_na *pid) {
+        ပွၵ်ႈ pidref_set_pidstr_full(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
-int pidref_set_pidfd(PidRef *pidref, int fd);
-int pidref_set_pidfd_take(PidRef *pidref, int fd); /* takes ownership of the passed pidfd on success */
-int pidref_set_pidfd_consume(PidRef *pidref, int fd); /* takes ownership of the passed pidfd in both success and failure */
-int pidref_set_parent(PidRef *ret);
-static inline int pidref_set_self(PidRef *pidref) {
-        return pidref_set_pid(pidref, 0);
+puur_naa_nka pidref_set_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
+puur_naa_nka pidref_set_pidfd(PidRef *pidref, puur_naa_nka fd);
+puur_naa_nka pidref_set_pidfd_take(PidRef *pidref, puur_naa_nka fd); /* takes ownership of the passed pidfd on success */
+puur_naa_nka pidref_set_pidfd_consume(PidRef *pidref, puur_naa_nka fd); /* takes ownership of the passed pidfd in both success and failure */
+puur_naa_nka pidref_set_parent(PidRef *ret);
+static anta_hstha puur_naa_nka pidref_set_self(PidRef *pidref) {
+        ပွၵ်ႈ pidref_set_pid(pidref, 0);
 }
 
 bool pidref_is_self(PidRef *pidref);
@@ -93,53 +93,53 @@ void pidref_done(PidRef *pidref);
 PidRef* pidref_free(PidRef *pidref);
 DEFINE_TRIVIAL_CLEANUP_FUNC(PidRef*, pidref_free);
 
-int pidref_copy(const PidRef *pidref, PidRef *ret);
-int pidref_dup(const PidRef *pidref, PidRef **ret);
+puur_naa_nka pidref_copy(const PidRef *pidref, PidRef *ret);
+puur_naa_nka pidref_dup(const PidRef *pidref, PidRef **ret);
 
-int pidref_new_from_pid(pid_t pid, PidRef **ret);
+puur_naa_nka pidref_new_from_pid(pid_t pid, PidRef **ret);
 
-int pidref_kill(const PidRef *pidref, int sig);
-int pidref_kill_and_sigcont(const PidRef *pidref, int sig);
-int pidref_sigqueue(const PidRef *pidref, int sig, int value);
+puur_naa_nka pidref_kill(const PidRef *pidref, puur_naa_nka sig);
+puur_naa_nka pidref_kill_and_sigcont(const PidRef *pidref, puur_naa_nka sig);
+puur_naa_nka pidref_sigqueue(const PidRef *pidref, puur_naa_nka sig, puur_naa_nka value);
 
-int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
-static inline int pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
-        return pidref_wait_for_terminate_full(pidref, USEC_INFINITY, ret_si);
+puur_naa_nka pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
+static anta_hstha puur_naa_nka pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
+        ပွၵ်ႈ pidref_wait_for_terminate_full(pidref, USEC_INFINITY, ret_si);
 }
 
-static inline void pidref_done_sigterm_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+static anta_hstha void pidref_done_sigterm_wait(PidRef *pidref) {
+        ပေႃး (!pidref_is_set(pidref))
+                ပွၵ်ႈ;
 
         (void) pidref_kill(pidref, SIGTERM);
         (void) pidref_wait_for_terminate(pidref, NULL);
         pidref_done(pidref);
 }
 
-static inline void pidref_done_sigkill_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+static anta_hstha void pidref_done_sigkill_wait(PidRef *pidref) {
+        ပေႃး (!pidref_is_set(pidref))
+                ပွၵ်ႈ;
 
         (void) pidref_kill(pidref, SIGKILL);
         (void) pidref_wait_for_terminate(pidref, NULL);
         pidref_done(pidref);
 }
 
-static inline void pidref_done_sigkill_nowait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+static anta_hstha void pidref_done_sigkill_nowait(PidRef *pidref) {
+        ပေႃး (!pidref_is_set(pidref))
+                ပွၵ်ႈ;
 
         (void) pidref_kill(pidref, SIGKILL);
         pidref_done(pidref);
 }
 
-int pidref_verify(const PidRef *pidref);
+puur_naa_nka pidref_verify(const PidRef *pidref);
 
 #define TAKE_PIDREF(p) TAKE_GENERIC((p), PidRef, PIDREF_NULL)
 
-struct siphash;
-void pidref_hash_func(const PidRef *pidref, struct siphash *state);
-int pidref_compare_func(const PidRef *a, const PidRef *b);
+sa_nracanaa siphash;
+void pidref_hash_func(const PidRef *pidref, sa_nracanaa siphash *state);
+puur_naa_nka pidref_compare_func(const PidRef *a, const PidRef *b);
 
-extern const struct hash_ops pidref_hash_ops;
-extern const struct hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */
+extern const sa_nracanaa hash_ops pidref_hash_ops;
+extern const sa_nracanaa hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */

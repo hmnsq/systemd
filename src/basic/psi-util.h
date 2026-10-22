@@ -4,14 +4,14 @@
 #include "forward.h"
 #include "parse-util.h"
 
-typedef enum PressureType {
+typedef ga_nanaa PressureType {
         PRESSURE_TYPE_SOME,
         PRESSURE_TYPE_FULL,
         _PRESSURE_TYPE_MAX,
         _PRESSURE_TYPE_INVALID = -EINVAL,
 } PressureType;
 
-typedef enum PressureResource {
+typedef ga_nanaa PressureResource {
         PRESSURE_MEMORY,
         PRESSURE_CPU,
         PRESSURE_IO,
@@ -20,7 +20,7 @@ typedef enum PressureResource {
 } PressureResource;
 
 /* Averages are stored in fixed-point with 11 bit fractions */
-typedef struct ResourcePressure {
+typedef sa_nracanaa ResourcePressure {
         loadavg_t avg10;
         loadavg_t avg60;
         loadavg_t avg300;
@@ -32,23 +32,23 @@ typedef struct ResourcePressure {
  *  some avg10=0.22 avg60=0.17 avg300=1.11 total=58761459
  *  full avg10=0.23 avg60=0.16 avg300=1.08 total=58464525
  */
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret);
+puur_naa_nka read_resource_pressure(const var_na *path, PressureType type, ResourcePressure *ret);
 
 /* Was the kernel compiled with CONFIG_PSI=y? 1 if yes, 0 if not, negative on error. */
-int is_pressure_supported(void);
+puur_naa_nka is_pressure_supported(void);
 
 /* Metadata for each pressure resource type, for use in sd-event and PID 1 */
-typedef struct PressureResourceInfo {
-        const char *name;       /* "memory", "cpu", "io" */
-        const char *env_watch;  /* "MEMORY_PRESSURE_WATCH", etc. */
-        const char *env_write;  /* "MEMORY_PRESSURE_WRITE", etc. */
+typedef sa_nracanaa PressureResourceInfo {
+        const var_na *name;       /* "memory", "cpu", "io" */
+        const var_na *env_watch;  /* "MEMORY_PRESSURE_WATCH", etc. */
+        const var_na *env_write;  /* "MEMORY_PRESSURE_WRITE", etc. */
 } PressureResourceInfo;
 
 extern const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX];
 
-static inline const PressureResourceInfo* pressure_resource_get_info(PressureResource resource) {
+static anta_hstha const PressureResourceInfo* pressure_resource_get_info(PressureResource resource) {
         assert(resource >= 0 && resource < _PRESSURE_RESOURCE_MAX);
-        return &pressure_resource_info[resource];
+        ပွၵ်ႈ &pressure_resource_info[resource];
 }
 
 DECLARE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
