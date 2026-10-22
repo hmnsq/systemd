@@ -1,92 +1,92 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#if defined(__i386__) || defined(__x86_64__)
-#include <cpuid.h>
+#यदि defined(__i386__) || defined(__x86_64__)
+#अन्तर्भाव <cpuid.h>
 #endif
-#include <fcntl.h>
-#include <threads.h>
-#include <unistd.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <threads.h>
+#अन्तर्भाव <unistd.h>
 
-#include "confidential-virt.h"
-#include "errno-util.h"                                 /* IWYU pragma: keep */
-#include "fd-util.h"
-#include "fileio.h"                                     /* IWYU pragma: keep */
-#include "log.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "utf8.h"
+#अन्तर्भाव "confidential-virt.h"
+#अन्तर्भाव "errno-util.h"                                 /* IWYU pragma: keep */
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"                                     /* IWYU pragma: keep */
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "string-table.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "utf8.h"
 
-#if defined(__x86_64__)
+#यदि defined(__x86_64__)
 
-static void cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx) {
-        assert(eax);
-        assert(ebx);
-        assert(ecx);
-        assert(edx);
+स्थिर शून्य cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx) {
+        प्रतिज्ञा(eax);
+        प्रतिज्ञा(ebx);
+        प्रतिज्ञा(ecx);
+        प्रतिज्ञा(edx);
 
         log_debug("CPUID func %" PRIx32 " %" PRIx32, *eax, *ecx);
         __cpuid_count(*eax, *ecx, *eax, *ebx, *ecx, *edx);
         log_debug("CPUID result %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32, *eax, *ebx, *ecx, *edx);
 }
 
-static uint32_t cpuid_leaf(uint32_t eax, char ret_sig[static 13], bool swapped) {
+स्थिर uint32_t cpuid_leaf(uint32_t eax, वर्ण ret_sig[स्थिर 13], bool swapped) {
         /* zero-init as some queries explicitly require subleaf == 0 */
         uint32_t sig[3] = {};
 
-        if (swapped)
+        यदि (swapped)
                 cpuid(&eax, &sig[0], &sig[2], &sig[1]);
-        else
+        अन्यथा
                 cpuid(&eax, &sig[0], &sig[1], &sig[2]);
-        memcpy(ret_sig, sig, sizeof(sig));
+        स_नकल(ret_sig, sig, परिमाण(sig));
         ret_sig[12] = 0; /* \0-terminate the string to make string comparison possible */
 
         /* In some CI tests ret_sig doesn't contain valid UTF8 and prints garbage to the console */
         log_debug("CPUID sig '%s'", strna(utf8_is_valid(ret_sig)));
 
-        return eax;
+        प्रत्यागम eax;
 }
 
 #define MSR_DEVICE "/dev/cpu/0/msr"
 
-static int msr(uint64_t index, uint64_t *ret) {
-        _cleanup_close_ int fd = -EBADF;
+स्थिर पूर्णाङ्क msr(uint64_t index, uint64_t *ret) {
+        _cleanup_close_ पूर्णाङ्क fd = -EBADF;
         uint64_t v;
         ssize_t n;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        fd = open(MSR_DEVICE, O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return log_debug_errno(errno,
+        fd = खोलो(MSR_DEVICE, O_RDONLY|O_CLOEXEC);
+        यदि (fd < 0)
+                प्रत्यागम log_debug_errno(त्रुटि_सं,
                                        "Cannot open MSR device %s (index %" PRIu64 "): %m",
                                        MSR_DEVICE, index);
 
-        n = pread(fd, &v, sizeof(v), index);
-        if (n < 0)
-                return log_debug_errno(errno,
+        n = pread(fd, &v, परिमाण(v), index);
+        यदि (n < 0)
+                प्रत्यागम log_debug_errno(त्रुटि_सं,
                                        "Cannot read MSR device %s (index %" PRIu64 "): %m",
                                        MSR_DEVICE, index);
-        if (n != sizeof(v))
-                return log_debug_errno(SYNTHETIC_ERRNO(EIO),
+        यदि (n != परिमाण(v))
+                प्रत्यागम log_debug_errno(SYNTHETIC_ERRNO(EIO),
                                        "Short read %zd bytes from MSR device %s (index %" PRIu64 ")",
                                        n, MSR_DEVICE, index);
 
         log_debug("MSR %" PRIu64 " result %" PRIu64, index, v);
         *ret = v;
-        return 0;
+        प्रत्यागम 0;
 }
 
-static bool detect_hyperv_cvm(uint32_t isoltype) {
+स्थिर bool detect_hyperv_cvm(uint32_t isoltype) {
         uint32_t eax, ebx, ecx, edx, feat;
-        char sig[13] = {};
+        वर्ण sig[13] = {};
 
         feat = cpuid_leaf(CPUID_HYPERV_VENDOR_AND_MAX_FUNCTIONS, sig, false);
 
-        if (feat < CPUID_HYPERV_MIN || feat > CPUID_HYPERV_MAX)
-                return false;
+        यदि (feat < CPUID_HYPERV_MIN || feat > CPUID_HYPERV_MAX)
+                प्रत्यागम false;
 
-        if (memcmp(sig, CPUID_SIG_HYPERV, sizeof(sig)) != 0)
-                return false;
+        यदि (स_भेद(sig, CPUID_SIG_HYPERV, परिमाण(sig)) != 0)
+                प्रत्यागम false;
 
         log_debug("CPUID is on hyperv");
         eax = CPUID_HYPERV_FEATURES;
@@ -94,31 +94,31 @@ static bool detect_hyperv_cvm(uint32_t isoltype) {
 
         cpuid(&eax, &ebx, &ecx, &edx);
 
-        if (ebx & CPUID_HYPERV_ISOLATION && !(ebx & CPUID_HYPERV_CPU_MANAGEMENT)) {
+        यदि (ebx & CPUID_HYPERV_ISOLATION && !(ebx & CPUID_HYPERV_CPU_MANAGEMENT)) {
 
                 eax = CPUID_HYPERV_ISOLATION_CONFIG;
                 ebx = ecx = edx = 0;
                 cpuid(&eax, &ebx, &ecx, &edx);
 
-                if ((ebx & CPUID_HYPERV_ISOLATION_TYPE_MASK) == isoltype)
-                        return true;
+                यदि ((ebx & CPUID_HYPERV_ISOLATION_TYPE_MASK) == isoltype)
+                        प्रत्यागम true;
         }
 
-        return false;
+        प्रत्यागम false;
 }
 
-static ConfidentialVirtualization detect_sev(void) {
+स्थिर ConfidentialVirtualization detect_sev(शून्य) {
         uint32_t eax, ebx, ecx, edx;
         uint64_t msrval;
-        int r;
+        पूर्णाङ्क r;
 
         eax = CPUID_GET_HIGHEST_FUNCTION;
         ebx = ecx = edx = 0;
 
         cpuid(&eax, &ebx, &ecx, &edx);
 
-        if (eax < CPUID_AMD_GET_ENCRYPTED_MEMORY_CAPABILITIES)
-                return CONFIDENTIAL_VIRTUALIZATION_NONE;
+        यदि (eax < CPUID_AMD_GET_ENCRYPTED_MEMORY_CAPABILITIES)
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
 
         eax = CPUID_AMD_GET_ENCRYPTED_MEMORY_CAPABILITIES;
         ebx = ecx = edx = 0;
@@ -131,57 +131,57 @@ static ConfidentialVirtualization detect_sev(void) {
          * guests, so we must fallback to trying some HyperV
          * specific CPUID checks.
          */
-        if (!(eax & EAX_SEV)) {
+        यदि (!(eax & EAX_SEV)) {
                 log_debug("No sev in CPUID, trying hyperv CPUID");
 
-                if (detect_hyperv_cvm(CPUID_HYPERV_ISOLATION_TYPE_SNP))
-                        return CONFIDENTIAL_VIRTUALIZATION_SEV_SNP;
+                यदि (detect_hyperv_cvm(CPUID_HYPERV_ISOLATION_TYPE_SNP))
+                        प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_SEV_SNP;
 
                 log_debug("No hyperv CPUID");
-                return CONFIDENTIAL_VIRTUALIZATION_NONE;
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
         }
 
         r = msr(MSR_AMD64_SEV, &msrval);
-        if (r < 0) {
+        यदि (r < 0) {
                 /* The CPU advertises SEV support and we're running under a hypervisor, but we couldn't read
                  * the SEV MSR to determine the exact mode (e.g. /dev/cpu/0/msr is unavailable because the
                  * msr module isn't loaded). Assume plain SEV. Misreporting a genuine confidential guest as
                  * non-confidential would wrongly make us trust hypervisor-provided data such as firmware credentials. */
                 log_debug_errno(r, "Failed to read SEV MSR, assuming SEV: %m");
-                return CONFIDENTIAL_VIRTUALIZATION_SEV;
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_SEV;
         }
 
         /* Test reverse order, since the SEV-SNP bit implies
          * the SEV-ES bit, which implies the SEV bit */
-        if (msrval & MSR_SEV_SNP)
-                return CONFIDENTIAL_VIRTUALIZATION_SEV_SNP;
-        if (msrval & MSR_SEV_ES)
-                return CONFIDENTIAL_VIRTUALIZATION_SEV_ES;
-        if (msrval & MSR_SEV)
-                return CONFIDENTIAL_VIRTUALIZATION_SEV;
+        यदि (msrval & MSR_SEV_SNP)
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_SEV_SNP;
+        यदि (msrval & MSR_SEV_ES)
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_SEV_ES;
+        यदि (msrval & MSR_SEV)
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_SEV;
 
-        return CONFIDENTIAL_VIRTUALIZATION_NONE;
+        प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
 }
 
-static ConfidentialVirtualization detect_tdx(void) {
-        char sig[13] = {};
+स्थिर ConfidentialVirtualization detect_tdx(शून्य) {
+        वर्ण sig[13] = {};
 
         /* Querying an unsupported CPUID leaf is harmless (it returns the highest basic leaf's data rather
          * than faulting), so reading this leaf and matching the IntelTDX signature is sufficient. */
         cpuid_leaf(CPUID_INTEL_TDX_ENUMERATION, sig, true);
 
-        if (memcmp(sig, CPUID_SIG_INTEL_TDX, sizeof(sig)) == 0)
-                return CONFIDENTIAL_VIRTUALIZATION_TDX;
+        यदि (स_भेद(sig, CPUID_SIG_INTEL_TDX, परिमाण(sig)) == 0)
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_TDX;
 
         log_debug("No tdx in CPUID, trying hyperv CPUID");
 
-        if (detect_hyperv_cvm(CPUID_HYPERV_ISOLATION_TYPE_TDX))
-                return CONFIDENTIAL_VIRTUALIZATION_TDX;
+        यदि (detect_hyperv_cvm(CPUID_HYPERV_ISOLATION_TYPE_TDX))
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_TDX;
 
-        return CONFIDENTIAL_VIRTUALIZATION_NONE;
+        प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
 }
 
-static bool detect_hypervisor(void) {
+स्थिर bool detect_hypervisor(शून्य) {
         uint32_t eax, ebx, ecx, edx;
         bool is_hv;
 
@@ -193,70 +193,70 @@ static bool detect_hypervisor(void) {
         is_hv = ecx & CPUID_FEATURE_HYPERVISOR;
 
         log_debug("CPUID is hypervisor: %s", yes_no(is_hv));
-        return is_hv;
+        प्रत्यागम is_hv;
 }
 
-static ConfidentialVirtualization detect_confidential_virtualization_impl(void) {
-        char sig[13] = {};
+स्थिर ConfidentialVirtualization detect_confidential_virtualization_impl(शून्य) {
+        वर्ण sig[13] = {};
 
         /* Skip everything on bare metal */
-        if (detect_hypervisor()) {
+        यदि (detect_hypervisor()) {
                 cpuid_leaf(0, sig, true);
 
-                if (memcmp(sig, CPUID_SIG_AMD, sizeof(sig)) == 0)
-                        return detect_sev();
-                else if (memcmp(sig, CPUID_SIG_INTEL, sizeof(sig)) == 0)
-                        return detect_tdx();
+                यदि (स_भेद(sig, CPUID_SIG_AMD, परिमाण(sig)) == 0)
+                        प्रत्यागम detect_sev();
+                अन्यथा यदि (स_भेद(sig, CPUID_SIG_INTEL, परिमाण(sig)) == 0)
+                        प्रत्यागम detect_tdx();
         }
 
-        return CONFIDENTIAL_VIRTUALIZATION_NONE;
+        प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
 }
-#elif defined(__s390x__)
-static ConfidentialVirtualization detect_confidential_virtualization_impl(void) {
-        _cleanup_free_ char *s = NULL;
-        size_t readsize;
-        int r;
+#नोचेद्यदि defined(__s390x__)
+स्थिर ConfidentialVirtualization detect_confidential_virtualization_impl(शून्य) {
+        _cleanup_free_ वर्ण *s = रिक्त;
+        माप_प्रकार readsize;
+        पूर्णाङ्क r;
 
         r = read_full_virtual_file("/sys/firmware/uv/prot_virt_guest", &s, &readsize);
-        if (r < 0) {
+        यदि (r < 0) {
                 log_debug_errno(r, "Unable to read /sys/firmware/uv/prot_virt_guest: %m");
-                return CONFIDENTIAL_VIRTUALIZATION_NONE;
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
         }
 
-        if (readsize >= 1 && s[0] == '1')
-                return CONFIDENTIAL_VIRTUALIZATION_PROTVIRT;
+        यदि (readsize >= 1 && s[0] == '1')
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_PROTVIRT;
 
-        return CONFIDENTIAL_VIRTUALIZATION_NONE;
+        प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
 }
-#elif defined(__aarch64__)
-static ConfidentialVirtualization detect_confidential_virtualization_impl(void) {
-        int r;
+#नोचेद्यदि defined(__aarch64__)
+स्थिर ConfidentialVirtualization detect_confidential_virtualization_impl(शून्य) {
+        पूर्णाङ्क r;
 
         r = RET_NERRNO(access("/sys/devices/platform/arm-cca-dev", F_OK));
-        if (r < 0) {
+        यदि (r < 0) {
                 log_debug_errno(r, "Unable to check /sys/devices/platform/arm-cca-dev: %m");
-                return CONFIDENTIAL_VIRTUALIZATION_NONE;
+                प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
         }
 
-        return CONFIDENTIAL_VIRTUALIZATION_CCA;
+        प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_CCA;
 }
-#else /* ! x86_64 */
-static ConfidentialVirtualization detect_confidential_virtualization_impl(void) {
+#अन्यथा /* ! x86_64 */
+स्थिर ConfidentialVirtualization detect_confidential_virtualization_impl(शून्य) {
         log_debug("No confidential virtualization detection on this architecture");
-        return CONFIDENTIAL_VIRTUALIZATION_NONE;
+        प्रत्यागम CONFIDENTIAL_VIRTUALIZATION_NONE;
 }
 #endif /* ! x86_64 */
 
-ConfidentialVirtualization detect_confidential_virtualization(void) {
-        static thread_local ConfidentialVirtualization cached_found = _CONFIDENTIAL_VIRTUALIZATION_INVALID;
+ConfidentialVirtualization detect_confidential_virtualization(शून्य) {
+        स्थिर thread_local ConfidentialVirtualization cached_found = _CONFIDENTIAL_VIRTUALIZATION_INVALID;
 
-        if (cached_found == _CONFIDENTIAL_VIRTUALIZATION_INVALID)
+        यदि (cached_found == _CONFIDENTIAL_VIRTUALIZATION_INVALID)
                 cached_found = detect_confidential_virtualization_impl();
 
-        return cached_found;
+        प्रत्यागम cached_found;
 }
 
-static const char *const confidential_virtualization_table[_CONFIDENTIAL_VIRTUALIZATION_MAX] = {
+स्थिर ध्रुव वर्ण *ध्रुव confidential_virtualization_table[_CONFIDENTIAL_VIRTUALIZATION_MAX] = {
         [CONFIDENTIAL_VIRTUALIZATION_NONE]     = "none",
         [CONFIDENTIAL_VIRTUALIZATION_SEV]      = "sev",
         [CONFIDENTIAL_VIRTUALIZATION_SEV_ES]   = "sev-es",

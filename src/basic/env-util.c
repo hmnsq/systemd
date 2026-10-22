@@ -1,69 +1,69 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <unistd.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "syslog-util.h"
-#include "utf8.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "env-util.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "format-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "syslog-util.h"
+#अन्तर्भाव "utf8.h"
 
 /* We follow bash for the character set. Different shells have different rules. */
 #define VALID_BASH_ENV_NAME_CHARS               \
         ALPHANUMERICAL                          \
         "_"
 
-size_t sc_arg_max(void) {
-        long l = sysconf(_SC_ARG_MAX);
-        assert(l > 0);
-        return (size_t) l;
+माप_प्रकार sc_arg_max(शून्य) {
+        दीर्घ l = sysconf(_SC_ARG_MAX);
+        प्रतिज्ञा(l > 0);
+        प्रत्यागम (माप_प्रकार) l;
 }
 
-static bool env_name_is_valid_n(const char *e, size_t n) {
+स्थिर bool env_name_is_valid_n(ध्रुव वर्ण *e, माप_प्रकार n) {
 
-        if (n == SIZE_MAX)
+        यदि (n == SIZE_MAX)
                 n = strlen_ptr(e);
 
-        if (n == 0)
-                return false;
+        यदि (n == 0)
+                प्रत्यागम false;
 
-        assert(e);
+        प्रतिज्ञा(e);
 
-        if (ascii_isdigit(e[0]))
-                return false;
+        यदि (ascii_isdigit(e[0]))
+                प्रत्यागम false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the equal sign and trailing NUL this hence leaves ARG_MAX-2 as
          * longest possible variable name. */
-        if (_unlikely_(n > sc_arg_max() - 2))
-                return false;
+        यदि (_unlikely_(n > sc_arg_max() - 2))
+                प्रत्यागम false;
 
-        for (const char *p = e; p < e + n; p++)
-                if (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
-                        return false;
+        प्रति (ध्रुव वर्ण *p = e; p < e + n; p++)
+                यदि (!म_अक्षर(VALID_BASH_ENV_NAME_CHARS, *p))
+                        प्रत्यागम false;
 
-        return true;
+        प्रत्यागम true;
 }
 
-bool env_name_is_valid(const char *e) {
-        return env_name_is_valid_n(e, SIZE_MAX);
+bool env_name_is_valid(ध्रुव वर्ण *e) {
+        प्रत्यागम env_name_is_valid_n(e, SIZE_MAX);
 }
 
-bool env_value_is_valid(const char *e) {
-        if (!e)
-                return false;
+bool env_मूल्य_is_valid(ध्रुव वर्ण *e) {
+        यदि (!e)
+                प्रत्यागम false;
 
-        if (!utf8_is_valid(e))
-                return false;
+        यदि (!utf8_is_valid(e))
+                प्रत्यागम false;
 
         /* Note that variable *values* may contain control characters, in particular NL, TAB, BS, DEL, ESC…
          * When printing those variables with show-environment, we'll escape them. Make sure to print
@@ -72,83 +72,83 @@ bool env_value_is_valid(const char *e) {
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the shortest possible variable name of length 1, the equal
          * sign and trailing NUL this hence leaves ARG_MAX-3 as longest possible variable value. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 3))
-                return false;
+        यदि (_unlikely_(म_माप(e) > sc_arg_max() - 3))
+                प्रत्यागम false;
 
-        return true;
+        प्रत्यागम true;
 }
 
-bool env_assignment_is_valid(const char *e) {
-        const char *eq;
+bool env_assignment_is_valid(ध्रुव वर्ण *e) {
+        ध्रुव वर्ण *eq;
 
-        assert(e);
+        प्रतिज्ञा(e);
 
-        eq = strchr(e, '=');
-        if (!eq)
-                return false;
+        eq = म_अक्षर(e, '=');
+        यदि (!eq)
+                प्रत्यागम false;
 
-        if (!env_name_is_valid_n(e, eq - e))
-                return false;
+        यदि (!env_name_is_valid_n(e, eq - e))
+                प्रत्यागम false;
 
-        if (!env_value_is_valid(eq + 1))
-                return false;
+        यदि (!env_मूल्य_is_valid(eq + 1))
+                प्रत्यागम false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
          * variable assignments cannot be either, but let's leave room for one trailing NUL byte. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 1))
-                return false;
+        यदि (_unlikely_(म_माप(e) > sc_arg_max() - 1))
+                प्रत्यागम false;
 
-        return true;
+        प्रत्यागम true;
 }
 
-bool strv_env_is_valid(char * const *e) {
+bool strv_env_is_valid(वर्ण * ध्रुव *e) {
         STRV_FOREACH(p, e) {
-                size_t k;
+                माप_प्रकार k;
 
-                if (!env_assignment_is_valid(*p))
-                        return false;
+                यदि (!env_assignment_is_valid(*p))
+                        प्रत्यागम false;
 
                 /* Check if there are duplicate assignments */
-                k = strcspn(*p, "=");
+                k = म_खोज(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, k) && (*q)[k] == '=')
-                                return false;
+                        यदि (strneq(*p, *q, k) && (*q)[k] == '=')
+                                प्रत्यागम false;
         }
 
-        return true;
+        प्रत्यागम true;
 }
 
-bool strv_env_name_is_valid(char * const *l) {
+bool strv_env_name_is_valid(वर्ण * ध्रुव *l) {
         STRV_FOREACH(p, l) {
-                if (!env_name_is_valid(*p))
-                        return false;
+                यदि (!env_name_is_valid(*p))
+                        प्रत्यागम false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                यदि (strv_contains(p + 1, *p))
+                        प्रत्यागम false;
         }
 
-        return true;
+        प्रत्यागम true;
 }
 
-bool strv_env_name_or_assignment_is_valid(char * const *l) {
+bool strv_env_name_or_assignment_is_valid(वर्ण * ध्रुव *l) {
         STRV_FOREACH(p, l) {
-                if (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
-                        return false;
+                यदि (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
+                        प्रत्यागम false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                यदि (strv_contains(p + 1, *p))
+                        प्रत्यागम false;
         }
 
-        return true;
+        प्रत्यागम true;
 }
 
-static int env_append(char **e, char ***k, char **a) {
-        assert(e);
-        assert(k);
-        assert(*k >= e);
+स्थिर पूर्णाङ्क env_append(वर्ण **e, वर्ण ***k, वर्ण **a) {
+        प्रतिज्ञा(e);
+        प्रतिज्ञा(k);
+        प्रतिज्ञा(*k >= e);
 
-        if (!a)
-                return 0;
+        यदि (!a)
+                प्रत्यागम 0;
 
         /* Expects the following arguments: 'e' shall point to the beginning of an strv we are going to append to, 'k'
          * to a pointer pointing to the NULL entry at the end of the same array. 'a' shall point to another strv.
@@ -157,83 +157,83 @@ static int env_append(char **e, char ***k, char **a) {
          *
          * This call assumes 'e' has enough pre-allocated space to grow by all of 'a''s items. */
 
-        for (; *a; a++) {
-                char **j, *c;
-                size_t n;
+        प्रति (; *a; a++) {
+                वर्ण **j, *c;
+                माप_प्रकार n;
 
-                n = strcspn(*a, "=");
-                if ((*a)[n] == '=')
+                n = म_खोज(*a, "=");
+                यदि ((*a)[n] == '=')
                         n++;
 
-                for (j = e; j < *k; j++)
-                        if (strneq(*j, *a, n))
-                                break;
+                प्रति (j = e; j < *k; j++)
+                        यदि (strneq(*j, *a, n))
+                                भङ्ग;
 
                 c = strdup(*a);
-                if (!c)
-                        return -ENOMEM;
+                यदि (!c)
+                        प्रत्यागम -ENOMEM;
 
-                if (j >= *k) { /* Append to the end? */
+                यदि (j >= *k) { /* Append to the end? */
                         (*k)[0] = c;
-                        (*k)[1] = NULL;
+                        (*k)[1] = रिक्त;
                         (*k)++;
-                } else
+                } अन्यथा
                         free_and_replace(*j, c); /* Override existing item */
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-char** _strv_env_merge(char **first, ...) {
-        _cleanup_strv_free_ char **merged = NULL;
-        char **k;
-        va_list ap;
+वर्ण** _strv_env_merge(वर्ण **first, ...) {
+        _cleanup_strv_free_ वर्ण **merged = रिक्त;
+        वर्ण **k;
+        बहु_सूची ap;
 
         /* Merges an arbitrary number of environment sets */
 
-        size_t n = strv_length(first);
+        माप_प्रकार n = strv_length(first);
 
-        va_start(ap, first);
-        for (;;) {
-                char **l;
+        बहु_शुरू(ap, first);
+        प्रति (;;) {
+                वर्ण **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = बहु_तर्क(ap, वर्ण**);
+                यदि (l == POINTER_MAX)
+                        भङ्ग;
 
                 n += strv_length(l);
         }
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        k = merged = new(char*, n + 1);
-        if (!merged)
-                return NULL;
-        merged[0] = NULL;
+        k = merged = new(वर्ण*, n + 1);
+        यदि (!merged)
+                प्रत्यागम रिक्त;
+        merged[0] = रिक्त;
 
-        if (env_append(merged, &k, first) < 0)
-                return NULL;
+        यदि (env_append(merged, &k, first) < 0)
+                प्रत्यागम रिक्त;
 
-        va_start(ap, first);
-        for (;;) {
-                char **l;
+        बहु_शुरू(ap, first);
+        प्रति (;;) {
+                वर्ण **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = बहु_तर्क(ap, वर्ण**);
+                यदि (l == POINTER_MAX)
+                        भङ्ग;
 
-                if (env_append(merged, &k, l) < 0) {
-                        va_end(ap);
-                        return NULL;
+                यदि (env_append(merged, &k, l) < 0) {
+                        बहु_पूर्ण(ap);
+                        प्रत्यागम रिक्त;
                 }
         }
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        return TAKE_PTR(merged);
+        प्रत्यागम TAKE_PTR(merged);
 }
 
-static bool env_match(const char *t, const char *pattern) {
-        assert(t);
-        assert(pattern);
+स्थिर bool env_match(ध्रुव वर्ण *t, ध्रुव वर्ण *pattern) {
+        प्रतिज्ञा(t);
+        प्रतिज्ञा(pattern);
 
         /* pattern a matches string a
          *         a matches a=
@@ -245,715 +245,715 @@ static bool env_match(const char *t, const char *pattern) {
          *         a=b does not match a
          *         a=b does not match a=c */
 
-        if (streq(t, pattern))
-                return true;
+        यदि (streq(t, pattern))
+                प्रत्यागम true;
 
-        if (!strchr(pattern, '=')) {
+        यदि (!म_अक्षर(pattern, '=')) {
                 t = startswith(t, pattern);
 
-                return t && *t == '=';
+                प्रत्यागम t && *t == '=';
         }
 
-        return false;
+        प्रत्यागम false;
 }
 
-static bool env_entry_has_name(const char *entry, const char *name) {
-        const char *t;
+स्थिर bool env_entry_has_name(ध्रुव वर्ण *entry, ध्रुव वर्ण *name) {
+        ध्रुव वर्ण *t;
 
-        assert(entry);
-        assert(name);
+        प्रतिज्ञा(entry);
+        प्रतिज्ञा(name);
 
         t = startswith(entry, name);
-        if (!t)
-                return false;
+        यदि (!t)
+                प्रत्यागम false;
 
-        return *t == '=';
+        प्रत्यागम *t == '=';
 }
 
-char** strv_env_delete(char **x, size_t n_lists, ...) {
-        size_t n, i = 0;
-        _cleanup_strv_free_ char **t = NULL;
-        va_list ap;
+वर्ण** strv_env_delete(वर्ण **x, माप_प्रकार n_lists, ...) {
+        माप_प्रकार n, i = 0;
+        _cleanup_strv_free_ वर्ण **t = रिक्त;
+        बहु_सूची ap;
 
         /* Deletes every entry from x that is mentioned in the other
          * string lists */
 
         n = strv_length(x);
 
-        t = new(char*, n+1);
-        if (!t)
-                return NULL;
+        t = new(वर्ण*, n+1);
+        यदि (!t)
+                प्रत्यागम रिक्त;
 
         STRV_FOREACH(k, x) {
-                va_start(ap, n_lists);
-                for (size_t v = 0; v < n_lists; v++) {
-                        char **l;
+                बहु_शुरू(ap, n_lists);
+                प्रति (माप_प्रकार v = 0; v < n_lists; v++) {
+                        वर्ण **l;
 
-                        l = va_arg(ap, char**);
+                        l = बहु_तर्क(ap, वर्ण**);
                         STRV_FOREACH(j, l)
-                                if (env_match(*k, *j))
-                                        goto skip;
+                                यदि (env_match(*k, *j))
+                                        गच्छ skip;
                 }
-                va_end(ap);
+                बहु_पूर्ण(ap);
 
                 t[i] = strdup(*k);
-                if (!t[i])
-                        return NULL;
+                यदि (!t[i])
+                        प्रत्यागम रिक्त;
 
                 i++;
-                continue;
+                अनुवर्त;
 
         skip:
-                va_end(ap);
+                बहु_पूर्ण(ap);
         }
 
-        t[i] = NULL;
+        t[i] = रिक्त;
 
-        assert(i <= n);
+        प्रतिज्ञा(i <= n);
 
-        return TAKE_PTR(t);
+        प्रत्यागम TAKE_PTR(t);
 }
 
-char** strv_env_unset(char **l, const char *p) {
-        assert(p);
+वर्ण** strv_env_unset(वर्ण **l, ध्रुव वर्ण *p) {
+        प्रतिज्ञा(p);
 
-        if (!l)
-                return NULL;
+        यदि (!l)
+                प्रत्यागम रिक्त;
 
         /* Drops every occurrence of the env var setting p in the
          * string list. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                if (env_match(*f, p)) {
-                        free(*f);
-                        continue;
+        वर्ण **f, **t;
+        प्रति (f = t = l; *f; f++) {
+                यदि (env_match(*f, p)) {
+                        मुक्त(*f);
+                        अनुवर्त;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = रिक्त;
+        प्रत्यागम l;
 }
 
-char** strv_env_unset_many_internal(char **l, ...) {
-        if (!l)
-                return NULL;
+वर्ण** strv_env_unset_many_internal(वर्ण **l, ...) {
+        यदि (!l)
+                प्रत्यागम रिक्त;
 
         /* Like strv_env_unset() but applies many at once. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
+        वर्ण **f, **t;
+        प्रति (f = t = l; *f; f++) {
                 bool found = false;
-                const char *p;
-                va_list ap;
+                ध्रुव वर्ण *p;
+                बहु_सूची ap;
 
-                va_start(ap, l);
+                बहु_शुरू(ap, l);
 
-                while ((p = va_arg(ap, const char*)))
-                        if (env_match(*f, p)) {
+                यावत् ((p = बहु_तर्क(ap, ध्रुव वर्ण*)))
+                        यदि (env_match(*f, p)) {
                                 found = true;
-                                break;
+                                भङ्ग;
                         }
 
-                va_end(ap);
+                बहु_पूर्ण(ap);
 
-                if (found) {
-                        free(*f);
-                        continue;
+                यदि (found) {
+                        मुक्त(*f);
+                        अनुवर्त;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = रिक्त;
+        प्रत्यागम l;
 }
 
-int strv_env_replace_consume(char ***l, char *p) {
-        const char *t, *name;
-        int r;
+पूर्णाङ्क strv_env_replace_consume(वर्ण ***l, वर्ण *p) {
+        ध्रुव वर्ण *t, *name;
+        पूर्णाङ्क r;
 
-        assert(l);
-        assert(p);
+        प्रतिज्ञा(l);
+        प्रतिज्ञा(p);
 
         /* Replace first occurrence of the env var or add a new one in the string list. Drop other
          * occurrences. Edits in-place. Does not copy p and CONSUMES p EVEN ON FAILURE.
          *
          * p must be a valid key=value assignment. */
 
-        t = strchr(p, '=');
-        if (!t) {
-                free(p);
-                return -EINVAL;
+        t = म_अक्षर(p, '=');
+        यदि (!t) {
+                मुक्त(p);
+                प्रत्यागम -EINVAL;
         }
 
         name = strndupa_safe(p, t - p);
 
         STRV_FOREACH(f, *l)
-                if (env_entry_has_name(*f, name)) {
+                यदि (env_entry_has_name(*f, name)) {
                         free_and_replace(*f, p);
                         strv_env_unset(f + 1, *f);
-                        return 0;
+                        प्रत्यागम 0;
                 }
 
         /* We didn't find a match, we need to append p or create a new strv */
         r = strv_consume(l, p);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-int strv_env_replace_strdup(char ***l, const char *assignment) {
+पूर्णाङ्क strv_env_replace_strdup(वर्ण ***l, ध्रुव वर्ण *assignment) {
         /* Like strv_env_replace_consume(), but copies the argument. */
 
-        assert(l);
-        assert(assignment);
+        प्रतिज्ञा(l);
+        प्रतिज्ञा(assignment);
 
-        char *p = strdup(assignment);
-        if (!p)
-                return -ENOMEM;
+        वर्ण *p = strdup(assignment);
+        यदि (!p)
+                प्रत्यागम -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        प्रत्यागम strv_env_replace_consume(l, p);
 }
 
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
-        char *p;
+पूर्णाङ्क strv_env_replace_strdup_passthrough(वर्ण ***l, ध्रुव वर्ण *assignment) {
+        वर्ण *p;
 
         /* Like strv_env_replace_strdup(), but pulls the variable from the environment of
          * the calling program, if a variable name without value is specified. */
 
-        assert(l);
-        assert(assignment);
+        प्रतिज्ञा(l);
+        प्रतिज्ञा(assignment);
 
-        if (strchr(assignment, '=')) {
-                if (!env_assignment_is_valid(assignment))
-                        return -EINVAL;
+        यदि (म_अक्षर(assignment, '=')) {
+                यदि (!env_assignment_is_valid(assignment))
+                        प्रत्यागम -EINVAL;
 
                 p = strdup(assignment);
-        } else {
-                if (!env_name_is_valid(assignment))
-                        return -EINVAL;
+        } अन्यथा {
+                यदि (!env_name_is_valid(assignment))
+                        प्रत्यागम -EINVAL;
 
                 /* If we can't find the variable in our environment, we will use
                  * the empty string. This way "passthrough" is equivalent to passing
                  * --setenv=FOO=$FOO in the shell. */
                 p = strjoin(assignment, "=", secure_getenv(assignment));
         }
-        if (!p)
-                return -ENOMEM;
+        यदि (!p)
+                प्रत्यागम -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        प्रत्यागम strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
-        assert(l);
+पूर्णाङ्क strv_env_assign(वर्ण ***l, ध्रुव वर्ण *कुंजी, ध्रुव वर्ण *मूल्य) {
+        प्रतिज्ञा(l);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        यदि (!env_name_is_valid(कुंजी))
+                प्रत्यागम -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
-                strv_env_unset(*l, key);
-                return 0;
+        यदि (!मूल्य) {
+                strv_env_unset(*l, कुंजी);
+                प्रत्यागम 0;
         }
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        वर्ण *p = strjoin(कुंजी, "=", मूल्य);
+        यदि (!p)
+                प्रत्यागम -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        प्रत्यागम strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
-        int r;
+पूर्णाङ्क strv_env_assignf(वर्ण ***l, ध्रुव वर्ण *कुंजी, ध्रुव वर्ण *valuef, ...) {
+        पूर्णाङ्क r;
 
-        assert(l);
-        assert(key);
+        प्रतिज्ञा(l);
+        प्रतिज्ञा(कुंजी);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        यदि (!env_name_is_valid(कुंजी))
+                प्रत्यागम -EINVAL;
 
-        if (!valuef) {
-                strv_env_unset(*l, key);
-                return 0;
+        यदि (!valuef) {
+                strv_env_unset(*l, कुंजी);
+                प्रत्यागम 0;
         }
 
-        _cleanup_free_ char *value = NULL;
-        va_list ap;
-        va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
-        va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        _cleanup_free_ वर्ण *मूल्य = रिक्त;
+        बहु_सूची ap;
+        बहु_शुरू(ap, valuef);
+        r = vasprintf(&मूल्य, valuef, ap);
+        बहु_पूर्ण(ap);
+        यदि (r < 0)
+                प्रत्यागम -ENOMEM;
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        वर्ण *p = strjoin(कुंजी, "=", मूल्य);
+        यदि (!p)
+                प्रत्यागम -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        प्रत्यागम strv_env_replace_consume(l, p);
 }
 
-int _strv_env_assign_many(char ***l, ...) {
-        va_list ap;
-        int r;
+पूर्णाङ्क _strv_env_assign_many(वर्ण ***l, ...) {
+        बहु_सूची ap;
+        पूर्णाङ्क r;
 
-        assert(l);
+        प्रतिज्ञा(l);
 
-        va_start(ap, l);
-        for (;;) {
-                const char *key, *value;
+        बहु_शुरू(ap, l);
+        प्रति (;;) {
+                ध्रुव वर्ण *कुंजी, *मूल्य;
 
-                key = va_arg(ap, const char *);
-                if (!key)
-                        break;
+                कुंजी = बहु_तर्क(ap, ध्रुव वर्ण *);
+                यदि (!कुंजी)
+                        भङ्ग;
 
-                if (!env_name_is_valid(key)) {
-                        va_end(ap);
-                        return -EINVAL;
+                यदि (!env_name_is_valid(कुंजी)) {
+                        बहु_पूर्ण(ap);
+                        प्रत्यागम -EINVAL;
                 }
 
-                value = va_arg(ap, const char *);
-                if (!value) {
-                        strv_env_unset(*l, key);
-                        continue;
+                मूल्य = बहु_तर्क(ap, ध्रुव वर्ण *);
+                यदि (!मूल्य) {
+                        strv_env_unset(*l, कुंजी);
+                        अनुवर्त;
                 }
 
-                char *p = strjoin(key, "=", value);
-                if (!p) {
-                        va_end(ap);
-                        return -ENOMEM;
+                वर्ण *p = strjoin(कुंजी, "=", मूल्य);
+                यदि (!p) {
+                        बहु_पूर्ण(ap);
+                        प्रत्यागम -ENOMEM;
                 }
 
                 r = strv_env_replace_consume(l, p);
-                if (r < 0) {
-                        va_end(ap);
-                        return r;
+                यदि (r < 0) {
+                        बहु_पूर्ण(ap);
+                        प्रत्यागम r;
                 }
         }
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags) {
-        assert(name);
+वर्ण* strv_env_get_n(वर्ण * ध्रुव *l, ध्रुव वर्ण *name, माप_प्रकार k, ReplaceEnvFlags flags) {
+        प्रतिज्ञा(name);
 
-        if (k == SIZE_MAX)
-                k = strlen(name);
-        if (k <= 0)
-                return NULL;
+        यदि (k == SIZE_MAX)
+                k = म_माप(name);
+        यदि (k <= 0)
+                प्रत्यागम रिक्त;
 
         STRV_FOREACH_BACKWARDS(i, l)
-                if (strneq(*i, name, k) && (*i)[k] == '=')
-                        return (char*) *i + k + 1;
+                यदि (strneq(*i, name, k) && (*i)[k] == '=')
+                        प्रत्यागम (वर्ण*) *i + k + 1;
 
-        if (flags & REPLACE_ENV_USE_ENVIRONMENT) {
-                const char *t;
+        यदि (flags & REPLACE_ENV_USE_ENVIRONMENT) {
+                ध्रुव वर्ण *t;
 
                 /* Safety check that the name is not overly long, before we do a stack allocation */
-                if (k > sc_arg_max() - 2)
-                        return NULL;
+                यदि (k > sc_arg_max() - 2)
+                        प्रत्यागम रिक्त;
 
                 t = strndupa_safe(name, k);
-                return secure_getenv(t);
+                प्रत्यागम secure_getenv(t);
         };
 
-        return NULL;
+        प्रत्यागम रिक्त;
 }
 
-char* strv_env_pairs_get(char **l, const char *name) {
-        char *result = NULL;
+वर्ण* strv_env_pairs_get(वर्ण **l, ध्रुव वर्ण *name) {
+        वर्ण *result = रिक्त;
 
-        assert(name);
+        प्रतिज्ञा(name);
 
-        STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
-                        result = *value;
+        STRV_FOREACH_PAIR(कुंजी, मूल्य, l)
+                यदि (streq(*कुंजी, name))
+                        result = *मूल्य;
 
-        return result;
+        प्रत्यागम result;
 }
 
-int strv_env_get_merged(char **l, char ***ret) {
-        _cleanup_strv_free_ char **v = NULL;
-        size_t n = 0;
-        int r;
+पूर्णाङ्क strv_env_get_merged(वर्ण **l, वर्ण ***ret) {
+        _cleanup_strv_free_ वर्ण **v = रिक्त;
+        माप_प्रकार n = 0;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         /* This converts a strv with pairs of environment variable name + value into a strv of name and
          * value concatenated with a "=" separator. E.g.
          * input  : { "NAME", "value", "FOO", "var" }
          * output : { "NAME=value", "FOO=var" } */
 
-        STRV_FOREACH_PAIR(key, value, l) {
-                char *s;
+        STRV_FOREACH_PAIR(कुंजी, मूल्य, l) {
+                वर्ण *s;
 
-                s = strjoin(*key, "=", *value);
-                if (!s)
-                        return -ENOMEM;
+                s = strjoin(*कुंजी, "=", *मूल्य);
+                यदि (!s)
+                        प्रत्यागम -ENOMEM;
 
                 r = strv_consume_with_size(&v, &n, s);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
         }
 
         *ret = TAKE_PTR(v);
-        return 0;
+        प्रत्यागम 0;
 }
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata) {
-        int k = 0;
+वर्ण** strv_env_clean_with_callback(वर्ण **l, शून्य (*invalid_callback)(ध्रुव वर्ण *p, शून्य *userdata), शून्य *userdata) {
+        पूर्णाङ्क k = 0;
 
         STRV_FOREACH(p, l) {
-                size_t n;
+                माप_प्रकार n;
                 bool duplicate = false;
 
-                if (!env_assignment_is_valid(*p)) {
-                        if (invalid_callback)
+                यदि (!env_assignment_is_valid(*p)) {
+                        यदि (invalid_callback)
                                 invalid_callback(*p, userdata);
-                        free(*p);
-                        continue;
+                        मुक्त(*p);
+                        अनुवर्त;
                 }
 
-                n = strcspn(*p, "=");
+                n = म_खोज(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, n) && (*q)[n] == '=') {
+                        यदि (strneq(*p, *q, n) && (*q)[n] == '=') {
                                 duplicate = true;
-                                break;
+                                भङ्ग;
                         }
 
-                if (duplicate) {
-                        free(*p);
-                        continue;
+                यदि (duplicate) {
+                        मुक्त(*p);
+                        अनुवर्त;
                 }
 
                 l[k++] = *p;
         }
 
-        if (l)
-                l[k] = NULL;
+        यदि (l)
+                l[k] = रिक्त;
 
-        return l;
+        प्रत्यागम l;
 }
 
-static int strv_extend_with_length(char ***l, const char *s, size_t n) {
-        char *c;
+स्थिर पूर्णाङ्क strv_extend_with_length(वर्ण ***l, ध्रुव वर्ण *s, माप_प्रकार n) {
+        वर्ण *c;
 
         c = strndup(s, n);
-        if (!c)
-                return -ENOMEM;
+        यदि (!c)
+                प्रत्यागम -ENOMEM;
 
-        return strv_consume(l, c);
+        प्रत्यागम strv_consume(l, c);
 }
 
-static int strv_env_get_n_validated(
-                char **env,
-                const char *name,
-                size_t l,
+स्थिर पूर्णाङ्क strv_env_get_n_validated(
+                वर्ण **env,
+                ध्रुव वर्ण *name,
+                माप_प्रकार l,
                 ReplaceEnvFlags flags,
-                char **ret,              /* points into the env block! do not free! */
-                char ***unset_variables, /* updated in place */
-                char ***bad_variables) { /* ditto */
+                वर्ण **ret,              /* points into the env block! do not free! */
+                वर्ण ***unset_variables, /* updated in place */
+                वर्ण ***bad_variables) { /* ditto */
 
-        char *e;
-        int r;
+        वर्ण *e;
+        पूर्णाङ्क r;
 
-        assert(l == 0 || name);
-        assert(ret);
+        प्रतिज्ञा(l == 0 || name);
+        प्रतिज्ञा(ret);
 
-        if (env_name_is_valid_n(name, l)) {
+        यदि (env_name_is_valid_n(name, l)) {
                 e = strv_env_get_n(env, name, l, flags);
-                if (!e && unset_variables) {
+                यदि (!e && unset_variables) {
                         r = strv_extend_with_length(unset_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                प्रत्यागम r;
                 }
-        } else {
-                e = NULL; /* Resolve invalid variable names the same way as unset ones */
+        } अन्यथा {
+                e = रिक्त; /* Resolve invalid variable names the same way as unset ones */
 
-                if (bad_variables) {
+                यदि (bad_variables) {
                         r = strv_extend_with_length(bad_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                प्रत्यागम r;
                 }
         }
 
         *ret = e;
-        return !!e;
+        प्रत्यागम !!e;
 }
 
-int replace_env_full(
-                const char *format,
-                size_t length,
-                char **env,
+पूर्णाङ्क replace_env_full(
+                ध्रुव वर्ण *format,
+                माप_प्रकार length,
+                वर्ण **env,
                 ReplaceEnvFlags flags,
-                char **ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+                वर्ण **ret,
+                वर्ण ***ret_unset_variables,
+                वर्ण ***ret_bad_variables) {
 
-        enum {
+        गणना {
                 WORD,
                 CURLY,
                 VARIABLE,
                 VARIABLE_RAW,
                 TEST,
-                DEFAULT_VALUE,
-                ALTERNATE_VALUE,
+                DEFAULT_मूल्य,
+                ALTERNATE_मूल्य,
         } state = WORD;
 
-        _cleanup_strv_free_ char **unset_variables = NULL, **bad_variables = NULL;
-        const char *e, *word = format, *test_value = NULL; /* test_value is initialized to appease gcc */
-        _cleanup_free_ char *s = NULL;
-        char ***pu, ***pb;
-        size_t i, len = 0; /* len is initialized to appease gcc */
-        int nest = 0, r;
+        _cleanup_strv_free_ वर्ण **unset_variables = रिक्त, **bad_variables = रिक्त;
+        ध्रुव वर्ण *e, *word = format, *test_मूल्य = रिक्त; /* test_value is initialized to appease gcc */
+        _cleanup_free_ वर्ण *s = रिक्त;
+        वर्ण ***pu, ***pb;
+        माप_प्रकार i, len = 0; /* len is initialized to appease gcc */
+        पूर्णाङ्क nest = 0, r;
 
-        assert(format);
+        प्रतिज्ञा(format);
 
-        if (length == SIZE_MAX)
-                length = strlen(format);
+        यदि (length == SIZE_MAX)
+                length = म_माप(format);
 
-        pu = ret_unset_variables ? &unset_variables : NULL;
-        pb = ret_bad_variables ? &bad_variables : NULL;
+        pu = ret_unset_variables ? &unset_variables : रिक्त;
+        pb = ret_bad_variables ? &bad_variables : रिक्त;
 
-        for (e = format, i = 0; *e && i < length; e++, i++)
-                switch (state) {
+        प्रति (e = format, i = 0; *e && i < length; e++, i++)
+                विकल्प (state) {
 
-                case WORD:
-                        if (*e == '$')
+                पक्ष WORD:
+                        यदि (*e == '$')
                                 state = CURLY;
-                        break;
+                        भङ्ग;
 
-                case CURLY:
-                        if (*e == '{') {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                पक्ष CURLY:
+                        यदि (*e == '{') {
+                                यदि (!strextendn(&s, word, e-word-1))
+                                        प्रत्यागम -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE;
                                 nest++;
 
-                        } else if (*e == '$') {
-                                if (!strextendn(&s, word, e-word))
-                                        return -ENOMEM;
+                        } अन्यथा यदि (*e == '$') {
+                                यदि (!strextendn(&s, word, e-word))
+                                        प्रत्यागम -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
 
-                        } else if (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        } अन्यथा यदि (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && म_अक्षर(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                यदि (!strextendn(&s, word, e-word-1))
+                                        प्रत्यागम -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE_RAW;
 
-                        } else
+                        } अन्यथा
                                 state = WORD;
-                        break;
+                        भङ्ग;
 
-                case VARIABLE:
-                        if (*e == '}') {
-                                char *t;
+                पक्ष VARIABLE:
+                        यदि (*e == '}') {
+                                वर्ण *t;
 
                                 r = strv_env_get_n_validated(env, word+2, e-word-2, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                यदि (r < 0)
+                                        प्रत्यागम r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                यदि (!strextend(&s, t))
+                                        प्रत्यागम -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                                 nest--;
-                        } else if (*e == ':') {
-                                if (flags & REPLACE_ENV_ALLOW_EXTENDED) {
+                        } अन्यथा यदि (*e == ':') {
+                                यदि (flags & REPLACE_ENV_ALLOW_EXTENDED) {
                                         len = e - word - 2;
                                         state = TEST;
-                                } else
+                                } अन्यथा
                                         /* Treat this as unsupported syntax, i.e. do no replacement */
                                         state = WORD;
                         }
-                        break;
+                        भङ्ग;
 
-                case TEST:
-                        if (*e == '-')
-                                state = DEFAULT_VALUE;
-                        else if (*e == '+')
-                                state = ALTERNATE_VALUE;
-                        else {
+                पक्ष TEST:
+                        यदि (*e == '-')
+                                state = DEFAULT_मूल्य;
+                        अन्यथा यदि (*e == '+')
+                                state = ALTERNATE_मूल्य;
+                        अन्यथा {
                                 state = WORD;
-                                break;
+                                भङ्ग;
                         }
 
-                        test_value = e+1;
-                        break;
+                        test_मूल्य = e+1;
+                        भङ्ग;
 
-                case DEFAULT_VALUE: /* fall through */
-                case ALTERNATE_VALUE:
-                        assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
+                पक्ष DEFAULT_मूल्य: /* fall through */
+                पक्ष ALTERNATE_मूल्य:
+                        प्रतिज्ञा(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
-                        if (*e == '{') {
+                        यदि (*e == '{') {
                                 nest++;
-                                break;
+                                भङ्ग;
                         }
 
-                        if (*e != '}')
-                                break;
+                        यदि (*e != '}')
+                                भङ्ग;
 
                         nest--;
-                        if (nest == 0) {
-                                _cleanup_strv_free_ char **u = NULL, **b = NULL;
-                                _cleanup_free_ char *v = NULL;
-                                char *t = NULL;
+                        यदि (nest == 0) {
+                                _cleanup_strv_free_ वर्ण **u = रिक्त, **b = रिक्त;
+                                _cleanup_free_ वर्ण *v = रिक्त;
+                                वर्ण *t = रिक्त;
 
                                 r = strv_env_get_n_validated(env, word+2, len, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                यदि (r < 0)
+                                        प्रत्यागम r;
 
-                                if (t && state == ALTERNATE_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                यदि (t && state == ALTERNATE_मूल्य) {
+                                        r = replace_env_full(test_मूल्य, e-test_मूल्य, env, flags, &v, pu ? &u : रिक्त, pb ? &b : रिक्त);
+                                        यदि (r < 0)
+                                                प्रत्यागम r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                } अन्यथा यदि (!t && state == DEFAULT_मूल्य) {
+                                        r = replace_env_full(test_मूल्य, e-test_मूल्य, env, flags, &v, pu ? &u : रिक्त, pb ? &b : रिक्त);
+                                        यदि (r < 0)
+                                                प्रत्यागम r;
 
                                         t = v;
                                 }
 
                                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                यदि (r < 0)
+                                        प्रत्यागम r;
                                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                यदि (r < 0)
+                                        प्रत्यागम r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                यदि (!strextend(&s, t))
+                                        प्रत्यागम -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                         }
-                        break;
+                        भङ्ग;
 
-                case VARIABLE_RAW:
-                        assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                पक्ष VARIABLE_RAW:
+                        प्रतिज्ञा(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                        if (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                char *t = NULL;
+                        यदि (!म_अक्षर(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                वर्ण *t = रिक्त;
 
                                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                                if (r < 0)
-                                        return r;
+                                यदि (r < 0)
+                                        प्रत्यागम r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                यदि (!strextend(&s, t))
+                                        प्रत्यागम -ENOMEM;
 
                                 word = e--;
                                 i--;
                                 state = WORD;
                         }
-                        break;
+                        भङ्ग;
                 }
 
-        if (state == VARIABLE_RAW) {
-                char *t;
+        यदि (state == VARIABLE_RAW) {
+                वर्ण *t;
 
-                assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                प्रतिज्ञा(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
-                if (!strextend(&s, t))
-                        return -ENOMEM;
+                यदि (!strextend(&s, t))
+                        प्रत्यागम -ENOMEM;
 
-        } else if (!strextendn(&s, word, e-word))
-                return -ENOMEM;
+        } अन्यथा यदि (!strextendn(&s, word, e-word))
+                प्रत्यागम -ENOMEM;
 
-        if (ret_unset_variables)
+        यदि (ret_unset_variables)
                 *ret_unset_variables = TAKE_PTR(unset_variables);
-        if (ret_bad_variables)
+        यदि (ret_bad_variables)
                 *ret_bad_variables = TAKE_PTR(bad_variables);
 
-        if (ret)
+        यदि (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int replace_env_argv(
-                char **argv,
-                char **env,
-                char ***ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+पूर्णाङ्क replace_env_argv(
+                वर्ण **argv,
+                वर्ण **env,
+                वर्ण ***ret,
+                वर्ण ***ret_unset_variables,
+                वर्ण ***ret_bad_variables) {
 
-        _cleanup_strv_free_ char **n = NULL, **unset_variables = NULL, **bad_variables = NULL;
-        size_t k = 0, l;
-        int r;
+        _cleanup_strv_free_ वर्ण **n = रिक्त, **unset_variables = रिक्त, **bad_variables = रिक्त;
+        माप_प्रकार k = 0, l;
+        पूर्णाङ्क r;
 
-        assert(!strv_isempty(argv));
-        assert(ret);
+        प्रतिज्ञा(!strv_isempty(argv));
+        प्रतिज्ञा(ret);
 
         l = strv_length(argv);
 
-        n = new(char*, l+1);
-        if (!n)
-                return -ENOMEM;
+        n = new(वर्ण*, l+1);
+        यदि (!n)
+                प्रत्यागम -ENOMEM;
 
         STRV_FOREACH(i, argv) {
-                const char *word = *i;
+                ध्रुव वर्ण *word = *i;
 
                 /* If $FOO appears as single word, replace it by the split up variable */
-                if (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
-                        _cleanup_strv_free_ char **m = NULL;
-                        const char *name = word + 1;
-                        char *e, **w;
-                        size_t q;
+                यदि (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
+                        _cleanup_strv_free_ वर्ण **m = रिक्त;
+                        ध्रुव वर्ण *name = word + 1;
+                        वर्ण *e, **w;
+                        माप_प्रकार q;
 
-                        if (env_name_is_valid(name)) {
+                        यदि (env_name_is_valid(name)) {
                                 e = strv_env_get(env, name);
-                                if (e)
+                                यदि (e)
                                         r = strv_split_full(&m, e, WHITESPACE, EXTRACT_RELAX|EXTRACT_UNQUOTE);
-                                else if (ret_unset_variables)
+                                अन्यथा यदि (ret_unset_variables)
                                         r = strv_extend(&unset_variables, name);
-                                else
+                                अन्यथा
                                         r = 0;
-                        } else if (ret_bad_variables)
+                        } अन्यथा यदि (ret_bad_variables)
                                 r = strv_extend(&bad_variables, name);
-                        else
+                        अन्यथा
                                 r = 0;
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                प्रत्यागम r;
 
                         q = strv_length(m);
                         l = l + q - 1;
 
-                        w = reallocarray(n, l + 1, sizeof(char*));
-                        if (!w)
-                                return -ENOMEM;
+                        w = reallocarray(n, l + 1, परिमाण(वर्ण*));
+                        यदि (!w)
+                                प्रत्यागम -ENOMEM;
 
                         n = w;
-                        if (m) {
-                                memcpy(n + k, m, (q + 1) * sizeof(char*));
+                        यदि (m) {
+                                स_नकल(n + k, m, (q + 1) * परिमाण(वर्ण*));
                                 m = mfree(m);
                         }
 
                         k += q;
                         /* reallocarray() does not zero-initialize the grown tail, add NUL termination */
-                        n[k] = NULL;
-                        continue;
+                        n[k] = रिक्त;
+                        अनुवर्त;
                 }
 
-                _cleanup_strv_free_ char **u = NULL, **b = NULL;
+                _cleanup_strv_free_ वर्ण **u = रिक्त, **b = रिक्त;
 
                 /* If ${FOO} appears as part of a word, replace it by the variable as-is */
                 r = replace_env_full(
@@ -962,212 +962,212 @@ int replace_env_argv(
                                 env,
                                 /* flags= */ 0,
                                 n + k,
-                                ret_unset_variables ? &u : NULL,
-                                ret_bad_variables ? &b : NULL);
-                if (r < 0)
-                        return r;
-                n[++k] = NULL;
+                                ret_unset_variables ? &u : रिक्त,
+                                ret_bad_variables ? &b : रिक्त);
+                यदि (r < 0)
+                        प्रत्यागम r;
+                n[++k] = रिक्त;
 
                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
         }
 
-        if (ret_unset_variables) {
+        यदि (ret_unset_variables) {
                 strv_sort_uniq(unset_variables);
                 *ret_unset_variables = TAKE_PTR(unset_variables);
         }
-        if (ret_bad_variables) {
+        यदि (ret_bad_variables) {
                 strv_sort_uniq(bad_variables);
                 *ret_bad_variables = TAKE_PTR(bad_variables);
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int getenv_bool(const char *p) {
-        const char *e;
+पूर्णाङ्क getenv_bool(ध्रुव वर्ण *p) {
+        ध्रुव वर्ण *e;
 
-        e = getenv(p);
-        if (!e)
-                return -ENXIO;
+        e = दो_पर्या(p);
+        यदि (!e)
+                प्रत्यागम -ENXIO;
 
-        return parse_boolean(e);
+        प्रत्यागम parse_boolean(e);
 }
 
-int secure_getenv_bool(const char *p) {
-        const char *e;
+पूर्णाङ्क secure_getenv_bool(ध्रुव वर्ण *p) {
+        ध्रुव वर्ण *e;
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        यदि (!e)
+                प्रत्यागम -ENXIO;
 
-        return parse_boolean(e);
+        प्रत्यागम parse_boolean(e);
 }
 
-int secure_getenv_uint64(const char *p, uint64_t *ret) {
-        const char *e;
+पूर्णाङ्क secure_getenv_uint64(ध्रुव वर्ण *p, uint64_t *ret) {
+        ध्रुव वर्ण *e;
 
-        assert(p);
+        प्रतिज्ञा(p);
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        यदि (!e)
+                प्रत्यागम -ENXIO;
 
-        return safe_atou64(e, ret);
+        प्रत्यागम safe_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
-        assert(name);
+पूर्णाङ्क set_unset_env(ध्रुव वर्ण *name, ध्रुव वर्ण *मूल्य, bool overwrite) {
+        प्रतिज्ञा(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        यदि (मूल्य)
+                प्रत्यागम RET_NERRNO(setenv(name, मूल्य, overwrite));
 
-        return RET_NERRNO(unsetenv(name));
+        प्रत्यागम RET_NERRNO(unsetenv(name));
 }
 
-int putenv_dup(const char *assignment, bool override) {
-        const char *e, *n;
+पूर्णाङ्क putenv_dup(ध्रुव वर्ण *assignment, bool override) {
+        ध्रुव वर्ण *e, *n;
 
-        e = strchr(assignment, '=');
-        if (!e)
-                return -EINVAL;
+        e = म_अक्षर(assignment, '=');
+        यदि (!e)
+                प्रत्यागम -EINVAL;
 
         n = strndupa_safe(assignment, e - assignment);
 
         /* This is like putenv(), but uses setenv() so that our memory doesn't become part of environ[]. */
-        return RET_NERRNO(setenv(n, e + 1, override));
+        प्रत्यागम RET_NERRNO(setenv(n, e + 1, override));
 }
 
-int setenv_systemd_exec_pid(bool update_only) {
-        const char *e;
-        int r;
+पूर्णाङ्क setenv_systemd_exec_pid(bool update_only) {
+        ध्रुव वर्ण *e;
+        पूर्णाङ्क r;
 
         /* Update $SYSTEMD_EXEC_PID=pid except when '*' is set for the variable. */
 
         e = secure_getenv("SYSTEMD_EXEC_PID");
-        if (!e && update_only)
-                return 0;
+        यदि (!e && update_only)
+                प्रत्यागम 0;
 
-        if (streq_ptr(e, "*"))
-                return 0;
+        यदि (streq_ptr(e, "*"))
+                प्रत्यागम 0;
 
         r = setenvf("SYSTEMD_EXEC_PID", /* overwrite= */ 1, PID_FMT, getpid_cached());
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-int setenv_systemd_log_level(void) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+पूर्णाङ्क setenv_systemd_log_level(शून्य) {
+        _cleanup_free_ वर्ण *val = रिक्त;
+        पूर्णाङ्क r;
 
         r = log_level_to_string_alloc(log_get_max_level(), &val);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
+        प्रत्यागम RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
 }
 
-int getenv_path_list(const char *name, char ***ret_paths) {
-        _cleanup_strv_free_ char **l = NULL;
-        const char *e;
-        int r;
+पूर्णाङ्क getenv_path_list(ध्रुव वर्ण *name, वर्ण ***ret_paths) {
+        _cleanup_strv_free_ वर्ण **l = रिक्त;
+        ध्रुव वर्ण *e;
+        पूर्णाङ्क r;
 
-        assert(name);
-        assert(ret_paths);
+        प्रतिज्ञा(name);
+        प्रतिज्ञा(ret_paths);
 
         e = secure_getenv(name);
-        if (!e)
-                return -ENXIO;
+        यदि (!e)
+                प्रत्यागम -ENXIO;
 
         r = strv_split_full(&l, e, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse $%s: %m", name);
+        यदि (r < 0)
+                प्रत्यागम log_debug_errno(r, "Failed to parse $%s: %m", name);
 
         STRV_FOREACH(p, l) {
-                if (!path_is_absolute(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                यदि (!path_is_absolute(*p))
+                        प्रत्यागम log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not absolute, refusing.", *p);
 
-                if (!path_is_normalized(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                यदि (!path_is_normalized(*p))
+                        प्रत्यागम log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not normalized, refusing.", *p);
 
-                if (path_equal(*p, "/"))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                यदि (path_equal(*p, "/"))
+                        प्रत्यागम log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is the root fs, refusing.", *p);
         }
 
-        if (strv_isempty(l))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        यदि (strv_isempty(l))
+                प्रत्यागम log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "No paths specified, refusing.");
 
         *ret_paths = TAKE_PTR(l);
-        return 1;
+        प्रत्यागम 1;
 }
 
-int getenv_steal_erase(const char *name, char **ret) {
-        _cleanup_(erase_and_freep) char *a = NULL;
-        char *e;
+पूर्णाङ्क getenv_steal_erase(ध्रुव वर्ण *name, वर्ण **ret) {
+        _cleanup_(erase_and_freep) वर्ण *a = रिक्त;
+        वर्ण *e;
 
-        assert(name);
+        प्रतिज्ञा(name);
 
         /* Reads an environment variable, makes a copy of it, erases its memory in the environment block and removes
          * it from there. Usecase: reading passwords from the env block (which is a bad idea, but useful for
          * testing, and given that people are likely going to misuse this, be thorough) */
 
         e = secure_getenv(name);
-        if (!e) {
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        यदि (!e) {
+                यदि (ret)
+                        *ret = रिक्त;
+                प्रत्यागम 0;
         }
 
-        if (ret) {
+        यदि (ret) {
                 a = strdup(e);
-                if (!a)
-                        return -ENOMEM;
+                यदि (!a)
+                        प्रत्यागम -ENOMEM;
         }
 
         string_erase(e);
 
-        if (unsetenv(name) < 0)
-                return -errno;
+        यदि (unsetenv(name) < 0)
+                प्रत्यागम -त्रुटि_सं;
 
-        if (ret)
+        यदि (ret)
                 *ret = TAKE_PTR(a);
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
-        _cleanup_free_ char *value = NULL;
-        va_list ap;
-        int r;
+पूर्णाङ्क setenvf(ध्रुव वर्ण *name, bool overwrite, ध्रुव वर्ण *valuef, ...) {
+        _cleanup_free_ वर्ण *मूल्य = रिक्त;
+        बहु_सूची ap;
+        पूर्णाङ्क r;
 
-        assert(name);
+        प्रतिज्ञा(name);
 
-        if (!valuef)
-                return RET_NERRNO(unsetenv(name));
+        यदि (!valuef)
+                प्रत्यागम RET_NERRNO(unsetenv(name));
 
-        va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
-        va_end(ap);
+        बहु_शुरू(ap, valuef);
+        r = vasprintf(&मूल्य, valuef, ap);
+        बहु_पूर्ण(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        यदि (r < 0)
+                प्रत्यागम -ENOMEM;
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
-                return 0;
+        यदि (streq_ptr(दो_पर्या(name), मूल्य))
+                प्रत्यागम 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        प्रत्यागम RET_NERRNO(setenv(name, मूल्य, overwrite));
 }

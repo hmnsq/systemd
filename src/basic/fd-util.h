@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <dirent.h>
-#include <fcntl.h>
-#include <stdio.h>
+#अन्तर्भाव <dirent.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <stdio.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 /* maximum length of fdname */
 #define FDNAME_MAX 255
@@ -26,10 +26,10 @@
  * are hexa and others are octal; duplicated as-is from the kernel definitions):
  * - alpha, arm, arm64, m68k, mips, parisc, powerpc, sparc: each has a specific value;
  * - others: they use the "generic" value (defined in include/uapi/asm-generic/fcntl.h) */
-#if O_LARGEFILE != 0
+#यदि O_LARGEFILE != 0
 #  define RAW_O_LARGEFILE O_LARGEFILE
-#else
-#  if defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
+#अन्यथा
+#  यदि defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
 #    define RAW_O_LARGEFILE 0400000
 #  elif defined(__mips__)
 #    define RAW_O_LARGEFILE 0x2000
@@ -39,7 +39,7 @@
 #    define RAW_O_LARGEFILE 0200000
 #  elif defined(__sparc__)
 #    define RAW_O_LARGEFILE 0x40000
-#  else
+#  अन्यथा
 #    define RAW_O_LARGEFILE 00100000
 #  endif
 #endif
@@ -53,9 +53,9 @@
 /* The default, minimum, and maximum values of /proc/sys/fs/nr_open. See kernel's fs/file.c.
  * These values have been unchanged since kernel-2.6.26:
  * https://github.com/torvalds/linux/commit/eceea0b3df05ed262ae32e0c6340cc7a3626632d */
-#define NR_OPEN_DEFAULT ((unsigned) (1024 * 1024))
-#define NR_OPEN_MINIMUM ((unsigned) (sizeof(long) * 8))
-#define NR_OPEN_MAXIMUM ((unsigned) (CONST_MIN((size_t) INT_MAX, SIZE_MAX / __SIZEOF_POINTER__) & ~(sizeof(long) * 8 - 1)))
+#define NR_OPEN_DEFAULT ((अचिन्हित) (1024 * 1024))
+#define NR_OPEN_MINIMUM ((अचिन्हित) (परिमाण(दीर्घ) * 8))
+#define NR_OPEN_MAXIMUM ((अचिन्हित) (CONST_MIN((माप_प्रकार) पूर्णांक_उच्च, SIZE_MAX / __SIZEOF_POINTER__) & ~(परिमाण(दीर्घ) * 8 - 1)))
 
 /* A special fd that can be passed in various helpers instead of an fd indicating the root dir. Inspired by,
  * and an alternative to AT_FDCWD. We use specific negative value that is outside of the negative errno
@@ -66,48 +66,48 @@ assert_cc(XAT_FDROOT < -ERRNO_MAX);
 
 /* Checks whether the specified fd is acceptable as a *at() directory fd that supports the two "wildcard"
  * values: it's either a regular, valid fd (i.e. >= 0), or one of the special AT_FDCWD/XAT_FDROOT values. */
-static inline bool wildcard_fd_is_valid(int fd) {
-        return fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
+स्थिर अन्तःस्थ bool wildcard_fd_is_valid(पूर्णाङ्क fd) {
+        प्रत्यागम fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
 }
 
-int close_nointr(int fd);
-int safe_close(int fd);
-void safe_close_pair(int p[static 2]);
+पूर्णाङ्क close_nointr(पूर्णाङ्क fd);
+पूर्णाङ्क safe_close(पूर्णाङ्क fd);
+शून्य safe_close_pair(पूर्णाङ्क p[स्थिर 2]);
 
-static inline int safe_close_above_stdio(int fd) {
-        if (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
-                return -EBADF;
+स्थिर अन्तःस्थ पूर्णाङ्क safe_close_above_stdio(पूर्णाङ्क fd) {
+        यदि (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
+                प्रत्यागम -EBADF;
 
-        return safe_close(fd);
+        प्रत्यागम safe_close(fd);
 }
 
-static inline void* close_fd_ptr(void *p) {
+स्थिर अन्तःस्थ शून्य* close_fd_ptr(शून्य *p) {
         safe_close(PTR_TO_FD(p));
-        return NULL;
+        प्रत्यागम रिक्त;
 }
 
-void close_many(const int fds[], size_t n_fds);
-void close_many_unset(int fds[], size_t n_fds);
-void close_many_and_free(int *fds, size_t n_fds);
+शून्य close_many(ध्रुव पूर्णाङ्क fds[], माप_प्रकार n_fds);
+शून्य close_many_unset(पूर्णाङ्क fds[], माप_प्रकार n_fds);
+शून्य close_many_and_free(पूर्णाङ्क *fds, माप_प्रकार n_fds);
 
-int fclose_nointr(FILE *f);
-FILE* safe_fclose(FILE *f);
-DIR* safe_closedir(DIR *d);
+पूर्णाङ्क fclose_nointr(खाता *f);
+खाता* safe_fclose(खाता *f);
+सूची* safe_closedir(सूची *d);
 
-static inline void closep(int *fd) {
+स्थिर अन्तःस्थ शून्य closep(पूर्णाङ्क *fd) {
         safe_close(*fd);
 }
 
-static inline void close_pairp(int (*p)[2]) {
+स्थिर अन्तःस्थ शून्य close_pairp(पूर्णाङ्क (*p)[2]) {
         safe_close_pair(*p);
 }
 
-static inline void fclosep(FILE **f) {
+स्थिर अन्तःस्थ शून्य fclosep(खाता **f) {
         safe_fclose(*f);
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, pclose, NULL);
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(खाता*, pclose, रिक्त);
+DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(सूची*, बंद_सूची, रिक्त);
 
 #define _cleanup_close_ _cleanup_(closep)
 #define _cleanup_fclose_ _cleanup_(fclosep)
@@ -115,109 +115,109 @@ DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, NULL);
 #define _cleanup_closedir_ _cleanup_(closedirp)
 #define _cleanup_close_pair_ _cleanup_(close_pairp)
 
-int fd_nonblock(int fd, bool nonblock);
-int stdio_disable_nonblock(void);
+पूर्णाङ्क fd_nonblock(पूर्णाङ्क fd, bool nonblock);
+पूर्णाङ्क stdio_disable_nonblock(शून्य);
 
-void nonblock_resetp(int *fd);
+शून्य nonblock_resetp(पूर्णाङ्क *fd);
 
-int fd_cloexec(int fd, bool cloexec);
-int fd_cloexec_many(const int fds[], size_t n_fds, bool cloexec);
+पूर्णाङ्क fd_cloexec(पूर्णाङ्क fd, bool cloexec);
+पूर्णाङ्क fd_cloexec_many(ध्रुव पूर्णाङ्क fds[], माप_प्रकार n_fds, bool cloexec);
 
-int get_max_fd(void);
+पूर्णाङ्क get_max_fd(शून्य);
 
-int close_all_fds(const int except[], size_t n_except);
-int close_all_fds_without_malloc(const int except[], size_t n_except);
-int close_all_fds_frugal(const int except[], size_t n_except);
+पूर्णाङ्क close_all_fds(ध्रुव पूर्णाङ्क except[], माप_प्रकार n_except);
+पूर्णाङ्क close_all_fds_without_malloc(ध्रुव पूर्णाङ्क except[], माप_प्रकार n_except);
+पूर्णाङ्क close_all_fds_frugal(ध्रुव पूर्णाङ्क except[], माप_प्रकार n_except);
 
-int pack_fds(int fds[], size_t n);
+पूर्णाङ्क pack_fds(पूर्णाङ्क fds[], माप_प्रकार n);
 
-int fd_validate(int fd);
-int same_fd(int a, int b);
+पूर्णाङ्क fd_validate(पूर्णाङ्क fd);
+पूर्णाङ्क same_fd(पूर्णाङ्क a, पूर्णाङ्क b);
 
-bool fdname_is_valid(const char *s);
+bool fdname_is_valid(ध्रुव वर्ण *s);
 
-int fd_get_path(int fd, char **ret);
+पूर्णाङ्क fd_get_path(पूर्णाङ्क fd, वर्ण **ret);
 
-int move_fd(int from, int to, int cloexec);
+पूर्णाङ्क move_fd(पूर्णाङ्क from, पूर्णाङ्क to, पूर्णाङ्क cloexec);
 
-int fd_move_above_stdio(int fd);
+पूर्णाङ्क fd_move_above_stdio(पूर्णाङ्क fd);
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);
+पूर्णाङ्क rearrange_stdio(पूर्णाङ्क original_निवेश_fd, पूर्णाङ्क original_output_fd, पूर्णाङ्क original_error_fd);
 
-static inline int make_null_stdio(void) {
-        return rearrange_stdio(-EBADF, -EBADF, -EBADF);
+स्थिर अन्तःस्थ पूर्णाङ्क make_null_stdio(शून्य) {
+        प्रत्यागम rearrange_stdio(-EBADF, -EBADF, -EBADF);
 }
 
 /* Like TAKE_PTR() but for file descriptors, resetting them to -EBADF */
-#define TAKE_FD(fd) TAKE_GENERIC(fd, int, -EBADF)
+#define TAKE_FD(fd) TAKE_GENERIC(fd, पूर्णाङ्क, -EBADF)
 
 /* Like free_and_replace(), but for file descriptors */
 #define close_and_replace(a, b)                 \
         ({                                      \
-                int *_fdp_ = &(a);              \
+                पूर्णाङ्क *_fdp_ = &(a);              \
                 safe_close(*_fdp_);             \
                 *_fdp_ = TAKE_FD(b);            \
                 0;                              \
         })
 
-int fd_reopen(int fd, int flags);
-int fd_reopen_propagate_append_and_position(int fd, int flags);
-int fd_reopen_condition(int fd, int flags, int mask, int *ret_new_fd);
+पूर्णाङ्क fd_reopen(पूर्णाङ्क fd, पूर्णाङ्क flags);
+पूर्णाङ्क fd_reopen_propagate_append_and_position(पूर्णाङ्क fd, पूर्णाङ्क flags);
+पूर्णाङ्क fd_reopen_condition(पूर्णाङ्क fd, पूर्णाङ्क flags, पूर्णाङ्क mask, पूर्णाङ्क *ret_new_fd);
 
-int fd_is_opath(int fd);
-int fd_vet_accmode(int fd, int mode);
-int fd_is_writable(int fd);
+पूर्णाङ्क fd_is_opath(पूर्णाङ्क fd);
+पूर्णाङ्क fd_vet_accmode(पूर्णाङ्क fd, पूर्णाङ्क mode);
+पूर्णाङ्क fd_is_writable(पूर्णाङ्क fd);
 
-int fd_verify_safe_flags_full(int fd, int extra_flags);
-static inline int fd_verify_safe_flags(int fd) {
-        return fd_verify_safe_flags_full(fd, 0);
+पूर्णाङ्क fd_verify_safe_flags_full(पूर्णाङ्क fd, पूर्णाङ्क extra_flags);
+स्थिर अन्तःस्थ पूर्णाङ्क fd_verify_safe_flags(पूर्णाङ्क fd) {
+        प्रत्यागम fd_verify_safe_flags_full(fd, 0);
 }
 
-unsigned read_nr_open(void);
-int fd_get_diskseq(int fd, uint64_t *ret);
+अचिन्हित read_nr_open(शून्य);
+पूर्णाङ्क fd_get_diskseq(पूर्णाङ्क fd, uint64_t *ret);
 
-int path_is_root_at(int dir_fd, const char *path);
-static inline int path_is_root(const char *path) {
-        return path_is_root_at(AT_FDCWD, path);
+पूर्णाङ्क path_is_मूल_at(पूर्णाङ्क dir_fd, ध्रुव वर्ण *path);
+स्थिर अन्तःस्थ पूर्णाङ्क path_is_मूल(ध्रुव वर्ण *path) {
+        प्रत्यागम path_is_मूल_at(AT_FDCWD, path);
 }
-static inline int dir_fd_is_root(int dir_fd) {
-        return dir_fd == XAT_FDROOT ? true : path_is_root_at(dir_fd, NULL);
+स्थिर अन्तःस्थ पूर्णाङ्क dir_fd_is_मूल(पूर्णाङ्क dir_fd) {
+        प्रत्यागम dir_fd == XAT_FDROOT ? true : path_is_मूल_at(dir_fd, रिक्त);
 }
-static inline int dir_fd_is_root_or_cwd(int dir_fd) {
-        return IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_root_at(dir_fd, NULL);
+स्थिर अन्तःस्थ पूर्णाङ्क dir_fd_is_मूल_or_cwd(पूर्णाङ्क dir_fd) {
+        प्रत्यागम IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_मूल_at(dir_fd, रिक्त);
 }
 
-int fds_inode_and_mount_same(int fd1, int fd2);
+पूर्णाङ्क fds_inode_and_mount_same(पूर्णाङ्क fd1, पूर्णाङ्क fd2);
 
-int resolve_xat_fdroot(int *fd, const char **path, char **ret_buffer);
+पूर्णाङ्क resolve_xat_fdroot(पूर्णाङ्क *fd, ध्रुव वर्ण **path, वर्ण **ret_buffer);
 
 /* The maximum length a buffer for a /proc/self/fd/<fd> path needs */
 #define PROC_FD_PATH_MAX \
-        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(int))
+        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(पूर्णाङ्क))
 
-char* format_proc_fd_path(char buf[static PROC_FD_PATH_MAX], int fd);
+वर्ण* format_proc_fd_path(वर्ण buf[स्थिर PROC_FD_PATH_MAX], पूर्णाङ्क fd);
 
 #define FORMAT_PROC_FD_PATH(fd) \
-        format_proc_fd_path((char[PROC_FD_PATH_MAX]) {}, (fd))
+        format_proc_fd_path((वर्ण[PROC_FD_PATH_MAX]) {}, (fd))
 
 /* The maximum length a buffer for a /proc/<pid>/fd/<fd> path needs */
 #define PROC_PID_FD_PATH_MAX \
-        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(int))
+        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(पूर्णाङ्क))
 
-char* format_proc_pid_fd_path(char buf[static PROC_PID_FD_PATH_MAX], pid_t pid, int fd);
+वर्ण* format_proc_pid_fd_path(वर्ण buf[स्थिर PROC_PID_FD_PATH_MAX], pid_t pid, पूर्णाङ्क fd);
 
 /* Kinda the same as FORMAT_PROC_FD_PATH(), but goes by PID rather than "self" symlink */
 #define FORMAT_PROC_PID_FD_PATH(pid, fd)                                \
-        format_proc_pid_fd_path((char[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
+        format_proc_pid_fd_path((वर्ण[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
 
-int proc_fd_enoent_errno(void);
+पूर्णाङ्क proc_fd_enoent_errno(शून्य);
 
-const char* accmode_to_string(int flags);
+ध्रुव वर्ण* accmode_to_string(पूर्णाङ्क flags);
 
 /* Like ASSERT_PTR, but for fds */
 #define ASSERT_FD(fd)                           \
         ({                                      \
-                int _fd_ = (fd);                \
-                assert(_fd_ >= 0);              \
+                पूर्णाङ्क _fd_ = (fd);                \
+                प्रतिज्ञा(_fd_ >= 0);              \
                 _fd_;                           \
         })

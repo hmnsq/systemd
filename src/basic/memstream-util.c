@@ -1,75 +1,75 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "memstream-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "memstream-util.h"
 
-void memstream_done(MemStream *m) {
-        assert(m);
+शून्य memstream_done(MemStream *m) {
+        प्रतिज्ञा(m);
 
         /* First, close file stream, as the buffer may be reallocated on close. */
         safe_fclose(m->f);
 
         /* Then, free buffer. */
-        free(m->buf);
+        मुक्त(m->buf);
 }
 
-FILE* memstream_init(MemStream *m) {
-        assert(m);
-        assert(!m->f);
+खाता* memstream_init(MemStream *m) {
+        प्रतिज्ञा(m);
+        प्रतिज्ञा(!m->f);
 
         m->f = open_memstream_unlocked(&m->buf, &m->sz);
-        return m->f;
+        प्रत्यागम m->f;
 }
 
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
-        int r;
+पूर्णाङ्क memstream_finalize(MemStream *m, वर्ण **ret_buf, माप_प्रकार *ret_size) {
+        पूर्णाङ्क r;
 
-        assert(m);
-        assert(m->f);
-        assert(ret_buf);
+        प्रतिज्ञा(m);
+        प्रतिज्ञा(m->f);
+        प्रतिज्ञा(ret_buf);
 
         /* Add terminating NUL, so that the output buffer is a valid string. */
-        fputc('\0', m->f);
+        ख_अक्षर_दो('\0', m->f);
 
         r = fflush_and_check(m->f);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         m->f = safe_fclose(m->f);
 
         /* On fclose(), the buffer may be reallocated, and may trigger OOM. */
-        if (!m->buf)
-                return -ENOMEM;
+        यदि (!m->buf)
+                प्रत्यागम -ENOMEM;
 
-        assert(m->sz > 0);
+        प्रतिज्ञा(m->sz > 0);
 
         *ret_buf = TAKE_PTR(m->buf);
-        if (ret_size)
+        यदि (ret_size)
                 *ret_size = m->sz - 1;
 
         m->sz = 0; /* For safety when the MemStream object will be reused later. */
-        return 0;
+        प्रत्यागम 0;
 }
 
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
+पूर्णाङ्क memstream_dump_internal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पंक्ति,
+                ध्रुव वर्ण *func,
                 MemStream *m) {
 
-        _cleanup_free_ char *buf = NULL;
-        int r;
+        _cleanup_free_ वर्ण *buf = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(m);
+        प्रतिज्ञा(m);
 
-        r = memstream_finalize(m, &buf, NULL);
-        if (r < 0)
-                return log_full_errno(level, r, "Failed to flush memstream: %m");
+        r = memstream_finalize(m, &buf, रिक्त);
+        यदि (r < 0)
+                प्रत्यागम log_full_errno(level, r, "Failed to flush memstream: %m");
 
-        return log_dump_internal(level, error, file, line, func, buf);
+        प्रत्यागम log_dump_internal(level, error, file, पंक्ति, func, buf);
 }

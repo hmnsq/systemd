@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <unistd.h>
 
-#include "alloc-util.h"
-#include "dirent-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "path-util.h"
-#include "recurse-dir.h"
-#include "sort-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "dirent-util.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fs-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "mountpoint-util.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "recurse-dir.h"
+#अन्तर्भाव "sort-util.h"
 
 #define DEFAULT_RECURSION_MAX 100
 
-static int sort_func(struct dirent * const *a, struct dirent * const *b) {
-        assert(a);
-        assert(b);
+स्थिर पूर्णाङ्क sort_func(संरचना dirent * ध्रुव *a, संरचना dirent * ध्रुव *b) {
+        प्रतिज्ञा(a);
+        प्रतिज्ञा(b);
 
-        return strcmp((*a)->d_name, (*b)->d_name);
+        प्रत्यागम म_भेद((*a)->d_name, (*b)->d_name);
 }
 
-static bool ignore_dirent(const struct dirent *de, RecurseDirFlags flags) {
-        assert(de);
+स्थिर bool ignore_dirent(ध्रुव संरचना dirent *de, RecurseDirFlags flags) {
+        प्रतिज्ञा(de);
 
         /* Depending on flag either ignore everything starting with ".", or just "." itself and ".." */
 
-        if ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) {
+        यदि ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) {
                 RecurseDirFlags f;
 
-                switch (de->d_type) {
+                विकल्प (de->d_type) {
 
-                case DT_DIR:
+                पक्ष DT_DIR:
                         f = RECURSE_DIR_MUST_BE_DIRECTORY;
-                        break;
+                        भङ्ग;
 
-                case DT_REG:
+                पक्ष DT_REG:
                         f = RECURSE_DIR_MUST_BE_REGULAR;
-                        break;
+                        भङ्ग;
 
-                case DT_LNK:
+                पक्ष DT_LNK:
                         f = RECURSE_DIR_MUST_BE_SYMLINK;
-                        break;
+                        भङ्ग;
 
-                case DT_SOCK:
+                पक्ष DT_SOCK:
                         f = RECURSE_DIR_MUST_BE_SOCKET;
-                        break;
+                        भङ्ग;
 
-                default:
-                        return true;
+                स्वभाव:
+                        प्रत्यागम true;
                 }
 
-                if (!FLAGS_SET(flags, f))
-                        return true;
+                यदि (!FLAGS_SET(flags, f))
+                        प्रत्यागम true;
         }
 
-        return FLAGS_SET(flags, RECURSE_DIR_IGNORE_DOT) ?
+        प्रत्यागम FLAGS_SET(flags, RECURSE_DIR_IGNORE_DOT) ?
                 de->d_name[0] == '.' :
                 dot_or_dot_dot(de->d_name);
 }
 
-int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
-        _cleanup_free_ DirectoryEntries *de = NULL;
+पूर्णाङ्क readdir_all(पूर्णाङ्क dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
+        _cleanup_free_ DirectoryEntries *de = रिक्त;
         DirectoryEntries *nde;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(dir_fd >= 0);
+        प्रतिज्ञा(dir_fd >= 0);
 
-        if ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) /* We need the type to validate it */
+        यदि ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) /* We need the type to validate it */
                 flags |= RECURSE_DIR_ENSURE_TYPE;
 
         /* Returns an array with pointers to "struct dirent" directory entries, optionally sorted.
@@ -77,169 +77,169 @@ int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
          * 8 will cover most cases comprehensively. (Note that most likely a lot more entries will actually
          * fit in the buffer, given we calculate maximum file name length here.) */
         /* Silence static analyzers */
-        assert_cc(offsetof(DirectoryEntries, buffer) <= SIZE_MAX - DIRENT_SIZE_MAX * 8);
-        de = malloc(offsetof(DirectoryEntries, buffer) + DIRENT_SIZE_MAX * 8);
-        if (!de)
-                return -ENOMEM;
+        assert_cc(दुरत्व(DirectoryEntries, buffer) <= SIZE_MAX - DIRENT_SIZE_MAX * 8);
+        de = दो_स्मृति(दुरत्व(DirectoryEntries, buffer) + DIRENT_SIZE_MAX * 8);
+        यदि (!de)
+                प्रत्यागम -ENOMEM;
 
         de->buffer_size = 0;
-        for (;;) {
-                size_t bs;
+        प्रति (;;) {
+                माप_प्रकार bs;
                 ssize_t n;
 
                 /* Silence static analyzers, MALLOC_SIZEOF_SAFE is at least as large as the allocation */
-                assert(MALLOC_SIZEOF_SAFE(de) >= offsetof(DirectoryEntries, buffer));
-                bs = MIN(MALLOC_SIZEOF_SAFE(de) - offsetof(DirectoryEntries, buffer), (size_t) SSIZE_MAX);
-                assert(bs > de->buffer_size);
+                प्रतिज्ञा(MALLOC_SIZEOF_SAFE(de) >= दुरत्व(DirectoryEntries, buffer));
+                bs = MIN(MALLOC_SIZEOF_SAFE(de) - दुरत्व(DirectoryEntries, buffer), (माप_प्रकार) SSIZE_MAX);
+                प्रतिज्ञा(bs > de->buffer_size);
 
-                n = getdents64(dir_fd, (struct dirent*) ((uint8_t*) de->buffer + de->buffer_size), bs - de->buffer_size);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = getdents64(dir_fd, (संरचना dirent*) ((uint8_t*) de->buffer + de->buffer_size), bs - de->buffer_size);
+                यदि (n < 0)
+                        प्रत्यागम -त्रुटि_सं;
+                यदि (n == 0)
+                        भङ्ग;
 
                 msan_unpoison((uint8_t*) de->buffer + de->buffer_size, n);
 
                 de->buffer_size += n;
 
-                if (de->buffer_size < bs - DIRENT_SIZE_MAX) /* Still room for one more entry, then try to
+                यदि (de->buffer_size < bs - DIRENT_SIZE_MAX) /* Still room for one more entry, then try to
                                                              * fill it up without growing the structure. */
-                        continue;
+                        अनुवर्त;
 
-                if (bs >= SSIZE_MAX - offsetof(DirectoryEntries, buffer))
-                        return -EFBIG;
-                bs = bs >= (SSIZE_MAX - offsetof(DirectoryEntries, buffer))/2 ? SSIZE_MAX - offsetof(DirectoryEntries, buffer) : bs * 2;
+                यदि (bs >= SSIZE_MAX - दुरत्व(DirectoryEntries, buffer))
+                        प्रत्यागम -EFBIG;
+                bs = bs >= (SSIZE_MAX - दुरत्व(DirectoryEntries, buffer))/2 ? SSIZE_MAX - दुरत्व(DirectoryEntries, buffer) : bs * 2;
 
-                nde = realloc(de, bs);
-                if (!nde)
-                        return -ENOMEM;
+                nde = पुनः_स्मृति(de, bs);
+                यदि (!nde)
+                        प्रत्यागम -ENOMEM;
                 de = nde;
         }
 
         de->n_entries = 0;
-        struct dirent *entry;
+        संरचना dirent *entry;
         FOREACH_DIRENT_IN_BUFFER(entry, de->buffer, de->buffer_size) {
-                if (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE)) {
+                यदि (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE)) {
                         r = dirent_ensure_type(dir_fd, entry);
-                        if (r == -ENOENT)
+                        यदि (r == -ENOENT)
                                 /* dentry gone by now? no problem, let's just suppress it */
-                                continue;
-                        if (r < 0)
-                                return r;
+                                अनुवर्त;
+                        यदि (r < 0)
+                                प्रत्यागम r;
                 }
 
-                if (ignore_dirent(entry, flags))
-                        continue;
+                यदि (ignore_dirent(entry, flags))
+                        अनुवर्त;
 
                 de->n_entries++;
         }
 
-        size_t sz, j;
+        माप_प्रकार sz, j;
 
-        sz = ALIGN(offsetof(DirectoryEntries, buffer) + de->buffer_size);
-        if (!INC_SAFE(&sz, sizeof(struct dirent*) * de->n_entries))
-                return -ENOMEM;
+        sz = ALIGN(दुरत्व(DirectoryEntries, buffer) + de->buffer_size);
+        यदि (!INC_SAFE(&sz, परिमाण(संरचना dirent*) * de->n_entries))
+                प्रत्यागम -ENOMEM;
 
-        nde = realloc(de, sz);
-        if (!nde)
-                return -ENOMEM;
+        nde = पुनः_स्मृति(de, sz);
+        यदि (!nde)
+                प्रत्यागम -ENOMEM;
         de = nde;
 
-        de->entries = (struct dirent**) ((uint8_t*) de + ALIGN(offsetof(DirectoryEntries, buffer) + de->buffer_size));
+        de->entries = (संरचना dirent**) ((uint8_t*) de + ALIGN(दुरत्व(DirectoryEntries, buffer) + de->buffer_size));
 
         j = 0;
         FOREACH_DIRENT_IN_BUFFER(entry, de->buffer, de->buffer_size) {
                 /* If d_type == DT_UNKNOWN that means we failed to ensure the type in the earlier loop and
                  * didn't include the dentry in de->n_entries and as such should skip it here as well. */
-                if (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE) && entry->d_type == DT_UNKNOWN)
-                        continue;
+                यदि (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE) && entry->d_type == DT_UNKNOWN)
+                        अनुवर्त;
 
-                if (ignore_dirent(entry, flags))
-                        continue;
+                यदि (ignore_dirent(entry, flags))
+                        अनुवर्त;
 
                 de->entries[j++] = entry;
         }
-        assert(j == de->n_entries);
+        प्रतिज्ञा(j == de->n_entries);
 
-        if (FLAGS_SET(flags, RECURSE_DIR_SORT))
+        यदि (FLAGS_SET(flags, RECURSE_DIR_SORT))
                 typesafe_qsort(de->entries, de->n_entries, sort_func);
 
-        if (ret)
+        यदि (ret)
                 *ret = TAKE_PTR(de);
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int readdir_all_at(int fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret) {
-        _cleanup_close_ int dir_fd = -EBADF;
+पूर्णाङ्क readdir_all_at(पूर्णाङ्क fd, ध्रुव वर्ण *path, RecurseDirFlags flags, DirectoryEntries **ret) {
+        _cleanup_close_ पूर्णाङ्क dir_fd = -EBADF;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
+        प्रतिज्ञा(fd >= 0 || fd == AT_FDCWD);
 
         dir_fd = xopenat(fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (dir_fd < 0)
-                return dir_fd;
+        यदि (dir_fd < 0)
+                प्रत्यागम dir_fd;
 
-        return readdir_all(dir_fd, flags, ret);
+        प्रत्यागम readdir_all(dir_fd, flags, ret);
 }
 
-int recurse_dir(
-                int dir_fd,
-                const char *path,
-                unsigned statx_mask,
-                unsigned n_depth_max,
+पूर्णाङ्क recurse_dir(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *path,
+                अचिन्हित statx_mask,
+                अचिन्हित n_depth_max,
                 RecurseDirFlags flags,
                 recurse_dir_func_t func,
-                void *userdata) {
+                शून्य *userdata) {
 
-        _cleanup_free_ DirectoryEntries *de = NULL;
-        struct statx root_sx;
-        int r;
+        _cleanup_free_ DirectoryEntries *de = रिक्त;
+        संरचना statx मूल_sx;
+        पूर्णाङ्क r;
 
-        assert(dir_fd >= 0);
-        assert(func);
+        प्रतिज्ञा(dir_fd >= 0);
+        प्रतिज्ञा(func);
 
         /* We cannot descend into dirs if we are supposed to ignore them */
-        assert((flags & _RECURSE_DIR_MUST_BE_MASK) == 0 || FLAGS_SET(flags, RECURSE_DIR_MUST_BE_DIRECTORY));
+        प्रतिज्ञा((flags & _RECURSE_DIR_MUST_BE_MASK) == 0 || FLAGS_SET(flags, RECURSE_DIR_MUST_BE_DIRECTORY));
 
         /* This is a lot like ftw()/nftw(), but a lot more modern, i.e. built around openat()/statx()/O_PATH,
          * and under the assumption that fds are not as 'expensive' as they used to be. */
 
-        if (n_depth_max == 0)
-                return -EOVERFLOW;
-        if (n_depth_max == UINT_MAX) /* special marker for "default" */
+        यदि (n_depth_max == 0)
+                प्रत्यागम -EOVERFLOW;
+        यदि (n_depth_max == अच_पूर्णांक_उच्च) /* special marker for "default" */
                 n_depth_max = DEFAULT_RECURSION_MAX;
 
-        if (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
-                if (statx_mask != 0) {
-                        if (statx(dir_fd, "", AT_EMPTY_PATH, statx_mask, &root_sx) < 0)
-                                return -errno;
+        यदि (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
+                यदि (statx_mask != 0) {
+                        यदि (statx(dir_fd, "", AT_EMPTY_PATH, statx_mask, &मूल_sx) < 0)
+                                प्रत्यागम -त्रुटि_सं;
                 }
 
                 r = func(RECURSE_DIR_ENTER,
                          path,
                          -EBADF, /* we have no parent fd */
                          dir_fd,
-                         NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         रिक्त, /* we have no dirent */
+                         statx_mask != 0 ? &मूल_sx : रिक्त,
                          userdata);
-                if (IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY))
-                        return 0;
-                if (r != RECURSE_DIR_CONTINUE)
-                        return r;
+                यदि (IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY))
+                        प्रत्यागम 0;
+                यदि (r != RECURSE_DIR_CONTINUE)
+                        प्रत्यागम r;
         }
 
         /* Mask out RECURSE_DIR_ENSURE_TYPE so we can do it ourselves and avoid an extra statx() call. */
         r = readdir_all(dir_fd, flags & ~RECURSE_DIR_ENSURE_TYPE, &de);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         FOREACH_ARRAY(entry, de->entries, de->n_entries) {
-                struct dirent *i = *entry;
-                _cleanup_close_ int inode_fd = -EBADF, subdir_fd = -EBADF;
-                _cleanup_free_ char *joined = NULL;
-                struct statx sx;
+                संरचना dirent *i = *entry;
+                _cleanup_close_ पूर्णाङ्क inode_fd = -EBADF, subdir_fd = -EBADF;
+                _cleanup_free_ वर्ण *joined = रिक्त;
+                संरचना statx sx;
                 bool sx_valid = false;
-                const char *p;
+                ध्रुव वर्ण *p;
 
                 /* For each directory entry we'll do one of the following:
                  *
@@ -248,138 +248,138 @@ int recurse_dir(
                  * 3) Otherwise, we'll statx() the directory entry via the directory fd we are currently looking at (if requested)
                  */
 
-                if (path) {
+                यदि (path) {
                         joined = path_join(path, i->d_name);
-                        if (!joined)
-                                return -ENOMEM;
+                        यदि (!joined)
+                                प्रत्यागम -ENOMEM;
 
                         p = joined;
-                } else
+                } अन्यथा
                         p = i->d_name;
 
-                if (IN_SET(i->d_type, DT_UNKNOWN, DT_DIR)) {
+                यदि (IN_SET(i->d_type, DT_UNKNOWN, DT_DIR)) {
                         subdir_fd = openat(dir_fd, i->d_name, O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);
-                        if (subdir_fd < 0) {
-                                if (errno == ENOENT) /* Vanished by now, go for next file immediately */
-                                        continue;
+                        यदि (subdir_fd < 0) {
+                                यदि (त्रुटि_सं == ENOENT) /* Vanished by now, go for next file immediately */
+                                        अनुवर्त;
 
                                 /* If it is a subdir but we failed to open it, then fail */
-                                if (!IN_SET(errno, ENOTDIR, ELOOP)) {
-                                        log_debug_errno(errno, "Failed to open directory '%s': %m", p);
+                                यदि (!IN_SET(त्रुटि_सं, ENOTDIR, ELOOP)) {
+                                        log_debug_errno(त्रुटि_सं, "Failed to open directory '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_OPEN_DIR_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE);
+                                        प्रतिज्ञा(त्रुटि_सं <= RECURSE_DIR_SKIP_OPEN_DIR_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE);
 
-                                        r = func(RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE + त्रुटि_सं,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ रिक्त,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        यदि (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                भङ्ग;
+                                        यदि (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
+                                                प्रत्यागम r;
 
-                                        continue;
+                                        अनुवर्त;
                                 }
 
                                 /* If it's not a subdir, then let's handle it like a regular inode below */
 
-                        } else {
+                        } अन्यथा {
                                 /* If we managed to get a DIR* off the inode, it's definitely a directory. */
                                 i->d_type = DT_DIR;
 
-                                if (statx_mask != 0 || (flags & RECURSE_DIR_SAME_MOUNT)) {
-                                        if (statx(subdir_fd, "", AT_EMPTY_PATH, statx_mask, &sx) < 0)
-                                                return -errno;
+                                यदि (statx_mask != 0 || (flags & RECURSE_DIR_SAME_MOUNT)) {
+                                        यदि (statx(subdir_fd, "", AT_EMPTY_PATH, statx_mask, &sx) < 0)
+                                                प्रत्यागम -त्रुटि_सं;
 
                                         sx_valid = true;
                                 }
                         }
                 }
 
-                if (subdir_fd < 0) {
+                यदि (subdir_fd < 0) {
                         /* It's not a subdirectory. */
 
-                        if (flags & RECURSE_DIR_INODE_FD) {
+                        यदि (flags & RECURSE_DIR_INODE_FD) {
 
                                 inode_fd = openat(dir_fd, i->d_name, O_PATH|O_NOFOLLOW|O_CLOEXEC);
-                                if (inode_fd < 0) {
-                                        if (errno == ENOENT) /* Vanished by now, go for next file immediately */
-                                                continue;
+                                यदि (inode_fd < 0) {
+                                        यदि (त्रुटि_सं == ENOENT) /* Vanished by now, go for next file immediately */
+                                                अनुवर्त;
 
-                                        log_debug_errno(errno, "Failed to open directory entry '%s': %m", p);
+                                        log_debug_errno(त्रुटि_सं, "Failed to open directory entry '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_OPEN_INODE_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE);
+                                        प्रतिज्ञा(त्रुटि_सं <= RECURSE_DIR_SKIP_OPEN_INODE_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE);
 
-                                        r = func(RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE + त्रुटि_सं,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ रिक्त,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        यदि (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                भङ्ग;
+                                        यदि (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
+                                                प्रत्यागम r;
 
-                                        continue;
+                                        अनुवर्त;
                                 }
 
                                 /* If we open the inode, then verify it's actually a non-directory, like we
                                  * assume. Let's guarantee that we never pass statx data of a directory where
                                  * caller expects a non-directory */
 
-                                if (statx(inode_fd, "", AT_EMPTY_PATH, statx_mask | STATX_TYPE, &sx) < 0)
-                                        return -errno;
+                                यदि (statx(inode_fd, "", AT_EMPTY_PATH, statx_mask | STATX_TYPE, &sx) < 0)
+                                        प्रत्यागम -त्रुटि_सं;
 
-                                assert(sx.stx_mask & STATX_TYPE);
+                                प्रतिज्ञा(sx.stx_mask & STATX_TYPE);
                                 sx_valid = true;
 
-                                if (S_ISDIR(sx.stx_mode)) {
+                                यदि (S_ISDIR(sx.stx_mode)) {
                                         /* What? It's a directory now? Then someone must have quickly
                                          * replaced it. Let's handle that gracefully: convert it to a
                                          * directory fd — which should be riskless now that we pinned the
                                          * inode. */
 
                                         subdir_fd = fd_reopen(inode_fd, O_DIRECTORY|O_CLOEXEC);
-                                        if (subdir_fd < 0)
-                                                return subdir_fd;
+                                        यदि (subdir_fd < 0)
+                                                प्रत्यागम subdir_fd;
 
                                         inode_fd = safe_close(inode_fd);
                                 }
 
-                        } else if (statx_mask != 0 || (i->d_type == DT_UNKNOWN && (flags & RECURSE_DIR_ENSURE_TYPE))) {
+                        } अन्यथा यदि (statx_mask != 0 || (i->d_type == DT_UNKNOWN && (flags & RECURSE_DIR_ENSURE_TYPE))) {
 
-                                if (statx(dir_fd, i->d_name, AT_SYMLINK_NOFOLLOW, statx_mask | STATX_TYPE, &sx) < 0) {
-                                        if (errno == ENOENT) /* Vanished by now? Go for next file immediately */
-                                                continue;
+                                यदि (statx(dir_fd, i->d_name, AT_SYMLINK_NOFOLLOW, statx_mask | STATX_TYPE, &sx) < 0) {
+                                        यदि (त्रुटि_सं == ENOENT) /* Vanished by now? Go for next file immediately */
+                                                अनुवर्त;
 
-                                        log_debug_errno(errno, "Failed to stat directory entry '%s': %m", p);
+                                        log_debug_errno(त्रुटि_सं, "Failed to stat directory entry '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_STAT_INODE_ERROR_MAX - RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE);
+                                        प्रतिज्ञा(त्रुटि_सं <= RECURSE_DIR_SKIP_STAT_INODE_ERROR_MAX - RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE);
 
-                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE + त्रुटि_सं,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ रिक्त,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        यदि (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                भङ्ग;
+                                        यदि (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
+                                                प्रत्यागम r;
 
-                                        continue;
+                                        अनुवर्त;
                                 }
 
-                                assert(sx.stx_mask & STATX_TYPE);
+                                प्रतिज्ञा(sx.stx_mask & STATX_TYPE);
                                 sx_valid = true;
 
-                                if (S_ISDIR(sx.stx_mode)) {
+                                यदि (S_ISDIR(sx.stx_mode)) {
                                         /* So it suddenly is a directory, but we couldn't open it as such
                                          * earlier?  That is weird, and probably means somebody is racing
                                          * against us. We could of course retry and open it as a directory
@@ -396,61 +396,61 @@ int recurse_dir(
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ रिक्त,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        यदि (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                भङ्ग;
+                                        यदि (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
+                                                प्रत्यागम r;
 
-                                        continue;
+                                        अनुवर्त;
                                 }
                         }
                 }
 
-                if (sx_valid) {
+                यदि (sx_valid) {
                         /* Copy over the data we acquired through statx() if we acquired any */
-                        if (sx.stx_mask & STATX_TYPE) {
-                                assert((subdir_fd < 0) == !S_ISDIR(sx.stx_mode));
+                        यदि (sx.stx_mask & STATX_TYPE) {
+                                प्रतिज्ञा((subdir_fd < 0) == !S_ISDIR(sx.stx_mode));
                                 i->d_type = IFTODT(sx.stx_mode);
                         }
 
-                        if (sx.stx_mask & STATX_INO)
+                        यदि (sx.stx_mask & STATX_INO)
                                 i->d_ino = sx.stx_ino;
                 }
 
-                if (subdir_fd >= 0) {
-                        if (FLAGS_SET(flags, RECURSE_DIR_SAME_MOUNT)) {
+                यदि (subdir_fd >= 0) {
+                        यदि (FLAGS_SET(flags, RECURSE_DIR_SAME_MOUNT)) {
                                 bool is_mount;
 
-                                if (sx_valid && FLAGS_SET(sx.stx_attributes_mask, STATX_ATTR_MOUNT_ROOT))
-                                        is_mount = FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_ROOT);
-                                else {
+                                यदि (sx_valid && FLAGS_SET(sx.stx_attributes_mask, STATX_ATTR_MOUNT_मूल))
+                                        is_mount = FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_मूल);
+                                अन्यथा {
                                         r = is_mount_point_at(dir_fd, i->d_name, /* flags= */ 0);
-                                        if (r < 0)
+                                        यदि (r < 0)
                                                 log_debug_errno(r, "Failed to determine whether %s is a submount, assuming not: %m", p);
 
                                         is_mount = r > 0;
                                 }
 
-                                if (is_mount) {
+                                यदि (is_mount) {
                                         r = func(RECURSE_DIR_SKIP_MOUNT,
                                                  p,
                                                  dir_fd,
                                                  subdir_fd,
                                                  i,
-                                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                                 statx_mask != 0 ? &sx : रिक्त, /* only pass sx if user asked for it */
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        यदि (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                भङ्ग;
+                                        यदि (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
+                                                प्रत्यागम r;
 
-                                        continue;
+                                        अनुवर्त;
                                 }
                         }
 
-                        if (n_depth_max <= 1) {
+                        यदि (n_depth_max <= 1) {
                                 /* When we reached max depth, generate a special event */
 
                                 r = func(RECURSE_DIR_SKIP_DEPTH,
@@ -458,14 +458,14 @@ int recurse_dir(
                                          dir_fd,
                                          subdir_fd,
                                          i,
-                                         statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                         statx_mask != 0 ? &sx : रिक्त, /* only pass sx if user asked for it */
                                          userdata);
-                                if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                        break;
-                                if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                        return r;
+                                यदि (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                        भङ्ग;
+                                यदि (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
+                                        प्रत्यागम r;
 
-                                continue;
+                                अनुवर्त;
                         }
 
                         r = func(RECURSE_DIR_ENTER,
@@ -473,9 +473,9 @@ int recurse_dir(
                                  dir_fd,
                                  subdir_fd,
                                  i,
-                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                 statx_mask != 0 ? &sx : रिक्त, /* only pass sx if user asked for it */
                                  userdata);
-                        if (r == RECURSE_DIR_CONTINUE) {
+                        यदि (r == RECURSE_DIR_CONTINUE) {
                                 r = recurse_dir(subdir_fd,
                                                 p,
                                                 statx_mask,
@@ -483,80 +483,80 @@ int recurse_dir(
                                                 flags & ~RECURSE_DIR_TOPLEVEL, /* we already called the callback for this entry */
                                                 func,
                                                 userdata);
-                                if (r != 0)
-                                        return r;
+                                यदि (r != 0)
+                                        प्रत्यागम r;
 
                                 r = func(RECURSE_DIR_LEAVE,
                                          p,
                                          dir_fd,
                                          subdir_fd,
                                          i,
-                                         statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                         statx_mask != 0 ? &sx : रिक्त, /* only pass sx if user asked for it */
                                          userdata);
                         }
-                } else
+                } अन्यथा
                         /* Non-directory inode */
                         r = func(RECURSE_DIR_ENTRY,
                                  p,
                                  dir_fd,
                                  inode_fd,
                                  i,
-                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                 statx_mask != 0 ? &sx : रिक्त, /* only pass sx if user asked for it */
                                  userdata);
 
-                if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                        break;
+                यदि (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                        भङ्ग;
 
-                if (IN_SET(r, RECURSE_DIR_UNLINK, RECURSE_DIR_UNLINK_GRACEFUL)) {
-                        int f = subdir_fd >= 0 ? AT_REMOVEDIR : 0;
+                यदि (IN_SET(r, RECURSE_DIR_UNLINK, RECURSE_DIR_UNLINK_GRACEFUL)) {
+                        पूर्णाङ्क f = subdir_fd >= 0 ? AT_REMOVEDIR : 0;
 
                         /* Close inodes before we try to delete them */
                         subdir_fd = safe_close(subdir_fd);
                         inode_fd = safe_close(inode_fd);
 
-                        if (unlinkat(dir_fd, i->d_name, f) < 0) {
-                                if (r != RECURSE_DIR_UNLINK_GRACEFUL)
-                                        return -errno;
+                        यदि (unlinkat(dir_fd, i->d_name, f) < 0) {
+                                यदि (r != RECURSE_DIR_UNLINK_GRACEFUL)
+                                        प्रत्यागम -त्रुटि_सं;
 
-                                log_debug_errno(errno, "Unable to remove '%s', ignoring: %m", p);
+                                log_debug_errno(त्रुटि_सं, "Unable to remove '%s', ignoring: %m", p);
                         }
-                } else if (!IN_SET(r, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
-                        return r;
+                } अन्यथा यदि (!IN_SET(r, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
+                        प्रत्यागम r;
         }
 
-        if (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
+        यदि (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
 
                 r = func(RECURSE_DIR_LEAVE,
                          path,
                          -EBADF, /* we have no parent fd */
                          dir_fd,
-                         NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         रिक्त, /* we have no dirent */
+                         statx_mask != 0 ? &मूल_sx : रिक्त,
                          userdata);
-                if (!IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
-                        return r;
+                यदि (!IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
+                        प्रत्यागम r;
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int recurse_dir_at(
-                int atfd,
-                const char *path,
-                unsigned statx_mask,
-                unsigned n_depth_max,
+पूर्णाङ्क recurse_dir_at(
+                पूर्णाङ्क atfd,
+                ध्रुव वर्ण *path,
+                अचिन्हित statx_mask,
+                अचिन्हित n_depth_max,
                 RecurseDirFlags flags,
                 recurse_dir_func_t func,
-                void *userdata) {
+                शून्य *userdata) {
 
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ पूर्णाङ्क fd = -EBADF;
 
-        assert(atfd >= 0 || atfd == AT_FDCWD);
-        assert(func);
+        प्रतिज्ञा(atfd >= 0 || atfd == AT_FDCWD);
+        प्रतिज्ञा(func);
 
         fd = openat(atfd, path ?: ".", O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        यदि (fd < 0)
+                प्रत्यागम -त्रुटि_सं;
 
-        return recurse_dir(fd, path, statx_mask, n_depth_max, flags, func, userdata);
+        प्रत्यागम recurse_dir(fd, path, statx_mask, n_depth_max, flags, func, userdata);
 }
