@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* The limit used for /dev itself. 4MB should be enough since device nodes and symlinks don't
  * consume any space and udev isn't supposed to create regular file either. There's no limit on the
@@ -32,61 +32,61 @@
 #define TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
 #define TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
 
-bool is_name_to_handle_at_fatal_error(int err);
+bool is_name_to_handle_at_fatal_error(صحيح err);
 
-int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_try_fid(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_u64(int fd, const char *path, uint64_t *ret);
-static inline int path_to_handle_u64(const char *path, uint64_t *ret) {
-        return name_to_handle_at_u64(AT_FDCWD, path, ret);
+صحيح name_to_handle_at_loop(صحيح fd, ثابت حرف *path, بنية file_handle **ret_handle, صحيح *ret_mnt_id, uint64_t *ret_unique_mnt_id, صحيح flags);
+صحيح name_to_handle_at_try_fid(صحيح fd, ثابت حرف *path, بنية file_handle **ret_handle, صحيح *ret_mnt_id, uint64_t *ret_unique_mnt_id, صحيح flags);
+صحيح name_to_handle_at_u64(صحيح fd, ثابت حرف *path, uint64_t *ret);
+ساكن مضمن صحيح path_to_handle_u64(ثابت حرف *path, uint64_t *ret) {
+        إرجاع name_to_handle_at_u64(AT_FDCWD, path, ret);
 }
-static inline int fd_to_handle_u64(int fd, uint64_t *ret) {
-        return name_to_handle_at_u64(fd, NULL, ret);
-}
-
-bool file_handle_equal(const struct file_handle *a, const struct file_handle *b);
-struct file_handle* file_handle_dup(const struct file_handle *fh);
-
-int path_get_mnt_id_at(int dir_fd, const char *path, int *ret);
-static inline int path_get_mnt_id(const char *path, int *ret) {
-        return path_get_mnt_id_at(AT_FDCWD, path, ret);
-}
-int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
-
-int is_mount_point_at(int dir_fd, const char *path, int flags);
-int path_is_mount_point_full(const char *path, const char *root, int flags);
-static inline int path_is_mount_point(const char *path) {
-        return path_is_mount_point_full(path, NULL, 0);
+ساكن مضمن صحيح fd_to_handle_u64(صحيح fd, uint64_t *ret) {
+        إرجاع name_to_handle_at_u64(fd, عدم, ret);
 }
 
-bool fstype_is_network(const char *fstype);
-bool fstype_needs_quota(const char *fstype);
-bool fstype_has_internal_quota(const char *fstype);
-bool fstype_is_api_vfs(const char *fstype);
-bool fstype_is_blockdev_backed(const char *fstype);
-bool fstype_is_ro(const char *fsype);
-bool fstype_can_discard(const char *fstype);
-bool fstype_can_ownership(const char *fstype);
-bool fstype_can_uid_gid(const char *fstype);
-bool fstype_can_fmask_dmask(const char *fstype);
+bool file_handle_equal(ثابت بنية file_handle *a, ثابت بنية file_handle *b);
+بنية file_handle* file_handle_dup(ثابت بنية file_handle *fh);
 
-const char* fstype_norecovery_option(const char *fstype);
+صحيح path_get_mnt_id_at(صحيح dir_fd, ثابت حرف *path, صحيح *ret);
+ساكن مضمن صحيح path_get_mnt_id(ثابت حرف *path, صحيح *ret) {
+        إرجاع path_get_mnt_id_at(AT_FDCWD, path, ret);
+}
+صحيح path_get_unique_mnt_id_at(صحيح dir_fd, ثابت حرف *path, uint64_t *ret);
 
-int dev_is_devtmpfs(void);
+صحيح is_mount_point_at(صحيح dir_fd, ثابت حرف *path, صحيح flags);
+صحيح path_is_mount_point_full(ثابت حرف *path, ثابت حرف *جذر, صحيح flags);
+ساكن مضمن صحيح path_is_mount_point(ثابت حرف *path) {
+        إرجاع path_is_mount_point_full(path, عدم, 0);
+}
 
-int mount_nofollow(
-                const char *source,
-                const char *target,
-                const char *filesystemtype,
+bool fstype_is_network(ثابت حرف *fstype);
+bool fstype_needs_quota(ثابت حرف *fstype);
+bool fstype_has_internal_quota(ثابت حرف *fstype);
+bool fstype_is_api_vfs(ثابت حرف *fstype);
+bool fstype_is_blockdev_backed(ثابت حرف *fstype);
+bool fstype_is_ro(ثابت حرف *fsype);
+bool fstype_can_discard(ثابت حرف *fstype);
+bool fstype_can_ownership(ثابت حرف *fstype);
+bool fstype_can_uid_gid(ثابت حرف *fstype);
+bool fstype_can_fmask_dmask(ثابت حرف *fstype);
+
+ثابت حرف* fstype_norecovery_option(ثابت حرف *fstype);
+
+صحيح dev_is_devtmpfs(فراغ);
+
+صحيح mount_nofollow(
+                ثابت حرف *source,
+                ثابت حرف *target,
+                ثابت حرف *filesystemtype,
                 unsigned long mountflags,
-                const void *data);
+                ثابت فراغ *data);
 
-const char* mount_propagation_flag_to_string(unsigned long flags);
-int mount_propagation_flag_from_string(const char *name, unsigned long *ret);
+ثابت حرف* mount_propagation_flag_to_string(unsigned long flags);
+صحيح mount_propagation_flag_from_string(ثابت حرف *name, unsigned long *ret);
 bool mount_propagation_flag_is_valid(unsigned long flag);
 
-bool mount_new_api_supported(void);
+bool mount_new_api_supported(فراغ);
 
-int mount_option_supported(const char *fstype, const char *key, const char *value);
+صحيح mount_option_supported(ثابت حرف *fstype, ثابت حرف *مفتاح, ثابت حرف *قيمة);
 
-bool path_below_api_vfs(const char *p);
+bool path_below_api_vfs(ثابت حرف *p);

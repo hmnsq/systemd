@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef enum Glyph {
+تعريفنوع تعداد Glyph {
         GLYPH_SPACE,
-        GLYPH_TREE_VERTICAL,
-        GLYPH_TREE_BRANCH,
-        GLYPH_TREE_RIGHT,
-        GLYPH_TREE_SPACE,
-        GLYPH_TREE_TOP,
+        GLYPH_شجرة_VERTICAL,
+        GLYPH_شجرة_BRANCH,
+        GLYPH_شجرة_يمين,
+        GLYPH_شجرة_SPACE,
+        GLYPH_شجرة_قمة,
         GLYPH_VERTICAL_DOTTED,
         GLYPH_HORIZONTAL_DOTTED,
         GLYPH_HORIZONTAL_FAT,
@@ -28,8 +28,8 @@ typedef enum Glyph {
         GLYPH_SIGMA,
         GLYPH_ARROW_UP,
         GLYPH_ARROW_DOWN,
-        GLYPH_ARROW_LEFT,
-        GLYPH_ARROW_RIGHT,
+        GLYPH_ARROW_يسار,
+        GLYPH_ARROW_يمين,
         GLYPH_ELLIPSIS,
         GLYPH_EXTERNAL_LINK,
         _GLYPH_FIRST_EMOJI,
@@ -40,12 +40,12 @@ typedef enum Glyph {
         GLYPH_SLIGHTLY_UNHAPPY_SMILEY,
         GLYPH_UNHAPPY_SMILEY,
         GLYPH_DEPRESSED_SMILEY,
-        GLYPH_LOCK_AND_KEY,
+        GLYPH_LOCK_AND_مفتاح,
         GLYPH_TOUCH,
         GLYPH_RECYCLING,
         GLYPH_DOWNLOAD,
         GLYPH_SPARKLES,
-        GLYPH_LOW_BATTERY,
+        GLYPH_أدنى_BATTERY,
         GLYPH_WARNING_SIGN,
         GLYPH_COMPUTER_DISK,
         GLYPH_WORLD,
@@ -68,22 +68,22 @@ typedef enum Glyph {
         _GLYPH_INVALID = -EINVAL,
 } Glyph;
 
-bool emoji_enabled(void);
+bool emoji_enabled(فراغ);
 
-const char* glyph_full(Glyph code, bool force_utf) _const_;
+ثابت حرف* glyph_full(Glyph code, bool force_utf) _const_;
 
-static inline const char* glyph(Glyph code) {
-        return glyph_full(code, false);
+ساكن مضمن ثابت حرف* glyph(Glyph code) {
+        إرجاع glyph_full(code, false);
 }
 
-static inline const char* optional_glyph(Glyph code) {
-        return emoji_enabled() ? glyph(code) : "";
+ساكن مضمن ثابت حرف* optional_glyph(Glyph code) {
+        إرجاع emoji_enabled() ? glyph(code) : "";
 }
 
-static inline const char* glyph_check_mark(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
+ساكن مضمن ثابت حرف* glyph_check_mark(bool b) {
+        إرجاع b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
 }
 
-static inline const char* glyph_check_mark_space(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : " ";
+ساكن مضمن ثابت حرف* glyph_check_mark_space(bool b) {
+        إرجاع b ? glyph(GLYPH_CHECK_MARK) : " ";
 }

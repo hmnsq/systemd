@@ -1,205 +1,205 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#ضمن <fnmatch.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "glob-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
+#ضمن "alloc-util.h"
+#ضمن "chase.h"
+#ضمن "errno-util.h"
+#ضمن "extract-word.h"
+#ضمن "fd-util.h"
+#ضمن "fs-util.h"
+#ضمن "glob-util.h"
+#ضمن "log.h"
+#ضمن "path-util.h"
+#ضمن "stat-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
 
-bool is_path(const char *p) {
-        if (!p) /* A NULL pointer is definitely not a path */
-                return false;
+bool is_path(ثابت حرف *p) {
+        إذا (!p) /* A NULL pointer is definitely not a path */
+                إرجاع false;
 
-        return strchr(p, '/');
+        إرجاع strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+صحيح path_split_and_make_absolute(ثابت حرف *p, حرف ***ret) {
+        _cleanup_strv_free_ حرف **l = عدم;
+        صحيح r;
 
-        assert(p);
-        assert(ret);
+        أكد(p);
+        أكد(ret);
 
         l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
+        إذا (!l)
+                إرجاع -ENOMEM;
 
         r = path_strv_make_absolute_cwd(l);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                إرجاع r;
 
         *ret = TAKE_PTR(l);
-        return r;
+        إرجاع r;
 }
 
-char* path_make_absolute(const char *p, const char *prefix) {
-        assert(p);
+حرف* path_make_absolute(ثابت حرف *p, ثابت حرف *prefix) {
+        أكد(p);
 
         /* Makes every item in the list an absolute path by prepending
          * the prefix, if specified and necessary */
 
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
+        إذا (path_is_absolute(p) || isempty(prefix))
+                إرجاع strdup(p);
 
-        return path_join(prefix, p);
+        إرجاع path_join(prefix, p);
 }
 
-int safe_getcwd(char **ret) {
-        _cleanup_free_ char *cwd = NULL;
+صحيح safe_getcwd(حرف **ret) {
+        _cleanup_free_ حرف *cwd = عدم;
 
         cwd = get_current_dir_name();
-        if (!cwd)
-                return negative_errno();
+        إذا (!cwd)
+                إرجاع negative_errno();
 
         /* Let's make sure the directory is really absolute, to protect us from the logic behind
          * CVE-2018-1000001 */
-        if (cwd[0] != '/')
-                return -ENOMEDIUM;
+        إذا (cwd[0] != '/')
+                إرجاع -ENOMEDIUM;
 
-        if (ret)
+        إذا (ret)
                 *ret = TAKE_PTR(cwd);
 
-        return 0;
+        إرجاع 0;
 }
 
-int path_make_absolute_cwd(const char *p, char **ret) {
-        char *c;
-        int r;
+صحيح path_make_absolute_cwd(ثابت حرف *p, حرف **ret) {
+        حرف *c;
+        صحيح r;
 
-        assert(p);
-        assert(ret);
+        أكد(p);
+        أكد(ret);
 
         /* Similar to path_make_absolute(), but prefixes with the
          * current working directory. */
 
-        if (path_is_absolute(p))
+        إذا (path_is_absolute(p))
                 c = strdup(p);
-        else {
-                _cleanup_free_ char *cwd = NULL;
+        وإلا {
+                _cleanup_free_ حرف *cwd = عدم;
 
                 r = safe_getcwd(&cwd);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        إرجاع r;
 
                 c = path_join(cwd, p);
         }
-        if (!c)
-                return -ENOMEM;
+        إذا (!c)
+                إرجاع -ENOMEM;
 
         *ret = c;
-        return 0;
+        إرجاع 0;
 }
 
-int path_make_relative(const char *from, const char *to, char **ret) {
-        _cleanup_free_ char *result = NULL;
+صحيح path_make_relative(ثابت حرف *from, ثابت حرف *to, حرف **ret) {
+        _cleanup_free_ حرف *result = عدم;
         unsigned n_parents;
-        const char *f, *t;
-        int r, k;
-        char *p;
+        ثابت حرف *f, *t;
+        صحيح r, k;
+        حرف *p;
 
-        assert(from);
-        assert(to);
-        assert(ret);
+        أكد(from);
+        أكد(to);
+        أكد(ret);
 
         /* Strips the common part, and adds ".." elements as necessary. */
 
-        if (!path_is_absolute(from) || !path_is_absolute(to))
-                return -EINVAL;
+        إذا (!path_is_absolute(from) || !path_is_absolute(to))
+                إرجاع -EINVAL;
 
-        for (;;) {
+        لكل (;;) {
                 r = path_find_first_component(&from, true, &f);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        إرجاع r;
 
                 k = path_find_first_component(&to, true, &t);
-                if (k < 0)
-                        return k;
+                إذا (k < 0)
+                        إرجاع k;
 
-                if (r == 0) {
+                إذا (r == 0) {
                         /* end of 'from' */
-                        if (k == 0) {
+                        إذا (k == 0) {
                                 /* from and to are equivalent. */
                                 result = strdup(".");
-                                if (!result)
-                                        return -ENOMEM;
-                        } else {
+                                إذا (!result)
+                                        إرجاع -ENOMEM;
+                        } وإلا {
                                 /* 'to' is inside of 'from'. */
                                 r = path_simplify_alloc(t, &result);
-                                if (r < 0)
-                                        return r;
+                                إذا (r < 0)
+                                        إرجاع r;
 
-                                if (!path_is_valid(result))
-                                        return -EINVAL;
+                                إذا (!path_is_valid(result))
+                                        إرجاع -EINVAL;
                         }
 
                         *ret = TAKE_PTR(result);
-                        return 0;
+                        إرجاع 0;
                 }
 
-                if (r != k || !strneq(f, t, r))
-                        break;
+                إذا (r != k || !strneq(f, t, r))
+                        اكسر;
         }
 
         /* If we're here, then "from_dir" has one or more elements that need to
          * be replaced with "..". */
 
-        for (n_parents = 1;; n_parents++) {
+        لكل (n_parents = 1;; n_parents++) {
                 /* If this includes ".." we can't do a simple series of "..". */
                 r = path_find_first_component(&from, false, &f);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                إذا (r < 0)
+                        إرجاع r;
+                إذا (r == 0)
+                        اكسر;
         }
 
-        if (isempty(t) && n_parents * 3 > PATH_MAX)
+        إذا (isempty(t) && n_parents * 3 > PATH_MAX)
                 /* PATH_MAX is counted *with* the trailing NUL byte */
-                return -EINVAL;
+                إرجاع -EINVAL;
 
-        result = new(char, n_parents * 3 + !isempty(t) + strlen_ptr(t));
-        if (!result)
-                return -ENOMEM;
+        result = new(حرف, n_parents * 3 + !isempty(t) + strlen_ptr(t));
+        إذا (!result)
+                إرجاع -ENOMEM;
 
-        for (p = result; n_parents > 0; n_parents--)
+        لكل (p = result; n_parents > 0; n_parents--)
                 p = mempcpy(p, "../", 3);
 
-        if (isempty(t)) {
+        إذا (isempty(t)) {
                 /* Remove trailing slash and terminate string. */
                 *(--p) = '\0';
                 *ret = TAKE_PTR(result);
-                return 0;
+                إرجاع 0;
         }
 
         strcpy(p, t);
 
         path_simplify(result);
 
-        if (!path_is_valid(result))
-                return -EINVAL;
+        إذا (!path_is_valid(result))
+                إرجاع -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        إرجاع 0;
 }
 
-int path_make_relative_parent(const char *from_child, const char *to, char **ret) {
-        _cleanup_free_ char *from = NULL;
-        int r;
+صحيح path_make_relative_parent(ثابت حرف *from_child, ثابت حرف *to, حرف **ret) {
+        _cleanup_free_ حرف *from = عدم;
+        صحيح r;
 
-        assert(from_child);
-        assert(to);
-        assert(ret);
+        أكد(from_child);
+        أكد(to);
+        أكد(ret);
 
         /* Similar to path_make_relative(), but provides the relative path from the parent directory of
          * 'from_child'. This may be useful when creating relative symlink.
@@ -215,147 +215,147 @@ int path_make_relative_parent(const char *from_child, const char *to, char **ret
          */
 
         r = path_extract_directory(from_child, &from);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                إرجاع r;
 
-        return path_make_relative(from, to, ret);
+        إرجاع path_make_relative(from, to, ret);
 }
 
-char* path_startswith_strv(const char *p, char * const *strv) {
-        assert(p);
+حرف* path_startswith_strv(ثابت حرف *p, حرف * ثابت *strv) {
+        أكد(p);
 
         STRV_FOREACH(s, strv) {
-                char *t;
+                حرف *t;
 
                 t = path_startswith(p, *s);
-                if (t)
-                        return t;
+                إذا (t)
+                        إرجاع t;
         }
 
-        return NULL;
+        إرجاع عدم;
 }
 
-int path_strv_make_absolute_cwd(char **l) {
-        int r;
+صحيح path_strv_make_absolute_cwd(حرف **l) {
+        صحيح r;
 
         /* Goes through every item in the string list and makes it
          * absolute. This works in place and won't rollback any
          * changes on failure. */
 
         STRV_FOREACH(s, l) {
-                char *t;
+                حرف *t;
 
                 r = path_make_absolute_cwd(*s, &t);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        إرجاع r;
 
                 path_simplify(t);
                 free_and_replace(*s, t);
         }
 
-        return 0;
+        إرجاع 0;
 }
 
-char** path_strv_resolve(char **l, const char *root) {
+حرف** path_strv_resolve(حرف **l, ثابت حرف *جذر) {
         unsigned k = 0;
         bool enomem = false;
-        int r;
+        صحيح r;
 
-        if (strv_isempty(l))
-                return l;
+        إذا (strv_isempty(l))
+                إرجاع l;
 
         /* Go through every item in the string list and canonicalize the path.
          * This works in place and doesn't roll back any changes on failure. */
 
         STRV_FOREACH(s, l) {
-                _cleanup_free_ char *orig = NULL;
-                char *t, *u;
+                _cleanup_free_ حرف *orig = عدم;
+                حرف *t, *u;
 
-                if (root) {
-                        if (!path_is_absolute(*s)) {
+                إذا (جذر) {
+                        إذا (!path_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
-                                free(*s);
-                                continue;
+                                حرر(*s);
+                                استمر;
                         }
 
                         orig = *s;
-                        t = path_join(root, orig);
-                        if (!t) {
+                        t = path_join(جذر, orig);
+                        إذا (!t) {
                                 enomem = true;
-                                continue;
+                                استمر;
                         }
-                } else
+                } وإلا
                         t = *s;
 
-                r = chase(t, root, 0, &u, NULL);
-                if (r == -ENOENT) {
-                        if (root) {
+                r = chase(t, جذر, 0, &u, عدم);
+                إذا (r == -ENOENT) {
+                        إذا (جذر) {
                                 u = TAKE_PTR(orig);
-                                free(t);
-                        } else
+                                حرر(t);
+                        } وإلا
                                 u = t;
-                } else if (r < 0) {
-                        free(t);
+                } وإلا إذا (r < 0) {
+                        حرر(t);
 
-                        if (r == -ENOMEM)
+                        إذا (r == -ENOMEM)
                                 enomem = true;
 
-                        continue;
-                } else if (root) {
-                        char *x;
+                        استمر;
+                } وإلا إذا (جذر) {
+                        حرف *x;
 
-                        free(t);
-                        x = path_startswith(u, root);
-                        if (x) {
+                        حرر(t);
+                        x = path_startswith(u, جذر);
+                        إذا (x) {
                                 /* restore the slash if it was lost */
-                                if (!startswith(x, "/"))
+                                إذا (!startswith(x, "/"))
                                         *(--x) = '/';
 
                                 t = strdup(x);
-                                free(u);
-                                if (!t) {
+                                حرر(u);
+                                إذا (!t) {
                                         enomem = true;
-                                        continue;
+                                        استمر;
                                 }
                                 u = t;
-                        } else {
+                        } وإلا {
                                 /* canonicalized path goes outside of
                                  * prefix, keep the original path instead */
                                 free_and_replace(u, orig);
                         }
-                } else
-                        free(t);
+                } وإلا
+                        حرر(t);
 
                 l[k++] = u;
         }
 
-        l[k] = NULL;
+        l[k] = عدم;
 
-        if (enomem)
-                return NULL;
+        إذا (enomem)
+                إرجاع عدم;
 
-        return l;
+        إرجاع l;
 }
 
-char** path_strv_resolve_uniq(char **l, const char *root) {
+حرف** path_strv_resolve_uniq(حرف **l, ثابت حرف *جذر) {
 
-        if (strv_isempty(l))
-                return l;
+        إذا (strv_isempty(l))
+                إرجاع l;
 
-        if (!path_strv_resolve(l, root))
-                return NULL;
+        إذا (!path_strv_resolve(l, جذر))
+                إرجاع عدم;
 
-        return strv_uniq(l);
+        إرجاع strv_uniq(l);
 }
 
-char* skip_leading_slash(const char *p) {
-        return skip_leading_chars(p, "/");
+حرف* skip_leading_slash(ثابت حرف *p) {
+        إرجاع skip_leading_chars(p, "/");
 }
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags) {
+حرف* path_simplify_full(حرف *path, PathSimplifyFlags flags) {
         bool add_slash = false, keep_trailing_slash, absolute, beginning = true;
-        char *f = path;
-        int r;
+        حرف *f = path;
+        صحيح r;
 
         /* Removes redundant inner and trailing slashes. Also removes unnecessary dots.
          * Modifies the passed string in-place.
@@ -366,34 +366,34 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
          * /../foo/bar/..    becomes /foo/bar/..
          */
 
-        if (isempty(path))
-                return path;
+        إذا (isempty(path))
+                إرجاع path;
 
         keep_trailing_slash = FLAGS_SET(flags, PATH_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(path, "/");
 
         absolute = path_is_absolute(path);
         f += absolute;  /* Keep leading /, if present. */
 
-        for (const char *p = f;;) {
-                const char *e;
+        لكل (ثابت حرف *p = f;;) {
+                ثابت حرف *e;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        break;
+                إذا (r == 0)
+                        اكسر;
 
-                if (r > 0 && absolute && beginning && path_startswith(e, ".."))
+                إذا (r > 0 && absolute && beginning && path_startswith(e, ".."))
                         /* If we're at the beginning of an absolute path, we can safely skip ".." */
-                        continue;
+                        استمر;
 
                 beginning = false;
 
-                if (add_slash)
+                إذا (add_slash)
                         *f++ = '/';
 
-                if (r < 0) {
+                إذا (r < 0) {
                         /* if path is invalid, then refuse to simplify the remaining part. */
                         memmove(f, p, strlen(p) + 1);
-                        return path;
+                        إرجاع path;
                 }
 
                 memmove(f, e, r);
@@ -403,35 +403,35 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         }
 
         /* Special rule, if we stripped everything, we need a "." for the current directory. */
-        if (f == path)
+        إذا (f == path)
                 *f++ = '.';
 
-        if (*(f-1) != '/' && keep_trailing_slash)
+        إذا (*(f-1) != '/' && keep_trailing_slash)
                 *f++ = '/';
 
         *f = '\0';
-        return path;
+        إرجاع path;
 }
 
-int path_simplify_alloc(const char *path, char **ret) {
-        assert(ret);
+صحيح path_simplify_alloc(ثابت حرف *path, حرف **ret) {
+        أكد(ret);
 
-        if (!path) {
-                *ret = NULL;
-                return 0;
+        إذا (!path) {
+                *ret = عدم;
+                إرجاع 0;
         }
 
-        char *t = strdup(path);
-        if (!t)
-                return -ENOMEM;
+        حرف *t = strdup(path);
+        إذا (!t)
+                إرجاع -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        إرجاع 0;
 }
 
-char* path_startswith_full(const char *original_path, const char *prefix, PathStartWithFlags flags) {
-        assert(original_path);
-        assert(prefix);
+حرف* path_startswith_full(ثابت حرف *original_path, ثابت حرف *prefix, PathStartWithFlags flags) {
+        أكد(original_path);
+        أكد(prefix);
 
         /* Returns a pointer to the start of the first component after the parts matched by
          * the prefix, iff
@@ -443,147 +443,147 @@ char* path_startswith_full(const char *original_path, const char *prefix, PathSt
          * Returns NULL otherwise.
          */
 
-        const char *path = original_path;
+        ثابت حرف *path = original_path;
 
-        if ((path[0] == '/') != (prefix[0] == '/'))
-                return NULL;
+        إذا ((path[0] == '/') != (prefix[0] == '/'))
+                إرجاع عدم;
 
-        for (;;) {
-                const char *p, *q;
-                int m, n;
+        لكل (;;) {
+                ثابت حرف *p, *q;
+                صحيح m, n;
 
                 m = path_find_first_component(&path, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &p);
-                if (m < 0)
-                        return NULL;
+                إذا (m < 0)
+                        إرجاع عدم;
 
                 n = path_find_first_component(&prefix, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &q);
-                if (n < 0)
-                        return NULL;
+                إذا (n < 0)
+                        إرجاع عدم;
 
-                if (n == 0) {
-                        if (!p)
+                إذا (n == 0) {
+                        إذا (!p)
                                 p = path;
 
-                        if (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
+                        إذا (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
 
-                                if (p <= original_path)
-                                        return NULL;
+                                إذا (p <= original_path)
+                                        إرجاع عدم;
 
                                 p--;
 
-                                if (*p != '/')
-                                        return NULL;
+                                إذا (*p != '/')
+                                        إرجاع عدم;
                         }
 
-                        return (char*) p;
+                        إرجاع (حرف*) p;
                 }
 
-                if (m != n)
-                        return NULL;
+                إذا (m != n)
+                        إرجاع عدم;
 
-                if (!strneq(p, q, m))
-                        return NULL;
+                إذا (!strneq(p, q, m))
+                        إرجاع عدم;
         }
 }
 
-int path_compare(const char *a, const char *b) {
-        int r;
+صحيح path_compare(ثابت حرف *a, ثابت حرف *b) {
+        صحيح r;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                إرجاع r;
 
         /* A relative path and an absolute path must not compare as equal.
          * Which one is sorted before the other does not really matter.
          * Here a relative path is ordered before an absolute path. */
         r = CMP(path_is_absolute(a), path_is_absolute(b));
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                إرجاع r;
 
-        for (;;) {
-                const char *aa, *bb;
-                int j, k;
+        لكل (;;) {
+                ثابت حرف *aa, *bb;
+                صحيح j, k;
 
                 j = path_find_first_component(&a, true, &aa);
                 k = path_find_first_component(&b, true, &bb);
 
-                if (j < 0 || k < 0) {
+                إذا (j < 0 || k < 0) {
                         /* When one of paths is invalid, order invalid path after valid one. */
                         r = CMP(j < 0, k < 0);
-                        if (r != 0)
-                                return r;
+                        إذا (r != 0)
+                                إرجاع r;
 
                         /* fallback to use strcmp() if both paths are invalid. */
-                        return strcmp(a, b);
+                        إرجاع strcmp(a, b);
                 }
 
                 /* Order prefixes first: "/foo" before "/foo/bar" */
-                if (j == 0) {
-                        if (k == 0)
-                                return 0;
-                        return -1;
+                إذا (j == 0) {
+                        إذا (k == 0)
+                                إرجاع 0;
+                        إرجاع -1;
                 }
-                if (k == 0)
-                        return 1;
+                إذا (k == 0)
+                        إرجاع 1;
 
                 /* Alphabetical sort: "/foo/aaa" before "/foo/b" */
                 r = memcmp(aa, bb, MIN(j, k));
-                if (r != 0)
-                        return r;
+                إذا (r != 0)
+                        إرجاع r;
 
                 /* Sort "/foo/a" before "/foo/aaa" */
                 r = CMP(j, k);
-                if (r != 0)
-                        return r;
+                إذا (r != 0)
+                        إرجاع r;
         }
 }
 
-int path_compare_filename(const char *a, const char *b) {
-        _cleanup_free_ char *fa = NULL, *fb = NULL;
-        int r, j, k;
+صحيح path_compare_filename(ثابت حرف *a, ثابت حرف *b) {
+        _cleanup_free_ حرف *fa = عدم, *fb = عدم;
+        صحيح r, j, k;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                إرجاع r;
 
         j = path_extract_filename(a, &fa);
         k = path_extract_filename(b, &fb);
 
         /* When one of paths is "." or root, then order it earlier. */
         r = CMP(j != -EADDRNOTAVAIL, k != -EADDRNOTAVAIL);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                إرجاع r;
 
         /* When one of paths is invalid (or we get OOM), order invalid path after valid one. */
         r = CMP(j < 0, k < 0);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                إرجاع r;
 
         /* fallback to use strcmp() if both paths are invalid. */
-        if (j < 0)
-                return strcmp(a, b);
+        إذا (j < 0)
+                إرجاع strcmp(a, b);
 
-        return strcmp(fa, fb);
+        إرجاع strcmp(fa, fb);
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags) {
+صحيح path_equal_or_inode_same_full(ثابت حرف *a, ثابت حرف *b, صحيح flags) {
         /* Returns true if paths are of the same entry, false if not, <0 on error. */
 
-        if (path_equal(a, b))
-                return 1;
+        إذا (path_equal(a, b))
+                إرجاع 1;
 
-        if (!a || !b)
-                return 0;
+        إذا (!a || !b)
+                إرجاع 0;
 
-        return inode_same(a, b, flags);
+        إرجاع inode_same(a, b, flags);
 }
 
-char* path_extend_internal(char **x, ...) {
+حرف* path_extend_internal(حرف **x, ...) {
         size_t sz, old_sz;
-        char *q, *nx;
-        const char *p;
+        حرف *q, *nx;
+        ثابت حرف *p;
         va_list ap;
         bool slash;
 
@@ -609,31 +609,31 @@ char* path_extend_internal(char **x, ...) {
 
         sz = old_sz = x ? strlen_ptr(*x) : 0;
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
+        بينما ((p = va_arg(ap, حرف*)) != POINTER_MAX) {
                 size_t add;
 
-                if (isempty(p))
-                        continue;
+                إذا (isempty(p))
+                        استمر;
 
                 add = 1 + strlen(p);
-                if (sz > SIZE_MAX - add) { /* overflow check */
+                إذا (sz > SIZE_MAX - add) { /* overflow check */
                         va_end(ap);
-                        return NULL;
+                        إرجاع عدم;
                 }
 
                 sz += add;
         }
         va_end(ap);
 
-        nx = realloc(x ? *x : NULL, GREEDY_ALLOC_ROUND_UP(sz+1));
-        if (!nx)
-                return NULL;
-        if (x)
+        nx = realloc(x ? *x : عدم, GREEDY_ALLOC_ROUND_UP(sz+1));
+        إذا (!nx)
+                إرجاع عدم;
+        إذا (x)
                 *x = nx;
 
-        if (old_sz > 0)
+        إذا (old_sz > 0)
                 slash = nx[old_sz-1] == '/';
-        else {
+        وإلا {
                 nx[old_sz] = 0;
                 slash = true; /* no need to generate a slash anymore */
         }
@@ -641,11 +641,11 @@ char* path_extend_internal(char **x, ...) {
         q = nx + old_sz;
 
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                if (isempty(p))
-                        continue;
+        بينما ((p = va_arg(ap, حرف*)) != POINTER_MAX) {
+                إذا (isempty(p))
+                        استمر;
 
-                if (!slash && p[0] != '/')
+                إذا (!slash && p[0] != '/')
                         *(q++) = '/';
 
                 q = stpcpy(q, p);
@@ -653,204 +653,204 @@ char* path_extend_internal(char **x, ...) {
         }
         va_end(ap);
 
-        return nx;
+        إرجاع nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *resolved = NULL;
-        int r;
+صحيح open_and_check_executable(ثابت حرف *name, ثابت حرف *جذر, حرف **ret_path, صحيح *ret_fd) {
+        _cleanup_close_ صحيح fd = -EBADF;
+        _cleanup_free_ حرف *resolved = عدم;
+        صحيح r;
 
-        assert(name);
+        أكد(name);
 
         /* Function chase() is invoked only when root is not NULL, as using it regardless of
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        إذا (جذر) {
                 /* prefix root to name in case full paths are not specified */
-                r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
-                if (r < 0)
-                        return r;
+                r = chase(name, جذر, CHASE_PREFIX_جذر, &resolved, &fd);
+                إذا (r < 0)
+                        إرجاع r;
 
                 name = resolved;
-        } else {
+        } وإلا {
                 /* We need to use O_PATH because there may be executables for which we have only exec permissions,
                  * but not read (usually suid executables). */
                 fd = open(name, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
+                إذا (fd < 0)
+                        إرجاع -errno;
         }
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                إرجاع r;
 
         r = access_fd(fd, X_OK);
-        if (r == -ENOSYS)
+        إذا (r == -ENOSYS)
                 /* /proc/ is not mounted. Fall back to access(). */
                 r = RET_NERRNO(access(name, X_OK));
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                إرجاع r;
 
-        if (ret_path) {
-                if (resolved)
+        إذا (ret_path) {
+                إذا (resolved)
                         *ret_path = TAKE_PTR(resolved);
-                else {
+                وإلا {
                         r = path_make_absolute_cwd(name, ret_path);
-                        if (r < 0)
-                                return r;
+                        إذا (r < 0)
+                                إرجاع r;
 
                         path_simplify(*ret_path);
                 }
         }
 
-        if (ret_fd)
+        إذا (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        إرجاع 0;
 }
 
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
+صحيح find_executable_full(
+                ثابت حرف *name,
+                ثابت حرف *جذر,
+                حرف * ثابت *exec_بحث_path,
                 bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd) {
+                حرف **ret_filename,
+                صحيح *ret_fd) {
 
-        int last_error = -ENOENT, r = 0;
+        صحيح last_error = -ENOENT, r = 0;
 
-        assert(name);
+        أكد(name);
 
-        if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+        إذا (is_path(name))
+                إرجاع open_and_check_executable(name, جذر, ret_filename, ret_fd);
 
-        if (exec_search_path) {
-                STRV_FOREACH(element, exec_search_path) {
-                        _cleanup_free_ char *full_path = NULL;
+        إذا (exec_بحث_path) {
+                STRV_FOREACH(element, exec_بحث_path) {
+                        _cleanup_free_ حرف *full_path = عدم;
 
-                        if (!path_is_absolute(*element)) {
+                        إذا (!path_is_absolute(*element)) {
                                 log_debug("Exec search path '%s' isn't absolute, ignoring.", *element);
-                                continue;
+                                استمر;
                         }
 
                         full_path = path_join(*element, name);
-                        if (!full_path)
-                                return -ENOMEM;
+                        إذا (!full_path)
+                                إرجاع -ENOMEM;
 
-                        r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
-                        if (r >= 0)
-                                return 0;
-                        if (r != -EACCES)
+                        r = open_and_check_executable(full_path, جذر, ret_filename, ret_fd);
+                        إذا (r >= 0)
+                                إرجاع 0;
+                        إذا (r != -EACCES)
                                 last_error = r;
                 }
-                return last_error;
+                إرجاع last_error;
         }
 
-        const char *p = NULL;
+        ثابت حرف *p = عدم;
 
-        if (use_path_envvar)
+        إذا (use_path_envvar)
                 /* Plain getenv, not secure_getenv, because we want to actually allow the user to pick the
                  * binary. */
                 p = getenv("PATH");
-        if (!p)
+        إذا (!p)
                 p = default_PATH();
 
         /* Resolve a single-component name to a full path */
-        for (;;) {
-                _cleanup_free_ char *element = NULL;
+        لكل (;;) {
+                _cleanup_free_ حرف *element = عدم;
 
                 r = extract_first_word(&p, &element, ":", EXTRACT_RELAX|EXTRACT_DONT_COALESCE_SEPARATORS);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                إذا (r < 0)
+                        إرجاع r;
+                إذا (r == 0)
+                        اكسر;
 
-                if (!path_is_absolute(element)) {
+                إذا (!path_is_absolute(element)) {
                         log_debug("Exec search path '%s' isn't absolute, ignoring.", element);
-                        continue;
+                        استمر;
                 }
 
-                if (!path_extend(&element, name))
-                        return -ENOMEM;
+                إذا (!path_extend(&element, name))
+                        إرجاع -ENOMEM;
 
-                r = open_and_check_executable(element, root, ret_filename, ret_fd);
-                if (r >= 0) /* Found it! */
-                        return 0;
+                r = open_and_check_executable(element, جذر, ret_filename, ret_fd);
+                إذا (r >= 0) /* Found it! */
+                        إرجاع 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
-                if (r != -EACCES)
+                إذا (r != -EACCES)
                         last_error = r;
         }
 
-        return last_error;
+        إرجاع last_error;
 }
 
-static int executable_is_good(const char *executable) {
-        _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
+ساكن صحيح executable_is_good(ثابت حرف *executable) {
+        _cleanup_free_ حرف *p = عدم, *d = عدم;
+        صحيح r;
 
         r = find_executable(executable, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
+        إذا (r == -ENOENT)
+                إرجاع 0;
+        إذا (r < 0)
+                إرجاع r;
 
         /* An fsck that is linked to /bin/true is a non-existent fsck */
 
         r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
+        إذا (r == -EINVAL) /* not a symlink */
+                إرجاع 1;
+        إذا (r < 0)
+                إرجاع r;
 
-        return !PATH_IN_SET(d, "true",
+        إرجاع !PATH_IN_SET(d, "true",
                                "/bin/true",
                                "/usr/bin/true",
                                "/dev/null");
 }
 
-int fsck_exists(void) {
-        return executable_is_good("fsck");
+صحيح fsck_exists(فراغ) {
+        إرجاع executable_is_good("fsck");
 }
 
-int fsck_exists_for_fstype(const char *fstype) {
-        const char *checker;
-        int r;
+صحيح fsck_exists_for_fstype(ثابت حرف *fstype) {
+        ثابت حرف *checker;
+        صحيح r;
 
-        assert(fstype);
+        أكد(fstype);
 
-        if (streq(fstype, "auto"))
-                return -EINVAL;
+        إذا (streq(fstype, "auto"))
+                إرجاع -EINVAL;
 
         r = fsck_exists();
-        if (r <= 0)
-                return r;
+        إذا (r <= 0)
+                إرجاع r;
 
         checker = strjoina("fsck.", fstype);
-        return executable_is_good(checker);
+        إرجاع executable_is_good(checker);
 }
 
-static const char* skip_slash_or_dot(const char *p) {
+ساكن ثابت حرف* skip_slash_or_dot(ثابت حرف *p) {
         POINTER_MAY_BE_NULL(p);
 
-        for (; !isempty(p); p++) {
-                if (*p == '/')
-                        continue;
-                if (startswith(p, "./")) {
+        لكل (; !isempty(p); p++) {
+                إذا (*p == '/')
+                        استمر;
+                إذا (startswith(p, "./")) {
                         p++;
-                        continue;
+                        استمر;
                 }
-                break;
+                اكسر;
         }
-        return p;
+        إرجاع p;
 }
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
-        const char *q, *first, *end_first, *next;
+صحيح path_find_first_component(ثابت حرف **p, bool accept_dot_dot, ثابت حرف **ret) {
+        ثابت حرف *q, *first, *end_first, *next;
         size_t len;
 
-        assert(p);
+        أكد(p);
 
         /* When a path is input, then returns the pointer to the first component and its length, and
          * move the input pointer to the next component or nul. This skips both over any '/'
@@ -888,53 +888,53 @@ int path_find_first_component(const char **p, bool accept_dot_dot, const char **
         q = *p;
 
         first = skip_slash_or_dot(q);
-        if (isempty(first)) {
+        إذا (isempty(first)) {
                 *p = first;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                إذا (ret)
+                        *ret = عدم;
+                إرجاع 0;
         }
-        if (streq(first, ".")) {
+        إذا (streq(first, ".")) {
                 *p = first + 1;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                إذا (ret)
+                        *ret = عدم;
+                إرجاع 0;
         }
 
         end_first = strchrnul(first, '/');
         len = end_first - first;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
-                return -EINVAL;
+        إذا (len > NAME_MAX)
+                إرجاع -EINVAL;
+        إذا (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
+                إرجاع -EINVAL;
 
         next = skip_slash_or_dot(end_first);
 
         *p = next + streq(next, ".");
-        if (ret)
+        إذا (ret)
                 *ret = first;
-        return len;
+        إرجاع len;
 }
 
-static const char* skip_slash_or_dot_backward(const char *path, const char *q) {
-        assert(path);
-        assert(!q || q >= path);
+ساكن ثابت حرف* skip_slash_or_dot_backward(ثابت حرف *path, ثابت حرف *q) {
+        أكد(path);
+        أكد(!q || q >= path);
 
-        for (; q; q = PTR_SUB1(q, path)) {
-                if (*q == '/')
-                        continue;
-                if (q > path && strneq(q - 1, "/.", 2))
-                        continue;
-                if (q == path && *q == '.')
-                        continue;
-                break;
+        لكل (; q; q = PTR_SUB1(q, path)) {
+                إذا (*q == '/')
+                        استمر;
+                إذا (q > path && strneq(q - 1, "/.", 2))
+                        استمر;
+                إذا (q == path && *q == '.')
+                        استمر;
+                اكسر;
         }
-        return q;
+        إرجاع q;
 }
 
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
-        const char *q, *last_end, *last_begin;
+صحيح path_find_last_component(ثابت حرف *path, bool accept_dot_dot, ثابت حرف **next, ثابت حرف **ret) {
+        ثابت حرف *q, *last_end, *last_begin;
         size_t len;
 
         POINTER_MAY_BE_NULL(next);
@@ -974,61 +974,61 @@ int path_find_last_component(const char *path, bool accept_dot_dot, const char *
         *   Output: return value: -EINVAL
         */
 
-        if (isempty(path)) {
-                if (next)
+        إذا (isempty(path)) {
+                إذا (next)
                         *next = path;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                إذا (ret)
+                        *ret = عدم;
+                إرجاع 0;
         }
 
-        if (next && *next) {
-                if (*next < path || *next > path + strlen(path))
-                        return -EINVAL;
-                if (*next == path) {
-                        if (ret)
-                                *ret = NULL;
-                        return 0;
+        إذا (next && *next) {
+                إذا (*next < path || *next > path + strlen(path))
+                        إرجاع -EINVAL;
+                إذا (*next == path) {
+                        إذا (ret)
+                                *ret = عدم;
+                        إرجاع 0;
                 }
-                if (!IN_SET(**next, '\0', '/'))
-                        return -EINVAL;
+                إذا (!IN_SET(**next, '\0', '/'))
+                        إرجاع -EINVAL;
                 q = *next - 1;
-        } else
+        } وإلا
                 q = path + strlen(path) - 1;
 
         q = skip_slash_or_dot_backward(path, q);
-        if (!q) { /* the root directory, "." or "./" */
-                if (next)
+        إذا (!q) { /* the root directory, "." or "./" */
+                إذا (next)
                         *next = path;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                إذا (ret)
+                        *ret = عدم;
+                إرجاع 0;
         }
 
         last_end = q + 1;
 
-        while (q && *q != '/')
+        بينما (q && *q != '/')
                 q = PTR_SUB1(q, path);
 
         last_begin = q ? q + 1 : path;
         len = last_end - last_begin;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
-                return -EINVAL;
+        إذا (len > NAME_MAX)
+                إرجاع -EINVAL;
+        إذا (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
+                إرجاع -EINVAL;
 
-        if (next) {
+        إذا (next) {
                 q = skip_slash_or_dot_backward(path, q);
                 *next = q ? q + 1 : path;
         }
 
-        if (ret)
+        إذا (ret)
                 *ret = last_begin;
-        return len;
+        إرجاع len;
 }
 
-const char* last_path_component(const char *path) {
+ثابت حرف* last_path_component(ثابت حرف *path) {
 
         /* Finds the last component of the path, preserving the optional trailing slash that signifies a directory.
          *
@@ -1052,29 +1052,29 @@ const char* last_path_component(const char *path) {
 
         unsigned l, k;
 
-        if (!path)
-                return NULL;
+        إذا (!path)
+                إرجاع عدم;
 
         l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
+        إذا (l == 0) /* special case — an empty string */
+                إرجاع path;
 
-        while (k > 0 && path[k-1] == '/')
+        بينما (k > 0 && path[k-1] == '/')
                 k--;
 
-        if (k == 0) /* the root directory */
-                return path + l - 1;
+        إذا (k == 0) /* the root directory */
+                إرجاع path + l - 1;
 
-        while (k > 0 && path[k-1] != '/')
+        بينما (k > 0 && path[k-1] != '/')
                 k--;
 
-        return path + k;
+        إرجاع path + k;
 }
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
-        _cleanup_free_ char *d = NULL;
-        const char *c, *next = NULL;
-        int r;
+صحيح path_split_prefix_filename(ثابت حرف *path, حرف **ret_dir, حرف **ret_filename) {
+        _cleanup_free_ حرف *d = عدم;
+        ثابت حرف *c, *next = عدم;
+        صحيح r;
 
         POINTER_MAY_BE_NULL(path);
 
@@ -1092,161 +1092,161 @@ int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_file
          * This function guarantees to return a fully valid filename, i.e. one that passes
          * filename_is_valid() – this means "." and ".." are not accepted. */
 
-        if (isempty(path))
-                return -EINVAL;
+        إذا (isempty(path))
+                إرجاع -EINVAL;
 
         r = path_find_last_component(path, /* accept_dot_dot = */ false, &next, &c);
-        if (r < 0)
-                return r;
-        if (r == 0) /* root directory or "." */
-                return -EADDRNOTAVAIL;
+        إذا (r < 0)
+                إرجاع r;
+        إذا (r == 0) /* root directory or "." */
+                إرجاع -EADDRNOTAVAIL;
 
-        if (ret_dir) {
-                if (next == path) {
-                        if (*path != '/') { /* filename only */
-                                if (!ret_filename)
-                                        return -EDESTADDRREQ;
-                        } else {
+        إذا (ret_dir) {
+                إذا (next == path) {
+                        إذا (*path != '/') { /* filename only */
+                                إذا (!ret_filename)
+                                        إرجاع -EDESTADDRREQ;
+                        } وإلا {
                                 d = strdup("/");
-                                if (!d)
-                                        return -ENOMEM;
+                                إذا (!d)
+                                        إرجاع -ENOMEM;
                         }
-                } else {
+                } وإلا {
                         d = strndup(path, next - path);
-                        if (!d)
-                                return -ENOMEM;
+                        إذا (!d)
+                                إرجاع -ENOMEM;
 
                         path_simplify(d);
 
-                        if (!path_is_valid(d))
-                                return -EINVAL;
+                        إذا (!path_is_valid(d))
+                                إرجاع -EINVAL;
                 }
 
-        } else if (!path_is_valid(path))
+        } وإلا إذا (!path_is_valid(path))
                 /* We didn't validate the dir prefix, hence check if the whole path is valid now */
-                return -EINVAL;
+                إرجاع -EINVAL;
 
-        if (ret_filename) {
-                char *fn = strndup(c, r);
-                if (!fn)
-                        return -ENOMEM;
+        إذا (ret_filename) {
+                حرف *fn = strndup(c, r);
+                إذا (!fn)
+                        إرجاع -ENOMEM;
 
                 *ret_filename = fn;
         }
 
-        if (ret_dir)
+        إذا (ret_dir)
                 *ret_dir = TAKE_PTR(d);
 
-        return strlen(c) > (size_t) r ? O_DIRECTORY : 0;
+        إرجاع strlen(c) > (size_t) r ? O_DIRECTORY : 0;
 }
 
-bool filename_part_is_valid(const char *p) {
-        const char *e;
+bool filename_part_is_valid(ثابت حرف *p) {
+        ثابت حرف *e;
 
         /* Checks f the specified string is OK to be *part* of a filename. This is different from
          * filename_is_valid() as "." and ".." and "" are OK by this call, but not by filename_is_valid(). */
 
-        if (!p)
-                return false;
+        إذا (!p)
+                إرجاع false;
 
         e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
+        إذا (*e != 0)
+                إرجاع false;
 
-        if (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
-                return false;
+        إذا (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
+                إرجاع false;
 
-        return true;
+        إرجاع true;
 }
 
-bool filename_is_valid(const char *p) {
+bool filename_is_valid(ثابت حرف *p) {
 
-        if (isempty(p))
-                return false;
+        إذا (isempty(p))
+                إرجاع false;
 
-        if (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
-                return false;
+        إذا (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
+                إرجاع false;
 
-        return filename_part_is_valid(p);
+        إرجاع filename_part_is_valid(p);
 }
 
-bool path_is_valid_full(const char *p, bool accept_dot_dot) {
-        if (isempty(p))
-                return false;
+bool path_is_valid_full(ثابت حرف *p, bool accept_dot_dot) {
+        إذا (isempty(p))
+                إرجاع false;
 
-        for (const char *e = p;;) {
-                int r;
+        لكل (ثابت حرف *e = p;;) {
+                صحيح r;
 
-                r = path_find_first_component(&e, accept_dot_dot, NULL);
-                if (r < 0)
-                        return false;
+                r = path_find_first_component(&e, accept_dot_dot, عدم);
+                إذا (r < 0)
+                        إرجاع false;
 
-                if (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
+                إذا (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
                                         * *with* the trailing NUL byte) */
-                        return false;
-                if (*e == 0)           /* End of string? Yay! */
-                        return true;
+                        إرجاع false;
+                إذا (*e == 0)           /* End of string? Yay! */
+                        إرجاع true;
         }
 }
 
-bool path_is_normalized(const char *p) {
-        if (!path_is_safe(p))
-                return false;
+bool path_is_normalized(ثابت حرف *p) {
+        إذا (!path_is_safe(p))
+                إرجاع false;
 
-        if (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
+        إذا (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
+                إرجاع false;
 
-        if (strstr(p, "//"))
-                return false;
+        إذا (strstr(p, "//"))
+                إرجاع false;
 
-        return true;
+        إرجاع true;
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret) {
-        _cleanup_free_ char *b = NULL;
-        int r;
+صحيح file_in_same_dir(ثابت حرف *path, ثابت حرف *filename, حرف **ret) {
+        _cleanup_free_ حرف *b = عدم;
+        صحيح r;
 
-        assert(path);
-        assert(filename);
-        assert(ret);
+        أكد(path);
+        أكد(filename);
+        أكد(ret);
 
         /* This removes the last component of path and appends filename, unless the latter is absolute anyway
          * or the former isn't */
 
-        if (path_is_absolute(filename))
+        إذا (path_is_absolute(filename))
                 b = strdup(filename);
-        else {
-                _cleanup_free_ char *dn = NULL;
+        وإلا {
+                _cleanup_free_ حرف *dn = عدم;
 
                 r = path_extract_directory(path, &dn);
-                if (r == -EDESTADDRREQ) /* no path prefix */
+                إذا (r == -EDESTADDRREQ) /* no path prefix */
                         b = strdup(filename);
-                else if (r < 0)
-                        return r;
-                else
+                وإلا إذا (r < 0)
+                        إرجاع r;
+                وإلا
                         b = path_join(dn, filename);
         }
-        if (!b)
-                return -ENOMEM;
+        إذا (!b)
+                إرجاع -ENOMEM;
 
         *ret = TAKE_PTR(b);
-        return 0;
+        إرجاع 0;
 }
 
-bool hidden_or_backup_file(const char *filename) {
-        assert(filename);
+bool hidden_or_backup_file(ثابت حرف *filename) {
+        أكد(filename);
 
-        if (filename[0] == '.' ||
+        إذا (filename[0] == '.' ||
             STR_IN_SET(filename,
                        "lost+found",
                        "aquota.user",
                        "aquota.group") ||
             endswith(filename, "~"))
-                return true;
+                إرجاع true;
 
-        const char *dot = strrchr(filename, '.');
-        if (!dot)
-                return false;
+        ثابت حرف *dot = strrchr(filename, '.');
+        إذا (!dot)
+                إرجاع false;
 
         /* Please, let's not add more entries to the list below. If external projects think it's a good idea
          * to come up with always new suffixes and that everybody else should just adjust to that, then it
@@ -1262,7 +1262,7 @@ bool hidden_or_backup_file(const char *filename) {
          * ".foopkg.old" or ".foopkg~" instead.
          */
 
-        return STR_IN_SET(dot + 1,
+        إرجاع STR_IN_SET(dot + 1,
                           "ignore",
                           "rpmnew",
                           "rpmsave",
@@ -1283,7 +1283,7 @@ bool hidden_or_backup_file(const char *filename) {
                           "new");
 }
 
-bool is_device_path(const char *path) {
+bool is_device_path(ثابت حرف *path) {
 
         /* Returns true for paths that likely refer to a device, either by path in sysfs or to something in
          * /dev. This accepts any path that starts with /dev/ or /sys/ and has something after that prefix.
@@ -1294,206 +1294,206 @@ bool is_device_path(const char *path) {
          * /../dev/sda, /dev, /sys, /usr/path, /usr/../dev/sda → no.
          */
 
-        const char *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
-        return !isempty(p);
+        ثابت حرف *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
+        إرجاع !isempty(p);
 }
 
-bool valid_device_node_path(const char *path) {
+bool valid_device_عقدة_path(ثابت حرف *path) {
 
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
 
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
+        إذا (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
+                إرجاع false;
 
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
+        إذا (endswith(path, "/")) /* can't be a device node if it ends in a slash */
+                إرجاع false;
 
-        return path_is_normalized(path);
+        إرجاع path_is_normalized(path);
 }
 
-bool valid_device_allow_pattern(const char *path) {
-        assert(path);
+bool valid_device_allow_pattern(ثابت حرف *path) {
+        أكد(path);
 
         /* Like valid_device_node_path(), but also allows full-subsystem expressions like those accepted by
          * DeviceAllow= and DeviceDeny=. */
 
-        if (STARTSWITH_SET(path, "block-", "char-"))
-                return true;
+        إذا (STARTSWITH_SET(path, "block-", "char-"))
+                إرجاع true;
 
-        return valid_device_node_path(path);
+        إرجاع valid_device_عقدة_path(path);
 }
 
-bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
+bool dot_or_dot_dot(ثابت حرف *path) {
+        إذا (!path)
+                إرجاع false;
+        إذا (path[0] != '.')
+                إرجاع false;
+        إذا (path[1] == 0)
+                إرجاع true;
+        إذا (path[1] != '.')
+                إرجاع false;
 
-        return path[2] == 0;
+        إرجاع path[2] == 0;
 }
 
-bool path_implies_directory(const char *path) {
+bool path_implies_directory(ثابت حرف *path) {
 
         /* Sometimes, if we look at a path we already know it must refer to a directory, because it is
          * suffixed with a slash, or its last component is "." or ".." */
 
-        if (!path)
-                return false;
+        إذا (!path)
+                إرجاع false;
 
-        if (dot_or_dot_dot(path))
-                return true;
+        إذا (dot_or_dot_dot(path))
+                إرجاع true;
 
-        return ENDSWITH_SET(path, "/", "/.", "/..");
+        إرجاع ENDSWITH_SET(path, "/", "/.", "/..");
 }
 
-bool empty_or_root(const char *path) {
+bool empty_or_جذر(ثابت حرف *path) {
 
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
 
-        if (isempty(path))
-                return true;
+        إذا (isempty(path))
+                إرجاع true;
 
-        return path_equal(path, "/");
+        إرجاع path_equal(path, "/");
 }
 
-const char* empty_to_root(const char *path) {
-        return isempty(path) ? "/" : path;
+ثابت حرف* empty_to_جذر(ثابت حرف *path) {
+        إرجاع isempty(path) ? "/" : path;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
-        int r;
+صحيح empty_or_جذر_harder_to_null(ثابت حرف **path) {
+        صحيح r;
 
-        assert(path);
+        أكد(path);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
-                *path = NULL;
-                return 0;
+        إذا (empty_or_جذر(*path)) {
+                *path = عدم;
+                إرجاع 0;
         }
 
-        r = path_is_root(*path);
-        if (r < 0)
-                return r;
-        if (r > 0)
-                *path = NULL;
+        r = path_is_جذر(*path);
+        إذا (r < 0)
+                إرجاع r;
+        إذا (r > 0)
+                *path = عدم;
 
-        return 0;
+        إرجاع 0;
 }
 
-bool path_strv_contains(char * const *l, const char *path) {
-        assert(path);
+bool path_strv_contains(حرف * ثابت *l, ثابت حرف *path) {
+        أكد(path);
 
         STRV_FOREACH(i, l)
-                if (path_equal(*i, path))
-                        return true;
+                إذا (path_equal(*i, path))
+                        إرجاع true;
 
-        return false;
+        إرجاع false;
 }
 
-bool prefixed_path_strv_contains(char * const *l, const char *path) {
-        assert(path);
+bool prefixed_path_strv_contains(حرف * ثابت *l, ثابت حرف *path) {
+        أكد(path);
 
         STRV_FOREACH(i, l) {
-                const char *j = *i;
+                ثابت حرف *j = *i;
 
-                if (*j == '-')
+                إذا (*j == '-')
                         j++;
-                if (*j == '+')
+                إذا (*j == '+')
                         j++;
 
-                if (path_equal(j, path))
-                        return true;
+                إذا (path_equal(j, path))
+                        إرجاع true;
         }
 
-        return false;
+        إرجاع false;
 }
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
-        assert(pattern);
-        assert(prefix);
+صحيح path_glob_can_match(ثابت حرف *pattern, ثابت حرف *prefix, حرف **ret) {
+        أكد(pattern);
+        أكد(prefix);
 
-        for (const char *a = pattern, *b = prefix;;) {
-                _cleanup_free_ char *g = NULL, *h = NULL;
-                const char *p, *q;
-                int r, s;
+        لكل (ثابت حرف *a = pattern, *b = prefix;;) {
+                _cleanup_free_ حرف *g = عدم, *h = عدم;
+                ثابت حرف *p, *q;
+                صحيح r, s;
 
                 r = path_find_first_component(&a, /* accept_dot_dot= */ false, &p);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        إرجاع r;
 
                 s = path_find_first_component(&b, /* accept_dot_dot= */ false, &q);
-                if (s < 0)
-                        return s;
+                إذا (s < 0)
+                        إرجاع s;
 
-                if (s == 0) {
+                إذا (s == 0) {
                         /* The pattern matches the prefix. */
-                        if (ret) {
-                                char *t;
+                        إذا (ret) {
+                                حرف *t;
 
                                 t = path_join(prefix, p);
-                                if (!t)
-                                        return -ENOMEM;
+                                إذا (!t)
+                                        إرجاع -ENOMEM;
 
                                 *ret = t;
                         }
-                        return true;
+                        إرجاع true;
                 }
 
-                if (r == 0)
-                        break;
+                إذا (r == 0)
+                        اكسر;
 
-                if (r == s && strneq(p, q, r))
-                        continue; /* common component. Check next. */
+                إذا (r == s && strneq(p, q, r))
+                        استمر; /* common component. Check next. */
 
                 g = strndup(p, r);
-                if (!g)
-                        return -ENOMEM;
+                إذا (!g)
+                        إرجاع -ENOMEM;
 
-                if (!string_is_glob(g))
-                        break;
+                إذا (!string_is_glob(g))
+                        اكسر;
 
                 /* We found a glob component. Check if the glob pattern matches the prefix component. */
 
                 h = strndup(q, s);
-                if (!h)
-                        return -ENOMEM;
+                إذا (!h)
+                        إرجاع -ENOMEM;
 
                 r = fnmatch(g, h, 0);
-                if (r == FNM_NOMATCH)
-                        break;
-                if (r != 0) /* Failure to process pattern? */
-                        return -EINVAL;
+                إذا (r == FNM_NOMATCH)
+                        اكسر;
+                إذا (r != 0) /* Failure to process pattern? */
+                        إرجاع -EINVAL;
         }
 
         /* The pattern does not match the prefix. */
-        if (ret)
-                *ret = NULL;
-        return false;
+        إذا (ret)
+                *ret = عدم;
+        إرجاع false;
 }
 
-#if HAVE_SPLIT_BIN
-static bool dir_is_split(const char *a, const char *b) {
-        int r;
+#إذا HAVE_SPLIT_BIN
+ساكن bool dir_is_split(ثابت حرف *a, ثابت حرف *b) {
+        صحيح r;
 
         r = inode_same(a, b, AT_NO_AUTOMOUNT);
-        if (r < 0 && r != -ENOENT) {
+        إذا (r < 0 && r != -ENOENT) {
                 log_debug_errno(r, "Failed to compare \"%s\" and \"%s\", assuming split directories: %m", a, b);
-                return true;
+                إرجاع true;
         }
-        return r == 0;
+        إرجاع r == 0;
 }
 #endif
 
-const char* default_PATH(void) {
-#if HAVE_SPLIT_BIN
-        static const char *default_path = NULL;
+ثابت حرف* default_PATH(فراغ) {
+#إذا HAVE_SPLIT_BIN
+        ساكن ثابت حرف *default_path = عدم;
 
         /* Return one of the three sets of paths:
          * a) split /usr/s?bin, /usr/local/sbin doesn't matter.
@@ -1503,15 +1503,15 @@ const char* default_PATH(void) {
          * On error the fallback to the safe value with both directories as configured is returned.
          */
 
-        if (default_path)
-                return default_path;
+        إذا (default_path)
+                إرجاع default_path;
 
-        if (dir_is_split("/usr/sbin", "/usr/bin"))
-                return (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
-        if (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
-                return (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
-        return (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
-#else
-        return DEFAULT_PATH_WITHOUT_SBIN;
+        إذا (dir_is_split("/usr/sbin", "/usr/bin"))
+                إرجاع (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
+        إذا (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
+                إرجاع (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
+        إرجاع (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
+#وإلا
+        إرجاع DEFAULT_PATH_WITHOUT_SBIN;
 #endif
 }
