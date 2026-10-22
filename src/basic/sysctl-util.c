@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "af-list.h"
-#include "alloc-util.h"
-#include "fileio.h"
-#include "hashmap.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "string-util.h"
-#include "sysctl-util.h"
+#ضمن "af-list.h"
+#ضمن "alloc-util.h"
+#ضمن "fileio.h"
+#ضمن "hashmap.h"
+#ضمن "log.h"
+#ضمن "parse-util.h"
+#ضمن "path-util.h"
+#ضمن "socket-util.h"
+#ضمن "string-util.h"
+#ضمن "sysctl-util.h"
 
-char* sysctl_normalize(char *s) {
-        char *n;
+حرف* sysctl_normalize(حرف *s) {
+        حرف *n;
 
-        assert(s);
+        أكد(s);
 
         n = strpbrk(s, "/.");
 
@@ -24,101 +24,101 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        إذا (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
-                do {
-                        if (*n == '.')
+                افعل {
+                        إذا (*n == '.')
                                 *n = '/';
-                        else
+                        وإلا
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } طالما (n);
 
         path_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
+        إذا (s[0] == '/' && s[1] != 0)
                 memmove(s, s+1, strlen(s));
 
-        return s;
+        أرجع s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
-        _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+ساكن صحيح shadow_update(Hashmap **shadow, ثابت حرف *property, ثابت حرف *درج) {
+        _cleanup_free_ حرف *k = عدم, *v = عدم, *cur_k = عدم, *cur_v = عدم;
+        صحيح r;
 
-        assert(property);
-        assert(value);
+        أكد(property);
+        أكد(درج);
 
-        if (!shadow)
-                return 0;
+        إذا (!shadow)
+                أرجع 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        إذا (!k)
+                أرجع -ENOMEM;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(درج);
+        إذا (!v)
+                أرجع -ENOMEM;
 
-        cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
+        cur_v = hashmap_remove2(*shadow, k, (فراغ**)&cur_k);
 
         r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
-                assert(r != -EEXIST);
+        إذا (r < 0) {
+                أكد(r != -EEXIST);
 
-                return r;
+                أرجع r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        أرجع 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
-        char *p;
-        int r;
+صحيح sysctl_write_full(ثابت حرف *property, ثابت حرف *درج, Hashmap **shadow) {
+        حرف *p;
+        صحيح r;
 
-        assert(property);
-        assert(value);
+        أكد(property);
+        أكد(درج);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        إذا (!path_is_normalized(p))
+                أرجع -EINVAL;
 
-        log_debug("Setting '%s' to '%s'", p, value);
+        log_debug("Setting '%s' to '%s'", p, درج);
 
-        r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        r = shadow_update(shadow, p, درج);
+        إذا (r < 0)
+                أرجع r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        أرجع write_string_file(p, درج, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
-        _cleanup_free_ char *v = NULL;
+صحيح sysctl_writef(ثابت حرف *property, ثابت حرف *format, ...) {
+        _cleanup_free_ حرف *v = عدم;
         va_list ap;
-        int r;
+        صحيح r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        إذا (r < 0)
+                أرجع -ENOMEM;
 
-        return sysctl_write(property, v);
+        أرجع sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+صحيح sysctl_write_verify(ثابت حرف *property, ثابت حرف *درج) {
+        صحيح r;
 
-        assert(property);
-        assert(value);
+        أكد(property);
+        أكد(درج);
 
         /* Some sysctl settings accept invalid values on write, but refuses on read. E.g. coredump pattern,
          * be1e0283021ec73c2eb92839db9a471a068709d9 (v6.17) and 7d7c1fb85cba5627bbe741fb7539c709435e3848
@@ -126,18 +126,18 @@ int sysctl_write_verify(const char *property, const char *value) {
          * 304aa560385720baf3660fe8500f6dd425b63ea9 (v6.17.5). Let's first save the original value, and
          * restore to the saved value if the new value is refused. */
 
-        _cleanup_free_ char *original = NULL;
+        _cleanup_free_ حرف *original = عدم;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        إذا (r >= 0 && streq(original, درج))
+                أرجع 0; /* Already set. */
 
-        r = sysctl_write(property, value);
-        if (r >= 0) {
-                _cleanup_free_ char *current = NULL;
+        r = sysctl_write(property, درج);
+        إذا (r >= 0) {
+                _cleanup_free_ حرف *current = عدم;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                إذا (r >= 0) {
+                        إذا (streq(current, درج))
+                                أرجع 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
-                (void) sysctl_write(property, original);
+        إذا (original)
+                (فراغ) sysctl_write(property, original);
 
-        return r;
+        أرجع r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+ساكن ثابت حرف* af_to_sysctl_dir(صحيح af) {
+        إذا (af == AF_MPLS)
+                أرجع "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        أرجع af_to_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+صحيح sysctl_write_ip_property(صحيح af, ثابت حرف *ifname, ثابت حرف *property, ثابت حرف *درج, Hashmap **shadow) {
+        ثابت حرف *p;
 
-        assert(property);
-        assert(value);
+        أكد(property);
+        أكد(درج);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        إذا (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                أرجع -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        إذا (ifname) {
+                إذا (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        أرجع -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } وإلا
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        أرجع sysctl_write_full(p, درج, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+صحيح sysctl_write_ip_property_boolean(صحيح af, ثابت حرف *ifname, ثابت حرف *property, bool درج, Hashmap **shadow) {
+        أرجع sysctl_write_ip_property(af, ifname, property, one_zero(درج), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+صحيح sysctl_write_ip_neighbor_property(صحيح af, ثابت حرف *ifname, ثابت حرف *property, ثابت حرف *درج, Hashmap **shadow) {
+        ثابت حرف *p;
 
-        assert(property);
-        assert(value);
-        assert(ifname);
+        أكد(property);
+        أكد(درج);
+        أكد(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        إذا (!IN_SET(af, AF_INET, AF_INET6))
+                أرجع -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        إذا (ifname) {
+                إذا (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        أرجع -EINVAL;
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
+        } وإلا
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        أرجع sysctl_write_full(p, درج, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
-        char buf[DECIMAL_STR_MAX(uint32_t)];
-        xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+صحيح sysctl_write_ip_neighbor_property_uint32(صحيح af, ثابت حرف *ifname, ثابت حرف *property, uint32_t درج, Hashmap **shadow) {
+        حرف buf[DECIMAL_STR_MAX(uint32_t)];
+        xsprintf(buf, "%u", درج);
+        أرجع sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
-        char *p;
-        int r;
+صحيح sysctl_read(ثابت حرف *property, حرف **ret) {
+        حرف *p;
+        صحيح r;
 
-        assert(property);
+        أكد(property);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        إذا (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                أرجع -EINVAL;
 
-        r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        r = read_full_virtual_file(p, ret, عدم);
+        إذا (r < 0)
+                أرجع r;
+        إذا (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        أرجع r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
-        const char *p;
+صحيح sysctl_read_ip_property(صحيح af, ثابت حرف *ifname, ثابت حرف *property, حرف **ret) {
+        ثابت حرف *p;
 
-        assert(property);
+        أكد(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        إذا (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                أرجع -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        إذا (ifname) {
+                إذا (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        أرجع -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } وإلا
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        أرجع sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحيح sysctl_read_ip_property_int(صحيح af, ثابت حرف *ifname, ثابت حرف *property, صحيح *ret) {
+        _cleanup_free_ حرف *s = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return safe_atoi(s, ret);
+        أرجع safe_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحيح sysctl_read_ip_property_uint32(صحيح af, ثابت حرف *ifname, ثابت حرف *property, uint32_t *ret) {
+        _cleanup_free_ حرف *s = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return safe_atou32(s, ret);
+        أرجع safe_atou32(s, ret);
 }

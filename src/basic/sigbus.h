@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-void sigbus_install(void);
-void sigbus_reset(void);
+فراغ sigbus_install(فراغ);
+فراغ sigbus_reset(فراغ);
 
-int sigbus_pop(void **ret);
+صحيح sigbus_چرو(فراغ **ret);

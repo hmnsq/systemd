@@ -1,160 +1,160 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <ctype.h>
-#include <stdio.h>
+#ضمن <ctype.h>
+#ضمن <stdio.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "memory-util.h"
-#include "string-util.h"
+#ضمن "alloc-util.h"
+#ضمن "hexdecoct.h"
+#ضمن "memory-util.h"
+#ضمن "string-util.h"
 
-char octchar(int x) {
-        return '0' + (x & 7);
+حرف octchar(صحيح x) {
+        أرجع '0' + (x & 7);
 }
 
-int unoctchar(char c) {
+صحيح unoctchar(حرف c) {
 
-        if (c >= '0' && c <= '7')
-                return c - '0';
+        إذا (c >= '0' && c <= '7')
+                أرجع c - '0';
 
-        return -EINVAL;
+        أرجع -EINVAL;
 }
 
-char decchar(int x) {
-        return '0' + (x % 10);
+حرف decchar(صحيح x) {
+        أرجع '0' + (x % 10);
 }
 
-int undecchar(char c) {
+صحيح undecchar(حرف c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        إذا (c >= '0' && c <= '9')
+                أرجع c - '0';
 
-        return -EINVAL;
+        أرجع -EINVAL;
 }
 
-char hexchar(int x) {
-        const char *table = LOWERCASE_HEXDIGITS;
-        return table[x & 15];
+حرف hexchar(صحيح x) {
+        ثابت حرف *table = LOWERCASE_HEXDIGITS;
+        أرجع table[x & 15];
 }
 
-int unhexchar(char c) {
+صحيح unhexchar(حرف c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        إذا (c >= '0' && c <= '9')
+                أرجع c - '0';
 
-        if (c >= 'a' && c <= 'f')
-                return c - 'a' + 10;
+        إذا (c >= 'a' && c <= 'f')
+                أرجع c - 'a' + 10;
 
-        if (c >= 'A' && c <= 'F')
-                return c - 'A' + 10;
+        إذا (c >= 'A' && c <= 'F')
+                أرجع c - 'A' + 10;
 
-        return -EINVAL;
+        أرجع -EINVAL;
 }
 
-char* hexmem(const void *p, size_t l) {
-        const uint8_t *x;
-        char *r, *z;
+حرف* hexmem(ثابت فراغ *p, size_t l) {
+        ثابت uint8_t *x;
+        حرف *r, *z;
 
-        assert(p || l == 0);
+        أكد(p || l == 0);
 
-        z = r = new(char, l * 2 + 1);
-        if (!r)
-                return NULL;
+        z = r = new(حرف, l * 2 + 1);
+        إذا (!r)
+                أرجع عدم;
 
-        for (x = p; x && x < (const uint8_t*) p + l; x++) {
+        لكل (x = p; x && x < (ثابت uint8_t*) p + l; x++) {
                 *(z++) = hexchar(*x >> 4);
                 *(z++) = hexchar(*x & 15);
         }
 
         *z = 0;
-        return r;
+        أرجع r;
 }
 
-static int unhex_next(const char **p, size_t *l) {
-        int r;
+ساكن صحيح unhex_next(ثابت حرف **p, size_t *l) {
+        صحيح r;
 
-        assert(p);
-        assert(l);
+        أكد(p);
+        أكد(l);
 
         /* Find the next non-whitespace character, and decode it. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        لكل (;;) {
+                إذا (*l == 0)
+                        أرجع -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                إذا (!strchr(WHITESPACE, **p))
+                        اكسر;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
         r = unhexchar(**p);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        for (;;) {
+        لكل (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0 || !strchr(WHITESPACE, **p))
-                        break;
+                إذا (*l == 0 || !strchr(WHITESPACE, **p))
+                        اكسر;
 
                 /* Skip following whitespace */
         }
 
-        return r;
+        أرجع r;
 }
 
-int unhexmem_full(
-                const char *p,
+صحيح unhexmem_full(
+                ثابت حرف *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
+                فراغ **ret_data,
                 size_t *ret_size) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
+        _cleanup_free_ uint8_t *buf = عدم;
         size_t buf_size;
-        const char *x;
+        ثابت حرف *x;
         uint8_t *z;
 
-        assert(p || l == 0);
+        أكد(p || l == 0);
 
-        if (l == SIZE_MAX)
+        إذا (l == SIZE_MAX)
                 l = strlen(p);
 
         /* Note that the calculation of memory size is an upper boundary, as we ignore whitespace while decoding */
         buf_size = (l + 1) / 2 + 1;
         buf = malloc(buf_size);
-        if (!buf)
-                return -ENOMEM;
+        إذا (!buf)
+                أرجع -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, buf_size);
+        CLEANUP_ERASE_PTR(secure ? &buf : عدم, buf_size);
 
-        for (x = p, z = buf;;) {
-                int a, b;
+        لكل (x = p, z = buf;;) {
+                صحيح a, b;
 
                 a = unhex_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
+                إذا (a == -EPIPE) /* End of string */
+                        اكسر;
+                إذا (a < 0)
+                        أرجع a;
 
                 b = unhex_next(&x, &l);
-                if (b < 0)
-                        return b;
+                إذا (b < 0)
+                        أرجع b;
 
                 *(z++) = (uint8_t) a << 4 | (uint8_t) b;
         }
 
         *z = 0;
 
-        if (ret_size)
+        إذا (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        إذا (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        أرجع 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-6
@@ -163,60 +163,60 @@ int unhexmem_full(
  * order of the underlying data when compared as bytestrings, this is
  * useful when representing NSEC3 hashes, as one can then verify the
  * order of hashes directly from their representation. */
-char base32hexchar(int x) {
-        const char *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
-        return table[x & 31];
+حرف base32hexchar(صحيح x) {
+        ثابت حرف *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
+        أرجع table[x & 31];
 }
 
-int unbase32hexchar(char c) {
+صحيح unbase32hexchar(حرف c) {
         unsigned offset;
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        إذا (c >= '0' && c <= '9')
+                أرجع c - '0';
 
         offset = '9' - '0' + 1;
 
-        if (c >= 'A' && c <= 'V')
-                return c - 'A' + offset;
+        إذا (c >= 'A' && c <= 'V')
+                أرجع c - 'A' + offset;
 
-        return -EINVAL;
+        أرجع -EINVAL;
 }
 
-char* base32hexmem(const void *p, size_t l, bool padding) {
-        char *r, *z;
-        const uint8_t *x;
+حرف* base32hexmem(ثابت فراغ *p, size_t l, bool padding) {
+        حرف *r, *z;
+        ثابت uint8_t *x;
         size_t len;
 
-        assert(p || l == 0);
+        أكد(p || l == 0);
 
-        if (padding)
+        إذا (padding)
                 /* five input bytes makes eight output bytes, padding is added so we must round up */
                 len = 8 * (l + 4) / 5;
-        else {
+        وإلا {
                 /* same, but round down as there is no padding */
                 len = 8 * l / 5;
 
-                switch (l % 5) {
-                case 4:
+                بدل (l % 5) {
+                حالة 4:
                         len += 7;
-                        break;
-                case 3:
+                        اكسر;
+                حالة 3:
                         len += 5;
-                        break;
-                case 2:
+                        اكسر;
+                حالة 2:
                         len += 4;
-                        break;
-                case 1:
+                        اكسر;
+                حالة 1:
                         len += 2;
-                        break;
+                        اكسر;
                 }
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return NULL;
+        إذا (!r)
+                أرجع عدم;
 
-        for (x = p; x < (const uint8_t*) p + (l / 5) * 5; x += 5) {
+        لكل (x = p; x < (ثابت uint8_t*) p + (l / 5) * 5; x += 5) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ
                  * x[3] == QQQQQQQQ; x[4] == WWWWWWWW */
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
@@ -229,8 +229,8 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[4] & 31));                  /* 000WWWWW */
         }
 
-        switch (l % 5) {
-        case 4:
+        بدل (l % 5) {
+        حالة 4:
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6);  /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);             /* 000YYYYY */
@@ -238,43 +238,43 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[2] & 15) << 1 | x[3] >> 7); /* 000ZZZZQ */
                 *(z++) = base32hexchar((x[3] & 127) >> 2);            /* 000QQQQQ */
                 *(z++) = base32hexchar((x[3] & 3) << 3);              /* 000QQ000 */
-                if (padding)
+                إذا (padding)
                         *(z++) = '=';
 
-                break;
+                اكسر;
 
-        case 3:
+        حالة 3:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4 | x[2] >> 4); /* 000YZZZZ */
                 *(z++) = base32hexchar((x[2] & 15) << 1);            /* 000ZZZZ0 */
-                if (padding) {
+                إذا (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                اكسر;
 
-        case 2:
+        حالة 2:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4);             /* 000Y0000 */
-                if (padding) {
+                إذا (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                اكسر;
 
-        case 1:
+        حالة 1:
                 *(z++) = base32hexchar(x[0] >> 3);       /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2); /* 000XXX00 */
-                if (padding) {
+                إذا (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
@@ -283,35 +283,35 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                         *(z++) = '=';
                 }
 
-                break;
+                اكسر;
         }
 
         *z = 0;
-        return r;
+        أرجع r;
 }
 
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_len) {
-        _cleanup_free_ uint8_t *r = NULL;
-        int a, b, c, d, e, f, g, h;
+صحيح unbase32hexmem(ثابت حرف *p, size_t l, bool padding, فراغ **mem, size_t *_len) {
+        _cleanup_free_ uint8_t *r = عدم;
+        صحيح a, b, c, d, e, f, g, h;
         uint8_t *z;
-        const char *x;
+        ثابت حرف *x;
         size_t len;
         unsigned pad = 0;
 
-        assert(p || l == 0);
-        assert(mem);
-        assert(_len);
+        أكد(p || l == 0);
+        أكد(mem);
+        أكد(_len);
 
-        if (l == SIZE_MAX)
+        إذا (l == SIZE_MAX)
                 l = strlen(p);
 
         /* padding ensures any base32hex input has input divisible by 8 */
-        if (padding && l % 8 != 0)
-                return -EINVAL;
+        إذا (padding && l % 8 != 0)
+                أرجع -EINVAL;
 
-        if (padding) {
+        إذا (padding) {
                 /* strip the padding */
-                while (l > 0 && p[l - 1] == '=' && pad < 7) {
+                طالما (l > 0 && p[l - 1] == '=' && pad < 7) {
                         pad++;
                         l--;
                 }
@@ -321,63 +321,63 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
          * padding we need to add some extra bytes */
         len = (l / 8) * 5;
 
-        switch (l % 8) {
-        case 7:
+        بدل (l % 8) {
+        حالة 7:
                 len += 4;
-                break;
-        case 5:
+                اكسر;
+        حالة 5:
                 len += 3;
-                break;
-        case 4:
+                اكسر;
+        حالة 4:
                 len += 2;
-                break;
-        case 2:
+                اكسر;
+        حالة 2:
                 len += 1;
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                اكسر;
+        حالة 0:
+                اكسر;
+        افتراضي:
+                أرجع -EINVAL;
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return -ENOMEM;
+        إذا (!r)
+                أرجع -ENOMEM;
 
-        for (x = p; x < p + (l / 8) * 8; x += 8) {
+        لكل (x = p; x < p + (l / 8) * 8; x += 8) {
                 /* a == 000XXXXX; b == 000YYYYY; c == 000ZZZZZ; d == 000WWWWW
                  * e == 000SSSSS; f == 000QQQQQ; g == 000VVVVV; h == 000RRRRR */
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                إذا (a < 0)
+                        أرجع -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                إذا (b < 0)
+                        أرجع -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                إذا (c < 0)
+                        أرجع -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                إذا (d < 0)
+                        أرجع -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                إذا (e < 0)
+                        أرجع -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                إذا (f < 0)
+                        أرجع -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                إذا (g < 0)
+                        أرجع -EINVAL;
 
                 h = unbase32hexchar(x[7]);
-                if (h < 0)
-                        return -EINVAL;
+                إذا (h < 0)
+                        أرجع -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -386,121 +386,121 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
                 *(z++) = (uint8_t) g << 5 | (uint8_t) h;                         /* VVVRRRRR */
         }
 
-        switch (l % 8) {
-        case 7:
+        بدل (l % 8) {
+        حالة 7:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                إذا (a < 0)
+                        أرجع -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                إذا (b < 0)
+                        أرجع -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                إذا (c < 0)
+                        أرجع -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                إذا (d < 0)
+                        أرجع -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                إذا (e < 0)
+                        أرجع -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                إذا (f < 0)
+                        أرجع -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                إذا (g < 0)
+                        أرجع -EINVAL;
 
                 /* g == 000VV000 */
-                if (g & 7)
-                        return -EINVAL;
+                إذا (g & 7)
+                        أرجع -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
                 *(z++) = (uint8_t) e << 7 | (uint8_t) f << 2 | (uint8_t) g >> 3; /* SQQQQQVV */
 
-                break;
-        case 5:
+                اكسر;
+        حالة 5:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                إذا (a < 0)
+                        أرجع -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                إذا (b < 0)
+                        أرجع -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                إذا (c < 0)
+                        أرجع -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                إذا (d < 0)
+                        أرجع -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                إذا (e < 0)
+                        أرجع -EINVAL;
 
                 /* e == 000SSSS0 */
-                if (e & 1)
-                        return -EINVAL;
+                إذا (e & 1)
+                        أرجع -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
 
-                break;
-        case 4:
+                اكسر;
+        حالة 4:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                إذا (a < 0)
+                        أرجع -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                إذا (b < 0)
+                        أرجع -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                إذا (c < 0)
+                        أرجع -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                إذا (d < 0)
+                        أرجع -EINVAL;
 
                 /* d == 000W0000 */
-                if (d & 15)
-                        return -EINVAL;
+                إذا (d & 15)
+                        أرجع -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
 
-                break;
-        case 2:
+                اكسر;
+        حالة 2:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                إذا (a < 0)
+                        أرجع -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                إذا (b < 0)
+                        أرجع -EINVAL;
 
                 /* b == 000YYY00 */
-                if (b & 3)
-                        return -EINVAL;
+                إذا (b & 3)
+                        أرجع -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2; /* XXXXXYYY */
 
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                اكسر;
+        حالة 0:
+                اكسر;
+        افتراضي:
+                أرجع -EINVAL;
         }
 
         *z = 0;
@@ -508,265 +508,265 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         *mem = TAKE_PTR(r);
         *_len = len;
 
-        return 0;
+        أرجع 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-4 */
-char base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
-        return table[x & 63];
+حرف base64char(صحيح x) {
+        ثابت حرف *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
+        أرجع table[x & 63];
 }
 
 /* This is almost base64char(), but not entirely, as it uses the "url and filename safe" alphabet,
  * since we don't want "/" appear in interface names (since interfaces appear in sysfs as filenames).
  * See section #5 of RFC 4648. */
-char urlsafe_base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
-        return table[x & 63];
+حرف urlsafe_base64char(صحيح x) {
+        ثابت حرف *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
+        أرجع table[x & 63];
 }
 
-int unbase64char(char c) {
+صحيح unbase64char(حرف c) {
         unsigned offset;
 
-        if (c >= 'A' && c <= 'Z')
-                return c - 'A';
+        إذا (c >= 'A' && c <= 'Z')
+                أرجع c - 'A';
 
         offset = 'Z' - 'A' + 1;
 
-        if (c >= 'a' && c <= 'z')
-                return c - 'a' + offset;
+        إذا (c >= 'a' && c <= 'z')
+                أرجع c - 'a' + offset;
 
         offset += 'z' - 'a' + 1;
 
-        if (c >= '0' && c <= '9')
-                return c - '0' + offset;
+        إذا (c >= '0' && c <= '9')
+                أرجع c - '0' + offset;
 
         offset += '9' - '0' + 1;
 
-        if (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
-                return offset;
+        إذا (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
+                أرجع offset;
 
         offset++;
 
-        if (IN_SET(c, '/', '_')) /* ditto */
-                return offset;
+        إذا (IN_SET(c, '/', '_')) /* ditto */
+                أرجع offset;
 
-        return -EINVAL;
+        أرجع -EINVAL;
 }
 
-static void maybe_line_break(char **x, char *start, size_t line_break) {
+ساكن فراغ maybe_لي_break(حرف **x, حرف *start, size_t لي_break) {
         size_t n;
 
-        assert(x);
-        assert(*x);
-        assert(start);
-        assert(*x >= start);
+        أكد(x);
+        أكد(*x);
+        أكد(start);
+        أكد(*x >= start);
 
-        if (line_break == SIZE_MAX)
-                return;
+        إذا (لي_break == SIZE_MAX)
+                أرجع;
 
         n = *x - start;
 
-        if (n % (line_break + 1) == line_break)
+        إذا (n % (لي_break + 1) == لي_break)
                 *((*x)++) = '\n';
 }
 
 ssize_t base64mem_full(
-                const void *p,
+                ثابت فراغ *p,
                 size_t l,
-                size_t line_break,
-                char **ret) {
+                size_t لي_break,
+                حرف **ret) {
 
-        const uint8_t *x;
-        char *b, *z;
+        ثابت uint8_t *x;
+        حرف *b, *z;
         size_t m;
 
-        assert(p || l == 0);
-        assert(line_break > 0);
-        assert(ret);
+        أكد(p || l == 0);
+        أكد(لي_break > 0);
+        أكد(ret);
 
         /* three input bytes makes four output bytes, padding is added so we must round up */
         m = 4 * (l + 2) / 3 + 1;
-        if (line_break != SIZE_MAX)
-                m += m / line_break;
+        إذا (لي_break != SIZE_MAX)
+                m += m / لي_break;
 
         z = b = malloc(m);
-        if (!b)
-                return -ENOMEM;
+        إذا (!b)
+                أرجع -ENOMEM;
 
-        for (x = p; x && x < (const uint8_t*) p + (l / 3) * 3; x += 3) {
+        لكل (x = p; x && x < (ثابت uint8_t*) p + (l / 3) * 3; x += 3) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char(x[0] >> 2);                    /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4);  /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char((x[1] & 15) << 2 | x[2] >> 6); /* 00YYYYZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char(x[2] & 63);                    /* 00ZZZZZZ */
         }
 
-        switch (l % 3) {
-        case 2:
-                maybe_line_break(&z, b, line_break);
+        بدل (l % 3) {
+        حالة 2:
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char(x[0] >> 2);                   /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4); /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char((x[1] & 15) << 2);            /* 00YYYY00 */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = '=';
-                break;
+                اكسر;
 
-        case 1:
-                maybe_line_break(&z, b, line_break);
+        حالة 1:
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char(x[0] >> 2);        /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = base64char((x[0] & 3) << 4);  /* 00XX0000 */
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = '=';
-                maybe_line_break(&z, b, line_break);
+                maybe_لي_break(&z, b, لي_break);
                 *(z++) = '=';
-                break;
+                اكسر;
         }
 
         *z = 0;
         *ret = b;
 
-        assert(z >= b); /* Let static analyzers know that the answer is non-negative. */
-        return z - b;
+        أكد(z >= b); /* Let static analyzers know that the answer is non-negative. */
+        أرجع z - b;
 }
 
-static ssize_t base64_append_width(
-                char **prefix,
+ساكن ssize_t base64_append_width(
+                حرف **prefix,
                 size_t plen,
-                char sep,
+                حرف sep,
                 size_t indent,
-                const void *p,
+                ثابت فراغ *p,
                 size_t l,
                 size_t width) {
 
-        _cleanup_free_ char *x = NULL;
-        char *t, *s;
-        size_t lines;
+        _cleanup_free_ حرف *x = عدم;
+        حرف *t, *s;
+        size_t ليوك;
         ssize_t len;
 
-        assert(prefix);
-        assert(*prefix || plen == 0);
-        assert(p || l == 0);
+        أكد(prefix);
+        أكد(*prefix || plen == 0);
+        أكد(p || l == 0);
 
         len = base64mem(p, l, &x);
-        if (len < 0)
-                return len;
-        if (len == 0)
-                return plen;
+        إذا (len < 0)
+                أرجع len;
+        إذا (len == 0)
+                أرجع plen;
 
-        lines = DIV_ROUND_UP(len, width);
+        ليوك = DIV_ROUND_UP(len, width);
 
-        if (plen >= SSIZE_MAX - 1 - 1 ||
-            lines > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
-                return -ENOMEM;
+        إذا (plen >= SSIZE_MAX - 1 - 1 ||
+            ليوك > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
+                أرجع -ENOMEM;
 
-        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * lines);
-        if (!t)
-                return -ENOMEM;
+        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * ليوك);
+        إذا (!t)
+                أرجع -ENOMEM;
 
         s = t + plen;
-        for (size_t line = 0; line < lines; line++) {
+        لكل (size_t لي = 0; لي < ليوك; لي++) {
                 size_t act = MIN(width, (size_t) len);
 
-                if (line > 0)
+                إذا (لي > 0)
                         sep = '\n';
 
-                if (s > t) {
+                إذا (s > t) {
                         *s++ = sep;
-                        if (sep == '\n')
+                        إذا (sep == '\n')
                                 s = mempset(s, ' ', indent);
                 }
 
-                s = mempcpy(s, x + width * line, act);
+                s = mempcpy(s, x + width * لي, act);
                 len -= act;
         }
-        assert(len == 0);
+        أكد(len == 0);
 
         *s = '\0';
         *prefix = t;
-        return s - t;
+        أرجع s - t;
 }
 
 ssize_t base64_append(
-                char **prefix,
+                حرف **prefix,
                 size_t plen,
-                const void *p,
+                ثابت فراغ *p,
                 size_t l,
                 size_t indent,
                 size_t width) {
 
-        if (plen > width / 2 || plen + indent > width)
+        إذا (plen > width / 2 || plen + indent > width)
                 /* leave indent on the left, keep last column free */
-                return base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
-        else
+                أرجع base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
+        وإلا
                 /* leave plen on the left, keep last column free */
-                return base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
+                أرجع base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
 }
 
-static int unbase64_next(const char **p, size_t *l) {
-        int ret;
+ساكن صحيح unbase64_next(ثابت حرف **p, size_t *l) {
+        صحيح ret;
 
-        assert(p);
-        assert(l);
+        أكد(p);
+        أكد(l);
 
         /* Find the next non-whitespace character, and decode it. If we find padding, we return it as INT_MAX. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        لكل (;;) {
+                إذا (*l == 0)
+                        أرجع -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                إذا (!strchr(WHITESPACE, **p))
+                        اكسر;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
-        if (**p == '=')
+        إذا (**p == '=')
                 ret = INT_MAX; /* return padding as INT_MAX */
-        else {
+        وإلا {
                 ret = unbase64char(**p);
-                if (ret < 0)
-                        return ret;
+                إذا (ret < 0)
+                        أرجع ret;
         }
 
-        for (;;) {
+        لكل (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0)
-                        break;
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                إذا (*l == 0)
+                        اكسر;
+                إذا (!strchr(WHITESPACE, **p))
+                        اكسر;
 
                 /* Skip following whitespace */
         }
 
-        return ret;
+        أرجع ret;
 }
 
-int unbase64mem_full(
-                const char *p,
+صحيح unbase64mem_full(
+                ثابت حرف *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
+                فراغ **ret_data,
                 size_t *ret_size) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
-        const char *x;
+        _cleanup_free_ uint8_t *buf = عدم;
+        ثابت حرف *x;
         uint8_t *z;
         size_t len;
 
-        assert(p || l == 0);
+        أكد(p || l == 0);
 
-        if (l == SIZE_MAX)
+        إذا (l == SIZE_MAX)
                 l = strlen(p);
 
         /* A group of four input bytes needs three output bytes, in case of padding we need to add two or three extra
@@ -774,63 +774,63 @@ int unbase64mem_full(
         len = (l / 4) * 3 + (l % 4 != 0 ? (l % 4) - 1 : 0);
 
         buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        إذا (!buf)
+                أرجع -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, len);
+        CLEANUP_ERASE_PTR(secure ? &buf : عدم, len);
 
-        for (x = p, z = buf;;) {
-                int a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
+        لكل (x = p, z = buf;;) {
+                صحيح a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
 
                 a = unbase64_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
-                if (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
-                        return -EINVAL;
+                إذا (a == -EPIPE) /* End of string */
+                        اكسر;
+                إذا (a < 0)
+                        أرجع a;
+                إذا (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
+                        أرجع -EINVAL;
 
                 b = unbase64_next(&x, &l);
-                if (b < 0)
-                        return b;
-                if (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
-                        return -EINVAL;
+                إذا (b < 0)
+                        أرجع b;
+                إذا (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
+                        أرجع -EINVAL;
 
                 c = unbase64_next(&x, &l);
-                if (c < 0)
-                        return c;
+                إذا (c < 0)
+                        أرجع c;
 
                 d = unbase64_next(&x, &l);
-                if (d < 0)
-                        return d;
+                إذا (d < 0)
+                        أرجع d;
 
-                if (c == INT_MAX) { /* Padding at the third character */
+                إذا (c == INT_MAX) { /* Padding at the third character */
 
-                        if (d != INT_MAX) /* If the third character is padding, the fourth must be too */
-                                return -EINVAL;
+                        إذا (d != INT_MAX) /* If the third character is padding, the fourth must be too */
+                                أرجع -EINVAL;
 
                         /* b == 00YY0000 */
-                        if (b & 15)
-                                return -EINVAL;
+                        إذا (b & 15)
+                                أرجع -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        إذا (l > 0) /* Trailing rubbish? */
+                                أرجع -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) (b >> 4); /* XXXXXXYY */
-                        break;
+                        اكسر;
                 }
 
-                if (d == INT_MAX) {
+                إذا (d == INT_MAX) {
                         /* c == 00ZZZZ00 */
-                        if (c & 3)
-                                return -EINVAL;
+                        إذا (c & 3)
+                                أرجع -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        إذا (l > 0) /* Trailing rubbish? */
+                                أرجع -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
                         *(z++) = (uint8_t) b << 4 | (uint8_t) c >> 2; /* YYYYZZZZ */
-                        break;
+                        اكسر;
                 }
 
                 *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
@@ -840,58 +840,58 @@ int unbase64mem_full(
 
         *z = 0;
 
-        assert((size_t) (z - buf) <= len);
+        أكد((size_t) (z - buf) <= len);
 
-        if (ret_size)
+        إذا (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        إذا (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        أرجع 0;
 }
 
-void hexdump(FILE *f, const void *p, size_t s) {
-        const uint8_t *b = p;
+فراغ hexdump(FILE *f, ثابت فراغ *p, size_t s) {
+        ثابت uint8_t *b = p;
         unsigned n = 0;
 
-        assert(b || s == 0);
+        أكد(b || s == 0);
 
-        if (s == SIZE_MAX)
+        إذا (s == SIZE_MAX)
                 s = strlen(p);
 
-        if (!f)
+        إذا (!f)
                 f = stdout;
 
-        while (s > 0) {
+        طالما (s > 0) {
                 size_t i;
 
                 fprintf(f, "%04x  ", n);
 
-                for (i = 0; i < 16; i++) {
+                لكل (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        إذا (i >= s)
                                 fputs("   ", f);
-                        else
+                        وإلا
                                 fprintf(f, "%02x ", b[i]);
 
-                        if (i == 7)
+                        إذا (i == 7)
                                 fputc(' ', f);
                 }
 
                 fputc(' ', f);
 
-                for (i = 0; i < 16; i++) {
+                لكل (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        إذا (i >= s)
                                 fputc(' ', f);
-                        else
-                                fputc(isprint(b[i]) ? (char) b[i] : '.', f);
+                        وإلا
+                                fputc(isprint(b[i]) ? (حرف) b[i] : '.', f);
                 }
 
                 fputc('\n', f);
 
-                if (s < 16)
-                        break;
+                إذا (s < 16)
+                        اكسر;
 
                 n += 16;
                 b += 16;

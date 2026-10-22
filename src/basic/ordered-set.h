@@ -1,84 +1,84 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "hashmap.h"
+#ضمن "forward.h"
+#ضمن "hashmap.h"
 
-typedef struct OrderedSet OrderedSet;
+تعريفنوع بنية OrderedSet OrderedSet;
 
-static inline OrderedSet* ordered_set_new(const struct hash_ops *ops) {
-        return (OrderedSet*) ordered_hashmap_new(ops);
+ساكن مضمن OrderedSet* ordered_set_new(ثابت بنية hash_ops *ops) {
+        أرجع (OrderedSet*) ordered_hashmap_new(ops);
 }
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops);
+صحيح ordered_set_ensure_allocated(OrderedSet **s, ثابت بنية hash_ops *ops);
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p);
+صحيح ordered_set_ensure_put(OrderedSet **s, ثابت بنية hash_ops *ops, فراغ *p);
 
-static inline void ordered_set_clear(OrderedSet *s) {
-        return ordered_hashmap_clear((OrderedHashmap*) s);
+ساكن مضمن فراغ ordered_set_clear(OrderedSet *s) {
+        أرجع ordered_hashmap_clear((OrderedHashmap*) s);
 }
 
-static inline OrderedSet* ordered_set_free(OrderedSet *s) {
-        return (OrderedSet*) ordered_hashmap_free((OrderedHashmap*) s);
+ساكن مضمن OrderedSet* ordered_set_free(OrderedSet *s) {
+        أرجع (OrderedSet*) ordered_hashmap_free((OrderedHashmap*) s);
 }
 
-static inline int ordered_set_contains(OrderedSet *s, const void *p) {
-        return ordered_hashmap_contains((OrderedHashmap*) s, p);
+ساكن مضمن صحيح ordered_set_contains(OrderedSet *s, ثابت فراغ *p) {
+        أرجع ordered_hashmap_contains((OrderedHashmap*) s, p);
 }
 
-static inline int ordered_set_put(OrderedSet *s, void *p) {
-        return ordered_hashmap_put((OrderedHashmap*) s, p, p);
+ساكن مضمن صحيح ordered_set_put(OrderedSet *s, فراغ *p) {
+        أرجع ordered_hashmap_put((OrderedHashmap*) s, p, p);
 }
 
-static inline void *ordered_set_get(OrderedSet *s, const void *p) {
-        return ordered_hashmap_get((OrderedHashmap*) s, p);
+ساكن مضمن فراغ *ordered_set_get(OrderedSet *s, ثابت فراغ *p) {
+        أرجع ordered_hashmap_get((OrderedHashmap*) s, p);
 }
 
-static inline unsigned ordered_set_size(OrderedSet *s) {
-        return ordered_hashmap_size((OrderedHashmap*) s);
+ساكن مضمن unsigned ordered_set_size(OrderedSet *s) {
+        أرجع ordered_hashmap_size((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_isempty(OrderedSet *s) {
-        return ordered_hashmap_isempty((OrderedHashmap*) s);
+ساكن مضمن bool ordered_set_isempty(OrderedSet *s) {
+        أرجع ordered_hashmap_isempty((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_iterate(OrderedSet *s, Iterator *i, void **value) {
-        return ordered_hashmap_iterate((OrderedHashmap*) s, i, value, NULL);
+ساكن مضمن bool ordered_set_iterate(OrderedSet *s, Iterator *i, فراغ **درج) {
+        أرجع ordered_hashmap_iterate((OrderedHashmap*) s, i, درج, عدم);
 }
 
-static inline void* ordered_set_remove(OrderedSet *s, void *p) {
-        return ordered_hashmap_remove((OrderedHashmap*) s, p);
+ساكن مضمن فراغ* ordered_set_remove(OrderedSet *s, فراغ *p) {
+        أرجع ordered_hashmap_remove((OrderedHashmap*) s, p);
 }
 
-static inline void* ordered_set_first(OrderedSet *s) {
-        return ordered_hashmap_first((OrderedHashmap*) s);
+ساكن مضمن فراغ* ordered_set_first(OrderedSet *s) {
+        أرجع ordered_hashmap_first((OrderedHashmap*) s);
 }
 
-static inline void* ordered_set_steal_first(OrderedSet *s) {
-        return ordered_hashmap_steal_first((OrderedHashmap*) s);
+ساكن مضمن فراغ* ordered_set_steal_first(OrderedSet *s) {
+        أرجع ordered_hashmap_steal_first((OrderedHashmap*) s);
 }
 
-static inline char** ordered_set_get_strv(OrderedSet *s) {
-        return _hashmap_get_strv(HASHMAP_BASE((OrderedHashmap*) s));
+ساكن مضمن حرف** ordered_set_get_strv(OrderedSet *s) {
+        أرجع _hashmap_get_strv(HASHMAP_BASE((OrderedHashmap*) s));
 }
 
-static inline int ordered_set_reserve(OrderedSet *s, unsigned entries_add) {
-        return ordered_hashmap_reserve((OrderedHashmap*) s, entries_add);
+ساكن مضمن صحيح ordered_set_reserve(OrderedSet *s, unsigned entries_add) {
+        أرجع ordered_hashmap_reserve((OrderedHashmap*) s, entries_add);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p);
+صحيح ordered_set_consume(OrderedSet *s, فراغ *p);
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p);
+صحيح ordered_set_put_strdup_full(OrderedSet **s, ثابت بنية hash_ops *hash_ops, ثابت حرف *p);
 #define ordered_set_put_strdup(s, p) ordered_set_put_strdup_full(s, &string_hash_ops_free, p)
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l);
+صحيح ordered_set_put_strdupv_full(OrderedSet **s, ثابت بنية hash_ops *hash_ops, حرف **l);
 #define ordered_set_put_strdupv(s, l) ordered_set_put_strdupv_full(s, &string_hash_ops_free, l)
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l);
+صحيح ordered_set_put_string_set_full(OrderedSet **s, ثابت بنية hash_ops *hash_ops, OrderedSet *l);
 #define ordered_set_put_string_set(s, l) ordered_set_put_string_set_full(s, &string_hash_ops_free, l)
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s);
+فراغ ordered_set_بغ(FILE *f, ثابت حرف *field, OrderedSet *s);
 
 #define _ORDERED_SET_FOREACH(e, s, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (void**)&(e)); )
+        لكل (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (فراغ**)&(e)); )
 #define ORDERED_SET_FOREACH(e, s) \
         _ORDERED_SET_FOREACH(e, s, UNIQ_T(i, UNIQ))
 
