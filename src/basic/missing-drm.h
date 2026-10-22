@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#لارښوونه once
 
-#ifndef DRM_IOCTL_SET_MASTER
-#  define DRM_IOCTL_SET_MASTER _IO('d', 0x1e)
-#endif
+#که_نه_تعریف_شوی DRM_IOCTL_سېټ_MASTER
+#  define DRM_IOCTL_سېټ_MASTER _IO('d', 0x1e)
+#د_که_پای
 
-#ifndef DRM_IOCTL_DROP_MASTER
+#که_نه_تعریف_شوی DRM_IOCTL_DROP_MASTER
 #  define DRM_IOCTL_DROP_MASTER _IO('d', 0x1f)
-#endif
+#د_که_پای

@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#لارښوونه once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, int);
-bool log_facility_unshifted_is_valid(int faciliy);
+DECLARE_STRING_جدول_LOOKUP_WITH_FALLBACK(log_facility_unshifted, صحيح);
+bool log_facility_unshifted_is_valid(صحيح faciliy);
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, int);
-bool log_level_is_valid(int level);
+DECLARE_STRING_جدول_LOOKUP_WITH_FALLBACK(log_level, صحيح);
+bool log_level_is_valid(صحيح level);
 
-int syslog_parse_priority(const char **p, int *priority, bool with_facility);
+صحيح syslog_parse_لومړیتوب(ثابت حرف **p, صحيح *priority, bool with_facility);
 
-bool log_namespace_name_valid(const char *s);
+bool log_namespace_name_valid(ثابت حرف *s);

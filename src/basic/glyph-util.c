@@ -1,31 +1,31 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ضمن <stdlib.h>
 
-#include "env-util.h"
-#include "glyph-util.h"
-#include "locale-util.h"
-#include "strv.h"
+#ضمن "env-util.h"
+#ضمن "glyph-util.h"
+#ضمن "locale-util.h"
+#ضمن "strv.h"
 
-bool emoji_enabled(void) {
-        static int cached_emoji_enabled = -1;
+bool emoji_enabled(فراغ) {
+        ساكن صحيح cached_emoji_enabled = -1;
 
-        if (cached_emoji_enabled < 0) {
-                int val = getenv_bool("SYSTEMD_EMOJI");
-                if (val >= 0)
-                        return (cached_emoji_enabled = val);
+        إذا (cached_emoji_enabled < 0) {
+                صحيح val = getenv_bool("SYSTEMD_EMOJI");
+                إذا (val >= 0)
+                        أرجع (cached_emoji_enabled = val);
 
-                const char *term = getenv("TERM");
-                if (!term || STR_IN_SET(term, "dumb", "linux"))
-                        return (cached_emoji_enabled = false);
+                ثابت حرف *غړی = getenv("TERM");
+                إذا (!غړی || STR_دننه_سېټ(غړی, "dumb", "linux"))
+                        أرجع (cached_emoji_enabled = false);
 
                 cached_emoji_enabled = is_locale_utf8();
         }
 
-        return cached_emoji_enabled;
+        أرجع cached_emoji_enabled;
 }
 
-const char* glyph_full(Glyph code, bool force_utf) {
+ثابت حرف* glyph_ډک(Glyph کوډ, bool force_utf) {
 
         /* A list of a number of interesting unicode glyphs we can use to decorate our output. It's probably wise to be
          * conservative here, and primarily stick to the glyphs defined in the eurlatgr font, so that display still
@@ -34,15 +34,15 @@ const char* glyph_full(Glyph code, bool force_utf) {
          * http://git.altlinux.org/people/legion/packages/kbd.git?p=kbd.git;a=blob;f=data/consolefonts/README.eurlatgr
          */
 
-        static const char* const draw_table[2][_GLYPH_MAX] = {
+        ساكن ثابت حرف* ثابت draw_جدول[2][_GLYPH_MAX] = {
                 /* ASCII fallback */
                 [false] = {
                         [GLYPH_SPACE]                   = " ",
-                        [GLYPH_TREE_VERTICAL]           = "| ",
-                        [GLYPH_TREE_BRANCH]             = "|-",
-                        [GLYPH_TREE_RIGHT]              = "`-",
-                        [GLYPH_TREE_SPACE]              = "  ",
-                        [GLYPH_TREE_TOP]                = ",-",
+                        [GLYPH_ونه_VERTICAL]           = "| ",
+                        [GLYPH_ونه_BRANCH]             = "|-",
+                        [GLYPH_ونه_ښی]              = "`-",
+                        [GLYPH_ونه_SPACE]              = "  ",
+                        [GLYPH_ونه_سر]                = ",-",
                         [GLYPH_VERTICAL_DOTTED]         = ":",
                         [GLYPH_HORIZONTAL_DOTTED]       = "-",
                         [GLYPH_HORIZONTAL_FAT]          = "=",
@@ -57,12 +57,12 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_CROSS_MARK]              = "-",
                         [GLYPH_LIGHT_SHADE]             = "-",
                         [GLYPH_DARK_SHADE]              = "X",
-                        [GLYPH_FULL_BLOCK]              = "#",
+                        [GLYPH_ډک_بلاک]              = "#",
                         [GLYPH_SIGMA]                   = "S",
-                        [GLYPH_ARROW_UP]                = "^",
-                        [GLYPH_ARROW_DOWN]              = "v",
-                        [GLYPH_ARROW_LEFT]              = "<-",
-                        [GLYPH_ARROW_RIGHT]             = "->",
+                        [GLYPH_ARROW_پورته]                = "^",
+                        [GLYPH_ARROW_ښکته]              = "v",
+                        [GLYPH_ARROW_کیڼ]              = "<-",
+                        [GLYPH_ARROW_ښی]             = "->",
                         [GLYPH_ELLIPSIS]                = "...",
                         [GLYPH_EXTERNAL_LINK]           = "[LNK]",
                         [GLYPH_ECSTATIC_SMILEY]         = ":-]",
@@ -72,12 +72,12 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_SLIGHTLY_UNHAPPY_SMILEY] = ":-(",
                         [GLYPH_UNHAPPY_SMILEY]          = ":-{",
                         [GLYPH_DEPRESSED_SMILEY]        = ":-[",
-                        [GLYPH_LOCK_AND_KEY]            = "o-,",
+                        [GLYPH_قلف_AND_کلی]            = "o-,",
                         [GLYPH_TOUCH]                   = "O=",    /* Yeah, not very convincing, can you do it better? */
                         [GLYPH_RECYCLING]               = "~",
                         [GLYPH_DOWNLOAD]                = "\\",
                         [GLYPH_SPARKLES]                = "*",
-                        [GLYPH_LOW_BATTERY]             = "!",
+                        [GLYPH_ټیټ_BATTERY]             = "!",
                         [GLYPH_WARNING_SIGN]            = "!",
                         [GLYPH_COMPUTER_DISK]           = "o",
                         [GLYPH_WORLD]                   = "W",
@@ -104,11 +104,11 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_SPACE]                   = " ",
 
                         /* The following are multiple glyphs in both ASCII and in UNICODE */
-                        [GLYPH_TREE_VERTICAL]           = UTF8("│ "),
-                        [GLYPH_TREE_BRANCH]             = UTF8("├─"),
-                        [GLYPH_TREE_RIGHT]              = UTF8("└─"),
-                        [GLYPH_TREE_SPACE]              = UTF8("  "),
-                        [GLYPH_TREE_TOP]                = UTF8("┌─"),
+                        [GLYPH_ونه_VERTICAL]           = UTF8("│ "),
+                        [GLYPH_ونه_BRANCH]             = UTF8("├─"),
+                        [GLYPH_ونه_ښی]              = UTF8("└─"),
+                        [GLYPH_ونه_SPACE]              = UTF8("  "),
+                        [GLYPH_ونه_سر]                = UTF8("┌─"),
 
                         /* Single glyphs in both cases */
                         [GLYPH_VERTICAL_DOTTED]         = UTF8("┆"),
@@ -125,14 +125,14 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_CROSS_MARK]              = UTF8("✗"),        /* actually called: BALLOT X */
                         [GLYPH_LIGHT_SHADE]             = UTF8("░"),
                         [GLYPH_DARK_SHADE]              = UTF8("▒"),
-                        [GLYPH_FULL_BLOCK]              = UTF8("█"),
+                        [GLYPH_ډک_بلاک]              = UTF8("█"),
                         [GLYPH_SIGMA]                   = UTF8("Σ"),
-                        [GLYPH_ARROW_UP]                = UTF8("↑"),       /* actually called: UPWARDS ARROW */
-                        [GLYPH_ARROW_DOWN]              = UTF8("↓"),       /* actually called: DOWNWARDS ARROW */
+                        [GLYPH_ARROW_پورته]                = UTF8("↑"),       /* actually called: UPWARDS ARROW */
+                        [GLYPH_ARROW_ښکته]              = UTF8("↓"),       /* actually called: DOWNWARDS ARROW */
 
                         /* Single glyph in Unicode, two in ASCII */
-                        [GLYPH_ARROW_LEFT]              = UTF8("←"),       /* actually called: LEFTWARDS ARROW */
-                        [GLYPH_ARROW_RIGHT]             = UTF8("→"),       /* actually called: RIGHTWARDS ARROW */
+                        [GLYPH_ARROW_کیڼ]              = UTF8("←"),       /* actually called: LEFTWARDS ARROW */
+                        [GLYPH_ARROW_ښی]             = UTF8("→"),       /* actually called: RIGHTWARDS ARROW */
 
                         /* Single glyph in Unicode, three in ASCII */
                         [GLYPH_ELLIPSIS]                = UTF8("…"),       /* actually called: HORIZONTAL ELLIPSIS */
@@ -150,7 +150,7 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_DEPRESSED_SMILEY]        = UTF8("🤢"),       /* actually called: NAUSEATED FACE */
 
                         /* This emoji is a single character cell glyph in Unicode, and three in ASCII */
-                        [GLYPH_LOCK_AND_KEY]            = UTF8("🔐"),       /* actually called: CLOSED LOCK WITH KEY */
+                        [GLYPH_قلف_AND_کلی]            = UTF8("🔐"),       /* actually called: CLOSED LOCK WITH KEY */
 
                         /* This emoji is a single character cell glyph in Unicode, and two in ASCII */
                         [GLYPH_TOUCH]                   = UTF8("👆"),       /* actually called: BACKHAND INDEX POINTING UP */
@@ -159,7 +159,7 @@ const char* glyph_full(Glyph code, bool force_utf) {
                         [GLYPH_RECYCLING]               = UTF8("♻️"),        /* actually called: UNIVERSAL RECYCLNG SYMBOL */
                         [GLYPH_DOWNLOAD]                = UTF8("⤵️"),        /* actually called: RIGHT ARROW CURVING DOWN */
                         [GLYPH_SPARKLES]                = UTF8("✨"),
-                        [GLYPH_LOW_BATTERY]             = UTF8("🪫"),
+                        [GLYPH_ټیټ_BATTERY]             = UTF8("🪫"),
                         [GLYPH_WARNING_SIGN]            = UTF8("⚠️"),
                         [GLYPH_COMPUTER_DISK]           = UTF8("💽"),
                         [GLYPH_WORLD]                   = UTF8("🌍"),
@@ -181,9 +181,9 @@ const char* glyph_full(Glyph code, bool force_utf) {
                 },
         };
 
-        if (code < 0)
-                return NULL;
+        إذا (کوډ < 0)
+                أرجع عدم;
 
-        assert(code < _GLYPH_MAX);
-        return draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
+        أكد(کوډ < _GLYPH_MAX);
+        أرجع draw_جدول[force_utf || (کوډ >= GLYPH_لومړی_EMOJI ? emoji_enabled() : is_locale_utf8())][کوډ];
 }

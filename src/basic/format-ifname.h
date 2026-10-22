@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#لارښوونه once
 
-#include <net/if.h>
+#ضمن <net/if.h>
 
-typedef enum {
+تعريفنوع تعداد {
         FORMAT_IFNAME_IFINDEX              = 1 << 0,
         FORMAT_IFNAME_IFINDEX_WITH_PERCENT = (1 << 1) | FORMAT_IFNAME_IFINDEX,
 } FormatIfnameFlag;
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]);
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret);
+صحيح format_ifname_ډک(صحيح ifindex, FormatIfnameFlag flag, حرف buf[ساكن IF_NAMESIZE]);
+صحيح format_ifname_ډک_alloc(صحيح ifindex, FormatIfnameFlag flag, حرف **ret);
 
-static inline int format_ifname(int ifindex, char buf[static IF_NAMESIZE]) {
-        return format_ifname_full(ifindex, 0, buf);
+ساكن مضمن صحيح format_ifname(صحيح ifindex, حرف buf[ساكن IF_NAMESIZE]) {
+        أرجع format_ifname_ډک(ifindex, 0, buf);
 }
-static inline int format_ifname_alloc(int ifindex, char **ret) {
-        return format_ifname_full_alloc(ifindex, 0, ret);
-}
-
-static inline char* _format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        (void) format_ifname_full(ifindex, flag, buf);
-        return buf;
+ساكن مضمن صحيح format_ifname_alloc(صحيح ifindex, حرف **ret) {
+        أرجع format_ifname_ډک_alloc(ifindex, 0, ret);
 }
 
-#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (char[IF_NAMESIZE]){})
-#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (char[IF_NAMESIZE]){})
+ساكن مضمن حرف* format_ifname_ډک_2(صحيح ifindex, FormatIfnameFlag flag, حرف buf[ساكن IF_NAMESIZE]) {
+        (فراغ) format_ifname_ډک(ifindex, flag, buf);
+        أرجع buf;
+}
+
+#تعریف_کړه FORMAT_IFNAME_ډک(index, flag) format_ifname_ډک_2(index, flag, (حرف[IF_NAMESIZE]){})
+#تعریف_کړه FORMAT_IFNAME(index) format_ifname_ډک_2(index, 0, (حرف[IF_NAMESIZE]){})

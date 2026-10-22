@@ -1,249 +1,249 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sched.h>
-#include <string.h>
+#ضمن <sched.h>
+#ضمن <string.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "format-util.h"
-#include "namespace-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "sort-util.h"
-#include "stat-util.h"
-#include "uid-range.h"
-#include "user-util.h"
+#ضمن "alloc-util.h"
+#ضمن "errno-util.h"
+#ضمن "fd-util.h"
+#ضمن "format-util.h"
+#ضمن "namespace-util.h"
+#ضمن "path-util.h"
+#ضمن "pidref.h"
+#ضمن "process-util.h"
+#ضمن "sort-util.h"
+#ضمن "stat-util.h"
+#ضمن "uid-range.h"
+#ضمن "user-util.h"
 
 UIDRange *uid_range_free(UIDRange *range) {
-        if (!range)
-                return NULL;
+        إذا (!range)
+                أرجع عدم;
 
-        free(range->entries);
-        return mfree(range);
+        حرر(range->entries);
+        أرجع mfree(range);
 }
 
-static bool uid_range_entry_intersect(const UIDRangeEntry *a, const UIDRangeEntry *b) {
-        assert(a);
-        assert(b);
+ساكن bool uid_range_ثبت_intersect(ثابت UIDRange_ثبت *a, ثابت UIDRange_ثبت *b) {
+        أكد(a);
+        أكد(b);
 
-        return a->start <= b->start + b->nr && a->start + a->nr >= b->start;
+        أرجع a->پیل <= b->پیل + b->nr && a->پیل + a->nr >= b->پیل;
 }
 
-static int uid_range_entry_compare(const UIDRangeEntry *a, const UIDRangeEntry *b) {
-        int r;
+ساكن صحيح uid_range_ثبت_compare(ثابت UIDRange_ثبت *a, ثابت UIDRange_ثبت *b) {
+        صحيح r;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        r = CMP(a->start, b->start);
-        if (r != 0)
-                return r;
+        r = CMP(a->پیل, b->پیل);
+        إذا (r != 0)
+                أرجع r;
 
-        return CMP(a->nr, b->nr);
+        أرجع CMP(a->nr, b->nr);
 }
 
-static void uid_range_coalesce(UIDRange *range) {
-        assert(range);
+ساكن فراغ uid_range_coalesce(UIDRange *range) {
+        أكد(range);
 
-        if (range->n_entries <= 0)
-                return;
+        إذا (range->n_entries <= 0)
+                أرجع;
 
-        typesafe_qsort(range->entries, range->n_entries, uid_range_entry_compare);
+        typesafe_qsort(range->entries, range->n_entries, uid_range_ثبت_compare);
 
-        for (size_t i = 0; i < range->n_entries; i++) {
-                UIDRangeEntry *x = range->entries + i;
+        لكل (size_t i = 0; i < range->n_entries; i++) {
+                UIDRange_ثبت *x = range->entries + i;
 
-                for (size_t j = i + 1; j < range->n_entries; j++) {
-                        UIDRangeEntry *y = range->entries + j;
-                        uid_t begin, end;
+                لكل (size_t j = i + 1; j < range->n_entries; j++) {
+                        UIDRange_ثبت *y = range->entries + j;
+                        uid_t begin, پای_ټکی;
 
-                        if (!uid_range_entry_intersect(x, y))
-                                break;
+                        إذا (!uid_range_ثبت_intersect(x, y))
+                                اكسر;
 
-                        begin = MIN(x->start, y->start);
+                        begin = MIN(x->پیل, y->پیل);
 
                         /* Silence static analyzers, overflow is prevented by uid_range_add_internal() */
-                        assert(x->start <= UINT32_MAX - x->nr);
-                        assert(y->start <= UINT32_MAX - y->nr);
-                        end = MAX(x->start + x->nr, y->start + y->nr);
+                        أكد(x->پیل <= UINT32_MAX - x->nr);
+                        أكد(y->پیل <= UINT32_MAX - y->nr);
+                        پای_ټکی = MAX(x->پیل + x->nr, y->پیل + y->nr);
 
-                        x->start = begin;
-                        x->nr = end - begin;
+                        x->پیل = begin;
+                        x->nr = پای_ټکی - begin;
 
-                        if (range->n_entries > j + 1)
-                                memmove(y, y + 1, sizeof(UIDRangeEntry) * (range->n_entries - j - 1));
+                        إذا (range->n_entries > j + 1)
+                                memmove(y, y + 1, حجم(UIDRange_ثبت) * (range->n_entries - j - 1));
 
                         /* Silence static analyzers, n_entries > 0 since j < n_entries holds in the loop condition */
-                        assert(range->n_entries > 0);
+                        أكد(range->n_entries > 0);
                         range->n_entries--;
 
                         /* Silence static analyzers, j cannot be 0 here since it starts at i + 1, i.e. >= 1 */
-                        assert(j > 0);
+                        أكد(j > 0);
                         j--;
                 }
         }
 }
 
-int uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce) {
-        _cleanup_(uid_range_freep) UIDRange *range_new = NULL;
+صحيح uid_range_جمع_کړه_دننی(UIDRange **range, uid_t پیل, uid_t nr, bool coalesce) {
+        _cleanup_(uid_range_freep) UIDRange *range_new = عدم;
         UIDRange *p;
 
-        assert(range);
+        أكد(range);
 
-        if (nr <= 0)
-                return 0;
+        إذا (nr <= 0)
+                أرجع 0;
 
-        if (start > UINT32_MAX - nr) /* overflow check */
-                return -ERANGE;
+        إذا (پیل > UINT32_MAX - nr) /* overflow check */
+                أرجع -ERANGE;
 
-        if (*range)
+        إذا (*range)
                 p = *range;
-        else {
+        وإلا {
                 range_new = new0(UIDRange, 1);
-                if (!range_new)
-                        return -ENOMEM;
+                إذا (!range_new)
+                        أرجع -ENOMEM;
 
                 p = range_new;
         }
 
-        if (!GREEDY_REALLOC(p->entries, p->n_entries + 1))
-                return -ENOMEM;
+        إذا (!GREEDY_REALLOC(p->entries, p->n_entries + 1))
+                أرجع -ENOMEM;
 
-        p->entries[p->n_entries++] = (UIDRangeEntry) {
-                .start = start,
+        p->entries[p->n_entries++] = (UIDRange_ثبت) {
+                .پیل = پیل,
                 .nr = nr,
         };
 
-        if (coalesce)
+        إذا (coalesce)
                 uid_range_coalesce(p);
 
         TAKE_PTR(range_new);
         *range = p;
 
-        return 0;
+        أرجع 0;
 }
 
-int uid_range_add_str_full(UIDRange **range, const char *s, bool coalesce) {
-        uid_t start, end;
-        int r;
+صحيح uid_range_جمع_کړه_str_ډک(UIDRange **range, ثابت حرف *s, bool coalesce) {
+        uid_t پیل, پای_ټکی;
+        صحيح r;
 
-        assert(range);
-        assert(s);
+        أكد(range);
+        أكد(s);
 
-        r = parse_uid_range(s, &start, &end);
-        if (r < 0)
-                return r;
+        r = parse_uid_range(s, &پیل, &پای_ټکی);
+        إذا (r < 0)
+                أرجع r;
 
-        return uid_range_add_internal(range, start, end - start + 1, coalesce);
+        أرجع uid_range_جمع_کړه_دننی(range, پیل, پای_ټکی - پیل + 1, coalesce);
 }
 
-int uid_range_next_lower(const UIDRange *range, uid_t *uid) {
+صحيح uid_range_بل_ښکتنی(ثابت UIDRange *range, uid_t *uid) {
         uid_t closest = UID_INVALID, candidate;
 
-        assert(range);
-        assert(uid);
+        أكد(range);
+        أكد(uid);
 
-        if (*uid == 0)
-                return -EBUSY;
+        إذا (*uid == 0)
+                أرجع -EBUSY;
 
         candidate = *uid - 1;
 
-        for (size_t i = 0; i < range->n_entries; i++) {
-                uid_t begin, end;
+        لكل (size_t i = 0; i < range->n_entries; i++) {
+                uid_t begin, پای_ټکی;
 
-                begin = range->entries[i].start;
-                end = range->entries[i].start + range->entries[i].nr - 1;
+                begin = range->entries[i].پیل;
+                پای_ټکی = range->entries[i].پیل + range->entries[i].nr - 1;
 
-                if (candidate >= begin && candidate <= end) {
+                إذا (candidate >= begin && candidate <= پای_ټکی) {
                         *uid = candidate;
-                        return 1;
+                        أرجع 1;
                 }
 
-                if (end < candidate)
-                        closest = end;
+                إذا (پای_ټکی < candidate)
+                        closest = پای_ټکی;
         }
 
-        if (closest == UID_INVALID)
-                return -EBUSY;
+        إذا (closest == UID_INVALID)
+                أرجع -EBUSY;
 
         *uid = closest;
-        return 1;
+        أرجع 1;
 }
 
-bool uid_range_covers(const UIDRange *range, uid_t start, uid_t nr) {
-        if (nr == 0) /* empty range? always covered... */
-                return true;
+bool uid_range_covers(ثابت UIDRange *range, uid_t پیل, uid_t nr) {
+        إذا (nr == 0) /* empty range? always covered... */
+                أرجع true;
 
-        if (start > UINT32_MAX - nr) /* range overflows? definitely not covered... */
-                return false;
+        إذا (پیل > UINT32_MAX - nr) /* range overflows? definitely not covered... */
+                أرجع false;
 
-        if (!range)
-                return false;
+        إذا (!range)
+                أرجع false;
 
         FOREACH_ARRAY(i, range->entries, range->n_entries)
-                if (start >= i->start &&
-                    start + nr <= i->start + i->nr)
-                        return true;
+                إذا (پیل >= i->پیل &&
+                    پیل + nr <= i->پیل + i->nr)
+                        أرجع true;
 
-        return false;
+        أرجع false;
 }
 
-int uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range) {
-        uid_t uid_base, uid_shift, uid_range;
-        int r;
+صحيح uid_map_read_one(FILE *f, uid_t *ret_بنسټ, uid_t *ret_ښويدنه, uid_t *ret_range) {
+        uid_t uid_بنسټ, uid_ښويدنه, uid_range;
+        صحيح r;
 
-        assert(f);
+        أكد(f);
 
         errno = 0;
-        r = fscanf(f, UID_FMT " " UID_FMT " " UID_FMT "\n", &uid_base, &uid_shift, &uid_range);
-        if (r == EOF)
-                return errno_or_else(ENOMSG);
-        assert(r >= 0);
-        if (r != 3)
-                return -EBADMSG;
-        if (uid_range <= 0)
-                return -EBADMSG;
+        r = fscanf(f, UID_FMT " " UID_FMT " " UID_FMT "\n", &uid_بنسټ, &uid_ښويدنه, &uid_range);
+        إذا (r == EOF)
+                أرجع errno_or_else(ENOMSG);
+        أكد(r >= 0);
+        إذا (r != 3)
+                أرجع -EBADMSG;
+        إذا (uid_range <= 0)
+                أرجع -EBADMSG;
 
-        if (ret_base)
-                *ret_base = uid_base;
-        if (ret_shift)
-                *ret_shift = uid_shift;
-        if (ret_range)
+        إذا (ret_بنسټ)
+                *ret_بنسټ = uid_بنسټ;
+        إذا (ret_ښويدنه)
+                *ret_ښويدنه = uid_ښويدنه;
+        إذا (ret_range)
                 *ret_range = uid_range;
 
-        return 0;
+        أرجع 0;
 }
 
-unsigned uid_range_size(const UIDRange *range) {
-        if (!range)
-                return 0;
+بینښه uid_range_اندازه(ثابت UIDRange *range) {
+        إذا (!range)
+                أرجع 0;
 
-        unsigned n = 0;
+        بینښه n = 0;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
                 n += e->nr;
 
-        return n;
+        أرجع n;
 }
 
-bool uid_range_is_empty(const UIDRange *range) {
+bool uid_range_is_تشه(ثابت UIDRange *range) {
 
-        if (!range)
-                return true;
+        إذا (!range)
+                أرجع true;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                if (e->nr > 0)
-                        return false;
+                إذا (e->nr > 0)
+                        أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
-        _cleanup_(uid_range_freep) UIDRange *range = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+صحيح uid_range_بارول_userns_ډک(ثابت حرف *لار, UIDRange_Userns_ډېرپېښ ډېرپېښ, bool coalesce, UIDRange **ret) {
+        _cleanup_(uid_range_freep) UIDRange *range = عدم;
+        _cleanup_fclose_ FILE *f = عدم;
+        صحيح r;
 
         /* If 'path' is NULL loads the UID range of the userns namespace we run. Otherwise load the data from
          * the specified file (which can be either uid_map or gid_map, in case caller needs to deal with GID
@@ -251,132 +251,132 @@ int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool c
          *
          * To simplify things this will modify the passed array in case of later failure. */
 
-        assert(mode >= 0);
-        assert(mode < _UID_RANGE_USERNS_MODE_MAX);
-        assert(ret);
+        أكد(ډېرپېښ >= 0);
+        أكد(ډېرپېښ < UID_RANGE_USERNS_ډېرپېښ_MAX);
+        أكد(ret);
 
-        if (!path)
-                path = IN_SET(mode, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "/proc/self/uid_map" : "/proc/self/gid_map";
+        إذا (!لار)
+                لار = دننه_سېټ(ډېرپېښ, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "/proc/self/uid_map" : "/proc/self/gid_map";
 
-        f = fopen(path, "re");
-        if (!f) {
+        f = fopen(لار, "re");
+        إذا (!f) {
                 r = -errno;
 
-                if (r == -ENOENT && path_startswith(path, "/proc/"))
-                        return proc_mounted() > 0 ? -EOPNOTSUPP : -ENOSYS;
+                إذا (r == -ENOENT && لار_startswith(لار, "/proc/"))
+                        أرجع proc_mounted() > 0 ? -EOPNOTSUPP : -ENOSYS;
 
-                return r;
+                أرجع r;
         }
 
         range = new0(UIDRange, 1);
-        if (!range)
-                return -ENOMEM;
+        إذا (!range)
+                أرجع -ENOMEM;
 
-        for (;;) {
-                uid_t uid_base, uid_shift, uid_range;
+        لكل (;;) {
+                uid_t uid_بنسټ, uid_ښويدنه, uid_range;
 
-                r = uid_map_read_one(f, &uid_base, &uid_shift, &uid_range);
-                if (r == -ENOMSG)
-                        break;
-                if (r < 0)
-                        return r;
+                r = uid_map_read_one(f, &uid_بنسټ, &uid_ښويدنه, &uid_range);
+                إذا (r == -ENOMSG)
+                        اكسر;
+                إذا (r < 0)
+                        أرجع r;
 
-                r = uid_range_add_internal(
+                r = uid_range_جمع_کړه_دننی(
                                 &range,
-                                IN_SET(mode, UID_RANGE_USERNS_INSIDE, GID_RANGE_USERNS_INSIDE) ? uid_base : uid_shift,
+                                دننه_سېټ(ډېرپېښ, UID_RANGE_USERNS_INSIDE, GID_RANGE_USERNS_INSIDE) ? uid_بنسټ : uid_ښويدنه,
                                 uid_range,
                                 /* coalesce= */ false);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (coalesce)
+        إذا (coalesce)
                 uid_range_coalesce(range);
 
         *ret = TAKE_PTR(range);
-        return 0;
+        أرجع 0;
 }
 
-int uid_range_load_userns_by_fd_full(int userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
-        _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
-        int r;
+صحيح uid_range_بارول_userns_by_fd_ډک(صحيح userns_fd, UIDRange_Userns_ډېرپېښ ډېرپېښ, bool coalesce, UIDRange **ret) {
+        _cleanup_(pidref_بشپړ_sigkill_wait) PidRef pidref = PIDREF_NULL;
+        صحيح r;
 
-        assert(userns_fd >= 0);
-        assert(mode >= 0);
-        assert(mode < _UID_RANGE_USERNS_MODE_MAX);
-        assert(ret);
+        أكد(userns_fd >= 0);
+        أكد(ډېرپېښ >= 0);
+        أكد(ډېرپېښ < UID_RANGE_USERNS_ډېرپېښ_MAX);
+        أكد(ret);
 
         r = is_our_namespace(userns_fd, NAMESPACE_USER);
-        if (r < 0)
-                return r;
-        if (r > 0)
-                return uid_range_load_userns_full(/* path= */ NULL, mode, coalesce, ret);
+        إذا (r < 0)
+                أرجع r;
+        إذا (r > 0)
+                أرجع uid_range_بارول_userns_ډک(/* path= */ عدم, ډېرپېښ, coalesce, ret);
 
         r = userns_enter_and_pin(userns_fd, &pidref);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        const char *p = procfs_file_alloca(
+        ثابت حرف *p = procfs_file_alloca(
                         pidref.pid,
-                        IN_SET(mode, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "uid_map" : "gid_map");
+                        دننه_سېټ(ډېرپېښ, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "uid_map" : "gid_map");
 
-        return uid_range_load_userns_full(p, mode, coalesce, ret);
+        أرجع uid_range_بارول_userns_ډک(p, ډېرپېښ, coalesce, ret);
 }
 
-bool uid_range_overlaps(const UIDRange *range, uid_t start, uid_t nr) {
+bool uid_range_overlaps(ثابت UIDRange *range, uid_t پیل, uid_t nr) {
 
-        if (!range)
-                return false;
+        إذا (!range)
+                أرجع false;
 
         /* Avoid overflow */
-        if (start > UINT32_MAX - nr)
-                nr = UINT32_MAX - start;
+        إذا (پیل > UINT32_MAX - nr)
+                nr = UINT32_MAX - پیل;
 
-        if (nr == 0)
-                return false;
+        إذا (nr == 0)
+                أرجع false;
 
-        FOREACH_ARRAY(entry, range->entries, range->n_entries)
-                if (start < entry->start + entry->nr &&
-                    start + nr >= entry->start)
-                        return true;
+        FOREACH_ARRAY(ثبت, range->entries, range->n_entries)
+                إذا (پیل < ثبت->پیل + ثبت->nr &&
+                    پیل + nr >= ثبت->پیل)
+                        أرجع true;
 
-        return false;
+        أرجع false;
 }
 
-int uid_range_clip(UIDRange *range, uid_t min, uid_t max) {
-        assert(range);
+صحيح uid_range_clip(UIDRange *range, uid_t min, uid_t max) {
+        أكد(range);
 
-        if (min > max)
-                return -EINVAL;
+        إذا (min > max)
+                أرجع -EINVAL;
 
         size_t t = 0;
         FOREACH_ARRAY(e, range->entries, range->n_entries) {
-                uid_t entry_end = e->start + e->nr; /* one past the last UID in entry */
+                uid_t ثبت_پای_ټکی = e->پیل + e->nr; /* one past the last UID in entry */
 
                 /* Skip entries completely outside [min, max] */
-                if (entry_end <= min || e->start > max)
-                        continue;
+                إذا (ثبت_پای_ټکی <= min || e->پیل > max)
+                        استمر;
 
                 /* Trim the entry to fit within [min, max] */
-                uid_t new_start = MAX(e->start, min);
+                uid_t new_پیل = MAX(e->پیل, min);
                 /* entry_end is exclusive, avoid overflow when max == UINT32_MAX */
-                uid_t new_end = entry_end <= max ? entry_end : max + 1;
-                assert(new_end > new_start);
+                uid_t new_پای_ټکی = ثبت_پای_ټکی <= max ? ثبت_پای_ټکی : max + 1;
+                أكد(new_پای_ټکی > new_پیل);
 
-                range->entries[t++] = (UIDRangeEntry) {
-                        .start = new_start,
-                        .nr = new_end - new_start,
+                range->entries[t++] = (UIDRange_ثبت) {
+                        .پیل = new_پیل,
+                        .nr = new_پای_ټکی - new_پیل,
                 };
         }
 
         range->n_entries = t;
 
-        return 0;
+        أرجع 0;
 }
 
-int uid_range_partition(UIDRange *range, uid_t size) {
-        assert(range);
-        assert(size > 0);
+صحيح uid_range_برخه_کول(UIDRange *range, uid_t اندازه) {
+        أكد(range);
+        أكد(اندازه > 0);
 
         /* Partitions the UID range entries into buckets of the given size. Any entry larger than the given
          * size will be partitioned into multiple entries, each of the given size. Any leftover UIDs in the
@@ -385,143 +385,143 @@ int uid_range_partition(UIDRange *range, uid_t size) {
         /* Count how many entries we'll need after partitioning */
         size_t n_new_entries = 0;
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                n_new_entries += e->nr / size;
+                n_new_entries += e->nr / اندازه;
 
-        if (n_new_entries == 0) {
+        إذا (n_new_entries == 0) {
                 range->n_entries = 0;
-                return 0;
+                أرجع 0;
         }
 
-        if (n_new_entries > range->n_entries && !GREEDY_REALLOC(range->entries, n_new_entries))
-                return -ENOMEM;
+        إذا (n_new_entries > range->n_entries && !GREEDY_REALLOC(range->entries, n_new_entries))
+                أرجع -ENOMEM;
 
         /* Compact in place: drop entries that contribute zero partitions (nr < size). This forward pass
          * reads each entry once and only writes to lower-or-equal indices, so it cannot alias an unread
          * source entry. */
         size_t n_src = 0;
-        for (size_t i = 0; i < range->n_entries; i++)
-                if (range->entries[i].nr >= size)
+        لكل (size_t i = 0; i < range->n_entries; i++)
+                إذا (range->entries[i].nr >= اندازه)
                         range->entries[n_src++] = range->entries[i];
 
         /* Pre-compaction guarantees every surviving entry contributes at least one partition slot, so the
          * write cursor t stays ahead of the read index. */
         size_t t = n_new_entries;
-        for (size_t i = n_src; i > 0; i--) {
-                UIDRangeEntry *e = range->entries + i - 1;
-                unsigned n_parts = e->nr / size;
+        لكل (size_t i = n_src; i > 0; i--) {
+                UIDRange_ثبت *e = range->entries + i - 1;
+                بینښه n_parts = e->nr / اندازه;
 
-                for (unsigned j = n_parts; j > 0; j--)
-                        range->entries[--t] = (UIDRangeEntry) {
-                                .start = e->start + (j - 1) * size,
-                                .nr = size,
+                لكل (بینښه j = n_parts; j > 0; j--)
+                        range->entries[--t] = (UIDRange_ثبت) {
+                                .پیل = e->پیل + (j - 1) * اندازه,
+                                .nr = اندازه,
                         };
         }
 
         range->n_entries = n_new_entries;
 
-        return 0;
+        أرجع 0;
 }
 
-int uid_range_copy(const UIDRange *range, UIDRange **ret) {
-        assert(ret);
+صحيح uid_range_copy(ثابت UIDRange *range, UIDRange **ret) {
+        أكد(ret);
 
-        if (!range) {
-                *ret = NULL;
-                return 0;
+        إذا (!range) {
+                *ret = عدم;
+                أرجع 0;
         }
 
         _cleanup_(uid_range_freep) UIDRange *copy = new0(UIDRange, 1);
-        if (!copy)
-                return -ENOMEM;
+        إذا (!copy)
+                أرجع -ENOMEM;
 
-        if (range->n_entries > 0) {
-                copy->entries = newdup(UIDRangeEntry, range->entries, range->n_entries);
-                if (!copy->entries)
-                        return -ENOMEM;
+        إذا (range->n_entries > 0) {
+                copy->entries = newdup(UIDRange_ثبت, range->entries, range->n_entries);
+                إذا (!copy->entries)
+                        أرجع -ENOMEM;
 
                 copy->n_entries = range->n_entries;
         }
 
         *ret = TAKE_PTR(copy);
-        return 0;
+        أرجع 0;
 }
 
-int uid_range_remove(UIDRange *range, uid_t start, uid_t size) {
-        assert(range);
+صحيح uid_range_remove(UIDRange *range, uid_t پیل, uid_t اندازه) {
+        أكد(range);
 
-        if (size == 0)
-                return 0;
+        إذا (اندازه == 0)
+                أرجع 0;
 
-        uid_t end = start + size; /* one past the last UID to remove */
+        uid_t پای_ټکی = پیل + اندازه; /* one past the last UID to remove */
 
-        for (size_t i = 0; i < range->n_entries; i++) {
-                UIDRangeEntry *e = range->entries + i;
-                uid_t entry_end = e->start + e->nr;
+        لكل (size_t i = 0; i < range->n_entries; i++) {
+                UIDRange_ثبت *e = range->entries + i;
+                uid_t ثبت_پای_ټکی = e->پیل + e->nr;
 
                 /* No overlap */
-                if (entry_end <= start || e->start >= end)
-                        continue;
+                إذا (ثبت_پای_ټکی <= پیل || e->پیل >= پای_ټکی)
+                        استمر;
 
                 /* Check if this removal splits the entry into two parts */
-                if (e->start < start && entry_end > end) {
+                إذا (e->پیل < پیل && ثبت_پای_ټکی > پای_ټکی) {
                         /* Need to split: grow the array first */
-                        if (!GREEDY_REALLOC(range->entries, range->n_entries + 1))
-                                return -ENOMEM;
+                        إذا (!GREEDY_REALLOC(range->entries, range->n_entries + 1))
+                                أرجع -ENOMEM;
 
                         /* Re-fetch pointer after potential realloc */
                         e = range->entries + i;
-                        entry_end = e->start + e->nr;
+                        ثبت_پای_ټکی = e->پیل + e->nr;
 
                         /* Shift everything after this entry to make room */
                         memmove(range->entries + i + 2, range->entries + i + 1,
-                                (range->n_entries - i - 1) * sizeof(UIDRangeEntry));
+                                (range->n_entries - i - 1) * حجم(UIDRange_ثبت));
                         range->n_entries++;
 
                         /* First part: before the removed range */
-                        range->entries[i] = (UIDRangeEntry) {
-                                .start = e->start,
-                                .nr = start - e->start,
+                        range->entries[i] = (UIDRange_ثبت) {
+                                .پیل = e->پیل,
+                                .nr = پیل - e->پیل,
                         };
 
                         /* Second part: after the removed range */
-                        range->entries[i + 1] = (UIDRangeEntry) {
-                                .start = end,
-                                .nr = entry_end - end,
+                        range->entries[i + 1] = (UIDRange_ثبت) {
+                                .پیل = پای_ټکی,
+                                .nr = ثبت_پای_ټکی - پای_ټکی,
                         };
 
                         /* Skip the newly inserted entry */
                         i++;
-                        continue;
+                        استمر;
                 }
 
                 /* Removal covers the entire entry */
-                if (start <= e->start && end >= entry_end) {
-                        memmove(e, e + 1, (range->n_entries - i - 1) * sizeof(UIDRangeEntry));
+                إذا (پیل <= e->پیل && پای_ټکی >= ثبت_پای_ټکی) {
+                        memmove(e, e + 1, (range->n_entries - i - 1) * حجم(UIDRange_ثبت));
                         range->n_entries--;
                         i--;
-                        continue;
+                        استمر;
                 }
 
                 /* Removal trims the start of the entry */
-                if (start <= e->start && end > e->start) {
-                        e->nr = entry_end - end;
-                        e->start = end;
-                        continue;
+                إذا (پیل <= e->پیل && پای_ټکی > e->پیل) {
+                        e->nr = ثبت_پای_ټکی - پای_ټکی;
+                        e->پیل = پای_ټکی;
+                        استمر;
                 }
 
                 /* Removal trims the end of the entry */
-                if (start < entry_end && end >= entry_end) {
-                        e->nr = start - e->start;
-                        continue;
+                إذا (پیل < ثبت_پای_ټکی && پای_ټکی >= ثبت_پای_ټکی) {
+                        e->nr = پیل - e->پیل;
+                        استمر;
                 }
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret) {
-        assert(uid_range_entries(outside) == uid_range_entries(inside));
-        assert(ret);
+صحيح uid_range_translate(ثابت UIDRange *outside, ثابت UIDRange *inside, uid_t uid, uid_t *ret) {
+        أكد(uid_range_entries(outside) == uid_range_entries(inside));
+        أكد(ret);
 
         /* Given two UID ranges that represent the outside UID range of a user namespace (the 2nd and 3rd
          * columns in /proc/xxx/uid_map) and the inside UID range of a user namespace (the 1st and 3rd
@@ -534,107 +534,107 @@ int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t u
          * calling uid_range_translate(inside, outside, 0) will return 1000 as the output UID.
          */
 
-        for (size_t i = 0; i < uid_range_entries(outside); i++)
-                assert(outside->entries[i].nr == inside->entries[i].nr);
+        لكل (size_t i = 0; i < uid_range_entries(outside); i++)
+                أكد(outside->entries[i].nr == inside->entries[i].nr);
 
-        for (size_t i = 0; i < uid_range_entries(outside); i++) {
-                const UIDRangeEntry *e = outside->entries + i;
+        لكل (size_t i = 0; i < uid_range_entries(outside); i++) {
+                ثابت UIDRange_ثبت *e = outside->entries + i;
 
-                if (uid < e->start || uid >= e->start + e->nr)
-                        continue;
+                إذا (uid < e->پیل || uid >= e->پیل + e->nr)
+                        استمر;
 
-                *ret = inside->entries[i].start + uid - e->start;
-                return 0;
+                *ret = inside->entries[i].پیل + uid - e->پیل;
+                أرجع 0;
         }
 
-        return -ESRCH;
+        أرجع -ESRCH;
 }
 
-int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret) {
-        int r;
+صحيح uid_range_translate_userns_fd(صحيح userns_fd, UIDRange_Userns_ډېرپېښ ډېرپېښ, uid_t uid, uid_t *ret) {
+        صحيح r;
 
-        assert(userns_fd >= 0);
-        assert(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
+        أكد(userns_fd >= 0);
+        أكد(دننه_سېټ(ډېرپېښ, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
 
-        _cleanup_(uid_range_freep) UIDRange *outside_range = NULL;
-        r = uid_range_load_userns_by_fd_full(userns_fd, mode, /* coalesce= */ false, &outside_range);
-        if (r < 0)
-                return r;
+        _cleanup_(uid_range_freep) UIDRange *outside_range = عدم;
+        r = uid_range_بارول_userns_by_fd_ډک(userns_fd, ډېرپېښ, /* coalesce= */ false, &outside_range);
+        إذا (r < 0)
+                أرجع r;
 
-        mode = mode == UID_RANGE_USERNS_OUTSIDE ? UID_RANGE_USERNS_INSIDE : GID_RANGE_USERNS_INSIDE;
+        ډېرپېښ = ډېرپېښ == UID_RANGE_USERNS_OUTSIDE ? UID_RANGE_USERNS_INSIDE : GID_RANGE_USERNS_INSIDE;
 
-        _cleanup_(uid_range_freep) UIDRange *inside_range = NULL;
-        r = uid_range_load_userns_by_fd_full(userns_fd, mode, /* coalesce= */ false, &inside_range);
-        if (r < 0)
-                return r;
+        _cleanup_(uid_range_freep) UIDRange *inside_range = عدم;
+        r = uid_range_بارول_userns_by_fd_ډک(userns_fd, ډېرپېښ, /* coalesce= */ false, &inside_range);
+        إذا (r < 0)
+                أرجع r;
 
-        return uid_range_translate(outside_range, inside_range, uid, ret);
+        أرجع uid_range_translate(outside_range, inside_range, uid, ret);
 }
 
-bool uid_range_equal(const UIDRange *a, const UIDRange *b) {
-        if (a == b)
-                return true;
+bool uid_range_equal(ثابت UIDRange *a, ثابت UIDRange *b) {
+        إذا (a == b)
+                أرجع true;
 
-        if (!a || !b)
-                return false;
+        إذا (!a || !b)
+                أرجع false;
 
-        if (a->n_entries != b->n_entries)
-                return false;
+        إذا (a->n_entries != b->n_entries)
+                أرجع false;
 
-        for (size_t i = 0; i < a->n_entries; i++) {
-                if (a->entries[i].start != b->entries[i].start)
-                        return false;
-                if (a->entries[i].nr != b->entries[i].nr)
-                        return false;
+        لكل (size_t i = 0; i < a->n_entries; i++) {
+                إذا (a->entries[i].پیل != b->entries[i].پیل)
+                        أرجع false;
+                إذا (a->entries[i].nr != b->entries[i].nr)
+                        أرجع false;
         }
 
-        return true;
+        أرجع true;
 }
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret) {
-        int r;
+صحيح uid_map_پلټنه_ریښه(pid_t pid, UIDRange_Userns_ډېرپېښ ډېرپېښ, uid_t *ret) {
+        صحيح r;
 
-        assert(pid_is_valid(pid));
-        assert(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
+        أكد(pid_is_valid(pid));
+        أكد(دننه_سېټ(ډېرپېښ, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
 
-        const char *p = procfs_file_alloca(pid, mode == UID_RANGE_USERNS_OUTSIDE ? "uid_map" : "gid_map");
+        ثابت حرف *p = procfs_file_alloca(pid, ډېرپېښ == UID_RANGE_USERNS_OUTSIDE ? "uid_map" : "gid_map");
         _cleanup_fclose_ FILE *f = fopen(p, "re");
-        if (!f) {
-                if (errno != ENOENT)
-                        return -errno;
+        إذا (!f) {
+                إذا (errno != ENOENT)
+                        أرجع -errno;
 
                 r = proc_mounted();
-                if (r < 0)
-                        return -ENOENT; /* original error, if we can't determine /proc/ state */
+                إذا (r < 0)
+                        أرجع -ENOENT; /* original error, if we can't determine /proc/ state */
 
-                return r ? -ENOPKG : -ENOSYS;
+                أرجع r ? -ENOPKG : -ENOSYS;
         }
 
-        for (;;) {
-                uid_t uid_base = UID_INVALID, uid_shift = UID_INVALID;
+        لكل (;;) {
+                uid_t uid_بنسټ = UID_INVALID, uid_ښويدنه = UID_INVALID;
 
-                r = uid_map_read_one(f, &uid_base, &uid_shift, /* ret_range= */ NULL);
-                if (r < 0)
-                        return r;
+                r = uid_map_read_one(f, &uid_بنسټ, &uid_ښويدنه, /* ret_range= */ عدم);
+                إذا (r < 0)
+                        أرجع r;
 
-                if (uid_base == 0) {
-                        if (ret)
-                                *ret = uid_shift;
-                        return 0;
+                إذا (uid_بنسټ == 0) {
+                        إذا (ret)
+                                *ret = uid_ښويدنه;
+                        أرجع 0;
                 }
         }
 }
 
-uid_t uid_range_base(const UIDRange *range) {
+uid_t uid_range_بنسټ(ثابت UIDRange *range) {
         /* Returns the lowest UID in the range (notw that elements are sorted, hence we just need to look at
          * the first one that is populated. */
 
-        if (uid_range_is_empty(range))
-                return UID_INVALID;
+        إذا (uid_range_is_تشه(range))
+                أرجع UID_INVALID;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                if (e->nr > 0)
-                        return e->start;
+                إذا (e->nr > 0)
+                        أرجع e->پیل;
 
-        return UID_INVALID;
+        أرجع UID_INVALID;
 }

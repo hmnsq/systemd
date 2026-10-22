@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#لارښوونه once
 
-#include <libintl.h>    /* IWYU pragma: export */
-#include <locale.h>     /* IWYU pragma: export */
+#ضمن <libintl.h>    /* IWYU pragma: export */
+#ضمن <locale.h>     /* IWYU pragma: export */
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef enum LocaleVariable {
+تعريفنوع تعداد LocaleVariable {
         /* We don't list LC_ALL here on purpose. People should be
          * using LANG instead. */
 
@@ -14,13 +14,13 @@ typedef enum LocaleVariable {
         VARIABLE_LANGUAGE,
         VARIABLE_LC_CTYPE,
         VARIABLE_LC_NUMERIC,
-        VARIABLE_LC_TIME,
+        VARIABLE_LC_وخت,
         VARIABLE_LC_COLLATE,
         VARIABLE_LC_MONETARY,
         VARIABLE_LC_MESSAGES,
         VARIABLE_LC_PAPER,
         VARIABLE_LC_NAME,
-        VARIABLE_LC_ADDRESS,
+        VARIABLE_LC_پته,
         VARIABLE_LC_TELEPHONE,
         VARIABLE_LC_MEASUREMENT,
         VARIABLE_LC_IDENTIFICATION,
@@ -28,26 +28,26 @@ typedef enum LocaleVariable {
         _VARIABLE_LC_INVALID = -EINVAL,
 } LocaleVariable;
 
-int get_locales(char ***ret);
-bool locale_is_valid(const char *name);
-int locale_is_installed(const char *name);
+صحيح get_locales(حرف ***ret);
+bool locale_is_valid(ثابت حرف *name);
+صحيح locale_is_installed(ثابت حرف *name);
 
-#define _(String) dgettext(GETTEXT_PACKAGE, String)
-#define N_(String) String
+#تعریف_کړه _(String) dgettext(GETTEXT_PACKAGE, String)
+#تعریف_کړه N_(String) String
 
-bool is_locale_utf8(void);
+bool is_locale_utf8(فراغ);
 
-DECLARE_STRING_TABLE_LOOKUP(locale_variable, LocaleVariable);
+DECLARE_STRING_جدول_LOOKUP(locale_variable, LocaleVariable);
 
-static inline void freelocalep(locale_t *p) {
-        if (*p == (locale_t) 0)
-                return;
+ساكن مضمن فراغ freelocalep(locale_t *p) {
+        إذا (*p == (locale_t) 0)
+                أرجع;
 
         freelocale(*p);
 }
 
-void locale_variables_free(char* l[_VARIABLE_LC_MAX]);
-static inline void locale_variables_freep(char*(*l)[_VARIABLE_LC_MAX]) {
+فراغ locale_variables_free(حرف* l[_VARIABLE_LC_MAX]);
+ساكن مضمن فراغ locale_variables_freep(حرف*(*l)[_VARIABLE_LC_MAX]) {
         locale_variables_free(*l);
 }
-void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]);
+فراغ locale_variables_simplify(حرف *l[_VARIABLE_LC_MAX]);

@@ -11,135 +11,135 @@
  * occur outside of a loop where this is the preferred behavior.
  */
 
-#include <stdio.h>
-#include <string.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
 
-#include "strxcpyx.h"
+#ضمن "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+size_t strnpcpy_ډک(حرف **dest, size_t اندازه, ثابت حرف *src, size_t len, bool *ret_truncated) {
         bool truncated = false;
 
-        assert(dest);
-        assert(src);
+        أكد(dest);
+        أكد(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        إذا (اندازه == 0) {
+                إذا (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                أرجع 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
-                        *dest = mempcpy(*dest, src, size-1);
-                size = 0;
+        إذا (len >= اندازه) {
+                إذا (اندازه > 1)
+                        *dest = mempcpy(*dest, src, اندازه-1);
+                اندازه = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } وإلا إذا (len > 0) {
                 *dest = mempcpy(*dest, src, len);
-                size -= len;
+                اندازه -= len;
         }
 
-        if (ret_truncated)
+        إذا (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        أرجع اندازه;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strpcpy_ډک(حرف **dest, size_t اندازه, ثابت حرف *src, bool *ret_truncated) {
+        أكد(dest);
+        أكد(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        أرجع strnpcpy_ډک(dest, اندازه, src, مزي_اوږدوالی(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyf_ډک(حرف **dest, size_t اندازه, bool *ret_truncated, ثابت حرف *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        صحيح i;
 
-        assert(dest);
-        assert(src);
+        أكد(dest);
+        أكد(src);
 
         va_start(va, src);
-        i = vsnprintf(*dest, size, src, va);
+        i = vsnprintf(*dest, اندازه, src, va);
         va_end(va);
 
-        assert(i >= 0);
+        أكد(i >= 0);
 
-        if (i < (int) size) {
+        إذا (i < (صحيح) اندازه) {
                 *dest += i;
-                size -= i;
-        } else {
-                size = 0;
+                اندازه -= i;
+        } وإلا {
+                اندازه = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        إذا (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        أرجع اندازه;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyl_ډک(حرف **dest, size_t اندازه, bool *ret_truncated, ثابت حرف *src, ...) {
         bool truncated = false;
         va_list va;
 
-        assert(dest);
-        assert(src);
+        أكد(dest);
+        أكد(src);
 
         va_start(va, src);
-        do {
+        افعل {
                 bool t;
 
-                size = strpcpy_full(dest, size, src, &t);
+                اندازه = strpcpy_ډک(dest, اندازه, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, حرف *);
+        } طالما (src);
         va_end(va);
 
-        if (ret_truncated)
+        إذا (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        أرجع اندازه;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+size_t strnscpy_ډک(حرف *dest, size_t اندازه, ثابت حرف *src, size_t len, bool *ret_truncated) {
+        حرف *s;
 
-        assert(dest);
-        assert(src);
+        أكد(dest);
+        أكد(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        أرجع strnpcpy_ډک(&s, اندازه, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strscpy_ډک(حرف *dest, size_t اندازه, ثابت حرف *src, bool *ret_truncated) {
+        أكد(dest);
+        أكد(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        أرجع strnscpy_ډک(dest, اندازه, src, مزي_اوږدوالی(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strscpyl_ډک(حرف *dest, size_t اندازه, bool *ret_truncated, ثابت حرف *src, ...) {
         bool truncated = false;
         va_list va;
-        char *s;
+        حرف *s;
 
-        assert(dest);
-        assert(src);
+        أكد(dest);
+        أكد(src);
 
         va_start(va, src);
         s = dest;
-        do {
+        افعل {
                 bool t;
 
-                size = strpcpy_full(&s, size, src, &t);
+                اندازه = strpcpy_ډک(&s, اندازه, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, حرف *);
+        } طالما (src);
         va_end(va);
 
-        if (ret_truncated)
+        إذا (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        أرجع اندازه;
 }

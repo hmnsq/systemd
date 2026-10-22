@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#ضمن <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#ضمن "alloc-util.h"
+#ضمن "sort-util.h"
+#ضمن "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+بنية strbuf* strbuf_new(فراغ) {
+        _cleanup_(strbuf_freep) بنية strbuf *str = عدم;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(بنية strbuf, 1);
+        إذا (!str)
+                أرجع عدم;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (بنية strbuf) {
+                .buf = new0(حرف, 1),
+                .ریښه = new0(بنية strbuf_غوټه, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_شمېر = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        إذا (!str->buf || !str->ریښه)
+                أرجع عدم;
 
-        return TAKE_PTR(str);
+        أرجع TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+ساكن بنية strbuf_غوټه* strbuf_غوټه_cleanup(بنية strbuf_غوټه *غوټه) {
+        أكد(غوټه);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(ماشوم, غوټه->children, غوټه->children_شمېر)
+                strbuf_غوټه_cleanup(ماشوم->ماشوم);
 
-        free(node->children);
-        return mfree(node);
+        حرر(غوټه->children);
+        أرجع mfree(غوټه);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+فراغ strbuf_complete(بنية strbuf *str) {
+        إذا (!str || !str->ریښه)
+                أرجع;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->ریښه = strbuf_غوټه_cleanup(str->ریښه);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+بنية strbuf* strbuf_free(بنية strbuf *str) {
+        إذا (!str)
+                أرجع عدم;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        حرر(str->buf);
+        أرجع mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+ساكن صحيح strbuf_children_cmp(ثابت بنية strbuf_ماشوم_ثبت *n1, ثابت بنية strbuf_ماشوم_ثبت *n2) {
+        أكد(n1);
+        أكد(n2);
 
-        return CMP(n1->c, n2->c);
+        أرجع CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+ساكن فراغ bubbleinsert(بنية strbuf_غوټه *غوټه,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         بنية strbuf_غوټه *غوټه_ماشوم) {
 
-        struct strbuf_child_entry new = {
+        بنية strbuf_ماشوم_ثبت new = {
                 .c = c,
-                .child = node_child,
+                .ماشوم = غوټه_ماشوم,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        صحيح کیڼ = 0, ښی = ASSERT_PTR(غوټه)->children_شمېر;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
-                else
-                        right = middle;
+        طالما (ښی > کیڼ) {
+                صحيح منځ = (ښی + کیڼ) / 2 ;
+                إذا (strbuf_children_cmp(&غوټه->children[منځ], &new) <= 0)
+                        کیڼ = منځ + 1;
+                وإلا
+                        ښی = منځ;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(غوټه->children + کیڼ + 1, غوټه->children + کیڼ,
+                حجم(بنية strbuf_ماشوم_ثبت) * (غوټه->children_شمېر - کیڼ));
+        غوټه->children[کیڼ] = new;
 
-        node->children_count++;
+        غوټه->children_شمېر++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_جمع_کړه_string_ډک(بنية strbuf *str, ثابت حرف *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        أكد(str);
+        أكد(s || len == 0);
 
-        if (len == SIZE_MAX)
-                len = strlen(s);
+        إذا (len == SIZE_MAX)
+                len = مزي_اوږدوالی(s);
 
-        if (!str->root)
-                return -EINVAL;
+        إذا (!str->ریښه)
+                أرجع -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
-        if (len == 0) {
-                str->dedup_count++;
-                return 0;
+        str->دننه_شمېر++;
+        إذا (len == 0) {
+                str->dedup_شمېر++;
+                أرجع 0;
         }
-        str->in_len += len;
+        str->دننه_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        بنية strbuf_غوټه *غوټه = str->ریښه;
+        لكل (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = غوټه->ارزښت_off + غوټه->ارزښت_len - len;
+                إذا (depth == len || (غوټه->ارزښت_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
-                        return off;
+                        str->dedup_شمېر++;
+                        أرجع off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
-                node = child->child;
+                بنية strbuf_ماشوم_ثبت *ماشوم, پلټنه = { .c = c };
+                ماشوم = typesafe_bsearch(&پلټنه, غوټه->children, غوټه->children_شمېر, strbuf_children_cmp);
+                إذا (!ماشوم)
+                        اكسر;
+                غوټه = ماشوم->ماشوم;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        إذا (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                أرجع -ENOMEM;
         off = str->len;
-        memcpy(str->buf + off, s, len);
+        حافظه_نقل(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ بنية strbuf_غوټه *غوټه_ماشوم = عدم;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        غوټه_ماشوم = new(بنية strbuf_غوټه, 1);
+        إذا (!غوټه_ماشوم)
+                أرجع -ENOMEM;
+        *غوټه_ماشوم = (بنية strbuf_غوټه) {
+                .ارزښت_off = off,
+                .ارزښت_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        إذا (!GREEDY_REALLOC(غوټه->children, غوټه->children_شمېر + 1))
+                أرجع -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_شمېر++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(غوټه, c, TAKE_PTR(غوټه_ماشوم));
 
-        return off;
+        أرجع off;
 }

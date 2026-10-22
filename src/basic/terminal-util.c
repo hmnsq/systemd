@@ -1,109 +1,109 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/kd.h>
-#include <linux/magic.h>
-#include <linux/tiocl.h>
-#include <linux/vt.h>
-#include <poll.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/inotify.h>
-#include <sys/ioctl.h>
-#include <sys/sysmacros.h>
-#include <termios.h>
-#include <time.h>
-#include <unistd.h>
+#ضمن <fcntl.h>
+#ضمن <linux/kd.h>
+#ضمن <linux/magic.h>
+#ضمن <linux/tiocl.h>
+#ضمن <linux/vt.h>
+#ضمن <poll.h>
+#ضمن <signal.h>
+#ضمن <stdlib.h>
+#ضمن <sys/inotify.h>
+#ضمن <sys/ioctl.h>
+#ضمن <sys/sysmacros.h>
+#ضمن <termios.h>
+#ضمن <time.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "chase.h"
-#include "devnum-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "hexdecoct.h"
-#include "inotify-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "namespace-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "terminal-util.h"
-#include "time-util.h"
-#include "utf8.h"
+#ضمن "alloc-util.h"
+#ضمن "ansi-color.h"
+#ضمن "chase.h"
+#ضمن "devnum-util.h"
+#ضمن "errno-util.h"
+#ضمن "extract-word.h"
+#ضمن "fd-util.h"
+#ضمن "fileio.h"
+#ضمن "fs-util.h"
+#ضمن "hexdecoct.h"
+#ضمن "inotify-util.h"
+#ضمن "io-util.h"
+#ضمن "log.h"
+#ضمن "namespace-util.h"
+#ضمن "parse-util.h"
+#ضمن "path-util.h"
+#ضمن "pidref.h"
+#ضمن "proc-cmdline.h"
+#ضمن "process-util.h"
+#ضمن "signal-util.h"
+#ضمن "socket-util.h"
+#ضمن "stat-util.h"
+#ضمن "stdio-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "terminal-util.h"
+#ضمن "time-util.h"
+#ضمن "utf8.h"
 
 /* How much to wait when reading/writing ANSI sequences from/to the console */
-#define CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC (333 * USEC_PER_MSEC)
+#تعریف_کړه CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC (333 * USEC_فی_MSEC)
 
-static volatile unsigned cached_columns = 0;
-static volatile unsigned cached_lines = 0;
+ساكن متطاير بینښه cached_columns = 0;
+ساكن متطاير بینښه cached_کرښې = 0;
 
-static volatile int cached_on_tty = -1;
-static volatile int cached_on_dev_null = -1;
+ساكن متطاير صحيح cached_on_tty = -1;
+ساكن متطاير صحيح cached_on_dev_null = -1;
 
-bool isatty_safe(int fd) {
-        assert(fd >= 0);
+bool isatty_خوندي(صحيح fd) {
+        أكد(fd >= 0);
 
-        if (isatty(fd))
-                return true;
+        إذا (isatty(fd))
+                أرجع true;
 
         /* Linux/glibc returns EIO for hung up TTY on isatty(). Which is wrong, the thing doesn't stop being
          * a TTY after all, just because it is temporarily hung up. Let's work around this here, until this
          * is fixed in glibc. See: https://sourceware.org/bugzilla/show_bug.cgi?id=32103 */
-        if (errno == EIO)
-                return true;
+        إذا (errno == EIO)
+                أرجع true;
 
         /* Be resilient if we're working on stdio, since they're set up by parent process. */
-        assert(errno != EBADF || IN_SET(fd, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO));
+        أكد(errno != EBADF || دننه_سېټ(fd, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO));
 
-        return false;
+        أرجع false;
 }
 
-int chvt(int vt) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح chvt(صحيح vt) {
+        _cleanup_close_ صحيح fd = -EBADF;
 
         /* Switch to the specified vt number. If the VT is specified <= 0 switch to the VT the kernel log messages go,
          * if that's configured. */
 
         fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return fd;
+        إذا (fd < 0)
+                أرجع fd;
 
-        if (vt <= 0) {
-                int tiocl[2] = {
+        إذا (vt <= 0) {
+                صحيح tiocl[2] = {
                         TIOCL_GETKMSGREDIRECT,
                         0
                 };
 
-                if (ioctl(fd, TIOCLINUX, tiocl) < 0)
-                        return -errno;
+                إذا (ioctl(fd, TIOCLINUX, tiocl) < 0)
+                        أرجع -errno;
 
                 vt = tiocl[0] <= 0 ? 1 : tiocl[0];
         }
 
-        return RET_NERRNO(ioctl(fd, VT_ACTIVATE, vt));
+        أرجع RET_NERRNO(ioctl(fd, VT_ACTIVATE, vt));
 }
 
-int read_one_char(FILE *f, char *ret, usec_t t, bool echo, bool *need_nl) {
-        _cleanup_free_ char *line = NULL;
-        struct termios old_termios;
-        int r, fd;
+صحيح read_one_char(FILE *f, حرف *ret, usec_t t, bool echo, bool *need_nl) {
+        _cleanup_free_ حرف *کرښه = عدم;
+        بنية termios old_termios;
+        صحيح r, fd;
 
-        assert(ret);
+        أكد(ret);
 
-        if (!f)
+        إذا (!f)
                 f = stdin;
 
         /* If this is a terminal, then switch canonical mode off, so that we can read a single
@@ -111,296 +111,296 @@ int read_one_char(FILE *f, char *ret, usec_t t, bool echo, bool *need_nl) {
          * nicely.) If 'echo' is false we'll also disable ECHO mode so that the pressed key is not made
          * visible to the user. */
         fd = fileno(f);
-        if (fd >= 0 && tcgetattr(fd, &old_termios) >= 0) {
-                struct termios new_termios = old_termios;
+        إذا (fd >= 0 && tcgetattr(fd, &old_termios) >= 0) {
+                بنية termios new_termios = old_termios;
 
                 new_termios.c_lflag &= ~(ICANON|(echo ? 0 : ECHO));
                 new_termios.c_cc[VMIN] = 1;
                 new_termios.c_cc[VTIME] = 0;
 
-                if (tcsetattr(fd, TCSANOW, &new_termios) >= 0) {
-                        char c;
+                إذا (tcsetattr(fd, TCSANOW, &new_termios) >= 0) {
+                        حرف c;
 
-                        if (t != USEC_INFINITY) {
-                                if (fd_wait_for_event(fd, POLLIN, t) <= 0) {
-                                        (void) tcsetattr(fd, TCSANOW, &old_termios);
-                                        return -ETIMEDOUT;
+                        إذا (t != USEC_INFINITY) {
+                                إذا (fd_wait_for_event(fd, POLLIN, t) <= 0) {
+                                        (فراغ) tcsetattr(fd, TCSANOW, &old_termios);
+                                        أرجع -ETIMEDOUT;
                                 }
                         }
 
-                        r = safe_fgetc(f, &c);
-                        (void) tcsetattr(fd, TCSANOW, &old_termios);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EIO;
+                        r = خوندي_fgetc(f, &c);
+                        (فراغ) tcsetattr(fd, TCSANOW, &old_termios);
+                        إذا (r < 0)
+                                أرجع r;
+                        إذا (r == 0)
+                                أرجع -EIO;
 
-                        if (need_nl)
+                        إذا (need_nl)
                                 *need_nl = c != '\n';
 
                         *ret = c;
-                        return 0;
+                        أرجع 0;
                 }
         }
 
-        if (t != USEC_INFINITY && fd >= 0) {
+        إذا (t != USEC_INFINITY && fd >= 0) {
                 /* Let's wait the specified amount of time for input. When we have no fd we skip this, under
                  * the assumption that this is an fmemopen() stream or so where waiting doesn't make sense
                  * anyway, as the data is either already in the stream or cannot possible be placed there
                  * while we access the stream */
 
-                if (fd_wait_for_event(fd, POLLIN, t) <= 0)
-                        return -ETIMEDOUT;
+                إذا (fd_wait_for_event(fd, POLLIN, t) <= 0)
+                        أرجع -ETIMEDOUT;
         }
 
         /* If this is not a terminal, then read a full line instead */
 
-        r = read_line(f, 16, &line); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EIO;
+        r = read_کرښه(f, 16, &کرښه); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
+        إذا (r < 0)
+                أرجع r;
+        إذا (r == 0)
+                أرجع -EIO;
 
-        if (strlen(line) != 1)
-                return -EBADMSG;
+        إذا (مزي_اوږدوالی(کرښه) != 1)
+                أرجع -EBADMSG;
 
-        if (need_nl)
+        إذا (need_nl)
                 *need_nl = false;
 
-        *ret = line[0];
-        return 0;
+        *ret = کرښه[0];
+        أرجع 0;
 }
 
-#define DEFAULT_ASK_REFRESH_USEC (2*USEC_PER_SEC)
+#تعریف_کړه DEFAULT_ASK_REFRESH_USEC (2*USEC_فی_SEC)
 
-int ask_char(char *ret, const char *replies, const char *fmt, ...) {
-        int r;
+صحيح ask_char(حرف *ret, ثابت حرف *replies, ثابت حرف *fmt, ...) {
+        صحيح r;
 
-        assert(ret);
-        assert(replies);
-        assert(fmt);
+        أكد(ret);
+        أكد(replies);
+        أكد(fmt);
 
-        for (;;) {
+        لكل (;;) {
                 va_list ap;
-                char c;
+                حرف c;
                 bool need_nl = true;
 
                 fputs(ansi_highlight(), stdout);
 
-                putchar('\r');
+                توری_چاپ_کړه('\r');
 
                 va_start(ap, fmt);
                 vprintf(fmt, ap);
                 va_end(ap);
 
-                fputs(ansi_normal(), stdout);
+                fputs(ansi_نورمال(), stdout);
 
                 fflush(stdout);
 
                 r = read_one_char(stdin, &c, DEFAULT_ASK_REFRESH_USEC, /* echo= */ true, &need_nl);
-                if (r < 0) {
+                إذا (r < 0) {
 
-                        if (r == -ETIMEDOUT)
-                                continue;
+                        إذا (r == -ETIMEDOUT)
+                                استمر;
 
-                        if (r == -EBADMSG) {
+                        إذا (r == -EBADMSG) {
                                 puts("Bad input, please try again.");
-                                continue;
+                                استمر;
                         }
 
-                        putchar('\n');
-                        return r;
+                        توری_چاپ_کړه('\n');
+                        أرجع r;
                 }
 
-                if (need_nl)
-                        putchar('\n');
+                إذا (need_nl)
+                        توری_چاپ_کړه('\n');
 
-                if (strchr(replies, c)) {
+                إذا (strchr(replies, c)) {
                         *ret = c;
-                        return 0;
+                        أرجع 0;
                 }
 
                 puts("Read unexpected character, please try again.");
         }
 }
 
-typedef enum CompletionResult{
+تعريفنوع تعداد Completion_پایله{
         COMPLETION_ALREADY,       /* the input string is already complete */
-        COMPLETION_FULL,          /* completed the input string to be complete now */
+        COMPLETION_ډک,          /* completed the input string to be complete now */
         COMPLETION_PARTIAL,       /* completed the input string so that is still incomplete */
         COMPLETION_NONE,          /* found no matching completion */
-        _COMPLETION_RESULT_MAX,
-        _COMPLETION_RESULT_INVALID = -EINVAL,
-        _COMPLETION_RESULT_ERRNO_MAX = -ERRNO_MAX,
-} CompletionResult;
+        COMPLETION_پایله_MAX,
+        COMPLETION_پایله_INVALID = -EINVAL,
+        COMPLETION_پایله_ERRNO_MAX = -ERRNO_MAX,
+} Completion_پایله;
 
-static CompletionResult pick_completion(const char *string, char *const*completions, char **ret) {
-        _cleanup_free_ char *found = NULL;
+ساكن Completion_پایله pick_completion(ثابت حرف *string, حرف *ثابت*completions, حرف **ret) {
+        _cleanup_free_ حرف *وموندل = عدم;
         bool partial = false;
 
-        assert(ret);
+        أكد(ret);
 
         string = strempty(string);
 
         STRV_FOREACH(c, completions) {
 
                 /* Ignore entries that are not actually completions */
-                if (!startswith(*c, string))
-                        continue;
+                إذا (!startswith(*c, string))
+                        استمر;
 
                 /* Store first completion that matches */
-                if (!found) {
-                        found = strdup(*c);
-                        if (!found)
-                                return -ENOMEM;
+                إذا (!وموندل) {
+                        وموندل = strdup(*c);
+                        إذا (!وموندل)
+                                أرجع -ENOMEM;
 
-                        continue;
+                        استمر;
                 }
 
                 /* If there's another completion that works truncate the one we already found by common
                  * prefix */
-                size_t n = str_common_prefix(found, *c);
-                if (n == SIZE_MAX)
-                        continue;
+                size_t n = str_common_مختاړی(وموندل, *c);
+                إذا (n == SIZE_MAX)
+                        استمر;
 
-                found[n] = 0;
+                وموندل[n] = 0;
                 partial = true;
         }
 
-        *ret = TAKE_PTR(found);
+        *ret = TAKE_PTR(وموندل);
 
-        if (!*ret)
-                return COMPLETION_NONE;
-        if (partial)
-                return COMPLETION_PARTIAL;
+        إذا (!*ret)
+                أرجع COMPLETION_NONE;
+        إذا (partial)
+                أرجع COMPLETION_PARTIAL;
 
-        return streq(string, *ret) ? COMPLETION_ALREADY : COMPLETION_FULL;
+        أرجع streq(string, *ret) ? COMPLETION_ALREADY : COMPLETION_ډک;
 }
 
-static void clear_by_backspace(size_t n) {
+ساكن فراغ clear_by_backspace(size_t n) {
         /* Erase the specified number of character cells backwards on the terminal */
-        for (size_t i = 0; i < n; i++)
+        لكل (size_t i = 0; i < n; i++)
                 fputs("\b \b", stdout);
 }
 
-int ask_string_full(
-                char **ret,
-                const char *prefill,
+صحيح ask_string_ډک(
+                حرف **ret,
+                ثابت حرف *prefill,
                 GetCompletionsCallback get_completions,
-                void *userdata,
-                const char *text, ...) {
+                فراغ *userdata,
+                ثابت حرف *متن, ...) {
 
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(ret);
-        assert(text);
+        أكد(ret);
+        أكد(متن);
 
-        _cleanup_free_ char *string = NULL;
+        _cleanup_free_ حرف *string = عدم;
         size_t n = 0;
 
-        if (prefill) {
+        إذا (prefill) {
                 /* Prefill query with explicit data if specified */
 
                 string = strdup(prefill);
-                if (!string)
-                        return -ENOMEM;
+                إذا (!string)
+                        أرجع -ENOMEM;
 
-                n = strlen(string);
+                n = مزي_اوږدوالی(string);
 
-        } else if (get_completions) {
+        } وإلا إذا (get_completions) {
                 /* Otherwise, figure out what string to preselect the query with */
-                _cleanup_strv_free_ char **completions = NULL;
+                _cleanup_strv_free_ حرف **completions = عدم;
                 r = get_completions("", GET_COMPLETIONS_PRESELECT, &completions, userdata);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
-                CompletionResult cr = pick_completion(string, completions, &string);
-                if (cr < 0)
-                        return cr;
+                Completion_پایله cr = pick_completion(string, completions, &string);
+                إذا (cr < 0)
+                        أرجع cr;
 
                 n = strlen_ptr(string);
         }
 
         /* Output the prompt */
         fputs(ansi_highlight(), stdout);
-        va_start(ap, text);
-        vprintf(text, ap);
+        va_start(ap, متن);
+        vprintf(متن, ap);
         va_end(ap);
-        fputs(ansi_normal(), stdout);
-        if (string)
+        fputs(ansi_نورمال(), stdout);
+        إذا (string)
                 fputs(string, stdout);
         fflush(stdout);
 
         /* Do interactive logic only if stdin + stdout are connected to the same place. And yes, we could use
          * STDIN_FILENO and STDOUT_FILENO here, but let's be overly correct for once, after all libc allows
          * swapping out stdin/stdout. */
-        int fd_input = fileno(stdin);
-        int fd_output = fileno(stdout);
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(fd_input, old_termios);
+        صحيح fd_ننوت = fileno(stdin);
+        صحيح fd_output = fileno(stdout);
+        بنية termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(fd_ننوت, old_termios);
 
-        if (fd_input < 0 || fd_output < 0 || same_fd(fd_input, fd_output) <= 0)
-                goto fallback;
+        إذا (fd_ننوت < 0 || fd_output < 0 || same_fd(fd_ننوت, fd_output) <= 0)
+                اذهب fallback;
 
         /* Try to disable echo, which also tells us if this even is a terminal */
-        if (tcgetattr(fd_input, &old_termios) < 0) {
+        إذا (tcgetattr(fd_ننوت, &old_termios) < 0) {
                 old_termios = TERMIOS_NULL;
-                goto fallback;
+                اذهب fallback;
         }
 
-        struct termios new_termios = old_termios;
+        بنية termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
-        if (tcsetattr(fd_input, TCSANOW, &new_termios) < 0)
-                return -errno;
+        إذا (tcsetattr(fd_ننوت, TCSANOW, &new_termios) < 0)
+                أرجع -errno;
 
-        for (;;) {
-                int c = fgetc(stdin);
+        لكل (;;) {
+                صحيح c = fgetc(stdin);
 
                 /* On EOF or NUL, end the request, don't output anything anymore */
-                if (IN_SET(c, EOF, 0))
-                        break;
+                إذا (دننه_سېټ(c, EOF, 0))
+                        اكسر;
 
                 /* On Return also end the request, but make this visible */
-                if (IN_SET(c, '\n', '\r')) {
+                إذا (دننه_سېټ(c, '\n', '\r')) {
                         fputc('\n', stdout);
-                        break;
+                        اكسر;
                 }
 
-                if (c == '\t') {
+                إذا (c == '\t') {
                         /* Tab */
 
-                        _cleanup_strv_free_ char **completions = NULL;
-                        if (get_completions) {
+                        _cleanup_strv_free_ حرف **completions = عدم;
+                        إذا (get_completions) {
                                 r = get_completions(string, /* flags= */ 0, &completions, userdata);
-                                if (r < 0)
-                                        return r;
+                                إذا (r < 0)
+                                        أرجع r;
                         }
 
-                        _cleanup_free_ char *new_string = NULL;
-                        CompletionResult cr = pick_completion(string, completions, &new_string);
-                        if (cr < 0)
-                                return cr;
-                        if (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_FULL)) {
+                        _cleanup_free_ حرف *new_string = عدم;
+                        Completion_پایله cr = pick_completion(string, completions, &new_string);
+                        إذا (cr < 0)
+                                أرجع cr;
+                        إذا (دننه_سېټ(cr, COMPLETION_PARTIAL, COMPLETION_ډک)) {
                                 /* Output the new suffix we learned */
                                 fputs(ASSERT_PTR(startswith(new_string, strempty(string))), stdout);
 
                                 /* And update the whole string */
                                 free_and_replace(string, new_string);
-                                n = strlen(string);
+                                n = مزي_اوږدوالی(string);
                         }
-                        if (cr == COMPLETION_NONE)
+                        إذا (cr == COMPLETION_NONE)
                                 fputc('\a', stdout); /* BEL */
 
-                        if (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_ALREADY)) {
+                        إذا (دننه_سېټ(cr, COMPLETION_PARTIAL, COMPLETION_ALREADY)) {
                                 /* If this worked only partially, or if the user hit TAB even though we were
                                  * complete already, then show the remaining options (in the latter case just
                                  * the one). */
                                 fputc('\n', stdout);
 
-                                _cleanup_strv_free_ char **filtered = strv_filter_prefix(completions, string);
-                                if (!filtered)
-                                        return -ENOMEM;
+                                _cleanup_strv_free_ حرف **filtered = strv_filter_مختاړی(completions, string);
+                                إذا (!filtered)
+                                        أرجع -ENOMEM;
 
                                 r = show_menu(filtered,
                                               /* n_columns= */ SIZE_MAX,
@@ -408,57 +408,57 @@ int ask_string_full(
                                               /* ellipsize_percentage= */ 0,
                                               /* grey_prefix= */ string,
                                               /* with_numbers= */ false);
-                                if (r < 0)
-                                        return r;
+                                إذا (r < 0)
+                                        أرجع r;
 
                                 /* Show the prompt again */
                                 fputs(ansi_highlight(), stdout);
-                                va_start(ap, text);
-                                vprintf(text, ap);
+                                va_start(ap, متن);
+                                vprintf(متن, ap);
                                 va_end(ap);
-                                fputs(ansi_normal(), stdout);
+                                fputs(ansi_نورمال(), stdout);
                                 fputs(string, stdout);
                         }
 
-                } else if (IN_SET(c, '\b', 127)) {
+                } وإلا إذا (دننه_سېټ(c, '\b', 127)) {
                         /* Backspace */
 
-                        if (n == 0)
+                        إذا (n == 0)
                                 fputc('\a', stdout); /* BEL */
-                        else {
-                                size_t m = utf8_last_length(string, n);
+                        وإلا {
+                                size_t m = utf8_وروستی_اوږدتیا(string, n);
 
-                                char *e = string + n - m;
-                                clear_by_backspace(utf8_console_width(e));
+                                حرف *e = string + n - m;
+                                clear_by_backspace(utf8_console_پلنوالی(e));
 
                                 *e = 0;
                                 n -= m;
                         }
 
-                } else if (c == 21) {
+                } وإلا إذا (c == 21) {
                         /* Ctrl-u → erase all input */
 
-                        clear_by_backspace(utf8_console_width(string));
-                        if (string)
+                        clear_by_backspace(utf8_console_پلنوالی(string));
+                        إذا (string)
                                 string[n = 0] = 0;
-                        else
-                                assert(n == 0);
+                        وإلا
+                                أكد(n == 0);
 
-                } else if (c == 4) {
+                } وإلا إذا (c == 4) {
                         /* Ctrl-d → cancel this field input */
 
-                        return -ECANCELED;
+                        أرجع -ECANCELED;
 
-                } else if (char_is_cc(c) || n >= LINE_MAX)
+                } وإلا إذا (char_is_cc(c) || n >= LINE_MAX)
                         /* refuse control characters and too long strings */
                         fputc('\a', stdout); /* BEL */
-                else {
+                وإلا {
                         /* Regular char */
 
-                        if (!GREEDY_REALLOC(string, n+2))
-                                return -ENOMEM;
+                        إذا (!GREEDY_REALLOC(string, n+2))
+                                أرجع -ENOMEM;
 
-                        string[n++] = (char) c;
+                        string[n++] = (حرف) c;
                         string[n] = 0;
 
                         fputc(c, stdout);
@@ -467,29 +467,29 @@ int ask_string_full(
                 fflush(stdout);
         }
 
-        if (!string) {
+        إذا (!string) {
                 string = strdup("");
-                if (!string)
-                        return -ENOMEM;
+                إذا (!string)
+                        أرجع -ENOMEM;
         }
 
         *ret = TAKE_PTR(string);
-        return 0;
+        أرجع 0;
 
 fallback:
         /* A simple fallback without TTY magic */
         string = mfree(string);
-        r = read_line(stdin, LONG_LINE_MAX, &string);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EIO;
+        r = read_کرښه(stdin, LONG_کرښه_MAX, &string);
+        إذا (r < 0)
+                أرجع r;
+        إذا (r == 0)
+                أرجع -EIO;
 
         *ret = TAKE_PTR(string);
-        return 0;
+        أرجع 0;
 }
 
-bool any_key_to_proceed(void) {
+bool any_کلی_منزل_proceed(فراغ) {
 
         /* Insert a new line here as well as to when the user inputs, as this is also used during the boot up
          * sequence when status messages may be interleaved with the current program output. This ensures
@@ -498,123 +498,123 @@ bool any_key_to_proceed(void) {
         fputc('\n', stdout);
         fputs(ansi_highlight_magenta(), stdout);
         fputs("-- Press any key to proceed --", stdout);
-        fputs(ansi_normal(), stdout);
+        fputs(ansi_نورمال(), stdout);
         fputc('\n', stdout);
         fflush(stdout);
 
-        char key = 0;
-        (void) read_one_char(stdin, &key, USEC_INFINITY, /* echo= */ false, /* need_nl= */ NULL);
+        حرف کلی = 0;
+        (فراغ) read_one_char(stdin, &کلی, USEC_INFINITY, /* echo= */ false, /* need_nl= */ عدم);
 
         fputc('\n', stdout);
         fflush(stdout);
 
-        return key != 'q';
+        أرجع کلی != 'q';
 }
 
-static size_t widest_list_element(char *const*l) {
+ساكن size_t widest_list_element(حرف *ثابت*l) {
         size_t w = 0;
 
         /* Returns the largest console width of all elements in 'l' */
 
         STRV_FOREACH(i, l)
-                w = MAX(w, utf8_console_width(*i));
+                w = MAX(w, utf8_console_پلنوالی(*i));
 
-        return w;
+        أرجع w;
 }
 
-int show_menu(char **x,
+صحيح show_menu(حرف **x,
               size_t n_columns,
-              size_t column_width,
-              unsigned ellipsize_percentage,
-              const char *grey_prefix,
+              size_t ستنه_پلنوالی,
+              بینښه ellipsize_percentage,
+              ثابت حرف *grey_مختاړی,
               bool with_numbers) {
 
-        assert(n_columns > 0);
-        assert(column_width > 0);
+        أكد(n_columns > 0);
+        أكد(ستنه_پلنوالی > 0);
 
-        if (n_columns == SIZE_MAX)
+        إذا (n_columns == SIZE_MAX)
                 n_columns = 3;
 
-        if (column_width == SIZE_MAX) {
+        إذا (ستنه_پلنوالی == SIZE_MAX) {
                 size_t widest = widest_list_element(x);
 
                 /* If not specified, derive column width from screen width */
-                size_t column_max = (columns()-1) / n_columns;
+                size_t ستنه_max = (columns()-1) / n_columns;
 
                 /* Subtract room for numbers */
-                if (with_numbers)
-                        column_max = LESS_BY(column_max, 6U);
+                إذا (with_numbers)
+                        ستنه_max = LESS_BY(ستنه_max, 6U);
 
                 /* If columns would get too tight let's make this a linear list instead. */
-                if (column_max < 10 && widest > 10) {
+                إذا (ستنه_max < 10 && widest > 10) {
                         n_columns = 1;
-                        column_max = columns()-1;
+                        ستنه_max = columns()-1;
 
-                        if (with_numbers)
-                                column_max = LESS_BY(column_max, 6U);
+                        إذا (with_numbers)
+                                ستنه_max = LESS_BY(ستنه_max, 6U);
                 }
 
                 /* Never make this narrower than 10 characters */
-                column_max = MAX(column_max, 10U);
-                column_width = CLAMP(widest+1, 10U, column_max);
+                ستنه_max = MAX(ستنه_max, 10U);
+                ستنه_پلنوالی = CLAMP(widest+1, 10U, ستنه_max);
         }
 
-        size_t n = strv_length(x);
-        size_t per_column = DIV_ROUND_UP(n, n_columns);
+        size_t n = strv_اوږدتیا(x);
+        size_t فی_ستنه = DIV_پړاو_پورته(n, n_columns);
 
-        size_t break_lines = lines();
-        if (break_lines > 2)
-                break_lines--;
+        size_t break_کرښې = کرښې();
+        إذا (break_کرښې > 2)
+                break_کرښې--;
 
         /* The first page gets two extra lines, since we want to show a title */
-        size_t break_modulo = break_lines;
-        if (break_modulo > 3)
+        size_t break_modulo = break_کرښې;
+        إذا (break_modulo > 3)
                 break_modulo -= 3;
 
-        for (size_t i = 0; i < per_column; i++) {
+        لكل (size_t i = 0; i < فی_ستنه; i++) {
 
-                for (size_t j = 0; j < n_columns; j++) {
-                        _cleanup_free_ char *e = NULL;
+                لكل (size_t j = 0; j < n_columns; j++) {
+                        _cleanup_free_ حرف *e = عدم;
 
-                        size_t p = j * per_column + i;
-                        if (p >= n)
-                                break;
+                        size_t p = j * فی_ستنه + i;
+                        إذا (p >= n)
+                                اكسر;
 
-                        e = ellipsize(x[p], column_width, ellipsize_percentage);
-                        if (!e)
-                                return -ENOMEM;
+                        e = ellipsize(x[p], ستنه_پلنوالی, ellipsize_percentage);
+                        إذا (!e)
+                                أرجع -ENOMEM;
 
-                        if (with_numbers)
-                                printf("%s%4zu)%s ",
+                        إذا (with_numbers)
+                                چاپ_کړه("%s%4zu)%s ",
                                        ansi_grey(),
                                        p + 1,
-                                       ansi_normal());
+                                       ansi_نورمال());
 
-                        if (grey_prefix && startswith(e, grey_prefix)) {
-                                size_t k = MIN(strlen(grey_prefix), column_width);
-                                printf("%s%.*s%s",
+                        إذا (grey_مختاړی && startswith(e, grey_مختاړی)) {
+                                size_t k = MIN(مزي_اوږدوالی(grey_مختاړی), ستنه_پلنوالی);
+                                چاپ_کړه("%s%.*s%s",
                                        ansi_grey(),
-                                       (int) k, e,
-                                       ansi_normal());
-                                printf("%-*s",
-                                       (int) (column_width - k), e+k);
-                        } else
-                                printf("%-*s", (int) column_width, e);
+                                       (صحيح) k, e,
+                                       ansi_نورمال());
+                                چاپ_کړه("%-*s",
+                                       (صحيح) (ستنه_پلنوالی - k), e+k);
+                        } وإلا
+                                چاپ_کړه("%-*s", (صحيح) ستنه_پلنوالی, e);
                 }
 
-                putchar('\n');
+                توری_چاپ_کړه('\n');
 
                 /* on the first screen we reserve 2 extra lines for the title */
-                if (i % break_lines == break_modulo)
-                        if (!any_key_to_proceed())
-                                return 0;
+                إذا (i % break_کرښې == break_modulo)
+                        إذا (!any_کلی_منزل_proceed())
+                                أرجع 0;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int open_terminal(const char *name, int mode) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح open_terminal(ثابت حرف *name, صحيح ډېرپېښ) {
+        _cleanup_close_ صحيح fd = -EBADF;
 
         /*
          * If a TTY is in the process of being closed opening it might cause EIO. This is horribly awful, but
@@ -624,43 +624,43 @@ int open_terminal(const char *name, int mode) {
          * https://bugs.launchpad.net/ubuntu/+source/linux/+bug/554172/comments/245
          */
 
-        assert((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
+        أكد((ډېرپېښ & (O_CREAT|O_لار|O_DIRECTORY|O_TMPFILE)) == 0);
 
-        for (unsigned c = 0;; c++) {
-                fd = open(name, mode, 0);
-                if (fd >= 0)
-                        break;
+        لكل (بینښه c = 0;; c++) {
+                fd = open(name, ډېرپېښ, 0);
+                إذا (fd >= 0)
+                        اكسر;
 
-                if (errno != EIO)
-                        return -errno;
+                إذا (errno != EIO)
+                        أرجع -errno;
 
                 /* Max 1s in total */
-                if (c >= 20)
-                        return -EIO;
+                إذا (c >= 20)
+                        أرجع -EIO;
 
-                (void) usleep_safe(50 * USEC_PER_MSEC);
+                (فراغ) usleep_خوندي(50 * USEC_فی_MSEC);
         }
 
-        if (!isatty_safe(fd))
-                return -ENOTTY;
+        إذا (!isatty_خوندي(fd))
+                أرجع -ENOTTY;
 
-        return TAKE_FD(fd);
+        أرجع TAKE_FD(fd);
 }
 
-int acquire_terminal(
-                const char *name,
+صحيح acquire_terminal(
+                ثابت حرف *name,
                 AcquireTerminalFlags flags,
                 usec_t timeout) {
 
-        _cleanup_close_ int notify = -EBADF, fd = -EBADF;
+        _cleanup_close_ صحيح notify = -EBADF, fd = -EBADF;
         usec_t ts = USEC_INFINITY;
-        int r, wd = -1;
+        صحيح r, wd = -1;
 
-        assert(name);
+        أكد(name);
 
-        AcquireTerminalFlags mode = flags & _ACQUIRE_TERMINAL_MODE_MASK;
-        assert(IN_SET(mode, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
-        assert(mode == ACQUIRE_TERMINAL_WAIT || !FLAGS_SET(flags, ACQUIRE_TERMINAL_WATCH_SIGTERM));
+        AcquireTerminalFlags ډېرپېښ = flags & ACQUIRE_TERMINAL_ډېرپېښ_ماسک;
+        أكد(دننه_سېټ(ډېرپېښ, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
+        أكد(ډېرپېښ == ACQUIRE_TERMINAL_WAIT || !FLAGS_سېټ(flags, ACQUIRE_TERMINAL_WATCH_SIGTERM));
 
         /* We use inotify to be notified when the tty is closed. We create the watch before checking if we can actually
          * acquire it, so that we don't lose any event.
@@ -671,146 +671,146 @@ int acquire_terminal(
          * not configure any service on the same tty as an untrusted user this should not be a problem. (Which they
          * probably should not do anyway.) */
 
-        if (mode == ACQUIRE_TERMINAL_WAIT) {
+        إذا (ډېرپېښ == ACQUIRE_TERMINAL_WAIT) {
                 notify = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);
-                if (notify < 0)
-                        return -errno;
+                إذا (notify < 0)
+                        أرجع -errno;
 
                 wd = inotify_add_watch(notify, name, IN_CLOSE);
-                if (wd < 0)
-                        return -errno;
+                إذا (wd < 0)
+                        أرجع -errno;
 
-                if (timeout != USEC_INFINITY)
+                إذا (timeout != USEC_INFINITY)
                         ts = now(CLOCK_MONOTONIC);
         }
 
         /* If we are called with ACQUIRE_TERMINAL_WATCH_SIGTERM we'll unblock SIGTERM during ppoll() temporarily */
         sigset_t poll_ss;
-        assert_se(sigprocmask(SIG_SETMASK, /* newset= */ NULL, &poll_ss) >= 0);
-        if (flags & ACQUIRE_TERMINAL_WATCH_SIGTERM) {
+        assert_se(sigprocmask(SIG_SETMASK, /* newset= */ عدم, &poll_ss) >= 0);
+        إذا (flags & ACQUIRE_TERMINAL_WATCH_SIGTERM) {
                 assert_se(sigismember(&poll_ss, SIGTERM) > 0);
                 assert_se(sigdelset(&poll_ss, SIGTERM) >= 0);
         }
 
-        for (;;) {
-                if (notify >= 0) {
+        لكل (;;) {
+                إذا (notify >= 0) {
                         r = flush_fd(notify);
-                        if (r < 0)
-                                return r;
+                        إذا (r < 0)
+                                أرجع r;
                 }
 
                 /* We pass here O_NOCTTY only so that we can check the return value TIOCSCTTY and have a reliable way
                  * to figure out if we successfully became the controlling process of the tty */
                 fd = open_terminal(name, O_RDWR|O_NOCTTY|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                إذا (fd < 0)
+                        أرجع fd;
 
                 /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed if we already own the tty. */
-                struct sigaction sa_old;
+                بنية sigaction sa_old;
                 assert_se(sigaction(SIGHUP, &sigaction_ignore, &sa_old) >= 0);
 
                 /* First, try to get the tty */
-                r = RET_NERRNO(ioctl(fd, TIOCSCTTY, mode == ACQUIRE_TERMINAL_FORCE));
+                r = RET_NERRNO(ioctl(fd, TIOCSCTTY, ډېرپېښ == ACQUIRE_TERMINAL_FORCE));
 
                 /* Reset signal handler to old value */
-                assert_se(sigaction(SIGHUP, &sa_old, NULL) >= 0);
+                assert_se(sigaction(SIGHUP, &sa_old, عدم) >= 0);
 
                 /* Success? Exit the loop now! */
-                if (r >= 0)
-                        break;
+                إذا (r >= 0)
+                        اكسر;
 
                 /* Any failure besides -EPERM? Fail, regardless of the mode. */
-                if (r != -EPERM)
-                        return r;
+                إذا (r != -EPERM)
+                        أرجع r;
 
-                if (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
+                إذا (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
                                                           * into a success. Note that EPERM is also returned if we
                                                           * already are the owner of the TTY. */
-                        break;
+                        اكسر;
 
-                if (mode != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
-                        return r;
+                إذا (ډېرپېښ != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
+                        أرجع r;
 
-                assert(notify >= 0);
-                assert(wd >= 0);
+                أكد(notify >= 0);
+                أكد(wd >= 0);
 
-                for (;;) {
-                        usec_t left;
-                        if (timeout == USEC_INFINITY)
-                                left = USEC_INFINITY;
-                        else {
-                                assert(ts != USEC_INFINITY);
+                لكل (;;) {
+                        usec_t کیڼ;
+                        إذا (timeout == USEC_INFINITY)
+                                کیڼ = USEC_INFINITY;
+                        وإلا {
+                                أكد(ts != USEC_INFINITY);
 
                                 usec_t n = usec_sub_unsigned(now(CLOCK_MONOTONIC), ts);
-                                if (n >= timeout)
-                                        return -ETIMEDOUT;
+                                إذا (n >= timeout)
+                                        أرجع -ETIMEDOUT;
 
-                                left = timeout - n;
+                                کیڼ = timeout - n;
                         }
 
-                        r = ppoll_usec_full(
-                                        &(struct pollfd) {
+                        r = ppoll_usec_ډک(
+                                        &(بنية pollfd) {
                                                 .fd = notify,
                                                 .events = POLLIN,
                                         },
                                         /* n_fds= */ 1,
-                                        left,
+                                        کیڼ,
                                         &poll_ss);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIMEDOUT;
+                        إذا (r < 0)
+                                أرجع r;
+                        إذا (r == 0)
+                                أرجع -ETIMEDOUT;
 
-                        union inotify_event_buffer buffer;
+                        اتحاد inotify_event_بفر بفر;
                         ssize_t l;
-                        l = read(notify, &buffer, sizeof(buffer));
-                        if (l < 0) {
-                                if (ERRNO_IS_TRANSIENT(errno))
-                                        continue;
+                        l = اقرأ(notify, &بفر, حجم(بفر));
+                        إذا (l < 0) {
+                                إذا (ERRNO_IS_TRANSIENT(errno))
+                                        استمر;
 
-                                return -errno;
+                                أرجع -errno;
                         }
 
-                        FOREACH_INOTIFY_EVENT(e, buffer, l) {
-                                if (e->mask & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
-                                        break;
+                        FOREACH_INOTIFY_EVENT(e, بفر, l) {
+                                إذا (e->ماسک_3 & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
+                                        اكسر;
 
-                                if (e->wd != wd || !(e->mask & IN_CLOSE)) /* Safety checks */
-                                        return -EIO;
+                                إذا (e->wd != wd || !(e->ماسک_3 & IN_CLOSE)) /* Safety checks */
+                                        أرجع -EIO;
                         }
 
-                        break;
+                        اكسر;
                 }
 
                 /* We close the tty fd here since if the old session ended our handle will be dead. It's important that
                  * we do this after sleeping, so that we don't enter an endless loop. */
-                fd = safe_close(fd);
+                fd = خوندي_close(fd);
         }
 
-        return TAKE_FD(fd);
+        أرجع TAKE_FD(fd);
 }
 
-int release_terminal(void) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+صحيح release_terminal(فراغ) {
+        _cleanup_close_ صحيح fd = -EBADF;
+        صحيح r;
 
         fd = open("/dev/tty", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return -errno;
+        إذا (fd < 0)
+                أرجع -errno;
 
         /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed
          * by our own TIOCNOTTY */
-        struct sigaction sa_old;
+        بنية sigaction sa_old;
         assert_se(sigaction(SIGHUP, &sigaction_ignore, &sa_old) >= 0);
 
         r = RET_NERRNO(ioctl(fd, TIOCNOTTY));
 
-        assert_se(sigaction(SIGHUP, &sa_old, NULL) >= 0);
+        assert_se(sigaction(SIGHUP, &sa_old, عدم) >= 0);
 
-        return r;
+        أرجع r;
 }
 
-int terminal_new_session(void) {
+صحيح terminal_new_session(فراغ) {
 
         /* Make us the new session leader, and set stdin tty to be our controlling terminal.
          *
@@ -819,62 +819,62 @@ int terminal_new_session(void) {
          * (that side channel being signal delivery, i.e. SIGINT, SIGHUP et al). Hence we focus on input,
          * not output here. */
 
-        if (!isatty_safe(STDIN_FILENO))
-                return -ENXIO;
+        إذا (!isatty_خوندي(STDIN_FILENO))
+                أرجع -ENXIO;
 
-        (void) setsid();
-        return RET_NERRNO(ioctl(STDIN_FILENO, TIOCSCTTY, 0));
+        (فراغ) setsid();
+        أرجع RET_NERRNO(ioctl(STDIN_FILENO, TIOCSCTTY, 0));
 }
 
-void terminal_detach_session(void) {
-        (void) setsid();
-        (void) release_terminal();
+فراغ terminal_detach_session(فراغ) {
+        (فراغ) setsid();
+        (فراغ) release_terminal();
 }
 
-int terminal_vhangup_fd(int fd) {
-        assert(fd >= 0);
-        return RET_NERRNO(ioctl(fd, TIOCVHANGUP));
+صحيح terminal_vhangup_fd(صحيح fd) {
+        أكد(fd >= 0);
+        أرجع RET_NERRNO(ioctl(fd, TIOCVHANGUP));
 }
 
-int terminal_vhangup(const char *tty) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح terminal_vhangup(ثابت حرف *tty) {
+        _cleanup_close_ صحيح fd = -EBADF;
 
-        assert(tty);
+        أكد(tty);
 
         fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        إذا (fd < 0)
+                أرجع fd;
 
-        return terminal_vhangup_fd(fd);
+        أرجع terminal_vhangup_fd(fd);
 }
 
-int vt_disallocate(const char *tty_path) {
-        assert(tty_path);
+صحيح vt_disallocate(ثابت حرف *tty_لار) {
+        أكد(tty_لار);
 
         /* Deallocate the VT if possible. If not possible (i.e. because it is the active one), at least clear
          * it entirely (including the scrollback buffer). */
 
-        int ttynr = vtnr_from_tty(tty_path);
-        if (ttynr > 0) {
-                _cleanup_close_ int fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-                if (fd < 0)
-                        return fd;
+        صحيح ttynr = vtnr_from_tty(tty_لار);
+        إذا (ttynr > 0) {
+                _cleanup_close_ صحيح fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+                إذا (fd < 0)
+                        أرجع fd;
 
                 /* Try to deallocate */
-                if (ioctl(fd, VT_DISALLOCATE, ttynr) >= 0)
-                        return 0;
-                if (errno != EBUSY)
-                        return -errno;
+                إذا (ioctl(fd, VT_DISALLOCATE, ttynr) >= 0)
+                        أرجع 0;
+                إذا (errno != EBUSY)
+                        أرجع -errno;
         }
 
         /* So this is not a VT (in which case we cannot deallocate it), or we failed to deallocate. Let's at
          * least clear the screen. */
 
-        _cleanup_close_ int fd2 = open_terminal(tty_path, O_WRONLY|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd2 < 0)
-                return fd2;
+        _cleanup_close_ صحيح fd2 = open_terminal(tty_لار, O_WRONLY|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+        إذا (fd2 < 0)
+                أرجع fd2;
 
-        return loop_write_full(fd2,
+        أرجع loop_write_ډک(fd2,
                                "\033[r"   /* clear scrolling region */
                                "\033[H"   /* move home */
                                "\033[3J"  /* clear screen including scrollback, requires Linux 2.6.40 */
@@ -883,53 +883,53 @@ int vt_disallocate(const char *tty_path) {
                                CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
 }
 
-static int vt_default_utf8(void) {
+ساكن صحيح vt_default_utf8(فراغ) {
         /* Read the default VT UTF8 setting from the kernel */
-        return read_boolean_file("/sys/module/vt/parameters/default_utf8");
+        أرجع read_boolean_file("/sys/module/vt/parameters/default_utf8");
 }
 
-static int vt_reset_keyboard(int fd) {
-        int r, kb;
+ساكن صحيح vt_reset_keyboard(صحيح fd) {
+        صحيح r, kb;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* If we can't read the default, then default to Unicode. It's 2024 after all. */
         r = vt_default_utf8();
-        if (r < 0)
+        إذا (r < 0)
                 log_debug_errno(r, "Failed to determine kernel VT UTF-8 mode, assuming enabled: %m");
 
         kb = vt_default_utf8() != 0 ? K_UNICODE : K_XLATE;
-        return RET_NERRNO(ioctl(fd, KDSKBMODE, kb));
+        أرجع RET_NERRNO(ioctl(fd, KDSKBMODE, kb));
 }
 
-static int terminal_reset_ioctl(int fd, bool switch_to_text) {
-        struct termios termios;
-        int r;
+ساكن صحيح terminal_reset_ioctl(صحيح fd, bool switch_منزل_متن) {
+        بنية termios termios;
+        صحيح r;
 
         /* Set terminal to some sane defaults */
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* We leave locked terminal attributes untouched, so that Plymouth may set whatever it wants to set,
          * and we don't interfere with that. */
 
         /* Disable exclusive mode, just in case */
-        if (ioctl(fd, TIOCNXCL) < 0)
+        إذا (ioctl(fd, TIOCNXCL) < 0)
                 log_debug_errno(errno, "TIOCNXCL ioctl failed on TTY, ignoring: %m");
 
         /* Switch to text mode */
-        if (switch_to_text)
-                if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
+        إذا (switch_منزل_متن)
+                إذا (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
                         log_debug_errno(errno, "KDSETMODE ioctl for switching to text mode failed on TTY, ignoring: %m");
 
         /* Set default keyboard mode */
         r = vt_reset_keyboard(fd);
-        if (r < 0)
+        إذا (r < 0)
                 log_debug_errno(r, "Failed to reset VT keyboard, ignoring: %m");
 
-        if (tcgetattr(fd, &termios) < 0) {
+        إذا (tcgetattr(fd, &termios) < 0) {
                 r = log_debug_errno(errno, "Failed to get terminal parameters: %m");
-                goto finish;
+                اذهب پای;
         }
 
         /* We only reset the stuff that matters to the software. How
@@ -960,489 +960,489 @@ static int terminal_reset_ioctl(int fd, bool switch_to_text) {
         termios.c_cc[VMIN]   = 1;
 
         r = RET_NERRNO(tcsetattr(fd, TCSANOW, &termios));
-        if (r < 0)
+        إذا (r < 0)
                 log_debug_errno(r, "Failed to set terminal parameters: %m");
 
-finish:
+پای:
         /* Just in case, flush all crap out */
-        (void) tcflush(fd, TCIOFLUSH);
+        (فراغ) tcflush(fd, TCIOFLUSH);
 
-        return r;
+        أرجع r;
 }
 
-int terminal_reset_ansi_seq(int fd) {
-        _cleanup_(nonblock_resetp) int nonblock_reset = -EBADF;
-        int r;
+صحيح terminal_reset_ansi_seq(صحيح fd) {
+        _cleanup_(nonblock_resetp) صحيح nonblock_reset = -EBADF;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        if (getenv_terminal_is_dumb())
-                return 0;
+        إذا (getenv_terminal_is_dumb())
+                أرجع 0;
 
         r = fd_nonblock(fd, true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
-        if (r > 0)
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
+        إذا (r > 0)
                 nonblock_reset = fd;
 
-        r = loop_write_full(fd,
+        r = loop_write_ډک(fd,
                             "\033[!p"              /* soft terminal reset */
                             ANSI_OSC "104" ANSI_ST /* reset color palette via OSC 104 */
-                            ANSI_NORMAL            /* reset colors */
+                            ANSI_نورمال            /* reset colors */
                             "\033[?7h"             /* enable line-wrapping */
                             "\033[1G"              /* place cursor at beginning of current line */
                             "\033[0J",             /* erase till end of screen */
                             SIZE_MAX,
                             CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
+        إذا (r < 0)
                 log_debug_errno(r, "Failed to reset terminal through ANSI sequences: %m");
 
-        return r;
+        أرجع r;
 }
 
-void reset_dev_console_fd(int fd, bool switch_to_text) {
-        int r;
+فراغ reset_dev_console_fd(صحيح fd, bool switch_منزل_متن) {
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        _cleanup_close_ int lock_fd = lock_dev_console();
-        if (lock_fd < 0)
-                log_debug_errno(lock_fd, "Failed to lock /dev/console, ignoring: %m");
+        _cleanup_close_ صحيح قلف_fd = قلف_dev_console();
+        إذا (قلف_fd < 0)
+                log_debug_errno(قلف_fd, "Failed to lock /dev/console, ignoring: %m");
 
-        r = terminal_reset_ioctl(fd, switch_to_text);
-        if (r < 0)
+        r = terminal_reset_ioctl(fd, switch_منزل_متن);
+        إذا (r < 0)
                 log_warning_errno(r, "Failed to reset /dev/console, ignoring: %m");
 
-        unsigned rows, cols;
-        r = proc_cmdline_tty_size("/dev/console", &rows, &cols);
-        if (r < 0)
+        بینښه لیکې, ستون_شمېر;
+        r = proc_cmdline_tty_اندازه("/dev/console", &لیکې, &ستون_شمېر);
+        إذا (r < 0)
                 log_warning_errno(r, "Failed to get /dev/console size, ignoring: %m");
-        else if (r > 0) {
-                r = terminal_set_size_fd(fd, NULL, rows, cols);
-                if (r < 0)
+        وإلا إذا (r > 0) {
+                r = terminal_سېټ_اندازه_fd(fd, عدم, لیکې, ستون_شمېر);
+                إذا (r < 0)
                         log_warning_errno(r, "Failed to set configured terminal size on /dev/console, ignoring: %m");
-        } else
-                (void) terminal_fix_size(fd, fd);
+        } وإلا
+                (فراغ) terminal_fix_اندازه(fd, fd);
 
         r = terminal_reset_ansi_seq(fd);
-        if (r < 0)
+        إذا (r < 0)
                 log_warning_errno(r, "Failed to reset /dev/console using ANSI sequences, ignoring: %m");
 }
 
-int lock_dev_console(void) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+صحيح قلف_dev_console(فراغ) {
+        _cleanup_close_ صحيح fd = -EBADF;
+        صحيح r;
 
         /* NB: We do not use O_NOFOLLOW here, because some container managers might place a symlink to some
          * pty in /dev/console, in which case it should be fine to lock the target TTY. */
         fd = open_terminal("/dev/console", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd < 0)
-                return fd;
+        إذا (fd < 0)
+                أرجع fd;
 
-        r = lock_generic(fd, LOCK_BSD, LOCK_EX);
-        if (r < 0)
-                return r;
+        r = قلف_generic(fd, قلف_BSD, LOCK_EX);
+        إذا (r < 0)
+                أرجع r;
 
-        return TAKE_FD(fd);
+        أرجع TAKE_FD(fd);
 }
 
-int make_console_stdio(bool switch_to_text) {
-        int fd, r;
+صحيح make_console_stdio(bool switch_منزل_متن) {
+        صحيح fd, r;
 
         /* Make /dev/console the controlling terminal and stdin/stdout/stderr, if we can. If we can't use
          * /dev/null instead. This is particularly useful if /dev/console is turned off, e.g. if console=null
          * is specified on the kernel command line. */
 
         fd = acquire_terminal("/dev/console", ACQUIRE_TERMINAL_FORCE|ACQUIRE_TERMINAL_PERMISSIVE, USEC_INFINITY);
-        if (fd < 0) {
+        إذا (fd < 0) {
                 log_warning_errno(fd, "Failed to acquire terminal, using /dev/null stdin/stdout/stderr instead: %m");
 
                 r = make_null_stdio();
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make /dev/null stdin/stdout/stderr: %m");
+                إذا (r < 0)
+                        أرجع log_error_errno(r, "Failed to make /dev/null stdin/stdout/stderr: %m");
 
-        } else {
-                reset_dev_console_fd(fd, switch_to_text);
+        } وإلا {
+                reset_dev_console_fd(fd, switch_منزل_متن);
 
                 r = rearrange_stdio(fd, fd, fd); /* This invalidates 'fd' both on success and on failure. */
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make terminal stdin/stdout/stderr: %m");
+                إذا (r < 0)
+                        أرجع log_error_errno(r, "Failed to make terminal stdin/stdout/stderr: %m");
         }
 
         reset_terminal_feature_caches();
-        return 0;
+        أرجع 0;
 }
 
-static int vtnr_from_tty_raw(const char *tty, unsigned *ret) {
-        assert(tty);
+ساكن صحيح vtnr_from_tty_raw(ثابت حرف *tty, بینښه *ret) {
+        أكد(tty);
 
-        tty = skip_dev_prefix(tty);
+        tty = skip_dev_مختاړی(tty);
 
-        const char *e = startswith(tty, "tty");
-        if (!e)
-                return -EINVAL;
+        ثابت حرف *e = startswith(tty, "tty");
+        إذا (!e)
+                أرجع -EINVAL;
 
-        return safe_atou(e, ret);
+        أرجع خوندي_atou(e, ret);
 }
 
-int vtnr_from_tty(const char *tty) {
-        unsigned u;
-        int r;
+صحيح vtnr_from_tty(ثابت حرف *tty) {
+        بینښه u;
+        صحيح r;
 
-        assert(tty);
+        أكد(tty);
 
         r = vtnr_from_tty_raw(tty, &u);
-        if (r < 0)
-                return r;
-        if (!vtnr_is_valid(u))
-                return -ERANGE;
+        إذا (r < 0)
+                أرجع r;
+        إذا (!vtnr_is_valid(u))
+                أرجع -ERANGE;
 
-        return (int) u;
+        أرجع (صحيح) u;
 }
 
-bool tty_is_vc(const char *tty) {
-        assert(tty);
+bool tty_is_vc(ثابت حرف *tty) {
+        أكد(tty);
 
         /* NB: for >= 0 values no range check is conducted here, on the assumption that the caller will
          * either extract vtnr through vtnr_from_tty() later where ERANGE would be reported, or doesn't care
          * about whether it's strictly valid, but only asking "does this fall into the vt category?", for which
          * "yes" seems to be a better answer. */
 
-        return vtnr_from_tty_raw(tty, /* ret= */ NULL) >= 0;
+        أرجع vtnr_from_tty_raw(tty, /* ret= */ عدم) >= 0;
 }
 
-bool tty_is_console(const char *tty) {
-        assert(tty);
+bool tty_is_console(ثابت حرف *tty) {
+        أكد(tty);
 
-        return streq(skip_dev_prefix(tty), "console");
+        أرجع streq(skip_dev_مختاړی(tty), "console");
 }
 
-int resolve_dev_console(char **ret) {
-        int r;
+صحيح resolve_dev_console(حرف **ret) {
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* Resolve where /dev/console is pointing to. If /dev/console is a symlink (like in container
          * managers), we'll just resolve the symlink. If it's a real device node, we'll use if
          * /sys/class/tty/tty0/active, but only if /sys/ is actually ours (i.e. not read-only-mounted which
          * is a sign for container setups). */
 
-        _cleanup_free_ char *chased = NULL;
-        r = chase("/dev/console", /* root= */ NULL, /* flags= */ 0, &chased, /* ret_fd= */ NULL);
-        if (r < 0)
-                return r;
-        if (!path_equal(chased, "/dev/console")) {
+        _cleanup_free_ حرف *chased = عدم;
+        r = chase("/dev/console", /* root= */ عدم, /* flags= */ 0, &chased, /* ret_fd= */ عدم);
+        إذا (r < 0)
+                أرجع r;
+        إذا (!لار_equal(chased, "/dev/console")) {
                 *ret = TAKE_PTR(chased);
-                return 0;
+                أرجع 0;
         }
 
-        r = path_is_read_only_fs("/sys");
-        if (r < 0)
-                return r;
-        if (r > 0)
-                return -ENOMEDIUM;
+        r = لار_is_read_only_fs("/sys");
+        إذا (r < 0)
+                أرجع r;
+        إذا (r > 0)
+                أرجع -ENOMEDIUM;
 
-        _cleanup_free_ char *active = NULL;
-        r = read_one_line_file("/sys/class/tty/console/active", &active);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENXIO;
+        _cleanup_free_ حرف *فعال = عدم;
+        r = read_one_کرښه_file("/sys/class/tty/console/active", &فعال);
+        إذا (r < 0)
+                أرجع r;
+        إذا (r == 0)
+                أرجع -ENXIO;
 
         /* If multiple log outputs are configured the last one is what /dev/console points to */
-        const char *tty = strrchr(active, ' ');
-        if (tty)
+        ثابت حرف *tty = strrchr(فعال, ' ');
+        إذا (tty)
                 tty++;
-        else
-                tty = active;
+        وإلا
+                tty = فعال;
 
-        if (streq(tty, "tty0")) {
-                active = mfree(active);
+        إذا (streq(tty, "tty0")) {
+                فعال = mfree(فعال);
 
                 /* Get the active VC (e.g. tty1) */
-                r = read_one_line_file("/sys/class/tty/tty0/active", &active);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -ENXIO;
+                r = read_one_کرښه_file("/sys/class/tty/tty0/active", &فعال);
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0)
+                        أرجع -ENXIO;
 
-                tty = active;
+                tty = فعال;
         }
 
-        _cleanup_free_ char *path = NULL;
-        path = path_join("/dev", tty);
-        if (!path)
-                return -ENOMEM;
+        _cleanup_free_ حرف *لار = عدم;
+        لار = لار_join("/dev", tty);
+        إذا (!لار)
+                أرجع -ENOMEM;
 
-        *ret = TAKE_PTR(path);
-        return 0;
+        *ret = TAKE_PTR(لار);
+        أرجع 0;
 }
 
-int get_kernel_consoles(char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        _cleanup_free_ char *line = NULL;
-        int r;
+صحيح get_kernel_consoles(حرف ***ret) {
+        _cleanup_strv_free_ حرف **l = عدم;
+        _cleanup_free_ حرف *کرښه = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* If /sys/ is mounted read-only this means we are running in some kind of container environment.
          * In that case /sys/ would reflect the host system, not us, hence ignore the data we can read from it. */
-        if (path_is_read_only_fs("/sys") > 0)
-                goto fallback;
+        إذا (لار_is_read_only_fs("/sys") > 0)
+                اذهب fallback;
 
-        r = read_one_line_file("/sys/class/tty/console/active", &line);
-        if (r < 0)
-                return r;
+        r = read_one_کرښه_file("/sys/class/tty/console/active", &کرښه);
+        إذا (r < 0)
+                أرجع r;
 
-        for (const char *p = line;;) {
-                _cleanup_free_ char *tty = NULL, *path = NULL;
+        لكل (ثابت حرف *p = کرښه;;) {
+                _cleanup_free_ حرف *tty = عدم, *لار = عدم;
 
-                r = extract_first_word(&p, &tty, NULL, 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = ایستل_لومړی_کلمه(&p, &tty, عدم, 0);
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0)
+                        اكسر;
 
-                if (streq(tty, "tty0")) {
+                إذا (streq(tty, "tty0")) {
                         tty = mfree(tty);
-                        r = read_one_line_file("/sys/class/tty/tty0/active", &tty);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) {
+                        r = read_one_کرښه_file("/sys/class/tty/tty0/active", &tty);
+                        إذا (r < 0)
+                                أرجع r;
+                        إذا (r == 0) {
                                 log_debug("No VT active, skipping /dev/tty0.");
-                                continue;
+                                استمر;
                         }
                 }
 
-                path = path_join("/dev", tty);
-                if (!path)
-                        return -ENOMEM;
+                لار = لار_join("/dev", tty);
+                إذا (!لار)
+                        أرجع -ENOMEM;
 
-                if (access(path, F_OK) < 0) {
-                        log_debug_errno(errno, "Console device %s is not accessible, skipping: %m", path);
-                        continue;
+                إذا (access(لار, F_OK) < 0) {
+                        log_debug_errno(errno, "Console device %s is not accessible, skipping: %m", لار);
+                        استمر;
                 }
 
-                r = strv_consume(&l, TAKE_PTR(path));
-                if (r < 0)
-                        return r;
+                r = strv_consume(&l, TAKE_PTR(لار));
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (strv_isempty(l)) {
+        إذا (strv_isempty(l)) {
                 log_debug("No devices found for system console");
-                goto fallback;
+                اذهب fallback;
         }
 
         *ret = TAKE_PTR(l);
-        return strv_length(*ret);
+        أرجع strv_اوږدتیا(*ret);
 
 fallback:
         r = strv_extend(&l, "/dev/console");
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         *ret = TAKE_PTR(l);
-        return 0;
+        أرجع 0;
 }
 
-bool tty_is_vc_resolve(const char *tty) {
-        _cleanup_free_ char *resolved = NULL;
+bool tty_is_vc_resolve(ثابت حرف *tty) {
+        _cleanup_free_ حرف *resolved = عدم;
 
-        assert(tty);
+        أكد(tty);
 
-        if (streq(skip_dev_prefix(tty), "console")) {
-                if (resolve_dev_console(&resolved) < 0)
-                        return false;
+        إذا (streq(skip_dev_مختاړی(tty), "console")) {
+                إذا (resolve_dev_console(&resolved) < 0)
+                        أرجع false;
 
                 tty = resolved;
         }
 
-        return tty_is_vc(tty);
+        أرجع tty_is_vc(tty);
 }
 
-int fd_columns(int fd) {
-        struct winsize ws = {};
+صحيح fd_columns(صحيح fd) {
+        بنية winsize ws = {};
 
-        if (fd < 0)
-                return -EBADF;
+        إذا (fd < 0)
+                أرجع -EBADF;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return -errno;
+        إذا (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                أرجع -errno;
 
-        if (ws.ws_col <= 0)
-                return -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
+        إذا (ws.ws_col <= 0)
+                أرجع -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
 
-        return ws.ws_col;
+        أرجع ws.ws_col;
 }
 
-int getenv_columns(void) {
-        int r;
+صحيح getenv_columns(فراغ) {
+        صحيح r;
 
-        const char *e = getenv("COLUMNS");
-        if (!e)
-                return -ENXIO;
+        ثابت حرف *e = getenv("COLUMNS");
+        إذا (!e)
+                أرجع -ENXIO;
 
-        unsigned c;
-        r = safe_atou_bounded(e, 1, USHRT_MAX, &c);
-        if (r < 0)
-                return r;
+        بینښه c;
+        r = خوندي_atou_bounded(e, 1, USHRT_MAX, &c);
+        إذا (r < 0)
+                أرجع r;
 
-        return (int) c;
+        أرجع (صحيح) c;
 }
 
-unsigned columns(void) {
+بینښه columns(فراغ) {
 
-        if (cached_columns > 0)
-                return cached_columns;
+        إذا (cached_columns > 0)
+                أرجع cached_columns;
 
-        int c = getenv_columns();
-        if (c < 0) {
+        صحيح c = getenv_columns();
+        إذا (c < 0) {
                 c = fd_columns(STDOUT_FILENO);
-                if (c < 0)
+                إذا (c < 0)
                         c = 80;
         }
 
-        assert(c > 0);
+        أكد(c > 0);
 
         cached_columns = c;
-        return cached_columns;
+        أرجع cached_columns;
 }
 
-int fd_lines(int fd) {
-        struct winsize ws = {};
+صحيح fd_کرښې(صحيح fd) {
+        بنية winsize ws = {};
 
-        if (fd < 0)
-                return -EBADF;
+        إذا (fd < 0)
+                أرجع -EBADF;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return -errno;
+        إذا (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                أرجع -errno;
 
-        if (ws.ws_row <= 0)
-                return -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
+        إذا (ws.ws_row <= 0)
+                أرجع -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
 
-        return ws.ws_row;
+        أرجع ws.ws_row;
 }
 
-unsigned lines(void) {
-        const char *e;
-        int l;
+بینښه کرښې(فراغ) {
+        ثابت حرف *e;
+        صحيح l;
 
-        if (cached_lines > 0)
-                return cached_lines;
+        إذا (cached_کرښې > 0)
+                أرجع cached_کرښې;
 
         l = 0;
         e = getenv("LINES");
-        if (e)
-                (void) safe_atoi(e, &l);
+        إذا (e)
+                (فراغ) خوندي_atoi(e, &l);
 
-        if (l <= 0 || l > USHRT_MAX) {
-                l = fd_lines(STDOUT_FILENO);
-                if (l <= 0)
+        إذا (l <= 0 || l > USHRT_MAX) {
+                l = fd_کرښې(STDOUT_FILENO);
+                إذا (l <= 0)
                         l = 24;
         }
 
-        cached_lines = l;
-        return cached_lines;
+        cached_کرښې = l;
+        أرجع cached_کرښې;
 }
 
-int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols) {
-        struct winsize ws;
+صحيح terminal_سېټ_اندازه_fd(صحيح fd, ثابت حرف *ident, بینښه لیکې, بینښه ستون_شمېر) {
+        بنية winsize ws;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        if (!ident)
+        إذا (!ident)
                 ident = "TTY";
 
-        if (rows == UINT_MAX && cols == UINT_MAX)
-                return 0;
+        إذا (لیکې == UINT_MAX && ستون_شمېر == UINT_MAX)
+                أرجع 0;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return log_debug_errno(errno,
+        إذا (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                أرجع log_debug_errno(errno,
                                        "TIOCGWINSZ ioctl for getting %s size failed, not setting terminal size: %m",
                                        ident);
 
-        if (rows == UINT_MAX)
-                rows = ws.ws_row;
-        else if (rows > USHRT_MAX)
-                rows = USHRT_MAX;
+        إذا (لیکې == UINT_MAX)
+                لیکې = ws.ws_row;
+        وإلا إذا (لیکې > USHRT_MAX)
+                لیکې = USHRT_MAX;
 
-        if (cols == UINT_MAX)
-                cols = ws.ws_col;
-        else if (cols > USHRT_MAX)
-                cols = USHRT_MAX;
+        إذا (ستون_شمېر == UINT_MAX)
+                ستون_شمېر = ws.ws_col;
+        وإلا إذا (ستون_شمېر > USHRT_MAX)
+                ستون_شمېر = USHRT_MAX;
 
-        if (rows == ws.ws_row && cols == ws.ws_col)
-                return 0;
+        إذا (لیکې == ws.ws_row && ستون_شمېر == ws.ws_col)
+                أرجع 0;
 
-        ws.ws_row = rows;
-        ws.ws_col = cols;
+        ws.ws_row = لیکې;
+        ws.ws_col = ستون_شمېر;
 
-        if (ioctl(fd, TIOCSWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "TIOCSWINSZ ioctl for setting %s size failed: %m", ident);
+        إذا (ioctl(fd, TIOCSWINSZ, &ws) < 0)
+                أرجع log_debug_errno(errno, "TIOCSWINSZ ioctl for setting %s size failed: %m", ident);
 
-        return 0;
+        أرجع 0;
 }
 
-int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols) {
-        _cleanup_free_ char *rowskey = NULL, *rowsvalue = NULL, *colskey = NULL, *colsvalue = NULL;
-        unsigned rows = UINT_MAX, cols = UINT_MAX;
-        int r;
+صحيح proc_cmdline_tty_اندازه(ثابت حرف *tty, بینښه *ret_لیکې, بینښه *ret_ستون_شمېر) {
+        _cleanup_free_ حرف *rowskey = عدم, *rowsvalue = عدم, *colskey = عدم, *colsvalue = عدم;
+        بینښه لیکې = UINT_MAX, ستون_شمېر = UINT_MAX;
+        صحيح r;
 
-        assert(tty);
+        أكد(tty);
 
-        if (!ret_rows && !ret_cols)
-                return 0;
+        إذا (!ret_لیکې && !ret_ستون_شمېر)
+                أرجع 0;
 
-        tty = skip_dev_prefix(tty);
-        if (path_startswith(tty, "pts/"))
-                return -EMEDIUMTYPE;
-        if (!in_charset(tty, ALPHANUMERICAL))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        tty = skip_dev_مختاړی(tty);
+        إذا (لار_startswith(tty, "pts/"))
+                أرجع -EMEDIUMTYPE;
+        إذا (!دننه_charset(tty, ALPHANUMERICAL))
+                أرجع log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "TTY name '%s' contains non-alphanumeric characters, not searching kernel cmdline for size.", tty);
 
         rowskey = strjoin("systemd.tty.rows.", tty);
-        if (!rowskey)
-                return -ENOMEM;
+        إذا (!rowskey)
+                أرجع -ENOMEM;
 
         colskey = strjoin("systemd.tty.columns.", tty);
-        if (!colskey)
-                return -ENOMEM;
+        إذا (!colskey)
+                أرجع -ENOMEM;
 
-        r = proc_cmdline_get_key_many(/* flags= */ 0,
+        r = proc_cmdline_get_کلی_many(/* flags= */ 0,
                                       rowskey, &rowsvalue,
                                       colskey, &colsvalue);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to read TTY size of %s from kernel cmdline: %m", tty);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to read TTY size of %s from kernel cmdline: %m", tty);
 
-        if (rowsvalue) {
-                r = safe_atou(rowsvalue, &rows);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to parse %s=%s: %m", rowskey, rowsvalue);
+        إذا (rowsvalue) {
+                r = خوندي_atou(rowsvalue, &لیکې);
+                إذا (r < 0)
+                        أرجع log_debug_errno(r, "Failed to parse %s=%s: %m", rowskey, rowsvalue);
         }
 
-        if (colsvalue) {
-                r = safe_atou(colsvalue, &cols);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to parse %s=%s: %m", colskey, colsvalue);
+        إذا (colsvalue) {
+                r = خوندي_atou(colsvalue, &ستون_شمېر);
+                إذا (r < 0)
+                        أرجع log_debug_errno(r, "Failed to parse %s=%s: %m", colskey, colsvalue);
         }
 
-        if (ret_rows)
-                *ret_rows = rows;
-        if (ret_cols)
-                *ret_cols = cols;
+        إذا (ret_لیکې)
+                *ret_لیکې = لیکې;
+        إذا (ret_ستون_شمېر)
+                *ret_ستون_شمېر = ستون_شمېر;
 
-        return rows != UINT_MAX || cols != UINT_MAX;
+        أرجع لیکې != UINT_MAX || ستون_شمېر != UINT_MAX;
 }
 
 /* intended to be used as a SIGWINCH sighandler */
-void columns_lines_cache_reset(int signum) {
+فراغ columns_کرښې_cache_reset(صحيح signum) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_کرښې = 0;
 }
 
-void reset_terminal_feature_caches(void) {
+فراغ reset_terminal_feature_caches(فراغ) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_کرښې = 0;
 
         cached_on_tty = -1;
         cached_on_dev_null = -1;
@@ -1450,7 +1450,7 @@ void reset_terminal_feature_caches(void) {
         reset_ansi_feature_caches();
 }
 
-bool on_tty(void) {
+bool on_tty(فراغ) {
 
         /* We check both stdout and stderr, so that situations where pipes on the shell are used are reliably
          * recognized, regardless if only the output or the errors are piped to some place. Since on_tty() is generally
@@ -1458,102 +1458,102 @@ bool on_tty(void) {
          * here, and check for both. Note that we don't check for STDIN_FILENO, because it should fine to use fancy
          * terminal functionality when outputting stuff, even if the input is piped to us. */
 
-        if (cached_on_tty < 0)
+        إذا (cached_on_tty < 0)
                 cached_on_tty =
-                        isatty_safe(STDOUT_FILENO) &&
-                        isatty_safe(STDERR_FILENO);
+                        isatty_خوندي(STDOUT_FILENO) &&
+                        isatty_خوندي(STDERR_FILENO);
 
-        return cached_on_tty;
+        أرجع cached_on_tty;
 }
 
-int getttyname_malloc(int fd, char **ret) {
-        char path[PATH_MAX]; /* PATH_MAX is counted *with* the trailing NUL byte */
-        int r;
+صحيح getttyname_malloc(صحيح fd, حرف **ret) {
+        حرف لار[PATH_MAX]; /* PATH_MAX is counted *with* the trailing NUL byte */
+        صحيح r;
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        r = ttyname_r(fd, path, sizeof path); /* positive error */
-        assert(r >= 0);
-        if (r == ERANGE)
-                return -ENAMETOOLONG;
-        if (r > 0)
-                return -r;
+        r = ttyname_r(fd, لار, حجم لار); /* positive error */
+        أكد(r >= 0);
+        إذا (r == ERANGE)
+                أرجع -ENAMETOOLONG;
+        إذا (r > 0)
+                أرجع -r;
 
-        return strdup_to(ret, skip_dev_prefix(path));
+        أرجع strdup_منزل(ret, skip_dev_مختاړی(لار));
 }
 
-int getttyname_harder(int fd, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحيح getttyname_harder(صحيح fd, حرف **ret) {
+        _cleanup_free_ حرف *s = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         r = getttyname_malloc(fd, &s);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (streq(s, "tty"))
-                return get_ctty(0, NULL, ret);
+        إذا (streq(s, "tty"))
+                أرجع get_ctty(0, عدم, ret);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        أرجع 0;
 }
 
-int get_ctty_devnr(pid_t pid, dev_t *ret) {
-        _cleanup_free_ char *line = NULL;
-        unsigned long ttynr;
-        const char *p;
-        int r;
+صحيح get_ctty_devnr(pid_t pid, dev_t *ret) {
+        _cleanup_free_ حرف *کرښه = عدم;
+        بینښه اوږد ttynr;
+        ثابت حرف *p;
+        صحيح r;
 
-        assert(pid >= 0);
+        أكد(pid >= 0);
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
-        if (r < 0)
-                return r;
+        r = read_one_کرښه_file(p, &کرښه);
+        إذا (r < 0)
+                أرجع r;
 
-        p = strrchr(line, ')');
-        if (!p)
-                return -EIO;
+        p = strrchr(کرښه, ')');
+        إذا (!p)
+                أرجع -EIO;
 
         p++;
 
-        if (sscanf(p, " "
+        إذا (له_مزي_ولوله(p, " "
                    "%*c "  /* state */
                    "%*d "  /* ppid */
                    "%*d "  /* pgrp */
                    "%*d "  /* session */
                    "%lu ", /* ttynr */
                    &ttynr) != 1)
-                return -EIO;
+                أرجع -EIO;
 
-        if (devnum_is_zero(ttynr))
-                return -ENXIO;
+        إذا (devnum_is_zero(ttynr))
+                أرجع -ENXIO;
 
-        if (ret)
+        إذا (ret)
                 *ret = (dev_t) ttynr;
 
-        return 0;
+        أرجع 0;
 }
 
-int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret) {
-        char pty[STRLEN("/dev/pts/") + DECIMAL_STR_MAX(dev_t) + 1];
-        _cleanup_free_ char *buf = NULL;
-        const char *fn = NULL, *w;
+صحيح get_ctty(pid_t pid, dev_t *ret_devnr, حرف **ret) {
+        حرف pty[STRLEN("/dev/pts/") + DECIMAL_STR_MAX(dev_t) + 1];
+        _cleanup_free_ حرف *buf = عدم;
+        ثابت حرف *fn = عدم, *w;
         dev_t devnr;
-        int r;
+        صحيح r;
 
         r = get_ctty_devnr(pid, &devnr);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        r = device_path_make_canonical(S_IFCHR, devnr, &buf);
-        if (r < 0) {
-                struct stat st;
+        r = device_لار_make_canonical(S_IFCHR, devnr, &buf);
+        إذا (r < 0) {
+                بنية stat st;
 
-                if (r != -ENOENT) /* No symlink for this in /dev/char/? */
-                        return r;
+                إذا (r != -ENOENT) /* No symlink for this in /dev/char/? */
+                        أرجع r;
 
                 /* Maybe this is PTY? PTY devices are not listed in /dev/char/, as they don't follow the
                  * Linux device model and hence device_path_make_canonical() doesn't work for them. Let's
@@ -1563,214 +1563,214 @@ int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret) {
                  * the minor number of the pty. */
                 xsprintf(pty, "/dev/pts/%u", minor(devnr));
 
-                if (stat(pty, &st) < 0) {
-                        if (errno != ENOENT)
-                                return -errno;
+                إذا (stat(pty, &st) < 0) {
+                        إذا (errno != ENOENT)
+                                أرجع -errno;
 
-                } else if (S_ISCHR(st.st_mode) && devnr == st.st_rdev) /* Bingo! */
+                } وإلا إذا (S_ISCHR(st.st_mode) && devnr == st.st_rdev) /* Bingo! */
                         fn = pty;
 
-                if (!fn) {
+                إذا (!fn) {
                         /* Doesn't exist, or not a PTY? Probably something similar to the PTYs which have no
                          * symlink in /dev/char/. Let's return something vaguely useful. */
-                        r = device_path_make_major_minor(S_IFCHR, devnr, &buf);
-                        if (r < 0)
-                                return r;
+                        r = device_لار_make_major_minor(S_IFCHR, devnr, &buf);
+                        إذا (r < 0)
+                                أرجع r;
 
                         fn = buf;
                 }
-        } else
+        } وإلا
                 fn = buf;
 
-        w = path_startswith(fn, "/dev/");
-        if (!w)
-                return -EINVAL;
+        w = لار_startswith(fn, "/dev/");
+        إذا (!w)
+                أرجع -EINVAL;
 
-        if (ret) {
-                r = strdup_to(ret, w);
-                if (r < 0)
-                        return r;
+        إذا (ret) {
+                r = strdup_منزل(ret, w);
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (ret_devnr)
+        إذا (ret_devnr)
                 *ret_devnr = devnr;
 
-        return 0;
+        أرجع 0;
 }
 
-int ptsname_malloc(int fd, char **ret) {
-        assert(fd >= 0);
-        assert(ret);
+صحيح ptsname_malloc(صحيح fd, حرف **ret) {
+        أكد(fd >= 0);
+        أكد(ret);
 
-        for (size_t l = 50;;) {
-                _cleanup_free_ char *c = NULL;
+        لكل (size_t l = 50;;) {
+                _cleanup_free_ حرف *c = عدم;
 
-                c = new(char, l);
-                if (!c)
-                        return -ENOMEM;
+                c = new(حرف, l);
+                إذا (!c)
+                        أرجع -ENOMEM;
 
-                if (ptsname_r(fd, c, l) >= 0) {
+                إذا (ptsname_r(fd, c, l) >= 0) {
                         *ret = TAKE_PTR(c);
-                        return 0;
+                        أرجع 0;
                 }
-                if (errno != ERANGE)
-                        return -errno;
+                إذا (errno != ERANGE)
+                        أرجع -errno;
 
-                if (!MUL_ASSIGN_SAFE(&l, 2))
-                        return -ENOMEM;
+                إذا (!MUL_ټاکل_خوندي(&l, 2))
+                        أرجع -ENOMEM;
         }
 }
 
-int openpt_allocate(int flags, char **ret_peer_path) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+صحيح openpt_allocate(صحيح flags, حرف **ret_peer_لار) {
+        _cleanup_close_ صحيح fd = -EBADF;
+        صحيح r;
 
         fd = posix_openpt(flags|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        إذا (fd < 0)
+                أرجع -errno;
 
-        _cleanup_free_ char *p = NULL;
-        if (ret_peer_path) {
+        _cleanup_free_ حرف *p = عدم;
+        إذا (ret_peer_لار) {
                 r = ptsname_malloc(fd, &p);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
-                if (!path_startswith(p, "/dev/pts/"))
-                        return -EINVAL;
+                إذا (!لار_startswith(p, "/dev/pts/"))
+                        أرجع -EINVAL;
         }
 
-        if (unlockpt(fd) < 0)
-                return -errno;
+        إذا (unlockpt(fd) < 0)
+                أرجع -errno;
 
-        if (ret_peer_path)
-                *ret_peer_path = TAKE_PTR(p);
+        إذا (ret_peer_لار)
+                *ret_peer_لار = TAKE_PTR(p);
 
-        return TAKE_FD(fd);
+        أرجع TAKE_FD(fd);
 }
 
-static int ptsname_namespace(int pty, char **ret) {
-        int no = -1;
+ساكن صحيح ptsname_namespace(صحيح pty, حرف **ret) {
+        صحيح no = -1;
 
-        assert(pty >= 0);
-        assert(ret);
+        أكد(pty >= 0);
+        أكد(ret);
 
         /* Like ptsname(), but doesn't assume that the path is
          * accessible in the local namespace. */
 
-        if (ioctl(pty, TIOCGPTN, &no) < 0)
-                return -errno;
+        إذا (ioctl(pty, TIOCGPTN, &no) < 0)
+                أرجع -errno;
 
-        if (no < 0)
-                return -EIO;
+        إذا (no < 0)
+                أرجع -EIO;
 
-        if (asprintf(ret, "/dev/pts/%i", no) < 0)
-                return -ENOMEM;
+        إذا (asprintf(ret, "/dev/pts/%i", no) < 0)
+                أرجع -ENOMEM;
 
-        return 0;
+        أرجع 0;
 }
 
-int openpt_allocate_in_namespace(
-                const PidRef *pidref,
-                int flags,
-                char **ret_peer_path) {
+صحيح openpt_allocate_دننه_namespace(
+                ثابت PidRef *pidref,
+                صحيح flags,
+                حرف **ret_peer_لار) {
 
-        _cleanup_close_ int pidnsfd = -EBADF, mntnsfd = -EBADF, usernsfd = -EBADF, rootfd = -EBADF, fd = -EBADF;
-        _cleanup_close_pair_ int pair[2] = EBADF_PAIR;
-        int r;
+        _cleanup_close_ صحيح pidnsfd = -EBADF, mntnsfd = -EBADF, usernsfd = -EBADF, rootfd = -EBADF, fd = -EBADF;
+        _cleanup_close_pair_ صحيح pair[2] = EBADF_PAIR;
+        صحيح r;
 
-        assert(pidref);
+        أكد(pidref);
 
-        r = pidref_namespace_open(pidref, &pidnsfd, &mntnsfd, /* ret_netns_fd= */ NULL, &usernsfd, &rootfd);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to open namespaces of PID "PID_FMT": %m", pidref->pid);
+        r = pidref_namespace_open(pidref, &pidnsfd, &mntnsfd, /* ret_netns_fd= */ عدم, &usernsfd, &rootfd);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to open namespaces of PID "PID_FMT": %m", pidref->pid);
 
-        if (socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pair) < 0)
-                return -errno;
+        إذا (socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pair) < 0)
+                أرجع -errno;
 
         r = namespace_fork(
                         "(sd-openptns)",
                         "(sd-openpt)",
-                        FORK_RESET_SIGNALS|FORK_DEATHSIG_SIGKILL|FORK_WAIT,
+                        FORK_RESET_سیګنالونه|FORK_DEATHSIG_SIGKILL|FORK_WAIT,
                         pidnsfd,
                         mntnsfd,
                         /* netns_fd= */ -EBADF,
                         usernsfd,
                         rootfd,
-                        /* ret= */ NULL);
-        if (r < 0)
-                return r;
-        if (r == 0) {
-                pair[0] = safe_close(pair[0]);
+                        /* ret= */ عدم);
+        إذا (r < 0)
+                أرجع r;
+        إذا (r == 0) {
+                pair[0] = خوندي_close(pair[0]);
 
-                fd = openpt_allocate(flags, /* ret_peer_path= */ NULL);
-                if (fd < 0)
+                fd = openpt_allocate(flags, /* ret_peer_path= */ عدم);
+                إذا (fd < 0)
                         _exit(EXIT_FAILURE);
 
-                if (send_one_fd(pair[1], fd, 0) < 0)
+                إذا (send_one_fd(pair[1], fd, 0) < 0)
                         _exit(EXIT_FAILURE);
 
                 _exit(EXIT_SUCCESS);
         }
 
-        pair[1] = safe_close(pair[1]);
+        pair[1] = خوندي_close(pair[1]);
 
         fd = receive_one_fd(pair[0], 0);
-        if (fd < 0)
-                return fd;
+        إذا (fd < 0)
+                أرجع fd;
 
-        if (ret_peer_path) {
-                r = ptsname_namespace(fd, ret_peer_path);
-                if (r < 0)
-                        return r;
+        إذا (ret_peer_لار) {
+                r = ptsname_namespace(fd, ret_peer_لار);
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        return TAKE_FD(fd);
+        أرجع TAKE_FD(fd);
 }
 
-static bool on_dev_null(void) {
-        struct stat dst, ost, est;
+ساكن bool on_dev_null(فراغ) {
+        بنية stat dst, ost, est;
 
-        if (cached_on_dev_null >= 0)
-                return cached_on_dev_null;
+        إذا (cached_on_dev_null >= 0)
+                أرجع cached_on_dev_null;
 
-        if (stat("/dev/null", &dst) < 0 || fstat(STDOUT_FILENO, &ost) < 0 || fstat(STDERR_FILENO, &est) < 0)
+        إذا (stat("/dev/null", &dst) < 0 || fstat(STDOUT_FILENO, &ost) < 0 || fstat(STDERR_FILENO, &est) < 0)
                 cached_on_dev_null = false;
-        else
+        وإلا
                 cached_on_dev_null = stat_inode_same(&dst, &ost) && stat_inode_same(&dst, &est);
 
-        return cached_on_dev_null;
+        أرجع cached_on_dev_null;
 }
 
-bool term_env_valid(const char *term) {
+bool غړی_env_valid(ثابت حرف *غړی) {
         /* Checks if the specified $TERM value is suitable for propagation, i.e. is not empty, not set to
          * "unknown" (as is common in CI), and only contains characters valid in terminal type names.
          * Valid $TERM values are things like "xterm-256color", "linux", "screen.xterm-256color", i.e.
          * alphanumeric characters, hyphens, underscores, dots, and plus signs. */
-        return !isempty(term) &&
-                !streq(term, "unknown") &&
-                in_charset(term, ALPHANUMERICAL "-_+.");
+        أرجع !isempty(غړی) &&
+                !streq(غړی, "unknown") &&
+                دننه_charset(غړی, ALPHANUMERICAL "-_+.");
 }
 
-bool getenv_terminal_is_dumb(void) {
-        const char *e;
+bool getenv_terminal_is_dumb(فراغ) {
+        ثابت حرف *e;
 
         e = getenv("TERM");
-        if (!e)
-                return true;
+        إذا (!e)
+                أرجع true;
 
-        return streq(e, "dumb");
+        أرجع streq(e, "dumb");
 }
 
-bool terminal_is_dumb(void) {
-        if (!on_tty() && !on_dev_null())
-                return true;
+bool terminal_is_dumb(فراغ) {
+        إذا (!on_tty() && !on_dev_null())
+                أرجع true;
 
-        return getenv_terminal_is_dumb();
+        أرجع getenv_terminal_is_dumb();
 }
 
-bool dev_console_colors_enabled(void) {
-        _cleanup_free_ char *s = NULL;
-        ColorMode m;
+bool dev_console_colors_enabled(فراغ) {
+        _cleanup_free_ حرف *s = عدم;
+        Color_ډېرپېښ m;
 
         /* Returns true if we assume that color is supported on /dev/console.
          *
@@ -1780,394 +1780,394 @@ bool dev_console_colors_enabled(void) {
          * colors_enabled() operates. */
 
         m = parse_systemd_colors();
-        if (m >= 0)
-                return m;
+        إذا (m >= 0)
+                أرجع m;
 
-        if (getenv("NO_COLOR"))
-                return false;
+        إذا (getenv("NO_COLOR"))
+                أرجع false;
 
-        if (getenv_for_pid(1, "TERM", &s) <= 0)
-                (void) proc_cmdline_get_key("TERM", 0, &s);
+        إذا (getenv_for_pid(1, "TERM", &s) <= 0)
+                (فراغ) proc_cmdline_get_کلی("TERM", 0, &s);
 
-        return !streq_ptr(s, "dumb");
+        أرجع !streq_ptr(s, "dumb");
 }
 
-int vt_restore(int fd) {
+صحيح vt_restore(صحيح fd) {
 
-        static const struct vt_mode mode = {
-                .mode = VT_AUTO,
+        ساكن ثابت بنية vt_mode ډېرپېښ = {
+                .ډېرپېښ = VT_AUTO,
         };
 
-        int r, ret = 0;
+        صحيح r, ret = 0;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        if (!isatty_safe(fd))
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to restore the VT for an fd that does not refer to a terminal.");
+        إذا (!isatty_خوندي(fd))
+                أرجع log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to restore the VT for an fd that does not refer to a terminal.");
 
-        if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
+        إذا (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
                 RET_GATHER(ret, log_debug_errno(errno, "Failed to set VT to text mode, ignoring: %m"));
 
         r = vt_reset_keyboard(fd);
-        if (r < 0)
+        إذا (r < 0)
                 RET_GATHER(ret, log_debug_errno(r, "Failed to reset keyboard mode, ignoring: %m"));
 
-        if (ioctl(fd, VT_SETMODE, &mode) < 0)
+        إذا (ioctl(fd, VT_SETMODE, &ډېرپېښ) < 0)
                 RET_GATHER(ret, log_debug_errno(errno, "Failed to set VT_AUTO mode, ignoring: %m"));
 
-        r = fchmod_and_chown(fd, TTY_MODE, 0, GID_INVALID);
-        if (r < 0)
+        r = fchmod_and_chown(fd, TTY_ډېرپېښ, 0, GID_INVALID);
+        إذا (r < 0)
                 RET_GATHER(ret, log_debug_errno(r, "Failed to chmod()/chown() VT, ignoring: %m"));
 
-        return ret;
+        أرجع ret;
 }
 
-int vt_release(int fd, bool restore) {
-        assert(fd >= 0);
+صحيح vt_release(صحيح fd, bool restore) {
+        أكد(fd >= 0);
 
         /* This function releases the VT by acknowledging the VT-switch signal
          * sent by the kernel and optionally reset the VT in text and auto
          * VT-switching modes. */
 
-        if (!isatty_safe(fd))
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to release the VT for an fd that does not refer to a terminal.");
+        إذا (!isatty_خوندي(fd))
+                أرجع log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to release the VT for an fd that does not refer to a terminal.");
 
-        if (ioctl(fd, VT_RELDISP, 1) < 0)
-                return -errno;
+        إذا (ioctl(fd, VT_RELDISP, 1) < 0)
+                أرجع -errno;
 
-        if (restore)
-                return vt_restore(fd);
+        إذا (restore)
+                أرجع vt_restore(fd);
 
-        return 0;
+        أرجع 0;
 }
 
-void get_log_colors(int priority, const char **on, const char **off, const char **highlight) {
+فراغ get_log_colors(صحيح priority, ثابت حرف **on, ثابت حرف **off, ثابت حرف **highlight) {
         /* Note that this will initialize output variables only when there's something to output.
          * The caller must pre-initialize to "" or NULL as appropriate. */
 
-        if (priority <= LOG_ERR) {
-                if (on)
+        إذا (priority <= LOG_ERR) {
+                إذا (on)
                         *on = ansi_highlight_red();
-                if (off)
-                        *off = ansi_normal();
-                if (highlight)
+                إذا (off)
+                        *off = ansi_نورمال();
+                إذا (highlight)
                         *highlight = ansi_highlight();
 
-        } else if (priority <= LOG_WARNING) {
-                if (on)
+        } وإلا إذا (priority <= LOG_WARNING) {
+                إذا (on)
                         *on = ansi_highlight_yellow();
-                if (off)
-                        *off = ansi_normal();
-                if (highlight)
+                إذا (off)
+                        *off = ansi_نورمال();
+                إذا (highlight)
                         *highlight = ansi_highlight();
 
-        } else if (priority <= LOG_NOTICE) {
-                if (on)
+        } وإلا إذا (priority <= LOG_NOTICE) {
+                إذا (on)
                         *on = ansi_highlight();
-                if (off)
-                        *off = ansi_normal();
-                if (highlight)
+                إذا (off)
+                        *off = ansi_نورمال();
+                إذا (highlight)
                         *highlight = ansi_highlight_red();
 
-        } else if (priority >= LOG_DEBUG) {
-                if (on)
+        } وإلا إذا (priority >= LOG_DEBUG) {
+                إذا (on)
                         *on = ansi_grey();
-                if (off)
-                        *off = ansi_normal();
-                if (highlight)
+                إذا (off)
+                        *off = ansi_نورمال();
+                إذا (highlight)
                         *highlight = ansi_highlight_red();
         }
 }
 
-int terminal_set_cursor_position(int fd, unsigned row, unsigned column) {
-        assert(fd >= 0);
+صحيح terminal_سېټ_cursor_position(صحيح fd, بینښه لیکه, بینښه ستنه) {
+        أكد(fd >= 0);
 
-        char cursor_position[STRLEN("\x1B[" ";" "H") + DECIMAL_STR_MAX(unsigned) * 2 + 1];
-        xsprintf(cursor_position, "\x1B[%u;%uH", row, column);
+        حرف cursor_position[STRLEN("\x1B[" ";" "H") + DECIMAL_STR_MAX(بینښه) * 2 + 1];
+        xsprintf(cursor_position, "\x1B[%u;%uH", لیکه, ستنه);
 
-        return loop_write(fd, cursor_position, SIZE_MAX);
+        أرجع loop_write(fd, cursor_position, SIZE_MAX);
 }
 
-static int terminal_verify_same(int input_fd, int output_fd) {
-        int r;
+ساكن صحيح terminal_verify_same(صحيح ننوت_fd, صحيح output_fd) {
+        صحيح r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
+        أكد(ننوت_fd >= 0);
+        أكد(output_fd >= 0);
 
         /* Validates that the specified fds reference the same TTY */
 
-        if (input_fd != output_fd) {
-                struct stat sti;
-                if (fstat(input_fd, &sti) < 0)
-                        return -errno;
+        إذا (ننوت_fd != output_fd) {
+                بنية stat sti;
+                إذا (fstat(ننوت_fd, &sti) < 0)
+                        أرجع -errno;
 
                 r = stat_verify_char(&sti); /* TTYs are character devices */
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
-                struct stat sto;
-                if (fstat(output_fd, &sto) < 0)
-                        return -errno;
+                بنية stat sto;
+                إذا (fstat(output_fd, &sto) < 0)
+                        أرجع -errno;
 
                 r = stat_verify_char(&sto);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
-                if (sti.st_rdev != sto.st_rdev)
-                        return -ENOLINK;
+                إذا (sti.st_rdev != sto.st_rdev)
+                        أرجع -ENOLINK;
         }
 
-        if (!isatty_safe(input_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
-                return -ENOTTY;
+        إذا (!isatty_خوندي(ننوت_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
+                أرجع -ENOTTY;
 
-        return 0;
+        أرجع 0;
 }
 
-typedef enum CursorPositionState {
-        CURSOR_TEXT,
+تعريفنوع تعداد CursorPositionState {
+        CURSOR_متن,
         CURSOR_ESCAPE,
-        CURSOR_ROW,
-        CURSOR_COLUMN,
+        CURSOR_لیکه,
+        CURSOR_ستنه,
 } CursorPositionState;
 
-typedef struct CursorPositionContext {
+تعريفنوع بنية CursorPositionContext {
         CursorPositionState state;
-        unsigned row, column;
+        بینښه لیکه, ستنه;
 } CursorPositionContext;
 
-static int scan_cursor_position_response(
+ساكن صحيح لټون_cursor_position_response(
                 CursorPositionContext *context,
-                const char *buf,
-                size_t size,
+                ثابت حرف *buf,
+                size_t اندازه,
                 size_t *ret_processed) {
 
-        assert(context);
-        assert(buf);
-        assert(ret_processed);
+        أكد(context);
+        أكد(buf);
+        أكد(ret_processed);
 
-        for (size_t i = 0; i < size; i++) {
-                char c = buf[i];
+        لكل (size_t i = 0; i < اندازه; i++) {
+                حرف c = buf[i];
 
-                switch (context->state) {
+                بدل (context->state) {
 
-                case CURSOR_TEXT:
-                        context->state = c == '\x1B' ? CURSOR_ESCAPE : CURSOR_TEXT;
-                        break;
+                حالة CURSOR_متن:
+                        context->state = c == '\x1B' ? CURSOR_ESCAPE : CURSOR_متن;
+                        اكسر;
 
-                case CURSOR_ESCAPE:
-                        context->state = c == '[' ? CURSOR_ROW : CURSOR_TEXT;
-                        break;
+                حالة CURSOR_ESCAPE:
+                        context->state = c == '[' ? CURSOR_لیکه : CURSOR_متن;
+                        اكسر;
 
-                case CURSOR_ROW:
-                        if (c == ';')
-                                context->state = context->row > 0 ? CURSOR_COLUMN : CURSOR_TEXT;
-                        else {
-                                int d = undecchar(c);
+                حالة CURSOR_لیکه:
+                        إذا (c == ';')
+                                context->state = context->لیکه > 0 ? CURSOR_ستنه : CURSOR_متن;
+                        وإلا {
+                                صحيح d = undecchar(c);
 
                                 /* We read a decimal character, let's suffix it to the number we so far read,
                                  * but let's do an overflow check first. */
-                                if (d < 0 || context->row > (UINT_MAX-d)/10)
-                                        context->state = CURSOR_TEXT;
-                                else
-                                        context->row = context->row * 10 + d;
+                                إذا (d < 0 || context->لیکه > (UINT_MAX-d)/10)
+                                        context->state = CURSOR_متن;
+                                وإلا
+                                        context->لیکه = context->لیکه * 10 + d;
                         }
-                        break;
+                        اكسر;
 
-                case CURSOR_COLUMN:
-                        if (c == 'R') {
-                                if (context->column > 0) {
+                حالة CURSOR_ستنه:
+                        إذا (c == 'R') {
+                                إذا (context->ستنه > 0) {
                                         *ret_processed = i + 1;
-                                        return 1; /* success! */
+                                        أرجع 1; /* success! */
                                 }
 
-                                context->state = CURSOR_TEXT;
-                        } else {
-                                int d = undecchar(c);
+                                context->state = CURSOR_متن;
+                        } وإلا {
+                                صحيح d = undecchar(c);
 
                                 /* As above, add the decimal character to our column number */
-                                if (d < 0 || context->column > (UINT_MAX-d)/10)
-                                        context->state = CURSOR_TEXT;
-                                else
-                                        context->column = context->column * 10 + d;
+                                إذا (d < 0 || context->ستنه > (UINT_MAX-d)/10)
+                                        context->state = CURSOR_متن;
+                                وإلا
+                                        context->ستنه = context->ستنه * 10 + d;
                         }
 
-                        break;
+                        اكسر;
                 }
 
                 /* Reset any positions we might have picked up */
-                if (IN_SET(context->state, CURSOR_TEXT, CURSOR_ESCAPE))
-                        context->row = context->column = 0;
+                إذا (دننه_سېټ(context->state, CURSOR_متن, CURSOR_ESCAPE))
+                        context->لیکه = context->ستنه = 0;
         }
 
-        *ret_processed = size;
-        return 0; /* all good, but not enough data yet */
+        *ret_processed = اندازه;
+        أرجع 0; /* all good, but not enough data yet */
 }
 
-int terminal_get_cursor_position(
-                int input_fd,
-                int output_fd,
-                unsigned *ret_row,
-                unsigned *ret_column) {
+صحيح terminal_get_cursor_position(
+                صحيح ننوت_fd,
+                صحيح output_fd,
+                بینښه *ret_لیکه,
+                بینښه *ret_ستنه) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
-        int r;
+        _cleanup_close_ صحيح nonblock_ننوت_fd = -EBADF;
+        صحيح r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
+        أكد(ننوت_fd >= 0);
+        أكد(output_fd >= 0);
 
-        if (getenv_terminal_is_dumb())
-                return -EOPNOTSUPP;
+        إذا (getenv_terminal_is_dumb())
+                أرجع -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
-        if (r < 0)
-                return log_debug_errno(r, "Called with distinct input/output fds: %m");
+        r = terminal_verify_same(ننوت_fd, output_fd);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Failure to reset the terminal is ignored here and in similar cases below.
          * We already have our result; if cleanup fails it doesn't change the validity of the result. */
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(input_fd, old_termios);
+        بنية termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(ننوت_fd, old_termios);
 
-        if (tcgetattr(input_fd, &old_termios) < 0)
-                return log_debug_errno(errno, "Failed to get terminal settings: %m");
+        إذا (tcgetattr(ننوت_fd, &old_termios) < 0)
+                أرجع log_debug_errno(errno, "Failed to get terminal settings: %m");
 
-        struct termios new_termios = old_termios;
+        بنية termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(input_fd, TCSANOW, &new_termios) < 0)
-                return log_debug_errno(errno, "Failed to set new terminal settings: %m");
+        إذا (tcsetattr(ننوت_fd, TCSANOW, &new_termios) < 0)
+                أرجع log_debug_errno(errno, "Failed to set new terminal settings: %m");
 
         /* Request cursor position (DSR/CPR) */
         r = loop_write(output_fd, "\x1B[6n", SIZE_MAX);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read() should someone
          * else process the POLLIN. */
 
-        nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        nonblock_ننوت_fd = r = fd_reopen(ننوت_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        إذا (r < 0)
+                أرجع r;
 
-        usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
-        size_t buf_full = 0;
+        usec_t پای_ټکی = usec_جمع_کړه(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
+        حرف buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
+        size_t buf_ډک = 0;
         CursorPositionContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        لكل (bool لومړی = true;; لومړی = false) {
+                إذا (buf_ډک == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        إذا (n >= پای_ټکی)
+                                أرجع -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_ننوت_fd, POLLIN, usec_sub_unsigned(پای_ټکی, n));
+                        إذا (r < 0)
+                                أرجع r;
+                        إذا (r == 0)
+                                أرجع -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
+                        ssize_t l = اقرأ(nonblock_ننوت_fd, buf, لومړی ? حجم(buf) : 1);
+                        إذا (l < 0) {
+                                إذا (errno == EAGAIN)
+                                        استمر;
 
-                                return -errno;
+                                أرجع -errno;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
-                        buf_full = l;
+                        أكد((size_t) l <= حجم(buf));
+                        buf_ډک = l;
                 }
 
                 size_t processed;
-                r = scan_cursor_position_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                r = لټون_cursor_position_response(&context, buf, buf_ډک, &processed);
+                إذا (r < 0)
+                        أرجع r;
 
-                assert(processed <= buf_full);
-                buf_full -= processed;
-                memmove(buf, buf + processed, buf_full);
+                أكد(processed <= buf_ډک);
+                buf_ډک -= processed;
+                memmove(buf, buf + processed, buf_ډک);
 
-                if (r > 0) {
+                إذا (r > 0) {
                         /* Superficial validity check */
-                        if (context.row >= 32766 || context.column >= 32766)
-                                return -ENODATA;
+                        إذا (context.لیکه >= 32766 || context.ستنه >= 32766)
+                                أرجع -ENODATA;
 
-                        if (ret_row)
-                                *ret_row = context.row;
-                        if (ret_column)
-                                *ret_column = context.column;
+                        إذا (ret_لیکه)
+                                *ret_لیکه = context.لیکه;
+                        إذا (ret_ستنه)
+                                *ret_ستنه = context.ستنه;
 
-                        return 0;
+                        أرجع 0;
                 }
         }
 }
 
-int terminal_reset_defensive(int fd, TerminalResetFlags flags) {
-        int r = 0;
+صحيح terminal_reset_defensive(صحيح fd, TerminalResetFlags flags) {
+        صحيح r = 0;
 
-        assert(fd >= 0);
-        assert(!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ|TERMINAL_RESET_FORCE_ANSI_SEQ));
+        أكد(fd >= 0);
+        أكد(!FLAGS_سېټ(flags, TERMINAL_RESET_AVOID_ANSI_SEQ|TERMINAL_RESET_FORCE_ANSI_SEQ));
 
         /* Resets the terminal comprehensively, i.e. via both ioctl()s and via ANSI sequences, but do so only
          * if $TERM is unset or set to "dumb" */
 
-        if (!isatty_safe(fd))
-                return -ENOTTY;
+        إذا (!isatty_خوندي(fd))
+                أرجع -ENOTTY;
 
-        RET_GATHER(r, terminal_reset_ioctl(fd, FLAGS_SET(flags, TERMINAL_RESET_SWITCH_TO_TEXT)));
+        RET_GATHER(r, terminal_reset_ioctl(fd, FLAGS_سېټ(flags, TERMINAL_RESET_SWITCH_منزل_متن)));
 
-        if (!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ) &&
-            (FLAGS_SET(flags, TERMINAL_RESET_FORCE_ANSI_SEQ) || !getenv_terminal_is_dumb()))
+        إذا (!FLAGS_سېټ(flags, TERMINAL_RESET_AVOID_ANSI_SEQ) &&
+            (FLAGS_سېټ(flags, TERMINAL_RESET_FORCE_ANSI_SEQ) || !getenv_terminal_is_dumb()))
                 RET_GATHER(r, terminal_reset_ansi_seq(fd));
 
-        return r;
+        أرجع r;
 }
 
-int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags) {
-        assert(fd >= 0);
+صحيح terminal_reset_defensive_locked(صحيح fd, TerminalResetFlags flags) {
+        أكد(fd >= 0);
 
-        _cleanup_close_ int lock_fd = lock_dev_console();
-        if (lock_fd < 0)
-                log_debug_errno(lock_fd, "Failed to acquire lock for /dev/console, ignoring: %m");
+        _cleanup_close_ صحيح قلف_fd = قلف_dev_console();
+        إذا (قلف_fd < 0)
+                log_debug_errno(قلف_fd, "Failed to acquire lock for /dev/console, ignoring: %m");
 
-        return terminal_reset_defensive(fd, flags);
+        أرجع terminal_reset_defensive(fd, flags);
 }
 
-void termios_disable_echo(struct termios *termios) {
-        assert(termios);
+فراغ termios_disable_echo(بنية termios *termios) {
+        أكد(termios);
 
         termios->c_lflag &= ~(ICANON|ECHO);
         termios->c_cc[VMIN] = 1;
         termios->c_cc[VTIME] = 0;
 }
 
-static bool termios_is_null(const struct termios *t) {
-        if (!t)
-                return true;
+ساكن bool termios_is_null(ثابت بنية termios *t) {
+        إذا (!t)
+                أرجع true;
 
-        return t->c_iflag == UINT_MAX &&
+        أرجع t->c_iflag == UINT_MAX &&
                t->c_oflag == UINT_MAX &&
                t->c_cflag == UINT_MAX &&
                t->c_lflag == UINT_MAX;
 }
 
-void termios_reset(const TermiosResetContext *c) {
-        assert(c);
+فراغ termios_reset(ثابت TermiosResetContext *c) {
+        أكد(c);
 
         PROTECT_ERRNO;
 
-        if (c->fd && *c->fd >= 0 && !termios_is_null(c->termios))
-                (void) tcsetattr(*c->fd, TCSANOW, c->termios);
+        إذا (c->fd && *c->fd >= 0 && !termios_is_null(c->termios))
+                (فراغ) tcsetattr(*c->fd, TCSANOW, c->termios);
 }
 
-typedef enum BackgroundColorState {
-        BACKGROUND_TEXT,
+تعريفنوع تعداد BackgroundColorState {
+        BACKGROUND_متن,
         BACKGROUND_ESCAPE,
         BACKGROUND_BRACKET,
-        BACKGROUND_FIRST_ONE,
-        BACKGROUND_SECOND_ONE,
+        BACKGROUND_لومړی_ONE,
+        BACKGROUND_دوهم_ONE,
         BACKGROUND_SEMICOLON,
         BACKGROUND_R,
         BACKGROUND_G,
@@ -2178,225 +2178,225 @@ typedef enum BackgroundColorState {
         BACKGROUND_STRING_TERMINATOR,
 } BackgroundColorState;
 
-typedef struct BackgroundColorContext {
+تعريفنوع بنية BackgroundColorContext {
         BackgroundColorState state;
         uint32_t red, green, blue;
-        unsigned red_bits, green_bits, blue_bits;
+        بینښه red_بټونه, green_بټونه, blue_بټونه;
 } BackgroundColorContext;
 
-static int scan_background_color_response(
+ساكن صحيح لټون_background_color_response(
                 BackgroundColorContext *context,
-                const char *buf,
-                size_t size,
+                ثابت حرف *buf,
+                size_t اندازه,
                 size_t *ret_processed) {
 
-        assert(context);
-        assert(buf);
-        assert(ret_processed);
+        أكد(context);
+        أكد(buf);
+        أكد(ret_processed);
 
-        for (size_t i = 0; i < size; i++) {
-                char c = buf[i];
+        لكل (size_t i = 0; i < اندازه; i++) {
+                حرف c = buf[i];
 
-                switch (context->state) {
+                بدل (context->state) {
 
-                case BACKGROUND_TEXT:
-                        context->state = c == '\x1B' ? BACKGROUND_ESCAPE : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_متن:
+                        context->state = c == '\x1B' ? BACKGROUND_ESCAPE : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_ESCAPE:
-                        context->state = c == ']' ? BACKGROUND_BRACKET : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_ESCAPE:
+                        context->state = c == ']' ? BACKGROUND_BRACKET : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_BRACKET:
-                        context->state = c == '1' ? BACKGROUND_FIRST_ONE : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_BRACKET:
+                        context->state = c == '1' ? BACKGROUND_لومړی_ONE : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_FIRST_ONE:
-                        context->state = c == '1' ? BACKGROUND_SECOND_ONE : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_لومړی_ONE:
+                        context->state = c == '1' ? BACKGROUND_دوهم_ONE : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_SECOND_ONE:
-                        context->state = c == ';' ? BACKGROUND_SEMICOLON : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_دوهم_ONE:
+                        context->state = c == ';' ? BACKGROUND_SEMICOLON : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_SEMICOLON:
-                        context->state = c == 'r' ? BACKGROUND_R : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_SEMICOLON:
+                        context->state = c == 'r' ? BACKGROUND_R : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_R:
-                        context->state = c == 'g' ? BACKGROUND_G : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_R:
+                        context->state = c == 'g' ? BACKGROUND_G : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_G:
-                        context->state = c == 'b' ? BACKGROUND_B : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_G:
+                        context->state = c == 'b' ? BACKGROUND_B : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_B:
-                        context->state = c == ':' ? BACKGROUND_RED : BACKGROUND_TEXT;
-                        break;
+                حالة BACKGROUND_B:
+                        context->state = c == ':' ? BACKGROUND_RED : BACKGROUND_متن;
+                        اكسر;
 
-                case BACKGROUND_RED:
-                        if (c == '/')
-                                context->state = context->red_bits > 0 ? BACKGROUND_GREEN : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->red_bits >= sizeof(context->red)*8)
-                                        context->state = BACKGROUND_TEXT;
-                                else {
+                حالة BACKGROUND_RED:
+                        إذا (c == '/')
+                                context->state = context->red_بټونه > 0 ? BACKGROUND_GREEN : BACKGROUND_متن;
+                        وإلا {
+                                صحيح d = unhexchar(c);
+                                إذا (d < 0 || context->red_بټونه >= حجم(context->red)*8)
+                                        context->state = BACKGROUND_متن;
+                                وإلا {
                                         context->red = (context->red << 4) | d;
-                                        context->red_bits += 4;
+                                        context->red_بټونه += 4;
                                 }
                         }
-                        break;
+                        اكسر;
 
-                case BACKGROUND_GREEN:
-                        if (c == '/')
-                                context->state = context->green_bits > 0 ? BACKGROUND_BLUE : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->green_bits >= sizeof(context->green)*8)
-                                        context->state = BACKGROUND_TEXT;
-                                else {
+                حالة BACKGROUND_GREEN:
+                        إذا (c == '/')
+                                context->state = context->green_بټونه > 0 ? BACKGROUND_BLUE : BACKGROUND_متن;
+                        وإلا {
+                                صحيح d = unhexchar(c);
+                                إذا (d < 0 || context->green_بټونه >= حجم(context->green)*8)
+                                        context->state = BACKGROUND_متن;
+                                وإلا {
                                         context->green = (context->green << 4) | d;
-                                        context->green_bits += 4;
+                                        context->green_بټونه += 4;
                                 }
                         }
-                        break;
+                        اكسر;
 
-                case BACKGROUND_BLUE:
-                        if (c == '\x07') {
-                                if (context->blue_bits > 0) {
+                حالة BACKGROUND_BLUE:
+                        إذا (c == '\x07') {
+                                إذا (context->blue_بټونه > 0) {
                                         *ret_processed = i + 1;
-                                        return 1; /* success! */
+                                        أرجع 1; /* success! */
                                 }
 
-                                context->state = BACKGROUND_TEXT;
-                        } else if (c == '\x1b')
-                                context->state = context->blue_bits > 0 ? BACKGROUND_STRING_TERMINATOR : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->blue_bits >= sizeof(context->blue)*8)
-                                        context->state = BACKGROUND_TEXT;
-                                else {
+                                context->state = BACKGROUND_متن;
+                        } وإلا إذا (c == '\x1b')
+                                context->state = context->blue_بټونه > 0 ? BACKGROUND_STRING_TERMINATOR : BACKGROUND_متن;
+                        وإلا {
+                                صحيح d = unhexchar(c);
+                                إذا (d < 0 || context->blue_بټونه >= حجم(context->blue)*8)
+                                        context->state = BACKGROUND_متن;
+                                وإلا {
                                         context->blue = (context->blue << 4) | d;
-                                        context->blue_bits += 4;
+                                        context->blue_بټونه += 4;
                                 }
                         }
-                        break;
+                        اكسر;
 
-                case BACKGROUND_STRING_TERMINATOR:
-                        if (c == '\\') {
+                حالة BACKGROUND_STRING_TERMINATOR:
+                        إذا (c == '\\') {
                                 *ret_processed = i + 1;
-                                return 1; /* success! */
+                                أرجع 1; /* success! */
                         }
 
-                        context->state = c == ']' ? BACKGROUND_ESCAPE : BACKGROUND_TEXT;
-                        break;
+                        context->state = c == ']' ? BACKGROUND_ESCAPE : BACKGROUND_متن;
+                        اكسر;
 
                 }
 
                 /* Reset any colors we might have picked up */
-                if (IN_SET(context->state, BACKGROUND_TEXT, BACKGROUND_ESCAPE)) {
+                إذا (دننه_سېټ(context->state, BACKGROUND_متن, BACKGROUND_ESCAPE)) {
                         /* reset color */
                         context->red = context->green = context->blue = 0;
-                        context->red_bits = context->green_bits = context->blue_bits = 0;
+                        context->red_بټونه = context->green_بټونه = context->blue_بټونه = 0;
                 }
         }
 
-        *ret_processed = size;
-        return 0; /* all good, but not enough data yet */
+        *ret_processed = اندازه;
+        أرجع 0; /* all good, but not enough data yet */
 }
 
-int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue) {
-        int r;
+صحيح get_default_background_color(مزدوج *ret_red, مزدوج *ret_green, مزدوج *ret_blue) {
+        صحيح r;
 
-        assert(ret_red);
-        assert(ret_green);
-        assert(ret_blue);
+        أكد(ret_red);
+        أكد(ret_green);
+        أكد(ret_blue);
 
-        if (!colors_enabled())
-                return -EOPNOTSUPP;
+        إذا (!colors_enabled())
+                أرجع -EOPNOTSUPP;
 
         r = terminal_verify_same(STDIN_FILENO, STDOUT_FILENO);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (streq_ptr(getenv("TERM"), "linux")) {
+        إذا (streq_ptr(getenv("TERM"), "linux")) {
                 /* Linux console is black */
                 *ret_red = *ret_green = *ret_blue = 0.0;
-                return 0;
+                أرجع 0;
         }
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        _cleanup_close_ صحيح nonblock_ننوت_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        إذا (r < 0)
+                أرجع r;
 
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
+        بنية termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(nonblock_ننوت_fd, old_termios);
 
-        if (tcgetattr(nonblock_input_fd, &old_termios) < 0)
-                return -errno;
+        إذا (tcgetattr(nonblock_ننوت_fd, &old_termios) < 0)
+                أرجع -errno;
 
-        struct termios new_termios = old_termios;
+        بنية termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
-                return -errno;
+        إذا (tcsetattr(nonblock_ننوت_fd, TCSANOW, &new_termios) < 0)
+                أرجع -errno;
 
         r = loop_write(STDOUT_FILENO, ANSI_OSC "11;?" ANSI_ST, SIZE_MAX);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(ANSI_OSC "11;rgb:0/0/0" ANSI_ST)]; /* shortest possible reply */
-        size_t buf_full = 0;
+        usec_t پای_ټکی = usec_جمع_کړه(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
+        حرف buf[STRLEN(ANSI_OSC "11;rgb:0/0/0" ANSI_ST)]; /* shortest possible reply */
+        size_t buf_ډک = 0;
         BackgroundColorContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        لكل (bool لومړی = true;; لومړی = false) {
+                إذا (buf_ډک == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        إذا (n >= پای_ټکی)
+                                أرجع -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_ننوت_fd, POLLIN, usec_sub_unsigned(پای_ټکی, n));
+                        إذا (r < 0)
+                                أرجع r;
+                        إذا (r == 0)
+                                أرجع -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
-                                return -errno;
+                        ssize_t l = اقرأ(nonblock_ننوت_fd, buf, لومړی ? حجم(buf) : 1);
+                        إذا (l < 0) {
+                                إذا (errno == EAGAIN)
+                                        استمر;
+                                أرجع -errno;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
-                        buf_full = l;
+                        أكد((size_t) l <= حجم(buf));
+                        buf_ډک = l;
                 }
 
                 size_t processed;
-                r = scan_background_color_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                r = لټون_background_color_response(&context, buf, buf_ډک, &processed);
+                إذا (r < 0)
+                        أرجع r;
 
-                assert(processed <= buf_full);
-                buf_full -= processed;
-                memmove(buf, buf + processed, buf_full);
+                أكد(processed <= buf_ډک);
+                buf_ډک -= processed;
+                memmove(buf, buf + processed, buf_ډک);
 
-                if (r > 0) {
-                        assert(context.red_bits > 0);
-                        *ret_red = (double) context.red / ((UINT64_C(1) << context.red_bits) - 1);
-                        assert(context.green_bits > 0);
-                        *ret_green = (double) context.green / ((UINT64_C(1) << context.green_bits) - 1);
-                        assert(context.blue_bits > 0);
-                        *ret_blue = (double) context.blue / ((UINT64_C(1) << context.blue_bits) - 1);
-                        return 0;
+                إذا (r > 0) {
+                        أكد(context.red_بټونه > 0);
+                        *ret_red = (مزدوج) context.red / ((UINT64_C(1) << context.red_بټونه) - 1);
+                        أكد(context.green_بټونه > 0);
+                        *ret_green = (مزدوج) context.green / ((UINT64_C(1) << context.green_بټونه) - 1);
+                        أكد(context.blue_بټونه > 0);
+                        *ret_blue = (مزدوج) context.blue / ((UINT64_C(1) << context.blue_بټونه) - 1);
+                        أرجع 0;
                 }
         }
 }
@@ -2407,542 +2407,542 @@ int get_default_background_color(double *ret_red, double *ret_green, double *ret
  * of whether the response is received.
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
-static int terminal_query_size_by_dsr(
-                int nonblock_input_fd,
-                int output_fd,
-                unsigned *ret_rows,
-                unsigned *ret_columns) {
+ساكن صحيح terminal_query_اندازه_by_dsr(
+                صحيح nonblock_ننوت_fd,
+                صحيح output_fd,
+                بینښه *ret_لیکې,
+                بینښه *ret_columns) {
 
-        int r;
+        صحيح r;
 
-        assert(nonblock_input_fd >= 0);
-        assert(output_fd >= 0);
+        أكد(nonblock_ننوت_fd >= 0);
+        أكد(output_fd >= 0);
 
         /* Use DECSC/DECRC to save/restore cursor instead of querying position via DSR. This way the cursor
          * is always restored — even on timeout — and we only need one DSR response instead of two. */
-        r = loop_write_full(output_fd,
+        r = loop_write_ډک(output_fd,
                             "\x1B" "7"              /* DECSC: save cursor position */
                             "\x1B[32766;32766H"     /* CUP: position cursor far to the right and to the bottom, staying within 16bit signed range */
                             "\x1B[6n"               /* DSR: request cursor position (CPR) */
                             "\x1B" "8",             /* DECRC: restore cursor position */
                             SIZE_MAX,
                             CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
-        size_t buf_full = 0;
+        usec_t پای_ټکی = usec_جمع_کړه(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
+        حرف buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
+        size_t buf_ډک = 0;
         CursorPositionContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        لكل (bool لومړی = true;; لومړی = false) {
+                إذا (buf_ډک == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        إذا (n >= پای_ټکی)
+                                أرجع -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_ننوت_fd, POLLIN, usec_sub_unsigned(پای_ټکی, n));
+                        إذا (r < 0)
+                                أرجع r;
+                        إذا (r == 0)
+                                أرجع -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
+                        ssize_t l = اقرأ(nonblock_ننوت_fd, buf, لومړی ? حجم(buf) : 1);
+                        إذا (l < 0) {
+                                إذا (errno == EAGAIN)
+                                        استمر;
 
-                                return -errno;
+                                أرجع -errno;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
-                        buf_full = l;
+                        أكد((size_t) l <= حجم(buf));
+                        buf_ډک = l;
                 }
 
                 size_t processed;
-                r = scan_cursor_position_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                r = لټون_cursor_position_response(&context, buf, buf_ډک, &processed);
+                إذا (r < 0)
+                        أرجع r;
 
-                assert(processed <= buf_full);
-                buf_full -= processed;
-                memmove(buf, buf + processed, buf_full);
+                أكد(processed <= buf_ډک);
+                buf_ډک -= processed;
+                memmove(buf, buf + processed, buf_ډک);
 
-                if (r > 0) {
+                إذا (r > 0) {
                         /* Superficial validity checks (no particular reason to check for < 4, it's
                          * just a way to look for unreasonably small values) */
-                        if (context.row < 4 || context.column < 4 || context.row >= 32766 || context.column >= 32766)
-                                return -ENODATA;
+                        إذا (context.لیکه < 4 || context.ستنه < 4 || context.لیکه >= 32766 || context.ستنه >= 32766)
+                                أرجع -ENODATA;
 
-                        if (ret_rows)
-                                *ret_rows = context.row;
-                        if (ret_columns)
-                                *ret_columns = context.column;
+                        إذا (ret_لیکې)
+                                *ret_لیکې = context.لیکه;
+                        إذا (ret_columns)
+                                *ret_columns = context.ستنه;
 
-                        return 0;
+                        أرجع 0;
                 }
         }
 }
 
 /* Common setup for ANSI terminal queries: validate the fds, open a non-blocking input fd, and configure
  * termios with echo and canonical mode disabled. Caller must restore termios and close the fd when done. */
-static int terminal_prepare_query(
-                int input_fd,
-                int output_fd,
-                int *ret_nonblock_fd,
-                struct termios *ret_saved_termios) {
+ساكن صحيح terminal_prepare_query(
+                صحيح ننوت_fd,
+                صحيح output_fd,
+                صحيح *ret_nonblock_fd,
+                بنية termios *ret_saved_termios) {
 
-        int r;
+        صحيح r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
-        assert(ret_nonblock_fd);
-        assert(ret_saved_termios);
+        أكد(ننوت_fd >= 0);
+        أكد(output_fd >= 0);
+        أكد(ret_nonblock_fd);
+        أكد(ret_saved_termios);
 
         /* Use getenv_terminal_is_dumb() instead of terminal_is_dumb() here since we operate on an
          * explicitly passed fd, not on stdio. terminal_is_dumb() additionally checks on_tty() which
          * tests whether *stderr* is a tty — that's irrelevant when we're querying a directly opened
          * terminal such as /dev/console. */
-        if (getenv_terminal_is_dumb())
-                return -EOPNOTSUPP;
+        إذا (getenv_terminal_is_dumb())
+                أرجع -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
-        if (r < 0)
-                return log_debug_errno(r, "Called with distinct input/output fds: %m");
+        r = terminal_verify_same(ننوت_fd, output_fd);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        _cleanup_close_ صحيح nonblock_ننوت_fd = r = fd_reopen(ننوت_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        إذا (r < 0)
+                أرجع r;
 
-        if (tcgetattr(nonblock_input_fd, ret_saved_termios) < 0)
-                return log_debug_errno(errno, "Failed to get terminal settings: %m");
+        إذا (tcgetattr(nonblock_ننوت_fd, ret_saved_termios) < 0)
+                أرجع log_debug_errno(errno, "Failed to get terminal settings: %m");
 
-        struct termios new_termios = *ret_saved_termios;
+        بنية termios new_termios = *ret_saved_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
-                return log_debug_errno(errno, "Failed to set new terminal settings: %m");
+        إذا (tcsetattr(nonblock_ننوت_fd, TCSANOW, &new_termios) < 0)
+                أرجع log_debug_errno(errno, "Failed to set new terminal settings: %m");
 
-        *ret_nonblock_fd = TAKE_FD(nonblock_input_fd);
-        return 0;
+        *ret_nonblock_fd = TAKE_FD(nonblock_ننوت_fd);
+        أرجع 0;
 }
 
 /*
  * See https://terminalguide.namepad.de/seq/csi_st-18/,
  * https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h3-Functions-using-CSI-_-ordered-by-the-final-character_s_.
  */
-#define CSI18_Q  "\x1B[18t"               /* Report the size of the text area in characters */
-#define CSI18_Rp "\x1B[8;"                /* Reply prefix */
-#define CSI18_R0 CSI18_Rp "1;1t"          /* Shortest reply */
-#define CSI18_R1 CSI18_Rp "32766;32766t"  /* Longest reply */
+#تعریف_کړه CSI18_Q  "\x1B[18t"               /* Report the size of the text area in characters */
+#تعریف_کړه CSI18_Rp "\x1B[8;"                /* Reply prefix */
+#تعریف_کړه CSI18_R0 CSI18_Rp "1;1t"          /* Shortest reply */
+#تعریف_کړه CSI18_R1 CSI18_Rp "32766;32766t"  /* Longest reply */
 
-static int scan_text_area_size_response(
-                const char *buf,
-                size_t size,
-                unsigned *ret_rows,
-                unsigned *ret_columns) {
+ساكن صحيح لټون_متن_area_اندازه_response(
+                ثابت حرف *buf,
+                size_t اندازه,
+                بینښه *ret_لیکې,
+                بینښه *ret_columns) {
 
-        assert(buf);
-        assert(ret_rows);
-        assert(ret_columns);
+        أكد(buf);
+        أكد(ret_لیکې);
+        أكد(ret_columns);
 
         /* Check if we have enough space for the shortest possible answer. */
-        if (size < STRLEN(CSI18_R0))
-                return -EAGAIN;
+        إذا (اندازه < STRLEN(CSI18_R0))
+                أرجع -EAGAIN;
 
         /* Check if the terminating sequence is present */
-        if (buf[size - 1] != 't')
-                return -EAGAIN;
+        إذا (buf[اندازه - 1] != 't')
+                أرجع -EAGAIN;
 
-        unsigned short rows, columns;
-        if (sscanf(buf, CSI18_Rp "%hu;%hut", &rows, &columns) != 2)
-                return -EINVAL;
+        بینښه لنډ لیکې, columns;
+        إذا (له_مزي_ولوله(buf, CSI18_Rp "%hu;%hut", &لیکې, &columns) != 2)
+                أرجع -EINVAL;
 
-        *ret_rows = rows;
+        *ret_لیکې = لیکې;
         *ret_columns = columns;
-        return 0;
+        أرجع 0;
 }
 
 /* Determine terminal dimensions by means of an ANSI CSI 18 sequence.
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
-static int terminal_query_size_by_csi18(
-                int nonblock_input_fd,
-                int output_fd,
-                unsigned *ret_rows,
-                unsigned *ret_columns) {
+ساكن صحيح terminal_query_اندازه_by_csi18(
+                صحيح nonblock_ننوت_fd,
+                صحيح output_fd,
+                بینښه *ret_لیکې,
+                بینښه *ret_columns) {
 
-        int r;
+        صحيح r;
 
-        assert(nonblock_input_fd >= 0);
-        assert(output_fd >= 0);
+        أكد(nonblock_ننوت_fd >= 0);
+        أكد(output_fd >= 0);
 
-        r = loop_write_full(output_fd, CSI18_Q, SIZE_MAX, CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
-                return r;
+        r = loop_write_ډک(output_fd, CSI18_Q, SIZE_MAX, CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
+        إذا (r < 0)
+                أرجع r;
 
-        usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(CSI18_R1)];
-        size_t bytes = 0;
+        usec_t پای_ټکی = usec_جمع_کړه(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
+        حرف buf[STRLEN(CSI18_R1)];
+        size_t بایټونه = 0;
 
-        for (;;) {
+        لكل (;;) {
                 usec_t n = now(CLOCK_MONOTONIC);
-                if (n >= end)
-                        return -EOPNOTSUPP;
+                إذا (n >= پای_ټکی)
+                        أرجع -EOPNOTSUPP;
 
-                r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EOPNOTSUPP;
+                r = fd_wait_for_event(nonblock_ننوت_fd, POLLIN, usec_sub_unsigned(پای_ټکی, n));
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0)
+                        أرجع -EOPNOTSUPP;
 
                 /* On the first read, read multiple characters, i.e. the shortest valid reply. Afterwards
                  * read byte by byte, since we don't want to read too much and drop characters from the input
                  * queue. */
-                ssize_t l = read(nonblock_input_fd, buf + bytes, bytes == 0 ? STRLEN(CSI18_R0) : 1);
-                if (l < 0) {
-                        if (errno == EAGAIN)
-                                continue;
-                        return -errno;
+                ssize_t l = اقرأ(nonblock_ننوت_fd, buf + بایټونه, بایټونه == 0 ? STRLEN(CSI18_R0) : 1);
+                إذا (l < 0) {
+                        إذا (errno == EAGAIN)
+                                استمر;
+                        أرجع -errno;
                 }
 
-                assert((size_t) l <= sizeof(buf) - bytes);
-                bytes += l;
+                أكد((size_t) l <= حجم(buf) - بایټونه);
+                بایټونه += l;
 
-                r = scan_text_area_size_response(buf, bytes, ret_rows, ret_columns);
-                if (r != -EAGAIN)
-                        return r;
+                r = لټون_متن_area_اندازه_response(buf, بایټونه, ret_لیکې, ret_columns);
+                إذا (r != -EAGAIN)
+                        أرجع r;
 
-                if (bytes == sizeof(buf))
-                        return -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
+                إذا (بایټونه == حجم(buf))
+                        أرجع -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
                                              * answer with a terminator in the allotted space. Something is
                                              * wrong, possibly some unrelated bytes got injected into the
                                              * answer. */
         }
 }
 
-int terminal_get_size(
-                int input_fd,
-                int output_fd,
-                unsigned *ret_rows,
-                unsigned *ret_columns,
+صحيح terminal_get_اندازه(
+                صحيح ننوت_fd,
+                صحيح output_fd,
+                بینښه *ret_لیکې,
+                بینښه *ret_columns,
                 bool try_dsr,
                 bool try_csi18) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
-        _cleanup_(nonblock_resetp) int nonblock_reset = -EBADF;
-        int r;
+        _cleanup_close_ صحيح nonblock_ننوت_fd = -EBADF;
+        بنية termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(nonblock_ننوت_fd, old_termios);
+        _cleanup_(nonblock_resetp) صحيح nonblock_reset = -EBADF;
+        صحيح r;
 
-        assert(try_dsr || try_csi18);
+        أكد(try_dsr || try_csi18);
 
-        r = terminal_prepare_query(input_fd, output_fd, &nonblock_input_fd, &old_termios);
-        if (r < 0)
-                return r;
+        r = terminal_prepare_query(ننوت_fd, output_fd, &nonblock_ننوت_fd, &old_termios);
+        إذا (r < 0)
+                أرجع r;
 
         /* Put the output fd in non-blocking mode with a write timeout, to avoid blocking indefinitely on
          * write if the terminal is not consuming data (e.g. serial console with flow control). */
         r = fd_nonblock(output_fd, true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
-        if (r > 0)
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
+        إذا (r > 0)
                 nonblock_reset = output_fd;
 
         /* Flush any stale input that might confuse the response parsers. */
-        (void) tcflush(nonblock_input_fd, TCIFLUSH);
+        (فراغ) tcflush(nonblock_ننوت_fd, TCIFLUSH);
 
-        if (try_csi18) {
-                r = terminal_query_size_by_csi18(nonblock_input_fd, output_fd, ret_rows, ret_columns);
-                if (r >= 0)
-                        return r;
-
-                /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
-
-                if (!IN_SET(r, -EOPNOTSUPP, -EINVAL))
-                        return r;
-        }
-
-        if (try_dsr) {
-                r = terminal_query_size_by_dsr(nonblock_input_fd, output_fd, ret_rows, ret_columns);
-                if (r >= 0)
-                        return r;
+        إذا (try_csi18) {
+                r = terminal_query_اندازه_by_csi18(nonblock_ننوت_fd, output_fd, ret_لیکې, ret_columns);
+                إذا (r >= 0)
+                        أرجع r;
 
                 /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
+                (فراغ) tcflush(nonblock_ننوت_fd, TCIFLUSH);
+
+                إذا (!دننه_سېټ(r, -EOPNOTSUPP, -EINVAL))
+                        أرجع r;
         }
 
-        return r;
+        إذا (try_dsr) {
+                r = terminal_query_اندازه_by_dsr(nonblock_ننوت_fd, output_fd, ret_لیکې, ret_columns);
+                إذا (r >= 0)
+                        أرجع r;
+
+                /* Query failed. Flush any outstanding input. */
+                (فراغ) tcflush(nonblock_ننوت_fd, TCIFLUSH);
+        }
+
+        أرجع r;
 }
 
-static int fd_is_vc(int fd) {
-        _cleanup_free_ char *name = NULL;
-        int r;
+ساكن صحيح fd_is_vc(صحيح fd) {
+        _cleanup_free_ حرف *name = عدم;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = getttyname_harder(fd, &name);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return tty_is_vc_resolve(name);
+        أرجع tty_is_vc_resolve(name);
 }
 
-int terminal_fix_size(int input_fd, int output_fd) {
-        unsigned rows, columns;
-        int r;
+صحيح terminal_fix_اندازه(صحيح ننوت_fd, صحيح output_fd) {
+        بینښه لیکې, columns;
+        صحيح r;
 
         /* Don't ask a virtual console at all. There is no intermediary here that could be wrong about the
          * dimensions: the kernel renders the screen itself, so its winsize is authoritative. */
-        r = fd_is_vc(input_fd);
-        if (r < 0)
+        r = fd_is_vc(ننوت_fd);
+        إذا (r < 0)
                 log_debug_errno(r, "Failed to determine whether terminal is a virtual console, assuming it is not: %m");
-        else if (r > 0) {
+        وإلا إذا (r > 0) {
                 log_debug("Not querying dimensions of a virtual console, kernel dimensions are authoritative.");
-                return 0;
+                أرجع 0;
         }
 
-        struct winsize ws = {};
-        if (ioctl(output_fd, TIOCGWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "Failed to query terminal dimensions, ignoring: %m");
+        بنية winsize ws = {};
+        إذا (ioctl(output_fd, TIOCGWINSZ, &ws) < 0)
+                أرجع log_debug_errno(errno, "Failed to query terminal dimensions, ignoring: %m");
 
-        r = terminal_get_size(input_fd, output_fd, &rows, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to acquire terminal dimensions via ANSI sequences, not adjusting terminal dimensions: %m");
+        r = terminal_get_اندازه(ننوت_fd, output_fd, &لیکې, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to acquire terminal dimensions via ANSI sequences, not adjusting terminal dimensions: %m");
 
-        if (ws.ws_row == rows && ws.ws_col == columns) {
+        إذا (ws.ws_row == لیکې && ws.ws_col == columns) {
                 log_debug("Terminal dimensions reported via ANSI sequences match currently set terminal dimensions, not changing.");
-                return 0;
+                أرجع 0;
         }
 
         ws.ws_col = columns;
-        ws.ws_row = rows;
+        ws.ws_row = لیکې;
 
-        if (ioctl(output_fd, TIOCSWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "Failed to update terminal dimensions, ignoring: %m");
+        إذا (ioctl(output_fd, TIOCSWINSZ, &ws) < 0)
+                أرجع log_debug_errno(errno, "Failed to update terminal dimensions, ignoring: %m");
 
-        log_debug("Fixed terminal dimensions to %ux%u based on ANSI sequence information.", columns, rows);
-        return 1;
+        log_debug("Fixed terminal dimensions to %ux%u based on ANSI sequence information.", columns, لیکې);
+        أرجع 1;
 }
 
-#define MAX_TERMINFO_LENGTH 64
+#تعریف_کړه MAX_TERMINFO_اوږدتیا 64
 /* python -c 'print("".join(hex(ord(i))[2:] for i in "name").upper())' */
-#define DCS_TERMINFO_Q ANSI_DCS "+q" "6E616D65" ANSI_ST
+#تعریف_کړه DCS_TERMINFO_Q ANSI_DCS "+q" "6E616D65" ANSI_ST
 /* The answer is either 0+r… (invalid) or 1+r… (OK). */
-#define DCS_TERMINFO_R0 ANSI_DCS "0+r" ANSI_ST
-#define DCS_TERMINFO_R1 ANSI_DCS "1+r" "6E616D65" "=" /* This is followed by Pt ST. */
+#تعریف_کړه DCS_TERMINFO_R0 ANSI_DCS "0+r" ANSI_ST
+#تعریف_کړه DCS_TERMINFO_R1 ANSI_DCS "1+r" "6E616D65" "=" /* This is followed by Pt ST. */
 assert_cc(STRLEN(DCS_TERMINFO_R0) <= STRLEN(DCS_TERMINFO_R1 ANSI_ST));
 
-static int scan_terminfo_response(
-                const char *buf,
-                size_t size,
-                char **ret_name) {
-        int r;
+ساكن صحيح لټون_terminfo_response(
+                ثابت حرف *buf,
+                size_t اندازه,
+                حرف **ret_name) {
+        صحيح r;
 
-        assert(buf);
-        assert(ret_name);
+        أكد(buf);
+        أكد(ret_name);
 
         /* Check if we have enough space for the shortest possible answer. */
-        if (size < STRLEN(DCS_TERMINFO_R0))
-                return -EAGAIN;
+        إذا (اندازه < STRLEN(DCS_TERMINFO_R0))
+                أرجع -EAGAIN;
 
         /* Check if the terminating sequence is present */
-        if (memcmp(buf + size - STRLEN(ANSI_ST), ANSI_ST, STRLEN(ANSI_ST)) != 0)
-                return -EAGAIN;
+        إذا (memcmp(buf + اندازه - STRLEN(ANSI_ST), ANSI_ST, STRLEN(ANSI_ST)) != 0)
+                أرجع -EAGAIN;
 
-        if (size <= STRLEN(DCS_TERMINFO_R1 ANSI_ST))
-                return -EINVAL;  /* The answer is invalid or empty */
+        إذا (اندازه <= STRLEN(DCS_TERMINFO_R1 ANSI_ST))
+                أرجع -EINVAL;  /* The answer is invalid or empty */
 
-        if (memcmp(buf, DCS_TERMINFO_R1, STRLEN(DCS_TERMINFO_R1)) != 0)
-                return -EINVAL;  /* The answer is not valid */
+        إذا (memcmp(buf, DCS_TERMINFO_R1, STRLEN(DCS_TERMINFO_R1)) != 0)
+                أرجع -EINVAL;  /* The answer is not valid */
 
-        _cleanup_free_ void *dec = NULL;
-        size_t dec_size;
-        r = unhexmem_full(buf + STRLEN(DCS_TERMINFO_R1), size - STRLEN(DCS_TERMINFO_R1 ANSI_ST),
+        _cleanup_free_ فراغ *dec = عدم;
+        size_t dec_اندازه;
+        r = unhexmem_ډک(buf + STRLEN(DCS_TERMINFO_R1), اندازه - STRLEN(DCS_TERMINFO_R1 ANSI_ST),
                           /* secure= */ false,
-                          &dec, &dec_size);
-        if (r < 0)
-                return r;
+                          &dec, &dec_اندازه);
+        إذا (r < 0)
+                أرجع r;
 
-        assert(((const char *) dec)[dec_size] == '\0'); /* unhexmem appends NUL for our convenience */
-        if (memchr(dec, '\0', dec_size) || string_has_cc(dec, NULL) || !filename_is_valid(dec))
-                return -EUCLEAN;
+        أكد(((ثابت حرف *) dec)[dec_اندازه] == '\0'); /* unhexmem appends NUL for our convenience */
+        إذا (memchr(dec, '\0', dec_اندازه) || string_has_cc(dec, عدم) || !filename_is_valid(dec))
+                أرجع -EUCLEAN;
 
         *ret_name = TAKE_PTR(dec);
-        return 0;
+        أرجع 0;
 }
 
-int terminal_get_terminfo_by_dcs(int fd, char **ret_name) {
-        int r;
+صحيح terminal_get_terminfo_by_dcs(صحيح fd, حرف **ret_name) {
+        صحيح r;
 
-        assert(fd >= 0);
-        assert(ret_name);
+        أكد(fd >= 0);
+        أكد(ret_name);
 
         /* Note: fd must be in non-blocking read-write mode! */
 
-        struct termios old_termios = TERMIOS_NULL;
+        بنية termios old_termios = TERMIOS_NULL;
         CLEANUP_TERMIOS_RESET(fd, old_termios);
 
-        if (tcgetattr(fd, &old_termios) < 0)
-                return -errno;
+        إذا (tcgetattr(fd, &old_termios) < 0)
+                أرجع -errno;
 
-        struct termios new_termios = old_termios;
+        بنية termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(fd, TCSANOW, &new_termios) < 0)
-                return -errno;
+        إذا (tcsetattr(fd, TCSANOW, &new_termios) < 0)
+                أرجع -errno;
 
         r = loop_write(fd, DCS_TERMINFO_Q, SIZE_MAX);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(DCS_TERMINFO_R1) + MAX_TERMINFO_LENGTH + STRLEN(ANSI_ST)];
-        size_t bytes = 0;
+        usec_t پای_ټکی = usec_جمع_کړه(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
+        حرف buf[STRLEN(DCS_TERMINFO_R1) + MAX_TERMINFO_اوږدتیا + STRLEN(ANSI_ST)];
+        size_t بایټونه = 0;
 
-        for (;;) {
+        لكل (;;) {
                 usec_t n = now(CLOCK_MONOTONIC);
-                if (n >= end)
-                        return -EOPNOTSUPP;
+                إذا (n >= پای_ټکی)
+                        أرجع -EOPNOTSUPP;
 
-                r = fd_wait_for_event(fd, POLLIN, usec_sub_unsigned(end, n));
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EOPNOTSUPP;
+                r = fd_wait_for_event(fd, POLLIN, usec_sub_unsigned(پای_ټکی, n));
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0)
+                        أرجع -EOPNOTSUPP;
 
                 /* On the first read, read multiple characters, i.e. the shortest valid reply. Afterwards
                  * read byte by byte, since we don't want to read too much and drop characters from the input
                  * queue. */
-                ssize_t l = read(fd, buf + bytes, bytes == 0 ? STRLEN(DCS_TERMINFO_R0) : 1);
-                if (l < 0) {
-                        if (errno == EAGAIN)
-                                continue;
-                        return -errno;
+                ssize_t l = اقرأ(fd, buf + بایټونه, بایټونه == 0 ? STRLEN(DCS_TERMINFO_R0) : 1);
+                إذا (l < 0) {
+                        إذا (errno == EAGAIN)
+                                استمر;
+                        أرجع -errno;
                 }
 
-                assert((size_t) l <= sizeof(buf) - bytes);
-                bytes += l;
+                أكد((size_t) l <= حجم(buf) - بایټونه);
+                بایټونه += l;
 
-                r = scan_terminfo_response(buf, bytes, ret_name);
-                if (r != -EAGAIN)
-                        return r;
+                r = لټون_terminfo_response(buf, بایټونه, ret_name);
+                إذا (r != -EAGAIN)
+                        أرجع r;
 
-                if (bytes == sizeof(buf))
-                        return -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
+                إذا (بایټونه == حجم(buf))
+                        أرجع -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
                                              * answer with a terminator in the allotted space. Something is
                                              * wrong, possibly some unrelated bytes got injected into the
                                              * answer. */
         }
 }
 
-int have_terminfo_file(const char *name) {
+صحيح have_terminfo_file(ثابت حرف *name) {
         /* This is a heuristic check if we have the file, using the directory layout used on
          * current Linux systems. Checks for other layouts can be added later if appropriate. */
-        int r;
+        صحيح r;
 
-        assert(filename_is_valid(name));
+        أكد(filename_is_valid(name));
 
-        _cleanup_free_ char *p = path_join("/usr/share/terminfo", CHAR_TO_STR(name[0]), name);
-        if (!p)
-                return log_oom_debug();
+        _cleanup_free_ حرف *p = لار_join("/usr/share/terminfo", CHAR_منزل_STR(name[0]), name);
+        إذا (!p)
+                أرجع log_oom_debug();
 
         r = RET_NERRNO(access(p, F_OK));
-        if (r == -ENOENT)
-                return false;
-        if (r < 0)
-                return r;
-        return true;
+        إذا (r == -ENOENT)
+                أرجع false;
+        إذا (r < 0)
+                أرجع r;
+        أرجع true;
 }
 
-int query_term_for_tty(const char *tty, char **ret_term) {
-        _cleanup_free_ char *dcs_term = NULL;
-        int r;
+صحيح query_غړی_for_tty(ثابت حرف *tty, حرف **ret_غړی) {
+        _cleanup_free_ حرف *dcs_غړی = عدم;
+        صحيح r;
 
-        assert(tty);
-        assert(ret_term);
+        أكد(tty);
+        أكد(ret_غړی);
 
-        if (tty_is_vc_resolve(tty))
-                return strdup_to(ret_term, "linux");
+        إذا (tty_is_vc_resolve(tty))
+                أرجع strdup_منزل(ret_غړی, "linux");
 
         /* Try to query the terminal implementation that we're on. This will not work in all
          * cases, which is fine, since this is intended to be used as a fallback. */
 
-        _cleanup_close_ int tty_fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (tty_fd < 0)
-                return log_debug_errno(tty_fd, "Failed to open %s to query terminfo: %m", tty);
+        _cleanup_close_ صحيح tty_fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+        إذا (tty_fd < 0)
+                أرجع log_debug_errno(tty_fd, "Failed to open %s to query terminfo: %m", tty);
 
-        r = terminal_get_terminfo_by_dcs(tty_fd, &dcs_term);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to query %s for terminfo: %m", tty);
+        r = terminal_get_terminfo_by_dcs(tty_fd, &dcs_غړی);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to query %s for terminfo: %m", tty);
 
-        r = have_terminfo_file(dcs_term);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to look for terminfo %s: %m", dcs_term);
-        if (r == 0)
-                return log_info_errno(SYNTHETIC_ERRNO(ENODATA),
-                                      "Terminfo %s not found for %s.", dcs_term, tty);
+        r = have_terminfo_file(dcs_غړی);
+        إذا (r < 0)
+                أرجع log_debug_errno(r, "Failed to look for terminfo %s: %m", dcs_غړی);
+        إذا (r == 0)
+                أرجع log_info_errno(SYNTHETIC_ERRNO(ENODATA),
+                                      "Terminfo %s not found for %s.", dcs_غړی, tty);
 
-        *ret_term = TAKE_PTR(dcs_term);
-        return 0;
+        *ret_غړی = TAKE_PTR(dcs_غړی);
+        أرجع 0;
 }
 
-int terminal_is_pty_fd(int fd) {
-        int r;
+صحيح terminal_is_pty_fd(صحيح fd) {
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* Returns true if we are looking at a pty, i.e. if it's backed by the /dev/pts/ file system */
 
-        if (!isatty_safe(fd))
-                return false;
+        إذا (!isatty_خوندي(fd))
+                أرجع false;
 
-        r = is_fs_type_at(fd, NULL, DEVPTS_SUPER_MAGIC);
-        if (r != 0)
-                return r;
+        r = is_fs_type_at(fd, عدم, DEVPTS_SUPER_MAGIC);
+        إذا (r != 0)
+                أرجع r;
 
         /* The ptmx device is weird, it exists twice, once inside and once outside devpts. To detect the
          * latter case, let's fire off an ioctl() that only works on ptmx devices. */
 
-        int v;
-        if (ioctl(fd, TIOCGPKT, &v) < 0) {
-                if (ERRNO_IS_NOT_SUPPORTED(errno))
-                        return false;
+        صحيح v;
+        إذا (ioctl(fd, TIOCGPKT, &v) < 0) {
+                إذا (ERRNO_IS_NOT_SUPPORTED(errno))
+                        أرجع false;
 
-                return -errno;
+                أرجع -errno;
         }
 
-        return true;
+        أرجع true;
 }
 
-int pty_open_peer(int fd, int mode) {
-        assert(fd >= 0);
+صحيح pty_open_peer(صحيح fd, صحيح ډېرپېښ) {
+        أكد(fd >= 0);
 
         /* Opens the peer PTY using the new race-free TIOCGPTPEER ioctl() (kernel 4.13).
          *
          * This is safe to be called on TTYs from other namespaces. */
 
-        assert((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
+        أكد((ډېرپېښ & (O_CREAT|O_لار|O_DIRECTORY|O_TMPFILE)) == 0);
 
         /* This replicates the EIO retry logic of open_terminal() in a modified way. */
-        for (unsigned c = 0;; c++) {
-                int peer_fd = ioctl(fd, TIOCGPTPEER, mode);
-                if (peer_fd >= 0)
-                        return peer_fd;
+        لكل (بینښه c = 0;; c++) {
+                صحيح peer_fd = ioctl(fd, TIOCGPTPEER, ډېرپېښ);
+                إذا (peer_fd >= 0)
+                        أرجع peer_fd;
 
-                if (errno != EIO)
-                        return -errno;
+                إذا (errno != EIO)
+                        أرجع -errno;
 
                 /* Max 1s in total */
-                if (c >= 20)
-                        return -EIO;
+                إذا (c >= 20)
+                        أرجع -EIO;
 
-                (void) usleep_safe(50 * USEC_PER_MSEC);
+                (فراغ) usleep_خوندي(50 * USEC_فی_MSEC);
         }
 }

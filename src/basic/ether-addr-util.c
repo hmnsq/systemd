@@ -1,109 +1,109 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <net/ethernet.h>
-#include <net/if_arp.h>
-#include <stdio.h>
+#ضمن <net/ethernet.h>
+#ضمن <net/if_arp.h>
+#ضمن <stdio.h>
 
-#include "ether-addr-util.h"
-#include "hash-funcs.h"
-#include "hexdecoct.h"
-#include "in-addr-util.h"
-#include "memory-util.h"
-#include "siphash24.h"
-#include "string-util.h"
+#ضمن "ether-addr-util.h"
+#ضمن "hash-funcs.h"
+#ضمن "hexdecoct.h"
+#ضمن "in-addr-util.h"
+#ضمن "memory-util.h"
+#ضمن "siphash24.h"
+#ضمن "string-util.h"
 
-char* hw_addr_to_string_full(
-                const struct hw_addr_data *addr,
-                HardwareAddressToStringFlags flags,
-                char buffer[static HW_ADDR_TO_STRING_MAX]) {
+حرف* hw_addr_منزل_string_ډک(
+                ثابت بنية hw_addr_معلومات *addr,
+                Hardware_پته_منزل_String_Flags flags,
+                حرف بفر[ساكن HW_ADDR_منزل_STRING_MAX]) {
 
-        assert(addr);
-        assert(buffer);
-        assert(addr->length <= HW_ADDR_MAX_SIZE);
+        أكد(addr);
+        أكد(بفر);
+        أكد(addr->length <= HW_ADDR_MAX_اندازه);
 
-        for (size_t i = 0, j = 0; i < addr->length; i++) {
-                buffer[j++] = hexchar(addr->bytes[i] >> 4);
-                buffer[j++] = hexchar(addr->bytes[i] & 0x0f);
-                if (!FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON))
-                        buffer[j++] = ':';
+        لكل (size_t i = 0, j = 0; i < addr->length; i++) {
+                بفر[j++] = hexchar(addr->بایټونه[i] >> 4);
+                بفر[j++] = hexchar(addr->بایټونه[i] & 0x0f);
+                إذا (!FLAGS_سېټ(flags, HW_ADDR_منزل_STRING_NO_COLON))
+                        بفر[j++] = ':';
         }
 
-        buffer[addr->length == 0 || FLAGS_SET(flags, HW_ADDR_TO_STRING_NO_COLON) ?
+        بفر[addr->length == 0 || FLAGS_سېټ(flags, HW_ADDR_منزل_STRING_NO_COLON) ?
                addr->length * 2 :
                addr->length * 3 - 1] = '\0';
-        return buffer;
+        أرجع بفر;
 }
 
-struct hw_addr_data *hw_addr_set(struct hw_addr_data *addr, const uint8_t *bytes, size_t length) {
-        assert(addr);
-        assert(length <= HW_ADDR_MAX_SIZE);
+بنية hw_addr_معلومات *hw_addr_سېټ(بنية hw_addr_معلومات *addr, ثابت uint8_t *بایټونه, size_t length) {
+        أكد(addr);
+        أكد(length <= HW_ADDR_MAX_اندازه);
 
         addr->length = length;
-        memcpy_safe(addr->bytes, bytes, length);
-        return addr;
+        memcpy_خوندي(addr->بایټونه, بایټونه, length);
+        أرجع addr;
 }
 
-int hw_addr_compare(const struct hw_addr_data *a, const struct hw_addr_data *b) {
-        int r;
+صحيح hw_addr_compare(ثابت بنية hw_addr_معلومات *a, ثابت بنية hw_addr_معلومات *b) {
+        صحيح r;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
         r = CMP(a->length, b->length);
-        if (r != 0)
-                return r;
+        إذا (r != 0)
+                أرجع r;
 
-        return memcmp(a->bytes, b->bytes, a->length);
+        أرجع memcmp(a->بایټونه, b->بایټونه, a->length);
 }
 
-void hw_addr_hash_func(const struct hw_addr_data *p, struct siphash *state) {
-        assert(p);
-        assert(state);
+فراغ hw_addr_hash_func(ثابت بنية hw_addr_معلومات *p, بنية siphash *state) {
+        أكد(p);
+        أكد(state);
 
         siphash24_compress_typesafe(p->length, state);
-        siphash24_compress_safe(p->bytes, p->length, state);
+        siphash24_compress_خوندي(p->بایټونه, p->length, state);
 }
 
-bool hw_addr_is_null(const struct hw_addr_data *addr) {
-        assert(addr);
-        return addr->length == 0 || memeqzero(addr->bytes, addr->length);
+bool hw_addr_is_null(ثابت بنية hw_addr_معلومات *addr) {
+        أكد(addr);
+        أرجع addr->length == 0 || memeqzero(addr->بایټونه, addr->length);
 }
 
-bool hw_addr_is_valid(const struct hw_addr_data *addr, uint16_t iftype) {
-        assert(addr);
+bool hw_addr_is_valid(ثابت بنية hw_addr_معلومات *addr, uint16_t iftype) {
+        أكد(addr);
 
-        switch (iftype) {
-        case ARPHRD_ETHER:
+        بدل (iftype) {
+        حالة ARPHRD_ETHER:
                 /* Refuse all zero and all 0xFF. */
-                if (addr->length != ETH_ALEN)
-                        return false;
+                إذا (addr->length != ETH_ALEN)
+                        أرجع false;
 
-                return !ether_addr_is_null(&addr->ether) && !ether_addr_is_broadcast(&addr->ether);
+                أرجع !ether_addr_is_null(&addr->ether) && !ether_addr_is_خپرونه(&addr->ether);
 
-        case ARPHRD_INFINIBAND:
+        حالة ARPHRD_INFINIBAND:
                 /* The last 8 bytes cannot be zero. */
-                if (addr->length != INFINIBAND_ALEN)
-                        return false;
+                إذا (addr->length != INFINIBAND_ALEN)
+                        أرجع false;
 
-                return !memeqzero(addr->bytes + INFINIBAND_ALEN - 8, 8);
+                أرجع !memeqzero(addr->بایټونه + INFINIBAND_ALEN - 8, 8);
 
-        default:
-                return false;
+        افتراضي:
+                أرجع false;
         }
 }
 
-DEFINE_HASH_OPS(hw_addr_hash_ops, struct hw_addr_data, hw_addr_hash_func, hw_addr_compare);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(hw_addr_hash_ops_free, struct hw_addr_data, hw_addr_hash_func, hw_addr_compare, free);
+DEFINE_HASH_OPS(hw_addr_hash_ops, بنية hw_addr_معلومات, hw_addr_hash_func, hw_addr_compare);
+DEFINE_HASH_OPS_WITH_کلی_DESTRUCTOR(hw_addr_hash_ops_free, بنية hw_addr_معلومات, hw_addr_hash_func, hw_addr_compare, حرر);
 
-char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR_TO_STRING_MAX]) {
-        assert(addr);
-        assert(buffer);
+حرف* ether_addr_منزل_string(ثابت بنية ether_addr *addr, حرف بفر[ETHER_ADDR_منزل_STRING_MAX]) {
+        أكد(addr);
+        أكد(بفر);
 
         /* Like ether_ntoa() but uses %02x instead of %x to print
          * ethernet addresses, which makes them look less funny. Also,
          * doesn't use a static buffer. */
 
-        sprintf(buffer, "%02x:%02x:%02x:%02x:%02x:%02x",
+        sprintf(بفر, "%02x:%02x:%02x:%02x:%02x:%02x",
                 addr->ether_addr_octet[0],
                 addr->ether_addr_octet[1],
                 addr->ether_addr_octet[2],
@@ -111,97 +111,97 @@ char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR
                 addr->ether_addr_octet[4],
                 addr->ether_addr_octet[5]);
 
-        return buffer;
+        أرجع بفر;
 }
 
-int ether_addr_compare(const struct ether_addr *a, const struct ether_addr *b) {
-        assert(a);
-        assert(b);
+صحيح ether_addr_compare(ثابت بنية ether_addr *a, ثابت بنية ether_addr *b) {
+        أكد(a);
+        أكد(b);
 
-        return memcmp(a, b, ETH_ALEN);
+        أرجع memcmp(a, b, ETH_ALEN);
 }
 
-static void ether_addr_hash_func(const struct ether_addr *p, struct siphash *state) {
-        assert(p);
+ساكن فراغ ether_addr_hash_func(ثابت بنية ether_addr *p, بنية siphash *state) {
+        أكد(p);
 
         siphash24_compress_typesafe(*p, state);
 }
 
-bool ether_addr_is_broadcast(const struct ether_addr *addr) {
-        assert(addr);
-        return memeqbyte(0xff, addr->ether_addr_octet, ETH_ALEN);
+bool ether_addr_is_خپرونه(ثابت بنية ether_addr *addr) {
+        أكد(addr);
+        أرجع memeqbyte(0xff, addr->ether_addr_octet, ETH_ALEN);
 }
 
-DEFINE_HASH_OPS(ether_addr_hash_ops, struct ether_addr, ether_addr_hash_func, ether_addr_compare);
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(ether_addr_hash_ops_free, struct ether_addr, ether_addr_hash_func, ether_addr_compare, free);
+DEFINE_HASH_OPS(ether_addr_hash_ops, بنية ether_addr, ether_addr_hash_func, ether_addr_compare);
+DEFINE_HASH_OPS_WITH_کلی_DESTRUCTOR(ether_addr_hash_ops_free, بنية ether_addr, ether_addr_hash_func, ether_addr_compare, حرر);
 
-static int parse_hw_addr_one_field(const char **s, char sep, size_t len, uint8_t *buf) {
-        const char *hex = HEXDIGITS, *p;
-        uint16_t data = 0;
+ساكن صحيح parse_hw_addr_one_ډګر(ثابت حرف **s, حرف sep, size_t len, uint8_t *buf) {
+        ثابت حرف *hex = HEXDIGITS, *p;
+        uint16_t معلومات = 0;
         bool cont;
 
-        assert(s);
-        assert(*s);
-        assert(IN_SET(len, 1, 2));
-        assert(buf);
+        أكد(s);
+        أكد(*s);
+        أكد(دننه_سېټ(len, 1, 2));
+        أكد(buf);
 
         p = *s;
 
-        for (size_t i = 0; i < len * 2; i++) {
-                const char *hexoff;
+        لكل (size_t i = 0; i < len * 2; i++) {
+                ثابت حرف *hexoff;
                 size_t x;
 
-                if (*p == '\0' || *p == sep) {
-                        if (i == 0)
-                                return -EINVAL;
-                        break;
+                إذا (*p == '\0' || *p == sep) {
+                        إذا (i == 0)
+                                أرجع -EINVAL;
+                        اكسر;
                 }
 
                 hexoff = strchr(hex, *p);
-                if (!hexoff)
-                        return -EINVAL;
+                إذا (!hexoff)
+                        أرجع -EINVAL;
 
-                assert(hexoff >= hex);
+                أكد(hexoff >= hex);
                 x = hexoff - hex;
-                if (x >= 16)
+                إذا (x >= 16)
                         x -= 6; /* A-F */
 
-                assert(x < 16);
-                data <<= 4;
-                data += x;
+                أكد(x < 16);
+                معلومات <<= 4;
+                معلومات += x;
 
                 p++;
         }
 
-        if (*p != '\0' && *p != sep)
-                return -EINVAL;
+        إذا (*p != '\0' && *p != sep)
+                أرجع -EINVAL;
 
-        switch (len) {
-        case 1:
-                buf[0] = data;
-                break;
-        case 2:
-                buf[0] = (data & 0xff00) >> 8;
-                buf[1] = data & 0xff;
-                break;
-        default:
+        بدل (len) {
+        حالة 1:
+                buf[0] = معلومات;
+                اكسر;
+        حالة 2:
+                buf[0] = (معلومات & 0xff00) >> 8;
+                buf[1] = معلومات & 0xff;
+                اكسر;
+        افتراضي:
                 assert_not_reached();
         }
 
         cont = *p == sep;
         *s = p + cont;
-        return cont;
+        أرجع cont;
 }
 
-int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *ret) {
-        size_t field_size, max_len, len = 0;
-        uint8_t bytes[HW_ADDR_MAX_SIZE];
-        char sep;
-        int r;
+صحيح parse_hw_addr_ډک(ثابت حرف *s, size_t expected_len, بنية hw_addr_معلومات *ret) {
+        size_t ډګر_اندازه, max_len, len = 0;
+        uint8_t بایټونه[HW_ADDR_MAX_اندازه];
+        حرف sep;
+        صحيح r;
 
-        assert(s);
-        assert(expected_len <= HW_ADDR_MAX_SIZE || expected_len == SIZE_MAX);
-        assert(ret);
+        أكد(s);
+        أكد(expected_len <= HW_ADDR_MAX_اندازه || expected_len == SIZE_MAX);
+        أكد(ret);
 
         /* This accepts the following formats:
          *
@@ -221,102 +221,102 @@ int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *
          * Otherwise: accepts addresses with matching length.
          */
 
-        if (IN_SET(expected_len, 0, sizeof(struct in_addr), sizeof(struct in6_addr))) {
-                union in_addr_union a;
-                int family;
+        إذا (دننه_سېټ(expected_len, 0, حجم(بنية in_addr), حجم(بنية in6_addr))) {
+                اتحاد دننه_addr_union a;
+                صحيح family;
 
-                if (expected_len == 0)
-                        r = in_addr_from_string_auto(s, &family, &a);
-                else {
-                        family = expected_len == sizeof(struct in_addr) ? AF_INET : AF_INET6;
-                        r = in_addr_from_string(family, s, &a);
+                إذا (expected_len == 0)
+                        r = دننه_addr_from_string_auto(s, &family, &a);
+                وإلا {
+                        family = expected_len == حجم(بنية in_addr) ? AF_INET : AF_INET6;
+                        r = دننه_addr_from_string(family, s, &a);
                 }
-                if (r >= 0) {
-                        ret->length = FAMILY_ADDRESS_SIZE(family);
-                        memcpy(ret->bytes, a.bytes, ret->length);
-                        return 0;
+                إذا (r >= 0) {
+                        ret->length = FAMILY_پته_اندازه(family);
+                        حافظه_نقل(ret->بایټونه, a.بایټونه, ret->length);
+                        أرجع 0;
                 }
         }
 
         max_len =
                 expected_len == 0 ? INFINIBAND_ALEN :
-                expected_len == SIZE_MAX ? HW_ADDR_MAX_SIZE : expected_len;
+                expected_len == SIZE_MAX ? HW_ADDR_MAX_اندازه : expected_len;
         sep = s[strspn(s, HEXDIGITS)];
 
-        if (sep == '.')
-                field_size = 2;
-        else if (IN_SET(sep, ':', '-'))
-                field_size = 1;
-        else
-                return -EINVAL;
+        إذا (sep == '.')
+                ډګر_اندازه = 2;
+        وإلا إذا (دننه_سېټ(sep, ':', '-'))
+                ډګر_اندازه = 1;
+        وإلا
+                أرجع -EINVAL;
 
-        if (max_len % field_size != 0)
-                return -EINVAL;
+        إذا (max_len % ډګر_اندازه != 0)
+                أرجع -EINVAL;
 
-        for (size_t i = 0; i < max_len / field_size; i++) {
-                r = parse_hw_addr_one_field(&s, sep, field_size, bytes + i * field_size);
-                if (r < 0)
-                        return r;
-                if (r == 0) {
-                        len = (i + 1) * field_size;
-                        break;
+        لكل (size_t i = 0; i < max_len / ډګر_اندازه; i++) {
+                r = parse_hw_addr_one_ډګر(&s, sep, ډګر_اندازه, بایټونه + i * ډګر_اندازه);
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0) {
+                        len = (i + 1) * ډګر_اندازه;
+                        اكسر;
                 }
         }
 
-        if (len == 0)
-                return -EINVAL;
+        إذا (len == 0)
+                أرجع -EINVAL;
 
-        if (expected_len == 0) {
-                if (!IN_SET(len, 4, 16, ETH_ALEN, INFINIBAND_ALEN))
-                        return -EINVAL;
-        } else if (expected_len != SIZE_MAX) {
-                if (len != expected_len)
-                        return -EINVAL;
+        إذا (expected_len == 0) {
+                إذا (!دننه_سېټ(len, 4, 16, ETH_ALEN, INFINIBAND_ALEN))
+                        أرجع -EINVAL;
+        } وإلا إذا (expected_len != SIZE_MAX) {
+                إذا (len != expected_len)
+                        أرجع -EINVAL;
         }
 
         ret->length = len;
-        memcpy(ret->bytes, bytes, ret->length);
-        return 0;
+        حافظه_نقل(ret->بایټونه, بایټونه, ret->length);
+        أرجع 0;
 }
 
-int parse_ether_addr(const char *s, struct ether_addr *ret) {
-        struct hw_addr_data a;
-        int r;
+صحيح parse_ether_addr(ثابت حرف *s, بنية ether_addr *ret) {
+        بنية hw_addr_معلومات a;
+        صحيح r;
 
-        assert(s);
-        assert(ret);
+        أكد(s);
+        أكد(ret);
 
-        r = parse_hw_addr_full(s, ETH_ALEN, &a);
-        if (r < 0)
-                return r;
+        r = parse_hw_addr_ډک(s, ETH_ALEN, &a);
+        إذا (r < 0)
+                أرجع r;
 
         *ret = a.ether;
-        return 0;
+        أرجع 0;
 }
 
-void ether_addr_mark_random(struct ether_addr *addr) {
-        assert(addr);
+فراغ ether_addr_mark_random(بنية ether_addr *addr) {
+        أكد(addr);
 
         /* see eth_random_addr in the kernel */
         addr->ether_addr_octet[0] &= 0xfe;        /* clear multicast bit */
         addr->ether_addr_octet[0] |= 0x02;        /* set local assignment bit (IEEE802) */
 }
 
-int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type) {
-        assert(bcast_addr);
+صحيح hw_addr_ensure_خپرونه(بنية hw_addr_معلومات *bcast_addr, uint16_t arp_type) {
+        أكد(bcast_addr);
 
-        if (!hw_addr_is_null(bcast_addr))
-                return 0;
+        إذا (!hw_addr_is_null(bcast_addr))
+                أرجع 0;
 
-        switch (arp_type) {
-        case ARPHRD_ETHER:
-                *bcast_addr = (struct hw_addr_data) {
+        بدل (arp_type) {
+        حالة ARPHRD_ETHER:
+                *bcast_addr = (بنية hw_addr_معلومات) {
                         .length = ETH_ALEN,
                         .ether = {{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }},
                 };
-                return 0;
-        case ARPHRD_INFINIBAND:
-                *bcast_addr = (struct hw_addr_data) {
+                أرجع 0;
+        حالة ARPHRD_INFINIBAND:
+                *bcast_addr = (بنية hw_addr_معلومات) {
                         .length = INFINIBAND_ALEN,
                         .infiniband = {
                                 0x00, 0xff, 0xff, 0xff, 0xff, 0x12, 0x40, 0x1b,
@@ -324,8 +324,8 @@ int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type)
                                 0xff, 0xff, 0xff, 0xff,
                         },
                 };
-                return 0;
-        default:
-                return -EAFNOSUPPORT;
+                أرجع 0;
+        افتراضي:
+                أرجع -EAFNOSUPPORT;
         }
 }

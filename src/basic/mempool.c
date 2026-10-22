@@ -1,177 +1,177 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#ضمن <stdio.h>
+#ضمن <stdlib.h>
 
-#include "format-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "mempool.h"
+#ضمن "format-util.h"
+#ضمن "log.h"
+#ضمن "memory-util.h"
+#ضمن "mempool.h"
 
-struct pool {
-        struct pool *next;
+بنية pool {
+        بنية pool *بل_2;
         size_t n_tiles;
-        size_t n_used;
+        size_t n_کارول_شوی;
 };
 
-static void* pool_ptr(struct pool *p) {
-        return ((uint8_t*) ASSERT_PTR(p)) + ALIGN(sizeof(struct pool));
+ساكن فراغ* pool_ptr(بنية pool *p) {
+        أرجع ((uint8_t*) ASSERT_PTR(p)) + ALIGN(حجم(بنية pool));
 }
 
-void* mempool_alloc_tile(struct mempool *mp) {
+فراغ* mempool_alloc_tile(بنية mempool *mp) {
         size_t i;
 
         /* When a tile is released we add it to the list and simply
          * place the next pointer at its offset 0. */
 
-        assert(mp);
-        assert(mp->tile_size >= sizeof(void*));
-        assert(mp->at_least > 0);
+        أكد(mp);
+        أكد(mp->tile_اندازه >= حجم(فراغ*));
+        أكد(mp->at_لږترلږه > 0);
 
-        if (mp->freelist) {
-                void *t;
+        إذا (mp->freelist) {
+                فراغ *t;
 
                 t = mp->freelist;
-                mp->freelist = *(void**) mp->freelist;
-                return t;
+                mp->freelist = *(فراغ**) mp->freelist;
+                أرجع t;
         }
 
-        if (_unlikely_(!mp->first_pool) ||
-            _unlikely_(mp->first_pool->n_used >= mp->first_pool->n_tiles)) {
-                size_t size, n;
-                struct pool *p;
+        إذا (_unlikely_(!mp->لومړی_pool) ||
+            _unlikely_(mp->لومړی_pool->n_کارول_شوی >= mp->لومړی_pool->n_tiles)) {
+                size_t اندازه, n;
+                بنية pool *p;
 
-                n = mp->first_pool ? mp->first_pool->n_tiles : 0;
-                n = MAX(mp->at_least, n * 2);
-                size = PAGE_ALIGN(ALIGN(sizeof(struct pool)) + n*mp->tile_size);
-                n = (size - ALIGN(sizeof(struct pool))) / mp->tile_size;
+                n = mp->لومړی_pool ? mp->لومړی_pool->n_tiles : 0;
+                n = MAX(mp->at_لږترلږه, n * 2);
+                اندازه = پاڼه_ALIGN(ALIGN(حجم(بنية pool)) + n*mp->tile_اندازه);
+                n = (اندازه - ALIGN(حجم(بنية pool))) / mp->tile_اندازه;
 
-                p = malloc(size);
-                if (!p)
-                        return NULL;
+                p = حافظه_ورکړه(اندازه);
+                إذا (!p)
+                        أرجع عدم;
 
-                p->next = mp->first_pool;
+                p->بل_2 = mp->لومړی_pool;
                 p->n_tiles = n;
-                p->n_used = 0;
+                p->n_کارول_شوی = 0;
 
-                mp->first_pool = p;
+                mp->لومړی_pool = p;
         }
 
-        i = mp->first_pool->n_used++;
+        i = mp->لومړی_pool->n_کارول_شوی++;
 
-        return (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_size;
+        أرجع (uint8_t*) pool_ptr(mp->لومړی_pool) + i*mp->tile_اندازه;
 }
 
-void* mempool_alloc0_tile(struct mempool *mp) {
-        void *p;
+فراغ* mempool_alloc0_tile(بنية mempool *mp) {
+        فراغ *p;
 
-        assert(mp);
+        أكد(mp);
 
         p = mempool_alloc_tile(mp);
-        if (p)
-                memzero(p, mp->tile_size);
-        return p;
+        إذا (p)
+                memzero(p, mp->tile_اندازه);
+        أرجع p;
 }
 
-void* mempool_free_tile(struct mempool *mp, void *p) {
-        assert(mp);
+فراغ* mempool_free_tile(بنية mempool *mp, فراغ *p) {
+        أكد(mp);
 
-        if (!p)
-                return NULL;
+        إذا (!p)
+                أرجع عدم;
 
-        *(void**) p = mp->freelist;
+        *(فراغ**) p = mp->freelist;
         mp->freelist = p;
 
-        return NULL;
+        أرجع عدم;
 }
 
-static bool pool_contains(struct mempool *mp, struct pool *p, void *ptr) {
+ساكن bool pool_لري(بنية mempool *mp, بنية pool *p, فراغ *ptr) {
         size_t off;
-        void *a;
+        فراغ *a;
 
-        assert(mp);
-        assert(p);
+        أكد(mp);
+        أكد(p);
 
-        if (!ptr)
-                return false;
+        إذا (!ptr)
+                أرجع false;
 
         a = pool_ptr(p);
-        if ((uint8_t*) ptr < (uint8_t*) a)
-                return false;
+        إذا ((uint8_t*) ptr < (uint8_t*) a)
+                أرجع false;
 
         off = (uint8_t*) ptr - (uint8_t*) a;
-        if (off >= mp->tile_size * p->n_tiles)
-                return false;
+        إذا (off >= mp->tile_اندازه * p->n_tiles)
+                أرجع false;
 
-        assert(off % mp->tile_size == 0);
-        return true;
+        أكد(off % mp->tile_اندازه == 0);
+        أرجع true;
 }
 
-static bool pool_is_unused(struct mempool *mp, struct pool *p) {
-        assert(mp);
-        assert(p);
+ساكن bool pool_is_ناکارول_شوی(بنية mempool *mp, بنية pool *p) {
+        أكد(mp);
+        أكد(p);
 
-        if (p->n_used == 0)
-                return true;
+        إذا (p->n_کارول_شوی == 0)
+                أرجع true;
 
         /* Check if all tiles in this specific pool are in the freelist. */
         size_t n = 0;
-        void *i = mp->freelist;
-        while (i) {
-                if (pool_contains(mp, p, i))
+        فراغ *i = mp->freelist;
+        طالما (i) {
+                إذا (pool_لري(mp, p, i))
                         n++;
 
-                i = *(void**) i;
+                i = *(فراغ**) i;
         }
 
-        assert(n <= p->n_used);
+        أكد(n <= p->n_کارول_شوی);
 
-        return n == p->n_used;
+        أرجع n == p->n_کارول_شوی;
 }
 
-static void pool_unlink(struct mempool *mp, struct pool *p) {
+ساكن فراغ pool_unlink(بنية mempool *mp, بنية pool *p) {
         size_t m = 0;
 
-        assert(mp);
-        assert(p);
+        أكد(mp);
+        أكد(p);
 
-        if (p->n_used == 0)
-                return;
+        إذا (p->n_کارول_شوی == 0)
+                أرجع;
 
-        void **i = &mp->freelist;
-        while (*i) {
-                void *d = *i;
+        فراغ **i = &mp->freelist;
+        طالما (*i) {
+                فراغ *d = *i;
 
-                if (pool_contains(mp, p, d)) {
-                        *i = *(void**) d;
+                إذا (pool_لري(mp, p, d)) {
+                        *i = *(فراغ**) d;
                         m++;
 
-                        if (m == p->n_used)
-                                break;
-                } else
-                        i = (void**) d;
+                        إذا (m == p->n_کارول_شوی)
+                                اكسر;
+                } وإلا
+                        i = (فراغ**) d;
         }
 }
 
-void mempool_trim(struct mempool *mp) {
-        size_t trimmed = 0, left = 0;
+فراغ mempool_trim(بنية mempool *mp) {
+        size_t trimmed = 0, کیڼ = 0;
 
-        assert(mp);
+        أكد(mp);
 
-        struct pool **p = &mp->first_pool;
-        while (*p) {
-                struct pool *d = *p;
+        بنية pool **p = &mp->لومړی_pool;
+        طالما (*p) {
+                بنية pool *d = *p;
 
-                if (pool_is_unused(mp, d)) {
-                        trimmed += d->n_tiles * mp->tile_size;
+                إذا (pool_is_ناکارول_شوی(mp, d)) {
+                        trimmed += d->n_tiles * mp->tile_اندازه;
                         pool_unlink(mp, d);
-                        *p = d->next;
-                        free(d);
-                } else {
-                        left += d->n_tiles * mp->tile_size;
-                        p = &d->next;
+                        *p = d->بل_2;
+                        حرر(d);
+                } وإلا {
+                        کیڼ += d->n_tiles * mp->tile_اندازه;
+                        p = &d->بل_2;
                 }
         }
 
-        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(left));
+        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_بایټونه(trimmed), mp, FORMAT_بایټونه(کیڼ));
 }

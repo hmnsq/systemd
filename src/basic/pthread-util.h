@@ -1,16 +1,16 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#لارښوونه once
 
-#include <pthread.h> /* IWYU pragma: export */
+#ضمن <pthread.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#ضمن "forward.h"
 
-static inline pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
+ساكن مضمن pthread_mutex_t* pthread_mutex_قلف_assert(pthread_mutex_t *mutex) {
         assert_se(pthread_mutex_lock(mutex) == 0);
-        return mutex;
+        أرجع mutex;
 }
 
-static inline void pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
-        if (*mutexp)
+ساكن مضمن فراغ pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
+        إذا (*mutexp)
                 assert_se(pthread_mutex_unlock(*mutexp) == 0);
 }
