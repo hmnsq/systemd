@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#অন্তর্ভাব "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(শূন্য) _weak_ _pure_;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+শূন্য log_assert_failed_return(ধ্রুবক অক্ষর *text, ধ্রুবক অক্ষর *file, পূর্ণসংখ্যা সারি, ধ্রুবক অক্ষর *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#define assert_log(রাশিমালা)                                                \
+        (_likely_(রাশিমালা) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#define assert_return(রাশিমালা, r)                                          \
+        করো {                                                            \
+                যদি (!assert_log(রাশিমালা))                                  \
+                        ফেরত (r);                                     \
+        } যখন (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#define assert_return_errno(রাশিমালা, r, err)                               \
+        করো {                                                            \
+                যদি (!assert_log(রাশিমালা)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        ফেরত (r);                                     \
                 }                                                       \
-        } while (false)
+        } যখন (false)

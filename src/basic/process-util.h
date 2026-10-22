@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <signal.h>
+#অন্তর্ভাব <signal.h>
 
-#include "fileio.h"
-#include "format-util.h"
-#include "forward.h"
-#include "string-util.h"
+#অন্তর্ভাব "fileio.h"
+#অন্তর্ভাব "format-util.h"
+#অন্তর্ভাব "forward.h"
+#অন্তর্ভাব "string-util.h"
 
 #define procfs_file_alloca(pid, field)                                  \
         ({                                                              \
                 pid_t _pid_ = (pid);                                    \
-                const char *_field_ = (field);                          \
-                char *_r_;                                              \
-                if (_pid_ == 0)                                         \
+                ধ্রুবক অক্ষর *_field_ = (field);                          \
+                অক্ষর *_r_;                                              \
+                যদি (_pid_ == 0)                                         \
                         _r_ = strjoina("/proc/self/", _field_);         \
-                else {                                                  \
-                        assert(_pid_ > 0);                              \
-                        _r_ = newa(char, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
+                অন্যথা {                                                  \
+                        প্রতিজ্ঞা(_pid_ > 0);                              \
+                        _r_ = newa(অক্ষর, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
                         sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, _field_); \
                 }                                                       \
-                (const char*) _r_;                                      \
+                (ধ্রুবক অক্ষর*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+স্থির অন্তঃরেখ পূর্ণসংখ্যা procfs_file_get_field(pid_t pid, ধ্রুবক অক্ষর *name, ধ্রুবক অক্ষর *চাবি, অক্ষর **ret) {
+        ফেরত get_proc_field(procfs_file_alloca(pid, name), চাবি, ret);
 }
 
-typedef enum ProcessCmdlineFlags {
+প্রকারলেখ গণনা ProcessCmdlineFlags {
         PROCESS_CMDLINE_COMM_FALLBACK = 1 << 0,
         PROCESS_CMDLINE_USE_LOCALE    = 1 << 1,
         PROCESS_CMDLINE_QUOTE         = 1 << 2,
         PROCESS_CMDLINE_QUOTE_POSIX   = 1 << 3,
 } ProcessCmdlineFlags;
 
-int pid_get_comm(pid_t pid, char **ret);
-int pidref_get_comm(const PidRef *pid, char **ret);
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
-int get_process_exe(pid_t pid, char **ret);
-int pid_get_uid(pid_t pid, uid_t *ret);
-int pidref_get_uid(const PidRef *pid, uid_t *ret);
-int get_process_gid(pid_t pid, gid_t *ret);
-int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
-int get_process_environ(pid_t pid, char **ret);
-int pid_get_ppid(pid_t pid, pid_t *ret);
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
-int pid_get_start_time(pid_t pid, usec_t *ret);
-int pidref_get_start_time(const PidRef *pid, usec_t *ret);
-int get_process_umask(pid_t pid, mode_t *ret);
-int pidref_has_sigcgt(const PidRef *pidref, int sig);
-int pidref_has_sigblk(const PidRef *pidref, int sig);
+পূর্ণসংখ্যা pid_get_comm(pid_t pid, অক্ষর **ret);
+পূর্ণসংখ্যা pidref_get_comm(ধ্রুবক PidRef *pid, অক্ষর **ret);
+পূর্ণসংখ্যা pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, অক্ষর **ret);
+পূর্ণসংখ্যা pidref_get_cmdline(ধ্রুবক PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, অক্ষর **ret);
+পূর্ণসংখ্যা pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, অক্ষর ***ret);
+পূর্ণসংখ্যা pidref_get_cmdline_strv(ধ্রুবক PidRef *pid, ProcessCmdlineFlags flags, অক্ষর ***ret);
+পূর্ণসংখ্যা get_process_exe(pid_t pid, অক্ষর **ret);
+পূর্ণসংখ্যা pid_get_uid(pid_t pid, uid_t *ret);
+পূর্ণসংখ্যা pidref_get_uid(ধ্রুবক PidRef *pid, uid_t *ret);
+পূর্ণসংখ্যা get_process_gid(pid_t pid, gid_t *ret);
+পূর্ণসংখ্যা get_process_cwd(pid_t pid, অক্ষর **ret);
+পূর্ণসংখ্যা get_process_মূল(pid_t pid, অক্ষর **ret);
+পূর্ণসংখ্যা get_process_environ(pid_t pid, অক্ষর **ret);
+পূর্ণসংখ্যা pid_get_ppid(pid_t pid, pid_t *ret);
+পূর্ণসংখ্যা pidref_get_ppid(ধ্রুবক PidRef *pidref, pid_t *ret);
+পূর্ণসংখ্যা pidref_get_ppid_as_pidref(ধ্রুবক PidRef *pidref, PidRef *ret);
+পূর্ণসংখ্যা pid_get_start_time(pid_t pid, usec_t *ret);
+পূর্ণসংখ্যা pidref_get_start_time(ধ্রুবক PidRef *pid, usec_t *ret);
+পূর্ণসংখ্যা get_process_umask(pid_t pid, mode_t *ret);
+পূর্ণসংখ্যা pidref_has_sigcgt(ধ্রুবক PidRef *pidref, পূর্ণসংখ্যা sig);
+পূর্ণসংখ্যা pidref_has_sigblk(ধ্রুবক PidRef *pidref, পূর্ণসংখ্যা sig);
 
-static inline bool SIGINFO_CODE_IS_DEAD(int code) {
-        return IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
+স্থির অন্তঃরেখ bool SIGINFO_CODE_IS_DEAD(পূর্ণসংখ্যা code) {
+        ফেরত IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
 }
 
-typedef enum WaitFlags {
+প্রকারলেখ গণনা WaitFlags {
         WAIT_LOG_ABNORMAL             = 1 << 0,
         WAIT_LOG_NON_ZERO_EXIT_STATUS = 1 << 1,
 
@@ -68,26 +68,26 @@ typedef enum WaitFlags {
         WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
 } WaitFlags;
 
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
+পূর্ণসংখ্যা pidref_wait_for_terminate_and_check(ধ্রুবক অক্ষর *name, PidRef *pidref, WaitFlags flags);
 
-int kill_and_sigcont(pid_t pid, int sig);
+পূর্ণসংখ্যা kill_and_sigcont(pid_t pid, পূর্ণসংখ্যা sig);
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret);
+পূর্ণসংখ্যা procfs_get_stat_flags(ধ্রুবক অক্ষর *path, unsigned long long *ret);
 
-int pid_is_kernel_thread(pid_t pid);
-int pidref_is_kernel_thread(const PidRef *pid);
+পূর্ণসংখ্যা pid_is_kernel_thread(pid_t pid);
+পূর্ণসংখ্যা pidref_is_kernel_thread(ধ্রুবক PidRef *pid);
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret);
+পূর্ণসংখ্যা getenv_for_pid(pid_t pid, ধ্রুবক অক্ষর *field, অক্ষর **ret);
 
-int pid_is_alive(pid_t pid);
-int pidref_is_alive(const PidRef *pidref);
-int pid_is_unwaited(pid_t pid);
-int pidref_is_unwaited(PidRef *pidref);
-int pid_is_my_child(pid_t pid);
-int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+পূর্ণসংখ্যা pid_is_alive(pid_t pid);
+পূর্ণসংখ্যা pidref_is_alive(ধ্রুবক PidRef *pidref);
+পূর্ণসংখ্যা pid_is_unwaited(pid_t pid);
+পূর্ণসংখ্যা pidref_is_unwaited(PidRef *pidref);
+পূর্ণসংখ্যা pid_is_my_child(pid_t pid);
+পূর্ণসংখ্যা pidref_is_my_child(PidRef *pidref);
+পূর্ণসংখ্যা pidref_from_same_মূল_fs(PidRef *a, PidRef *b);
 
-bool is_main_thread(void);
+bool is_main_thread(শূন্য);
 
 #ifndef PERSONALITY_INVALID
 /* personality(2) documents that 0xFFFFFFFFUL is used for querying the
@@ -101,57 +101,57 @@ bool is_main_thread(void);
  * personality we're interested in. */
 #define OPINIONATED_PERSONALITY_MASK 0xFFUL
 
-unsigned long personality_from_string(const char *s);
-const char* personality_to_string(unsigned long p);
+unsigned long personality_from_string(ধ্রুবক অক্ষর *s);
+ধ্রুবক অক্ষর* personality_to_string(unsigned long p);
 
-int safe_personality(unsigned long p);
-int opinionated_personality(unsigned long *ret);
+পূর্ণসংখ্যা safe_personality(unsigned long p);
+পূর্ণসংখ্যা opinionated_personality(unsigned long *ret);
 
-DECLARE_STRING_TABLE_LOOKUP(sigchld_code, int);
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int);
+DECLARE_STRING_TABLE_LOOKUP(sigchld_code, পূর্ণসংখ্যা);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, পূর্ণসংখ্যা);
 
-static inline pid_t PTR_TO_PID(const void *p) {
-        return (pid_t) ((uintptr_t) p);
+স্থির অন্তঃরেখ pid_t PTR_TO_PID(ধ্রুবক শূন্য *p) {
+        ফেরত (pid_t) ((uintptr_t) p);
 }
 
-static inline void* PID_TO_PTR(pid_t pid) {
-        return (void*) ((uintptr_t) pid);
+স্থির অন্তঃরেখ শূন্য* PID_TO_PTR(pid_t pid) {
+        ফেরত (শূন্য*) ((uintptr_t) pid);
 }
 
-void valgrind_summary_hack(void);
+শূন্য valgrind_summary_hack(শূন্য);
 
-int pid_compare_func(const pid_t *a, const pid_t *b);
+পূর্ণসংখ্যা pid_compare_func(ধ্রুবক pid_t *a, ধ্রুবক pid_t *b);
 
-bool nice_is_valid(int n) _const_;
+bool nice_is_valid(পূর্ণসংখ্যা n) _const_;
 
-bool sched_policy_is_valid(int policy) _const_;
-bool sched_policy_supported(int policy);
-int sched_get_priority_min_safe(int policy);
-int sched_get_priority_max_safe(int policy);
+bool sched_policy_is_valid(পূর্ণসংখ্যা policy) _const_;
+bool sched_policy_supported(পূর্ণসংখ্যা policy);
+পূর্ণসংখ্যা sched_get_priority_min_safe(পূর্ণসংখ্যা policy);
+পূর্ণসংখ্যা sched_get_priority_max_safe(পূর্ণসংখ্যা policy);
 
 #define PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
 
-static inline bool pid_is_valid(pid_t p) {
-        return p > 0;
+স্থির অন্তঃরেখ bool pid_is_valid(pid_t p) {
+        ফেরত p > 0;
 }
 
-static inline bool pid_is_automatic(pid_t p) {
-        return p == PID_AUTOMATIC;
+স্থির অন্তঃরেখ bool pid_is_automatic(pid_t p) {
+        ফেরত p == PID_AUTOMATIC;
 }
 
-pid_t getpid_cached(void);
-void reset_cached_pid(void);
+pid_t getpid_cached(শূন্য);
+শূন্য reset_cached_pid(শূন্য);
 
-int must_be_root(void);
+পূর্ণসংখ্যা must_be_মূল(শূন্য);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_স্তূপ(পূর্ণসংখ্যা (*fn)(শূন্য *), পূর্ণসংখ্যা flags, শূন্য *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
  * and thus will cause deadlocks if the parent uses threads and the child does memory allocations. Hence: if
  * the parent is threaded these flags may not be used. These flags cannot be used if the parent uses threads
  * or the child uses malloc(). 💣 */
-typedef enum ForkFlags {
+প্রকারলেখ গণনা ForkFlags {
         FORK_RESET_SIGNALS      = 1 <<  0, /* Reset all signal handlers and signal mask */
         FORK_CLOSE_ALL_FDS      = 1 <<  1, /* Close all open file descriptors in the child, except for 0,1,2 */
         FORK_DEATHSIG_SIGTERM   = 1 <<  2, /* Set PR_DEATHSIG in the child to SIGTERM */
@@ -178,46 +178,46 @@ typedef enum ForkFlags {
         FORK_ALLOW_DLOPEN       = 1 << 23, /* Do not block dlopen() in child */
 } ForkFlags;
 
-int pidref_safe_fork_full(
-                const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+পূর্ণসংখ্যা pidref_safe_fork_full(
+                ধ্রুবক অক্ষর *name,
+                ধ্রুবক পূর্ণসংখ্যা stdio_fds[3],
+                পূর্ণসংখ্যা except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret);
 
-static inline int pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
-        return pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
+স্থির অন্তঃরেখ পূর্ণসংখ্যা pidref_safe_fork(ধ্রুবক অক্ষর *name, ForkFlags flags, PidRef *ret) {
+        ফেরত pidref_safe_fork_full(name, ফাঁকা, ফাঁকা, 0, flags, ret);
 }
 
-int namespace_fork_full(
-                const char *outer_name,
-                const char *inner_name,
-                int except_fds[],
+পূর্ণসংখ্যা namespace_fork_full(
+                ধ্রুবক অক্ষর *outer_name,
+                ধ্রুবক অক্ষর *inner_name,
+                পূর্ণসংখ্যা except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                পূর্ণসংখ্যা pidns_fd,
+                পূর্ণসংখ্যা mntns_fd,
+                পূর্ণসংখ্যা netns_fd,
+                পূর্ণসংখ্যা userns_fd,
+                পূর্ণসংখ্যা মূল_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
-int namespace_fork(
-                const char *outer_name,
-                const char *inner_name,
+পূর্ণসংখ্যা namespace_fork(
+                ধ্রুবক অক্ষর *outer_name,
+                ধ্রুবক অক্ষর *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                পূর্ণসংখ্যা pidns_fd,
+                পূর্ণসংখ্যা mntns_fd,
+                পূর্ণসংখ্যা netns_fd,
+                পূর্ণসংখ্যা userns_fd,
+                পূর্ণসংখ্যা মূল_fd,
                 PidRef *ret);
 
-bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
-int get_oom_score_adjust(int *ret);
+bool oom_score_adjust_is_valid(পূর্ণসংখ্যা oa);
+পূর্ণসংখ্যা set_oom_score_adjust(পূর্ণসংখ্যা মান);
+পূর্ণসংখ্যা get_oom_score_adjust(পূর্ণসংখ্যা *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */
 #define PID_T_MAX ((pid_t) INT32_MAX)
@@ -231,33 +231,33 @@ int get_oom_score_adjust(int *ret);
 
 assert_cc(TASKS_MAX <= (unsigned long) PID_T_MAX);
 
-int setpriority_closest(int priority);
+পূর্ণসংখ্যা setpriority_closest(পূর্ণসংখ্যা priority);
 
-_noreturn_ void freeze(void);
+_noreturn_ শূন্য freeze(শূন্য);
 
-int get_process_threads(pid_t pid);
+পূর্ণসংখ্যা get_process_threads(pid_t pid);
 
-int is_reaper_process(void);
-int make_reaper_process(bool b);
+পূর্ণসংখ্যা is_reaper_process(শূন্য);
+পূর্ণসংখ্যা make_reaper_process(bool b);
 
-int posix_spawn_wrapper(
-                const char *path,
-                char * const *argv,
-                char * const *envp,
-                const char *cgroup,
+পূর্ণসংখ্যা posix_spawn_wrapper(
+                ধ্রুবক অক্ষর *path,
+                অক্ষর * ধ্রুবক *argv,
+                অক্ষর * ধ্রুবক *envp,
+                ধ্রুবক অক্ষর *cgroup,
                 PidRef *ret_pidref);
 
-int proc_dir_open(DIR **ret);
-int proc_dir_read(DIR *d, pid_t *ret);
-int proc_dir_read_pidref(DIR *d, PidRef *ret);
+পূর্ণসংখ্যা proc_dir_open(DIR **ret);
+পূর্ণসংখ্যা proc_dir_read(DIR *d, pid_t *ret);
+পূর্ণসংখ্যা proc_dir_read_pidref(DIR *d, PidRef *ret);
 
-int safe_mlockall(int flags);
+পূর্ণসংখ্যা safe_mlockall(পূর্ণসংখ্যা flags);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error);
-int read_errno(int errno_fd);
+_noreturn_ শূন্য report_errno_and_exit(পূর্ণসংখ্যা errno_fd, পূর্ণসংখ্যা error);
+পূর্ণসংখ্যা read_errno(পূর্ণসংখ্যা errno_fd);
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+পূর্ণসংখ্যা prctl_safe(পূর্ণসংখ্যা op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
 
-int proc_set_comm(const char *comm);
-int proc_set_nnp(void);
-nsec_t proc_get_timerslack(void);
+পূর্ণসংখ্যা proc_set_comm(ধ্রুবক অক্ষর *comm);
+পূর্ণসংখ্যা proc_set_nnp(শূন্য);
+nsec_t proc_get_timerslack(শূন্য);

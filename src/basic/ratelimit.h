@@ -1,23 +1,23 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-typedef struct RateLimit {
+প্রকারলেখ কাঠামো RateLimit {
         usec_t interval; /* Keep those two fields first so they can be initialized easily: */
         unsigned burst;  /* RateLimit rl = { INTERVAL, BURST }; */
-        unsigned num;
+        unsigned অঙ্ক;
         usec_t begin;
 } RateLimit;
 
-#define RATELIMIT_OFF (const RateLimit) { .interval = USEC_INFINITY, .burst = UINT_MAX }
+#define RATELIMIT_OFF (ধ্রুবক RateLimit) { .interval = USEC_INFINITY, .burst = UINT_MAX }
 
-static inline void ratelimit_reset(RateLimit *rl) {
-        rl->num = rl->begin = 0;
+স্থির অন্তঃরেখ শূন্য ratelimit_reset(RateLimit *rl) {
+        rl->অঙ্ক = rl->begin = 0;
 }
 
-static inline bool ratelimit_configured(const RateLimit *rl) {
-        return rl->interval > 0 && rl->burst > 0;
+স্থির অন্তঃরেখ bool ratelimit_configured(ধ্রুবক RateLimit *rl) {
+        ফেরত rl->interval > 0 && rl->burst > 0;
 }
 
 bool ratelimit_below(RateLimit *rl);
@@ -27,7 +27,7 @@ bool ratelimit_below(RateLimit *rl);
  * window makes usec_sub_unsigned() return 0, i.e. the window looks like it just started. */
 bool ratelimit_below_at(RateLimit *rl, usec_t ts);
 
-unsigned ratelimit_num_dropped(const RateLimit *rl);
+unsigned ratelimit_অঙ্ক_dropped(ধ্রুবক RateLimit *rl);
 
-usec_t ratelimit_end(const RateLimit *rl);
-usec_t ratelimit_left(const RateLimit *rl);
+usec_t ratelimit_end(ধ্রুবক RateLimit *rl);
+usec_t ratelimit_বাম(ধ্রুবক RateLimit *rl);

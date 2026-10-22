@@ -1,16 +1,16 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <pthread.h> /* IWYU pragma: export */
+#অন্তর্ভাব <pthread.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-static inline pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
+স্থির অন্তঃরেখ pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
         assert_se(pthread_mutex_lock(mutex) == 0);
-        return mutex;
+        ফেরত mutex;
 }
 
-static inline void pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
-        if (*mutexp)
+স্থির অন্তঃরেখ শূন্য pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
+        যদি (*mutexp)
                 assert_se(pthread_mutex_unlock(*mutexp) == 0);
 }

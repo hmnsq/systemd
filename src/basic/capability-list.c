@@ -1,68 +1,68 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#অন্তর্ভাব <stdio.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "parse-util.h"
-#include "string-util.h"
-#include "strv.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "bitfield.h"
+#অন্তর্ভাব "capability-list.h"
+#অন্তর্ভাব "capability-util.h"
+#অন্তর্ভাব "extract-word.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "parse-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+স্থির ধ্রুবক কাঠামো capability_name* lookup_capability(নিবন্ধ ধ্রুবক অক্ষর *str, নিবন্ধ GPERF_LEN_TYPE len);
 
-#include "capability-from-name.inc"
-#include "capability-to-name.inc"
+#অন্তর্ভাব "capability-from-name.inc"
+#অন্তর্ভাব "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+ধ্রুবক অক্ষর* capability_to_name(পূর্ণসংখ্যা id) {
+        যদি (id < 0)
+                ফেরত ফাঁকা;
+        যদি ((unsigned) id >= capability_list_দৈর্ঘ্য())
+                ফেরত ফাঁকা;
 
-        return capability_names[id];
+        ফেরত capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+ধ্রুবক অক্ষর* capability_to_string(পূর্ণসংখ্যা id, অক্ষর buf[স্থির CAPABILITY_TO_STRING_MAX]) {
+        ধ্রুবক অক্ষর *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        যদি (id < 0)
+                ফেরত ফাঁকা;
+        যদি (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                ফেরত ফাঁকা;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        যদি (p)
+                ফেরত p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        ফেরত buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+পূর্ণসংখ্যা capability_from_name(ধ্রুবক অক্ষর *name) {
+        ধ্রুবক কাঠামো capability_name *sc;
+        পূর্ণসংখ্যা r, i;
 
-        assert(name);
+        প্রতিজ্ঞা(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        যদি (r >= 0) {
+                যদি (i < 0 || i > CAP_LIMIT)
+                        ফেরত -EINVAL;
 
-                return i;
+                ফেরত i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        যদি (!sc)
+                ফেরত -EINVAL;
 
-        return sc->id;
+        ফেরত sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -70,117 +70,117 @@ int capability_from_name(const char *name) {
  * value larger than the last known capability. This is different from cap_last_cap() which returns the
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
-unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+unsigned capability_list_দৈর্ঘ্য(শূন্য) {
+        ফেরত MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+পূর্ণসংখ্যা capability_set_to_string(uint64_t set, অক্ষর **ret) {
+        _cleanup_free_ অক্ষর *str = ফাঁকা;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        জন্য (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ধ্রুবক অক্ষর *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                যদি (!BIT_SET(set, i))
+                        চালু;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                প্রতিজ্ঞা(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                যদি (!strextend_with_separator(&str, " ", p))
+                        ফেরত -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        যদি (!str) {
+                str = new0(অক্ষর, 1);
+                যদি (!str)
+                        ফেরত -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        ফেরত 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+পূর্ণসংখ্যা capability_set_to_string_negative(uint64_t set, অক্ষর **ret) {
+        _cleanup_free_ অক্ষর *a = ফাঁকা, *b = ফাঁকা;
+        পূর্ণসংখ্যা r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
         /* Format the specified capability mask both in positive way (i.e. just listing caps) and in negative
          * way (i.e. listing only caps that are missing from the full set) and return the shorter version of
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        যদি (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        অন্যথা {
+                অক্ষর *c = strjoin("~", b);
+                যদি (!c)
+                        ফেরত -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        ফেরত 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+পূর্ণসংখ্যা capability_set_to_strv(uint64_t set, অক্ষর ***ret) {
+        _cleanup_strv_free_ অক্ষর **l = ফাঁকা;
+        পূর্ণসংখ্যা r;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        জন্য (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ধ্রুবক অক্ষর *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                যদি (!BIT_SET(set, i))
+                        চালু;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                প্রতিজ্ঞা(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        ফেরত r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        ফেরত 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+পূর্ণসংখ্যা capability_set_from_string(ধ্রুবক অক্ষর *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        জন্য (ধ্রুবক অক্ষর *p = s;;) {
+                _cleanup_free_ অক্ষর *word = ফাঁকা;
+                পূর্ণসংখ্যা r;
 
-                r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&p, &word, ফাঁকা, EXTRACT_UNQUOTE|EXTRACT_RELAX);
+                যদি (r < 0)
+                        ফেরত r;
+                যদি (r == 0)
+                        বিরতি;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                যদি (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } অন্যথা
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        যদি (ret)
                 *ret = val;
 
-        return good;
+        ফেরত good;
 }

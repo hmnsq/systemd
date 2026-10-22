@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
 /* Limits the use of ANSI colors to a subset. */
-typedef enum ColorMode {
+প্রকারলেখ গণনা ColorMode {
         COLOR_OFF,        /* No colors, monochrome output. */
         COLOR_16,         /* Only the base 16 colors. */
         COLOR_256,        /* Only 256 colors. */
@@ -26,19 +26,19 @@ typedef enum ColorMode {
 
 DECLARE_STRING_TABLE_LOOKUP(color_mode, ColorMode);
 
-ColorMode get_color_mode(void);
-static inline bool colors_enabled(void) {
+ColorMode get_color_mode(শূন্য);
+স্থির অন্তঃরেখ bool colors_enabled(শূন্য) {
         /* Returns true if colors are considered supported on our stdout. */
-        return get_color_mode() != COLOR_OFF;
+        ফেরত get_color_mode() != COLOR_OFF;
 }
 
-ColorMode parse_systemd_colors(void);
+ColorMode parse_systemd_colors(শূন্য);
 
-bool underline_enabled(void);
+bool underline_enabled(শূন্য);
 
-void reset_ansi_feature_caches(void);
+শূন্য reset_ansi_feature_caches(শূন্য);
 
-bool looks_like_ansi_color_code(const char *str);
+bool looks_like_ansi_color_code(ধ্রুবক অক্ষর *str);
 
 /* Regular colors */
 #define ANSI_BLACK   "\x1B[0;30m" /* Some type of grey usually. */
@@ -109,8 +109,8 @@ bool looks_like_ansi_color_code(const char *str);
 #define ANSI_NORMAL "\x1B[0m"
 
 #define DEFINE_ANSI_FUNC(name, NAME)                            \
-        static inline const char* ansi_##name(void) {           \
-                return colors_enabled() ? ANSI_##NAME : "";     \
+        স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_##name(শূন্য) {           \
+                ফেরত colors_enabled() ? ANSI_##NAME : "";     \
         }
 
 /* NB: in 256 mode we always emit the fallback color first, in order to deal with terminals with
@@ -120,12 +120,12 @@ bool looks_like_ansi_color_code(const char *str);
  * reflect the correct status. */
 
 #define DEFINE_ANSI_FUNC_256(name, NAME, FALLBACK)                              \
-        static inline const char* ansi_##name(void) {                           \
-                switch (get_color_mode()) {                                     \
-                        case COLOR_OFF: return "";                              \
-                        case COLOR_16: return ANSI_##FALLBACK;                  \
-                        case COLOR_256: return ANSI_##FALLBACK ANSI_##NAME;     \
-                        default: return ANSI_##NAME;                            \
+        স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_##name(শূন্য) {                           \
+                নির্বাচন (get_color_mode()) {                                     \
+                        ক্ষেত্র COLOR_OFF: ফেরত "";                              \
+                        ক্ষেত্র COLOR_16: ফেরত ANSI_##FALLBACK;                  \
+                        ক্ষেত্র COLOR_256: ফেরত ANSI_##FALLBACK ANSI_##NAME;     \
+                        পূর্বনির্ধারিত: ফেরত ANSI_##NAME;                            \
                 }                                                               \
         }
 
@@ -161,52 +161,52 @@ DEFINE_ANSI_FUNC(highlight_cyan,        HIGHLIGHT_CYAN);
 DEFINE_ANSI_FUNC_256(highlight_grey,    HIGHLIGHT_GREY, HIGHLIGHT_GREY_FALLBACK);
 DEFINE_ANSI_FUNC(highlight_white,       HIGHLIGHT_WHITE);
 
-static inline const char* _ansi_highlight_yellow(void) {
-        return colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
+স্থির অন্তঃরেখ ধ্রুবক অক্ষর* _ansi_highlight_yellow(শূন্য) {
+        ফেরত colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
 }
 
-static inline const char* ansi_highlight_green_red(bool b) {
-        return b ? ansi_highlight_green() : ansi_highlight_red();
+স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_highlight_green_red(bool b) {
+        ফেরত b ? ansi_highlight_green() : ansi_highlight_red();
 }
 
-static inline const char* ansi_underline(void) {
-        return underline_enabled() ? ANSI_UNDERLINE : "";
+স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_underline(শূন্য) {
+        ফেরত underline_enabled() ? ANSI_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline(void) {
-        return underline_enabled() ? ANSI_ADD_UNDERLINE : "";
+স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_add_underline(শূন্য) {
+        ফেরত underline_enabled() ? ANSI_ADD_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline_grey(void) {
-        return underline_enabled() ?
+স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_add_underline_grey(শূন্য) {
+        ফেরত underline_enabled() ?
                 (colors_enabled() ? ANSI_ADD_UNDERLINE_GREY : ANSI_ADD_UNDERLINE) : "";
 }
 
-static inline const char* ansi_italics(void) {
+স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_italics(শূন্য) {
         /* We hook italics also into the underline checks, close enough */
-        return underline_enabled() ? ANSI_ITALICS : "";
+        ফেরত underline_enabled() ? ANSI_ITALICS : "";
 }
 
-static inline const char* ansi_add_italics(void) {
-        return underline_enabled() ? ANSI_ADD_ITALICS : "";
+স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_add_italics(শূন্য) {
+        ফেরত underline_enabled() ? ANSI_ADD_ITALICS : "";
 }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE(name, NAME)                          \
-        static inline const char* ansi_##name##_underline(void) {       \
-                return underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
+        স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_##name##_underline(শূন্য) {       \
+                ফেরত underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
                         ansi_##name();                                  \
         }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE_256(name, NAME, FALLBACK)                                            \
-        static inline const char* ansi_##name##_underline(void) {                                       \
-                if (!underline_enabled())                                                               \
-                        return ansi_##name();                                                           \
+        স্থির অন্তঃরেখ ধ্রুবক অক্ষর* ansi_##name##_underline(শূন্য) {                                       \
+                যদি (!underline_enabled())                                                               \
+                        ফেরত ansi_##name();                                                           \
                                                                                                         \
-                switch (get_color_mode()) {                                                             \
-                        case COLOR_OFF: return "";                                                      \
-                        case COLOR_16: return ANSI_##FALLBACK##_UNDERLINE;                              \
-                        case COLOR_256: return ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
-                        default: return ANSI_##NAME##_UNDERLINE;                                        \
+                নির্বাচন (get_color_mode()) {                                                             \
+                        ক্ষেত্র COLOR_OFF: ফেরত "";                                                      \
+                        ক্ষেত্র COLOR_16: ফেরত ANSI_##FALLBACK##_UNDERLINE;                              \
+                        ক্ষেত্র COLOR_256: ফেরত ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
+                        পূর্বনির্ধারিত: ফেরত ANSI_##NAME##_UNDERLINE;                                        \
                 }                                                                                       \
         }
 

@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "stdio-util.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "stdio-util.h"
 
-char* asprintf_safe(const char *restrict fmt, ...) {
-        _cleanup_free_ char *buf = NULL;
+অক্ষর* asprintf_safe(ধ্রুবক অক্ষর *restrict fmt, ...) {
+        _cleanup_free_ অক্ষর *buf = ফাঁকা;
         va_list ap;
-        int r;
+        পূর্ণসংখ্যা r;
 
         va_start(ap, fmt);
         r = vasprintf(&buf, fmt, ap);
         va_end(ap);
 
-        if (r < 0)
-                return NULL;
-        return TAKE_PTR(buf);
+        যদি (r < 0)
+                ফেরত ফাঁকা;
+        ফেরত TAKE_PTR(buf);
 }

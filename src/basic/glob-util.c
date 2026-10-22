@@ -1,145 +1,145 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <dirent.h>
-#include <sys/stat.h>
+#অন্তর্ভাব <dirent.h>
+#অন্তর্ভাব <sys/stat.h>
 
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "glob-util.h"
-#include "string-util.h"
-#include "strv.h"
+#অন্তর্ভাব "dirent-util.h"
+#অন্তর্ভাব "errno-util.h"
+#অন্তর্ভাব "glob-util.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "strv.h"
 
 #ifndef __GLIBC__
-static bool safe_glob_verify(const char *p, const char *prefix) {
+স্থির bool safe_glob_verify(ধ্রুবক অক্ষর *p, ধ্রুবক অক্ষর *prefix) {
         POINTER_MAY_BE_NULL(p);
         POINTER_MAY_BE_NULL(prefix);
 
-        if (isempty(p))
-                return false; /* should not happen, but for safey. */
+        যদি (isempty(p))
+                ফেরত false; /* should not happen, but for safey. */
 
-        if (prefix) {
+        যদি (prefix) {
                 /* Skip the prefix, as we allow dots in prefix.
                  * Note, glob() does not normalize paths, hence do not use path_startswith(). */
                 p = startswith(p, prefix);
-                if (!p)
-                        return false; /* should not happen, but for safety. */
+                যদি (!p)
+                        ফেরত false; /* should not happen, but for safety. */
         }
 
-        for (;;) {
+        জন্য (;;) {
                 p += strspn(p, "/");
-                if (*p == '\0')
-                        return true;
-                if (*p == '.') {
+                যদি (*p == '\0')
+                        ফেরত true;
+                যদি (*p == '.') {
                         p++;
-                        if (IN_SET(*p, '/', '\0'))
-                                return false; /* refuse dot */
-                        if (*p == '.') {
+                        যদি (IN_SET(*p, '/', '\0'))
+                                ফেরত false; /* refuse dot */
+                        যদি (*p == '.') {
                                 p++;
-                                if (IN_SET(*p, '/', '\0'))
-                                        return false; /* refuse dot dot */
+                                যদি (IN_SET(*p, '/', '\0'))
+                                        ফেরত false; /* refuse dot dot */
                         }
                 }
 
                 p += strcspn(p, "/");
-                if (*p == '\0')
-                        return true;
+                যদি (*p == '\0')
+                        ফেরত true;
         }
 }
 
-static int filter_glob_result(char * const *result, const char *path, char ***ret) {
-        int r;
+স্থির পূর্ণসংখ্যা filter_glob_ফলাফল(অক্ষর * ধ্রুবক *ফলাফল, ধ্রুবক অক্ষর *path, অক্ষর ***ret) {
+        পূর্ণসংখ্যা r;
 
-        assert(path);
+        প্রতিজ্ঞা(path);
 
-        if (strv_isempty(result))
-                return -ENOENT;
+        যদি (strv_isempty(ফলাফল))
+                ফেরত -ENOENT;
 
-        _cleanup_free_ char *prefix = NULL;
+        _cleanup_free_ অক্ষর *prefix = ফাঁকা;
         r = glob_non_glob_prefix(path, &prefix);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        যদি (r < 0 && r != -ENOENT)
+                ফেরত r;
 
-        _cleanup_strv_free_ char **filtered = NULL;
+        _cleanup_strv_free_ অক্ষর **filtered = ফাঁকা;
         size_t n_filtered = 0;
-        STRV_FOREACH(p, result) {
-                if (!safe_glob_verify(*p, prefix))
-                        continue;
+        STRV_FOREACH(p, ফলাফল) {
+                যদি (!safe_glob_verify(*p, prefix))
+                        চালু;
 
-                if (!ret)
-                        return 0; /* Found at least one entry, let's return earlier. */
+                যদি (!ret)
+                        ফেরত 0; /* Found at least one entry, let's return earlier. */
 
                 /* When musl is used, each entry is not a head of allocated memory. Hence, it is
                  * necessary to copy the string. */
-                r = strv_extend_with_size(&filtered, &n_filtered, *p);
-                if (r < 0)
-                        return r;
+                r = strv_extend_with_আকার(&filtered, &n_filtered, *p);
+                যদি (r < 0)
+                        ফেরত r;
         }
 
-        if (n_filtered == 0)
-                return -ENOENT;
+        যদি (n_filtered == 0)
+                ফেরত -ENOENT;
 
-        assert(ret);
+        প্রতিজ্ঞা(ret);
         *ret = TAKE_PTR(filtered);
-        return 0;
+        ফেরত 0;
 }
 #endif
 
-DEFINE_TRIVIAL_DESTRUCTOR(closedir_wrapper, void, closedir);
+DEFINE_TRIVIAL_DESTRUCTOR(closedir_wrapper, শূন্য, closedir);
 
-int safe_glob_full(const char *path, int flags, opendir_t opendir_func, char ***ret) {
+পূর্ণসংখ্যা safe_glob_full(ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags, opendir_t opendir_func, অক্ষর ***ret) {
         _cleanup_(globfree) glob_t g = {
                 .gl_closedir = closedir_wrapper,
-                .gl_readdir = (struct dirent* (*)(void *)) readdir_no_dot,
-                .gl_opendir = (void* (*)(const char *)) (opendir_func ?: opendir),
+                .gl_readdir = (কাঠামো dirent* (*)(শূন্য *)) readdir_no_dot,
+                .gl_opendir = (শূন্য* (*)(ধ্রুবক অক্ষর *)) (opendir_func ?: opendir),
                 .gl_lstat = lstat,
                 .gl_stat = stat,
         };
-        int r;
+        পূর্ণসংখ্যা r;
 
-        assert(path);
+        প্রতিজ্ঞা(path);
 
         errno = 0;
-        r = glob(path, flags | GLOB_ALTDIRFUNC, NULL, &g);
-        if (r == GLOB_NOMATCH)
-                return -ENOENT;
-        if (r == GLOB_NOSPACE)
-                return -ENOMEM;
-        if (r != 0)
-                return errno_or_else(EIO);
+        r = glob(path, flags | GLOB_ALTDIRFUNC, ফাঁকা, &g);
+        যদি (r == GLOB_NOMATCH)
+                ফেরত -ENOENT;
+        যদি (r == GLOB_NOSPACE)
+                ফেরত -ENOMEM;
+        যদি (r != 0)
+                ফেরত errno_or_else(EIO);
 
 #ifndef __GLIBC__
-        return filter_glob_result(g.gl_pathv, path, ret);
+        ফেরত filter_glob_ফলাফল(g.gl_pathv, path, ret);
 #endif
 
-        if (strv_isempty(g.gl_pathv))
-                return -ENOENT;
+        যদি (strv_isempty(g.gl_pathv))
+                ফেরত -ENOENT;
 
-        if (ret) {
+        যদি (ret) {
                 *ret = g.gl_pathv;
                 TAKE_STRUCT(g); /* To avoid the result being freed. */
         }
 
-        return 0;
+        ফেরত 0;
 }
 
-int glob_first(const char *path, char **ret) {
-        _cleanup_strv_free_ char **v = NULL;
-        int r;
+পূর্ণসংখ্যা glob_first(ধ্রুবক অক্ষর *path, অক্ষর **ret) {
+        _cleanup_strv_free_ অক্ষর **v = ফাঁকা;
+        পূর্ণসংখ্যা r;
 
-        assert(path);
+        প্রতিজ্ঞা(path);
 
         r = safe_glob(path, GLOB_NOSORT|GLOB_BRACE, &v);
-        if (r == -ENOENT) {
-                if (ret)
-                        *ret = NULL;
-                return false;
+        যদি (r == -ENOENT) {
+                যদি (ret)
+                        *ret = ফাঁকা;
+                ফেরত false;
         }
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
-        assert(!strv_isempty(v));
+        প্রতিজ্ঞা(!strv_isempty(v));
 
-        if (ret) {
+        যদি (ret) {
                 /* Free all results except for the first one. */
                 STRV_FOREACH(p, strv_skip(v, 1))
                         *p = mfree(*p);
@@ -148,45 +148,45 @@ int glob_first(const char *path, char **ret) {
                 *ret = TAKE_PTR(*v);
         }
 
-        return true;
+        ফেরত true;
 }
 
-int glob_extend(char ***strv, const char *path, int flags) {
-        char **v;
-        int r;
+পূর্ণসংখ্যা glob_extend(অক্ষর ***strv, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags) {
+        অক্ষর **v;
+        পূর্ণসংখ্যা r;
 
-        assert(path);
+        প্রতিজ্ঞা(path);
 
         r = safe_glob(path, GLOB_NOSORT|GLOB_BRACE|flags, &v);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
-        return strv_extend_strv_consume(strv, v, /* filter_duplicates= */ false);
+        ফেরত strv_extend_strv_consume(strv, v, /* filter_duplicates= */ false);
 }
 
-int glob_non_glob_prefix(const char *path, char **ret) {
-        assert(path);
-        assert(ret);
+পূর্ণসংখ্যা glob_non_glob_prefix(ধ্রুবক অক্ষর *path, অক্ষর **ret) {
+        প্রতিজ্ঞা(path);
+        প্রতিজ্ঞা(ret);
 
         /* Return the path of the path that has no glob characters. */
 
         size_t n = strcspn(path, GLOB_CHARS);
 
-        if (path[n] != '\0')
-                while (n > 0 && path[n-1] != '/')
+        যদি (path[n] != '\0')
+                যখন (n > 0 && path[n-1] != '/')
                         n--;
 
-        if (n == 0)
-                return -ENOENT;
+        যদি (n == 0)
+                ফেরত -ENOENT;
 
-        char *ans = strndup(path, n);
-        if (!ans)
-                return -ENOMEM;
+        অক্ষর *ans = strndup(path, n);
+        যদি (!ans)
+                ফেরত -ENOMEM;
         *ret = ans;
-        return 0;
+        ফেরত 0;
 }
 
-bool string_is_glob(const char *p) {
+bool string_is_glob(ধ্রুবক অক্ষর *p) {
         /* Check if a string contains any glob patterns. */
-        return !!strpbrk(p, GLOB_CHARS);
+        ফেরত !!strpbrk(p, GLOB_CHARS);
 }

@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <glob.h>       /* IWYU pragma: export */
+#অন্তর্ভাব <glob.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-typedef DIR* (*opendir_t)(const char *);
+প্রকারলেখ DIR* (*opendir_t)(ধ্রুবক অক্ষর *);
 
-int safe_glob_full(const char *path, int flags, opendir_t opendir_func, char ***ret);
-static inline int safe_glob(const char *path, int flags, char ***ret) {
-        return safe_glob_full(path, flags, NULL, ret);
+পূর্ণসংখ্যা safe_glob_full(ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags, opendir_t opendir_func, অক্ষর ***ret);
+স্থির অন্তঃরেখ পূর্ণসংখ্যা safe_glob(ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags, অক্ষর ***ret) {
+        ফেরত safe_glob_full(path, flags, ফাঁকা, ret);
 }
 
 /* Note: which match is returned depends on the implementation/system and not guaranteed to be stable */
-int glob_first(const char *path, char **ret);
-#define glob_exists(path) glob_first(path, NULL)
-int glob_extend(char ***strv, const char *path, int flags);
+পূর্ণসংখ্যা glob_first(ধ্রুবক অক্ষর *path, অক্ষর **ret);
+#define glob_exists(path) glob_first(path, ফাঁকা)
+পূর্ণসংখ্যা glob_extend(অক্ষর ***strv, ধ্রুবক অক্ষর *path, পূর্ণসংখ্যা flags);
 
-int glob_non_glob_prefix(const char *path, char **ret);
+পূর্ণসংখ্যা glob_non_glob_prefix(ধ্রুবক অক্ষর *path, অক্ষর **ret);
 
-bool string_is_glob(const char *p) _pure_;
+bool string_is_glob(ধ্রুবক অক্ষর *p) _pure_;

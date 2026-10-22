@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#অন্তর্ভাব <stdio.h>
+#অন্তর্ভাব <stdlib.h>
+#অন্তর্ভাব <string.h>
 
-#include "errno-list.h"
+#অন্তর্ভাব "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+স্থির ধ্রুবক কাঠামো errno_name* lookup_errno(নিবন্ধ ধ্রুবক অক্ষর *str,
+                                             নিবন্ধ GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#অন্তর্ভাব "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+পূর্ণসংখ্যা errno_from_name(ধ্রুবক অক্ষর *name) {
+        ধ্রুবক কাঠামো errno_name *sc;
 
-        assert(name);
+        প্রতিজ্ঞা(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        যদি (!sc)
+                ফেরত -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        প্রতিজ্ঞা(sc->id > 0);
+        ফেরত sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+ধ্রুবক অক্ষর* errno_name_no_fallback(পূর্ণসংখ্যা id) {
+        যদি (id == 0) /* To stay in line with our implementation below.  */
+                ফেরত ফাঁকা;
 
-        return strerrorname_np(ABS(id));
+        ফেরত strerrorname_np(ABS(id));
 }
-#else
+#অন্যথা
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+ধ্রুবক অক্ষর* errno_name_no_fallback(পূর্ণসংখ্যা id) {
+        যদি (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        যদি ((size_t) id >= ELEMENTSOF(errno_names))
+                ফেরত ফাঁকা;
 
-        return errno_names[id];
+        ফেরত errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+ধ্রুবক অক্ষর* errno_name(পূর্ণসংখ্যা id, অক্ষর buf[স্থির ERRNO_NAME_BUF_LEN]) {
+        ধ্রুবক অক্ষর *a = errno_name_no_fallback(id);
+        যদি (a)
+                ফেরত a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        ফেরত buf;
 }

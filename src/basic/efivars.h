@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-#include "sd-id128.h"
+#অন্তর্ভাব "sd-id128.h"
 
-#include "../fundamental/efivars.h"        /* IWYU pragma: export */
+#অন্তর্ভাব "../fundamental/efivars.h"        /* IWYU pragma: export */
 
 #define EFI_VENDOR_LOADER       SD_ID128_MAKE(4a,67,b0,82,0a,4c,41,cf,b6,c7,44,0b,29,bb,8c,4f)
 #define EFI_VENDOR_LOADER_STR   SD_ID128_MAKE_UUID_STR(4a,67,b0,82,0a,4c,41,cf,b6,c7,44,0b,29,bb,8c,4f)
@@ -37,56 +37,56 @@
 #define EFIVAR_PATH(variable) "/sys/firmware/efi/efivars/" variable
 #define EFIVAR_CACHE_PATH(variable) "/run/systemd/efivars/" variable
 
-#if ENABLE_EFI
+#যদি ENABLE_EFI
 
-int efi_get_variable(const char *variable, uint32_t *attribute, void **ret_value, size_t *ret_size);
-int efi_get_variable_string(const char *variable, char **ret);
-int efi_get_variable_path(const char *variable, char **ret);
-int efi_set_variable(const char *variable, const void *value, size_t size) _nonnull_if_nonzero_(2, 3);
-int efi_set_variable_string(const char *variable, const char *value);
+পূর্ণসংখ্যা efi_get_variable(ধ্রুবক অক্ষর *variable, uint32_t *attribute, শূন্য **ret_মান, size_t *ret_আকার);
+পূর্ণসংখ্যা efi_get_variable_string(ধ্রুবক অক্ষর *variable, অক্ষর **ret);
+পূর্ণসংখ্যা efi_get_variable_path(ধ্রুবক অক্ষর *variable, অক্ষর **ret);
+পূর্ণসংখ্যা efi_set_variable(ধ্রুবক অক্ষর *variable, ধ্রুবক শূন্য *মান, size_t আকার_2) _nonnull_if_nonzero_(2, 3);
+পূর্ণসংখ্যা efi_set_variable_string(ধ্রুবক অক্ষর *variable, ধ্রুবক অক্ষর *মান);
 
 bool set_efi_boot(bool b);
-bool is_efi_boot(void);
-bool is_efi_secure_boot(void);
-SecureBootMode efi_get_secure_boot_mode(void);
+bool is_efi_boot(শূন্য);
+bool is_efi_secure_boot(শূন্য);
+SecureBootMode efi_get_secure_boot_mode(শূন্য);
 
-#else
+#অন্যথা
 
-static inline int efi_get_variable(const char *variable, uint32_t *attribute, void **value, size_t *size) {
-        return -EOPNOTSUPP;
+স্থির অন্তঃরেখ পূর্ণসংখ্যা efi_get_variable(ধ্রুবক অক্ষর *variable, uint32_t *attribute, শূন্য **মান, size_t *আকার_2) {
+        ফেরত -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_string(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+স্থির অন্তঃরেখ পূর্ণসংখ্যা efi_get_variable_string(ধ্রুবক অক্ষর *variable, অক্ষর **ret) {
+        ফেরত -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_path(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+স্থির অন্তঃরেখ পূর্ণসংখ্যা efi_get_variable_path(ধ্রুবক অক্ষর *variable, অক্ষর **ret) {
+        ফেরত -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable(const char *variable, const void *value, size_t size) {
-        return -EOPNOTSUPP;
+স্থির অন্তঃরেখ পূর্ণসংখ্যা efi_set_variable(ধ্রুবক অক্ষর *variable, ধ্রুবক শূন্য *মান, size_t আকার_2) {
+        ফেরত -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable_string(const char *variable, const char *p) {
-        return -EOPNOTSUPP;
+স্থির অন্তঃরেখ পূর্ণসংখ্যা efi_set_variable_string(ধ্রুবক অক্ষর *variable, ধ্রুবক অক্ষর *p) {
+        ফেরত -EOPNOTSUPP;
 }
 
-static inline bool set_efi_boot(bool b) {
-        return false;
+স্থির অন্তঃরেখ bool set_efi_boot(bool b) {
+        ফেরত false;
 }
 
-static inline bool is_efi_boot(void) {
-        return false;
+স্থির অন্তঃরেখ bool is_efi_boot(শূন্য) {
+        ফেরত false;
 }
 
-static inline bool is_efi_secure_boot(void) {
-        return false;
+স্থির অন্তঃরেখ bool is_efi_secure_boot(শূন্য) {
+        ফেরত false;
 }
 
-static inline SecureBootMode efi_get_secure_boot_mode(void) {
-        return SECURE_BOOT_UNKNOWN;
+স্থির অন্তঃরেখ SecureBootMode efi_get_secure_boot_mode(শূন্য) {
+        ফেরত SECURE_BOOT_UNKNOWN;
 }
 #endif
 
-char *efi_tilt_backslashes(char *s);
+অক্ষর *efi_tilt_backslashes(অক্ষর *s);

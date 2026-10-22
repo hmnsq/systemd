@@ -1,31 +1,31 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
-#include <unistd.h>
+#অন্তর্ভাব <threads.h>
+#অন্তর্ভাব <unistd.h>
 
-#include "alloc-util.h"
-#include "memory-util.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "memory-util.h"
 
-size_t page_size(void) {
-        static thread_local size_t pgsz = 0;
+size_t page_আকার(শূন্য) {
+        স্থির thread_local size_t pgsz = 0;
 
-        if (_likely_(pgsz > 0))
-                return pgsz;
+        যদি (_likely_(pgsz > 0))
+                ফেরত pgsz;
 
         long p = sysconf(_SC_PAGESIZE);
-        assert(p > 0);
+        প্রতিজ্ঞা(p > 0);
 
         pgsz = (size_t) p;
-        return pgsz;
+        ফেরত pgsz;
 }
 
-void* erase_and_free(void *p) {
+শূন্য* erase_and_free(শূন্য *p) {
         size_t l;
 
-        if (!p)
-                return NULL;
+        যদি (!p)
+                ফেরত ফাঁকা;
 
         l = MALLOC_SIZEOF_SAFE(p);
         explicit_bzero_safe(p, l);
-        return mfree(p);
+        ফেরত mfree(p);
 }

@@ -1,660 +1,660 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#অন্তর্ভাব <sys/stat.h>
+#অন্তর্ভাব <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "env-file.h"
+#অন্তর্ভাব "env-util.h"
+#অন্তর্ভাব "escape.h"
+#অন্তর্ভাব "fd-util.h"
+#অন্তর্ভাব "fileio.h"
+#অন্তর্ভাব "fs-util.h"
+#অন্তর্ভাব "label-util.h"
+#অন্তর্ভাব "log.h"
+#অন্তর্ভাব "string-util.h"
+#অন্তর্ভাব "strv.h"
+#অন্তর্ভাব "tmpfile-util.h"
+#অন্তর্ভাব "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+প্রকারলেখ পূর্ণসংখ্যা (*ঠেলো_env_func_t)(
+                ধ্রুবক অক্ষর *filename,
+                unsigned সারি,
+                ধ্রুবক অক্ষর *চাবি,
+                অক্ষর *মান,
+                শূন্য *userdata);
 
-static int parse_env_file_internal(
+স্থির পূর্ণসংখ্যা parse_env_file_internal(
                 FILE *f,
-                const char *fname,
-                push_env_func_t push,
-                void *userdata) {
+                ধ্রুবক অক্ষর *fname,
+                ঠেলো_env_func_t ঠেলো,
+                শূন্য *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
-        int r;
+        size_t n_চাবি = 0, n_মান = 0, last_মান_whitespace = SIZE_MAX, last_চাবি_whitespace = SIZE_MAX;
+        _cleanup_free_ অক্ষর *contents = ফাঁকা, *চাবি = ফাঁকা, *মান = ফাঁকা;
+        unsigned সারি = 1;
+        পূর্ণসংখ্যা r;
 
-        enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+        গণনা {
+                PRE_চাবি,
+                চাবি_2,
+                PRE_মান,
+                মান_2,
+                মান_ESCAPE,
+                SINGLE_QUOTE_মান,
+                DOUBLE_QUOTE_মান,
+                DOUBLE_QUOTE_মান_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_চাবি;
 
-        assert(f || fname);
-        assert(push);
+        প্রতিজ্ঞা(f || fname);
+        প্রতিজ্ঞা(ঠেলো);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        যদি (f)
+                r = read_full_stream(f, &contents, ফাঁকা);
+        অন্যথা
+                r = read_full_file(fname, &contents, ফাঁকা);
+        যদি (r < 0)
+                ফেরত r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        জন্য (অক্ষর *p = contents; *p; p++) {
+                অক্ষর c = *p;
 
-                switch (state) {
+                নির্বাচন (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                ক্ষেত্র PRE_চাবি:
+                        যদি (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                        অন্যথা যদি (!strchr(WHITESPACE, c)) {
+                                state = চাবি_2;
+                                last_চাবি_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                যদি (!GREEDY_REALLOC(চাবি, n_চাবি+2))
+                                        ফেরত -ENOMEM;
 
-                                key[n_key++] = c;
+                                চাবি[n_চাবি++] = c;
                         }
-                        break;
+                        বিরতি;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
-                        } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                ক্ষেত্র চাবি_2:
+                        যদি (strchr(NEWLINE, c)) {
+                                state = PRE_চাবি;
+                                সারি++;
+                                n_চাবি = 0;
+                        } অন্যথা যদি (c == '=') {
+                                state = PRE_মান;
+                                last_মান_whitespace = SIZE_MAX;
+                        } অন্যথা {
+                                যদি (!strchr(WHITESPACE, c))
+                                        last_চাবি_whitespace = SIZE_MAX;
+                                অন্যথা যদি (last_চাবি_whitespace == SIZE_MAX)
+                                         last_চাবি_whitespace = n_চাবি;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                যদি (!GREEDY_REALLOC(চাবি, n_চাবি+2))
+                                        ফেরত -ENOMEM;
 
-                                key[n_key++] = c;
+                                চাবি[n_চাবি++] = c;
                         }
 
-                        break;
+                        বিরতি;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                ক্ষেত্র PRE_মান:
+                        যদি (strchr(NEWLINE, c)) {
+                                state = PRE_চাবি;
+                                সারি++;
+                                চাবি[n_চাবি] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                যদি (মান)
+                                        মান[n_মান] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                যদি (last_চাবি_whitespace != SIZE_MAX)
+                                        চাবি[last_চাবি_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = ঠেলো(fname, সারি, চাবি, মান, userdata);
+                                যদি (r < 0)
+                                        ফেরত r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_চাবি = 0;
+                                মান = ফাঁকা;
+                                n_মান = 0;
 
-                        } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
-                                state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                        } অন্যথা যদি (c == '\'')
+                                state = SINGLE_QUOTE_মান;
+                        অন্যথা যদি (c == '"')
+                                state = DOUBLE_QUOTE_মান;
+                        অন্যথা যদি (c == '\\')
+                                state = মান_ESCAPE;
+                        অন্যথা যদি (!strchr(WHITESPACE, c)) {
+                                state = মান_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                যদি (!GREEDY_REALLOC(মান, n_মান+2))
+                                        ফেরত -ENOMEM;
 
-                                value[n_value++] = c;
+                                মান[n_মান++] = c;
                         }
 
-                        break;
+                        বিরতি;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                ক্ষেত্র মান_2:
+                        যদি (strchr(NEWLINE, c)) {
+                                state = PRE_চাবি;
+                                সারি++;
 
-                                key[n_key] = 0;
+                                চাবি[n_চাবি] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                যদি (মান)
+                                        মান[n_মান] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                যদি (last_মান_whitespace != SIZE_MAX)
+                                        মান[last_মান_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                যদি (last_চাবি_whitespace != SIZE_MAX)
+                                        চাবি[last_চাবি_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = ঠেলো(fname, সারি, চাবি, মান, userdata);
+                                যদি (r < 0)
+                                        ফেরত r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_চাবি = 0;
+                                মান = ফাঁকা;
+                                n_মান = 0;
 
-                        } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                        } অন্যথা যদি (c == '\\') {
+                                state = মান_ESCAPE;
+                                last_মান_whitespace = SIZE_MAX;
+                        } অন্যথা {
+                                যদি (!strchr(WHITESPACE, c))
+                                        last_মান_whitespace = SIZE_MAX;
+                                অন্যথা যদি (last_মান_whitespace == SIZE_MAX)
+                                        last_মান_whitespace = n_মান;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                যদি (!GREEDY_REALLOC(মান, n_মান+2))
+                                        ফেরত -ENOMEM;
 
-                                value[n_value++] = c;
+                                মান[n_মান++] = c;
                         }
 
-                        break;
+                        বিরতি;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                ক্ষেত্র মান_ESCAPE:
+                        state = মান_2;
 
-                        if (!strchr(NEWLINE, c)) {
+                        যদি (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                যদি (!GREEDY_REALLOC(মান, n_মান+2))
+                                        ফেরত -ENOMEM;
 
-                                value[n_value++] = c;
+                                মান[n_মান++] = c;
                         }
-                        break;
+                        বিরতি;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
-                                state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                ক্ষেত্র SINGLE_QUOTE_মান:
+                        যদি (c == '\'')
+                                state = PRE_মান;
+                        অন্যথা {
+                                যদি (!GREEDY_REALLOC(মান, n_মান+2))
+                                        ফেরত -ENOMEM;
 
-                                value[n_value++] = c;
-                        }
-
-                        break;
-
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
-                                state = PRE_VALUE;
-                        else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-
-                                value[n_value++] = c;
+                                মান[n_মান++] = c;
                         }
 
-                        break;
+                        বিরতি;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                ক্ষেত্র DOUBLE_QUOTE_মান:
+                        যদি (c == '"')
+                                state = PRE_মান;
+                        অন্যথা যদি (c == '\\')
+                                state = DOUBLE_QUOTE_মান_ESCAPE;
+                        অন্যথা {
+                                যদি (!GREEDY_REALLOC(মান, n_মান+2))
+                                        ফেরত -ENOMEM;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                                মান[n_মান++] = c;
+                        }
+
+                        বিরতি;
+
+                ক্ষেত্র DOUBLE_QUOTE_মান_ESCAPE:
+                        state = DOUBLE_QUOTE_মান;
+
+                        যদি (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-                                value[n_value++] = c;
-                        } else if (c != '\n') {
+                                যদি (!GREEDY_REALLOC(মান, n_মান+2))
+                                        ফেরত -ENOMEM;
+                                মান[n_মান++] = c;
+                        } অন্যথা যদি (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                যদি (!GREEDY_REALLOC(মান, n_মান+3))
+                                        ফেরত -ENOMEM;
+                                মান[n_মান++] = '\\';
+                                মান[n_মান++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        বিরতি;
 
-                case COMMENT:
-                        if (c == '\\')
+                ক্ষেত্র COMMENT:
+                        যদি (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                        অন্যথা যদি (strchr(NEWLINE, c)) {
+                                state = PRE_চাবি;
+                                সারি++;
                         }
-                        break;
+                        বিরতি;
 
-                case COMMENT_ESCAPE:
+                ক্ষেত্র COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                        } else
+                        যদি (strchr(NEWLINE, c)) {
+                                state = PRE_চাবি;
+                                সারি++;
+                        } অন্যথা
                                 state = COMMENT;
-                        break;
+                        বিরতি;
                 }
         }
 
-        if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+        যদি (IN_SET(state,
+                   PRE_মান,
+                   মান_2,
+                   মান_ESCAPE,
+                   SINGLE_QUOTE_মান,
+                   DOUBLE_QUOTE_মান,
+                   DOUBLE_QUOTE_মান_ESCAPE)) {
 
-                key[n_key] = 0;
+                চাবি[n_চাবি] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                যদি (মান)
+                        মান[n_মান] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                যদি (state == মান_2)
+                        যদি (last_মান_whitespace != SIZE_MAX)
+                                মান[last_মান_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                যদি (last_চাবি_whitespace != SIZE_MAX)
+                        চাবি[last_চাবি_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                r = ঠেলো(fname, সারি, চাবি, মান, userdata);
+                যদি (r < 0)
+                        ফেরত r;
 
-                value = NULL;
+                মান = ফাঁকা;
         }
 
-        return 0;
+        ফেরত 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+স্থির পূর্ণসংখ্যা check_utf8ness_and_warn(
+                ধ্রুবক অক্ষর *filename, unsigned সারি,
+                ধ্রুবক অক্ষর *চাবি, অক্ষর *মান) {
 
-        assert(key);
+        প্রতিজ্ঞা(চাবি);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        যদি (!utf8_is_valid(চাবি)) {
+                _cleanup_free_ অক্ষর *p = ফাঁকা;
 
-                p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(চাবি);
+                ফেরত log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), সারি, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        যদি (মান && !utf8_is_valid(মান)) {
+                _cleanup_free_ অক্ষর *p = ফাঁকা;
 
-                p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(মান);
+                ফেরত log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), সারি, চাবি, p);
         }
 
-        return 0;
+        ফেরত 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+স্থির পূর্ণসংখ্যা parse_env_file_ঠেলো(
+                ধ্রুবক অক্ষর *filename, unsigned সারি,
+                ধ্রুবক অক্ষর *চাবি, অক্ষর *মান,
+                শূন্য *userdata) {
 
-        const char *k;
+        ধ্রুবক অক্ষর *k;
         va_list aq, *ap = userdata;
-        int r;
+        পূর্ণসংখ্যা r;
 
-        assert(key);
+        প্রতিজ্ঞা(চাবি);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, সারি, চাবি, মান);
+        যদি (r < 0)
+                ফেরত r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        যখন ((k = va_arg(aq, ধ্রুবক অক্ষর *))) {
+                অক্ষর **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, অক্ষর **);
 
-                if (streq(key, k)) {
+                যদি (streq(চাবি, k)) {
                         va_end(aq);
-                        free_and_replace(*v, value);
+                        free_and_replace(*v, মান);
 
-                        return 1;
+                        ফেরত 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        মুক্ত(মান);
 
-        return 0;
+        ফেরত 0;
 }
 
-int parse_env_filev(
+পূর্ণসংখ্যা parse_env_filev(
                 FILE *f,
-                const char *fname,
+                ধ্রুবক অক্ষর *fname,
                 va_list ap) {
 
-        int r;
+        পূর্ণসংখ্যা r;
         va_list aq;
 
-        assert(f || fname);
+        প্রতিজ্ঞা(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_ঠেলো, &aq);
         va_end(aq);
-        return r;
+        ফেরত r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
+পূর্ণসংখ্যা parse_env_file_fdv(পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fname, va_list ap) {
+        _cleanup_fclose_ FILE *f = ফাঁকা;
         va_list aq;
-        int r;
+        পূর্ণসংখ্যা r;
 
-        assert(fd >= 0);
+        প্রতিজ্ঞা(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_ঠেলো, &aq);
         va_end(aq);
-        return r;
+        ফেরত r;
 }
 
-int parse_env_file_sentinel(
+পূর্ণসংখ্যা parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                ধ্রুবক অক্ষর *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        পূর্ণসংখ্যা r;
 
-        assert(f || fname);
+        প্রতিজ্ঞা(f || fname);
 
         va_start(ap, fname);
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        ফেরত r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+পূর্ণসংখ্যা parse_env_file_fd_sentinel(
+                পূর্ণসংখ্যা fd,
+                ধ্রুবক অক্ষর *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        পূর্ণসংখ্যা r;
 
-        assert(fd >= 0);
+        প্রতিজ্ঞা(fd >= 0);
 
         va_start(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        ফেরত r;
 }
 
-int parse_env_datav(
-                const char *data,
-                size_t size,
-                const char *fname, /* only used for logging */
+পূর্ণসংখ্যা parse_env_datav(
+                ধ্রুবক অক্ষর *তথ্য,
+                size_t আকার_2,
+                ধ্রুবক অক্ষর *fname, /* only used for logging */
                 va_list ap) {
 
-        assert(data);
+        প্রতিজ্ঞা(তথ্য);
 
-        if (size == SIZE_MAX)
-                size = strlen_ptr(data);
+        যদি (আকার_2 == SIZE_MAX)
+                আকার_2 = strlen_ptr(তথ্য);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ FILE *f = fmemopen_unlocked((শূন্য*) তথ্য, আকার_2, "r");
+        যদি (!f)
+                ফেরত -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        ফেরত parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
-                size_t size,
-                const char *fname, /* only used for logging */
+পূর্ণসংখ্যা parse_env_তথ্য_sentinel(
+                ধ্রুবক অক্ষর *তথ্য,
+                size_t আকার_2,
+                ধ্রুবক অক্ষর *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        পূর্ণসংখ্যা r;
 
         va_start(ap, fname);
-        r = parse_env_datav(data, size, fname, ap);
+        r = parse_env_datav(তথ্য, আকার_2, fname, ap);
         va_end(ap);
 
-        return r;
+        ফেরত r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+স্থির পূর্ণসংখ্যা load_env_file_ঠেলো(
+                ধ্রুবক অক্ষর *filename, unsigned সারি,
+                ধ্রুবক অক্ষর *চাবি, অক্ষর *মান,
+                শূন্য *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        অক্ষর ***m = userdata;
+        অক্ষর *p;
+        পূর্ণসংখ্যা r;
 
-        assert(key);
+        প্রতিজ্ঞা(চাবি);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, সারি, চাবি, মান);
+        যদি (r < 0)
+                ফেরত r;
 
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        p = strjoin(চাবি, "=", মান);
+        যদি (!p)
+                ফেরত -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
-        free(value);
-        return 0;
+        মুক্ত(মান);
+        ফেরত 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+পূর্ণসংখ্যা load_env_file(FILE *f, ধ্রুবক অক্ষর *fname, অক্ষর ***ret) {
+        _cleanup_strv_free_ অক্ষর **m = ফাঁকা;
+        পূর্ণসংখ্যা r;
 
-        assert(f || fname);
-        assert(ret);
+        প্রতিজ্ঞা(f || fname);
+        প্রতিজ্ঞা(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_ঠেলো, &m);
+        যদি (r < 0)
+                ফেরত r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        ফেরত 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+স্থির পূর্ণসংখ্যা load_env_file_ঠেলো_pairs(
+                ধ্রুবক অক্ষর *filename, unsigned সারি,
+                ধ্রুবক অক্ষর *চাবি, অক্ষর *মান,
+                শূন্য *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        অক্ষর ***m = ASSERT_PTR(userdata);
+        পূর্ণসংখ্যা r;
 
-        assert(key);
+        প্রতিজ্ঞা(চাবি);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, সারি, চাবি, মান);
+        যদি (r < 0)
+                ফেরত r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        জন্য (অক্ষর **t = *m; t && *t; t += 2)
+                যদি (streq(t[0], চাবি)) {
+                        যদি (মান)
+                                ফেরত free_and_replace(t[1], মান);
+                        অন্যথা
+                                ফেরত free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        r = strv_extend(m, চাবি);
+        যদি (r < 0)
+                ফেরত r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        যদি (মান)
+                ফেরত strv_ঠেলো(m, মান);
+        অন্যথা
+                ফেরত strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+পূর্ণসংখ্যা load_env_file_pairs(FILE *f, ধ্রুবক অক্ষর *fname, অক্ষর ***ret) {
+        _cleanup_strv_free_ অক্ষর **m = ফাঁকা;
+        পূর্ণসংখ্যা r;
 
-        assert(f || fname);
-        assert(ret);
+        প্রতিজ্ঞা(f || fname);
+        প্রতিজ্ঞা(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_ঠেলো_pairs, &m);
+        যদি (r < 0)
+                ফেরত r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        ফেরত 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+পূর্ণসংখ্যা load_env_file_pairs_fd(পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fname, অক্ষর ***ret) {
+        _cleanup_fclose_ FILE *f = ফাঁকা;
+        পূর্ণসংখ্যা r;
 
-        assert(fd >= 0);
+        প্রতিজ্ঞা(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
-        return load_env_file_pairs(f, fname, ret);
+        ফেরত load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+স্থির পূর্ণসংখ্যা merge_env_file_ঠেলো(
+                ধ্রুবক অক্ষর *filename, unsigned সারি,
+                ধ্রুবক অক্ষর *চাবি, অক্ষর *মান,
+                শূন্য *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        অক্ষর ***env = ASSERT_PTR(userdata);
+        অক্ষর *expanded_মান;
+        পূর্ণসংখ্যা r;
 
-        assert(key);
+        প্রতিজ্ঞা(চাবি);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+        যদি (!মান) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), সারি, চাবি);
+                ফেরত 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+        যদি (!env_name_is_valid(চাবি)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), সারি, চাবি);
+                মুক্ত(মান);
+                ফেরত 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(মান,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                        &expanded_মান);
+        যদি (r < 0)
+                ফেরত log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), সারি, মান);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(মান, expanded_মান);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, সারি, চাবি, মান);
 
-        return load_env_file_push(filename, line, key, value, env);
+        ফেরত load_env_file_ঠেলো(filename, সারি, চাবি, মান, env);
 }
 
-int merge_env_file(
-                char ***env,
+পূর্ণসংখ্যা merge_env_file(
+                অক্ষর ***env,
                 FILE *f,
-                const char *fname) {
+                ধ্রুবক অক্ষর *fname) {
 
-        assert(env);
-        assert(f || fname);
+        প্রতিজ্ঞা(env);
+        প্রতিজ্ঞা(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        ফেরত parse_env_file_internal(f, fname, merge_env_file_ঠেলো, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+স্থির শূন্য env_file_fputs_escaped(FILE *f, ধ্রুবক অক্ষর *p) {
+        প্রতিজ্ঞা(f);
+        প্রতিজ্ঞা(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        যদি (string_has_cc(p, ফাঁকা) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                জন্য (; *p; p++) {
+                        যদি (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } অন্যথা
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+শূন্য env_file_fputs_assignment(FILE *f, ধ্রুবক অক্ষর *k, ধ্রুবক অক্ষর *v) {
+        প্রতিজ্ঞা(f);
+        প্রতিজ্ঞা(k);
 
-        if (!v)
-                return;
+        যদি (!v)
+                ফেরত;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+স্থির শূন্য write_env_var(FILE *f, ধ্রুবক অক্ষর *v) {
+        ধ্রুবক অক্ষর *p;
 
-        assert(f);
-        assert(v);
+        প্রতিজ্ঞা(f);
+        প্রতিজ্ঞা(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        যদি (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                ফেরত;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+পূর্ণসংখ্যা write_env_file_label(পূর্ণসংখ্যা dir_fd, ধ্রুবক অক্ষর *fname, অক্ষর **headers, অক্ষর **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        পূর্ণসংখ্যা r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        প্রতিজ্ঞা(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        প্রতিজ্ঞা(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        যদি (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                যদি (r < 0)
+                        ফেরত r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ FILE *f = ফাঁকা;
+        _cleanup_free_ অক্ষর *p = ফাঁকা;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        যদি (r < 0) {
+                যদি (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+                        (শূন্য) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                ফেরত r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        যদি (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ ফাঁকা, /* created= */ true, label_context);
+                যদি (r < 0)
+                        ফেরত r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
         STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+                প্রতিজ্ঞা(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ফেরত r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        ফেরত 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+পূর্ণসংখ্যা write_vconsole_conf(পূর্ণসংখ্যা dir_fd, ধ্রুবক অক্ষর *fname, অক্ষর **l) {
+        অক্ষর **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        ফেরত write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ ফাঁকা);
 }

@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#অন্তর্ভাব <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#অন্তর্ভাব "alloc-util.h"
+#অন্তর্ভাব "sort-util.h"
+#অন্তর্ভাব "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+কাঠামো strbuf* strbuf_new(শূন্য) {
+        _cleanup_(strbuf_freep) কাঠামো strbuf *str = ফাঁকা;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(কাঠামো strbuf, 1);
+        যদি (!str)
+                ফেরত ফাঁকা;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (কাঠামো strbuf) {
+                .buf = new0(অক্ষর, 1),
+                .মূল = new0(কাঠামো strbuf_গ্রন্থি, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_গুনতি = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        যদি (!str->buf || !str->মূল)
+                ফেরত ফাঁকা;
 
-        return TAKE_PTR(str);
+        ফেরত TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+স্থির কাঠামো strbuf_গ্রন্থি* strbuf_গ্রন্থি_cleanup(কাঠামো strbuf_গ্রন্থি *গ্রন্থি) {
+        প্রতিজ্ঞা(গ্রন্থি);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(child, গ্রন্থি->children, গ্রন্থি->children_গুনতি)
+                strbuf_গ্রন্থি_cleanup(child->child);
 
-        free(node->children);
-        return mfree(node);
+        মুক্ত(গ্রন্থি->children);
+        ফেরত mfree(গ্রন্থি);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+শূন্য strbuf_complete(কাঠামো strbuf *str) {
+        যদি (!str || !str->মূল)
+                ফেরত;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->মূল = strbuf_গ্রন্থি_cleanup(str->মূল);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+কাঠামো strbuf* strbuf_free(কাঠামো strbuf *str) {
+        যদি (!str)
+                ফেরত ফাঁকা;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        মুক্ত(str->buf);
+        ফেরত mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+স্থির পূর্ণসংখ্যা strbuf_children_cmp(ধ্রুবক কাঠামো strbuf_child_entry *n1, ধ্রুবক কাঠামো strbuf_child_entry *n2) {
+        প্রতিজ্ঞা(n1);
+        প্রতিজ্ঞা(n2);
 
-        return CMP(n1->c, n2->c);
+        ফেরত CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+স্থির শূন্য bubbleinsert(কাঠামো strbuf_গ্রন্থি *গ্রন্থি,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         কাঠামো strbuf_গ্রন্থি *গ্রন্থি_child) {
 
-        struct strbuf_child_entry new = {
+        কাঠামো strbuf_child_entry new = {
                 .c = c,
-                .child = node_child,
+                .child = গ্রন্থি_child,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        পূর্ণসংখ্যা বাম = 0, ডান = ASSERT_PTR(গ্রন্থি)->children_গুনতি;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
-                else
-                        right = middle;
+        যখন (ডান > বাম) {
+                পূর্ণসংখ্যা মধ্য = (ডান + বাম) / 2 ;
+                যদি (strbuf_children_cmp(&গ্রন্থি->children[মধ্য], &new) <= 0)
+                        বাম = মধ্য + 1;
+                অন্যথা
+                        ডান = মধ্য;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(গ্রন্থি->children + বাম + 1, গ্রন্থি->children + বাম,
+                আকার(কাঠামো strbuf_child_entry) * (গ্রন্থি->children_গুনতি - বাম));
+        গ্রন্থি->children[বাম] = new;
 
-        node->children_count++;
+        গ্রন্থি->children_গুনতি++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_add_string_full(কাঠামো strbuf *str, ধ্রুবক অক্ষর *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        প্রতিজ্ঞা(str);
+        প্রতিজ্ঞা(s || len == 0);
 
-        if (len == SIZE_MAX)
+        যদি (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (!str->root)
-                return -EINVAL;
+        যদি (!str->মূল)
+                ফেরত -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
-        if (len == 0) {
-                str->dedup_count++;
-                return 0;
+        str->in_গুনতি++;
+        যদি (len == 0) {
+                str->dedup_গুনতি++;
+                ফেরত 0;
         }
         str->in_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        কাঠামো strbuf_গ্রন্থি *গ্রন্থি = str->মূল;
+        জন্য (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = গ্রন্থি->মান_off + গ্রন্থি->মান_len - len;
+                যদি (depth == len || (গ্রন্থি->মান_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
-                        return off;
+                        str->dedup_গুনতি++;
+                        ফেরত off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
-                node = child->child;
+                কাঠামো strbuf_child_entry *child, অনুসন্ধান = { .c = c };
+                child = typesafe_bsearch(&অনুসন্ধান, গ্রন্থি->children, গ্রন্থি->children_গুনতি, strbuf_children_cmp);
+                যদি (!child)
+                        বিরতি;
+                গ্রন্থি = child->child;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        যদি (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                ফেরত -ENOMEM;
         off = str->len;
         memcpy(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ কাঠামো strbuf_গ্রন্থি *গ্রন্থি_child = ফাঁকা;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        গ্রন্থি_child = new(কাঠামো strbuf_গ্রন্থি, 1);
+        যদি (!গ্রন্থি_child)
+                ফেরত -ENOMEM;
+        *গ্রন্থি_child = (কাঠামো strbuf_গ্রন্থি) {
+                .মান_off = off,
+                .মান_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        যদি (!GREEDY_REALLOC(গ্রন্থি->children, গ্রন্থি->children_গুনতি + 1))
+                ফেরত -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_গুনতি++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(গ্রন্থি, c, TAKE_PTR(গ্রন্থি_child));
 
-        return off;
+        ফেরত off;
 }

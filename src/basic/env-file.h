@@ -1,34 +1,34 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-int parse_env_filev(FILE *f, const char *fname, va_list ap);
-int parse_env_file_fdv(int fd, const char *fname, va_list ap);
-int parse_env_file_sentinel(FILE *f, const char *fname, ...) _sentinel_;
-#define parse_env_file(f, fname, ...) parse_env_file_sentinel(f, fname, __VA_ARGS__, NULL)
-int parse_env_file_fd_sentinel(int fd, const char *fname, ...) _sentinel_;
-#define parse_env_file_fd(fd, fname, ...) parse_env_file_fd_sentinel(fd, fname, __VA_ARGS__, NULL)
+পূর্ণসংখ্যা parse_env_filev(FILE *f, ধ্রুবক অক্ষর *fname, va_list ap);
+পূর্ণসংখ্যা parse_env_file_fdv(পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fname, va_list ap);
+পূর্ণসংখ্যা parse_env_file_sentinel(FILE *f, ধ্রুবক অক্ষর *fname, ...) _sentinel_;
+#define parse_env_file(f, fname, ...) parse_env_file_sentinel(f, fname, __VA_ARGS__, ফাঁকা)
+পূর্ণসংখ্যা parse_env_file_fd_sentinel(পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fname, ...) _sentinel_;
+#define parse_env_file_fd(fd, fname, ...) parse_env_file_fd_sentinel(fd, fname, __VA_ARGS__, ফাঁকা)
 
-int parse_env_datav(const char *data, size_t size, const char *fname, va_list ap);
-int parse_env_data_sentinel(const char *data, size_t size, const char *fname, ...) _sentinel_;
-#define parse_env_data(text, size, fname, ...) parse_env_data_sentinel(text, size, fname, __VA_ARGS__, NULL)
+পূর্ণসংখ্যা parse_env_datav(ধ্রুবক অক্ষর *তথ্য, size_t আকার_2, ধ্রুবক অক্ষর *fname, va_list ap);
+পূর্ণসংখ্যা parse_env_তথ্য_sentinel(ধ্রুবক অক্ষর *তথ্য, size_t আকার_2, ধ্রুবক অক্ষর *fname, ...) _sentinel_;
+#define parse_env_তথ্য(text, আকার_2, fname, ...) parse_env_তথ্য_sentinel(text, আকার_2, fname, __VA_ARGS__, ফাঁকা)
 
-int load_env_file(FILE *f, const char *fname, char ***ret);
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret);
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret);
+পূর্ণসংখ্যা load_env_file(FILE *f, ধ্রুবক অক্ষর *fname, অক্ষর ***ret);
+পূর্ণসংখ্যা load_env_file_pairs(FILE *f, ধ্রুবক অক্ষর *fname, অক্ষর ***ret);
+পূর্ণসংখ্যা load_env_file_pairs_fd(পূর্ণসংখ্যা fd, ধ্রুবক অক্ষর *fname, অক্ষর ***ret);
 
-int merge_env_file(char ***env, FILE *f, const char *fname);
+পূর্ণসংখ্যা merge_env_file(অক্ষর ***env, FILE *f, ধ্রুবক অক্ষর *fname);
 
-typedef enum WriteEnvFileFlags {
+প্রকারলেখ গণনা WriteEnvFileFlags {
         WRITE_ENV_FILE_LABEL = 1 << 0,
 } WriteEnvFileFlags;
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context);
-static inline int write_env_file(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags) {
-        return write_env_file_label(dir_fd, fname, headers, l, flags, /* label_context= */ NULL);
+পূর্ণসংখ্যা write_env_file_label(পূর্ণসংখ্যা dir_fd, ধ্রুবক অক্ষর *fname, অক্ষর **headers, অক্ষর **l, WriteEnvFileFlags flags, LabelContext *label_context);
+স্থির অন্তঃরেখ পূর্ণসংখ্যা write_env_file(পূর্ণসংখ্যা dir_fd, ধ্রুবক অক্ষর *fname, অক্ষর **headers, অক্ষর **l, WriteEnvFileFlags flags) {
+        ফেরত write_env_file_label(dir_fd, fname, headers, l, flags, /* label_context= */ ফাঁকা);
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l);
+পূর্ণসংখ্যা write_vconsole_conf(পূর্ণসংখ্যা dir_fd, ধ্রুবক অক্ষর *fname, অক্ষর **l);
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v);
+শূন্য env_file_fputs_assignment(FILE *f, ধ্রুবক অক্ষর *k, ধ্রুবক অক্ষর *v);

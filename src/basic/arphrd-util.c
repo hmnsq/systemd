@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#অন্তর্ভাব <linux/if_arp.h>
+#অন্তর্ভাব <linux/if_infiniband.h>
+#অন্তর্ভাব <netinet/in.h>
+#অন্তর্ভাব <string.h>
 
-#include "arphrd-util.h"
+#অন্তর্ভাব "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+স্থির ধ্রুবক কাঠামো arphrd_name* lookup_arphrd(নিবন্ধ ধ্রুবক অক্ষর *str, নিবন্ধ GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#অন্তর্ভাব "arphrd-from-name.inc"
+#অন্তর্ভাব "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+পূর্ণসংখ্যা arphrd_from_name(ধ্রুবক অক্ষর *name) {
+        ধ্রুবক কাঠামো arphrd_name *sc;
 
-        assert(name);
+        প্রতিজ্ঞা(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        যদি (!sc)
+                ফেরত -EINVAL;
 
-        return sc->id;
+        ফেরত sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+        নির্বাচন (arphrd) {
+        ক্ষেত্র ARPHRD_ETHER:
+                ফেরত ETH_ALEN;
+        ক্ষেত্র ARPHRD_INFINIBAND:
+                ফেরত INFINIBAND_ALEN;
+        ক্ষেত্র ARPHRD_TUNNEL:
+        ক্ষেত্র ARPHRD_SIT:
+        ক্ষেত্র ARPHRD_IPGRE:
+                ফেরত আকার(কাঠামো in_addr);
+        ক্ষেত্র ARPHRD_TUNNEL6:
+        ক্ষেত্র ARPHRD_IP6GRE:
+                ফেরত আকার(কাঠামো in6_addr);
+        পূর্বনির্ধারিত:
+                ফেরত 0;
         }
 }

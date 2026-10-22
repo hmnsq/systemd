@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-struct strbuf {
-        char *buf;
+কাঠামো strbuf {
+        অক্ষর *buf;
         size_t len;
-        struct strbuf_node *root;
+        কাঠামো strbuf_গ্রন্থি *মূল;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_গুনতি;
+        size_t in_গুনতি;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_গুনতি;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+কাঠামো strbuf_গ্রন্থি {
+        size_t মান_off;
+        size_t মান_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        কাঠামো strbuf_child_entry *children;
+        uint8_t children_গুনতি;
 };
 
-struct strbuf_child_entry {
+কাঠামো strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        কাঠামো strbuf_গ্রন্থি *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+কাঠামো strbuf* strbuf_new(শূন্য);
+ssize_t strbuf_add_string_full(কাঠামো strbuf *str, ধ্রুবক অক্ষর *s, size_t len);
+স্থির অন্তঃরেখ ssize_t strbuf_add_string(কাঠামো strbuf *str, ধ্রুবক অক্ষর *s) {
+        ফেরত strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+শূন্য strbuf_complete(কাঠামো strbuf *str);
+কাঠামো strbuf* strbuf_free(কাঠামো strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(কাঠামো strbuf*, strbuf_free);

@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#অন্তর্ভাব <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#অন্তর্ভাব "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+বাহ্যিক ধ্রুবক কাঠামো iovec iovec_nul_byte; /* Points to a single NUL byte */
+বাহ্যিক ধ্রুবক কাঠামো iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+পূর্ণসংখ্যা iovec_alloc(size_t n, কাঠামো iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_যোগ_আকার(ধ্রুবক কাঠামো iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(কাঠামো iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+কাঠামো iovec* iovec_make_string(কাঠামো iovec *iovec, ধ্রুবক অক্ষর *s);
 
 #define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+        *iovec_make_string(&(কাঠামো iovec) {}, s)
 
 #define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+        (ধ্রুবক কাঠামো iovec) {                  \
+                .iov_base = (অক্ষর*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
 #define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+        (ধ্রুবক কাঠামো iovec) {                                  \
+                .iov_base = (অক্ষর*) ((ধ্রুবক অক্ষর[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
@@ -39,22 +39,22 @@ struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
                 IOVEC_MAKE(alloca_safe(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+শূন্য iovec_erase(কাঠামো iovec *iovec);
+শূন্য iovec_done_erase(কাঠামো iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+অক্ষর* set_iovec_string_field(কাঠামো iovec *iovec, size_t *n_iovec, ধ্রুবক অক্ষর *field, ধ্রুবক অক্ষর *মান);
+অক্ষর* set_iovec_string_field_free(কাঠামো iovec *iovec, size_t *n_iovec, ধ্রুবক অক্ষর *field, অক্ষর *মান);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+শূন্য iovec_array_free(কাঠামো iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+পূর্ণসংখ্যা iovec_memcmp(ধ্রুবক কাঠামো iovec *a, ধ্রুবক কাঠামো iovec *b) _pure_;
+স্থির অন্তঃরেখ bool iovec_equal(ধ্রুবক কাঠামো iovec *a, ধ্রুবক কাঠামো iovec *b) {
+        ফেরত iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+কাঠামো iovec* iovec_memdup(ধ্রুবক কাঠামো iovec *source, কাঠামো iovec *ret);
+পূর্ণসংখ্যা iovec_done_and_memdup(কাঠামো iovec *iovec, ধ্রুবক কাঠামো iovec *source);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+কাঠামো iovec* iovec_append(কাঠামো iovec *iovec, ধ্রুবক কাঠামো iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+কাঠামো iovec* iovec_consume(কাঠামো iovec *iovec, size_t n);

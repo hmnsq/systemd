@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাব "forward.h"
 
-typedef enum ImageClass {
+প্রকারলেখ গণনা ImageClass {
         IMAGE_MACHINE,
         IMAGE_PORTABLE,
         IMAGE_SYSEXT,
@@ -20,41 +20,41 @@ DECLARE_STRING_TABLE_LOOKUP(image_class, ImageClass);
  * for sysext images and for /etc/extension-release.d/extension-release.NAME for confext images
  * in accordance with the OS extension specification, rather than for /usr/lib/ or /etc/os-release. */
 
-bool image_name_is_valid(const char *s) _pure_;
-int path_extract_image_name(const char *path, char **ret);
+bool image_name_is_valid(ধ্রুবক অক্ষর *s) _pure_;
+পূর্ণসংখ্যা path_extract_image_name(ধ্রুবক অক্ষর *path, অক্ষর **ret);
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check);
-static inline int path_is_os_tree(const char *path) {
-        return path_is_extension_tree(_IMAGE_CLASS_INVALID, path, NULL, false);
+পূর্ণসংখ্যা path_is_extension_বৃক্ষ(ImageClass image_class, ধ্রুবক অক্ষর *path, ধ্রুবক অক্ষর *extension, bool relax_extension_release_check);
+স্থির অন্তঃরেখ পূর্ণসংখ্যা path_is_os_বৃক্ষ(ধ্রুবক অক্ষর *path) {
+        ফেরত path_is_extension_বৃক্ষ(_IMAGE_CLASS_INVALID, path, ফাঁকা, false);
 }
-int fd_is_os_tree(int fd);
+পূর্ণসংখ্যা fd_is_os_বৃক্ষ(পূর্ণসংখ্যা fd);
 
-int open_extension_release(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_extension_release_at(int rfd, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_os_release(const char *root, char **ret_path, int *ret_fd);
-int open_os_release_at(int rfd, char **ret_path, int *ret_fd);
+পূর্ণসংখ্যা open_extension_release(ধ্রুবক অক্ষর *মূল, ImageClass image_class, ধ্রুবক অক্ষর *extension, bool relax_extension_release_check, অক্ষর **ret_path, পূর্ণসংখ্যা *ret_fd);
+পূর্ণসংখ্যা open_extension_release_at(পূর্ণসংখ্যা rfd, ImageClass image_class, ধ্রুবক অক্ষর *extension, bool relax_extension_release_check, অক্ষর **ret_path, পূর্ণসংখ্যা *ret_fd);
+পূর্ণসংখ্যা open_os_release(ধ্রুবক অক্ষর *মূল, অক্ষর **ret_path, পূর্ণসংখ্যা *ret_fd);
+পূর্ণসংখ্যা open_os_release_at(পূর্ণসংখ্যা rfd, অক্ষর **ret_path, পূর্ণসংখ্যা *ret_fd);
 
-int parse_extension_release_sentinel(const char *root, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
-#define parse_extension_release(root, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_sentinel(root, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
-#define parse_os_release(root, ...)                                     \
-        parse_extension_release_sentinel(root, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+পূর্ণসংখ্যা parse_extension_release_sentinel(ধ্রুবক অক্ষর *মূল, ImageClass image_class, bool relax_extension_release_check, ধ্রুবক অক্ষর *extension, ...) _sentinel_;
+#define parse_extension_release(মূল, image_class, extension, relax_extension_release_check, ...) \
+        parse_extension_release_sentinel(মূল, image_class, relax_extension_release_check, extension, __VA_ARGS__, ফাঁকা)
+#define parse_os_release(মূল, ...)                                     \
+        parse_extension_release_sentinel(মূল, _IMAGE_CLASS_INVALID, false, ফাঁকা, __VA_ARGS__, ফাঁকা)
 
-int parse_extension_release_at_sentinel(int rfd, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
+পূর্ণসংখ্যা parse_extension_release_at_sentinel(পূর্ণসংখ্যা rfd, ImageClass image_class, bool relax_extension_release_check, ধ্রুবক অক্ষর *extension, ...) _sentinel_;
 #define parse_extension_release_at(rfd, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
+        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, ফাঁকা)
 #define parse_os_release_at(rfd, ...)                                     \
-        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, ফাঁকা, __VA_ARGS__, ফাঁকা)
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret);
-static inline int load_os_release_pairs(const char *root, char ***ret) {
-        return load_extension_release_pairs(root, _IMAGE_CLASS_INVALID, NULL, false, ret);
+পূর্ণসংখ্যা load_extension_release_pairs(ধ্রুবক অক্ষর *মূল, ImageClass image_class, ধ্রুবক অক্ষর *extension, bool relax_extension_release_check, অক্ষর ***ret);
+স্থির অন্তঃরেখ পূর্ণসংখ্যা load_os_release_pairs(ধ্রুবক অক্ষর *মূল, অক্ষর ***ret) {
+        ফেরত load_extension_release_pairs(মূল, _IMAGE_CLASS_INVALID, ফাঁকা, false, ret);
 }
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret);
+পূর্ণসংখ্যা load_os_release_pairs_with_prefix(ধ্রুবক অক্ষর *মূল, ধ্রুবক অক্ষর *prefix, অক্ষর ***ret);
 
-int os_release_support_ended(const char *support_end, bool quiet, usec_t *ret_eol);
+পূর্ণসংখ্যা os_release_support_ended(ধ্রুবক অক্ষর *support_end, bool quiet, usec_t *ret_eol);
 
-const char* os_release_pretty_name(const char *pretty_name, const char *name);
+ধ্রুবক অক্ষর* os_release_pretty_name(ধ্রুবক অক্ষর *pretty_name, ধ্রুবক অক্ষর *name);
 
-bool use_fancy_name(const char *fancy_name);
-char *unescape_fancy_name(char **fancy_name);
+bool use_fancy_name(ধ্রুবক অক্ষর *fancy_name);
+অক্ষর *unescape_fancy_name(অক্ষর **fancy_name);
