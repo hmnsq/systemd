@@ -13,36 +13,36 @@
 #include "user-util.h"
 
 char* get_default_hostname_raw(void) {
-        int r;
+        ціле r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
         const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        якщо (e) {
+                якщо (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        повернути strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
         _cleanup_free_ char *f = NULL;
         r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        якщо (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        інакше якщо (f) {
+                якщо (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        повернути TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        повернути strdup(FALLBACK_HOSTNAME);
 }
 
 bool valid_ldh_char(char c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        повернути ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
@@ -60,48 +60,48 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        якщо (isempty(s))
+                повернути false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        якщо (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                повернути FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        для (p = s, dot = hyphen = true; *p; p++)
+                якщо (*p == '.') {
+                        якщо (dot || hyphen)
+                                повернути false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } інакше якщо (*p == '-') {
+                        якщо (dot)
+                                повернути false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
+                } інакше {
+                        якщо (!valid_ldh_char(*p) &&
                             (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
                             (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                                повернути false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        якщо (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                повернути false;
+        якщо (hyphen)
+                повернути false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        якщо (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                повернути false;
 
-        return true;
+        повернути true;
 }
 
 char* hostname_cleanup(char *s) {
@@ -110,36 +110,36 @@ char* hostname_cleanup(char *s) {
 
         assert(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
+        для (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                якщо (*p == '.') {
+                        якщо (dot || hyphen)
                                 continue;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
+                } інакше якщо (*p == '-') {
+                        якщо (dot)
                                 continue;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } інакше якщо (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        поки (d > s && IN_SET(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        повернути s;
 }
 
 bool is_localhost(const char *hostname) {
@@ -148,7 +148,7 @@ bool is_localhost(const char *hostname) {
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        повернути STRCASE_IN_SET(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -163,39 +163,39 @@ bool is_localhost(const char *hostname) {
 const char* etc_hostname(void) {
         static const char *cached = NULL;
 
-        if (!cached)
+        якщо (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        повернути cached;
 }
 
 const char* etc_machine_info(void) {
         static const char *cached = NULL;
 
-        if (!cached)
+        якщо (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        повернути cached;
 }
 
-int get_pretty_hostname(char **ret) {
+ціле get_pretty_hostname(char **ret) {
         _cleanup_free_ char *n = NULL;
-        int r;
+        ціле r;
 
         assert(ret);
 
         r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (isempty(n))
-                return -ENXIO;
+        якщо (isempty(n))
+                повернути -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        повернути 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
+ціле split_user_at_host(const char *s, char **ret_user, char **ret_host) {
         _cleanup_free_ char *u = NULL, *h = NULL;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
@@ -204,120 +204,120 @@ int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
         assert(s);
 
         const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        якщо (rhs) {
+                якщо (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        якщо (!u)
+                                повернути -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                якщо (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        якщо (!h)
+                                повернути -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } інакше {
+                якщо (isempty(s))
+                        повернути -EINVAL;
 
-                if (ret_host) {
+                якщо (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        якщо (!h)
+                                повернути -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        якщо (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        якщо (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        повернути !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
+ціле machine_spec_valid(const char *s) {
         _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+        ціле r;
 
         assert(s);
 
         r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        якщо (r == -EINVAL)
+                повернути false;
+        якщо (r < 0)
+                повернути r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        якщо (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                повернути false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        якщо (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                повернути false;
 
-        return true;
+        повернути true;
 }
 
 bool machine_tag_is_valid(const char *s) {
         size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+        якщо (n <= 0 || n >= 256)
+                повернути false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        якщо (strchr("-.=", s[0]))
+                повернути false;
 
         /* We allow parameterization of tags, with a "=" as separator */
         const char *eq = strchr(s, '=');
-        if (eq) {
+        якщо (eq) {
                 assert(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                якщо (strchr("-.", eq[-1]))
+                        повернути false;
+        } інакше {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                якщо (strchr("-.", s[n-1]))
+                        повернути false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        повернути in_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+ціле machine_tag_list_is_valid(char **l) {
+        ціле r;
 
         r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
         switch (r) {
         case -EINVAL:
         case -E2BIG:
-                return false;
+                повернути false;
         case 0:
-                return true;
+                повернути true;
         default:
-                return r;
+                повернути r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
+ціле machine_tags_from_string(const char *s, bool graceful, char ***ret) {
         assert(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
+        якщо (isempty(s)) {
                 *ret = NULL;
-                return 0;
+                повернути 0;
         }
 
         _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        якщо (!l)
+                повернути -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        повернути machine_tags_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+ціле machine_tags_from_strv(char **l, bool graceful, char ***ret) {
+        ціле r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -330,49 +330,49 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
          * name hence get distinct keys and may coexist. */
         _cleanup_hashmap_free_ Hashmap *h = NULL;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
+                якщо (!machine_tag_is_valid(*i)) {
+                        якщо (graceful)
                                 continue;
 
-                        return -EINVAL;
+                        повернути -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                якщо (hashmap_size(h) >= MACHINE_TAGS_MAX)
+                        повернути -E2BIG;
 
                 const char *eq = strchrnul(*i, '=');
                 _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                якщо (!k)
+                        повернути -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
+                якщо (r == -EEXIST) {
+                        якщо (streq(hashmap_get(h, k), *i))
                                 continue;
-                        if (!graceful)
-                                return -EINVAL;
+                        якщо (!graceful)
+                                повернути -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } інакше якщо (r < 0)
+                        повернути r;
+                інакше якщо (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
+        якщо (ret) {
                 _cleanup_strv_free_ char **cleaned = NULL;
                 size_t n = 0;
                 char *v;
                 HASHMAP_FOREACH(v, h) {
                         r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        якщо (r < 0)
+                                повернути r;
                 }
 
                 strv_sort(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        повернути 0;
 }

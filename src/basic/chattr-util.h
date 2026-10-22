@@ -37,31 +37,31 @@ typedef enum ChattrApplyFlags {
         CHATTR_WARN_UNSUPPORTED_FLAGS = 1 << 1,
 } ChattrApplyFlags;
 
-int chattr_full(int dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
-static inline int chattr_at(int dir_fd, const char *path, unsigned value, unsigned mask) {
-        return chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
+ціле chattr_full(ціле dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
+static inline ціле chattr_at(ціле dir_fd, const char *path, unsigned value, unsigned mask) {
+        повернути chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_fd(int fd, unsigned value, unsigned mask) {
-        return chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
+static inline ціле chattr_fd(ціле fd, unsigned value, unsigned mask) {
+        повернути chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_path(const char *path, unsigned value, unsigned mask) {
-        return chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
+static inline ціле chattr_path(const char *path, unsigned value, unsigned mask) {
+        повернути chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
 }
 
-int read_attr_fd(int fd, unsigned *ret);
-int read_attr_at(int dir_fd, const char *path, unsigned *ret);
-int read_fs_xattr_fd(int fd, uint32_t *ret_xflags, uint32_t *ret_projid);
+ціле read_attr_fd(ціле fd, unsigned *ret);
+ціле read_attr_at(ціле dir_fd, const char *path, unsigned *ret);
+ціле read_fs_xattr_fd(ціле fd, uint32_t *ret_xflags, uint32_t *ret_projid);
 
-int set_proj_id(int fd, uint32_t proj_id);
-int set_proj_id_recursive(int fd, uint32_t proj_id);
+ціле set_proj_id(ціле fd, uint32_t proj_id);
+ціле set_proj_id_recursive(ціле fd, uint32_t proj_id);
 
 /* Combination of chattr flags, that should be appropriate for secrets stored on disk: Secure Remove +
  * Exclusion from Dumping + Synchronous Writing (i.e. not caching in memory) + In-Place Updating (i.e. not
  * spurious copies). */
 #define CHATTR_SECRET_FLAGS (FS_SECRM_FL|FS_NODUMP_FL|FS_SYNC_FL|FS_NOCOW_FL)
 
-static inline int chattr_secret(int fd, ChattrApplyFlags flags) {
-        return chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
+static inline ціле chattr_secret(ціле fd, ChattrApplyFlags flags) {
+        повернути chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
 }
 
 bool inode_type_can_chattr(mode_t mode);

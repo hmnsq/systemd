@@ -12,9 +12,9 @@
 #include "process-util.h"
 #include "string-util.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode) {
+ціле memfd_create_wrapper(const char *name, unsigned mode) {
         unsigned mode_compat;
-        int mfd;
+        ціле mfd;
 
         assert(name);
 
@@ -22,22 +22,22 @@ int memfd_create_wrapper(const char *name, unsigned mode) {
          * support MFD_EXEC/MFD_NOEXEC_SEAL. (kernel 6.3+) */
 
         mfd = RET_NERRNO(memfd_create(name, mode));
-        if (mfd != -EINVAL)
-                return mfd;
+        якщо (mfd != -EINVAL)
+                повернути mfd;
 
         mode_compat = mode & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
 
-        if (mode == mode_compat)
-                return mfd;
+        якщо (mode == mode_compat)
+                повернути mfd;
 
-        return RET_NERRNO(memfd_create(name, mode_compat));
+        повернути RET_NERRNO(memfd_create(name, mode_compat));
 }
 
-int memfd_new_full(const char *name, unsigned extra_flags) {
+ціле memfd_new_full(const char *name, unsigned extra_flags) {
         _cleanup_free_ char *g = NULL;
-        int r;
+        ціле r;
 
-        if (!name) {
+        якщо (!name) {
 
                 /* If no name is specified we generate one. We include
                  * a hint indicating our library implementation, and
@@ -45,119 +45,119 @@ int memfd_new_full(const char *name, unsigned extra_flags) {
 
                 _cleanup_free_ char *comm = NULL;
                 r = pid_get_comm(/* pid= */ 0, &comm);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
-                if (isempty(comm))
+                якщо (isempty(comm))
                         name = "sd";
-                else {
+                інакше {
                         g = strjoin("sd-", comm);
-                        if (!g)
-                                return -ENOMEM;
+                        якщо (!g)
+                                повернути -ENOMEM;
 
                         name = g;
                 }
         }
 
-        return memfd_create_wrapper(
+        повернути memfd_create_wrapper(
                         name,
                         MFD_CLOEXEC | MFD_NOEXEC_SEAL | extra_flags);
 }
 
-static int memfd_add_seals(int fd, unsigned seals) {
+static ціле memfd_add_seals(ціле fd, unsigned seals) {
         assert(fd >= 0);
 
-        return RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
+        повернути RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
 }
 
-static int memfd_get_seals(int fd, unsigned *ret_seals) {
-        int r;
+static ціле memfd_get_seals(ціле fd, unsigned *ret_seals) {
+        ціле r;
 
         assert(fd >= 0);
 
         r = RET_NERRNO(fcntl(fd, F_GET_SEALS));
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (ret_seals)
+        якщо (ret_seals)
                 *ret_seals = r;
-        return 0;
+        повернути 0;
 }
 
-int memfd_set_sealed(int fd) {
-        return memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+ціле memfd_set_sealed(ціле fd) {
+        повернути memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_get_sealed(int fd) {
+ціле memfd_get_sealed(ціле fd) {
         unsigned seals;
-        int r;
+        ціле r;
 
         r = memfd_get_seals(fd, &seals);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         /* We ignore F_SEAL_EXEC here to support older kernels.
          * It is supported since kernel v6.3 (6fd7353829cafc4067aad9eea0dc95da67e7df16). */
-        return FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+        повернути FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_set_sealed_gracefully(int fd) {
-        int r;
+ціле memfd_set_sealed_gracefully(ціле fd) {
+        ціле r;
 
         r = memfd_set_sealed(fd);
-        if (r != -EPERM)
-                return r;
+        якщо (r != -EPERM)
+                повернути r;
 
         /* Already sealed? Check if required seals are set. */
         r = memfd_get_sealed(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM; /* Propagate the original error. */
-        return 0;
+        якщо (r < 0)
+                повернути r;
+        якщо (r == 0)
+                повернути -EPERM; /* Propagate the original error. */
+        повернути 0;
 }
 
-int memfd_get_size(int fd, uint64_t *ret) {
+ціле memfd_get_size(ціле fd, uint64_t *ret) {
         struct stat stat;
 
         assert(fd >= 0);
         assert(ret);
 
-        if (fstat(fd, &stat) < 0)
-                return -errno;
+        якщо (fstat(fd, &stat) < 0)
+                повернути -errno;
 
         *ret = stat.st_size;
-        return 0;
+        повернути 0;
 }
 
-int memfd_set_size(int fd, uint64_t sz) {
+ціле memfd_set_size(ціле fd, uint64_t sz) {
         assert(fd >= 0);
 
-        return RET_NERRNO(ftruncate(fd, sz));
+        повернути RET_NERRNO(ftruncate(fd, sz));
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+ціле memfd_new_and_seal(const char *name, const void *data, size_t sz) {
+        _cleanup_close_ ціле fd = -EBADF;
+        ціле r;
 
         assert(data || sz == 0);
 
-        if (sz == SIZE_MAX)
+        якщо (sz == SIZE_MAX)
                 sz = strlen(data);
 
         fd = memfd_new_full(name, MFD_ALLOW_SEALING);
-        if (fd < 0)
-                return fd;
+        якщо (fd < 0)
+                повернути fd;
 
-        if (sz > 0) {
+        якщо (sz > 0) {
                 r = pwrite_full(fd, data, sz, 0);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
         }
 
         r = memfd_set_sealed(fd);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return TAKE_FD(fd);
+        повернути TAKE_FD(fd);
 }

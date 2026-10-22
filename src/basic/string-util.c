@@ -24,53 +24,53 @@ char* first_word(const char *s, const char *word) {
         /* Checks if the string starts with the specified word, either followed by NUL or by whitespace.
          * Returns a pointer to the NUL or the first character after the whitespace. */
 
-        if (isempty(word))
-                return (char*) s;
+        якщо (isempty(word))
+                повернути (char*) s;
 
         const char *p = startswith(s, word);
-        if (!p)
-                return NULL;
-        if (*p == '\0')
-                return (char*) p;
+        якщо (!p)
+                повернути NULL;
+        якщо (*p == '\0')
+                повернути (char*) p;
 
         const char *nw = skip_leading_chars(p, WHITESPACE);
-        if (p == nw)
-                return NULL;
+        якщо (p == nw)
+                повернути NULL;
 
-        return (char*) nw;
+        повернути (char*) nw;
 }
 
 char* strextendn(char **x, const char *s, size_t l) {
         assert(x);
         assert(s || l == 0);
 
-        if (l > 0)
+        якщо (l > 0)
                 l = strnlen(s, l); /* ignore trailing noise */
 
-        if (l > 0 || !*x) {
+        якщо (l > 0 || !*x) {
                 size_t q;
                 char *m;
 
                 q = strlen_ptr(*x);
                 m = realloc(*x, q + l + 1);
-                if (!m)
-                        return NULL;
+                якщо (!m)
+                        повернути NULL;
 
                 *mempcpy_typesafe(m + q, s, l) = 0;
 
                 *x = m;
         }
 
-        return *x;
+        повернути *x;
 }
 
 char* strstrip(char *s) {
-        if (!s)
-                return NULL;
+        якщо (!s)
+                повернути NULL;
 
         /* Drops trailing whitespace. Modifies the string in place. Returns pointer to first non-space character */
 
-        return delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
+        повернути delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
 }
 
 char* delete_chars(char *s, const char *bad) {
@@ -78,14 +78,14 @@ char* delete_chars(char *s, const char *bad) {
 
         /* Drops all specified bad characters, regardless where in the string */
 
-        if (!s)
-                return NULL;
+        якщо (!s)
+                повернути NULL;
 
-        if (!bad)
+        якщо (!bad)
                 bad = WHITESPACE;
 
-        for (f = s, t = s; *f; f++) {
-                if (strchr(bad, *f))
+        для (f = s, t = s; *f; f++) {
+                якщо (strchr(bad, *f))
                         continue;
 
                 *(t++) = *f;
@@ -93,7 +93,7 @@ char* delete_chars(char *s, const char *bad) {
 
         *t = 0;
 
-        return s;
+        повернути s;
 }
 
 char* delete_trailing_chars(char *s, const char *bad) {
@@ -101,19 +101,19 @@ char* delete_trailing_chars(char *s, const char *bad) {
 
         /* Drops all specified bad characters, at the end of the string */
 
-        if (!s)
-                return NULL;
+        якщо (!s)
+                повернути NULL;
 
-        if (!bad)
+        якщо (!bad)
                 bad = WHITESPACE;
 
-        for (char *p = s; *p; p++)
-                if (!strchr(bad, *p))
+        для (char *p = s; *p; p++)
+                якщо (!strchr(bad, *p))
                         c = p + 1;
 
         *c = 0;
 
-        return s;
+        повернути s;
 }
 
 char* truncate_nl_full(char *s, size_t *ret_len) {
@@ -123,92 +123,92 @@ char* truncate_nl_full(char *s, size_t *ret_len) {
 
         n = strcspn(s, NEWLINE);
         s[n] = '\0';
-        if (ret_len)
+        якщо (ret_len)
                 *ret_len = n;
-        return s;
+        повернути s;
 }
 
 char ascii_tolower(char x) {
 
-        if (x >= 'A' && x <= 'Z')
-                return x - 'A' + 'a';
+        якщо (x >= 'A' && x <= 'Z')
+                повернути x - 'A' + 'a';
 
-        return x;
+        повернути x;
 }
 
 char ascii_toupper(char x) {
 
-        if (x >= 'a' && x <= 'z')
-                return x - 'a' + 'A';
+        якщо (x >= 'a' && x <= 'z')
+                повернути x - 'a' + 'A';
 
-        return x;
+        повернути x;
 }
 
 char* ascii_strlower(char *s) {
         assert(s);
 
-        for (char *p = s; *p; p++)
+        для (char *p = s; *p; p++)
                 *p = ascii_tolower(*p);
 
-        return s;
+        повернути s;
 }
 
 char* ascii_strupper(char *s) {
         assert(s);
 
-        for (char *p = s; *p; p++)
+        для (char *p = s; *p; p++)
                 *p = ascii_toupper(*p);
 
-        return s;
+        повернути s;
 }
 
 char* ascii_strlower_n(char *s, size_t n) {
         assert(n <= 0 || s);
 
-        if (n <= 0)
-                return s;
+        якщо (n <= 0)
+                повернути s;
 
-        for (size_t i = 0; i < n; i++)
+        для (size_t i = 0; i < n; i++)
                 s[i] = ascii_tolower(s[i]);
 
-        return s;
+        повернути s;
 }
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n) {
+ціле ascii_strcasecmp_n(const char *a, const char *b, size_t n) {
 
         assert(a);
         assert(b);
 
-        for (; n > 0; a++, b++, n--) {
-                int x, y;
+        для (; n > 0; a++, b++, n--) {
+                ціле x, y;
 
-                x = (int) (uint8_t) ascii_tolower(*a);
-                y = (int) (uint8_t) ascii_tolower(*b);
+                x = (ціле) (uint8_t) ascii_tolower(*a);
+                y = (ціле) (uint8_t) ascii_tolower(*b);
 
-                if (x != y)
-                        return x - y;
+                якщо (x != y)
+                        повернути x - y;
         }
 
-        return 0;
+        повернути 0;
 }
 
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m) {
-        int r;
+ціле ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m) {
+        ціле r;
 
         r = ascii_strcasecmp_n(a, b, MIN(n, m));
-        if (r != 0)
-                return r;
+        якщо (r != 0)
+                повернути r;
 
-        return CMP(n, m);
+        повернути CMP(n, m);
 }
 
 bool chars_intersect(const char *a, const char *b) {
         /* Returns true if any of the chars in a are in b. */
-        for (const char *p = a; *p; p++)
-                if (strchr(b, *p))
-                        return true;
+        для (const char *p = a; *p; p++)
+                якщо (strchr(b, *p))
+                        повернути true;
 
-        return false;
+        повернути false;
 }
 
 bool string_has_cc(const char *p, const char *ok) {
@@ -220,64 +220,64 @@ bool string_has_cc(const char *p, const char *ok) {
          * considered OK.
          */
 
-        for (const char *t = p; *t; t++) {
-                if (ok && strchr(ok, *t))
+        для (const char *t = p; *t; t++) {
+                якщо (ok && strchr(ok, *t))
                         continue;
 
-                if (char_is_cc(*t))
-                        return true;
+                якщо (char_is_cc(*t))
+                        повернути true;
         }
 
-        return false;
+        повернути false;
 }
 
-static int write_ellipsis(char *buf, bool unicode) {
+static ціле write_ellipsis(char *buf, bool unicode) {
         const char *s = glyph_full(GLYPH_ELLIPSIS, unicode);
         assert(strlen(s) == 3);
         memcpy(buf, s, 3);
-        return 3;
+        повернути 3;
 }
 
 static size_t ansi_sequence_length(const char *s, size_t len) {
         assert(s);
 
-        if (len < 2)
-                return 0;
+        якщо (len < 2)
+                повернути 0;
 
-        if (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
-                return 0;  /* Not the start of a sequence */
+        якщо (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
+                повернути 0;  /* Not the start of a sequence */
 
-        if (s[1] == 0x5B) { /* [, start of CSI sequence */
+        якщо (s[1] == 0x5B) { /* [, start of CSI sequence */
                 size_t i = 2;
 
-                if (i == len)
-                        return 0;
+                якщо (i == len)
+                        повернути 0;
 
-                while (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
-                        if (++i == len)
-                                return 0;
-                while (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
-                        if (++i == len)
-                                return 0;
-                if (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
-                        return i + 1;
-                return 0;  /* Bad sequence */
+                поки (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
+                        якщо (++i == len)
+                                повернути 0;
+                поки (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
+                        якщо (++i == len)
+                                повернути 0;
+                якщо (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
+                        повернути i + 1;
+                повернути 0;  /* Bad sequence */
 
-        } else if (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
-                return 2;
+        } інакше якщо (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
+                повернути 2;
 
-        return 0;  /* Bad escape? */
+        повернути 0;  /* Bad escape? */
 }
 
 static bool string_has_ansi_sequence(const char *s, size_t len) {
         const char *t = s;
 
-        while ((t = memchr(t, 0x1B, len - (t - s)))) {
-                if (ansi_sequence_length(t, len - (t - s)) > 0)
-                        return true;
+        поки ((t = memchr(t, 0x1B, len - (t - s)))) {
+                якщо (ansi_sequence_length(t, len - (t - s)) > 0)
+                        повернути true;
                 t++;
         }
-        return false;
+        повернути false;
 }
 
 static size_t previous_ansi_sequence(const char *s, size_t length, const char **ret_where) {
@@ -287,25 +287,25 @@ static size_t previous_ansi_sequence(const char *s, size_t length, const char **
 
         /* Locate the previous ANSI sequence and save its start in *ret_where and return length. */
 
-        if (length < 2) {
+        якщо (length < 2) {
                 /* Need at least two bytes for an ANSI sequence */
                 *ret_where = NULL;
-                return 0;
+                повернути 0;
         }
 
-        for (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
+        для (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
                 size_t slen = ansi_sequence_length(s + i, length - i);
-                if (slen > 0) {
+                якщо (slen > 0) {
                         *ret_where = s + i;
-                        return slen;
+                        повернути slen;
                 }
 
-                if (i == 0)
+                якщо (i == 0)
                         break;
         }
 
         *ret_where = NULL;
-        return 0;
+        повернути 0;
 }
 
 static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
@@ -316,24 +316,24 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
         assert(percent <= 100);
         assert(new_length != SIZE_MAX);
 
-        if (old_length <= new_length)
-                return strndup(s, old_length);
+        якщо (old_length <= new_length)
+                повернути strndup(s, old_length);
 
         /* Special case short ellipsations */
         switch (new_length) {
 
         case 0:
-                return strdup("");
+                повернути strdup("");
 
         case 1:
-                if (is_locale_utf8())
-                        return strdup("…");
-                else
-                        return strdup(".");
+                якщо (is_locale_utf8())
+                        повернути strdup("…");
+                інакше
+                        повернути strdup(".");
 
         case 2:
-                if (!is_locale_utf8())
-                        return strdup("..");
+                якщо (!is_locale_utf8())
+                        повернути strdup("..");
                 break;
         }
 
@@ -343,8 +343,8 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
         need_space = is_locale_utf8() ? 1 : 3;
 
         t = new(char, new_length+3);
-        if (!t)
-                return NULL;
+        якщо (!t)
+                повернути NULL;
 
         assert(new_length >= need_space);
 
@@ -356,7 +356,7 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
         memcpy(t + x + 3, s + old_length - suffix_len, suffix_len);
         *(t + x + 3 + suffix_len) = '\0';
 
-        return t;
+        повернути t;
 }
 
 /* Walk backwards from 'end' (exclusive) to the start of the last complete UTF-8 character, without
@@ -364,32 +364,32 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
  * into *ret_c. Returns NULL on a truncated or otherwise malformed sequence. */
 static const char* find_previous_unichar(const char *start, const char *end, char32_t *ret_c) {
         const char *p;
-        int r;
+        ціле r;
 
         assert(start);
         assert(end);
         assert(end > start);
 
-        for (p = end; p > start; ) {
+        для (p = end; p > start; ) {
                 p--;
-                if (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
+                якщо (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
                         break;
         }
 
         r = utf8_encoded_valid_unichar(p, end - p);
-        if (r < 0 || p + r != end)
-                return NULL;
+        якщо (r < 0 || p + r != end)
+                повернути NULL;
 
-        if (ret_c)
+        якщо (ret_c)
                 assert_se(utf8_encoded_to_unichar(p, ret_c) == r);
 
-        return p;
+        повернути p;
 }
 
 char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
         size_t x, k, len, len2;
         const char *i, *j;
-        int r;
+        ціле r;
 
         /* Note that 'old_length' refers to bytes in the string, while 'new_length' refers to character cells taken up
          * on screen. This distinction doesn't matter for ASCII strings, but it does matter for non-ASCII UTF-8
@@ -406,40 +406,40 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         assert(s);
         assert(percent <= 100);
 
-        if (new_length == SIZE_MAX)
-                return strndup(s, old_length);
+        якщо (new_length == SIZE_MAX)
+                повернути strndup(s, old_length);
 
-        if (new_length == 0)
-                return strdup("");
+        якщо (new_length == 0)
+                повернути strdup("");
 
         bool has_ansi_seq = string_has_ansi_sequence(s, old_length);
 
         /* If no multibyte characters or ANSI sequences, use ascii_ellipsize_mem for speed. It equates
          * bytes with character cells, which holds for ASCII except for the tab, which
          * unichar_console_width() counts as 8 cells. */
-        if (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
-                return ascii_ellipsize_mem(s, old_length, new_length, percent);
+        якщо (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
+                повернути ascii_ellipsize_mem(s, old_length, new_length, percent);
 
         x = (new_length - 1) * percent / 100;
         assert(x <= new_length - 1);
 
         k = 0;
-        for (i = s; i < s + old_length; ) {
+        для (i = s; i < s + old_length; ) {
                 size_t slen = has_ansi_seq ? ansi_sequence_length(i, old_length - (i - s)) : 0;
-                if (slen > 0) {
+                якщо (slen > 0) {
                         i += slen;
                         continue;  /* ANSI sequences don't take up any space in output */
                 }
 
                 r = utf8_encoded_valid_unichar(i, s + old_length - i);
-                if (r < 0)
-                        return NULL;
+                якщо (r < 0)
+                        повернути NULL;
 
                 char32_t c;
                 assert_se(utf8_encoded_to_unichar(i, &c) == r);
 
-                int w = unichar_console_width(c);
-                if (k + w > x)
+                ціле w = unichar_console_width(c);
+                якщо (k + w > x)
                         break;
 
                 k += w;
@@ -449,28 +449,28 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         const char *ansi_start = s + old_length;
         size_t ansi_len = 0;
 
-        for (const char *t = j = s + old_length; t > i && k < new_length; ) {
+        для (const char *t = j = s + old_length; t > i && k < new_length; ) {
                 char32_t c;
-                int w;
+                ціле w;
                 const char *tt;
 
-                if (has_ansi_seq && ansi_start >= t)
+                якщо (has_ansi_seq && ansi_start >= t)
                         /* Figure out the previous ANSI sequence, if any */
                         ansi_len = previous_ansi_sequence(s, t - s, &ansi_start);
 
                 /* If the sequence extends all the way to the current position, skip it. */
-                if (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
+                якщо (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
                         t = ansi_start;
                         continue;
                 }
 
                 /* Find the previous complete UTF-8 character inside the retained suffix. */
                 tt = find_previous_unichar(i, t, &c);
-                if (!tt)
-                        return NULL;
+                якщо (!tt)
+                        повернути NULL;
 
                 w = unichar_console_width(c);
-                if (k + w > new_length)
+                якщо (k + w > new_length)
                         break;
 
                 k += w;
@@ -478,24 +478,24 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         }
 
         /* We don't actually need to ellipsize */
-        if (i >= j)
-                return memdup_suffix0(s, old_length);
+        якщо (i >= j)
+                повернути memdup_suffix0(s, old_length);
 
-        if (k >= new_length) {
+        якщо (k >= new_length) {
                 /* Make space for ellipsis, if required and possible. We know that the edge character is not
                  * part of an ANSI sequence (because then we'd skip it). If the last character we looked at
                  * was wide, we don't need to make space.
                  * Move the edge by one complete UTF-8 character within the input slice. */
-                if (j < s + old_length) {
+                якщо (j < s + old_length) {
                         r = utf8_encoded_valid_unichar(j, s + old_length - j);
-                        if (r < 0)
-                                return NULL;
+                        якщо (r < 0)
+                                повернути NULL;
 
                         j += r;
-                } else if (i > s) {
+                } інакше якщо (i > s) {
                         const char *tt = find_previous_unichar(s, i, NULL);
-                        if (!tt)
-                                return NULL;
+                        якщо (!tt)
+                                повернути NULL;
 
                         i = tt;
                 }
@@ -510,29 +510,29 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         size_t alloc_len = has_ansi_seq ? old_length + 3 + 1 : len + 3 + len2 + 1;
 
         char *e = new(char, alloc_len);
-        if (!e)
-                return NULL;
+        якщо (!e)
+                повернути NULL;
 
         memcpy_safe(e, s, len);
         write_ellipsis(e + len, /* unicode= */ true);
 
         char *dst = e + len + 3;
 
-        if (has_ansi_seq)
+        якщо (has_ansi_seq)
                 /* Copy over any ANSI sequences in full */
-                for (const char *p = s + len; p < j; ) {
+                для (const char *p = s + len; p < j; ) {
                         size_t slen = ansi_sequence_length(p, j - p);
-                        if (slen > 0) {
+                        якщо (slen > 0) {
                                 dst = mempcpy(dst, p, slen);
                                 p += slen;
-                        } else
+                        } інакше
                                 p = utf8_next_char(p);
                 }
 
         memcpy_safe(dst, j, len2);
         dst[len2] = '\0';
 
-        return e;
+        повернути e;
 }
 
 char* cellescape(char *buf, size_t len, const char *s) {
@@ -554,15 +554,15 @@ char* cellescape(char *buf, size_t len, const char *s) {
         assert(len > 0); /* at least a terminating NUL */
         assert(s);
 
-        for (;;) {
+        для (;;) {
                 char four[4];
-                int w;
+                ціле w;
 
-                if (*s == 0) /* terminating NUL detected? then we are done! */
+                якщо (*s == 0) /* terminating NUL detected? then we are done! */
                         goto done;
 
                 w = cescape_char(*s, four);
-                if (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
+                якщо (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
                                       * ellipsize at the previous location */
                         break;
 
@@ -579,66 +579,66 @@ char* cellescape(char *buf, size_t len, const char *s) {
 
         /* Ellipsation is necessary. This means we might need to truncate the string again to make space for 4
          * characters ideally, but the buffer is shorter than that in the first place take what we can get */
-        for (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
+        для (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
 
-                if (i + 4 <= len) /* nice, we reached our space goal */
+                якщо (i + 4 <= len) /* nice, we reached our space goal */
                         break;
 
                 k = k == 0 ? 3 : k - 1;
-                if (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
+                якщо (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
                         break;
 
                 assert(i >= last_char_width[k]);
                 i -= last_char_width[k];
         }
 
-        if (i + 4 <= len) /* yay, enough space */
+        якщо (i + 4 <= len) /* yay, enough space */
                 i += write_ellipsis(buf + i, /* unicode= */ false);
-        else if (i + 3 <= len) { /* only space for ".." */
+        інакше якщо (i + 3 <= len) { /* only space for ".." */
                 buf[i++] = '.';
                 buf[i++] = '.';
-        } else if (i + 2 <= len) /* only space for a single "." */
+        } інакше якщо (i + 2 <= len) /* only space for a single "." */
                 buf[i++] = '.';
-        else
+        інакше
                 assert(i + 1 <= len);
 
 done:
         buf[i] = '\0';
-        return buf;
+        повернути buf;
 }
 
 char* strshorten(char *s, size_t l) {
         assert(s);
 
-        if (l >= SIZE_MAX-1) /* Would not change anything */
-                return s;
+        якщо (l >= SIZE_MAX-1) /* Would not change anything */
+                повернути s;
 
-        if (strnlen(s, l+1) > l)
+        якщо (strnlen(s, l+1) > l)
                 s[l] = 0;
 
-        return s;
+        повернути s;
 }
 
-int strgrowpad0(char **s, size_t l) {
+ціле strgrowpad0(char **s, size_t l) {
         size_t sz;
 
         assert(s);
 
-        if (*s) {
+        якщо (*s) {
                 sz = strlen(*s) + 1;
-                if (sz >= l) /* never shrink */
-                        return 0;
-        } else
+                якщо (sz >= l) /* never shrink */
+                        повернути 0;
+        } інакше
                 sz = 0;
 
         char *q = realloc(*s, l);
-        if (!q)
-                return -ENOMEM;
+        якщо (!q)
+                повернути -ENOMEM;
 
         *s = q;
 
         memzero(*s + sz, l - sz);
-        return 0;
+        повернути 0;
 }
 
 char* strreplace(const char *text, const char *old_string, const char *new_string) {
@@ -649,22 +649,22 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
         assert(old_string);
         assert(new_string);
 
-        if (!text)
-                return NULL;
+        якщо (!text)
+                повернути NULL;
 
         old_len = strlen(old_string);
         new_len = strlen(new_string);
 
         l = strlen(text);
-        if (!GREEDY_REALLOC(ret, l+1))
-                return NULL;
+        якщо (!GREEDY_REALLOC(ret, l+1))
+                повернути NULL;
 
         f = text;
         t = ret;
-        while (*f) {
+        поки (*f) {
                 size_t d, nl;
 
-                if (!startswith(f, old_string)) {
+                якщо (!startswith(f, old_string)) {
                         *(t++) = *(f++);
                         continue;
                 }
@@ -672,8 +672,8 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
                 d = t - ret;
                 nl = l - old_len + new_len;
 
-                if (!GREEDY_REALLOC(ret, nl + 1))
-                        return mfree(ret);
+                якщо (!GREEDY_REALLOC(ret, nl + 1))
+                        повернути mfree(ret);
 
                 l = nl;
                 t = ret + d;
@@ -683,7 +683,7 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
         }
 
         *t = 0;
-        return ret;
+        повернути ret;
 }
 
 static void advance_offsets(
@@ -692,14 +692,14 @@ static void advance_offsets(
                 size_t shift[static 2],
                 size_t size) {
 
-        if (!offsets)
-                return;
+        якщо (!offsets)
+                повернути;
 
         assert(shift);
 
-        if ((size_t) diff < offsets[0])
+        якщо ((size_t) diff < offsets[0])
                 shift[0] += size;
-        if ((size_t) diff < offsets[1])
+        якщо ((size_t) diff < offsets[1])
                 shift[1] += size;
 }
 
@@ -714,14 +714,14 @@ static void retract_offsets(
          * arithmetic, which is fine as the sum of all shifts applied to an offset is never negative: at most
          * as many bytes can be dropped before an offset as there are bytes before it. */
 
-        if (!offsets)
-                return;
+        якщо (!offsets)
+                повернути;
 
         assert(shift);
         assert(begin <= end);
 
-        for (size_t k = 0; k < 2; k++)
-                if (offsets[k] > begin)
+        для (size_t k = 0; k < 2; k++)
+                якщо (offsets[k] > begin)
                         shift[k] -= MIN(offsets[k], end) - begin;
 }
 
@@ -753,23 +753,23 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
         /* Note we turn off internal locking on f for performance reasons. It's safe to do so since we
          * created f here and it doesn't leave our scope. */
         f = memstream_init(&m);
-        if (!f)
-                return NULL;
+        якщо (!f)
+                повернути NULL;
 
-        for (const char *i = *ibuf; i < *ibuf + isz; i++) {
-                int e;
+        для (const char *i = *ibuf; i < *ibuf + isz; i++) {
+                ціле e;
 
-                for (;;) {
+                для (;;) {
                         e = ansi_seq_parser_feed(&parser, *i);
-                        if (e < 0)
-                                return NULL;
-                        if (e != ANSI_SEQ_EVENT_ABORT)
+                        якщо (e < 0)
+                                повернути NULL;
+                        якщо (e != ANSI_SEQ_EVENT_ABORT)
                                 break;
 
                         /* Eat up bogus sequences. The aborted sequence is over (and dropped, up to but
                          * excluding the current character, which is fed again), hence forget about it, so
                          * that the next sequence flushes pending carriage returns again. */
-                        if (begin) {
+                        якщо (begin) {
                                 retract_offsets(begin - *ibuf, i - *ibuf, highlight, shift);
                                 begin = NULL;
                         }
@@ -778,11 +778,11 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
                 switch (e) {
 
                 case ANSI_SEQ_EVENT_TEXT:
-                        if (*i == '\r') {
+                        якщо (*i == '\r') {
                                 n_carriage_returns++;
                                 continue;
                         }
-                        if (*i == '\n') {
+                        якщо (*i == '\n') {
                                 /* Ignore carriage returns before new line. They are dropped from the output,
                                  * hence the offsets need to account for them. (Note that pending carriage
                                  * returns always immediately precede the current character, since anything
@@ -794,21 +794,21 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
                                                 shift);
                                 n_carriage_returns = 0;
                         }
-                        for (; n_carriage_returns > 0; n_carriage_returns--)
+                        для (; n_carriage_returns > 0; n_carriage_returns--)
                                 fputc('\r', f);
 
-                        if (*i == '\t') {
+                        якщо (*i == '\t') {
                                 fputs("        ", f);
                                 advance_offsets(i - *ibuf, highlight, shift, 7);
-                        } else
+                        } інакше
                                 fputc(*i, f);
 
                         break;
 
                 case ANSI_SEQ_EVENT_SEQUENCE:
-                        if (!begin) {
+                        якщо (!begin) {
                                 /* This starts a new sequence, flush any pending carriage returns first */
-                                for (; n_carriage_returns > 0; n_carriage_returns--)
+                                для (; n_carriage_returns > 0; n_carriage_returns--)
                                         fputc('\r', f);
 
                                 begin = i;
@@ -829,24 +829,24 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
 
         /* If the input ends in the middle of a sequence the truncated sequence is dropped as well, hence
          * the offsets need to account for it, too. */
-        if (begin)
+        якщо (begin)
                 retract_offsets(begin - *ibuf, isz, highlight, shift);
 
         /* Trailing carriage returns are dropped, too */
         retract_offsets(isz - n_carriage_returns, isz, highlight, shift);
 
         char *obuf;
-        if (memstream_finalize(&m, &obuf, _isz) < 0)
-                return NULL;
+        якщо (memstream_finalize(&m, &obuf, _isz) < 0)
+                повернути NULL;
 
         free_and_replace(*ibuf, obuf);
 
-        if (highlight) {
+        якщо (highlight) {
                 highlight[0] += shift[0];
                 highlight[1] += shift[1];
         }
 
-        return *ibuf;
+        повернути *ibuf;
 }
 
 char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
@@ -855,7 +855,7 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         bool need_separator;
         char *nr, *p;
 
-        if (!x)
+        якщо (!x)
                 x = &buffer;
 
         l = f = strlen_ptr(*x);
@@ -865,23 +865,23 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
 
         va_list aq;
         va_copy(aq, ap);
-        for (const char *t;;) {
+        для (const char *t;;) {
                 size_t n;
 
                 t = va_arg(aq, const char *);
-                if (!t)
+                якщо (!t)
                         break;
-                if (t == POINTER_MAX)
+                якщо (t == POINTER_MAX)
                         continue;
 
                 n = strlen(t);
 
-                if (need_separator)
+                якщо (need_separator)
                         n += l_separator;
 
-                if (n >= SIZE_MAX - l) {
+                якщо (n >= SIZE_MAX - l) {
                         va_end(aq);
-                        return NULL;
+                        повернути NULL;
                 }
 
                 l += n;
@@ -892,22 +892,22 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         need_separator = !isempty(*x);
 
         nr = realloc(*x, GREEDY_ALLOC_ROUND_UP(l+1));
-        if (!nr)
-                return NULL;
+        якщо (!nr)
+                повернути NULL;
 
         *x = nr;
         p = nr + f;
 
-        for (;;) {
+        для (;;) {
                 const char *t;
 
                 t = va_arg(ap, const char *);
-                if (!t)
+                якщо (!t)
                         break;
-                if (t == POINTER_MAX)
+                якщо (t == POINTER_MAX)
                         continue;
 
-                if (need_separator && separator)
+                якщо (need_separator && separator)
                         p = stpcpy(p, separator);
 
                 p = stpcpy(p, t);
@@ -919,11 +919,11 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         *p = 0;
 
         /* If no buffer to extend was passed in return the start of the buffer */
-        if (buffer)
-                return TAKE_PTR(buffer);
+        якщо (buffer)
+                повернути TAKE_PTR(buffer);
 
         /* Otherwise we extended the buffer: return the end */
-        return p;
+        повернути p;
 }
 
 char* strextend_with_separator_internal(char **x, const char *separator, ...) {
@@ -934,13 +934,13 @@ char* strextend_with_separator_internal(char **x, const char *separator, ...) {
         ret = strextendv_with_separator(x, separator, ap);
         va_end(ap);
 
-        return ret;
+        повернути ret;
 }
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) {
+ціле strextendf_with_separator(char **x, const char *separator, const char *format, ...) {
         size_t m, a, l_separator;
         va_list ap;
-        int l;
+        ціле l;
 
         /* Appends a formatted string to the specified string. Don't use this in inner loops, since then
          * we'll spend a tonload of time in determining the length of the string passed in, over and over
@@ -952,24 +952,24 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
         l_separator = isempty(*x) ? 0 : strlen_ptr(separator);
 
         /* Let's try to use the allocated buffer, if there's room at the end still. Otherwise let's extend by 64 chars. */
-        if (*x) {
+        якщо (*x) {
                 m = strlen(*x);
                 a = MALLOC_SIZEOF_SAFE(*x);
                 assert(a >= m + 1);
-        } else
+        } інакше
                 m = a = 0;
 
-        if (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
+        якщо (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
                 char *n;
 
-                if (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
-                        return -ENOMEM;
-                if (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
-                        return -ENOMEM;
+                якщо (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
+                        повернути -ENOMEM;
+                якщо (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
+                        повернути -ENOMEM;
 
                 n = realloc(*x, m + 64 + l_separator);
-                if (!n)
-                        return -ENOMEM;
+                якщо (!n)
+                        повернути -ENOMEM;
 
                 *x = n;
                 a = MALLOC_SIZEOF_SAFE(*x);
@@ -983,28 +983,28 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
 
         assert(l >= 0);
 
-        if ((size_t) l < a - m - l_separator) {
+        якщо ((size_t) l < a - m - l_separator) {
                 char *n;
 
                 /* Nice! This worked. We are done. But first, let's return the extra space we don't
                  * need. This should be a cheap operation, since we only lower the allocation size here,
                  * never increase. */
                 n = realloc(*x, m + (size_t) l + l_separator + 1);
-                if (n)
+                якщо (n)
                         *x = n;
-        } else {
+        } інакше {
                 char *n;
 
                 /* Wasn't enough. Then let's allocate exactly what we need. */
 
-                if (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
+                якщо (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
                         goto oom;
-                if (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
+                якщо (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
                         goto oom;
 
                 a = m + (size_t) l + l_separator + 1;
                 n = realloc(*x, a);
-                if (!n)
+                якщо (!n)
                         goto oom;
                 *x = n;
 
@@ -1015,12 +1015,12 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
                 assert((size_t) l < a - m - l_separator);
         }
 
-        return 0;
+        повернути 0;
 
 oom:
         /* truncate the bytes added after memcpy_safe() again */
         (*x)[m] = 0;
-        return -ENOMEM;
+        повернути -ENOMEM;
 }
 
 char* strrep(const char *s, size_t n) {
@@ -1030,52 +1030,52 @@ char* strrep(const char *s, size_t n) {
         assert(s);
 
         l = strlen(s);
-        if (!MUL_ASSIGN_SAFE(&l, n))
-                return NULL;
-        if (!INC_SAFE(&l, 1))
-                return NULL;
+        якщо (!MUL_ASSIGN_SAFE(&l, n))
+                повернути NULL;
+        якщо (!INC_SAFE(&l, 1))
+                повернути NULL;
 
         p = ret = malloc(l);
-        if (!ret)
-                return NULL;
+        якщо (!ret)
+                повернути NULL;
 
-        for (size_t i = 0; i < n; i++)
+        для (size_t i = 0; i < n; i++)
                 p = stpcpy(p, s);
 
         *p = 0;
-        return ret;
+        повернути ret;
 }
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second) {
+ціле split_pair(const char *s, const char *sep, char **ret_first, char **ret_second) {
         assert(s);
         assert(!isempty(sep));
 
         const char *x = strstr(s, sep);
-        if (!x)
-                return -EINVAL;
+        якщо (!x)
+                повернути -EINVAL;
 
         _cleanup_free_ char *a = NULL;
-        if (ret_first) {
+        якщо (ret_first) {
                 a = strndup(s, x - s);
-                if (!a)
-                        return -ENOMEM;
+                якщо (!a)
+                        повернути -ENOMEM;
         }
 
         _cleanup_free_ char *b = NULL;
-        if (ret_second) {
+        якщо (ret_second) {
                 b = strdup(x + strlen(sep));
-                if (!b)
-                        return -ENOMEM;
+                якщо (!b)
+                        повернути -ENOMEM;
         }
 
-        if (ret_first)
+        якщо (ret_first)
                 *ret_first = TAKE_PTR(a);
-        if (ret_second)
+        якщо (ret_second)
                 *ret_second = TAKE_PTR(b);
-        return 0;
+        повернути 0;
 }
 
-int free_and_strdup(char **p, const char *s) {
+ціле free_and_strdup(char **p, const char *s) {
         char *t;
 
         assert(p);
@@ -1083,31 +1083,31 @@ int free_and_strdup(char **p, const char *s) {
         /* Replaces a string pointer with a strdup()ed new string,
          * possibly freeing the old one. */
 
-        if (streq_ptr(*p, s))
-                return 0;
+        якщо (streq_ptr(*p, s))
+                повернути 0;
 
-        if (s) {
+        якщо (s) {
                 t = strdup(s);
-                if (!t)
-                        return -ENOMEM;
-        } else
+                якщо (!t)
+                        повернути -ENOMEM;
+        } інакше
                 t = NULL;
 
         free_and_replace(*p, t);
 
-        return 1;
+        повернути 1;
 }
 
-int free_and_strdup_warn(char **p, const char *s) {
-        int r;
+ціле free_and_strdup_warn(char **p, const char *s) {
+        ціле r;
 
         r = free_and_strdup(p, s);
-        if (r < 0)
-                return log_oom();
-        return r;
+        якщо (r < 0)
+                повернути log_oom();
+        повернути r;
 }
 
-int free_and_strndup(char **p, const char *s, size_t l) {
+ціле free_and_strndup(char **p, const char *s, size_t l) {
         char *t;
 
         assert(p);
@@ -1116,38 +1116,38 @@ int free_and_strndup(char **p, const char *s, size_t l) {
         /* Replaces a string pointer with a strndup()ed new string,
          * freeing the old one. */
 
-        if (!*p && !s)
-                return 0;
+        якщо (!*p && !s)
+                повернути 0;
 
-        if (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
-                return 0;
+        якщо (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
+                повернути 0;
 
-        if (s) {
+        якщо (s) {
                 t = strndup(s, l);
-                if (!t)
-                        return -ENOMEM;
-        } else
+                якщо (!t)
+                        повернути -ENOMEM;
+        } інакше
                 t = NULL;
 
         free_and_replace(*p, t);
-        return 1;
+        повернути 1;
 }
 
-int strdup_to_full(char **ret, const char *src) {
-        if (!src) {
-                if (ret)
+ціле strdup_to_full(char **ret, const char *src) {
+        якщо (!src) {
+                якщо (ret)
                         *ret = NULL;
 
-                return 0;
-        } else {
-                if (ret) {
+                повернути 0;
+        } інакше {
+                якщо (ret) {
                         char *t = strdup(src);
-                        if (!t)
-                                return -ENOMEM;
+                        якщо (!t)
+                                повернути -ENOMEM;
                         *ret = t;
                 }
 
-                return 1;
+                повернути 1;
         }
 };
 
@@ -1158,65 +1158,65 @@ bool string_is_safe(const char *p, StringSafeFlags flags) {
          *   • UTF-8 valid (well, technically we skip this test if STRING_ASCII is set, since that is a tighter test)
          */
 
-        if (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
-                return false;
+        якщо (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
+                повернути false;
 
-        if (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
-                return false;
+        якщо (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
+                повернути false;
 
-        for (const char *t = p; *t; t++) {
+        для (const char *t = p; *t; t++) {
                 /* never allow control characters, except for new line */
-                if ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
-                        return false;
+                якщо ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
+                        повернути false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
-                        return false;
+                якщо (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
+                        повернути false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
-                        return false;
+                якщо (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
+                        повернути false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
-                        return false;
+                якщо (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
+                        повернути false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
-                        return false;
+                якщо (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
+                        повернути false;
 
-                if (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
-                        return false;
+                якщо (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
+                        повернути false;
 
-                if (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
-                        return false;
+                якщо (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
+                        повернути false;
         }
 
-        if (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
-                return false;
+        якщо (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
+                повернути false;
 
-        if (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
-                return false;
+        якщо (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
+                повернути false;
 
-        return true;
+        повернути true;
 }
 
 char* str_realloc(char *p) {
         /* Reallocate *p to actual size. Ignore failure, and return the original string on error. */
 
-        if (!p)
-                return NULL;
+        якщо (!p)
+                повернути NULL;
 
-        return realloc(p, strlen(p) + 1) ?: p;
+        повернути realloc(p, strlen(p) + 1) ?: p;
 }
 
 char* string_erase(char *x) {
-        if (!x)
-                return NULL;
+        якщо (!x)
+                повернути NULL;
 
         /* A delicious drop of snake-oil! To be called on memory where we stored passphrases or so, after we
          * used them. */
         explicit_bzero_safe(x, strlen(x));
-        return x;
+        повернути x;
 }
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
+ціле string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         const char *p = s, *e = s;
         bool truncation_applied = false;
         char *copy;
@@ -1229,16 +1229,16 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
          * there were fewer lines in the string anyway. Trailing newlines on input are ignored, and not
          * generated either. */
 
-        for (;;) {
+        для (;;) {
                 size_t k;
 
                 k = strcspn(p, "\n");
 
-                if (p[k] == 0) {
-                        if (k == 0) /* final empty line */
+                якщо (p[k] == 0) {
+                        якщо (k == 0) /* final empty line */
                                 break;
 
-                        if (n >= n_lines) /* above threshold */
+                        якщо (n >= n_lines) /* above threshold */
                                 break;
 
                         e = p + k; /* last line to include */
@@ -1247,10 +1247,10 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
 
                 assert(p[k] == '\n');
 
-                if (n >= n_lines)
+                якщо (n >= n_lines)
                         break;
 
-                if (k > 0)
+                якщо (k > 0)
                         e = p + k;
 
                 p += k + 1;
@@ -1258,23 +1258,23 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         }
 
         /* e points after the last character we want to keep */
-        if (isempty(e))
+        якщо (isempty(e))
                 copy = strdup(s);
-        else {
-                if (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
+        інакше {
+                якщо (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
                                            * isn't a new-line or a series of them */
                         truncation_applied = true;
 
                 copy = strndup(s, e - s);
         }
-        if (!copy)
-                return -ENOMEM;
+        якщо (!copy)
+                повернути -ENOMEM;
 
         *ret = copy;
-        return truncation_applied;
+        повернути truncation_applied;
 }
 
-int string_extract_line(const char *s, size_t i, char **ret) {
+ціле string_extract_line(const char *s, size_t i, char **ret) {
         const char *p = s;
         size_t c = 0;
 
@@ -1286,75 +1286,75 @@ int string_extract_line(const char *s, size_t i, char **ret) {
          * NULL, indicating the input string should be used as is, and avoid a memory allocation for a very
          * common case. */
 
-        for (;;) {
+        для (;;) {
                 const char *q;
 
                 q = strchr(p, '\n');
-                if (i == c) {
+                якщо (i == c) {
                         /* The line we are looking for! */
 
-                        if (q) {
+                        якщо (q) {
                                 char *m;
 
                                 m = strndup(p, q - p);
-                                if (!m)
-                                        return -ENOMEM;
+                                якщо (!m)
+                                        повернути -ENOMEM;
 
                                 *ret = m;
-                                return !isempty(q + 1); /* More coming? */
-                        } else
+                                повернути !isempty(q + 1); /* More coming? */
+                        } інакше
                                 /* Tell the caller to use the input string if equal */
-                                return strdup_to(ret, p != s ? p : NULL);
+                                повернути strdup_to(ret, p != s ? p : NULL);
                 }
 
-                if (!q)
+                якщо (!q)
                         /* No more lines, return empty line */
-                        return strdup_to(ret, "");
+                        повернути strdup_to(ret, "");
 
                 p = q + 1;
                 c++;
         }
 }
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
+ціле string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
         /* In the default mode with no separators specified, we split on whitespace and coalesce separators. */
         const ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
         const char *found = NULL;
-        int r;
+        ціле r;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ char *w = NULL;
 
                 r = extract_first_word(&string, &w, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                якщо (r < 0)
+                        повернути r;
+                якщо (r == 0)
                         break;
 
                 found = strv_find(words, w);
-                if (found)
+                якщо (found)
                         break;
         }
 
-        if (ret_word)
+        якщо (ret_word)
                 *ret_word = found;
-        return !!found;
+        повернути !!found;
 }
 
 bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok) {
-        if (!s1 && !s2)
-                return true;
-        if (!s1 || !s2)
-                return false;
+        якщо (!s1 && !s2)
+                повернути true;
+        якщо (!s1 || !s2)
+                повернути false;
 
-        if (!ok)
+        якщо (!ok)
                 ok = WHITESPACE;
 
-        for (; *s1 && *s2; s1++, s2++)
-                if (*s1 != *s2)
+        для (; *s1 && *s2; s1++, s2++)
+                якщо (*s1 != *s2)
                         break;
 
-        return in_charset(s1, ok) && in_charset(s2, ok);
+        повернути in_charset(s1, ok) && in_charset(s2, ok);
 }
 
 char* string_replace_char(char *str, char old_char, char new_char) {
@@ -1363,13 +1363,13 @@ char* string_replace_char(char *str, char old_char, char new_char) {
         assert(new_char != '\0');
         assert(old_char != new_char);
 
-        for (char *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
+        для (char *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
                 *p = new_char;
 
-        return str;
+        повернути str;
 }
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
+ціле make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
         char *b;
 
         assert(s || n == 0);
@@ -1379,52 +1379,52 @@ int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
         /* Converts a sized character buffer into a NUL-terminated NUL string, refusing if there are embedded
          * NUL bytes. Whether to expect a trailing NUL byte can be specified via 'mode' */
 
-        if (n == 0) {
-                if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+        якщо (n == 0) {
+                якщо (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        повернути -EINVAL;
 
-                if (!ret)
-                        return 0;
+                якщо (!ret)
+                        повернути 0;
 
                 b = new0(char, 1);
-        } else {
+        } інакше {
                 const uint8_t *nul;
 
                 nul = memchr(s, 0, n);
-                if (nul) {
-                        if (nul < (const uint8_t*) s + n - 1 || /* embedded NUL? */
+                якщо (nul) {
+                        якщо (nul < (const uint8_t*) s + n - 1 || /* embedded NUL? */
                             mode == MAKE_CSTRING_REFUSE_TRAILING_NUL)
-                                return -EINVAL;
+                                повернути -EINVAL;
 
                         n--;
-                } else if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+                } інакше якщо (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        повернути -EINVAL;
 
-                if (!ret)
-                        return 0;
+                якщо (!ret)
+                        повернути 0;
 
                 b = memdup_suffix0(s, n);
         }
-        if (!b)
-                return -ENOMEM;
+        якщо (!b)
+                повернути -ENOMEM;
 
         *ret = b;
-        return 0;
+        повернути 0;
 }
 
 size_t strspn_from_end(const char *str, const char *accept) {
         size_t n = 0;
 
-        if (isempty(str))
-                return 0;
+        якщо (isempty(str))
+                повернути 0;
 
-        if (isempty(accept))
-                return 0;
+        якщо (isempty(accept))
+                повернути 0;
 
-        for (const char *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
+        для (const char *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
                 n++;
 
-        return n;
+        повернути n;
 }
 
 size_t strnspn(const char *str, const char *accept, size_t n) {
@@ -1438,26 +1438,26 @@ size_t strnspn(const char *str, const char *accept, size_t n) {
         assert(str || n == 0);
         assert(accept);
 
-        for (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
+        для (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
                 ;
 
-        return i;
+        повернути i;
 }
 
 char* strdupspn(const char *a, const char *accept) {
-        if (isempty(a) || isempty(accept))
-                return strdup("");
+        якщо (isempty(a) || isempty(accept))
+                повернути strdup("");
 
-        return strndup(a, strspn(a, accept));
+        повернути strndup(a, strspn(a, accept));
 }
 
 char* strdupcspn(const char *a, const char *reject) {
-        if (isempty(a))
-                return strdup("");
-        if (isempty(reject))
-                return strdup(a);
+        якщо (isempty(a))
+                повернути strdup("");
+        якщо (isempty(reject))
+                повернути strdup(a);
 
-        return strndup(a, strcspn(a, reject));
+        повернути strndup(a, strcspn(a, reject));
 }
 
 char* find_line_startswith_internal(const char *haystack, const char *needle) {
@@ -1468,17 +1468,17 @@ char* find_line_startswith_internal(const char *haystack, const char *needle) {
          * first character after it */
 
         char *p = (char*) strstr(haystack, needle);
-        if (!p)
-                return NULL;
+        якщо (!p)
+                повернути NULL;
 
-        if (p > haystack)
-                while (p[-1] != '\n') {
+        якщо (p > haystack)
+                поки (p[-1] != '\n') {
                         p = strstr(p + 1, needle);
-                        if (!p)
-                                return NULL;
+                        якщо (!p)
+                                повернути NULL;
                 }
 
-        return p + strlen(needle);
+        повернути p + strlen(needle);
 }
 
 char* find_line_internal(const char *haystack, const char *needle) {
@@ -1489,13 +1489,13 @@ char* find_line_internal(const char *haystack, const char *needle) {
          * beginning of the line */
 
         char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        якщо (!p)
+                повернути NULL;
 
-        if (*p == 0 || strchr(NEWLINE, *p))
-                return p - strlen(needle);
+        якщо (*p == 0 || strchr(NEWLINE, *p))
+                повернути p - strlen(needle);
 
-        return NULL;
+        повернути NULL;
 }
 
 char* find_line_after_internal(const char *haystack, const char *needle) {
@@ -1506,15 +1506,15 @@ char* find_line_after_internal(const char *haystack, const char *needle) {
          * next line after it */
 
         char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        якщо (!p)
+                повернути NULL;
 
-        if (*p == 0)
-                return p;
-        if (strchr(NEWLINE, *p))
-                return p + 1;
+        якщо (*p == 0)
+                повернути p;
+        якщо (strchr(NEWLINE, *p))
+                повернути p + 1;
 
-        return NULL;
+        повернути NULL;
 }
 
 bool version_is_valid(const char *s, VersionFlags flags) {
@@ -1522,11 +1522,11 @@ bool version_is_valid(const char *s, VersionFlags flags) {
         /* Validates a version string superficially. This does not process the version string in any
          * semantical way, it mostly just validates that its charset is reasonable. */
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
-                return false;
+        якщо (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
+                повернути false;
 
-        if (!filename_part_is_valid(s))
-                return false;
+        якщо (!filename_part_is_valid(s))
+                повернути false;
 
         /* We always allow all characters specified by the UAPI.10 Version Specification, i.e. 0-9, a-z, A-Z,
          * ".", "-", "~", "^".
@@ -1552,12 +1552,12 @@ bool version_is_valid(const char *s, VersionFlags flags) {
         char charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
         size_t l = strlen(charset);
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
+        якщо (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
                 charset[l++] = '_';
-        if (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
+        якщо (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
                 charset[l++] = '+';
 
-        return in_charset(s, charset);
+        повернути in_charset(s, charset);
 }
 
 ssize_t strlevenshtein(const char *x, const char *y) {
@@ -1566,52 +1566,52 @@ ssize_t strlevenshtein(const char *x, const char *y) {
 
         /* This is inspired from the Linux kernel's Levenshtein implementation */
 
-        if (streq_ptr(x, y))
-                return 0;
+        якщо (streq_ptr(x, y))
+                повернути 0;
 
         xl = strlen_ptr(x);
-        if (xl > SSIZE_MAX)
-                return -E2BIG;
+        якщо (xl > SSIZE_MAX)
+                повернути -E2BIG;
 
         yl = strlen_ptr(y);
-        if (yl > SSIZE_MAX)
-                return -E2BIG;
+        якщо (yl > SSIZE_MAX)
+                повернути -E2BIG;
 
-        if (isempty(x))
-                return yl;
-        if (isempty(y))
-                return xl;
+        якщо (isempty(x))
+                повернути yl;
+        якщо (isempty(y))
+                повернути xl;
 
         t0 = new0(size_t, yl + 1);
-        if (!t0)
-                return -ENOMEM;
+        якщо (!t0)
+                повернути -ENOMEM;
         t1 = new0(size_t, yl + 1);
-        if (!t1)
-                return -ENOMEM;
+        якщо (!t1)
+                повернути -ENOMEM;
         t2 = new0(size_t, yl + 1);
-        if (!t2)
-                return -ENOMEM;
+        якщо (!t2)
+                повернути -ENOMEM;
 
-        for (size_t i = 0; i <= yl; i++)
+        для (size_t i = 0; i <= yl; i++)
                 t1[i] = i;
 
-        for (size_t i = 0; i < xl; i++) {
+        для (size_t i = 0; i < xl; i++) {
                 t2[0] = i + 1;
 
-                for (size_t j = 0; j < yl; j++) {
+                для (size_t j = 0; j < yl; j++) {
                         /* Substitution */
                         t2[j+1] = t1[j] + (x[i] != y[j]);
 
                         /* Swap */
-                        if (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
+                        якщо (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
                                 t2[j+1] = t0[j-1] + 1;
 
                         /* Deletion */
-                        if (t2[j+1] > t1[j+1] + 1)
+                        якщо (t2[j+1] > t1[j+1] + 1)
                                 t2[j+1] = t1[j+1] + 1;
 
                         /* Insertion */
-                        if (t2[j+1] > t2[j] + 1)
+                        якщо (t2[j+1] > t2[j] + 1)
                                 t2[j+1] = t2[j] + 1;
                 }
 
@@ -1621,41 +1621,41 @@ ssize_t strlevenshtein(const char *x, const char *y) {
                 t2 = dummy;
         }
 
-        return t1[yl];
+        повернути t1[yl];
 }
 
 char* strrstr_internal(const char *haystack, const char *needle) {
         /* Like strstr() but returns the last rather than the first occurrence of "needle" in "haystack". */
 
-        if (!haystack || !needle)
-                return NULL;
+        якщо (!haystack || !needle)
+                повернути NULL;
 
         /* Special case: for the empty string we return the very last possible occurrence, i.e. *after* the
          * last char, not before. */
-        if (needle[0] == 0)
-                return (char*) strchr(haystack, 0);
+        якщо (needle[0] == 0)
+                повернути (char*) strchr(haystack, 0);
 
         /* Special case: for single character strings, just use optimized strrchr() */
-        if (needle[1] == 0)
-                return (char*) strrchr(haystack, needle[0]);
+        якщо (needle[1] == 0)
+                повернути (char*) strrchr(haystack, needle[0]);
 
-        for (const char *p = strstr(haystack, needle), *q; p; p = q) {
+        для (const char *p = strstr(haystack, needle), *q; p; p = q) {
                 q = strstr(p + 1, needle);
-                if (!q)
-                        return (char*) p;
+                якщо (!q)
+                        повернути (char*) p;
         }
-        return NULL;
+        повернути NULL;
 }
 
 char* strrstr_no_case_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
+        якщо (!haystack || !needle)
+                повернути NULL;
 
-        for (const char *p = strchr(haystack, 0); p > haystack; p--)
-                if (startswith_no_case(p, needle))
-                        return (char*) p;
+        для (const char *p = strchr(haystack, 0); p > haystack; p--)
+                якщо (startswith_no_case(p, needle))
+                        повернути (char*) p;
 
-        return startswith_no_case(haystack, needle) ? (char*) haystack : NULL;
+        повернути startswith_no_case(haystack, needle) ? (char*) haystack : NULL;
 }
 
 size_t str_common_prefix(const char *a, const char *b) {
@@ -1665,11 +1665,11 @@ size_t str_common_prefix(const char *a, const char *b) {
         /* Returns the length of the common prefix of the two specified strings, or SIZE_MAX in case the
          * strings are fully identical. */
 
-        for (size_t n = 0;; n++) {
+        для (size_t n = 0;; n++) {
                 char c = a[n];
-                if (c != b[n])
-                        return n;
-                if (c == 0)
-                        return SIZE_MAX;
+                якщо (c != b[n])
+                        повернути n;
+                якщо (c == 0)
+                        повернути SIZE_MAX;
         }
 }

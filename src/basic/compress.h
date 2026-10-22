@@ -43,66 +43,66 @@ Compression compression_detect_from_magic(const uint8_t data[static COMPRESSION_
 typedef struct Compressor Compressor;
 typedef Compressor Decompressor;
 
-typedef int (*DecompressorCallback)(const void *data, size_t size, void *userdata);
+typedef ціле (*DecompressorCallback)(const void *data, size_t size, void *userdata);
 
 Compressor* compressor_free(Compressor *c);
 DEFINE_TRIVIAL_CLEANUP_FUNC(Compressor*, compressor_free);
 
-int compressor_new(Compressor **ret, Compression type);
-int compressor_start(Compressor *c, const void *data, size_t size, void **buffer, size_t *buffer_size, size_t *buffer_allocated);
-int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t *buffer_allocated);
+ціле compressor_new(Compressor **ret, Compression type);
+ціле compressor_start(Compressor *c, const void *data, size_t size, void **buffer, size_t *buffer_size, size_t *buffer_allocated);
+ціле compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t *buffer_allocated);
 
-int decompressor_detect(Decompressor **decompressor, const void *data, size_t size);
-int decompressor_force(Decompressor **decompressor, Compression type);
-int decompressor_force_off(Decompressor **decompressor);
-int decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata);
+ціле decompressor_detect(Decompressor **decompressor, const void *data, size_t size);
+ціле decompressor_force(Decompressor **decompressor, Compression type);
+ціле decompressor_force_off(Decompressor **decompressor);
+ціле decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata);
 
 Compression compressor_type(const Compressor *c);
 
 /* Blob compression/decompression */
 
-int compress_blob_journal(
+ціле compress_blob_journal(
                 Compression compression,
                 const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level);
-int compress_blob(Compression compression,
+                void *dst, size_t dst_alloc_size, size_t *dst_size, ціле level);
+ціле compress_blob(Compression compression,
                   const void *src, uint64_t src_size,
-                  void *dst, size_t dst_alloc_size, size_t *dst_size, int level);
-int decompress_blob_journal(
+                  void *dst, size_t dst_alloc_size, size_t *dst_size, ціле level);
+ціле decompress_blob_journal(
                 Compression compression,
                 const void *src, uint64_t src_size,
                 void **dst, size_t *dst_size, size_t dst_max);
-int decompress_blob(Compression compression,
+ціле decompress_blob(Compression compression,
                     const void *src, uint64_t src_size,
                     void **dst, size_t *dst_size, size_t dst_max);
 
-int decompress_blob_to_fd_journal(
+ціле decompress_blob_to_fd_journal(
                 Compression type,
                 const void *src,
                 uint64_t src_size,
-                int fdt,
+                ціле fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
                 size_t *ret_size);
-int decompress_blob_to_fd(
+ціле decompress_blob_to_fd(
                 Compression type,
                 const void *src,
                 uint64_t src_size,
-                int fdt,
+                ціле fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
                 size_t *ret_size);
 
-int decompress_zlib_raw(const void *src, uint64_t src_size,
-                        void *dst, size_t dst_size, int wbits);
+ціле decompress_zlib_raw(const void *src, uint64_t src_size,
+                        void *dst, size_t dst_size, ціле wbits);
 
-int decompress_startswith_journal(
+ціле decompress_startswith_journal(
                 Compression compression,
                 const void *src, uint64_t src_size,
                 void **buffer,
                 const void *prefix, size_t prefix_len,
                 uint8_t extra);
-int decompress_startswith(Compression compression,
+ціле decompress_startswith(Compression compression,
                           const void *src, uint64_t src_size,
                           void **buffer,
                           const void *prefix, size_t prefix_len,
@@ -110,32 +110,32 @@ int decompress_startswith(Compression compression,
 
 /* Stream compression/decompression (fd-to-fd) */
 
-int compress_stream(Compression type, int fdf, int fdt, uint64_t max_bytes, uint64_t *ret_uncompressed_size);
+ціле compress_stream(Compression type, ціле fdf, ціле fdt, uint64_t max_bytes, uint64_t *ret_uncompressed_size);
 typedef enum DecompressFlags {
         DECOMPRESS_LEGACY_LZMA         = 1 << 0, /* With COMPRESSION_XZ, also accept the legacy .lzma format */
         DECOMPRESS_REFUSE_CONCATENATED = 1 << 1, /* With COMPRESSION_XZ, refuse the second and later stream */
 } DecompressFlags;
 
-int decompress_stream_full(Compression type, int fdf, int fdt, uint64_t max_bytes, DecompressFlags flags);
-static inline int decompress_stream(Compression type, int fdf, int fdt, uint64_t max_bytes) {
-        return decompress_stream_full(type, fdf, fdt, max_bytes, /* flags= */ 0);
+ціле decompress_stream_full(Compression type, ціле fdf, ціле fdt, uint64_t max_bytes, DecompressFlags flags);
+static inline ціле decompress_stream(Compression type, ціле fdf, ціле fdt, uint64_t max_bytes) {
+        повернути decompress_stream_full(type, fdf, fdt, max_bytes, /* flags= */ 0);
 }
-int decompress_stream_by_filename(const char *filename, int fdf, int fdt, uint64_t max_bytes);
+ціле decompress_stream_by_filename(const char *filename, ціле fdf, ціле fdt, uint64_t max_bytes);
 
-int dlopen_xz(int log_level) _dlopen_loader_;
-int dlopen_lz4(int log_level) _dlopen_loader_;
-int dlopen_zstd(int log_level) _dlopen_loader_;
-int dlopen_zlib(int log_level) _dlopen_loader_;
-int dlopen_bzip2(int log_level) _dlopen_loader_;
+ціле dlopen_xz(ціле log_level) _dlopen_loader_;
+ціле dlopen_lz4(ціле log_level) _dlopen_loader_;
+ціле dlopen_zstd(ціле log_level) _dlopen_loader_;
+ціле dlopen_zlib(ціле log_level) _dlopen_loader_;
+ціле dlopen_bzip2(ціле log_level) _dlopen_loader_;
 
-int dlopen_compress(Compression c, int log_level);
-int dlopen_compress_journal(Compression c, int log_level);
-static inline int dlopen_compress_default(int log_level) {
-        return dlopen_compress_journal(DEFAULT_COMPRESSION, log_level);
+ціле dlopen_compress(Compression c, ціле log_level);
+ціле dlopen_compress_journal(Compression c, ціле log_level);
+static inline ціле dlopen_compress_default(ціле log_level) {
+        повернути dlopen_compress_journal(DEFAULT_COMPRESSION, log_level);
 }
 
 static inline const char* default_compression_extension(void) {
-        return compression_extension_to_string(DEFAULT_COMPRESSION) ?: "";
+        повернути compression_extension_to_string(DEFAULT_COMPRESSION) ?: "";
 }
 
 /* Returns ZSTD_DStreamOutSize() — the streaming decompressor's recommended output buffer size, which

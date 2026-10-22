@@ -22,40 +22,40 @@ size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool
         assert(dest);
         assert(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        якщо (size == 0) {
+                якщо (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                повернути 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
+        якщо (len >= size) {
+                якщо (size > 1)
                         *dest = mempcpy(*dest, src, size-1);
                 size = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } інакше якщо (len > 0) {
                 *dest = mempcpy(*dest, src, len);
                 size -= len;
         }
 
-        if (ret_truncated)
+        якщо (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        повернути size;
 }
 
 size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
         assert(dest);
         assert(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        повернути strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
 }
 
 size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        ціле i;
 
         assert(dest);
         assert(src);
@@ -66,18 +66,18 @@ size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *
 
         assert(i >= 0);
 
-        if (i < (int) size) {
+        якщо (i < (ціле) size) {
                 *dest += i;
                 size -= i;
-        } else {
+        } інакше {
                 size = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        якщо (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        повернути size;
 }
 
 size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
@@ -94,12 +94,12 @@ size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *
                 size = strpcpy_full(dest, size, src, &t);
                 truncated = truncated || t;
                 src = va_arg(va, char *);
-        } while (src);
+        } поки (src);
         va_end(va);
 
-        if (ret_truncated)
+        якщо (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        повернути size;
 }
 
 size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
@@ -109,14 +109,14 @@ size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool 
         assert(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        повернути strnpcpy_full(&s, size, src, len, ret_truncated);
 }
 
 size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
         assert(dest);
         assert(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        повернути strnscpy_full(dest, size, src, strlen(src), ret_truncated);
 }
 
 size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
@@ -135,11 +135,11 @@ size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *s
                 size = strpcpy_full(&s, size, src, &t);
                 truncated = truncated || t;
                 src = va_arg(va, char *);
-        } while (src);
+        } поки (src);
         va_end(va);
 
-        if (ret_truncated)
+        якщо (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        повернути size;
 }

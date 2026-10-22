@@ -10,35 +10,35 @@
 bool http_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        якщо (isempty(url))
+                повернути false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        якщо (!p)
+                повернути false;
 
-        if (isempty(p))
-                return false;
+        якщо (isempty(p))
+                повернути false;
 
-        return ascii_is_valid(p);
+        повернути ascii_is_valid(p);
 }
 
 bool file_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        якщо (isempty(url))
+                повернути false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        якщо (isempty(p))
+                повернути false;
 
-        return ascii_is_valid(p);
+        повернути ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
+ціле provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
         const char *p, *e;
-        int r;
+        ціле r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        якщо (isempty(url))
+                повернути -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        якщо (!p)
+                повернути -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        якщо (!e || e == p)
+                повернути -EINVAL;
+        якщо (e[1] != '/')
+                повернути -EINVAL;
 
         _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        якщо (!s)
+                повернути -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        якщо (!path_is_absolute(s) || !path_is_normalized(s))
+                повернути -EINVAL;
 
         const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        якщо (isempty(resource))
+                повернути -EINVAL;
+        якщо (path_is_absolute(resource) || !path_is_normalized(resource))
+                повернути -EINVAL;
+        якщо (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
+                повернути -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (ret_socket)
+        якщо (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        повернути 0;
 }
 
 bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+        повернути provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
 }
 
 bool documentation_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        якщо (isempty(url))
+                повернути false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        якщо (http_url_is_valid(url) || file_url_is_valid(url))
+                повернути true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        якщо (isempty(p))
+                повернути false;
 
-        return ascii_is_valid(p);
+        повернути ascii_is_valid(p);
 }
 
 bool http_header_valid(const char *header) {
-        return header &&
+        повернути header &&
                 ascii_is_valid(header) &&
                 !string_has_cc(header, /* ok= */ NULL) &&
                 strchr(header, ':');
 }
 
 bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+        якщо (isempty(etag))
+                повернути false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        якщо (!endswith(etag, "\""))
+                повернути false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        якщо (!STARTSWITH_SET(etag, "\"", "W/\""))
+                повернути false;
 
-        return true;
+        повернути true;
 }

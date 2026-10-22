@@ -3,33 +3,33 @@
 
 #include "forward.h"
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_at(AT_FDCWD, path, ret_file, ret_path);
+ціле fopen_temporary_at(ціле dir_fd, const char *path, FILE **ret_file, char **ret_path);
+static inline ціле fopen_temporary(const char *path, FILE **ret_file, char **ret_path) {
+        повернути fopen_temporary_at(AT_FDCWD, path, ret_file, ret_path);
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path);
-static inline int fopen_temporary_child(const char *path, FILE **ret_file, char **ret_path) {
-        return fopen_temporary_child_at(AT_FDCWD, path, ret_file, ret_path);
+ціле fopen_temporary_child_at(ціле dir_fd, const char *path, FILE **ret_file, char **ret_path);
+static inline ціле fopen_temporary_child(const char *path, FILE **ret_file, char **ret_path) {
+        повернути fopen_temporary_child_at(AT_FDCWD, path, ret_file, ret_path);
 }
 
-int mkostemp_safe(char *pattern);
-int fmkostemp_safe(char *pattern, const char *mode, FILE**_f);
+ціле mkostemp_safe(char *pattern);
+ціле fmkostemp_safe(char *pattern, const char *mode, FILE**_f);
 
 void unlink_tempfilep(char (*p)[]);
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret);
-int tempfn_random(const char *p, const char *extra, char **ret);
-int tempfn_random_child(const char *p, const char *extra, char **ret);
+ціле tempfn_xxxxxx(const char *p, const char *extra, char **ret);
+ціле tempfn_random(const char *p, const char *extra, char **ret);
+ціле tempfn_random_child(const char *p, const char *extra, char **ret);
 
-int open_tmpfile_unlinkable(const char *directory, int flags);
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path);
-static inline int open_tmpfile_linkable(const char *target, int flags, char **ret_path) {
-        return open_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path);
+ціле open_tmpfile_unlinkable(const char *directory, ціле flags);
+ціле open_tmpfile_linkable_at(ціле dir_fd, const char *target, ціле flags, char **ret_path);
+static inline ціле open_tmpfile_linkable(const char *target, ціле flags, char **ret_path) {
+        повернути open_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path);
 }
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file);
-static inline int fopen_tmpfile_linkable(const char *target, int flags, char **ret_path, FILE **ret_file) {
-        return fopen_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path, ret_file);
+ціле fopen_tmpfile_linkable_at(ціле dir_fd, const char *target, ціле flags, char **ret_path, FILE **ret_file);
+static inline ціле fopen_tmpfile_linkable(const char *target, ціле flags, char **ret_path, FILE **ret_file) {
+        повернути fopen_tmpfile_linkable_at(AT_FDCWD, target, flags, ret_path, ret_file);
 }
 
 typedef enum LinkTmpfileFlags {
@@ -37,21 +37,21 @@ typedef enum LinkTmpfileFlags {
         LINK_TMPFILE_SYNC    = 1 << 1,
 } LinkTmpfileFlags;
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int link_tmpfile(int fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return link_tmpfile_at(fd, AT_FDCWD, path, target, flags);
+ціле link_tmpfile_at(ціле fd, ціле dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
+static inline ціле link_tmpfile(ціле fd, const char *path, const char *target, LinkTmpfileFlags flags) {
+        повернути link_tmpfile_at(fd, AT_FDCWD, path, target, flags);
 }
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
-static inline int flink_tmpfile(FILE *f, const char *path, const char *target, LinkTmpfileFlags flags) {
-        return flink_tmpfile_at(f, AT_FDCWD, path, target, flags);
+ціле flink_tmpfile_at(FILE *f, ціле dir_fd, const char *path, const char *target, LinkTmpfileFlags flags);
+static inline ціле flink_tmpfile(FILE *f, const char *path, const char *target, LinkTmpfileFlags flags) {
+        повернути flink_tmpfile_at(f, AT_FDCWD, path, target, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret);
-int mkdtemp_open(const char *template, int flags, char **ret);
+ціле mkdtemp_malloc(const char *template, char **ret);
+ціле mkdtemp_open(const char *template, ціле flags, char **ret);
 
 /* A helper for removing link_tmpfile_at() via _cleanup_() */
 struct cleanup_tmpfile_data {
-        int *dir_fd;
+        ціле *dir_fd;
         char **filename;
 };
 void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d);

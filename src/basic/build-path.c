@@ -13,7 +13,7 @@
 #include "string-util.h"
 #include "unistd.h"
 
-static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
+static ціле get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
         size_t runpath_index = SIZE_MAX, rpath_index = SIZE_MAX;
         const char *strtab = NULL;
 
@@ -21,7 +21,7 @@ static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const c
 
         /* Iterates through the PT_DYNAMIC section to find the DT_RUNPATH/DT_RPATH entries */
 
-        for (; d->d_tag != DT_NULL; d++) {
+        для (; d->d_tag != DT_NULL; d++) {
 
                 switch (d->d_tag) {
 
@@ -36,9 +36,9 @@ static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const c
                 case DT_STRTAB:
                         /* On MIPS, RISC-V, or with musl, DT_STRTAB records an offset, not a valid address,
                          * so it has to be adjusted using the bias calculated earlier. */
-                        if (d->d_un.d_val != 0)
+                        якщо (d->d_un.d_val != 0)
                                 strtab = (const char *) ((uintptr_t) d->d_un.d_val
-#if defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
+#якщо defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
                                          + bias
 #endif
                                 );
@@ -46,61 +46,61 @@ static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const c
                 }
 
                 /* runpath wins, hence if we have the table and runpath we can exit the loop early */
-                if (strtab && runpath_index != SIZE_MAX)
+                якщо (strtab && runpath_index != SIZE_MAX)
                         break;
         }
 
-        if (!strtab)
-                return -ENOTRECOVERABLE;
+        якщо (!strtab)
+                повернути -ENOTRECOVERABLE;
 
         /* According to ld.so runpath wins if both runpath and rpath are defined. */
-        if (runpath_index != SIZE_MAX) {
-                if (ret)
+        якщо (runpath_index != SIZE_MAX) {
+                якщо (ret)
                         *ret = strtab + runpath_index;
-                return 1;
+                повернути 1;
         }
 
-        if (rpath_index != SIZE_MAX) {
-                if (ret)
+        якщо (rpath_index != SIZE_MAX) {
+                якщо (ret)
                         *ret = strtab + rpath_index;
-                return 1;
+                повернути 1;
         }
 
-        if (ret)
+        якщо (ret)
                 *ret = NULL;
 
-        return 0;
+        повернути 0;
 }
 
-static int get_runpath(const char **ret) {
+static ціле get_runpath(const char **ret) {
         unsigned long phdr, phent, phnum;
 
         /* Finds the rpath/runpath in the program headers of the main executable we are running in */
 
         phdr = getauxval(AT_PHDR);      /* Start offset of phdr */
-        if (phdr == 0)
-                return -ENOTRECOVERABLE;
+        якщо (phdr == 0)
+                повернути -ENOTRECOVERABLE;
 
         phnum = getauxval(AT_PHNUM);    /* Number of entries in phdr */
-        if (phnum == 0)
-                return -ENOTRECOVERABLE;
+        якщо (phnum == 0)
+                повернути -ENOTRECOVERABLE;
 
         phent = getauxval(AT_PHENT);    /* Size of entries in phdr */
-        if (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
-                return -ENOTRECOVERABLE;
+        якщо (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
+                повернути -ENOTRECOVERABLE;
 
         ElfW(Addr) bias = 0, dyn = 0;
         bool found_bias = false, found_dyn = false;
 
         /* Iterate through the Phdr structures to find the PT_PHDR and PT_DYNAMIC sections */
-        for (unsigned long i = 0; i < phnum; i++) {
+        для (unsigned long i = 0; i < phnum; i++) {
                 const ElfW(Phdr) *p = (const ElfW(Phdr)*) (phdr + (i * phent));
 
                 switch (p->p_type) {
 
                 case PT_PHDR:
-                        if (p->p_vaddr > phdr) /* safety overflow check */
-                                return -ENOTRECOVERABLE;
+                        якщо (p->p_vaddr > phdr) /* safety overflow check */
+                                повернути -ENOTRECOVERABLE;
 
                         bias = (ElfW(Addr)) phdr - p->p_vaddr;
                         found_bias = true;
@@ -112,18 +112,18 @@ static int get_runpath(const char **ret) {
                         break;
                 }
 
-                if (found_bias && found_dyn)
+                якщо (found_bias && found_dyn)
                         break;
         }
 
-        if (!found_dyn)
-                return -ENOTRECOVERABLE;
+        якщо (!found_dyn)
+                повернути -ENOTRECOVERABLE;
 
-        return get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
+        повернути get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
 }
 
-int get_build_exec_dir(char **ret) {
-        int r;
+ціле get_build_exec_dir(char **ret) {
+        ціле r;
 
         /* Returns the build execution directory if we are invoked in a build environment. Specifically, this
          * checks if the main program binary has an rpath/runpath set (i.e. an explicit directory where to
@@ -151,49 +151,49 @@ int get_build_exec_dir(char **ret) {
          *     -NOTRECOVERABLE  → Dynamic binary information missing?
          */
 
-        static int runpath_cached = -ERRNO_MAX-1;
-        if (runpath_cached == -ERRNO_MAX-1) {
+        static ціле runpath_cached = -ERRNO_MAX-1;
+        якщо (runpath_cached == -ERRNO_MAX-1) {
                 const char *runpath = NULL;
 
                 runpath_cached = get_runpath(&runpath);
 
                 /* We only care if the runpath starts with $ORIGIN/ */
-                if (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
+                якщо (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
                         runpath_cached = 0;
         }
-        if (runpath_cached < 0)
-                return runpath_cached;
-        if (runpath_cached == 0)
-                return -ENOEXEC;
+        якщо (runpath_cached < 0)
+                повернути runpath_cached;
+        якщо (runpath_cached == 0)
+                повернути -ENOEXEC;
 
         _cleanup_free_ char *exe = NULL;
         r = get_process_exe(0, &exe);
-        if (r < 0)
-                return runpath_cached = r;
+        якщо (r < 0)
+                повернути runpath_cached = r;
 
-        return path_extract_directory(exe, ret);
+        повернути path_extract_directory(exe, ret);
 }
 
-static int find_build_dir_binary(const char *fn, char **ret) {
-        int r;
+static ціле find_build_dir_binary(const char *fn, char **ret) {
+        ціле r;
 
         assert(fn);
         assert(ret);
 
         _cleanup_free_ char *build_dir = NULL;
         r = get_build_exec_dir(&build_dir);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         _cleanup_free_ char *np = path_join(build_dir, fn);
-        if (!np)
-                return -ENOMEM;
+        якщо (!np)
+                повернути -ENOMEM;
 
         *ret = TAKE_PTR(np);
-        return 0;
+        повернути 0;
 }
 
-static int find_environment_binary(const char *fn, const char **ret) {
+static ціле find_environment_binary(const char *fn, const char **ret) {
 
         assert(ret);
 
@@ -201,26 +201,26 @@ static int find_environment_binary(const char *fn, const char **ret) {
          * environment variable SYSTEMD_FOOBAR_PATH and return it if set. */
 
         _cleanup_free_ char *s = strdup(fn);
-        if (!s)
-                return -ENOMEM;
+        якщо (!s)
+                повернути -ENOMEM;
 
         ascii_strupper(s);
         string_replace_char(s, '-', '_');
 
-        if (!strextend(&s, "_PATH"))
-                return -ENOMEM;
+        якщо (!strextend(&s, "_PATH"))
+                повернути -ENOMEM;
 
         const char *e;
         e = secure_getenv(s);
-        if (!e)
-                return -ENXIO;
+        якщо (!e)
+                повернути -ENXIO;
 
         *ret = e;
-        return 0;
+        повернути 0;
 }
 
-int invoke_callout_binary(const char *path, char *const argv[]) {
-        int r;
+ціле invoke_callout_binary(const char *path, char *const argv[]) {
+        ціле r;
 
         assert(path);
 
@@ -228,28 +228,28 @@ int invoke_callout_binary(const char *path, char *const argv[]) {
 
         _cleanup_free_ char *fn = NULL;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        якщо (r < 0)
+                повернути r;
+        якщо (r == O_DIRECTORY) /* Uh? */
+                повернути -EISDIR;
 
         const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        якщо (find_environment_binary(fn, &e) >= 0) {
                 /* If there's an explicit environment variable set for this binary, prefer it */
                 execv(e, argv);
-                return -errno; /* The environment variable counts, let's fail otherwise */
+                повернути -errno; /* The environment variable counts, let's fail otherwise */
         }
 
         _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0)
+        якщо (find_build_dir_binary(fn, &np) >= 0)
                 execv(np, argv);
 
         execvp(path, argv);
-        return -errno;
+        повернути -errno;
 }
 
-int pin_callout_binary(const char *path, char **ret_path) {
-        int r, fd;
+ціле pin_callout_binary(const char *path, char **ret_path) {
+        ціле r, fd;
 
         assert(path);
 
@@ -258,33 +258,33 @@ int pin_callout_binary(const char *path, char **ret_path) {
 
         _cleanup_free_ char *fn = NULL;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        якщо (r < 0)
+                повернути r;
+        якщо (r == O_DIRECTORY) /* Uh? */
+                повернути -EISDIR;
 
         const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        якщо (find_environment_binary(fn, &e) >= 0) {
                 /* The environment variable counts. We'd fail if the executable is not available/invalid. */
                 r = open_and_check_executable(e, /* root= */ NULL, ret_path, &fd);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
-                return fd;
+                повернути fd;
         }
 
         _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0) {
+        якщо (find_build_dir_binary(fn, &np) >= 0) {
                 r = open_and_check_executable(np, /* root= */ NULL, ret_path, &fd);
-                if (r >= 0)
-                        return fd;
+                якщо (r >= 0)
+                        повернути fd;
         }
 
         r = find_executable_full(path, /* root= */ NULL,
                                  /* exec_search_path= */ NULL, /* use_path_envvar= */ true,
                                  ret_path, &fd);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return fd;
+        повернути fd;
 }

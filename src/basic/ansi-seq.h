@@ -46,10 +46,10 @@ typedef struct AnsiSeqParser {
 void ansi_seq_parser_done(AnsiSeqParser *p);
 
 /* Feeds a single character, returns an AnsiSeqEvent, or a negative errno on capture allocation failure */
-int ansi_seq_parser_feed(AnsiSeqParser *p, char c);
+ціле ansi_seq_parser_feed(AnsiSeqParser *p, char c);
 
 /* Just like this, but eat up errors, and immediately submit character again */
-int ansi_seq_parser_feed_harder(AnsiSeqParser *p, char c);
+ціле ansi_seq_parser_feed_harder(AnsiSeqParser *p, char c);
 
 /* After ANSI_SEQ_EVENT_END: the captured payload as NUL terminated string, or NULL if capturing is
  * off or the payload overflowed */

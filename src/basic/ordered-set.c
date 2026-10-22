@@ -8,80 +8,80 @@
 #include "ordered-set.h"
 #include "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
+ціле ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
         assert(s);
 
-        if (*s)
-                return 0;
+        якщо (*s)
+                повернути 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        якщо (!*s)
+                повернути -ENOMEM;
 
-        return 0;
+        повернути 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+ціле ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
+        ціле r;
 
         assert(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return ordered_set_put(*s, p);
+        повернути ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+ціле ordered_set_consume(OrderedSet *s, void *p) {
+        ціле r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
+        якщо (r <= 0)
                 free(p);
 
-        return r;
+        повернути r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
+ціле ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
         char *c;
-        int r;
+        ціле r;
 
         assert(s);
         assert(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        якщо (ordered_set_contains(*s, p))
+                повернути 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        якщо (!c)
+                повернути -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        повернути ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+ціле ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
+        ціле r, ret = 0;
 
         assert(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        повернути ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
+ціле ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
+        ціле r, ret = 0;
         char *p;
 
         assert(s);
@@ -90,13 +90,13 @@ int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        повернути ret;
 }
 
 void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
@@ -106,8 +106,8 @@ void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
         assert(f);
         assert(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        якщо (ordered_set_isempty(s))
+                повернути;
 
         fputs(field, f);
 

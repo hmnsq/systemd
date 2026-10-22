@@ -14,26 +14,26 @@
 #include "strv.h"
 #include "time-util.h"
 
-int setrlimit_closest(int resource, const struct rlimit *rlim) {
+ціле setrlimit_closest(ціле resource, const struct rlimit *rlim) {
         struct rlimit highest, fixed;
 
         assert(rlim);
 
-        if (setrlimit(resource, rlim) >= 0)
-                return 0;
+        якщо (setrlimit(resource, rlim) >= 0)
+                повернути 0;
 
-        if (errno != EPERM)
-                return -errno;
+        якщо (errno != EPERM)
+                повернути -errno;
 
         /* So we failed to set the desired setrlimit, then let's try
          * to get as close as we can */
-        if (getrlimit(resource, &highest) < 0)
-                return -errno;
+        якщо (getrlimit(resource, &highest) < 0)
+                повернути -errno;
 
         /* If the hard limit is unbounded anyway, then the EPERM had other reasons, let's propagate the original EPERM
          * then */
-        if (highest.rlim_max == RLIM_INFINITY)
-                return -EPERM;
+        якщо (highest.rlim_max == RLIM_INFINITY)
+                повернути -EPERM;
 
         fixed = (struct rlimit) {
                 .rlim_cur = MIN(rlim->rlim_cur, highest.rlim_max),
@@ -41,134 +41,134 @@ int setrlimit_closest(int resource, const struct rlimit *rlim) {
         };
 
         /* Shortcut things if we wouldn't change anything. */
-        if (fixed.rlim_cur == highest.rlim_cur &&
+        якщо (fixed.rlim_cur == highest.rlim_cur &&
             fixed.rlim_max == highest.rlim_max)
-                return 0;
+                повернути 0;
 
         log_debug("Failed at setting rlimit " RLIM_FMT " for resource RLIMIT_%s. Will attempt setting value " RLIM_FMT " instead.", rlim->rlim_max, rlimit_to_string(resource), fixed.rlim_max);
 
-        return RET_NERRNO(setrlimit(resource, &fixed));
+        повернути RET_NERRNO(setrlimit(resource, &fixed));
 }
 
-int setrlimit_closest_all(const struct rlimit *const *rlim, int *which_failed) {
-        int r;
+ціле setrlimit_closest_all(const struct rlimit *const *rlim, ціле *which_failed) {
+        ціле r;
 
         assert(rlim);
 
         /* On failure returns the limit's index that failed in *which_failed, but only if non-NULL */
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!rlim[i])
+        для (ціле i = 0; i < _RLIMIT_MAX; i++) {
+                якщо (!rlim[i])
                         continue;
 
                 r = setrlimit_closest(i, rlim[i]);
-                if (r < 0) {
-                        if (which_failed)
+                якщо (r < 0) {
+                        якщо (which_failed)
                                 *which_failed = i;
 
-                        return r;
+                        повернути r;
                 }
         }
 
-        if (which_failed)
+        якщо (which_failed)
                 *which_failed = -1;
 
-        return 0;
+        повернути 0;
 }
 
-static int rlimit_parse_u64(const char *val, rlim_t *ret) {
+static ціле rlimit_parse_u64(const char *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        ціле r;
 
         assert(val);
         assert(ret);
 
-        if (streq(val, "infinity")) {
+        якщо (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                повернути 0;
         }
 
         /* setrlimit(2) suggests rlim_t is always 64-bit on Linux. */
         assert_cc(sizeof(rlim_t) == sizeof(uint64_t));
 
         r = safe_atou64(val, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        якщо (r < 0)
+                повернути r;
+        якщо (u >= (uint64_t) RLIM_INFINITY)
+                повернути -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        повернути 0;
 }
 
-static int rlimit_parse_size(const char *val, rlim_t *ret) {
+static ціле rlimit_parse_size(const char *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        ціле r;
 
         assert(val);
         assert(ret);
 
-        if (streq(val, "infinity")) {
+        якщо (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                повернути 0;
         }
 
         r = parse_size(val, 1024, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        якщо (r < 0)
+                повернути r;
+        якщо (u >= (uint64_t) RLIM_INFINITY)
+                повернути -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        повернути 0;
 }
 
-static int rlimit_parse_sec(const char *val, rlim_t *ret) {
+static ціле rlimit_parse_sec(const char *val, rlim_t *ret) {
         uint64_t u;
         usec_t t;
-        int r;
+        ціле r;
 
         assert(val);
         assert(ret);
 
         r = parse_sec(val, &t);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        якщо (r < 0)
+                повернути r;
+        якщо (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                повернути 0;
         }
 
         u = (uint64_t) DIV_ROUND_UP(t, USEC_PER_SEC);
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        якщо (u >= (uint64_t) RLIM_INFINITY)
+                повернути -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        повернути 0;
 }
 
-static int rlimit_parse_usec(const char *val, rlim_t *ret) {
+static ціле rlimit_parse_usec(const char *val, rlim_t *ret) {
         usec_t t;
-        int r;
+        ціле r;
 
         assert(val);
         assert(ret);
 
         r = parse_time(val, &t, 1);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        якщо (r < 0)
+                повернути r;
+        якщо (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                повернути 0;
         }
 
         *ret = (rlim_t) t;
-        return 0;
+        повернути 0;
 }
 
-static int rlimit_parse_nice(const char *val, rlim_t *ret) {
+static ціле rlimit_parse_nice(const char *val, rlim_t *ret) {
         uint64_t rl;
-        int r;
+        ціле r;
 
         assert(val);
         assert(ret);
@@ -181,45 +181,45 @@ static int rlimit_parse_nice(const char *val, rlim_t *ret) {
          *
          * Yeah, Linux is quality engineering sometimes... */
 
-        if (val[0] == '+') {
+        якщо (val[0] == '+') {
 
                 /* Prefixed with "+": Parse as positive user-friendly nice value */
                 r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
-                if (rl >= PRIO_MAX)
-                        return -ERANGE;
+                якщо (rl >= PRIO_MAX)
+                        повернути -ERANGE;
 
                 rl = 20 - rl;
 
-        } else if (val[0] == '-') {
+        } інакше якщо (val[0] == '-') {
 
                 /* Prefixed with "-": Parse as negative user-friendly nice value */
                 r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
-                if (rl > (uint64_t) (-PRIO_MIN))
-                        return -ERANGE;
+                якщо (rl > (uint64_t) (-PRIO_MIN))
+                        повернути -ERANGE;
 
                 rl = 20 + rl;
-        } else {
+        } інакше {
 
                 /* Not prefixed: parse as raw resource limit value */
                 r = safe_atou64(val, &rl);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
-                if (rl > (uint64_t) (20 - PRIO_MIN))
-                        return -ERANGE;
+                якщо (rl > (uint64_t) (20 - PRIO_MIN))
+                        повернути -ERANGE;
         }
 
         *ret = (rlim_t) rl;
-        return 0;
+        повернути 0;
 }
 
-static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret) = {
+static ціле (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret) = {
         [RLIMIT_CPU]        = rlimit_parse_sec,
         [RLIMIT_FSIZE]      = rlimit_parse_size,
         [RLIMIT_DATA]       = rlimit_parse_size,
@@ -238,49 +238,49 @@ static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret
         [RLIMIT_RTTIME]     = rlimit_parse_usec,
 };
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret) {
+ціле rlimit_parse_one(ціле resource, const char *val, rlim_t *ret) {
         assert(val);
         assert(ret);
 
-        if (resource < 0)
-                return -EINVAL;
-        if (resource >= _RLIMIT_MAX)
-                return -EINVAL;
+        якщо (resource < 0)
+                повернути -EINVAL;
+        якщо (resource >= _RLIMIT_MAX)
+                повернути -EINVAL;
 
-        return rlimit_parse_table[resource](val, ret);
+        повернути rlimit_parse_table[resource](val, ret);
 }
 
-int rlimit_parse(int resource, const char *val, struct rlimit *ret) {
+ціле rlimit_parse(ціле resource, const char *val, struct rlimit *ret) {
         _cleanup_free_ char *hard = NULL, *soft = NULL;
         rlim_t hl, sl;
-        int r;
+        ціле r;
 
         assert(val);
         assert(ret);
 
         r = extract_first_word(&val, &soft, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        якщо (r < 0)
+                повернути r;
+        якщо (r == 0)
+                повернути -EINVAL;
 
         r = rlimit_parse_one(resource, soft, &sl);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         r = extract_first_word(&val, &hard, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (!isempty(val))
-                return -EINVAL;
-        if (r == 0)
+        якщо (r < 0)
+                повернути r;
+        якщо (!isempty(val))
+                повернути -EINVAL;
+        якщо (r == 0)
                 hl = sl;
-        else {
+        інакше {
                 r = rlimit_parse_one(resource, hard, &hl);
-                if (r < 0)
-                        return r;
-                if (sl > hl)
-                        return -EILSEQ;
+                якщо (r < 0)
+                        повернути r;
+                якщо (sl > hl)
+                        повернути -EILSEQ;
         }
 
         *ret = (struct rlimit) {
@@ -288,30 +288,30 @@ int rlimit_parse(int resource, const char *val, struct rlimit *ret) {
                 .rlim_max = hl,
         };
 
-        return 0;
+        повернути 0;
 }
 
-int rlimit_format(const struct rlimit *rl, char **ret) {
+ціле rlimit_format(const struct rlimit *rl, char **ret) {
         char *s;
 
         assert(rl);
         assert(ret);
 
-        if (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
+        якщо (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
                 s = strdup("infinity");
-        else if (rl->rlim_cur >= RLIM_INFINITY)
+        інакше якщо (rl->rlim_cur >= RLIM_INFINITY)
                 s = asprintf_safe("infinity:" RLIM_FMT, rl->rlim_max);
-        else if (rl->rlim_max >= RLIM_INFINITY)
+        інакше якщо (rl->rlim_max >= RLIM_INFINITY)
                 s = asprintf_safe(RLIM_FMT ":infinity", rl->rlim_cur);
-        else if (rl->rlim_cur == rl->rlim_max)
+        інакше якщо (rl->rlim_cur == rl->rlim_max)
                 s = asprintf_safe(RLIM_FMT, rl->rlim_cur);
-        else
+        інакше
                 s = asprintf_safe(RLIM_FMT ":" RLIM_FMT, rl->rlim_cur, rl->rlim_max);
-        if (!s)
-                return -ENOMEM;
+        якщо (!s)
+                повернути -ENOMEM;
 
         *ret = s;
-        return 0;
+        повернути 0;
 }
 
 static const char* const rlimit_table[_RLIMIT_MAX] = {
@@ -333,99 +333,99 @@ static const char* const rlimit_table[_RLIMIT_MAX] = {
         [RLIMIT_STACK]      = "STACK",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(rlimit, int);
+DEFINE_STRING_TABLE_LOOKUP(rlimit, ціле);
 
 void rlimits_list(const char *prefix) {
         FOREACH_ELEMENT(field, rlimit_table)
                 printf("%s%s\n", strempty(prefix), *field);
 }
 
-int rlimit_from_string_harder(const char *s) {
+ціле rlimit_from_string_harder(const char *s) {
         const char *suffix;
 
         /* The official prefix */
         suffix = startswith(s, "RLIMIT_");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        якщо (suffix)
+                повернути rlimit_from_string(suffix);
 
         /* Our own unit file setting prefix */
         suffix = startswith(s, "Limit");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        якщо (suffix)
+                повернути rlimit_from_string(suffix);
 
-        return rlimit_from_string(s);
+        повернути rlimit_from_string(s);
 }
 
 void rlimit_free_all(struct rlimit **rl) {
         free_many((void**) rl, _RLIMIT_MAX);
 }
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]) {
+ціле rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]) {
         struct rlimit* copy[_RLIMIT_MAX] = {};
 
         assert(target);
         assert(source);
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!source[i])
+        для (ціле i = 0; i < _RLIMIT_MAX; i++) {
+                якщо (!source[i])
                         continue;
 
                 copy[i] = newdup(struct rlimit, source[i], 1);
-                if (!copy[i]) {
+                якщо (!copy[i]) {
                         rlimit_free_all(copy);
-                        return -ENOMEM;
+                        повернути -ENOMEM;
                 }
         }
 
         memcpy(target, copy, sizeof(struct rlimit*) * _RLIMIT_MAX);
-        return 0;
+        повернути 0;
 }
 
-int rlimit_nofile_bump(int limit) {
-        int r;
+ціле rlimit_nofile_bump(ціле limit) {
+        ціле r;
 
         /* Bumps the (soft) RLIMIT_NOFILE resource limit as close as possible to the specified limit. If a negative
          * limit is specified, bumps it to the maximum the kernel and the hard resource limit allows. This call should
          * be used by all our programs that might need a lot of fds, and that know how to deal with high fd numbers
          * (i.e. do not use select() — which chokes on fds >= 1024) */
 
-        if (limit < 0)
+        якщо (limit < 0)
                 limit = read_nr_open();
 
-        if (limit < 3)
+        якщо (limit < 3)
                 limit = 3;
 
         r = setrlimit_closest(RLIMIT_NOFILE, &RLIMIT_MAKE_CONST(limit));
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
+        якщо (r < 0)
+                повернути log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
 
-        return 0;
+        повернути 0;
 }
 
-int rlimit_nofile_safe(void) {
+ціле rlimit_nofile_safe(void) {
         struct rlimit rl;
 
         /* Resets RLIMIT_NOFILE's soft limit FD_SETSIZE (i.e. 1024), for compatibility with software still using
          * select() */
 
-        if (getrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
+        якщо (getrlimit(RLIMIT_NOFILE, &rl) < 0)
+                повернути log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
 
-        if (rl.rlim_cur <= FD_SETSIZE)
-                return 0;
+        якщо (rl.rlim_cur <= FD_SETSIZE)
+                повернути 0;
 
         /* So we might have inherited a hard limit that's larger than the kernel's maximum limit as stored in
          * /proc/sys/fs/nr_open. If we pass this hard limit unmodified to setrlimit(), we'll get EPERM. To
          * make sure that doesn't happen, let's limit our hard limit to the value from nr_open. */
         rl.rlim_max = MIN(rl.rlim_max, (rlim_t) read_nr_open());
         rl.rlim_cur = MIN((rlim_t) FD_SETSIZE, rl.rlim_max);
-        if (setrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
+        якщо (setrlimit(RLIMIT_NOFILE, &rl) < 0)
+                повернути log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
 
-        return 1;
+        повернути 1;
 }
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
+ціле pid_getrlimit(pid_t pid, ціле resource, struct rlimit *ret) {
 
         static const char * const prefix_table[_RLIMIT_MAX] = {
                 [RLIMIT_CPU]        = "Max cpu time",
@@ -446,19 +446,19 @@ int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
                 [RLIMIT_RTTIME]     = "Max realtime timeout",
         };
 
-        int r;
+        ціле r;
 
         assert(resource >= 0);
         assert(resource < _RLIMIT_MAX);
         assert(pid >= 0);
         assert(ret);
 
-        if (pid == 0 || pid == getpid_cached())
-                return RET_NERRNO(getrlimit(resource, ret));
+        якщо (pid == 0 || pid == getpid_cached())
+                повернути RET_NERRNO(getrlimit(resource, ret));
 
         r = RET_NERRNO(prlimit(pid, resource, /* new_limit= */ NULL, ret));
-        if (!ERRNO_IS_NEG_PRIVILEGE(r))
-                return r;
+        якщо (!ERRNO_IS_NEG_PRIVILEGE(r))
+                повернути r;
 
         /* We don't have access? Then try to go via /proc/$PID/limits. Weirdly that's world readable in
          * contrast to querying the data via prlimit() */
@@ -467,13 +467,13 @@ int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
         _cleanup_free_ char *limits = NULL;
 
         r = read_full_file(p, &limits, /* ret_size= */ NULL);
-        if (r < 0)
-                return -EPERM; /* propagate original permission error if we can't access the limits file */
+        якщо (r < 0)
+                повернути -EPERM; /* propagate original permission error if we can't access the limits file */
 
         _cleanup_strv_free_ char **l = NULL;
         l = strv_split_newlines(limits);
-        if (!l)
-                return -ENOMEM;
+        якщо (!l)
+                повернути -ENOMEM;
 
         STRV_FOREACH(i, strv_skip(l, 1)) {
                 _cleanup_free_ char *soft = NULL, *hard = NULL;
@@ -481,50 +481,50 @@ int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
                 const char *e;
 
                 e = startswith(*i, prefix_table[resource]);
-                if (!e)
+                якщо (!e)
                         continue;
 
-                if (*e != ' ')
+                якщо (*e != ' ')
                         continue;
 
                 e += strspn(e, WHITESPACE);
 
                 size_t n;
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
+                якщо (n == 0)
                         continue;
 
                 soft = strndup(e, n);
-                if (!soft)
-                        return -ENOMEM;
+                якщо (!soft)
+                        повернути -ENOMEM;
 
                 e += n;
-                if (*e != ' ')
+                якщо (*e != ' ')
                         continue;
 
                 e += strspn(e, WHITESPACE);
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
+                якщо (n == 0)
                         continue;
 
                 hard = strndup(e, n);
-                if (!hard)
-                        return -ENOMEM;
+                якщо (!hard)
+                        повернути -ENOMEM;
 
-                if (streq(soft, "unlimited"))
+                якщо (streq(soft, "unlimited"))
                         sv = RLIM_INFINITY;
-                else {
+                інакше {
                         r = safe_atou64(soft, &sv);
-                        if (r < 0)
-                                return r;
+                        якщо (r < 0)
+                                повернути r;
                 }
 
-                if (streq(hard, "unlimited"))
+                якщо (streq(hard, "unlimited"))
                         hv = RLIM_INFINITY;
-                else {
+                інакше {
                         r = safe_atou64(hard, &hv);
-                        if (r < 0)
-                                return r;
+                        якщо (r < 0)
+                                повернути r;
                 }
 
                 *ret = (struct rlimit) {
@@ -532,8 +532,8 @@ int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
                         .rlim_max = hv,
                 };
 
-                return 0;
+                повернути 0;
         }
 
-        return -ENOTRECOVERABLE;
+        повернути -ENOTRECOVERABLE;
 }

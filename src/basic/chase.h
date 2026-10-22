@@ -30,31 +30,31 @@ typedef enum ChaseFlags {
         CHASE_MUST_BE_SOCKET     = 1 << 15, /* Fail if returned inode fd is not a socket */
 } ChaseFlags;
 
-int statx_unsafe_transition(const struct statx *a, const struct statx *b);
+ціле statx_unsafe_transition(const struct statx *a, const struct statx *b);
 bool stat_unsafe_transition(const struct stat *a, const struct stat *b);
 
 /* How many iterations to execute before returning -ELOOP */
 #define CHASE_MAX 128U
 
-int chase(const char *path_with_prefix, const char *root, ChaseFlags flags, char **ret_path, int *ret_fd);
+ціле chase(const char *path_with_prefix, const char *root, ChaseFlags flags, char **ret_path, ціле *ret_fd);
 
-int chaseat_prefix_root(const char *path, const char *root, char **ret);
-int chase_extract_filename(const char *path, const char *root, char **ret);
+ціле chaseat_prefix_root(const char *path, const char *root, char **ret);
+ціле chase_extract_filename(const char *path, const char *root, char **ret);
 
-int chase_and_open(const char *path, const char *root, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendir(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_stat(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_access(const char *path, const char *root, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopen_unlocked(const char *path, const char *root, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlink(const char *path, const char *root, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent(const char *path, const char *root, ChaseFlags chase_flags, char **ret_filename);
+ціле chase_and_open(const char *path, const char *root, ChaseFlags chase_flags, ціле open_flags, char **ret_path);
+ціле chase_and_opendir(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
+ціле chase_and_stat(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
+ціле chase_and_access(const char *path, const char *root, ChaseFlags chase_flags, ціле access_mode, char **ret_path);
+ціле chase_and_fopen_unlocked(const char *path, const char *root, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
+ціле chase_and_unlink(const char *path, const char *root, ChaseFlags chase_flags, ціле unlink_flags, char **ret_path);
+ціле chase_and_open_parent(const char *path, const char *root, ChaseFlags chase_flags, char **ret_filename);
 
-int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **ret_path, int *ret_fd);
+ціле chaseat(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags flags, char **ret_path, ціле *ret_fd);
 
-int chase_and_openat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int open_flags, char **ret_path);
-int chase_and_opendirat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
-int chase_and_statat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
-int chase_and_accessat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int access_mode, char **ret_path);
-int chase_and_fopenat_unlocked(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
-int chase_and_unlinkat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int unlink_flags, char **ret_path);
-int chase_and_open_parent_at(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_filename);
+ціле chase_and_openat(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags chase_flags, ціле open_flags, char **ret_path);
+ціле chase_and_opendirat(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir);
+ціле chase_and_statat(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat);
+ціле chase_and_accessat(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags chase_flags, ціле access_mode, char **ret_path);
+ціле chase_and_fopenat_unlocked(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags chase_flags, const char *open_flags, char **ret_path, FILE **ret_file);
+ціле chase_and_unlinkat(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags chase_flags, ціле unlink_flags, char **ret_path);
+ціле chase_and_open_parent_at(ціле root_fd, ціле dir_fd, const char *path, ChaseFlags chase_flags, char **ret_filename);

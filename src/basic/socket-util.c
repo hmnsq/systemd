@@ -40,9 +40,9 @@
 #include "user-util.h"
 #include "xattr-util.h"
 
-#if ENABLE_IDN
+#якщо ENABLE_IDN
 #  define IDN_FLAGS NI_IDN
-#else
+#інакше
 #  define IDN_FLAGS 0
 #endif
 
@@ -55,9 +55,9 @@ static const char* const socket_address_type_table[] = {
         [SOCK_DCCP] =      "DatagramCongestionControl",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DEFINE_STRING_TABLE_LOOKUP(socket_address_type, ціле);
 
-int socket_address_verify(const SocketAddress *a, bool strict) {
+ціле socket_address_verify(const SocketAddress *a, bool strict) {
         assert(a);
 
         /* With 'strict' we enforce additional sanity constraints which are not set by the standard,
@@ -66,89 +66,89 @@ int socket_address_verify(const SocketAddress *a, bool strict) {
         switch (socket_address_family(a)) {
 
         case AF_INET:
-                if (a->size != sizeof(struct sockaddr_in))
-                        return -EINVAL;
+                якщо (a->size != sizeof(struct sockaddr_in))
+                        повернути -EINVAL;
 
-                if (a->sockaddr.in.sin_port == 0)
-                        return -EINVAL;
+                якщо (a->sockaddr.in.sin_port == 0)
+                        повернути -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                якщо (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        повернути -EINVAL;
 
-                return 0;
+                повернути 0;
 
         case AF_INET6:
-                if (a->size != sizeof(struct sockaddr_in6))
-                        return -EINVAL;
+                якщо (a->size != sizeof(struct sockaddr_in6))
+                        повернути -EINVAL;
 
-                if (a->sockaddr.in6.sin6_port == 0)
-                        return -EINVAL;
+                якщо (a->sockaddr.in6.sin6_port == 0)
+                        повернути -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                якщо (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        повернути -EINVAL;
 
-                return 0;
+                повернути 0;
 
         case AF_UNIX:
-                if (a->size < offsetof(struct sockaddr_un, sun_path))
-                        return -EINVAL;
-                if (a->size > sizeof(struct sockaddr_un) + !strict)
+                якщо (a->size < offsetof(struct sockaddr_un, sun_path))
+                        повернути -EINVAL;
+                якщо (a->size > sizeof(struct sockaddr_un) + !strict)
                         /* If !strict, allow one extra byte, since getsockname() on Linux will append
                          * a NUL byte if we have path sockets that are above sun_path's full size. */
-                        return -EINVAL;
+                        повернути -EINVAL;
 
-                if (a->size > offsetof(struct sockaddr_un, sun_path) &&
+                якщо (a->size > offsetof(struct sockaddr_un, sun_path) &&
                     a->sockaddr.un.sun_path[0] != 0 &&
                     strict) {
                         /* Only validate file system sockets here, and only in strict mode */
                         const char *e;
 
                         e = memchr(a->sockaddr.un.sun_path, 0, sizeof(a->sockaddr.un.sun_path));
-                        if (e) {
+                        якщо (e) {
                                 /* If there's an embedded NUL byte, make sure the size of the socket address matches it */
-                                if (a->size != offsetof(struct sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
-                                        return -EINVAL;
-                        } else {
+                                якщо (a->size != offsetof(struct sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
+                                        повернути -EINVAL;
+                        } інакше {
                                 /* If there's no embedded NUL byte, then the size needs to match the whole
                                  * structure or the structure with one extra NUL byte suffixed. (Yeah, Linux is awful,
                                  * and considers both equivalent: getsockname() even extends sockaddr_un beyond its
                                  * size if the path is non NUL terminated.) */
-                                if (!IN_SET(a->size, sizeof(a->sockaddr.un.sun_path), sizeof(a->sockaddr.un.sun_path)+1))
-                                        return -EINVAL;
+                                якщо (!IN_SET(a->size, sizeof(a->sockaddr.un.sun_path), sizeof(a->sockaddr.un.sun_path)+1))
+                                        повернути -EINVAL;
                         }
                 }
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
-                        return -EINVAL;
+                якщо (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
+                        повернути -EINVAL;
 
-                return 0;
+                повернути 0;
 
         case AF_NETLINK:
 
-                if (a->size != sizeof(struct sockaddr_nl))
-                        return -EINVAL;
+                якщо (a->size != sizeof(struct sockaddr_nl))
+                        повернути -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
-                        return -EINVAL;
+                якщо (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
+                        повернути -EINVAL;
 
-                return 0;
+                повернути 0;
 
         case AF_VSOCK:
-                if (a->size != sizeof(struct sockaddr_vm))
-                        return -EINVAL;
+                якщо (a->size != sizeof(struct sockaddr_vm))
+                        повернути -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                якщо (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        повернути -EINVAL;
 
-                return 0;
+                повернути 0;
 
         default:
-                return -EAFNOSUPPORT;
+                повернути -EAFNOSUPPORT;
         }
 }
 
-int socket_address_print(const SocketAddress *a, char **ret) {
-        int r;
+ціле socket_address_print(const SocketAddress *a, char **ret) {
+        ціле r;
 
         assert(a);
         assert(ret);
@@ -157,30 +157,30 @@ int socket_address_print(const SocketAddress *a, char **ret) {
                                               * able to pretty-print any socket the kernel considers
                                               * valid. We still need to do validation to know if we
                                               * can meaningfully print the address. */
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (socket_address_family(a) == AF_NETLINK) {
+        якщо (socket_address_family(a) == AF_NETLINK) {
                 _cleanup_free_ char *sfamily = NULL;
 
                 r = netlink_family_to_string_alloc(a->protocol, &sfamily);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
                 r = asprintf(ret, "%s %u", sfamily, a->sockaddr.nl.nl_groups);
-                if (r < 0)
-                        return -ENOMEM;
+                якщо (r < 0)
+                        повернути -ENOMEM;
 
-                return 0;
+                повернути 0;
         }
 
-        return sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
+        повернути sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
 }
 
 bool socket_address_can_accept(const SocketAddress *a) {
         assert(a);
 
-        return
+        повернути
                 IN_SET(a->type, SOCK_STREAM, SOCK_SEQPACKET);
 }
 
@@ -189,145 +189,145 @@ bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) {
         assert(b);
 
         /* Invalid addresses are unequal to all */
-        if (socket_address_verify(a, false) < 0 ||
+        якщо (socket_address_verify(a, false) < 0 ||
             socket_address_verify(b, false) < 0)
-                return false;
+                повернути false;
 
-        if (a->type != b->type)
-                return false;
+        якщо (a->type != b->type)
+                повернути false;
 
-        if (socket_address_family(a) != socket_address_family(b))
-                return false;
+        якщо (socket_address_family(a) != socket_address_family(b))
+                повернути false;
 
         switch (socket_address_family(a)) {
 
         case AF_INET:
-                if (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
-                        return false;
+                якщо (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
+                        повернути false;
 
-                if (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
-                        return false;
+                якщо (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
+                        повернути false;
 
                 break;
 
         case AF_INET6:
-                if (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, sizeof(a->sockaddr.in6.sin6_addr)) != 0)
-                        return false;
+                якщо (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, sizeof(a->sockaddr.in6.sin6_addr)) != 0)
+                        повернути false;
 
-                if (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
-                        return false;
+                якщо (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
+                        повернути false;
 
                 break;
 
         case AF_UNIX:
-                if (a->size <= offsetof(struct sockaddr_un, sun_path) ||
+                якщо (a->size <= offsetof(struct sockaddr_un, sun_path) ||
                     b->size <= offsetof(struct sockaddr_un, sun_path))
-                        return false;
+                        повернути false;
 
-                if ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
-                        return false;
+                якщо ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
+                        повернути false;
 
-                if (a->sockaddr.un.sun_path[0]) {
-                        if (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
-                                return false;
-                } else {
-                        if (a->size != b->size)
-                                return false;
+                якщо (a->sockaddr.un.sun_path[0]) {
+                        якщо (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
+                                повернути false;
+                } інакше {
+                        якщо (a->size != b->size)
+                                повернути false;
 
-                        if (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
-                                return false;
+                        якщо (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
+                                повернути false;
                 }
 
                 break;
 
         case AF_NETLINK:
-                if (a->protocol != b->protocol)
-                        return false;
+                якщо (a->protocol != b->protocol)
+                        повернути false;
 
-                if (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
-                        return false;
+                якщо (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
+                        повернути false;
 
                 break;
 
         case AF_VSOCK:
-                if (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
-                        return false;
+                якщо (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
+                        повернути false;
 
-                if (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
-                        return false;
+                якщо (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
+                        повернути false;
 
                 break;
 
         default:
                 /* Cannot compare, so we assume the addresses are different */
-                return false;
+                повернути false;
         }
 
-        return true;
+        повернути true;
 }
 
 const char* socket_address_get_path(const SocketAddress *a) {
         assert(a);
 
-        if (socket_address_family(a) != AF_UNIX)
-                return NULL;
+        якщо (socket_address_family(a) != AF_UNIX)
+                повернути NULL;
 
-        if (a->sockaddr.un.sun_path[0] == 0)
-                return NULL;
+        якщо (a->sockaddr.un.sun_path[0] == 0)
+                повернути NULL;
 
         /* Note that this is only safe because we know that there's an extra NUL byte after the sockaddr_un
          * structure. On Linux AF_UNIX file system socket addresses don't have to be NUL terminated if they take up the
          * full sun_path space. */
         assert_cc(sizeof(union sockaddr_union) >= sizeof(struct sockaddr_un)+1);
-        return a->sockaddr.un.sun_path;
+        повернути a->sockaddr.un.sun_path;
 }
 
 bool socket_ipv6_is_supported(void) {
-        static int cached = -1;
+        static ціле cached = -1;
 
-        if (cached < 0) {
+        якщо (cached < 0) {
 
-                if (access("/proc/net/if_inet6", F_OK) < 0) {
+                якщо (access("/proc/net/if_inet6", F_OK) < 0) {
 
-                        if (errno != ENOENT) {
+                        якщо (errno != ENOENT) {
                                 log_debug_errno(errno, "Unexpected error when checking whether /proc/net/if_inet6 exists: %m");
-                                return false;
+                                повернути false;
                         }
 
                         cached = false;
-                } else
+                } інакше
                         cached = true;
         }
 
-        return cached;
+        повернути cached;
 }
 
 bool socket_ipv6_is_enabled(void) {
         _cleanup_free_ char *v = NULL;
-        int r;
+        ціле r;
 
         /* Much like socket_ipv6_is_supported(), but also checks that the sysctl that disables IPv6 on all
          * interfaces isn't turned on */
 
-        if (!socket_ipv6_is_supported())
-                return false;
+        якщо (!socket_ipv6_is_supported())
+                повернути false;
 
         r = sysctl_read_ip_property(AF_INET6, "all", "disable_ipv6", &v);
-        if (r < 0) {
+        якщо (r < 0) {
                 log_debug_errno(r, "Unexpected error reading 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                повернути true;
         }
 
         r = parse_boolean(v);
-        if (r < 0) {
+        якщо (r < 0) {
                 log_debug_errno(r, "Failed to pare 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                повернути true;
         }
 
-        return !r;
+        повернути !r;
 }
 
-bool socket_address_matches_fd(const SocketAddress *a, int fd) {
+bool socket_address_matches_fd(const SocketAddress *a, ціле fd) {
         SocketAddress b;
         socklen_t solen;
 
@@ -335,32 +335,32 @@ bool socket_address_matches_fd(const SocketAddress *a, int fd) {
         assert(fd >= 0);
 
         b.size = sizeof(b.sockaddr);
-        if (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
-                return false;
+        якщо (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
+                повернути false;
 
-        if (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
-                return false;
+        якщо (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
+                повернути false;
 
         solen = sizeof(b.type);
-        if (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
-                return false;
+        якщо (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
+                повернути false;
 
-        if (b.type != a->type)
-                return false;
+        якщо (b.type != a->type)
+                повернути false;
 
-        if (a->protocol != 0)  {
+        якщо (a->protocol != 0)  {
                 solen = sizeof(b.protocol);
-                if (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
-                        return false;
+                якщо (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
+                        повернути false;
 
-                if (b.protocol != a->protocol)
-                        return false;
+                якщо (b.protocol != a->protocol)
+                        повернути false;
         }
 
-        return socket_address_equal(a, &b);
+        повернути socket_address_equal(a, &b);
 }
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
+ціле sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
         const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
 
         /* Note, this returns the port as 'unsigned' rather than 'uint16_t', as AF_VSOCK knows larger ports */
@@ -372,43 +372,43 @@ int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
 
         case AF_INET:
                 *ret_port = be16toh(sa->in.sin_port);
-                return 0;
+                повернути 0;
 
         case AF_INET6:
                 *ret_port = be16toh(sa->in6.sin6_port);
-                return 0;
+                повернути 0;
 
         case AF_VSOCK:
                 *ret_port = sa->vm.svm_port;
-                return 0;
+                повернути 0;
 
         default:
-                return -EAFNOSUPPORT;
+                повернути -EAFNOSUPPORT;
         }
 }
 
 const union in_addr_union *sockaddr_in_addr(const struct sockaddr *_sa) {
         const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
 
-        if (!sa)
-                return NULL;
+        якщо (!sa)
+                повернути NULL;
 
         switch (sa->sa.sa_family) {
 
         case AF_INET:
-                return (const union in_addr_union*) &sa->in.sin_addr;
+                повернути (const union in_addr_union*) &sa->in.sin_addr;
 
         case AF_INET6:
-                return (const union in_addr_union*) &sa->in6.sin6_addr;
+                повернути (const union in_addr_union*) &sa->in6.sin6_addr;
 
         default:
-                return NULL;
+                повернути NULL;
         }
 }
 
-int sockaddr_set_in_addr(
+ціле sockaddr_set_in_addr(
                 union sockaddr_union *u,
-                int family,
+                ціле family,
                 const union in_addr_union *a,
                 uint16_t port) {
 
@@ -424,7 +424,7 @@ int sockaddr_set_in_addr(
                         .sin_port = htobe16(port),
                 };
 
-                return 0;
+                повернути 0;
 
         case AF_INET6:
                 u->in6 = (struct sockaddr_in6) {
@@ -433,15 +433,15 @@ int sockaddr_set_in_addr(
                         .sin6_port = htobe16(port),
                 };
 
-                return 0;
+                повернути 0;
 
         default:
-                return -EAFNOSUPPORT;
+                повернути -EAFNOSUPPORT;
 
         }
 }
 
-int sockaddr_pretty(
+ціле sockaddr_pretty(
                 const struct sockaddr *_sa,
                 socklen_t salen,
                 bool translate_ipv6,
@@ -450,7 +450,7 @@ int sockaddr_pretty(
 
         union sockaddr_union *sa = (union sockaddr_union*) _sa;
         char *p;
-        int r;
+        ціле r;
 
         assert(sa);
         assert(salen >= sizeof(sa->sa.sa_family));
@@ -463,17 +463,17 @@ int sockaddr_pretty(
 
                 a = be32toh(sa->in.sin_addr.s_addr);
 
-                if (include_port)
+                якщо (include_port)
                         r = asprintf(&p,
                                      "%u.%u.%u.%u:%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF,
                                      be16toh(sa->in.sin_port));
-                else
+                інакше
                         r = asprintf(&p,
                                      "%u.%u.%u.%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF);
-                if (r < 0)
-                        return -ENOMEM;
+                якщо (r < 0)
+                        повернути -ENOMEM;
                 break;
         }
 
@@ -482,38 +482,38 @@ int sockaddr_pretty(
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF
                 };
 
-                if (translate_ipv6 &&
+                якщо (translate_ipv6 &&
                     memcmp(&sa->in6.sin6_addr, ipv4_prefix, sizeof(ipv4_prefix)) == 0) {
                         const uint8_t *a = sa->in6.sin6_addr.s6_addr+12;
-                        if (include_port)
+                        якщо (include_port)
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u:%u",
                                              a[0], a[1], a[2], a[3],
                                              be16toh(sa->in6.sin6_port));
-                        else
+                        інакше
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u",
                                              a[0], a[1], a[2], a[3]);
-                        if (r < 0)
-                                return -ENOMEM;
-                } else {
+                        якщо (r < 0)
+                                повернути -ENOMEM;
+                } інакше {
                         const char *a = IN6_ADDR_TO_STRING(&sa->in6.sin6_addr);
 
-                        if (include_port) {
-                                if (asprintf(&p,
+                        якщо (include_port) {
+                                якщо (asprintf(&p,
                                              "[%s]:%u%s%s",
                                              a,
                                              be16toh(sa->in6.sin6_port),
                                              sa->in6.sin6_scope_id != 0 ? "%" : "",
                                              FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX)) < 0)
-                                        return -ENOMEM;
-                        } else {
-                                if (sa->in6.sin6_scope_id != 0)
+                                        повернути -ENOMEM;
+                        } інакше {
+                                якщо (sa->in6.sin6_scope_id != 0)
                                         p = strjoin(a, "%", FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX));
-                                else
+                                інакше
                                         p = strdup(a);
-                                if (!p)
-                                        return -ENOMEM;
+                                якщо (!p)
+                                        повернути -ENOMEM;
                         }
                 }
 
@@ -521,11 +521,11 @@ int sockaddr_pretty(
         }
 
         case AF_UNIX:
-                if (salen <= offsetof(struct sockaddr_un, sun_path) ||
+                якщо (salen <= offsetof(struct sockaddr_un, sun_path) ||
                     (sa->un.sun_path[0] == 0 && salen == offsetof(struct sockaddr_un, sun_path) + 1))
                         /* The name must have at least one character (and the leading NUL does not count) */
                         p = strdup("<unnamed>");
-                else {
+                інакше {
                         /* Note that we calculate the path pointer here through the .un_buffer[] field, in order to
                          * outtrick bounds checking tools such as ubsan, which are too smart for their own good: on
                          * Linux the kernel may return sun_path[] data one byte longer than the declared size of the
@@ -533,7 +533,7 @@ int sockaddr_pretty(
                         char *path = (char*) sa->un_buffer + offsetof(struct sockaddr_un, sun_path);
                         size_t path_len = salen - offsetof(struct sockaddr_un, sun_path);
 
-                        if (path[0] == 0) {
+                        якщо (path[0] == 0) {
                                 /* Abstract socket. When parsing address information from, we
                                  * explicitly reject overly long paths and paths with embedded NULs.
                                  * But we might get such a socket from the outside. Let's return
@@ -542,115 +542,115 @@ int sockaddr_pretty(
                                 _cleanup_free_ char *e = NULL;
 
                                 e = cescape_length(path + 1, path_len - 1);
-                                if (!e)
-                                        return -ENOMEM;
+                                якщо (!e)
+                                        повернути -ENOMEM;
 
                                 p = strjoin("@", e);
-                        } else {
-                                if (path[path_len - 1] == '\0')
+                        } інакше {
+                                якщо (path[path_len - 1] == '\0')
                                         /* We expect a terminating NUL and don't print it */
                                         path_len--;
 
                                 p = cescape_length(path, path_len);
                         }
                 }
-                if (!p)
-                        return -ENOMEM;
+                якщо (!p)
+                        повернути -ENOMEM;
 
                 break;
 
         case AF_VSOCK:
-                if (include_port) {
-                        if (sa->vm.svm_cid == VMADDR_CID_ANY)
+                якщо (include_port) {
+                        якщо (sa->vm.svm_cid == VMADDR_CID_ANY)
                                 r = asprintf(&p, "vsock::%u", sa->vm.svm_port);
-                        else
+                        інакше
                                 r = asprintf(&p, "vsock:%u:%u", sa->vm.svm_cid, sa->vm.svm_port);
-                } else
+                } інакше
                         r = asprintf(&p, "vsock:%u", sa->vm.svm_cid);
-                if (r < 0)
-                        return -ENOMEM;
+                якщо (r < 0)
+                        повернути -ENOMEM;
                 break;
 
         default:
-                return -EOPNOTSUPP;
+                повернути -EOPNOTSUPP;
         }
 
         *ret = p;
-        return 0;
+        повернути 0;
 }
 
-int getpeername_pretty(int fd, bool include_port, char **ret) {
+ціле getpeername_pretty(ціле fd, bool include_port, char **ret) {
         union sockaddr_union sa;
         socklen_t salen = sizeof(sa);
-        int r;
+        ціле r;
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getpeername(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        якщо (getpeername(fd, &sa.sa, &salen) < 0)
+                повернути -errno;
 
-        if (sa.sa.sa_family == AF_UNIX) {
+        якщо (sa.sa.sa_family == AF_UNIX) {
                 struct ucred ucred = UCRED_INVALID;
 
                 /* UNIX connection sockets are anonymous, so let's use
                  * PID/UID as pretty credentials instead */
 
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
-                if (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
-                        return -ENOMEM;
+                якщо (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
+                        повернути -ENOMEM;
 
-                return 0;
+                повернути 0;
         }
 
         /* For remote sockets we translate IPv6 addresses back to IPv4
          * if applicable, since that's nicer. */
 
-        return sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
+        повернути sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
 }
 
-int getsockname_pretty(int fd, char **ret) {
+ціле getsockname_pretty(ціле fd, char **ret) {
         union sockaddr_union sa;
         socklen_t salen = sizeof(sa);
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getsockname(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        якщо (getsockname(fd, &sa.sa, &salen) < 0)
+                повернути -errno;
 
         /* For local sockets we do not translate IPv6 addresses back
          * to IPv6 if applicable, since this is usually used for
          * listening sockets where the difference between IPv4 and
          * IPv6 matters. */
 
-        return sockaddr_pretty(&sa.sa, salen, false, true, ret);
+        повернути sockaddr_pretty(&sa.sa, salen, false, true, ret);
 }
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **ret) {
+ціле socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **ret) {
         char host[NI_MAXHOST];
-        int r;
+        ціле r;
 
         assert(sa);
         assert(salen >= sizeof(sa_family_t));
         assert(ret);
 
         r = getnameinfo(sa, salen, host, sizeof(host), /* service= */ NULL, /* service_len= */ 0, IDN_FLAGS);
-        if (r != 0) {
-                if (r == EAI_MEMORY)
-                        return log_oom_debug();
-                if (r == EAI_SYSTEM)
+        якщо (r != 0) {
+                якщо (r == EAI_MEMORY)
+                        повернути log_oom_debug();
+                якщо (r == EAI_SYSTEM)
                         log_debug_errno(errno, "getnameinfo() failed, ignoring: %m");
-                else
+                інакше
                         log_debug("getnameinfo() failed, ignoring: %s", gai_strerror(r));
 
-                return sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
+                повернути sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
         }
 
-        return strdup_to(ret, host);
+        повернути strdup_to(ret, host);
 }
 
 static const char* const netlink_family_table[] = {
@@ -674,87 +674,87 @@ static const char* const netlink_family_table[] = {
         [NETLINK_RDMA]           = "rdma",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int, INT_MAX);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, ціле, INT_MAX);
 
 bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b) {
         assert(a);
         assert(b);
 
-        if (a->sa.sa_family != b->sa.sa_family)
-                return false;
+        якщо (a->sa.sa_family != b->sa.sa_family)
+                повернути false;
 
-        if (a->sa.sa_family == AF_INET)
-                return a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
+        якщо (a->sa.sa_family == AF_INET)
+                повернути a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
 
-        if (a->sa.sa_family == AF_INET6)
-                return memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, sizeof(a->in6.sin6_addr)) == 0;
+        якщо (a->sa.sa_family == AF_INET6)
+                повернути memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, sizeof(a->in6.sin6_addr)) == 0;
 
-        if (a->sa.sa_family == AF_VSOCK)
-                return a->vm.svm_cid == b->vm.svm_cid;
+        якщо (a->sa.sa_family == AF_VSOCK)
+                повернути a->vm.svm_cid == b->vm.svm_cid;
 
-        return false;
+        повернути false;
 }
 
-int fd_set_sndbuf(int fd, size_t n, bool increase) {
-        int r, value;
+ціле fd_set_sndbuf(ціле fd, size_t n, bool increase) {
+        ціле r, value;
         socklen_t l = sizeof(value);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        якщо (n > INT_MAX)
+                повернути -ERANGE;
 
         r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        якщо (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                повернути 0;
 
         /* First, try to set the buffer size with SO_SNDBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUF, n);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         /* SO_SNDBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
         l = sizeof(value);
         r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        якщо (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                повернути 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUFFORCE, n);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return 1;
+        повернути 1;
 }
 
-int fd_set_rcvbuf(int fd, size_t n, bool increase) {
-        int r, value;
+ціле fd_set_rcvbuf(ціле fd, size_t n, bool increase) {
+        ціле r, value;
         socklen_t l = sizeof(value);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        якщо (n > INT_MAX)
+                повернути -ERANGE;
 
         r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        якщо (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                повернути 0;
 
         /* First, try to set the buffer size with SO_RCVBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUF, n);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         /* SO_RCVBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
         l = sizeof(value);
         r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        якщо (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                повернути 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUFFORCE, n);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return 1;
+        повернути 1;
 }
 
 static const char* const ip_tos_table[] = {
@@ -764,22 +764,22 @@ static const char* const ip_tos_table[] = {
         [IPTOS_LOWCOST]     = "low-cost",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int, 0xff);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, ціле, 0xff);
 
 bool ifname_valid_char(char a) {
-        if ((unsigned char) a >= 127U)
-                return false;
+        якщо ((unsigned char) a >= 127U)
+                повернути false;
 
-        if ((unsigned char) a <= 32U)
-                return false;
+        якщо ((unsigned char) a <= 32U)
+                повернути false;
 
-        if (IN_SET(a,
+        якщо (IN_SET(a,
                    ':',  /* colons are used by the legacy "alias" interface logic */
                    '/',  /* slashes cannot work, since we need to use network interfaces in sysfs paths, and in paths slashes are separators */
                    '%')) /* %d is used in the kernel's weird foo%d format string naming feature which we really really don't want to ever run into by accident */
-                return false;
+                повернути false;
 
-        return true;
+        повернути true;
 }
 
 bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
@@ -791,142 +791,142 @@ bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
 
         assert(!(flags & ~_IFNAME_VALID_ALL));
 
-        if (isempty(p))
-                return false;
+        якщо (isempty(p))
+                повернути false;
 
         /* A valid ifindex? If so, it's valid iff IFNAME_VALID_NUMERIC is set */
-        if (parse_ifindex(p) >= 0)
-                return flags & IFNAME_VALID_NUMERIC;
+        якщо (parse_ifindex(p) >= 0)
+                повернути flags & IFNAME_VALID_NUMERIC;
 
-        if (flags & IFNAME_VALID_ALTERNATIVE) {
-                if (strlen(p) >= ALTIFNAMSIZ)
-                        return false;
-        } else {
-                if (strlen(p) >= IFNAMSIZ)
-                        return false;
+        якщо (flags & IFNAME_VALID_ALTERNATIVE) {
+                якщо (strlen(p) >= ALTIFNAMSIZ)
+                        повернути false;
+        } інакше {
+                якщо (strlen(p) >= IFNAMSIZ)
+                        повернути false;
         }
 
-        if (dot_or_dot_dot(p))
-                return false;
+        якщо (dot_or_dot_dot(p))
+                повернути false;
 
         /* Let's refuse "all" and "default" as interface name, to avoid collisions with the special sysctl
          * directories /proc/sys/net/{ipv4,ipv6}/conf/{all,default} */
-        if (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
-                return false;
+        якщо (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
+                повернути false;
 
-        for (const char *t = p; *t; t++) {
-                if (!ifname_valid_char(*t))
-                        return false;
+        для (const char *t = p; *t; t++) {
+                якщо (!ifname_valid_char(*t))
+                        повернути false;
 
                 numeric = numeric && ascii_isdigit(*t);
         }
 
         /* It's fully numeric but didn't parse as valid ifindex above? if so, it must be too large or zero or
          * so, let's refuse that. */
-        if (numeric)
-                return false;
+        якщо (numeric)
+                повернути false;
 
-        return true;
+        повернути true;
 }
 
 bool address_label_valid(const char *p) {
 
         POINTER_MAY_BE_NULL(p);
 
-        if (isempty(p))
-                return false;
+        якщо (isempty(p))
+                повернути false;
 
-        if (strlen(p) >= IFNAMSIZ)
-                return false;
+        якщо (strlen(p) >= IFNAMSIZ)
+                повернути false;
 
-        while (*p) {
-                if ((uint8_t) *p >= 127U)
-                        return false;
+        поки (*p) {
+                якщо ((uint8_t) *p >= 127U)
+                        повернути false;
 
-                if ((uint8_t) *p <= 31U)
-                        return false;
+                якщо ((uint8_t) *p <= 31U)
+                        повернути false;
                 p++;
         }
 
-        return true;
+        повернути true;
 }
 
-int getpeercred(int fd, struct ucred *ucred) {
+ціле getpeercred(ціле fd, struct ucred *ucred) {
         socklen_t n = sizeof(struct ucred);
         struct ucred u;
 
         assert(fd >= 0);
         assert(ucred);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
-                return -errno;
+        якщо (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
+                повернути -errno;
 
-        if (n != sizeof(struct ucred))
-                return -EIO;
+        якщо (n != sizeof(struct ucred))
+                повернути -EIO;
 
         /* Check if the data is actually useful and not suppressed due to namespacing issues */
-        if (!pid_is_valid(u.pid))
-                return -ENODATA;
+        якщо (!pid_is_valid(u.pid))
+                повернути -ENODATA;
 
         /* Note that we don't check UID/GID here, as namespace translation works differently there: instead of
          * receiving in "invalid" user/group we get the overflow UID/GID. */
 
         *ucred = u;
-        return 0;
+        повернути 0;
 }
 
-int getpeersec(int fd, char **ret) {
+ціле getpeersec(ціле fd, char **ret) {
         _cleanup_free_ char *s = NULL;
         socklen_t n = 64;
 
         assert(fd >= 0);
         assert(ret);
 
-        for (;;) {
+        для (;;) {
                 s = new0(char, n+1);
-                if (!s)
-                        return -ENOMEM;
+                якщо (!s)
+                        повернути -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
+                якщо (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
                         s[n] = 0;
                         break;
                 }
 
-                if (errno != ERANGE)
-                        return -errno;
+                якщо (errno != ERANGE)
+                        повернути -errno;
 
                 s = mfree(s);
         }
 
-        if (isempty(s))
-                return -EOPNOTSUPP;
+        якщо (isempty(s))
+                повернути -EOPNOTSUPP;
 
         *ret = TAKE_PTR(s);
 
-        return 0;
+        повернути 0;
 }
 
-int getpeergroups(int fd, gid_t **ret) {
+ціле getpeergroups(ціле fd, gid_t **ret) {
         socklen_t n = sizeof(gid_t) * 64U;
         _cleanup_free_ gid_t *d = NULL;
 
         assert(fd >= 0);
         assert(ret);
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max > 0)
+        ціле ngroups_max = sysconf_ngroups_max();
+        якщо (ngroups_max > 0)
                 n = MAX(n, sizeof(gid_t) * (socklen_t) ngroups_max);
 
-        for (;;) {
+        для (;;) {
                 d = malloc(n);
-                if (!d)
-                        return -ENOMEM;
+                якщо (!d)
+                        повернути -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
+                якщо (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
                         break;
 
-                if (errno != ERANGE)
-                        return -errno;
+                якщо (errno != ERANGE)
+                        повернути -errno;
 
                 d = mfree(d);
         }
@@ -934,59 +934,59 @@ int getpeergroups(int fd, gid_t **ret) {
         assert_se(n % sizeof(gid_t) == 0);
         n /= sizeof(gid_t);
 
-        if (n > INT_MAX)
-                return -E2BIG;
+        якщо (n > INT_MAX)
+                повернути -E2BIG;
 
         *ret = TAKE_PTR(d);
 
-        return (int) n;
+        повернути (ціле) n;
 }
 
-int getpeerpidfd(int fd) {
-        socklen_t n = sizeof(int);
-        int pidfd = -EBADF;
+ціле getpeerpidfd(ціле fd) {
+        socklen_t n = sizeof(ціле);
+        ціле pidfd = -EBADF;
 
         assert(fd >= 0);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
-                return -errno;
+        якщо (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
+                повернути -errno;
 
-        if (n != sizeof(int))
-                return -EIO;
+        якщо (n != sizeof(ціле))
+                повернути -EIO;
 
-        return pidfd;
+        повернути pidfd;
 }
 
-int getpeerpidref(int fd, PidRef *ret) {
-        int r;
+ціле getpeerpidref(ціле fd, PidRef *ret) {
+        ціле r;
 
         assert(fd >= 0);
         assert(ret);
 
-        int pidfd = getpeerpidfd(fd);
-        if (pidfd < 0) {
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
-                        return pidfd;
+        ціле pidfd = getpeerpidfd(fd);
+        якщо (pidfd < 0) {
+                якщо (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
+                        повернути pidfd;
 
                 struct ucred ucred;
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
 
-                return pidref_set_pid(ret, ucred.pid);
+                повернути pidref_set_pid(ret, ucred.pid);
         }
 
-        return pidref_set_pidfd_consume(ret, pidfd);
+        повернути pidref_set_pidfd_consume(ret, pidfd);
 }
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
+                ціле transport_fd,
+                ціле fd,
                 const struct iovec *iov, size_t iovlen,
                 const struct sockaddr *sa, socklen_t len,
-                int flags) {
+                ціле flags) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control = {};
+        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(ціле))) control = {};
         struct msghdr mh = {
                 .msg_name = (struct sockaddr*) sa,
                 .msg_namelen = len,
@@ -1001,10 +1001,10 @@ ssize_t send_one_fd_iov_sa(
          * We need either an FD or data to send.
          * If there's nothing, return an error.
          */
-        if (fd < 0 && !iov)
-                return -EINVAL;
+        якщо (fd < 0 && !iov)
+                повернути -EINVAL;
 
-        if (fd >= 0) {
+        якщо (fd >= 0) {
                 struct cmsghdr *cmsg;
 
                 mh.msg_control = &control;
@@ -1013,34 +1013,34 @@ ssize_t send_one_fd_iov_sa(
                 cmsg = CMSG_FIRSTHDR(&mh);
                 cmsg->cmsg_level = SOL_SOCKET;
                 cmsg->cmsg_type = SCM_RIGHTS;
-                cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-                memcpy(CMSG_DATA(cmsg), &fd, sizeof(int));
+                cmsg->cmsg_len = CMSG_LEN(sizeof(ціле));
+                memcpy(CMSG_DATA(cmsg), &fd, sizeof(ціле));
         }
         k = sendmsg(transport_fd, &mh, MSG_NOSIGNAL | flags);
-        if (k < 0)
-                return (ssize_t) -errno;
+        якщо (k < 0)
+                повернути (ssize_t) -errno;
 
-        return k;
+        повернути k;
 }
 
-int send_one_fd_sa(
-                int transport_fd,
-                int fd,
+ціле send_one_fd_sa(
+                ціле transport_fd,
+                ціле fd,
                 const struct sockaddr *sa, socklen_t len,
-                int flags) {
+                ціле flags) {
 
         assert(fd >= 0);
 
-        return (int) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
+        повернути (ціле) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
 }
 
 ssize_t receive_one_fd_iov(
-                int transport_fd,
+                ціле transport_fd,
                 struct iovec *iov, size_t iovlen,
-                int flags,
-                int *ret_fd) {
+                ціле flags,
+                ціле *ret_fd) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control;
+        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(ціле))) control;
         struct msghdr mh = {
                 .msg_control = &control,
                 .msg_controllen = sizeof(control),
@@ -1062,43 +1062,43 @@ ssize_t receive_one_fd_iov(
          */
 
         k = recvmsg_safe(transport_fd, &mh, MSG_CMSG_CLOEXEC | flags);
-        if (k < 0)
-                return k;
+        якщо (k < 0)
+                повернути k;
 
-        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(sizeof(int)));
-        if (!found) {
+        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(sizeof(ціле)));
+        якщо (!found) {
                 cmsg_close_all(&mh);
 
                 /* If didn't receive an FD or any data, return an error. */
-                if (k == 0)
-                        return -EIO;
+                якщо (k == 0)
+                        повернути -EIO;
         }
 
-        if (found)
-                *ret_fd = *CMSG_TYPED_DATA(found, int);
-        else
+        якщо (found)
+                *ret_fd = *CMSG_TYPED_DATA(found, ціле);
+        інакше
                 *ret_fd = -EBADF;
 
-        return k;
+        повернути k;
 }
 
-int receive_one_fd(int transport_fd, int flags) {
-        int fd;
+ціле receive_one_fd(ціле transport_fd, ціле flags) {
+        ціле fd;
         ssize_t k;
 
         k = receive_one_fd_iov(transport_fd, NULL, 0, flags, &fd);
-        if (k == 0)
-                return fd;
+        якщо (k == 0)
+                повернути fd;
 
         /* k must be negative, since receive_one_fd_iov() only returns
          * a positive value if data was received through the iov. */
         assert(k < 0);
-        return (int) k;
+        повернути (ціле) k;
 }
 
-ssize_t next_datagram_size_fd(int fd) {
+ssize_t next_datagram_size_fd(ціле fd) {
         ssize_t l;
-        int k;
+        ціле k;
 
         /* This is a bit like FIONREAD/SIOCINQ, however a bit more powerful. The difference being: recv(MSG_PEEK) will
          * actually cause the next datagram in the queue to be validated regarding checksums, which FIONREAD doesn't
@@ -1107,16 +1107,16 @@ ssize_t next_datagram_size_fd(int fd) {
          * the wrong size. */
 
         l = recv(fd, NULL, 0, MSG_PEEK|MSG_TRUNC);
-        if (l < 0) {
-                if (IN_SET(errno, EOPNOTSUPP, EFAULT))
+        якщо (l < 0) {
+                якщо (IN_SET(errno, EOPNOTSUPP, EFAULT))
                         goto fallback;
 
-                return -errno;
+                повернути -errno;
         }
-        if (l == 0)
+        якщо (l == 0)
                 goto fallback;
 
-        return l;
+        повернути l;
 
 fallback:
         k = 0;
@@ -1124,124 +1124,124 @@ fallback:
         /* Some sockets (AF_PACKET) do not support null-sized recv() with MSG_TRUNC set, let's fall back to FIONREAD
          * for them. Checksums don't matter for raw sockets anyway, hence this should be fine. */
 
-        if (ioctl(fd, FIONREAD, &k) < 0)
-                return -errno;
+        якщо (ioctl(fd, FIONREAD, &k) < 0)
+                повернути -errno;
 
-        return (ssize_t) k;
+        повернути (ssize_t) k;
 }
 
 /* Put a limit on how many times will attempt to call accept4(). We loop
  * only on "transient" errors, but let's make sure we don't loop forever. */
 #define MAX_FLUSH_ITERATIONS 1024
 
-int flush_accept(int fd) {
+ціле flush_accept(ціле fd) {
 
-        int r, b;
+        ціле r, b;
         socklen_t l = sizeof(b);
 
         /* Similar to flush_fd() but flushes all incoming connections by accepting and immediately closing
          * them. */
 
-        if (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
-                return -errno;
+        якщо (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
+                повернути -errno;
 
         assert(l == sizeof(b));
-        if (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
+        якщо (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
                  * return EOPNOTSUPP if the fd is not a listening socket, which we should treat as a fatal
                  * error, or in case the incoming TCP connection triggered a network issue, which we want to
                  * treat as a transient error. Thus, let's rule out the first reason for EOPNOTSUPP early, so
                  * we can loop safely on transient errors below. */
-                return -ENOTTY;
+                повернути -ENOTTY;
 
-        for (unsigned iteration = 0;; iteration++) {
-                int cfd;
+        для (unsigned iteration = 0;; iteration++) {
+                ціле cfd;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
+                якщо (r == -EINTR)
                         continue;
-                if (r <= 0)
-                        return r;
+                якщо (r <= 0)
+                        повернути r;
 
-                if (iteration >= MAX_FLUSH_ITERATIONS)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
+                якщо (iteration >= MAX_FLUSH_ITERATIONS)
+                        повернути log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
                                                "Failed to flush connections within " STRINGIFY(MAX_FLUSH_ITERATIONS) " iterations.");
 
                 cfd = accept4(fd, NULL, NULL, SOCK_NONBLOCK|SOCK_CLOEXEC);
-                if (cfd < 0) {
-                        if (errno == EAGAIN)
-                                return 0;
+                якщо (cfd < 0) {
+                        якщо (errno == EAGAIN)
+                                повернути 0;
 
-                        if (ERRNO_IS_ACCEPT_AGAIN(errno))
+                        якщо (ERRNO_IS_ACCEPT_AGAIN(errno))
                                 continue;
 
-                        return -errno;
+                        повернути -errno;
                 }
 
                 safe_close(cfd);
         }
 }
 
-ssize_t flush_mqueue(int fd) {
+ssize_t flush_mqueue(ціле fd) {
         _cleanup_free_ char *buf = NULL;
         struct mq_attr attr;
         ssize_t count = 0;
-        int r;
+        ціле r;
 
         assert(fd >= 0);
 
         /* Similar to flush_fd() but flushes all messages from a POSIX message queue. */
 
-        for (;;) {
+        для (;;) {
                 ssize_t l;
 
                 r = fd_wait_for_event(fd, POLLIN, /* timeout= */ 0);
-                if (r == -EINTR)
+                якщо (r == -EINTR)
                         continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                якщо (r < 0)
+                        повернути r;
+                якщо (r == 0)
+                        повернути count;
 
-                if (!buf) {
+                якщо (!buf) {
                         /* Buffer must be at least as large as mq_msgsize. */
-                        if (mq_getattr(fd, &attr) < 0)
-                                return -errno;
+                        якщо (mq_getattr(fd, &attr) < 0)
+                                повернути -errno;
 
                         buf = malloc(attr.mq_msgsize);
-                        if (!buf)
-                                return -ENOMEM;
+                        якщо (!buf)
+                                повернути -ENOMEM;
                 }
 
                 l = mq_receive(fd, buf, attr.mq_msgsize, /* msg_prio= */ NULL);
-                if (l < 0) {
-                        if (errno == EINTR)
+                якщо (l < 0) {
+                        якщо (errno == EINTR)
                                 continue;
 
-                        if (errno == EAGAIN)
-                                return count;
+                        якщо (errno == EAGAIN)
+                                повернути count;
 
-                        return -errno;
+                        повернути -errno;
                 }
 
                 count += l;
         }
 }
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length) {
+struct cmsghdr* cmsg_find(struct msghdr *mh, ціле level, ціле type, socklen_t length) {
         struct cmsghdr *cmsg;
 
         assert(mh);
 
         CMSG_FOREACH(cmsg, mh)
-                if (cmsg->cmsg_level == level &&
+                якщо (cmsg->cmsg_level == level &&
                     cmsg->cmsg_type == type &&
                     (length == (socklen_t) -1 || length == cmsg->cmsg_len))
-                        return cmsg;
+                        повернути cmsg;
 
-        return NULL;
+        повернути NULL;
 }
 
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len) {
+void* cmsg_find_and_copy_data(struct msghdr *mh, ціле level, ціле type, void *buf, size_t buf_len) {
         struct cmsghdr *cmsg;
 
         assert(mh);
@@ -1253,10 +1253,10 @@ void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf,
          * RISCV32. See issue #27241. */
 
         cmsg = cmsg_find(mh, level, type, CMSG_LEN(buf_len));
-        if (!cmsg)
-                return NULL;
+        якщо (!cmsg)
+                повернути NULL;
 
-        return memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
+        повернути memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
 }
 
 size_t sockaddr_ll_len(const struct sockaddr_ll *sa) {
@@ -1268,12 +1268,12 @@ size_t sockaddr_ll_len(const struct sockaddr_ll *sa) {
 
         size_t mac_len = sizeof(sa->sll_addr);
 
-        if (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
+        якщо (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
                 mac_len = MAX(mac_len, (size_t) ETH_ALEN);
-        if (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
+        якщо (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
                 mac_len = MAX(mac_len, (size_t) INFINIBAND_ALEN);
 
-        return offsetof(struct sockaddr_ll, sll_addr) + mac_len;
+        повернути offsetof(struct sockaddr_ll, sll_addr) + mac_len;
 }
 
 size_t sockaddr_un_len(const struct sockaddr_un *sa) {
@@ -1281,7 +1281,7 @@ size_t sockaddr_un_len(const struct sockaddr_un *sa) {
 
         assert(sa->sun_family == AF_UNIX);
 
-        return offsetof(struct sockaddr_un, sun_path) +
+        повернути offsetof(struct sockaddr_un, sun_path) +
                 (sa->sun_path[0] == 0 ?
                         1 + strnlen(sa->sun_path+1, sizeof(sa->sun_path)-1) :
                         strnlen(sa->sun_path, sizeof(sa->sun_path))+1);
@@ -1292,24 +1292,24 @@ size_t sockaddr_len(const union sockaddr_union *sa) {
 
         switch (sa->sa.sa_family) {
         case AF_INET:
-                return sizeof(struct sockaddr_in);
+                повернути sizeof(struct sockaddr_in);
         case AF_INET6:
-                return sizeof(struct sockaddr_in6);
+                повернути sizeof(struct sockaddr_in6);
         case AF_UNIX:
-                return sockaddr_un_len(&sa->un);
+                повернути sockaddr_un_len(&sa->un);
         case AF_PACKET:
-                return sockaddr_ll_len(&sa->ll);
+                повернути sockaddr_ll_len(&sa->ll);
         case AF_NETLINK:
-                return sizeof(struct sockaddr_nl);
+                повернути sizeof(struct sockaddr_nl);
         case AF_VSOCK:
-                return sizeof(struct sockaddr_vm);
+                повернути sizeof(struct sockaddr_vm);
         default:
                 assert_not_reached();
         }
 }
 
-int socket_ioctl_fd(void) {
-        int fd;
+ціле socket_ioctl_fd(void) {
+        ціле fd;
 
         /* Create a socket to invoke the various network interface ioctl()s on. Traditionally only AF_INET was good for
          * that. Since kernel 4.6 AF_NETLINK works for this too. We first try to use AF_INET hence, but if that's not
@@ -1317,39 +1317,39 @@ int socket_ioctl_fd(void) {
          * generic AF_NETLINK. */
 
         fd = socket(AF_INET, SOCK_DGRAM|SOCK_CLOEXEC, 0);
-        if (fd < 0)
+        якщо (fd < 0)
                 fd = socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC, NETLINK_GENERIC);
-        if (fd < 0)
-                return -errno;
+        якщо (fd < 0)
+                повернути -errno;
 
-        return fd;
+        повернути fd;
 }
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa) {
+ціле sockaddr_un_unlink(const struct sockaddr_un *sa) {
         const char *p, * nul;
 
         assert(sa);
 
-        if (sa->sun_family != AF_UNIX)
-                return -EPROTOTYPE;
+        якщо (sa->sun_family != AF_UNIX)
+                повернути -EPROTOTYPE;
 
-        if (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
-                return 0;
+        якщо (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
+                повернути 0;
 
         /* The path in .sun_path is not necessarily NUL terminated. Let's fix that. */
         nul = memchr(sa->sun_path, 0, sizeof(sa->sun_path));
-        if (nul)
+        якщо (nul)
                 p = sa->sun_path;
-        else
+        інакше
                 p = memdupa_suffix0(sa->sun_path, sizeof(sa->sun_path));
 
-        if (unlink(p) < 0)
-                return -errno;
+        якщо (unlink(p) < 0)
+                повернути -errno;
 
-        return 1;
+        повернути 1;
 }
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
+ціле sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
         size_t l;
 
         assert(ret);
@@ -1361,17 +1361,17 @@ int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
          * reference paths in the abstract namespace that include NUL bytes in the name. */
 
         l = strlen(path);
-        if (l < 2)
-                return -EINVAL;
-        if (!IN_SET(path[0], '/', '@'))
-                return -EINVAL;
+        якщо (l < 2)
+                повернути -EINVAL;
+        якщо (!IN_SET(path[0], '/', '@'))
+                повернути -EINVAL;
 
         /* Don't allow paths larger than the space in sockaddr_un. Note that we are a tiny bit more restrictive than
          * the kernel is: we insist on NUL termination (both for abstract namespace and regular file system socket
          * addresses!), which the kernel doesn't. We do this to reduce chance of incompatibility with other apps that
          * do not expect non-NUL terminated file system path. */
-        if (l+1 > sizeof(ret->sun_path))
-                return path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
+        якщо (l+1 > sizeof(ret->sun_path))
+                повернути path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
                                                                   * too long to fit into a sockaddr_un, but
                                                                   * is a file system path, and thus might be
                                                                   * connectible via O_PATH indirection. */
@@ -1380,58 +1380,58 @@ int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
                 .sun_family = AF_UNIX,
         };
 
-        if (path[0] == '@') {
+        якщо (path[0] == '@') {
                 /* Abstract namespace socket */
                 memcpy(ret->sun_path + 1, path + 1, l); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
+                повернути (ціле) (offsetof(struct sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
 
-        } else {
+        } інакше {
                 assert(path[0] == '/');
 
                 /* File system socket */
                 memcpy(ret->sun_path, path, l + 1); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
+                повернути (ціле) (offsetof(struct sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
         }
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret) {
-        int v;
+ціле getsockopt_int(ціле fd, ціле level, ціле optname, ціле *ret) {
+        ціле v;
         socklen_t sl = sizeof(v);
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getsockopt(fd, level, optname, &v, &sl) < 0)
-                return negative_errno();
-        if (sl != sizeof(v))
-                return -EIO;
+        якщо (getsockopt(fd, level, optname, &v, &sl) < 0)
+                повернути negative_errno();
+        якщо (sl != sizeof(v))
+                повернути -EIO;
 
         *ret = v;
-        return 0;
+        повернути 0;
 }
 
-int socket_bind_to_ifname(int fd, const char *ifname) {
+ціле socket_bind_to_ifname(ціле fd, const char *ifname) {
         assert(fd >= 0);
 
         /* Call with NULL to drop binding */
 
-        return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
+        повернути RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
 }
 
-int socket_bind_to_ifindex(int fd, int ifindex) {
+ціле socket_bind_to_ifindex(ціле fd, ціле ifindex) {
         assert(fd >= 0);
 
-        if (ifindex <= 0)
+        якщо (ifindex <= 0)
                 /* Drop binding */
-                return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
+                повернути RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
 
-        return setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
+        повернути setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
 }
 
-int socket_autobind(int fd, char **ret_name) {
+ціле socket_autobind(ціле fd, char **ret_name) {
         _cleanup_free_ char *name = NULL;
         uint64_t random;
-        int r;
+        ціле r;
 
         /* Generate a random abstract socket name and bind fd to it. This is modeled after the kernel
          * "autobind" feature, but uses 64-bit random number internally. */
@@ -1440,25 +1440,25 @@ int socket_autobind(int fd, char **ret_name) {
 
         random = random_u64();
 
-        if (asprintf(&name, "@%" PRIu64, random) < 0)
-                return -ENOMEM;
+        якщо (asprintf(&name, "@%" PRIu64, random) < 0)
+                повернути -ENOMEM;
 
         union sockaddr_union sa;
         assert_cc(DECIMAL_STR_MAX(uint64_t) < sizeof(sa.un.sun_path));
 
         r = sockaddr_un_set_path(&sa.un, name);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (bind(fd, &sa.sa, r) < 0)
-                return -errno;
+        якщо (bind(fd, &sa.sa, r) < 0)
+                повернути -errno;
 
-        if (ret_name)
+        якщо (ret_name)
                 *ret_name = TAKE_PTR(name);
-        return 0;
+        повернути 0;
 }
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
+ssize_t recvmsg_safe(ціле sockfd, struct msghdr *msg, ціле flags) {
         ssize_t n;
 
         /* A wrapper around recvmsg() that checks for MSG_CTRUNC and MSG_TRUNC, and turns them into an error,
@@ -1470,109 +1470,109 @@ ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
         assert(msg);
 
         n = recvmsg(sockfd, msg, flags);
-        if (n < 0)
-                return -errno;
+        якщо (n < 0)
+                повернути -errno;
 
-        if (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
+        якщо (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
             (!FLAGS_SET(flags, MSG_PEEK) && FLAGS_SET(msg->msg_flags, MSG_TRUNC))) {
                 cmsg_close_all(msg);
-                return FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
+                повернути FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
         }
 
-        return n;
+        повернути n;
 }
 
-int socket_get_family(int fd) {
-        int af;
+ціле socket_get_family(ціле fd) {
+        ціле af;
         socklen_t sl = sizeof(af);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
-                return -errno;
+        якщо (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
+                повернути -errno;
 
-        if (sl != sizeof(af))
-                return -EINVAL;
+        якщо (sl != sizeof(af))
+                повернути -EINVAL;
 
-        return af;
+        повернути af;
 }
 
-int socket_set_recvpktinfo(int fd, int af, bool b) {
+ціле socket_set_recvpktinfo(ціле fd, ціле af, bool b) {
 
-        if (af == AF_UNSPEC) {
+        якщо (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                якщо (af < 0)
+                        повернути af;
         }
 
         switch (af) {
 
         case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
+                повернути setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
 
         case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
+                повернути setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
 
         case AF_NETLINK:
-                return setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
+                повернути setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
 
         case AF_PACKET:
-                return setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
+                повернути setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
 
         default:
-                return -EAFNOSUPPORT;
+                повернути -EAFNOSUPPORT;
         }
 }
 
-int socket_set_unicast_if(int fd, int af, int ifi) {
+ціле socket_set_unicast_if(ціле fd, ціле af, ціле ifi) {
         be32_t ifindex_be = htobe32(ifi);
 
-        if (af == AF_UNSPEC) {
+        якщо (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                якщо (af < 0)
+                        повернути af;
         }
 
         switch (af) {
 
         case AF_INET:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+                повернути RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
 
         case AF_INET6:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+                повернути RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
 
         default:
-                return -EAFNOSUPPORT;
+                повернути -EAFNOSUPPORT;
         }
 }
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val) {
-        if (af == AF_UNSPEC) {
+ціле socket_set_option(ціле fd, ціле af, ціле opt_ipv4, ціле opt_ipv6, ціле val) {
+        якщо (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                якщо (af < 0)
+                        повернути af;
         }
 
         switch (af) {
 
         case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
+                повернути setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
 
         case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
+                повернути setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
 
         default:
-                return -EAFNOSUPPORT;
+                повернути -EAFNOSUPPORT;
         }
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret) {
-        int mtu, r;
+ціле socket_get_mtu(ціле fd, ціле af, size_t *ret) {
+        ціле mtu, r;
 
         assert(ret);
 
-        if (af == AF_UNSPEC) {
+        якщо (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                якщо (af < 0)
+                        повернути af;
         }
 
         switch (af) {
@@ -1586,19 +1586,19 @@ int socket_get_mtu(int fd, int af, size_t *ret) {
                 break;
 
         default:
-                return -EAFNOSUPPORT;
+                повернути -EAFNOSUPPORT;
         }
 
-        if (r < 0)
-                return r;
-        if (mtu <= 0)
-                return -EINVAL;
+        якщо (r < 0)
+                повернути r;
+        якщо (mtu <= 0)
+                повернути -EINVAL;
 
         *ret = (size_t) mtu;
-        return 0;
+        повернути 0;
 }
 
-static int connect_unix_path_simple(int fd, const char *path) {
+static ціле connect_unix_path_simple(ціле fd, const char *path) {
         union sockaddr_union sa = {
                 .un.sun_family = AF_UNIX,
         };
@@ -1612,18 +1612,18 @@ static int connect_unix_path_simple(int fd, const char *path) {
         assert(l < sizeof(sa.un.sun_path));
 
         memcpy(sa.un.sun_path, path, l + 1);
-        return RET_NERRNO(connect(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + l + 1));
+        повернути RET_NERRNO(connect(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + l + 1));
 }
 
-static int connect_unix_inode(int fd, int inode_fd) {
+static ціле connect_unix_inode(ціле fd, ціле inode_fd) {
         assert(fd >= 0);
         assert(inode_fd >= 0);
 
-        return connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
+        повернути connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
 }
 
-int connect_unix_path(int fd, int dir_fd, const char *path) {
-        _cleanup_close_ int inode_fd = -EBADF;
+ціле connect_unix_path(ціле fd, ціле dir_fd, const char *path) {
+        _cleanup_close_ ціле inode_fd = -EBADF;
 
         assert(fd >= 0);
         assert(wildcard_fd_is_valid(dir_fd));
@@ -1631,165 +1631,165 @@ int connect_unix_path(int fd, int dir_fd, const char *path) {
         /* Connects to the specified AF_UNIX socket in the file system. Works around the 108 byte size limit
          * in sockaddr_un, by going via O_PATH if needed. This hence works for any kind of path. */
 
-        if (!path) {
-                if (dir_fd < 0)
-                        return -EISDIR;
+        якщо (!path) {
+                якщо (dir_fd < 0)
+                        повернути -EISDIR;
 
-                return connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
+                повернути connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
         }
 
         /* Refuse zero length path early, to make sure AF_UNIX stack won't mistake this for an abstract
          * namespace path, since first char is NUL */
-        if (isempty(path))
-                return -EINVAL;
+        якщо (isempty(path))
+                повернути -EINVAL;
 
         /* Shortcut for the simple case */
-        if (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(struct sockaddr_un, sun_path))
-                return connect_unix_path_simple(fd, path);
+        якщо (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(struct sockaddr_un, sun_path))
+                повернути connect_unix_path_simple(fd, path);
 
         /* If dir_fd is specified, then we need to go the indirect O_PATH route, because connectat() does not
          * exist. If the path is too long, we also need to take the indirect route, since we can't fit this
          * into a sockaddr_un directly. */
 
-        if (dir_fd == XAT_FDROOT) {
+        якщо (dir_fd == XAT_FDROOT) {
                 _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+                якщо (!j)
+                        повернути -ENOMEM;
 
                 inode_fd = open(j, O_PATH|O_CLOEXEC);
-        } else
+        } інакше
                 inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC);
-        if (inode_fd < 0)
-                return -errno;
+        якщо (inode_fd < 0)
+                повернути -errno;
 
-        return connect_unix_inode(fd, inode_fd);
+        повернути connect_unix_inode(fd, inode_fd);
 }
 
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s) {
+ціле socket_address_parse_unix(SocketAddress *ret_address, const char *s) {
         struct sockaddr_un un;
-        int r;
+        ціле r;
 
         assert(ret_address);
         assert(s);
 
-        if (!IN_SET(*s, '/', '@'))
-                return -EPROTO;
+        якщо (!IN_SET(*s, '/', '@'))
+                повернути -EPROTO;
 
         r = sockaddr_un_set_path(&un, s);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         *ret_address = (SocketAddress) {
                 .sockaddr.un = un,
                 .size = r,
         };
 
-        return 0;
+        повернути 0;
 }
 
-int socket_address_equal_unix(const char *a, const char *b) {
+ціле socket_address_equal_unix(const char *a, const char *b) {
         SocketAddress socket_a, socket_b;
-        int r;
+        ціле r;
 
         assert(a);
         assert(b);
 
         r = socket_address_parse_unix(&socket_a, a);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         r = socket_address_parse_unix(&socket_b, b);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
+        повернути sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret) {
-        int r;
+ціле vsock_parse_port(const char *s, unsigned *ret) {
+        ціле r;
 
         assert(ret);
 
-        if (!s)
-                return -EINVAL;
+        якщо (!s)
+                повернути -EINVAL;
 
         unsigned u;
         r = safe_atou(s, &u);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         /* Port 0 is apparently valid and not special in AF_VSOCK (unlike on IP). But VMADDR_PORT_ANY
          * (UINT32_MAX) is. Hence refuse that. */
 
-        if (u == VMADDR_PORT_ANY)
-                return -EINVAL;
+        якщо (u == VMADDR_PORT_ANY)
+                повернути -EINVAL;
 
         *ret = u;
-        return 0;
+        повернути 0;
 }
 
-int vsock_parse_cid(const char *s, unsigned *ret) {
+ціле vsock_parse_cid(const char *s, unsigned *ret) {
         assert(ret);
 
-        if (!s)
-                return -EINVAL;
+        якщо (!s)
+                повернути -EINVAL;
 
         /* Parsed an AF_VSOCK "CID". This is a 32bit entity, and the usual type is "unsigned". We recognize
          * the four special CIDs as strings, and otherwise parse the numeric CIDs. */
 
-        if (streq(s, "hypervisor"))
+        якщо (streq(s, "hypervisor"))
                 *ret = VMADDR_CID_HYPERVISOR;
-        else if (streq(s, "local"))
+        інакше якщо (streq(s, "local"))
                 *ret = VMADDR_CID_LOCAL;
-        else if (streq(s, "host"))
+        інакше якщо (streq(s, "host"))
                 *ret = VMADDR_CID_HOST;
-        else if (STR_IN_SET(s, "any", "-1"))
+        інакше якщо (STR_IN_SET(s, "any", "-1"))
                 *ret = VMADDR_CID_ANY;
-        else
-                return safe_atou(s, ret);
+        інакше
+                повернути safe_atou(s, ret);
 
-        return 0;
+        повернути 0;
 }
 
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
+ціле socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
         /* AF_VSOCK socket in vsock:cid:port notation */
         _cleanup_free_ char *n = NULL;
         const char *e, *cid_start;
         unsigned port, cid;
-        int type, r;
+        ціле type, r;
 
         assert(ret_address);
         assert(s);
 
-        if ((cid_start = startswith(s, "vsock:")))
+        якщо ((cid_start = startswith(s, "vsock:")))
                 type = 0;
-        else if ((cid_start = startswith(s, "vsock-dgram:")))
+        інакше якщо ((cid_start = startswith(s, "vsock-dgram:")))
                 type = SOCK_DGRAM;
-        else if ((cid_start = startswith(s, "vsock-seqpacket:")))
+        інакше якщо ((cid_start = startswith(s, "vsock-seqpacket:")))
                 type = SOCK_SEQPACKET;
-        else if ((cid_start = startswith(s, "vsock-stream:")))
+        інакше якщо ((cid_start = startswith(s, "vsock-stream:")))
                 type = SOCK_STREAM;
-        else
-                return -EPROTO;
+        інакше
+                повернути -EPROTO;
 
         e = strchr(cid_start, ':');
-        if (!e)
-                return -EINVAL;
+        якщо (!e)
+                повернути -EINVAL;
 
         r = vsock_parse_port(e+1, &port);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         n = strndup(cid_start, e - cid_start);
-        if (!n)
-                return -ENOMEM;
+        якщо (!n)
+                повернути -ENOMEM;
 
-        if (isempty(n))
+        якщо (isempty(n))
                 cid = VMADDR_CID_ANY;
-        else {
+        інакше {
                 r = vsock_parse_cid(n, &cid);
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
         }
 
         *ret_address = (SocketAddress) {
@@ -1802,55 +1802,55 @@ int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
                 .size = sizeof(struct sockaddr_vm),
         };
 
-        return 0;
+        повернути 0;
 }
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups) {
+ціле netlink_socket_get_multicast_groups(ціле fd, size_t *ret_len, uint32_t **ret_groups) {
         _cleanup_free_ uint32_t *groups = NULL;
         socklen_t len = 0, old_len;
 
         assert(fd >= 0);
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
-                return -errno;
+        якщо (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
+                повернути -errno;
 
-        if (len == 0)
+        якщо (len == 0)
                 goto finalize;
 
         groups = new0(uint32_t, len);
-        if (!groups)
-                return -ENOMEM;
+        якщо (!groups)
+                повернути -ENOMEM;
 
         old_len = len;
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
-                return -errno;
+        якщо (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
+                повернути -errno;
 
-        if (old_len != len)
-                return -EIO;
+        якщо (old_len != len)
+                повернути -EIO;
 
 finalize:
-        if (ret_len)
+        якщо (ret_len)
                 *ret_len = len;
-        if (ret_groups)
+        якщо (ret_groups)
                 *ret_groups = TAKE_PTR(groups);
 
-        return 0;
+        повернути 0;
 }
 
-int socket_get_cookie(int fd, uint64_t *ret) {
+ціле socket_get_cookie(ціле fd, uint64_t *ret) {
         assert(fd >= 0);
 
         uint64_t cookie = 0;
         socklen_t cookie_len = sizeof(cookie);
-        if (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
-                return -errno;
+        якщо (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
+                повернути -errno;
 
         assert(cookie_len == sizeof(cookie));
-        if (ret)
+        якщо (ret)
                 *ret = cookie;
 
-        return 0;
+        повернути 0;
 }
 
 void cmsg_close_all(struct msghdr *mh) {
@@ -1858,65 +1858,65 @@ void cmsg_close_all(struct msghdr *mh) {
 
         struct cmsghdr *cmsg;
         CMSG_FOREACH(cmsg, mh) {
-                if (cmsg->cmsg_level != SOL_SOCKET)
+                якщо (cmsg->cmsg_level != SOL_SOCKET)
                         continue;
 
-                if (cmsg->cmsg_type == SCM_RIGHTS)
-                        close_many(CMSG_TYPED_DATA(cmsg, int),
-                                   (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-                else if (cmsg->cmsg_type == SCM_PIDFD) {
-                        assert(cmsg->cmsg_len == CMSG_LEN(sizeof(int)));
-                        safe_close(*CMSG_TYPED_DATA(cmsg, int));
+                якщо (cmsg->cmsg_type == SCM_RIGHTS)
+                        close_many(CMSG_TYPED_DATA(cmsg, ціле),
+                                   (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(ціле));
+                інакше якщо (cmsg->cmsg_type == SCM_PIDFD) {
+                        assert(cmsg->cmsg_len == CMSG_LEN(sizeof(ціле)));
+                        safe_close(*CMSG_TYPED_DATA(cmsg, ціле));
                 }
         }
 }
 
-int tos_to_priority(uint8_t tos) {
+ціле tos_to_priority(uint8_t tos) {
         /* Map the IP Precedence (top 3 bits of the TOS field) to Linux internal packet priorities
          * (TC_PRIO_*). This exactly mirrors the standard Linux kernel IP precedence-to-priority mapping
          * (rt_tos2priority) to ensure consistent behavior when explicitly setting SO_PRIORITY. */
         switch (IPTOS_PREC(tos)) {
         case IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
         case IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
-                return TC_PRIO_CONTROL;
+                повернути TC_PRIO_CONTROL;
 
         case IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
         case IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
-                return TC_PRIO_INTERACTIVE;
+                повернути TC_PRIO_INTERACTIVE;
 
         case IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
         case IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
-                return TC_PRIO_INTERACTIVE_BULK;
+                повернути TC_PRIO_INTERACTIVE_BULK;
 
         case IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
-                return TC_PRIO_BULK;
+                повернути TC_PRIO_BULK;
 
         case IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
         default:
-                return TC_PRIO_BESTEFFORT;
+                повернути TC_PRIO_BESTEFFORT;
         }
 }
 
-int socket_xattr_supported(void) {
-        int r;
+ціле socket_xattr_supported(void) {
+        ціле r;
 
         // FIXME: Drop this check once Linux 7.1 becomes our baseline
 
-        static int cached = -1;
-        if (cached >= 0)
-                return cached;
+        static ціле cached = -1;
+        якщо (cached >= 0)
+                повернути cached;
 
-        _cleanup_close_ int fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ ціле fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
+        якщо (fd < 0)
+                повернути -errno;
 
         /* Old kernels return EPERM. But let's also check for more appropriate error codes, to be friendly to
          * seccomp policies */
         r = xsetxattr(fd, /* path= */ NULL, AT_EMPTY_PATH, "user.testxxx", "1");
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
-                return (cached = false);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set test xattr on socket: %m");
+        якщо (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
+                повернути (cached = false);
+        якщо (r < 0)
+                повернути log_debug_errno(r, "Failed to set test xattr on socket: %m");
 
-        return (cached = true);
+        повернути (cached = true);
 }

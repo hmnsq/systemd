@@ -22,15 +22,15 @@
 #include "string-util.h"
 #include "time-util.h"
 
-static int verify_stat_at(
-                int fd,
+static ціле verify_stat_at(
+                ціле fd,
                 const char *path,
                 bool follow,
-                int (*verify_func)(const struct stat *st),
+                ціле (*verify_func)(const struct stat *st),
                 bool verify) {
 
         struct stat st;
-        int r;
+        ціле r;
 
         assert(wildcard_fd_is_valid(fd));
         assert(!isempty(path) || !follow);
@@ -38,265 +38,265 @@ static int verify_stat_at(
 
         _cleanup_free_ char *p = NULL;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (fstatat(fd, strempty(path), &st,
+        якщо (fstatat(fd, strempty(path), &st,
                     (isempty(path) ? AT_EMPTY_PATH : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
-                return -errno;
+                повернути -errno;
 
         r = verify_func(&st);
-        return verify ? r : r >= 0;
+        повернути verify ? r : r >= 0;
 }
 
-static int mode_verify_regular(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+static ціле mode_verify_regular(mode_t mode) {
+        якщо (S_ISDIR(mode))
+                повернути -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        якщо (S_ISLNK(mode))
+                повернути -ELOOP;
 
-        if (!S_ISREG(mode))
-                return -EBADFD;
+        якщо (!S_ISREG(mode))
+                повернути -EBADFD;
 
-        return 0;
+        повернути 0;
 }
 
-int stat_verify_regular(const struct stat *st) {
+ціле stat_verify_regular(const struct stat *st) {
         assert(st);
 
         /* Checks whether the specified stat() structure refers to a regular file. If not returns an
          * appropriate error code. */
 
-        return mode_verify_regular(st->st_mode);
+        повернути mode_verify_regular(st->st_mode);
 }
 
-int statx_verify_regular(const struct statx *stx) {
+ціле statx_verify_regular(const struct statx *stx) {
         assert(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        якщо (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                повернути -ENODATA;
 
-        return mode_verify_regular(stx->stx_mode);
+        повернути mode_verify_regular(stx->stx_mode);
 }
 
-int verify_regular_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_regular, true);
+ціле verify_regular_at(ціле fd, const char *path, bool follow) {
+        повернути verify_stat_at(fd, path, follow, stat_verify_regular, true);
 }
 
-int fd_verify_regular(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+ціле fd_verify_regular(ціле fd) {
+        якщо (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                повернути -EISDIR;
 
-        return verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
+        повернути verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
 }
 
-static int mode_verify_directory(mode_t mode) {
-        if (S_ISLNK(mode))
-                return -ELOOP;
+static ціле mode_verify_directory(mode_t mode) {
+        якщо (S_ISLNK(mode))
+                повернути -ELOOP;
 
-        if (!S_ISDIR(mode))
-                return -ENOTDIR;
+        якщо (!S_ISDIR(mode))
+                повернути -ENOTDIR;
 
-        return 0;
+        повернути 0;
 }
 
-int stat_verify_directory(const struct stat *st) {
+ціле stat_verify_directory(const struct stat *st) {
         assert(st);
 
-        return mode_verify_directory(st->st_mode);
+        повернути mode_verify_directory(st->st_mode);
 }
 
-int statx_verify_directory(const struct statx *stx) {
+ціле statx_verify_directory(const struct statx *stx) {
         assert(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        якщо (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
+                повернути -ENODATA;
 
-        return mode_verify_directory(stx->stx_mode);
+        повернути mode_verify_directory(stx->stx_mode);
 }
 
-int fd_verify_directory(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return 0;
+ціле fd_verify_directory(ціле fd) {
+        якщо (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                повернути 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_directory, true);
+        повернути verify_stat_at(fd, NULL, false, stat_verify_directory, true);
 }
 
-int is_dir_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_directory, false);
+ціле is_dir_at(ціле fd, const char *path, bool follow) {
+        повернути verify_stat_at(fd, path, follow, stat_verify_directory, false);
 }
 
-int is_dir(const char *path, bool follow) {
+ціле is_dir(const char *path, bool follow) {
         assert(!isempty(path));
-        return is_dir_at(AT_FDCWD, path, follow);
+        повернути is_dir_at(AT_FDCWD, path, follow);
 }
 
-int stat_verify_symlink(const struct stat *st) {
+ціле stat_verify_symlink(const struct stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        якщо (S_ISDIR(st->st_mode))
+                повернути -EISDIR;
 
-        if (!S_ISLNK(st->st_mode))
-                return -ENOLINK;
+        якщо (!S_ISLNK(st->st_mode))
+                повернути -ENOLINK;
 
-        return 0;
+        повернути 0;
 }
 
-int fd_verify_symlink(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+ціле fd_verify_symlink(ціле fd) {
+        якщо (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                повернути -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
+        повернути verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
 }
 
-int is_symlink(const char *path) {
+ціле is_symlink(const char *path) {
         assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
+        повернути verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
 }
 
-static int mode_verify_socket(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+static ціле mode_verify_socket(mode_t mode) {
+        якщо (S_ISDIR(mode))
+                повернути -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        якщо (S_ISLNK(mode))
+                повернути -ELOOP;
 
-        if (!S_ISSOCK(mode))
-                return -ENOTSOCK;
+        якщо (!S_ISSOCK(mode))
+                повернути -ENOTSOCK;
 
-        return 0;
+        повернути 0;
 }
 
-int stat_verify_socket(const struct stat *st) {
+ціле stat_verify_socket(const struct stat *st) {
         assert(st);
 
-        return mode_verify_socket(st->st_mode);
+        повернути mode_verify_socket(st->st_mode);
 }
 
-int statx_verify_socket(const struct statx *stx) {
+ціле statx_verify_socket(const struct statx *stx) {
         assert(stx);
 
-        return mode_verify_socket(stx->stx_mode);
+        повернути mode_verify_socket(stx->stx_mode);
 }
 
-int fd_verify_socket(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+ціле fd_verify_socket(ціле fd) {
+        якщо (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                повернути -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
+        повернути verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
 }
 
-int is_socket(const char *path) {
+ціле is_socket(const char *path) {
         assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
+        повернути verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
 }
 
-int stat_verify_linked(const struct stat *st) {
+ціле stat_verify_linked(const struct stat *st) {
         assert(st);
 
-        if (st->st_nlink <= 0)
-                return -EIDRM; /* recognizable error. */
+        якщо (st->st_nlink <= 0)
+                повернути -EIDRM; /* recognizable error. */
 
-        return 0;
+        повернути 0;
 }
 
-int fd_verify_linked(int fd) {
+ціле fd_verify_linked(ціле fd) {
 
-        if (fd == XAT_FDROOT)
-                return 0;
+        якщо (fd == XAT_FDROOT)
+                повернути 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_linked, true);
+        повернути verify_stat_at(fd, NULL, false, stat_verify_linked, true);
 }
 
-int stat_verify_block(const struct stat *st) {
+ціле stat_verify_block(const struct stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        якщо (S_ISDIR(st->st_mode))
+                повернути -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        якщо (S_ISLNK(st->st_mode))
+                повернути -ELOOP;
 
-        if (!S_ISBLK(st->st_mode))
-                return -ENOTBLK;
+        якщо (!S_ISBLK(st->st_mode))
+                повернути -ENOTBLK;
 
-        return 0;
+        повернути 0;
 }
 
-int fd_verify_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+ціле fd_verify_block(ціле fd) {
+        якщо (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                повернути -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
+        повернути verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
 }
 
-int stat_verify_char(const struct stat *st) {
+ціле stat_verify_char(const struct stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        якщо (S_ISDIR(st->st_mode))
+                повернути -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        якщо (S_ISLNK(st->st_mode))
+                повернути -ELOOP;
 
-        if (!S_ISCHR(st->st_mode))
-                return -EBADFD;
+        якщо (!S_ISCHR(st->st_mode))
+                повернути -EBADFD;
 
-        return 0;
+        повернути 0;
 }
 
-int stat_verify_device_node(const struct stat *st) {
+ціле stat_verify_device_node(const struct stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        якщо (S_ISDIR(st->st_mode))
+                повернути -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        якщо (S_ISLNK(st->st_mode))
+                повернути -ELOOP;
 
-        if (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
-                return -ENOTTY;
+        якщо (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
+                повернути -ENOTTY;
 
-        return 0;
+        повернути 0;
 }
 
-int is_device_node(const char *path) {
+ціле is_device_node(const char *path) {
         assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
+        повернути verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
 }
 
-int stat_verify_regular_or_block(const struct stat *st) {
+ціле stat_verify_regular_or_block(const struct stat *st) {
         assert(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        якщо (S_ISDIR(st->st_mode))
+                повернути -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        якщо (S_ISLNK(st->st_mode))
+                повернути -ELOOP;
 
-        if (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
-                return -EBADFD;
+        якщо (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
+                повернути -EBADFD;
 
-        return 0;
+        повернути 0;
 }
 
-int fd_verify_regular_or_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+ціле fd_verify_regular_or_block(ціле fd) {
+        якщо (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
+                повернути -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
+        повернути verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
 }
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) {
-        _cleanup_close_ int fd = -EBADF;
+ціле dir_is_empty_at(ціле dir_fd, const char *path, bool ignore_hidden_or_backup) {
+        _cleanup_close_ ціле fd = -EBADF;
         struct dirent *buf;
         size_t m;
 
         fd = xopenat(dir_fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        якщо (fd < 0)
+                повернути fd;
 
         /* Allocate space for at least 3 full dirents, since every dir has at least two entries ("."  +
          * ".."), and only once we have seen if there's a third we know whether the dir is empty or not. If
@@ -305,25 +305,25 @@ int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) 
         m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_SIZE_MAX;
         buf = alloca(m);
 
-        for (;;) {
+        для (;;) {
                 struct dirent *de;
                 ssize_t n;
 
                 n = getdents64(fd, buf, m);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
+                якщо (n < 0)
+                        повернути -errno;
+                якщо (n == 0)
                         break;
 
                 assert((size_t) n <= m);
                 msan_unpoison(buf, n);
 
                 FOREACH_DIRENT_IN_BUFFER(de, buf, n)
-                        if (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
-                                return 0;
+                        якщо (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
+                                повернути 0;
         }
 
-        return 1;
+        повернути 1;
 }
 
 bool stat_may_be_dev_null(struct stat *st) {
@@ -332,51 +332,51 @@ bool stat_may_be_dev_null(struct stat *st) {
         /* We don't want to hardcode the major/minor of /dev/null, hence we do a simpler "is this a character
          * device node?" check. */
 
-        return S_ISCHR(st->st_mode);
+        повернути S_ISCHR(st->st_mode);
 }
 
 bool stat_is_empty(struct stat *st) {
         assert(st);
 
-        return S_ISREG(st->st_mode) && st->st_size <= 0;
+        повернути S_ISREG(st->st_mode) && st->st_size <= 0;
 }
 
-int null_or_empty_path_with_root(const char *fn, const char *root) {
+ціле null_or_empty_path_with_root(const char *fn, const char *root) {
         _cleanup_free_ char *resolved = NULL;
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ ціле fd = -EBADF;
         struct stat st;
-        int r;
+        ціле r;
 
         assert(fn);
 
         /* fn includes the root prefix. */
 
-        if (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
-                return true;
+        якщо (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
+                повернути true;
 
-        if (empty_or_root(root)) {
-                if (stat(fn, &st) < 0)
-                        return -errno;
+        якщо (empty_or_root(root)) {
+                якщо (stat(fn, &st) < 0)
+                        повернути -errno;
 
-                return null_or_empty(&st);
+                повернути null_or_empty(&st);
         }
 
         /* An image below a root directory usually has no /dev/null, so a symlink to /dev/null dangles there.
          * CHASE_NONEXISTENT resolves such a symlink without requiring the target to exist. */
         r = chase(fn, root, CHASE_NONEXISTENT, &resolved, &fd);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (path_equal(path_startswith(resolved, root), "dev/null"))
-                return true;
+        якщо (path_equal(path_startswith(resolved, root), "dev/null"))
+                повернути true;
 
-        if (r == 0)
-                return -ENOENT;
+        якщо (r == 0)
+                повернути -ENOENT;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        якщо (fstat(fd, &st) < 0)
+                повернути -errno;
 
-        return null_or_empty(&st);
+        повернути null_or_empty(&st);
 }
 
 static const char* statx_mask_one_to_name(unsigned mask);
@@ -387,8 +387,8 @@ static const char* statx_attribute_to_name(uint64_t attr);
 
 #define DEFINE_STATX_BITS_TO_STRING(prefix, type, func, format_str)             \
         static char* prefix##_to_string(type v) {                               \
-                if (v == 0)                                                     \
-                        return strdup("");                                      \
+                якщо (v == 0)                                                     \
+                        повернути strdup("");                                      \
                                                                                 \
                 _cleanup_free_ char *s = NULL;                                  \
                                                                                 \
@@ -396,26 +396,26 @@ static const char* statx_attribute_to_name(uint64_t attr);
                         type f = 1 << i;                                        \
                                                                                 \
                         const char *n = func(f);                                \
-                        if (!n)                                                 \
+                        якщо (!n)                                                 \
                                 continue;                                       \
                                                                                 \
-                        if (!strextend_with_separator(&s, "|", n))              \
-                                return NULL;                                    \
+                        якщо (!strextend_with_separator(&s, "|", n))              \
+                                повернути NULL;                                    \
                         v &= ~f;                                                \
                 }                                                               \
                                                                                 \
-                if (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
-                        return NULL;                                            \
+                якщо (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
+                        повернути NULL;                                            \
                                                                                 \
-                return TAKE_PTR(s);                                             \
+                повернути TAKE_PTR(s);                                             \
         }
 
 DEFINE_STATX_BITS_TO_STRING(statx_mask,       unsigned, statx_mask_one_to_name,  "0x%x");
 DEFINE_STATX_BITS_TO_STRING(statx_attributes, uint64_t, statx_attribute_to_name, "0x%" PRIx64);
 
-int xstatx_full(int fd,
+ціле xstatx_full(ціле fd,
                 const char *path,
-                int statx_flags,
+                ціле statx_flags,
                 XStatXFlags xstatx_flags,
                 unsigned mandatory_mask,
                 unsigned optional_mask,
@@ -423,7 +423,7 @@ int xstatx_full(int fd,
                 struct statx *ret) {
 
         struct statx sx = {}; /* explicitly initialize the struct to make msan silent. */
-        int r;
+        ціле r;
 
         /* Wrapper around statx(), with additional bells and whistles:
          *
@@ -443,152 +443,152 @@ int xstatx_full(int fd,
 
         _cleanup_free_ char *p = NULL;
         r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
         unsigned request_mask = mandatory_mask|optional_mask;
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
+        якщо (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
                 request_mask |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
 
-        if (statx(fd,
+        якщо (statx(fd,
                   strempty(path),
                   statx_flags|(isempty(path) ? AT_EMPTY_PATH : 0),
                   request_mask,
                   &sx) < 0)
-                return negative_errno();
+                повернути negative_errno();
 
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
+        якщо (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
             !(sx.stx_mask & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
-                return log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
+                повернути log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
 
-        if (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
-                if (DEBUG_LOGGING) {
+        якщо (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
+                якщо (DEBUG_LOGGING) {
                         _cleanup_free_ char *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
                         log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(mask_str));
                 }
 
-                return -EUNATCH;
+                повернути -EUNATCH;
         }
 
-        if (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
-                if (DEBUG_LOGGING) {
+        якщо (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
+                якщо (DEBUG_LOGGING) {
                         _cleanup_free_ char *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
                         log_debug("statx() does not support '%s' attribute (running on an old kernel?)", strnull(attr_str));
                 }
 
-                return -EUNATCH;
+                повернути -EUNATCH;
         }
 
         *ret = sx;
-        return FLAGS_SET(sx.stx_mask, optional_mask);
+        повернути FLAGS_SET(sx.stx_mask, optional_mask);
 }
 
-static int xfstatfs(int fd, struct statfs *ret) {
+static ціле xfstatfs(ціле fd, struct statfs *ret) {
         assert(ret);
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(statfs(".", ret));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(statfs("/", ret));
+        якщо (fd == AT_FDCWD)
+                повернути RET_NERRNO(statfs(".", ret));
+        якщо (fd == XAT_FDROOT)
+                повернути RET_NERRNO(statfs("/", ret));
 
         assert(fd >= 0);
-        return RET_NERRNO(fstatfs(fd, ret));
+        повернути RET_NERRNO(fstatfs(fd, ret));
 }
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret) {
-        _cleanup_close_ int fd = -EBADF;
+ціле xstatfsat(ціле dir_fd, const char *path, struct statfs *ret) {
+        _cleanup_close_ ціле fd = -EBADF;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(ret);
 
-        if (!isempty(path)) {
+        якщо (!isempty(path)) {
                 fd = xopenat(dir_fd, path, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                якщо (fd < 0)
+                        повернути fd;
                 dir_fd = fd;
         }
 
-        return xfstatfs(dir_fd, ret);
+        повернути xfstatfs(dir_fd, ret);
 }
 
-int fd_is_read_only_fs(int fd) {
-        int r;
+ціле fd_is_read_only_fs(ціле fd) {
+        ціле r;
 
         struct statfs st;
         r = xfstatfs(fd, &st);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (st.f_flags & ST_RDONLY)
-                return true;
+        якщо (st.f_flags & ST_RDONLY)
+                повернути true;
 
-        if (is_network_fs(&st))
+        якщо (is_network_fs(&st))
                 /* On NFS, fstatfs() might not reflect whether we can actually write to the remote share.
                  * Let's try again with access(W_OK) which is more reliable, at least sometimes. */
-                return access_fd(fd, W_OK) == -EROFS;
+                повернути access_fd(fd, W_OK) == -EROFS;
 
-        return false;
+        повернути false;
 }
 
-int path_is_read_only_fs(const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+ціле path_is_read_only_fs(const char *path) {
+        _cleanup_close_ ціле fd = -EBADF;
 
         assert(path);
 
         fd = open(path, O_CLOEXEC | O_PATH);
-        if (fd < 0)
-                return -errno;
+        якщо (fd < 0)
+                повернути -errno;
 
-        return fd_is_read_only_fs(fd);
+        повернути fd_is_read_only_fs(fd);
 }
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags) {
+ціле inode_same_at(ціле fda, const char *filea, ціле fdb, const char *fileb, ціле flags) {
         struct stat sta, stb;
-        int r;
+        ціле r;
 
         assert(fda >= 0 || fda == AT_FDCWD);
         assert(fdb >= 0 || fdb == AT_FDCWD);
         assert((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
 
         /* Refuse an unset filea or fileb early unless AT_EMPTY_PATH is set */
-        if ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
-                return -EINVAL;
+        якщо ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
+                повернути -EINVAL;
 
         /* Shortcut: comparing the same fd with itself means we can return true */
-        if (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
-                return true;
+        якщо (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
+                повернути true;
 
-        _cleanup_close_ int pin_a = -EBADF, pin_b = -EBADF;
-        if (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
+        _cleanup_close_ ціле pin_a = -EBADF, pin_b = -EBADF;
+        якщо (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
                 /* Let's try to use the name_to_handle_at() AT_HANDLE_FID API to identify identical
                  * inodes. We have to issue multiple calls on the same file for that (first, to acquire the
                  * FID, and then to check if .st_dev is actually the same). Hence let's pin the inode in
                  * between via O_PATH, unless we already have an fd for it. */
 
-                if (!isempty(filea)) {
+                якщо (!isempty(filea)) {
                         pin_a = openat(fda, filea, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_a < 0)
-                                return -errno;
+                        якщо (pin_a < 0)
+                                повернути -errno;
 
                         fda = pin_a;
                         filea = NULL;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                if (!isempty(fileb)) {
+                якщо (!isempty(fileb)) {
                         pin_b = openat(fdb, fileb, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_b < 0)
-                                return -errno;
+                        якщо (pin_b < 0)
+                                повернути -errno;
 
                         fdb = pin_b;
                         fileb = NULL;
                         flags |= AT_EMPTY_PATH;
                 }
 
-                int ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
+                ціле ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
                 _cleanup_free_ struct file_handle *ha = NULL, *hb = NULL;
                 uint64_t mntida, mntidb;
-                int _mntida, _mntidb;
+                ціле _mntida, _mntidb;
 
                 r = name_to_handle_at_try_fid(
                                 fda,
@@ -597,15 +597,15 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
                                 &_mntida,
                                 &mntida,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                якщо (r < 0) {
+                        якщо (is_name_to_handle_at_fatal_error(r))
+                                повернути r;
 
                         goto fallback;
                 }
                 bool have_unique_mntid = r > 0;
 
-                if (!have_unique_mntid)
+                якщо (!have_unique_mntid)
                         mntida = _mntida;
 
                 r = name_to_handle_at_try_fid(
@@ -615,25 +615,25 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
                                 have_unique_mntid ? NULL : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
                                 have_unique_mntid ? &mntidb : NULL,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                якщо (r < 0) {
+                        якщо (is_name_to_handle_at_fatal_error(r))
+                                повернути r;
 
                         goto fallback;
                 }
-                if (r == 0) {
+                якщо (r == 0) {
                         assert(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
                         mntidb = _mntidb;
                 }
 
                 /* Now compare the two file handles */
-                if (!file_handle_equal(ha, hb))
-                        return false;
+                якщо (!file_handle_equal(ha, hb))
+                        повернути false;
 
                 /* If the file handles are the same and they come from the same mount ID? Great, then we are
                  * good, they are definitely the same */
-                if (mntida == mntidb)
-                        return true;
+                якщо (mntida == mntidb)
+                        повернути true;
 
                 /* File handles are the same, they are not on the same mount id. This might either be because
                  * they are on two entirely different file systems, that just happen to have the same FIDs
@@ -644,93 +644,93 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
         }
 
 fallback:
-        if (fstatat(fda, strempty(filea), &sta, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
+        якщо (fstatat(fda, strempty(filea), &sta, flags) < 0)
+                повернути log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
 
-        if (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
+        якщо (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
+                повернути log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
 
-        return stat_inode_same(&sta, &stb);
+        повернути stat_inode_same(&sta, &stb);
 }
 
 bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
         assert(s);
         assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
 
-        return F_TYPE_EQUAL(s->f_type, magic_value);
+        повернути F_TYPE_EQUAL(s->f_type, magic_value);
 }
 
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
-        int r;
+ціле is_fs_type_at(ціле dir_fd, const char *path, statfs_f_type_t magic_value) {
+        ціле r;
 
         struct statfs s;
         r = xstatfsat(dir_fd, path, &s);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return is_fs_type(&s, magic_value);
+        повернути is_fs_type(&s, magic_value);
 }
 
 bool is_temporary_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
+        повернути fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
 }
 
 bool is_network_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_NETWORK);
+        повернути fs_in_group(s, FILESYSTEM_SET_NETWORK);
 }
 
-int fd_is_temporary_fs(int fd) {
-        int r;
+ціле fd_is_temporary_fs(ціле fd) {
+        ціле r;
 
         struct statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return is_temporary_fs(&s);
+        повернути is_temporary_fs(&s);
 }
 
-int fd_is_network_fs(int fd) {
-        int r;
+ціле fd_is_network_fs(ціле fd) {
+        ціле r;
 
         struct statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        return is_network_fs(&s);
+        повернути is_network_fs(&s);
 }
 
-int path_is_temporary_fs(const char *path) {
+ціле path_is_temporary_fs(const char *path) {
         struct statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        якщо (statfs(path, &s) < 0)
+                повернути -errno;
 
-        return is_temporary_fs(&s);
+        повернути is_temporary_fs(&s);
 }
 
-int path_is_network_fs(const char *path) {
+ціле path_is_network_fs(const char *path) {
         struct statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        якщо (statfs(path, &s) < 0)
+                повернути -errno;
 
-        return is_network_fs(&s);
+        повернути is_network_fs(&s);
 }
 
-int proc_mounted(void) {
+ціле proc_mounted(void) {
         /* This is typically used in error path. So, it is better to not overwrite the original errno. */
         PROTECT_ERRNO;
-        int r;
+        ціле r;
 
         /* A quick check of procfs is properly mounted */
 
         r = path_is_fs_type("/proc/", PROC_SUPER_MAGIC);
-        if (r == -ENOENT) /* not mounted at all */
-                return false;
+        якщо (r == -ENOENT) /* not mounted at all */
+                повернути false;
 
-        return r;
+        повернути r;
 }
 
 bool stat_inode_same(const struct stat *a, const struct stat *b) {
@@ -738,7 +738,7 @@ bool stat_inode_same(const struct stat *a, const struct stat *b) {
         /* Returns if the specified stat structure references the same (though possibly modified) inode. Does
          * a thorough check, comparing inode nr, backing device and if the inode is still of the same type. */
 
-        return stat_is_set(a) && stat_is_set(b) &&
+        повернути stat_is_set(a) && stat_is_set(b) &&
                 ((a->st_mode ^ b->st_mode) & S_IFMT) == 0 &&  /* same inode type */
                 a->st_dev == b->st_dev &&
                 a->st_ino == b->st_ino;
@@ -758,7 +758,7 @@ bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
         assert(a);
         assert(b);
 
-        return stat_inode_same(a, b) &&
+        повернути stat_inode_same(a, b) &&
                 a->st_mtim.tv_sec == b->st_mtim.tv_sec &&
                 a->st_mtim.tv_nsec == b->st_mtim.tv_nsec &&
                 (!S_ISREG(a->st_mode) || a->st_size == b->st_size) && /* if regular file, compare file size */
@@ -769,37 +769,37 @@ bool statx_inode_same(const struct statx *a, const struct statx *b) {
 
         /* Same as stat_inode_same() but for struct statx */
 
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+        якщо (!statx_is_set(a) || !statx_is_set(b))
+                повернути false;
 
         assert(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
         assert(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
 
-        return
+        повернути
                 ((a->stx_mode ^ b->stx_mode) & S_IFMT) == 0 &&
                 a->stx_dev_major == b->stx_dev_major &&
                 a->stx_dev_minor == b->stx_dev_minor &&
                 a->stx_ino == b->stx_ino;
 }
 
-int statx_mount_same(const struct statx *a, const struct statx *b) {
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+ціле statx_mount_same(const struct statx *a, const struct statx *b) {
+        якщо (!statx_is_set(a) || !statx_is_set(b))
+                повернути false;
 
-        if ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
+        якщо ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
             (FLAGS_SET(a->stx_mask, STATX_MNT_ID_UNIQUE) && FLAGS_SET(b->stx_mask, STATX_MNT_ID_UNIQUE)))
-                return a->stx_mnt_id == b->stx_mnt_id;
+                повернути a->stx_mnt_id == b->stx_mnt_id;
 
-        return -ENODATA;
+        повернути -ENODATA;
 }
 
 usec_t statx_timestamp_load(const struct statx_timestamp *ts) {
         assert(ts);
-        return timespec_load(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+        повернути timespec_load(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
 nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) {
         assert(ts);
-        return timespec_load_nsec(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+        повернути timespec_load_nsec(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
 
 void inode_hash_func(const struct stat *q, struct siphash *state) {
@@ -813,21 +813,21 @@ void inode_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(type, state);
 }
 
-int inode_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+ціле inode_compare_func(const struct stat *a, const struct stat *b) {
+        ціле r;
 
         assert(a);
         assert(b);
 
         r = CMP(a->st_dev, b->st_dev);
-        if (r != 0)
-                return r;
+        якщо (r != 0)
+                повернути r;
 
         r = CMP(a->st_ino, b->st_ino);
-        if (r != 0)
-                return r;
+        якщо (r != 0)
+                повернути r;
 
-        return CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
+        повернути CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
 }
 
 DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
@@ -840,52 +840,52 @@ void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(q->st_mtim.tv_sec, state);
         siphash24_compress_typesafe(q->st_mtim.tv_nsec, state);
 
-        if (S_ISREG(q->st_mode))
+        якщо (S_ISREG(q->st_mode))
                 siphash24_compress_typesafe(q->st_size, state);
-        else {
+        інакше {
                 uint64_t invalid = UINT64_MAX;
                 siphash24_compress_typesafe(invalid, state);
         }
 
-        if (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
+        якщо (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
                 siphash24_compress_typesafe(q->st_rdev, state);
-        else {
+        інакше {
                 dev_t invalid = (dev_t) -1;
                 siphash24_compress_typesafe(invalid, state);
         }
 }
 
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+ціле inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
+        ціле r;
 
         assert(a);
         assert(b);
 
         r = inode_compare_func(a, b);
-        if (r != 0)
-                return r;
+        якщо (r != 0)
+                повернути r;
 
         r = CMP(a->st_mtim.tv_sec, b->st_mtim.tv_sec);
-        if (r != 0)
-                return r;
+        якщо (r != 0)
+                повернути r;
 
         r = CMP(a->st_mtim.tv_nsec, b->st_mtim.tv_nsec);
-        if (r != 0)
-                return r;
+        якщо (r != 0)
+                повернути r;
 
-        if (S_ISREG(a->st_mode)) {
+        якщо (S_ISREG(a->st_mode)) {
                 r = CMP(a->st_size, b->st_size);
-                if (r != 0)
-                        return r;
+                якщо (r != 0)
+                        повернути r;
         }
 
-        if (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
+        якщо (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
                 r = CMP(a->st_rdev, b->st_rdev);
-                if (r != 0)
-                        return r;
+                якщо (r != 0)
+                        повернути r;
         }
 
-        return 0;
+        повернути 0;
 }
 
 DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
@@ -897,49 +897,49 @@ const char* inode_type_to_string(mode_t m) {
 
         switch (m & S_IFMT) {
         case S_IFREG:
-                return "reg";
+                повернути "reg";
         case S_IFDIR:
-                return "dir";
+                повернути "dir";
         case S_IFLNK:
-                return "lnk";
+                повернути "lnk";
         case S_IFCHR:
-                return "chr";
+                повернути "chr";
         case S_IFBLK:
-                return "blk";
+                повернути "blk";
         case S_IFIFO:
-                return "fifo";
+                повернути "fifo";
         case S_IFSOCK:
-                return "sock";
+                повернути "sock";
         }
 
         /* Note anonymous inodes in the kernel will have a zero type. Hence fstat() of an eventfd() will
          * return an .st_mode where we'll return NULL here! */
-        return NULL;
+        повернути NULL;
 }
 
 mode_t inode_type_from_string(const char *s) {
-        if (!s)
-                return MODE_INVALID;
+        якщо (!s)
+                повернути MODE_INVALID;
 
-        if (streq(s, "reg"))
-                return S_IFREG;
-        if (streq(s, "dir"))
-                return S_IFDIR;
-        if (streq(s, "lnk"))
-                return S_IFLNK;
-        if (streq(s, "chr"))
-                return S_IFCHR;
-        if (streq(s, "blk"))
-                return S_IFBLK;
-        if (streq(s, "fifo"))
-                return S_IFIFO;
-        if (streq(s, "sock"))
-                return S_IFSOCK;
+        якщо (streq(s, "reg"))
+                повернути S_IFREG;
+        якщо (streq(s, "dir"))
+                повернути S_IFDIR;
+        якщо (streq(s, "lnk"))
+                повернути S_IFLNK;
+        якщо (streq(s, "chr"))
+                повернути S_IFCHR;
+        якщо (streq(s, "blk"))
+                повернути S_IFBLK;
+        якщо (streq(s, "fifo"))
+                повернути S_IFIFO;
+        якщо (streq(s, "sock"))
+                повернути S_IFSOCK;
 
-        return MODE_INVALID;
+        повернути MODE_INVALID;
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret) {
+ціле vfs_free_bytes(ціле fd, uint64_t *ret) {
         assert(fd >= 0);
         assert(ret);
 
@@ -947,11 +947,11 @@ int vfs_free_bytes(int fd, uint64_t *ret) {
          * root) of the disk referenced by the fd, converted to bytes. */
 
         struct statvfs sv;
-        if (fstatvfs(fd, &sv) < 0)
-                return -errno;
+        якщо (fstatvfs(fd, &sv) < 0)
+                повернути -errno;
 
-        if (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
-                return -ERANGE;
+        якщо (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
+                повернути -ERANGE;
 
-        return 0;
+        повернути 0;
 }

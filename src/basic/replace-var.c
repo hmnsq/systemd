@@ -9,26 +9,26 @@
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+static ціле get_variable(const char *b, char **r) {
         size_t k;
         char *t;
 
         assert(b);
         assert(r);
 
-        if (*b != '@')
-                return 0;
+        якщо (*b != '@')
+                повернути 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        якщо (k <= 0 || b[k+1] != '@')
+                повернути 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        якщо (!t)
+                повернути -ENOMEM;
 
         *r = t;
-        return 1;
+        повернути 1;
 }
 
 char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
@@ -41,27 +41,27 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
 
         l = strlen(text);
         r = new(char, l+1);
-        if (!r)
-                return NULL;
+        якщо (!r)
+                повернути NULL;
 
         f = text;
         t = r;
-        while (*f) {
+        поки (*f) {
                 _cleanup_free_ char *v = NULL, *n = NULL;
                 char *a;
-                int k;
+                ціле k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
+                якщо (k < 0)
                         goto oom;
-                if (k == 0) {
+                якщо (k == 0) {
                         *(t++) = *(f++);
                         continue;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
+                якщо (!n)
                         goto oom;
 
                 skip = strlen(v) + 2;
@@ -69,7 +69,7 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
                 d = t - r;
                 nl = l - skip + strlen(n);
                 a = realloc(r, nl + 1);
-                if (!a)
+                якщо (!a)
                         goto oom;
 
                 l = nl;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        повернути r;
 
 oom:
-        return mfree(r);
+        повернути mfree(r);
 }

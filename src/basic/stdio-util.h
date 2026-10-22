@@ -9,13 +9,13 @@
 _printf_(3, 4)
 static inline char* snprintf_ok(char *buf, size_t len, const char *format, ...) {
         va_list ap;
-        int r;
+        ціле r;
 
         va_start(ap, format);
         r = vsnprintf(buf, len, format, ap);
         va_end(ap);
 
-        return r >= 0 && (size_t) r < len ? buf : NULL;
+        повернути r >= 0 && (size_t) r < len ? buf : NULL;
 }
 
 #define xsprintf(buf, fmt, ...) \
@@ -25,15 +25,15 @@ char* asprintf_safe(const char *restrict fmt, ...) _printf_(1, 2);
 
 #define VA_FORMAT_ADVANCE(format, ap)                                   \
 do {                                                                    \
-        int _argtypes[128];                                             \
+        ціле _argtypes[128];                                             \
         size_t _i, _k;                                                  \
         /* See https://github.com/google/sanitizers/issues/992 */       \
-        if (HAS_FEATURE_MEMORY_SANITIZER)                               \
+        якщо (HAS_FEATURE_MEMORY_SANITIZER)                               \
                 memset(_argtypes, 0, sizeof(_argtypes));                \
         _k = parse_printf_format((format), ELEMENTSOF(_argtypes), _argtypes); \
         assert(_k < ELEMENTSOF(_argtypes));                             \
-        for (_i = 0; _i < _k; _i++) {                                   \
-                if (_argtypes[_i] & PA_FLAG_PTR)  {                     \
+        для (_i = 0; _i < _k; _i++) {                                   \
+                якщо (_argtypes[_i] & PA_FLAG_PTR)  {                     \
                         (void) va_arg(ap, void*);                       \
                         continue;                                       \
                 }                                                       \
@@ -42,13 +42,13 @@ do {                                                                    \
                 case PA_INT:                                            \
                 case PA_INT|PA_FLAG_SHORT:                              \
                 case PA_CHAR:                                           \
-                        (void) va_arg(ap, int);                         \
+                        (void) va_arg(ap, ціле);                         \
                         break;                                          \
                 case PA_INT|PA_FLAG_LONG:                               \
-                        (void) va_arg(ap, long int);                    \
+                        (void) va_arg(ap, long ціле);                    \
                         break;                                          \
                 case PA_INT|PA_FLAG_LONG_LONG:                          \
-                        (void) va_arg(ap, long long int);               \
+                        (void) va_arg(ap, long long ціле);               \
                         break;                                          \
                 case PA_WCHAR:                                          \
                         (void) va_arg(ap, wchar_t);                     \
@@ -69,4 +69,4 @@ do {                                                                    \
                         assert_not_reached();                           \
                 }                                                       \
         }                                                               \
-} while (false)
+} поки (false)

@@ -7,12 +7,12 @@
 
 bool session_id_valid(const char *id) {
 
-        if (isempty(id))
-                return false;
+        якщо (isempty(id))
+                повернути false;
 
-        return in_charset(id, ALPHANUMERICAL);
+        повернути in_charset(id, ALPHANUMERICAL);
 }
 
 bool logind_running(void) {
-        return access("/run/systemd/seats/", F_OK) >= 0;
+        повернути access("/run/systemd/seats/", F_OK) >= 0;
 }

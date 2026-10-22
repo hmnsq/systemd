@@ -2,9 +2,9 @@
 
 #include "errno-util.h"
 
-const char* strerror_or_eof(int errnum, char *buf, size_t buflen) {
-        if (errnum != 0)
-                return strerror_r(ABS(errnum), buf, buflen);
+const char* strerror_or_eof(ціле errnum, char *buf, size_t buflen) {
+        якщо (errnum != 0)
+                повернути strerror_r(ABS(errnum), buf, buflen);
 
-        return "Unexpected EOF";
+        повернути "Unexpected EOF";
 }

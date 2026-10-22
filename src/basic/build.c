@@ -15,229 +15,229 @@ const char* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#якщо HAVE_PAM
         "+PAM"
-#else
+#інакше
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#якщо HAVE_AUDIT
         " +AUDIT"
-#else
+#інакше
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#якщо HAVE_SELINUX
         " +SELINUX"
-#else
+#інакше
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#якщо HAVE_APPARMOR
         " +APPARMOR"
-#else
+#інакше
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#якщо ENABLE_IMA
         " +IMA"
-#else
+#інакше
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#якщо ENABLE_IPE
         " +IPE"
-#else
+#інакше
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#якщо ENABLE_SMACK
         " +SMACK"
-#else
+#інакше
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#якщо HAVE_SECCOMP
         " +SECCOMP"
-#else
+#інакше
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#якщо HAVE_GNUTLS
         " +GNUTLS"
-#else
+#інакше
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#якщо HAVE_OPENSSL
         " +OPENSSL"
-#else
+#інакше
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#якщо HAVE_ACL
         " +ACL"
-#else
+#інакше
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#якщо HAVE_BLKID
         " +BLKID"
-#else
+#інакше
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#якщо HAVE_LIBCURL
         " +CURL"
-#else
+#інакше
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#якщо HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#інакше
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#якщо HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#інакше
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#якщо HAVE_LIBIDN2
         " +IDN2"
-#else
+#інакше
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#якщо HAVE_KMOD
         " +KMOD"
-#else
+#інакше
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#якщо HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#інакше
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#якщо HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#інакше
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#якщо HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#інакше
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#якщо HAVE_PCRE2
         " +PCRE2"
-#else
+#інакше
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#якщо HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#інакше
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#якщо HAVE_P11KIT
         " +P11KIT"
-#else
+#інакше
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#якщо HAVE_QRENCODE
         " +QRENCODE"
-#else
+#інакше
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#якщо HAVE_TPM2
         " +TPM2"
-#else
+#інакше
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#якщо HAVE_BZIP2
         " +BZIP2"
-#else
+#інакше
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#якщо HAVE_LZ4
         " +LZ4"
-#else
+#інакше
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#якщо HAVE_XZ
         " +XZ"
-#else
+#інакше
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#якщо HAVE_ZLIB
         " +ZLIB"
-#else
+#інакше
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#якщо HAVE_ZSTD
         " +ZSTD"
-#else
+#інакше
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#якщо BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#інакше
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#якщо HAVE_VMLINUX_H
         " +BTF"
-#else
+#інакше
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#якщо HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#інакше
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#якщо ENABLE_UTMP
         " +UTMP"
-#else
+#інакше
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#якщо HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#інакше
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#якщо EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#інакше
         " -EXPERIMENTAL"
 #endif
         ;
@@ -245,68 +245,68 @@ const char* const systemd_features =
 static char* systemd_features_with_color(void) {
         const char *p = systemd_features;
         _cleanup_free_ char *ret = NULL;
-        int r;
+        ціле r;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ char *word = NULL;
                 char *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                якщо (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        повернути NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                якщо (r == 0)
+                        повернути TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                якщо (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        повернути NULL;
                 }
 
-                if (word[0] == '+')
+                якщо (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                інакше якщо (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                інакше
                         q = strextend(&ret, word);
-                if (!q) {
+                якщо (!q) {
                         log_oom_warning();
-                        return NULL;
+                        повернути NULL;
                 }
         }
 }
 
-int version(void) {
+ціле version(void) {
         _cleanup_free_ char *b = NULL;
 
-        if (colors_enabled())
+        якщо (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        повернути 0;
 }
 
-int version_only(void) {
+ціле version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        повернути 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#якщо EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        повернути false;
+#інакше
+        ціле r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        якщо (r >= 0)
+                повернути r;
+        якщо (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        повернути EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

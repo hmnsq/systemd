@@ -14,14 +14,14 @@
 #include "string-util.h"
 #include "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
+ціле read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
         _cleanup_free_ char *line = NULL;
         _cleanup_fclose_ FILE *f = NULL;
         unsigned field_filled = 0;
         ResourcePressure rp = {};
         const char *cline;
         char *word;
-        int r;
+        ціле r;
 
         assert(path);
         assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
@@ -30,74 +30,74 @@ int read_resource_pressure(const char *path, PressureType type, ResourcePressure
         const char *t = ASSERT_PTR(pressure_type_to_string(type));
 
         r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ char *l = NULL;
                 char *w;
 
                 r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                якщо (r < 0)
+                        повернути r;
+                якщо (r == 0)
                         break;
 
                 w = first_word(l, t);
-                if (w) {
+                якщо (w) {
                         line = TAKE_PTR(l);
                         cline = w;
                         break;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        якщо (!line)
+                повернути -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
+        поки ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
                 _cleanup_free_ char *w = word;
                 const char *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                якщо ((v = startswith(w, "avg10="))) {
+                        якщо (field_filled & (1U << 0))
+                                повернути -EINVAL;
 
                         field_filled |= 1U << 0;
                         r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                } інакше якщо ((v = startswith(w, "avg60="))) {
+                        якщо (field_filled & (1U << 1))
+                                повернути -EINVAL;
 
                         field_filled |= 1U << 1;
                         r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                } інакше якщо ((v = startswith(w, "avg300="))) {
+                        якщо (field_filled & (1U << 2))
+                                повернути -EINVAL;
 
                         field_filled |= 1U << 2;
                         r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                } інакше якщо ((v = startswith(w, "total="))) {
+                        якщо (field_filled & (1U << 3))
+                                повернути -EINVAL;
 
                         field_filled |= 1U << 3;
                         r = safe_atou64(v, &rp.total);
-                } else
+                } інакше
                         continue;
 
-                if (r < 0)
-                        return r;
+                якщо (r < 0)
+                        повернути r;
         }
 
-        if (r < 0)
-                return r;
+        якщо (r < 0)
+                повернути r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        якщо (field_filled != 15U)
+                повернути -EINVAL;
 
         *ret = rp;
-        return 0;
+        повернути 0;
 }
 
 const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
@@ -133,23 +133,23 @@ static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+ціле is_pressure_supported(void) {
+        static thread_local ціле cached = -1;
+        ціле r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        якщо (cached >= 0)
+                повернути cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
                 r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                якщо (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        повернути (cached = false);
+                якщо (r < 0)
+                        повернути r;
         }
 
-        return (cached = true);
+        повернути (cached = true);
 }

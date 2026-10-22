@@ -28,23 +28,23 @@ NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag);
 
 bool namespace_type_supported(NamespaceType type);
 
-int pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
-int namespace_open_by_type(NamespaceType type);
+ціле pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
+ціле namespace_open_by_type(NamespaceType type);
 
-int pidref_namespace_open(
+ціле pidref_namespace_open(
                 const PidRef *pidref,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
-int namespace_open(
+                ціле *ret_pidns_fd,
+                ціле *ret_mntns_fd,
+                ціле *ret_netns_fd,
+                ціле *ret_userns_fd,
+                ціле *ret_root_fd);
+ціле namespace_open(
                 pid_t pid,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
+                ціле *ret_pidns_fd,
+                ціле *ret_mntns_fd,
+                ціле *ret_netns_fd,
+                ціле *ret_userns_fd,
+                ціле *ret_root_fd);
 
 typedef enum NamespaceEnterFlags {
         /* If root is not mapped in the user namespace, keep our UID/GID instead of failing. The caller must
@@ -54,33 +54,33 @@ typedef enum NamespaceEnterFlags {
 } NamespaceEnterFlags;
 
 /* If a user namespace is entered we become root in it, and fail if that's not possible. */
-int namespace_enter_full(
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+ціле namespace_enter_full(
+                ціле pidns_fd,
+                ціле mntns_fd,
+                ціле netns_fd,
+                ціле userns_fd,
+                ціле root_fd,
                 NamespaceEnterFlags flags);
 
-static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
+static inline ціле namespace_enter(ціле pidns_fd, ціле mntns_fd, ціле netns_fd, ціле userns_fd, ціле root_fd) {
+        повернути namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
 }
 
-int fd_is_namespace(int fd, NamespaceType type);
-int is_our_namespace(int fd, NamespaceType type);
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
+ціле fd_is_namespace(ціле fd, NamespaceType type);
+ціле is_our_namespace(ціле fd, NamespaceType type);
+ціле are_our_namespaces(ціле pidns_fd, ціле mntns_fd, ціле netns_fd, ціле userns_fd, ціле root_fd);
 
-int network_namespace_is_init(int socket_fd);
-int namespace_is_init(NamespaceType type);
+ціле network_namespace_is_init(ціле socket_fd);
+ціле namespace_is_init(NamespaceType type);
 
-int pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
-int in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
+ціле pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
+ціле in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
 
-int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
+ціле namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
 
-int detach_mount_namespace(void);
-int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
-int detach_mount_namespace_userns(int userns_fd);
+ціле detach_mount_namespace(void);
+ціле detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
+ціле detach_mount_namespace_userns(ціле userns_fd);
 
 static inline bool userns_shift_range_valid(uid_t shift, uid_t range) {
         /* Checks that the specified userns range makes sense, i.e. contains at least one UID, and the end
@@ -88,30 +88,30 @@ static inline bool userns_shift_range_valid(uid_t shift, uid_t range) {
 
         assert_cc((uid_t) -1 > 0); /* verify that uid_t is unsigned */
 
-        if (range <= 0)
-                return false;
+        якщо (range <= 0)
+                повернути false;
 
-        if (shift > (uid_t) -1 - range)
-                return false;
+        якщо (shift > (uid_t) -1 - range)
+                повернути false;
 
-        return true;
+        повернути true;
 }
 
-int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
+ціле parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
 
-int userns_acquire_empty(void);
-int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
-int userns_acquire_self_root(void);
-int userns_enter_and_pin(int userns_fd, PidRef *ret);
+ціле userns_acquire_empty(void);
+ціле userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
+ціле userns_acquire_self_root(void);
+ціле userns_enter_and_pin(ціле userns_fd, PidRef *ret);
 bool userns_supported(void);
 
-int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid);
-int userns_has_root_mapping(int userns_fd);
+ціле userns_get_base_uid(ціле userns_fd, uid_t *ret_uid, gid_t *ret_gid);
+ціле userns_has_root_mapping(ціле userns_fd);
 
-int namespace_open_by_id(uint64_t ns_id);
+ціле namespace_open_by_id(uint64_t ns_id);
 
-int process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
+ціле process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
 
-int is_idmapping_supported(const char *path);
+ціле is_idmapping_supported(const char *path);
 
-int netns_acquire(void);
+ціле netns_acquire(void);
