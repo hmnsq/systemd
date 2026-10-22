@@ -6,70 +6,70 @@
 #include "memory-util.h"
 
 bool inotify_event_next(
-                union inotify_event_buffer *buffer,
+                sa_ngha inotify_event_buffer *buffer,
                 size_t size,
-                struct inotify_event **iterator,
-                int log_level) {
+                sa_nracanaa inotify_event **iterator,
+                ཧྲིལ log_level) {
 
-        struct inotify_event *e;
+        sa_nracanaa inotify_event *e;
         size_t offset = 0;
 
         assert(buffer);
         assert(iterator);
 
-        if (*iterator) {
+        གལ་སྲིད (*iterator) {
                 assert((uint8_t*) *iterator >= buffer->raw);
                 offset = (uint8_t*) *iterator - buffer->raw;
-                offset += offsetof(struct inotify_event, name) + (*iterator)->len;
+                offset += offsetof(sa_nracanaa inotify_event, name) + (*iterator)->len;
         }
 
-        if (size == offset)
-                return false; /* reached end of list */
+        གལ་སྲིད (size == offset)
+                ལོག false; /* reached end of list */
 
-        if (size < offset ||
-            size - offset < offsetof(struct inotify_event, name)) {
+        གལ་སྲིད (size < offset ||
+            size - offset < offsetof(sa_nracanaa inotify_event, name)) {
                 log_full(log_level, "Received invalid inotify event, ignoring.");
-                return false;
+                ལོག false;
         }
 
-        e = CAST_ALIGN_PTR(struct inotify_event, buffer->raw + offset);
-        if (size - offset - offsetof(struct inotify_event, name) < e->len) {
+        e = CAST_ALIGN_PTR(sa_nracanaa inotify_event, buffer->raw + offset);
+        གལ་སྲིད (size - offset - offsetof(sa_nracanaa inotify_event, name) < e->len) {
                 log_full(log_level, "Received invalid inotify event, ignoring.");
-                return false;
+                ལོག false;
         }
 
         *iterator = e;
-        return true;
+        ལོག true;
 }
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask) {
-        int wd;
+ཧྲིལ inotify_add_watch_fd(ཧྲིལ fd, ཧྲིལ what, uint32_t mask) {
+        ཧྲིལ wd;
 
         assert(fd >= 0);
         assert(what >= 0);
 
         /* This is like inotify_add_watch(), except that the file to watch is not referenced by a path, but by an fd */
         wd = inotify_add_watch(fd, FORMAT_PROC_FD_PATH(what), mask);
-        if (wd < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        གལ་སྲིད (wd < 0) {
+                གལ་སྲིད (errno != ENOENT)
+                        ལོག -errno;
 
-                return proc_fd_enoent_errno();
+                ལོག proc_fd_enoent_errno();
         }
 
-        return wd;
+        ལོག wd;
 }
 
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask) {
-        int wd;
+ཧྲིལ inotify_add_watch_and_warn(ཧྲིལ fd, const var_na *pathname, uint32_t mask) {
+        ཧྲིལ wd;
 
         wd = inotify_add_watch(fd, pathname, mask);
-        if (wd < 0) {
-                if (errno == ENOSPC)
-                        return log_error_errno(errno, "Failed to add a watch for %s: inotify watch limit reached", pathname);
+        གལ་སྲིད (wd < 0) {
+                གལ་སྲིད (errno == ENOSPC)
+                        ལོག log_error_errno(errno, "Failed to add a watch for %s: inotify watch limit reached", pathname);
 
-                return log_error_errno(errno, "Failed to add a watch for %s: %m", pathname);
+                ལོག log_error_errno(errno, "Failed to add a watch for %s: %m", pathname);
         }
 
-        return wd;
+        ལོག wd;
 }

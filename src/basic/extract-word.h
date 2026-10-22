@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-typedef enum ExtractFlags {
+typedef ga_nanaa ExtractFlags {
         EXTRACT_RELAX                    = 1 << 0, /* Allow unbalanced quote and eat up trailing backslash. */
         EXTRACT_CUNESCAPE                = 1 << 1, /* Unescape known escape sequences. */
         EXTRACT_UNESCAPE_RELAX           = 1 << 2, /* Allow and keep unknown escape sequences, allow and keep trailing backslash. */
@@ -17,9 +17,9 @@ typedef enum ExtractFlags {
         /* Note that if no flags are specified, escaped escape characters will be silently stripped. */
 } ExtractFlags;
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags);
-int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned line, const char *rvalue);
+ཧྲིལ extract_first_word(const var_na **p, var_na **ret, const var_na *separators, ExtractFlags flags);
+ཧྲིལ extract_first_word_and_warn(const var_na **p, var_na **ret, const var_na *separators, ExtractFlags flags, const var_na *unit, const var_na *filename, unsigned line, const var_na *rvalue);
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
+ཧྲིལ extract_many_words_internal(const var_na **p, const var_na *separators, unsigned flags, ...) _sentinel_;
 #define extract_many_words(p, separators, flags, ...) \
         extract_many_words_internal(p, separators, flags, ##__VA_ARGS__, NULL)

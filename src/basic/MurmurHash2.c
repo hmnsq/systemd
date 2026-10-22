@@ -23,13 +23,13 @@ _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
 // Microsoft Visual Studio
 
-#if defined(_MSC_VER)
+#གལ་སྲིད defined(_MSC_VER)
 
 #define BIG_CONSTANT(x) (x)
 
 // Other compilers
 
-#else        // defined(_MSC_VER)
+#དེ་མིན        // defined(_MSC_VER)
 
 #define BIG_CONSTANT(x) (x##LLU)
 
@@ -37,13 +37,13 @@ _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
+uint32_t MurmurHash2 ( const void * key, ཧྲིལ len, uint32_t seed )
 {
   // 'm' and 'r' are mixing constants generated offline.
   // They're not really 'magic', they just happen to work well.
 
   const uint32_t m = 0x5bd1e995;
-  const int r = 24;
+  const ཧྲིལ r = 24;
 
   // Initialize the hash to a 'random' value
 
@@ -51,9 +51,9 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
 
   // Mix 4 bytes at a time into the hash
 
-  const unsigned char * data = (const unsigned char *)key;
+  const unsigned var_na * data = (const unsigned var_na *)key;
 
-  while (len >= 4)
+  སྐབས (len >= 4)
   {
     uint32_t k = *(uint32_t*)data;
 
@@ -72,9 +72,9 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
 
   switch(len)
   {
-  case 3: h ^= data[2] << 16; /* fall through */
-  case 2: h ^= data[1] << 8;  /* fall through */
-  case 1: h ^= data[0];       /* fall through */
+  pak_sa 3: h ^= data[2] << 16; /* fall through */
+  pak_sa 2: h ^= data[1] << 8;  /* fall through */
+  pak_sa 1: h ^= data[0];       /* fall through */
       h *= m;
   };
 
@@ -85,5 +85,5 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
   h *= m;
   h ^= h >> 15;
 
-  return h;
+  ལོག h;
 }

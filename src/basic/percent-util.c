@@ -4,154 +4,154 @@
 #include "percent-util.h"
 #include "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
-        const char *pc, *n;
-        int r, v;
+static ཧྲིལ parse_parts_value_whole(const var_na *p, const var_na *symbol) {
+        const var_na *pc, *n;
+        ཧྲིལ r, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        གལ་སྲིད (!pc)
+                ལོག -EINVAL;
 
         n = strndupa_safe(p, pc - p);
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        གལ་སྲིད (r < 0)
+                ལོག r;
+        གལ་སྲིད (v < 0)
+                ལོག -ERANGE;
 
-        return v;
+        ལོག v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+static ཧྲིལ parse_parts_value_with_tenths_place(const var_na *p, const var_na *symbol) {
+        const var_na *pc, *dot, *n;
+        ཧྲིལ r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        གལ་སྲིད (!pc)
+                ལོག -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        གལ་སྲིད (dot) {
+                གལ་སྲིད (dot + 2 != pc)
+                        ལོག -EINVAL;
+                གལ་སྲིད (dot[1] < '0' || dot[1] > '9')
+                        ལོག -EINVAL;
                 q = dot[1] - '0';
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } དེ་མིན {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        གལ་སྲིད (r < 0)
+                ལོག r;
+        གལ་སྲིད (v < 0)
+                ལོག -ERANGE;
+        གལ་སྲིད (v > (INT_MAX - q) / 10)
+                ལོག -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        ལོག v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+static ཧྲིལ parse_parts_value_with_hundredths_place(const var_na *p, const var_na *symbol) {
+        const var_na *pc, *dot, *n;
+        ཧྲིལ r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        གལ་སྲིད (!pc)
+                ལོག -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        གལ་སྲིད (dot) {
+                གལ་སྲིད (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        གལ་སྲིད (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                ལོག -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } དེ་མིན གལ་སྲིད (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        གལ་སྲིད (dot[1] < '0' || dot[1] > '9')
+                                ལོག -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } དེ་མིན
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        ལོག -EINVAL;
 
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } དེ་མིན {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        གལ་སྲིད (r < 0)
+                ལོག r;
+        གལ་སྲིད (v < 0)
+                ལོག -ERANGE;
+        གལ་སྲིད (v > (INT_MAX - q) / 100)
+                ལོག -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        ལོག v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+ཧྲིལ parse_percent_unbounded(const var_na *p) {
+        ལོག parse_parts_value_whole(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+ཧྲིལ parse_percent(const var_na *p) {
+        ཧྲིལ v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        གལ་སྲིད (v > 100)
+                ལོག -ERANGE;
 
-        return v;
+        ལོག v;
 }
 
-int parse_permille_unbounded(const char *p) {
-        const char *pm;
+ཧྲིལ parse_permille_unbounded(const var_na *p) {
+        const var_na *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        གལ་སྲིད (pm)
+                ལོག parse_parts_value_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        ལོག parse_parts_value_with_tenths_place(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+ཧྲིལ parse_permille(const var_na *p) {
+        ཧྲིལ v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        གལ་སྲིད (v > 1000)
+                ལོག -ERANGE;
 
-        return v;
+        ལོག v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
-        const char *pm;
+ཧྲིལ parse_permyriad_unbounded(const var_na *p) {
+        const var_na *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        གལ་སྲིད (pm)
+                ལོག parse_parts_value_whole(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        གལ་སྲིད (pm)
+                ལོག parse_parts_value_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        ལོག parse_parts_value_with_hundredths_place(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+ཧྲིལ parse_permyriad(const var_na *p) {
+        ཧྲིལ v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        གལ་སྲིད (v > 10000)
+                ལོག -ERANGE;
 
-        return v;
+        ལོག v;
 }

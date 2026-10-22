@@ -9,56 +9,56 @@
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
         assert(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        གལ་སྲིད (!ratelimit_configured(rl))
+                ལོག true;
 
-        if (rl->begin <= 0 ||
+        གལ་སྲིད (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
                 rl->num = 1;     /* Reset counter */
-                return true;
+                ལོག true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        གལ་སྲིད (_unlikely_(rl->num == UINT_MAX))
+                ལོག false;
 
         rl->num++;
-        return rl->num <= rl->burst;
+        ལོག rl->num <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
         assert(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        གལ་སྲིད (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                ལོག true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        ལོག ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
 unsigned ratelimit_num_dropped(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        གལ་སྲིད (rl->num == UINT_MAX) /* overflow, return as special case */
+                ལོག UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        ལོག LESS_BY(rl->num, rl->burst);
 }
 
 usec_t ratelimit_end(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        གལ་སྲིད (rl->begin == 0)
+                ལོག 0;
 
-        return usec_add(rl->begin, rl->interval);
+        ལོག usec_add(rl->begin, rl->interval);
 }
 
 usec_t ratelimit_left(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        གལ་སྲིད (rl->begin == 0)
+                ལོག 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        ལོག usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

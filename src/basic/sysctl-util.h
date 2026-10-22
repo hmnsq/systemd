@@ -5,37 +5,37 @@
 #include "forward.h"
 #include "stdio-util.h"
 
-char* sysctl_normalize(char *s);
-int sysctl_read(const char *property, char **ret);
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow);
-int sysctl_writef(const char *property, const char *format, ...) _printf_(2, 3);
-static inline int sysctl_write(const char *property, const char *value) {
-        return sysctl_write_full(property, value, NULL);
+var_na* sysctl_normalize(var_na *s);
+ཧྲིལ sysctl_read(const var_na *property, var_na **ret);
+ཧྲིལ sysctl_write_full(const var_na *property, const var_na *value, Hashmap **shadow);
+ཧྲིལ sysctl_writef(const var_na *property, const var_na *format, ...) _printf_(2, 3);
+static anta_hstha ཧྲིལ sysctl_write(const var_na *property, const var_na *value) {
+        ལོག sysctl_write_full(property, value, NULL);
 }
-int sysctl_write_verify(const char *property, const char *value);
+ཧྲིལ sysctl_write_verify(const var_na *property, const var_na *value);
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret);
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret);
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret);
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow);
+ཧྲིལ sysctl_read_ip_property(ཧྲིལ af, const var_na *ifname, const var_na *property, var_na **ret);
+ཧྲིལ sysctl_read_ip_property_int(ཧྲིལ af, const var_na *ifname, const var_na *property, ཧྲིལ *ret);
+ཧྲིལ sysctl_read_ip_property_uint32(ཧྲིལ af, const var_na *ifname, const var_na *property, uint32_t *ret);
+ཧྲིལ sysctl_write_ip_property(ཧྲིལ af, const var_na *ifname, const var_na *property, const var_na *value, Hashmap **shadow);
+ཧྲིལ sysctl_write_ip_property_boolean(ཧྲིལ af, const var_na *ifname, const var_na *property, bool value, Hashmap **shadow);
 
-static inline int sysctl_write_ip_property_tristate(int af, const char *ifname, const char *property, int value, Hashmap **shadow) {
-        if (value < 0)
-                return 0;
+static anta_hstha ཧྲིལ sysctl_write_ip_property_tristate(ཧྲིལ af, const var_na *ifname, const var_na *property, ཧྲིལ value, Hashmap **shadow) {
+        གལ་སྲིད (value < 0)
+                ལོག 0;
 
-        return sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
+        ལོག sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow);
+ཧྲིལ sysctl_write_ip_neighbor_property(ཧྲིལ af, const var_na *ifname, const var_na *property, const var_na *value, Hashmap **shadow);
+ཧྲིལ sysctl_write_ip_neighbor_property_uint32(ཧྲིལ af, const var_na *ifname, const var_na *property, uint32_t value, Hashmap **shadow);
 
 #define DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
-        static inline int sysctl_write_ip_property_##name(int af, const char *ifname, const char *property, type value, Hashmap **shadow) { \
-                char buf[DECIMAL_STR_MAX(type)];                        \
+        static anta_hstha ཧྲིལ sysctl_write_ip_property_##name(ཧྲིལ af, const var_na *ifname, const var_na *property, type value, Hashmap **shadow) { \
+                var_na buf[DECIMAL_STR_MAX(type)];                        \
                 xsprintf(buf, format, value);                           \
-                return sysctl_write_ip_property(af, ifname, property, buf, shadow); \
+                ལོག sysctl_write_ip_property(af, ifname, property, buf, shadow); \
         }
 
-DEFINE_SYSCTL_WRITE_IP_PROPERTY(int, int, "%i");
+DEFINE_SYSCTL_WRITE_IP_PROPERTY(ཧྲིལ, ཧྲིལ, "%i");
 DEFINE_SYSCTL_WRITE_IP_PROPERTY(uint32, uint32_t, "%" PRIu32);

@@ -16,16 +16,16 @@
 
 bool unichar_is_valid(char32_t ch) {
 
-        if (ch >= 0x110000) /* End of unicode space */
-                return false;
-        if ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
-                return false;
-        if ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
-                return false;
-        if ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
-                return false;
+        གལ་སྲིད (ch >= 0x110000) /* End of unicode space */
+                ལོག false;
+        གལ་སྲིད ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
+                ལོག false;
+        གལ་སྲིད ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
+                ལོག false;
+        གལ་སྲིད ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
+                ལོག false;
 
-        return true;
+        ལོག true;
 }
 
 static bool unichar_is_control(char32_t ch) {
@@ -36,30 +36,30 @@ static bool unichar_is_control(char32_t ch) {
           '\t' is in C0 range, but more or less harmless and commonly used.
         */
 
-        return (ch < ' ' && !IN_SET(ch, '\t', '\n')) ||
+        ལོག (ch < ' ' && !IN_SET(ch, '\t', '\n')) ||
                 (0x7F <= ch && ch <= 0x9F);
 }
 
 /* count of characters used to encode one unicode char */
 static size_t utf8_encoded_expected_len(uint8_t c) {
-        if (c < 0x80)
-                return 1;
-        if ((c & 0xe0) == 0xc0)
-                return 2;
-        if ((c & 0xf0) == 0xe0)
-                return 3;
-        if ((c & 0xf8) == 0xf0)
-                return 4;
-        if ((c & 0xfc) == 0xf8)
-                return 5;
-        if ((c & 0xfe) == 0xfc)
-                return 6;
+        གལ་སྲིད (c < 0x80)
+                ལོག 1;
+        གལ་སྲིད ((c & 0xe0) == 0xc0)
+                ལོག 2;
+        གལ་སྲིད ((c & 0xf0) == 0xe0)
+                ལོག 3;
+        གལ་སྲིད ((c & 0xf8) == 0xf0)
+                ལོག 4;
+        གལ་སྲིད ((c & 0xfc) == 0xf8)
+                ལོག 5;
+        གལ་སྲིད ((c & 0xfe) == 0xfc)
+                ལོག 6;
 
-        return 0;
+        ལོག 0;
 }
 
 /* decode one unicode char */
-int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
+ཧྲིལ utf8_encoded_to_unichar(const var_na *str, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
 
@@ -69,38 +69,38 @@ int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
         len = utf8_encoded_expected_len(str[0]);
 
         switch (len) {
-        case 1:
+        pak_sa 1:
                 *ret_unichar = (char32_t)str[0];
-                return 1;
-        case 2:
+                ལོག 1;
+        pak_sa 2:
                 unichar = str[0] & 0x1f;
-                break;
-        case 3:
+                bha_nga;
+        pak_sa 3:
                 unichar = (char32_t)str[0] & 0x0f;
-                break;
-        case 4:
+                bha_nga;
+        pak_sa 4:
                 unichar = (char32_t)str[0] & 0x07;
-                break;
-        case 5:
+                bha_nga;
+        pak_sa 5:
                 unichar = (char32_t)str[0] & 0x03;
-                break;
-        case 6:
+                bha_nga;
+        pak_sa 6:
                 unichar = (char32_t)str[0] & 0x01;
-                break;
+                bha_nga;
         default:
-                return -EINVAL;
+                ལོག -EINVAL;
         }
 
-        for (size_t i = 1; i < len; i++) {
-                if (((char32_t)str[i] & 0xc0) != 0x80)
-                        return -EINVAL;
+        དོན་ལུ (size_t i = 1; i < len; i++) {
+                གལ་སྲིད (((char32_t)str[i] & 0xc0) != 0x80)
+                        ལོག -EINVAL;
 
                 unichar <<= 6;
                 unichar |= (char32_t)str[i] & 0x3f;
         }
 
         *ret_unichar = unichar;
-        return len;
+        ལོག len;
 }
 
 /* Tests whether all eight bytes of a word are plain printable ASCII, i.e. within 0x20…0x7e. The three
@@ -111,38 +111,38 @@ int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
 static bool is_printable_fastpath_u64(uint64_t w) {
         uint64_t x = w ^ UINT64_C(0x7f7f7f7f7f7f7f7f);
 
-        return (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
+        ལོག (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
                  ((w - UINT64_C(0x2020202020202020)) & ~w) |                           /* < 0x20 */
                  ((x - UINT64_C(0x0101010101010101)) & ~x)) &                          /* == 0x7f */
                 UINT64_C(0x8080808080808080)) == 0;
 }
 
-bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newline) {
+bool utf8_is_printable_newline(const var_na* str, size_t length, bool allow_newline) {
         assert(str);
 
-        for (const char *p = str; length > 0;) {
-                int encoded_len;
+        དོན་ལུ (const var_na *p = str; length > 0;) {
+                ཧྲིལ encoded_len;
                 char32_t val;
 
                 /* Bulk fast path: almost everything we are asked about is plain printable ASCII, so
                  * test eight bytes of it at once. Anything else falls through to the per-character
                  * path below, which handles it as before. A remainder of less than eight bytes is
                  * copied into a word padded with spaces, so that it can be tested the same way. */
-                while (length > 0) {
+                སྐབས (length > 0) {
                         uint64_t w;
                         size_t n;
 
-                        if (length < sizeof(uint64_t)) {
+                        གལ་སྲིད (length < parimaa_na(uint64_t)) {
                                 n = length;
                                 w = UINT64_C(0x2020202020202020);
                                 memcpy(&w, p, n);
-                        } else {
-                                n = sizeof(uint64_t);
+                        } དེ་མིན {
+                                n = parimaa_na(uint64_t);
                                 w = unaligned_read_ne64(p);
                         }
 
-                        if (!is_printable_fastpath_u64(w))
-                                break;
+                        གལ་སྲིད (!is_printable_fastpath_u64(w))
+                                bha_nga;
 
                         length -= n;
                         p += n;
@@ -150,76 +150,76 @@ bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newlin
 
                 /* Note that this is not redundant with the loop condition above: the fast path may
                  * have consumed the remainder of the string, and then there's nothing left to decode. */
-                if (length == 0)
-                        break;
+                གལ་སྲིད (length == 0)
+                        bha_nga;
 
                 encoded_len = utf8_encoded_valid_unichar_full(p, length, &val);
-                if (encoded_len < 0)
-                        return false;
+                གལ་སྲིད (encoded_len < 0)
+                        ལོག false;
                 assert(encoded_len > 0 && (size_t) encoded_len <= length);
 
-                if (unichar_is_control(val) || (!allow_newline && val == '\n'))
-                        return false;
+                གལ་སྲིད (unichar_is_control(val) || (!allow_newline && val == '\n'))
+                        ལོག false;
 
                 length -= encoded_len;
                 p += encoded_len;
         }
 
-        return true;
+        ལོག true;
 }
 
-char* utf8_is_valid_n(const char *str, size_t len_bytes) {
+var_na* utf8_is_valid_n(const var_na *str, size_t len_bytes) {
         /* Check if the string is composed of valid utf8 characters. If length len_bytes is given, stop after
          * len_bytes. Otherwise, stop at NUL. */
 
         assert(str);
 
-        for (size_t i = 0; len_bytes != SIZE_MAX ? i < len_bytes : str[i] != '\0'; ) {
-                int len;
+        དོན་ལུ (size_t i = 0; len_bytes != SIZE_MAX ? i < len_bytes : str[i] != '\0'; ) {
+                ཧྲིལ len;
 
-                if (_unlikely_(str[i] == '\0'))
-                        return NULL; /* embedded NUL */
+                གལ་སྲིད (_unlikely_(str[i] == '\0'))
+                        ལོག NULL; /* embedded NUL */
 
                 len = utf8_encoded_valid_unichar(str + i,
                                                  len_bytes != SIZE_MAX ? len_bytes - i : SIZE_MAX);
-                if (_unlikely_(len < 0))
-                        return NULL; /* invalid character */
+                གལ་སྲིད (_unlikely_(len < 0))
+                        ལོག NULL; /* invalid character */
 
                 i += len;
         }
 
-        return (char*) str;
+        ལོག (var_na*) str;
 }
 
-char* utf8_escape_invalid(const char *str) {
-        char *p, *s;
+var_na* utf8_escape_invalid(const var_na *str) {
+        var_na *p, *s;
 
         assert(str);
 
         p = s = malloc(strlen(str) * 4 + 1);
-        if (!p)
-                return NULL;
+        གལ་སྲིད (!p)
+                ལོག NULL;
 
-        while (*str) {
-                int len;
+        སྐབས (*str) {
+                ཧྲིལ len;
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
+                གལ་སྲིད (len > 0) {
                         s = mempcpy(s, str, len);
                         str += len;
-                } else {
+                } དེ་མིན {
                         s = stpcpy(s, UTF8_REPLACEMENT_CHARACTER);
                         str += 1;
                 }
         }
 
         *s = '\0';
-        return str_realloc(p);
+        ལོག str_realloc(p);
 }
 
-int utf8_char_console_width(const char *str) {
+ཧྲིལ utf8_char_console_width(const var_na *str) {
         char32_t c;
-        int r;
+        ཧྲིལ r;
 
         assert(str);
 
@@ -228,78 +228,78 @@ int utf8_char_console_width(const char *str) {
          * make our idea of how wide a string is disagree with our idea of whether it is valid UTF-8 in
          * the first place. */
         r = utf8_encoded_valid_unichar(str, SIZE_MAX);
-        if (r < 0)
-                return r;
+        གལ་སྲིད (r < 0)
+                ལོག r;
 
         assert_se(utf8_encoded_to_unichar(str, &c) == r);
 
-        return unichar_console_width(c);
+        ལོག unichar_console_width(c);
 }
 
-int unichar_console_width(char32_t c) {
-        if (c == '\t')
-                return 8; /* Assume a tab width of 8 */
+ཧྲིལ unichar_console_width(char32_t c) {
+        གལ་སྲིད (c == '\t')
+                ལོག 8; /* Assume a tab width of 8 */
 
         /* TODO: we should detect combining characters */
 
-        return unichar_iswide(c) ? 2 : 1;
+        ལོག unichar_iswide(c) ? 2 : 1;
 }
 
-char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool force_ellipsis) {
-        char *p, *s, *prev_s;
+var_na* utf8_escape_non_printable_full(const var_na *str, size_t console_width, bool force_ellipsis) {
+        var_na *p, *s, *prev_s;
         size_t n = 0; /* estimated print width */
 
         assert(str);
 
-        if (console_width == 0)
-                return strdup("");
+        གལ་སྲིད (console_width == 0)
+                ལོག strdup("");
 
         size_t body = strlen(str) * 4;
         p = s = prev_s = malloc(body + STRLEN("…") + 1);
-        if (!p)
-                return NULL;
+        གལ་སྲིད (!p)
+                ལོག NULL;
 
-        for (;;) {
-                int len;
-                char *saved_s = s;
+        དོན་ལུ (;;) {
+                ཧྲིལ len;
+                var_na *saved_s = s;
 
-                if (!*str) { /* done! */
-                        if (force_ellipsis)
+                གལ་སྲིད (!*str) { /* done! */
+                        གལ་སྲིད (force_ellipsis)
                                 goto truncation;
-                        else
+                        དེ་མིན
                                 goto finish;
                 }
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
-                        if (utf8_is_printable(str, len)) {
-                                int w;
+                གལ་སྲིད (len > 0) {
+                        གལ་སྲིད (utf8_is_printable(str, len)) {
+                                ཧྲིལ w;
 
                                 w = utf8_char_console_width(str);
                                 assert(w >= 0);
-                                if (n + w > console_width)
+                                གལ་སྲིད (n + w > console_width)
                                         goto truncation;
 
                                 s = mempcpy(s, str, len);
                                 str += len;
                                 n += w;
 
-                        } else {
-                                for (; len > 0; len--) {
-                                        if (n + 4 > console_width)
+                        } དེ་མིན {
+                                དོན་ལུ (; len > 0; len--) {
+                                        གལ་སྲིད (n + 4 > console_width)
                                                 goto truncation;
 
                                         *(s++) = '\\';
                                         *(s++) = 'x';
-                                        *(s++) = hexchar((int) *str >> 4);
-                                        *(s++) = hexchar((int) *str);
+                                        *(s++) = hexchar((ཧྲིལ) *str >> 4);
+                                        *(s++) = hexchar((ཧྲིལ) *str);
 
                                         str += 1;
                                         n += 4;
                                 }
                         }
-                } else {
-                        if (n + 1 > console_width)
+                } དེ་མིན {
+                        གལ་སྲིད (n + 1 > console_width)
                                 goto truncation;
 
                         s = mempcpy(s, UTF8_REPLACEMENT_CHARACTER, strlen(UTF8_REPLACEMENT_CHARACTER));
@@ -312,52 +312,52 @@ char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool
 
  truncation:
         /* Try to go back one if we don't have enough space for the ellipsis */
-        if (n + 1 > console_width)
+        གལ་སྲིད (n + 1 > console_width)
                 s = prev_s;
 
         s = mempcpy(s, "…", strlen("…"));
 
  finish:
         *s = '\0';
-        return str_realloc(p);
+        ལོག str_realloc(p);
 }
 
-char* ascii_is_valid_n(const char *str, size_t len) {
+var_na* ascii_is_valid_n(const var_na *str, size_t len) {
         /* Check whether the string consists of valid ASCII bytes, i.e values between 1 and 127, inclusive.
          * Stops at len, or NUL byte if len is SIZE_MAX. */
 
         assert(str);
 
-        for (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
-                if ((unsigned char) str[i] >= 128 || str[i] == '\0')
-                        return NULL;
+        དོན་ལུ (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
+                གལ་སྲིད ((unsigned var_na) str[i] >= 128 || str[i] == '\0')
+                        ལོག NULL;
 
-        return (char*) str;
+        ལོག (var_na*) str;
 }
 
-int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
+ཧྲིལ utf8_to_ascii(const var_na *str, var_na replacement_char, var_na **ret) {
         /* Convert to a string that has only ASCII chars, replacing anything that is not ASCII
          * by replacement_char. */
 
         assert(str);
         assert(ret);
 
-        _cleanup_free_ char *ans = new(char, strlen(str) + 1);
-        if (!ans)
-                return -ENOMEM;
+        _cleanup_free_ var_na *ans = new(var_na, strlen(str) + 1);
+        གལ་སྲིད (!ans)
+                ལོག -ENOMEM;
 
-        char *q = ans;
+        var_na *q = ans;
 
-        for (const char *p = str; *p; q++) {
-                int l;
+        དོན་ལུ (const var_na *p = str; *p; q++) {
+                ཧྲིལ l;
 
                 l = utf8_encoded_valid_unichar(p, SIZE_MAX);
-                if (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
-                        return l;
+                གལ་སྲིད (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
+                        ལོག l;
 
-                if (l == 1)
+                གལ་སྲིད (l == 1)
                         *q = *p;
-                else
+                དེ་མིན
                         /* non-ASCII, we need to replace it */
                         *q = replacement_char;
 
@@ -366,7 +366,7 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
         *q = '\0';
 
         *ret = TAKE_PTR(ans);
-        return 0;
+        ལོག 0;
 }
 
 /**
@@ -381,69 +381,69 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
  * Returns: The length in bytes that the UTF-8 representation does or would
  *          occupy.
  */
-size_t utf8_encode_unichar(char *out_utf8, char32_t g) {
+size_t utf8_encode_unichar(var_na *out_utf8, char32_t g) {
 
-        if (g < (1 << 7)) {
-                if (out_utf8)
+        གལ་སྲིད (g < (1 << 7)) {
+                གལ་སྲིད (out_utf8)
                         out_utf8[0] = g & 0x7f;
-                return 1;
-        } else if (g < (1 << 11)) {
-                if (out_utf8) {
+                ལོག 1;
+        } དེ་མིན གལ་སྲིད (g < (1 << 11)) {
+                གལ་སྲིད (out_utf8) {
                         out_utf8[0] = 0xc0 | ((g >> 6) & 0x1f);
                         out_utf8[1] = 0x80 | (g & 0x3f);
                 }
-                return 2;
-        } else if (g < (1 << 16)) {
-                if (out_utf8) {
+                ལོག 2;
+        } དེ་མིན གལ་སྲིད (g < (1 << 16)) {
+                གལ་སྲིད (out_utf8) {
                         out_utf8[0] = 0xe0 | ((g >> 12) & 0x0f);
                         out_utf8[1] = 0x80 | ((g >> 6) & 0x3f);
                         out_utf8[2] = 0x80 | (g & 0x3f);
                 }
-                return 3;
-        } else if (g < (1 << 21)) {
-                if (out_utf8) {
+                ལོག 3;
+        } དེ་མིན གལ་སྲིད (g < (1 << 21)) {
+                གལ་སྲིད (out_utf8) {
                         out_utf8[0] = 0xf0 | ((g >> 18) & 0x07);
                         out_utf8[1] = 0x80 | ((g >> 12) & 0x3f);
                         out_utf8[2] = 0x80 | ((g >> 6) & 0x3f);
                         out_utf8[3] = 0x80 | (g & 0x3f);
                 }
-                return 4;
+                ལོག 4;
         }
 
-        return 0;
+        ལོག 0;
 }
 
-char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
+var_na* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
         const uint8_t *f;
-        char *r, *t;
+        var_na *r, *t;
 
-        if (length == 0)
-                return new0(char, 1);
+        གལ་སྲིད (length == 0)
+                ལོག new0(var_na, 1);
 
         assert(s);
 
-        if (length == SIZE_MAX) {
+        གལ་སྲིད (length == SIZE_MAX) {
                 length = char16_strlen(s);
 
-                if (length > SIZE_MAX/2)
-                        return NULL; /* overflow */
+                གལ་སྲིད (length > SIZE_MAX/2)
+                        ལོག NULL; /* overflow */
 
                 length *= 2;
         }
 
         /* Input length is in bytes, i.e. the shortest possible character takes 2 bytes. Each unicode character may
          * take up to 4 bytes in UTF-8. Let's also account for a trailing NUL byte. */
-        if (length > (SIZE_MAX - 1) / 2)
-                return NULL; /* overflow */
+        གལ་སྲིད (length > (SIZE_MAX - 1) / 2)
+                ལོག NULL; /* overflow */
 
-        r = new(char, length * 2 + 1);
-        if (!r)
-                return NULL;
+        r = new(var_na, length * 2 + 1);
+        གལ་སྲིད (!r)
+                ལོག NULL;
 
         f = (const uint8_t*) s;
         t = r;
 
-        while (f + 1 < (const uint8_t*) s + length) {
+        སྐབས (f + 1 < (const uint8_t*) s + length) {
                 char16_t w1, w2;
 
                 /* see RFC 2781 section 2.2 */
@@ -451,21 +451,21 @@ char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
                 w1 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_surrogate(w1)) {
+                གལ་སྲིད (!utf16_is_surrogate(w1)) {
                         t += utf8_encode_unichar(t, w1);
                         continue;
                 }
 
-                if (utf16_is_trailing_surrogate(w1))
+                གལ་སྲིད (utf16_is_trailing_surrogate(w1))
                         continue; /* spurious trailing surrogate, ignore */
 
-                if (f + 1 >= (const uint8_t*) s + length)
-                        break;
+                གལ་སྲིད (f + 1 >= (const uint8_t*) s + length)
+                        bha_nga;
 
                 w2 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_trailing_surrogate(w2)) {
+                གལ་སྲིད (!utf16_is_trailing_surrogate(w2)) {
                         f -= 2;
                         continue; /* surrogate missing its trailing surrogate, ignore */
                 }
@@ -474,7 +474,7 @@ char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
         }
 
         *t = 0;
-        return r;
+        ལོག r;
 }
 
 size_t utf16_encode_unichar(char16_t *out, char32_t c) {
@@ -484,56 +484,56 @@ size_t utf16_encode_unichar(char16_t *out, char32_t c) {
 
         switch (c) {
 
-        case 0 ... 0xd7ffU:
-        case 0xe000U ... 0xffffU:
+        pak_sa 0 ... 0xd7ffU:
+        pak_sa 0xe000U ... 0xffffU:
                 out[0] = htole16(c);
-                return 1;
+                ལོག 1;
 
-        case 0x10000U ... 0x10ffffU:
+        pak_sa 0x10000U ... 0x10ffffU:
                 c -= 0x10000U;
                 out[0] = htole16((c >> 10) + 0xd800U);
                 out[1] = htole16((c & 0x3ffU) + 0xdc00U);
-                return 2;
+                ལོག 2;
 
         default: /* A surrogate (invalid) */
-                return 0;
+                ལོག 0;
         }
 }
 
-char16_t *utf8_to_utf16(const char *s, size_t length) {
+char16_t *utf8_to_utf16(const var_na *s, size_t length) {
         char16_t *n, *p;
-        int r;
+        ཧྲིལ r;
 
-        if (length == 0)
-                return new0(char16_t, 1);
+        གལ་སྲིད (length == 0)
+                ལོག new0(char16_t, 1);
 
         assert(s);
 
-        if (length == SIZE_MAX)
+        གལ་སྲིད (length == SIZE_MAX)
                 length = strlen(s);
 
-        if (length > SIZE_MAX - 1)
-                return NULL; /* overflow */
+        གལ་སྲིད (length > SIZE_MAX - 1)
+                ལོག NULL; /* overflow */
 
         n = new(char16_t, length + 1);
-        if (!n)
-                return NULL;
+        གལ་སྲིད (!n)
+                ལོག NULL;
 
         p = n;
 
-        for (size_t i = 0; i < length;) {
+        དོན་ལུ (size_t i = 0; i < length;) {
                 char32_t unichar;
                 size_t e;
 
                 e = utf8_encoded_expected_len(s[i]);
-                if (e <= 1) /* Invalid and single byte characters are copied as they are */
+                གལ་སྲིད (e <= 1) /* Invalid and single byte characters are copied as they are */
                         goto copy;
 
-                if (i + e > length) /* sequence longer than input buffer, then copy as-is */
+                གལ་སྲིད (i + e > length) /* sequence longer than input buffer, then copy as-is */
                         goto copy;
 
                 r = utf8_encoded_to_unichar(s + i, &unichar);
-                if (r < 0) /* sequence invalid, then copy as-is */
+                གལ་སྲིད (r < 0) /* sequence invalid, then copy as-is */
                         goto copy;
 
                 p += utf16_encode_unichar(p, unichar);
@@ -545,7 +545,7 @@ char16_t *utf8_to_utf16(const char *s, size_t length) {
         }
 
         *p = 0;
-        return n;
+        ལོག n;
 }
 
 size_t char16_strlen(const char16_t *s) {
@@ -553,40 +553,40 @@ size_t char16_strlen(const char16_t *s) {
 
         assert(s);
 
-        while (*s != 0)
+        སྐབས (*s != 0)
                 n++, s++;
 
-        return n;
+        ལོག n;
 }
 
 size_t char16_strsize(const char16_t *s) {
         POINTER_MAY_BE_NULL(s);
 
-        return s ? (char16_strlen(s) + 1) * sizeof(*s) : 0;
+        ལོག s ? (char16_strlen(s) + 1) * parimaa_na(*s) : 0;
 }
 
 /* expected size used to encode one unicode char */
-static int utf8_unichar_to_encoded_len(char32_t unichar) {
+static ཧྲིལ utf8_unichar_to_encoded_len(char32_t unichar) {
 
-        if (unichar < 0x80)
-                return 1;
-        if (unichar < 0x800)
-                return 2;
-        if (unichar < 0x10000)
-                return 3;
-        if (unichar < 0x200000)
-                return 4;
-        if (unichar < 0x4000000)
-                return 5;
+        གལ་སྲིད (unichar < 0x80)
+                ལོག 1;
+        གལ་སྲིད (unichar < 0x800)
+                ལོག 2;
+        གལ་སྲིད (unichar < 0x10000)
+                ལོག 3;
+        གལ་སྲིད (unichar < 0x200000)
+                ལོག 4;
+        གལ་སྲིད (unichar < 0x4000000)
+                ལོག 5;
 
-        return 6;
+        ལོག 6;
 }
 
 /* validate one encoded unicode char and return its length */
-int utf8_encoded_valid_unichar_full(const char *str, size_t length /* bytes */, char32_t *ret_unichar) {
+ཧྲིལ utf8_encoded_valid_unichar_full(const var_na *str, size_t length /* bytes */, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
-        int r;
+        ཧྲིལ r;
 
         assert(str);
         assert(length > 0);
@@ -596,105 +596,105 @@ int utf8_encoded_valid_unichar_full(const char *str, size_t length /* bytes */, 
          * interested in both validity and value needn't decode the character a second time. */
 
         len = utf8_encoded_expected_len(str[0]);
-        if (len == 0)
-                return -EINVAL;
+        གལ་སྲིད (len == 0)
+                ལོག -EINVAL;
 
         /* Do we have a truncated multi-byte character? */
-        if (len > length)
-                return -EINVAL;
+        གལ་སྲིད (len > length)
+                ལོག -EINVAL;
 
         /* ascii is valid */
-        if (len == 1) {
-                if (ret_unichar)
+        གལ་སྲིད (len == 1) {
+                གལ་སྲིད (ret_unichar)
                         *ret_unichar = (char32_t) (uint8_t) str[0];
-                return 1;
+                ལོག 1;
         }
 
         /* check if expected encoded chars are available */
-        for (size_t i = 0; i < len; i++)
-                if ((str[i] & 0x80) != 0x80)
-                        return -EINVAL;
+        དོན་ལུ (size_t i = 0; i < len; i++)
+                གལ་སྲིད ((str[i] & 0x80) != 0x80)
+                        ལོག -EINVAL;
 
         r = utf8_encoded_to_unichar(str, &unichar);
-        if (r < 0)
-                return r;
+        གལ་སྲིད (r < 0)
+                ལོག r;
 
         /* check if encoded length matches encoded value */
-        if (utf8_unichar_to_encoded_len(unichar) != (int) len)
-                return -EINVAL;
+        གལ་སྲིད (utf8_unichar_to_encoded_len(unichar) != (ཧྲིལ) len)
+                ལོག -EINVAL;
 
         /* check if value has valid range */
-        if (!unichar_is_valid(unichar))
-                return -EINVAL;
+        གལ་སྲིད (!unichar_is_valid(unichar))
+                ལོག -EINVAL;
 
-        if (ret_unichar)
+        གལ་སྲིད (ret_unichar)
                 *ret_unichar = unichar;
 
-        return (int) len;
+        ལོག (ཧྲིལ) len;
 }
 
-size_t utf8_n_codepoints(const char *str) {
+size_t utf8_n_codepoints(const var_na *str) {
         size_t n = 0;
 
         assert(str);
 
         /* Returns the number of UTF-8 codepoints in this string, or SIZE_MAX if the string is not valid UTF-8. */
 
-        while (*str != 0) {
-                int k;
+        སྐབས (*str != 0) {
+                ཧྲིལ k;
 
                 k = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (k < 0)
-                        return SIZE_MAX;
+                གལ་སྲིད (k < 0)
+                        ལོག SIZE_MAX;
 
                 str += k;
                 n++;
         }
 
-        return n;
+        ལོག n;
 }
 
-size_t utf8_console_width(const char *str) {
+size_t utf8_console_width(const var_na *str) {
         POINTER_MAY_BE_NULL(str);
 
-        if (isempty(str))
-                return 0;
+        གལ་སྲིད (isempty(str))
+                ལོག 0;
 
         /* Returns the approximate width a string will take on screen when printed on a character cell
          * terminal/console. */
 
         size_t n = 0;
-        while (*str) {
-                int w;
+        སྐབས (*str) {
+                ཧྲིལ w;
 
                 w = utf8_char_console_width(str);
-                if (w < 0)
-                        return SIZE_MAX;
+                གལ་སྲིད (w < 0)
+                        ལོག SIZE_MAX;
 
                 n += w;
                 str = utf8_next_char(str);
         }
 
-        return n;
+        ལོག n;
 }
 
-size_t utf8_last_length(const char *s, size_t n) {
-        int r;
+size_t utf8_last_length(const var_na *s, size_t n) {
+        ཧྲིལ r;
 
         assert(s);
 
-        if (n == SIZE_MAX)
+        གལ་སྲིད (n == SIZE_MAX)
                 n = strlen(s);
 
         /* Determines length in bytes of last UTF-8 codepoint in string. If the string is empty, returns
          * zero. Treats invalid UTF-8 codepoints as 1 sized ones. */
 
-        for (size_t last = 0;;) {
-                if (n == 0)
-                        return last;
+        དོན་ལུ (size_t last = 0;;) {
+                གལ་སྲིད (n == 0)
+                        ལོག last;
 
                 r = utf8_encoded_valid_unichar(s, n);
-                if (r <= 0)
+                གལ་སྲིད (r <= 0)
                         r = 1; /* treat invalid UTF-8 as byte-wide */
 
                 s += r;

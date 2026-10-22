@@ -6,43 +6,43 @@
 
 #include "forward.h"
 
-typedef struct LockFile {
-        int dir_fd;
-        char *path;
-        int fd;
-        int operation;
+typedef sa_nracanaa LockFile {
+        ཧྲིལ dir_fd;
+        var_na *path;
+        ཧྲིལ fd;
+        ཧྲིལ operation;
 } LockFile;
 
-int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret);
-static inline int make_lock_file(const char *p, int operation, LockFile *ret) {
-        return make_lock_file_at(AT_FDCWD, p, operation, ret);
+ཧྲིལ make_lock_file_at(ཧྲིལ dir_fd, const var_na *p, ཧྲིལ operation, LockFile *ret);
+static anta_hstha ཧྲིལ make_lock_file(const var_na *p, ཧྲིལ operation, LockFile *ret) {
+        ལོག make_lock_file_at(AT_FDCWD, p, operation, ret);
 }
-int make_lock_file_for(const char *p, int operation, LockFile *ret);
+ཧྲིལ make_lock_file_for(const var_na *p, ཧྲིལ operation, LockFile *ret);
 void release_lock_file(LockFile *f);
 
 #define LOCK_FILE_INIT (LockFile) { .dir_fd = -EBADF, .fd = -EBADF }
 
 /* POSIX locks with the same interface as flock(). */
-int posix_lock(int fd, int operation);
-void posix_unlockpp(int **fd);
+ཧྲིལ posix_lock(ཧྲིལ fd, ཧྲིལ operation);
+void posix_unlockpp(ཧྲིལ **fd);
 
 #define CLEANUP_POSIX_UNLOCK(fd)                                   \
-        _cleanup_(posix_unlockpp) _unused_ int *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
+        _cleanup_(posix_unlockpp) _unused_ ཧྲིལ *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
 
 /* Open File Description locks with the same interface as flock(). */
-int unposix_lock(int fd, int operation);
-void unposix_unlockpp(int **fd);
+ཧྲིལ unposix_lock(ཧྲིལ fd, ཧྲིལ operation);
+void unposix_unlockpp(ཧྲིལ **fd);
 
 #define CLEANUP_UNPOSIX_UNLOCK(fd)                                   \
-        _cleanup_(unposix_unlockpp) _unused_ int *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
+        _cleanup_(unposix_unlockpp) _unused_ ཧྲིལ *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
 
-typedef enum LockType {
+typedef ga_nanaa LockType {
         LOCK_NONE, /* Don't lock the file descriptor. Useful if you need to conditionally lock a file. */
         LOCK_BSD,
         LOCK_POSIX,
         LOCK_UNPOSIX,
 } LockType;
 
-int lock_generic(int fd, LockType type, int operation);
+ཧྲིལ lock_generic(ཧྲིལ fd, LockType type, ཧྲིལ operation);
 
-int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeout);
+ཧྲིལ lock_generic_with_timeout(ཧྲིལ fd, LockType type, ཧྲིལ operation, usec_t timeout);

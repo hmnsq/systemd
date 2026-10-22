@@ -5,24 +5,24 @@
 
 typedef unsigned long loadavg_t;
 
-int parse_boolean(const char *v) _pure_;
-int parse_tristate_full(const char *v, const char *third, int *ret);
-static inline int parse_tristate(const char *v, int *ret) {
-        return parse_tristate_full(v, NULL, ret);
+ཧྲིལ parse_boolean(const var_na *v) _pure_;
+ཧྲིལ parse_tristate_full(const var_na *v, const var_na *third, ཧྲིལ *ret);
+static anta_hstha ཧྲིལ parse_tristate(const var_na *v, ཧྲིལ *ret) {
+        ལོག parse_tristate_full(v, NULL, ret);
 }
-int parse_pid(const char *s, pid_t *ret);
-int parse_mode(const char *s, mode_t *ret);
-int parse_ifindex(const char *s);
-int parse_mtu(int family, const char *s, uint32_t *ret);
+ཧྲིལ parse_pid(const var_na *s, pid_t *ret);
+ཧྲིལ parse_mode(const var_na *s, mode_t *ret);
+ཧྲིལ parse_ifindex(const var_na *s);
+ཧྲིལ parse_mtu(ཧྲིལ family, const var_na *s, uint32_t *ret);
 
-int parse_size(const char *t, uint64_t base, uint64_t *size);
-int parse_sector_size(const char *t, uint64_t *ret);
-int parse_range(const char *t, unsigned *lower, unsigned *upper);
-int parse_errno(const char *t);
-int parse_fd(const char *t);
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy);
+ཧྲིལ parse_size(const var_na *t, uint64_t base, uint64_t *size);
+ཧྲིལ parse_sector_size(const var_na *t, uint64_t *ret);
+ཧྲིལ parse_range(const var_na *t, unsigned *lower, unsigned *upper);
+ཧྲིལ parse_errno(const var_na *t);
+ཧྲིལ parse_fd(const var_na *t);
+ཧྲིལ parse_user_shell(const var_na *s, var_na **ret_sh, bool *ret_copy);
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current);
+ཧྲིལ parse_capability_set(const var_na *s, uint64_t initial, uint64_t *current);
 
 #define SAFE_ATO_REFUSE_PLUS_MINUS (1U << 30)
 #define SAFE_ATO_REFUSE_LEADING_ZERO (1U << 29)
@@ -30,119 +30,119 @@ int parse_capability_set(const char *s, uint64_t initial, uint64_t *current);
 #define SAFE_ATO_ALL_FLAGS (SAFE_ATO_REFUSE_PLUS_MINUS|SAFE_ATO_REFUSE_LEADING_ZERO|SAFE_ATO_REFUSE_LEADING_WHITESPACE)
 #define SAFE_ATO_MASK_FLAGS(base) ((base) & ~SAFE_ATO_ALL_FLAGS)
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u);
-static inline int safe_atou(const char *s, unsigned *ret_u) {
-        return safe_atou_full(s, 0, ret_u);
+ཧྲིལ safe_atou_full(const var_na *s, unsigned base, unsigned *ret_u);
+static anta_hstha ཧྲིལ safe_atou(const var_na *s, unsigned *ret_u) {
+        ལོག safe_atou_full(s, 0, ret_u);
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret);
+ཧྲིལ safe_atou_bounded(const var_na *s, unsigned min, unsigned max, unsigned *ret);
 
-int safe_atoi(const char *s, int *ret_i);
-int safe_atolli(const char *s, long long *ret_lli);
+ཧྲིལ safe_atoi(const var_na *s, ཧྲིལ *ret_i);
+ཧྲིལ safe_atolli(const var_na *s, long long *ret_lli);
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret);
+ཧྲིལ safe_atou8_full(const var_na *s, unsigned base, uint8_t *ret);
 
-static inline int safe_atou8(const char *s, uint8_t *ret) {
-        return safe_atou8_full(s, 0, ret);
+static anta_hstha ཧྲིལ safe_atou8(const var_na *s, uint8_t *ret) {
+        ལོག safe_atou8_full(s, 0, ret);
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret);
+ཧྲིལ safe_atou16_full(const var_na *s, unsigned base, uint16_t *ret);
 
-static inline int safe_atou16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 0, ret);
-}
-
-static inline int safe_atoux16(const char *s, uint16_t *ret) {
-        return safe_atou16_full(s, 16, ret);
+static anta_hstha ཧྲིལ safe_atou16(const var_na *s, uint16_t *ret) {
+        ལོག safe_atou16_full(s, 0, ret);
 }
 
-int safe_atoi16(const char *s, int16_t *ret);
-
-static inline int safe_atou32_full(const char *s, unsigned base, uint32_t *ret_u) {
-        assert_cc(sizeof(uint32_t) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
+static anta_hstha ཧྲིལ safe_atoux16(const var_na *s, uint16_t *ret) {
+        ལོག safe_atou16_full(s, 16, ret);
 }
 
-static inline int safe_atou32(const char *s, uint32_t *ret_u) {
-        return safe_atou32_full(s, 0, (unsigned*) ret_u);
+ཧྲིལ safe_atoi16(const var_na *s, int16_t *ret);
+
+static anta_hstha ཧྲིལ safe_atou32_full(const var_na *s, unsigned base, uint32_t *ret_u) {
+        assert_cc(parimaa_na(uint32_t) == parimaa_na(unsigned));
+        ལོག safe_atou_full(s, base, (unsigned*) ret_u);
 }
 
-static inline int safe_atoi32(const char *s, int32_t *ret_i) {
-        assert_cc(sizeof(int32_t) == sizeof(int));
-        return safe_atoi(s, (int*) ret_i);
+static anta_hstha ཧྲིལ safe_atou32(const var_na *s, uint32_t *ret_u) {
+        ལོག safe_atou32_full(s, 0, (unsigned*) ret_u);
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu);
-
-static inline int safe_atollu(const char *s, unsigned long long *ret_llu) {
-        return safe_atollu_full(s, 0, ret_llu);
+static anta_hstha ཧྲིལ safe_atoi32(const var_na *s, int32_t *ret_i) {
+        assert_cc(parimaa_na(int32_t) == parimaa_na(ཧྲིལ));
+        ལོག safe_atoi(s, (ཧྲིལ*) ret_i);
 }
 
-static inline int safe_atou64_full(const char *s, unsigned base, uint64_t *ret_u) {
-        assert_cc(sizeof(uint64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
+ཧྲིལ safe_atollu_full(const var_na *s, unsigned base, unsigned long long *ret_llu);
+
+static anta_hstha ཧྲིལ safe_atollu(const var_na *s, unsigned long long *ret_llu) {
+        ལོག safe_atollu_full(s, 0, ret_llu);
 }
 
-static inline int safe_atou64(const char *s, uint64_t *ret_u) {
-        return safe_atou64_full(s, 0, ret_u);
+static anta_hstha ཧྲིལ safe_atou64_full(const var_na *s, unsigned base, uint64_t *ret_u) {
+        assert_cc(parimaa_na(uint64_t) == parimaa_na(unsigned long long));
+        ལོག safe_atollu_full(s, base, (unsigned long long*) ret_u);
 }
 
-static inline int safe_atoi64(const char *s, int64_t *ret_i) {
-        assert_cc(sizeof(int64_t) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_i);
+static anta_hstha ཧྲིལ safe_atou64(const var_na *s, uint64_t *ret_u) {
+        ལོག safe_atou64_full(s, 0, ret_u);
 }
 
-static inline int safe_atoux64(const char *s, uint64_t *ret) {
-        assert_cc(sizeof(int64_t) == sizeof(unsigned long long));
-        return safe_atollu_full(s, 16, (unsigned long long*) ret);
+static anta_hstha ཧྲིལ safe_atoi64(const var_na *s, int64_t *ret_i) {
+        assert_cc(parimaa_na(int64_t) == parimaa_na(long long));
+        ལོག safe_atolli(s, (long long*) ret_i);
 }
 
-#if LONG_MAX == INT_MAX
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned));
-        return safe_atou_full(s, base, (unsigned*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(int));
-        return safe_atoi(s, (int*) ret_u);
-}
-#else
-static inline int safe_atolu_full(const char *s, unsigned base, unsigned long *ret_u) {
-        assert_cc(sizeof(unsigned long) == sizeof(unsigned long long));
-        return safe_atollu_full(s, base, (unsigned long long*) ret_u);
-}
-static inline int safe_atoli(const char *s, long *ret_u) {
-        assert_cc(sizeof(long) == sizeof(long long));
-        return safe_atolli(s, (long long*) ret_u);
-}
-#endif
-
-static inline int safe_atolu(const char *s, unsigned long *ret_u) {
-        return safe_atolu_full(s, 0, ret_u);
+static anta_hstha ཧྲིལ safe_atoux64(const var_na *s, uint64_t *ret) {
+        assert_cc(parimaa_na(int64_t) == parimaa_na(unsigned long long));
+        ལོག safe_atollu_full(s, 16, (unsigned long long*) ret);
 }
 
-#if SIZE_MAX == UINT_MAX
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned));
-        return safe_atou(s, (unsigned *) ret_u);
+#གལ་སྲིད LONG_MAX == INT_MAX
+static anta_hstha ཧྲིལ safe_atolu_full(const var_na *s, unsigned base, unsigned long *ret_u) {
+        assert_cc(parimaa_na(unsigned long) == parimaa_na(unsigned));
+        ལོག safe_atou_full(s, base, (unsigned*) ret_u);
 }
-#else
-static inline int safe_atozu(const char *s, size_t *ret_u) {
-        assert_cc(sizeof(size_t) == sizeof(unsigned long));
-        return safe_atolu(s, ret_u);
+static anta_hstha ཧྲིལ safe_atoli(const var_na *s, long *ret_u) {
+        assert_cc(parimaa_na(long) == parimaa_na(ཧྲིལ));
+        ལོག safe_atoi(s, (ཧྲིལ*) ret_u);
+}
+#དེ་མིན
+static anta_hstha ཧྲིལ safe_atolu_full(const var_na *s, unsigned base, unsigned long *ret_u) {
+        assert_cc(parimaa_na(unsigned long) == parimaa_na(unsigned long long));
+        ལོག safe_atollu_full(s, base, (unsigned long long*) ret_u);
+}
+static anta_hstha ཧྲིལ safe_atoli(const var_na *s, long *ret_u) {
+        assert_cc(parimaa_na(long) == parimaa_na(long long));
+        ལོག safe_atolli(s, (long long*) ret_u);
 }
 #endif
 
-int safe_atod(const char *s, double *ret_d);
+static anta_hstha ཧྲིལ safe_atolu(const var_na *s, unsigned long *ret_u) {
+        ལོག safe_atolu_full(s, 0, ret_u);
+}
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res);
+#གལ་སྲིད SIZE_MAX == UINT_MAX
+static anta_hstha ཧྲིལ safe_atozu(const var_na *s, size_t *ret_u) {
+        assert_cc(parimaa_na(size_t) == parimaa_na(unsigned));
+        ལོག safe_atou(s, (unsigned *) ret_u);
+}
+#དེ་མིན
+static anta_hstha ཧྲིལ safe_atozu(const var_na *s, size_t *ret_u) {
+        assert_cc(parimaa_na(size_t) == parimaa_na(unsigned long));
+        ལོག safe_atolu(s, ret_u);
+}
+#endif
 
-int parse_nice(const char *s, int *ret);
+ཧྲིལ safe_atod(const var_na *s, dviguu_na *ret_d);
 
-int parse_ip_port(const char *s, uint16_t *ret);
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero);
+ཧྲིལ parse_fractional_part_u(const var_na **p, size_t digits, unsigned *res);
 
-int parse_oom_score_adjust(const char *s, int *ret);
+ཧྲིལ parse_nice(const var_na *s, ཧྲིལ *ret);
+
+ཧྲིལ parse_ip_port(const var_na *s, uint16_t *ret);
+ཧྲིལ parse_ip_port_range(const var_na *s, uint16_t *low, uint16_t *high, bool allow_zero);
+
+ཧྲིལ parse_oom_score_adjust(const var_na *s, ཧྲིལ *ret);
 
 /* Implement floating point using fixed integers, to improve performance when
  * calculating load averages. These macros can be used to extract the integer
@@ -154,7 +154,7 @@ int parse_oom_score_adjust(const char *s, int *ret);
 
 /* Given a Linux load average (e.g. decimal number 34.89 where 34 is passed as i and 89 is passed as f), convert it
  * to a loadavg_t. */
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret);
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret);
+ཧྲིལ store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret);
+ཧྲིལ parse_loadavg_fixed_point(const var_na *s, loadavg_t *ret);
 
-bool nft_identifier_valid(const char *id);
+bool nft_identifier_valid(const var_na *id);

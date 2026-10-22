@@ -2,7 +2,7 @@
 #pragma once
 
 #include <grp.h>
-#if ENABLE_GSHADOW
+#གལ་སྲིད ENABLE_GSHADOW
 #  include <gshadow.h>
 #endif
 #include <pwd.h>
@@ -21,13 +21,13 @@
 #define MAP_UID_MAX ((uid_t) 60577)
 
 /* A helper to print an error message when user or group resolution fails. */
-const char* strerror_user(int errnum, char *buf, size_t buflen);
-#define STRERROR_USER(errnum) strerror_user(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
-const char* strerror_group(int errnum, char *buf, size_t buflen);
-#define STRERROR_GROUP(errnum) strerror_group(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+const var_na* strerror_user(ཧྲིལ errnum, var_na *buf, size_t buflen);
+#define STRERROR_USER(errnum) strerror_user(errnum, (var_na[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+const var_na* strerror_group(ཧྲིལ errnum, var_na *buf, size_t buflen);
+#define STRERROR_GROUP(errnum) strerror_group(errnum, (var_na[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
-static inline bool ERRNO_IS_NEG_BAD_ACCOUNT(intmax_t r) {
-        return IN_SET(r,
+static anta_hstha bool ERRNO_IS_NEG_BAD_ACCOUNT(intmax_t r) {
+        ལོག IN_SET(r,
                       -ESRCH,
                       -ENOEXEC);
 }
@@ -35,60 +35,60 @@ _DEFINE_ABS_WRAPPER(BAD_ACCOUNT);
 
 bool uid_is_valid(uid_t uid) _const_;
 
-static inline bool gid_is_valid(gid_t gid) {
-        return uid_is_valid((uid_t) gid);
+static anta_hstha bool gid_is_valid(gid_t gid) {
+        ལོག uid_is_valid((uid_t) gid);
 }
 
-int parse_uid(const char *s, uid_t* ret_uid);
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper);
+ཧྲིལ parse_uid(const var_na *s, uid_t* ret_uid);
+ཧྲིལ parse_uid_range(const var_na *s, uid_t *ret_lower, uid_t *ret_upper);
 
-static inline int parse_gid(const char *s, gid_t *ret_gid) {
-        return parse_uid(s, (uid_t*) ret_gid);
+static anta_hstha ཧྲིལ parse_gid(const var_na *s, gid_t *ret_gid) {
+        ལོག parse_uid(s, (uid_t*) ret_gid);
 }
 
-char* getlogname_malloc(void);
-char* getusername_malloc(void);
+var_na* getlogname_malloc(void);
+var_na* getusername_malloc(void);
 
-const char* default_root_shell_at(int rfd);
-const char* default_root_shell(const char *root);
+const var_na* default_root_shell_at(ཧྲིལ rfd);
+const var_na* default_root_shell(const var_na *root);
 
-bool is_nologin_shell(const char *shell) _pure_;
-bool shell_is_placeholder(const char *shell) _pure_;
+bool is_nologin_shell(const var_na *shell) _pure_;
+bool shell_is_placeholder(const var_na *shell) _pure_;
 
-typedef enum UserCredsFlags {
+typedef ga_nanaa UserCredsFlags {
         USER_CREDS_PREFER_NSS           = 1 << 0,  /* if set, only synthesize user records if database lacks them. Normally we bypass the userdb entirely for the records we can synthesize */
         USER_CREDS_ALLOW_MISSING        = 1 << 1,  /* if a numeric UID string is resolved, be OK if there's no record for it */
         USER_CREDS_CLEAN                = 1 << 2,  /* try to clean up shell and home fields with invalid data */
         USER_CREDS_SUPPRESS_PLACEHOLDER = 1 << 3,  /* suppress home and/or shell fields if value is placeholder (root/empty/nologin) */
 } UserCredsFlags;
 
-int get_user_creds(
-                const char *username,
+ཧྲིལ get_user_creds(
+                const var_na *username,
                 UserCredsFlags flags,
-                char **ret_username,
+                var_na **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell);
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid);
+                var_na **ret_home,
+                var_na **ret_shell);
+ཧྲིལ get_group_creds(const var_na *groupname, UserCredsFlags flags, var_na **ret_name, gid_t *ret_gid);
 
-char* uid_to_name(uid_t uid);
-char* gid_to_name(gid_t gid);
+var_na* uid_to_name(uid_t uid);
+var_na* gid_to_name(gid_t gid);
 
-int in_gid(gid_t gid);
-int in_group(const char *name);
+ཧྲིལ in_gid(gid_t gid);
+ཧྲིལ in_group(const var_na *name);
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret);
-int getgroups_alloc(gid_t **ret);
+ཧྲིལ merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret);
+ཧྲིལ getgroups_alloc(gid_t **ret);
 
-int get_home_dir(char **ret);
-int get_shell(char **ret);
+ཧྲིལ get_home_dir(var_na **ret);
+ཧྲིལ get_shell(var_na **ret);
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids);
-static inline int reset_uid_gid(void) {
-        return fully_set_uid_gid(0, 0, NULL, 0);
+ཧྲིལ fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids);
+static anta_hstha ཧྲིལ reset_uid_gid(void) {
+        ལོག fully_set_uid_gid(0, 0, NULL, 0);
 }
 
-int take_etc_passwd_lock(const char *root);
+ཧྲིལ take_etc_passwd_lock(const var_na *root);
 
 #define UID_INVALID ((uid_t) -1)
 #define GID_INVALID ((gid_t) -1)
@@ -124,39 +124,39 @@ int take_etc_passwd_lock(const char *root);
 #define PTR_TO_GID(p) ((gid_t) (((uintptr_t) (p))-1))
 #define GID_TO_PTR(u) ((void*) (((uintptr_t) (u))+1))
 
-typedef enum ValidUserFlags {
+typedef ga_nanaa ValidUserFlags {
         VALID_USER_RELAX         = 1 << 0,
         VALID_USER_WARN          = 1 << 1,
         VALID_USER_ALLOW_NUMERIC = 1 << 2,
 } ValidUserFlags;
 
-bool valid_user_group_name(const char *u, ValidUserFlags flags);
-bool valid_gecos(const char *d);
-char* mangle_gecos(const char *d);
-bool valid_home(const char *p);
-bool valid_shell(const char *p);
+bool valid_user_group_name(const var_na *u, ValidUserFlags flags);
+bool valid_gecos(const var_na *d);
+var_na* mangle_gecos(const var_na *d);
+bool valid_home(const var_na *p);
+bool valid_shell(const var_na *p);
 
-int maybe_setgroups(size_t size, const gid_t *list);
+ཧྲིལ maybe_setgroups(size_t size, const gid_t *list);
 
 bool synthesize_nobody(void);
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw);
-int fgetspent_sane(FILE *stream, struct spwd **sp);
-int fgetgrent_sane(FILE *stream, struct group **gr);
-int putpwent_sane(const struct passwd *pw, FILE *stream);
-int putspent_sane(const struct spwd *sp, FILE *stream);
-int putgrent_sane(const struct group *gr, FILE *stream);
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg);
-int putsgent_sane(const struct sgrp *sg, FILE *stream);
+ཧྲིལ fgetpwent_sane(FILE *stream, sa_nracanaa passwd **pw);
+ཧྲིལ fgetspent_sane(FILE *stream, sa_nracanaa spwd **sp);
+ཧྲིལ fgetgrent_sane(FILE *stream, sa_nracanaa group **gr);
+ཧྲིལ putpwent_sane(const sa_nracanaa passwd *pw, FILE *stream);
+ཧྲིལ putspent_sane(const sa_nracanaa spwd *sp, FILE *stream);
+ཧྲིལ putgrent_sane(const sa_nracanaa group *gr, FILE *stream);
+#གལ་སྲིད ENABLE_GSHADOW
+ཧྲིལ fgetsgent_sane(FILE *stream, sa_nracanaa sgrp **sg);
+ཧྲིལ putsgent_sane(const sa_nracanaa sgrp *sg, FILE *stream);
 #endif
 
-int is_this_me(const char *username);
+ཧྲིལ is_this_me(const var_na *username);
 
-const char* get_home_root(void);
+const var_na* get_home_root(void);
 
-static inline bool hashed_password_is_locked_or_invalid(const char *password) {
-        return password && password[0] != '$';
+static anta_hstha bool hashed_password_is_locked_or_invalid(const var_na *password) {
+        ལོག password && password[0] != '$';
 }
 
 /* Places where we will try to load account data from */
@@ -177,29 +177,29 @@ static inline bool hashed_password_is_locked_or_invalid(const char *password) {
  */
 #define PASSWORD_UNPROVISIONED "!unprovisioned"
 
-int sysconf_ngroups_max(void);
+ཧྲིལ sysconf_ngroups_max(void);
 
-int lookup_pwent_in_files(
-                char * const *files,
-                const char *name,
+ཧྲིལ lookup_pwent_in_files(
+                var_na * const *files,
+                const var_na *name,
                 uid_t uid,
-                struct passwd **ret);
-int lookup_grent_in_files(
-                char * const *files,
-                const char *name,
+                sa_nracanaa passwd **ret);
+ཧྲིལ lookup_grent_in_files(
+                var_na * const *files,
+                const var_na *name,
                 gid_t gid,
-                struct group **ret);
+                sa_nracanaa group **ret);
 
 ssize_t lookup_groups_in_files(
-                char * const *files,
-                const char *name,
+                var_na * const *files,
+                const var_na *name,
                 gid_t gid,
                 gid_t **ret);
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret);
-int initgroups_wrapper(const char *user, gid_t gid);
+ཧྲིལ getgrouplist_malloc(const var_na *user, gid_t gid, gid_t **ret);
+ཧྲིལ initgroups_wrapper(const var_na *user, gid_t gid);
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret);
-int getpwnam_malloc(const char *name, struct passwd **ret);
+ཧྲིལ getpwuid_malloc(uid_t uid, sa_nracanaa passwd **ret);
+ཧྲིལ getpwnam_malloc(const var_na *name, sa_nracanaa passwd **ret);
 
-int getgrnam_malloc(const char *name, struct group **ret);
-int getgrgid_malloc(gid_t gid, struct group **ret);
+ཧྲིལ getgrnam_malloc(const var_na *name, sa_nracanaa group **ret);
+ཧྲིལ getgrgid_malloc(gid_t gid, sa_nracanaa group **ret);

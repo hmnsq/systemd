@@ -8,24 +8,24 @@
 #include "strv.h"
 
 bool emoji_enabled(void) {
-        static int cached_emoji_enabled = -1;
+        static ཧྲིལ cached_emoji_enabled = -1;
 
-        if (cached_emoji_enabled < 0) {
-                int val = getenv_bool("SYSTEMD_EMOJI");
-                if (val >= 0)
-                        return (cached_emoji_enabled = val);
+        གལ་སྲིད (cached_emoji_enabled < 0) {
+                ཧྲིལ val = getenv_bool("SYSTEMD_EMOJI");
+                གལ་སྲིད (val >= 0)
+                        ལོག (cached_emoji_enabled = val);
 
-                const char *term = getenv("TERM");
-                if (!term || STR_IN_SET(term, "dumb", "linux"))
-                        return (cached_emoji_enabled = false);
+                const var_na *term = getenv("TERM");
+                གལ་སྲིད (!term || STR_IN_SET(term, "dumb", "linux"))
+                        ལོག (cached_emoji_enabled = false);
 
                 cached_emoji_enabled = is_locale_utf8();
         }
 
-        return cached_emoji_enabled;
+        ལོག cached_emoji_enabled;
 }
 
-const char* glyph_full(Glyph code, bool force_utf) {
+const var_na* glyph_full(Glyph code, bool force_utf) {
 
         /* A list of a number of interesting unicode glyphs we can use to decorate our output. It's probably wise to be
          * conservative here, and primarily stick to the glyphs defined in the eurlatgr font, so that display still
@@ -34,7 +34,7 @@ const char* glyph_full(Glyph code, bool force_utf) {
          * http://git.altlinux.org/people/legion/packages/kbd.git?p=kbd.git;a=blob;f=data/consolefonts/README.eurlatgr
          */
 
-        static const char* const draw_table[2][_GLYPH_MAX] = {
+        static const var_na* const draw_table[2][_GLYPH_MAX] = {
                 /* ASCII fallback */
                 [false] = {
                         [GLYPH_SPACE]                   = " ",
@@ -181,9 +181,9 @@ const char* glyph_full(Glyph code, bool force_utf) {
                 },
         };
 
-        if (code < 0)
-                return NULL;
+        གལ་སྲིད (code < 0)
+                ལོག NULL;
 
         assert(code < _GLYPH_MAX);
-        return draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
+        ལོག draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
 }
