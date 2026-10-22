@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "stat-util.h"
+#ضمن "forward.h"
+#ضمن "stat-util.h"
 
 #define FILESYSTEM_MAGIC_MAX 10
 
-typedef enum FilesystemGroups {
+تعريفنوع تعداد FilesystemGroups {
         /* Please leave BASIC_API first and KNOWN last, but sort the rest alphabetically */
         FILESYSTEM_SET_BASIC_API,
         FILESYSTEM_SET_ANONYMOUS,
@@ -23,19 +23,19 @@ typedef enum FilesystemGroups {
         _FILESYSTEM_SET_INVALID = -EINVAL,
 } FilesystemGroups;
 
-typedef struct FilesystemSet {
-        const char *name;
-        const char *help;
-        const char *value;
+تعريفنوع بنية FilesystemSet {
+        ثابت حرف *name;
+        ثابت حرف *help;
+        ثابت حرف *قىممەت;
 } FilesystemSet;
 
-extern const FilesystemSet filesystem_sets[];
+خارجي ثابت FilesystemSet filesystem_sets[];
 
-const FilesystemSet *filesystem_set_find(const char *name);
+ثابت FilesystemSet *filesystem_set_find(ثابت حرف *name);
 
-const char* fs_type_to_string(statfs_f_type_t magic);
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret);
-bool fs_in_group(const struct statfs *s, enum FilesystemGroups fs_group);
+ثابت حرف* fs_type_to_string(statfs_f_type_t magic);
+صحيح fs_type_from_string(ثابت حرف *name, ثابت statfs_f_type_t **ret);
+bool fs_in_group(ثابت بنية statfs *s, تعداد FilesystemGroups fs_group);
 
 /* gperf prototypes */
-const struct FilesystemMagic* filesystems_gperf_lookup(const char *str, GPERF_LEN_TYPE length);
+ثابت بنية FilesystemMagic* filesystems_gperf_lookup(ثابت حرف *str, GPERF_LEN_TYPE length);

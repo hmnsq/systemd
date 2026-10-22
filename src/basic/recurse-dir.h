@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <dirent.h>
+#ضمن <dirent.h>
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef enum RecurseDirFlags {
+تعريفنوع تعداد RecurseDirFlags {
         /* Interpreted by readdir_all() */
         RECURSE_DIR_SORT              = 1 << 0,  /* sort file directory entries before processing them */
         RECURSE_DIR_IGNORE_DOT        = 1 << 1,  /* ignore all dot files ("." and ".." are always ignored) */
@@ -22,17 +22,17 @@ typedef enum RecurseDirFlags {
         RECURSE_DIR_TOPLEVEL          = 1 << 9,  /* call RECURSE_DIR_ENTER/RECURSE_DIR_LEAVE once for top-level dir, too, with dir_fd=-1 and NULL dirent */
 } RecurseDirFlags;
 
-typedef struct DirectoryEntries {
+تعريفنوع بنية DirectoryEntries {
         size_t n_entries;
-        struct dirent **entries;
+        بنية dirent **entries;
         size_t buffer_size;
-        struct dirent buffer[];
+        بنية dirent buffer[];
 } DirectoryEntries;
 
-int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
-int readdir_all_at(int fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret);
+صحيح readdir_all(صحيح dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
+صحيح readdir_all_at(صحيح fd, ثابت حرف *path, RecurseDirFlags flags, DirectoryEntries **ret);
 
-typedef enum RecurseDirEvent {
+تعريفنوع تعداد RecurseDirEvent {
         RECURSE_DIR_ENTER,      /* only for dir inodes */
         RECURSE_DIR_LEAVE,      /* only for dir inodes */
         RECURSE_DIR_ENTRY,      /* only for non-dir inodes */
@@ -73,14 +73,14 @@ assert_cc(RECURSE_DIR_SKIP_ENTRY < -ERRNO_MAX);
  * others                        → terminate iteration entirely, return the specified value (idea is that
  *                                 < 0 indicates errors and > 0 indicates various forms of success)
  */
-typedef int (*recurse_dir_func_t)(
+تعريفنوع صحيح (*recurse_dir_func_t)(
                 RecurseDirEvent event,
-                const char *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
-                int dir_fd,              /* fd of the current dir */
-                int inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
-                const struct dirent *de, /* directory entry (always valid) */
-                const struct statx *sx,  /* statx data (only if statx_mask was non-zero) */
-                void *userdata);
+                ثابت حرف *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
+                صحيح dir_fd,              /* fd of the current dir */
+                صحيح inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
+                ثابت بنية dirent *de, /* directory entry (always valid) */
+                ثابت بنية statx *sx,  /* statx data (only if statx_mask was non-zero) */
+                فراغ *userdata);
 
-int recurse_dir(int dir_fd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
-int recurse_dir_at(int atfd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
+صحيح recurse_dir(صحيح dir_fd, ثابت حرف *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, فراغ *userdata);
+صحيح recurse_dir_at(صحيح atfd, ثابت حرف *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, فراغ *userdata);

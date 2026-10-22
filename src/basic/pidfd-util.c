@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/magic.h>
-#include <sys/ioctl.h>
-#include <threads.h>
-#include <unistd.h>
+#ضمن <linux/magic.h>
+#ضمن <sys/ioctl.h>
+#ضمن <threads.h>
+#ضمن <unistd.h>
 
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "mountpoint-util.h"
-#include "parse-util.h"
-#include "pidfd-util.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#ضمن "errno-util.h"
+#ضمن "fd-util.h"
+#ضمن "fileio.h"
+#ضمن "mountpoint-util.h"
+#ضمن "parse-util.h"
+#ضمن "pidfd-util.h"
+#ضمن "process-util.h"
+#ضمن "stat-util.h"
+#ضمن "stdio-util.h"
+#ضمن "string-util.h"
 
-static thread_local int have_pidfs = -1;
+ساكن thread_local صحيح have_pidfs = -1;
 
-int pidfd_check_pidfs(int pid_fd) {
+صحيح pidfd_check_pidfs(صحيح pid_fd) {
 
         /* NB: the passed fd *must* be acquired via pidfd_open(), i.e. must be a true pidfd! */
 
-        if (have_pidfs >= 0)
-                return have_pidfs;
+        إذا (have_pidfs >= 0)
+                أرجع have_pidfs;
 
-        _cleanup_close_ int our_fd = -EBADF;
-        if (pid_fd < 0) {
+        _cleanup_close_ صحيح our_fd = -EBADF;
+        إذا (pid_fd < 0) {
                 our_fd = pidfd_open(getpid_cached(), /* flags= */ 0);
-                if (our_fd < 0)
-                        return -errno;
+                إذا (our_fd < 0)
+                        أرجع -errno;
 
                 pid_fd = our_fd;
         }
 
-        return (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
+        أرجع (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
 }
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
-        static bool cached_supported = true;
+صحيح pidfd_get_namespace(صحيح fd, unsigned long ns_type_cmd) {
+        ساكن bool cached_supported = true;
 
         /* Obtain the namespace fd from pidfd directly through ioctl(PIDFD_GET_*_NAMESPACE).
          *
@@ -46,80 +46,80 @@ int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
          * is disabled in kernel. (The errno used are different from what kernel returns via ioctl(),
          * see below) */
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* If we know ahead of time that pidfs is unavailable, shortcut things. But otherwise we don't
          * call pidfd_check_pidfs() here, which is kinda extraneous and our own cache is required
          * anyways (pidfs is introduced in kernel 6.9 while ioctl support there is added in 6.11). */
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        إذا (have_pidfs == 0 || !cached_supported)
+                أرجع -EOPNOTSUPP;
 
-        int nsfd = ioctl(fd, ns_type_cmd, 0);
-        if (nsfd < 0) {
+        صحيح nsfd = ioctl(fd, ns_type_cmd, 0);
+        إذا (nsfd < 0) {
                 /* Kernel returns EOPNOTSUPP if the ns type in question is disabled. Hence we need to look
                  * at precise errno instead of generic ERRNO_IS_(IOCTL_)NOT_SUPPORTED. */
-                if (IN_SET(errno, ENOTTY, EINVAL)) {
+                إذا (IN_SET(errno, ENOTTY, EINVAL)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        أرجع -EOPNOTSUPP;
                 }
-                if (errno == EOPNOTSUPP) /* Translate to something more recognizable */
-                        return -ENOPKG;
+                إذا (errno == EOPNOTSUPP) /* Translate to something more recognizable */
+                        أرجع -ENOPKG;
 
-                return -errno;
+                أرجع -errno;
         }
 
-        return nsfd;
+        أرجع nsfd;
 }
 
-int pidfd_get_info(int fd, struct pidfd_info *info) {
-        static bool cached_supported = true;
+صحيح pidfd_get_info(صحيح fd, بنية pidfd_info *info) {
+        ساكن bool cached_supported = true;
 
-        assert(fd >= 0);
-        assert(info);
+        أكد(fd >= 0);
+        أكد(info);
 
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        إذا (have_pidfs == 0 || !cached_supported)
+                أرجع -EOPNOTSUPP;
 
-        if (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
-                if (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
+        إذا (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
+                إذا (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        أرجع -EOPNOTSUPP;
                 }
 
-                return -errno;
+                أرجع -errno;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int pidfd_info_mask_is_supported(uint64_t mask) {
-        static thread_local uint64_t cached_mask = 0;
-        static thread_local int cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
-        int r;
+صحيح pidfd_info_mask_is_supported(uint64_t mask) {
+        ساكن thread_local uint64_t cached_mask = 0;
+        ساكن thread_local صحيح cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
+        صحيح r;
 
-        if (cached < 0)
-                return cached;
+        إذا (cached < 0)
+                أرجع cached;
 
-        if (cached == 0) {
-                _cleanup_close_ int pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
-                if (r < 0)
-                        return r;
+        إذا (cached == 0) {
+                _cleanup_close_ صحيح pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
+                إذا (r < 0)
+                        أرجع r;
 
-                struct pidfd_info info = {
+                بنية pidfd_info info = {
                         .mask = PIDFD_INFO_SUPPORTED_MASK, /* Since dfd78546c95330db2252e0d7e937a15ab5eddb4e (v6.19). */
                 };
 
                 r = pidfd_get_info(pidfd, &info);
-                if (r == -EOPNOTSUPP)
-                        return (cached = -EOPNOTSUPP);
-                if (r < 0)
-                        return r;
+                إذا (r == -EOPNOTSUPP)
+                        أرجع (cached = -EOPNOTSUPP);
+                إذا (r < 0)
+                        أرجع r;
 
-                if (FLAGS_SET(info.mask, PIDFD_INFO_SUPPORTED_MASK) &&
+                إذا (FLAGS_SET(info.mask, PIDFD_INFO_SUPPORTED_MASK) &&
                     FLAGS_SET(info.supported_mask, PIDFD_INFO_SUPPORTED_MASK))
                         /* The kernel is v6.19 or newer. Let's use the provided supported_mask. */
                         cached_mask = info.supported_mask;
-                else
+                وإلا
                         /* The kernel is older than v6.19. These three flags have been supported since
                          * ioctl(PIDFD_GET_INFO) was introduced, so a successful pidfd_get_info() call
                          * guarantees they are supported. However, there is no reliable way to
@@ -131,53 +131,53 @@ int pidfd_info_mask_is_supported(uint64_t mask) {
         }
 
         /* Return true when all requested features are supported. */
-        return FLAGS_SET(cached_mask, mask);
+        أرجع FLAGS_SET(cached_mask, mask);
 }
 
-static int pidfd_get_pid_fdinfo(int fd, pid_t *ret) {
-        char path[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(int)];
-        _cleanup_free_ char *p = NULL;
-        int r;
+ساكن صحيح pidfd_get_pid_fdinfo(صحيح fd, pid_t *ret) {
+        حرف path[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(صحيح)];
+        _cleanup_free_ حرف *p = عدم;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         xsprintf(path, "/proc/self/fdinfo/%i", fd);
 
         r = get_proc_field(path, "Pid", &p);
-        if (r == -ENOENT)
-                return -EBADF;
-        if (r == -ENODATA) /* not a pidfd? */
-                return -ENOTTY;
-        if (r < 0)
-                return r;
+        إذا (r == -ENOENT)
+                أرجع -EBADF;
+        إذا (r == -ENODATA) /* not a pidfd? */
+                أرجع -ENOTTY;
+        إذا (r < 0)
+                أرجع r;
 
-        if (streq(p, "0"))
-                return -EREMOTE; /* PID is in foreign PID namespace? */
-        if (streq(p, "-1"))
-                return -ESRCH;   /* refers to reaped process? */
+        إذا (streq(p, "0"))
+                أرجع -EREMOTE; /* PID is in foreign PID namespace? */
+        إذا (streq(p, "-1"))
+                أرجع -ESRCH;   /* refers to reaped process? */
 
-        return parse_pid(p, ret);
+        أرجع parse_pid(p, ret);
 }
 
-static int pidfd_get_pid_ioctl(int fd, pid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+ساكن صحيح pidfd_get_pid_ioctl(صحيح fd, pid_t *ret) {
+        بنية pidfd_info info = { .mask = PIDFD_INFO_PID };
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
+        أكد(FLAGS_SET(info.mask, PIDFD_INFO_PID));
 
-        if (ret)
+        إذا (ret)
                 *ret = info.pid;
-        return 0;
+        أرجع 0;
 }
 
-int pidfd_get_pid(int fd, pid_t *ret) {
-        int r;
+صحيح pidfd_get_pid(صحيح fd, pid_t *ret) {
+        صحيح r;
 
         /* Converts a pidfd into a pid. We try ioctl(PIDFD_GET_INFO) (kernel 6.13+) first,
          * /proc/self/fdinfo/ as fallback. Well known errors:
@@ -193,157 +193,157 @@ int pidfd_get_pid(int fd, pid_t *ret) {
          *               (when using PIDFD_GET_INFO this is indistinguishable from -ESRCH)
          */
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = pidfd_get_pid_ioctl(fd, ret);
-        if (r != -EOPNOTSUPP)
-                return r;
+        إذا (r != -EOPNOTSUPP)
+                أرجع r;
 
-        return pidfd_get_pid_fdinfo(fd, ret);
+        أرجع pidfd_get_pid_fdinfo(fd, ret);
 }
 
-int pidfd_verify_pid(int pidfd, pid_t pid) {
+صحيح pidfd_verify_pid(صحيح pidfd, pid_t pid) {
         pid_t current_pid;
-        int r;
+        صحيح r;
 
-        assert(pidfd >= 0);
-        assert(pid > 0);
+        أكد(pidfd >= 0);
+        أكد(pid > 0);
 
         r = pidfd_get_pid(pidfd, &current_pid);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return current_pid != pid ? -ESRCH : 0;
+        أرجع current_pid != pid ? -ESRCH : 0;
 }
 
-int pidfd_get_ppid(int fd, pid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+صحيح pidfd_get_ppid(صحيح fd, pid_t *ret) {
+        بنية pidfd_info info = { .mask = PIDFD_INFO_PID };
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
+        أكد(FLAGS_SET(info.mask, PIDFD_INFO_PID));
 
-        if (info.ppid == 0) /* See comments in pid_get_ppid() */
-                return -EADDRNOTAVAIL;
+        إذا (info.ppid == 0) /* See comments in pid_get_ppid() */
+                أرجع -EADDRNOTAVAIL;
 
-        if (ret)
+        إذا (ret)
                 *ret = info.ppid;
-        return 0;
+        أرجع 0;
 }
 
-int pidfd_get_uid(int fd, uid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_CREDS };
-        int r;
+صحيح pidfd_get_uid(صحيح fd, uid_t *ret) {
+        بنية pidfd_info info = { .mask = PIDFD_INFO_CREDS };
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_CREDS));
+        أكد(FLAGS_SET(info.mask, PIDFD_INFO_CREDS));
 
-        if (ret)
+        إذا (ret)
                 *ret = info.ruid;
-        return 0;
+        أرجع 0;
 }
 
-int pidfd_get_cgroupid(int fd, uint64_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_CGROUPID };
-        int r;
+صحيح pidfd_get_cgroupid(صحيح fd, uint64_t *ret) {
+        بنية pidfd_info info = { .mask = PIDFD_INFO_CGROUPID };
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_CGROUPID));
+        أكد(FLAGS_SET(info.mask, PIDFD_INFO_CGROUPID));
 
-        if (ret)
+        إذا (ret)
                 *ret = info.cgroupid;
-        return 0;
+        أرجع 0;
 }
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret) {
-        static thread_local bool file_handle_supported = true;
-        int r;
+صحيح pidfd_get_inode_id_impl(صحيح fd, uint64_t *ret) {
+        ساكن thread_local bool file_handle_supported = true;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* Since kernel 6.14 (b3caba8f7a34a2bbaf45ffc6ff3a49b70afeb192), we can use name_to_handle_at(). */
-        if (file_handle_supported) {
+        إذا (file_handle_supported) {
                 r = fd_to_handle_u64(fd, ret);
-                if (r >= 0 || is_name_to_handle_at_fatal_error(r))
-                        return r;
+                إذا (r >= 0 || is_name_to_handle_at_fatal_error(r))
+                        أرجع r;
 
                 file_handle_supported = false;
         }
 
-#if SIZEOF_INO_T == 8
-        struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+#إذا SIZEOF_INO_T == 8
+        بنية stat st;
+        إذا (fstat(fd, &st) < 0)
+                أرجع -errno;
 
-        if (ret)
+        إذا (ret)
                 *ret = (uint64_t) st.st_ino;
-        return 0;
+        أرجع 0;
 
-#elif SIZEOF_INO_T == 4
+#وإلاإذا SIZEOF_INO_T == 4
         /* On 32-bit systems (where sizeof(ino_t) == 4), the inode id returned by fstat() cannot be used to
          * reliably identify the process, nor can we communicate the origin of the id with the clients.
          * Hence let's just refuse to acquire pidfdid through fstat() here. All clients shall also insist on
          * the 64-bit id from name_to_handle_at(). */
-        return -EOPNOTSUPP;
-#else
+        أرجع -EOPNOTSUPP;
+#وإلا
 #  error Unsupported ino_t size
 #endif
 }
 
-int pidfd_get_inode_id(int fd, uint64_t *ret) {
-        int r;
+صحيح pidfd_get_inode_id(صحيح fd, uint64_t *ret) {
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = pidfd_check_pidfs(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EOPNOTSUPP;
+        إذا (r < 0)
+                أرجع r;
+        إذا (r == 0)
+                أرجع -EOPNOTSUPP;
 
-        return pidfd_get_inode_id_impl(fd, ret);
+        أرجع pidfd_get_inode_id_impl(fd, ret);
 }
 
-int pidfd_get_inode_id_self_cached(uint64_t *ret) {
-        static thread_local uint64_t cached = 0;
-        static thread_local pid_t initialized = 0; /* < 0: cached error; == 0: invalid; > 0: valid and pid that was current */
-        int r;
+صحيح pidfd_get_inode_id_self_cached(uint64_t *ret) {
+        ساكن thread_local uint64_t cached = 0;
+        ساكن thread_local pid_t initialized = 0; /* < 0: cached error; == 0: invalid; > 0: valid and pid that was current */
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
-        if (initialized == getpid_cached()) {
+        إذا (initialized == getpid_cached()) {
                 *ret = cached;
-                return 0;
+                أرجع 0;
         }
-        if (initialized < 0)
-                return initialized;
+        إذا (initialized < 0)
+                أرجع initialized;
 
-        _cleanup_close_ int fd = pidfd_open(getpid_cached(), 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ صحيح fd = pidfd_open(getpid_cached(), 0);
+        إذا (fd < 0)
+                أرجع -errno;
 
         r = pidfd_get_inode_id(fd, &cached);
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                return (initialized = -EOPNOTSUPP);
-        if (r < 0)
-                return r;
+        إذا (ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                أرجع (initialized = -EOPNOTSUPP);
+        إذا (r < 0)
+                أرجع r;
 
         *ret = cached;
         initialized = getpid_cached();
-        return 0;
+        أرجع 0;
 }
