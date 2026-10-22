@@ -10,35 +10,35 @@
 bool http_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        ако (isempty(url))
+                врати false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        ако (!p)
+                врати false;
 
-        if (isempty(p))
-                return false;
+        ако (isempty(p))
+                врати false;
 
-        return ascii_is_valid(p);
+        врати ascii_is_valid(p);
 }
 
 bool file_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        ако (isempty(url))
+                врати false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        ако (isempty(p))
+                врати false;
 
-        return ascii_is_valid(p);
+        врати ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
+цео provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
         const char *p, *e;
-        int r;
+        цео r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        ако (isempty(url))
+                врати -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        ако (!p)
+                врати -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        ако (!e || e == p)
+                врати -EINVAL;
+        ако (e[1] != '/')
+                врати -EINVAL;
 
         _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        ако (!path_is_absolute(s) || !path_is_normalized(s))
+                врати -EINVAL;
 
         const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        ако (isempty(resource))
+                врати -EINVAL;
+        ако (path_is_absolute(resource) || !path_is_normalized(resource))
+                врати -EINVAL;
+        ако (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
+                врати -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (ret_socket)
+        ако (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        врати 0;
 }
 
 bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+        врати provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
 }
 
 bool documentation_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        ако (isempty(url))
+                врати false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        ако (http_url_is_valid(url) || file_url_is_valid(url))
+                врати true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        ако (isempty(p))
+                врати false;
 
-        return ascii_is_valid(p);
+        врати ascii_is_valid(p);
 }
 
 bool http_header_valid(const char *header) {
-        return header &&
+        врати header &&
                 ascii_is_valid(header) &&
                 !string_has_cc(header, /* ok= */ NULL) &&
                 strchr(header, ':');
 }
 
 bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+        ако (isempty(etag))
+                врати false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        ако (!endswith(etag, "\""))
+                врати false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        ако (!STARTSWITH_SET(etag, "\"", "W/\""))
+                врати false;
 
-        return true;
+        врати true;
 }

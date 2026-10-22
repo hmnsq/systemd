@@ -11,81 +11,81 @@
 #include "string-util.h"
 #include "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+цео allow_listed_char_for_devnode(char c, const char *additional) {
+        врати
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
                 strchr("#+-.:=@_", c) ||
                 (additional && strchr(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
+цео encode_devnode_name(const char *str, char *str_enc, size_t len) {
         size_t i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        ако (!str || !str_enc)
+                врати -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        за (i = 0, j = 0; str[i] != '\0'; i++) {
+                цео seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                ако (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        ако (len-j < (size_t) seqlen)
+                                врати -EINVAL;
 
                         memcpy(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } инако ако (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        ако (len-j < 5)
+                                врати -EINVAL;
 
                         assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } инако {
+                        ако (len-j < 1)
+                                врати -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        ако (len-j < 1)
+                врати -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        врати 0;
 }
 
-int devnode_same(const char *a, const char *b) {
+цео devnode_same(const char *a, const char *b) {
         struct stat sa, sb;
-        int r;
+        цео r;
 
         assert(a);
         assert(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        ако (!valid_device_node_path(a) || !valid_device_node_path(b))
+                врати -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
+        ако (stat(a, &sa) < 0)
+                врати -errno;
         r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
+        ако (stat(b, &sb) < 0)
+                врати -errno;
         r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        ако (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                врати false;
 
-        return sa.st_rdev == sb.st_rdev;
+        врати sa.st_rdev == sb.st_rdev;
 }

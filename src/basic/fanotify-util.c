@@ -13,18 +13,18 @@ bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotif
         assert(i);
         assert(ret);
 
-        if (i->left < sizeof(struct fanotify_event_metadata))
-                return false;
+        ако (i->left < sizeof(struct fanotify_event_metadata))
+                врати false;
 
         /* Read event_len without going through struct fanotify_event_metadata: the struct requires 64-bit
          * alignment (due to the __aligned_u64 mask field), but 'ptr' may only be 4-byte aligned, as the
          * kernel pads events to FANOTIFY_EVENT_ALIGN (4). */
         uint32_t event_len = unaligned_read_ne32(i->ptr);
 
-        if (event_len < sizeof(struct fanotify_event_metadata) ||
+        ако (event_len < sizeof(struct fanotify_event_metadata) ||
             event_len > i->left ||
             event_len > sizeof(i->aligned.raw))
-                return false;
+                врати false;
 
         /* Copy the whole event (metadata + info records) into an 8-byte aligned buffer, so the metadata and
          * the trailing records can be dereferenced safely. */
@@ -34,13 +34,13 @@ bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotif
         i->left -= event_len;
 
         *ret = &i->aligned.em;
-        return true;
+        врати true;
 }
 
 static const struct fanotify_event_info_header* fanotify_event_info_header_first(const struct fanotify_event_metadata *e) {
         assert(e);
 
-        return (const struct fanotify_event_info_header*) ((const uint8_t*) e + e->metadata_len);
+        врати (const struct fanotify_event_info_header*) ((const uint8_t*) e + e->metadata_len);
 }
 
 static bool fanotify_event_info_header_is_valid(
@@ -50,7 +50,7 @@ static bool fanotify_event_info_header_is_valid(
         assert(h);
         assert(e);
 
-        return (const uint8_t*) h + sizeof(*h) <= (const uint8_t*) e + e->event_len &&
+        врати (const uint8_t*) h + sizeof(*h) <= (const uint8_t*) e + e->event_len &&
                 h->len >= sizeof(*h) &&
                 (const uint8_t*) h + h->len <= (const uint8_t*) e + e->event_len;
 }
@@ -58,59 +58,59 @@ static bool fanotify_event_info_header_is_valid(
 static const struct fanotify_event_info_header* fanotify_event_info_header_next(const struct fanotify_event_info_header *h) {
         assert(h);
 
-        return (const struct fanotify_event_info_header*) ((const uint8_t*) h + h->len);
+        врати (const struct fanotify_event_info_header*) ((const uint8_t*) h + h->len);
 }
 
 /* This evaluates arguments multiple times */
 #define FOREACH_FANOTIFY_EVENT_INFO(h, e)                               \
-        for (const struct fanotify_event_info_header *h = fanotify_event_info_header_first(e); \
+        за (const struct fanotify_event_info_header *h = fanotify_event_info_header_first(e); \
              fanotify_event_info_header_is_valid(h, e);                 \
              h = fanotify_event_info_header_next(h))
 
 #define FID_MIN_SIZE (offsetof(struct fanotify_event_info_fid, handle) + offsetof(struct file_handle, f_handle))
 
-int fanotify_event_pin_fd(
+цео fanotify_event_pin_fd(
                 const struct fanotify_event_metadata *e,
-                int mount_fd,
+                цео mount_fd,
                 const struct statfs *sfs) {
 
         assert(e);
         assert(mount_fd >= 0);
 
         FOREACH_FANOTIFY_EVENT_INFO(h, e) {
-                if (h->info_type != FAN_EVENT_INFO_TYPE_FID)
+                ако (h->info_type != FAN_EVENT_INFO_TYPE_FID)
                         continue;
 
-                if (h->len < FID_MIN_SIZE)
-                        return -EBADMSG;
+                ако (h->len < FID_MIN_SIZE)
+                        врати -EBADMSG;
 
                 const struct fanotify_event_info_fid *fid = (const struct fanotify_event_info_fid*) h;
                 struct file_handle *fh = (struct file_handle*) fid->handle;
 
-                if (h->len < FID_MIN_SIZE + fh->handle_bytes)
-                        return -EBADMSG;
+                ако (h->len < FID_MIN_SIZE + fh->handle_bytes)
+                        врати -EBADMSG;
 
                 struct statfs our_sfs;
-                if (!statfs_is_set(sfs)) {
-                        if (fstatfs(mount_fd, &our_sfs) < 0)
-                                return -errno;
+                ако (!statfs_is_set(sfs)) {
+                        ако (fstatfs(mount_fd, &our_sfs) < 0)
+                                врати -errno;
 
                         sfs = &our_sfs;
                 }
 
-                if (memcmp(&fid->fsid, &sfs->f_fsid, sizeof(fid->fsid)) != 0)
-                        return -ESTALE;
+                ако (memcmp(&fid->fsid, &sfs->f_fsid, sizeof(fid->fsid)) != 0)
+                        врати -ESTALE;
 
-                return RET_NERRNO(open_by_handle_at(mount_fd, fh, O_CLOEXEC | O_PATH));
+                врати RET_NERRNO(open_by_handle_at(mount_fd, fh, O_CLOEXEC | O_PATH));
         }
 
-        return -ENODATA;
+        врати -ENODATA;
 }
 
-int fanotify_mark_fd(int fanotify_fd, unsigned flags, uint64_t mask, int fd) {
+цео fanotify_mark_fd(цео fanotify_fd, unsigned flags, uint64_t mask, цео fd) {
         assert(fanotify_fd >= 0);
         assert(fd >= 0);
 
         /* This also works for O_PATH fds, which fanotify_mark() rejects as dirfd. */
-        return RET_NERRNO(fanotify_mark(fanotify_fd, flags, mask, AT_FDCWD, FORMAT_PROC_FD_PATH(fd)));
+        врати RET_NERRNO(fanotify_mark(fanotify_fd, flags, mask, AT_FDCWD, FORMAT_PROC_FD_PATH(fd)));
 }

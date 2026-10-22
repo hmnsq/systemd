@@ -8,73 +8,73 @@
 #include "string-util.h"
 
 const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+        ако (i < 0 || i >= (ssize_t) len)
+                врати NULL;
 
         assert(table);
 
-        return table[i];
+        врати table[i];
 }
 
 ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        ако (!key)
+                врати -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        за (size_t i = 0; i < len; ++i)
+                ако (streq_ptr(table[i], key))
+                        врати (ssize_t) i;
 
-        return -EINVAL;
+        врати -EINVAL;
 }
 
 ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+        ако (!key)
+                врати -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        цео b = parse_boolean(key);
+        ако (b == 0)
+                врати 0;
+        ако (b > 0)
+                врати yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        врати string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
+цео string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
         char *s;
 
         assert(table);
         assert(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        ако (i < 0 || i > (ssize_t) max)
+                врати -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        ако (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        инако
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         *ret = s;
-        return 0;
+        врати 0;
 }
 
 ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+        ако (!s)
+                врати -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        ако (i >= 0)
+                врати i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        ако (safe_atou(s, &u) < 0)
+                врати -EINVAL;
+        ако (u > max)
+                врати -EINVAL;
 
-        return u;
+        врати u;
 }

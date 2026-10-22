@@ -11,44 +11,44 @@
 #include "string-table.h"
 #include "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+цео reset_all_signal_handlers(void) {
+        цео ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        за (цео sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
+                ако (IN_SET(sig, SIGKILL, SIGSTOP))
                         continue;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
                 r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                ако (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        врати ret;
 }
 
-int reset_signal_mask(void) {
+цео reset_signal_mask(void) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ако (sigemptyset(&ss) < 0)
+                врати -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        врати RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+цео sigaction_many_internal(const struct sigaction *sa, ...) {
+        цео sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        док ((sig = va_arg(ap, цео)) >= 0) {
 
-                if (sig == 0)
+                ако (sig == 0)
                         continue;
 
                 RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
@@ -56,55 +56,55 @@ int sigaction_many_internal(const struct sigaction *sa, ...) {
 
         va_end(ap);
 
-        return r;
+        врати r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+static цео sigset_add_many_ap(sigset_t *ss, va_list ap) {
+        цео sig, r = 0;
 
         assert(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        док ((sig = va_arg(ap, цео)) >= 0) {
 
-                if (sig == 0)
+                ако (sig == 0)
                         continue;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                ако (sigaddset(ss, sig) < 0) {
+                        ако (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        врати r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+цео sigset_add_many_internal(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        цео r;
 
         va_start(ap, ss);
         r = sigset_add_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        врати r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+цео sigprocmask_many_internal(цео how, sigset_t *ret_old_mask, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        цео r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ако (sigemptyset(&ss) < 0)
+                врати -errno;
 
         va_start(ap, ret_old_mask);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        врати RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
 }
 
 static const char *const static_signal_table[] = {
@@ -143,84 +143,84 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, цео);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
+const char* signal_to_string(цео signo) {
+        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(цео)];
         const char *name;
 
         name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        ако (name)
+                врати name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        ако (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        инако
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        врати buf;
 }
 
-int signal_from_string(const char *s) {
+цео signal_from_string(const char *s) {
         const char *p;
-        int signo, r;
+        цео signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        ако (safe_atoi(s, &signo) >= 0) {
+                ако (SIGNAL_VALID(signo))
+                        врати signo;
+                инако
+                        врати -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        ако (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        ако (signo > 0)
+                врати signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        ако (p) {
+                ако (*p == '\0')
+                        врати SIGRTMIN;
+                ако (*p != '+')
+                        врати -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                ако (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        врати -ERANGE;
 
-                return signo + SIGRTMIN;
+                врати signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        ако (p) {
+                ако (*p == '\0')
+                        врати SIGRTMAX;
+                ако (*p != '-')
+                        врати -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                ако (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        врати -ERANGE;
 
-                return signo + SIGRTMAX;
+                врати signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        врати -EINVAL;
 }
 
 static const char *const sigill_code_table[] = {
@@ -235,7 +235,7 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, цео);
 
 static const char *const sigfpe_code_table[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
@@ -250,7 +250,7 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, цео);
 
 static const char *const sigsegv_code_table[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
@@ -265,7 +265,7 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, цео);
 
 static const char *const sigbus_code_table[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
@@ -275,7 +275,7 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, цео);
 
 static const char *const sigtrap_code_table[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
@@ -286,14 +286,14 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, цео);
 
 static const char *const sigsys_code_table[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, цео);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
@@ -307,7 +307,7 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, цео);
 
 static const char *const sigpoll_code_table[] = {
         [POLL_IN]  = "POLL_IN",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, цео);
 
-const char* signal_code_to_string(int signo, int code) {
+const char* signal_code_to_string(цео signo, цео code) {
         switch (code) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
         case SI_KERNEL:
-                return "SI_KERNEL";
+                врати "SI_KERNEL";
         case SI_USER:
-                return "SI_USER";
+                врати "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
         case SI_ASYNCNL:
-                return "SI_ASYNCNL";
+                врати "SI_ASYNCNL";
         case SI_DETHREAD:
-                return "SI_DETHREAD";
+                врати "SI_DETHREAD";
         case SI_TKILL:
-                return "SI_TKILL";
+                врати "SI_TKILL";
         case SI_SIGIO:
-                return "SI_SIGIO";
+                врати "SI_SIGIO";
         case SI_ASYNCIO:
-                return "SI_ASYNCIO";
+                врати "SI_ASYNCIO";
         case SI_MESGQ:
-                return "SI_MESGQ";
+                врати "SI_MESGQ";
         case SI_TIMER:
-                return "SI_TIMER";
+                врати "SI_TIMER";
         case SI_QUEUE:
-                return "SI_QUEUE";
+                врати "SI_QUEUE";
         }
 
         switch (signo) {
         case SIGILL:
-                return sigill_code_to_string(code);
+                врати sigill_code_to_string(code);
         case SIGFPE:
-                return sigfpe_code_to_string(code);
+                врати sigfpe_code_to_string(code);
         case SIGSEGV:
-                return sigsegv_code_to_string(code);
+                врати sigsegv_code_to_string(code);
         case SIGBUS:
-                return sigbus_code_to_string(code);
+                врати sigbus_code_to_string(code);
         case SIGTRAP:
-                return sigtrap_code_to_string(code);
+                врати sigtrap_code_to_string(code);
         case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
+                врати sigchld_uppercase_code_to_string(code);
         case SIGPOLL:
-                return sigpoll_code_to_string(code);
+                врати sigpoll_code_to_string(code);
         case SIGSYS:
-                return sigsys_code_to_string(code);
+                врати sigsys_code_to_string(code);
         default:
-                return NULL;
+                врати NULL;
         }
 }
 
-void nop_signal_handler(int sig) {
+void nop_signal_handler(цео sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+цео signal_is_blocked(цео sig) {
         sigset_t ss;
-        int r;
+        цео r;
 
         r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        ако (r != 0)
+                врати -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        врати RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
+цео autoreaping_enabled(void) {
         struct sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        ако (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
+                врати -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        врати sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+цео pop_pending_signal_internal(цео sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        цео r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        ако (sig < 0) /* Empty list? */
+                врати -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ако (sigemptyset(&ss) < 0)
+                врати -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        ако (sig > 0 && sigaddset(&ss, sig) < 0)
+                врати -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        ако (r < 0) {
+                ако (errno == EAGAIN)
+                        врати 0;
 
-                return -errno;
+                врати -errno;
         }
 
-        return r; /* Returns the signal popped */
+        врати r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+void propagate_signal(цео sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,7 +443,7 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        ако (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
@@ -462,29 +462,29 @@ const struct sigaction sigaction_nop_nocldstop = {
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+цео parse_signo(const char *s, цео *ret) {
+        цео sig, r;
 
         r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        ако (!SIGNAL_VALID(sig))
+                врати -EINVAL;
 
-        if (ret)
+        ако (ret)
                 *ret = sig;
 
-        return 0;
+        врати 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
+void sigterm_process_group_handler(цео signal, siginfo_t *info, void *ucontext) {
         assert(signal == SIGTERM);
         assert(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        ако (si_code_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
                 (void) kill(0, signal);

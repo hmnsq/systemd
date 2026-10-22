@@ -16,28 +16,28 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-static thread_local int have_pidfs = -1;
+static thread_local цео have_pidfs = -1;
 
-int pidfd_check_pidfs(int pid_fd) {
+цео pidfd_check_pidfs(цео pid_fd) {
 
         /* NB: the passed fd *must* be acquired via pidfd_open(), i.e. must be a true pidfd! */
 
-        if (have_pidfs >= 0)
-                return have_pidfs;
+        ако (have_pidfs >= 0)
+                врати have_pidfs;
 
-        _cleanup_close_ int our_fd = -EBADF;
-        if (pid_fd < 0) {
+        _cleanup_close_ цео our_fd = -EBADF;
+        ако (pid_fd < 0) {
                 our_fd = pidfd_open(getpid_cached(), /* flags= */ 0);
-                if (our_fd < 0)
-                        return -errno;
+                ако (our_fd < 0)
+                        врати -errno;
 
                 pid_fd = our_fd;
         }
 
-        return (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
+        врати (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
 }
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
+цео pidfd_get_namespace(цео fd, unsigned long ns_type_cmd) {
         static bool cached_supported = true;
 
         /* Obtain the namespace fd from pidfd directly through ioctl(PIDFD_GET_*_NAMESPACE).
@@ -51,75 +51,75 @@ int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
         /* If we know ahead of time that pidfs is unavailable, shortcut things. But otherwise we don't
          * call pidfd_check_pidfs() here, which is kinda extraneous and our own cache is required
          * anyways (pidfs is introduced in kernel 6.9 while ioctl support there is added in 6.11). */
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        ако (have_pidfs == 0 || !cached_supported)
+                врати -EOPNOTSUPP;
 
-        int nsfd = ioctl(fd, ns_type_cmd, 0);
-        if (nsfd < 0) {
+        цео nsfd = ioctl(fd, ns_type_cmd, 0);
+        ако (nsfd < 0) {
                 /* Kernel returns EOPNOTSUPP if the ns type in question is disabled. Hence we need to look
                  * at precise errno instead of generic ERRNO_IS_(IOCTL_)NOT_SUPPORTED. */
-                if (IN_SET(errno, ENOTTY, EINVAL)) {
+                ако (IN_SET(errno, ENOTTY, EINVAL)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        врати -EOPNOTSUPP;
                 }
-                if (errno == EOPNOTSUPP) /* Translate to something more recognizable */
-                        return -ENOPKG;
+                ако (errno == EOPNOTSUPP) /* Translate to something more recognizable */
+                        врати -ENOPKG;
 
-                return -errno;
+                врати -errno;
         }
 
-        return nsfd;
+        врати nsfd;
 }
 
-int pidfd_get_info(int fd, struct pidfd_info *info) {
+цео pidfd_get_info(цео fd, struct pidfd_info *info) {
         static bool cached_supported = true;
 
         assert(fd >= 0);
         assert(info);
 
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        ако (have_pidfs == 0 || !cached_supported)
+                врати -EOPNOTSUPP;
 
-        if (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
-                if (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
+        ако (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
+                ако (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        врати -EOPNOTSUPP;
                 }
 
-                return -errno;
+                врати -errno;
         }
 
-        return 0;
+        врати 0;
 }
 
-int pidfd_info_mask_is_supported(uint64_t mask) {
+цео pidfd_info_mask_is_supported(uint64_t mask) {
         static thread_local uint64_t cached_mask = 0;
-        static thread_local int cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
-        int r;
+        static thread_local цео cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
+        цео r;
 
-        if (cached < 0)
-                return cached;
+        ако (cached < 0)
+                врати cached;
 
-        if (cached == 0) {
-                _cleanup_close_ int pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
-                if (r < 0)
-                        return r;
+        ако (cached == 0) {
+                _cleanup_close_ цео pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
+                ако (r < 0)
+                        врати r;
 
                 struct pidfd_info info = {
                         .mask = PIDFD_INFO_SUPPORTED_MASK, /* Since dfd78546c95330db2252e0d7e937a15ab5eddb4e (v6.19). */
                 };
 
                 r = pidfd_get_info(pidfd, &info);
-                if (r == -EOPNOTSUPP)
-                        return (cached = -EOPNOTSUPP);
-                if (r < 0)
-                        return r;
+                ако (r == -EOPNOTSUPP)
+                        врати (cached = -EOPNOTSUPP);
+                ако (r < 0)
+                        врати r;
 
-                if (FLAGS_SET(info.mask, PIDFD_INFO_SUPPORTED_MASK) &&
+                ако (FLAGS_SET(info.mask, PIDFD_INFO_SUPPORTED_MASK) &&
                     FLAGS_SET(info.supported_mask, PIDFD_INFO_SUPPORTED_MASK))
                         /* The kernel is v6.19 or newer. Let's use the provided supported_mask. */
                         cached_mask = info.supported_mask;
-                else
+                инако
                         /* The kernel is older than v6.19. These three flags have been supported since
                          * ioctl(PIDFD_GET_INFO) was introduced, so a successful pidfd_get_info() call
                          * guarantees they are supported. However, there is no reliable way to
@@ -131,53 +131,53 @@ int pidfd_info_mask_is_supported(uint64_t mask) {
         }
 
         /* Return true when all requested features are supported. */
-        return FLAGS_SET(cached_mask, mask);
+        врати FLAGS_SET(cached_mask, mask);
 }
 
-static int pidfd_get_pid_fdinfo(int fd, pid_t *ret) {
-        char path[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(int)];
+static цео pidfd_get_pid_fdinfo(цео fd, pid_t *ret) {
+        char path[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(цео)];
         _cleanup_free_ char *p = NULL;
-        int r;
+        цео r;
 
         assert(fd >= 0);
 
         xsprintf(path, "/proc/self/fdinfo/%i", fd);
 
         r = get_proc_field(path, "Pid", &p);
-        if (r == -ENOENT)
-                return -EBADF;
-        if (r == -ENODATA) /* not a pidfd? */
-                return -ENOTTY;
-        if (r < 0)
-                return r;
+        ако (r == -ENOENT)
+                врати -EBADF;
+        ако (r == -ENODATA) /* not a pidfd? */
+                врати -ENOTTY;
+        ако (r < 0)
+                врати r;
 
-        if (streq(p, "0"))
-                return -EREMOTE; /* PID is in foreign PID namespace? */
-        if (streq(p, "-1"))
-                return -ESRCH;   /* refers to reaped process? */
+        ако (streq(p, "0"))
+                врати -EREMOTE; /* PID is in foreign PID namespace? */
+        ако (streq(p, "-1"))
+                врати -ESRCH;   /* refers to reaped process? */
 
-        return parse_pid(p, ret);
+        врати parse_pid(p, ret);
 }
 
-static int pidfd_get_pid_ioctl(int fd, pid_t *ret) {
+static цео pidfd_get_pid_ioctl(цео fd, pid_t *ret) {
         struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+        цео r;
 
         assert(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
 
-        if (ret)
+        ако (ret)
                 *ret = info.pid;
-        return 0;
+        врати 0;
 }
 
-int pidfd_get_pid(int fd, pid_t *ret) {
-        int r;
+цео pidfd_get_pid(цео fd, pid_t *ret) {
+        цео r;
 
         /* Converts a pidfd into a pid. We try ioctl(PIDFD_GET_INFO) (kernel 6.13+) first,
          * /proc/self/fdinfo/ as fallback. Well known errors:
@@ -196,154 +196,154 @@ int pidfd_get_pid(int fd, pid_t *ret) {
         assert(fd >= 0);
 
         r = pidfd_get_pid_ioctl(fd, ret);
-        if (r != -EOPNOTSUPP)
-                return r;
+        ако (r != -EOPNOTSUPP)
+                врати r;
 
-        return pidfd_get_pid_fdinfo(fd, ret);
+        врати pidfd_get_pid_fdinfo(fd, ret);
 }
 
-int pidfd_verify_pid(int pidfd, pid_t pid) {
+цео pidfd_verify_pid(цео pidfd, pid_t pid) {
         pid_t current_pid;
-        int r;
+        цео r;
 
         assert(pidfd >= 0);
         assert(pid > 0);
 
         r = pidfd_get_pid(pidfd, &current_pid);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        return current_pid != pid ? -ESRCH : 0;
+        врати current_pid != pid ? -ESRCH : 0;
 }
 
-int pidfd_get_ppid(int fd, pid_t *ret) {
+цео pidfd_get_ppid(цео fd, pid_t *ret) {
         struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+        цео r;
 
         assert(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
 
-        if (info.ppid == 0) /* See comments in pid_get_ppid() */
-                return -EADDRNOTAVAIL;
+        ако (info.ppid == 0) /* See comments in pid_get_ppid() */
+                врати -EADDRNOTAVAIL;
 
-        if (ret)
+        ако (ret)
                 *ret = info.ppid;
-        return 0;
+        врати 0;
 }
 
-int pidfd_get_uid(int fd, uid_t *ret) {
+цео pidfd_get_uid(цео fd, uid_t *ret) {
         struct pidfd_info info = { .mask = PIDFD_INFO_CREDS };
-        int r;
+        цео r;
 
         assert(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         assert(FLAGS_SET(info.mask, PIDFD_INFO_CREDS));
 
-        if (ret)
+        ако (ret)
                 *ret = info.ruid;
-        return 0;
+        врати 0;
 }
 
-int pidfd_get_cgroupid(int fd, uint64_t *ret) {
+цео pidfd_get_cgroupid(цео fd, uint64_t *ret) {
         struct pidfd_info info = { .mask = PIDFD_INFO_CGROUPID };
-        int r;
+        цео r;
 
         assert(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         assert(FLAGS_SET(info.mask, PIDFD_INFO_CGROUPID));
 
-        if (ret)
+        ако (ret)
                 *ret = info.cgroupid;
-        return 0;
+        врати 0;
 }
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret) {
+цео pidfd_get_inode_id_impl(цео fd, uint64_t *ret) {
         static thread_local bool file_handle_supported = true;
-        int r;
+        цео r;
 
         assert(fd >= 0);
 
         /* Since kernel 6.14 (b3caba8f7a34a2bbaf45ffc6ff3a49b70afeb192), we can use name_to_handle_at(). */
-        if (file_handle_supported) {
+        ако (file_handle_supported) {
                 r = fd_to_handle_u64(fd, ret);
-                if (r >= 0 || is_name_to_handle_at_fatal_error(r))
-                        return r;
+                ако (r >= 0 || is_name_to_handle_at_fatal_error(r))
+                        врати r;
 
                 file_handle_supported = false;
         }
 
-#if SIZEOF_INO_T == 8
+#ако SIZEOF_INO_T == 8
         struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ако (fstat(fd, &st) < 0)
+                врати -errno;
 
-        if (ret)
+        ако (ret)
                 *ret = (uint64_t) st.st_ino;
-        return 0;
+        врати 0;
 
 #elif SIZEOF_INO_T == 4
         /* On 32-bit systems (where sizeof(ino_t) == 4), the inode id returned by fstat() cannot be used to
          * reliably identify the process, nor can we communicate the origin of the id with the clients.
          * Hence let's just refuse to acquire pidfdid through fstat() here. All clients shall also insist on
          * the 64-bit id from name_to_handle_at(). */
-        return -EOPNOTSUPP;
-#else
+        врати -EOPNOTSUPP;
+#инако
 #  error Unsupported ino_t size
 #endif
 }
 
-int pidfd_get_inode_id(int fd, uint64_t *ret) {
-        int r;
+цео pidfd_get_inode_id(цео fd, uint64_t *ret) {
+        цео r;
 
         assert(fd >= 0);
 
         r = pidfd_check_pidfs(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EOPNOTSUPP;
+        ако (r < 0)
+                врати r;
+        ако (r == 0)
+                врати -EOPNOTSUPP;
 
-        return pidfd_get_inode_id_impl(fd, ret);
+        врати pidfd_get_inode_id_impl(fd, ret);
 }
 
-int pidfd_get_inode_id_self_cached(uint64_t *ret) {
+цео pidfd_get_inode_id_self_cached(uint64_t *ret) {
         static thread_local uint64_t cached = 0;
         static thread_local pid_t initialized = 0; /* < 0: cached error; == 0: invalid; > 0: valid and pid that was current */
-        int r;
+        цео r;
 
         assert(ret);
 
-        if (initialized == getpid_cached()) {
+        ако (initialized == getpid_cached()) {
                 *ret = cached;
-                return 0;
+                врати 0;
         }
-        if (initialized < 0)
-                return initialized;
+        ако (initialized < 0)
+                врати initialized;
 
-        _cleanup_close_ int fd = pidfd_open(getpid_cached(), 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ цео fd = pidfd_open(getpid_cached(), 0);
+        ако (fd < 0)
+                врати -errno;
 
         r = pidfd_get_inode_id(fd, &cached);
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                return (initialized = -EOPNOTSUPP);
-        if (r < 0)
-                return r;
+        ако (ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                врати (initialized = -EOPNOTSUPP);
+        ако (r < 0)
+                врати r;
 
         *ret = cached;
         initialized = getpid_cached();
-        return 0;
+        врати 0;
 }

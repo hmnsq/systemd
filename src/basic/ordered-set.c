@@ -8,80 +8,80 @@
 #include "ordered-set.h"
 #include "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
+цео ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
         assert(s);
 
-        if (*s)
-                return 0;
+        ако (*s)
+                врати 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        ако (!*s)
+                врати -ENOMEM;
 
-        return 0;
+        врати 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+цео ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
+        цео r;
 
         assert(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        return ordered_set_put(*s, p);
+        врати ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+цео ordered_set_consume(OrderedSet *s, void *p) {
+        цео r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
+        ако (r <= 0)
                 free(p);
 
-        return r;
+        врати r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
+цео ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
         char *c;
-        int r;
+        цео r;
 
         assert(s);
         assert(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        ако (ordered_set_contains(*s, p))
+                врати 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        ако (!c)
+                врати -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        врати ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+цео ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
+        цео r, ret = 0;
 
         assert(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        врати ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
+цео ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
+        цео r, ret = 0;
         char *p;
 
         assert(s);
@@ -90,13 +90,13 @@ int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        врати ret;
 }
 
 void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
@@ -106,8 +106,8 @@ void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
         assert(f);
         assert(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        ако (ordered_set_isempty(s))
+                врати;
 
         fputs(field, f);
 

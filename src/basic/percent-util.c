@@ -4,154 +4,154 @@
 #include "percent-util.h"
 #include "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
+static цео parse_parts_value_whole(const char *p, const char *symbol) {
         const char *pc, *n;
-        int r, v;
+        цео r, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        ако (!pc)
+                врати -EINVAL;
 
         n = strndupa_safe(p, pc - p);
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        ако (r < 0)
+                врати r;
+        ако (v < 0)
+                врати -ERANGE;
 
-        return v;
+        врати v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
+static цео parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
         const char *pc, *dot, *n;
-        int r, q, v;
+        цео r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        ако (!pc)
+                врати -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        ако (dot) {
+                ако (dot + 2 != pc)
+                        врати -EINVAL;
+                ако (dot[1] < '0' || dot[1] > '9')
+                        врати -EINVAL;
                 q = dot[1] - '0';
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } инако {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        ако (r < 0)
+                врати r;
+        ако (v < 0)
+                врати -ERANGE;
+        ако (v > (INT_MAX - q) / 10)
+                врати -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        врати v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
+static цео parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
         const char *pc, *dot, *n;
-        int r, q, v;
+        цео r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        ако (!pc)
+                врати -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        ако (dot) {
+                ако (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        ако (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                врати -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } инако ако (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        ако (dot[1] < '0' || dot[1] > '9')
+                                врати -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } инако
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        врати -EINVAL;
 
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } инако {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        ако (r < 0)
+                врати r;
+        ако (v < 0)
+                врати -ERANGE;
+        ако (v > (INT_MAX - q) / 100)
+                врати -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        врати v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+цео parse_percent_unbounded(const char *p) {
+        врати parse_parts_value_whole(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+цео parse_percent(const char *p) {
+        цео v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        ако (v > 100)
+                врати -ERANGE;
 
-        return v;
+        врати v;
 }
 
-int parse_permille_unbounded(const char *p) {
+цео parse_permille_unbounded(const char *p) {
         const char *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        ако (pm)
+                врати parse_parts_value_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        врати parse_parts_value_with_tenths_place(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+цео parse_permille(const char *p) {
+        цео v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        ако (v > 1000)
+                врати -ERANGE;
 
-        return v;
+        врати v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
+цео parse_permyriad_unbounded(const char *p) {
         const char *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        ако (pm)
+                врати parse_parts_value_whole(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        ако (pm)
+                врати parse_parts_value_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        врати parse_parts_value_with_hundredths_place(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+цео parse_permyriad(const char *p) {
+        цео v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        ако (v > 10000)
+                врати -ERANGE;
 
-        return v;
+        врати v;
 }

@@ -33,36 +33,36 @@ static char* normalize_locale(const char *name) {
          * that for UTF-8 however, since it's kinda the only charset that matters. */
 
         e = endswith(name, ".utf8");
-        if (e) {
+        ако (e) {
                 _cleanup_free_ char *prefix = NULL;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                ако (!prefix)
+                        врати NULL;
 
-                return strjoin(prefix, ".UTF-8");
+                врати strjoin(prefix, ".UTF-8");
         }
 
         e = strstr(name, ".utf8@");
-        if (e) {
+        ако (e) {
                 _cleanup_free_ char *prefix = NULL;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                ако (!prefix)
+                        врати NULL;
 
-                return strjoin(prefix, ".UTF-8@", e + 6);
+                врати strjoin(prefix, ".UTF-8@", e + 6);
         }
 
-        return strdup(name);
+        врати strdup(name);
 }
 
 #ifdef __GLIBC__
 static const char* get_locale_dir(void) {
-        return secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
+        врати secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
 }
 
-static int add_locales_from_archive(Set *locales) {
+static цео add_locales_from_archive(Set *locales) {
         /* Stolen from glibc... */
 
         struct locarhead {
@@ -96,39 +96,39 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t locrec_offset;
         };
 
-        int r;
+        цео r;
 
         assert(locales);
 
         _cleanup_free_ char *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
-        if (!locale_archive_file)
-                return -ENOMEM;
+        ако (!locale_archive_file)
+                врати -ENOMEM;
 
-        _cleanup_close_ int fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return errno == ENOENT ? 0 : -errno;
+        _cleanup_close_ цео fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
+        ако (fd < 0)
+                врати errno == ENOENT ? 0 : -errno;
 
         struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ако (fstat(fd, &st) < 0)
+                врати -errno;
 
         r = stat_verify_regular(&st);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (st.st_size < (off_t) sizeof(struct locarhead))
-                return -EBADMSG;
+        ако (st.st_size < (off_t) sizeof(struct locarhead))
+                врати -EBADMSG;
 
-        if (file_offset_beyond_memory_size(st.st_size))
-                return -EFBIG;
+        ако (file_offset_beyond_memory_size(st.st_size))
+                врати -EFBIG;
 
         void *p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-        if (p == MAP_FAILED)
-                return -errno;
+        ако (p == MAP_FAILED)
+                врати -errno;
 
         const struct namehashent *e;
         const struct locarhead *h = p;
-        if (h->magic != 0xde020109 ||
+        ако (h->magic != 0xde020109 ||
             h->namehash_offset + h->namehash_size > st.st_size ||
             h->string_offset + h->string_size > st.st_size ||
             h->locrectab_offset + h->locrectab_size > st.st_size ||
@@ -138,23 +138,23 @@ static int add_locales_from_archive(Set *locales) {
         }
 
         e = (const struct namehashent*) ((const uint8_t*) p + h->namehash_offset);
-        for (size_t i = 0; i < h->namehash_size; i++) {
+        за (size_t i = 0; i < h->namehash_size; i++) {
                 char *z;
 
-                if (e[i].locrec_offset == 0)
+                ако (e[i].locrec_offset == 0)
                         continue;
 
-                if (!utf8_is_valid((char*) p + e[i].name_offset))
+                ако (!utf8_is_valid((char*) p + e[i].name_offset))
                         continue;
 
                 z = normalize_locale((char*) p + e[i].name_offset);
-                if (!z) {
+                ако (!z) {
                         r = -ENOMEM;
                         goto finish;
                 }
 
                 r = set_consume(locales, z);
-                if (r < 0)
+                ако (r < 0)
                         goto finish;
         }
 
@@ -162,38 +162,38 @@ static int add_locales_from_archive(Set *locales) {
 
 finish:
         munmap_safe(p, st.st_size);
-        return r;
+        врати r;
 }
 
-static int add_locales_from_libdir(Set *locales) {
+static цео add_locales_from_libdir(Set *locales) {
         _cleanup_closedir_ DIR *dir = NULL;
-        int r;
+        цео r;
 
         assert(locales);
 
         dir = opendir(get_locale_dir());
-        if (!dir)
-                return errno == ENOENT ? 0 : -errno;
+        ако (!dir)
+                врати errno == ENOENT ? 0 : -errno;
 
-        FOREACH_DIRENT(de, dir, return -errno) {
+        FOREACH_DIRENT(de, dir, врати -errno) {
                 char *z;
 
-                if (de->d_type != DT_DIR)
+                ако (de->d_type != DT_DIR)
                         continue;
 
                 z = normalize_locale(de->d_name);
-                if (!z)
-                        return -ENOMEM;
+                ако (!z)
+                        врати -ENOMEM;
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
         }
 
-        return 0;
+        врати 0;
 }
 
-#else
+#инако
 
 static const char* const musl_locale_dirs[] = {
         "/etc/musl/locale",
@@ -203,8 +203,8 @@ static const char* const musl_locale_dirs[] = {
         NULL
 };
 
-static int add_locales_for_musl(Set *locales) {
-        int r;
+static цео add_locales_for_musl(Set *locales) {
+        цео r;
 
         assert(locales);
 
@@ -212,75 +212,75 @@ static int add_locales_for_musl(Set *locales) {
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
                 _cleanup_closedir_ DIR *dir = opendir(*d);
-                if (!dir)
+                ако (!dir)
                         continue;
 
-                FOREACH_DIRENT(de, dir, return -errno) {
-                        if (de->d_type != DT_REG)
+                FOREACH_DIRENT(de, dir, врати -errno) {
+                        ако (de->d_type != DT_REG)
                                 continue;
 
                         char *z = normalize_locale(de->d_name);
-                        if (!z)
-                                return -ENOMEM;
+                        ако (!z)
+                                врати -ENOMEM;
 
                         r = set_consume(locales, z);
-                        if (r < 0)
-                                return r;
+                        ако (r < 0)
+                                врати r;
                 }
         }
 
-        return 0;
+        врати 0;
 }
 #endif
 
-int get_locales(char ***ret) {
+цео get_locales(char ***ret) {
         _cleanup_set_free_ Set *locales = NULL;
-        int r;
+        цео r;
 
         assert(ret);
 
         locales = set_new(&string_hash_ops_free);
-        if (!locales)
-                return -ENOMEM;
+        ако (!locales)
+                врати -ENOMEM;
 
 #ifdef __GLIBC__
         r = add_locales_from_archive(locales);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        ако (r < 0 && r != -ENOENT)
+                врати r;
 
         r = add_locales_from_libdir(locales);
-        if (r < 0)
-                return r;
-#else
+        ако (r < 0)
+                врати r;
+#инако
         r = add_locales_for_musl(locales);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 #endif
 
         char *locale;
         SET_FOREACH(locale, locales) {
                 r = locale_is_installed(locale);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                ако (r < 0)
+                        врати r;
+                ако (r == 0)
                         free(set_remove(locales, locale));
         }
 
         _cleanup_strv_free_ char **l = set_to_strv(&locales);
-        if (!l)
-                return -ENOMEM;
+        ако (!l)
+                врати -ENOMEM;
 
         r = getenv_bool("SYSTEMD_LIST_NON_UTF8_LOCALES");
-        if (r <= 0) {
-                if (!IN_SET(r, -ENXIO, 0))
+        ако (r <= 0) {
+                ако (!IN_SET(r, -ENXIO, 0))
                         log_debug_errno(r, "Failed to parse $SYSTEMD_LIST_NON_UTF8_LOCALES as boolean, ignoring: %m");
 
                 /* Filter out non-UTF-8 locales, because it's 2019, by default */
                 char **b = l;
                 STRV_FOREACH(a, l)
-                        if (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
+                        ако (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
                                 *(b++) = *a;
-                        else
+                        инако
                                 free(*a);
 
                 *b = NULL;
@@ -290,49 +290,49 @@ int get_locales(char ***ret) {
 
         *ret = TAKE_PTR(l);
 
-        return 0;
+        врати 0;
 }
 
 bool locale_is_valid(const char *name) {
 
-        if (isempty(name))
-                return false;
+        ако (isempty(name))
+                врати false;
 
-        if (strlen(name) >= 128)
-                return false;
+        ако (strlen(name) >= 128)
+                врати false;
 
-        if (!utf8_is_valid(name))
-                return false;
+        ако (!utf8_is_valid(name))
+                врати false;
 
-        if (!filename_is_valid(name))
-                return false;
+        ако (!filename_is_valid(name))
+                врати false;
 
         /* Locales look like: ll_CC.ENC@variant, where ll and CC are alphabetic, ENC is alphanumeric with
          * dashes, and variant seems to be alphabetic.
          * See: https://www.gnu.org/software/gettext/manual/html_node/Locale-Names.html */
-        if (!in_charset(name, ALPHANUMERICAL "_.-@"))
-                return false;
+        ако (!in_charset(name, ALPHANUMERICAL "_.-@"))
+                врати false;
 
-        return true;
+        врати true;
 }
 
-int locale_is_installed(const char *name) {
-        if (!locale_is_valid(name))
-                return false;
+цео locale_is_installed(const char *name) {
+        ако (!locale_is_valid(name))
+                врати false;
 
-        if (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
-                return true;
+        ако (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
+                врати true;
 
 #ifdef __GLIBC__
         _cleanup_(freelocalep) locale_t loc = newlocale(LC_ALL_MASK, name, (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return errno == ENOMEM ? -ENOMEM : false;
+        ако (loc == (locale_t) 0)
+                врати errno == ENOMEM ? -ENOMEM : false;
 
-        return true;
-#else
+        врати true;
+#инако
         /* musl also has C.UTF-8 as builtin */
-        if (streq(name, "C.UTF-8"))
-                return true;
+        ако (streq(name, "C.UTF-8"))
+                врати true;
 
         /* musl's newlocale() always succeeds and provides a fake locale object even when the locale does
          * not exist. Hence, we need to explicitly check if the locale file exists. */
@@ -340,59 +340,59 @@ int locale_is_installed(const char *name) {
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
                 _cleanup_free_ char *p = path_join(*d, name);
-                if (!p)
-                        return -ENOMEM;
+                ако (!p)
+                        врати -ENOMEM;
 
-                if (access(p, F_OK) >= 0)
-                        return true;
+                ако (access(p, F_OK) >= 0)
+                        врати true;
         }
 
-        return false;
+        врати false;
 #endif
 }
 
 static bool is_locale_utf8_impl(void) {
         const char *set;
-        int r;
+        цео r;
 
         /* Note that we default to 'true' here, since today UTF8 is pretty much supported everywhere. */
 
         r = secure_getenv_bool("SYSTEMD_UTF8");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ако (r >= 0)
+                врати r;
+        ако (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_UTF8, ignoring: %m");
 
         /* This function may be called from libsystemd, and setlocale() is not thread safe. Assuming yes. */
-        if (!is_main_thread())
-                return true;
+        ако (!is_main_thread())
+                врати true;
 
-        if (!setlocale(LC_ALL, ""))
-                return true;
+        ако (!setlocale(LC_ALL, ""))
+                врати true;
 
         set = nl_langinfo(CODESET);
-        if (!set || streq(set, "UTF-8"))
-                return true;
+        ако (!set || streq(set, "UTF-8"))
+                врати true;
 
         set = setlocale(LC_CTYPE, NULL);
-        if (!set)
-                return true;
+        ако (!set)
+                врати true;
 
         /* Unless LC_CTYPE is explicitly overridden, return true. Because here CTYPE is effectively unset
          * and everything can do to UTF-8 nowadays. */
-        return STR_IN_SET(set, "C", "POSIX") &&
+        врати STR_IN_SET(set, "C", "POSIX") &&
                 !getenv("LC_ALL") &&
                 !getenv("LC_CTYPE") &&
                 !getenv("LANG");
 }
 
 bool is_locale_utf8(void) {
-        static int cached = -1;
+        static цео cached = -1;
 
-        if (cached < 0)
+        ако (cached < 0)
                 cached = is_locale_utf8_impl();
 
-        return cached;
+        врати cached;
 }
 
 void locale_variables_free(char *l[_VARIABLE_LC_MAX]) {
@@ -402,10 +402,10 @@ void locale_variables_free(char *l[_VARIABLE_LC_MAX]) {
 void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]) {
         assert(l);
 
-        for (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
-                if (p == VARIABLE_LANG)
+        за (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
+                ако (p == VARIABLE_LANG)
                         continue;
-                if (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
+                ако (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
                         l[p] = mfree(l[p]);
         }
 }

@@ -32,9 +32,9 @@
  * 0x1B 0x5c. */
 #define ANSI_ST "\e\\"
 
-bool isatty_safe(int fd);
+bool isatty_safe(цео fd);
 
-int terminal_reset_ansi_seq(int fd);
+цео terminal_reset_ansi_seq(цео fd);
 
 typedef enum TerminalResetFlags {
         TERMINAL_RESET_SWITCH_TO_TEXT = 1 << 0,
@@ -42,13 +42,13 @@ typedef enum TerminalResetFlags {
         TERMINAL_RESET_FORCE_ANSI_SEQ = 1 << 2,
 } TerminalResetFlags;
 
-int terminal_reset_defensive(int fd, TerminalResetFlags flags);
-int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags);
+цео terminal_reset_defensive(цео fd, TerminalResetFlags flags);
+цео terminal_reset_defensive_locked(цео fd, TerminalResetFlags flags);
 
-int terminal_set_cursor_position(int fd, unsigned row, unsigned column);
-int terminal_get_cursor_position(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_column);
+цео terminal_set_cursor_position(цео fd, unsigned row, unsigned column);
+цео terminal_get_cursor_position(цео input_fd, цео output_fd, unsigned *ret_rows, unsigned *ret_column);
 
-int open_terminal(const char *name, int mode);
+цео open_terminal(const char *name, цео mode);
 
 /* Flags for tweaking the way we become the controlling process of a terminal. */
 typedef enum AcquireTerminalFlags {
@@ -71,22 +71,22 @@ typedef enum AcquireTerminalFlags {
         ACQUIRE_TERMINAL_WATCH_SIGTERM = 1 << 3,
 } AcquireTerminalFlags;
 
-int acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
-int release_terminal(void);
+цео acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
+цео release_terminal(void);
 
-int terminal_new_session(void);
+цео terminal_new_session(void);
 void terminal_detach_session(void);
 
-int terminal_vhangup_fd(int fd);
-int terminal_vhangup(const char *tty);
+цео terminal_vhangup_fd(цео fd);
+цео terminal_vhangup(const char *tty);
 
-int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols);
-int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols);
+цео terminal_set_size_fd(цео fd, const char *ident, unsigned rows, unsigned cols);
+цео proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols);
 
-int chvt(int vt);
+цео chvt(цео vt);
 
-int read_one_char(FILE *f, char *ret, usec_t timeout, bool echo, bool *need_nl);
-int ask_char(char *ret, const char *replies, const char *fmt, ...) _printf_(3, 4);
+цео read_one_char(FILE *f, char *ret, usec_t timeout, bool echo, bool *need_nl);
+цео ask_char(char *ret, const char *replies, const char *fmt, ...) _printf_(3, 4);
 
 typedef enum GetCompletionsFlags {
         /* Only return the items subject to preselection: typically you want to suppress meta entries such as
@@ -94,33 +94,33 @@ typedef enum GetCompletionsFlags {
         GET_COMPLETIONS_PRESELECT = 1 << 0,
 } GetCompletionsFlags;
 
-typedef int (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
-int ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
+typedef цео (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
+цео ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
 #define ask_string(ret, text, ...) ask_string_full(ret, NULL, NULL, NULL, text, ##__VA_ARGS__)
 
 bool any_key_to_proceed(void);
-int show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
+цео show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
 
-int vt_disallocate(const char *tty_path);
+цео vt_disallocate(const char *tty_path);
 
-int resolve_dev_console(char **ret);
-int get_kernel_consoles(char ***ret);
+цео resolve_dev_console(char **ret);
+цео get_kernel_consoles(char ***ret);
 bool tty_is_vc(const char *tty);
 bool tty_is_vc_resolve(const char *tty);
 bool tty_is_console(const char *tty) _pure_;
-int vtnr_from_tty(const char *tty);
+цео vtnr_from_tty(const char *tty);
 
-void reset_dev_console_fd(int fd, bool switch_to_text);
-int lock_dev_console(void);
-int make_console_stdio(bool switch_to_text);
+void reset_dev_console_fd(цео fd, bool switch_to_text);
+цео lock_dev_console(void);
+цео make_console_stdio(bool switch_to_text);
 
-int getenv_columns(void);
-int fd_columns(int fd);
+цео getenv_columns(void);
+цео fd_columns(цео fd);
 unsigned columns(void);
-int fd_lines(int fd);
+цео fd_lines(цео fd);
 unsigned lines(void);
 
-void columns_lines_cache_reset(int _unused_ signum);
+void columns_lines_cache_reset(цео _unused_ signum);
 void reset_terminal_feature_caches(void);
 
 bool on_tty(void);
@@ -130,21 +130,21 @@ bool terminal_is_dumb(void);
 
 bool dev_console_colors_enabled(void);
 
-int get_ctty_devnr(pid_t pid, dev_t *ret);
-int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret);
+цео get_ctty_devnr(pid_t pid, dev_t *ret);
+цео get_ctty(pid_t pid, dev_t *ret_devnr, char **ret);
 
-int getttyname_malloc(int fd, char **ret);
-int getttyname_harder(int fd, char **ret);
+цео getttyname_malloc(цео fd, char **ret);
+цео getttyname_harder(цео fd, char **ret);
 
-int ptsname_malloc(int fd, char **ret);
+цео ptsname_malloc(цео fd, char **ret);
 
-int openpt_allocate(int flags, char **ret_peer_path);
-int openpt_allocate_in_namespace(const PidRef *pidref, int flags, char **ret_peer_path);
+цео openpt_allocate(цео flags, char **ret_peer_path);
+цео openpt_allocate_in_namespace(const PidRef *pidref, цео flags, char **ret_peer_path);
 
-int vt_restore(int fd);
-int vt_release(int fd, bool restore);
+цео vt_restore(цео fd);
+цео vt_release(цео fd, bool restore);
 
-void get_log_colors(int priority, const char **on, const char **off, const char **highlight);
+void get_log_colors(цео priority, const char **on, const char **off, const char **highlight);
 
 /* Assume TTY_MODE is defined in config.h. Also, this assumes there is a 'tty' group. */
 assert_cc((TTY_MODE & ~0666) == 0);
@@ -162,7 +162,7 @@ void termios_disable_echo(struct termios *termios);
 }
 
 typedef struct TermiosResetContext {
-        int *fd;
+        цео *fd;
         struct termios *termios;
 } TermiosResetContext;
 
@@ -178,26 +178,26 @@ void termios_reset(const TermiosResetContext *c);
 /* The $TERM value we use for terminals other than the Linux console */
 #define FALLBACK_TERM "vt220"
 
-int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
-int terminal_get_size(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
-int terminal_fix_size(int input_fd, int output_fd);
+цео get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
+цео terminal_get_size(цео input_fd, цео output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
+цео terminal_fix_size(цео input_fd, цео output_fd);
 
-int terminal_get_terminfo_by_dcs(int fd, char **ret_name);
-int have_terminfo_file(const char *name);
-int query_term_for_tty(const char *tty, char **ret_term);
+цео terminal_get_terminfo_by_dcs(цео fd, char **ret_name);
+цео have_terminfo_file(const char *name);
+цео query_term_for_tty(const char *tty, char **ret_term);
 
-int terminal_is_pty_fd(int fd);
+цео terminal_is_pty_fd(цео fd);
 
-int pty_open_peer(int fd, int mode);
+цео pty_open_peer(цео fd, цео mode);
 
 static inline bool osc_char_is_valid(char c) {
         /* Checks whether the specified character is safe to be included inside an ANSI OSC sequence, as per
          * ECMA-48 5th edition, section 8.3.89 */
-        return (unsigned char) c >= 32 && (unsigned char) c < 127;
+        врати (unsigned char) c >= 32 && (unsigned char) c < 127;
 }
 
 #define VTNR_MAX 63
 
 static inline bool vtnr_is_valid(unsigned n) {
-        return n >= 1 && n <= VTNR_MAX;
+        врати n >= 1 && n <= VTNR_MAX;
 }

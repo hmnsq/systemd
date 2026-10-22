@@ -38,57 +38,57 @@ bool unit_name_is_valid(const char *n, UnitNameFlags flags) {
 
         assert((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
 
-        if (_unlikely_(flags == 0))
-                return false;
+        ако (_unlikely_(flags == 0))
+                врати false;
 
-        if (isempty(n))
-                return false;
+        ако (isempty(n))
+                врати false;
 
-        if (strlen(n) >= UNIT_NAME_MAX)
-                return false;
+        ако (strlen(n) >= UNIT_NAME_MAX)
+                врати false;
 
         e = strrchr(n, '.');
-        if (!e || e == n)
-                return false;
+        ако (!e || e == n)
+                врати false;
 
-        if (unit_type_from_string(e + 1) < 0)
-                return false;
+        ако (unit_type_from_string(e + 1) < 0)
+                врати false;
 
-        for (i = n, at = NULL; i < e; i++) {
+        за (i = n, at = NULL; i < e; i++) {
 
-                if (*i == '@' && !at)
+                ако (*i == '@' && !at)
                         at = i;
 
-                if (!strchr(VALID_CHARS_WITH_AT, *i))
-                        return false;
+                ако (!strchr(VALID_CHARS_WITH_AT, *i))
+                        врати false;
         }
 
-        if (at == n)
-                return false;
+        ако (at == n)
+                врати false;
 
-        if (flags & UNIT_NAME_PLAIN)
-                if (!at)
-                        return true;
+        ако (flags & UNIT_NAME_PLAIN)
+                ако (!at)
+                        врати true;
 
-        if (flags & UNIT_NAME_INSTANCE)
-                if (at && e > at + 1)
-                        return true;
+        ако (flags & UNIT_NAME_INSTANCE)
+                ако (at && e > at + 1)
+                        врати true;
 
-        if (flags & UNIT_NAME_TEMPLATE)
-                if (at && e == at + 1)
-                        return true;
+        ако (flags & UNIT_NAME_TEMPLATE)
+                ако (at && e == at + 1)
+                        врати true;
 
-        return false;
+        врати false;
 }
 
 bool unit_prefix_is_valid(const char *p) {
 
         /* We don't allow additional @ in the prefix string */
 
-        if (isempty(p))
-                return false;
+        ако (isempty(p))
+                врати false;
 
-        return in_charset(p, VALID_CHARS);
+        врати in_charset(p, VALID_CHARS);
 }
 
 bool unit_instance_is_valid(const char *i) {
@@ -96,50 +96,50 @@ bool unit_instance_is_valid(const char *i) {
         /* The max length depends on the length of the string, so we
          * don't really check this here. */
 
-        if (isempty(i))
-                return false;
+        ако (isempty(i))
+                врати false;
 
         /* We allow additional @ in the instance string, we do not
          * allow them in the prefix! */
 
-        return in_charset(i, "@" VALID_CHARS);
+        врати in_charset(i, "@" VALID_CHARS);
 }
 
 bool unit_suffix_is_valid(const char *s) {
-        if (isempty(s))
-                return false;
+        ако (isempty(s))
+                врати false;
 
-        if (s[0] != '.')
-                return false;
+        ако (s[0] != '.')
+                врати false;
 
-        if (unit_type_from_string(s + 1) < 0)
-                return false;
+        ако (unit_type_from_string(s + 1) < 0)
+                врати false;
 
-        return true;
+        врати true;
 }
 
-int unit_name_to_prefix(const char *n, char **ret) {
+цео unit_name_to_prefix(const char *n, char **ret) {
         const char *p;
         char *s;
 
         assert(n);
         assert(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ако (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                врати -EINVAL;
 
         p = strchr(n, '@');
-        if (!p)
+        ако (!p)
                 p = strrchr(n, '.');
 
         assert_se(p);
 
         s = strndup(n, p - n);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         *ret = s;
-        return 0;
+        врати 0;
 }
 
 UnitNameFlags unit_name_to_instance(const char *n, char **ret) {
@@ -147,53 +147,53 @@ UnitNameFlags unit_name_to_instance(const char *n, char **ret) {
 
         assert(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ако (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                врати -EINVAL;
 
         /* Everything past the first @ and before the last . is the instance */
         p = strchr(n, '@');
-        if (!p) {
-                if (ret)
+        ако (!p) {
+                ако (ret)
                         *ret = NULL;
-                return UNIT_NAME_PLAIN;
+                врати UNIT_NAME_PLAIN;
         }
 
         p++;
 
         d = strrchr(p, '.');
-        if (!d)
-                return -EINVAL;
+        ако (!d)
+                врати -EINVAL;
 
-        if (ret) {
+        ако (ret) {
                 char *i = strndup(p, d-p);
-                if (!i)
-                        return -ENOMEM;
+                ако (!i)
+                        врати -ENOMEM;
 
                 *ret = i;
         }
-        return d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
+        врати d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
 }
 
-int unit_name_to_prefix_and_instance(const char *n, char **ret) {
+цео unit_name_to_prefix_and_instance(const char *n, char **ret) {
         const char *d;
         char *s;
 
         assert(n);
         assert(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ако (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                врати -EINVAL;
 
         d = strrchr(n, '.');
-        if (!d)
-                return -EINVAL;
+        ако (!d)
+                врати -EINVAL;
 
         s = strndup(n, d - n);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         *ret = s;
-        return 0;
+        врати 0;
 }
 
 UnitType unit_name_to_type(const char *n) {
@@ -201,15 +201,15 @@ UnitType unit_name_to_type(const char *n) {
 
         assert(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return _UNIT_TYPE_INVALID;
+        ако (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                врати _UNIT_TYPE_INVALID;
 
         assert_se(e = strrchr(n, '.'));
 
-        return unit_type_from_string(e + 1);
+        врати unit_type_from_string(e + 1);
 }
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
+цео unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
         _cleanup_free_ char *s = NULL;
         size_t a, b;
         const char *e;
@@ -218,11 +218,11 @@ int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
         assert(suffix);
         assert(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ако (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                врати -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ако (!unit_suffix_is_valid(suffix))
+                врати -EINVAL;
 
         assert_se(e = strrchr(n, '.'));
 
@@ -230,37 +230,37 @@ int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
         b = strlen(suffix);
 
         s = new(char, a + b + 1);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         strcpy(mempcpy(s, n, a), suffix);
 
         /* Make sure the name is still valid (i.e. didn't grow too large due to longer suffix) */
-        if (!unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        ако (!unit_name_is_valid(s, UNIT_NAME_ANY))
+                врати -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        врати 0;
 }
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret) {
+цео unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret) {
         UnitType type;
 
         assert(prefix);
         assert(suffix);
         assert(ret);
 
-        if (suffix[0] != '.')
-                return -EINVAL;
+        ако (suffix[0] != '.')
+                врати -EINVAL;
 
         type = unit_type_from_string(suffix + 1);
-        if (type < 0)
-                return type;
+        ако (type < 0)
+                врати type;
 
-        return unit_name_build_from_type(prefix, instance, type, ret);
+        врати unit_name_build_from_type(prefix, instance, type, ret);
 }
 
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret) {
+цео unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret) {
         _cleanup_free_ char *s = NULL;
         const char *ut;
 
@@ -269,27 +269,27 @@ int unit_name_build_from_type(const char *prefix, const char *instance, UnitType
         assert(type < _UNIT_TYPE_MAX);
         assert(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        ако (!unit_prefix_is_valid(prefix))
+                врати -EINVAL;
 
         ut = unit_type_to_string(type);
 
-        if (instance) {
-                if (!unit_instance_is_valid(instance))
-                        return -EINVAL;
+        ако (instance) {
+                ако (!unit_instance_is_valid(instance))
+                        врати -EINVAL;
 
                 s = strjoin(prefix, "@", instance, ".", ut);
-        } else
+        } инако
                 s = strjoin(prefix, ".", ut);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         /* Verify that this didn't grow too large (or otherwise is invalid) */
-        if (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
-                return -EINVAL;
+        ако (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
+                врати -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        врати 0;
 }
 
 static char *do_escape_char(char c, char *t) {
@@ -300,7 +300,7 @@ static char *do_escape_char(char c, char *t) {
         *(t++) = hexchar(c >> 4);
         *(t++) = hexchar(c);
 
-        return t;
+        врати t;
 }
 
 static char *do_escape(const char *f, char *t) {
@@ -308,21 +308,21 @@ static char *do_escape(const char *f, char *t) {
         assert(t);
 
         /* do not create units with a leading '.', like for "/.dotdir" mount points */
-        if (*f == '.') {
+        ако (*f == '.') {
                 t = do_escape_char(*f, t);
                 f++;
         }
 
-        for (; *f; f++) {
-                if (*f == '/')
+        за (; *f; f++) {
+                ако (*f == '/')
                         *(t++) = '-';
-                else if (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
+                инако ако (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
                         t = do_escape_char(*f, t);
-                else
+                инако
                         *(t++) = *f;
         }
 
-        return t;
+        врати t;
 }
 
 char* unit_name_escape(const char *f) {
@@ -331,16 +331,16 @@ char* unit_name_escape(const char *f) {
         assert(f);
 
         r = new(char, strlen(f)*4+1);
-        if (!r)
-                return NULL;
+        ако (!r)
+                врати NULL;
 
         t = do_escape(f, r);
         *t = 0;
 
-        return r;
+        врати r;
 }
 
-int unit_name_unescape(const char *f, char **ret) {
+цео unit_name_unescape(const char *f, char **ret) {
         _cleanup_free_ char *r = NULL;
         char *t;
 
@@ -348,29 +348,29 @@ int unit_name_unescape(const char *f, char **ret) {
         assert(ret);
 
         r = strdup(f);
-        if (!r)
-                return -ENOMEM;
+        ако (!r)
+                врати -ENOMEM;
 
-        for (t = r; *f; f++) {
-                if (*f == '-')
+        за (t = r; *f; f++) {
+                ако (*f == '-')
                         *(t++) = '/';
-                else if (*f == '\\') {
-                        int a, b;
+                инако ако (*f == '\\') {
+                        цео a, b;
 
-                        if (f[1] != 'x')
-                                return -EINVAL;
+                        ако (f[1] != 'x')
+                                врати -EINVAL;
 
                         a = unhexchar(f[2]);
-                        if (a < 0)
-                                return -EINVAL;
+                        ако (a < 0)
+                                врати -EINVAL;
 
                         b = unhexchar(f[3]);
-                        if (b < 0)
-                                return -EINVAL;
+                        ако (b < 0)
+                                врати -EINVAL;
 
                         *(t++) = (char) (((uint8_t) a << 4U) | (uint8_t) b);
                         f += 3;
-                } else
+                } инако
                         *(t++) = *f;
         }
 
@@ -378,78 +378,78 @@ int unit_name_unescape(const char *f, char **ret) {
 
         *ret = TAKE_PTR(r);
 
-        return 0;
+        врати 0;
 }
 
-int unit_name_path_escape(const char *f, char **ret) {
+цео unit_name_path_escape(const char *f, char **ret) {
         _cleanup_free_ char *p = NULL;
         char *s;
-        int r;
+        цео r;
 
         assert(f);
         assert(ret);
 
         r = path_simplify_alloc(f, &p);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (empty_or_root(p))
+        ако (empty_or_root(p))
                 s = strdup("-");
-        else {
-                if (!path_is_normalized(p))
-                        return -EINVAL;
+        инако {
+                ако (!path_is_normalized(p))
+                        врати -EINVAL;
 
                 /* Truncate trailing slashes and skip leading slashes */
                 delete_trailing_chars(p, "/");
                 s = unit_name_escape(skip_leading_chars(p, "/"));
         }
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         *ret = s;
-        return 0;
+        врати 0;
 }
 
-int unit_name_path_unescape(const char *f, char **ret) {
+цео unit_name_path_unescape(const char *f, char **ret) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        цео r;
 
         assert(f);
 
-        if (isempty(f))
-                return -EINVAL;
+        ако (isempty(f))
+                врати -EINVAL;
 
-        if (streq(f, "-")) {
+        ако (streq(f, "-")) {
                 s = strdup("/");
-                if (!s)
-                        return -ENOMEM;
-        } else {
+                ако (!s)
+                        врати -ENOMEM;
+        } инако {
                 _cleanup_free_ char *w = NULL;
 
                 r = unit_name_unescape(f, &w);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
 
                 /* Don't accept trailing or leading slashes */
-                if (startswith(w, "/") || endswith(w, "/"))
-                        return -EINVAL;
+                ако (startswith(w, "/") || endswith(w, "/"))
+                        врати -EINVAL;
 
                 /* Prefix a slash again */
                 s = strjoin("/", w);
-                if (!s)
-                        return -ENOMEM;
+                ако (!s)
+                        врати -ENOMEM;
 
-                if (!path_is_normalized(s))
-                        return -EINVAL;
+                ако (!path_is_normalized(s))
+                        врати -EINVAL;
         }
 
-        if (ret)
+        ако (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        врати 0;
 }
 
-int unit_name_replace_instance_full(
+цео unit_name_replace_instance_full(
                 const char *original,
                 const char *instance,
                 bool accept_glob,
@@ -463,10 +463,10 @@ int unit_name_replace_instance_full(
         assert(instance);
         assert(ret);
 
-        if (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
-        if (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
-                return -EINVAL;
+        ако (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                врати -EINVAL;
+        ако (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
+                врати -EINVAL;
 
         prefix = ASSERT_PTR(strchr(original, '@'));
         suffix = ASSERT_PTR(strrchr(original, '.'));
@@ -475,10 +475,10 @@ int unit_name_replace_instance_full(
         pl = prefix - original + 1; /* include '@' */
 
         s = new(char, pl + strlen(instance) + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#ако HAS_FEATURE_MEMORY_SANITIZER
         /* MSan doesn't like stpncpy... See also https://github.com/google/sanitizers/issues/926 */
         memzero(s, pl + strlen(instance) + strlen(suffix) + 1);
 #endif
@@ -487,14 +487,14 @@ int unit_name_replace_instance_full(
 
         /* Make sure the resulting name still is valid, i.e. didn't grow too large. Globs will be expanded
          * by clients when used, so the check is pointless. */
-        if (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        ако (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                врати -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        врати 0;
 }
 
-int unit_name_template(const char *f, char **ret) {
+цео unit_name_template(const char *f, char **ret) {
         const char *p, *e;
         char *s;
         size_t a;
@@ -502,8 +502,8 @@ int unit_name_template(const char *f, char **ret) {
         assert(f);
         assert(ret);
 
-        if (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
+        ако (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                врати -EINVAL;
 
         assert_se(p = strchr(f, '@'));
         assert_se(e = strrchr(f, '.'));
@@ -511,38 +511,38 @@ int unit_name_template(const char *f, char **ret) {
         a = p - f;
 
         s = new(char, a + 1 + strlen(e) + 1);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         strcpy(mempcpy(s, f, a + 1), e);
 
         *ret = s;
-        return 0;
+        врати 0;
 }
 
 bool unit_name_is_hashed(const char *name) {
         const char *s;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        ако (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                врати false;
 
         assert_se(s = strrchr(name, '.'));
 
-        if (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
-                return false;
+        ако (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
+                врати false;
 
         s -= UNIT_NAME_HASH_LENGTH_CHARS;
-        if (s[-1] != '_')
-                return false;
+        ако (s[-1] != '_')
+                врати false;
 
-        for (size_t i = 0; i < UNIT_NAME_HASH_LENGTH_CHARS; i++)
-                if (!strchr(LOWERCASE_HEXDIGITS, s[i]))
-                        return false;
+        за (size_t i = 0; i < UNIT_NAME_HASH_LENGTH_CHARS; i++)
+                ако (!strchr(LOWERCASE_HEXDIGITS, s[i]))
+                        врати false;
 
-        return true;
+        врати true;
 }
 
-int unit_name_hash_long(const char *name, char **ret) {
+цео unit_name_hash_long(const char *name, char **ret) {
         _cleanup_free_ char *n = NULL, *hash = NULL;
         const char *suffix;
         le64_t h;
@@ -550,21 +550,21 @@ int unit_name_hash_long(const char *name, char **ret) {
 
         assert(ret);
 
-        if (strlen(name) < UNIT_NAME_MAX)
-                return -EMSGSIZE;
+        ако (strlen(name) < UNIT_NAME_MAX)
+                врати -EMSGSIZE;
 
         suffix = strrchr(name, '.');
-        if (!suffix)
-                return -EINVAL;
+        ако (!suffix)
+                врати -EINVAL;
 
-        if (unit_type_from_string(suffix+1) < 0)
-                return -EINVAL;
+        ако (unit_type_from_string(suffix+1) < 0)
+                врати -EINVAL;
 
         h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_KEY.bytes));
 
         hash = hexmem(&h, sizeof(h));
-        if (!hash)
-                return -ENOMEM;
+        ако (!hash)
+                врати -ENOMEM;
 
         assert_se(strlen(hash) == UNIT_NAME_HASH_LENGTH_CHARS);
 
@@ -572,105 +572,105 @@ int unit_name_hash_long(const char *name, char **ret) {
         assert(len > 0 && len < UNIT_NAME_MAX);
 
         n = strndup(name, len);
-        if (!n)
-                return -ENOMEM;
+        ако (!n)
+                врати -ENOMEM;
 
-        if (!strextend(&n, "_", hash, suffix))
-                return -ENOMEM;
+        ако (!strextend(&n, "_", hash, suffix))
+                врати -ENOMEM;
         assert_se(unit_name_is_valid(n, UNIT_NAME_PLAIN));
 
         *ret = TAKE_PTR(n);
 
-        return 0;
+        врати 0;
 }
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret) {
+цео unit_name_from_path(const char *path, const char *suffix, char **ret) {
         _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+        цео r;
 
         assert(path);
         assert(suffix);
         assert(ret);
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ако (!unit_suffix_is_valid(suffix))
+                врати -EINVAL;
 
         r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         s = strjoin(p, suffix);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) {
+        ако (strlen(s) >= UNIT_NAME_MAX) {
                 _cleanup_free_ char *n = NULL;
 
                 log_debug("Unit name \"%s\" too long, falling back to hashed unit name.", s);
 
                 r = unit_name_hash_long(s, &n);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
 
                 free_and_replace(s, n);
         }
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        ако (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
+                врати -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        врати 0;
 }
 
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret) {
+цео unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret) {
         _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+        цео r;
 
         assert(prefix);
         assert(path);
         assert(suffix);
         assert(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        ако (!unit_prefix_is_valid(prefix))
+                врати -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ако (!unit_suffix_is_valid(suffix))
+                врати -EINVAL;
 
         r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         s = strjoin(prefix, "@", p, suffix);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
-                return -ENAMETOOLONG;
+        ако (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
+                врати -ENAMETOOLONG;
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        ако (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                врати -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        врати 0;
 }
 
-int unit_name_to_path(const char *name, char **ret) {
+цео unit_name_to_path(const char *name, char **ret) {
         _cleanup_free_ char *prefix = NULL;
-        int r;
+        цео r;
 
         assert(name);
 
         r = unit_name_to_prefix(name, &prefix);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (unit_name_is_hashed(name))
-                return -ENAMETOOLONG;
+        ако (unit_name_is_hashed(name))
+                врати -ENAMETOOLONG;
 
-        return unit_name_path_unescape(prefix, ret);
+        врати unit_name_path_unescape(prefix, ret);
 }
 
 static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
@@ -687,18 +687,18 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
 
         valid_chars = allow_globs ? VALID_CHARS_GLOB : VALID_CHARS_WITH_AT;
 
-        for (; *f; f++)
-                if (*f == '/') {
+        за (; *f; f++)
+                ако (*f == '/') {
                         *(t++) = '-';
                         mangled = true;
-                } else if (!strchr(valid_chars, *f)) {
+                } инако ако (!strchr(valid_chars, *f)) {
                         t = do_escape_char(*f, t);
                         mangled = true;
-                } else
+                } инако
                         *(t++) = *f;
         *t = 0;
 
-        return mangled;
+        врати mangled;
 }
 
 /**
@@ -708,7 +708,7 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
  *
  *  If @allow_globs, globs characters are preserved. Otherwise, they are escaped.
  */
-int unit_name_mangle_with_suffix(
+цео unit_name_mangle_with_suffix(
                 const char *name,
                 const char *operation,
                 UnitNameMangle flags,
@@ -717,24 +717,24 @@ int unit_name_mangle_with_suffix(
 
         _cleanup_free_ char *s = NULL;
         bool mangled, suggest_escape = true, warn = FLAGS_SET(flags, UNIT_NAME_MANGLE_WARN);
-        int r;
+        цео r;
 
         assert(name);
         assert(suffix);
         assert(ret);
 
-        if (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
-                return -EINVAL;
+        ако (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
+                врати -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ако (!unit_suffix_is_valid(suffix))
+                врати -EINVAL;
 
         /* Already a fully valid unit name? If so, no mangling is necessary... */
-        if (unit_name_is_valid(name, UNIT_NAME_ANY)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
+        ако (unit_name_is_valid(name, UNIT_NAME_ANY)) {
+                ако (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
                         const char *e = ASSERT_PTR(strrchr(name, '.'));
 
-                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        врати log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                               SYNTHETIC_ERRNO(EINVAL),
                                               "Unit name \"%s\" has unit type \"%s\", but \"%s\" is expected%s%s.",
                                               name, e + 1, suffix + 1,
@@ -745,8 +745,8 @@ int unit_name_mangle_with_suffix(
         }
 
         /* Already a fully valid globbing expression? If so, no mangling is necessary either... */
-        if (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
+        ако (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
+                ако (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
                         goto good;
                 log_full(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Glob pattern passed%s%s, but globs are not supported for this.",
@@ -754,52 +754,52 @@ int unit_name_mangle_with_suffix(
                 suggest_escape = false;
         }
 
-        if (path_is_absolute(name)) {
+        ако (path_is_absolute(name)) {
                 _cleanup_free_ char *n = NULL, *u = NULL;
 
                 r = path_simplify_alloc(name, &n);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        врати r;
 
-                if (is_device_path(n)) {
+                ако (is_device_path(n)) {
                         r = unit_name_from_path(n, ".device", &u);
-                        if (r >= 0) {
-                                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
-                                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        ако (r >= 0) {
+                                ако (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
+                                        врати log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                               SYNTHETIC_ERRNO(EINVAL),
                                                               "Path \"%s\" resolves to unit type \"device\", but \"%s\" is expected%s%s.",
                                                               name, suffix + 1,
                                                               operation ? " " : "", strempty(operation));
 
                                 *ret = TAKE_PTR(u);
-                                return 1;
+                                врати 1;
                         }
-                        if (r != -EINVAL)
-                                return r;
+                        ако (r != -EINVAL)
+                                врати r;
                 }
 
                 r = unit_name_from_path(n, ".mount", &u);
-                if (r >= 0) {
-                        if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
-                                return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                ако (r >= 0) {
+                        ако (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
+                                врати log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                       SYNTHETIC_ERRNO(EINVAL),
                                                       "Path \"%s\" resolves to unit type \"mount\", but \"%s\" is expected%s%s.",
                                                       name, suffix + 1,
                                                       operation ? " " : "", strempty(operation));
 
                         *ret = TAKE_PTR(u);
-                        return 1;
+                        врати 1;
                 }
-                if (r != -EINVAL)
-                        return r;
+                ако (r != -EINVAL)
+                        врати r;
         }
 
         s = new(char, strlen(name) * 4 + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         mangled = do_escape_mangle(name, FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB), s);
-        if (mangled)
+        ако (mangled)
                 log_full(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Invalid unit name \"%s\" escaped as \"%s\"%s.",
                          name, s,
@@ -807,115 +807,115 @@ int unit_name_mangle_with_suffix(
 
         /* Append a suffix if it doesn't have any, but only if this is not a glob, so that we can allow
          * "foo.*" as a valid glob. */
-        if ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
+        ако ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
                 strcat(s, suffix);
 
         /* Make sure mangling didn't grow this too large (but don't do this check if globbing is allowed,
          * since globs generally do not qualify as valid unit names) */
-        if (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        ако (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
+                врати -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 1;
+        врати 1;
 
 good:
-        return strdup_to(ret, name);
+        врати strdup_to(ret, name);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret) {
+цео slice_build_parent_slice(const char *slice, char **ret) {
         assert(slice);
         assert(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        ако (!slice_name_is_valid(slice))
+                врати -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE)) {
+        ако (streq(slice, SPECIAL_ROOT_SLICE)) {
                 *ret = NULL;
-                return 0;
+                врати 0;
         }
 
         _cleanup_free_ char *s = strdup(slice);
-        if (!s)
-                return -ENOMEM;
+        ако (!s)
+                врати -ENOMEM;
 
         char *dash = strrchr(s, '-');
-        if (!dash)
-                return strdup_to_full(ret, SPECIAL_ROOT_SLICE);
+        ако (!dash)
+                врати strdup_to_full(ret, SPECIAL_ROOT_SLICE);
 
         /* We know that s ended with .slice before truncation, so we have enough space. */
         strcpy(dash, ".slice");
 
         *ret = TAKE_PTR(s);
-        return 1;
+        врати 1;
 }
 
-int slice_build_subslice(const char *slice, const char *name, char **ret) {
+цео slice_build_subslice(const char *slice, const char *name, char **ret) {
         char *subslice;
 
         assert(slice);
         assert(name);
         assert(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        ако (!slice_name_is_valid(slice))
+                врати -EINVAL;
 
-        if (!unit_prefix_is_valid(name))
-                return -EINVAL;
+        ако (!unit_prefix_is_valid(name))
+                врати -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE))
+        ако (streq(slice, SPECIAL_ROOT_SLICE))
                 subslice = strjoin(name, ".slice");
-        else {
+        инако {
                 const char *e;
 
                 assert_se(e = endswith(slice, ".slice"));
 
                 subslice = new(char, (e - slice) + 1 + strlen(name) + 6 + 1);
-                if (!subslice)
-                        return -ENOMEM;
+                ако (!subslice)
+                        врати -ENOMEM;
 
                 stpcpy(stpcpy(stpcpy(mempcpy(subslice, slice, e - slice), "-"), name), ".slice");
         }
 
         *ret = subslice;
-        return 0;
+        врати 0;
 }
 
 bool slice_name_is_valid(const char *name) {
         const char *p, *e;
         bool dash = false;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        ако (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                врати false;
 
-        if (streq(name, SPECIAL_ROOT_SLICE))
-                return true;
+        ако (streq(name, SPECIAL_ROOT_SLICE))
+                врати true;
 
         e = endswith(name, ".slice");
-        if (!e)
-                return false;
+        ако (!e)
+                врати false;
 
-        for (p = name; p < e; p++) {
+        за (p = name; p < e; p++) {
 
-                if (*p == '-') {
+                ако (*p == '-') {
 
                         /* Don't allow initial dash */
-                        if (p == name)
-                                return false;
+                        ако (p == name)
+                                врати false;
 
                         /* Don't allow multiple dashes */
-                        if (dash)
-                                return false;
+                        ако (dash)
+                                врати false;
 
                         dash = true;
-                } else
+                } инако
                         dash = false;
         }
 
         /* Don't allow trailing hash */
-        if (dash)
-                return false;
+        ако (dash)
+                врати false;
 
-        return true;
+        врати true;
 }
 
 bool unit_name_prefix_equal(const char *a, const char *b) {
@@ -924,19 +924,19 @@ bool unit_name_prefix_equal(const char *a, const char *b) {
         assert(a);
         assert(b);
 
-        if (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
-                return false;
+        ако (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
+                врати false;
 
         p = strchr(a, '@');
-        if (!p)
+        ако (!p)
                 p = strrchr(a, '.');
 
         q = strchr(b, '@');
-        if (!q)
+        ако (!q)
                 q = strrchr(b, '.');
 
         assert(p);
         assert(q);
 
-        return memcmp_nn(a, p - a, b, q - b) == 0;
+        врати memcmp_nn(a, p - a, b, q - b) == 0;
 }

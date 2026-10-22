@@ -12,83 +12,83 @@
 #include "path-util.h"
 #include "string-util.h"
 
-int btrfs_validate_subvolume_name(const char *name) {
+цео btrfs_validate_subvolume_name(const char *name) {
 
-        if (!filename_is_valid(name))
-                return -EINVAL;
+        ако (!filename_is_valid(name))
+                врати -EINVAL;
 
-        if (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
-                return -E2BIG;
+        ако (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
+                врати -E2BIG;
 
-        return 0;
+        врати 0;
 }
 
-static int extract_subvolume_name(const char *path, char **ret) {
+static цео extract_subvolume_name(const char *path, char **ret) {
         _cleanup_free_ char *fn = NULL;
-        int r;
+        цео r;
 
         assert(path);
         assert(ret);
 
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         r = btrfs_validate_subvolume_name(fn);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        врати 0;
 }
 
-int btrfs_subvol_make(int dir_fd, const char *path) {
+цео btrfs_subvol_make(цео dir_fd, const char *path) {
         struct btrfs_ioctl_vol_args args = {};
         _cleanup_free_ char *subvolume = NULL, *parent = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ цео fd = -EBADF;
+        цео r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(!isempty(path));
 
         r = extract_subvolume_name(path, &subvolume);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         r = path_extract_directory(path, &parent);
-        if (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
-                return r;
+        ако (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
+                врати r;
 
         fd = xopenat(dir_fd, parent ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        ако (fd < 0)
+                врати fd;
 
         strncpy(args.name, subvolume, sizeof(args.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        врати RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
 }
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode) {
+цео btrfs_subvol_make_fallback(цео dir_fd, const char *path, mode_t mode) {
         mode_t old, combined;
-        int r;
+        цео r;
 
         assert(path);
 
         /* Let's work like mkdir(), i.e. take the specified mode, and mask it with the current umask. */
         old = umask(~mode);
         combined = old | ~mode;
-        if (combined != ~mode)
+        ако (combined != ~mode)
                 umask(combined);
         r = btrfs_subvol_make(dir_fd, path);
         umask(old);
 
-        if (r >= 0)
-                return 1; /* subvol worked */
-        if (!ERRNO_IS_NOT_SUPPORTED(r))
-                return r;
+        ако (r >= 0)
+                врати 1; /* subvol worked */
+        ако (!ERRNO_IS_NOT_SUPPORTED(r))
+                врати r;
 
-        if (mkdirat(dir_fd, path, mode) < 0)
-                return -errno;
+        ако (mkdirat(dir_fd, path, mode) < 0)
+                врати -errno;
 
-        return 0; /* plain directory */
+        врати 0; /* plain directory */
 }

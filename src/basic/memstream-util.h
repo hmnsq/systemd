@@ -11,14 +11,14 @@ typedef struct MemStream {
 
 void memstream_done(MemStream *m);
 FILE* memstream_init(MemStream *m);
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size);
+цео memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size);
 
 /* This finalizes the passed memstream. */
-int memstream_dump_internal(
-                int level,
-                int error,
+цео memstream_dump_internal(
+                цео level,
+                цео error,
                 const char *file,
-                int line,
+                цео line,
                 const char *func,
                 MemStream *m);
 #define memstream_dump(level, m)                                        \

@@ -10,7 +10,7 @@
 
 /* This evaluates arguments multiple times */
 #define FOREACH_INOTIFY_EVENT_FULL(e, buffer, sz, log_level)            \
-        for (struct inotify_event *e = NULL;                            \
+        за (struct inotify_event *e = NULL;                            \
              inotify_event_next(&buffer, sz, &e, log_level); )
 
 #define FOREACH_INOTIFY_EVENT(e, buffer, sz)                    \
@@ -28,7 +28,7 @@ bool inotify_event_next(
                 union inotify_event_buffer *buffer,
                 size_t size,
                 struct inotify_event **iterator,
-                int log_level);
+                цео log_level);
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask);
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask);
+цео inotify_add_watch_fd(цео fd, цео what, uint32_t mask);
+цео inotify_add_watch_and_warn(цео fd, const char *pathname, uint32_t mask);

@@ -7,50 +7,50 @@
 /* The following macros add 1 when converting things, since 0 is a valid mode, while the pointer
  * NULL is special */
 static inline mode_t PTR_TO_MODE(void *p) {
-        return p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
+        врати p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
 }
 static inline void* MODE_TO_PTR(mode_t m) {
-        return m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
+        врати m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
 }
 
-int rmdir_parents(const char *path, const char *stop);
+цео rmdir_parents(const char *path, const char *stop);
 
-int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
+цео rename_noreplace(цео olddirfd, const char *oldpath, цео newdirfd, const char *newpath);
 
-int readlinkat_malloc(int fd, const char *p, char **ret);
-static inline int readlink_malloc(const char *p, char **ret) {
-        return readlinkat_malloc(AT_FDCWD, p, ret);
+цео readlinkat_malloc(цео fd, const char *p, char **ret);
+static inline цео readlink_malloc(const char *p, char **ret) {
+        врати readlinkat_malloc(AT_FDCWD, p, ret);
 }
-int readlink_value(const char *p, char **ret);
-int readlink_and_make_absolute(const char *p, char **ret);
+цео readlink_value(const char *p, char **ret);
+цео readlink_and_make_absolute(const char *p, char **ret);
 
-int chmod_and_chown_at(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int chmod_and_chown(const char *path, mode_t mode, uid_t uid, gid_t gid) {
-        return chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
+цео chmod_and_chown_at(цео dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
+static inline цео chmod_and_chown(const char *path, mode_t mode, uid_t uid, gid_t gid) {
+        врати chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
 }
-int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int fchmod_and_chown(int fd, mode_t mode, uid_t uid, gid_t gid) {
-        return fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
+цео fchmod_and_chown_with_fallback(цео fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
+static inline цео fchmod_and_chown(цео fd, mode_t mode, uid_t uid, gid_t gid) {
+        врати fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
 }
 
-int fchmod_umask(int fd, mode_t mode);
-int fchmod_opath(int fd, mode_t m);
+цео fchmod_umask(цео fd, mode_t mode);
+цео fchmod_opath(цео fd, mode_t m);
 
-int futimens_opath(int fd, const struct timespec ts[2]);
+цео futimens_opath(цео fd, const struct timespec ts[2]);
 
-int fd_warn_permissions(const char *path, int fd);
-int stat_warn_permissions(const char *path, const struct stat *st);
+цео fd_warn_permissions(const char *path, цео fd);
+цео stat_warn_permissions(const char *path, const struct stat *st);
 
-int access_nofollow(const char *path, int mode);
-int access_fd(int fd, int mode);
+цео access_nofollow(const char *path, цео mode);
+цео access_fd(цео fd, цео mode);
 
-int touch_fd(int fd, usec_t stamp);
-int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
-int touch(const char *path);
+цео touch_fd(цео fd, usec_t stamp);
+цео touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
+цео touch(const char *path);
 
-int symlinkat_idempotent(const char *target, int atfd, const char *linkpath, bool make_relative);
-static inline int symlink_idempotent(const char *target, const char *linkpath, bool make_relative) {
-        return symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+цео symlinkat_idempotent(const char *target, цео atfd, const char *linkpath, bool make_relative);
+static inline цео symlink_idempotent(const char *target, const char *linkpath, bool make_relative) {
+        врати symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
 }
 
 typedef enum SymlinkFlags {
@@ -58,30 +58,30 @@ typedef enum SymlinkFlags {
         SYMLINK_LABEL         = 1 << 1,
 } SymlinkFlags;
 
-int symlinkat_atomic_full_label(const char *target, int atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context);
-static inline int symlinkat_atomic_full(const char *target, int atfd, const char *linkpath, SymlinkFlags flags) {
-        return symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
+цео symlinkat_atomic_full_label(const char *target, цео atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context);
+static inline цео symlinkat_atomic_full(const char *target, цео atfd, const char *linkpath, SymlinkFlags flags) {
+        врати symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
 }
-static inline int symlink_atomic(const char *target, const char *linkpath) {
-        return symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
-}
-
-int mknodat_atomic(int atfd, const char *path, mode_t mode, dev_t dev);
-static inline int mknod_atomic(const char *path, mode_t mode, dev_t dev) {
-        return mknodat_atomic(AT_FDCWD, path, mode, dev);
+static inline цео symlink_atomic(const char *target, const char *linkpath) {
+        врати symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
 }
 
-int mkfifoat_atomic(int dir_fd, const char *path, mode_t mode);
-static inline int mkfifo_atomic(const char *path, mode_t mode) {
-        return mkfifoat_atomic(AT_FDCWD, path, mode);
+цео mknodat_atomic(цео atfd, const char *path, mode_t mode, dev_t dev);
+static inline цео mknod_atomic(const char *path, mode_t mode, dev_t dev) {
+        врати mknodat_atomic(AT_FDCWD, path, mode, dev);
 }
 
-int get_files_in_directory(const char *path, char ***list);
+цео mkfifoat_atomic(цео dir_fd, const char *path, mode_t mode);
+static inline цео mkfifo_atomic(const char *path, mode_t mode) {
+        врати mkfifoat_atomic(AT_FDCWD, path, mode);
+}
 
-int tmp_dir(const char **ret);
-int var_tmp_dir(const char **ret);
+цео get_files_in_directory(const char *path, char ***list);
 
-int unlink_or_warn(const char *filename);
+цео tmp_dir(const char **ret);
+цео var_tmp_dir(const char **ret);
+
+цео unlink_or_warn(const char *filename);
 
 /* Useful for usage with _cleanup_(), removes a directory and frees the pointer */
 char *rmdir_and_free(char *p);
@@ -95,21 +95,21 @@ typedef enum UnlinkDeallocateFlags {
         UNLINK_ERASE     = 1 << 1,
 } UnlinkDeallocateFlags;
 
-int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags);
+цео unlinkat_deallocate(цео fd, const char *name, UnlinkDeallocateFlags flags);
 
-int open_parent_at(int dir_fd, const char *path, int flags, mode_t mode);
-static inline int open_parent(const char *path, int flags, mode_t mode) {
-        return open_parent_at(AT_FDCWD, path, flags, mode);
+цео open_parent_at(цео dir_fd, const char *path, цео flags, mode_t mode);
+static inline цео open_parent(const char *path, цео flags, mode_t mode) {
+        врати open_parent_at(AT_FDCWD, path, flags, mode);
 }
 
-int conservative_renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-static inline int conservative_rename(const char *oldpath, const char *newpath) {
-        return conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
+цео conservative_renameat(цео olddirfd, const char *oldpath, цео newdirfd, const char *newpath);
+static inline цео conservative_rename(const char *oldpath, const char *newpath) {
+        врати conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
 }
 
-int posix_fallocate_loop(int fd, uint64_t offset, uint64_t size);
+цео posix_fallocate_loop(цео fd, uint64_t offset, uint64_t size);
 
-int parse_cifs_service(const char *s, char **ret_host, char **ret_service, char **ret_path);
+цео parse_cifs_service(const char *s, char **ret_host, char **ret_service, char **ret_path);
 
 typedef enum XOpenFlags {
         XO_LABEL             = 1 << 0, /* When creating: relabel */
@@ -122,53 +122,53 @@ typedef enum XOpenFlags {
         XO_AUTO_RW_RO        = 1 << 7, /* Open in O_RDWR mode if possible, O_RDONLY if not */
 } XOpenFlags;
 
-int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int open_mkdir_at_full(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode) {
-        return open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
+цео open_mkdir_at_full_label(цео dirfd, const char *path, цео flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+static inline цео open_mkdir_at_full(цео dirfd, const char *path, цео flags, XOpenFlags xopen_flags, mode_t mode) {
+        врати open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
 }
-static inline int open_mkdir_at(int dirfd, const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(dirfd, path, flags, 0, mode);
+static inline цео open_mkdir_at(цео dirfd, const char *path, цео flags, mode_t mode) {
+        врати open_mkdir_at_full(dirfd, path, flags, 0, mode);
 }
-static inline int open_mkdir(const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
-}
-
-int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, bool *ret_newly_created);
-
-int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int xopenat_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode) {
-        return xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
-}
-static inline int xopenat(int dir_fd, const char *path, int open_flags) {
-        return xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
+static inline цео open_mkdir(const char *path, цео flags, mode_t mode) {
+        врати open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
 }
 
-int xopenat_lock_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation, LabelContext *label_context);
-static inline int xopenat_lock_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation) {
-        return xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+цео openat_report_new(цео dirfd, const char *pathname, цео flags, mode_t mode, bool *ret_newly_created);
+
+цео xopenat_full_label(цео dir_fd, const char *path, цео open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+static inline цео xopenat_full(цео dir_fd, const char *path, цео open_flags, XOpenFlags xopen_flags, mode_t mode) {
+        врати xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
 }
-static inline int xopenat_lock(int dir_fd, const char *path, int open_flags, LockType locktype, int operation) {
-        return xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+static inline цео xopenat(цео dir_fd, const char *path, цео open_flags) {
+        врати xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
 }
 
-int link_fd(int fd, int newdirfd, const char *newpath);
+цео xopenat_lock_full_label(цео dir_fd, const char *path, цео open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, цео operation, LabelContext *label_context);
+static inline цео xopenat_lock_full(цео dir_fd, const char *path, цео open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, цео operation) {
+        врати xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+}
+static inline цео xopenat_lock(цео dir_fd, const char *path, цео open_flags, LockType locktype, цео operation) {
+        врати xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+}
 
-int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
+цео link_fd(цео fd, цео newdirfd, const char *newpath);
 
-static inline int at_flags_normalize_nofollow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
+цео linkat_replace(цео olddirfd, const char *oldpath, цео newdirfd, const char *newpath);
+
+static inline цео at_flags_normalize_nofollow(цео flags) {
+        ако (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
                 assert(!FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW));
                 flags &= ~AT_SYMLINK_FOLLOW;
-        } else
+        } инако
                 flags |= AT_SYMLINK_NOFOLLOW;
-        return flags;
+        врати flags;
 }
 
-static inline int at_flags_normalize_follow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
+static inline цео at_flags_normalize_follow(цео flags) {
+        ако (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
                 assert(!FLAGS_SET(flags, AT_SYMLINK_FOLLOW));
                 flags &= ~AT_SYMLINK_NOFOLLOW;
-        } else
+        } инако
                 flags |= AT_SYMLINK_FOLLOW;
-        return flags;
+        врати flags;
 }

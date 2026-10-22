@@ -9,43 +9,43 @@
 static thread_local const FiberOps *fiber_ops = NULL;
 
 bool fiber_ops_is_set(void) {
-        return fiber_ops != NULL;
+        врати fiber_ops != NULL;
 }
 
 void fiber_ops_set(const FiberOps *ops) {
         fiber_ops = ops;
 }
 
-int fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask) {
-        if (fiber_ops)
-                return fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
+цео fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask) {
+        ако (fiber_ops)
+                врати fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
 
-        return RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
+        врати RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
 }
 
-ssize_t fiber_ops_read(int fd, void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->read(fd, buf, count);
+ssize_t fiber_ops_read(цео fd, void *buf, size_t count) {
+        ако (fiber_ops)
+                врати fiber_ops->read(fd, buf, count);
 
         ssize_t n = read(fd, buf, count);
-        return n < 0 ? -errno : n;
+        врати n < 0 ? -errno : n;
 }
 
-ssize_t fiber_ops_write(int fd, const void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->write(fd, buf, count);
+ssize_t fiber_ops_write(цео fd, const void *buf, size_t count) {
+        ако (fiber_ops)
+                врати fiber_ops->write(fd, buf, count);
 
-        return RET_NERRNO(write(fd, buf, count));
+        врати RET_NERRNO(write(fd, buf, count));
 }
 
 sd_future* fiber_ops_timeout(uint64_t timeout) {
         assert(fiber_ops);
 
-        return fiber_ops->timeout(timeout);
+        врати fiber_ops->timeout(timeout);
 }
 
 sd_future* fiber_ops_timeout_unref(sd_future *timer) {
         assert(fiber_ops);
 
-        return fiber_ops->timeout_unref(timer);
+        врати fiber_ops->timeout_unref(timer);
 }

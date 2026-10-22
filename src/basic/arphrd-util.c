@@ -12,32 +12,32 @@ static const struct arphrd_name* lookup_arphrd(register const char *str, registe
 #include "arphrd-from-name.inc"
 #include "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
+цео arphrd_from_name(const char *name) {
         const struct arphrd_name *sc;
 
         assert(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ако (!sc)
+                врати -EINVAL;
 
-        return sc->id;
+        врати sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
         switch (arphrd) {
         case ARPHRD_ETHER:
-                return ETH_ALEN;
+                врати ETH_ALEN;
         case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
+                врати INFINIBAND_ALEN;
         case ARPHRD_TUNNEL:
         case ARPHRD_SIT:
         case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
+                врати sizeof(struct in_addr);
         case ARPHRD_TUNNEL6:
         case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
+                врати sizeof(struct in6_addr);
         default:
-                return 0;
+                врати 0;
         }
 }

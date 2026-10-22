@@ -9,56 +9,56 @@
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
         assert(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        ако (!ratelimit_configured(rl))
+                врати true;
 
-        if (rl->begin <= 0 ||
+        ако (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
                 rl->num = 1;     /* Reset counter */
-                return true;
+                врати true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        ако (_unlikely_(rl->num == UINT_MAX))
+                врати false;
 
         rl->num++;
-        return rl->num <= rl->burst;
+        врати rl->num <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
         assert(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        ако (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                врати true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        врати ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
 unsigned ratelimit_num_dropped(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        ако (rl->num == UINT_MAX) /* overflow, return as special case */
+                врати UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        врати LESS_BY(rl->num, rl->burst);
 }
 
 usec_t ratelimit_end(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ако (rl->begin == 0)
+                врати 0;
 
-        return usec_add(rl->begin, rl->interval);
+        врати usec_add(rl->begin, rl->interval);
 }
 
 usec_t ratelimit_left(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ако (rl->begin == 0)
+                врати 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        врати usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

@@ -10,78 +10,78 @@
 #include "user-util.h"
 #include "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+static цео audit_read_field(const PidRef *pid, const char *field, char **ret) {
+        цео r;
 
         assert(field);
         assert(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        ако (!pidref_is_set(pid))
+                врати -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        ако (detect_container() > 0)
+                врати -ENODATA;
 
         const char *p = procfs_file_alloca(pid->pid, field);
 
         _cleanup_free_ char *s = NULL;
         bool enoent = false;
         r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        ако (r == -ENOENT) {
+                ако (proc_mounted() == 0)
+                        врати -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } инако ако (r < 0)
+                врати r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        ако (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                врати -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        врати 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
+цео audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        цео r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        ако (!audit_session_is_valid(u))
+                врати -ENODATA;
 
-        if (ret_id)
+        ако (ret_id)
                 *ret_id = u;
 
-        return 0;
+        врати 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
+цео audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        цео r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                врати r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        ако (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                врати -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        врати parse_uid(s, ret_uid);
 }

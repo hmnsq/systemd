@@ -3,56 +3,56 @@
 
 #include "forward.h"
 
-int getxattr_at_malloc(int fd, const char *path, const char *name, int at_flags, char **ret, size_t *ret_size);
-static inline int getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
+цео getxattr_at_malloc(цео fd, const char *path, const char *name, цео at_flags, char **ret, size_t *ret_size);
+static inline цео getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
+        врати getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
 }
-static inline int lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
+static inline цео lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
+        врати getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
 }
-static inline int fgetxattr_malloc(int fd, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
-}
-
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags);
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv);
-
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret);
-static inline int listxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
-}
-static inline int llistxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, 0, ret);
-}
-static inline int flistxattr_malloc(int fd, char **ret) {
-        return listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+static inline цео fgetxattr_malloc(цео fd, const char *name, char **ret, size_t *ret_size) {
+        врати getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
 }
 
-int xsetxattr_full(
-                int fd,
+цео getxattr_at_bool(цео fd, const char *path, const char *name, цео at_flags);
+цео getxattr_at_strv(цео fd, const char *path, const char *name, цео at_flags, char ***ret_strv);
+
+цео listxattr_at_malloc(цео fd, const char *path, цео at_flags, char **ret);
+static inline цео listxattr_malloc(const char *path, char **ret) {
+        врати listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
+}
+static inline цео llistxattr_malloc(const char *path, char **ret) {
+        врати listxattr_at_malloc(AT_FDCWD, path, 0, ret);
+}
+static inline цео flistxattr_malloc(цео fd, char **ret) {
+        врати listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+}
+
+цео xsetxattr_full(
+                цео fd,
                 const char *path,
-                int at_flags,
+                цео at_flags,
                 const char *name,
                 const char *value,
                 size_t size,
-                int xattr_flags);
-static inline int xsetxattr(
-                int fd,
+                цео xattr_flags);
+static inline цео xsetxattr(
+                цео fd,
                 const char *path,
-                int at_flags,
+                цео at_flags,
                 const char *name,
                 const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+        врати xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);
+цео xsetxattr_strv(цео fd, const char *path, цео at_flags, const char *name, char * const *l);
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name);
+цео xremovexattr(цео fd, const char *path, цео at_flags, const char *name);
 
-int fd_setcrtime(int fd, usec_t usec);
-int getcrtime_at(int fd, const char *path, int at_flags, usec_t *ret);
-static inline int fd_getcrtime(int fd, usec_t *ret) {
-        return getcrtime_at(fd, NULL, 0, ret);
+цео fd_setcrtime(цео fd, usec_t usec);
+цео getcrtime_at(цео fd, const char *path, цео at_flags, usec_t *ret);
+static inline цео fd_getcrtime(цео fd, usec_t *ret) {
+        врати getcrtime_at(fd, NULL, 0, ret);
 }
 
 bool xattr_is_acl(const char *name);

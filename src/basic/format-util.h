@@ -23,49 +23,49 @@ assert_cc(sizeof(gid_t) == sizeof(uint32_t));
 #define FORMAT_GID(gid) \
         snprintf_ok((char[DECIMAL_STR_MAX(gid_t)]){}, DECIMAL_STR_MAX(gid_t), GID_FMT, gid)
 
-#if SIZEOF_TIME_T == 8
+#ако SIZEOF_TIME_T == 8
 #  define PRI_TIME PRIi64
 #elif SIZEOF_TIME_T == 4
 #  define PRI_TIME "li"
-#else
+#инако
 #  error Unknown time_t size
 #endif
 
-#if SIZEOF_TIMEX_MEMBER == 8
+#ако SIZEOF_TIMEX_MEMBER == 8
 #  define PRI_TIMEX PRIi64
 #elif SIZEOF_TIMEX_MEMBER == 4
 #  define PRI_TIMEX "li"
-#else
+#инако
 #  error Unknown timex member size
 #endif
 
 #ifdef __GLIBC__
-#  if SIZEOF_RLIM_T == 8
+#  ако SIZEOF_RLIM_T == 8
 #    define RLIM_FMT "%" PRIu64
 #  elif SIZEOF_RLIM_T == 4
 #    define RLIM_FMT "%" PRIu32
-#  else
+#  инако
 #    error Unknown rlim_t size
 #  endif
-#else
+#инако
 /* Assume musl, and it unconditionally uses unsigned long long. */
 assert_cc(SIZEOF_RLIM_T == 8);
 #  define RLIM_FMT "%llu"
 #endif
 
-#if SIZEOF_DEV_T == 8
+#ако SIZEOF_DEV_T == 8
 #  define DEV_FMT "%" PRIu64
 #elif SIZEOF_DEV_T == 4
 #  define DEV_FMT "%" PRIu32
-#else
+#инако
 #  error Unknown dev_t size
 #endif
 
-#if SIZEOF_INO_T == 8
+#ако SIZEOF_INO_T == 8
 #  define INO_FMT "%" PRIu64
 #elif SIZEOF_INO_T == 4
 #  define INO_FMT "%" PRIu32
-#else
+#инако
 #  error Unknown ino_t size
 #endif
 
@@ -82,7 +82,7 @@ char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) _
 
 _warn_unused_result_
 static inline char* format_bytes(char *buf, size_t l, uint64_t t) {
-        return format_bytes_full(buf, l, t, FORMAT_BYTES_USE_IEC | FORMAT_BYTES_BELOW_POINT | FORMAT_BYTES_TRAILING_B);
+        врати format_bytes_full(buf, l, t, FORMAT_BYTES_USE_IEC | FORMAT_BYTES_BELOW_POINT | FORMAT_BYTES_TRAILING_B);
 }
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,

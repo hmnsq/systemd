@@ -29,11 +29,11 @@ utf8_prev_char (const char *p)
 {
   assert(p);
 
-  for (;;)
+  за (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      ако ((*p & 0xc0) != 0x80)
+        врати (char *)p;
     }
 }
 
@@ -42,18 +42,18 @@ struct Interval
   unichar start, end;
 };
 
-static int
+static цео
 interval_compare (const void *key, const void *elt)
 {
   unichar c = (unichar) (long) (key);
   struct Interval *interval = (struct Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  ако (c < interval->start)
+    врати -1;
+  ако (c > interval->end)
+    врати +1;
 
-  return 0;
+  врати 0;
 }
 
 /*
@@ -96,11 +96,11 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  ако (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
                interval_compare))
-    return true;
+    врати true;
 
-  return false;
+  врати false;
 }
 
 const char utf8_skip_data[256] = {
