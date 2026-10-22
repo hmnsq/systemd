@@ -2,7 +2,7 @@
 #pragma once
 
 #include <grp.h>
-#if ENABLE_GSHADOW
+#如果 ENABLE_GSHADOW
 #  include <gshadow.h>
 #endif
 #include <pwd.h>
@@ -21,13 +21,13 @@
 #define MAP_UID_MAX ((uid_t) 60577)
 
 /* A helper to print an error message when user or group resolution fails. */
-const char* strerror_user(int errnum, char *buf, size_t buflen);
+const char* strerror_user(整数 errnum, char *buf, size_t buflen);
 #define STRERROR_USER(errnum) strerror_user(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
-const char* strerror_group(int errnum, char *buf, size_t buflen);
+const char* strerror_group(整数 errnum, char *buf, size_t buflen);
 #define STRERROR_GROUP(errnum) strerror_group(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
 static inline bool ERRNO_IS_NEG_BAD_ACCOUNT(intmax_t r) {
-        return IN_SET(r,
+        返回 IN_SET(r,
                       -ESRCH,
                       -ENOEXEC);
 }
@@ -36,20 +36,20 @@ _DEFINE_ABS_WRAPPER(BAD_ACCOUNT);
 bool uid_is_valid(uid_t uid) _const_;
 
 static inline bool gid_is_valid(gid_t gid) {
-        return uid_is_valid((uid_t) gid);
+        返回 uid_is_valid((uid_t) gid);
 }
 
-int parse_uid(const char *s, uid_t* ret_uid);
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper);
+整数 parse_uid(const char *s, uid_t* ret_uid);
+整数 parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper);
 
-static inline int parse_gid(const char *s, gid_t *ret_gid) {
-        return parse_uid(s, (uid_t*) ret_gid);
+static inline 整数 parse_gid(const char *s, gid_t *ret_gid) {
+        返回 parse_uid(s, (uid_t*) ret_gid);
 }
 
 char* getlogname_malloc(void);
 char* getusername_malloc(void);
 
-const char* default_root_shell_at(int rfd);
+const char* default_root_shell_at(整数 rfd);
 const char* default_root_shell(const char *root);
 
 bool is_nologin_shell(const char *shell) _pure_;
@@ -62,33 +62,33 @@ typedef enum UserCredsFlags {
         USER_CREDS_SUPPRESS_PLACEHOLDER = 1 << 3,  /* suppress home and/or shell fields if value is placeholder (root/empty/nologin) */
 } UserCredsFlags;
 
-int get_user_creds(
+整数 get_user_creds(
                 const char *username,
                 UserCredsFlags flags,
                 char **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
                 char **ret_home,
                 char **ret_shell);
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid);
+整数 get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid);
 
 char* uid_to_name(uid_t uid);
 char* gid_to_name(gid_t gid);
 
-int in_gid(gid_t gid);
-int in_group(const char *name);
+整数 in_gid(gid_t gid);
+整数 in_group(const char *name);
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret);
-int getgroups_alloc(gid_t **ret);
+整数 merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret);
+整数 getgroups_alloc(gid_t **ret);
 
-int get_home_dir(char **ret);
-int get_shell(char **ret);
+整数 get_home_dir(char **ret);
+整数 get_shell(char **ret);
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids);
-static inline int reset_uid_gid(void) {
-        return fully_set_uid_gid(0, 0, NULL, 0);
+整数 fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids);
+static inline 整数 reset_uid_gid(void) {
+        返回 fully_set_uid_gid(0, 0, NULL, 0);
 }
 
-int take_etc_passwd_lock(const char *root);
+整数 take_etc_passwd_lock(const char *root);
 
 #define UID_INVALID ((uid_t) -1)
 #define GID_INVALID ((gid_t) -1)
@@ -136,27 +136,27 @@ char* mangle_gecos(const char *d);
 bool valid_home(const char *p);
 bool valid_shell(const char *p);
 
-int maybe_setgroups(size_t size, const gid_t *list);
+整数 maybe_setgroups(size_t size, const gid_t *list);
 
 bool synthesize_nobody(void);
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw);
-int fgetspent_sane(FILE *stream, struct spwd **sp);
-int fgetgrent_sane(FILE *stream, struct group **gr);
-int putpwent_sane(const struct passwd *pw, FILE *stream);
-int putspent_sane(const struct spwd *sp, FILE *stream);
-int putgrent_sane(const struct group *gr, FILE *stream);
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg);
-int putsgent_sane(const struct sgrp *sg, FILE *stream);
+整数 fgetpwent_sane(FILE *stream, struct passwd **pw);
+整数 fgetspent_sane(FILE *stream, struct spwd **sp);
+整数 fgetgrent_sane(FILE *stream, struct group **gr);
+整数 putpwent_sane(const struct passwd *pw, FILE *stream);
+整数 putspent_sane(const struct spwd *sp, FILE *stream);
+整数 putgrent_sane(const struct group *gr, FILE *stream);
+#如果 ENABLE_GSHADOW
+整数 fgetsgent_sane(FILE *stream, struct sgrp **sg);
+整数 putsgent_sane(const struct sgrp *sg, FILE *stream);
 #endif
 
-int is_this_me(const char *username);
+整数 is_this_me(const char *username);
 
 const char* get_home_root(void);
 
 static inline bool hashed_password_is_locked_or_invalid(const char *password) {
-        return password && password[0] != '$';
+        返回 password && password[0] != '$';
 }
 
 /* Places where we will try to load account data from */
@@ -177,14 +177,14 @@ static inline bool hashed_password_is_locked_or_invalid(const char *password) {
  */
 #define PASSWORD_UNPROVISIONED "!unprovisioned"
 
-int sysconf_ngroups_max(void);
+整数 sysconf_ngroups_max(void);
 
-int lookup_pwent_in_files(
+整数 lookup_pwent_in_files(
                 char * const *files,
                 const char *name,
                 uid_t uid,
                 struct passwd **ret);
-int lookup_grent_in_files(
+整数 lookup_grent_in_files(
                 char * const *files,
                 const char *name,
                 gid_t gid,
@@ -195,11 +195,11 @@ ssize_t lookup_groups_in_files(
                 const char *name,
                 gid_t gid,
                 gid_t **ret);
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret);
-int initgroups_wrapper(const char *user, gid_t gid);
+整数 getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret);
+整数 initgroups_wrapper(const char *user, gid_t gid);
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret);
-int getpwnam_malloc(const char *name, struct passwd **ret);
+整数 getpwuid_malloc(uid_t uid, struct passwd **ret);
+整数 getpwnam_malloc(const char *name, struct passwd **ret);
 
-int getgrnam_malloc(const char *name, struct group **ret);
-int getgrgid_malloc(gid_t gid, struct group **ret);
+整数 getgrnam_malloc(const char *name, struct group **ret);
+整数 getgrgid_malloc(gid_t gid, struct group **ret);

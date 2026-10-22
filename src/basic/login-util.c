@@ -7,12 +7,12 @@
 
 bool session_id_valid(const char *id) {
 
-        if (isempty(id))
-                return false;
+        如果 (isempty(id))
+                返回 false;
 
-        return in_charset(id, ALPHANUMERICAL);
+        返回 in_charset(id, ALPHANUMERICAL);
 }
 
 bool logind_running(void) {
-        return access("/run/systemd/seats/", F_OK) >= 0;
+        返回 access("/run/systemd/seats/", F_OK) >= 0;
 }

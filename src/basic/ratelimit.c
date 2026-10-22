@@ -9,56 +9,56 @@
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
         assert(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        如果 (!ratelimit_configured(rl))
+                返回 true;
 
-        if (rl->begin <= 0 ||
+        如果 (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
                 rl->num = 1;     /* Reset counter */
-                return true;
+                返回 true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        如果 (_unlikely_(rl->num == UINT_MAX))
+                返回 false;
 
         rl->num++;
-        return rl->num <= rl->burst;
+        返回 rl->num <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
         assert(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        如果 (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                返回 true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        返回 ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
 unsigned ratelimit_num_dropped(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        如果 (rl->num == UINT_MAX) /* overflow, return as special case */
+                返回 UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        返回 LESS_BY(rl->num, rl->burst);
 }
 
 usec_t ratelimit_end(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        如果 (rl->begin == 0)
+                返回 0;
 
-        return usec_add(rl->begin, rl->interval);
+        返回 usec_add(rl->begin, rl->interval);
 }
 
 usec_t ratelimit_left(const RateLimit *rl) {
         assert(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        如果 (rl->begin == 0)
+                返回 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        返回 usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

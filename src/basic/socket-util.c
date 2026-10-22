@@ -40,9 +40,9 @@
 #include "user-util.h"
 #include "xattr-util.h"
 
-#if ENABLE_IDN
+#如果 ENABLE_IDN
 #  define IDN_FLAGS NI_IDN
-#else
+#否则
 #  define IDN_FLAGS 0
 #endif
 
@@ -55,9 +55,9 @@ static const char* const socket_address_type_table[] = {
         [SOCK_DCCP] =      "DatagramCongestionControl",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DEFINE_STRING_TABLE_LOOKUP(socket_address_type, 整数);
 
-int socket_address_verify(const SocketAddress *a, bool strict) {
+整数 socket_address_verify(const SocketAddress *a, bool strict) {
         assert(a);
 
         /* With 'strict' we enforce additional sanity constraints which are not set by the standard,
@@ -66,89 +66,89 @@ int socket_address_verify(const SocketAddress *a, bool strict) {
         switch (socket_address_family(a)) {
 
         case AF_INET:
-                if (a->size != sizeof(struct sockaddr_in))
-                        return -EINVAL;
+                如果 (a->size != sizeof(struct sockaddr_in))
+                        返回 -EINVAL;
 
-                if (a->sockaddr.in.sin_port == 0)
-                        return -EINVAL;
+                如果 (a->sockaddr.in.sin_port == 0)
+                        返回 -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                如果 (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        返回 -EINVAL;
 
-                return 0;
+                返回 0;
 
         case AF_INET6:
-                if (a->size != sizeof(struct sockaddr_in6))
-                        return -EINVAL;
+                如果 (a->size != sizeof(struct sockaddr_in6))
+                        返回 -EINVAL;
 
-                if (a->sockaddr.in6.sin6_port == 0)
-                        return -EINVAL;
+                如果 (a->sockaddr.in6.sin6_port == 0)
+                        返回 -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                如果 (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        返回 -EINVAL;
 
-                return 0;
+                返回 0;
 
         case AF_UNIX:
-                if (a->size < offsetof(struct sockaddr_un, sun_path))
-                        return -EINVAL;
-                if (a->size > sizeof(struct sockaddr_un) + !strict)
+                如果 (a->size < offsetof(struct sockaddr_un, sun_path))
+                        返回 -EINVAL;
+                如果 (a->size > sizeof(struct sockaddr_un) + !strict)
                         /* If !strict, allow one extra byte, since getsockname() on Linux will append
                          * a NUL byte if we have path sockets that are above sun_path's full size. */
-                        return -EINVAL;
+                        返回 -EINVAL;
 
-                if (a->size > offsetof(struct sockaddr_un, sun_path) &&
+                如果 (a->size > offsetof(struct sockaddr_un, sun_path) &&
                     a->sockaddr.un.sun_path[0] != 0 &&
                     strict) {
                         /* Only validate file system sockets here, and only in strict mode */
                         const char *e;
 
                         e = memchr(a->sockaddr.un.sun_path, 0, sizeof(a->sockaddr.un.sun_path));
-                        if (e) {
+                        如果 (e) {
                                 /* If there's an embedded NUL byte, make sure the size of the socket address matches it */
-                                if (a->size != offsetof(struct sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
-                                        return -EINVAL;
-                        } else {
+                                如果 (a->size != offsetof(struct sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
+                                        返回 -EINVAL;
+                        } 否则 {
                                 /* If there's no embedded NUL byte, then the size needs to match the whole
                                  * structure or the structure with one extra NUL byte suffixed. (Yeah, Linux is awful,
                                  * and considers both equivalent: getsockname() even extends sockaddr_un beyond its
                                  * size if the path is non NUL terminated.) */
-                                if (!IN_SET(a->size, sizeof(a->sockaddr.un.sun_path), sizeof(a->sockaddr.un.sun_path)+1))
-                                        return -EINVAL;
+                                如果 (!IN_SET(a->size, sizeof(a->sockaddr.un.sun_path), sizeof(a->sockaddr.un.sun_path)+1))
+                                        返回 -EINVAL;
                         }
                 }
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
-                        return -EINVAL;
+                如果 (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
+                        返回 -EINVAL;
 
-                return 0;
+                返回 0;
 
         case AF_NETLINK:
 
-                if (a->size != sizeof(struct sockaddr_nl))
-                        return -EINVAL;
+                如果 (a->size != sizeof(struct sockaddr_nl))
+                        返回 -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
-                        return -EINVAL;
+                如果 (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
+                        返回 -EINVAL;
 
-                return 0;
+                返回 0;
 
         case AF_VSOCK:
-                if (a->size != sizeof(struct sockaddr_vm))
-                        return -EINVAL;
+                如果 (a->size != sizeof(struct sockaddr_vm))
+                        返回 -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                如果 (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        返回 -EINVAL;
 
-                return 0;
+                返回 0;
 
         default:
-                return -EAFNOSUPPORT;
+                返回 -EAFNOSUPPORT;
         }
 }
 
-int socket_address_print(const SocketAddress *a, char **ret) {
-        int r;
+整数 socket_address_print(const SocketAddress *a, char **ret) {
+        整数 r;
 
         assert(a);
         assert(ret);
@@ -157,30 +157,30 @@ int socket_address_print(const SocketAddress *a, char **ret) {
                                               * able to pretty-print any socket the kernel considers
                                               * valid. We still need to do validation to know if we
                                               * can meaningfully print the address. */
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        if (socket_address_family(a) == AF_NETLINK) {
+        如果 (socket_address_family(a) == AF_NETLINK) {
                 _cleanup_free_ char *sfamily = NULL;
 
                 r = netlink_family_to_string_alloc(a->protocol, &sfamily);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
 
                 r = asprintf(ret, "%s %u", sfamily, a->sockaddr.nl.nl_groups);
-                if (r < 0)
-                        return -ENOMEM;
+                如果 (r < 0)
+                        返回 -ENOMEM;
 
-                return 0;
+                返回 0;
         }
 
-        return sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
+        返回 sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
 }
 
 bool socket_address_can_accept(const SocketAddress *a) {
         assert(a);
 
-        return
+        返回
                 IN_SET(a->type, SOCK_STREAM, SOCK_SEQPACKET);
 }
 
@@ -189,145 +189,145 @@ bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) {
         assert(b);
 
         /* Invalid addresses are unequal to all */
-        if (socket_address_verify(a, false) < 0 ||
+        如果 (socket_address_verify(a, false) < 0 ||
             socket_address_verify(b, false) < 0)
-                return false;
+                返回 false;
 
-        if (a->type != b->type)
-                return false;
+        如果 (a->type != b->type)
+                返回 false;
 
-        if (socket_address_family(a) != socket_address_family(b))
-                return false;
+        如果 (socket_address_family(a) != socket_address_family(b))
+                返回 false;
 
         switch (socket_address_family(a)) {
 
         case AF_INET:
-                if (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
-                        return false;
+                如果 (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
+                        返回 false;
 
-                if (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
-                        return false;
+                如果 (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
+                        返回 false;
 
                 break;
 
         case AF_INET6:
-                if (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, sizeof(a->sockaddr.in6.sin6_addr)) != 0)
-                        return false;
+                如果 (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, sizeof(a->sockaddr.in6.sin6_addr)) != 0)
+                        返回 false;
 
-                if (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
-                        return false;
+                如果 (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
+                        返回 false;
 
                 break;
 
         case AF_UNIX:
-                if (a->size <= offsetof(struct sockaddr_un, sun_path) ||
+                如果 (a->size <= offsetof(struct sockaddr_un, sun_path) ||
                     b->size <= offsetof(struct sockaddr_un, sun_path))
-                        return false;
+                        返回 false;
 
-                if ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
-                        return false;
+                如果 ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
+                        返回 false;
 
-                if (a->sockaddr.un.sun_path[0]) {
-                        if (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
-                                return false;
-                } else {
-                        if (a->size != b->size)
-                                return false;
+                如果 (a->sockaddr.un.sun_path[0]) {
+                        如果 (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
+                                返回 false;
+                } 否则 {
+                        如果 (a->size != b->size)
+                                返回 false;
 
-                        if (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
-                                return false;
+                        如果 (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
+                                返回 false;
                 }
 
                 break;
 
         case AF_NETLINK:
-                if (a->protocol != b->protocol)
-                        return false;
+                如果 (a->protocol != b->protocol)
+                        返回 false;
 
-                if (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
-                        return false;
+                如果 (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
+                        返回 false;
 
                 break;
 
         case AF_VSOCK:
-                if (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
-                        return false;
+                如果 (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
+                        返回 false;
 
-                if (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
-                        return false;
+                如果 (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
+                        返回 false;
 
                 break;
 
         default:
                 /* Cannot compare, so we assume the addresses are different */
-                return false;
+                返回 false;
         }
 
-        return true;
+        返回 true;
 }
 
 const char* socket_address_get_path(const SocketAddress *a) {
         assert(a);
 
-        if (socket_address_family(a) != AF_UNIX)
-                return NULL;
+        如果 (socket_address_family(a) != AF_UNIX)
+                返回 NULL;
 
-        if (a->sockaddr.un.sun_path[0] == 0)
-                return NULL;
+        如果 (a->sockaddr.un.sun_path[0] == 0)
+                返回 NULL;
 
         /* Note that this is only safe because we know that there's an extra NUL byte after the sockaddr_un
          * structure. On Linux AF_UNIX file system socket addresses don't have to be NUL terminated if they take up the
          * full sun_path space. */
         assert_cc(sizeof(union sockaddr_union) >= sizeof(struct sockaddr_un)+1);
-        return a->sockaddr.un.sun_path;
+        返回 a->sockaddr.un.sun_path;
 }
 
 bool socket_ipv6_is_supported(void) {
-        static int cached = -1;
+        static 整数 cached = -1;
 
-        if (cached < 0) {
+        如果 (cached < 0) {
 
-                if (access("/proc/net/if_inet6", F_OK) < 0) {
+                如果 (access("/proc/net/if_inet6", F_OK) < 0) {
 
-                        if (errno != ENOENT) {
+                        如果 (errno != ENOENT) {
                                 log_debug_errno(errno, "Unexpected error when checking whether /proc/net/if_inet6 exists: %m");
-                                return false;
+                                返回 false;
                         }
 
                         cached = false;
-                } else
+                } 否则
                         cached = true;
         }
 
-        return cached;
+        返回 cached;
 }
 
 bool socket_ipv6_is_enabled(void) {
         _cleanup_free_ char *v = NULL;
-        int r;
+        整数 r;
 
         /* Much like socket_ipv6_is_supported(), but also checks that the sysctl that disables IPv6 on all
          * interfaces isn't turned on */
 
-        if (!socket_ipv6_is_supported())
-                return false;
+        如果 (!socket_ipv6_is_supported())
+                返回 false;
 
         r = sysctl_read_ip_property(AF_INET6, "all", "disable_ipv6", &v);
-        if (r < 0) {
+        如果 (r < 0) {
                 log_debug_errno(r, "Unexpected error reading 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                返回 true;
         }
 
         r = parse_boolean(v);
-        if (r < 0) {
+        如果 (r < 0) {
                 log_debug_errno(r, "Failed to pare 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                返回 true;
         }
 
-        return !r;
+        返回 !r;
 }
 
-bool socket_address_matches_fd(const SocketAddress *a, int fd) {
+bool socket_address_matches_fd(const SocketAddress *a, 整数 fd) {
         SocketAddress b;
         socklen_t solen;
 
@@ -335,32 +335,32 @@ bool socket_address_matches_fd(const SocketAddress *a, int fd) {
         assert(fd >= 0);
 
         b.size = sizeof(b.sockaddr);
-        if (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
-                return false;
+        如果 (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
+                返回 false;
 
-        if (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
-                return false;
+        如果 (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
+                返回 false;
 
         solen = sizeof(b.type);
-        if (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
-                return false;
+        如果 (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
+                返回 false;
 
-        if (b.type != a->type)
-                return false;
+        如果 (b.type != a->type)
+                返回 false;
 
-        if (a->protocol != 0)  {
+        如果 (a->protocol != 0)  {
                 solen = sizeof(b.protocol);
-                if (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
-                        return false;
+                如果 (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
+                        返回 false;
 
-                if (b.protocol != a->protocol)
-                        return false;
+                如果 (b.protocol != a->protocol)
+                        返回 false;
         }
 
-        return socket_address_equal(a, &b);
+        返回 socket_address_equal(a, &b);
 }
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
+整数 sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
         const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
 
         /* Note, this returns the port as 'unsigned' rather than 'uint16_t', as AF_VSOCK knows larger ports */
@@ -372,43 +372,43 @@ int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
 
         case AF_INET:
                 *ret_port = be16toh(sa->in.sin_port);
-                return 0;
+                返回 0;
 
         case AF_INET6:
                 *ret_port = be16toh(sa->in6.sin6_port);
-                return 0;
+                返回 0;
 
         case AF_VSOCK:
                 *ret_port = sa->vm.svm_port;
-                return 0;
+                返回 0;
 
         default:
-                return -EAFNOSUPPORT;
+                返回 -EAFNOSUPPORT;
         }
 }
 
 const union in_addr_union *sockaddr_in_addr(const struct sockaddr *_sa) {
         const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
 
-        if (!sa)
-                return NULL;
+        如果 (!sa)
+                返回 NULL;
 
         switch (sa->sa.sa_family) {
 
         case AF_INET:
-                return (const union in_addr_union*) &sa->in.sin_addr;
+                返回 (const union in_addr_union*) &sa->in.sin_addr;
 
         case AF_INET6:
-                return (const union in_addr_union*) &sa->in6.sin6_addr;
+                返回 (const union in_addr_union*) &sa->in6.sin6_addr;
 
         default:
-                return NULL;
+                返回 NULL;
         }
 }
 
-int sockaddr_set_in_addr(
+整数 sockaddr_set_in_addr(
                 union sockaddr_union *u,
-                int family,
+                整数 family,
                 const union in_addr_union *a,
                 uint16_t port) {
 
@@ -424,7 +424,7 @@ int sockaddr_set_in_addr(
                         .sin_port = htobe16(port),
                 };
 
-                return 0;
+                返回 0;
 
         case AF_INET6:
                 u->in6 = (struct sockaddr_in6) {
@@ -433,15 +433,15 @@ int sockaddr_set_in_addr(
                         .sin6_port = htobe16(port),
                 };
 
-                return 0;
+                返回 0;
 
         default:
-                return -EAFNOSUPPORT;
+                返回 -EAFNOSUPPORT;
 
         }
 }
 
-int sockaddr_pretty(
+整数 sockaddr_pretty(
                 const struct sockaddr *_sa,
                 socklen_t salen,
                 bool translate_ipv6,
@@ -450,7 +450,7 @@ int sockaddr_pretty(
 
         union sockaddr_union *sa = (union sockaddr_union*) _sa;
         char *p;
-        int r;
+        整数 r;
 
         assert(sa);
         assert(salen >= sizeof(sa->sa.sa_family));
@@ -463,17 +463,17 @@ int sockaddr_pretty(
 
                 a = be32toh(sa->in.sin_addr.s_addr);
 
-                if (include_port)
+                如果 (include_port)
                         r = asprintf(&p,
                                      "%u.%u.%u.%u:%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF,
                                      be16toh(sa->in.sin_port));
-                else
+                否则
                         r = asprintf(&p,
                                      "%u.%u.%u.%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF);
-                if (r < 0)
-                        return -ENOMEM;
+                如果 (r < 0)
+                        返回 -ENOMEM;
                 break;
         }
 
@@ -482,38 +482,38 @@ int sockaddr_pretty(
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF
                 };
 
-                if (translate_ipv6 &&
+                如果 (translate_ipv6 &&
                     memcmp(&sa->in6.sin6_addr, ipv4_prefix, sizeof(ipv4_prefix)) == 0) {
                         const uint8_t *a = sa->in6.sin6_addr.s6_addr+12;
-                        if (include_port)
+                        如果 (include_port)
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u:%u",
                                              a[0], a[1], a[2], a[3],
                                              be16toh(sa->in6.sin6_port));
-                        else
+                        否则
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u",
                                              a[0], a[1], a[2], a[3]);
-                        if (r < 0)
-                                return -ENOMEM;
-                } else {
+                        如果 (r < 0)
+                                返回 -ENOMEM;
+                } 否则 {
                         const char *a = IN6_ADDR_TO_STRING(&sa->in6.sin6_addr);
 
-                        if (include_port) {
-                                if (asprintf(&p,
+                        如果 (include_port) {
+                                如果 (asprintf(&p,
                                              "[%s]:%u%s%s",
                                              a,
                                              be16toh(sa->in6.sin6_port),
                                              sa->in6.sin6_scope_id != 0 ? "%" : "",
                                              FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX)) < 0)
-                                        return -ENOMEM;
-                        } else {
-                                if (sa->in6.sin6_scope_id != 0)
+                                        返回 -ENOMEM;
+                        } 否则 {
+                                如果 (sa->in6.sin6_scope_id != 0)
                                         p = strjoin(a, "%", FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX));
-                                else
+                                否则
                                         p = strdup(a);
-                                if (!p)
-                                        return -ENOMEM;
+                                如果 (!p)
+                                        返回 -ENOMEM;
                         }
                 }
 
@@ -521,11 +521,11 @@ int sockaddr_pretty(
         }
 
         case AF_UNIX:
-                if (salen <= offsetof(struct sockaddr_un, sun_path) ||
+                如果 (salen <= offsetof(struct sockaddr_un, sun_path) ||
                     (sa->un.sun_path[0] == 0 && salen == offsetof(struct sockaddr_un, sun_path) + 1))
                         /* The name must have at least one character (and the leading NUL does not count) */
                         p = strdup("<unnamed>");
-                else {
+                否则 {
                         /* Note that we calculate the path pointer here through the .un_buffer[] field, in order to
                          * outtrick bounds checking tools such as ubsan, which are too smart for their own good: on
                          * Linux the kernel may return sun_path[] data one byte longer than the declared size of the
@@ -533,7 +533,7 @@ int sockaddr_pretty(
                         char *path = (char*) sa->un_buffer + offsetof(struct sockaddr_un, sun_path);
                         size_t path_len = salen - offsetof(struct sockaddr_un, sun_path);
 
-                        if (path[0] == 0) {
+                        如果 (path[0] == 0) {
                                 /* Abstract socket. When parsing address information from, we
                                  * explicitly reject overly long paths and paths with embedded NULs.
                                  * But we might get such a socket from the outside. Let's return
@@ -542,115 +542,115 @@ int sockaddr_pretty(
                                 _cleanup_free_ char *e = NULL;
 
                                 e = cescape_length(path + 1, path_len - 1);
-                                if (!e)
-                                        return -ENOMEM;
+                                如果 (!e)
+                                        返回 -ENOMEM;
 
                                 p = strjoin("@", e);
-                        } else {
-                                if (path[path_len - 1] == '\0')
+                        } 否则 {
+                                如果 (path[path_len - 1] == '\0')
                                         /* We expect a terminating NUL and don't print it */
                                         path_len--;
 
                                 p = cescape_length(path, path_len);
                         }
                 }
-                if (!p)
-                        return -ENOMEM;
+                如果 (!p)
+                        返回 -ENOMEM;
 
                 break;
 
         case AF_VSOCK:
-                if (include_port) {
-                        if (sa->vm.svm_cid == VMADDR_CID_ANY)
+                如果 (include_port) {
+                        如果 (sa->vm.svm_cid == VMADDR_CID_ANY)
                                 r = asprintf(&p, "vsock::%u", sa->vm.svm_port);
-                        else
+                        否则
                                 r = asprintf(&p, "vsock:%u:%u", sa->vm.svm_cid, sa->vm.svm_port);
-                } else
+                } 否则
                         r = asprintf(&p, "vsock:%u", sa->vm.svm_cid);
-                if (r < 0)
-                        return -ENOMEM;
+                如果 (r < 0)
+                        返回 -ENOMEM;
                 break;
 
         default:
-                return -EOPNOTSUPP;
+                返回 -EOPNOTSUPP;
         }
 
         *ret = p;
-        return 0;
+        返回 0;
 }
 
-int getpeername_pretty(int fd, bool include_port, char **ret) {
+整数 getpeername_pretty(整数 fd, bool include_port, char **ret) {
         union sockaddr_union sa;
         socklen_t salen = sizeof(sa);
-        int r;
+        整数 r;
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getpeername(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        如果 (getpeername(fd, &sa.sa, &salen) < 0)
+                返回 -errno;
 
-        if (sa.sa.sa_family == AF_UNIX) {
+        如果 (sa.sa.sa_family == AF_UNIX) {
                 struct ucred ucred = UCRED_INVALID;
 
                 /* UNIX connection sockets are anonymous, so let's use
                  * PID/UID as pretty credentials instead */
 
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
 
-                if (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
-                        return -ENOMEM;
+                如果 (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
+                        返回 -ENOMEM;
 
-                return 0;
+                返回 0;
         }
 
         /* For remote sockets we translate IPv6 addresses back to IPv4
          * if applicable, since that's nicer. */
 
-        return sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
+        返回 sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
 }
 
-int getsockname_pretty(int fd, char **ret) {
+整数 getsockname_pretty(整数 fd, char **ret) {
         union sockaddr_union sa;
         socklen_t salen = sizeof(sa);
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getsockname(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        如果 (getsockname(fd, &sa.sa, &salen) < 0)
+                返回 -errno;
 
         /* For local sockets we do not translate IPv6 addresses back
          * to IPv6 if applicable, since this is usually used for
          * listening sockets where the difference between IPv4 and
          * IPv6 matters. */
 
-        return sockaddr_pretty(&sa.sa, salen, false, true, ret);
+        返回 sockaddr_pretty(&sa.sa, salen, false, true, ret);
 }
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **ret) {
+整数 socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **ret) {
         char host[NI_MAXHOST];
-        int r;
+        整数 r;
 
         assert(sa);
         assert(salen >= sizeof(sa_family_t));
         assert(ret);
 
         r = getnameinfo(sa, salen, host, sizeof(host), /* service= */ NULL, /* service_len= */ 0, IDN_FLAGS);
-        if (r != 0) {
-                if (r == EAI_MEMORY)
-                        return log_oom_debug();
-                if (r == EAI_SYSTEM)
+        如果 (r != 0) {
+                如果 (r == EAI_MEMORY)
+                        返回 log_oom_debug();
+                如果 (r == EAI_SYSTEM)
                         log_debug_errno(errno, "getnameinfo() failed, ignoring: %m");
-                else
+                否则
                         log_debug("getnameinfo() failed, ignoring: %s", gai_strerror(r));
 
-                return sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
+                返回 sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
         }
 
-        return strdup_to(ret, host);
+        返回 strdup_to(ret, host);
 }
 
 static const char* const netlink_family_table[] = {
@@ -674,87 +674,87 @@ static const char* const netlink_family_table[] = {
         [NETLINK_RDMA]           = "rdma",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int, INT_MAX);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, 整数, INT_MAX);
 
 bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b) {
         assert(a);
         assert(b);
 
-        if (a->sa.sa_family != b->sa.sa_family)
-                return false;
+        如果 (a->sa.sa_family != b->sa.sa_family)
+                返回 false;
 
-        if (a->sa.sa_family == AF_INET)
-                return a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
+        如果 (a->sa.sa_family == AF_INET)
+                返回 a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
 
-        if (a->sa.sa_family == AF_INET6)
-                return memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, sizeof(a->in6.sin6_addr)) == 0;
+        如果 (a->sa.sa_family == AF_INET6)
+                返回 memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, sizeof(a->in6.sin6_addr)) == 0;
 
-        if (a->sa.sa_family == AF_VSOCK)
-                return a->vm.svm_cid == b->vm.svm_cid;
+        如果 (a->sa.sa_family == AF_VSOCK)
+                返回 a->vm.svm_cid == b->vm.svm_cid;
 
-        return false;
+        返回 false;
 }
 
-int fd_set_sndbuf(int fd, size_t n, bool increase) {
-        int r, value;
+整数 fd_set_sndbuf(整数 fd, size_t n, bool increase) {
+        整数 r, value;
         socklen_t l = sizeof(value);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        如果 (n > INT_MAX)
+                返回 -ERANGE;
 
         r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        如果 (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                返回 0;
 
         /* First, try to set the buffer size with SO_SNDBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUF, n);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         /* SO_SNDBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
         l = sizeof(value);
         r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        如果 (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                返回 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUFFORCE, n);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        return 1;
+        返回 1;
 }
 
-int fd_set_rcvbuf(int fd, size_t n, bool increase) {
-        int r, value;
+整数 fd_set_rcvbuf(整数 fd, size_t n, bool increase) {
+        整数 r, value;
         socklen_t l = sizeof(value);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        如果 (n > INT_MAX)
+                返回 -ERANGE;
 
         r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        如果 (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                返回 0;
 
         /* First, try to set the buffer size with SO_RCVBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUF, n);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         /* SO_RCVBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
         l = sizeof(value);
         r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        如果 (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                返回 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUFFORCE, n);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        return 1;
+        返回 1;
 }
 
 static const char* const ip_tos_table[] = {
@@ -764,22 +764,22 @@ static const char* const ip_tos_table[] = {
         [IPTOS_LOWCOST]     = "low-cost",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int, 0xff);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, 整数, 0xff);
 
 bool ifname_valid_char(char a) {
-        if ((unsigned char) a >= 127U)
-                return false;
+        如果 ((unsigned char) a >= 127U)
+                返回 false;
 
-        if ((unsigned char) a <= 32U)
-                return false;
+        如果 ((unsigned char) a <= 32U)
+                返回 false;
 
-        if (IN_SET(a,
+        如果 (IN_SET(a,
                    ':',  /* colons are used by the legacy "alias" interface logic */
                    '/',  /* slashes cannot work, since we need to use network interfaces in sysfs paths, and in paths slashes are separators */
                    '%')) /* %d is used in the kernel's weird foo%d format string naming feature which we really really don't want to ever run into by accident */
-                return false;
+                返回 false;
 
-        return true;
+        返回 true;
 }
 
 bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
@@ -791,142 +791,142 @@ bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
 
         assert(!(flags & ~_IFNAME_VALID_ALL));
 
-        if (isempty(p))
-                return false;
+        如果 (isempty(p))
+                返回 false;
 
         /* A valid ifindex? If so, it's valid iff IFNAME_VALID_NUMERIC is set */
-        if (parse_ifindex(p) >= 0)
-                return flags & IFNAME_VALID_NUMERIC;
+        如果 (parse_ifindex(p) >= 0)
+                返回 flags & IFNAME_VALID_NUMERIC;
 
-        if (flags & IFNAME_VALID_ALTERNATIVE) {
-                if (strlen(p) >= ALTIFNAMSIZ)
-                        return false;
-        } else {
-                if (strlen(p) >= IFNAMSIZ)
-                        return false;
+        如果 (flags & IFNAME_VALID_ALTERNATIVE) {
+                如果 (strlen(p) >= ALTIFNAMSIZ)
+                        返回 false;
+        } 否则 {
+                如果 (strlen(p) >= IFNAMSIZ)
+                        返回 false;
         }
 
-        if (dot_or_dot_dot(p))
-                return false;
+        如果 (dot_or_dot_dot(p))
+                返回 false;
 
         /* Let's refuse "all" and "default" as interface name, to avoid collisions with the special sysctl
          * directories /proc/sys/net/{ipv4,ipv6}/conf/{all,default} */
-        if (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
-                return false;
+        如果 (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
+                返回 false;
 
-        for (const char *t = p; *t; t++) {
-                if (!ifname_valid_char(*t))
-                        return false;
+        为 (const char *t = p; *t; t++) {
+                如果 (!ifname_valid_char(*t))
+                        返回 false;
 
                 numeric = numeric && ascii_isdigit(*t);
         }
 
         /* It's fully numeric but didn't parse as valid ifindex above? if so, it must be too large or zero or
          * so, let's refuse that. */
-        if (numeric)
-                return false;
+        如果 (numeric)
+                返回 false;
 
-        return true;
+        返回 true;
 }
 
 bool address_label_valid(const char *p) {
 
         POINTER_MAY_BE_NULL(p);
 
-        if (isempty(p))
-                return false;
+        如果 (isempty(p))
+                返回 false;
 
-        if (strlen(p) >= IFNAMSIZ)
-                return false;
+        如果 (strlen(p) >= IFNAMSIZ)
+                返回 false;
 
-        while (*p) {
-                if ((uint8_t) *p >= 127U)
-                        return false;
+        当 (*p) {
+                如果 ((uint8_t) *p >= 127U)
+                        返回 false;
 
-                if ((uint8_t) *p <= 31U)
-                        return false;
+                如果 ((uint8_t) *p <= 31U)
+                        返回 false;
                 p++;
         }
 
-        return true;
+        返回 true;
 }
 
-int getpeercred(int fd, struct ucred *ucred) {
+整数 getpeercred(整数 fd, struct ucred *ucred) {
         socklen_t n = sizeof(struct ucred);
         struct ucred u;
 
         assert(fd >= 0);
         assert(ucred);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
-                return -errno;
+        如果 (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
+                返回 -errno;
 
-        if (n != sizeof(struct ucred))
-                return -EIO;
+        如果 (n != sizeof(struct ucred))
+                返回 -EIO;
 
         /* Check if the data is actually useful and not suppressed due to namespacing issues */
-        if (!pid_is_valid(u.pid))
-                return -ENODATA;
+        如果 (!pid_is_valid(u.pid))
+                返回 -ENODATA;
 
         /* Note that we don't check UID/GID here, as namespace translation works differently there: instead of
          * receiving in "invalid" user/group we get the overflow UID/GID. */
 
         *ucred = u;
-        return 0;
+        返回 0;
 }
 
-int getpeersec(int fd, char **ret) {
+整数 getpeersec(整数 fd, char **ret) {
         _cleanup_free_ char *s = NULL;
         socklen_t n = 64;
 
         assert(fd >= 0);
         assert(ret);
 
-        for (;;) {
+        为 (;;) {
                 s = new0(char, n+1);
-                if (!s)
-                        return -ENOMEM;
+                如果 (!s)
+                        返回 -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
+                如果 (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
                         s[n] = 0;
                         break;
                 }
 
-                if (errno != ERANGE)
-                        return -errno;
+                如果 (errno != ERANGE)
+                        返回 -errno;
 
                 s = mfree(s);
         }
 
-        if (isempty(s))
-                return -EOPNOTSUPP;
+        如果 (isempty(s))
+                返回 -EOPNOTSUPP;
 
         *ret = TAKE_PTR(s);
 
-        return 0;
+        返回 0;
 }
 
-int getpeergroups(int fd, gid_t **ret) {
+整数 getpeergroups(整数 fd, gid_t **ret) {
         socklen_t n = sizeof(gid_t) * 64U;
         _cleanup_free_ gid_t *d = NULL;
 
         assert(fd >= 0);
         assert(ret);
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max > 0)
+        整数 ngroups_max = sysconf_ngroups_max();
+        如果 (ngroups_max > 0)
                 n = MAX(n, sizeof(gid_t) * (socklen_t) ngroups_max);
 
-        for (;;) {
+        为 (;;) {
                 d = malloc(n);
-                if (!d)
-                        return -ENOMEM;
+                如果 (!d)
+                        返回 -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
+                如果 (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
                         break;
 
-                if (errno != ERANGE)
-                        return -errno;
+                如果 (errno != ERANGE)
+                        返回 -errno;
 
                 d = mfree(d);
         }
@@ -934,59 +934,59 @@ int getpeergroups(int fd, gid_t **ret) {
         assert_se(n % sizeof(gid_t) == 0);
         n /= sizeof(gid_t);
 
-        if (n > INT_MAX)
-                return -E2BIG;
+        如果 (n > INT_MAX)
+                返回 -E2BIG;
 
         *ret = TAKE_PTR(d);
 
-        return (int) n;
+        返回 (整数) n;
 }
 
-int getpeerpidfd(int fd) {
-        socklen_t n = sizeof(int);
-        int pidfd = -EBADF;
+整数 getpeerpidfd(整数 fd) {
+        socklen_t n = sizeof(整数);
+        整数 pidfd = -EBADF;
 
         assert(fd >= 0);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
-                return -errno;
+        如果 (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
+                返回 -errno;
 
-        if (n != sizeof(int))
-                return -EIO;
+        如果 (n != sizeof(整数))
+                返回 -EIO;
 
-        return pidfd;
+        返回 pidfd;
 }
 
-int getpeerpidref(int fd, PidRef *ret) {
-        int r;
+整数 getpeerpidref(整数 fd, PidRef *ret) {
+        整数 r;
 
         assert(fd >= 0);
         assert(ret);
 
-        int pidfd = getpeerpidfd(fd);
-        if (pidfd < 0) {
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
-                        return pidfd;
+        整数 pidfd = getpeerpidfd(fd);
+        如果 (pidfd < 0) {
+                如果 (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
+                        返回 pidfd;
 
                 struct ucred ucred;
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
 
-                return pidref_set_pid(ret, ucred.pid);
+                返回 pidref_set_pid(ret, ucred.pid);
         }
 
-        return pidref_set_pidfd_consume(ret, pidfd);
+        返回 pidref_set_pidfd_consume(ret, pidfd);
 }
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
+                整数 transport_fd,
+                整数 fd,
                 const struct iovec *iov, size_t iovlen,
                 const struct sockaddr *sa, socklen_t len,
-                int flags) {
+                整数 flags) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control = {};
+        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(整数))) control = {};
         struct msghdr mh = {
                 .msg_name = (struct sockaddr*) sa,
                 .msg_namelen = len,
@@ -1001,10 +1001,10 @@ ssize_t send_one_fd_iov_sa(
          * We need either an FD or data to send.
          * If there's nothing, return an error.
          */
-        if (fd < 0 && !iov)
-                return -EINVAL;
+        如果 (fd < 0 && !iov)
+                返回 -EINVAL;
 
-        if (fd >= 0) {
+        如果 (fd >= 0) {
                 struct cmsghdr *cmsg;
 
                 mh.msg_control = &control;
@@ -1013,34 +1013,34 @@ ssize_t send_one_fd_iov_sa(
                 cmsg = CMSG_FIRSTHDR(&mh);
                 cmsg->cmsg_level = SOL_SOCKET;
                 cmsg->cmsg_type = SCM_RIGHTS;
-                cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-                memcpy(CMSG_DATA(cmsg), &fd, sizeof(int));
+                cmsg->cmsg_len = CMSG_LEN(sizeof(整数));
+                memcpy(CMSG_DATA(cmsg), &fd, sizeof(整数));
         }
         k = sendmsg(transport_fd, &mh, MSG_NOSIGNAL | flags);
-        if (k < 0)
-                return (ssize_t) -errno;
+        如果 (k < 0)
+                返回 (ssize_t) -errno;
 
-        return k;
+        返回 k;
 }
 
-int send_one_fd_sa(
-                int transport_fd,
-                int fd,
+整数 send_one_fd_sa(
+                整数 transport_fd,
+                整数 fd,
                 const struct sockaddr *sa, socklen_t len,
-                int flags) {
+                整数 flags) {
 
         assert(fd >= 0);
 
-        return (int) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
+        返回 (整数) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
 }
 
 ssize_t receive_one_fd_iov(
-                int transport_fd,
+                整数 transport_fd,
                 struct iovec *iov, size_t iovlen,
-                int flags,
-                int *ret_fd) {
+                整数 flags,
+                整数 *ret_fd) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control;
+        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(整数))) control;
         struct msghdr mh = {
                 .msg_control = &control,
                 .msg_controllen = sizeof(control),
@@ -1062,43 +1062,43 @@ ssize_t receive_one_fd_iov(
          */
 
         k = recvmsg_safe(transport_fd, &mh, MSG_CMSG_CLOEXEC | flags);
-        if (k < 0)
-                return k;
+        如果 (k < 0)
+                返回 k;
 
-        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(sizeof(int)));
-        if (!found) {
+        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(sizeof(整数)));
+        如果 (!found) {
                 cmsg_close_all(&mh);
 
                 /* If didn't receive an FD or any data, return an error. */
-                if (k == 0)
-                        return -EIO;
+                如果 (k == 0)
+                        返回 -EIO;
         }
 
-        if (found)
-                *ret_fd = *CMSG_TYPED_DATA(found, int);
-        else
+        如果 (found)
+                *ret_fd = *CMSG_TYPED_DATA(found, 整数);
+        否则
                 *ret_fd = -EBADF;
 
-        return k;
+        返回 k;
 }
 
-int receive_one_fd(int transport_fd, int flags) {
-        int fd;
+整数 receive_one_fd(整数 transport_fd, 整数 flags) {
+        整数 fd;
         ssize_t k;
 
         k = receive_one_fd_iov(transport_fd, NULL, 0, flags, &fd);
-        if (k == 0)
-                return fd;
+        如果 (k == 0)
+                返回 fd;
 
         /* k must be negative, since receive_one_fd_iov() only returns
          * a positive value if data was received through the iov. */
         assert(k < 0);
-        return (int) k;
+        返回 (整数) k;
 }
 
-ssize_t next_datagram_size_fd(int fd) {
+ssize_t next_datagram_size_fd(整数 fd) {
         ssize_t l;
-        int k;
+        整数 k;
 
         /* This is a bit like FIONREAD/SIOCINQ, however a bit more powerful. The difference being: recv(MSG_PEEK) will
          * actually cause the next datagram in the queue to be validated regarding checksums, which FIONREAD doesn't
@@ -1107,16 +1107,16 @@ ssize_t next_datagram_size_fd(int fd) {
          * the wrong size. */
 
         l = recv(fd, NULL, 0, MSG_PEEK|MSG_TRUNC);
-        if (l < 0) {
-                if (IN_SET(errno, EOPNOTSUPP, EFAULT))
+        如果 (l < 0) {
+                如果 (IN_SET(errno, EOPNOTSUPP, EFAULT))
                         goto fallback;
 
-                return -errno;
+                返回 -errno;
         }
-        if (l == 0)
+        如果 (l == 0)
                 goto fallback;
 
-        return l;
+        返回 l;
 
 fallback:
         k = 0;
@@ -1124,124 +1124,124 @@ fallback:
         /* Some sockets (AF_PACKET) do not support null-sized recv() with MSG_TRUNC set, let's fall back to FIONREAD
          * for them. Checksums don't matter for raw sockets anyway, hence this should be fine. */
 
-        if (ioctl(fd, FIONREAD, &k) < 0)
-                return -errno;
+        如果 (ioctl(fd, FIONREAD, &k) < 0)
+                返回 -errno;
 
-        return (ssize_t) k;
+        返回 (ssize_t) k;
 }
 
 /* Put a limit on how many times will attempt to call accept4(). We loop
  * only on "transient" errors, but let's make sure we don't loop forever. */
 #define MAX_FLUSH_ITERATIONS 1024
 
-int flush_accept(int fd) {
+整数 flush_accept(整数 fd) {
 
-        int r, b;
+        整数 r, b;
         socklen_t l = sizeof(b);
 
         /* Similar to flush_fd() but flushes all incoming connections by accepting and immediately closing
          * them. */
 
-        if (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
-                return -errno;
+        如果 (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
+                返回 -errno;
 
         assert(l == sizeof(b));
-        if (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
+        如果 (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
                  * return EOPNOTSUPP if the fd is not a listening socket, which we should treat as a fatal
                  * error, or in case the incoming TCP connection triggered a network issue, which we want to
                  * treat as a transient error. Thus, let's rule out the first reason for EOPNOTSUPP early, so
                  * we can loop safely on transient errors below. */
-                return -ENOTTY;
+                返回 -ENOTTY;
 
-        for (unsigned iteration = 0;; iteration++) {
-                int cfd;
+        为 (unsigned iteration = 0;; iteration++) {
+                整数 cfd;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
+                如果 (r == -EINTR)
                         continue;
-                if (r <= 0)
-                        return r;
+                如果 (r <= 0)
+                        返回 r;
 
-                if (iteration >= MAX_FLUSH_ITERATIONS)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
+                如果 (iteration >= MAX_FLUSH_ITERATIONS)
+                        返回 log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
                                                "Failed to flush connections within " STRINGIFY(MAX_FLUSH_ITERATIONS) " iterations.");
 
                 cfd = accept4(fd, NULL, NULL, SOCK_NONBLOCK|SOCK_CLOEXEC);
-                if (cfd < 0) {
-                        if (errno == EAGAIN)
-                                return 0;
+                如果 (cfd < 0) {
+                        如果 (errno == EAGAIN)
+                                返回 0;
 
-                        if (ERRNO_IS_ACCEPT_AGAIN(errno))
+                        如果 (ERRNO_IS_ACCEPT_AGAIN(errno))
                                 continue;
 
-                        return -errno;
+                        返回 -errno;
                 }
 
                 safe_close(cfd);
         }
 }
 
-ssize_t flush_mqueue(int fd) {
+ssize_t flush_mqueue(整数 fd) {
         _cleanup_free_ char *buf = NULL;
         struct mq_attr attr;
         ssize_t count = 0;
-        int r;
+        整数 r;
 
         assert(fd >= 0);
 
         /* Similar to flush_fd() but flushes all messages from a POSIX message queue. */
 
-        for (;;) {
+        为 (;;) {
                 ssize_t l;
 
                 r = fd_wait_for_event(fd, POLLIN, /* timeout= */ 0);
-                if (r == -EINTR)
+                如果 (r == -EINTR)
                         continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                如果 (r < 0)
+                        返回 r;
+                如果 (r == 0)
+                        返回 count;
 
-                if (!buf) {
+                如果 (!buf) {
                         /* Buffer must be at least as large as mq_msgsize. */
-                        if (mq_getattr(fd, &attr) < 0)
-                                return -errno;
+                        如果 (mq_getattr(fd, &attr) < 0)
+                                返回 -errno;
 
                         buf = malloc(attr.mq_msgsize);
-                        if (!buf)
-                                return -ENOMEM;
+                        如果 (!buf)
+                                返回 -ENOMEM;
                 }
 
                 l = mq_receive(fd, buf, attr.mq_msgsize, /* msg_prio= */ NULL);
-                if (l < 0) {
-                        if (errno == EINTR)
+                如果 (l < 0) {
+                        如果 (errno == EINTR)
                                 continue;
 
-                        if (errno == EAGAIN)
-                                return count;
+                        如果 (errno == EAGAIN)
+                                返回 count;
 
-                        return -errno;
+                        返回 -errno;
                 }
 
                 count += l;
         }
 }
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length) {
+struct cmsghdr* cmsg_find(struct msghdr *mh, 整数 level, 整数 type, socklen_t length) {
         struct cmsghdr *cmsg;
 
         assert(mh);
 
         CMSG_FOREACH(cmsg, mh)
-                if (cmsg->cmsg_level == level &&
+                如果 (cmsg->cmsg_level == level &&
                     cmsg->cmsg_type == type &&
                     (length == (socklen_t) -1 || length == cmsg->cmsg_len))
-                        return cmsg;
+                        返回 cmsg;
 
-        return NULL;
+        返回 NULL;
 }
 
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len) {
+void* cmsg_find_and_copy_data(struct msghdr *mh, 整数 level, 整数 type, void *buf, size_t buf_len) {
         struct cmsghdr *cmsg;
 
         assert(mh);
@@ -1253,10 +1253,10 @@ void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf,
          * RISCV32. See issue #27241. */
 
         cmsg = cmsg_find(mh, level, type, CMSG_LEN(buf_len));
-        if (!cmsg)
-                return NULL;
+        如果 (!cmsg)
+                返回 NULL;
 
-        return memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
+        返回 memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
 }
 
 size_t sockaddr_ll_len(const struct sockaddr_ll *sa) {
@@ -1268,12 +1268,12 @@ size_t sockaddr_ll_len(const struct sockaddr_ll *sa) {
 
         size_t mac_len = sizeof(sa->sll_addr);
 
-        if (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
+        如果 (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
                 mac_len = MAX(mac_len, (size_t) ETH_ALEN);
-        if (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
+        如果 (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
                 mac_len = MAX(mac_len, (size_t) INFINIBAND_ALEN);
 
-        return offsetof(struct sockaddr_ll, sll_addr) + mac_len;
+        返回 offsetof(struct sockaddr_ll, sll_addr) + mac_len;
 }
 
 size_t sockaddr_un_len(const struct sockaddr_un *sa) {
@@ -1281,7 +1281,7 @@ size_t sockaddr_un_len(const struct sockaddr_un *sa) {
 
         assert(sa->sun_family == AF_UNIX);
 
-        return offsetof(struct sockaddr_un, sun_path) +
+        返回 offsetof(struct sockaddr_un, sun_path) +
                 (sa->sun_path[0] == 0 ?
                         1 + strnlen(sa->sun_path+1, sizeof(sa->sun_path)-1) :
                         strnlen(sa->sun_path, sizeof(sa->sun_path))+1);
@@ -1292,24 +1292,24 @@ size_t sockaddr_len(const union sockaddr_union *sa) {
 
         switch (sa->sa.sa_family) {
         case AF_INET:
-                return sizeof(struct sockaddr_in);
+                返回 sizeof(struct sockaddr_in);
         case AF_INET6:
-                return sizeof(struct sockaddr_in6);
+                返回 sizeof(struct sockaddr_in6);
         case AF_UNIX:
-                return sockaddr_un_len(&sa->un);
+                返回 sockaddr_un_len(&sa->un);
         case AF_PACKET:
-                return sockaddr_ll_len(&sa->ll);
+                返回 sockaddr_ll_len(&sa->ll);
         case AF_NETLINK:
-                return sizeof(struct sockaddr_nl);
+                返回 sizeof(struct sockaddr_nl);
         case AF_VSOCK:
-                return sizeof(struct sockaddr_vm);
+                返回 sizeof(struct sockaddr_vm);
         default:
                 assert_not_reached();
         }
 }
 
-int socket_ioctl_fd(void) {
-        int fd;
+整数 socket_ioctl_fd(void) {
+        整数 fd;
 
         /* Create a socket to invoke the various network interface ioctl()s on. Traditionally only AF_INET was good for
          * that. Since kernel 4.6 AF_NETLINK works for this too. We first try to use AF_INET hence, but if that's not
@@ -1317,39 +1317,39 @@ int socket_ioctl_fd(void) {
          * generic AF_NETLINK. */
 
         fd = socket(AF_INET, SOCK_DGRAM|SOCK_CLOEXEC, 0);
-        if (fd < 0)
+        如果 (fd < 0)
                 fd = socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC, NETLINK_GENERIC);
-        if (fd < 0)
-                return -errno;
+        如果 (fd < 0)
+                返回 -errno;
 
-        return fd;
+        返回 fd;
 }
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa) {
+整数 sockaddr_un_unlink(const struct sockaddr_un *sa) {
         const char *p, * nul;
 
         assert(sa);
 
-        if (sa->sun_family != AF_UNIX)
-                return -EPROTOTYPE;
+        如果 (sa->sun_family != AF_UNIX)
+                返回 -EPROTOTYPE;
 
-        if (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
-                return 0;
+        如果 (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
+                返回 0;
 
         /* The path in .sun_path is not necessarily NUL terminated. Let's fix that. */
         nul = memchr(sa->sun_path, 0, sizeof(sa->sun_path));
-        if (nul)
+        如果 (nul)
                 p = sa->sun_path;
-        else
+        否则
                 p = memdupa_suffix0(sa->sun_path, sizeof(sa->sun_path));
 
-        if (unlink(p) < 0)
-                return -errno;
+        如果 (unlink(p) < 0)
+                返回 -errno;
 
-        return 1;
+        返回 1;
 }
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
+整数 sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
         size_t l;
 
         assert(ret);
@@ -1361,17 +1361,17 @@ int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
          * reference paths in the abstract namespace that include NUL bytes in the name. */
 
         l = strlen(path);
-        if (l < 2)
-                return -EINVAL;
-        if (!IN_SET(path[0], '/', '@'))
-                return -EINVAL;
+        如果 (l < 2)
+                返回 -EINVAL;
+        如果 (!IN_SET(path[0], '/', '@'))
+                返回 -EINVAL;
 
         /* Don't allow paths larger than the space in sockaddr_un. Note that we are a tiny bit more restrictive than
          * the kernel is: we insist on NUL termination (both for abstract namespace and regular file system socket
          * addresses!), which the kernel doesn't. We do this to reduce chance of incompatibility with other apps that
          * do not expect non-NUL terminated file system path. */
-        if (l+1 > sizeof(ret->sun_path))
-                return path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
+        如果 (l+1 > sizeof(ret->sun_path))
+                返回 path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
                                                                   * too long to fit into a sockaddr_un, but
                                                                   * is a file system path, and thus might be
                                                                   * connectible via O_PATH indirection. */
@@ -1380,58 +1380,58 @@ int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
                 .sun_family = AF_UNIX,
         };
 
-        if (path[0] == '@') {
+        如果 (path[0] == '@') {
                 /* Abstract namespace socket */
                 memcpy(ret->sun_path + 1, path + 1, l); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
+                返回 (整数) (offsetof(struct sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
 
-        } else {
+        } 否则 {
                 assert(path[0] == '/');
 
                 /* File system socket */
                 memcpy(ret->sun_path, path, l + 1); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
+                返回 (整数) (offsetof(struct sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
         }
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret) {
-        int v;
+整数 getsockopt_int(整数 fd, 整数 level, 整数 optname, 整数 *ret) {
+        整数 v;
         socklen_t sl = sizeof(v);
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getsockopt(fd, level, optname, &v, &sl) < 0)
-                return negative_errno();
-        if (sl != sizeof(v))
-                return -EIO;
+        如果 (getsockopt(fd, level, optname, &v, &sl) < 0)
+                返回 negative_errno();
+        如果 (sl != sizeof(v))
+                返回 -EIO;
 
         *ret = v;
-        return 0;
+        返回 0;
 }
 
-int socket_bind_to_ifname(int fd, const char *ifname) {
+整数 socket_bind_to_ifname(整数 fd, const char *ifname) {
         assert(fd >= 0);
 
         /* Call with NULL to drop binding */
 
-        return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
+        返回 RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
 }
 
-int socket_bind_to_ifindex(int fd, int ifindex) {
+整数 socket_bind_to_ifindex(整数 fd, 整数 ifindex) {
         assert(fd >= 0);
 
-        if (ifindex <= 0)
+        如果 (ifindex <= 0)
                 /* Drop binding */
-                return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
+                返回 RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
 
-        return setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
+        返回 setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
 }
 
-int socket_autobind(int fd, char **ret_name) {
+整数 socket_autobind(整数 fd, char **ret_name) {
         _cleanup_free_ char *name = NULL;
         uint64_t random;
-        int r;
+        整数 r;
 
         /* Generate a random abstract socket name and bind fd to it. This is modeled after the kernel
          * "autobind" feature, but uses 64-bit random number internally. */
@@ -1440,25 +1440,25 @@ int socket_autobind(int fd, char **ret_name) {
 
         random = random_u64();
 
-        if (asprintf(&name, "@%" PRIu64, random) < 0)
-                return -ENOMEM;
+        如果 (asprintf(&name, "@%" PRIu64, random) < 0)
+                返回 -ENOMEM;
 
         union sockaddr_union sa;
         assert_cc(DECIMAL_STR_MAX(uint64_t) < sizeof(sa.un.sun_path));
 
         r = sockaddr_un_set_path(&sa.un, name);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        if (bind(fd, &sa.sa, r) < 0)
-                return -errno;
+        如果 (bind(fd, &sa.sa, r) < 0)
+                返回 -errno;
 
-        if (ret_name)
+        如果 (ret_name)
                 *ret_name = TAKE_PTR(name);
-        return 0;
+        返回 0;
 }
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
+ssize_t recvmsg_safe(整数 sockfd, struct msghdr *msg, 整数 flags) {
         ssize_t n;
 
         /* A wrapper around recvmsg() that checks for MSG_CTRUNC and MSG_TRUNC, and turns them into an error,
@@ -1470,109 +1470,109 @@ ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
         assert(msg);
 
         n = recvmsg(sockfd, msg, flags);
-        if (n < 0)
-                return -errno;
+        如果 (n < 0)
+                返回 -errno;
 
-        if (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
+        如果 (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
             (!FLAGS_SET(flags, MSG_PEEK) && FLAGS_SET(msg->msg_flags, MSG_TRUNC))) {
                 cmsg_close_all(msg);
-                return FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
+                返回 FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
         }
 
-        return n;
+        返回 n;
 }
 
-int socket_get_family(int fd) {
-        int af;
+整数 socket_get_family(整数 fd) {
+        整数 af;
         socklen_t sl = sizeof(af);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
-                return -errno;
+        如果 (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
+                返回 -errno;
 
-        if (sl != sizeof(af))
-                return -EINVAL;
+        如果 (sl != sizeof(af))
+                返回 -EINVAL;
 
-        return af;
+        返回 af;
 }
 
-int socket_set_recvpktinfo(int fd, int af, bool b) {
+整数 socket_set_recvpktinfo(整数 fd, 整数 af, bool b) {
 
-        if (af == AF_UNSPEC) {
+        如果 (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                如果 (af < 0)
+                        返回 af;
         }
 
         switch (af) {
 
         case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
+                返回 setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
 
         case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
+                返回 setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
 
         case AF_NETLINK:
-                return setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
+                返回 setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
 
         case AF_PACKET:
-                return setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
+                返回 setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
 
         default:
-                return -EAFNOSUPPORT;
+                返回 -EAFNOSUPPORT;
         }
 }
 
-int socket_set_unicast_if(int fd, int af, int ifi) {
+整数 socket_set_unicast_if(整数 fd, 整数 af, 整数 ifi) {
         be32_t ifindex_be = htobe32(ifi);
 
-        if (af == AF_UNSPEC) {
+        如果 (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                如果 (af < 0)
+                        返回 af;
         }
 
         switch (af) {
 
         case AF_INET:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+                返回 RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
 
         case AF_INET6:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+                返回 RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
 
         default:
-                return -EAFNOSUPPORT;
+                返回 -EAFNOSUPPORT;
         }
 }
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val) {
-        if (af == AF_UNSPEC) {
+整数 socket_set_option(整数 fd, 整数 af, 整数 opt_ipv4, 整数 opt_ipv6, 整数 val) {
+        如果 (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                如果 (af < 0)
+                        返回 af;
         }
 
         switch (af) {
 
         case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
+                返回 setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
 
         case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
+                返回 setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
 
         default:
-                return -EAFNOSUPPORT;
+                返回 -EAFNOSUPPORT;
         }
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret) {
-        int mtu, r;
+整数 socket_get_mtu(整数 fd, 整数 af, size_t *ret) {
+        整数 mtu, r;
 
         assert(ret);
 
-        if (af == AF_UNSPEC) {
+        如果 (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                如果 (af < 0)
+                        返回 af;
         }
 
         switch (af) {
@@ -1586,19 +1586,19 @@ int socket_get_mtu(int fd, int af, size_t *ret) {
                 break;
 
         default:
-                return -EAFNOSUPPORT;
+                返回 -EAFNOSUPPORT;
         }
 
-        if (r < 0)
-                return r;
-        if (mtu <= 0)
-                return -EINVAL;
+        如果 (r < 0)
+                返回 r;
+        如果 (mtu <= 0)
+                返回 -EINVAL;
 
         *ret = (size_t) mtu;
-        return 0;
+        返回 0;
 }
 
-static int connect_unix_path_simple(int fd, const char *path) {
+static 整数 connect_unix_path_simple(整数 fd, const char *path) {
         union sockaddr_union sa = {
                 .un.sun_family = AF_UNIX,
         };
@@ -1612,18 +1612,18 @@ static int connect_unix_path_simple(int fd, const char *path) {
         assert(l < sizeof(sa.un.sun_path));
 
         memcpy(sa.un.sun_path, path, l + 1);
-        return RET_NERRNO(connect(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + l + 1));
+        返回 RET_NERRNO(connect(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + l + 1));
 }
 
-static int connect_unix_inode(int fd, int inode_fd) {
+static 整数 connect_unix_inode(整数 fd, 整数 inode_fd) {
         assert(fd >= 0);
         assert(inode_fd >= 0);
 
-        return connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
+        返回 connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
 }
 
-int connect_unix_path(int fd, int dir_fd, const char *path) {
-        _cleanup_close_ int inode_fd = -EBADF;
+整数 connect_unix_path(整数 fd, 整数 dir_fd, const char *path) {
+        _cleanup_close_ 整数 inode_fd = -EBADF;
 
         assert(fd >= 0);
         assert(wildcard_fd_is_valid(dir_fd));
@@ -1631,165 +1631,165 @@ int connect_unix_path(int fd, int dir_fd, const char *path) {
         /* Connects to the specified AF_UNIX socket in the file system. Works around the 108 byte size limit
          * in sockaddr_un, by going via O_PATH if needed. This hence works for any kind of path. */
 
-        if (!path) {
-                if (dir_fd < 0)
-                        return -EISDIR;
+        如果 (!path) {
+                如果 (dir_fd < 0)
+                        返回 -EISDIR;
 
-                return connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
+                返回 connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
         }
 
         /* Refuse zero length path early, to make sure AF_UNIX stack won't mistake this for an abstract
          * namespace path, since first char is NUL */
-        if (isempty(path))
-                return -EINVAL;
+        如果 (isempty(path))
+                返回 -EINVAL;
 
         /* Shortcut for the simple case */
-        if (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(struct sockaddr_un, sun_path))
-                return connect_unix_path_simple(fd, path);
+        如果 (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(struct sockaddr_un, sun_path))
+                返回 connect_unix_path_simple(fd, path);
 
         /* If dir_fd is specified, then we need to go the indirect O_PATH route, because connectat() does not
          * exist. If the path is too long, we also need to take the indirect route, since we can't fit this
          * into a sockaddr_un directly. */
 
-        if (dir_fd == XAT_FDROOT) {
+        如果 (dir_fd == XAT_FDROOT) {
                 _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+                如果 (!j)
+                        返回 -ENOMEM;
 
                 inode_fd = open(j, O_PATH|O_CLOEXEC);
-        } else
+        } 否则
                 inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC);
-        if (inode_fd < 0)
-                return -errno;
+        如果 (inode_fd < 0)
+                返回 -errno;
 
-        return connect_unix_inode(fd, inode_fd);
+        返回 connect_unix_inode(fd, inode_fd);
 }
 
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s) {
+整数 socket_address_parse_unix(SocketAddress *ret_address, const char *s) {
         struct sockaddr_un un;
-        int r;
+        整数 r;
 
         assert(ret_address);
         assert(s);
 
-        if (!IN_SET(*s, '/', '@'))
-                return -EPROTO;
+        如果 (!IN_SET(*s, '/', '@'))
+                返回 -EPROTO;
 
         r = sockaddr_un_set_path(&un, s);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         *ret_address = (SocketAddress) {
                 .sockaddr.un = un,
                 .size = r,
         };
 
-        return 0;
+        返回 0;
 }
 
-int socket_address_equal_unix(const char *a, const char *b) {
+整数 socket_address_equal_unix(const char *a, const char *b) {
         SocketAddress socket_a, socket_b;
-        int r;
+        整数 r;
 
         assert(a);
         assert(b);
 
         r = socket_address_parse_unix(&socket_a, a);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         r = socket_address_parse_unix(&socket_b, b);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        return sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
+        返回 sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret) {
-        int r;
+整数 vsock_parse_port(const char *s, unsigned *ret) {
+        整数 r;
 
         assert(ret);
 
-        if (!s)
-                return -EINVAL;
+        如果 (!s)
+                返回 -EINVAL;
 
         unsigned u;
         r = safe_atou(s, &u);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         /* Port 0 is apparently valid and not special in AF_VSOCK (unlike on IP). But VMADDR_PORT_ANY
          * (UINT32_MAX) is. Hence refuse that. */
 
-        if (u == VMADDR_PORT_ANY)
-                return -EINVAL;
+        如果 (u == VMADDR_PORT_ANY)
+                返回 -EINVAL;
 
         *ret = u;
-        return 0;
+        返回 0;
 }
 
-int vsock_parse_cid(const char *s, unsigned *ret) {
+整数 vsock_parse_cid(const char *s, unsigned *ret) {
         assert(ret);
 
-        if (!s)
-                return -EINVAL;
+        如果 (!s)
+                返回 -EINVAL;
 
         /* Parsed an AF_VSOCK "CID". This is a 32bit entity, and the usual type is "unsigned". We recognize
          * the four special CIDs as strings, and otherwise parse the numeric CIDs. */
 
-        if (streq(s, "hypervisor"))
+        如果 (streq(s, "hypervisor"))
                 *ret = VMADDR_CID_HYPERVISOR;
-        else if (streq(s, "local"))
+        否则 如果 (streq(s, "local"))
                 *ret = VMADDR_CID_LOCAL;
-        else if (streq(s, "host"))
+        否则 如果 (streq(s, "host"))
                 *ret = VMADDR_CID_HOST;
-        else if (STR_IN_SET(s, "any", "-1"))
+        否则 如果 (STR_IN_SET(s, "any", "-1"))
                 *ret = VMADDR_CID_ANY;
-        else
-                return safe_atou(s, ret);
+        否则
+                返回 safe_atou(s, ret);
 
-        return 0;
+        返回 0;
 }
 
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
+整数 socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
         /* AF_VSOCK socket in vsock:cid:port notation */
         _cleanup_free_ char *n = NULL;
         const char *e, *cid_start;
         unsigned port, cid;
-        int type, r;
+        整数 type, r;
 
         assert(ret_address);
         assert(s);
 
-        if ((cid_start = startswith(s, "vsock:")))
+        如果 ((cid_start = startswith(s, "vsock:")))
                 type = 0;
-        else if ((cid_start = startswith(s, "vsock-dgram:")))
+        否则 如果 ((cid_start = startswith(s, "vsock-dgram:")))
                 type = SOCK_DGRAM;
-        else if ((cid_start = startswith(s, "vsock-seqpacket:")))
+        否则 如果 ((cid_start = startswith(s, "vsock-seqpacket:")))
                 type = SOCK_SEQPACKET;
-        else if ((cid_start = startswith(s, "vsock-stream:")))
+        否则 如果 ((cid_start = startswith(s, "vsock-stream:")))
                 type = SOCK_STREAM;
-        else
-                return -EPROTO;
+        否则
+                返回 -EPROTO;
 
         e = strchr(cid_start, ':');
-        if (!e)
-                return -EINVAL;
+        如果 (!e)
+                返回 -EINVAL;
 
         r = vsock_parse_port(e+1, &port);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         n = strndup(cid_start, e - cid_start);
-        if (!n)
-                return -ENOMEM;
+        如果 (!n)
+                返回 -ENOMEM;
 
-        if (isempty(n))
+        如果 (isempty(n))
                 cid = VMADDR_CID_ANY;
-        else {
+        否则 {
                 r = vsock_parse_cid(n, &cid);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
         }
 
         *ret_address = (SocketAddress) {
@@ -1802,55 +1802,55 @@ int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
                 .size = sizeof(struct sockaddr_vm),
         };
 
-        return 0;
+        返回 0;
 }
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups) {
+整数 netlink_socket_get_multicast_groups(整数 fd, size_t *ret_len, uint32_t **ret_groups) {
         _cleanup_free_ uint32_t *groups = NULL;
         socklen_t len = 0, old_len;
 
         assert(fd >= 0);
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
-                return -errno;
+        如果 (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
+                返回 -errno;
 
-        if (len == 0)
+        如果 (len == 0)
                 goto finalize;
 
         groups = new0(uint32_t, len);
-        if (!groups)
-                return -ENOMEM;
+        如果 (!groups)
+                返回 -ENOMEM;
 
         old_len = len;
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
-                return -errno;
+        如果 (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
+                返回 -errno;
 
-        if (old_len != len)
-                return -EIO;
+        如果 (old_len != len)
+                返回 -EIO;
 
 finalize:
-        if (ret_len)
+        如果 (ret_len)
                 *ret_len = len;
-        if (ret_groups)
+        如果 (ret_groups)
                 *ret_groups = TAKE_PTR(groups);
 
-        return 0;
+        返回 0;
 }
 
-int socket_get_cookie(int fd, uint64_t *ret) {
+整数 socket_get_cookie(整数 fd, uint64_t *ret) {
         assert(fd >= 0);
 
         uint64_t cookie = 0;
         socklen_t cookie_len = sizeof(cookie);
-        if (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
-                return -errno;
+        如果 (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
+                返回 -errno;
 
         assert(cookie_len == sizeof(cookie));
-        if (ret)
+        如果 (ret)
                 *ret = cookie;
 
-        return 0;
+        返回 0;
 }
 
 void cmsg_close_all(struct msghdr *mh) {
@@ -1858,65 +1858,65 @@ void cmsg_close_all(struct msghdr *mh) {
 
         struct cmsghdr *cmsg;
         CMSG_FOREACH(cmsg, mh) {
-                if (cmsg->cmsg_level != SOL_SOCKET)
+                如果 (cmsg->cmsg_level != SOL_SOCKET)
                         continue;
 
-                if (cmsg->cmsg_type == SCM_RIGHTS)
-                        close_many(CMSG_TYPED_DATA(cmsg, int),
-                                   (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-                else if (cmsg->cmsg_type == SCM_PIDFD) {
-                        assert(cmsg->cmsg_len == CMSG_LEN(sizeof(int)));
-                        safe_close(*CMSG_TYPED_DATA(cmsg, int));
+                如果 (cmsg->cmsg_type == SCM_RIGHTS)
+                        close_many(CMSG_TYPED_DATA(cmsg, 整数),
+                                   (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(整数));
+                否则 如果 (cmsg->cmsg_type == SCM_PIDFD) {
+                        assert(cmsg->cmsg_len == CMSG_LEN(sizeof(整数)));
+                        safe_close(*CMSG_TYPED_DATA(cmsg, 整数));
                 }
         }
 }
 
-int tos_to_priority(uint8_t tos) {
+整数 tos_to_priority(uint8_t tos) {
         /* Map the IP Precedence (top 3 bits of the TOS field) to Linux internal packet priorities
          * (TC_PRIO_*). This exactly mirrors the standard Linux kernel IP precedence-to-priority mapping
          * (rt_tos2priority) to ensure consistent behavior when explicitly setting SO_PRIORITY. */
         switch (IPTOS_PREC(tos)) {
         case IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
         case IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
-                return TC_PRIO_CONTROL;
+                返回 TC_PRIO_CONTROL;
 
         case IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
         case IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
-                return TC_PRIO_INTERACTIVE;
+                返回 TC_PRIO_INTERACTIVE;
 
         case IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
         case IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
-                return TC_PRIO_INTERACTIVE_BULK;
+                返回 TC_PRIO_INTERACTIVE_BULK;
 
         case IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
-                return TC_PRIO_BULK;
+                返回 TC_PRIO_BULK;
 
         case IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
         default:
-                return TC_PRIO_BESTEFFORT;
+                返回 TC_PRIO_BESTEFFORT;
         }
 }
 
-int socket_xattr_supported(void) {
-        int r;
+整数 socket_xattr_supported(void) {
+        整数 r;
 
         // FIXME: Drop this check once Linux 7.1 becomes our baseline
 
-        static int cached = -1;
-        if (cached >= 0)
-                return cached;
+        static 整数 cached = -1;
+        如果 (cached >= 0)
+                返回 cached;
 
-        _cleanup_close_ int fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ 整数 fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
+        如果 (fd < 0)
+                返回 -errno;
 
         /* Old kernels return EPERM. But let's also check for more appropriate error codes, to be friendly to
          * seccomp policies */
         r = xsetxattr(fd, /* path= */ NULL, AT_EMPTY_PATH, "user.testxxx", "1");
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
-                return (cached = false);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set test xattr on socket: %m");
+        如果 (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
+                返回 (cached = false);
+        如果 (r < 0)
+                返回 log_debug_errno(r, "Failed to set test xattr on socket: %m");
 
-        return (cached = true);
+        返回 (cached = true);
 }

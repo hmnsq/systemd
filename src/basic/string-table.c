@@ -8,73 +8,73 @@
 #include "string-util.h"
 
 const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+        如果 (i < 0 || i >= (ssize_t) len)
+                返回 NULL;
 
         assert(table);
 
-        return table[i];
+        返回 table[i];
 }
 
 ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        如果 (!key)
+                返回 -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        为 (size_t i = 0; i < len; ++i)
+                如果 (streq_ptr(table[i], key))
+                        返回 (ssize_t) i;
 
-        return -EINVAL;
+        返回 -EINVAL;
 }
 
 ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+        如果 (!key)
+                返回 -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        整数 b = parse_boolean(key);
+        如果 (b == 0)
+                返回 0;
+        如果 (b > 0)
+                返回 yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        返回 string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
+整数 string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
         char *s;
 
         assert(table);
         assert(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        如果 (i < 0 || i > (ssize_t) max)
+                返回 -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        如果 (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        否则
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        如果 (!s)
+                返回 -ENOMEM;
 
         *ret = s;
-        return 0;
+        返回 0;
 }
 
 ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+        如果 (!s)
+                返回 -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        如果 (i >= 0)
+                返回 i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        如果 (safe_atou(s, &u) < 0)
+                返回 -EINVAL;
+        如果 (u > max)
+                返回 -EINVAL;
 
-        return u;
+        返回 u;
 }

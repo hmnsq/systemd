@@ -4,154 +4,154 @@
 #include "percent-util.h"
 #include "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
+static 整数 parse_parts_value_whole(const char *p, const char *symbol) {
         const char *pc, *n;
-        int r, v;
+        整数 r, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        如果 (!pc)
+                返回 -EINVAL;
 
         n = strndupa_safe(p, pc - p);
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        如果 (r < 0)
+                返回 r;
+        如果 (v < 0)
+                返回 -ERANGE;
 
-        return v;
+        返回 v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
+static 整数 parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
         const char *pc, *dot, *n;
-        int r, q, v;
+        整数 r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        如果 (!pc)
+                返回 -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        如果 (dot) {
+                如果 (dot + 2 != pc)
+                        返回 -EINVAL;
+                如果 (dot[1] < '0' || dot[1] > '9')
+                        返回 -EINVAL;
                 q = dot[1] - '0';
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } 否则 {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        如果 (r < 0)
+                返回 r;
+        如果 (v < 0)
+                返回 -ERANGE;
+        如果 (v > (INT_MAX - q) / 10)
+                返回 -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        返回 v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
+static 整数 parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
         const char *pc, *dot, *n;
-        int r, q, v;
+        整数 r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        如果 (!pc)
+                返回 -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        如果 (dot) {
+                如果 (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        如果 (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                返回 -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } 否则 如果 (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        如果 (dot[1] < '0' || dot[1] > '9')
+                                返回 -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } 否则
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        返回 -EINVAL;
 
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } 否则 {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        如果 (r < 0)
+                返回 r;
+        如果 (v < 0)
+                返回 -ERANGE;
+        如果 (v > (INT_MAX - q) / 100)
+                返回 -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        返回 v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+整数 parse_percent_unbounded(const char *p) {
+        返回 parse_parts_value_whole(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+整数 parse_percent(const char *p) {
+        整数 v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        如果 (v > 100)
+                返回 -ERANGE;
 
-        return v;
+        返回 v;
 }
 
-int parse_permille_unbounded(const char *p) {
+整数 parse_permille_unbounded(const char *p) {
         const char *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        如果 (pm)
+                返回 parse_parts_value_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        返回 parse_parts_value_with_tenths_place(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+整数 parse_permille(const char *p) {
+        整数 v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        如果 (v > 1000)
+                返回 -ERANGE;
 
-        return v;
+        返回 v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
+整数 parse_permyriad_unbounded(const char *p) {
         const char *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        如果 (pm)
+                返回 parse_parts_value_whole(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        如果 (pm)
+                返回 parse_parts_value_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        返回 parse_parts_value_with_hundredths_place(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+整数 parse_permyriad(const char *p) {
+        整数 v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        如果 (v > 10000)
+                返回 -ERANGE;
 
-        return v;
+        返回 v;
 }

@@ -8,18 +8,18 @@
 #include "stat-util.h"
 #include "string-util.h"
 
-int dirent_ensure_type(int dir_fd, struct dirent *de) {
-        int r;
+整数 dirent_ensure_type(整数 dir_fd, struct dirent *de) {
+        整数 r;
 
         assert(dir_fd >= 0);
         assert(de);
 
-        if (de->d_type != DT_UNKNOWN)
-                return 0;
+        如果 (de->d_type != DT_UNKNOWN)
+                返回 0;
 
-        if (dot_or_dot_dot(de->d_name)) {
+        如果 (dot_or_dot_dot(de->d_name)) {
                 de->d_type = DT_DIR;
-                return 0;
+                返回 0;
         }
 
         /* Let's ask only for the type, nothing else. */
@@ -32,67 +32,67 @@ int dirent_ensure_type(int dir_fd, struct dirent *de) {
                         /* optional_mask= */ STATX_INO,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         assert(FLAGS_SET(sx.stx_mask, STATX_TYPE));
         de->d_type = IFTODT(sx.stx_mode);
 
         /* If the inode is passed too, update the field, i.e. report most recent data */
-        if (FLAGS_SET(sx.stx_mask, STATX_INO))
+        如果 (FLAGS_SET(sx.stx_mask, STATX_INO))
                 de->d_ino = sx.stx_ino;
 
-        return 0;
+        返回 0;
 }
 
 bool dirent_is_file(const struct dirent *de) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        如果 (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                返回 false;
 
-        if (hidden_or_backup_file(de->d_name))
-                return false;
+        如果 (hidden_or_backup_file(de->d_name))
+                返回 false;
 
-        return true;
+        返回 true;
 }
 
 bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        如果 (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                返回 false;
 
-        if (de->d_name[0] == '.')
-                return false;
+        如果 (de->d_name[0] == '.')
+                返回 false;
 
-        if (!suffix)
-                return true;
+        如果 (!suffix)
+                返回 true;
 
-        return endswith(de->d_name, suffix);
+        返回 endswith(de->d_name, suffix);
 }
 
 struct dirent* readdir_ensure_type(DIR *d) {
-        int r;
+        整数 r;
 
         assert(d);
 
         /* Like readdir(), but fills in .d_type if it is DT_UNKNOWN */
 
-        for (;;) {
+        为 (;;) {
                 struct dirent *de;
 
                 errno = 0;
                 de = readdir(d);
-                if (!de)
-                        return NULL;
+                如果 (!de)
+                        返回 NULL;
 
                 r = dirent_ensure_type(dirfd(d), de);
-                if (r >= 0)
-                        return de;
-                if (r != -ENOENT) {
+                如果 (r >= 0)
+                        返回 de;
+                如果 (r != -ENOENT) {
                         errno = -r; /* We want to be compatible with readdir(), hence propagate error via errno here */
-                        return NULL;
+                        返回 NULL;
                 }
 
                 /* Vanished by now? Then skip immediately to next */
@@ -102,11 +102,11 @@ struct dirent* readdir_ensure_type(DIR *d) {
 struct dirent* readdir_no_dot(DIR *d) {
         assert(d);
 
-        for (;;) {
+        为 (;;) {
                 struct dirent *de;
 
                 de = readdir_ensure_type(d);
-                if (!de || !dot_or_dot_dot(de->d_name))
-                        return de;
+                如果 (!de || !dot_or_dot_dot(de->d_name))
+                        返回 de;
         }
 }

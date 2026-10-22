@@ -14,28 +14,28 @@ char* unit_dbus_path_from_name(const char *name) {
         assert(name);
 
         e = bus_label_escape(name);
-        if (!e)
-                return NULL;
+        如果 (!e)
+                返回 NULL;
 
-        return strjoin("/org/freedesktop/systemd1/unit/", e);
+        返回 strjoin("/org/freedesktop/systemd1/unit/", e);
 }
 
-int unit_name_from_dbus_path(const char *path, char **name) {
+整数 unit_name_from_dbus_path(const char *path, char **name) {
         const char *e;
         char *n;
 
         assert(name);
 
         e = startswith(path, "/org/freedesktop/systemd1/unit/");
-        if (!e)
-                return -EINVAL;
+        如果 (!e)
+                返回 -EINVAL;
 
         n = bus_label_unescape(e);
-        if (!n)
-                return -ENOMEM;
+        如果 (!n)
+                返回 -ENOMEM;
 
         *name = n;
-        return 0;
+        返回 0;
 }
 
 const char* unit_dbus_interface_from_type(UnitType t) {
@@ -54,30 +54,30 @@ const char* unit_dbus_interface_from_type(UnitType t) {
                 [UNIT_SCOPE]     = "org.freedesktop.systemd1.Scope",
         };
 
-        if (t < 0)
-                return NULL;
-        if (t >= _UNIT_TYPE_MAX)
-                return NULL;
+        如果 (t < 0)
+                返回 NULL;
+        如果 (t >= _UNIT_TYPE_MAX)
+                返回 NULL;
 
-        return table[t];
+        返回 table[t];
 }
 
 const char* unit_dbus_interface_from_name(const char *name) {
         UnitType t;
 
         t = unit_name_to_type(name);
-        if (t < 0)
-                return NULL;
+        如果 (t < 0)
+                返回 NULL;
 
-        return unit_dbus_interface_from_type(t);
+        返回 unit_dbus_interface_from_type(t);
 }
 
 const char* unit_type_to_capitalized_string(UnitType t) {
         const char *di = unit_dbus_interface_from_type(t);
-        if (!di)
-                return NULL;
+        如果 (!di)
+                返回 NULL;
 
-        return ASSERT_PTR(startswith(di, "org.freedesktop.systemd1."));
+        返回 ASSERT_PTR(startswith(di, "org.freedesktop.systemd1."));
 }
 
 static const char* const unit_type_table[_UNIT_TYPE_MAX] = {
@@ -149,17 +149,17 @@ FreezerState freezer_state_finish(FreezerState state) {
         assert(state >= 0);
         assert(state < _FREEZER_STATE_MAX);
 
-        return freezer_state_finish_table[state];
+        返回 freezer_state_finish_table[state];
 }
 
 FreezerState freezer_state_objective(FreezerState state) {
         FreezerState objective;
 
         objective = freezer_state_finish(state);
-        if (objective == FREEZER_FROZEN_BY_PARENT)
+        如果 (objective == FREEZER_FROZEN_BY_PARENT)
                 objective = FREEZER_FROZEN;
 
-        return objective;
+        返回 objective;
 }
 
 static const char* const unit_marker_table[_UNIT_MARKER_MAX] = {
@@ -357,7 +357,7 @@ static const char* const unit_dependency_table[_UNIT_DEPENDENCY_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(unit_dependency, UnitDependency);
 
 bool unit_dependency_can_be_transient(UnitDependency d) {
-        return IN_SET(d,
+        返回 IN_SET(d,
                       UNIT_REQUIRES,
                       UNIT_REQUISITE,
                       UNIT_WANTS,
@@ -438,9 +438,9 @@ Glyph unit_active_state_to_glyph(UnitActiveState state) {
                 [UNIT_MAINTENANCE]  = GLYPH_WHITE_CIRCLE,
         };
 
-        if (state < 0)
-                return _GLYPH_INVALID;
+        如果 (state < 0)
+                返回 _GLYPH_INVALID;
 
         assert(state < _UNIT_ACTIVE_STATE_MAX);
-        return map[state];
+        返回 map[state];
 }

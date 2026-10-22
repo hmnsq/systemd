@@ -3,12 +3,12 @@
 
 #include "forward.h"
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, int);
-bool log_facility_unshifted_is_valid(int faciliy);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, 整数);
+bool log_facility_unshifted_is_valid(整数 faciliy);
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, int);
-bool log_level_is_valid(int level);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, 整数);
+bool log_level_is_valid(整数 level);
 
-int syslog_parse_priority(const char **p, int *priority, bool with_facility);
+整数 syslog_parse_priority(const char **p, 整数 *priority, bool with_facility);
 
 bool log_namespace_name_valid(const char *s);

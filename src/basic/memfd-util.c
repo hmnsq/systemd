@@ -12,9 +12,9 @@
 #include "process-util.h"
 #include "string-util.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode) {
+整数 memfd_create_wrapper(const char *name, unsigned mode) {
         unsigned mode_compat;
-        int mfd;
+        整数 mfd;
 
         assert(name);
 
@@ -22,22 +22,22 @@ int memfd_create_wrapper(const char *name, unsigned mode) {
          * support MFD_EXEC/MFD_NOEXEC_SEAL. (kernel 6.3+) */
 
         mfd = RET_NERRNO(memfd_create(name, mode));
-        if (mfd != -EINVAL)
-                return mfd;
+        如果 (mfd != -EINVAL)
+                返回 mfd;
 
         mode_compat = mode & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
 
-        if (mode == mode_compat)
-                return mfd;
+        如果 (mode == mode_compat)
+                返回 mfd;
 
-        return RET_NERRNO(memfd_create(name, mode_compat));
+        返回 RET_NERRNO(memfd_create(name, mode_compat));
 }
 
-int memfd_new_full(const char *name, unsigned extra_flags) {
+整数 memfd_new_full(const char *name, unsigned extra_flags) {
         _cleanup_free_ char *g = NULL;
-        int r;
+        整数 r;
 
-        if (!name) {
+        如果 (!name) {
 
                 /* If no name is specified we generate one. We include
                  * a hint indicating our library implementation, and
@@ -45,119 +45,119 @@ int memfd_new_full(const char *name, unsigned extra_flags) {
 
                 _cleanup_free_ char *comm = NULL;
                 r = pid_get_comm(/* pid= */ 0, &comm);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
 
-                if (isempty(comm))
+                如果 (isempty(comm))
                         name = "sd";
-                else {
+                否则 {
                         g = strjoin("sd-", comm);
-                        if (!g)
-                                return -ENOMEM;
+                        如果 (!g)
+                                返回 -ENOMEM;
 
                         name = g;
                 }
         }
 
-        return memfd_create_wrapper(
+        返回 memfd_create_wrapper(
                         name,
                         MFD_CLOEXEC | MFD_NOEXEC_SEAL | extra_flags);
 }
 
-static int memfd_add_seals(int fd, unsigned seals) {
+static 整数 memfd_add_seals(整数 fd, unsigned seals) {
         assert(fd >= 0);
 
-        return RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
+        返回 RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
 }
 
-static int memfd_get_seals(int fd, unsigned *ret_seals) {
-        int r;
+static 整数 memfd_get_seals(整数 fd, unsigned *ret_seals) {
+        整数 r;
 
         assert(fd >= 0);
 
         r = RET_NERRNO(fcntl(fd, F_GET_SEALS));
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        if (ret_seals)
+        如果 (ret_seals)
                 *ret_seals = r;
-        return 0;
+        返回 0;
 }
 
-int memfd_set_sealed(int fd) {
-        return memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+整数 memfd_set_sealed(整数 fd) {
+        返回 memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_get_sealed(int fd) {
+整数 memfd_get_sealed(整数 fd) {
         unsigned seals;
-        int r;
+        整数 r;
 
         r = memfd_get_seals(fd, &seals);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
         /* We ignore F_SEAL_EXEC here to support older kernels.
          * It is supported since kernel v6.3 (6fd7353829cafc4067aad9eea0dc95da67e7df16). */
-        return FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+        返回 FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_set_sealed_gracefully(int fd) {
-        int r;
+整数 memfd_set_sealed_gracefully(整数 fd) {
+        整数 r;
 
         r = memfd_set_sealed(fd);
-        if (r != -EPERM)
-                return r;
+        如果 (r != -EPERM)
+                返回 r;
 
         /* Already sealed? Check if required seals are set. */
         r = memfd_get_sealed(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM; /* Propagate the original error. */
-        return 0;
+        如果 (r < 0)
+                返回 r;
+        如果 (r == 0)
+                返回 -EPERM; /* Propagate the original error. */
+        返回 0;
 }
 
-int memfd_get_size(int fd, uint64_t *ret) {
+整数 memfd_get_size(整数 fd, uint64_t *ret) {
         struct stat stat;
 
         assert(fd >= 0);
         assert(ret);
 
-        if (fstat(fd, &stat) < 0)
-                return -errno;
+        如果 (fstat(fd, &stat) < 0)
+                返回 -errno;
 
         *ret = stat.st_size;
-        return 0;
+        返回 0;
 }
 
-int memfd_set_size(int fd, uint64_t sz) {
+整数 memfd_set_size(整数 fd, uint64_t sz) {
         assert(fd >= 0);
 
-        return RET_NERRNO(ftruncate(fd, sz));
+        返回 RET_NERRNO(ftruncate(fd, sz));
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+整数 memfd_new_and_seal(const char *name, const void *data, size_t sz) {
+        _cleanup_close_ 整数 fd = -EBADF;
+        整数 r;
 
         assert(data || sz == 0);
 
-        if (sz == SIZE_MAX)
+        如果 (sz == SIZE_MAX)
                 sz = strlen(data);
 
         fd = memfd_new_full(name, MFD_ALLOW_SEALING);
-        if (fd < 0)
-                return fd;
+        如果 (fd < 0)
+                返回 fd;
 
-        if (sz > 0) {
+        如果 (sz > 0) {
                 r = pwrite_full(fd, data, sz, 0);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
         }
 
         r = memfd_set_sealed(fd);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        return TAKE_FD(fd);
+        返回 TAKE_FD(fd);
 }

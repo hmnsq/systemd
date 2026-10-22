@@ -29,69 +29,69 @@ void strv_free_many(char ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
 
 char** strv_copy_n(char * const *l, size_t n);
 static inline char** strv_copy(char * const *l) {
-        return strv_copy_n(l, SIZE_MAX);
+        返回 strv_copy_n(l, SIZE_MAX);
 }
-int strv_copy_unless_empty(char * const *l, char ***ret);
+整数 strv_copy_unless_empty(char * const *l, char ***ret);
 
 size_t strv_length(char * const *l) _pure_;
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
+整数 strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
+整数 strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
-static inline int strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
-        return strv_extend_strv_biconcat(a, NULL, b, suffix);
+整数 strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
+static inline 整数 strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
+        返回 strv_extend_strv_biconcat(a, NULL, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+整数 strv_prepend(char ***l, const char *value);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+整数 strv_extend_with_size(char ***l, size_t *n, const char *value);
+static inline 整数 strv_extend(char ***l, const char *value) {
+        返回 strv_extend_with_size(l, NULL, value);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
+整数 strv_extend_many_internal(char ***l, const char *value, ...);
 #define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
+整数 strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
 #define strv_extendf(l, ...) strv_extendf_with_size(l, NULL, __VA_ARGS__)
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
+整数 strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
 #define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
 #define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+整数 strv_push_with_size(char ***l, size_t *n, char *value);
+static inline 整数 strv_push(char ***l, char *value) {
+        返回 strv_push_with_size(l, NULL, value);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+整数 strv_push_pair(char ***l, char *a, char *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+整数 strv_insert(char ***l, size_t position, char *value);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
-}
-
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+static inline 整数 strv_push_prepend(char ***l, char *value) {
+        返回 strv_insert(l, 0, value);
 }
 
-int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
+整数 strv_consume_with_size(char ***l, size_t *n, char *value);
+static inline 整数 strv_consume(char ***l, char *value) {
+        返回 strv_consume_with_size(l, NULL, value);
+}
+
+整数 strv_consume_pair(char ***l, char *a, char *b);
+整数 strv_consume_prepend(char ***l, char *value);
 
 char** strv_remove(char **l, const char *s);
 char** strv_remove_strv(char **l, char *const*ll);
 char** strv_uniq(char **l);
 bool strv_is_uniq(char * const *l) _pure_;
 
-int strv_compare(char * const *a, char * const *b) _pure_;
+整数 strv_compare(char * const *a, char * const *b) _pure_;
 static inline bool strv_equal(char * const *a, char * const *b) {
-        return strv_compare(a, b) == 0;
+        返回 strv_compare(a, b) == 0;
 }
 
 bool strv_equal_ignore_order(char * const *a, char * const *b) _pure_;
@@ -103,32 +103,32 @@ char** strv_new_ap(const char *x, va_list ap);
 #define STRV_IGNORE ((const char *) POINTER_MAX)
 
 static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ?: STRV_IGNORE;
+        返回 x ?: STRV_IGNORE;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
+整数 strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
 char** strv_split(const char *s, const char *separators);
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
+整数 strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
+整数 strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
+整数 strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
 char** strv_split_newlines(const char *s);
 
 /* Given a string containing white-space separated tuples of words themselves separated by ':',
  * returns a vector of strings. If the second element in a tuple is missing, the corresponding
  * string in the vector is an empty string. */
-int strv_split_colon_pairs(char ***t, const char *s);
+整数 strv_split_colon_pairs(char ***t, const char *s);
 
 char* strv_join_full(char * const *l, const char *separator, const char *prefix);
 static inline char *strv_join(char * const *l, const char *separator) {
-        return strv_join_full(l, separator, NULL);
+        返回 strv_join_full(l, separator, NULL);
 }
 
 bool strv_overlap(char * const *a, char * const *b) _pure_;
 
 #define _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
-        for (typeof(*(l)) *s, *h = (l), *i = ({                         \
+        为 (typeof(*(l)) *s, *h = (l), *i = ({                         \
                                 size_t _len = strv_length(h);           \
                                 _len > 0 ? h + _len - 1 : NULL;         \
                         });                                             \
@@ -139,7 +139,7 @@ bool strv_overlap(char * const *a, char * const *b) _pure_;
         _STRV_FOREACH_BACKWARDS(s, l, UNIQ_T(h, UNIQ), UNIQ_T(i, UNIQ))
 
 #define _STRV_FOREACH_PAIR(x, y, l, i)                          \
-        for (typeof(*(l)) *x, *y, *i = (l);                     \
+        为 (typeof(*(l)) *x, *y, *i = (l);                     \
              i && *(x = i) && *(y = i + 1);                     \
              i += 2)
 
@@ -147,7 +147,7 @@ bool strv_overlap(char * const *a, char * const *b) _pure_;
         _STRV_FOREACH_PAIR(x, y, l, UNIQ_T(i, UNIQ))
 
 char** strv_sort(char **l);
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
+char** strv_sort_uniq_full(char **l, 整数 (*compare)(char * const *a, char * const *b));
 char** strv_sort_uniq(char **l);
 void strv_print_full(char * const *l, const char *prefix);
 static inline void strv_print(char * const *l) {
@@ -181,7 +181,7 @@ char* endswith_strv_internal(const char *s, char * const *l);
         })
 
 #define _FOREACH_STRING(uniq, x, y, ...)                                \
-        for (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
+        为 (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
              x;                                                         \
              x = *(++UNIQ_T(l, uniq)))
 
@@ -191,33 +191,33 @@ char* endswith_strv_internal(const char *s, char * const *l);
 char** strv_reverse(char **l);
 char** strv_shell_escape(char **l, const char *bad);
 
-bool strv_fnmatch_full(char* const* patterns, const char *s, int flags, size_t *ret_matched_pos);
+bool strv_fnmatch_full(char* const* patterns, const char *s, 整数 flags, size_t *ret_matched_pos);
 static inline bool strv_fnmatch(char* const* patterns, const char *s) {
-        return strv_fnmatch_full(patterns, s, 0, NULL);
+        返回 strv_fnmatch_full(patterns, s, 0, NULL);
 }
-static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, int flags) {
+static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, 整数 flags) {
         assert(s);
-        return strv_isempty(patterns) ||
+        返回 strv_isempty(patterns) ||
                strv_fnmatch_full(patterns, s, flags, NULL);
 }
 
 char** strv_skip(char **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+整数 strv_extend_n(char ***l, const char *value, size_t n);
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
+整数 strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
+整数 fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
 
 #define strv_free_and_replace(a, b)             \
         free_and_replace_full(a, b, strv_free)
 
 void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
 void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+整数 string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
+整数 string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+整数 strv_rebreak_lines(char **l, size_t width, char ***ret);
 
 char** strv_filter_prefix(char * const *l, const char *prefix);
 

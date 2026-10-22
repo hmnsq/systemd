@@ -15,229 +15,229 @@ const char* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#如果 HAVE_PAM
         "+PAM"
-#else
+#否则
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#如果 HAVE_AUDIT
         " +AUDIT"
-#else
+#否则
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#如果 HAVE_SELINUX
         " +SELINUX"
-#else
+#否则
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#如果 HAVE_APPARMOR
         " +APPARMOR"
-#else
+#否则
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#如果 ENABLE_IMA
         " +IMA"
-#else
+#否则
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#如果 ENABLE_IPE
         " +IPE"
-#else
+#否则
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#如果 ENABLE_SMACK
         " +SMACK"
-#else
+#否则
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#如果 HAVE_SECCOMP
         " +SECCOMP"
-#else
+#否则
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#如果 HAVE_GNUTLS
         " +GNUTLS"
-#else
+#否则
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#如果 HAVE_OPENSSL
         " +OPENSSL"
-#else
+#否则
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#如果 HAVE_ACL
         " +ACL"
-#else
+#否则
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#如果 HAVE_BLKID
         " +BLKID"
-#else
+#否则
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#如果 HAVE_LIBCURL
         " +CURL"
-#else
+#否则
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#如果 HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#否则
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#如果 HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#否则
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#如果 HAVE_LIBIDN2
         " +IDN2"
-#else
+#否则
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#如果 HAVE_KMOD
         " +KMOD"
-#else
+#否则
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#如果 HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#否则
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#如果 HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#否则
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#如果 HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#否则
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#如果 HAVE_PCRE2
         " +PCRE2"
-#else
+#否则
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#如果 HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#否则
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#如果 HAVE_P11KIT
         " +P11KIT"
-#else
+#否则
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#如果 HAVE_QRENCODE
         " +QRENCODE"
-#else
+#否则
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#如果 HAVE_TPM2
         " +TPM2"
-#else
+#否则
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#如果 HAVE_BZIP2
         " +BZIP2"
-#else
+#否则
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#如果 HAVE_LZ4
         " +LZ4"
-#else
+#否则
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#如果 HAVE_XZ
         " +XZ"
-#else
+#否则
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#如果 HAVE_ZLIB
         " +ZLIB"
-#else
+#否则
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#如果 HAVE_ZSTD
         " +ZSTD"
-#else
+#否则
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#如果 BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#否则
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#如果 HAVE_VMLINUX_H
         " +BTF"
-#else
+#否则
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#如果 HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#否则
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#如果 ENABLE_UTMP
         " +UTMP"
-#else
+#否则
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#如果 HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#否则
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#如果 EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#否则
         " -EXPERIMENTAL"
 #endif
         ;
@@ -245,68 +245,68 @@ const char* const systemd_features =
 static char* systemd_features_with_color(void) {
         const char *p = systemd_features;
         _cleanup_free_ char *ret = NULL;
-        int r;
+        整数 r;
 
-        for (;;) {
+        为 (;;) {
                 _cleanup_free_ char *word = NULL;
                 char *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                如果 (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        返回 NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                如果 (r == 0)
+                        返回 TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                如果 (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        返回 NULL;
                 }
 
-                if (word[0] == '+')
+                如果 (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                否则 如果 (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                否则
                         q = strextend(&ret, word);
-                if (!q) {
+                如果 (!q) {
                         log_oom_warning();
-                        return NULL;
+                        返回 NULL;
                 }
         }
 }
 
-int version(void) {
+整数 version(void) {
         _cleanup_free_ char *b = NULL;
 
-        if (colors_enabled())
+        如果 (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        返回 0;
 }
 
-int version_only(void) {
+整数 version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        返回 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#如果 EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        返回 false;
+#否则
+        整数 r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        如果 (r >= 0)
+                返回 r;
+        如果 (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        返回 EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

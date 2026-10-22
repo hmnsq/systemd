@@ -29,11 +29,11 @@ utf8_prev_char (const char *p)
 {
   assert(p);
 
-  for (;;)
+  为 (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      如果 ((*p & 0xc0) != 0x80)
+        返回 (char *)p;
     }
 }
 
@@ -42,18 +42,18 @@ struct Interval
   unichar start, end;
 };
 
-static int
+static 整数
 interval_compare (const void *key, const void *elt)
 {
   unichar c = (unichar) (long) (key);
   struct Interval *interval = (struct Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  如果 (c < interval->start)
+    返回 -1;
+  如果 (c > interval->end)
+    返回 +1;
 
-  return 0;
+  返回 0;
 }
 
 /*
@@ -96,11 +96,11 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  如果 (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
                interval_compare))
-    return true;
+    返回 true;
 
-  return false;
+  返回 false;
 }
 
 const char utf8_skip_data[256] = {

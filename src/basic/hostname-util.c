@@ -13,36 +13,36 @@
 #include "user-util.h"
 
 char* get_default_hostname_raw(void) {
-        int r;
+        整数 r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
         const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        如果 (e) {
+                如果 (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        返回 strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
         _cleanup_free_ char *f = NULL;
         r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        如果 (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        否则 如果 (f) {
+                如果 (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        返回 TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        返回 strdup(FALLBACK_HOSTNAME);
 }
 
 bool valid_ldh_char(char c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        返回 ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
@@ -60,48 +60,48 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        如果 (isempty(s))
+                返回 false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        如果 (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                返回 FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        为 (p = s, dot = hyphen = true; *p; p++)
+                如果 (*p == '.') {
+                        如果 (dot || hyphen)
+                                返回 false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } 否则 如果 (*p == '-') {
+                        如果 (dot)
+                                返回 false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
+                } 否则 {
+                        如果 (!valid_ldh_char(*p) &&
                             (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
                             (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                                返回 false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        如果 (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                返回 false;
+        如果 (hyphen)
+                返回 false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        如果 (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                返回 false;
 
-        return true;
+        返回 true;
 }
 
 char* hostname_cleanup(char *s) {
@@ -110,36 +110,36 @@ char* hostname_cleanup(char *s) {
 
         assert(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
+        为 (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                如果 (*p == '.') {
+                        如果 (dot || hyphen)
                                 continue;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
+                } 否则 如果 (*p == '-') {
+                        如果 (dot)
                                 continue;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } 否则 如果 (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        当 (d > s && IN_SET(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        返回 s;
 }
 
 bool is_localhost(const char *hostname) {
@@ -148,7 +148,7 @@ bool is_localhost(const char *hostname) {
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        返回 STRCASE_IN_SET(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -163,39 +163,39 @@ bool is_localhost(const char *hostname) {
 const char* etc_hostname(void) {
         static const char *cached = NULL;
 
-        if (!cached)
+        如果 (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        返回 cached;
 }
 
 const char* etc_machine_info(void) {
         static const char *cached = NULL;
 
-        if (!cached)
+        如果 (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        返回 cached;
 }
 
-int get_pretty_hostname(char **ret) {
+整数 get_pretty_hostname(char **ret) {
         _cleanup_free_ char *n = NULL;
-        int r;
+        整数 r;
 
         assert(ret);
 
         r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        if (isempty(n))
-                return -ENXIO;
+        如果 (isempty(n))
+                返回 -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        返回 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
+整数 split_user_at_host(const char *s, char **ret_user, char **ret_host) {
         _cleanup_free_ char *u = NULL, *h = NULL;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
@@ -204,120 +204,120 @@ int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
         assert(s);
 
         const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        如果 (rhs) {
+                如果 (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        如果 (!u)
+                                返回 -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                如果 (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        如果 (!h)
+                                返回 -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } 否则 {
+                如果 (isempty(s))
+                        返回 -EINVAL;
 
-                if (ret_host) {
+                如果 (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        如果 (!h)
+                                返回 -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        如果 (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        如果 (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        返回 !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
+整数 machine_spec_valid(const char *s) {
         _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+        整数 r;
 
         assert(s);
 
         r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        如果 (r == -EINVAL)
+                返回 false;
+        如果 (r < 0)
+                返回 r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        如果 (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                返回 false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        如果 (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                返回 false;
 
-        return true;
+        返回 true;
 }
 
 bool machine_tag_is_valid(const char *s) {
         size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+        如果 (n <= 0 || n >= 256)
+                返回 false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        如果 (strchr("-.=", s[0]))
+                返回 false;
 
         /* We allow parameterization of tags, with a "=" as separator */
         const char *eq = strchr(s, '=');
-        if (eq) {
+        如果 (eq) {
                 assert(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                如果 (strchr("-.", eq[-1]))
+                        返回 false;
+        } 否则 {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                如果 (strchr("-.", s[n-1]))
+                        返回 false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        返回 in_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+整数 machine_tag_list_is_valid(char **l) {
+        整数 r;
 
         r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
         switch (r) {
         case -EINVAL:
         case -E2BIG:
-                return false;
+                返回 false;
         case 0:
-                return true;
+                返回 true;
         default:
-                return r;
+                返回 r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
+整数 machine_tags_from_string(const char *s, bool graceful, char ***ret) {
         assert(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
+        如果 (isempty(s)) {
                 *ret = NULL;
-                return 0;
+                返回 0;
         }
 
         _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        如果 (!l)
+                返回 -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        返回 machine_tags_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+整数 machine_tags_from_strv(char **l, bool graceful, char ***ret) {
+        整数 r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -330,49 +330,49 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
          * name hence get distinct keys and may coexist. */
         _cleanup_hashmap_free_ Hashmap *h = NULL;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
+                如果 (!machine_tag_is_valid(*i)) {
+                        如果 (graceful)
                                 continue;
 
-                        return -EINVAL;
+                        返回 -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                如果 (hashmap_size(h) >= MACHINE_TAGS_MAX)
+                        返回 -E2BIG;
 
                 const char *eq = strchrnul(*i, '=');
                 _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                如果 (!k)
+                        返回 -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
+                如果 (r == -EEXIST) {
+                        如果 (streq(hashmap_get(h, k), *i))
                                 continue;
-                        if (!graceful)
-                                return -EINVAL;
+                        如果 (!graceful)
+                                返回 -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } 否则 如果 (r < 0)
+                        返回 r;
+                否则 如果 (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
+        如果 (ret) {
                 _cleanup_strv_free_ char **cleaned = NULL;
                 size_t n = 0;
                 char *v;
                 HASHMAP_FOREACH(v, h) {
                         r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        如果 (r < 0)
+                                返回 r;
                 }
 
                 strv_sort(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        返回 0;
 }

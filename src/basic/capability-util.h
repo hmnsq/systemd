@@ -40,35 +40,35 @@ typedef struct CapabilityQuintet {
         }
 
 static inline bool capability_is_set(uint64_t v) {
-        return v != CAP_MASK_UNSET;
+        返回 v != CAP_MASK_UNSET;
 }
 
-int capability_get(CapabilityQuintet *ret);
+整数 capability_get(CapabilityQuintet *ret);
 
 unsigned cap_last_cap(void);
-int have_effective_cap(unsigned cap);
-int have_inheritable_cap(unsigned cap);
-int capability_gain_cap_setpcap(void);
-int capability_bounding_set_drop(uint64_t keep, bool right_now);
-int capability_bounding_set_drop_usermode(uint64_t keep);
+整数 have_effective_cap(unsigned cap);
+整数 have_inheritable_cap(unsigned cap);
+整数 capability_gain_cap_setpcap(void);
+整数 capability_bounding_set_drop(uint64_t keep, bool right_now);
+整数 capability_bounding_set_drop_usermode(uint64_t keep);
 
-int capability_ambient_set_apply(uint64_t set, bool also_inherit);
+整数 capability_ambient_set_apply(uint64_t set, bool also_inherit);
 
-int drop_privileges(uid_t uid, gid_t gid, uint64_t keep_capabilities);
+整数 drop_privileges(uid_t uid, gid_t gid, uint64_t keep_capabilities);
 
-int drop_capability(unsigned cap);
-int keep_capability(unsigned cap);
+整数 drop_capability(unsigned cap);
+整数 keep_capability(unsigned cap);
 
 static inline uint64_t all_capabilities(void) {
-        return UINT64_MAX >> (63 - cap_last_cap());
+        返回 UINT64_MAX >> (63 - cap_last_cap());
 }
 
 static inline bool cap_test_all(uint64_t caps) {
-        return FLAGS_SET(caps, all_capabilities());
+        返回 FLAGS_SET(caps, all_capabilities());
 }
 
 static inline bool capability_quintet_is_set(const CapabilityQuintet *q) {
-        return capability_is_set(q->effective) ||
+        返回 capability_is_set(q->effective) ||
                 capability_is_set(q->bounding) ||
                 capability_is_set(q->inheritable) ||
                 capability_is_set(q->permitted) ||
@@ -76,7 +76,7 @@ static inline bool capability_quintet_is_set(const CapabilityQuintet *q) {
 }
 
 static inline bool capability_quintet_is_fully_set(const CapabilityQuintet *q) {
-        return capability_is_set(q->effective) &&
+        返回 capability_is_set(q->effective) &&
                 capability_is_set(q->bounding) &&
                 capability_is_set(q->inheritable) &&
                 capability_is_set(q->permitted) &&
@@ -84,7 +84,7 @@ static inline bool capability_quintet_is_fully_set(const CapabilityQuintet *q) {
 }
 
 static inline bool capability_quintet_equal(const CapabilityQuintet *a, const CapabilityQuintet *b) {
-        return a->effective == b->effective &&
+        返回 a->effective == b->effective &&
                 a->bounding == b->bounding &&
                 a->inheritable == b->inheritable &&
                 a->permitted == b->permitted &&
@@ -96,8 +96,8 @@ static inline bool capability_quintet_equal(const CapabilityQuintet *a, const Ca
  * Returns true if the quintet was modified. */
 bool capability_quintet_mangle(CapabilityQuintet *q);
 
-int capability_quintet_enforce(const CapabilityQuintet *q);
+整数 capability_quintet_enforce(const CapabilityQuintet *q);
 
-int capability_get_ambient(uint64_t *ret);
+整数 capability_get_ambient(uint64_t *ret);
 
-int pidref_get_capability(const PidRef *pidref, CapabilityQuintet *ret);
+整数 pidref_get_capability(const PidRef *pidref, CapabilityQuintet *ret);

@@ -27,79 +27,79 @@ static void sigbus_push(void *addr) {
         FOREACH_ELEMENT(u, sigbus_queue) {
                 /* OK to initialize this here since we haven't started the atomic ops yet */
                 void *tmp = NULL;
-                if (__atomic_compare_exchange_n(u, &tmp, addr, false,
+                如果 (__atomic_compare_exchange_n(u, &tmp, addr, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                         __atomic_fetch_add(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
-                        return;
+                        返回;
                 }
         }
 
         /* If we can't, make sure the queue size is out of bounds, to
          * mark it as overflowed */
-        for (;;) {
+        为 (;;) {
                 sig_atomic_t c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (c > SIGBUS_QUEUE_MAX) /* already overflowed */
-                        return;
+                如果 (c > SIGBUS_QUEUE_MAX) /* already overflowed */
+                        返回;
 
                 /* OK if we clobber c here, since we either immediately return
                  * or it will be immediately reinitialized on next loop */
-                if (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
+                如果 (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
-                        return;
+                        返回;
         }
 }
 
-int sigbus_pop(void **ret) {
+整数 sigbus_pop(void **ret) {
         assert(ret);
 
-        for (;;) {
+        为 (;;) {
                 unsigned u, c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (_likely_(c == 0))
-                        return 0;
+                如果 (_likely_(c == 0))
+                        返回 0;
 
-                if (_unlikely_(c > SIGBUS_QUEUE_MAX))
-                        return -EOVERFLOW;
+                如果 (_unlikely_(c > SIGBUS_QUEUE_MAX))
+                        返回 -EOVERFLOW;
 
-                for (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
+                为 (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
                         void *addr;
 
                         addr = sigbus_queue[u];
-                        if (!addr)
+                        如果 (!addr)
                                 continue;
 
                         /* OK if we clobber addr here, since we either immediately return
                          * or it will be immediately reinitialized on next loop */
-                        if (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, NULL, false,
+                        如果 (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, NULL, false,
                                                         __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                                 __atomic_fetch_sub(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
                                 /* If we successfully entered this if condition, addr won't
                                  * have been modified since its assignment, so safe to use it */
                                 *ret = addr;
-                                return 1;
+                                返回 1;
                         }
                 }
         }
 }
 
-static void sigbus_handler(int sn, siginfo_t *si, void *data) {
+static void sigbus_handler(整数 sn, siginfo_t *si, void *data) {
         unsigned long ul;
         void *aligned;
 
         assert(sn == SIGBUS);
         assert(si);
 
-        if (si->si_code != BUS_ADRERR || !si->si_addr) {
+        如果 (si->si_code != BUS_ADRERR || !si->si_addr) {
                 assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
                 propagate_signal(sn, si);
-                return;
+                返回;
         }
 
         ul = (unsigned long) si->si_addr;
@@ -127,21 +127,21 @@ void sigbus_install(void) {
 
         n_installed++;
 
-        if (n_installed == 1)
+        如果 (n_installed == 1)
                 assert_se(sigaction(SIGBUS, &sa, &old_sigaction) >= 0);
 
-        return;
+        返回;
 }
 
 void sigbus_reset(void) {
 
-        if (n_installed <= 0)
-                return;
+        如果 (n_installed <= 0)
+                返回;
 
         n_installed--;
 
-        if (n_installed == 0)
+        如果 (n_installed == 0)
                 assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
 
-        return;
+        返回;
 }

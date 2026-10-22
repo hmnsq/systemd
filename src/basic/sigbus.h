@@ -6,4 +6,4 @@
 void sigbus_install(void);
 void sigbus_reset(void);
 
-int sigbus_pop(void **ret);
+整数 sigbus_pop(void **ret);

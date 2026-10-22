@@ -60,11 +60,11 @@ Architecture uname_architecture(void);
  * Debian's paths on all distributions.
  */
 
-#if defined(__x86_64__)
+#如果 defined(__x86_64__)
 #  define native_architecture() ARCHITECTURE_X86_64
-#  if defined(__ILP32__)
+#  如果 defined(__ILP32__)
 #    define LIB_ARCH_TUPLE "x86_64-linux-gnux32"
-#  else
+#  否则
 #    define LIB_ARCH_TUPLE "x86_64-linux-gnu"
 #  endif
 #  define ARCHITECTURE_SECONDARY ARCHITECTURE_X86
@@ -72,24 +72,24 @@ Architecture uname_architecture(void);
 #  define native_architecture() ARCHITECTURE_X86
 #  define LIB_ARCH_TUPLE "i386-linux-gnu"
 #elif defined(__powerpc64__)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_PPC64
 #    define LIB_ARCH_TUPLE "ppc64-linux-gnu"
 #    define ARCHITECTURE_SECONDARY ARCHITECTURE_PPC
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_PPC64_LE
 #    define LIB_ARCH_TUPLE  "powerpc64le-linux-gnu"
 #    define ARCHITECTURE_SECONDARY ARCHITECTURE_PPC_LE
 #  endif
 #elif defined(__powerpc__)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_PPC
-#    if defined(__NO_FPRS__)
+#    如果 defined(__NO_FPRS__)
 #      define LIB_ARCH_TUPLE "powerpc-linux-gnuspe"
-#    else
+#    否则
 #      define LIB_ARCH_TUPLE "powerpc-linux-gnu"
 #    endif
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_PPC_LE
 #    error "Missing LIB_ARCH_TUPLE for PPCLE"
 #  endif
@@ -116,26 +116,26 @@ Architecture uname_architecture(void);
 #  define native_architecture() ARCHITECTURE_SPARC
 #  define LIB_ARCH_TUPLE "sparc-linux-gnu"
 #elif defined(__mips64) && defined(__LP64__)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_MIPS64
 #    define LIB_ARCH_TUPLE "mips64-linux-gnuabi64"
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_MIPS64_LE
 #    define LIB_ARCH_TUPLE "mips64el-linux-gnuabi64"
 #  endif
 #elif defined(__mips64)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_MIPS64
 #    define LIB_ARCH_TUPLE "mips64-linux-gnuabin32"
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_MIPS64_LE
 #    define LIB_ARCH_TUPLE "mips64el-linux-gnuabin32"
 #  endif
 #elif defined(__mips__)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_MIPS
 #    define LIB_ARCH_TUPLE "mips-linux-gnu"
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_MIPS_LE
 #    define LIB_ARCH_TUPLE "mipsel-linux-gnu"
 #  endif
@@ -143,35 +143,35 @@ Architecture uname_architecture(void);
 #  define native_architecture() ARCHITECTURE_ALPHA
 #  define LIB_ARCH_TUPLE "alpha-linux-gnu"
 #elif defined(__aarch64__)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_ARM64_BE
 #    define LIB_ARCH_TUPLE "aarch64_be-linux-gnu"
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_ARM64
 #    define LIB_ARCH_TUPLE "aarch64-linux-gnu"
 #    define ARCHITECTURE_SECONDARY ARCHITECTURE_ARM
 #  endif
 #elif defined(__arm__)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_ARM_BE
-#    if defined(__ARM_EABI__)
-#      if defined(__ARM_PCS_VFP)
+#    如果 defined(__ARM_EABI__)
+#      如果 defined(__ARM_PCS_VFP)
 #        define LIB_ARCH_TUPLE "armeb-linux-gnueabihf"
-#      else
+#      否则
 #        define LIB_ARCH_TUPLE "armeb-linux-gnueabi"
 #      endif
-#    else
+#    否则
 #      define LIB_ARCH_TUPLE "armeb-linux-gnu"
 #    endif
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_ARM
-#    if defined(__ARM_EABI__)
-#      if defined(__ARM_PCS_VFP)
+#    如果 defined(__ARM_EABI__)
+#      如果 defined(__ARM_PCS_VFP)
 #        define LIB_ARCH_TUPLE "arm-linux-gnueabihf"
-#      else
+#      否则
 #        define LIB_ARCH_TUPLE "arm-linux-gnueabi"
 #      endif
-#    else
+#    否则
 #      define LIB_ARCH_TUPLE "arm-linux-gnu"
 #    endif
 #  endif
@@ -180,7 +180,7 @@ Architecture uname_architecture(void);
 #  error "Missing LIB_ARCH_TUPLE for SH64"
 #elif defined(__sh__)
 #  define native_architecture() ARCHITECTURE_SH
-#  if defined(__SH1__)
+#  如果 defined(__SH1__)
 #    define LIB_ARCH_TUPLE "sh1-linux-gnu"
 #  elif defined(__SH2__)
 #    define LIB_ARCH_TUPLE "sh2-linux-gnu"
@@ -199,13 +199,13 @@ Architecture uname_architecture(void);
 #  endif
 #elif defined(__loongarch_lp64)
 #  define native_architecture() ARCHITECTURE_LOONGARCH64
-#  if defined(__loongarch_double_float)
+#  如果 defined(__loongarch_double_float)
 #    define LIB_ARCH_TUPLE "loongarch64-linux-gnu"
 #  elif defined(__loongarch_single_float)
 #    define LIB_ARCH_TUPLE "loongarch64-linux-gnuf32"
 #  elif defined(__loongarch_soft_float)
 #    define LIB_ARCH_TUPLE "loongarch64-linux-gnusf"
-#  else
+#  否则
 #    error "Unrecognized loongarch architecture variant"
 #  endif
 #elif defined(__m68k__)
@@ -221,30 +221,30 @@ Architecture uname_architecture(void);
 #  define native_architecture() ARCHITECTURE_NIOS2
 #  define LIB_ARCH_TUPLE "nios2-linux-gnu"
 #elif defined(__riscv)
-#  if __SIZEOF_POINTER__ == 4
+#  如果 __SIZEOF_POINTER__ == 4
 #    define native_architecture() ARCHITECTURE_RISCV32
 #    define LIB_ARCH_TUPLE "riscv32-linux-gnu"
 #  elif __SIZEOF_POINTER__ == 8
 #    define native_architecture() ARCHITECTURE_RISCV64
 #    define LIB_ARCH_TUPLE "riscv64-linux-gnu"
-#  else
+#  否则
 #    error "Unrecognized riscv architecture variant"
 #  endif
 #elif defined(__arc__)
-#  if __BYTE_ORDER == __BIG_ENDIAN
+#  如果 __BYTE_ORDER == __BIG_ENDIAN
 #    define native_architecture() ARCHITECTURE_ARC_BE
 #    define LIB_ARCH_TUPLE "arceb-linux"
-#  else
+#  否则
 #    define native_architecture() ARCHITECTURE_ARC
 #    define LIB_ARCH_TUPLE "arc-linux"
 #  endif
-#else
+#否则
 #  error "Please register your architecture here!"
 #endif
 
-#if defined(__hppa__) || defined(__hppa64__)
+#如果 defined(__hppa__) || defined(__hppa64__)
 #  define STACK_GROWS_UP 1
-#else
+#否则
 #  define STACK_GROWS_UP 0
 #endif
 

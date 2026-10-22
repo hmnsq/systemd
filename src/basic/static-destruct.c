@@ -3,10 +3,10 @@
 #include "static-destruct.h"
 
 void static_destruct_impl(const StaticDestructor *start, const StaticDestructor *end) {
-        if (!start)
-                return;
+        如果 (!start)
+                返回;
 
-        for (const StaticDestructor *d = start; d < end; d++)
+        为 (const StaticDestructor *d = start; d < end; d++)
                 switch (d->type) {
                 case STATIC_DESTRUCTOR_SIMPLE:
                         d->simple.destroy(d->simple.data);

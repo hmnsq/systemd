@@ -25,45 +25,45 @@
 size_t sc_arg_max(void) {
         long l = sysconf(_SC_ARG_MAX);
         assert(l > 0);
-        return (size_t) l;
+        返回 (size_t) l;
 }
 
 static bool env_name_is_valid_n(const char *e, size_t n) {
 
-        if (n == SIZE_MAX)
+        如果 (n == SIZE_MAX)
                 n = strlen_ptr(e);
 
-        if (n == 0)
-                return false;
+        如果 (n == 0)
+                返回 false;
 
         assert(e);
 
-        if (ascii_isdigit(e[0]))
-                return false;
+        如果 (ascii_isdigit(e[0]))
+                返回 false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the equal sign and trailing NUL this hence leaves ARG_MAX-2 as
          * longest possible variable name. */
-        if (_unlikely_(n > sc_arg_max() - 2))
-                return false;
+        如果 (_unlikely_(n > sc_arg_max() - 2))
+                返回 false;
 
-        for (const char *p = e; p < e + n; p++)
-                if (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
-                        return false;
+        为 (const char *p = e; p < e + n; p++)
+                如果 (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
+                        返回 false;
 
-        return true;
+        返回 true;
 }
 
 bool env_name_is_valid(const char *e) {
-        return env_name_is_valid_n(e, SIZE_MAX);
+        返回 env_name_is_valid_n(e, SIZE_MAX);
 }
 
 bool env_value_is_valid(const char *e) {
-        if (!e)
-                return false;
+        如果 (!e)
+                返回 false;
 
-        if (!utf8_is_valid(e))
-                return false;
+        如果 (!utf8_is_valid(e))
+                返回 false;
 
         /* Note that variable *values* may contain control characters, in particular NL, TAB, BS, DEL, ESC…
          * When printing those variables with show-environment, we'll escape them. Make sure to print
@@ -72,10 +72,10 @@ bool env_value_is_valid(const char *e) {
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the shortest possible variable name of length 1, the equal
          * sign and trailing NUL this hence leaves ARG_MAX-3 as longest possible variable value. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 3))
-                return false;
+        如果 (_unlikely_(strlen(e) > sc_arg_max() - 3))
+                返回 false;
 
-        return true;
+        返回 true;
 }
 
 bool env_assignment_is_valid(const char *e) {
@@ -84,71 +84,71 @@ bool env_assignment_is_valid(const char *e) {
         assert(e);
 
         eq = strchr(e, '=');
-        if (!eq)
-                return false;
+        如果 (!eq)
+                返回 false;
 
-        if (!env_name_is_valid_n(e, eq - e))
-                return false;
+        如果 (!env_name_is_valid_n(e, eq - e))
+                返回 false;
 
-        if (!env_value_is_valid(eq + 1))
-                return false;
+        如果 (!env_value_is_valid(eq + 1))
+                返回 false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
          * variable assignments cannot be either, but let's leave room for one trailing NUL byte. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 1))
-                return false;
+        如果 (_unlikely_(strlen(e) > sc_arg_max() - 1))
+                返回 false;
 
-        return true;
+        返回 true;
 }
 
 bool strv_env_is_valid(char * const *e) {
         STRV_FOREACH(p, e) {
                 size_t k;
 
-                if (!env_assignment_is_valid(*p))
-                        return false;
+                如果 (!env_assignment_is_valid(*p))
+                        返回 false;
 
                 /* Check if there are duplicate assignments */
                 k = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, k) && (*q)[k] == '=')
-                                return false;
+                        如果 (strneq(*p, *q, k) && (*q)[k] == '=')
+                                返回 false;
         }
 
-        return true;
+        返回 true;
 }
 
 bool strv_env_name_is_valid(char * const *l) {
         STRV_FOREACH(p, l) {
-                if (!env_name_is_valid(*p))
-                        return false;
+                如果 (!env_name_is_valid(*p))
+                        返回 false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                如果 (strv_contains(p + 1, *p))
+                        返回 false;
         }
 
-        return true;
+        返回 true;
 }
 
 bool strv_env_name_or_assignment_is_valid(char * const *l) {
         STRV_FOREACH(p, l) {
-                if (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
-                        return false;
+                如果 (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
+                        返回 false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                如果 (strv_contains(p + 1, *p))
+                        返回 false;
         }
 
-        return true;
+        返回 true;
 }
 
-static int env_append(char **e, char ***k, char **a) {
+static 整数 env_append(char **e, char ***k, char **a) {
         assert(e);
         assert(k);
         assert(*k >= e);
 
-        if (!a)
-                return 0;
+        如果 (!a)
+                返回 0;
 
         /* Expects the following arguments: 'e' shall point to the beginning of an strv we are going to append to, 'k'
          * to a pointer pointing to the NULL entry at the end of the same array. 'a' shall point to another strv.
@@ -157,31 +157,31 @@ static int env_append(char **e, char ***k, char **a) {
          *
          * This call assumes 'e' has enough pre-allocated space to grow by all of 'a''s items. */
 
-        for (; *a; a++) {
+        为 (; *a; a++) {
                 char **j, *c;
                 size_t n;
 
                 n = strcspn(*a, "=");
-                if ((*a)[n] == '=')
+                如果 ((*a)[n] == '=')
                         n++;
 
-                for (j = e; j < *k; j++)
-                        if (strneq(*j, *a, n))
+                为 (j = e; j < *k; j++)
+                        如果 (strneq(*j, *a, n))
                                 break;
 
                 c = strdup(*a);
-                if (!c)
-                        return -ENOMEM;
+                如果 (!c)
+                        返回 -ENOMEM;
 
-                if (j >= *k) { /* Append to the end? */
+                如果 (j >= *k) { /* Append to the end? */
                         (*k)[0] = c;
                         (*k)[1] = NULL;
                         (*k)++;
-                } else
+                } 否则
                         free_and_replace(*j, c); /* Override existing item */
         }
 
-        return 0;
+        返回 0;
 }
 
 char** _strv_env_merge(char **first, ...) {
@@ -194,11 +194,11 @@ char** _strv_env_merge(char **first, ...) {
         size_t n = strv_length(first);
 
         va_start(ap, first);
-        for (;;) {
+        为 (;;) {
                 char **l;
 
                 l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
+                如果 (l == POINTER_MAX)
                         break;
 
                 n += strv_length(l);
@@ -206,29 +206,29 @@ char** _strv_env_merge(char **first, ...) {
         va_end(ap);
 
         k = merged = new(char*, n + 1);
-        if (!merged)
-                return NULL;
+        如果 (!merged)
+                返回 NULL;
         merged[0] = NULL;
 
-        if (env_append(merged, &k, first) < 0)
-                return NULL;
+        如果 (env_append(merged, &k, first) < 0)
+                返回 NULL;
 
         va_start(ap, first);
-        for (;;) {
+        为 (;;) {
                 char **l;
 
                 l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
+                如果 (l == POINTER_MAX)
                         break;
 
-                if (env_append(merged, &k, l) < 0) {
+                如果 (env_append(merged, &k, l) < 0) {
                         va_end(ap);
-                        return NULL;
+                        返回 NULL;
                 }
         }
         va_end(ap);
 
-        return TAKE_PTR(merged);
+        返回 TAKE_PTR(merged);
 }
 
 static bool env_match(const char *t, const char *pattern) {
@@ -245,16 +245,16 @@ static bool env_match(const char *t, const char *pattern) {
          *         a=b does not match a
          *         a=b does not match a=c */
 
-        if (streq(t, pattern))
-                return true;
+        如果 (streq(t, pattern))
+                返回 true;
 
-        if (!strchr(pattern, '=')) {
+        如果 (!strchr(pattern, '=')) {
                 t = startswith(t, pattern);
 
-                return t && *t == '=';
+                返回 t && *t == '=';
         }
 
-        return false;
+        返回 false;
 }
 
 static bool env_entry_has_name(const char *entry, const char *name) {
@@ -264,10 +264,10 @@ static bool env_entry_has_name(const char *entry, const char *name) {
         assert(name);
 
         t = startswith(entry, name);
-        if (!t)
-                return false;
+        如果 (!t)
+                返回 false;
 
-        return *t == '=';
+        返回 *t == '=';
 }
 
 char** strv_env_delete(char **x, size_t n_lists, ...) {
@@ -281,24 +281,24 @@ char** strv_env_delete(char **x, size_t n_lists, ...) {
         n = strv_length(x);
 
         t = new(char*, n+1);
-        if (!t)
-                return NULL;
+        如果 (!t)
+                返回 NULL;
 
         STRV_FOREACH(k, x) {
                 va_start(ap, n_lists);
-                for (size_t v = 0; v < n_lists; v++) {
+                为 (size_t v = 0; v < n_lists; v++) {
                         char **l;
 
                         l = va_arg(ap, char**);
                         STRV_FOREACH(j, l)
-                                if (env_match(*k, *j))
+                                如果 (env_match(*k, *j))
                                         goto skip;
                 }
                 va_end(ap);
 
                 t[i] = strdup(*k);
-                if (!t[i])
-                        return NULL;
+                如果 (!t[i])
+                        返回 NULL;
 
                 i++;
                 continue;
@@ -311,21 +311,21 @@ char** strv_env_delete(char **x, size_t n_lists, ...) {
 
         assert(i <= n);
 
-        return TAKE_PTR(t);
+        返回 TAKE_PTR(t);
 }
 
 char** strv_env_unset(char **l, const char *p) {
         assert(p);
 
-        if (!l)
-                return NULL;
+        如果 (!l)
+                返回 NULL;
 
         /* Drops every occurrence of the env var setting p in the
          * string list. Edits in-place. */
 
         char **f, **t;
-        for (f = t = l; *f; f++) {
-                if (env_match(*f, p)) {
+        为 (f = t = l; *f; f++) {
+                如果 (env_match(*f, p)) {
                         free(*f);
                         continue;
                 }
@@ -334,32 +334,32 @@ char** strv_env_unset(char **l, const char *p) {
         }
 
         *t = NULL;
-        return l;
+        返回 l;
 }
 
 char** strv_env_unset_many_internal(char **l, ...) {
-        if (!l)
-                return NULL;
+        如果 (!l)
+                返回 NULL;
 
         /* Like strv_env_unset() but applies many at once. Edits in-place. */
 
         char **f, **t;
-        for (f = t = l; *f; f++) {
+        为 (f = t = l; *f; f++) {
                 bool found = false;
                 const char *p;
                 va_list ap;
 
                 va_start(ap, l);
 
-                while ((p = va_arg(ap, const char*)))
-                        if (env_match(*f, p)) {
+                当 ((p = va_arg(ap, const char*)))
+                        如果 (env_match(*f, p)) {
                                 found = true;
                                 break;
                         }
 
                 va_end(ap);
 
-                if (found) {
+                如果 (found) {
                         free(*f);
                         continue;
                 }
@@ -368,12 +368,12 @@ char** strv_env_unset_many_internal(char **l, ...) {
         }
 
         *t = NULL;
-        return l;
+        返回 l;
 }
 
-int strv_env_replace_consume(char ***l, char *p) {
+整数 strv_env_replace_consume(char ***l, char *p) {
         const char *t, *name;
-        int r;
+        整数 r;
 
         assert(l);
         assert(p);
@@ -384,42 +384,42 @@ int strv_env_replace_consume(char ***l, char *p) {
          * p must be a valid key=value assignment. */
 
         t = strchr(p, '=');
-        if (!t) {
+        如果 (!t) {
                 free(p);
-                return -EINVAL;
+                返回 -EINVAL;
         }
 
         name = strndupa_safe(p, t - p);
 
         STRV_FOREACH(f, *l)
-                if (env_entry_has_name(*f, name)) {
+                如果 (env_entry_has_name(*f, name)) {
                         free_and_replace(*f, p);
                         strv_env_unset(f + 1, *f);
-                        return 0;
+                        返回 0;
                 }
 
         /* We didn't find a match, we need to append p or create a new strv */
         r = strv_consume(l, p);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        return 1;
+        返回 1;
 }
 
-int strv_env_replace_strdup(char ***l, const char *assignment) {
+整数 strv_env_replace_strdup(char ***l, const char *assignment) {
         /* Like strv_env_replace_consume(), but copies the argument. */
 
         assert(l);
         assert(assignment);
 
         char *p = strdup(assignment);
-        if (!p)
-                return -ENOMEM;
+        如果 (!p)
+                返回 -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        返回 strv_env_replace_consume(l, p);
 }
 
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
+整数 strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
         char *p;
 
         /* Like strv_env_replace_strdup(), but pulls the variable from the environment of
@@ -428,58 +428,58 @@ int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
         assert(l);
         assert(assignment);
 
-        if (strchr(assignment, '=')) {
-                if (!env_assignment_is_valid(assignment))
-                        return -EINVAL;
+        如果 (strchr(assignment, '=')) {
+                如果 (!env_assignment_is_valid(assignment))
+                        返回 -EINVAL;
 
                 p = strdup(assignment);
-        } else {
-                if (!env_name_is_valid(assignment))
-                        return -EINVAL;
+        } 否则 {
+                如果 (!env_name_is_valid(assignment))
+                        返回 -EINVAL;
 
                 /* If we can't find the variable in our environment, we will use
                  * the empty string. This way "passthrough" is equivalent to passing
                  * --setenv=FOO=$FOO in the shell. */
                 p = strjoin(assignment, "=", secure_getenv(assignment));
         }
-        if (!p)
-                return -ENOMEM;
+        如果 (!p)
+                返回 -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        返回 strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
+整数 strv_env_assign(char ***l, const char *key, const char *value) {
         assert(l);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        如果 (!env_name_is_valid(key))
+                返回 -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
+        如果 (!value) {
                 strv_env_unset(*l, key);
-                return 0;
+                返回 0;
         }
 
         char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        如果 (!p)
+                返回 -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        返回 strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
-        int r;
+整数 strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
+        整数 r;
 
         assert(l);
         assert(key);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        如果 (!env_name_is_valid(key))
+                返回 -EINVAL;
 
-        if (!valuef) {
+        如果 (!valuef) {
                 strv_env_unset(*l, key);
-                return 0;
+                返回 0;
         }
 
         _cleanup_free_ char *value = NULL;
@@ -487,82 +487,82 @@ int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
         va_start(ap, valuef);
         r = vasprintf(&value, valuef, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        如果 (r < 0)
+                返回 -ENOMEM;
 
         char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        如果 (!p)
+                返回 -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        返回 strv_env_replace_consume(l, p);
 }
 
-int _strv_env_assign_many(char ***l, ...) {
+整数 _strv_env_assign_many(char ***l, ...) {
         va_list ap;
-        int r;
+        整数 r;
 
         assert(l);
 
         va_start(ap, l);
-        for (;;) {
+        为 (;;) {
                 const char *key, *value;
 
                 key = va_arg(ap, const char *);
-                if (!key)
+                如果 (!key)
                         break;
 
-                if (!env_name_is_valid(key)) {
+                如果 (!env_name_is_valid(key)) {
                         va_end(ap);
-                        return -EINVAL;
+                        返回 -EINVAL;
                 }
 
                 value = va_arg(ap, const char *);
-                if (!value) {
+                如果 (!value) {
                         strv_env_unset(*l, key);
                         continue;
                 }
 
                 char *p = strjoin(key, "=", value);
-                if (!p) {
+                如果 (!p) {
                         va_end(ap);
-                        return -ENOMEM;
+                        返回 -ENOMEM;
                 }
 
                 r = strv_env_replace_consume(l, p);
-                if (r < 0) {
+                如果 (r < 0) {
                         va_end(ap);
-                        return r;
+                        返回 r;
                 }
         }
         va_end(ap);
 
-        return 0;
+        返回 0;
 }
 
 char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags) {
         assert(name);
 
-        if (k == SIZE_MAX)
+        如果 (k == SIZE_MAX)
                 k = strlen(name);
-        if (k <= 0)
-                return NULL;
+        如果 (k <= 0)
+                返回 NULL;
 
         STRV_FOREACH_BACKWARDS(i, l)
-                if (strneq(*i, name, k) && (*i)[k] == '=')
-                        return (char*) *i + k + 1;
+                如果 (strneq(*i, name, k) && (*i)[k] == '=')
+                        返回 (char*) *i + k + 1;
 
-        if (flags & REPLACE_ENV_USE_ENVIRONMENT) {
+        如果 (flags & REPLACE_ENV_USE_ENVIRONMENT) {
                 const char *t;
 
                 /* Safety check that the name is not overly long, before we do a stack allocation */
-                if (k > sc_arg_max() - 2)
-                        return NULL;
+                如果 (k > sc_arg_max() - 2)
+                        返回 NULL;
 
                 t = strndupa_safe(name, k);
-                return secure_getenv(t);
+                返回 secure_getenv(t);
         };
 
-        return NULL;
+        返回 NULL;
 }
 
 char* strv_env_pairs_get(char **l, const char *name) {
@@ -571,16 +571,16 @@ char* strv_env_pairs_get(char **l, const char *name) {
         assert(name);
 
         STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
+                如果 (streq(*key, name))
                         result = *value;
 
-        return result;
+        返回 result;
 }
 
-int strv_env_get_merged(char **l, char ***ret) {
+整数 strv_env_get_merged(char **l, char ***ret) {
         _cleanup_strv_free_ char **v = NULL;
         size_t n = 0;
-        int r;
+        整数 r;
 
         assert(ret);
 
@@ -593,27 +593,27 @@ int strv_env_get_merged(char **l, char ***ret) {
                 char *s;
 
                 s = strjoin(*key, "=", *value);
-                if (!s)
-                        return -ENOMEM;
+                如果 (!s)
+                        返回 -ENOMEM;
 
                 r = strv_consume_with_size(&v, &n, s);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
         }
 
         *ret = TAKE_PTR(v);
-        return 0;
+        返回 0;
 }
 
 char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata) {
-        int k = 0;
+        整数 k = 0;
 
         STRV_FOREACH(p, l) {
                 size_t n;
                 bool duplicate = false;
 
-                if (!env_assignment_is_valid(*p)) {
-                        if (invalid_callback)
+                如果 (!env_assignment_is_valid(*p)) {
+                        如果 (invalid_callback)
                                 invalid_callback(*p, userdata);
                         free(*p);
                         continue;
@@ -621,12 +621,12 @@ char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const cha
 
                 n = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, n) && (*q)[n] == '=') {
+                        如果 (strneq(*p, *q, n) && (*q)[n] == '=') {
                                 duplicate = true;
                                 break;
                         }
 
-                if (duplicate) {
+                如果 (duplicate) {
                         free(*p);
                         continue;
                 }
@@ -634,23 +634,23 @@ char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const cha
                 l[k++] = *p;
         }
 
-        if (l)
+        如果 (l)
                 l[k] = NULL;
 
-        return l;
+        返回 l;
 }
 
-static int strv_extend_with_length(char ***l, const char *s, size_t n) {
+static 整数 strv_extend_with_length(char ***l, const char *s, size_t n) {
         char *c;
 
         c = strndup(s, n);
-        if (!c)
-                return -ENOMEM;
+        如果 (!c)
+                返回 -ENOMEM;
 
-        return strv_consume(l, c);
+        返回 strv_consume(l, c);
 }
 
-static int strv_env_get_n_validated(
+static 整数 strv_env_get_n_validated(
                 char **env,
                 const char *name,
                 size_t l,
@@ -660,33 +660,33 @@ static int strv_env_get_n_validated(
                 char ***bad_variables) { /* ditto */
 
         char *e;
-        int r;
+        整数 r;
 
         assert(l == 0 || name);
         assert(ret);
 
-        if (env_name_is_valid_n(name, l)) {
+        如果 (env_name_is_valid_n(name, l)) {
                 e = strv_env_get_n(env, name, l, flags);
-                if (!e && unset_variables) {
+                如果 (!e && unset_variables) {
                         r = strv_extend_with_length(unset_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        如果 (r < 0)
+                                返回 r;
                 }
-        } else {
+        } 否则 {
                 e = NULL; /* Resolve invalid variable names the same way as unset ones */
 
-                if (bad_variables) {
+                如果 (bad_variables) {
                         r = strv_extend_with_length(bad_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        如果 (r < 0)
+                                返回 r;
                 }
         }
 
         *ret = e;
-        return !!e;
+        返回 !!e;
 }
 
-int replace_env_full(
+整数 replace_env_full(
                 const char *format,
                 size_t length,
                 char **env,
@@ -710,81 +710,81 @@ int replace_env_full(
         _cleanup_free_ char *s = NULL;
         char ***pu, ***pb;
         size_t i, len = 0; /* len is initialized to appease gcc */
-        int nest = 0, r;
+        整数 nest = 0, r;
 
         assert(format);
 
-        if (length == SIZE_MAX)
+        如果 (length == SIZE_MAX)
                 length = strlen(format);
 
         pu = ret_unset_variables ? &unset_variables : NULL;
         pb = ret_bad_variables ? &bad_variables : NULL;
 
-        for (e = format, i = 0; *e && i < length; e++, i++)
+        为 (e = format, i = 0; *e && i < length; e++, i++)
                 switch (state) {
 
                 case WORD:
-                        if (*e == '$')
+                        如果 (*e == '$')
                                 state = CURLY;
                         break;
 
                 case CURLY:
-                        if (*e == '{') {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        如果 (*e == '{') {
+                                如果 (!strextendn(&s, word, e-word-1))
+                                        返回 -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE;
                                 nest++;
 
-                        } else if (*e == '$') {
-                                if (!strextendn(&s, word, e-word))
-                                        return -ENOMEM;
+                        } 否则 如果 (*e == '$') {
+                                如果 (!strextendn(&s, word, e-word))
+                                        返回 -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
 
-                        } else if (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        } 否则 如果 (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                如果 (!strextendn(&s, word, e-word-1))
+                                        返回 -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE_RAW;
 
-                        } else
+                        } 否则
                                 state = WORD;
                         break;
 
                 case VARIABLE:
-                        if (*e == '}') {
+                        如果 (*e == '}') {
                                 char *t;
 
                                 r = strv_env_get_n_validated(env, word+2, e-word-2, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                如果 (r < 0)
+                                        返回 r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                如果 (!strextend(&s, t))
+                                        返回 -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                                 nest--;
-                        } else if (*e == ':') {
-                                if (flags & REPLACE_ENV_ALLOW_EXTENDED) {
+                        } 否则 如果 (*e == ':') {
+                                如果 (flags & REPLACE_ENV_ALLOW_EXTENDED) {
                                         len = e - word - 2;
                                         state = TEST;
-                                } else
+                                } 否则
                                         /* Treat this as unsupported syntax, i.e. do no replacement */
                                         state = WORD;
                         }
                         break;
 
                 case TEST:
-                        if (*e == '-')
+                        如果 (*e == '-')
                                 state = DEFAULT_VALUE;
-                        else if (*e == '+')
+                        否则 如果 (*e == '+')
                                 state = ALTERNATE_VALUE;
-                        else {
+                        否则 {
                                 state = WORD;
                                 break;
                         }
@@ -796,47 +796,47 @@ int replace_env_full(
                 case ALTERNATE_VALUE:
                         assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
-                        if (*e == '{') {
+                        如果 (*e == '{') {
                                 nest++;
                                 break;
                         }
 
-                        if (*e != '}')
+                        如果 (*e != '}')
                                 break;
 
                         nest--;
-                        if (nest == 0) {
+                        如果 (nest == 0) {
                                 _cleanup_strv_free_ char **u = NULL, **b = NULL;
                                 _cleanup_free_ char *v = NULL;
                                 char *t = NULL;
 
                                 r = strv_env_get_n_validated(env, word+2, len, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                如果 (r < 0)
+                                        返回 r;
 
-                                if (t && state == ALTERNATE_VALUE) {
+                                如果 (t && state == ALTERNATE_VALUE) {
                                         r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                        如果 (r < 0)
+                                                返回 r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
+                                } 否则 如果 (!t && state == DEFAULT_VALUE) {
                                         r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                        如果 (r < 0)
+                                                返回 r;
 
                                         t = v;
                                 }
 
                                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                如果 (r < 0)
+                                        返回 r;
                                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                如果 (r < 0)
+                                        返回 r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                如果 (!strextend(&s, t))
+                                        返回 -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
@@ -846,15 +846,15 @@ int replace_env_full(
                 case VARIABLE_RAW:
                         assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                        if (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                        如果 (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
                                 char *t = NULL;
 
                                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                                if (r < 0)
-                                        return r;
+                                如果 (r < 0)
+                                        返回 r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                如果 (!strextend(&s, t))
+                                        返回 -ENOMEM;
 
                                 word = e--;
                                 i--;
@@ -863,33 +863,33 @@ int replace_env_full(
                         break;
                 }
 
-        if (state == VARIABLE_RAW) {
+        如果 (state == VARIABLE_RAW) {
                 char *t;
 
                 assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
 
-                if (!strextend(&s, t))
-                        return -ENOMEM;
+                如果 (!strextend(&s, t))
+                        返回 -ENOMEM;
 
-        } else if (!strextendn(&s, word, e-word))
-                return -ENOMEM;
+        } 否则 如果 (!strextendn(&s, word, e-word))
+                返回 -ENOMEM;
 
-        if (ret_unset_variables)
+        如果 (ret_unset_variables)
                 *ret_unset_variables = TAKE_PTR(unset_variables);
-        if (ret_bad_variables)
+        如果 (ret_bad_variables)
                 *ret_bad_variables = TAKE_PTR(bad_variables);
 
-        if (ret)
+        如果 (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        返回 0;
 }
 
-int replace_env_argv(
+整数 replace_env_argv(
                 char **argv,
                 char **env,
                 char ***ret,
@@ -898,7 +898,7 @@ int replace_env_argv(
 
         _cleanup_strv_free_ char **n = NULL, **unset_variables = NULL, **bad_variables = NULL;
         size_t k = 0, l;
-        int r;
+        整数 r;
 
         assert(!strv_isempty(argv));
         assert(ret);
@@ -906,43 +906,43 @@ int replace_env_argv(
         l = strv_length(argv);
 
         n = new(char*, l+1);
-        if (!n)
-                return -ENOMEM;
+        如果 (!n)
+                返回 -ENOMEM;
 
         STRV_FOREACH(i, argv) {
                 const char *word = *i;
 
                 /* If $FOO appears as single word, replace it by the split up variable */
-                if (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
+                如果 (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
                         _cleanup_strv_free_ char **m = NULL;
                         const char *name = word + 1;
                         char *e, **w;
                         size_t q;
 
-                        if (env_name_is_valid(name)) {
+                        如果 (env_name_is_valid(name)) {
                                 e = strv_env_get(env, name);
-                                if (e)
+                                如果 (e)
                                         r = strv_split_full(&m, e, WHITESPACE, EXTRACT_RELAX|EXTRACT_UNQUOTE);
-                                else if (ret_unset_variables)
+                                否则 如果 (ret_unset_variables)
                                         r = strv_extend(&unset_variables, name);
-                                else
+                                否则
                                         r = 0;
-                        } else if (ret_bad_variables)
+                        } 否则 如果 (ret_bad_variables)
                                 r = strv_extend(&bad_variables, name);
-                        else
+                        否则
                                 r = 0;
-                        if (r < 0)
-                                return r;
+                        如果 (r < 0)
+                                返回 r;
 
                         q = strv_length(m);
                         l = l + q - 1;
 
                         w = reallocarray(n, l + 1, sizeof(char*));
-                        if (!w)
-                                return -ENOMEM;
+                        如果 (!w)
+                                返回 -ENOMEM;
 
                         n = w;
-                        if (m) {
+                        如果 (m) {
                                 memcpy(n + k, m, (q + 1) * sizeof(char*));
                                 m = mfree(m);
                         }
@@ -964,156 +964,156 @@ int replace_env_argv(
                                 n + k,
                                 ret_unset_variables ? &u : NULL,
                                 ret_bad_variables ? &b : NULL);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
                 n[++k] = NULL;
 
                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
 
                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                如果 (r < 0)
+                        返回 r;
         }
 
-        if (ret_unset_variables) {
+        如果 (ret_unset_variables) {
                 strv_sort_uniq(unset_variables);
                 *ret_unset_variables = TAKE_PTR(unset_variables);
         }
-        if (ret_bad_variables) {
+        如果 (ret_bad_variables) {
                 strv_sort_uniq(bad_variables);
                 *ret_bad_variables = TAKE_PTR(bad_variables);
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        返回 0;
 }
 
-int getenv_bool(const char *p) {
+整数 getenv_bool(const char *p) {
         const char *e;
 
         e = getenv(p);
-        if (!e)
-                return -ENXIO;
+        如果 (!e)
+                返回 -ENXIO;
 
-        return parse_boolean(e);
+        返回 parse_boolean(e);
 }
 
-int secure_getenv_bool(const char *p) {
+整数 secure_getenv_bool(const char *p) {
         const char *e;
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        如果 (!e)
+                返回 -ENXIO;
 
-        return parse_boolean(e);
+        返回 parse_boolean(e);
 }
 
-int secure_getenv_uint64(const char *p, uint64_t *ret) {
+整数 secure_getenv_uint64(const char *p, uint64_t *ret) {
         const char *e;
 
         assert(p);
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        如果 (!e)
+                返回 -ENXIO;
 
-        return safe_atou64(e, ret);
+        返回 safe_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
+整数 set_unset_env(const char *name, const char *value, bool overwrite) {
         assert(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        如果 (value)
+                返回 RET_NERRNO(setenv(name, value, overwrite));
 
-        return RET_NERRNO(unsetenv(name));
+        返回 RET_NERRNO(unsetenv(name));
 }
 
-int putenv_dup(const char *assignment, bool override) {
+整数 putenv_dup(const char *assignment, bool override) {
         const char *e, *n;
 
         e = strchr(assignment, '=');
-        if (!e)
-                return -EINVAL;
+        如果 (!e)
+                返回 -EINVAL;
 
         n = strndupa_safe(assignment, e - assignment);
 
         /* This is like putenv(), but uses setenv() so that our memory doesn't become part of environ[]. */
-        return RET_NERRNO(setenv(n, e + 1, override));
+        返回 RET_NERRNO(setenv(n, e + 1, override));
 }
 
-int setenv_systemd_exec_pid(bool update_only) {
+整数 setenv_systemd_exec_pid(bool update_only) {
         const char *e;
-        int r;
+        整数 r;
 
         /* Update $SYSTEMD_EXEC_PID=pid except when '*' is set for the variable. */
 
         e = secure_getenv("SYSTEMD_EXEC_PID");
-        if (!e && update_only)
-                return 0;
+        如果 (!e && update_only)
+                返回 0;
 
-        if (streq_ptr(e, "*"))
-                return 0;
+        如果 (streq_ptr(e, "*"))
+                返回 0;
 
         r = setenvf("SYSTEMD_EXEC_PID", /* overwrite= */ 1, PID_FMT, getpid_cached());
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        return 1;
+        返回 1;
 }
 
-int setenv_systemd_log_level(void) {
+整数 setenv_systemd_log_level(void) {
         _cleanup_free_ char *val = NULL;
-        int r;
+        整数 r;
 
         r = log_level_to_string_alloc(log_get_max_level(), &val);
-        if (r < 0)
-                return r;
+        如果 (r < 0)
+                返回 r;
 
-        return RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
+        返回 RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
 }
 
-int getenv_path_list(const char *name, char ***ret_paths) {
+整数 getenv_path_list(const char *name, char ***ret_paths) {
         _cleanup_strv_free_ char **l = NULL;
         const char *e;
-        int r;
+        整数 r;
 
         assert(name);
         assert(ret_paths);
 
         e = secure_getenv(name);
-        if (!e)
-                return -ENXIO;
+        如果 (!e)
+                返回 -ENXIO;
 
         r = strv_split_full(&l, e, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse $%s: %m", name);
+        如果 (r < 0)
+                返回 log_debug_errno(r, "Failed to parse $%s: %m", name);
 
         STRV_FOREACH(p, l) {
-                if (!path_is_absolute(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                如果 (!path_is_absolute(*p))
+                        返回 log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not absolute, refusing.", *p);
 
-                if (!path_is_normalized(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                如果 (!path_is_normalized(*p))
+                        返回 log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not normalized, refusing.", *p);
 
-                if (path_equal(*p, "/"))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                如果 (path_equal(*p, "/"))
+                        返回 log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is the root fs, refusing.", *p);
         }
 
-        if (strv_isempty(l))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        如果 (strv_isempty(l))
+                返回 log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "No paths specified, refusing.");
 
         *ret_paths = TAKE_PTR(l);
-        return 1;
+        返回 1;
 }
 
-int getenv_steal_erase(const char *name, char **ret) {
+整数 getenv_steal_erase(const char *name, char **ret) {
         _cleanup_(erase_and_freep) char *a = NULL;
         char *e;
 
@@ -1124,50 +1124,50 @@ int getenv_steal_erase(const char *name, char **ret) {
          * testing, and given that people are likely going to misuse this, be thorough) */
 
         e = secure_getenv(name);
-        if (!e) {
-                if (ret)
+        如果 (!e) {
+                如果 (ret)
                         *ret = NULL;
-                return 0;
+                返回 0;
         }
 
-        if (ret) {
+        如果 (ret) {
                 a = strdup(e);
-                if (!a)
-                        return -ENOMEM;
+                如果 (!a)
+                        返回 -ENOMEM;
         }
 
         string_erase(e);
 
-        if (unsetenv(name) < 0)
-                return -errno;
+        如果 (unsetenv(name) < 0)
+                返回 -errno;
 
-        if (ret)
+        如果 (ret)
                 *ret = TAKE_PTR(a);
 
-        return 1;
+        返回 1;
 }
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
+整数 setenvf(const char *name, bool overwrite, const char *valuef, ...) {
         _cleanup_free_ char *value = NULL;
         va_list ap;
-        int r;
+        整数 r;
 
         assert(name);
 
-        if (!valuef)
-                return RET_NERRNO(unsetenv(name));
+        如果 (!valuef)
+                返回 RET_NERRNO(unsetenv(name));
 
         va_start(ap, valuef);
         r = vasprintf(&value, valuef, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        如果 (r < 0)
+                返回 -ENOMEM;
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
-                return 0;
+        如果 (streq_ptr(getenv(name), value))
+                返回 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        返回 RET_NERRNO(setenv(name, value, overwrite));
 }

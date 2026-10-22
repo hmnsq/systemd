@@ -10,8 +10,8 @@
 #include "syslog-util.h"
 #include "unit-name.h"
 
-int syslog_parse_priority(const char **p, int *priority, bool with_facility) {
-        int a = 0, b = 0, c = 0;
+整数 syslog_parse_priority(const char **p, 整数 *priority, bool with_facility) {
+        整数 a = 0, b = 0, c = 0;
         const char *end;
         size_t k;
 
@@ -19,39 +19,39 @@ int syslog_parse_priority(const char **p, int *priority, bool with_facility) {
         assert(*p);
         assert(priority);
 
-        if ((*p)[0] != '<')
-                return 0;
+        如果 ((*p)[0] != '<')
+                返回 0;
 
         end = strchr(*p, '>');
-        if (!end)
-                return 0;
+        如果 (!end)
+                返回 0;
 
         k = end - *p;
         assert(k > 0);
 
-        if (k == 2)
+        如果 (k == 2)
                 c = undecchar((*p)[1]);
-        else if (k == 3) {
+        否则 如果 (k == 3) {
                 b = undecchar((*p)[1]);
                 c = undecchar((*p)[2]);
-        } else if (k == 4) {
+        } 否则 如果 (k == 4) {
                 a = undecchar((*p)[1]);
                 b = undecchar((*p)[2]);
                 c = undecchar((*p)[3]);
-        } else
-                return 0;
+        } 否则
+                返回 0;
 
-        if (a < 0 || b < 0 || c < 0 ||
+        如果 (a < 0 || b < 0 || c < 0 ||
             (!with_facility && (a || b || c > 7)))
-                return 0;
+                返回 0;
 
-        if (with_facility)
+        如果 (with_facility)
                 *priority = a*100 + b*10 + c;
-        else
+        否则
                 *priority = (*priority & LOG_FACMASK) | c;
 
         *p += k + 1;
-        return 1;
+        返回 1;
 }
 
 static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
@@ -77,10 +77,10 @@ static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_LOCAL7)]   = "local7",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, int, LOG_FAC(~0));
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, 整数, LOG_FAC(~0));
 
-bool log_facility_unshifted_is_valid(int facility) {
-        return facility >= 0 && facility <= LOG_FAC(~0);
+bool log_facility_unshifted_is_valid(整数 facility) {
+        返回 facility >= 0 && facility <= LOG_FAC(~0);
 }
 
 static const char *const log_level_table[] = {
@@ -94,10 +94,10 @@ static const char *const log_level_table[] = {
         [LOG_DEBUG]   = "debug",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, int, LOG_DEBUG);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, 整数, LOG_DEBUG);
 
-bool log_level_is_valid(int level) {
-        return level >= 0 && level <= LOG_DEBUG;
+bool log_level_is_valid(整数 level) {
+        返回 level >= 0 && level <= LOG_DEBUG;
 }
 
 /* The maximum size for a log namespace length. This is the file name size limit 255 minus the size of a
@@ -110,14 +110,14 @@ bool log_namespace_name_valid(const char *s) {
          * is suitable as unit instance name, and does not contain fishy characters. */
 
         /* Let's avoid globbing for now */
-        if (!string_is_safe(s, STRING_FILENAME))
-                return false;
+        如果 (!string_is_safe(s, STRING_FILENAME))
+                返回 false;
 
-        if (strlen(s) > LOG_NAMESPACE_MAX)
-                return false;
+        如果 (strlen(s) > LOG_NAMESPACE_MAX)
+                返回 false;
 
-        if (!unit_instance_is_valid(s))
-                return false;
+        如果 (!unit_instance_is_valid(s))
+                返回 false;
 
-        return true;
+        返回 true;
 }

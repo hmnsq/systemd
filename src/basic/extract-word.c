@@ -7,24 +7,24 @@
 #include "string-util.h"
 #include "utf8.h"
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
+整数 extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
         _cleanup_free_ char *s = NULL;
         size_t sz = 0;
         char quote = 0;                 /* 0 or ' or " */
         bool backslash = false;         /* whether we've just seen a backslash */
         char c;
-        int r;
+        整数 r;
 
         assert(p);
         assert(ret);
         assert(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
 
         /* Bail early if called after last value or with no input */
-        if (!*p)
+        如果 (!*p)
                 goto finish;
         c = **p;
 
-        if (!separators)
+        如果 (!separators)
                 separators = WHITESPACE;
 
         /* Parses the first word of a string, and returns it in
@@ -32,36 +32,36 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
          * (because of an uneven number of quotes or similar), leaves
          * the pointer *p at the first invalid character. */
 
-        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
-                if (!GREEDY_REALLOC(s, sz+1))
-                        return -ENOMEM;
+        如果 (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
+                如果 (!GREEDY_REALLOC(s, sz+1))
+                        返回 -ENOMEM;
 
-        for (;; (*p)++, c = **p) {
-                if (c == 0)
+        为 (;; (*p)++, c = **p) {
+                如果 (c == 0)
                         goto finish_force_terminate;
-                else if (strchr(separators, c)) {
-                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                否则 如果 (strchr(separators, c)) {
+                        如果 (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                如果 (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                         (*p)++;
                                 goto finish_force_next;
                         }
-                } else {
+                } 否则 {
                         /* We found a non-blank character, so we will always
                          * want to return a string (even if it is empty),
                          * allocate it here. */
-                        if (!GREEDY_REALLOC(s, sz+1))
-                                return -ENOMEM;
+                        如果 (!GREEDY_REALLOC(s, sz+1))
+                                返回 -ENOMEM;
                         break;
                 }
         }
 
-        for (;; (*p)++, c = **p) {
-                if (backslash) {
-                        if (!GREEDY_REALLOC(s, sz+7))
-                                return -ENOMEM;
+        为 (;; (*p)++, c = **p) {
+                如果 (backslash) {
+                        如果 (!GREEDY_REALLOC(s, sz+7))
+                                返回 -ENOMEM;
 
-                        if (c == 0) {
-                                if ((flags & EXTRACT_UNESCAPE_RELAX) &&
+                        如果 (c == 0) {
+                                如果 ((flags & EXTRACT_UNESCAPE_RELAX) &&
                                     (quote == 0 || flags & EXTRACT_RELAX)) {
                                         /* If we find an unquoted trailing backslash and we're in
                                          * EXTRACT_UNESCAPE_RELAX mode, keep it verbatim in the
@@ -73,99 +73,99 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
                                         s[sz++] = '\\';
                                         goto finish_force_terminate;
                                 }
-                                if (flags & EXTRACT_RELAX)
+                                如果 (flags & EXTRACT_RELAX)
                                         goto finish_force_terminate;
-                                return -EINVAL;
+                                返回 -EINVAL;
                         }
 
-                        if (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
+                        如果 (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
                                 bool eight_bit = false;
                                 char32_t u;
 
-                                if ((flags & EXTRACT_CUNESCAPE) &&
+                                如果 ((flags & EXTRACT_CUNESCAPE) &&
                                     (r = cunescape_one(*p, SIZE_MAX, &u, &eight_bit, false)) >= 0) {
                                         /* A valid escaped sequence */
                                         assert(r >= 1);
 
                                         (*p) += r - 1;
 
-                                        if (eight_bit)
+                                        如果 (eight_bit)
                                                 s[sz++] = u;
-                                        else
+                                        否则
                                                 sz += utf8_encode_unichar(s + sz, u);
-                                } else if ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
+                                } 否则 如果 ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
                                            (strchr(separators, **p) || **p == '\\'))
                                         /* An escaped separator char or the escape char itself */
                                         s[sz++] = c;
-                                else if (flags & EXTRACT_UNESCAPE_RELAX) {
+                                否则 如果 (flags & EXTRACT_UNESCAPE_RELAX) {
                                         s[sz++] = '\\';
                                         s[sz++] = c;
-                                } else
-                                        return -EINVAL;
-                        } else
+                                } 否则
+                                        返回 -EINVAL;
+                        } 否则
                                 s[sz++] = c;
 
                         backslash = false;
 
-                } else if (quote != 0) {     /* inside either single or double quotes */
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0) {
-                                        if (flags & EXTRACT_RELAX)
+                } 否则 如果 (quote != 0) {     /* inside either single or double quotes */
+                        为 (;; (*p)++, c = **p) {
+                                如果 (c == 0) {
+                                        如果 (flags & EXTRACT_RELAX)
                                                 goto finish_force_terminate;
-                                        return -EINVAL;
-                                } else if (c == quote) {        /* found the end quote */
+                                        返回 -EINVAL;
+                                } 否则 如果 (c == quote) {        /* found the end quote */
                                         quote = 0;
-                                        if (flags & EXTRACT_UNQUOTE)
+                                        如果 (flags & EXTRACT_UNQUOTE)
                                                 break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                } 否则 如果 (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
                                         break;
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                如果 (!GREEDY_REALLOC(s, sz+2))
+                                        返回 -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote == 0)
+                                如果 (quote == 0)
                                         break;
                         }
 
-                } else {
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0)
+                } 否则 {
+                        为 (;; (*p)++, c = **p) {
+                                如果 (c == 0)
                                         goto finish_force_terminate;
-                                else if (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
+                                否则 如果 (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
                                         quote = c;
-                                        if (flags & EXTRACT_UNQUOTE)
+                                        如果 (flags & EXTRACT_UNQUOTE)
                                                 break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                } 否则 如果 (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
                                         break;
-                                } else if (strchr(separators, c)) {
-                                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                } 否则 如果 (strchr(separators, c)) {
+                                        如果 (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                                如果 (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                         (*p)++;
                                                 goto finish_force_next;
                                         }
-                                        if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        如果 (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                 /* Skip additional coalesced separators. */
-                                                for (;; (*p)++, c = **p) {
-                                                        if (c == 0)
+                                                为 (;; (*p)++, c = **p) {
+                                                        如果 (c == 0)
                                                                 goto finish_force_terminate;
-                                                        if (!strchr(separators, c))
+                                                        如果 (!strchr(separators, c))
                                                                 break;
                                                 }
                                         goto finish;
 
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                如果 (!GREEDY_REALLOC(s, sz+2))
+                                        返回 -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote != 0)
+                                如果 (quote != 0)
                                         break;
                         }
                 }
@@ -174,20 +174,20 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
 finish_force_terminate:
         *p = NULL;
 finish:
-        if (!s) {
+        如果 (!s) {
                 *p = NULL;
                 *ret = NULL;
-                return 0;
+                返回 0;
         }
 
 finish_force_next:
         s[sz] = 0;
         *ret = TAKE_PTR(s);
 
-        return 1;
+        返回 1;
 }
 
-int extract_first_word_and_warn(
+整数 extract_first_word_and_warn(
                 const char **p,
                 char **ret,
                 const char *separators,
@@ -202,34 +202,34 @@ int extract_first_word_and_warn(
          * backslashes verbatim in invalid escape sequences. */
 
         const char *save;
-        int r;
+        整数 r;
 
         assert(p);
         assert(ret);
 
         save = *p;
         r = extract_first_word(p, ret, separators, flags);
-        if (r >= 0)
-                return r;
+        如果 (r >= 0)
+                返回 r;
 
-        if (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
+        如果 (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
 
                 /* Retry it with EXTRACT_UNESCAPE_RELAX. */
                 *p = save;
                 r = extract_first_word(p, ret, separators, flags|EXTRACT_UNESCAPE_RELAX);
-                if (r >= 0) {
+                如果 (r >= 0) {
                         /* It worked this time, hence it must have been an invalid escape sequence. */
                         log_syntax(unit, LOG_WARNING, filename, line, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
-                        return r;
+                        返回 r;
                 }
 
                 /* If it's still EINVAL; then it must be unbalanced quoting, report this. */
-                if (r == -EINVAL)
-                        return log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
+                如果 (r == -EINVAL)
+                        返回 log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
         }
 
         /* Can be any error, report it */
-        return log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
+        返回 log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
 }
 
 /* We pass ExtractFlags as unsigned int (to avoid undefined behaviour when passing
@@ -237,10 +237,10 @@ int extract_first_word_and_warn(
  * Let's make sure that ExtractFlags fits into an unsigned int. */
 assert_cc(sizeof(enum ExtractFlags) <= sizeof(unsigned));
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
+整数 extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
         va_list ap;
         unsigned n = 0;
-        int r;
+        整数 r;
 
         /* Parses a number of words from a string, stripping any quotes if necessary. */
 
@@ -248,24 +248,24 @@ int extract_many_words_internal(const char **p, const char *separators, unsigned
 
         /* Count how many words are expected */
         va_start(ap, flags);
-        while (va_arg(ap, char**))
+        当 (va_arg(ap, char**))
                 n++;
         va_end(ap);
 
-        if (n == 0)
-                return 0;
+        如果 (n == 0)
+                返回 0;
 
         /* Read all words into a temporary array */
         char **l = newa0(char*, n);
         unsigned c;
 
-        for (c = 0; c < n; c++) {
+        为 (c = 0; c < n; c++) {
                 r = extract_first_word(p, &l[c], separators, flags);
-                if (r < 0) {
+                如果 (r < 0) {
                         free_many_charp(l, c);
-                        return r;
+                        返回 r;
                 }
-                if (r == 0)
+                如果 (r == 0)
                         break;
         }
 
@@ -277,5 +277,5 @@ int extract_many_words_internal(const char **p, const char *separators, unsigned
         }
         va_end(ap);
 
-        return c;
+        返回 c;
 }

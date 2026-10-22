@@ -9,26 +9,26 @@
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+static 整数 get_variable(const char *b, char **r) {
         size_t k;
         char *t;
 
         assert(b);
         assert(r);
 
-        if (*b != '@')
-                return 0;
+        如果 (*b != '@')
+                返回 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        如果 (k <= 0 || b[k+1] != '@')
+                返回 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        如果 (!t)
+                返回 -ENOMEM;
 
         *r = t;
-        return 1;
+        返回 1;
 }
 
 char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
@@ -41,27 +41,27 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
 
         l = strlen(text);
         r = new(char, l+1);
-        if (!r)
-                return NULL;
+        如果 (!r)
+                返回 NULL;
 
         f = text;
         t = r;
-        while (*f) {
+        当 (*f) {
                 _cleanup_free_ char *v = NULL, *n = NULL;
                 char *a;
-                int k;
+                整数 k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
+                如果 (k < 0)
                         goto oom;
-                if (k == 0) {
+                如果 (k == 0) {
                         *(t++) = *(f++);
                         continue;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
+                如果 (!n)
                         goto oom;
 
                 skip = strlen(v) + 2;
@@ -69,7 +69,7 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
                 d = t - r;
                 nl = l - skip + strlen(n);
                 a = realloc(r, nl + 1);
-                if (!a)
+                如果 (!a)
                         goto oom;
 
                 l = nl;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        返回 r;
 
 oom:
-        return mfree(r);
+        返回 mfree(r);
 }

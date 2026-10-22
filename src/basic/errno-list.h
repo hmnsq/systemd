@@ -3,16 +3,16 @@
 
 #include "forward.h"
 
-const char* errno_name_no_fallback(int id) _const_;
-int errno_from_name(const char *name) _pure_;
+const char* errno_name_no_fallback(整数 id) _const_;
+整数 errno_from_name(const char *name) _pure_;
 
-static inline bool errno_is_valid(int n) {
-        return n > 0 && n <= ERRNO_MAX;
+static inline bool errno_is_valid(整数 n) {
+        返回 n > 0 && n <= ERRNO_MAX;
 }
 
-#define ERRNO_NAME_BUF_LEN DECIMAL_STR_MAX(int)
+#define ERRNO_NAME_BUF_LEN DECIMAL_STR_MAX(整数)
 /* Like errno_name, but always returns a string. */
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]);
+const char* errno_name(整数 id, char buf[static ERRNO_NAME_BUF_LEN]);
 
 /* A helper to print the errno "name" or number if name is not defined. */
 #define ERRNO_NAME(errnum) errno_name(errnum, (char[ERRNO_NAME_BUF_LEN]){})

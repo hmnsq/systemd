@@ -16,7 +16,7 @@ uint64_t physical_memory(void) {
         uint64_t mem, lim;
         size_t ps;
         long sc;
-        int r;
+        整数 r;
 
         /* We return this as uint64_t in case we are running as 32-bit process on a 64-bit kernel with huge amounts of
          * memory.
@@ -33,48 +33,48 @@ uint64_t physical_memory(void) {
         assert_se(MUL_SAFE(&mem, (uint64_t) sc, (uint64_t) ps));
 
         r = cg_get_root_path(&root);
-        if (r < 0) {
+        如果 (r < 0) {
                 log_debug_errno(r, "Failed to determine root cgroup, ignoring cgroup memory limit: %m");
-                return mem;
+                返回 mem;
         }
 
         r = cg_get_attribute(root, "memory.max", &value);
-        if (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
+        如果 (r == -ENOENT) /* Field does not exist on the system's top-level cgroup, hence don't
                            * complain. (Note that it might exist on our own root though, if we live
                            * in a cgroup namespace, hence check anyway instead of not even
                            * trying.) */
-                return mem;
-        if (r < 0) {
+                返回 mem;
+        如果 (r < 0) {
                 log_debug_errno(r, "Failed to read memory.max cgroup attribute, ignoring cgroup memory limit: %m");
-                return mem;
+                返回 mem;
         }
 
-        if (streq(value, "max"))
-                return mem;
+        如果 (streq(value, "max"))
+                返回 mem;
 
         r = safe_atou64(value, &lim);
-        if (r < 0) {
+        如果 (r < 0) {
                 log_debug_errno(r, "Failed to parse cgroup memory limit '%s', ignoring: %m", value);
-                return mem;
+                返回 mem;
         }
-        if (lim == UINT64_MAX)
-                return mem;
+        如果 (lim == UINT64_MAX)
+                返回 mem;
 
         /* Make sure the limit is a multiple of our own page size */
         lim /= ps;
         lim *= ps;
 
-        return MIN(mem, lim);
+        返回 MIN(mem, lim);
 }
 
 uint64_t physical_memory_scale(uint64_t v, uint64_t max) {
         uint64_t p, m, ps;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return physical_memory();
+        如果 (v == 0)
+                返回 0;
+        如果 (v == max)
+                返回 physical_memory();
 
         assert(max > 0);
 
@@ -87,22 +87,22 @@ uint64_t physical_memory_scale(uint64_t v, uint64_t max) {
         p = physical_memory() / ps;
         assert(p > 0);
 
-        if (v > UINT64_MAX / p)
-                return UINT64_MAX;
+        如果 (v > UINT64_MAX / p)
+                返回 UINT64_MAX;
 
         m = p * v;
         m /= max;
 
-        if (m > UINT64_MAX / ps)
-                return UINT64_MAX;
+        如果 (m > UINT64_MAX / ps)
+                返回 UINT64_MAX;
 
-        return m * ps;
+        返回 m * ps;
 }
 
 uint64_t system_tasks_max(void) {
         uint64_t a = TASKS_MAX, b = TASKS_MAX, c = TASKS_MAX;
         _cleanup_free_ char *root = NULL;
-        int r;
+        整数 r;
 
         /* Determine the maximum number of tasks that may run on this system. We check three sources to
          * determine this limit:
@@ -131,39 +131,39 @@ uint64_t system_tasks_max(void) {
          */
 
         r = procfs_get_threads_max(&a);
-        if (r < 0)
+        如果 (r < 0)
                 log_debug_errno(r, "Failed to read kernel.threads-max, ignoring: %m");
 
         r = procfs_get_pid_max(&b);
-        if (r < 0)
+        如果 (r < 0)
                 log_debug_errno(r, "Failed to read kernel.pid_max, ignoring: %m");
-        else if (b > 0)
+        否则 如果 (b > 0)
                 /* Subtract one from pid_max, since PID 0 is not a valid PID */
                 b--;
 
         r = cg_get_root_path(&root);
-        if (r < 0)
+        如果 (r < 0)
                 log_debug_errno(r, "Failed to determine cgroup root path, ignoring: %m");
-        else {
+        否则 {
                 /* We'll have the "pids.max" attribute on the our root cgroup only if we are in a
                  * CLONE_NEWCGROUP namespace. On the top-level namespace this attribute is missing, hence
                  * suppress any message about that */
                 r = cg_get_attribute_as_uint64(root, "pids.max", &c);
-                if (r < 0 && r != -ENODATA)
+                如果 (r < 0 && r != -ENODATA)
                         log_debug_errno(r, "Failed to read pids.max attribute of root cgroup, ignoring: %m");
         }
 
-        return MIN3(a, b, c);
+        返回 MIN3(a, b, c);
 }
 
 uint64_t system_tasks_max_scale(uint64_t v, uint64_t max) {
         uint64_t t, m;
 
         /* Shortcut two special cases */
-        if (v == 0)
-                return 0;
-        if (v == max)
-                return system_tasks_max();
+        如果 (v == 0)
+                返回 0;
+        如果 (v == max)
+                返回 system_tasks_max();
 
         assert(max > 0);
 
@@ -173,9 +173,9 @@ uint64_t system_tasks_max_scale(uint64_t v, uint64_t max) {
         t = system_tasks_max();
         assert(t > 0);
 
-        if (v > UINT64_MAX / t) /* overflow? */
-                return UINT64_MAX;
+        如果 (v > UINT64_MAX / t) /* overflow? */
+                返回 UINT64_MAX;
 
         m = t * v;
-        return m / max;
+        返回 m / max;
 }

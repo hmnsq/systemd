@@ -4,27 +4,27 @@
 #include "stat-util.h"
 #include "string-util.h"
 
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret) {
+整数 fs_type_from_string(const char *name, const statfs_f_type_t **ret) {
         const struct FilesystemMagic *fs_magic;
 
         assert(name);
         assert(ret);
 
         fs_magic = filesystems_gperf_lookup(name, strlen(name));
-        if (!fs_magic)
-                return -EINVAL;
+        如果 (!fs_magic)
+                返回 -EINVAL;
 
         *ret = fs_magic->magic;
-        return 0;
+        返回 0;
 }
 
 const FilesystemSet* filesystem_set_find(const char *name) {
-        if (isempty(name) || name[0] != '@')
-                return NULL;
+        如果 (isempty(name) || name[0] != '@')
+                返回 NULL;
 
-        for (FilesystemGroups i = 0; i < _FILESYSTEM_SET_MAX; i++)
-                if (streq(filesystem_sets[i].name, name))
-                        return filesystem_sets + i;
+        为 (FilesystemGroups i = 0; i < _FILESYSTEM_SET_MAX; i++)
+                如果 (streq(filesystem_sets[i].name, name))
+                        返回 filesystem_sets + i;
 
-        return NULL;
+        返回 NULL;
 }

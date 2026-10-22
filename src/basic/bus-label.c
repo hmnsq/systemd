@@ -17,29 +17,29 @@ char* bus_label_escape(const char *s) {
          * with. Can be reversed with bus_path_unescape(). We special
          * case the empty string. */
 
-        if (*s == 0)
-                return strdup("_");
+        如果 (*s == 0)
+                返回 strdup("_");
 
         r = new(char, strlen(s)*3 + 1);
-        if (!r)
-                return NULL;
+        如果 (!r)
+                返回 NULL;
 
-        for (f = s, t = r; *f; f++) {
+        为 (f = s, t = r; *f; f++) {
 
                 /* Escape everything that is not a-zA-Z0-9. We also escape 0-9 if it's the first character */
 
-                if (!ascii_isalpha(*f) &&
+                如果 (!ascii_isalpha(*f) &&
                     !(f > s && ascii_isdigit(*f))) {
                         *(t++) = '_';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else
+                } 否则
                         *(t++) = *f;
         }
 
         *t = 0;
 
-        return r;
+        返回 r;
 }
 
 char* bus_label_unescape_n(const char *f, size_t l) {
@@ -48,35 +48,35 @@ char* bus_label_unescape_n(const char *f, size_t l) {
 
         assert_return(f, NULL);
 
-        if (l == SIZE_MAX)
+        如果 (l == SIZE_MAX)
                 l = strlen(f);
 
         /* Special case for the empty string */
-        if (l == 1 && *f == '_')
-                return strdup("");
+        如果 (l == 1 && *f == '_')
+                返回 strdup("");
 
         r = new(char, l + 1);
-        if (!r)
-                return NULL;
+        如果 (!r)
+                返回 NULL;
 
-        for (i = 0, t = r; i < l; ++i) {
-                if (f[i] == '_') {
-                        int a, b;
+        为 (i = 0, t = r; i < l; ++i) {
+                如果 (f[i] == '_') {
+                        整数 a, b;
 
-                        if (l - i < 3 ||
+                        如果 (l - i < 3 ||
                             (a = unhexchar(f[i + 1])) < 0 ||
                             (b = unhexchar(f[i + 2])) < 0) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '_';
-                        } else {
+                        } 否则 {
                                 *(t++) = (char) ((a << 4) | b);
                                 i += 2;
                         }
-                } else
+                } 否则
                         *(t++) = f[i];
         }
 
         *t = 0;
 
-        return r;
+        返回 r;
 }

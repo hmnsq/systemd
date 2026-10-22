@@ -11,44 +11,44 @@ static const struct errno_name* lookup_errno(register const char *str,
 
 #include "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
+整数 errno_from_name(const char *name) {
         const struct errno_name *sc;
 
         assert(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        如果 (!sc)
+                返回 -EINVAL;
 
         assert(sc->id > 0);
-        return sc->id;
+        返回 sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+const char* errno_name_no_fallback(整数 id) {
+        如果 (id == 0) /* To stay in line with our implementation below.  */
+                返回 NULL;
 
-        return strerrorname_np(ABS(id));
+        返回 strerrorname_np(ABS(id));
 }
-#else
+#否则
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+const char* errno_name_no_fallback(整数 id) {
+        如果 (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        如果 ((size_t) id >= ELEMENTSOF(errno_names))
+                返回 NULL;
 
-        return errno_names[id];
+        返回 errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
+const char* errno_name(整数 id, char buf[static ERRNO_NAME_BUF_LEN]) {
         const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+        如果 (a)
+                返回 a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        返回 buf;
 }
