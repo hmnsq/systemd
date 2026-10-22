@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef enum Glyph {
+تعريفنوع تعداد Glyph {
         GLYPH_SPACE,
         GLYPH_TREE_VERTICAL,
         GLYPH_TREE_BRANCH,
@@ -68,22 +68,22 @@ typedef enum Glyph {
         _GLYPH_INVALID = -EINVAL,
 } Glyph;
 
-bool emoji_enabled(void);
+bool emoji_enabled(فراغ);
 
-const char* glyph_full(Glyph code, bool force_utf) _const_;
+ثابت حرف* glyph_full(Glyph code, bool force_utf) _const_;
 
-static inline const char* glyph(Glyph code) {
-        return glyph_full(code, false);
+ساكن مضمن ثابت حرف* glyph(Glyph code) {
+        أرجع glyph_full(code, false);
 }
 
-static inline const char* optional_glyph(Glyph code) {
-        return emoji_enabled() ? glyph(code) : "";
+ساكن مضمن ثابت حرف* optional_glyph(Glyph code) {
+        أرجع emoji_enabled() ? glyph(code) : "";
 }
 
-static inline const char* glyph_check_mark(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
+ساكن مضمن ثابت حرف* glyph_check_mark(bool b) {
+        أرجع b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
 }
 
-static inline const char* glyph_check_mark_space(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : " ";
+ساكن مضمن ثابت حرف* glyph_check_mark_space(bool b) {
+        أرجع b ? glyph(GLYPH_CHECK_MARK) : " ";
 }

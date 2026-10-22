@@ -1,19 +1,19 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "capsule-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "user-util.h"
+#ضمن "alloc-util.h"
+#ضمن "capsule-util.h"
+#ضمن "path-util.h"
+#ضمن "string-util.h"
+#ضمن "user-util.h"
 
-int capsule_name_is_valid(const char *name) {
+صحيح capsule_name_is_valid(ثابت حرف *name) {
 
-        if (!filename_is_valid(name))
-                return false;
+        𐤀𐤌 (!filename_is_valid(name))
+                أرجع false;
 
-        _cleanup_free_ char *prefixed = strjoin("c-", name);
-        if (!prefixed)
-                return -ENOMEM;
+        _cleanup_free_ حرف *prefixed = strjoin("c-", name);
+        𐤀𐤌 (!prefixed)
+                أرجع -ENOMEM;
 
-        return valid_user_group_name(prefixed, /* flags= */ 0);
+        أرجع valid_user_group_name(prefixed, /* flags= */ 0);
 }

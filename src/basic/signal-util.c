@@ -1,113 +1,113 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
-#include <unistd.h>
+#ضمن <threads.h>
+#ضمن <unistd.h>
 
-#include "errno-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#ضمن "errno-util.h"
+#ضمن "parse-util.h"
+#ضمن "process-util.h"
+#ضمن "signal-util.h"
+#ضمن "stdio-util.h"
+#ضمن "string-table.h"
+#ضمن "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+صحيح reset_all_signal_handlers(فراغ) {
+        صحيح ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        لكل (صحيح sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
-                        continue;
+                𐤀𐤌 (IN_SET(sig, SIGKILL, SIGSTOP))
+                        استمر;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
-                r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                r = RET_NERRNO(sigaction(sig, &sigaction_default, عدم));
+                𐤀𐤌 (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        أرجع ret;
 }
 
-int reset_signal_mask(void) {
+صحيح reset_signal_mask(فراغ) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        𐤀𐤌 (sigemptyset(&ss) < 0)
+                أرجع -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        أرجع RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, عدم));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+صحيح sigaction_many_internal(ثابت بنية sigaction *sa, ...) {
+        صحيح sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        طالما ((sig = va_arg(ap, صحيح)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                𐤀𐤌 (sig == 0)
+                        استمر;
 
-                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
+                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, عدم)));
         }
 
         va_end(ap);
 
-        return r;
+        أرجع r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+ساكن صحيح sigset_add_many_ap(sigset_t *ss, va_list ap) {
+        صحيح sig, r = 0;
 
-        assert(ss);
+        أكد(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        طالما ((sig = va_arg(ap, صحيح)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                𐤀𐤌 (sig == 0)
+                        استمر;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                𐤀𐤌 (sigaddset(ss, sig) < 0) {
+                        𐤀𐤌 (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        أرجع r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+صحيح sigset_add_many_internal(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        صحيح r;
 
         va_start(ap, ss);
         r = sigset_add_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        أرجع r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+صحيح sigprocmask_many_internal(صحيح how, sigset_t *ret_old_mask, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        صحيح r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        𐤀𐤌 (sigemptyset(&ss) < 0)
+                أرجع -errno;
 
         va_start(ap, ret_old_mask);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        أرجع RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
 }
 
-static const char *const static_signal_table[] = {
+ساكن ثابت حرف *ثابت static_signal_table[] = {
         [SIGHUP]    = "HUP",
         [SIGINT]    = "INT",
         [SIGQUIT]   = "QUIT",
@@ -143,87 +143,87 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, صحيح);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
-        const char *name;
+ثابت حرف* signal_to_string(صحيح signo) {
+        ساكن thread_local حرف buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(صحيح)];
+        ثابت حرف *name;
 
         name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        𐤀𐤌 (name)
+                أرجع name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        𐤀𐤌 (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        وإلا
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        أرجع buf;
 }
 
-int signal_from_string(const char *s) {
-        const char *p;
-        int signo, r;
+صحيح signal_from_string(ثابت حرف *s) {
+        ثابت حرف *p;
+        صحيح signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        𐤀𐤌 (safe_atoi(s, &signo) >= 0) {
+                𐤀𐤌 (SIGNAL_VALID(signo))
+                        أرجع signo;
+                وإلا
+                        أرجع -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        𐤀𐤌 (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        𐤀𐤌 (signo > 0)
+                أرجع signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        𐤀𐤌 (p) {
+                𐤀𐤌 (*p == '\0')
+                        أرجع SIGRTMIN;
+                𐤀𐤌 (*p != '+')
+                        أرجع -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                𐤀𐤌 (r < 0)
+                        أرجع r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                𐤀𐤌 (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        أرجع -ERANGE;
 
-                return signo + SIGRTMIN;
+                أرجع signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        𐤀𐤌 (p) {
+                𐤀𐤌 (*p == '\0')
+                        أرجع SIGRTMAX;
+                𐤀𐤌 (*p != '-')
+                        أرجع -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                𐤀𐤌 (r < 0)
+                        أرجع r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                𐤀𐤌 (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        أرجع -ERANGE;
 
-                return signo + SIGRTMAX;
+                أرجع signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        أرجع -EINVAL;
 }
 
-static const char *const sigill_code_table[] = {
+ساكن ثابت حرف *ثابت sigill_code_table[] = {
         [ILL_ILLOPC]   = "ILL_ILLOPC",
         [ILL_ILLOPN]   = "ILL_ILLOPN",
         [ILL_ILLADR]   = "ILL_ILLADR",
@@ -235,9 +235,9 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, صحيح);
 
-static const char *const sigfpe_code_table[] = {
+ساكن ثابت حرف *ثابت sigfpe_code_table[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
         [FPE_INTOVF]   = "FPE_INTOVF",
         [FPE_FLTDIV]   = "FPE_FLTDIV",
@@ -250,9 +250,9 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, صحيح);
 
-static const char *const sigsegv_code_table[] = {
+ساكن ثابت حرف *ثابت sigsegv_code_table[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
         [SEGV_ACCERR]  = "SEGV_ACCERR",
         [SEGV_BNDERR]  = "SEGV_BNDERR",
@@ -265,9 +265,9 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, صحيح);
 
-static const char *const sigbus_code_table[] = {
+ساكن ثابت حرف *ثابت sigbus_code_table[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
         [BUS_ADRERR]    = "BUS_ADRERR",
         [BUS_OBJERR]    = "BUS_OBJERR",
@@ -275,9 +275,9 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, صحيح);
 
-static const char *const sigtrap_code_table[] = {
+ساكن ثابت حرف *ثابت sigtrap_code_table[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
         [TRAP_TRACE]  = "TRAP_TRACE",
         [TRAP_BRANCH] = "TRAP_BRANCH",
@@ -286,19 +286,19 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, صحيح);
 
-static const char *const sigsys_code_table[] = {
+ساكن ثابت حرف *ثابت sigsys_code_table[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, صحيح);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
  * all other values decoded here, provide an uppercase variant. */
-static const char *const sigchld_uppercase_code_table[] = {
+ساكن ثابت حرف *ثابت sigchld_uppercase_code_table[] = {
         [CLD_EXITED]    = "CLD_EXITED",
         [CLD_KILLED]    = "CLD_KILLED",
         [CLD_DUMPED]    = "CLD_DUMPED",
@@ -307,9 +307,9 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, صحيح);
 
-static const char *const sigpoll_code_table[] = {
+ساكن ثابت حرف *ثابت sigpoll_code_table[] = {
         [POLL_IN]  = "POLL_IN",
         [POLL_OUT] = "POLL_OUT",
         [POLL_MSG] = "POLL_MSG",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, صحيح);
 
-const char* signal_code_to_string(int signo, int code) {
-        switch (code) {
+ثابت حرف* signal_code_to_string(صحيح signo, صحيح code) {
+        بدل (code) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
-        case SI_KERNEL:
-                return "SI_KERNEL";
-        case SI_USER:
-                return "SI_USER";
+        حالة SI_KERNEL:
+                أرجع "SI_KERNEL";
+        حالة SI_USER:
+                أرجع "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
-        case SI_ASYNCNL:
-                return "SI_ASYNCNL";
-        case SI_DETHREAD:
-                return "SI_DETHREAD";
-        case SI_TKILL:
-                return "SI_TKILL";
-        case SI_SIGIO:
-                return "SI_SIGIO";
-        case SI_ASYNCIO:
-                return "SI_ASYNCIO";
-        case SI_MESGQ:
-                return "SI_MESGQ";
-        case SI_TIMER:
-                return "SI_TIMER";
-        case SI_QUEUE:
-                return "SI_QUEUE";
+        حالة SI_ASYNCNL:
+                أرجع "SI_ASYNCNL";
+        حالة SI_DETHREAD:
+                أرجع "SI_DETHREAD";
+        حالة SI_TKILL:
+                أرجع "SI_TKILL";
+        حالة SI_SIGIO:
+                أرجع "SI_SIGIO";
+        حالة SI_ASYNCIO:
+                أرجع "SI_ASYNCIO";
+        حالة SI_MESGQ:
+                أرجع "SI_MESGQ";
+        حالة SI_TIMER:
+                أرجع "SI_TIMER";
+        حالة SI_QUEUE:
+                أرجع "SI_QUEUE";
         }
 
-        switch (signo) {
-        case SIGILL:
-                return sigill_code_to_string(code);
-        case SIGFPE:
-                return sigfpe_code_to_string(code);
-        case SIGSEGV:
-                return sigsegv_code_to_string(code);
-        case SIGBUS:
-                return sigbus_code_to_string(code);
-        case SIGTRAP:
-                return sigtrap_code_to_string(code);
-        case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
-        case SIGPOLL:
-                return sigpoll_code_to_string(code);
-        case SIGSYS:
-                return sigsys_code_to_string(code);
-        default:
-                return NULL;
+        بدل (signo) {
+        حالة SIGILL:
+                أرجع sigill_code_to_string(code);
+        حالة SIGFPE:
+                أرجع sigfpe_code_to_string(code);
+        حالة SIGSEGV:
+                أرجع sigsegv_code_to_string(code);
+        حالة SIGBUS:
+                أرجع sigbus_code_to_string(code);
+        حالة SIGTRAP:
+                أرجع sigtrap_code_to_string(code);
+        حالة SIGCHLD:
+                أرجع sigchld_uppercase_code_to_string(code);
+        حالة SIGPOLL:
+                أرجع sigpoll_code_to_string(code);
+        حالة SIGSYS:
+                أرجع sigsys_code_to_string(code);
+        افتراضي:
+                أرجع عدم;
         }
 }
 
-void nop_signal_handler(int sig) {
+فراغ nop_signal_handler(صحيح sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+صحيح signal_is_blocked(صحيح sig) {
         sigset_t ss;
-        int r;
+        صحيح r;
 
-        r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        r = pthread_sigmask(SIG_SETMASK, عدم, &ss);
+        𐤀𐤌 (r != 0)
+                أرجع -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        أرجع RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
-        struct sigaction sa;
+صحيح autoreaping_enabled(فراغ) {
+        بنية sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        𐤀𐤌 (sigaction(SIGCHLD, /* act= */ عدم, &sa) < 0)
+                أرجع -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        أرجع sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+صحيح pop_pending_signal_internal(صحيح sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        صحيح r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        𐤀𐤌 (sig < 0) /* Empty list? */
+                أرجع -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        𐤀𐤌 (sigemptyset(&ss) < 0)
+                أرجع -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        𐤀𐤌 (sig > 0 && sigaddset(&ss, sig) < 0)
+                أرجع -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        r = sigtimedwait(&ss, عدم, &(ثابت بنية timespec) {});
+        𐤀𐤌 (r < 0) {
+                𐤀𐤌 (errno == EAGAIN)
+                        أرجع 0;
 
-                return -errno;
+                أرجع -errno;
         }
 
-        return r; /* Returns the signal popped */
+        أرجع r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+فراغ propagate_signal(صحيح sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,49 +443,49 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        𐤀𐤌 (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
-const struct sigaction sigaction_ignore = {
+ثابت بنية sigaction sigaction_ignore = {
         .sa_handler = SIG_IGN,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_default = {
+ثابت بنية sigaction sigaction_default = {
         .sa_handler = SIG_DFL,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_nop_nocldstop = {
+ثابت بنية sigaction sigaction_nop_nocldstop = {
         .sa_handler = nop_signal_handler,
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+صحيح parse_signo(ثابت حرف *s, صحيح *ret) {
+        صحيح sig, r;
 
         r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        𐤀𐤌 (!SIGNAL_VALID(sig))
+                أرجع -EINVAL;
 
-        if (ret)
+        𐤀𐤌 (ret)
                 *ret = sig;
 
-        return 0;
+        أرجع 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
-        assert(signal == SIGTERM);
-        assert(info);
+فراغ sigterm_process_group_handler(صحيح إشارة, siginfo_t *info, فراغ *ucontext) {
+        أكد(إشارة == SIGTERM);
+        أكد(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        𐤀𐤌 (si_code_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
-                (void) kill(0, signal);
+                (فراغ) kill(0, إشارة);
 }

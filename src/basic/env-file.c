@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#ضمن <sys/stat.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#ضمن "alloc-util.h"
+#ضمن "env-file.h"
+#ضمن "env-util.h"
+#ضمن "escape.h"
+#ضمن "fd-util.h"
+#ضمن "fileio.h"
+#ضمن "fs-util.h"
+#ضمن "label-util.h"
+#ضمن "log.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "tmpfile-util.h"
+#ضمن "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
+تعريفنوع صحيح (*push_env_func_t)(
+                ثابت حرف *filename,
                 unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+                ثابت حرف *key,
+                حرف *value,
+                فراغ *userdata);
 
-static int parse_env_file_internal(
+ساكن صحيح parse_env_file_internal(
                 FILE *f,
-                const char *fname,
+                ثابت حرف *fname,
                 push_env_func_t push,
-                void *userdata) {
+                فراغ *userdata) {
 
         size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
+        _cleanup_free_ حرف *contents = عدم, *key = عدم, *value = عدم;
         unsigned line = 1;
-        int r;
+        صحيح r;
 
-        enum {
+        تعداد {
                 PRE_KEY,
                 KEY,
                 PRE_VALUE,
@@ -48,218 +48,218 @@ static int parse_env_file_internal(
                 COMMENT_ESCAPE
         } state = PRE_KEY;
 
-        assert(f || fname);
-        assert(push);
+        أكد(f || fname);
+        أكد(push);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (f)
+                r = read_full_stream(f, &contents, عدم);
+        وإلا
+                r = read_full_file(fname, &contents, عدم);
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        لكل (حرف *p = contents; *p; p++) {
+                حرف c = *p;
 
-                switch (state) {
+                بدل (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                حالة PRE_KEY:
+                        𐤀𐤌 (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
+                        وإلا 𐤀𐤌 (!strchr(WHITESPACE, c)) {
                                 state = KEY;
                                 last_key_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                𐤀𐤌 (!GREEDY_REALLOC(key, n_key+2))
+                                        أرجع -ENOMEM;
 
                                 key[n_key++] = c;
                         }
-                        break;
+                        اكسر;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
+                حالة KEY:
+                        𐤀𐤌 (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
                                 n_key = 0;
-                        } else if (c == '=') {
+                        } وإلا 𐤀𐤌 (c == '=') {
                                 state = PRE_VALUE;
                                 last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
+                        } وإلا {
+                                𐤀𐤌 (!strchr(WHITESPACE, c))
                                         last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
+                                وإلا 𐤀𐤌 (last_key_whitespace == SIZE_MAX)
                                          last_key_whitespace = n_key;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                𐤀𐤌 (!GREEDY_REALLOC(key, n_key+2))
+                                        أرجع -ENOMEM;
 
                                 key[n_key++] = c;
                         }
 
-                        break;
+                        اكسر;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
+                حالة PRE_VALUE:
+                        𐤀𐤌 (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
                                 key[n_key] = 0;
 
-                                if (value)
+                                𐤀𐤌 (value)
                                         value[n_value] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
+                                𐤀𐤌 (last_key_whitespace != SIZE_MAX)
                                         key[last_key_whitespace] = 0;
 
                                 r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                𐤀𐤌 (r < 0)
+                                        أرجع r;
 
                                 n_key = 0;
-                                value = NULL;
+                                value = عدم;
                                 n_value = 0;
 
-                        } else if (c == '\'')
+                        } وإلا 𐤀𐤌 (c == '\'')
                                 state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
+                        وإلا 𐤀𐤌 (c == '"')
                                 state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
+                        وإلا 𐤀𐤌 (c == '\\')
                                 state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
+                        وإلا 𐤀𐤌 (!strchr(WHITESPACE, c)) {
                                 state = VALUE;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                𐤀𐤌 (!GREEDY_REALLOC(value, n_value+2))
+                                        أرجع -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        اكسر;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
+                حالة VALUE:
+                        𐤀𐤌 (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
 
                                 key[n_key] = 0;
 
-                                if (value)
+                                𐤀𐤌 (value)
                                         value[n_value] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
+                                𐤀𐤌 (last_value_whitespace != SIZE_MAX)
                                         value[last_value_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
+                                𐤀𐤌 (last_key_whitespace != SIZE_MAX)
                                         key[last_key_whitespace] = 0;
 
                                 r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                𐤀𐤌 (r < 0)
+                                        أرجع r;
 
                                 n_key = 0;
-                                value = NULL;
+                                value = عدم;
                                 n_value = 0;
 
-                        } else if (c == '\\') {
+                        } وإلا 𐤀𐤌 (c == '\\') {
                                 state = VALUE_ESCAPE;
                                 last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
+                        } وإلا {
+                                𐤀𐤌 (!strchr(WHITESPACE, c))
                                         last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
+                                وإلا 𐤀𐤌 (last_value_whitespace == SIZE_MAX)
                                         last_value_whitespace = n_value;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                𐤀𐤌 (!GREEDY_REALLOC(value, n_value+2))
+                                        أرجع -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        اكسر;
 
-                case VALUE_ESCAPE:
+                حالة VALUE_ESCAPE:
                         state = VALUE;
 
-                        if (!strchr(NEWLINE, c)) {
+                        𐤀𐤌 (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                𐤀𐤌 (!GREEDY_REALLOC(value, n_value+2))
+                                        أرجع -ENOMEM;
 
                                 value[n_value++] = c;
                         }
-                        break;
+                        اكسر;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
+                حالة SINGLE_QUOTE_VALUE:
+                        𐤀𐤌 (c == '\'')
                                 state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                        وإلا {
+                                𐤀𐤌 (!GREEDY_REALLOC(value, n_value+2))
+                                        أرجع -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        اكسر;
 
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
+                حالة DOUBLE_QUOTE_VALUE:
+                        𐤀𐤌 (c == '"')
                                 state = PRE_VALUE;
-                        else if (c == '\\')
+                        وإلا 𐤀𐤌 (c == '\\')
                                 state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                        وإلا {
+                                𐤀𐤌 (!GREEDY_REALLOC(value, n_value+2))
+                                        أرجع -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        اكسر;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
+                حالة DOUBLE_QUOTE_VALUE_ESCAPE:
                         state = DOUBLE_QUOTE_VALUE;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                        𐤀𐤌 (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                𐤀𐤌 (!GREEDY_REALLOC(value, n_value+2))
+                                        أرجع -ENOMEM;
                                 value[n_value++] = c;
-                        } else if (c != '\n') {
+                        } وإلا 𐤀𐤌 (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
+                                𐤀𐤌 (!GREEDY_REALLOC(value, n_value+3))
+                                        أرجع -ENOMEM;
                                 value[n_value++] = '\\';
                                 value[n_value++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        اكسر;
 
-                case COMMENT:
-                        if (c == '\\')
+                حالة COMMENT:
+                        𐤀𐤌 (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
+                        وإلا 𐤀𐤌 (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
                         }
-                        break;
+                        اكسر;
 
-                case COMMENT_ESCAPE:
+                حالة COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
+                        𐤀𐤌 (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
-                        } else
+                        } وإلا
                                 state = COMMENT;
-                        break;
+                        اكسر;
                 }
         }
 
-        if (IN_SET(state,
+        𐤀𐤌 (IN_SET(state,
                    PRE_VALUE,
                    VALUE,
                    VALUE_ESCAPE,
@@ -269,392 +269,392 @@ static int parse_env_file_internal(
 
                 key[n_key] = 0;
 
-                if (value)
+                𐤀𐤌 (value)
                         value[n_value] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
+                𐤀𐤌 (state == VALUE)
+                        𐤀𐤌 (last_value_whitespace != SIZE_MAX)
                                 value[last_value_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
+                𐤀𐤌 (last_key_whitespace != SIZE_MAX)
                         key[last_key_whitespace] = 0;
 
                 r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                𐤀𐤌 (r < 0)
+                        أرجع r;
 
-                value = NULL;
+                value = عدم;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+ساكن صحيح check_utf8ness_and_warn(
+                ثابت حرف *filename, unsigned line,
+                ثابت حرف *key, حرف *value) {
 
-        assert(key);
+        أكد(key);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        𐤀𐤌 (!utf8_is_valid(key)) {
+                _cleanup_free_ حرف *p = عدم;
 
                 p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                أرجع log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
                                        strna(filename), line, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        𐤀𐤌 (value && !utf8_is_valid(value)) {
+                _cleanup_free_ حرف *p = عدم;
 
                 p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                أرجع log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
                                        strna(filename), line, key, p);
         }
 
-        return 0;
+        أرجع 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ساكن صحيح parse_env_file_push(
+                ثابت حرف *filename, unsigned line,
+                ثابت حرف *key, حرف *value,
+                فراغ *userdata) {
 
-        const char *k;
+        ثابت حرف *k;
         va_list aq, *ap = userdata;
-        int r;
+        صحيح r;
 
-        assert(key);
+        أكد(key);
 
         r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        طالما ((k = va_arg(aq, ثابت حرف *))) {
+                حرف **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, حرف **);
 
-                if (streq(key, k)) {
+                𐤀𐤌 (streq(key, k)) {
                         va_end(aq);
                         free_and_replace(*v, value);
 
-                        return 1;
+                        أرجع 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        حرر(value);
 
-        return 0;
+        أرجع 0;
 }
 
-int parse_env_filev(
+صحيح parse_env_filev(
                 FILE *f,
-                const char *fname,
+                ثابت حرف *fname,
                 va_list ap) {
 
-        int r;
+        صحيح r;
         va_list aq;
 
-        assert(f || fname);
+        أكد(f || fname);
 
         va_copy(aq, ap);
         r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
         va_end(aq);
-        return r;
+        أرجع r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
+صحيح parse_env_file_fdv(صحيح fd, ثابت حرف *fname, va_list ap) {
+        _cleanup_fclose_ FILE *f = عدم;
         va_list aq;
-        int r;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         va_copy(aq, ap);
         r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
         va_end(aq);
-        return r;
+        أرجع r;
 }
 
-int parse_env_file_sentinel(
+صحيح parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                ثابت حرف *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(f || fname);
+        أكد(f || fname);
 
         va_start(ap, fname);
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        أرجع r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+صحيح parse_env_file_fd_sentinel(
+                صحيح fd,
+                ثابت حرف *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         va_start(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        أرجع r;
 }
 
-int parse_env_datav(
-                const char *data,
+صحيح parse_env_datav(
+                ثابت حرف *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                ثابت حرف *fname, /* only used for logging */
                 va_list ap) {
 
-        assert(data);
+        أكد(data);
 
-        if (size == SIZE_MAX)
+        𐤀𐤌 (size == SIZE_MAX)
                 size = strlen_ptr(data);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ FILE *f = fmemopen_unlocked((فراغ*) data, size, "r");
+        𐤀𐤌 (!f)
+                أرجع -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        أرجع parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
+صحيح parse_env_data_sentinel(
+                ثابت حرف *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                ثابت حرف *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        صحيح r;
 
         va_start(ap, fname);
         r = parse_env_datav(data, size, fname, ap);
         va_end(ap);
 
-        return r;
+        أرجع r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ساكن صحيح load_env_file_push(
+                ثابت حرف *filename, unsigned line,
+                ثابت حرف *key, حرف *value,
+                فراغ *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        حرف ***m = userdata;
+        حرف *p;
+        صحيح r;
 
-        assert(key);
+        أكد(key);
 
         r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        𐤀𐤌 (!p)
+                أرجع -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        free(value);
-        return 0;
+        حرر(value);
+        أرجع 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+صحيح load_env_file(FILE *f, ثابت حرف *fname, حرف ***ret) {
+        _cleanup_strv_free_ حرف **m = عدم;
+        صحيح r;
 
-        assert(f || fname);
-        assert(ret);
+        أكد(f || fname);
+        أكد(ret);
 
         r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        أرجع 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ساكن صحيح load_env_file_push_pairs(
+                ثابت حرف *filename, unsigned line,
+                ثابت حرف *key, حرف *value,
+                فراغ *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        حرف ***m = ASSERT_PTR(userdata);
+        صحيح r;
 
-        assert(key);
+        أكد(key);
 
         r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        لكل (حرف **t = *m; t && *t; t += 2)
+                𐤀𐤌 (streq(t[0], key)) {
+                        𐤀𐤌 (value)
+                                أرجع free_and_replace(t[1], value);
+                        وإلا
+                                أرجع free_and_strdup(t+1, "");
                 }
 
         r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        𐤀𐤌 (value)
+                أرجع strv_push(m, value);
+        وإلا
+                أرجع strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+صحيح load_env_file_pairs(FILE *f, ثابت حرف *fname, حرف ***ret) {
+        _cleanup_strv_free_ حرف **m = عدم;
+        صحيح r;
 
-        assert(f || fname);
-        assert(ret);
+        أكد(f || fname);
+        أكد(ret);
 
         r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        أرجع 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+صحيح load_env_file_pairs_fd(صحيح fd, ثابت حرف *fname, حرف ***ret) {
+        _cleanup_fclose_ FILE *f = عدم;
+        صحيح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        return load_env_file_pairs(f, fname, ret);
+        أرجع load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+ساكن صحيح merge_env_file_push(
+                ثابت حرف *filename, unsigned line,
+                ثابت حرف *key, حرف *value,
+                فراغ *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        حرف ***env = ASSERT_PTR(userdata);
+        حرف *expanded_value;
+        صحيح r;
 
-        assert(key);
+        أكد(key);
 
-        if (!value) {
+        𐤀𐤌 (!value) {
                 log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+                أرجع 0;
         }
 
-        if (!env_name_is_valid(key)) {
+        𐤀𐤌 (!env_name_is_valid(key)) {
                 log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+                حرر(value);
+                أرجع 0;
         }
 
         r = replace_env(value,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
                         &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+        𐤀𐤌 (r < 0)
+                أرجع log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
 
         free_and_replace(value, expanded_value);
 
         log_debug("%s:%u: setting %s=%s", filename, line, key, value);
 
-        return load_env_file_push(filename, line, key, value, env);
+        أرجع load_env_file_push(filename, line, key, value, env);
 }
 
-int merge_env_file(
-                char ***env,
+صحيح merge_env_file(
+                حرف ***env,
                 FILE *f,
-                const char *fname) {
+                ثابت حرف *fname) {
 
-        assert(env);
-        assert(f || fname);
+        أكد(env);
+        أكد(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        أرجع parse_env_file_internal(f, fname, merge_env_file_push, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+ساكن فراغ env_file_fputs_escaped(FILE *f, ثابت حرف *p) {
+        أكد(f);
+        أكد(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        𐤀𐤌 (string_has_cc(p, عدم) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                لكل (; *p; p++) {
+                        𐤀𐤌 (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } وإلا
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+فراغ env_file_fputs_assignment(FILE *f, ثابت حرف *k, ثابت حرف *v) {
+        أكد(f);
+        أكد(k);
 
-        if (!v)
-                return;
+        𐤀𐤌 (!v)
+                أرجع;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+ساكن فراغ write_env_var(FILE *f, ثابت حرف *v) {
+        ثابت حرف *p;
 
-        assert(f);
-        assert(v);
+        أكد(f);
+        أكد(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        𐤀𐤌 (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                أرجع;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+صحيح write_env_file_label(صحيح dir_fd, ثابت حرف *fname, حرف **headers, حرف **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        صحيح r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        𐤀𐤌 (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                𐤀𐤌 (r < 0)
+                        أرجع r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ FILE *f = عدم;
+        _cleanup_free_ حرف *p = عدم;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        𐤀𐤌 (r < 0) {
+                𐤀𐤌 (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+                        (فراغ) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                أرجع r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        𐤀𐤌 (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ عدم, /* created= */ true, label_context);
+                𐤀𐤌 (r < 0)
+                        أرجع r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+                أكد(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        أرجع 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+صحيح write_vconsole_conf(صحيح dir_fd, ثابت حرف *fname, حرف **l) {
+        حرف **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        أرجع write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ عدم);
 }

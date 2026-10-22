@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#ضمن <string.h>
 
-#include "hmac.h"
-#include "memory-util.h"
-#include "sha256.h"
+#ضمن "hmac.h"
+#ضمن "memory-util.h"
+#ضمن "sha256.h"
 
 #define HMAC_BLOCK_SIZE 64
 #define INNER_PADDING_BYTE 0x36
 #define OUTER_PADDING_BYTE 0x5c
 
-void hmac_sha256(const void *key,
+فراغ hmac_sha256(ثابت فراغ *key,
                  size_t key_size,
-                 const void *input,
+                 ثابت فراغ *input,
                  size_t input_size,
-                 uint8_t res[static SHA256_DIGEST_SIZE]) {
+                 uint8_t res[ساكن SHA256_DIGEST_SIZE]) {
 
         uint8_t inner_padding[HMAC_BLOCK_SIZE] = { };
         CLEANUP_ERASE(inner_padding); /* carries key ^ 0x36, trivially reversible to the original key */
@@ -22,17 +22,17 @@ void hmac_sha256(const void *key,
         CLEANUP_ERASE(outer_padding); /* carries key ^ 0x5c, trivially reversible to the original key */
         uint8_t replacement_key[SHA256_DIGEST_SIZE];
         CLEANUP_ERASE(replacement_key); /* SHA-256 of the key when key_size > block size */
-        struct sha256_ctx hash;
+        بنية sha256_ctx hash;
         CLEANUP_ERASE(hash); /* intermediate state derived from key material */
 
-        assert(key);
-        assert(key_size > 0);
-        assert(res);
+        أكد(key);
+        أكد(key_size > 0);
+        أكد(res);
 
         /* Implement algorithm as described by FIPS 198. */
 
         /* The key needs to be block size length or less, hash it if it's longer. */
-        if (key_size > HMAC_BLOCK_SIZE) {
+        𐤀𐤌 (key_size > HMAC_BLOCK_SIZE) {
                 sha256_direct(key, key_size, replacement_key);
                 key = replacement_key;
                 key_size = SHA256_DIGEST_SIZE;
@@ -45,7 +45,7 @@ void hmac_sha256(const void *key,
 
         /* Then, XOR the provided key and any padding leftovers with the fixed
          * padding bytes as defined in FIPS 198. */
-        for (size_t i = 0; i < HMAC_BLOCK_SIZE; i++) {
+        لكل (size_t i = 0; i < HMAC_BLOCK_SIZE; i++) {
                 inner_padding[i] ^= INNER_PADDING_BYTE;
                 outer_padding[i] ^= OUTER_PADDING_BYTE;
         }

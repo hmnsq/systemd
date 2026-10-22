@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#ضمن "alloc-util.h"
+#ضمن "audit-util.h"
+#ضمن "fileio.h"
+#ضمن "parse-util.h"
+#ضمن "pidref.h"
+#ضمن "process-util.h"
+#ضمن "stat-util.h"
+#ضمن "user-util.h"
+#ضمن "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+ساكن صحيح audit_read_field(ثابت PidRef *pid, ثابت حرف *field, حرف **ret) {
+        صحيح r;
 
-        assert(field);
-        assert(ret);
+        أكد(field);
+        أكد(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        𐤀𐤌 (!pidref_is_set(pid))
+                أرجع -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        𐤀𐤌 (detect_container() > 0)
+                أرجع -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        ثابت حرف *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ حرف *s = عدم;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_full_virtual_file(p, &s, /* ret_size= */ عدم);
+        𐤀𐤌 (r == -ENOENT) {
+                𐤀𐤌 (proc_mounted() == 0)
+                        أرجع -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } وإلا 𐤀𐤌 (r < 0)
+                أرجع r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        𐤀𐤌 (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                أرجع -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        أرجع 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحيح audit_session_from_pid(ثابت PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ حرف *s = عدم;
+        صحيح r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        𐤀𐤌 (!audit_session_is_valid(u))
+                أرجع -ENODATA;
 
-        if (ret_id)
+        𐤀𐤌 (ret_id)
                 *ret_id = u;
 
-        return 0;
+        أرجع 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحيح audit_loginuid_from_pid(ثابت PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ حرف *s = عدم;
+        صحيح r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        𐤀𐤌 (r < 0)
+                أرجع r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        𐤀𐤌 (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                أرجع -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        أرجع parse_uid(s, ret_uid);
 }
