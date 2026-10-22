@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#अन्तर्भाव <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#अन्तर्भाव "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+बाह्य ध्रुव संरचना iovec iovec_nul_byte; /* Points to a single NUL byte */
+बाह्य ध्रुव संरचना iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+पूर्णाङ्क iovec_alloc(size_t n, संरचना iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_total_size(ध्रुव संरचना iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(संरचना iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+संरचना iovec* iovec_make_string(संरचना iovec *iovec, ध्रुव वर्ण *s);
 
 #define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+        *iovec_make_string(&(संरचना iovec) {}, s)
 
 #define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+        (ध्रुव संरचना iovec) {                  \
+                .iov_base = (वर्ण*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
 #define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+        (ध्रुव संरचना iovec) {                                  \
+                .iov_base = (वर्ण*) ((ध्रुव वर्ण[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
@@ -39,22 +39,22 @@ struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
                 IOVEC_MAKE(alloca_safe(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+शून्य iovec_erase(संरचना iovec *iovec);
+शून्य iovec_done_erase(संरचना iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+वर्ण* set_iovec_string_field(संरचना iovec *iovec, size_t *n_iovec, ध्रुव वर्ण *field, ध्रुव वर्ण *मूल्य);
+वर्ण* set_iovec_string_field_free(संरचना iovec *iovec, size_t *n_iovec, ध्रुव वर्ण *field, वर्ण *मूल्य);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+शून्य iovec_array_free(संरचना iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+पूर्णाङ्क iovec_memcmp(ध्रुव संरचना iovec *a, ध्रुव संरचना iovec *b) _pure_;
+स्थिर अन्तःस्थ bool iovec_equal(ध्रुव संरचना iovec *a, ध्रुव संरचना iovec *b) {
+        प्रत्यागम iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+संरचना iovec* iovec_memdup(ध्रुव संरचना iovec *source, संरचना iovec *ret);
+पूर्णाङ्क iovec_done_and_memdup(संरचना iovec *iovec, ध्रुव संरचना iovec *source);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+संरचना iovec* iovec_append(संरचना iovec *iovec, ध्रुव संरचना iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+संरचना iovec* iovec_consume(संरचना iovec *iovec, size_t n);
