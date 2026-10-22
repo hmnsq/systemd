@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 /* Bit index (0-based) to mask of specified type. Assertion failure if index is out of range. */
 #define _INDEX_TO_MASK(type, i, uniq)                                   \
         ({                                                              \
-                int UNIQ_T(_i, uniq) = (i);                             \
-                assert(UNIQ_T(_i, uniq) >= 0);                          \
-                assert(UNIQ_T(_i, uniq) < (int)sizeof(type) * 8);       \
+                पूर्णाङ्क UNIQ_T(_i, uniq) = (i);                             \
+                प्रतिज्ञा(UNIQ_T(_i, uniq) >= 0);                          \
+                प्रतिज्ञा(UNIQ_T(_i, uniq) < (पूर्णाङ्क)परिमाण(type) * 8);       \
                 ((type)1) << UNIQ_T(_i, uniq);                          \
         })
 #define INDEX_TO_MASK(type, i)                                          \
         ({                                                              \
-                assert_cc(sizeof(type) <= sizeof(unsigned long long));  \
-                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (int)(sizeof(type) * 8)); \
+                assert_cc(परिमाण(type) <= परिमाण(unsigned long long));  \
+                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (पूर्णाङ्क)(परिमाण(type) * 8)); \
                 __builtin_choose_expr(__builtin_constant_p(i),          \
                                       ((type)1) << (i),                 \
                                       _INDEX_TO_MASK(type, i, UNIQ));   \
@@ -27,7 +27,7 @@
 #define UNIQ_INDEXES_TO_MASK(type, uniq, ...)                           \
         ({                                                              \
                 typeof(type) UNIQ_T(_mask, uniq) = (type)0;             \
-                int UNIQ_T(_i, uniq);                                   \
+                पूर्णाङ्क UNIQ_T(_i, uniq);                                   \
                 FOREACH_ARGUMENT(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
                         UNIQ_T(_mask, uniq) |= INDEX_TO_MASK(type, UNIQ_T(_i, uniq)); \
                 UNIQ_T(_mask, uniq);                                    \
@@ -48,7 +48,7 @@
 /* Iterate through each set bit. Index is 0-based and type int. */
 #define BIT_FOREACH(index, bits) _BIT_FOREACH(index, bits, UNIQ)
 #define _BIT_FOREACH(index, bits, uniq)                                 \
-        for (int UNIQ_T(_last, uniq) = -1, index;                       \
+        प्रति (पूर्णाङ्क UNIQ_T(_last, uniq) = -1, index;                       \
              (index = BIT_NEXT_SET(bits, UNIQ_T(_last, uniq))) >= 0;    \
              UNIQ_T(_last, uniq) = index)
 
@@ -60,14 +60,14 @@
 #define UNIQ_BIT_NEXT_SET(bits, prev, uniq)                             \
         ({                                                              \
                 typeof(bits) UNIQ_T(_bits, uniq) = (bits);              \
-                int UNIQ_T(_prev, uniq) = (prev);                       \
-                int UNIQ_T(_next, uniq);                                \
+                पूर्णाङ्क UNIQ_T(_prev, uniq) = (prev);                       \
+                पूर्णाङ्क UNIQ_T(_next, uniq);                                \
                 _BIT_NEXT_SET(UNIQ_T(_bits, uniq),                      \
                               UNIQ_T(_prev, uniq),                      \
                               UNIQ_T(_next, uniq));                     \
         })
 #define _BIT_NEXT_SET(bits, prev, next)                                 \
-        ((int)(prev + 1) == (int)sizeof(bits) * 8                       \
+        ((पूर्णाङ्क)(prev + 1) == (पूर्णाङ्क)परिमाण(bits) * 8                       \
          ? -1 /* Prev index was msb. */                                 \
          : ((next = __builtin_ffsll(((unsigned long long)(bits)) >> (prev + 1))) == 0 \
             ? -1 /* No more bits set. */                                \
