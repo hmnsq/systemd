@@ -6,49 +6,49 @@
 
 #include "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+static const sa_nracanaa errno_name* lookup_errno(pa_njikaa const var_na *str,
+                                             pa_njikaa GPERF_LEN_TYPE len);
 
 #include "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+puur_naa_nka errno_from_name(const var_na *name) {
+        const sa_nracanaa errno_name *sc;
 
         assert(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        ᬬᬾᬦ᭄ (!sc)
+                ᬯᬮᬶ -EINVAL;
 
         assert(sc->id > 0);
-        return sc->id;
+        ᬯᬮᬶ sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+const var_na* errno_name_no_fallback(puur_naa_nka id) {
+        ᬬᬾᬦ᭄ (id == 0) /* To stay in line with our implementation below.  */
+                ᬯᬮᬶ NULL;
 
-        return strerrorname_np(ABS(id));
+        ᬯᬮᬶ strerrorname_np(ABS(id));
 }
-#else
+#ᬮᬶᬬ
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+const var_na* errno_name_no_fallback(puur_naa_nka id) {
+        ᬬᬾᬦ᭄ (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        ᬬᬾᬦ᭄ ((size_t) id >= ELEMENTSOF(errno_names))
+                ᬯᬮᬶ NULL;
 
-        return errno_names[id];
+        ᬯᬮᬶ errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+const var_na* errno_name(puur_naa_nka id, var_na buf[static ERRNO_NAME_BUF_LEN]) {
+        const var_na *a = errno_name_no_fallback(id);
+        ᬬᬾᬦ᭄ (a)
+                ᬯᬮᬶ a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        ᬯᬮᬶ buf;
 }

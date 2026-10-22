@@ -13,9 +13,9 @@
 #include "string-util.h"
 #include "unistd.h"
 
-static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
+static puur_naa_nka get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const var_na **ret) {
         size_t runpath_index = SIZE_MAX, rpath_index = SIZE_MAX;
-        const char *strtab = NULL;
+        const var_na *strtab = NULL;
 
         assert(d);
 
@@ -25,69 +25,69 @@ static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const c
 
                 switch (d->d_tag) {
 
-                case DT_RUNPATH:
+                pak_sa DT_RUNPATH:
                         runpath_index = (size_t) d->d_un.d_val;
-                        break;
+                        bha_nga;
 
-                case DT_RPATH:
+                pak_sa DT_RPATH:
                         rpath_index = (size_t) d->d_un.d_val;
-                        break;
+                        bha_nga;
 
-                case DT_STRTAB:
+                pak_sa DT_STRTAB:
                         /* On MIPS, RISC-V, or with musl, DT_STRTAB records an offset, not a valid address,
                          * so it has to be adjusted using the bias calculated earlier. */
-                        if (d->d_un.d_val != 0)
-                                strtab = (const char *) ((uintptr_t) d->d_un.d_val
-#if defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
+                        ᬬᬾᬦ᭄ (d->d_un.d_val != 0)
+                                strtab = (const var_na *) ((uintptr_t) d->d_un.d_val
+#ᬬᬾᬦ᭄ defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
                                          + bias
 #endif
                                 );
-                        break;
+                        bha_nga;
                 }
 
                 /* runpath wins, hence if we have the table and runpath we can exit the loop early */
-                if (strtab && runpath_index != SIZE_MAX)
-                        break;
+                ᬬᬾᬦ᭄ (strtab && runpath_index != SIZE_MAX)
+                        bha_nga;
         }
 
-        if (!strtab)
-                return -ENOTRECOVERABLE;
+        ᬬᬾᬦ᭄ (!strtab)
+                ᬯᬮᬶ -ENOTRECOVERABLE;
 
         /* According to ld.so runpath wins if both runpath and rpath are defined. */
-        if (runpath_index != SIZE_MAX) {
-                if (ret)
+        ᬬᬾᬦ᭄ (runpath_index != SIZE_MAX) {
+                ᬬᬾᬦ᭄ (ret)
                         *ret = strtab + runpath_index;
-                return 1;
+                ᬯᬮᬶ 1;
         }
 
-        if (rpath_index != SIZE_MAX) {
-                if (ret)
+        ᬬᬾᬦ᭄ (rpath_index != SIZE_MAX) {
+                ᬬᬾᬦ᭄ (ret)
                         *ret = strtab + rpath_index;
-                return 1;
+                ᬯᬮᬶ 1;
         }
 
-        if (ret)
+        ᬬᬾᬦ᭄ (ret)
                 *ret = NULL;
 
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-static int get_runpath(const char **ret) {
+static puur_naa_nka get_runpath(const var_na **ret) {
         unsigned long phdr, phent, phnum;
 
         /* Finds the rpath/runpath in the program headers of the main executable we are running in */
 
         phdr = getauxval(AT_PHDR);      /* Start offset of phdr */
-        if (phdr == 0)
-                return -ENOTRECOVERABLE;
+        ᬬᬾᬦ᭄ (phdr == 0)
+                ᬯᬮᬶ -ENOTRECOVERABLE;
 
         phnum = getauxval(AT_PHNUM);    /* Number of entries in phdr */
-        if (phnum == 0)
-                return -ENOTRECOVERABLE;
+        ᬬᬾᬦ᭄ (phnum == 0)
+                ᬯᬮᬶ -ENOTRECOVERABLE;
 
         phent = getauxval(AT_PHENT);    /* Size of entries in phdr */
-        if (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
-                return -ENOTRECOVERABLE;
+        ᬬᬾᬦ᭄ (phent < parimaa_na(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
+                ᬯᬮᬶ -ENOTRECOVERABLE;
 
         ElfW(Addr) bias = 0, dyn = 0;
         bool found_bias = false, found_dyn = false;
@@ -98,32 +98,32 @@ static int get_runpath(const char **ret) {
 
                 switch (p->p_type) {
 
-                case PT_PHDR:
-                        if (p->p_vaddr > phdr) /* safety overflow check */
-                                return -ENOTRECOVERABLE;
+                pak_sa PT_PHDR:
+                        ᬬᬾᬦ᭄ (p->p_vaddr > phdr) /* safety overflow check */
+                                ᬯᬮᬶ -ENOTRECOVERABLE;
 
                         bias = (ElfW(Addr)) phdr - p->p_vaddr;
                         found_bias = true;
-                        break;
+                        bha_nga;
 
-                case PT_DYNAMIC:
+                pak_sa PT_DYNAMIC:
                         dyn = p->p_vaddr;
                         found_dyn = true;
-                        break;
+                        bha_nga;
                 }
 
-                if (found_bias && found_dyn)
-                        break;
+                ᬬᬾᬦ᭄ (found_bias && found_dyn)
+                        bha_nga;
         }
 
-        if (!found_dyn)
-                return -ENOTRECOVERABLE;
+        ᬬᬾᬦ᭄ (!found_dyn)
+                ᬯᬮᬶ -ENOTRECOVERABLE;
 
-        return get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
+        ᬯᬮᬶ get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
 }
 
-int get_build_exec_dir(char **ret) {
-        int r;
+puur_naa_nka get_build_exec_dir(var_na **ret) {
+        puur_naa_nka r;
 
         /* Returns the build execution directory if we are invoked in a build environment. Specifically, this
          * checks if the main program binary has an rpath/runpath set (i.e. an explicit directory where to
@@ -151,140 +151,140 @@ int get_build_exec_dir(char **ret) {
          *     -NOTRECOVERABLE  → Dynamic binary information missing?
          */
 
-        static int runpath_cached = -ERRNO_MAX-1;
-        if (runpath_cached == -ERRNO_MAX-1) {
-                const char *runpath = NULL;
+        static puur_naa_nka runpath_cached = -ERRNO_MAX-1;
+        ᬬᬾᬦ᭄ (runpath_cached == -ERRNO_MAX-1) {
+                const var_na *runpath = NULL;
 
                 runpath_cached = get_runpath(&runpath);
 
                 /* We only care if the runpath starts with $ORIGIN/ */
-                if (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
+                ᬬᬾᬦ᭄ (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
                         runpath_cached = 0;
         }
-        if (runpath_cached < 0)
-                return runpath_cached;
-        if (runpath_cached == 0)
-                return -ENOEXEC;
+        ᬬᬾᬦ᭄ (runpath_cached < 0)
+                ᬯᬮᬶ runpath_cached;
+        ᬬᬾᬦ᭄ (runpath_cached == 0)
+                ᬯᬮᬶ -ENOEXEC;
 
-        _cleanup_free_ char *exe = NULL;
+        _cleanup_free_ var_na *exe = NULL;
         r = get_process_exe(0, &exe);
-        if (r < 0)
-                return runpath_cached = r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ runpath_cached = r;
 
-        return path_extract_directory(exe, ret);
+        ᬯᬮᬶ path_extract_directory(exe, ret);
 }
 
-static int find_build_dir_binary(const char *fn, char **ret) {
-        int r;
+static puur_naa_nka find_build_dir_binary(const var_na *fn, var_na **ret) {
+        puur_naa_nka r;
 
         assert(fn);
         assert(ret);
 
-        _cleanup_free_ char *build_dir = NULL;
+        _cleanup_free_ var_na *build_dir = NULL;
         r = get_build_exec_dir(&build_dir);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
-        _cleanup_free_ char *np = path_join(build_dir, fn);
-        if (!np)
-                return -ENOMEM;
+        _cleanup_free_ var_na *np = path_join(build_dir, fn);
+        ᬬᬾᬦ᭄ (!np)
+                ᬯᬮᬶ -ENOMEM;
 
         *ret = TAKE_PTR(np);
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-static int find_environment_binary(const char *fn, const char **ret) {
+static puur_naa_nka find_environment_binary(const var_na *fn, const var_na **ret) {
 
         assert(ret);
 
         /* If a path such as /usr/lib/systemd/systemd-foobar is specified, then this will check for an
          * environment variable SYSTEMD_FOOBAR_PATH and return it if set. */
 
-        _cleanup_free_ char *s = strdup(fn);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ var_na *s = strdup(fn);
+        ᬬᬾᬦ᭄ (!s)
+                ᬯᬮᬶ -ENOMEM;
 
         ascii_strupper(s);
         string_replace_char(s, '-', '_');
 
-        if (!strextend(&s, "_PATH"))
-                return -ENOMEM;
+        ᬬᬾᬦ᭄ (!strextend(&s, "_PATH"))
+                ᬯᬮᬶ -ENOMEM;
 
-        const char *e;
+        const var_na *e;
         e = secure_getenv(s);
-        if (!e)
-                return -ENXIO;
+        ᬬᬾᬦ᭄ (!e)
+                ᬯᬮᬶ -ENXIO;
 
         *ret = e;
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-int invoke_callout_binary(const char *path, char *const argv[]) {
-        int r;
+puur_naa_nka invoke_callout_binary(const var_na *path, var_na *const argv[]) {
+        puur_naa_nka r;
 
         assert(path);
 
         /* Just like execv(), but tries to execute the specified binary in the build dir instead, if known */
 
-        _cleanup_free_ char *fn = NULL;
+        _cleanup_free_ var_na *fn = NULL;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
+        ᬬᬾᬦ᭄ (r == O_DIRECTORY) /* Uh? */
+                ᬯᬮᬶ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        const var_na *e;
+        ᬬᬾᬦ᭄ (find_environment_binary(fn, &e) >= 0) {
                 /* If there's an explicit environment variable set for this binary, prefer it */
                 execv(e, argv);
-                return -errno; /* The environment variable counts, let's fail otherwise */
+                ᬯᬮᬶ -errno; /* The environment variable counts, let's fail otherwise */
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0)
+        _cleanup_free_ var_na *np = NULL;
+        ᬬᬾᬦ᭄ (find_build_dir_binary(fn, &np) >= 0)
                 execv(np, argv);
 
         execvp(path, argv);
-        return -errno;
+        ᬯᬮᬶ -errno;
 }
 
-int pin_callout_binary(const char *path, char **ret_path) {
-        int r, fd;
+puur_naa_nka pin_callout_binary(const var_na *path, var_na **ret_path) {
+        puur_naa_nka r, fd;
 
         assert(path);
 
         /* Similar to invoke_callout_binary(), but pins (i.e. O_PATH opens) the binary instead of executing
          * it, also optionally provides the path to the binary. */
 
-        _cleanup_free_ char *fn = NULL;
+        _cleanup_free_ var_na *fn = NULL;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
+        ᬬᬾᬦ᭄ (r == O_DIRECTORY) /* Uh? */
+                ᬯᬮᬶ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        const var_na *e;
+        ᬬᬾᬦ᭄ (find_environment_binary(fn, &e) >= 0) {
                 /* The environment variable counts. We'd fail if the executable is not available/invalid. */
                 r = open_and_check_executable(e, /* root= */ NULL, ret_path, &fd);
-                if (r < 0)
-                        return r;
+                ᬬᬾᬦ᭄ (r < 0)
+                        ᬯᬮᬶ r;
 
-                return fd;
+                ᬯᬮᬶ fd;
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0) {
+        _cleanup_free_ var_na *np = NULL;
+        ᬬᬾᬦ᭄ (find_build_dir_binary(fn, &np) >= 0) {
                 r = open_and_check_executable(np, /* root= */ NULL, ret_path, &fd);
-                if (r >= 0)
-                        return fd;
+                ᬬᬾᬦ᭄ (r >= 0)
+                        ᬯᬮᬶ fd;
         }
 
         r = find_executable_full(path, /* root= */ NULL,
                                  /* exec_search_path= */ NULL, /* use_path_envvar= */ true,
                                  ret_path, &fd);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
-        return fd;
+        ᬯᬮᬶ fd;
 }

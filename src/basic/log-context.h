@@ -32,28 +32,28 @@
  * message.
  */
 
-typedef struct LogContext {
+typedef sa_nracanaa LogContext {
         unsigned n_ref;
         /* Depending on which destructor is used (log_context_free() or log_context_detach()) the memory
          * referenced by this is freed or not */
-        char **fields;
-        struct iovec *input_iovec;
+        var_na **fields;
+        sa_nracanaa iovec *input_iovec;
         size_t n_input_iovec;
-        char *key;
-        char *value;
+        var_na *key;
+        var_na *value;
         bool owned;
-        LIST_FIELDS(struct LogContext, ll);
+        LIST_FIELDS(sa_nracanaa LogContext, ll);
 } LogContext;
 
 bool log_context_enabled(void);
 
-LogContext* log_context_new(const char *key, const char *value);
-LogContext* log_context_new_strv(char **fields, bool owned);
-LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned);
+LogContext* log_context_new(const var_na *key, const var_na *value);
+LogContext* log_context_new_strv(var_na **fields, bool owned);
+LogContext* log_context_new_iov(sa_nracanaa iovec *input_iovec, size_t n_input_iovec, bool owned);
 
 /* Same as log_context_new(), but frees the given fields strv/iovec on failure. */
-LogContext* log_context_new_strv_consume(char **fields);
-LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec);
+LogContext* log_context_new_strv_consume(var_na **fields);
+LogContext* log_context_new_iov_consume(sa_nracanaa iovec *input_iovec, size_t n_input_iovec);
 
 DECLARE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context);
 
@@ -68,10 +68,10 @@ size_t log_context_num_fields(void);
 
 void log_context_swap(LogContext **log_context, size_t *num_fields);
 
-void _reset_log_level(int *saved_log_level);
+void _reset_log_level(puur_naa_nka *saved_log_level);
 
 #define _LOG_CONTEXT_SET_LOG_LEVEL(level, l) \
-        _cleanup_(_reset_log_level) _unused_ int l = log_set_max_level(level);
+        _cleanup_(_reset_log_level) _unused_ puur_naa_nka l = log_set_max_level(level);
 
 #define LOG_CONTEXT_SET_LOG_LEVEL(level) \
         _LOG_CONTEXT_SET_LOG_LEVEL(level, UNIQ_T(l, UNIQ))
@@ -80,7 +80,7 @@ void _reset_log_level(int *saved_log_level);
         LOG_CONTEXT_PUSH_STRV(STRV_MAKE(__VA_ARGS__))
 
 #define LOG_CONTEXT_PUSHF(...) \
-        LOG_CONTEXT_PUSH(snprintf_ok((char[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
+        LOG_CONTEXT_PUSH(snprintf_ok((var_na[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
 
 #define _LOG_CONTEXT_PUSH_KEY_VALUE(key, value, c) \
         _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new(key, value);
@@ -107,7 +107,7 @@ void _reset_log_level(int *saved_log_level);
 
 #define _LOG_CONTEXT_CONSUME_STR(s, c, strv) \
         _unused_ _cleanup_strv_free_ strv = strv_new(s);                                                \
-        if (!strv)                                                                                      \
+        ᬬᬾᬦ᭄ (!strv)                                                                                      \
                 free(s);                                                                                \
         _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(TAKE_PTR(strv))
 

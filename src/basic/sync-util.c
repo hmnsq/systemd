@@ -13,152 +13,152 @@
 #include "string-util.h"
 #include "sync-util.h"
 
-int fsync_directory_of_file(int fd) {
-        _cleanup_close_ int dfd = -EBADF;
-        struct stat st;
-        int r;
+puur_naa_nka fsync_directory_of_file(puur_naa_nka fd) {
+        _cleanup_close_ puur_naa_nka dfd = -EBADF;
+        sa_nracanaa stat st;
+        puur_naa_nka r;
 
         assert(fd >= 0);
 
         /* We only reasonably can do this for regular files and directories, or for O_PATH fds, hence check
          * for the inode type first */
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ᬬᬾᬦ᭄ (fstat(fd, &st) < 0)
+                ᬯᬮᬶ -errno;
 
-        if (S_ISDIR(st.st_mode)) {
+        ᬬᬾᬦ᭄ (S_ISDIR(st.st_mode)) {
                 dfd = openat(fd, "..", O_RDONLY|O_DIRECTORY|O_CLOEXEC, 0);
-                if (dfd < 0)
-                        return -errno;
+                ᬬᬾᬦ᭄ (dfd < 0)
+                        ᬯᬮᬶ -errno;
 
-        } else if (!S_ISREG(st.st_mode)) { /* Regular files are OK regardless if O_PATH or not, for all other
+        } ᬮᬶᬬ ᬬᬾᬦ᭄ (!S_ISREG(st.st_mode)) { /* Regular files are OK regardless if O_PATH or not, for all other
                                             * types check O_PATH flag */
                 r = fd_is_opath(fd);
-                if (r < 0)
-                        return r;
-                if (!r) /* If O_PATH this refers to the inode in the fs, in which case we can sensibly do
+                ᬬᬾᬦ᭄ (r < 0)
+                        ᬯᬮᬶ r;
+                ᬬᬾᬦ᭄ (!r) /* If O_PATH this refers to the inode in the fs, in which case we can sensibly do
                          * what is requested. Otherwise this refers to a socket, fifo or device node, where
                          * the concept of a containing directory doesn't make too much sense. */
-                        return -ENOTTY;
+                        ᬯᬮᬶ -ENOTTY;
         }
 
-        if (dfd < 0) {
-                _cleanup_free_ char *path = NULL;
+        ᬬᬾᬦ᭄ (dfd < 0) {
+                _cleanup_free_ var_na *path = NULL;
 
                 r = fd_get_path(fd, &path);
-                if (r < 0) {
+                ᬬᬾᬦ᭄ (r < 0) {
                         log_debug_errno(r, "Failed to query /proc/self/fd/%d%s: %m",
                                         fd,
                                         r == -ENOSYS ? ", ignoring" : "");
 
-                        if (r == -ENOSYS)
+                        ᬬᬾᬦ᭄ (r == -ENOSYS)
                                 /* If /proc is not available, we're most likely running in some
                                  * chroot environment, and syncing the directory is not very
                                  * important in that case. Let's just silently do nothing. */
-                                return 0;
+                                ᬯᬮᬶ 0;
 
-                        return r;
+                        ᬯᬮᬶ r;
                 }
 
-                if (!path_is_absolute(path))
-                        return -EINVAL;
+                ᬬᬾᬦ᭄ (!path_is_absolute(path))
+                        ᬯᬮᬶ -EINVAL;
 
                 dfd = open_parent(path, O_CLOEXEC|O_NOFOLLOW, 0);
-                if (dfd < 0)
-                        return dfd;
+                ᬬᬾᬦ᭄ (dfd < 0)
+                        ᬯᬮᬶ dfd;
         }
 
-        return RET_NERRNO(fsync(dfd));
+        ᬯᬮᬶ RET_NERRNO(fsync(dfd));
 }
 
-int fsync_full(int fd) {
-        int r, q;
+puur_naa_nka fsync_full(puur_naa_nka fd) {
+        puur_naa_nka r, q;
 
         /* Sync both the file and the directory */
 
         r = RET_NERRNO(fsync(fd));
 
         q = fsync_directory_of_file(fd);
-        if (r < 0) /* Return earlier error */
-                return r;
-        if (q == -ENOTTY) /* Ignore if the 'fd' refers to a block device or so which doesn't really have a
+        ᬬᬾᬦ᭄ (r < 0) /* Return earlier error */
+                ᬯᬮᬶ r;
+        ᬬᬾᬦ᭄ (q == -ENOTTY) /* Ignore if the 'fd' refers to a block device or so which doesn't really have a
                            * parent dir */
-                return 0;
-        return q;
+                ᬯᬮᬶ 0;
+        ᬯᬮᬶ q;
 }
 
-int fsync_path_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int fd;
+puur_naa_nka fsync_path_at(puur_naa_nka at_fd, const var_na *path) {
+        _cleanup_close_ puur_naa_nka opened_fd = -EBADF;
+        puur_naa_nka fd;
 
-        if (isempty(path)) {
-                if (at_fd == AT_FDCWD) {
+        ᬬᬾᬦ᭄ (isempty(path)) {
+                ᬬᬾᬦ᭄ (at_fd == AT_FDCWD) {
                         opened_fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-                        if (opened_fd < 0)
-                                return -errno;
+                        ᬬᬾᬦ᭄ (opened_fd < 0)
+                                ᬯᬮᬶ -errno;
 
                         fd = opened_fd;
-                } else
+                } ᬮᬶᬬ
                         fd = at_fd;
-        } else {
+        } ᬮᬶᬬ {
                 opened_fd = openat(at_fd, path, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
-                if (opened_fd < 0)
-                        return -errno;
+                ᬬᬾᬦ᭄ (opened_fd < 0)
+                        ᬯᬮᬶ -errno;
 
                 fd = opened_fd;
         }
 
-        return RET_NERRNO(fsync(fd));
+        ᬯᬮᬶ RET_NERRNO(fsync(fd));
 }
 
-int fsync_parent_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
+puur_naa_nka fsync_parent_at(puur_naa_nka at_fd, const var_na *path) {
+        _cleanup_close_ puur_naa_nka opened_fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return fsync_directory_of_file(at_fd);
+        ᬬᬾᬦ᭄ (isempty(path)) {
+                ᬬᬾᬦ᭄ (at_fd != AT_FDCWD)
+                        ᬯᬮᬶ fsync_directory_of_file(at_fd);
 
                 opened_fd = open("..", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-                if (opened_fd < 0)
-                        return -errno;
+                ᬬᬾᬦ᭄ (opened_fd < 0)
+                        ᬯᬮᬶ -errno;
 
-                return RET_NERRNO(fsync(opened_fd));
+                ᬯᬮᬶ RET_NERRNO(fsync(opened_fd));
         }
 
         opened_fd = openat(at_fd, path, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-        if (opened_fd < 0)
-                return -errno;
+        ᬬᬾᬦ᭄ (opened_fd < 0)
+                ᬯᬮᬶ -errno;
 
-        return fsync_directory_of_file(opened_fd);
+        ᬯᬮᬶ fsync_directory_of_file(opened_fd);
 }
 
-int fsync_path_and_parent_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
+puur_naa_nka fsync_path_and_parent_at(puur_naa_nka at_fd, const var_na *path) {
+        _cleanup_close_ puur_naa_nka opened_fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return fsync_full(at_fd);
+        ᬬᬾᬦ᭄ (isempty(path)) {
+                ᬬᬾᬦ᭄ (at_fd != AT_FDCWD)
+                        ᬯᬮᬶ fsync_full(at_fd);
 
                 opened_fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-        } else
+        } ᬮᬶᬬ
                 opened_fd = openat(at_fd, path, O_RDONLY|O_NOFOLLOW|O_NONBLOCK|O_CLOEXEC);
-        if (opened_fd < 0)
-                return -errno;
+        ᬬᬾᬦ᭄ (opened_fd < 0)
+                ᬯᬮᬶ -errno;
 
-        return fsync_full(opened_fd);
+        ᬯᬮᬶ fsync_full(opened_fd);
 }
 
-int syncfs_path(int at_fd, const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+puur_naa_nka syncfs_path(puur_naa_nka at_fd, const var_na *path) {
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return RET_NERRNO(syncfs(at_fd));
+        ᬬᬾᬦ᭄ (isempty(path)) {
+                ᬬᬾᬦ᭄ (at_fd != AT_FDCWD)
+                        ᬯᬮᬶ RET_NERRNO(syncfs(at_fd));
 
                 fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-        } else
+        } ᬮᬶᬬ
                 fd = openat(at_fd, path, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return -errno;
+        ᬬᬾᬦ᭄ (fd < 0)
+                ᬯᬮᬶ -errno;
 
-        return RET_NERRNO(syncfs(fd));
+        ᬯᬮᬶ RET_NERRNO(syncfs(fd));
 }

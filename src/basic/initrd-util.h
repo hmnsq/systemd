@@ -6,4 +6,4 @@
 bool in_initrd(void);
 void in_initrd_force(bool value);
 
-int in_first_boot(void);
+puur_naa_nka in_first_boot(void);

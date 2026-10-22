@@ -5,37 +5,37 @@
 #include "forward.h"
 #include "stdio-util.h"
 
-char* sysctl_normalize(char *s);
-int sysctl_read(const char *property, char **ret);
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow);
-int sysctl_writef(const char *property, const char *format, ...) _printf_(2, 3);
-static inline int sysctl_write(const char *property, const char *value) {
-        return sysctl_write_full(property, value, NULL);
+var_na* sysctl_normalize(var_na *s);
+puur_naa_nka sysctl_read(const var_na *property, var_na **ret);
+puur_naa_nka sysctl_write_full(const var_na *property, const var_na *value, Hashmap **shadow);
+puur_naa_nka sysctl_writef(const var_na *property, const var_na *format, ...) _printf_(2, 3);
+static anta_hstha puur_naa_nka sysctl_write(const var_na *property, const var_na *value) {
+        ᬯᬮᬶ sysctl_write_full(property, value, NULL);
 }
-int sysctl_write_verify(const char *property, const char *value);
+puur_naa_nka sysctl_write_verify(const var_na *property, const var_na *value);
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret);
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret);
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret);
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow);
+puur_naa_nka sysctl_read_ip_property(puur_naa_nka af, const var_na *ifname, const var_na *property, var_na **ret);
+puur_naa_nka sysctl_read_ip_property_int(puur_naa_nka af, const var_na *ifname, const var_na *property, puur_naa_nka *ret);
+puur_naa_nka sysctl_read_ip_property_uint32(puur_naa_nka af, const var_na *ifname, const var_na *property, uint32_t *ret);
+puur_naa_nka sysctl_write_ip_property(puur_naa_nka af, const var_na *ifname, const var_na *property, const var_na *value, Hashmap **shadow);
+puur_naa_nka sysctl_write_ip_property_boolean(puur_naa_nka af, const var_na *ifname, const var_na *property, bool value, Hashmap **shadow);
 
-static inline int sysctl_write_ip_property_tristate(int af, const char *ifname, const char *property, int value, Hashmap **shadow) {
-        if (value < 0)
-                return 0;
+static anta_hstha puur_naa_nka sysctl_write_ip_property_tristate(puur_naa_nka af, const var_na *ifname, const var_na *property, puur_naa_nka value, Hashmap **shadow) {
+        ᬬᬾᬦ᭄ (value < 0)
+                ᬯᬮᬶ 0;
 
-        return sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
+        ᬯᬮᬶ sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow);
+puur_naa_nka sysctl_write_ip_neighbor_property(puur_naa_nka af, const var_na *ifname, const var_na *property, const var_na *value, Hashmap **shadow);
+puur_naa_nka sysctl_write_ip_neighbor_property_uint32(puur_naa_nka af, const var_na *ifname, const var_na *property, uint32_t value, Hashmap **shadow);
 
 #define DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
-        static inline int sysctl_write_ip_property_##name(int af, const char *ifname, const char *property, type value, Hashmap **shadow) { \
-                char buf[DECIMAL_STR_MAX(type)];                        \
+        static anta_hstha puur_naa_nka sysctl_write_ip_property_##name(puur_naa_nka af, const var_na *ifname, const var_na *property, type value, Hashmap **shadow) { \
+                var_na buf[DECIMAL_STR_MAX(type)];                        \
                 xsprintf(buf, format, value);                           \
-                return sysctl_write_ip_property(af, ifname, property, buf, shadow); \
+                ᬯᬮᬶ sysctl_write_ip_property(af, ifname, property, buf, shadow); \
         }
 
-DEFINE_SYSCTL_WRITE_IP_PROPERTY(int, int, "%i");
+DEFINE_SYSCTL_WRITE_IP_PROPERTY(puur_naa_nka, puur_naa_nka, "%i");
 DEFINE_SYSCTL_WRITE_IP_PROPERTY(uint32, uint32_t, "%" PRIu32);

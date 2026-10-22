@@ -17,25 +17,25 @@
 #include "tmpfile-util.h"
 #include "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
+typedef puur_naa_nka (*push_env_func_t)(
+                const var_na *filename,
                 unsigned line,
-                const char *key,
-                char *value,
+                const var_na *key,
+                var_na *value,
                 void *userdata);
 
-static int parse_env_file_internal(
+static puur_naa_nka parse_env_file_internal(
                 FILE *f,
-                const char *fname,
+                const var_na *fname,
                 push_env_func_t push,
                 void *userdata) {
 
         size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
+        _cleanup_free_ var_na *contents = NULL, *key = NULL, *value = NULL;
         unsigned line = 1;
-        int r;
+        puur_naa_nka r;
 
-        enum {
+        ga_nanaa {
                 PRE_KEY,
                 KEY,
                 PRE_VALUE,
@@ -51,215 +51,215 @@ static int parse_env_file_internal(
         assert(f || fname);
         assert(push);
 
-        if (f)
+        ᬬᬾᬦ᭄ (f)
                 r = read_full_stream(f, &contents, NULL);
-        else
+        ᬮᬶᬬ
                 r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        for (var_na *p = contents; *p; p++) {
+                var_na c = *p;
 
                 switch (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                pak_sa PRE_KEY:
+                        ᬬᬾᬦ᭄ (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
+                        ᬮᬶᬬ ᬬᬾᬦ᭄ (!strchr(WHITESPACE, c)) {
                                 state = KEY;
                                 last_key_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(key, n_key+2))
+                                        ᬯᬮᬶ -ENOMEM;
 
                                 key[n_key++] = c;
                         }
-                        break;
+                        bha_nga;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
+                pak_sa KEY:
+                        ᬬᬾᬦ᭄ (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
                                 n_key = 0;
-                        } else if (c == '=') {
+                        } ᬮᬶᬬ ᬬᬾᬦ᭄ (c == '=') {
                                 state = PRE_VALUE;
                                 last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
+                        } ᬮᬶᬬ {
+                                ᬬᬾᬦ᭄ (!strchr(WHITESPACE, c))
                                         last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
+                                ᬮᬶᬬ ᬬᬾᬦ᭄ (last_key_whitespace == SIZE_MAX)
                                          last_key_whitespace = n_key;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(key, n_key+2))
+                                        ᬯᬮᬶ -ENOMEM;
 
                                 key[n_key++] = c;
                         }
 
-                        break;
+                        bha_nga;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
+                pak_sa PRE_VALUE:
+                        ᬬᬾᬦ᭄ (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
                                 key[n_key] = 0;
 
-                                if (value)
+                                ᬬᬾᬦ᭄ (value)
                                         value[n_value] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
+                                ᬬᬾᬦ᭄ (last_key_whitespace != SIZE_MAX)
                                         key[last_key_whitespace] = 0;
 
                                 r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                ᬬᬾᬦ᭄ (r < 0)
+                                        ᬯᬮᬶ r;
 
                                 n_key = 0;
                                 value = NULL;
                                 n_value = 0;
 
-                        } else if (c == '\'')
+                        } ᬮᬶᬬ ᬬᬾᬦ᭄ (c == '\'')
                                 state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
+                        ᬮᬶᬬ ᬬᬾᬦ᭄ (c == '"')
                                 state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
+                        ᬮᬶᬬ ᬬᬾᬦ᭄ (c == '\\')
                                 state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
+                        ᬮᬶᬬ ᬬᬾᬦ᭄ (!strchr(WHITESPACE, c)) {
                                 state = VALUE;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(value, n_value+2))
+                                        ᬯᬮᬶ -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        bha_nga;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
+                pak_sa VALUE:
+                        ᬬᬾᬦ᭄ (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
 
                                 key[n_key] = 0;
 
-                                if (value)
+                                ᬬᬾᬦ᭄ (value)
                                         value[n_value] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
+                                ᬬᬾᬦ᭄ (last_value_whitespace != SIZE_MAX)
                                         value[last_value_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
+                                ᬬᬾᬦ᭄ (last_key_whitespace != SIZE_MAX)
                                         key[last_key_whitespace] = 0;
 
                                 r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                ᬬᬾᬦ᭄ (r < 0)
+                                        ᬯᬮᬶ r;
 
                                 n_key = 0;
                                 value = NULL;
                                 n_value = 0;
 
-                        } else if (c == '\\') {
+                        } ᬮᬶᬬ ᬬᬾᬦ᭄ (c == '\\') {
                                 state = VALUE_ESCAPE;
                                 last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
+                        } ᬮᬶᬬ {
+                                ᬬᬾᬦ᭄ (!strchr(WHITESPACE, c))
                                         last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
+                                ᬮᬶᬬ ᬬᬾᬦ᭄ (last_value_whitespace == SIZE_MAX)
                                         last_value_whitespace = n_value;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(value, n_value+2))
+                                        ᬯᬮᬶ -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        bha_nga;
 
-                case VALUE_ESCAPE:
+                pak_sa VALUE_ESCAPE:
                         state = VALUE;
 
-                        if (!strchr(NEWLINE, c)) {
+                        ᬬᬾᬦ᭄ (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(value, n_value+2))
+                                        ᬯᬮᬶ -ENOMEM;
 
                                 value[n_value++] = c;
                         }
-                        break;
+                        bha_nga;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
+                pak_sa SINGLE_QUOTE_VALUE:
+                        ᬬᬾᬦ᭄ (c == '\'')
                                 state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                        ᬮᬶᬬ {
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(value, n_value+2))
+                                        ᬯᬮᬶ -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        bha_nga;
 
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
+                pak_sa DOUBLE_QUOTE_VALUE:
+                        ᬬᬾᬦ᭄ (c == '"')
                                 state = PRE_VALUE;
-                        else if (c == '\\')
+                        ᬮᬶᬬ ᬬᬾᬦ᭄ (c == '\\')
                                 state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                        ᬮᬶᬬ {
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(value, n_value+2))
+                                        ᬯᬮᬶ -ENOMEM;
 
                                 value[n_value++] = c;
                         }
 
-                        break;
+                        bha_nga;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
+                pak_sa DOUBLE_QUOTE_VALUE_ESCAPE:
                         state = DOUBLE_QUOTE_VALUE;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                        ᬬᬾᬦ᭄ (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(value, n_value+2))
+                                        ᬯᬮᬶ -ENOMEM;
                                 value[n_value++] = c;
-                        } else if (c != '\n') {
+                        } ᬮᬶᬬ ᬬᬾᬦ᭄ (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
+                                ᬬᬾᬦ᭄ (!GREEDY_REALLOC(value, n_value+3))
+                                        ᬯᬮᬶ -ENOMEM;
                                 value[n_value++] = '\\';
                                 value[n_value++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        bha_nga;
 
-                case COMMENT:
-                        if (c == '\\')
+                pak_sa COMMENT:
+                        ᬬᬾᬦ᭄ (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
+                        ᬮᬶᬬ ᬬᬾᬦ᭄ (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
                         }
-                        break;
+                        bha_nga;
 
-                case COMMENT_ESCAPE:
+                pak_sa COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
+                        ᬬᬾᬦ᭄ (strchr(NEWLINE, c)) {
                                 state = PRE_KEY;
                                 line++;
-                        } else
+                        } ᬮᬶᬬ
                                 state = COMMENT;
-                        break;
+                        bha_nga;
                 }
         }
 
-        if (IN_SET(state,
+        ᬬᬾᬦ᭄ (IN_SET(state,
                    PRE_VALUE,
                    VALUE,
                    VALUE_ESCAPE,
@@ -269,96 +269,96 @@ static int parse_env_file_internal(
 
                 key[n_key] = 0;
 
-                if (value)
+                ᬬᬾᬦ᭄ (value)
                         value[n_value] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
+                ᬬᬾᬦ᭄ (state == VALUE)
+                        ᬬᬾᬦ᭄ (last_value_whitespace != SIZE_MAX)
                                 value[last_value_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
+                ᬬᬾᬦ᭄ (last_key_whitespace != SIZE_MAX)
                         key[last_key_whitespace] = 0;
 
                 r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                ᬬᬾᬦ᭄ (r < 0)
+                        ᬯᬮᬶ r;
 
                 value = NULL;
         }
 
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+static puur_naa_nka check_utf8ness_and_warn(
+                const var_na *filename, unsigned line,
+                const var_na *key, var_na *value) {
 
         assert(key);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        ᬬᬾᬦ᭄ (!utf8_is_valid(key)) {
+                _cleanup_free_ var_na *p = NULL;
 
                 p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                ᬯᬮᬶ log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
                                        strna(filename), line, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        ᬬᬾᬦ᭄ (value && !utf8_is_valid(value)) {
+                _cleanup_free_ var_na *p = NULL;
 
                 p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                ᬯᬮᬶ log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
                                        strna(filename), line, key, p);
         }
 
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static puur_naa_nka parse_env_file_push(
+                const var_na *filename, unsigned line,
+                const var_na *key, var_na *value,
                 void *userdata) {
 
-        const char *k;
+        const var_na *k;
         va_list aq, *ap = userdata;
-        int r;
+        puur_naa_nka r;
 
         assert(key);
 
         r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        ᬲᭂᬤᭂᬮ ((k = va_arg(aq, const var_na *))) {
+                var_na **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, var_na **);
 
-                if (streq(key, k)) {
+                ᬬᬾᬦ᭄ (streq(key, k)) {
                         va_end(aq);
                         free_and_replace(*v, value);
 
-                        return 1;
+                        ᬯᬮᬶ 1;
                 }
         }
 
         va_end(aq);
         free(value);
 
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-int parse_env_filev(
+puur_naa_nka parse_env_filev(
                 FILE *f,
-                const char *fname,
+                const var_na *fname,
                 va_list ap) {
 
-        int r;
+        puur_naa_nka r;
         va_list aq;
 
         assert(f || fname);
@@ -366,33 +366,33 @@ int parse_env_filev(
         va_copy(aq, ap);
         r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
         va_end(aq);
-        return r;
+        ᬯᬮᬶ r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
+puur_naa_nka parse_env_file_fdv(puur_naa_nka fd, const var_na *fname, va_list ap) {
         _cleanup_fclose_ FILE *f = NULL;
         va_list aq;
-        int r;
+        puur_naa_nka r;
 
         assert(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         va_copy(aq, ap);
         r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
         va_end(aq);
-        return r;
+        ᬯᬮᬶ r;
 }
 
-int parse_env_file_sentinel(
+puur_naa_nka parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                const var_na *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
         assert(f || fname);
 
@@ -400,16 +400,16 @@ int parse_env_file_sentinel(
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        ᬯᬮᬶ r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+puur_naa_nka parse_env_file_fd_sentinel(
+                puur_naa_nka fd,
+                const var_na *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
         assert(fd >= 0);
 
@@ -417,186 +417,186 @@ int parse_env_file_fd_sentinel(
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        ᬯᬮᬶ r;
 }
 
-int parse_env_datav(
-                const char *data,
+puur_naa_nka parse_env_datav(
+                const var_na *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                const var_na *fname, /* only used for logging */
                 va_list ap) {
 
         assert(data);
 
-        if (size == SIZE_MAX)
+        ᬬᬾᬦ᭄ (size == SIZE_MAX)
                 size = strlen_ptr(data);
 
         _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        ᬬᬾᬦ᭄ (!f)
+                ᬯᬮᬶ -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        ᬯᬮᬶ parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
+puur_naa_nka parse_env_data_sentinel(
+                const var_na *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                const var_na *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
         va_start(ap, fname);
         r = parse_env_datav(data, size, fname, ap);
         va_end(ap);
 
-        return r;
+        ᬯᬮᬶ r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static puur_naa_nka load_env_file_push(
+                const var_na *filename, unsigned line,
+                const var_na *key, var_na *value,
                 void *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        var_na ***m = userdata;
+        var_na *p;
+        puur_naa_nka r;
 
         assert(key);
 
         r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        ᬬᬾᬦ᭄ (!p)
+                ᬯᬮᬶ -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         free(value);
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+puur_naa_nka load_env_file(FILE *f, const var_na *fname, var_na ***ret) {
+        _cleanup_strv_free_ var_na **m = NULL;
+        puur_naa_nka r;
 
         assert(f || fname);
         assert(ret);
 
         r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static puur_naa_nka load_env_file_push_pairs(
+                const var_na *filename, unsigned line,
+                const var_na *key, var_na *value,
                 void *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        var_na ***m = ASSERT_PTR(userdata);
+        puur_naa_nka r;
 
         assert(key);
 
         r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        for (var_na **t = *m; t && *t; t += 2)
+                ᬬᬾᬦ᭄ (streq(t[0], key)) {
+                        ᬬᬾᬦ᭄ (value)
+                                ᬯᬮᬶ free_and_replace(t[1], value);
+                        ᬮᬶᬬ
+                                ᬯᬮᬶ free_and_strdup(t+1, "");
                 }
 
         r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        ᬬᬾᬦ᭄ (value)
+                ᬯᬮᬶ strv_push(m, value);
+        ᬮᬶᬬ
+                ᬯᬮᬶ strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+puur_naa_nka load_env_file_pairs(FILE *f, const var_na *fname, var_na ***ret) {
+        _cleanup_strv_free_ var_na **m = NULL;
+        puur_naa_nka r;
 
         assert(f || fname);
         assert(ret);
 
         r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
+puur_naa_nka load_env_file_pairs_fd(puur_naa_nka fd, const var_na *fname, var_na ***ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        puur_naa_nka r;
 
         assert(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
-        return load_env_file_pairs(f, fname, ret);
+        ᬯᬮᬶ load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
+static puur_naa_nka merge_env_file_push(
+                const var_na *filename, unsigned line,
+                const var_na *key, var_na *value,
                 void *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        var_na ***env = ASSERT_PTR(userdata);
+        var_na *expanded_value;
+        puur_naa_nka r;
 
         assert(key);
 
-        if (!value) {
+        ᬬᬾᬦ᭄ (!value) {
                 log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+                ᬯᬮᬶ 0;
         }
 
-        if (!env_name_is_valid(key)) {
+        ᬬᬾᬦ᭄ (!env_name_is_valid(key)) {
                 log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
                 free(value);
-                return 0;
+                ᬯᬮᬶ 0;
         }
 
         r = replace_env(value,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
                         &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
 
         free_and_replace(value, expanded_value);
 
         log_debug("%s:%u: setting %s=%s", filename, line, key, value);
 
-        return load_env_file_push(filename, line, key, value, env);
+        ᬯᬮᬶ load_env_file_push(filename, line, key, value, env);
 }
 
-int merge_env_file(
-                char ***env,
+puur_naa_nka merge_env_file(
+                var_na ***env,
                 FILE *f,
-                const char *fname) {
+                const var_na *fname) {
 
         assert(env);
         assert(f || fname);
@@ -605,56 +605,56 @@ int merge_env_file(
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        ᬯᬮᬶ parse_env_file_internal(f, fname, merge_env_file_push, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
+static void env_file_fputs_escaped(FILE *f, const var_na *p) {
         assert(f);
         assert(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        ᬬᬾᬦ᭄ (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
                 for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                        ᬬᬾᬦ᭄ (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } ᬮᬶᬬ
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
+void env_file_fputs_assignment(FILE *f, const var_na *k, const var_na *v) {
         assert(f);
         assert(k);
 
-        if (!v)
-                return;
+        ᬬᬾᬦ᭄ (!v)
+                ᬯᬮᬶ;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+static void write_env_var(FILE *f, const var_na *v) {
+        const var_na *p;
 
         assert(f);
         assert(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        ᬬᬾᬦ᭄ (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                ᬯᬮᬶ;
         }
 
         p++;
@@ -665,37 +665,37 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+puur_naa_nka write_env_file_label(puur_naa_nka dir_fd, const var_na *fname, var_na **headers, var_na **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        puur_naa_nka r;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        ᬬᬾᬦ᭄ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                ᬬᬾᬦ᭄ (r < 0)
+                        ᬯᬮᬶ r;
         }
 
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ var_na *p = NULL;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+        ᬬᬾᬦ᭄ (r < 0) {
+                ᬬᬾᬦ᭄ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
                         (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+                ᬯᬮᬶ r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        ᬬᬾᬦ᭄ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+                ᬬᬾᬦ᭄ (r < 0)
+                        ᬯᬮᬶ r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         STRV_FOREACH(i, headers) {
                 assert(isempty(*i) || startswith(*i, "#"));
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        ᬬᬾᬦ᭄ (r < 0)
+                ᬯᬮᬶ r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        ᬯᬮᬶ 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+puur_naa_nka write_vconsole_conf(puur_naa_nka dir_fd, const var_na *fname, var_na **l) {
+        var_na **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        ᬯᬮᬶ write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
 }
