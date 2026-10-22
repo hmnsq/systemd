@@ -1,164 +1,164 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "sync-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fs-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "sync-util.h"
 
-int fsync_directory_of_file(int fd) {
-        _cleanup_close_ int dfd = -EBADF;
-        struct stat st;
-        int r;
+पूर्णाङ्क fsync_directory_of_file(पूर्णाङ्क fd) {
+        _cleanup_close_ पूर्णाङ्क dfd = -EBADF;
+        संरचना stat st;
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         /* We only reasonably can do this for regular files and directories, or for O_PATH fds, hence check
          * for the inode type first */
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        यदि (fstat(fd, &st) < 0)
+                प्रत्यागम -errno;
 
-        if (S_ISDIR(st.st_mode)) {
+        यदि (S_ISDIR(st.st_mode)) {
                 dfd = openat(fd, "..", O_RDONLY|O_DIRECTORY|O_CLOEXEC, 0);
-                if (dfd < 0)
-                        return -errno;
+                यदि (dfd < 0)
+                        प्रत्यागम -errno;
 
-        } else if (!S_ISREG(st.st_mode)) { /* Regular files are OK regardless if O_PATH or not, for all other
+        } अन्यथा यदि (!S_ISREG(st.st_mode)) { /* Regular files are OK regardless if O_PATH or not, for all other
                                             * types check O_PATH flag */
                 r = fd_is_opath(fd);
-                if (r < 0)
-                        return r;
-                if (!r) /* If O_PATH this refers to the inode in the fs, in which case we can sensibly do
+                यदि (r < 0)
+                        प्रत्यागम r;
+                यदि (!r) /* If O_PATH this refers to the inode in the fs, in which case we can sensibly do
                          * what is requested. Otherwise this refers to a socket, fifo or device node, where
                          * the concept of a containing directory doesn't make too much sense. */
-                        return -ENOTTY;
+                        प्रत्यागम -ENOTTY;
         }
 
-        if (dfd < 0) {
-                _cleanup_free_ char *path = NULL;
+        यदि (dfd < 0) {
+                _cleanup_free_ वर्ण *path = रिक्त;
 
                 r = fd_get_path(fd, &path);
-                if (r < 0) {
+                यदि (r < 0) {
                         log_debug_errno(r, "Failed to query /proc/self/fd/%d%s: %m",
                                         fd,
                                         r == -ENOSYS ? ", ignoring" : "");
 
-                        if (r == -ENOSYS)
+                        यदि (r == -ENOSYS)
                                 /* If /proc is not available, we're most likely running in some
                                  * chroot environment, and syncing the directory is not very
                                  * important in that case. Let's just silently do nothing. */
-                                return 0;
+                                प्रत्यागम 0;
 
-                        return r;
+                        प्रत्यागम r;
                 }
 
-                if (!path_is_absolute(path))
-                        return -EINVAL;
+                यदि (!path_is_absolute(path))
+                        प्रत्यागम -EINVAL;
 
                 dfd = open_parent(path, O_CLOEXEC|O_NOFOLLOW, 0);
-                if (dfd < 0)
-                        return dfd;
+                यदि (dfd < 0)
+                        प्रत्यागम dfd;
         }
 
-        return RET_NERRNO(fsync(dfd));
+        प्रत्यागम RET_NERRNO(fsync(dfd));
 }
 
-int fsync_full(int fd) {
-        int r, q;
+पूर्णाङ्क fsync_full(पूर्णाङ्क fd) {
+        पूर्णाङ्क r, q;
 
         /* Sync both the file and the directory */
 
         r = RET_NERRNO(fsync(fd));
 
         q = fsync_directory_of_file(fd);
-        if (r < 0) /* Return earlier error */
-                return r;
-        if (q == -ENOTTY) /* Ignore if the 'fd' refers to a block device or so which doesn't really have a
+        यदि (r < 0) /* Return earlier error */
+                प्रत्यागम r;
+        यदि (q == -ENOTTY) /* Ignore if the 'fd' refers to a block device or so which doesn't really have a
                            * parent dir */
-                return 0;
-        return q;
+                प्रत्यागम 0;
+        प्रत्यागम q;
 }
 
-int fsync_path_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int fd;
+पूर्णाङ्क fsync_path_at(पूर्णाङ्क at_fd, ध्रुव वर्ण *path) {
+        _cleanup_close_ पूर्णाङ्क opened_fd = -EBADF;
+        पूर्णाङ्क fd;
 
-        if (isempty(path)) {
-                if (at_fd == AT_FDCWD) {
+        यदि (isempty(path)) {
+                यदि (at_fd == AT_FDCWD) {
                         opened_fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-                        if (opened_fd < 0)
-                                return -errno;
+                        यदि (opened_fd < 0)
+                                प्रत्यागम -errno;
 
                         fd = opened_fd;
-                } else
+                } अन्यथा
                         fd = at_fd;
-        } else {
+        } अन्यथा {
                 opened_fd = openat(at_fd, path, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
-                if (opened_fd < 0)
-                        return -errno;
+                यदि (opened_fd < 0)
+                        प्रत्यागम -errno;
 
                 fd = opened_fd;
         }
 
-        return RET_NERRNO(fsync(fd));
+        प्रत्यागम RET_NERRNO(fsync(fd));
 }
 
-int fsync_parent_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
+पूर्णाङ्क fsync_parent_at(पूर्णाङ्क at_fd, ध्रुव वर्ण *path) {
+        _cleanup_close_ पूर्णाङ्क opened_fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return fsync_directory_of_file(at_fd);
+        यदि (isempty(path)) {
+                यदि (at_fd != AT_FDCWD)
+                        प्रत्यागम fsync_directory_of_file(at_fd);
 
                 opened_fd = open("..", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-                if (opened_fd < 0)
-                        return -errno;
+                यदि (opened_fd < 0)
+                        प्रत्यागम -errno;
 
-                return RET_NERRNO(fsync(opened_fd));
+                प्रत्यागम RET_NERRNO(fsync(opened_fd));
         }
 
         opened_fd = openat(at_fd, path, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-        if (opened_fd < 0)
-                return -errno;
+        यदि (opened_fd < 0)
+                प्रत्यागम -errno;
 
-        return fsync_directory_of_file(opened_fd);
+        प्रत्यागम fsync_directory_of_file(opened_fd);
 }
 
-int fsync_path_and_parent_at(int at_fd, const char *path) {
-        _cleanup_close_ int opened_fd = -EBADF;
+पूर्णाङ्क fsync_path_and_parent_at(पूर्णाङ्क at_fd, ध्रुव वर्ण *path) {
+        _cleanup_close_ पूर्णाङ्क opened_fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return fsync_full(at_fd);
+        यदि (isempty(path)) {
+                यदि (at_fd != AT_FDCWD)
+                        प्रत्यागम fsync_full(at_fd);
 
                 opened_fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-        } else
+        } अन्यथा
                 opened_fd = openat(at_fd, path, O_RDONLY|O_NOFOLLOW|O_NONBLOCK|O_CLOEXEC);
-        if (opened_fd < 0)
-                return -errno;
+        यदि (opened_fd < 0)
+                प्रत्यागम -errno;
 
-        return fsync_full(opened_fd);
+        प्रत्यागम fsync_full(opened_fd);
 }
 
-int syncfs_path(int at_fd, const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+पूर्णाङ्क syncfs_path(पूर्णाङ्क at_fd, ध्रुव वर्ण *path) {
+        _cleanup_close_ पूर्णाङ्क fd = -EBADF;
 
-        if (isempty(path)) {
-                if (at_fd != AT_FDCWD)
-                        return RET_NERRNO(syncfs(at_fd));
+        यदि (isempty(path)) {
+                यदि (at_fd != AT_FDCWD)
+                        प्रत्यागम RET_NERRNO(syncfs(at_fd));
 
                 fd = open(".", O_RDONLY|O_DIRECTORY|O_CLOEXEC);
-        } else
+        } अन्यथा
                 fd = openat(at_fd, path, O_RDONLY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return -errno;
+        यदि (fd < 0)
+                प्रत्यागम -errno;
 
-        return RET_NERRNO(syncfs(fd));
+        प्रत्यागम RET_NERRNO(syncfs(fd));
 }
