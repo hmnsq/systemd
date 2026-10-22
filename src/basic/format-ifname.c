@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "format-ifname.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#अन्तर्भाव "format-ifname.h"
+#अन्तर्भाव "stdio-util.h"
+#अन्तर्भाव "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(पूर्णाङ्क) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+पूर्णाङ्क format_ifname_full(पूर्णाङ्क ifindex, FormatIfnameFlag flag, वर्ण buf[स्थिर IF_NAMESIZE]) {
+        यदि (ifindex <= 0)
+                प्रत्यागम -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        यदि (if_indextoname(ifindex, buf))
+                प्रत्यागम 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        यदि (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                प्रत्यागम -त्रुटि_सं;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        यदि (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        अन्यथा
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
-        char buf[IF_NAMESIZE];
-        int r;
+पूर्णाङ्क format_ifname_full_alloc(पूर्णाङ्क ifindex, FormatIfnameFlag flag, वर्ण **ret) {
+        वर्ण buf[IF_NAMESIZE];
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return strdup_to(ret, buf);
+        प्रत्यागम strdup_to(ret, buf);
 }

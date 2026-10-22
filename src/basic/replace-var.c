@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "replace-var.h"
+#अन्तर्भाव "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
-        size_t k;
-        char *t;
+स्थिर पूर्णाङ्क get_variable(ध्रुव वर्ण *b, वर्ण **r) {
+        माप_प्रकार k;
+        वर्ण *t;
 
-        assert(b);
-        assert(r);
+        प्रतिज्ञा(b);
+        प्रतिज्ञा(r);
 
-        if (*b != '@')
-                return 0;
+        यदि (*b != '@')
+                प्रत्यागम 0;
 
-        k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        k = म_अखोज(b + 1, UPPERCASE_LETTERS "_");
+        यदि (k <= 0 || b[k+1] != '@')
+                प्रत्यागम 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        यदि (!t)
+                प्रत्यागम -ENOMEM;
 
         *r = t;
-        return 1;
+        प्रत्यागम 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
-        size_t l;
+वर्ण* replace_var(ध्रुव वर्ण *text, वर्ण *(*lookup)(ध्रुव वर्ण *variable, शून्य *userdata), शून्य *userdata) {
+        वर्ण *r, *t;
+        ध्रुव वर्ण *f;
+        माप_प्रकार l;
 
-        assert(text);
-        assert(lookup);
+        प्रतिज्ञा(text);
+        प्रतिज्ञा(lookup);
 
-        l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        l = म_माप(text);
+        r = new(वर्ण, l+1);
+        यदि (!r)
+                प्रत्यागम रिक्त;
 
         f = text;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
-                size_t skip, d, nl;
+        यावत् (*f) {
+                _cleanup_free_ वर्ण *v = रिक्त, *n = रिक्त;
+                वर्ण *a;
+                पूर्णाङ्क k;
+                माप_प्रकार skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                यदि (k < 0)
+                        गच्छ oom;
+                यदि (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        अनुवर्त;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                यदि (!n)
+                        गच्छ oom;
 
-                skip = strlen(v) + 2;
+                skip = म_माप(v) + 2;
 
                 d = t - r;
-                nl = l - skip + strlen(n);
-                a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                nl = l - skip + म_माप(n);
+                a = पुनः_स्मृति(r, nl + 1);
+                यदि (!a)
+                        गच्छ oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        प्रत्यागम r;
 
 oom:
-        return mfree(r);
+        प्रत्यागम mfree(r);
 }

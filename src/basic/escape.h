@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 /* What characters are special in the shell? */
 /* must be escaped outside and inside double-quotes */
@@ -21,12 +21,12 @@
  */
 #define SHELL_NEED_ESCAPE_POSIX "\\\'"
 
-typedef enum UnescapeFlags {
+प्रकारनिर्देश गणना UnescapeFlags {
         UNESCAPE_RELAX      = 1 << 0,
         UNESCAPE_ACCEPT_NUL = 1 << 1,
 } UnescapeFlags;
 
-typedef enum ShellEscapeFlags {
+प्रकारनिर्देश गणना ShellEscapeFlags {
         /* The default is to add shell quotes ("") so the shell will consider this a single argument.
          * Tabs and newlines are escaped. */
 
@@ -34,38 +34,38 @@ typedef enum ShellEscapeFlags {
         SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
-char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
-static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+पूर्णाङ्क cescape_char(वर्ण c, वर्ण *buf);
+वर्ण* cescape_length(ध्रुव वर्ण *s, माप_प्रकार n) _nonnull_if_nonzero_(1, 2);
+स्थिर अन्तःस्थ वर्ण* cescape(ध्रुव वर्ण *s) {
+        प्रत्यागम cescape_length(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+पूर्णाङ्क cunescape_one(ध्रुव वर्ण *p, माप_प्रकार length, char32_t *ret, bool *eight_bit, bool accept_nul);
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
-static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+ssize_t cunescape_length_with_prefix(ध्रुव वर्ण *s, माप_प्रकार length, ध्रुव वर्ण *prefix, UnescapeFlags flags, वर्ण **ret);
+स्थिर अन्तःस्थ ssize_t cunescape_length(ध्रुव वर्ण *s, माप_प्रकार length, UnescapeFlags flags, वर्ण **ret) {
+        प्रत्यागम cunescape_length_with_prefix(s, length, रिक्त, flags, ret);
 }
-static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+स्थिर अन्तःस्थ ssize_t cunescape(ध्रुव वर्ण *s, UnescapeFlags flags, वर्ण **ret) {
+        प्रत्यागम cunescape_length(s, SIZE_MAX, flags, ret);
 }
 
-typedef enum XEscapeFlags {
+प्रकारनिर्देश गणना XEscapeFlags {
         XESCAPE_8_BIT          = 1 << 0,
         XESCAPE_FORCE_ELLIPSIS = 1 << 1,
 } XEscapeFlags;
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
-static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+वर्ण* xescape_full(ध्रुव वर्ण *s, ध्रुव वर्ण *bad, माप_प्रकार console_width, XEscapeFlags flags);
+स्थिर अन्तःस्थ वर्ण* xescape(ध्रुव वर्ण *s, ध्रुव वर्ण *bad) {
+        प्रत्यागम xescape_full(s, bad, SIZE_MAX, 0);
 }
-char* octescape_full(const char *s, size_t len, const char *bad);
-static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+वर्ण* octescape_full(ध्रुव वर्ण *s, माप_प्रकार len, ध्रुव वर्ण *bad);
+स्थिर अन्तःस्थ वर्ण* octescape(ध्रुव वर्ण *s, माप_प्रकार len) {
+        प्रत्यागम octescape_full(s, len, रिक्त);
 }
-char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);
+वर्ण* decescape(ध्रुव वर्ण *s, माप_प्रकार len, ध्रुव वर्ण *bad) _nonnull_if_nonzero_(1, 2);
+वर्ण* escape_non_printable_full(ध्रुव वर्ण *str, माप_प्रकार console_width, XEscapeFlags flags);
 
-char* shell_escape(const char *s, const char *bad);
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags);
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags);
+वर्ण* shell_escape(ध्रुव वर्ण *s, ध्रुव वर्ण *bad);
+वर्ण* shell_maybe_quote(ध्रुव वर्ण *s, ShellEscapeFlags flags);
+वर्ण* quote_command_पंक्ति(वर्ण * ध्रुव *argv, ShellEscapeFlags flags);

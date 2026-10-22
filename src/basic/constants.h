@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "time-util.h"
+#अन्तर्भाव "time-util.h"
 
 #define DEFAULT_RESTART_USEC (100*USEC_PER_MSEC)
 
@@ -28,7 +28,7 @@
 /* The default value for the net.unix.max_dgram_qlen sysctl */
 #define DEFAULT_UNIX_MAX_DGRAM_QLEN 512
 
-#define SIGNALS_CRASH_HANDLER SIGSEGV,SIGILL,SIGFPE,SIGBUS,SIGQUIT,SIGABRT
+#define SIGNALS_CRASH_HANDLER संक_अंश,संक_अवैध,संक_भ_त्रुटि,SIGBUS,SIGQUIT,SIGABRT
 #define SIGNALS_IGNORE SIGPIPE
 
 #define NOTIFY_FD_MAX 768
@@ -52,7 +52,7 @@
         STRV_MAKE(CONF_PATHS(n))
 
 /* The limit for PID 1 itself (which is not inherited to children) */
-#define HIGH_RLIMIT_MEMLOCK (1024ULL*1024ULL*64ULL)
+#define ऊपरी_RLIMIT_MEMLOCK (1024ULL*1024ULL*64ULL)
 
 /* Since kernel 5.16 the kernel default limit was raised to 8M. Let's adjust things on old kernels too, and
  * in containers so that our children inherit that. */

@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio_ext.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <stdio_ext.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "hexdecoct.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "mkdir.h"
-#include "nulstr-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "sync-util.h"
-#include "terminal-util.h"
-#include "time-util.h"
-#include "tmpfile-util.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "chase.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "fs-util.h"
+#अन्तर्भाव "hexdecoct.h"
+#अन्तर्भाव "io-util.h"
+#अन्तर्भाव "iovec-util.h"
+#अन्तर्भाव "label-util.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "mkdir.h"
+#अन्तर्भाव "nulstr-util.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "path-util.h"
+#अन्तर्भाव "socket-util.h"
+#अन्तर्भाव "stat-util.h"
+#अन्तर्भाव "stdio-util.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "sync-util.h"
+#अन्तर्भाव "terminal-util.h"
+#अन्तर्भाव "time-util.h"
+#अन्तर्भाव "tmpfile-util.h"
 
 /* The maximum size of the file we'll read in one go in read_full_file() (64M). */
 #define READ_FULL_BYTES_MAX (64U * U64_MB - UINT64_C(1))
@@ -48,160 +48,160 @@
  * can detect EOFs. */
 #define READ_VIRTUAL_BYTES_MAX (4U * U64_MB - UINT64_C(2))
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret) {
-        assert(ret);
+पूर्णाङ्क fdopen_unlocked(पूर्णाङ्क fd, ध्रुव वर्ण *options, खाता **ret) {
+        प्रतिज्ञा(ret);
 
-        FILE *f = fdopen(fd, options);
-        if (!f)
-                return -errno;
+        खाता *f = fdopen(fd, options);
+        यदि (!f)
+                प्रत्यागम -त्रुटि_सं;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (शून्य) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret) {
-        int r;
+पूर्णाङ्क take_fdopen_unlocked(पूर्णाङ्क *fd, ध्रुव वर्ण *options, खाता **ret) {
+        पूर्णाङ्क r;
 
-        assert(fd);
+        प्रतिज्ञा(fd);
 
         r = fdopen_unlocked(*fd, options, ret);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         *fd = -EBADF;
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-FILE* take_fdopen(int *fd, const char *options) {
-        assert(fd);
+खाता* take_fdopen(पूर्णाङ्क *fd, ध्रुव वर्ण *options) {
+        प्रतिज्ञा(fd);
 
-        FILE *f = fdopen(*fd, options);
-        if (!f)
-                return NULL;
+        खाता *f = fdopen(*fd, options);
+        यदि (!f)
+                प्रत्यागम रिक्त;
 
         *fd = -EBADF;
 
-        return f;
+        प्रत्यागम f;
 }
 
-DIR* take_fdopendir(int *dfd) {
-        assert(dfd);
+सूची* take_fdopendir(पूर्णाङ्क *dfd) {
+        प्रतिज्ञा(dfd);
 
-        DIR *d = fdopendir(*dfd);
-        if (!d)
-                return NULL;
+        सूची *d = fdopendir(*dfd);
+        यदि (!d)
+                प्रत्यागम रिक्त;
 
         *dfd = -EBADF;
 
-        return d;
+        प्रत्यागम d;
 }
 
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc) {
-        FILE *f = open_memstream(ptr, sizeloc);
-        if (!f)
-                return NULL;
+खाता* open_memstream_unlocked(वर्ण **ptr, माप_प्रकार *sizeloc) {
+        खाता *f = open_memstream(ptr, sizeloc);
+        यदि (!f)
+                प्रत्यागम रिक्त;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (शून्य) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        प्रत्यागम f;
 }
 
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
-        FILE *f = fmemopen(buf, size, mode);
-        if (!f)
-                return NULL;
+खाता* fmemopen_unlocked(शून्य *buf, माप_प्रकार size, ध्रुव वर्ण *mode) {
+        खाता *f = fmemopen(buf, size, mode);
+        यदि (!f)
+                प्रत्यागम रिक्त;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (शून्य) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        प्रत्यागम f;
 }
 
-int write_string_stream_full(
-                FILE *f,
-                const char *line,
+पूर्णाङ्क write_string_stream_full(
+                खाता *f,
+                ध्रुव वर्ण *पंक्ति,
                 WriteStringFileFlags flags,
-                const struct timespec *ts) {
+                ध्रुव संरचना timespec *ts) {
 
         bool needs_nl;
-        int r, fd = -EBADF;
+        पूर्णाङ्क r, fd = -EBADF;
 
-        assert(f);
-        assert(line);
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(पंक्ति);
 
-        if (ferror(f))
-                return -EIO;
+        यदि (ख_त्रुटि(f))
+                प्रत्यागम -EIO;
 
-        if (ts) {
+        यदि (ts) {
                 /* If we shall set the timestamp we need the fd. But fmemopen() streams generally don't have
                  * an fd. Let's fail early in that case. */
                 fd = fileno(f);
-                if (fd < 0)
-                        return -EBADF;
+                यदि (fd < 0)
+                        प्रत्यागम -EBADF;
         }
 
-        if (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
-                _cleanup_free_ char *t = NULL;
+        यदि (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
+                _cleanup_free_ वर्ण *t = रिक्त;
 
                 /* If value to be written is same as that of the existing value, then suppress the write. */
 
-                if (fd < 0) {
+                यदि (fd < 0) {
                         fd = fileno(f);
-                        if (fd < 0)
-                                return -EBADF;
+                        यदि (fd < 0)
+                                प्रत्यागम -EBADF;
                 }
 
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
-                    streq_skip_trailing_chars(line, t, NEWLINE)) {
-                        log_debug("No change in value '%s', suppressing write", line);
-                        return 0;
+                यदि (read_virtual_file_fd(fd, म_माप(पंक्ति)+1, &t, रिक्त) > 0 &&
+                    streq_skip_trailing_chars(पंक्ति, t, NEWLINE)) {
+                        log_debug("No change in value '%s', suppressing write", पंक्ति);
+                        प्रत्यागम 0;
                 }
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                यदि (lseek(fd, 0, शुरू_से) < 0)
+                        प्रत्यागम -त्रुटि_सं;
         }
 
-        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
+        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(पंक्ति, "\n");
 
-        if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
+        यदि (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
-                line = strjoina(line, "\n");
+                पंक्ति = strjoina(पंक्ति, "\n");
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
-                return -errno;
+        यदि (ख_माला_दो(पंक्ति, f) == खातापूर्ण)
+                प्रत्यागम -त्रुटि_सं;
 
-        if (needs_nl)
-                if (fputc('\n', f) == EOF)
-                        return -errno;
+        यदि (needs_nl)
+                यदि (ख_अक्षर_दो('\n', f) == खातापूर्ण)
+                        प्रत्यागम -त्रुटि_सं;
 
-        if (flags & WRITE_STRING_FILE_SYNC)
+        यदि (flags & WRITE_STRING_FILE_SYNC)
                 r = fflush_sync_and_check(f);
-        else
+        अन्यथा
                 r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (ts) {
-                const struct timespec twice[2] = {*ts, *ts};
+        यदि (ts) {
+                ध्रुव संरचना timespec twice[2] = {*ts, *ts};
 
-                assert(fd >= 0);
-                if (futimens(fd, twice) < 0)
-                        return -errno;
+                प्रतिज्ञा(fd >= 0);
+                यदि (futimens(fd, twice) < 0)
+                        प्रत्यागम -त्रुटि_सं;
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
+स्थिर mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
 
         /* We support three different modes, that are the ones that really make sense for text files like this:
          *
@@ -210,24 +210,24 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
          *     → 0644 (i.e. writable for root, readable for everyone else)
          */
 
-        return FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
+        प्रत्यागम FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
                 FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0444) ? 0444 : 0644;
 }
 
-static int write_string_file_atomic_at(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+स्थिर पूर्णाङ्क write_string_file_atomic_at(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *fn,
+                ध्रुव वर्ण *पंक्ति,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
+                ध्रुव संरचना timespec *ts,
                 LabelContext *label_context) {
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_fclose_ खाता *f = रिक्त;
+        _cleanup_free_ वर्ण *p = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(fn);
-        assert(line);
+        प्रतिज्ञा(fn);
+        प्रतिज्ञा(पंक्ति);
 
         /* Note that we'd really like to use O_TMPFILE here, but can't really, since we want replacement
          * semantics here, and O_TMPFILE can't offer that. i.e. rename() replaces but linkat() doesn't. */
@@ -235,102 +235,102 @@ static int write_string_file_atomic_at(
         mode_t mode = write_string_file_flags_to_mode(flags);
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
+        यदि (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fn, mode, label_context);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
                 call_label_ops_post = true;
         }
 
         r = fopen_temporary_at(dir_fd, fn, &f, &p);
-        int k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
+        पूर्णाङ्क k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? रिक्त : fn, /* created= */ !!f, label_context) : 0;
         /* If fopen_temporary_at() failed in the above, propagate the error code, and ignore failures in
          * label_ops_post(). */
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
         CLEANUP_TMPFILE_AT(dir_fd, p);
-        if (k < 0)
-                return k;
+        यदि (k < 0)
+                प्रत्यागम k;
 
-        r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                return r;
+        r = write_string_stream_full(f, पंक्ति, flags, ts);
+        यदि (r < 0)
+                प्रत्यागम r;
 
         r = fchmod_umask(fileno(f), mode);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         r = RET_NERRNO(renameat(dir_fd, p, dir_fd, fn));
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
+        यदि (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
                 /* Sync the rename, too */
                 r = fsync_directory_of_file(fileno(f));
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int write_string_file_full_label(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+पूर्णाङ्क write_string_file_full_label(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *fn,
+                ध्रुव वर्ण *पंक्ति,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
-                const char *label_fn,
+                ध्रुव संरचना timespec *ts,
+                ध्रुव वर्ण *label_fn,
                 LabelContext *label_context) {
 
         bool made_file = false;
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_fclose_ खाता *f = रिक्त;
+        _cleanup_close_ पूर्णाङ्क fd = -EBADF;
+        पूर्णाङ्क r;
 
-        assert(dir_fd == AT_FDCWD || dir_fd >= 0);
-        assert(line);
+        प्रतिज्ञा(dir_fd == AT_FDCWD || dir_fd >= 0);
+        प्रतिज्ञा(पंक्ति);
 
         /* We don't know how to verify whether the file contents was already on-disk. */
-        assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
+        प्रतिज्ञा(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
 
-        if (flags & WRITE_STRING_FILE_MKDIR_0755) {
-                assert(fn);
+        यदि (flags & WRITE_STRING_FILE_MKDIR_0755) {
+                प्रतिज्ञा(fn);
 
                 r = mkdirat_parents(dir_fd, fn, 0755);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
         }
 
-        if (flags & WRITE_STRING_FILE_ATOMIC) {
-                assert(fn);
-                assert(flags & WRITE_STRING_FILE_CREATE);
+        यदि (flags & WRITE_STRING_FILE_ATOMIC) {
+                प्रतिज्ञा(fn);
+                प्रतिज्ञा(flags & WRITE_STRING_FILE_CREATE);
 
-                r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
-                if (r < 0)
-                        goto fail;
+                r = write_string_file_atomic_at(dir_fd, fn, पंक्ति, flags, ts, label_context);
+                यदि (r < 0)
+                        गच्छ fail;
 
-                return r;
+                प्रत्यागम r;
         }
 
         /* We manually build our own version of fopen(..., "we") that works without O_CREAT and with O_NOFOLLOW if needed. */
-        if (isempty(fn))
+        यदि (isempty(fn))
                 r = fd = fd_reopen(
                                 ASSERT_FD(dir_fd), O_CLOEXEC | O_NOCTTY |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
-        else {
+        अन्यथा {
                 mode_t mode = write_string_file_flags_to_mode(flags);
                 bool call_label_ops_post = false;
 
-                if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
+                यदि (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
                         r = label_ops_pre(dir_fd, label_fn ?: fn, mode, label_context);
-                        if (r < 0)
-                                goto fail;
+                        यदि (r < 0)
+                                गच्छ fail;
 
                         call_label_ops_post = true;
                 }
@@ -344,176 +344,176 @@ int write_string_file_full_label(
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
                                 mode,
                                 &made_file);
-                if (call_label_ops_post)
+                यदि (call_label_ops_post)
                         /* If openat_report_new() failed in the above, propagate the error code, and ignore
                          * failures in label_ops_post(). */
-                        RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : fn, made_file, label_context));
+                        RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? रिक्त : fn, made_file, label_context));
         }
-        if (r < 0)
-                goto fail;
+        यदि (r < 0)
+                गच्छ fail;
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0)
-                goto fail;
+        यदि (r < 0)
+                गच्छ fail;
 
-        if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
-                setvbuf(f, NULL, _IONBF, 0);
+        यदि (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
+                रखो_भबफ(f, रिक्त, _IONBF, 0);
 
-        r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                goto fail;
+        r = write_string_stream_full(f, पंक्ति, flags, ts);
+        यदि (r < 0)
+                गच्छ fail;
 
-        return 0;
+        प्रत्यागम 0;
 
 fail:
-        if (made_file)
-                (void) unlinkat(dir_fd, fn, 0);
+        यदि (made_file)
+                (शून्य) unlinkat(dir_fd, fn, 0);
 
-        if (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
-                return r;
+        यदि (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
+                प्रत्यागम r;
 
         f = safe_fclose(f);
         fd = safe_close(fd);
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
-                return 0;
+        यदि (verify_file_at(dir_fd, fn, पंक्ति, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+                प्रत्यागम 0;
 
-        return r;
+        प्रत्यागम r;
 }
 
-int write_string_filef(
-                const char *fn,
+पूर्णाङ्क write_string_filef(
+                ध्रुव वर्ण *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                ध्रुव वर्ण *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
-        va_list ap;
-        int r;
+        _cleanup_free_ वर्ण *p = रिक्त;
+        बहु_सूची ap;
+        पूर्णाङ्क r;
 
-        va_start(ap, format);
+        बहु_शुरू(ap, format);
         r = vasprintf(&p, format, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        यदि (r < 0)
+                प्रत्यागम -ENOMEM;
 
-        return write_string_file(fn, p, flags);
+        प्रत्यागम write_string_file(fn, p, flags);
 }
 
-int write_string_filef_at(
-                int dir_fd,
-                const char *fn,
+पूर्णाङ्क write_string_filef_at(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                ध्रुव वर्ण *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
-        va_list ap;
-        int r;
+        _cleanup_free_ वर्ण *p = रिक्त;
+        बहु_सूची ap;
+        पूर्णाङ्क r;
 
-        va_start(ap, format);
+        बहु_शुरू(ap, format);
         r = vasprintf(&p, format, ap);
-        va_end(ap);
+        बहु_पूर्ण(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        यदि (r < 0)
+                प्रत्यागम -ENOMEM;
 
-        return write_string_file_at(dir_fd, fn, p, flags);
+        प्रत्यागम write_string_file_at(dir_fd, fn, p, flags);
 }
 
-int write_base64_file_at(
-                int dir_fd,
-                const char *fn,
-                const struct iovec *data,
+पूर्णाङ्क write_base64_file_at(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *fn,
+                ध्रुव संरचना iovec *data,
                 WriteStringFileFlags flags) {
 
-        _cleanup_free_ char *encoded = NULL;
+        _cleanup_free_ वर्ण *encoded = रिक्त;
         ssize_t n;
 
-        n = base64mem_full(data ? data->iov_base : NULL, data ? data->iov_len : 0, 79, &encoded);
-        if (n < 0)
-                return n;
+        n = base64mem_full(data ? data->iov_base : रिक्त, data ? data->iov_len : 0, 79, &encoded);
+        यदि (n < 0)
+                प्रत्यागम n;
 
-        return write_string_file_at(dir_fd, fn, encoded, flags);
+        प्रत्यागम write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+पूर्णाङ्क read_one_पंक्ति_file_at(पूर्णाङ्क dir_fd, ध्रुव वर्ण *filename, वर्ण **ret) {
+        _cleanup_fclose_ खाता *f = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(filename);
-        assert(ret);
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा(filename);
+        प्रतिज्ञा(ret);
 
         r = fopen_unlocked_at(dir_fd, filename, "re", /* open_flags= */ 0, &f);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        प्रत्यागम read_पंक्ति(f, LONG_पंक्ति_MAX, ret);
 }
 
-int read_boolean_file_at(int dir_fd, const char *filename) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+पूर्णाङ्क read_boolean_file_at(पूर्णाङ्क dir_fd, ध्रुव वर्ण *filename) {
+        _cleanup_free_ वर्ण *s = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(filename);
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा(filename);
 
-        r = read_one_line_file_at(dir_fd, filename, &s);
-        if (r < 0)
-                return r;
+        r = read_one_पंक्ति_file_at(dir_fd, filename, &s);
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return parse_boolean(s);
+        प्रत्यागम parse_boolean(s);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *buf = NULL;
-        size_t l, k;
-        int r;
+पूर्णाङ्क verify_file_at(पूर्णाङ्क dir_fd, ध्रुव वर्ण *fn, ध्रुव वर्ण *blob, bool accept_extra_nl) {
+        _cleanup_fclose_ खाता *f = रिक्त;
+        _cleanup_free_ वर्ण *buf = रिक्त;
+        माप_प्रकार l, k;
+        पूर्णाङ्क r;
 
-        assert(blob);
+        प्रतिज्ञा(blob);
 
-        l = strlen(blob);
+        l = म_माप(blob);
 
-        if (accept_extra_nl && endswith(blob, "\n"))
+        यदि (accept_extra_nl && endswith(blob, "\n"))
                 accept_extra_nl = false;
 
-        buf = malloc(l + accept_extra_nl + 1);
-        if (!buf)
-                return -ENOMEM;
+        buf = दो_स्मृति(l + accept_extra_nl + 1);
+        यदि (!buf)
+                प्रत्यागम -ENOMEM;
 
         r = fopen_unlocked_at(dir_fd, strempty(fn), "re", 0, &f);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         /* We try to read one byte more than we need, so that we know whether we hit eof */
-        errno = 0;
-        k = fread(buf, 1, l + accept_extra_nl + 1, f);
-        if (ferror(f))
-                return errno_or_else(EIO);
+        त्रुटि_सं = 0;
+        k = ख_पढ़ो(buf, 1, l + accept_extra_nl + 1, f);
+        यदि (ख_त्रुटि(f))
+                प्रत्यागम errno_or_else(EIO);
 
-        if (k != l && k != l + accept_extra_nl)
-                return 0;
-        if (memcmp(buf, blob, l) != 0)
-                return 0;
-        if (k > l && buf[l] != '\n')
-                return 0;
+        यदि (k != l && k != l + accept_extra_nl)
+                प्रत्यागम 0;
+        यदि (स_भेद(buf, blob, l) != 0)
+                प्रत्यागम 0;
+        यदि (k > l && buf[l] != '\n')
+                प्रत्यागम 0;
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-int read_virtual_file_at(
-                int dir_fd,
-                const char *filename,
-                size_t max_size,
-                char **ret_contents,
-                size_t *ret_size) {
+पूर्णाङ्क read_virtual_file_at(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *filename,
+                माप_प्रकार max_size,
+                वर्ण **ret_contents,
+                माप_प्रकार *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
-        size_t n, size;
-        int n_retries;
+        _cleanup_free_ वर्ण *buf = रिक्त;
+        माप_प्रकार n, size;
+        पूर्णाङ्क n_retries;
         bool truncated = false;
 
         /* Virtual filesystems such as sysfs or procfs use kernfs, and kernfs can work with two sorts of
@@ -533,127 +533,127 @@ int read_virtual_file_at(
          *       for kernfs files using "raw" → use read_virtual_file_at()
          */
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
+        प्रतिज्ञा(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        प्रतिज्ञा(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
 
-        _cleanup_close_ int fd = -EBADF;
-        if (isempty(filename))
+        _cleanup_close_ पूर्णाङ्क fd = -EBADF;
+        यदि (isempty(filename))
                 fd = fd_reopen(ASSERT_FD(dir_fd), O_RDONLY | O_NOCTTY | O_CLOEXEC);
-        else
+        अन्यथा
                 fd = RET_NERRNO(openat(dir_fd, filename, O_RDONLY | O_NOCTTY | O_CLOEXEC));
-        if (fd < 0)
-                return fd;
+        यदि (fd < 0)
+                प्रत्यागम fd;
 
         /* Limit the number of attempts to read the number of bytes returned by fstat(). */
         n_retries = 3;
 
-        for (;;) {
-                struct stat st;
+        प्रति (;;) {
+                संरचना stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                यदि (ख_स्थिति(fd, &st) < 0)
+                        प्रत्यागम -त्रुटि_सं;
 
-                if (!S_ISREG(st.st_mode))
-                        return -EBADF;
+                यदि (!S_ISREG(st.st_mode))
+                        प्रत्यागम -EBADF;
 
                 /* Be prepared for files from /proc which generally report a file size of 0. */
                 assert_cc(READ_VIRTUAL_BYTES_MAX < SSIZE_MAX);
-                if (st.st_size > 0 && n_retries > 1) {
+                यदि (st.st_size > 0 && n_retries > 1) {
                         /* Let's use the file size if we have more than 1 attempt left. On the last attempt
                          * we'll ignore the file size */
 
-                        if (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
+                        यदि (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
 
-                                if (max_size == SIZE_MAX)
-                                        return -EFBIG;
+                                यदि (max_size == SIZE_MAX)
+                                        प्रत्यागम -EFBIG;
 
                                 size = max_size;
-                        } else {
-                                size = MIN((size_t) st.st_size, max_size);
+                        } अन्यथा {
+                                size = MIN((माप_प्रकार) st.st_size, max_size);
 
-                                if (size > READ_VIRTUAL_BYTES_MAX)
-                                        return -EFBIG;
+                                यदि (size > READ_VIRTUAL_BYTES_MAX)
+                                        प्रत्यागम -EFBIG;
                         }
 
                         n_retries--;
-                } else if (n_retries > 1) {
+                } अन्यथा यदि (n_retries > 1) {
                         /* Files in /proc are generally smaller than the page size so let's start with
                          * a page size buffer from malloc and only use the max buffer on the final try. */
                         size = MIN3(page_size() - 1, READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 1;
-                } else {
+                } अन्यथा {
                         size = MIN(READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 0;
                 }
 
-                buf = malloc(size + 1);
-                if (!buf)
-                        return -ENOMEM;
+                buf = दो_स्मृति(size + 1);
+                यदि (!buf)
+                        प्रत्यागम -ENOMEM;
 
                 /* Use a bigger allocation if we got it anyway, but not more than the limit. */
                 size = MIN3(MALLOC_SIZEOF_SAFE(buf) - 1, max_size, READ_VIRTUAL_BYTES_MAX);
 
-                for (;;) {
+                प्रति (;;) {
                         ssize_t k;
 
                         /* Read one more byte so we can detect whether the content of the
                          * file has already changed or the guessed size for files from /proc
                          * wasn't large enough . */
-                        k = read(fd, buf, size + 1);
-                        if (k >= 0) {
+                        k = पठ(fd, buf, size + 1);
+                        यदि (k >= 0) {
                                 n = k;
-                                break;
+                                भङ्ग;
                         }
 
-                        if (errno != EINTR)
-                                return -errno;
+                        यदि (त्रुटि_सं != EINTR)
+                                प्रत्यागम -त्रुटि_सं;
                 }
 
                 /* Consider a short read as EOF */
-                if (n <= size)
-                        break;
+                यदि (n <= size)
+                        भङ्ग;
 
                 /* If a maximum size is specified and we already read more we know the file is larger, and
                  * can handle this as truncation case. Note that if the size of what we read equals the
                  * maximum size then this doesn't mean truncation, the file might or might not end on that
                  * byte. We need to rerun the loop in that case, with a larger buffer size, so that we read
                  * at least one more byte to be able to distinguish EOF from truncation. */
-                if (max_size != SIZE_MAX && n > max_size) {
+                यदि (max_size != SIZE_MAX && n > max_size) {
                         n = size; /* Make sure we never use more than what we sized the buffer for (so that
                                    * we have one free byte in it for the trailing NUL we add below). */
                         truncated = true;
-                        break;
+                        भङ्ग;
                 }
 
                 /* We have no further attempts left? Then the file is apparently larger than our limits. Give up. */
-                if (n_retries <= 0)
-                        return -EFBIG;
+                यदि (n_retries <= 0)
+                        प्रत्यागम -EFBIG;
 
                 /* Hmm... either we read too few bytes from /proc or less likely the content of the file
                  * might have been changed (and is now bigger) while we were processing, let's try again
                  * either with the new file size. */
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                यदि (lseek(fd, 0, शुरू_से) < 0)
+                        प्रत्यागम -त्रुटि_सं;
 
                 buf = mfree(buf);
         }
 
-        if (ret_contents) {
+        यदि (ret_contents) {
 
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
-                if (!ret_size && memchr(buf, 0, n))
-                        return -EBADMSG;
+                यदि (!ret_size && स_प्रथम(buf, 0, n))
+                        प्रत्यागम -EBADMSG;
 
-                if (n < size) {
-                        char *p;
+                यदि (n < size) {
+                        वर्ण *p;
 
                         /* Return rest of the buffer to libc */
-                        p = realloc(buf, n + 1);
-                        if (!p)
-                                return -ENOMEM;
+                        p = पुनः_स्मृति(buf, n + 1);
+                        यदि (!p)
+                                प्रत्यागम -ENOMEM;
                         buf = p;
                 }
 
@@ -661,55 +661,55 @@ int read_virtual_file_at(
                 *ret_contents = TAKE_PTR(buf);
         }
 
-        if (ret_size)
+        यदि (ret_size)
                 *ret_size = n;
 
-        return !truncated;
+        प्रत्यागम !truncated;
 }
 
-int read_full_stream_full(
-                FILE *f,
-                const char *filename,
+पूर्णाङ्क read_full_stream_full(
+                खाता *f,
+                ध्रुव वर्ण *filename,
                 uint64_t offset,
-                size_t size,
+                माप_प्रकार size,
                 ReadFullFileFlags flags,
-                char **ret_contents,
-                size_t *ret_size) {
+                वर्ण **ret_contents,
+                माप_प्रकार *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
-        size_t n, n_next = 0, l, expected_decoded_size = size;
-        int fd, r;
+        _cleanup_free_ वर्ण *buf = रिक्त;
+        माप_प्रकार n, n_next = 0, l, expected_decoded_size = size;
+        पूर्णाङ्क fd, r;
 
-        assert(f);
-        assert(ret_contents);
-        assert(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
-        assert(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(ret_contents);
+        प्रतिज्ञा(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
+        प्रतिज्ञा(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
 
-        if (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
-                return -ERANGE;
+        यदि (offset != UINT64_MAX && offset > दीर्घ_उच्च) /* fseek() can only deal with "long" offsets */
+                प्रत्यागम -दुस्फल;
 
-        if ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
-                if (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
+        यदि ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
+                यदि (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
                         size *= READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
-                else
+                अन्यथा
                         size = SIZE_MAX;
         }
 
         fd = fileno(f);
-        if (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
+        यदि (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
                         * fmemopen()), let's optimize our buffering */
-                struct stat st;
+                संरचना stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                यदि (ख_स्थिति(fd, &st) < 0)
+                        प्रत्यागम -त्रुटि_सं;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
+                यदि (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                प्रत्यागम r;
                 }
 
-                if (S_ISREG(st.st_mode)) {
+                यदि (S_ISREG(st.st_mode)) {
 
                         /* Try to start with the right file size if we shall read the file in full. Note
                          * that we increase the size to read here by one, so that the first read attempt
@@ -717,59 +717,59 @@ int read_full_stream_full(
                          * avoid this logic however, since quite likely it might be a virtual file in procfs
                          * that all report a zero file size. */
 
-                        if (st.st_size > 0 &&
+                        यदि (st.st_size > 0 &&
                             (size == SIZE_MAX || FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER))) {
 
                                 uint64_t rsize =
                                         LESS_BY((uint64_t) st.st_size, offset == UINT64_MAX ? 0 : offset);
 
-                                if (rsize < SIZE_MAX) /* overflow check */
+                                यदि (rsize < SIZE_MAX) /* overflow check */
                                         n_next = rsize + 1;
                         }
 
-                        if (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
-                                (void) warn_file_is_world_accessible(filename, &st, NULL, 0);
+                        यदि (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
+                                (शून्य) warn_file_is_world_accessible(filename, &st, रिक्त, 0);
                 }
-        } else if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
-                return -EBADFD;
+        } अन्यथा यदि (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
+                प्रत्यागम -EBADFD;
 
         /* If we don't know how much to read, figure it out now. If we shall read a part of the file, then
          * allocate the requested size. If we shall load the full file start with LINE_MAX. Note that if
          * READ_FULL_FILE_FAIL_WHEN_LARGER we consider the specified size a safety limit, and thus also start
          * with LINE_MAX, under assumption the file is most likely much shorter. */
-        if (n_next == 0)
+        यदि (n_next == 0)
                 n_next = size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) ? size : LINE_MAX;
 
         /* Never read more than we need to determine that our own limit is hit */
-        if (n_next > READ_FULL_BYTES_MAX)
+        यदि (n_next > READ_FULL_BYTES_MAX)
                 n_next = READ_FULL_BYTES_MAX + 1;
 
-        if (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
-                return -errno;
+        यदि (offset != UINT64_MAX && ख_जाओ(f, offset, शुरू_से) < 0)
+                प्रत्यागम -त्रुटि_सं;
 
         n = l = 0;
-        for (;;) {
-                char *t;
-                size_t k;
+        प्रति (;;) {
+                वर्ण *t;
+                माप_प्रकार k;
 
                 /* If we shall fail when reading overly large data, then read exactly one byte more than the
                  * specified size at max, since that'll tell us if there's anymore data beyond the limit. */
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
+                यदि (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
                         n_next = size + 1;
 
-                if (flags & READ_FULL_FILE_SECURE) {
-                        t = malloc(n_next + 1);
-                        if (!t) {
+                यदि (flags & READ_FULL_FILE_SECURE) {
+                        t = दो_स्मृति(n_next + 1);
+                        यदि (!t) {
                                 r = -ENOMEM;
-                                goto finalize;
+                                गच्छ finalize;
                         }
                         memcpy_safe(t, buf, n);
                         explicit_bzero_safe(buf, n);
-                        free(buf);
-                } else {
-                        t = realloc(buf, n_next + 1);
-                        if (!t)
-                                return -ENOMEM;
+                        मुक्त(buf);
+                } अन्यथा {
+                        t = पुनः_स्मृति(buf, n_next + 1);
+                        यदि (!t)
+                                प्रत्यागम -ENOMEM;
                 }
 
                 buf = t;
@@ -777,741 +777,741 @@ int read_full_stream_full(
                  * we allocated (minus 1, to leave one byte for the safety NUL byte) */
                 n = size == SIZE_MAX ? MALLOC_SIZEOF_SAFE(buf) - 1 : n_next;
 
-                errno = 0;
-                k = fread(buf + l, 1, n - l, f);
+                त्रुटि_सं = 0;
+                k = ख_पढ़ो(buf + l, 1, n - l, f);
 
-                assert(k <= n - l);
+                प्रतिज्ञा(k <= n - l);
                 l += k;
 
-                if (ferror(f)) {
+                यदि (ख_त्रुटि(f)) {
                         r = errno_or_else(EIO);
-                        goto finalize;
+                        गच्छ finalize;
                 }
-                if (feof(f))
-                        break;
+                यदि (ख_पूर्ण(f))
+                        भङ्ग;
 
-                if (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
+                यदि (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
                         /* If we got asked to read some specific size, we already sized the buffer right,
                          * hence leave. */
-                        assert(l == size);
-                        break;
+                        प्रतिज्ञा(l == size);
+                        भङ्ग;
                 }
 
-                assert(k > 0); /* we can't have read zero bytes because that would have been EOF */
+                प्रतिज्ञा(k > 0); /* we can't have read zero bytes because that would have been EOF */
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
+                यदि (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
                         r = -E2BIG;
-                        goto finalize;
+                        गच्छ finalize;
                 }
 
-                if (n >= READ_FULL_BYTES_MAX) {
+                यदि (n >= READ_FULL_BYTES_MAX) {
                         r = -E2BIG;
-                        goto finalize;
+                        गच्छ finalize;
                 }
 
                 n_next = MIN(n * 2, READ_FULL_BYTES_MAX);
         }
 
-        if (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
-                _cleanup_free_ void *decoded = NULL;
-                size_t decoded_size;
+        यदि (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
+                _cleanup_free_ शून्य *decoded = रिक्त;
+                माप_प्रकार decoded_size;
 
                 buf[l++] = 0;
-                if (flags & READ_FULL_FILE_UNBASE64)
+                यदि (flags & READ_FULL_FILE_UNBASE64)
                         r = unbase64mem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                else
+                अन्यथा
                         r = unhexmem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                if (r < 0)
-                        goto finalize;
+                यदि (r < 0)
+                        गच्छ finalize;
 
-                if (flags & READ_FULL_FILE_SECURE)
+                यदि (flags & READ_FULL_FILE_SECURE)
                         explicit_bzero_safe(buf, n);
                 free_and_replace(buf, decoded);
                 n = l = decoded_size;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
+                यदि (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
                         r = -E2BIG;
-                        goto finalize;
+                        गच्छ finalize;
                 }
         }
 
-        if (!ret_size) {
+        यदि (!ret_size) {
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
 
-                if (memchr(buf, 0, l)) {
+                यदि (स_प्रथम(buf, 0, l)) {
                         r = -EBADMSG;
-                        goto finalize;
+                        गच्छ finalize;
                 }
         }
 
         buf[l] = 0;
         *ret_contents = TAKE_PTR(buf);
 
-        if (ret_size)
+        यदि (ret_size)
                 *ret_size = l;
 
-        return 0;
+        प्रत्यागम 0;
 
 finalize:
-        if (flags & READ_FULL_FILE_SECURE)
+        यदि (flags & READ_FULL_FILE_SECURE)
                 explicit_bzero_safe(buf, n);
 
-        return r;
+        प्रत्यागम r;
 }
 
-int read_full_file_full(
-                int dir_fd,
-                const char *filename,
+पूर्णाङ्क read_full_file_full(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *filename,
                 uint64_t offset,
-                size_t size,
+                माप_प्रकार size,
                 ReadFullFileFlags flags,
-                const char *bind_name,
-                char **ret_contents,
-                size_t *ret_size) {
+                ध्रुव वर्ण *bind_name,
+                वर्ण **ret_contents,
+                माप_प्रकार *ret_size) {
 
-        _cleanup_fclose_ FILE *f = NULL;
+        _cleanup_fclose_ खाता *f = रिक्त;
         XfopenFlags xflags = XFOPEN_UNLOCKED;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret_contents);
+        प्रतिज्ञा(ret_contents);
 
-        if (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
+        यदि (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
             offset == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
                 xflags |= XFOPEN_SOCKET;
 
         r = xfopenat_full(dir_fd, filename, "re", 0, xflags, bind_name, &f);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
+        प्रत्यागम read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
 }
 
-int script_get_shebang_interpreter(const char *path, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+पूर्णाङ्क script_get_shebang_interpreter(ध्रुव वर्ण *path, वर्ण **ret) {
+        _cleanup_fclose_ खाता *f = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
-        f = fopen(path, "re");
-        if (!f)
-                return -errno;
+        f = ख_खोलो(path, "re");
+        यदि (!f)
+                प्रत्यागम -त्रुटि_सं;
 
-        char c;
+        वर्ण c;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '#')
-                return -EMEDIUMTYPE;
+        यदि (r < 0)
+                प्रत्यागम r;
+        यदि (r == 0)
+                प्रत्यागम -EBADMSG;
+        यदि (c != '#')
+                प्रत्यागम -EMEDIUMTYPE;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '!')
-                return -EMEDIUMTYPE;
+        यदि (r < 0)
+                प्रत्यागम r;
+        यदि (r == 0)
+                प्रत्यागम -EBADMSG;
+        यदि (c != '!')
+                प्रत्यागम -EMEDIUMTYPE;
 
-        _cleanup_free_ char *line = NULL;
-        r = read_line(f, LONG_LINE_MAX, &line);
-        if (r < 0)
-                return r;
+        _cleanup_free_ वर्ण *पंक्ति = रिक्त;
+        r = read_पंक्ति(f, LONG_पंक्ति_MAX, &पंक्ति);
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        _cleanup_free_ char *p = NULL;
-        const char *s = line;
+        _cleanup_free_ वर्ण *p = रिक्त;
+        ध्रुव वर्ण *s = पंक्ति;
 
-        r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENOEXEC;
+        r = extract_first_word(&s, &p, /* separators= */ रिक्त, /* flags= */ 0);
+        यदि (r < 0)
+                प्रत्यागम r;
+        यदि (r == 0)
+                प्रत्यागम -ENOEXEC;
 
-        if (ret)
+        यदि (ret)
                 *ret = TAKE_PTR(p);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+पूर्णाङ्क get_proc_field(ध्रुव वर्ण *path, ध्रुव वर्ण *कुंजी, वर्ण **ret) {
+        _cleanup_fclose_ खाता *f = रिक्त;
+        पूर्णाङ्क r;
 
         /* Retrieve one field from a file like /proc/self/status. "key" matches the beginning of the line
          * and should not include whitespace or the delimiter (':').
          * Whitespaces after the ':' will be skipped. Only the first element is returned
          * (i.e. for /proc/meminfo line "MemTotal: 1024 kB" -> return "1024"). */
 
-        assert(path);
-        assert(key);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(कुंजी);
 
         r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT && proc_mounted() == 0)
-                return -ENOSYS;
-        if (r < 0)
-                return r;
+        यदि (r == -ENOENT && proc_mounted() == 0)
+                प्रत्यागम -ENOSYS;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        for (;;) {
-                 _cleanup_free_ char *line = NULL;
+        प्रति (;;) {
+                 _cleanup_free_ वर्ण *पंक्ति = रिक्त;
 
-                 r = read_line(f, LONG_LINE_MAX, &line);
-                 if (r < 0)
-                         return r;
-                 if (r == 0)
-                         return -ENODATA;
+                 r = read_पंक्ति(f, LONG_पंक्ति_MAX, &पंक्ति);
+                 यदि (r < 0)
+                         प्रत्यागम r;
+                 यदि (r == 0)
+                         प्रत्यागम -ENODATA;
 
-                 char *l = startswith(line, key);
-                 if (l && *l == ':') {
-                         if (ret) {
-                                 char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
-                                 if (!s)
-                                         return -ENOMEM;
+                 वर्ण *l = startswith(पंक्ति, कुंजी);
+                 यदि (l && *l == ':') {
+                         यदि (ret) {
+                                 वर्ण *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
+                                 यदि (!s)
+                                         प्रत्यागम -ENOMEM;
 
                                  *ret = s;
                          }
 
-                         return 0;
+                         प्रत्यागम 0;
                  }
         }
 }
 
-DIR* xopendirat(int dir_fd, const char *path, int flags) {
-        _cleanup_close_ int fd = -EBADF;
+सूची* xopendirat(पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, पूर्णाङ्क flags) {
+        _cleanup_close_ पूर्णाङ्क fd = -EBADF;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(!(flags & (O_CREAT|O_TMPFILE)));
+        प्रतिज्ञा(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        प्रतिज्ञा(!(flags & (O_CREAT|O_TMPFILE)));
 
-        if ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
+        यदि ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
             (flags &~ O_DIRECTORY) == 0)
-                return opendir(path);
+                प्रत्यागम सूची_खोलो(path);
 
-        if (isempty(path)) {
+        यदि (isempty(path)) {
                 path = ".";
                 flags |= O_NOFOLLOW;
         }
 
         fd = openat(dir_fd, path, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
-        if (fd < 0)
-                return NULL;
+        यदि (fd < 0)
+                प्रत्यागम रिक्त;
 
-        return take_fdopendir(&fd);
+        प्रत्यागम take_fdopendir(&fd);
 }
 
-int fopen_mode_to_flags(const char *mode) {
-        const char *p;
-        int flags;
+पूर्णाङ्क fopen_mode_to_flags(ध्रुव वर्ण *mode) {
+        ध्रुव वर्ण *p;
+        पूर्णाङ्क flags;
 
-        assert(mode);
+        प्रतिज्ञा(mode);
 
-        if ((p = startswith(mode, "r+")))
+        यदि ((p = startswith(mode, "r+")))
                 flags = O_RDWR;
-        else if ((p = startswith(mode, "r")))
+        अन्यथा यदि ((p = startswith(mode, "r")))
                 flags = O_RDONLY;
-        else if ((p = startswith(mode, "w+")))
+        अन्यथा यदि ((p = startswith(mode, "w+")))
                 flags = O_RDWR|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "w")))
+        अन्यथा यदि ((p = startswith(mode, "w")))
                 flags = O_WRONLY|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "a+")))
+        अन्यथा यदि ((p = startswith(mode, "a+")))
                 flags = O_RDWR|O_CREAT|O_APPEND;
-        else if ((p = startswith(mode, "a")))
+        अन्यथा यदि ((p = startswith(mode, "a")))
                 flags = O_WRONLY|O_CREAT|O_APPEND;
-        else
-                return -EINVAL;
+        अन्यथा
+                प्रत्यागम -EINVAL;
 
-        for (; *p != 0; p++) {
+        प्रति (; *p != 0; p++) {
 
-                switch (*p) {
+                विकल्प (*p) {
 
-                case 'e':
+                पक्ष 'e':
                         flags |= O_CLOEXEC;
-                        break;
+                        भङ्ग;
 
-                case 'x':
+                पक्ष 'x':
                         flags |= O_EXCL;
-                        break;
+                        भङ्ग;
 
-                case 'm':
+                पक्ष 'm':
                         /* ignore this here, fdopen() might care later though */
-                        break;
+                        भङ्ग;
 
-                case 'c': /* not sure what to do about this one */
-                default:
-                        return -EINVAL;
+                पक्ष 'c': /* not sure what to do about this one */
+                स्वभाव:
+                        प्रत्यागम -EINVAL;
                 }
         }
 
-        return flags;
+        प्रत्यागम flags;
 }
 
-static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
-        FILE *f;
+स्थिर पूर्णाङ्क xfopenat_regular(पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ध्रुव वर्ण *mode, पूर्णाङ्क open_flags, खाता **ret) {
+        खाता *f;
 
         /* A combination of fopen() with openat() */
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(mode);
-        assert(ret);
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा(mode);
+        प्रतिज्ञा(ret);
 
-        if (dir_fd == AT_FDCWD && path && open_flags == 0)
-                f = fopen(path, mode);
-        else if (dir_fd == XAT_FDROOT && path && open_flags == 0) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        यदि (dir_fd == AT_FDCWD && path && open_flags == 0)
+                f = ख_खोलो(path, mode);
+        अन्यथा यदि (dir_fd == XAT_FDROOT && path && open_flags == 0) {
+                _cleanup_free_ वर्ण *j = strjoin("/", path);
+                यदि (!j)
+                        प्रत्यागम -ENOMEM;
 
-                f = fopen(j, mode);
-        } else {
-                _cleanup_close_ int fd = -EBADF;
-                int mode_flags;
+                f = ख_खोलो(j, mode);
+        } अन्यथा {
+                _cleanup_close_ पूर्णाङ्क fd = -EBADF;
+                पूर्णाङ्क mode_flags;
 
                 mode_flags = fopen_mode_to_flags(mode);
-                if (mode_flags < 0)
-                        return mode_flags;
+                यदि (mode_flags < 0)
+                        प्रत्यागम mode_flags;
 
-                if (path) {
+                यदि (path) {
                         fd = openat(dir_fd, path, mode_flags | open_flags);
-                        if (fd < 0)
-                                return -errno;
-                } else {
-                        if (dir_fd == AT_FDCWD)
-                                return -EBADF;
+                        यदि (fd < 0)
+                                प्रत्यागम -त्रुटि_सं;
+                } अन्यथा {
+                        यदि (dir_fd == AT_FDCWD)
+                                प्रत्यागम -EBADF;
 
                         fd = fd_reopen(dir_fd, (mode_flags | open_flags) & ~O_NOFOLLOW);
-                        if (fd < 0)
-                                return fd;
+                        यदि (fd < 0)
+                                प्रत्यागम fd;
                 }
 
                 f = take_fdopen(&fd, mode);
         }
-        if (!f)
-                return -errno;
+        यदि (!f)
+                प्रत्यागम -त्रुटि_सं;
 
         *ret = f;
-        return 0;
+        प्रत्यागम 0;
 }
 
-static int xfopenat_unix_socket(int dir_fd, const char *path, const char *bind_name, FILE **ret) {
-        _cleanup_close_ int sk = -EBADF;
-        FILE *f;
-        int r;
+स्थिर पूर्णाङ्क xfopenat_unix_socket(पूर्णाङ्क dir_fd, ध्रुव वर्ण *path, ध्रुव वर्ण *bind_name, खाता **ret) {
+        _cleanup_close_ पूर्णाङ्क sk = -EBADF;
+        खाता *f;
+        पूर्णाङ्क r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा(ret);
 
         sk = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-        if (sk < 0)
-                return -errno;
+        यदि (sk < 0)
+                प्रत्यागम -त्रुटि_सं;
 
-        if (bind_name) {
+        यदि (bind_name) {
                 /* If the caller specified a socket name to bind to, do so before connecting. This is
                  * useful to communicate some minor, short meta-information token from the client to
                  * the server. */
-                union sockaddr_union bsa;
+                सङ्घ sockaddr_union bsa;
 
                 r = sockaddr_un_set_path(&bsa.un, bind_name);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
-                if (bind(sk, &bsa.sa, r) < 0)
-                        return -errno;
+                यदि (bind(sk, &bsa.sa, r) < 0)
+                        प्रत्यागम -त्रुटि_सं;
         }
 
         r = connect_unix_path(sk, dir_fd, path);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (shutdown(sk, SHUT_WR) < 0)
-                return -errno;
+        यदि (shutdown(sk, SHUT_WR) < 0)
+                प्रत्यागम -त्रुटि_सं;
 
         f = take_fdopen(&sk, "r");
-        if (!f)
-                return -errno;
+        यदि (!f)
+                प्रत्यागम -त्रुटि_सं;
 
         *ret = f;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+पूर्णाङ्क xfopenat_full(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *path,
+                ध्रुव वर्ण *mode,
+                पूर्णाङ्क open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
-                FILE **ret) {
+                ध्रुव वर्ण *bind_name,
+                खाता **ret) {
 
-        FILE *f = NULL;  /* avoid false maybe-uninitialized warning */
-        int r;
+        खाता *f = रिक्त;  /* avoid false maybe-uninitialized warning */
+        पूर्णाङ्क r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(mode);
-        assert(ret);
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा(mode);
+        प्रतिज्ञा(ret);
 
         r = xfopenat_regular(dir_fd, path, mode, open_flags, &f);
-        if (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
+        यदि (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
                 /* ENXIO is what Linux returns if we open a node that is an AF_UNIX socket */
                 r = xfopenat_unix_socket(dir_fd, path, bind_name, &f);
-                if (IN_SET(r, -ENOTSOCK, -EINVAL))
-                        return -ENXIO; /* propagate original error if this is not a socket after all */
+                यदि (IN_SET(r, -ENOTSOCK, -EINVAL))
+                        प्रत्यागम -ENXIO; /* propagate original error if this is not a socket after all */
         }
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (FLAGS_SET(flags, XFOPEN_UNLOCKED))
-                (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        यदि (FLAGS_SET(flags, XFOPEN_UNLOCKED))
+                (शून्य) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int fdopen_independent(int fd, const char *mode, FILE **ret) {
-        _cleanup_close_ int copy_fd = -EBADF;
-        _cleanup_fclose_ FILE *f = NULL;
-        int mode_flags;
+पूर्णाङ्क fdopen_independent(पूर्णाङ्क fd, ध्रुव वर्ण *mode, खाता **ret) {
+        _cleanup_close_ पूर्णाङ्क copy_fd = -EBADF;
+        _cleanup_fclose_ खाता *f = रिक्त;
+        पूर्णाङ्क mode_flags;
 
-        assert(fd >= 0);
-        assert(mode);
-        assert(ret);
+        प्रतिज्ञा(fd >= 0);
+        प्रतिज्ञा(mode);
+        प्रतिज्ञा(ret);
 
         /* A combination of fdopen() + fd_reopen(). i.e. reopens the inode the specified fd points to and
          * returns a FILE* for it */
 
         mode_flags = fopen_mode_to_flags(mode);
-        if (mode_flags < 0)
-                return mode_flags;
+        यदि (mode_flags < 0)
+                प्रत्यागम mode_flags;
 
         /* Flags returned by fopen_mode_to_flags might contain O_CREAT, but it doesn't make sense for fd_reopen
          * since we're working on an existing fd anyway. Let's drop it here to avoid triggering assertion. */
         copy_fd = fd_reopen(fd, mode_flags & ~O_CREAT);
-        if (copy_fd < 0)
-                return copy_fd;
+        यदि (copy_fd < 0)
+                प्रत्यागम copy_fd;
 
         f = take_fdopen(&copy_fd, mode);
-        if (!f)
-                return -errno;
+        यदि (!f)
+                प्रत्यागम -त्रुटि_सं;
 
         *ret = TAKE_PTR(f);
-        return 0;
+        प्रत्यागम 0;
 }
 
-static int search_and_open_internal(
-                const char *path,
-                int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+स्थिर पूर्णाङ्क खोज_and_open_internal(
+                ध्रुव वर्ण *path,
+                पूर्णाङ्क mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
+                ध्रुव वर्ण *मूल,
+                वर्ण **खोज,
+                पूर्णाङ्क *ret_fd,
+                वर्ण **ret_path) {
 
-        int r;
+        पूर्णाङ्क r;
 
-        assert(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
-        assert(path);
+        प्रतिज्ञा(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
+        प्रतिज्ञा(path);
 
-        if (path_is_absolute(path)) {
-                _cleanup_close_ int fd = -EBADF;
+        यदि (path_is_absolute(path)) {
+                _cleanup_close_ पूर्णाङ्क fd = -EBADF;
 
-                if (ret_fd)
+                यदि (ret_fd)
                         /* We only specify 0777 here to appease static analyzers, it's never used since we
                          * don't support O_CREAT here */
-                        r = fd = RET_NERRNO(open(path, mode, 0777));
-                else
+                        r = fd = RET_NERRNO(खोलो(path, mode, 0777));
+                अन्यथा
                         r = RET_NERRNO(access(path, mode));
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
-                if (ret_path) {
+                यदि (ret_path) {
                         r = path_simplify_alloc(path, ret_path);
-                        if (r < 0)
-                                return r;
+                        यदि (r < 0)
+                                प्रत्यागम r;
                 }
 
-                if (ret_fd)
+                यदि (ret_fd)
                         *ret_fd = TAKE_FD(fd);
 
-                return 0;
+                प्रत्यागम 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
-                return -ENOMEM;
+        यदि (!path_strv_resolve_uniq(खोज, मूल))
+                प्रत्यागम -ENOMEM;
 
-        STRV_FOREACH(i, search) {
-                _cleanup_close_ int fd = -EBADF;
-                _cleanup_free_ char *p = NULL;
+        STRV_FOREACH(i, खोज) {
+                _cleanup_close_ पूर्णाङ्क fd = -EBADF;
+                _cleanup_free_ वर्ण *p = रिक्त;
 
-                p = path_join(root, *i, path);
-                if (!p)
-                        return -ENOMEM;
+                p = path_join(मूल, *i, path);
+                यदि (!p)
+                        प्रत्यागम -ENOMEM;
 
-                if (ret_fd)
+                यदि (ret_fd)
                         /* as above, 0777 is static analyzer appeasement */
-                        r = fd = RET_NERRNO(open(p, mode, 0777));
-                else
+                        r = fd = RET_NERRNO(खोलो(p, mode, 0777));
+                अन्यथा
                         r = RET_NERRNO(access(p, F_OK));
-                if (r >= 0) {
-                        if (ret_path)
+                यदि (r >= 0) {
+                        यदि (ret_path)
                                 *ret_path = path_simplify(TAKE_PTR(p));
 
-                        if (ret_fd)
+                        यदि (ret_fd)
                                 *ret_fd = TAKE_FD(fd);
 
-                        return 0;
+                        प्रत्यागम 0;
                 }
-                if (r != -ENOENT)
-                        return r;
+                यदि (r != -ENOENT)
+                        प्रत्यागम r;
         }
 
-        return -ENOENT;
+        प्रत्यागम -ENOENT;
 }
 
-int search_and_open(
-                const char *path,
-                int mode,
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+पूर्णाङ्क खोज_and_open(
+                ध्रुव वर्ण *path,
+                पूर्णाङ्क mode,
+                ध्रुव वर्ण *मूल,
+                वर्ण **खोज,
+                पूर्णाङ्क *ret_fd,
+                वर्ण **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ वर्ण **copy = रिक्त;
 
-        assert(path);
+        प्रतिज्ञा(path);
 
-        copy = strv_copy(search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy(खोज);
+        यदि (!copy)
+                प्रत्यागम -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        प्रत्यागम खोज_and_open_internal(path, mode, मूल, copy, ret_fd, ret_path);
 }
 
-static int search_and_fopen_internal(
-                const char *path,
-                const char *mode,
-                const char *root,
-                char **search,
-                FILE **ret_file,
-                char **ret_path) {
+स्थिर पूर्णाङ्क खोज_and_fopen_internal(
+                ध्रुव वर्ण *path,
+                ध्रुव वर्ण *mode,
+                ध्रुव वर्ण *मूल,
+                वर्ण **खोज,
+                खाता **ret_file,
+                वर्ण **ret_path) {
 
-        _cleanup_free_ char *found_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_free_ वर्ण *found_path = रिक्त;
+        _cleanup_close_ पूर्णाङ्क fd = -EBADF;
+        पूर्णाङ्क r;
 
-        assert(path);
-        assert(mode || !ret_file);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(mode || !ret_file);
 
-        r = search_and_open_internal(
+        r = खोज_and_open_internal(
                         path,
                         mode ? fopen_mode_to_flags(mode) : 0,
-                        root,
-                        search,
-                        ret_file ? &fd : NULL,
-                        ret_path ? &found_path : NULL);
-        if (r < 0)
-                return r;
+                        मूल,
+                        खोज,
+                        ret_file ? &fd : रिक्त,
+                        ret_path ? &found_path : रिक्त);
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (ret_file) {
-                FILE *f = take_fdopen(&fd, mode);
-                if (!f)
-                        return -errno;
+        यदि (ret_file) {
+                खाता *f = take_fdopen(&fd, mode);
+                यदि (!f)
+                        प्रत्यागम -त्रुटि_सं;
 
                 *ret_file = f;
         }
 
-        if (ret_path)
+        यदि (ret_path)
                 *ret_path = TAKE_PTR(found_path);
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int search_and_fopen(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char **search,
-                FILE **ret_file,
-                char **ret_path) {
+पूर्णाङ्क खोज_and_fopen(
+                ध्रुव वर्ण *path,
+                ध्रुव वर्ण *mode,
+                ध्रुव वर्ण *मूल,
+                ध्रुव वर्ण **खोज,
+                खाता **ret_file,
+                वर्ण **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ वर्ण **copy = रिक्त;
 
-        assert(path);
-        assert(mode || !ret_file);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(mode || !ret_file);
 
-        copy = strv_copy((char**) search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy((वर्ण**) खोज);
+        यदि (!copy)
+                प्रत्यागम -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        प्रत्यागम खोज_and_fopen_internal(path, mode, मूल, copy, ret_file, ret_path);
 }
 
-int search_and_fopen_nulstr(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char *search,
-                FILE **ret_file,
-                char **ret_path) {
+पूर्णाङ्क खोज_and_fopen_nulstr(
+                ध्रुव वर्ण *path,
+                ध्रुव वर्ण *mode,
+                ध्रुव वर्ण *मूल,
+                ध्रुव वर्ण *खोज,
+                खाता **ret_file,
+                वर्ण **ret_path) {
 
-        _cleanup_strv_free_ char **l = NULL;
+        _cleanup_strv_free_ वर्ण **l = रिक्त;
 
-        assert(path);
-        assert(mode || !ret_file);
+        प्रतिज्ञा(path);
+        प्रतिज्ञा(mode || !ret_file);
 
-        l = strv_split_nulstr(search);
-        if (!l)
-                return -ENOMEM;
+        l = strv_split_nulstr(खोज);
+        यदि (!l)
+                प्रत्यागम -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        प्रत्यागम खोज_and_fopen_internal(path, mode, मूल, l, ret_file, ret_path);
 }
 
-int fflush_and_check(FILE *f) {
-        assert(f);
+पूर्णाङ्क fflush_and_check(खाता *f) {
+        प्रतिज्ञा(f);
 
-        errno = 0;
-        fflush(f);
+        त्रुटि_सं = 0;
+        ख_साफ(f);
 
-        if (ferror(f))
-                return errno_or_else(EIO);
+        यदि (ख_त्रुटि(f))
+                प्रत्यागम errno_or_else(EIO);
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int fflush_sync_and_check(FILE *f) {
-        int r, fd;
+पूर्णाङ्क fflush_sync_and_check(खाता *f) {
+        पूर्णाङ्क r, fd;
 
-        assert(f);
+        प्रतिज्ञा(f);
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         /* Not all file streams have an fd associated (think: fmemopen()), let's handle this gracefully and
          * assume that in that case we need no explicit syncing */
         fd = fileno(f);
-        if (fd < 0)
-                return 0;
+        यदि (fd < 0)
+                प्रत्यागम 0;
 
         r = fsync_full(fd);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int write_timestamp_file_atomic(const char *fn, usec_t n) {
-        char ln[DECIMAL_STR_MAX(n)+2];
+पूर्णाङ्क write_timestamp_file_atomic(ध्रुव वर्ण *fn, usec_t n) {
+        वर्ण ln[DECIMAL_STR_MAX(n)+2];
 
         /* Creates a "timestamp" file, that contains nothing but a
          * usec_t timestamp, formatted in ASCII. */
 
-        if (!timestamp_is_set(n))
-                return -ERANGE;
+        यदि (!timestamp_is_set(n))
+                प्रत्यागम -दुस्फल;
 
         xsprintf(ln, USEC_FMT "\n", n);
 
-        return write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
+        प्रत्यागम write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
 }
 
-int read_timestamp_file(const char *fn, usec_t *ret) {
-        _cleanup_free_ char *ln = NULL;
+पूर्णाङ्क read_timestamp_file(ध्रुव वर्ण *fn, usec_t *ret) {
+        _cleanup_free_ वर्ण *ln = रिक्त;
         uint64_t t;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        r = read_one_line_file(fn, &ln);
-        if (r < 0)
-                return r;
+        r = read_one_पंक्ति_file(fn, &ln);
+        यदि (r < 0)
+                प्रत्यागम r;
 
         r = safe_atou64(ln, &t);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (!timestamp_is_set(t))
-                return -ERANGE;
+        यदि (!timestamp_is_set(t))
+                प्रत्यागम -दुस्फल;
 
         *ret = (usec_t) t;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
-        assert(s);
-        assert(space);
+पूर्णाङ्क fputs_with_separator(खाता *f, ध्रुव वर्ण *s, ध्रुव वर्ण *separator, bool *space) {
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(space);
 
         /* Outputs the specified string with fputs(), but optionally prefixes it with a separator.
          * The *space parameter when specified shall initially point to a boolean variable initialized
          * to false. It is set to true after the first invocation. This call is supposed to be use in loops,
          * where a separator shall be inserted between each element, but not before the first one. */
 
-        if (!f)
-                f = stdout;
+        यदि (!f)
+                f = मानक_निकास;
 
-        if (!separator)
+        यदि (!separator)
                 separator = " ";
 
-        if (*space)
-                if (fputs(separator, f) < 0)
-                        return -EIO;
+        यदि (*space)
+                यदि (ख_माला_दो(separator, f) < 0)
+                        प्रत्यागम -EIO;
 
         *space = true;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        यदि (ख_माला_दो(s, f) < 0)
+                प्रत्यागम -EIO;
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int fputs_with_newline(FILE *f, const char *s) {
+पूर्णाङ्क fputs_with_newline(खाता *f, ध्रुव वर्ण *s) {
 
         /* This is like fputs() but outputs a trailing newline char, but only if the string isn't empty
          * and doesn't end in a newline already. Returns 0 in case we didn't append a newline, > 0 otherwise. */
 
-        if (isempty(s))
-                return 0;
+        यदि (isempty(s))
+                प्रत्यागम 0;
 
-        if (!f)
-                f = stdout;
+        यदि (!f)
+                f = मानक_निकास;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        यदि (ख_माला_दो(s, f) < 0)
+                प्रत्यागम -EIO;
 
-        if (endswith(s, "\n"))
-                return 0;
+        यदि (endswith(s, "\n"))
+                प्रत्यागम 0;
 
-        if (fputc('\n', f) < 0)
-                return -EIO;
+        यदि (ख_अक्षर_दो('\n', f) < 0)
+                प्रत्यागम -EIO;
 
-        return 1;
+        प्रत्यागम 1;
 }
 
 /* A bitmask of the EOL markers we know */
-typedef enum EndOfLineMarker {
+प्रकारनिर्देश गणना End_Of_पंक्ति_Marker {
         EOL_NONE     = 0,
         EOL_ZERO     = 1 << 0,  /* \0 (aka NUL) */
         EOL_TEN      = 1 << 1,  /* \n (aka NL, aka LF)  */
         EOL_THIRTEEN = 1 << 2,  /* \r (aka CR)  */
-} EndOfLineMarker;
+} End_Of_पंक्ति_Marker;
 
-static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
+स्थिर End_Of_पंक्ति_Marker categorize_eol(वर्ण c, Read_पंक्ति_Flags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
-                if (c == '\n')
-                        return EOL_TEN;
-                if (c == '\r')
-                        return EOL_THIRTEEN;
+        यदि (!FLAGS_SET(flags, READ_पंक्ति_ONLY_NUL)) {
+                यदि (c == '\n')
+                        प्रत्यागम EOL_TEN;
+                यदि (c == '\r')
+                        प्रत्यागम EOL_THIRTEEN;
         }
 
-        if (c == '\0')
-                return EOL_ZERO;
+        यदि (c == '\0')
+                प्रत्यागम EOL_ZERO;
 
-        return EOL_NONE;
+        प्रत्यागम EOL_NONE;
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(खाता*, funlockfile, रिक्त);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
-        _cleanup_free_ char *buffer = NULL;
-        size_t n = 0, count = 0;
-        int r;
+पूर्णाङ्क read_पंक्ति_full(खाता *f, माप_प्रकार limit, Read_पंक्ति_Flags flags, वर्ण **ret) {
+        _cleanup_free_ वर्ण *buffer = रिक्त;
+        माप_प्रकार n = 0, गिनती = 0;
+        पूर्णाङ्क r;
 
-        assert(f);
+        प्रतिज्ञा(f);
 
         /* Something like a bounded version of getline().
          *
@@ -1537,35 +1537,35 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
          *
          * If a line shall be skipped ret may be initialized as NULL. */
 
-        if (ret) {
-                if (!GREEDY_REALLOC(buffer, 1))
-                        return -ENOMEM;
+        यदि (ret) {
+                यदि (!GREEDY_REALLOC(buffer, 1))
+                        प्रत्यागम -ENOMEM;
         }
 
         {
-                _unused_ _cleanup_(funlockfilep) FILE *flocked = f;
-                EndOfLineMarker previous_eol = EOL_NONE;
+                _unused_ _cleanup_(funlockfilep) खाता *flocked = f;
+                End_Of_पंक्ति_Marker previous_eol = EOL_NONE;
                 flockfile(f);
 
-                for (;;) {
-                        EndOfLineMarker eol;
-                        char c;
+                प्रति (;;) {
+                        End_Of_पंक्ति_Marker eol;
+                        वर्ण c;
 
-                        if (n >= limit)
-                                return -ENOBUFS;
+                        यदि (n >= limit)
+                                प्रत्यागम -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
-                                return -ENOBUFS;
+                        यदि (गिनती >= पूर्णांक_उच्च) /* We couldn't return the counter anymore as "int", hence refuse this */
+                                प्रत्यागम -ENOBUFS;
 
                         r = safe_fgetc(f, &c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) /* EOF is definitely EOL */
-                                break;
+                        यदि (r < 0)
+                                प्रत्यागम r;
+                        यदि (r == 0) /* EOF is definitely EOL */
+                                भङ्ग;
 
                         eol = categorize_eol(c, flags);
 
-                        if (FLAGS_SET(previous_eol, EOL_ZERO) ||
+                        यदि (FLAGS_SET(previous_eol, EOL_ZERO) ||
                             (eol == EOL_NONE && previous_eol != EOL_NONE) ||
                             (eol != EOL_NONE && (previous_eol & eol) != 0)) {
                                 /* Previous char was a NUL? This is not an EOL, but the previous char was? This type of
@@ -1577,41 +1577,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                                  * actually happy with most negative characters and implicitly casts them back to
                                  * positive ones as needed, except for \xff (aka -1, aka EOF), which it refuses. What a
                                  * godawful API!) */
-                                assert_se(ungetc((unsigned char) c, f) != EOF);
-                                break;
+                                assert_se(अक्षर_वापस((अचिन्हित वर्ण) c, f) != खातापूर्ण);
+                                भङ्ग;
                         }
 
-                        count++;
+                        गिनती++;
 
-                        if (eol != EOL_NONE) {
+                        यदि (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
                                  * generally means waiting for the user, interactively. In the case of a TTY
                                  * we expect only \n as the single EOL marker, so we are in the lucky
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
-                                        int fd;
+                                यदि ((flags & (READ_पंक्ति_IS_A_TTY|READ_पंक्ति_NOT_A_TTY)) == 0) {
+                                        पूर्णाङ्क fd;
 
                                         fd = fileno(f);
-                                        if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
+                                        यदि (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
-                                                flags |= READ_LINE_NOT_A_TTY;
-                                        else
-                                                flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
+                                                flags |= READ_पंक्ति_NOT_A_TTY;
+                                        अन्यथा
+                                                flags |= isatty_safe(fd) ? READ_पंक्ति_IS_A_TTY : READ_पंक्ति_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
-                                        break;
+                                यदि (FLAGS_SET(flags, READ_पंक्ति_IS_A_TTY))
+                                        भङ्ग;
                         }
 
-                        if (eol != EOL_NONE) {
+                        यदि (eol != EOL_NONE) {
                                 previous_eol |= eol;
-                                continue;
+                                अनुवर्त;
                         }
 
-                        if (ret) {
-                                if (!GREEDY_REALLOC(buffer, n + 2))
-                                        return -ENOMEM;
+                        यदि (ret) {
+                                यदि (!GREEDY_REALLOC(buffer, n + 2))
+                                        प्रत्यागम -ENOMEM;
 
                                 buffer[n] = c;
                         }
@@ -1620,147 +1620,147 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 }
         }
 
-        if (ret) {
+        यदि (ret) {
                 buffer[n] = 0;
 
                 *ret = TAKE_PTR(buffer);
         }
 
-        return (int) count;
+        प्रत्यागम (पूर्णाङ्क) गिनती;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r, k;
+पूर्णाङ्क read_stripped_पंक्ति(खाता *f, माप_प्रकार limit, वर्ण **ret) {
+        _cleanup_free_ वर्ण *s = रिक्त;
+        पूर्णाङ्क r, k;
 
-        assert(f);
+        प्रतिज्ञा(f);
 
-        r = read_line(f, limit, ret ? &s : NULL);
-        if (r < 0)
-                return r;
+        r = read_पंक्ति(f, limit, ret ? &s : रिक्त);
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (ret) {
-                const char *p = strstrip(s);
-                if (p == s)
+        यदि (ret) {
+                ध्रुव वर्ण *p = strstrip(s);
+                यदि (p == s)
                         *ret = TAKE_PTR(s);
-                else {
+                अन्यथा {
                         k = strdup_to(ret, p);
-                        if (k < 0)
-                                return k;
+                        यदि (k < 0)
+                                प्रत्यागम k;
                 }
         }
 
-        return r > 0;          /* Return 1 if something was read. */
+        प्रत्यागम r > 0;          /* Return 1 if something was read. */
 }
 
-int safe_fgetc(FILE *f, char *ret) {
-        int k;
+पूर्णाङ्क safe_fgetc(खाता *f, वर्ण *ret) {
+        पूर्णाङ्क k;
 
-        assert(f);
+        प्रतिज्ञा(f);
 
         /* A safer version of plain fgetc(): let's propagate the error that happened while reading as such, and
          * separate the EOF condition from the byte read, to avoid those confusion signed/unsigned issues fgetc()
          * has. */
 
-        errno = 0;
-        k = fgetc(f);
-        if (k == EOF) {
-                if (ferror(f))
-                        return errno_or_else(EIO);
+        त्रुटि_सं = 0;
+        k = ख_अक्षर_लो(f);
+        यदि (k == खातापूर्ण) {
+                यदि (ख_त्रुटि(f))
+                        प्रत्यागम errno_or_else(EIO);
 
-                if (ret)
+                यदि (ret)
                         *ret = 0;
 
-                return 0;
+                प्रत्यागम 0;
         }
 
-        if (ret)
+        यदि (ret)
                 *ret = k;
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
-        struct stat _st;
+पूर्णाङ्क warn_file_is_world_accessible(ध्रुव वर्ण *filename, संरचना stat *st, ध्रुव वर्ण *unit, अचिन्हित पंक्ति) {
+        संरचना stat _st;
 
-        if (!filename)
-                return 0;
+        यदि (!filename)
+                प्रत्यागम 0;
 
-        if (!st) {
-                if (stat(filename, &_st) < 0)
-                        return -errno;
+        यदि (!st) {
+                यदि (stat(filename, &_st) < 0)
+                        प्रत्यागम -त्रुटि_सं;
                 st = &_st;
         }
 
-        if ((st->st_mode & S_IRWXO) == 0)
-                return 0;
+        यदि ((st->st_mode & S_IRWXO) == 0)
+                प्रत्यागम 0;
 
-        if (unit)
-                log_syntax(unit, LOG_WARNING, filename, line, 0,
+        यदि (unit)
+                log_syntax(unit, LOG_WARNING, filename, पंक्ति, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
-        else
+        अन्यथा
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                             filename, st->st_mode & 07777);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int write_data_file_atomic_at(
-                int dir_fd,
-                const char *path,
-                const struct iovec *iovec,
+पूर्णाङ्क write_data_file_atomic_at(
+                पूर्णाङ्क dir_fd,
+                ध्रुव वर्ण *path,
+                ध्रुव संरचना iovec *iovec,
                 WriteDataFileFlags flags) {
 
-        int r;
+        पूर्णाङ्क r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
+        प्रतिज्ञा(wildcard_fd_is_valid(dir_fd));
 
         /* This is a cousin of write_string_file_atomic(), but operates with arbitrary struct iovec binary
          * data (rather than strings), works without FILE* streams, and does direct syscalls instead. */
 
-        _cleanup_free_ char *dn = NULL, *fn = NULL;
+        _cleanup_free_ वर्ण *dn = रिक्त, *fn = रिक्त;
         r = path_split_prefix_filename(path, &dn, &fn);
-        if (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
-                return -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
-        if (r < 0)
-                return r;
+        यदि (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
+                प्रत्यागम -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        _cleanup_close_ int mfd = -EBADF;
-        if (dn) {
+        _cleanup_close_ पूर्णाङ्क mfd = -EBADF;
+        यदि (dn) {
                 /* If there's a directory component, readjust our position */
                 r = chaseat(XAT_FDROOT,
                             dir_fd,
                             dn,
                             FLAGS_SET(flags, WRITE_DATA_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
-                            /* ret_path= */ NULL,
+                            /* ret_path= */ रिक्त,
                             &mfd);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
 
                 dir_fd = mfd;
         }
 
-        _cleanup_free_ char *t = NULL;
-        _cleanup_close_ int fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
-        if (fd < 0)
-                return fd;
+        _cleanup_free_ वर्ण *t = रिक्त;
+        _cleanup_close_ पूर्णाङ्क fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
+        यदि (fd < 0)
+                प्रत्यागम fd;
 
         CLEANUP_TMPFILE_AT(dir_fd, t);
 
-        if (iovec_is_set(iovec)) {
+        यदि (iovec_is_set(iovec)) {
                 r = loop_write(fd, iovec->iov_base, iovec->iov_len);
-                if (r < 0)
-                        return r;
+                यदि (r < 0)
+                        प्रत्यागम r;
         }
 
         r = fchmod_umask(fd, FLAGS_SET(flags, WRITE_DATA_FILE_MODE_0400) ? 0400 : 0644);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         r = link_tmpfile_at(fd, dir_fd, t, fn, LINK_TMPFILE_REPLACE);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
         t = mfree(t); /* disarm CLEANUP_TMPFILE_AT */
-        return 0;
+        प्रत्यागम 0;
 }

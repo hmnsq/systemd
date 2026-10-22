@@ -1,51 +1,51 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#अन्तर्भाव <string.h>
 
-#include "hmac.h"
-#include "memory-util.h"
-#include "sha256.h"
+#अन्तर्भाव "hmac.h"
+#अन्तर्भाव "memory-util.h"
+#अन्तर्भाव "sha256.h"
 
 #define HMAC_BLOCK_SIZE 64
 #define INNER_PADDING_BYTE 0x36
 #define OUTER_PADDING_BYTE 0x5c
 
-void hmac_sha256(const void *key,
-                 size_t key_size,
-                 const void *input,
-                 size_t input_size,
-                 uint8_t res[static SHA256_DIGEST_SIZE]) {
+शून्य hmac_sha256(ध्रुव शून्य *कुंजी,
+                 माप_प्रकार कुंजी_size,
+                 ध्रुव शून्य *निवेश,
+                 माप_प्रकार निवेश_size,
+                 uint8_t res[स्थिर SHA256_DIGEST_SIZE]) {
 
         uint8_t inner_padding[HMAC_BLOCK_SIZE] = { };
         CLEANUP_ERASE(inner_padding); /* carries key ^ 0x36, trivially reversible to the original key */
         uint8_t outer_padding[HMAC_BLOCK_SIZE] = { };
         CLEANUP_ERASE(outer_padding); /* carries key ^ 0x5c, trivially reversible to the original key */
-        uint8_t replacement_key[SHA256_DIGEST_SIZE];
-        CLEANUP_ERASE(replacement_key); /* SHA-256 of the key when key_size > block size */
-        struct sha256_ctx hash;
+        uint8_t replacement_कुंजी[SHA256_DIGEST_SIZE];
+        CLEANUP_ERASE(replacement_कुंजी); /* SHA-256 of the key when key_size > block size */
+        संरचना sha256_ctx hash;
         CLEANUP_ERASE(hash); /* intermediate state derived from key material */
 
-        assert(key);
-        assert(key_size > 0);
-        assert(res);
+        प्रतिज्ञा(कुंजी);
+        प्रतिज्ञा(कुंजी_size > 0);
+        प्रतिज्ञा(res);
 
         /* Implement algorithm as described by FIPS 198. */
 
         /* The key needs to be block size length or less, hash it if it's longer. */
-        if (key_size > HMAC_BLOCK_SIZE) {
-                sha256_direct(key, key_size, replacement_key);
-                key = replacement_key;
-                key_size = SHA256_DIGEST_SIZE;
+        यदि (कुंजी_size > HMAC_BLOCK_SIZE) {
+                sha256_direct(कुंजी, कुंजी_size, replacement_कुंजी);
+                कुंजी = replacement_कुंजी;
+                कुंजी_size = SHA256_DIGEST_SIZE;
         }
 
         /* First, copy the key into the padding arrays. If it's shorter than
          * the block size, the arrays are already initialized to 0. */
-        memcpy(inner_padding, key, key_size);
-        memcpy(outer_padding, key, key_size);
+        स_नकल(inner_padding, कुंजी, कुंजी_size);
+        स_नकल(outer_padding, कुंजी, कुंजी_size);
 
         /* Then, XOR the provided key and any padding leftovers with the fixed
          * padding bytes as defined in FIPS 198. */
-        for (size_t i = 0; i < HMAC_BLOCK_SIZE; i++) {
+        प्रति (माप_प्रकार i = 0; i < HMAC_BLOCK_SIZE; i++) {
                 inner_padding[i] ^= INNER_PADDING_BYTE;
                 outer_padding[i] ^= OUTER_PADDING_BYTE;
         }
@@ -53,7 +53,7 @@ void hmac_sha256(const void *key,
         /* First pass: hash the inner padding array and the input. */
         sha256_init_ctx(&hash);
         sha256_process_bytes(inner_padding, HMAC_BLOCK_SIZE, &hash);
-        sha256_process_bytes(input, input_size, &hash);
+        sha256_process_bytes(निवेश, निवेश_size, &hash);
         sha256_finish_ctx(&hash, res);
 
         /* Second pass: hash the outer padding array and the result of the first pass. */
