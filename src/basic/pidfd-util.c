@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/magic.h>
-#include <sys/ioctl.h>
-#include <threads.h>
-#include <unistd.h>
+#अन्तर्भाव <linux/magic.h>
+#अन्तर्भाव <sys/ioctl.h>
+#अन्तर्भाव <threads.h>
+#अन्तर्भाव <unistd.h>
 
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "mountpoint-util.h"
-#include "parse-util.h"
-#include "pidfd-util.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "mountpoint-util.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "pidfd-util.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "stat-util.h"
+#अन्तर्भाव "stdio-util.h"
+#अन्तर्भाव "string-util.h"
 
-static thread_local int have_pidfs = -1;
+स्थिर thread_local पूर्णाङ्क have_pidfs = -1;
 
-int pidfd_check_pidfs(int pid_fd) {
+पूर्णाङ्क pidfd_check_pidfs(पूर्णाङ्क pid_fd) {
 
         /* NB: the passed fd *must* be acquired via pidfd_open(), i.e. must be a true pidfd! */
 
-        if (have_pidfs >= 0)
-                return have_pidfs;
+        जइ (have_pidfs >= 0)
+                प्रत्यागम have_pidfs;
 
-        _cleanup_close_ int our_fd = -EBADF;
-        if (pid_fd < 0) {
+        _cleanup_close_ पूर्णाङ्क our_fd = -EBADF;
+        जइ (pid_fd < 0) {
                 our_fd = pidfd_open(getpid_cached(), /* flags= */ 0);
-                if (our_fd < 0)
-                        return -errno;
+                जइ (our_fd < 0)
+                        प्रत्यागम -errno;
 
                 pid_fd = our_fd;
         }
 
-        return (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
+        प्रत्यागम (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
 }
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
-        static bool cached_supported = true;
+पूर्णाङ्क pidfd_get_namespace(पूर्णाङ्क fd, unsigned long ns_type_cmd) {
+        स्थिर bool cached_supported = true;
 
         /* Obtain the namespace fd from pidfd directly through ioctl(PIDFD_GET_*_NAMESPACE).
          *
@@ -46,80 +46,80 @@ int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
          * is disabled in kernel. (The errno used are different from what kernel returns via ioctl(),
          * see below) */
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         /* If we know ahead of time that pidfs is unavailable, shortcut things. But otherwise we don't
          * call pidfd_check_pidfs() here, which is kinda extraneous and our own cache is required
          * anyways (pidfs is introduced in kernel 6.9 while ioctl support there is added in 6.11). */
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        जइ (have_pidfs == 0 || !cached_supported)
+                प्रत्यागम -EOPNOTSUPP;
 
-        int nsfd = ioctl(fd, ns_type_cmd, 0);
-        if (nsfd < 0) {
+        पूर्णाङ्क nsfd = ioctl(fd, ns_type_cmd, 0);
+        जइ (nsfd < 0) {
                 /* Kernel returns EOPNOTSUPP if the ns type in question is disabled. Hence we need to look
                  * at precise errno instead of generic ERRNO_IS_(IOCTL_)NOT_SUPPORTED. */
-                if (IN_SET(errno, ENOTTY, EINVAL)) {
+                जइ (IN_SET(errno, ENOTTY, EINVAL)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        प्रत्यागम -EOPNOTSUPP;
                 }
-                if (errno == EOPNOTSUPP) /* Translate to something more recognizable */
-                        return -ENOPKG;
+                जइ (errno == EOPNOTSUPP) /* Translate to something more recognizable */
+                        प्रत्यागम -ENOPKG;
 
-                return -errno;
+                प्रत्यागम -errno;
         }
 
-        return nsfd;
+        प्रत्यागम nsfd;
 }
 
-int pidfd_get_info(int fd, struct pidfd_info *info) {
-        static bool cached_supported = true;
+पूर्णाङ्क pidfd_get_info(पूर्णाङ्क fd, संरचना pidfd_info *info) {
+        स्थिर bool cached_supported = true;
 
-        assert(fd >= 0);
-        assert(info);
+        प्रतिज्ञा(fd >= 0);
+        प्रतिज्ञा(info);
 
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        जइ (have_pidfs == 0 || !cached_supported)
+                प्रत्यागम -EOPNOTSUPP;
 
-        if (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
-                if (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
+        जइ (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
+                जइ (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        प्रत्यागम -EOPNOTSUPP;
                 }
 
-                return -errno;
+                प्रत्यागम -errno;
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int pidfd_info_mask_is_supported(uint64_t mask) {
-        static thread_local uint64_t cached_mask = 0;
-        static thread_local int cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
-        int r;
+पूर्णाङ्क pidfd_info_mask_is_supported(uint64_t mask) {
+        स्थिर thread_local uint64_t cached_mask = 0;
+        स्थिर thread_local पूर्णाङ्क cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
+        पूर्णाङ्क r;
 
-        if (cached < 0)
-                return cached;
+        जइ (cached < 0)
+                प्रत्यागम cached;
 
-        if (cached == 0) {
-                _cleanup_close_ int pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
-                if (r < 0)
-                        return r;
+        जइ (cached == 0) {
+                _cleanup_close_ पूर्णाङ्क pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
+                जइ (r < 0)
+                        प्रत्यागम r;
 
-                struct pidfd_info info = {
+                संरचना pidfd_info info = {
                         .mask = PIDFD_INFO_SUPPORTED_MASK, /* Since dfd78546c95330db2252e0d7e937a15ab5eddb4e (v6.19). */
                 };
 
                 r = pidfd_get_info(pidfd, &info);
-                if (r == -EOPNOTSUPP)
-                        return (cached = -EOPNOTSUPP);
-                if (r < 0)
-                        return r;
+                जइ (r == -EOPNOTSUPP)
+                        प्रत्यागम (cached = -EOPNOTSUPP);
+                जइ (r < 0)
+                        प्रत्यागम r;
 
-                if (FLAGS_SET(info.mask, PIDFD_INFO_SUPPORTED_MASK) &&
+                जइ (FLAGS_SET(info.mask, PIDFD_INFO_SUPPORTED_MASK) &&
                     FLAGS_SET(info.supported_mask, PIDFD_INFO_SUPPORTED_MASK))
                         /* The kernel is v6.19 or newer. Let's use the provided supported_mask. */
                         cached_mask = info.supported_mask;
-                else
+                अण्णहा
                         /* The kernel is older than v6.19. These three flags have been supported since
                          * ioctl(PIDFD_GET_INFO) was introduced, so a successful pidfd_get_info() call
                          * guarantees they are supported. However, there is no reliable way to
@@ -131,53 +131,53 @@ int pidfd_info_mask_is_supported(uint64_t mask) {
         }
 
         /* Return true when all requested features are supported. */
-        return FLAGS_SET(cached_mask, mask);
+        प्रत्यागम FLAGS_SET(cached_mask, mask);
 }
 
-static int pidfd_get_pid_fdinfo(int fd, pid_t *ret) {
-        char path[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(int)];
-        _cleanup_free_ char *p = NULL;
-        int r;
+स्थिर पूर्णाङ्क pidfd_get_pid_fdinfo(पूर्णाङ्क fd, pid_t *ret) {
+        वर्ण path[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(पूर्णाङ्क)];
+        _cleanup_free_ वर्ण *p = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         xsprintf(path, "/proc/self/fdinfo/%i", fd);
 
         r = get_proc_field(path, "Pid", &p);
-        if (r == -ENOENT)
-                return -EBADF;
-        if (r == -ENODATA) /* not a pidfd? */
-                return -ENOTTY;
-        if (r < 0)
-                return r;
+        जइ (r == -ENOENT)
+                प्रत्यागम -EBADF;
+        जइ (r == -ENODATA) /* not a pidfd? */
+                प्रत्यागम -ENOTTY;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        if (streq(p, "0"))
-                return -EREMOTE; /* PID is in foreign PID namespace? */
-        if (streq(p, "-1"))
-                return -ESRCH;   /* refers to reaped process? */
+        जइ (streq(p, "0"))
+                प्रत्यागम -EREMOTE; /* PID is in foreign PID namespace? */
+        जइ (streq(p, "-1"))
+                प्रत्यागम -ESRCH;   /* refers to reaped process? */
 
-        return parse_pid(p, ret);
+        प्रत्यागम parse_pid(p, ret);
 }
 
-static int pidfd_get_pid_ioctl(int fd, pid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+स्थिर पूर्णाङ्क pidfd_get_pid_ioctl(पूर्णाङ्क fd, pid_t *ret) {
+        संरचना pidfd_info info = { .mask = PIDFD_INFO_PID };
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
+        प्रतिज्ञा(FLAGS_SET(info.mask, PIDFD_INFO_PID));
 
-        if (ret)
+        जइ (ret)
                 *ret = info.pid;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int pidfd_get_pid(int fd, pid_t *ret) {
-        int r;
+पूर्णाङ्क pidfd_get_pid(पूर्णाङ्क fd, pid_t *ret) {
+        पूर्णाङ्क r;
 
         /* Converts a pidfd into a pid. We try ioctl(PIDFD_GET_INFO) (kernel 6.13+) first,
          * /proc/self/fdinfo/ as fallback. Well known errors:
@@ -193,157 +193,157 @@ int pidfd_get_pid(int fd, pid_t *ret) {
          *               (when using PIDFD_GET_INFO this is indistinguishable from -ESRCH)
          */
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = pidfd_get_pid_ioctl(fd, ret);
-        if (r != -EOPNOTSUPP)
-                return r;
+        जइ (r != -EOPNOTSUPP)
+                प्रत्यागम r;
 
-        return pidfd_get_pid_fdinfo(fd, ret);
+        प्रत्यागम pidfd_get_pid_fdinfo(fd, ret);
 }
 
-int pidfd_verify_pid(int pidfd, pid_t pid) {
+पूर्णाङ्क pidfd_verify_pid(पूर्णाङ्क pidfd, pid_t pid) {
         pid_t current_pid;
-        int r;
+        पूर्णाङ्क r;
 
-        assert(pidfd >= 0);
-        assert(pid > 0);
+        प्रतिज्ञा(pidfd >= 0);
+        प्रतिज्ञा(pid > 0);
 
         r = pidfd_get_pid(pidfd, &current_pid);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        return current_pid != pid ? -ESRCH : 0;
+        प्रत्यागम current_pid != pid ? -ESRCH : 0;
 }
 
-int pidfd_get_ppid(int fd, pid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+पूर्णाङ्क pidfd_get_ppid(पूर्णाङ्क fd, pid_t *ret) {
+        संरचना pidfd_info info = { .mask = PIDFD_INFO_PID };
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
+        प्रतिज्ञा(FLAGS_SET(info.mask, PIDFD_INFO_PID));
 
-        if (info.ppid == 0) /* See comments in pid_get_ppid() */
-                return -EADDRNOTAVAIL;
+        जइ (info.ppid == 0) /* See comments in pid_get_ppid() */
+                प्रत्यागम -EADDRNOTAVAIL;
 
-        if (ret)
+        जइ (ret)
                 *ret = info.ppid;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int pidfd_get_uid(int fd, uid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_CREDS };
-        int r;
+पूर्णाङ्क pidfd_get_uid(पूर्णाङ्क fd, uid_t *ret) {
+        संरचना pidfd_info info = { .mask = PIDFD_INFO_CREDS };
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_CREDS));
+        प्रतिज्ञा(FLAGS_SET(info.mask, PIDFD_INFO_CREDS));
 
-        if (ret)
+        जइ (ret)
                 *ret = info.ruid;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int pidfd_get_cgroupid(int fd, uint64_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_CGROUPID };
-        int r;
+पूर्णाङ्क pidfd_get_cgroupid(पूर्णाङ्क fd, uint64_t *ret) {
+        संरचना pidfd_info info = { .mask = PIDFD_INFO_CGROUPID };
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_CGROUPID));
+        प्रतिज्ञा(FLAGS_SET(info.mask, PIDFD_INFO_CGROUPID));
 
-        if (ret)
+        जइ (ret)
                 *ret = info.cgroupid;
-        return 0;
+        प्रत्यागम 0;
 }
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret) {
-        static thread_local bool file_handle_supported = true;
-        int r;
+पूर्णाङ्क pidfd_get_inode_id_impl(पूर्णाङ्क fd, uint64_t *ret) {
+        स्थिर thread_local bool file_handle_supported = true;
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         /* Since kernel 6.14 (b3caba8f7a34a2bbaf45ffc6ff3a49b70afeb192), we can use name_to_handle_at(). */
-        if (file_handle_supported) {
+        जइ (file_handle_supported) {
                 r = fd_to_handle_u64(fd, ret);
-                if (r >= 0 || is_name_to_handle_at_fatal_error(r))
-                        return r;
+                जइ (r >= 0 || is_name_to_handle_at_fatal_error(r))
+                        प्रत्यागम r;
 
                 file_handle_supported = false;
         }
 
-#if SIZEOF_INO_T == 8
-        struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+#जइ SIZEOF_INO_T == 8
+        संरचना stat st;
+        जइ (fstat(fd, &st) < 0)
+                प्रत्यागम -errno;
 
-        if (ret)
+        जइ (ret)
                 *ret = (uint64_t) st.st_ino;
-        return 0;
+        प्रत्यागम 0;
 
-#elif SIZEOF_INO_T == 4
+#नोचेद्यदि SIZEOF_INO_T == 4
         /* On 32-bit systems (where sizeof(ino_t) == 4), the inode id returned by fstat() cannot be used to
          * reliably identify the process, nor can we communicate the origin of the id with the clients.
          * Hence let's just refuse to acquire pidfdid through fstat() here. All clients shall also insist on
          * the 64-bit id from name_to_handle_at(). */
-        return -EOPNOTSUPP;
-#else
+        प्रत्यागम -EOPNOTSUPP;
+#अण्णहा
 #  error Unsupported ino_t size
 #endif
 }
 
-int pidfd_get_inode_id(int fd, uint64_t *ret) {
-        int r;
+पूर्णाङ्क pidfd_get_inode_id(पूर्णाङ्क fd, uint64_t *ret) {
+        पूर्णाङ्क r;
 
-        assert(fd >= 0);
+        प्रतिज्ञा(fd >= 0);
 
         r = pidfd_check_pidfs(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EOPNOTSUPP;
+        जइ (r < 0)
+                प्रत्यागम r;
+        जइ (r == 0)
+                प्रत्यागम -EOPNOTSUPP;
 
-        return pidfd_get_inode_id_impl(fd, ret);
+        प्रत्यागम pidfd_get_inode_id_impl(fd, ret);
 }
 
-int pidfd_get_inode_id_self_cached(uint64_t *ret) {
-        static thread_local uint64_t cached = 0;
-        static thread_local pid_t initialized = 0; /* < 0: cached error; == 0: invalid; > 0: valid and pid that was current */
-        int r;
+पूर्णाङ्क pidfd_get_inode_id_self_cached(uint64_t *ret) {
+        स्थिर thread_local uint64_t cached = 0;
+        स्थिर thread_local pid_t initialized = 0; /* < 0: cached error; == 0: invalid; > 0: valid and pid that was current */
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        if (initialized == getpid_cached()) {
+        जइ (initialized == getpid_cached()) {
                 *ret = cached;
-                return 0;
+                प्रत्यागम 0;
         }
-        if (initialized < 0)
-                return initialized;
+        जइ (initialized < 0)
+                प्रत्यागम initialized;
 
-        _cleanup_close_ int fd = pidfd_open(getpid_cached(), 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ पूर्णाङ्क fd = pidfd_open(getpid_cached(), 0);
+        जइ (fd < 0)
+                प्रत्यागम -errno;
 
         r = pidfd_get_inode_id(fd, &cached);
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                return (initialized = -EOPNOTSUPP);
-        if (r < 0)
-                return r;
+        जइ (ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                प्रत्यागम (initialized = -EOPNOTSUPP);
+        जइ (r < 0)
+                प्रत्यागम r;
 
         *ret = cached;
         initialized = getpid_cached();
-        return 0;
+        प्रत्यागम 0;
 }

@@ -1,270 +1,270 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/signalfd.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
-#include <threads.h>
-#include <unistd.h>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <sys/signalfd.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <sys/uio.h>
+#अन्तर्भाव <threads.h>
+#अन्तर्भाव <unistd.h>
 
-#include "sd-messages.h"
+#अन्तर्भाव "sd-messages.h"
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "argv-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "format-util.h"
-#include "iovec-util.h"
-#include "list.h"
-#include "log.h"
-#include "log-context.h"
-#include "parse-util.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "ratelimit.h"
-#include "signal-util.h"
-#include "socket-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "syslog-util.h"
-#include "terminal-util.h"
-#include "time-util.h"
-#include "utf8.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "ansi-color.h"
+#अन्तर्भाव "argv-util.h"
+#अन्तर्भाव "env-util.h"
+#अन्तर्भाव "errno-util.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "fd-util.h"
+#अन्तर्भाव "format-util.h"
+#अन्तर्भाव "iovec-util.h"
+#अन्तर्भाव "list.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "log-context.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "proc-cmdline.h"
+#अन्तर्भाव "process-util.h"
+#अन्तर्भाव "ratelimit.h"
+#अन्तर्भाव "signal-util.h"
+#अन्तर्भाव "socket-util.h"
+#अन्तर्भाव "stdio-util.h"
+#अन्तर्भाव "string-table.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
+#अन्तर्भाव "syslog-util.h"
+#अन्तर्भाव "terminal-util.h"
+#अन्तर्भाव "time-util.h"
+#अन्तर्भाव "utf8.h"
 
 #define SNDBUF_SIZE (8*1024*1024)
 #define IOVEC_MAX 256U
 
-static log_syntax_callback_t log_syntax_callback = NULL;
-static void *log_syntax_callback_userdata = NULL;
+स्थिर log_syntax_callback_t log_syntax_callback = रिक्त;
+स्थिर शून्य *log_syntax_callback_userdata = रिक्त;
 
-static LogTarget log_target = LOG_TARGET_CONSOLE;
-static int log_max_level = LOG_INFO;
-static int log_target_max_level[_LOG_TARGET_SINGLE_MAX] = {
+स्थिर LogTarget log_target = LOG_TARGET_CONSOLE;
+स्थिर पूर्णाङ्क log_max_level = LOG_INFO;
+स्थिर पूर्णाङ्क log_target_max_level[_LOG_TARGET_SINGLE_MAX] = {
         [LOG_TARGET_CONSOLE] = INT_MAX,
         [LOG_TARGET_KMSG]    = INT_MAX,
         [LOG_TARGET_SYSLOG]  = INT_MAX,
         [LOG_TARGET_JOURNAL] = INT_MAX,
 };
-static int log_facility = LOG_DAEMON;
-static bool ratelimit_kmsg = true;
+स्थिर पूर्णाङ्क log_facility = LOG_DAEMON;
+स्थिर bool ratelimit_kmsg = true;
 
-static int console_fd = STDERR_FILENO;
-static int console_fd_is_tty = -1; /* tri-state: -1 means don't know */
-static int syslog_fd = -EBADF;
-static int kmsg_fd = -EBADF;
-static int journal_fd = -EBADF;
+स्थिर पूर्णाङ्क console_fd = STDERR_FILENO;
+स्थिर पूर्णाङ्क console_fd_is_tty = -1; /* tri-state: -1 means don't know */
+स्थिर पूर्णाङ्क syslog_fd = -EBADF;
+स्थिर पूर्णाङ्क kmsg_fd = -EBADF;
+स्थिर पूर्णाङ्क journal_fd = -EBADF;
 
-static bool syslog_is_stream = false;
+स्थिर bool syslog_is_stream = false;
 
-static int show_color = -1; /* tristate */
-static bool show_location = false;
-static bool show_time = false;
-static bool show_tid = false;
-static bool show_executable = false;
+स्थिर पूर्णाङ्क show_color = -1; /* tristate */
+स्थिर bool show_location = false;
+स्थिर bool show_time = false;
+स्थिर bool show_tid = false;
+स्थिर bool show_executable = false;
 
-static bool upgrade_syslog_to_journal = false;
-static bool always_reopen_console = false;
-static bool open_when_needed = false;
-static bool prohibit_ipc = false;
+स्थिर bool upgrade_syslog_to_journal = false;
+स्थिर bool always_reopen_console = false;
+स्थिर bool open_when_needed = false;
+स्थिर bool prohibit_ipc = false;
 
-static thread_local const char *log_prefix = NULL;
+स्थिर thread_local ध्रुव वर्ण *log_prefix = रिक्त;
 
-#if LOG_MESSAGE_VERIFICATION || defined(__COVERITY__)
+#जइ LOG_MESSAGE_VERIFICATION || defined(__COVERITY__)
 bool _log_message_dummy = false; /* Always false */
 #endif
 
 /* An assert to use in logging functions that does not call recursively
  * into our logging functions (since that might lead to a loop). */
-#define assert_raw(expr)                                                \
-        do {                                                            \
-                if (_unlikely_(!(expr))) {                              \
+#define assert_raw(व्यञ्जकम्)                                                \
+        करेहि {                                                            \
+                जइ (_unlikely_(!(व्यञ्जकम्))) {                              \
                         fputs(#expr "\n", stderr);                      \
                         abort();                                        \
                 }                                                       \
-        } while (false)
+        } जाव (false)
 
-void log_prefix_swap(const char **prefix) {
-        assert(prefix);
+शून्य log_prefix_swap(ध्रुव वर्ण **prefix) {
+        प्रतिज्ञा(prefix);
 
         SWAP_TWO(log_prefix, *prefix);
 }
 
-static void log_close_console(void) {
+स्थिर शून्य log_close_console(शून्य) {
         /* See comment in log_close_journal() */
-        (void) safe_close_above_stdio(TAKE_FD(console_fd));
+        (शून्य) safe_close_above_stdio(TAKE_FD(console_fd));
         console_fd_is_tty = -1;
 }
 
-static int log_open_console(void) {
+स्थिर पूर्णाङ्क log_open_console(शून्य) {
 
-        if (!always_reopen_console) {
+        जइ (!always_reopen_console) {
                 console_fd = STDERR_FILENO;
                 console_fd_is_tty = -1;
-                return 0;
+                प्रत्यागम 0;
         }
 
-        if (console_fd < 3) {
-                int fd;
+        जइ (console_fd < 3) {
+                पूर्णाङ्क fd;
 
                 fd = open_terminal("/dev/console", O_WRONLY|O_NOCTTY|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                जइ (fd < 0)
+                        प्रत्यागम fd;
 
                 console_fd = fd_move_above_stdio(fd);
                 console_fd_is_tty = true;
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-static void log_close_kmsg(void) {
+स्थिर शून्य log_close_kmsg(शून्य) {
         /* See comment in log_close_journal() */
-        (void) safe_close(TAKE_FD(kmsg_fd));
+        (शून्य) safe_close(TAKE_FD(kmsg_fd));
 }
 
-static int log_open_kmsg(void) {
+स्थिर पूर्णाङ्क log_open_kmsg(शून्य) {
 
-        if (kmsg_fd >= 0)
-                return 0;
+        जइ (kmsg_fd >= 0)
+                प्रत्यागम 0;
 
         kmsg_fd = open("/dev/kmsg", O_WRONLY|O_NOCTTY|O_CLOEXEC);
-        if (kmsg_fd < 0)
-                return -errno;
+        जइ (kmsg_fd < 0)
+                प्रत्यागम -errno;
 
         kmsg_fd = fd_move_above_stdio(kmsg_fd);
-        return 0;
+        प्रत्यागम 0;
 }
 
-static void log_close_syslog(void) {
+स्थिर शून्य log_close_syslog(शून्य) {
         /* See comment in log_close_journal() */
-        (void) safe_close(TAKE_FD(syslog_fd));
+        (शून्य) safe_close(TAKE_FD(syslog_fd));
 }
 
-static int create_log_socket(int type) {
-        struct timeval tv;
-        int fd;
+स्थिर पूर्णाङ्क create_log_socket(पूर्णाङ्क type) {
+        संरचना timeval tv;
+        पूर्णाङ्क fd;
 
         fd = socket(AF_UNIX, type|SOCK_CLOEXEC, 0);
-        if (fd < 0)
-                return -errno;
+        जइ (fd < 0)
+                प्रत्यागम -errno;
 
         fd = fd_move_above_stdio(fd);
-        (void) fd_inc_sndbuf(fd, SNDBUF_SIZE);
+        (शून्य) fd_inc_sndbuf(fd, SNDBUF_SIZE);
 
         /* We need a blocking fd here since we'd otherwise lose messages way too early. However, let's not hang forever
          * in the unlikely case of a deadlock. */
-        if (getpid_cached() == 1)
+        जइ (getpid_cached() == 1)
                 timeval_store(&tv, 10 * USEC_PER_MSEC);
-        else
+        अण्णहा
                 timeval_store(&tv, 10 * USEC_PER_SEC);
-        (void) setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+        (शून्य) setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, परिमाण(tv));
 
-        return fd;
+        प्रत्यागम fd;
 }
 
-static int log_open_syslog(void) {
-        int r;
+स्थिर पूर्णाङ्क log_open_syslog(शून्य) {
+        पूर्णाङ्क r;
 
-        if (syslog_fd >= 0)
-                return 0;
+        जइ (syslog_fd >= 0)
+                प्रत्यागम 0;
 
         syslog_fd = create_log_socket(SOCK_DGRAM);
-        if (syslog_fd < 0) {
+        जइ (syslog_fd < 0) {
                 r = syslog_fd;
-                goto fail;
+                गच्छ fail;
         }
 
         r = connect_unix_path(syslog_fd, AT_FDCWD, "/dev/log");
-        if (r < 0) {
+        जइ (r < 0) {
                 safe_close(syslog_fd);
 
                 /* Some legacy syslog systems still use stream sockets. They really shouldn't. But what can
                  * we do... */
                 syslog_fd = create_log_socket(SOCK_STREAM);
-                if (syslog_fd < 0) {
+                जइ (syslog_fd < 0) {
                         r = syslog_fd;
-                        goto fail;
+                        गच्छ fail;
                 }
 
                 r = connect_unix_path(syslog_fd, AT_FDCWD, "/dev/log");
-                if (r < 0)
-                        goto fail;
+                जइ (r < 0)
+                        गच्छ fail;
 
                 syslog_is_stream = true;
-        } else
+        } अण्णहा
                 syslog_is_stream = false;
 
-        return 0;
+        प्रत्यागम 0;
 
 fail:
         log_close_syslog();
-        return r;
+        प्रत्यागम r;
 }
 
-static void log_close_journal(void) {
+स्थिर शून्य log_close_journal(शून्य) {
         /* If the journal FD is bad, safe_close will fail, and will try to log, which will fail, so we'll
          * try to close the journal FD, which is bad, so safe_close will fail... Whether we can close it
          * or not, invalidate it immediately so that we don't get in a recursive loop until we run out of
          * stack. */
-        (void) safe_close(TAKE_FD(journal_fd));
+        (शून्य) safe_close(TAKE_FD(journal_fd));
 }
 
-static int log_open_journal(void) {
-        int r;
+स्थिर पूर्णाङ्क log_open_journal(शून्य) {
+        पूर्णाङ्क r;
 
-        if (journal_fd >= 0)
-                return 0;
+        जइ (journal_fd >= 0)
+                प्रत्यागम 0;
 
         journal_fd = create_log_socket(SOCK_DGRAM);
-        if (journal_fd < 0) {
+        जइ (journal_fd < 0) {
                 r = journal_fd;
-                goto fail;
+                गच्छ fail;
         }
 
         r = connect_unix_path(journal_fd, AT_FDCWD, "/run/systemd/journal/socket");
-        if (r < 0)
-                goto fail;
+        जइ (r < 0)
+                गच्छ fail;
 
-        return 0;
+        प्रत्यागम 0;
 
 fail:
         log_close_journal();
-        return r;
+        प्रत्यागम r;
 }
 
-bool stderr_is_journal(void) {
-        _cleanup_free_ char *w = NULL;
-        const char *e;
+bool stderr_is_journal(शून्य) {
+        _cleanup_free_ वर्ण *w = रिक्त;
+        ध्रुव वर्ण *e;
         uint64_t dev, ino;
-        struct stat st;
+        संरचना stat st;
 
         e = getenv("JOURNAL_STREAM");
-        if (!e)
-                return false;
+        जइ (!e)
+                प्रत्यागम false;
 
-        if (extract_first_word(&e, &w, ":", EXTRACT_DONT_COALESCE_SEPARATORS) <= 0)
-                return false;
-        if (!e)
-                return false;
+        जइ (extract_first_word(&e, &w, ":", EXTRACT_DONT_COALESCE_SEPARATORS) <= 0)
+                प्रत्यागम false;
+        जइ (!e)
+                प्रत्यागम false;
 
-        if (safe_atou64(w, &dev) < 0)
-                return false;
-        if (safe_atou64(e, &ino) < 0)
-                return false;
+        जइ (safe_atou64(w, &dev) < 0)
+                प्रत्यागम false;
+        जइ (safe_atou64(e, &ino) < 0)
+                प्रत्यागम false;
 
-        if (fstat(STDERR_FILENO, &st) < 0)
-                return false;
+        जइ (fstat(STDERR_FILENO, &st) < 0)
+                प्रत्यागम false;
 
-        return st.st_dev == dev && st.st_ino == ino;
+        प्रत्यागम st.st_dev == dev && st.st_ino == ino;
 }
 
-int log_open(void) {
-        int r;
+पूर्णाङ्क log_open(शून्य) {
+        पूर्णाङ्क r;
 
         /* Do not call from library code. */
 
@@ -278,14 +278,14 @@ int log_open(void) {
          * make sure we don't use it if prohibit_ipc is set. If we don't use /dev/kmsg we still keep it open,
          * because there is no reason to close it. */
 
-        if (log_target == LOG_TARGET_NULL) {
+        जइ (log_target == LOG_TARGET_NULL) {
                 log_close_journal();
                 log_close_syslog();
                 log_close_console();
-                return 0;
+                प्रत्यागम 0;
         }
 
-        if (getpid_cached() == 1 ||
+        जइ (getpid_cached() == 1 ||
             stderr_is_journal() ||
             IN_SET(log_target,
                    LOG_TARGET_KMSG,
@@ -294,43 +294,43 @@ int log_open(void) {
                    LOG_TARGET_SYSLOG,
                    LOG_TARGET_SYSLOG_OR_KMSG)) {
 
-                if (!prohibit_ipc) {
-                        if (IN_SET(log_target,
+                जइ (!prohibit_ipc) {
+                        जइ (IN_SET(log_target,
                                    LOG_TARGET_AUTO,
                                    LOG_TARGET_JOURNAL_OR_KMSG,
                                    LOG_TARGET_JOURNAL)) {
 
                                 r = log_open_journal();
-                                if (r >= 0) {
+                                जइ (r >= 0) {
                                         log_close_syslog();
                                         log_close_console();
-                                        return r;
+                                        प्रत्यागम r;
                                 }
                         }
 
-                        if (IN_SET(log_target,
+                        जइ (IN_SET(log_target,
                                    LOG_TARGET_SYSLOG_OR_KMSG,
                                    LOG_TARGET_SYSLOG)) {
 
                                 r = log_open_syslog();
-                                if (r >= 0) {
+                                जइ (r >= 0) {
                                         log_close_journal();
                                         log_close_console();
-                                        return r;
+                                        प्रत्यागम r;
                                 }
                         }
                 }
 
-                if (IN_SET(log_target, LOG_TARGET_AUTO,
+                जइ (IN_SET(log_target, LOG_TARGET_AUTO,
                                        LOG_TARGET_JOURNAL_OR_KMSG,
                                        LOG_TARGET_SYSLOG_OR_KMSG,
                                        LOG_TARGET_KMSG)) {
                         r = log_open_kmsg();
-                        if (r >= 0) {
+                        जइ (r >= 0) {
                                 log_close_journal();
                                 log_close_syslog();
                                 log_close_console();
-                                return r;
+                                प्रत्यागम r;
                         }
                 }
         }
@@ -338,29 +338,29 @@ int log_open(void) {
         log_close_journal();
         log_close_syslog();
 
-        return log_open_console();
+        प्रत्यागम log_open_console();
 }
 
-void log_set_target(LogTarget target) {
-        assert(target >= 0);
-        assert(target < _LOG_TARGET_MAX);
+शून्य log_set_target(LogTarget target) {
+        प्रतिज्ञा(target >= 0);
+        प्रतिज्ञा(target < _LOG_TARGET_MAX);
 
-        if (upgrade_syslog_to_journal) {
-                if (target == LOG_TARGET_SYSLOG)
+        जइ (upgrade_syslog_to_journal) {
+                जइ (target == LOG_TARGET_SYSLOG)
                         target = LOG_TARGET_JOURNAL;
-                else if (target == LOG_TARGET_SYSLOG_OR_KMSG)
+                अण्णहा जइ (target == LOG_TARGET_SYSLOG_OR_KMSG)
                         target = LOG_TARGET_JOURNAL_OR_KMSG;
         }
 
         log_target = target;
 }
 
-void log_set_target_and_open(LogTarget target) {
+शून्य log_set_target_and_open(LogTarget target) {
         log_set_target(target);
         log_open();
 }
 
-void log_close(void) {
+शून्य log_close(शून्य) {
         /* Do not call from library code. */
 
         log_close_journal();
@@ -369,17 +369,17 @@ void log_close(void) {
         log_close_console();
 }
 
-void log_forget_fds(void) {
+शून्य log_forget_fds(शून्य) {
         /* Do not call from library code. */
 
         console_fd = kmsg_fd = syslog_fd = journal_fd = -EBADF;
         console_fd_is_tty = -1;
 }
 
-int log_set_max_level(int level) {
-        assert(level == LOG_NULL || log_level_is_valid(level));
+पूर्णाङ्क log_set_max_level(पूर्णाङ्क level) {
+        प्रतिज्ञा(level == LOG_NULL || log_level_is_valid(level));
 
-        int old = log_max_level;
+        पूर्णाङ्क old = log_max_level;
         log_max_level = level;
 
         /* Also propagate max log level to libc's syslog(), just in case some other component loaded into our
@@ -393,93 +393,93 @@ int log_set_max_level(int level) {
         /* Ensure that our own LOG_NULL define maps sanely to the log mask */
         assert_cc(LOG_UPTO(LOG_NULL) == 0);
 
-        return old;
+        प्रत्यागम old;
 }
 
-void log_set_facility(int facility) {
+शून्य log_set_facility(पूर्णाङ्क facility) {
         log_facility = facility;
 }
 
-static bool check_console_fd_is_tty(void) {
-        if (console_fd < 0)
-                return false;
+स्थिर bool check_console_fd_is_tty(शून्य) {
+        जइ (console_fd < 0)
+                प्रत्यागम false;
 
-        if (console_fd_is_tty < 0)
+        जइ (console_fd_is_tty < 0)
                 console_fd_is_tty = isatty_safe(console_fd);
 
-        return console_fd_is_tty;
+        प्रत्यागम console_fd_is_tty;
 }
 
-static int write_to_console(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *buffer) {
+स्थिर पूर्णाङ्क write_to_console(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *buffer) {
 
-        static int dumb = -1;
+        स्थिर पूर्णाङ्क dumb = -1;
 
-        char location[256],
+        वर्ण location[256],
              header_time[FORMAT_TIMESTAMP_MAX],
-             prefix[1 + DECIMAL_STR_MAX(int) + 2],
+             prefix[1 + DECIMAL_STR_MAX(पूर्णाङ्क) + 2],
              tid_string[3 + DECIMAL_STR_MAX(pid_t) + 1];
-        struct iovec iovec[13];
-        const char *on = NULL, *off = NULL;
+        संरचना iovec iovec[13];
+        ध्रुव वर्ण *on = रिक्त, *off = रिक्त;
         size_t n = 0;
 
-        if (console_fd < 0)
-                return 0;
+        जइ (console_fd < 0)
+                प्रत्यागम 0;
 
-        if (dumb < 0)
+        जइ (dumb < 0)
                 dumb = getenv_terminal_is_dumb();
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_CONSOLE])
-                return 0;
+        जइ (LOG_PRI(level) > log_target_max_level[LOG_TARGET_CONSOLE])
+                प्रत्यागम 0;
 
-        if (log_target == LOG_TARGET_CONSOLE_PREFIXED) {
+        जइ (log_target == LOG_TARGET_CONSOLE_PREFIXED) {
                 xsprintf(prefix, "<%i>", level);
                 iovec[n++] = IOVEC_MAKE_STRING(prefix);
         }
 
-        if (show_time &&
-            format_timestamp(header_time, sizeof(header_time), now(CLOCK_REALTIME))) {
+        जइ (show_time &&
+            format_timestamp(header_time, परिमाण(header_time), now(CLOCK_REALTIME))) {
                 iovec[n++] = IOVEC_MAKE_STRING(header_time);
                 iovec[n++] = IOVEC_MAKE_STRING(" ");
         }
 
-        if (show_executable) {
+        जइ (show_executable) {
                 iovec[n++] = IOVEC_MAKE_STRING(program_invocation_short_name);
                 iovec[n++] = IOVEC_MAKE_STRING(": ");
         }
 
-        if (show_tid) {
+        जइ (show_tid) {
                 xsprintf(tid_string, "(" PID_FMT ") ", gettid());
                 iovec[n++] = IOVEC_MAKE_STRING(tid_string);
         }
 
-        if (log_get_show_color())
-                get_log_colors(LOG_PRI(level), &on, &off, NULL);
+        जइ (log_get_show_color())
+                get_log_colors(LOG_PRI(level), &on, &off, रिक्त);
 
-        if (show_location) {
-                const char *lon = "", *loff = "";
-                if (log_get_show_color()) {
+        जइ (show_location) {
+                ध्रुव वर्ण *lon = "", *loff = "";
+                जइ (log_get_show_color()) {
                         lon = ansi_highlight_yellow4();
                         loff = ansi_normal();
                 }
 
-                (void) snprintf(location, sizeof location, "%s%s:%i%s: ", lon, file, line, loff);
+                (शून्य) snprintf(location, परिमाण location, "%s%s:%i%s: ", lon, file, पङ्क्तिः, loff);
                 iovec[n++] = IOVEC_MAKE_STRING(location);
         }
 
-        if (on)
+        जइ (on)
                 iovec[n++] = IOVEC_MAKE_STRING(on);
-        if (log_prefix) {
+        जइ (log_prefix) {
                 iovec[n++] = IOVEC_MAKE_STRING(log_prefix);
                 iovec[n++] = IOVEC_MAKE_STRING(": ");
         }
         iovec[n++] = IOVEC_MAKE_STRING(buffer);
-        if (off)
+        जइ (off)
                 iovec[n++] = IOVEC_MAKE_STRING(off);
 
         /* When writing to a TTY we output an extra '\r' (i.e. CR) first, to generate CRNL rather than just
@@ -489,59 +489,59 @@ static int write_to_console(
          * a dumb terminal, only write NL as CRNL might be interpreted as a double newline. */
         iovec[n++] = IOVEC_MAKE_STRING(check_console_fd_is_tty() && !dumb ? "\r\n" : "\n");
 
-        if (writev(console_fd, iovec, n) < 0) {
+        जइ (writev(console_fd, iovec, n) < 0) {
 
-                if (errno == EIO && getpid_cached() == 1) {
+                जइ (errno == EIO && getpid_cached() == 1) {
 
                         /* If somebody tried to kick us from our console tty (via vhangup() or suchlike), try
                          * to reconnect. */
 
                         log_close_console();
-                        (void) log_open_console();
-                        if (console_fd < 0)
-                                return 0;
+                        (शून्य) log_open_console();
+                        जइ (console_fd < 0)
+                                प्रत्यागम 0;
 
-                        if (writev(console_fd, iovec, n) < 0)
-                                return -errno;
-                } else
-                        return -errno;
+                        जइ (writev(console_fd, iovec, n) < 0)
+                                प्रत्यागम -errno;
+                } अण्णहा
+                        प्रत्यागम -errno;
         }
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-static int write_to_syslog(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *buffer) {
+स्थिर पूर्णाङ्क write_to_syslog(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *buffer) {
 
-        char header_priority[2 + DECIMAL_STR_MAX(int) + 1],
+        वर्ण header_priority[2 + DECIMAL_STR_MAX(पूर्णाङ्क) + 1],
              header_time[64],
              header_pid[4 + DECIMAL_STR_MAX(pid_t) + 1];
-        struct tm tm;
-        int r;
+        संरचना tm tm;
+        पूर्णाङ्क r;
 
-        if (syslog_fd < 0)
-                return 0;
+        जइ (syslog_fd < 0)
+                प्रत्यागम 0;
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_SYSLOG])
-                return 0;
+        जइ (LOG_PRI(level) > log_target_max_level[LOG_TARGET_SYSLOG])
+                प्रत्यागम 0;
 
         xsprintf(header_priority, "<%i>", level);
 
         r = localtime_or_gmtime_usec(now(CLOCK_REALTIME), /* utc= */ false, &tm);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        if (strftime(header_time, sizeof(header_time), "%h %e %T ", &tm) <= 0)
-                return -EINVAL;
+        जइ (strftime(header_time, परिमाण(header_time), "%h %e %T ", &tm) <= 0)
+                प्रत्यागम -EINVAL;
 
         xsprintf(header_pid, "["PID_FMT"]: ", getpid_cached());
 
-        struct iovec iovec[] = {
+        संरचना iovec iovec[] = {
                 IOVEC_MAKE_STRING(header_priority),
                 IOVEC_MAKE_STRING(header_time),
                 IOVEC_MAKE_STRING(program_invocation_short_name),
@@ -550,39 +550,39 @@ static int write_to_syslog(
                 IOVEC_MAKE_STRING(log_prefix ? ": " : ""),
                 IOVEC_MAKE_STRING(buffer),
         };
-        const struct msghdr msghdr = {
+        ध्रुव संरचना msghdr msghdr = {
                 .msg_iov = iovec,
                 .msg_iovlen = ELEMENTSOF(iovec),
         };
 
         /* When using syslog via SOCK_STREAM separate the messages by NUL chars */
-        if (syslog_is_stream)
+        जइ (syslog_is_stream)
                 iovec[ELEMENTSOF(iovec) - 1].iov_len++;
 
-        for (;;) {
+        प्रति (;;) {
                 ssize_t n;
 
                 n = sendmsg(syslog_fd, &msghdr, MSG_NOSIGNAL);
-                if (n < 0)
-                        return -errno;
+                जइ (n < 0)
+                        प्रत्यागम -errno;
 
-                if (!syslog_is_stream)
-                        break;
+                जइ (!syslog_is_stream)
+                        भङ्ग;
 
-                if (iovec_inc_many(iovec, ELEMENTSOF(iovec), n))
-                        break;
+                जइ (iovec_inc_many(iovec, ELEMENTSOF(iovec), n))
+                        भङ्ग;
         }
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-static int write_to_kmsg(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *buffer) {
+स्थिर पूर्णाङ्क write_to_kmsg(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *buffer) {
 
         /* Set a ratelimit on the amount of messages logged to /dev/kmsg. This is mostly supposed to be a
          * safety catch for the case where start indiscriminately logging in a loop. It will not catch cases
@@ -591,20 +591,20 @@ static int write_to_kmsg(
          * Note that this ratelimit is per-emitter, so we might still overwhelm /dev/kmsg with multiple
          * loggers.
          */
-        static thread_local RateLimit ratelimit = { 5 * USEC_PER_SEC, 200 };
+        स्थिर thread_local RateLimit ratelimit = { 5 * USEC_PER_SEC, 200 };
 
-        char header_priority[2 + DECIMAL_STR_MAX(int) + 1],
+        वर्ण header_priority[2 + DECIMAL_STR_MAX(पूर्णाङ्क) + 1],
              header_pid[4 + DECIMAL_STR_MAX(pid_t) + 1];
 
-        if (kmsg_fd < 0)
-                return 0;
+        जइ (kmsg_fd < 0)
+                प्रत्यागम 0;
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_KMSG])
-                return 0;
+        जइ (LOG_PRI(level) > log_target_max_level[LOG_TARGET_KMSG])
+                प्रत्यागम 0;
 
-        if (ratelimit_kmsg && !ratelimit_below(&ratelimit)) {
-                if (ratelimit_num_dropped(&ratelimit) > 1)
-                        return 0;
+        जइ (ratelimit_kmsg && !ratelimit_below(&ratelimit)) {
+                जइ (ratelimit_अङ्कः_dropped(&ratelimit) > 1)
+                        प्रत्यागम 0;
 
                 buffer = "Too many messages being logged to kmsg, ignoring";
         }
@@ -612,7 +612,7 @@ static int write_to_kmsg(
         xsprintf(header_priority, "<%i>", level);
         xsprintf(header_pid, "["PID_FMT"]: ", getpid_cached());
 
-        const struct iovec iovec[] = {
+        ध्रुव संरचना iovec iovec[] = {
                 IOVEC_MAKE_STRING(header_priority),
                 IOVEC_MAKE_STRING(program_invocation_short_name),
                 IOVEC_MAKE_STRING(header_pid),
@@ -622,23 +622,23 @@ static int write_to_kmsg(
                 IOVEC_MAKE_STRING("\n"),
         };
 
-        if (writev(kmsg_fd, iovec, ELEMENTSOF(iovec)) < 0)
-                return -errno;
+        जइ (writev(kmsg_fd, iovec, ELEMENTSOF(iovec)) < 0)
+                प्रत्यागम -errno;
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-static int log_do_header(
-                char *header,
+स्थिर पूर्णाङ्क log_do_header(
+                वर्ण *header,
                 size_t size,
-                int level,
-                int error,
-                const char *file, int line, const char *func,
-                const char *object_field, const char *object,
-                const char *extra_field, const char *extra) {
-        int r;
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file, पूर्णाङ्क पङ्क्तिः, ध्रुव वर्ण *func,
+                ध्रुव वर्ण *object_field, ध्रुव वर्ण *object,
+                ध्रुव वर्ण *extra_field, ध्रुव वर्ण *extra) {
+        पूर्णाङ्क r;
 
-        error = IS_SYNTHETIC_ERRNO(error) ? 0 : ERRNO_VALUE(error);
+        error = IS_SYNTHETIC_ERRNO(error) ? 0 : ERRNO_मानम्(error);
 
         r = snprintf(header, size,
                      "PRIORITY=%i\n"
@@ -657,9 +657,9 @@ static int log_do_header(
                      isempty(file) ? "" : "CODE_FILE=",
                      isempty(file) ? "" : file,
                      isempty(file) ? "" : "\n",
-                     line ? "CODE_LINE=" : "",
-                     line ? 1 : 0, line, /* %.0d means no output too, special case for 0 */
-                     line ? "\n" : "",
+                     पङ्क्तिः ? "CODE_LINE=" : "",
+                     पङ्क्तिः ? 1 : 0, पङ्क्तिः, /* %.0d means no output too, special case for 0 */
+                     पङ्क्तिः ? "\n" : "",
                      isempty(func) ? "" : "CODE_FUNC=",
                      isempty(func) ? "" : func,
                      isempty(func) ? "" : "\n",
@@ -675,75 +675,75 @@ static int log_do_header(
                      program_invocation_short_name);
         assert_raw((size_t) r < size);
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-static void log_do_context(struct iovec *iovec, size_t iovec_len, size_t *n) {
-        assert(iovec);
-        assert(n);
+स्थिर शून्य log_do_context(संरचना iovec *iovec, size_t iovec_len, size_t *n) {
+        प्रतिज्ञा(iovec);
+        प्रतिज्ञा(n);
 
         LIST_FOREACH(ll, c, log_context_head()) {
                 STRV_FOREACH(s, c->fields) {
-                        if (*n + 2 >= iovec_len)
-                                return;
+                        जइ (*n + 2 >= iovec_len)
+                                प्रत्यागम;
 
                         iovec[(*n)++] = IOVEC_MAKE_STRING(*s);
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
 
-                for (size_t i = 0; i < c->n_input_iovec; i++) {
-                        if (*n + 2 >= iovec_len)
-                                return;
+                प्रति (size_t i = 0; i < c->n_निवेशः_iovec; i++) {
+                        जइ (*n + 2 >= iovec_len)
+                                प्रत्यागम;
 
-                        iovec[(*n)++] = c->input_iovec[i];
+                        iovec[(*n)++] = c->निवेशः_iovec[i];
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
 
-                if (c->key && c->value) {
-                        if (*n + 3 >= iovec_len)
-                                return;
+                जइ (c->कुञ्चिका && c->मानम्) {
+                        जइ (*n + 3 >= iovec_len)
+                                प्रत्यागम;
 
-                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->key);
-                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->value);
+                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->कुञ्चिका);
+                        iovec[(*n)++] = IOVEC_MAKE_STRING(c->मानम्);
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
         }
 }
 
-static int write_to_journal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *buffer) {
+स्थिर पूर्णाङ्क write_to_journal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *object_field,
+                ध्रुव वर्ण *object,
+                ध्रुव वर्ण *extra_field,
+                ध्रुव वर्ण *extra,
+                ध्रुव वर्ण *buffer) {
 
-        char header[LINE_MAX];
+        वर्ण header[LINE_MAX];
         size_t n = 0, iovec_len;
-        struct iovec *iovec;
+        संरचना iovec *iovec;
 
-        if (journal_fd < 0)
-                return 0;
+        जइ (journal_fd < 0)
+                प्रत्यागम 0;
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_JOURNAL])
-                return 0;
+        जइ (LOG_PRI(level) > log_target_max_level[LOG_TARGET_JOURNAL])
+                प्रत्यागम 0;
 
-        if (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
+        जइ (!MUL_SAFE(&iovec_len, log_context_अङ्कः_fields_2(), 3) ||
             !ADD_SAFE(&iovec_len, iovec_len, 6))
                 iovec_len = IOVEC_MAX;
-        else
+        अण्णहा
                 iovec_len = MIN(iovec_len, IOVEC_MAX);
-        iovec = newa(struct iovec, iovec_len);
+        iovec = newa(संरचना iovec, iovec_len);
 
-        log_do_header(header, sizeof(header), level, error, file, line, func, object_field, object, extra_field, extra);
+        log_do_header(header, परिमाण(header), level, error, file, पङ्क्तिः, func, object_field, object, extra_field, extra);
 
         iovec[n++] = IOVEC_MAKE_STRING(header);
         iovec[n++] = IOVEC_MAKE_STRING("MESSAGE=");
-        if (log_prefix) {
+        जइ (log_prefix) {
                 iovec[n++] = IOVEC_MAKE_STRING(log_prefix);
                 iovec[n++] = IOVEC_MAKE_STRING(": ");
         }
@@ -752,298 +752,298 @@ static int write_to_journal(
 
         log_do_context(iovec, iovec_len, &n);
 
-        const struct msghdr msghdr = {
+        ध्रुव संरचना msghdr msghdr = {
                 .msg_iov = iovec,
                 .msg_iovlen = n,
         };
 
-        if (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) < 0)
-                return -errno;
+        जइ (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) < 0)
+                प्रत्यागम -errno;
 
-        return 1;
+        प्रत्यागम 1;
 }
 
-int log_dispatch_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                char *buffer) {
+पूर्णाङ्क log_dispatch_internal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *object_field,
+                ध्रुव वर्ण *object,
+                ध्रुव वर्ण *extra_field,
+                ध्रुव वर्ण *extra,
+                वर्ण *buffer) {
 
         assert_raw(buffer);
 
-        if (log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+        जइ (log_target == LOG_TARGET_NULL)
+                प्रत्यागम -ERRNO_मानम्(error);
 
         /* Patch in LOG_DAEMON facility if necessary */
-        if (LOG_FAC(level) == 0)
+        जइ (LOG_FAC(level) == 0)
                 level |= log_facility;
 
-        if (open_when_needed)
-                (void) log_open();
+        जइ (open_when_needed)
+                (शून्य) log_open();
 
-        do {
-                char *e;
-                int k = 0;
+        करेहि {
+                वर्ण *e;
+                पूर्णाङ्क k = 0;
 
                 buffer += strspn(buffer, NEWLINE);
 
-                if (buffer[0] == 0)
-                        break;
+                जइ (buffer[0] == 0)
+                        भङ्ग;
 
-                if ((e = strpbrk(buffer, NEWLINE)))
+                जइ ((e = strpbrk(buffer, NEWLINE)))
                         *(e++) = 0;
 
-                if (IN_SET(log_target, LOG_TARGET_AUTO,
+                जइ (IN_SET(log_target, LOG_TARGET_AUTO,
                                        LOG_TARGET_JOURNAL_OR_KMSG,
                                        LOG_TARGET_JOURNAL)) {
 
-                        k = write_to_journal(level, error, file, line, func, object_field, object, extra_field, extra, buffer);
-                        if (k < 0 && k != -EAGAIN)
+                        k = write_to_journal(level, error, file, पङ्क्तिः, func, object_field, object, extra_field, extra, buffer);
+                        जइ (k < 0 && k != -EAGAIN)
                                 log_close_journal();
                 }
 
-                if (IN_SET(log_target, LOG_TARGET_SYSLOG_OR_KMSG,
+                जइ (IN_SET(log_target, LOG_TARGET_SYSLOG_OR_KMSG,
                                        LOG_TARGET_SYSLOG)) {
 
-                        k = write_to_syslog(level, error, file, line, func, buffer);
-                        if (k < 0 && k != -EAGAIN)
+                        k = write_to_syslog(level, error, file, पङ्क्तिः, func, buffer);
+                        जइ (k < 0 && k != -EAGAIN)
                                 log_close_syslog();
                 }
 
-                if (k <= 0 &&
+                जइ (k <= 0 &&
                     IN_SET(log_target, LOG_TARGET_AUTO,
                                        LOG_TARGET_SYSLOG_OR_KMSG,
                                        LOG_TARGET_JOURNAL_OR_KMSG,
                                        LOG_TARGET_KMSG)) {
 
-                        if (k < 0)
+                        जइ (k < 0)
                                 log_open_kmsg();
 
-                        k = write_to_kmsg(level, error, file, line, func, buffer);
-                        if (k < 0) {
+                        k = write_to_kmsg(level, error, file, पङ्क्तिः, func, buffer);
+                        जइ (k < 0) {
                                 log_close_kmsg();
-                                (void) log_open_console();
+                                (शून्य) log_open_console();
                         }
                 }
 
-                if (k <= 0)
-                        (void) write_to_console(level, error, file, line, func, buffer);
+                जइ (k <= 0)
+                        (शून्य) write_to_console(level, error, file, पङ्क्तिः, func, buffer);
 
                 buffer = e;
-        } while (buffer);
+        } जाव (buffer);
 
-        if (open_when_needed)
+        जइ (open_when_needed)
                 log_close();
 
-        return -ERRNO_VALUE(error);
+        प्रत्यागम -ERRNO_मानम्(error);
 }
 
-int log_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                char *buffer) {
+पूर्णाङ्क log_dump_internal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                वर्ण *buffer) {
 
         PROTECT_ERRNO;
 
         /* This modifies the buffer... */
 
-        if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+        जइ (_likely_(LOG_PRI(level) > log_max_level))
+                प्रत्यागम -ERRNO_मानम्(error);
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        प्रत्यागम log_dispatch_internal(level, error, file, पङ्क्तिः, func, रिक्त, रिक्त, रिक्त, रिक्त, buffer);
 }
 
-int log_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format,
+पूर्णाङ्क log_internalv(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *format,
                 va_list ap) {
 
-        if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+        जइ (_likely_(LOG_PRI(level) > log_max_level))
+                प्रत्यागम -ERRNO_मानम्(error);
 
         /* Make sure that %m maps to the specified error (or "Success"). */
-        char buffer[LINE_MAX];
-        LOCAL_ERRNO(ERRNO_VALUE(error));
+        वर्ण buffer[LINE_MAX];
+        LOCAL_ERRNO(ERRNO_मानम्(error));
 
-        (void) vsnprintf(buffer, sizeof buffer, format, ap);
+        (शून्य) vsnprintf(buffer, परिमाण buffer, format, ap);
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        प्रत्यागम log_dispatch_internal(level, error, file, पङ्क्तिः, func, रिक्त, रिक्त, रिक्त, रिक्त, buffer);
 }
 
-int log_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) {
+पूर्णाङ्क log_internal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *format, ...) {
 
         va_list ap;
-        int r;
+        पूर्णाङ्क r;
 
         va_start(ap, format);
-        r = log_internalv(level, error, file, line, func, format, ap);
+        r = log_internalv(level, error, file, पङ्क्तिः, func, format, ap);
         va_end(ap);
 
-        return r;
+        प्रत्यागम r;
 }
 
-int log_object_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format,
+पूर्णाङ्क log_object_internalv(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *object_field,
+                ध्रुव वर्ण *object,
+                ध्रुव वर्ण *extra_field,
+                ध्रुव वर्ण *extra,
+                ध्रुव वर्ण *format,
                 va_list ap) {
 
-        char *buffer, *b;
+        वर्ण *buffer, *b;
 
-        if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+        जइ (_likely_(LOG_PRI(level) > log_max_level))
+                प्रत्यागम -ERRNO_मानम्(error);
 
         /* Make sure that %m maps to the specified error (or "Success"). */
-        LOCAL_ERRNO(ERRNO_VALUE(error));
+        LOCAL_ERRNO(ERRNO_मानम्(error));
 
         LOG_SET_PREFIX(object);
 
-        b = buffer = newa(char, LINE_MAX);
-        (void) vsnprintf(b, LINE_MAX, format, ap);
+        b = buffer = newa(वर्ण, LINE_MAX);
+        (शून्य) vsnprintf(b, LINE_MAX, format, ap);
 
-        return log_dispatch_internal(level, error, file, line, func,
+        प्रत्यागम log_dispatch_internal(level, error, file, पङ्क्तिः, func,
                                      object_field, object, extra_field, extra, buffer);
 }
 
-int log_object_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format, ...) {
+पूर्णाङ्क log_object_internal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *object_field,
+                ध्रुव वर्ण *object,
+                ध्रुव वर्ण *extra_field,
+                ध्रुव वर्ण *extra,
+                ध्रुव वर्ण *format, ...) {
 
         va_list ap;
-        int r;
+        पूर्णाङ्क r;
 
         va_start(ap, format);
-        r = log_object_internalv(level, error, file, line, func, object_field, object, extra_field, extra, format, ap);
+        r = log_object_internalv(level, error, file, पङ्क्तिः, func, object_field, object, extra_field, extra, format, ap);
         va_end(ap);
 
-        return r;
+        प्रत्यागम r;
 }
 
-int log_oom_internal(int level, const char *file, int line, const char *func) {
-        return log_internal(level, ENOMEM, file, line, func, "Out of memory.");
+पूर्णाङ्क log_oom_internal(पूर्णाङ्क level, ध्रुव वर्ण *file, पूर्णाङ्क पङ्क्तिः, ध्रुव वर्ण *func) {
+        प्रत्यागम log_internal(level, ENOMEM, file, पङ्क्तिः, func, "Out of memory.");
 }
 
-int log_format_iovec(
-                struct iovec *iovec,
+पूर्णाङ्क log_format_iovec(
+                संरचना iovec *iovec,
                 size_t iovec_len,
                 size_t *n,
                 bool newline_separator,
-                int error,
-                const char *format,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *format,
                 va_list ap) {
 
-        assert(iovec);
-        assert(n);
+        प्रतिज्ञा(iovec);
+        प्रतिज्ञा(n);
 
-        while (format && *n + 1 < iovec_len) {
+        जाव (format && *n + 1 < iovec_len) {
                 va_list aq;
-                char *m;
-                int r;
+                वर्ण *m;
+                पूर्णाङ्क r;
 
                 /* We need to copy the va_list structure,
                  * since vasprintf() leaves it afterwards at
                  * an undefined location */
 
-                errno = ERRNO_VALUE(error);
+                errno = ERRNO_मानम्(error);
 
                 va_copy(aq, ap);
                 r = vasprintf(&m, format, aq);
                 va_end(aq);
-                if (r < 0)
-                        return -EINVAL;
+                जइ (r < 0)
+                        प्रत्यागम -EINVAL;
 
                 /* Now, jump enough ahead, so that we point to
                  * the next format string */
                 VA_FORMAT_ADVANCE(format, ap);
 
                 iovec[(*n)++] = IOVEC_MAKE_STRING(m);
-                if (newline_separator)
+                जइ (newline_separator)
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
 
-                format = va_arg(ap, char *);
+                format = va_arg(ap, वर्ण *);
         }
-        return 0;
+        प्रत्यागम 0;
 }
 
-int log_struct_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) {
+पूर्णाङ्क log_struct_internal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *format, ...) {
 
-        char buf[LINE_MAX];
+        वर्ण buf[LINE_MAX];
         bool found = false;
         PROTECT_ERRNO;
         va_list ap;
 
-        if (_likely_(LOG_PRI(level) > log_max_level) ||
+        जइ (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                प्रत्यागम -ERRNO_मानम्(error);
 
-        if (LOG_FAC(level) == 0)
+        जइ (LOG_FAC(level) == 0)
                 level |= log_facility;
 
-        if (IN_SET(log_target,
+        जइ (IN_SET(log_target,
                    LOG_TARGET_AUTO,
                    LOG_TARGET_JOURNAL_OR_KMSG,
                    LOG_TARGET_JOURNAL)) {
 
-                if (open_when_needed)
+                जइ (open_when_needed)
                         log_open_journal();
 
-                if (journal_fd >= 0) {
-                        char header[LINE_MAX];
-                        struct iovec *iovec;
+                जइ (journal_fd >= 0) {
+                        वर्ण header[LINE_MAX];
+                        संरचना iovec *iovec;
                         size_t n = 0, m, iovec_len;
-                        int r;
+                        पूर्णाङ्क r;
                         bool fallback = false;
 
-                        if (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
+                        जइ (!MUL_SAFE(&iovec_len, log_context_अङ्कः_fields_2(), 3) ||
                             !ADD_SAFE(&iovec_len, iovec_len, 17))
                                 iovec_len = IOVEC_MAX;
-                        else
+                        अण्णहा
                                 iovec_len = MIN(iovec_len, IOVEC_MAX);
-                        iovec = newa(struct iovec, iovec_len);
+                        iovec = newa(संरचना iovec, iovec_len);
 
                         /* If the journal is available do structured logging.
                          * Do not report the errno if it is synthetic. */
-                        log_do_header(header, sizeof(header), level, error, file, line, func, NULL, NULL, NULL, NULL);
+                        log_do_header(header, परिमाण(header), level, error, file, पङ्क्तिः, func, रिक्त, रिक्त, रिक्त, रिक्त);
                         iovec[n++] = IOVEC_MAKE_STRING(header);
 
                         va_start(ap, format);
@@ -1051,28 +1051,28 @@ int log_struct_internal(
                         r = log_format_iovec(iovec, iovec_len, &n, true, error, format, ap);
                         REENABLE_WARNING;
                         m = n;
-                        if (r < 0)
+                        जइ (r < 0)
                                 fallback = true;
-                        else {
+                        अण्णहा {
                                 log_do_context(iovec, iovec_len, &n);
 
-                                const struct msghdr msghdr = {
+                                ध्रुव संरचना msghdr msghdr = {
                                         .msg_iov = iovec,
                                         .msg_iovlen = n,
                                 };
 
-                                (void) sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL);
+                                (शून्य) sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL);
                         }
 
                         va_end(ap);
-                        for (size_t i = 1; i < m; i += 2)
-                                free(iovec[i].iov_base);
+                        प्रति (size_t i = 1; i < m; i += 2)
+                                मुक्त(iovec[i].iov_base);
 
-                        if (!fallback) {
-                                if (open_when_needed)
+                        जइ (!fallback) {
+                                जइ (open_when_needed)
                                         log_close();
 
-                                return -ERRNO_VALUE(error);
+                                प्रत्यागम -ERRNO_मानम्(error);
                         }
                 }
         }
@@ -1080,204 +1080,204 @@ int log_struct_internal(
         /* Fallback if journal logging is not available or didn't work. */
 
         va_start(ap, format);
-        while (format) {
+        जाव (format) {
                 va_list aq;
 
-                errno = ERRNO_VALUE(error);
+                errno = ERRNO_मानम्(error);
 
                 va_copy(aq, ap);
                 DISABLE_WARNING_FORMAT_NONLITERAL;
-                (void) vsnprintf(buf, sizeof buf, format, aq);
+                (शून्य) vsnprintf(buf, परिमाण buf, format, aq);
                 REENABLE_WARNING;
                 va_end(aq);
 
-                if (startswith(buf, "MESSAGE=")) {
+                जइ (startswith(buf, "MESSAGE=")) {
                         found = true;
-                        break;
+                        भङ्ग;
                 }
 
                 VA_FORMAT_ADVANCE(format, ap);
 
-                format = va_arg(ap, char *);
+                format = va_arg(ap, वर्ण *);
         }
         va_end(ap);
 
-        if (!found) {
-                if (open_when_needed)
+        जइ (!found) {
+                जइ (open_when_needed)
                         log_close();
 
-                return -ERRNO_VALUE(error);
+                प्रत्यागम -ERRNO_मानम्(error);
         }
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buf + 8);
+        प्रत्यागम log_dispatch_internal(level, error, file, पङ्क्तिः, func, रिक्त, रिक्त, रिक्त, रिक्त, buf + 8);
 }
 
-int log_struct_iovec_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const struct iovec input_iovec[],
-                size_t n_input_iovec) {
+पूर्णाङ्क log_struct_iovec_internal(
+                पूर्णाङ्क level,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव संरचना iovec निवेशः_iovec[],
+                size_t n_निवेशः_iovec) {
 
         PROTECT_ERRNO;
 
-        if (_likely_(LOG_PRI(level) > log_max_level) ||
+        जइ (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                प्रत्यागम -ERRNO_मानम्(error);
 
-        if (LOG_FAC(level) == 0)
+        जइ (LOG_FAC(level) == 0)
                 level |= log_facility;
 
-        if (IN_SET(log_target, LOG_TARGET_AUTO,
+        जइ (IN_SET(log_target, LOG_TARGET_AUTO,
                                LOG_TARGET_JOURNAL_OR_KMSG,
                                LOG_TARGET_JOURNAL) &&
             journal_fd >= 0) {
 
-                char header[LINE_MAX];
-                struct iovec *iovec;
-                size_t n = 0, iovec_len, n_context_iovec, n_input_iovec_expanded;
+                वर्ण header[LINE_MAX];
+                संरचना iovec *iovec;
+                size_t n = 0, iovec_len, n_context_iovec, n_निवेशः_iovec_expanded;
 
-                if (!MUL_SAFE(&n_input_iovec_expanded, n_input_iovec, 2) ||
-                    !MUL_SAFE(&n_context_iovec, log_context_num_fields(), 3) ||
-                    !ADD_SAFE(&iovec_len, 1, n_input_iovec_expanded) ||
+                जइ (!MUL_SAFE(&n_निवेशः_iovec_expanded, n_निवेशः_iovec, 2) ||
+                    !MUL_SAFE(&n_context_iovec, log_context_अङ्कः_fields_2(), 3) ||
+                    !ADD_SAFE(&iovec_len, 1, n_निवेशः_iovec_expanded) ||
                     !ADD_SAFE(&iovec_len, iovec_len, n_context_iovec))
                         iovec_len = IOVEC_MAX;
-                else
+                अण्णहा
                         iovec_len = MIN(iovec_len, IOVEC_MAX);
-                iovec = newa(struct iovec, iovec_len);
+                iovec = newa(संरचना iovec, iovec_len);
 
-                log_do_header(header, sizeof(header), level, error, file, line, func, NULL, NULL, NULL, NULL);
+                log_do_header(header, परिमाण(header), level, error, file, पङ्क्तिः, func, रिक्त, रिक्त, रिक्त, रिक्त);
 
                 iovec[n++] = IOVEC_MAKE_STRING(header);
-                for (size_t i = 0; i < n_input_iovec && n + 2 <= iovec_len; i++) {
-                        iovec[n++] = input_iovec[i];
+                प्रति (size_t i = 0; i < n_निवेशः_iovec && n + 2 <= iovec_len; i++) {
+                        iovec[n++] = निवेशः_iovec[i];
                         iovec[n++] = IOVEC_MAKE_STRING("\n");
                 }
 
                 log_do_context(iovec, iovec_len, &n);
 
-                const struct msghdr msghdr = {
+                ध्रुव संरचना msghdr msghdr = {
                         .msg_iov = iovec,
                         .msg_iovlen = n,
                 };
 
-                if (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) >= 0)
-                        return -ERRNO_VALUE(error);
+                जइ (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) >= 0)
+                        प्रत्यागम -ERRNO_मानम्(error);
         }
 
-        for (size_t i = 0; i < n_input_iovec; i++)
-                if (memory_startswith(input_iovec[i].iov_base, input_iovec[i].iov_len, "MESSAGE=")) {
-                        char *m;
+        प्रति (size_t i = 0; i < n_निवेशः_iovec; i++)
+                जइ (memory_startswith(निवेशः_iovec[i].iov_base, निवेशः_iovec[i].iov_len, "MESSAGE=")) {
+                        वर्ण *m;
 
-                        m = strndupa_safe((char*) input_iovec[i].iov_base + STRLEN("MESSAGE="),
-                                          input_iovec[i].iov_len - STRLEN("MESSAGE="));
+                        m = strndupa_safe((वर्ण*) निवेशः_iovec[i].iov_base + STRLEN("MESSAGE="),
+                                          निवेशः_iovec[i].iov_len - STRLEN("MESSAGE="));
 
-                        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, m);
+                        प्रत्यागम log_dispatch_internal(level, error, file, पङ्क्तिः, func, रिक्त, रिक्त, रिक्त, रिक्त, m);
                 }
 
         /* Couldn't find MESSAGE=. */
-        return -ERRNO_VALUE(error);
+        प्रत्यागम -ERRNO_मानम्(error);
 }
 
-int log_set_target_from_string(const char *e) {
+पूर्णाङ्क log_set_target_from_string(ध्रुव वर्ण *e) {
         LogTarget t;
 
         t = log_target_from_string(e);
-        if (t < 0)
-                return t;
+        जइ (t < 0)
+                प्रत्यागम t;
 
         log_set_target(t);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int log_set_max_level_from_string(const char *e) {
-        int r;
+पूर्णाङ्क log_set_max_level_from_string(ध्रुव वर्ण *e) {
+        पूर्णाङ्क r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL, *prefix = NULL;
+        प्रति (;;) {
+                _cleanup_free_ वर्ण *word = रिक्त, *prefix = रिक्त;
                 LogTarget target;
-                const char *colon;
+                ध्रुव वर्ण *colon;
 
                 r = extract_first_word(&e, &word, ",", 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                जइ (r < 0)
+                        प्रत्यागम r;
+                जइ (r == 0)
+                        भङ्ग;
 
                 colon = strchr(word, ':');
-                if (!colon) {
+                जइ (!colon) {
                         r = log_level_from_string(word);
-                        if (r < 0)
-                                return r;
+                        जइ (r < 0)
+                                प्रत्यागम r;
 
                         log_set_max_level(r);
-                        continue;
+                        अनुवर्त;
                 }
 
                 prefix = strndup(word, colon - word);
-                if (!prefix)
-                        return -ENOMEM;
+                जइ (!prefix)
+                        प्रत्यागम -ENOMEM;
 
                 target = log_target_from_string(prefix);
-                if (target < 0)
-                        return target;
+                जइ (target < 0)
+                        प्रत्यागम target;
 
-                if (target >= _LOG_TARGET_SINGLE_MAX)
-                        return -EINVAL;
+                जइ (target >= _LOG_TARGET_SINGLE_MAX)
+                        प्रत्यागम -EINVAL;
 
                 r = log_level_from_string(colon + 1);
-                if (r < 0)
-                        return r;
+                जइ (r < 0)
+                        प्रत्यागम r;
 
                 log_target_max_level[target] = r;
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int log_max_levels_to_string(int level, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+पूर्णाङ्क log_max_levels_to_string(पूर्णाङ्क level, वर्ण **ret) {
+        _cleanup_free_ वर्ण *s = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         r = log_level_to_string_alloc(level, &s);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        for (LogTarget target = 0; target < _LOG_TARGET_SINGLE_MAX; target++) {
-                _cleanup_free_ char *l = NULL;
+        प्रति (LogTarget target = 0; target < _LOG_TARGET_SINGLE_MAX; target++) {
+                _cleanup_free_ वर्ण *l = रिक्त;
 
-                if (log_target_max_level[target] == INT_MAX)
-                        continue;
+                जइ (log_target_max_level[target] == INT_MAX)
+                        अनुवर्त;
 
                 r = log_level_to_string_alloc(log_target_max_level[target], &l);
-                if (r < 0)
-                        return r;
+                जइ (r < 0)
+                        प्रत्यागम r;
 
                 r = strextendf_with_separator(&s, ",", "%s:%s", log_target_to_string(target), l);
-                if (r < 0)
-                        return r;
+                जइ (r < 0)
+                        प्रत्यागम r;
         }
 
         *ret = TAKE_PTR(s);
-        return 0;
+        प्रत्यागम 0;
 }
 
-static int log_set_ratelimit_kmsg_from_string(const char *e) {
-        int r;
+स्थिर पूर्णाङ्क log_set_ratelimit_kmsg_from_string(ध्रुव वर्ण *e) {
+        पूर्णाङ्क r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
         ratelimit_kmsg = r;
-        return 0;
+        प्रत्यागम 0;
 }
 
-static int parse_proc_cmdline_item(const char *key, const char *value, void *data) {
+स्थिर पूर्णाङ्क parse_proc_cmdline_item(ध्रुव वर्ण *कुञ्चिका, ध्रुव वर्ण *मानम्, शून्य *data) {
 
         /*
          * The systemd.log_xyz= settings are parsed by all tools, and
@@ -1288,128 +1288,128 @@ static int parse_proc_cmdline_item(const char *key, const char *value, void *dat
          * level.
          */
 
-        if (streq(key, "debug") && !value)
+        जइ (streq(कुञ्चिका, "debug") && !मानम्)
                 log_set_max_level(LOG_DEBUG);
 
-        else if (proc_cmdline_key_streq(key, "systemd.log_target")) {
+        अण्णहा जइ (proc_cmdline_कुञ्चिका_streq(कुञ्चिका, "systemd.log_target")) {
 
-                if (proc_cmdline_value_missing(key, value))
-                        return 0;
+                जइ (proc_cmdline_मानम्_missing(कुञ्चिका, मानम्))
+                        प्रत्यागम 0;
 
-                if (log_set_target_from_string(value) < 0)
-                        log_warning("Failed to parse log target '%s', ignoring.", value);
+                जइ (log_set_target_from_string(मानम्) < 0)
+                        log_warning("Failed to parse log target '%s', ignoring.", मानम्);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_level")) {
+        } अण्णहा जइ (proc_cmdline_कुञ्चिका_streq(कुञ्चिका, "systemd.log_level")) {
 
-                if (proc_cmdline_value_missing(key, value))
-                        return 0;
+                जइ (proc_cmdline_मानम्_missing(कुञ्चिका, मानम्))
+                        प्रत्यागम 0;
 
-                if (log_set_max_level_from_string(value) < 0)
-                        log_warning("Failed to parse log level setting '%s', ignoring.", value);
+                जइ (log_set_max_level_from_string(मानम्) < 0)
+                        log_warning("Failed to parse log level setting '%s', ignoring.", मानम्);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_color")) {
+        } अण्णहा जइ (proc_cmdline_कुञ्चिका_streq(कुञ्चिका, "systemd.log_color")) {
 
-                if (log_show_color_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log color setting '%s', ignoring.", value);
+                जइ (log_show_color_from_string(मानम् ?: "1") < 0)
+                        log_warning("Failed to parse log color setting '%s', ignoring.", मानम्);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_location")) {
+        } अण्णहा जइ (proc_cmdline_कुञ्चिका_streq(कुञ्चिका, "systemd.log_location")) {
 
-                if (log_show_location_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log location setting '%s', ignoring.", value);
+                जइ (log_show_location_from_string(मानम् ?: "1") < 0)
+                        log_warning("Failed to parse log location setting '%s', ignoring.", मानम्);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_tid")) {
+        } अण्णहा जइ (proc_cmdline_कुञ्चिका_streq(कुञ्चिका, "systemd.log_tid")) {
 
-                if (log_show_tid_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log tid setting '%s', ignoring.", value);
+                जइ (log_show_tid_from_string(मानम् ?: "1") < 0)
+                        log_warning("Failed to parse log tid setting '%s', ignoring.", मानम्);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_time")) {
+        } अण्णहा जइ (proc_cmdline_कुञ्चिका_streq(कुञ्चिका, "systemd.log_time")) {
 
-                if (log_show_time_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log time setting '%s', ignoring.", value);
+                जइ (log_show_time_from_string(मानम् ?: "1") < 0)
+                        log_warning("Failed to parse log time setting '%s', ignoring.", मानम्);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_ratelimit_kmsg")) {
+        } अण्णहा जइ (proc_cmdline_कुञ्चिका_streq(कुञ्चिका, "systemd.log_ratelimit_kmsg")) {
 
-                if (log_set_ratelimit_kmsg_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log ratelimit kmsg boolean '%s', ignoring.", value);
+                जइ (log_set_ratelimit_kmsg_from_string(मानम् ?: "1") < 0)
+                        log_warning("Failed to parse log ratelimit kmsg boolean '%s', ignoring.", मानम्);
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-static bool should_parse_proc_cmdline(void) {
+स्थिर bool should_parse_proc_cmdline(शून्य) {
         /* PID1 always reads the kernel command line. */
-        if (getpid_cached() == 1)
-                return true;
+        जइ (getpid_cached() == 1)
+                प्रत्यागम true;
 
         /* Otherwise, parse the command line if invoked directly by systemd. */
-        return invoked_by_systemd();
+        प्रत्यागम invoked_by_systemd();
 }
 
-void log_parse_environment_variables(void) {
-        const char *e;
-        int r;
+शून्य log_parse_environment_variables(शून्य) {
+        ध्रुव वर्ण *e;
+        पूर्णाङ्क r;
 
         e = getenv("SYSTEMD_LOG_TARGET");
-        if (e && log_set_target_from_string(e) < 0)
+        जइ (e && log_set_target_from_string(e) < 0)
                 log_warning("Failed to parse log target '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_LEVEL");
-        if (e) {
+        जइ (e) {
                 r = log_set_max_level_from_string(e);
-                if (r < 0)
+                जइ (r < 0)
                         log_warning_errno(r, "Failed to parse log level '%s', ignoring: %m", e);
-        } else {
+        } अण्णहा {
                 /* If no explicit log level is specified then let's see if this is a debug invocation, and if
                  * so raise the log level to debug too. Note that this is not symmetric: just because
                  * DEBUG_INVOCATION is explicitly set to 0 we won't lower the log level below debug. This
                  * follows the logic that debug logging is an opt-in thing anyway, and if there's any reason
                  * to enable it we should not disable it here automatically. */
                 r = getenv_bool("DEBUG_INVOCATION");
-                if (r < 0 && r != -ENXIO)
+                जइ (r < 0 && r != -ENXIO)
                         log_warning_errno(r, "Failed to parse $DEBUG_INVOCATION value, ignoring: %m");
-                else if (r > 0)
+                अण्णहा जइ (r > 0)
                         log_set_max_level(LOG_DEBUG);
         }
 
         e = getenv("SYSTEMD_LOG_COLOR");
-        if (e && log_show_color_from_string(e) < 0)
+        जइ (e && log_show_color_from_string(e) < 0)
                 log_warning("Failed to parse log color '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_LOCATION");
-        if (e && log_show_location_from_string(e) < 0)
+        जइ (e && log_show_location_from_string(e) < 0)
                 log_warning("Failed to parse log location '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_TIME");
-        if (e && log_show_time_from_string(e) < 0)
+        जइ (e && log_show_time_from_string(e) < 0)
                 log_warning("Failed to parse log time '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_TID");
-        if (e && log_show_tid_from_string(e) < 0)
+        जइ (e && log_show_tid_from_string(e) < 0)
                 log_warning("Failed to parse log tid '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_RATELIMIT_KMSG");
-        if (e && log_set_ratelimit_kmsg_from_string(e) < 0)
+        जइ (e && log_set_ratelimit_kmsg_from_string(e) < 0)
                 log_warning("Failed to parse log ratelimit kmsg boolean '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_EXECUTABLE");
-        if (e && log_show_executable_from_string(e) < 0)
+        जइ (e && log_show_executable_from_string(e) < 0)
                 log_warning("Failed to parse log executable '%s', ignoring.", e);
 }
 
-void log_parse_environment(void) {
+शून्य log_parse_environment(शून्य) {
         /* Do not call from library code. */
 
-        if (should_parse_proc_cmdline())
-                (void) proc_cmdline_parse(parse_proc_cmdline_item, NULL, PROC_CMDLINE_STRIP_RD_PREFIX);
+        जइ (should_parse_proc_cmdline())
+                (शून्य) proc_cmdline_parse(parse_proc_cmdline_item, रिक्त, PROC_CMDLINE_STRIP_RD_PREFIX);
 
         log_parse_environment_variables();
 }
 
-LogTarget log_get_target(void) {
-        return log_target;
+LogTarget log_get_target(शून्य) {
+        प्रत्यागम log_target;
 }
 
-void log_settle_target(void) {
+शून्य log_settle_target(शून्य) {
 
         /* If we're using LOG_TARGET_AUTO and opening the log again on every single log call, we'll check if
          * stderr is attached to the journal every single log call. However, if we then close all file
@@ -1419,128 +1419,128 @@ void log_settle_target(void) {
 
         LogTarget t = log_get_target();
 
-        if (t != LOG_TARGET_AUTO)
-                return;
+        जइ (t != LOG_TARGET_AUTO)
+                प्रत्यागम;
 
         t = getpid_cached() == 1 || stderr_is_journal() ? (prohibit_ipc ? LOG_TARGET_KMSG : LOG_TARGET_JOURNAL_OR_KMSG)
                                                         : LOG_TARGET_CONSOLE;
         log_set_target(t);
 }
 
-int log_get_max_level(void) {
-        return log_max_level;
+पूर्णाङ्क log_get_max_level(शून्य) {
+        प्रत्यागम log_max_level;
 }
 
-int log_get_target_max_level(LogTarget target) {
-        assert(target >= 0);
-        assert(target < _LOG_TARGET_SINGLE_MAX);
-        return log_target_max_level[target];
+पूर्णाङ्क log_get_target_max_level(LogTarget target) {
+        प्रतिज्ञा(target >= 0);
+        प्रतिज्ञा(target < _LOG_TARGET_SINGLE_MAX);
+        प्रत्यागम log_target_max_level[target];
 }
 
-void log_show_color(bool b) {
+शून्य log_show_color(bool b) {
         show_color = b;
 }
 
-bool log_get_show_color(void) {
-        return show_color > 0; /* Defaults to false. */
+bool log_get_show_color(शून्य) {
+        प्रत्यागम show_color > 0; /* Defaults to false. */
 }
 
-void log_show_location(bool b) {
+शून्य log_show_location(bool b) {
         show_location = b;
 }
 
-bool log_get_show_location(void) {
-        return show_location;
+bool log_get_show_location(शून्य) {
+        प्रत्यागम show_location;
 }
 
-void log_show_time(bool b) {
+शून्य log_show_time(bool b) {
         show_time = b;
 }
 
-bool log_get_show_time(void) {
-        return show_time;
+bool log_get_show_time(शून्य) {
+        प्रत्यागम show_time;
 }
 
-void log_show_tid(bool b) {
+शून्य log_show_tid(bool b) {
         show_tid = b;
 }
 
-bool log_get_show_tid(void) {
-        return show_tid;
+bool log_get_show_tid(शून्य) {
+        प्रत्यागम show_tid;
 }
 
-void log_show_executable(bool b) {
+शून्य log_show_executable(bool b) {
         show_executable = b;
 }
 
-bool log_get_show_executable(void) {
-        return show_executable;
+bool log_get_show_executable(शून्य) {
+        प्रत्यागम show_executable;
 }
 
-int log_show_color_from_string(const char *e) {
-        int r;
+पूर्णाङ्क log_show_color_from_string(ध्रुव वर्ण *e) {
+        पूर्णाङ्क r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
         log_show_color(r);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int log_show_location_from_string(const char *e) {
-        int r;
+पूर्णाङ्क log_show_location_from_string(ध्रुव वर्ण *e) {
+        पूर्णाङ्क r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
         log_show_location(r);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int log_show_time_from_string(const char *e) {
-        int r;
+पूर्णाङ्क log_show_time_from_string(ध्रुव वर्ण *e) {
+        पूर्णाङ्क r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
         log_show_time(r);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int log_show_tid_from_string(const char *e) {
-        int r;
+पूर्णाङ्क log_show_tid_from_string(ध्रुव वर्ण *e) {
+        पूर्णाङ्क r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
         log_show_tid(r);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int log_show_executable_from_string(const char *e) {
-        int r;
+पूर्णाङ्क log_show_executable_from_string(ध्रुव वर्ण *e) {
+        पूर्णाङ्क r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
         log_show_executable(r);
-        return 0;
+        प्रत्यागम 0;
 }
 
-bool log_on_console(void) {
-        if (IN_SET(log_target, LOG_TARGET_CONSOLE,
+bool log_on_console(शून्य) {
+        जइ (IN_SET(log_target, LOG_TARGET_CONSOLE,
                                LOG_TARGET_CONSOLE_PREFIXED))
-                return true;
+                प्रत्यागम true;
 
-        return syslog_fd < 0 && kmsg_fd < 0 && journal_fd < 0;
+        प्रत्यागम syslog_fd < 0 && kmsg_fd < 0 && journal_fd < 0;
 }
 
-static const char *const log_target_table[_LOG_TARGET_MAX] = {
+स्थिर ध्रुव वर्ण *ध्रुव log_target_table[_LOG_TARGET_MAX] = {
         [LOG_TARGET_CONSOLE]          = "console",
         [LOG_TARGET_CONSOLE_PREFIXED] = "console-prefixed",
         [LOG_TARGET_KMSG]             = "kmsg",
@@ -1554,226 +1554,226 @@ static const char *const log_target_table[_LOG_TARGET_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(log_target, LogTarget);
 
-void log_received_signal(int level, const struct signalfd_siginfo *si) {
-        assert(si);
+शून्य log_received_signal(पूर्णाङ्क level, ध्रुव संरचना signalfd_siginfo *si) {
+        प्रतिज्ञा(si);
 
-        if (si_code_from_process(si->ssi_code) && pid_is_valid(si->ssi_pid)) {
-                _cleanup_free_ char *p = NULL;
+        जइ (si_code_from_process(si->ssi_code) && pid_is_valid(si->ssi_pid)) {
+                _cleanup_free_ वर्ण *p = रिक्त;
 
-                (void) pid_get_comm(si->ssi_pid, &p);
+                (शून्य) pid_get_comm(si->ssi_pid, &p);
 
                 log_full(level,
                          "Received SIG%s from PID %"PRIu32" (%s).",
                          signal_to_string(si->ssi_signo),
                          si->ssi_pid, strna(p));
-        } else
+        } अण्णहा
                 log_full(level,
                          "Received SIG%s.",
                          signal_to_string(si->ssi_signo));
 }
 
-void set_log_syntax_callback(log_syntax_callback_t cb, void *userdata) {
-        assert(!log_syntax_callback || !cb);
-        assert(!log_syntax_callback_userdata || !userdata);
+शून्य set_log_syntax_callback(log_syntax_callback_t cb, शून्य *userdata) {
+        प्रतिज्ञा(!log_syntax_callback || !cb);
+        प्रतिज्ञा(!log_syntax_callback_userdata || !userdata);
 
         log_syntax_callback = cb;
         log_syntax_callback_userdata = userdata;
 }
 
-int log_syntax_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) {
+पूर्णाङ्क log_syntax_internal(
+                ध्रुव वर्ण *unit,
+                पूर्णाङ्क level,
+                ध्रुव वर्ण *config_file,
+                unsigned config_पङ्क्तिः,
+                पूर्णाङ्क error,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *format, ...) {
 
         PROTECT_ERRNO;
 
-        if (log_syntax_callback)
+        जइ (log_syntax_callback)
                 log_syntax_callback(unit, level, log_syntax_callback_userdata);
 
-        if (_likely_(LOG_PRI(level) > log_max_level) ||
+        जइ (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                प्रत्यागम -ERRNO_मानम्(error);
 
-        char buffer[LINE_MAX];
+        वर्ण buffer[LINE_MAX];
         va_list ap;
-        const char *unit_fmt = NULL;
+        ध्रुव वर्ण *unit_fmt = रिक्त;
 
-        errno = ERRNO_VALUE(error);
+        errno = ERRNO_मानम्(error);
 
         va_start(ap, format);
-        (void) vsnprintf(buffer, sizeof buffer, format, ap);
+        (शून्य) vsnprintf(buffer, परिमाण buffer, format, ap);
         va_end(ap);
 
-        if (unit)
+        जइ (unit)
                 unit_fmt = getpid_cached() == 1 ? "UNIT=%s" : "USER_UNIT=%s";
 
-        if (config_file) {
-                if (config_line > 0)
-                        return log_struct_internal(
+        जइ (config_file) {
+                जइ (config_पङ्क्तिः > 0)
+                        प्रत्यागम log_struct_internal(
                                         level,
                                         error,
-                                        file, line, func,
+                                        file, पङ्क्तिः, func,
                                         LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                         LOG_ITEM("CONFIG_FILE=%s", config_file),
-                                        LOG_ITEM("CONFIG_LINE=%u", config_line),
-                                        LOG_MESSAGE("%s:%u: %s", config_file, config_line, buffer),
+                                        LOG_ITEM("CONFIG_LINE=%u", config_पङ्क्तिः),
+                                        LOG_MESSAGE("%s:%u: %s", config_file, config_पङ्क्तिः, buffer),
                                         unit_fmt, unit,
-                                        NULL);
-                else
-                        return log_struct_internal(
+                                        रिक्त);
+                अण्णहा
+                        प्रत्यागम log_struct_internal(
                                         level,
                                         error,
-                                        file, line, func,
+                                        file, पङ्क्तिः, func,
                                         LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                         LOG_ITEM("CONFIG_FILE=%s", config_file),
                                         LOG_MESSAGE("%s: %s", config_file, buffer),
                                         unit_fmt, unit,
-                                        NULL);
-        } else if (unit)
-                return log_struct_internal(
+                                        रिक्त);
+        } अण्णहा जइ (unit)
+                प्रत्यागम log_struct_internal(
                                 level,
                                 error,
-                                file, line, func,
+                                file, पङ्क्तिः, func,
                                 LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                 LOG_MESSAGE("%s: %s", unit, buffer),
                                 unit_fmt, unit,
-                                NULL);
-        else
-                return log_struct_internal(
+                                रिक्त);
+        अण्णहा
+                प्रत्यागम log_struct_internal(
                                 level,
                                 error,
-                                file, line, func,
+                                file, पङ्क्तिः, func,
                                 LOG_MESSAGE_ID(SD_MESSAGE_INVALID_CONFIGURATION_STR),
                                 LOG_MESSAGE("%s", buffer),
-                                NULL);
+                                रिक्त);
 }
 
-int log_syntax_invalid_utf8_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
-                unsigned config_line,
-                const char *file,
-                int line,
-                const char *func,
-                const char *rvalue) {
+पूर्णाङ्क log_syntax_invalid_utf8_internal(
+                ध्रुव वर्ण *unit,
+                पूर्णाङ्क level,
+                ध्रुव वर्ण *config_file,
+                unsigned config_पङ्क्तिः,
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *rvalue) {
 
         PROTECT_ERRNO;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ वर्ण *p = रिक्त;
 
-        if (rvalue)
+        जइ (rvalue)
                 p = utf8_escape_invalid(rvalue);
 
-        return log_syntax_internal(unit, level, config_file, config_line,
-                                   SYNTHETIC_ERRNO(EINVAL), file, line, func,
+        प्रत्यागम log_syntax_internal(unit, level, config_file, config_पङ्क्तिः,
+                                   SYNTHETIC_ERRNO(EINVAL), file, पङ्क्तिः, func,
                                    "String is not UTF-8 clean, ignoring assignment: %s", strna(p));
 }
 
-int log_syntax_parse_error_internal(
-                const char *unit,
-                const char *config_file,
-                unsigned config_line,
-                int error,
+पूर्णाङ्क log_syntax_parse_error_internal(
+                ध्रुव वर्ण *unit,
+                ध्रुव वर्ण *config_file,
+                unsigned config_पङ्क्तिः,
+                पूर्णाङ्क error,
                 bool critical,
-                const char *file,
-                int line,
-                const char *func,
-                const char *lvalue,
-                const char *rvalue) {
+                ध्रुव वर्ण *file,
+                पूर्णाङ्क पङ्क्तिः,
+                ध्रुव वर्ण *func,
+                ध्रुव वर्ण *lvalue,
+                ध्रुव वर्ण *rvalue) {
 
         PROTECT_ERRNO;
-        _cleanup_free_ char *escaped = NULL;
+        _cleanup_free_ वर्ण *escaped = रिक्त;
 
         /* OOM is always handled as critical. */
-        if (ERRNO_VALUE(error) == ENOMEM)
-                return log_oom_internal(LOG_ERR, file, line, func);
+        जइ (ERRNO_मानम्(error) == ENOMEM)
+                प्रत्यागम log_oom_internal(LOG_ERR, file, पङ्क्तिः, func);
 
-        if (rvalue && !utf8_is_valid(rvalue)) {
+        जइ (rvalue && !utf8_is_valid(rvalue)) {
                 escaped = utf8_escape_invalid(rvalue);
-                if (!escaped)
+                जइ (!escaped)
                         rvalue = "(oom)";
-                else
+                अण्णहा
                         rvalue = " (escaped)";
         }
 
-        log_syntax_internal(unit, critical ? LOG_ERR : LOG_WARNING, config_file, config_line, error,
-                            file, line, func,
+        log_syntax_internal(unit, critical ? LOG_ERR : LOG_WARNING, config_file, config_पङ्क्तिः, error,
+                            file, पङ्क्तिः, func,
                             "Failed to parse %s=%s%s%s%s%s",
                             strna(lvalue), strempty(escaped), strempty(rvalue),
                             critical ? "" : ", ignoring",
                             error == 0 ? "." : ": ",
                             error == 0 ? "" : STRERROR(error));
 
-        return critical ? -ERRNO_VALUE(error) : 0;
+        प्रत्यागम critical ? -ERRNO_मानम्(error) : 0;
 }
 
-void log_set_upgrade_syslog_to_journal(bool b) {
+शून्य log_set_upgrade_syslog_to_journal(bool b) {
         upgrade_syslog_to_journal = b;
 
         /* Make the change effective immediately */
-        if (b) {
-                if (log_target == LOG_TARGET_SYSLOG)
+        जइ (b) {
+                जइ (log_target == LOG_TARGET_SYSLOG)
                         log_target = LOG_TARGET_JOURNAL;
-                else if (log_target == LOG_TARGET_SYSLOG_OR_KMSG)
+                अण्णहा जइ (log_target == LOG_TARGET_SYSLOG_OR_KMSG)
                         log_target = LOG_TARGET_JOURNAL_OR_KMSG;
         }
 }
 
-void log_set_always_reopen_console(bool b) {
+शून्य log_set_always_reopen_console(bool b) {
         always_reopen_console = b;
 }
 
-void log_set_open_when_needed(bool b) {
+शून्य log_set_open_when_needed(bool b) {
         open_when_needed = b;
 }
 
-void log_set_prohibit_ipc(bool b) {
+शून्य log_set_prohibit_ipc(bool b) {
         prohibit_ipc = b;
 }
 
-int log_emergency_level(void) {
+पूर्णाङ्क log_emergency_level(शून्य) {
         /* Returns the log level to use for log_emergency() logging. We use LOG_EMERG only when we are PID 1, as only
          * then the system of the whole system is obviously affected. */
 
-        return getpid_cached() == 1 ? LOG_EMERG : LOG_ERR;
+        प्रत्यागम getpid_cached() == 1 ? LOG_EMERG : LOG_ERR;
 }
 
-int log_dup_console(void) {
-        int copy;
+पूर्णाङ्क log_dup_console(शून्य) {
+        पूर्णाङ्क copy;
 
         /* Duplicate the fd we use for fd logging if it's < 3 and use the copy from now on. This call is useful
          * whenever we want to continue logging through the original fd, but want to rearrange stderr. */
 
-        if (console_fd < 0 || console_fd >= 3)
-                return 0;
+        जइ (console_fd < 0 || console_fd >= 3)
+                प्रत्यागम 0;
 
         copy = fcntl(console_fd, F_DUPFD_CLOEXEC, 3);
-        if (copy < 0)
-                return -errno;
+        जइ (copy < 0)
+                प्रत्यागम -errno;
 
         console_fd = copy;
-        return 0;
+        प्रत्यागम 0;
 }
 
-void log_setup(void) {
+शून्य log_setup(शून्य) {
         log_set_target(LOG_TARGET_AUTO);
         log_parse_environment();
-        (void) log_open();
-        if (log_on_console() && show_color < 0)
+        (शून्य) log_open();
+        जइ (log_on_console() && show_color < 0)
                 log_show_color(true);
 }
 
-const char* _log_set_prefix(const char *prefix, bool force) {
-        const char *old = log_prefix;
+ध्रुव वर्ण* _log_set_prefix(ध्रुव वर्ण *prefix, bool force) {
+        ध्रुव वर्ण *old = log_prefix;
 
-        if (prefix || force)
+        जइ (prefix || force)
                 log_prefix = prefix;
 
-        return old;
+        प्रत्यागम old;
 }

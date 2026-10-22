@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
+#अन्तर्भाव <string.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 /* strerror(3) says that glibc uses a maximum length of 1024 bytes. */
 #define ERRNO_BUF_LEN           1024
@@ -13,48 +13,48 @@
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks
  *
  * Note that we use the GNU variant of strerror_r() here. */
-#define STRERROR(errnum) strerror_r(ABS(errnum), (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+#define STRERROR(errnum) strerror_r(ABS(errnum), (वर्ण[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
 /* A helper to print an error message or message for functions that return 0 on EOF. */
-const char* strerror_or_eof(int errnum, char *buf, size_t buflen);
-#define STRERROR_OR_EOF(errnum) strerror_or_eof(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+ध्रुव वर्ण* strerror_or_eof(पूर्णाङ्क errnum, वर्ण *buf, size_t buflen);
+#define STRERROR_OR_EOF(errnum) strerror_or_eof(errnum, (वर्ण[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
-static inline void _reset_errno_(int *saved_errno) {
-        if (*saved_errno < 0) /* Invalidated by UNPROTECT_ERRNO? */
-                return;
+स्थिर अन्तःस्थ शून्य _reset_errno_(पूर्णाङ्क *saved_errno) {
+        जइ (*saved_errno < 0) /* Invalidated by UNPROTECT_ERRNO? */
+                प्रत्यागम;
 
         errno = *saved_errno;
 }
 
 #define PROTECT_ERRNO                           \
-        _cleanup_(_reset_errno_) _unused_ int _saved_errno_ = errno
+        _cleanup_(_reset_errno_) _unused_ पूर्णाङ्क _saved_errno_ = errno
 
 #define UNPROTECT_ERRNO                         \
-        do {                                    \
+        करेहि {                                    \
                 errno = _saved_errno_;          \
                 _saved_errno_ = -1;             \
-        } while (false)
+        } जाव (false)
 
-#define LOCAL_ERRNO(value)                      \
+#define LOCAL_ERRNO(मानम्)                      \
         PROTECT_ERRNO;                          \
-        errno = ABS(value)
+        errno = ABS(मानम्)
 
 #define return_with_errno(r, err)                     \
-        do {                                          \
+        करेहि {                                          \
                 errno = ABS(err);                     \
-                return r;                             \
-        } while (false)
+                प्रत्यागम r;                             \
+        } जाव (false)
 
-static inline int negative_errno(void) {
+स्थिर अन्तःस्थ पूर्णाङ्क negative_errno(शून्य) {
         /* This helper should be used to shut up gcc if you know 'errno' is
          * negative. Instead of "return -errno;", use "return negative_errno();"
          * It will suppress bogus gcc warnings in case it assumes 'errno' might
          * be 0 and thus the caller's error-handling might not be triggered. */
         assert_return(errno > 0, -EINVAL);
-        return -errno;
+        प्रत्यागम -errno;
 }
 
-static inline int RET_NERRNO(int ret) {
+स्थिर अन्तःस्थ पूर्णाङ्क RET_NERRNO(पूर्णाङ्क ret) {
 
         /* Helper to wrap system calls in to make them return negative errno errors. This brings system call
          * error handling in sync with how we usually handle errors in our own code, i.e. with immediate
@@ -71,44 +71,44 @@ static inline int RET_NERRNO(int ret) {
          *     …
          */
 
-        if (ret < 0)
-                return negative_errno();
+        जइ (ret < 0)
+                प्रत्यागम negative_errno();
 
-        return ret;
+        प्रत्यागम ret;
 }
 
 /* Collect possible errors in <acc>, so that the first error can be returned.
  * Returns (possibly updated) <acc>. */
 #define RET_GATHER(acc, err)                    \
         ({                                      \
-                int *__a = &(acc), __e = (err); \
-                if (*__a >= 0 && __e < 0)       \
+                पूर्णाङ्क *__a = &(acc), __e = (err); \
+                जइ (*__a >= 0 && __e < 0)       \
                         *__a = __e;             \
                 *__a;                           \
         })
 
-static inline int errno_or_else(int fallback) {
+स्थिर अन्तःस्थ पूर्णाङ्क errno_or_else(पूर्णाङ्क fallback) {
         /* To be used when invoking library calls where errno handling is not defined clearly: we return
          * errno if it is set, and the specified error otherwise. The idea is that the caller initializes
          * errno to zero before doing an API call, and then uses this helper to retrieve a somewhat useful
          * error code */
-        if (errno > 0)
-                return -errno;
+        जइ (errno > 0)
+                प्रत्यागम -errno;
 
-        return -ABS(fallback);
+        प्रत्यागम -ABS(fallback);
 }
 
 /* abs(3) says: Trying to take the absolute value of the most negative integer is not defined. */
 #define _DEFINE_ABS_WRAPPER(name)                         \
-        static inline bool ERRNO_IS_##name(intmax_t r) {  \
-                if (r == INTMAX_MIN)                      \
-                        return false;                     \
-                return ERRNO_IS_NEG_##name(-ABS(r));      \
+        स्थिर अन्तःस्थ bool ERRNO_IS_##name(intmax_t r) {  \
+                जइ (r == INTMAX_MIN)                      \
+                        प्रत्यागम false;                     \
+                प्रत्यागम ERRNO_IS_NEG_##name(-ABS(r));      \
         }
 
 /* For send()/recv() or read()/write(). */
-static inline bool ERRNO_IS_NEG_TRANSIENT(intmax_t r) {
-        return IN_SET(r,
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_TRANSIENT(intmax_t r) {
+        प्रत्यागम IN_SET(r,
                       -EAGAIN,
                       -EINTR);
 }
@@ -121,8 +121,8 @@ _DEFINE_ABS_WRAPPER(TRANSIENT);
  *
  * Hint #3: When asynchronous connect() on TCP fails because the host never acknowledges a single packet,
  *          kernel tells us that with ETIMEDOUT, see tcp(7). */
-static inline bool ERRNO_IS_NEG_DISCONNECT(intmax_t r) {
-        return IN_SET(r,
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_DISCONNECT(intmax_t r) {
+        प्रत्यागम IN_SET(r,
                       -ECONNABORTED,
                       -ECONNREFUSED,
                       -ECONNRESET,
@@ -143,16 +143,16 @@ _DEFINE_ABS_WRAPPER(DISCONNECT);
 
 /* Transient errors we might get on accept() that we should ignore. As per error handling comment in
  * the accept(2) man page. */
-static inline bool ERRNO_IS_NEG_ACCEPT_AGAIN(intmax_t r) {
-        return ERRNO_IS_NEG_DISCONNECT(r) ||
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_ACCEPT_AGAIN(intmax_t r) {
+        प्रत्यागम ERRNO_IS_NEG_DISCONNECT(r) ||
                 ERRNO_IS_NEG_TRANSIENT(r) ||
                 r == -EOPNOTSUPP;
 }
 _DEFINE_ABS_WRAPPER(ACCEPT_AGAIN);
 
 /* Resource exhaustion, could be our fault or general system trouble */
-static inline bool ERRNO_IS_NEG_RESOURCE(intmax_t r) {
-        return IN_SET(r,
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_RESOURCE(intmax_t r) {
+        प्रत्यागम IN_SET(r,
                       -EMFILE,
                       -ENFILE,
                       -ENOMEM);
@@ -160,8 +160,8 @@ static inline bool ERRNO_IS_NEG_RESOURCE(intmax_t r) {
 _DEFINE_ABS_WRAPPER(RESOURCE);
 
 /* Seven different errors for "operation/system call/socket feature not supported" */
-static inline bool ERRNO_IS_NEG_NOT_SUPPORTED(intmax_t r) {
-        return IN_SET(r,
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_NOT_SUPPORTED(intmax_t r) {
+        प्रत्यागम IN_SET(r,
                       -EOPNOTSUPP,
                       -ENOTTY,
                       -ENOSYS,
@@ -174,28 +174,28 @@ static inline bool ERRNO_IS_NEG_NOT_SUPPORTED(intmax_t r) {
 _DEFINE_ABS_WRAPPER(NOT_SUPPORTED);
 
 /* ioctl() with unsupported command/arg might additionally return EINVAL */
-static inline bool ERRNO_IS_NEG_IOCTL_NOT_SUPPORTED(intmax_t r) {
-        return ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EINVAL;
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_IOCTL_NOT_SUPPORTED(intmax_t r) {
+        प्रत्यागम ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EINVAL;
 }
 _DEFINE_ABS_WRAPPER(IOCTL_NOT_SUPPORTED);
 
 /* Two different errors for access problems */
-static inline bool ERRNO_IS_NEG_PRIVILEGE(intmax_t r) {
-        return IN_SET(r,
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_PRIVILEGE(intmax_t r) {
+        प्रत्यागम IN_SET(r,
                       -EACCES,
                       -EPERM);
 }
 _DEFINE_ABS_WRAPPER(PRIVILEGE);
 
 /* Three different errors for writing on a filesystem */
-static inline bool ERRNO_IS_NEG_FS_WRITE_REFUSED(intmax_t r) {
-        return r == -EROFS || ERRNO_IS_NEG_PRIVILEGE(r);
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_FS_WRITE_REFUSED(intmax_t r) {
+        प्रत्यागम r == -EROFS || ERRNO_IS_NEG_PRIVILEGE(r);
 }
 _DEFINE_ABS_WRAPPER(FS_WRITE_REFUSED);
 
 /* Three different errors for "not enough disk space" */
-static inline bool ERRNO_IS_NEG_DISK_SPACE(intmax_t r) {
-        return IN_SET(r,
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_DISK_SPACE(intmax_t r) {
+        प्रत्यागम IN_SET(r,
                       -ENOSPC,
                       -EDQUOT,
                       -EFBIG);
@@ -203,8 +203,8 @@ static inline bool ERRNO_IS_NEG_DISK_SPACE(intmax_t r) {
 _DEFINE_ABS_WRAPPER(DISK_SPACE);
 
 /* Three different errors for "this device does not quite exist" */
-static inline bool ERRNO_IS_NEG_DEVICE_ABSENT(intmax_t r) {
-        return IN_SET(r,
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_DEVICE_ABSENT(intmax_t r) {
+        प्रत्यागम IN_SET(r,
                       -ENODEV,
                       -ENXIO,
                       -ENOENT);
@@ -212,8 +212,8 @@ static inline bool ERRNO_IS_NEG_DEVICE_ABSENT(intmax_t r) {
 _DEFINE_ABS_WRAPPER(DEVICE_ABSENT);
 
 /* Device is absent or "empty". We get -ENOMEDIUM from CD/DVD devices, also in VMs. */
-static inline bool ERRNO_IS_NEG_DEVICE_ABSENT_OR_EMPTY(intmax_t r) {
-        return ERRNO_IS_NEG_DEVICE_ABSENT(r) ||
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_DEVICE_ABSENT_OR_EMPTY(intmax_t r) {
+        प्रत्यागम ERRNO_IS_NEG_DEVICE_ABSENT(r) ||
                 r == -ENOMEDIUM;
 }
 _DEFINE_ABS_WRAPPER(DEVICE_ABSENT_OR_EMPTY);
@@ -222,8 +222,8 @@ _DEFINE_ABS_WRAPPER(DEVICE_ABSENT_OR_EMPTY);
  * where the path component carrying the xattr is missing, and where it simply doesn't have the requested
  * xattr the same way. Note that getxattr(2) does not enumerate -ENOENT in its own error list, but inherits
  * it via stat(2) (see ERRORS in getxattr(2)) for the path-component-missing case. */
-static inline bool ERRNO_IS_NEG_XATTR_ABSENT(intmax_t r) {
-        return r == -ENODATA ||
+स्थिर अन्तःस्थ bool ERRNO_IS_NEG_XATTR_ABSENT(intmax_t r) {
+        प्रत्यागम r == -ENODATA ||
                 r == -ENOENT ||
                 ERRNO_IS_NEG_NOT_SUPPORTED(r);
 }

@@ -1,68 +1,68 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#अन्तर्भाव <stdio.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "parse-util.h"
-#include "string-util.h"
-#include "strv.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "bitfield.h"
+#अन्तर्भाव "capability-list.h"
+#अन्तर्भाव "capability-util.h"
+#अन्तर्भाव "extract-word.h"
+#अन्तर्भाव "log.h"
+#अन्तर्भाव "parse-util.h"
+#अन्तर्भाव "string-util.h"
+#अन्तर्भाव "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+स्थिर ध्रुव संरचना capability_name* lookup_capability(पञ्जिका ध्रुव वर्ण *str, पञ्जिका GPERF_LEN_TYPE len);
 
-#include "capability-from-name.inc"
-#include "capability-to-name.inc"
+#अन्तर्भाव "capability-from-name.inc"
+#अन्तर्भाव "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+ध्रुव वर्ण* capability_to_name(पूर्णाङ्क id) {
+        जइ (id < 0)
+                प्रत्यागम रिक्त;
+        जइ ((unsigned) id >= capability_list_length())
+                प्रत्यागम रिक्त;
 
-        return capability_names[id];
+        प्रत्यागम capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+ध्रुव वर्ण* capability_to_string(पूर्णाङ्क id, वर्ण buf[स्थिर CAPABILITY_TO_STRING_MAX]) {
+        ध्रुव वर्ण *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        जइ (id < 0)
+                प्रत्यागम रिक्त;
+        जइ (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                प्रत्यागम रिक्त;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        जइ (p)
+                प्रत्यागम p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        प्रत्यागम buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+पूर्णाङ्क capability_from_name(ध्रुव वर्ण *name) {
+        ध्रुव संरचना capability_name *sc;
+        पूर्णाङ्क r, i;
 
-        assert(name);
+        प्रतिज्ञा(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        जइ (r >= 0) {
+                जइ (i < 0 || i > CAP_LIMIT)
+                        प्रत्यागम -EINVAL;
 
-                return i;
+                प्रत्यागम i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        जइ (!sc)
+                प्रत्यागम -EINVAL;
 
-        return sc->id;
+        प्रत्यागम sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -70,117 +70,117 @@ int capability_from_name(const char *name) {
  * value larger than the last known capability. This is different from cap_last_cap() which returns the
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
-unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+unsigned capability_list_length(शून्य) {
+        प्रत्यागम MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+पूर्णाङ्क capability_set_to_string(uint64_t set, वर्ण **ret) {
+        _cleanup_free_ वर्ण *str = रिक्त;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        प्रति (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ध्रुव वर्ण *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                जइ (!BIT_SET(set, i))
+                        अनुवर्त;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                प्रतिज्ञा(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                जइ (!strextend_with_separator(&str, " ", p))
+                        प्रत्यागम -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        जइ (!str) {
+                str = new0(वर्ण, 1);
+                जइ (!str)
+                        प्रत्यागम -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+पूर्णाङ्क capability_set_to_string_negative(uint64_t set, वर्ण **ret) {
+        _cleanup_free_ वर्ण *a = रिक्त, *b = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
         /* Format the specified capability mask both in positive way (i.e. just listing caps) and in negative
          * way (i.e. listing only caps that are missing from the full set) and return the shorter version of
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        जइ (r < 0)
+                प्रत्यागम r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        जइ (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        अण्णहा {
+                वर्ण *c = strjoin("~", b);
+                जइ (!c)
+                        प्रत्यागम -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+पूर्णाङ्क capability_set_to_strv(uint64_t set, वर्ण ***ret) {
+        _cleanup_strv_free_ वर्ण **l = रिक्त;
+        पूर्णाङ्क r;
 
-        assert(ret);
+        प्रतिज्ञा(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        प्रति (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ध्रुव वर्ण *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                जइ (!BIT_SET(set, i))
+                        अनुवर्त;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                प्रतिज्ञा(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                जइ (r < 0)
+                        प्रत्यागम r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        प्रत्यागम 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+पूर्णाङ्क capability_set_from_string(ध्रुव वर्ण *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        प्रति (ध्रुव वर्ण *p = s;;) {
+                _cleanup_free_ वर्ण *word = रिक्त;
+                पूर्णाङ्क r;
 
-                r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&p, &word, रिक्त, EXTRACT_UNQUOTE|EXTRACT_RELAX);
+                जइ (r < 0)
+                        प्रत्यागम r;
+                जइ (r == 0)
+                        भङ्ग;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                जइ (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } अण्णहा
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        जइ (ret)
                 *ret = val;
 
-        return good;
+        प्रत्यागम good;
 }

@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-struct strbuf {
-        char *buf;
+संरचना strbuf {
+        वर्ण *buf;
         size_t len;
-        struct strbuf_node *root;
+        संरचना strbuf_ग्रन्थिः *मूलम्;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_गणनम्;
+        size_t in_गणनम्;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_गणनम्;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+संरचना strbuf_ग्रन्थिः {
+        size_t मानम्_off;
+        size_t मानम्_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        संरचना strbuf_child_entry *children;
+        uint8_t children_गणनम्;
 };
 
-struct strbuf_child_entry {
+संरचना strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        संरचना strbuf_ग्रन्थिः *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+संरचना strbuf* strbuf_new(शून्य);
+ssize_t strbuf_add_string_full(संरचना strbuf *str, ध्रुव वर्ण *s, size_t len);
+स्थिर अन्तःस्थ ssize_t strbuf_add_string(संरचना strbuf *str, ध्रुव वर्ण *s) {
+        प्रत्यागम strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+शून्य strbuf_complete(संरचना strbuf *str);
+संरचना strbuf* strbuf_free(संरचना strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(संरचना strbuf*, strbuf_free);
