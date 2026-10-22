@@ -1,31 +1,31 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#ضمن <stdlib.h>
 
-#include "env-util.h"
-#include "glyph-util.h"
-#include "locale-util.h"
-#include "strv.h"
+#ضمن "env-util.h"
+#ضمن "glyph-util.h"
+#ضمن "locale-util.h"
+#ضمن "strv.h"
 
-bool emoji_enabled(void) {
-        static int cached_emoji_enabled = -1;
+bool emoji_enabled(فراغ) {
+        ساكن صحيح cached_emoji_enabled = -1;
 
-        if (cached_emoji_enabled < 0) {
-                int val = getenv_bool("SYSTEMD_EMOJI");
-                if (val >= 0)
-                        return (cached_emoji_enabled = val);
+        𐡄𐡍 (cached_emoji_enabled < 0) {
+                صحيح val = getenv_bool("SYSTEMD_EMOJI");
+                𐡄𐡍 (val >= 0)
+                        أرجع (cached_emoji_enabled = val);
 
-                const char *term = getenv("TERM");
-                if (!term || STR_IN_SET(term, "dumb", "linux"))
-                        return (cached_emoji_enabled = false);
+                ثابت حرف *term = getenv("TERM");
+                𐡄𐡍 (!term || STR_IN_SET(term, "dumb", "linux"))
+                        أرجع (cached_emoji_enabled = false);
 
                 cached_emoji_enabled = is_locale_utf8();
         }
 
-        return cached_emoji_enabled;
+        أرجع cached_emoji_enabled;
 }
 
-const char* glyph_full(Glyph code, bool force_utf) {
+ثابت حرف* glyph_full(Glyph code, bool force_utf) {
 
         /* A list of a number of interesting unicode glyphs we can use to decorate our output. It's probably wise to be
          * conservative here, and primarily stick to the glyphs defined in the eurlatgr font, so that display still
@@ -34,7 +34,7 @@ const char* glyph_full(Glyph code, bool force_utf) {
          * http://git.altlinux.org/people/legion/packages/kbd.git?p=kbd.git;a=blob;f=data/consolefonts/README.eurlatgr
          */
 
-        static const char* const draw_table[2][_GLYPH_MAX] = {
+        ساكن ثابت حرف* ثابت draw_table[2][_GLYPH_MAX] = {
                 /* ASCII fallback */
                 [false] = {
                         [GLYPH_SPACE]                   = " ",
@@ -181,9 +181,9 @@ const char* glyph_full(Glyph code, bool force_utf) {
                 },
         };
 
-        if (code < 0)
-                return NULL;
+        𐡄𐡍 (code < 0)
+                أرجع عدم;
 
-        assert(code < _GLYPH_MAX);
-        return draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
+        أكد(code < _GLYPH_MAX);
+        أرجع draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
 }

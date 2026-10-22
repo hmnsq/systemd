@@ -1,111 +1,111 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <signal.h>
-#include <sys/mman.h>
+#ضمن <signal.h>
+#ضمن <sys/mman.h>
 
-#include "memory-util.h"
-#include "sigbus.h"
-#include "signal-util.h"
+#ضمن "memory-util.h"
+#ضمن "sigbus.h"
+#ضمن "signal-util.h"
 
 #define SIGBUS_QUEUE_MAX 64
 
-static struct sigaction old_sigaction;
-static unsigned n_installed = 0;
+ساكن بنية sigaction old_sigaction;
+ساكن unsigned n_installed = 0;
 
 /* We maintain a fixed size list of page addresses that triggered a
    SIGBUS. We access with list with atomic operations, so that we
    don't have to deal with locks between signal handler and main
    programs in possibly multiple threads. */
 
-static void* volatile sigbus_queue[SIGBUS_QUEUE_MAX];
-static volatile sig_atomic_t n_sigbus_queue = 0;
+ساكن فراغ* متطاير sigbus_queue[SIGBUS_QUEUE_MAX];
+ساكن متطاير sig_atomic_t n_sigbus_queue = 0;
 
-static void sigbus_push(void *addr) {
-        assert(addr);
+ساكن فراغ sigbus_push(فراغ *addr) {
+        أكد(addr);
 
         /* Find a free place, increase the number of entries and leave, if we can */
         FOREACH_ELEMENT(u, sigbus_queue) {
                 /* OK to initialize this here since we haven't started the atomic ops yet */
-                void *tmp = NULL;
-                if (__atomic_compare_exchange_n(u, &tmp, addr, false,
+                فراغ *tmp = عدم;
+                𐡄𐡍 (__atomic_compare_exchange_n(u, &tmp, addr, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                         __atomic_fetch_add(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
-                        return;
+                        أرجع;
                 }
         }
 
         /* If we can't, make sure the queue size is out of bounds, to
          * mark it as overflowed */
-        for (;;) {
+        لكل (;;) {
                 sig_atomic_t c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (c > SIGBUS_QUEUE_MAX) /* already overflowed */
-                        return;
+                𐡄𐡍 (c > SIGBUS_QUEUE_MAX) /* already overflowed */
+                        أرجع;
 
                 /* OK if we clobber c here, since we either immediately return
                  * or it will be immediately reinitialized on next loop */
-                if (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
+                𐡄𐡍 (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
-                        return;
+                        أرجع;
         }
 }
 
-int sigbus_pop(void **ret) {
-        assert(ret);
+صحيح sigbus_pop(فراغ **ret) {
+        أكد(ret);
 
-        for (;;) {
+        لكل (;;) {
                 unsigned u, c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (_likely_(c == 0))
-                        return 0;
+                𐡄𐡍 (_likely_(c == 0))
+                        أرجع 0;
 
-                if (_unlikely_(c > SIGBUS_QUEUE_MAX))
-                        return -EOVERFLOW;
+                𐡄𐡍 (_unlikely_(c > SIGBUS_QUEUE_MAX))
+                        أرجع -EOVERFLOW;
 
-                for (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
-                        void *addr;
+                لكل (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
+                        فراغ *addr;
 
                         addr = sigbus_queue[u];
-                        if (!addr)
-                                continue;
+                        𐡄𐡍 (!addr)
+                                استمر;
 
                         /* OK if we clobber addr here, since we either immediately return
                          * or it will be immediately reinitialized on next loop */
-                        if (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, NULL, false,
+                        𐡄𐡍 (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, عدم, false,
                                                         __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                                 __atomic_fetch_sub(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
                                 /* If we successfully entered this if condition, addr won't
                                  * have been modified since its assignment, so safe to use it */
                                 *ret = addr;
-                                return 1;
+                                أرجع 1;
                         }
                 }
         }
 }
 
-static void sigbus_handler(int sn, siginfo_t *si, void *data) {
+ساكن فراغ sigbus_handler(صحيح sn, siginfo_t *si, فراغ *data) {
         unsigned long ul;
-        void *aligned;
+        فراغ *aligned;
 
-        assert(sn == SIGBUS);
-        assert(si);
+        أكد(sn == SIGBUS);
+        أكد(si);
 
-        if (si->si_code != BUS_ADRERR || !si->si_addr) {
-                assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
+        𐡄𐡍 (si->si_code != BUS_ADRERR || !si->si_addr) {
+                assert_se(sigaction(SIGBUS, &old_sigaction, عدم) >= 0);
                 propagate_signal(sn, si);
-                return;
+                أرجع;
         }
 
         ul = (unsigned long) si->si_addr;
         ul = ul / page_size();
         ul = ul * page_size();
-        aligned = (void*) ul;
+        aligned = (فراغ*) ul;
 
         /* Let's remember which address failed */
         sigbus_push(aligned);
@@ -115,33 +115,33 @@ static void sigbus_handler(int sn, siginfo_t *si, void *data) {
         assert_se(mmap(aligned, page_size(), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED, -1, 0) == aligned);
 }
 
-void sigbus_install(void) {
-        static const struct sigaction sa = {
+فراغ sigbus_install(فراغ) {
+        ساكن ثابت بنية sigaction sa = {
                 .sa_sigaction = sigbus_handler,
                 .sa_flags = SA_SIGINFO,
         };
 
         /* make sure that sysconf() is not called from a signal handler because
         * it is not guaranteed to be async-signal-safe since POSIX.1-2008 */
-        (void) page_size();
+        (فراغ) page_size();
 
         n_installed++;
 
-        if (n_installed == 1)
+        𐡄𐡍 (n_installed == 1)
                 assert_se(sigaction(SIGBUS, &sa, &old_sigaction) >= 0);
 
-        return;
+        أرجع;
 }
 
-void sigbus_reset(void) {
+فراغ sigbus_reset(فراغ) {
 
-        if (n_installed <= 0)
-                return;
+        𐡄𐡍 (n_installed <= 0)
+                أرجع;
 
         n_installed--;
 
-        if (n_installed == 0)
-                assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
+        𐡄𐡍 (n_installed == 0)
+                assert_se(sigaction(SIGBUS, &old_sigaction, عدم) >= 0);
 
-        return;
+        أرجع;
 }

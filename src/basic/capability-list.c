@@ -1,68 +1,68 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "parse-util.h"
-#include "string-util.h"
-#include "strv.h"
+#ضمن "alloc-util.h"
+#ضمن "bitfield.h"
+#ضمن "capability-list.h"
+#ضمن "capability-util.h"
+#ضمن "extract-word.h"
+#ضمن "log.h"
+#ضمن "parse-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+ساكن ثابت بنية capability_name* lookup_capability(سجل ثابت حرف *str, سجل GPERF_LEN_TYPE len);
 
-#include "capability-from-name.inc"
-#include "capability-to-name.inc"
+#ضمن "capability-from-name.inc"
+#ضمن "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+ثابت حرف* capability_to_name(صحيح id) {
+        𐡄𐡍 (id < 0)
+                أرجع عدم;
+        𐡄𐡍 ((unsigned) id >= capability_list_length())
+                أرجع عدم;
 
-        return capability_names[id];
+        أرجع capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+ثابت حرف* capability_to_string(صحيح id, حرف buf[ساكن CAPABILITY_TO_STRING_MAX]) {
+        ثابت حرف *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        𐡄𐡍 (id < 0)
+                أرجع عدم;
+        𐡄𐡍 (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                أرجع عدم;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        𐡄𐡍 (p)
+                أرجع p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        أرجع buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+صحيح capability_from_name(ثابت حرف *name) {
+        ثابت بنية capability_name *sc;
+        صحيح r, i;
 
-        assert(name);
+        أكد(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        𐡄𐡍 (r >= 0) {
+                𐡄𐡍 (i < 0 || i > CAP_LIMIT)
+                        أرجع -EINVAL;
 
-                return i;
+                أرجع i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        𐡄𐡍 (!sc)
+                أرجع -EINVAL;
 
-        return sc->id;
+        أرجع sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -70,117 +70,117 @@ int capability_from_name(const char *name) {
  * value larger than the last known capability. This is different from cap_last_cap() which returns the
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
-unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+unsigned capability_list_length(فراغ) {
+        أرجع MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+صحيح capability_set_to_string(uint64_t set, حرف **ret) {
+        _cleanup_free_ حرف *str = عدم;
 
-        assert(ret);
+        أكد(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        لكل (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ثابت حرف *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                𐡄𐡍 (!BIT_SET(set, i))
+                        استمر;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                أكد(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                𐡄𐡍 (!strextend_with_separator(&str, " ", p))
+                        أرجع -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        𐡄𐡍 (!str) {
+                str = new0(حرف, 1);
+                𐡄𐡍 (!str)
+                        أرجع -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        أرجع 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+صحيح capability_set_to_string_negative(uint64_t set, حرف **ret) {
+        _cleanup_free_ حرف *a = عدم, *b = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* Format the specified capability mask both in positive way (i.e. just listing caps) and in negative
          * way (i.e. listing only caps that are missing from the full set) and return the shorter version of
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        𐡄𐡍 (r < 0)
+                أرجع r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        𐡄𐡍 (r < 0)
+                أرجع r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        𐡄𐡍 (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        وإلا {
+                حرف *c = strjoin("~", b);
+                𐡄𐡍 (!c)
+                        أرجع -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+صحيح capability_set_to_strv(uint64_t set, حرف ***ret) {
+        _cleanup_strv_free_ حرف **l = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        لكل (unsigned i = 0; i <= cap_last_cap(); i++) {
+                ثابت حرف *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                𐡄𐡍 (!BIT_SET(set, i))
+                        استمر;
 
                 p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                أكد(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                𐡄𐡍 (r < 0)
+                        أرجع r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        أرجع 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+صحيح capability_set_from_string(ثابت حرف *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        لكل (ثابت حرف *p = s;;) {
+                _cleanup_free_ حرف *word = عدم;
+                صحيح r;
 
-                r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&p, &word, عدم, EXTRACT_UNQUOTE|EXTRACT_RELAX);
+                𐡄𐡍 (r < 0)
+                        أرجع r;
+                𐡄𐡍 (r == 0)
+                        اكسر;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                𐡄𐡍 (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } وإلا
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        𐡄𐡍 (ret)
                 *ret = val;
 
-        return good;
+        أرجع good;
 }

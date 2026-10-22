@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "list.h"
+#ضمن "forward.h"
+#ضمن "list.h"
 
 /*
  * The log context allows attaching extra metadata to log messages written to the journal via log.h. We keep
@@ -32,46 +32,46 @@
  * message.
  */
 
-typedef struct LogContext {
+تعريفنوع بنية LogContext {
         unsigned n_ref;
         /* Depending on which destructor is used (log_context_free() or log_context_detach()) the memory
          * referenced by this is freed or not */
-        char **fields;
-        struct iovec *input_iovec;
+        حرف **fields;
+        بنية iovec *input_iovec;
         size_t n_input_iovec;
-        char *key;
-        char *value;
+        حرف *key;
+        حرف *value;
         bool owned;
-        LIST_FIELDS(struct LogContext, ll);
+        LIST_FIELDS(بنية LogContext, ll);
 } LogContext;
 
-bool log_context_enabled(void);
+bool log_context_enabled(فراغ);
 
-LogContext* log_context_new(const char *key, const char *value);
-LogContext* log_context_new_strv(char **fields, bool owned);
-LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned);
+LogContext* log_context_new(ثابت حرف *key, ثابت حرف *value);
+LogContext* log_context_new_strv(حرف **fields, bool owned);
+LogContext* log_context_new_iov(بنية iovec *input_iovec, size_t n_input_iovec, bool owned);
 
 /* Same as log_context_new(), but frees the given fields strv/iovec on failure. */
-LogContext* log_context_new_strv_consume(char **fields);
-LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec);
+LogContext* log_context_new_strv_consume(حرف **fields);
+LogContext* log_context_new_iov_consume(بنية iovec *input_iovec, size_t n_input_iovec);
 
 DECLARE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context);
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(LogContext*, log_context_unref);
 
 /* Returns the head of the log context list. */
-LogContext* log_context_head(void);
+LogContext* log_context_head(فراغ);
 /* Returns the number of attached log context objects. */
-size_t log_context_num_contexts(void);
+size_t log_context_num_contexts(فراغ);
 /* Returns the number of fields in all attached log contexts. */
-size_t log_context_num_fields(void);
+size_t log_context_num_fields(فراغ);
 
-void log_context_swap(LogContext **log_context, size_t *num_fields);
+فراغ log_context_swap(LogContext **log_context, size_t *num_fields);
 
-void _reset_log_level(int *saved_log_level);
+فراغ _reset_log_level(صحيح *saved_log_level);
 
 #define _LOG_CONTEXT_SET_LOG_LEVEL(level, l) \
-        _cleanup_(_reset_log_level) _unused_ int l = log_set_max_level(level);
+        _cleanup_(_reset_log_level) _unused_ صحيح l = log_set_max_level(level);
 
 #define LOG_CONTEXT_SET_LOG_LEVEL(level) \
         _LOG_CONTEXT_SET_LOG_LEVEL(level, UNIQ_T(l, UNIQ))
@@ -80,7 +80,7 @@ void _reset_log_level(int *saved_log_level);
         LOG_CONTEXT_PUSH_STRV(STRV_MAKE(__VA_ARGS__))
 
 #define LOG_CONTEXT_PUSHF(...) \
-        LOG_CONTEXT_PUSH(snprintf_ok((char[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
+        LOG_CONTEXT_PUSH(snprintf_ok((حرف[LINE_MAX]) {}, LINE_MAX, __VA_ARGS__))
 
 #define _LOG_CONTEXT_PUSH_KEY_VALUE(key, value, c) \
         _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new(key, value);
@@ -107,8 +107,8 @@ void _reset_log_level(int *saved_log_level);
 
 #define _LOG_CONTEXT_CONSUME_STR(s, c, strv) \
         _unused_ _cleanup_strv_free_ strv = strv_new(s);                                                \
-        if (!strv)                                                                                      \
-                free(s);                                                                                \
+        𐡄𐡍 (!strv)                                                                                      \
+                حرر(s);                                                                                \
         _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(TAKE_PTR(strv))
 
 #define LOG_CONTEXT_CONSUME_STR(s) \

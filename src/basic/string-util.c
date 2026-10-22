@@ -1,218 +1,218 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-seq.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "glyph-util.h"
-#include "gunicode.h"
-#include "locale-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "memstream-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#ضمن "alloc-util.h"
+#ضمن "ansi-seq.h"
+#ضمن "escape.h"
+#ضمن "extract-word.h"
+#ضمن "glyph-util.h"
+#ضمن "gunicode.h"
+#ضمن "locale-util.h"
+#ضمن "log.h"
+#ضمن "memory-util.h"
+#ضمن "memstream-util.h"
+#ضمن "path-util.h"
+#ضمن "string-util.h"
+#ضمن "strv.h"
+#ضمن "utf8.h"
 
-char* first_word(const char *s, const char *word) {
-        assert(s);
-        assert(word);
+حرف* first_word(ثابت حرف *s, ثابت حرف *word) {
+        أكد(s);
+        أكد(word);
 
         /* Checks if the string starts with the specified word, either followed by NUL or by whitespace.
          * Returns a pointer to the NUL or the first character after the whitespace. */
 
-        if (isempty(word))
-                return (char*) s;
+        𐡄𐡍 (isempty(word))
+                أرجع (حرف*) s;
 
-        const char *p = startswith(s, word);
-        if (!p)
-                return NULL;
-        if (*p == '\0')
-                return (char*) p;
+        ثابت حرف *p = startswith(s, word);
+        𐡄𐡍 (!p)
+                أرجع عدم;
+        𐡄𐡍 (*p == '\0')
+                أرجع (حرف*) p;
 
-        const char *nw = skip_leading_chars(p, WHITESPACE);
-        if (p == nw)
-                return NULL;
+        ثابت حرف *nw = skip_leading_chars(p, WHITESPACE);
+        𐡄𐡍 (p == nw)
+                أرجع عدم;
 
-        return (char*) nw;
+        أرجع (حرف*) nw;
 }
 
-char* strextendn(char **x, const char *s, size_t l) {
-        assert(x);
-        assert(s || l == 0);
+حرف* strextendn(حرف **x, ثابت حرف *s, size_t l) {
+        أكد(x);
+        أكد(s || l == 0);
 
-        if (l > 0)
+        𐡄𐡍 (l > 0)
                 l = strnlen(s, l); /* ignore trailing noise */
 
-        if (l > 0 || !*x) {
+        𐡄𐡍 (l > 0 || !*x) {
                 size_t q;
-                char *m;
+                حرف *m;
 
                 q = strlen_ptr(*x);
                 m = realloc(*x, q + l + 1);
-                if (!m)
-                        return NULL;
+                𐡄𐡍 (!m)
+                        أرجع عدم;
 
                 *mempcpy_typesafe(m + q, s, l) = 0;
 
                 *x = m;
         }
 
-        return *x;
+        أرجع *x;
 }
 
-char* strstrip(char *s) {
-        if (!s)
-                return NULL;
+حرف* strstrip(حرف *s) {
+        𐡄𐡍 (!s)
+                أرجع عدم;
 
         /* Drops trailing whitespace. Modifies the string in place. Returns pointer to first non-space character */
 
-        return delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
+        أرجع delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
 }
 
-char* delete_chars(char *s, const char *bad) {
-        char *f, *t;
+حرف* delete_chars(حرف *s, ثابت حرف *bad) {
+        حرف *f, *t;
 
         /* Drops all specified bad characters, regardless where in the string */
 
-        if (!s)
-                return NULL;
+        𐡄𐡍 (!s)
+                أرجع عدم;
 
-        if (!bad)
+        𐡄𐡍 (!bad)
                 bad = WHITESPACE;
 
-        for (f = s, t = s; *f; f++) {
-                if (strchr(bad, *f))
-                        continue;
+        لكل (f = s, t = s; *f; f++) {
+                𐡄𐡍 (strchr(bad, *f))
+                        استمر;
 
                 *(t++) = *f;
         }
 
         *t = 0;
 
-        return s;
+        أرجع s;
 }
 
-char* delete_trailing_chars(char *s, const char *bad) {
-        char *c = s;
+حرف* delete_trailing_chars(حرف *s, ثابت حرف *bad) {
+        حرف *c = s;
 
         /* Drops all specified bad characters, at the end of the string */
 
-        if (!s)
-                return NULL;
+        𐡄𐡍 (!s)
+                أرجع عدم;
 
-        if (!bad)
+        𐡄𐡍 (!bad)
                 bad = WHITESPACE;
 
-        for (char *p = s; *p; p++)
-                if (!strchr(bad, *p))
+        لكل (حرف *p = s; *p; p++)
+                𐡄𐡍 (!strchr(bad, *p))
                         c = p + 1;
 
         *c = 0;
 
-        return s;
+        أرجع s;
 }
 
-char* truncate_nl_full(char *s, size_t *ret_len) {
+حرف* truncate_nl_full(حرف *s, size_t *ret_len) {
         size_t n;
 
-        assert(s);
+        أكد(s);
 
         n = strcspn(s, NEWLINE);
         s[n] = '\0';
-        if (ret_len)
+        𐡄𐡍 (ret_len)
                 *ret_len = n;
-        return s;
+        أرجع s;
 }
 
-char ascii_tolower(char x) {
+حرف ascii_tolower(حرف x) {
 
-        if (x >= 'A' && x <= 'Z')
-                return x - 'A' + 'a';
+        𐡄𐡍 (x >= 'A' && x <= 'Z')
+                أرجع x - 'A' + 'a';
 
-        return x;
+        أرجع x;
 }
 
-char ascii_toupper(char x) {
+حرف ascii_toupper(حرف x) {
 
-        if (x >= 'a' && x <= 'z')
-                return x - 'a' + 'A';
+        𐡄𐡍 (x >= 'a' && x <= 'z')
+                أرجع x - 'a' + 'A';
 
-        return x;
+        أرجع x;
 }
 
-char* ascii_strlower(char *s) {
-        assert(s);
+حرف* ascii_strlower(حرف *s) {
+        أكد(s);
 
-        for (char *p = s; *p; p++)
+        لكل (حرف *p = s; *p; p++)
                 *p = ascii_tolower(*p);
 
-        return s;
+        أرجع s;
 }
 
-char* ascii_strupper(char *s) {
-        assert(s);
+حرف* ascii_strupper(حرف *s) {
+        أكد(s);
 
-        for (char *p = s; *p; p++)
+        لكل (حرف *p = s; *p; p++)
                 *p = ascii_toupper(*p);
 
-        return s;
+        أرجع s;
 }
 
-char* ascii_strlower_n(char *s, size_t n) {
-        assert(n <= 0 || s);
+حرف* ascii_strlower_n(حرف *s, size_t n) {
+        أكد(n <= 0 || s);
 
-        if (n <= 0)
-                return s;
+        𐡄𐡍 (n <= 0)
+                أرجع s;
 
-        for (size_t i = 0; i < n; i++)
+        لكل (size_t i = 0; i < n; i++)
                 s[i] = ascii_tolower(s[i]);
 
-        return s;
+        أرجع s;
 }
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n) {
+صحيح ascii_strcasecmp_n(ثابت حرف *a, ثابت حرف *b, size_t n) {
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        for (; n > 0; a++, b++, n--) {
-                int x, y;
+        لكل (; n > 0; a++, b++, n--) {
+                صحيح x, y;
 
-                x = (int) (uint8_t) ascii_tolower(*a);
-                y = (int) (uint8_t) ascii_tolower(*b);
+                x = (صحيح) (uint8_t) ascii_tolower(*a);
+                y = (صحيح) (uint8_t) ascii_tolower(*b);
 
-                if (x != y)
-                        return x - y;
+                𐡄𐡍 (x != y)
+                        أرجع x - y;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m) {
-        int r;
+صحيح ascii_strcasecmp_nn(ثابت حرف *a, size_t n, ثابت حرف *b, size_t m) {
+        صحيح r;
 
         r = ascii_strcasecmp_n(a, b, MIN(n, m));
-        if (r != 0)
-                return r;
+        𐡄𐡍 (r != 0)
+                أرجع r;
 
-        return CMP(n, m);
+        أرجع CMP(n, m);
 }
 
-bool chars_intersect(const char *a, const char *b) {
+bool chars_intersect(ثابت حرف *a, ثابت حرف *b) {
         /* Returns true if any of the chars in a are in b. */
-        for (const char *p = a; *p; p++)
-                if (strchr(b, *p))
-                        return true;
+        لكل (ثابت حرف *p = a; *p; p++)
+                𐡄𐡍 (strchr(b, *p))
+                        أرجع true;
 
-        return false;
+        أرجع false;
 }
 
-bool string_has_cc(const char *p, const char *ok) {
-        assert(p);
+bool string_has_cc(ثابت حرف *p, ثابت حرف *ok) {
+        أكد(p);
 
         /*
          * Check if a string contains control characters. If 'ok' is
@@ -220,121 +220,121 @@ bool string_has_cc(const char *p, const char *ok) {
          * considered OK.
          */
 
-        for (const char *t = p; *t; t++) {
-                if (ok && strchr(ok, *t))
-                        continue;
+        لكل (ثابت حرف *t = p; *t; t++) {
+                𐡄𐡍 (ok && strchr(ok, *t))
+                        استمر;
 
-                if (char_is_cc(*t))
-                        return true;
+                𐡄𐡍 (char_is_cc(*t))
+                        أرجع true;
         }
 
-        return false;
+        أرجع false;
 }
 
-static int write_ellipsis(char *buf, bool unicode) {
-        const char *s = glyph_full(GLYPH_ELLIPSIS, unicode);
-        assert(strlen(s) == 3);
+ساكن صحيح write_ellipsis(حرف *buf, bool unicode) {
+        ثابت حرف *s = glyph_full(GLYPH_ELLIPSIS, unicode);
+        أكد(strlen(s) == 3);
         memcpy(buf, s, 3);
-        return 3;
+        أرجع 3;
 }
 
-static size_t ansi_sequence_length(const char *s, size_t len) {
-        assert(s);
+ساكن size_t ansi_sequence_length(ثابت حرف *s, size_t len) {
+        أكد(s);
 
-        if (len < 2)
-                return 0;
+        𐡄𐡍 (len < 2)
+                أرجع 0;
 
-        if (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
-                return 0;  /* Not the start of a sequence */
+        𐡄𐡍 (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
+                أرجع 0;  /* Not the start of a sequence */
 
-        if (s[1] == 0x5B) { /* [, start of CSI sequence */
+        𐡄𐡍 (s[1] == 0x5B) { /* [, start of CSI sequence */
                 size_t i = 2;
 
-                if (i == len)
-                        return 0;
+                𐡄𐡍 (i == len)
+                        أرجع 0;
 
-                while (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
-                        if (++i == len)
-                                return 0;
-                while (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
-                        if (++i == len)
-                                return 0;
-                if (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
-                        return i + 1;
-                return 0;  /* Bad sequence */
+                طالما (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
+                        𐡄𐡍 (++i == len)
+                                أرجع 0;
+                طالما (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
+                        𐡄𐡍 (++i == len)
+                                أرجع 0;
+                𐡄𐡍 (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
+                        أرجع i + 1;
+                أرجع 0;  /* Bad sequence */
 
-        } else if (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
-                return 2;
+        } وإلا 𐡄𐡍 (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
+                أرجع 2;
 
-        return 0;  /* Bad escape? */
+        أرجع 0;  /* Bad escape? */
 }
 
-static bool string_has_ansi_sequence(const char *s, size_t len) {
-        const char *t = s;
+ساكن bool string_has_ansi_sequence(ثابت حرف *s, size_t len) {
+        ثابت حرف *t = s;
 
-        while ((t = memchr(t, 0x1B, len - (t - s)))) {
-                if (ansi_sequence_length(t, len - (t - s)) > 0)
-                        return true;
+        طالما ((t = memchr(t, 0x1B, len - (t - s)))) {
+                𐡄𐡍 (ansi_sequence_length(t, len - (t - s)) > 0)
+                        أرجع true;
                 t++;
         }
-        return false;
+        أرجع false;
 }
 
-static size_t previous_ansi_sequence(const char *s, size_t length, const char **ret_where) {
+ساكن size_t previous_ansi_sequence(ثابت حرف *s, size_t length, ثابت حرف **ret_where) {
 
-        assert(s);
-        assert(ret_where);
+        أكد(s);
+        أكد(ret_where);
 
         /* Locate the previous ANSI sequence and save its start in *ret_where and return length. */
 
-        if (length < 2) {
+        𐡄𐡍 (length < 2) {
                 /* Need at least two bytes for an ANSI sequence */
-                *ret_where = NULL;
-                return 0;
+                *ret_where = عدم;
+                أرجع 0;
         }
 
-        for (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
+        لكل (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
                 size_t slen = ansi_sequence_length(s + i, length - i);
-                if (slen > 0) {
+                𐡄𐡍 (slen > 0) {
                         *ret_where = s + i;
-                        return slen;
+                        أرجع slen;
                 }
 
-                if (i == 0)
-                        break;
+                𐡄𐡍 (i == 0)
+                        اكسر;
         }
 
-        *ret_where = NULL;
-        return 0;
+        *ret_where = عدم;
+        أرجع 0;
 }
 
-static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
+ساكن حرف *ascii_ellipsize_mem(ثابت حرف *s, size_t old_length, size_t new_length, unsigned percent) {
         size_t x, need_space, suffix_len;
-        char *t;
+        حرف *t;
 
-        assert(s);
-        assert(percent <= 100);
-        assert(new_length != SIZE_MAX);
+        أكد(s);
+        أكد(percent <= 100);
+        أكد(new_length != SIZE_MAX);
 
-        if (old_length <= new_length)
-                return strndup(s, old_length);
+        𐡄𐡍 (old_length <= new_length)
+                أرجع strndup(s, old_length);
 
         /* Special case short ellipsations */
-        switch (new_length) {
+        بدل (new_length) {
 
-        case 0:
-                return strdup("");
+        حالة 0:
+                أرجع strdup("");
 
-        case 1:
-                if (is_locale_utf8())
-                        return strdup("…");
-                else
-                        return strdup(".");
+        حالة 1:
+                𐡄𐡍 (is_locale_utf8())
+                        أرجع strdup("…");
+                وإلا
+                        أرجع strdup(".");
 
-        case 2:
-                if (!is_locale_utf8())
-                        return strdup("..");
-                break;
+        حالة 2:
+                𐡄𐡍 (!is_locale_utf8())
+                        أرجع strdup("..");
+                اكسر;
         }
 
         /* Calculate how much space the ellipsis will take up. If we are in UTF-8 mode we only need space for one
@@ -342,54 +342,54 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
          * either for the UTF-8 encoded character or for three ASCII characters. */
         need_space = is_locale_utf8() ? 1 : 3;
 
-        t = new(char, new_length+3);
-        if (!t)
-                return NULL;
+        t = new(حرف, new_length+3);
+        𐡄𐡍 (!t)
+                أرجع عدم;
 
-        assert(new_length >= need_space);
+        أكد(new_length >= need_space);
 
         x = ((new_length - need_space) * percent + 50) / 100;
-        assert(x <= new_length - need_space);
+        أكد(x <= new_length - need_space);
 
         write_ellipsis(mempcpy(t, s, x), /* unicode= */ false);
         suffix_len = new_length - x - need_space;
         memcpy(t + x + 3, s + old_length - suffix_len, suffix_len);
         *(t + x + 3 + suffix_len) = '\0';
 
-        return t;
+        أرجع t;
 }
 
 /* Walk backwards from 'end' (exclusive) to the start of the last complete UTF-8 character, without
  * descending below 'start', validate it and return a pointer to its first byte, optionally decoding it
  * into *ret_c. Returns NULL on a truncated or otherwise malformed sequence. */
-static const char* find_previous_unichar(const char *start, const char *end, char32_t *ret_c) {
-        const char *p;
-        int r;
+ساكن ثابت حرف* find_previous_unichar(ثابت حرف *start, ثابت حرف *end, char32_t *ret_c) {
+        ثابت حرف *p;
+        صحيح r;
 
-        assert(start);
-        assert(end);
-        assert(end > start);
+        أكد(start);
+        أكد(end);
+        أكد(end > start);
 
-        for (p = end; p > start; ) {
+        لكل (p = end; p > start; ) {
                 p--;
-                if (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
-                        break;
+                𐡄𐡍 (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
+                        اكسر;
         }
 
         r = utf8_encoded_valid_unichar(p, end - p);
-        if (r < 0 || p + r != end)
-                return NULL;
+        𐡄𐡍 (r < 0 || p + r != end)
+                أرجع عدم;
 
-        if (ret_c)
+        𐡄𐡍 (ret_c)
                 assert_se(utf8_encoded_to_unichar(p, ret_c) == r);
 
-        return p;
+        أرجع p;
 }
 
-char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
+حرف* ellipsize_mem(ثابت حرف *s, size_t old_length, size_t new_length, unsigned percent) {
         size_t x, k, len, len2;
-        const char *i, *j;
-        int r;
+        ثابت حرف *i, *j;
+        صحيح r;
 
         /* Note that 'old_length' refers to bytes in the string, while 'new_length' refers to character cells taken up
          * on screen. This distinction doesn't matter for ASCII strings, but it does matter for non-ASCII UTF-8
@@ -403,99 +403,99 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
          * the current locale is UTF-8.
          */
 
-        assert(s);
-        assert(percent <= 100);
+        أكد(s);
+        أكد(percent <= 100);
 
-        if (new_length == SIZE_MAX)
-                return strndup(s, old_length);
+        𐡄𐡍 (new_length == SIZE_MAX)
+                أرجع strndup(s, old_length);
 
-        if (new_length == 0)
-                return strdup("");
+        𐡄𐡍 (new_length == 0)
+                أرجع strdup("");
 
         bool has_ansi_seq = string_has_ansi_sequence(s, old_length);
 
         /* If no multibyte characters or ANSI sequences, use ascii_ellipsize_mem for speed. It equates
          * bytes with character cells, which holds for ASCII except for the tab, which
          * unichar_console_width() counts as 8 cells. */
-        if (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
-                return ascii_ellipsize_mem(s, old_length, new_length, percent);
+        𐡄𐡍 (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
+                أرجع ascii_ellipsize_mem(s, old_length, new_length, percent);
 
         x = (new_length - 1) * percent / 100;
-        assert(x <= new_length - 1);
+        أكد(x <= new_length - 1);
 
         k = 0;
-        for (i = s; i < s + old_length; ) {
+        لكل (i = s; i < s + old_length; ) {
                 size_t slen = has_ansi_seq ? ansi_sequence_length(i, old_length - (i - s)) : 0;
-                if (slen > 0) {
+                𐡄𐡍 (slen > 0) {
                         i += slen;
-                        continue;  /* ANSI sequences don't take up any space in output */
+                        استمر;  /* ANSI sequences don't take up any space in output */
                 }
 
                 r = utf8_encoded_valid_unichar(i, s + old_length - i);
-                if (r < 0)
-                        return NULL;
+                𐡄𐡍 (r < 0)
+                        أرجع عدم;
 
                 char32_t c;
                 assert_se(utf8_encoded_to_unichar(i, &c) == r);
 
-                int w = unichar_console_width(c);
-                if (k + w > x)
-                        break;
+                صحيح w = unichar_console_width(c);
+                𐡄𐡍 (k + w > x)
+                        اكسر;
 
                 k += w;
                 i += r;
         }
 
-        const char *ansi_start = s + old_length;
+        ثابت حرف *ansi_start = s + old_length;
         size_t ansi_len = 0;
 
-        for (const char *t = j = s + old_length; t > i && k < new_length; ) {
+        لكل (ثابت حرف *t = j = s + old_length; t > i && k < new_length; ) {
                 char32_t c;
-                int w;
-                const char *tt;
+                صحيح w;
+                ثابت حرف *tt;
 
-                if (has_ansi_seq && ansi_start >= t)
+                𐡄𐡍 (has_ansi_seq && ansi_start >= t)
                         /* Figure out the previous ANSI sequence, if any */
                         ansi_len = previous_ansi_sequence(s, t - s, &ansi_start);
 
                 /* If the sequence extends all the way to the current position, skip it. */
-                if (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
+                𐡄𐡍 (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
                         t = ansi_start;
-                        continue;
+                        استمر;
                 }
 
                 /* Find the previous complete UTF-8 character inside the retained suffix. */
                 tt = find_previous_unichar(i, t, &c);
-                if (!tt)
-                        return NULL;
+                𐡄𐡍 (!tt)
+                        أرجع عدم;
 
                 w = unichar_console_width(c);
-                if (k + w > new_length)
-                        break;
+                𐡄𐡍 (k + w > new_length)
+                        اكسر;
 
                 k += w;
                 j = t = tt;  /* j should always point to the first "real" character */
         }
 
         /* We don't actually need to ellipsize */
-        if (i >= j)
-                return memdup_suffix0(s, old_length);
+        𐡄𐡍 (i >= j)
+                أرجع memdup_suffix0(s, old_length);
 
-        if (k >= new_length) {
+        𐡄𐡍 (k >= new_length) {
                 /* Make space for ellipsis, if required and possible. We know that the edge character is not
                  * part of an ANSI sequence (because then we'd skip it). If the last character we looked at
                  * was wide, we don't need to make space.
                  * Move the edge by one complete UTF-8 character within the input slice. */
-                if (j < s + old_length) {
+                𐡄𐡍 (j < s + old_length) {
                         r = utf8_encoded_valid_unichar(j, s + old_length - j);
-                        if (r < 0)
-                                return NULL;
+                        𐡄𐡍 (r < 0)
+                                أرجع عدم;
 
                         j += r;
-                } else if (i > s) {
-                        const char *tt = find_previous_unichar(s, i, NULL);
-                        if (!tt)
-                                return NULL;
+                } وإلا 𐡄𐡍 (i > s) {
+                        ثابت حرف *tt = find_previous_unichar(s, i, عدم);
+                        𐡄𐡍 (!tt)
+                                أرجع عدم;
 
                         i = tt;
                 }
@@ -509,33 +509,33 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
          * short anyway. */
         size_t alloc_len = has_ansi_seq ? old_length + 3 + 1 : len + 3 + len2 + 1;
 
-        char *e = new(char, alloc_len);
-        if (!e)
-                return NULL;
+        حرف *e = new(حرف, alloc_len);
+        𐡄𐡍 (!e)
+                أرجع عدم;
 
         memcpy_safe(e, s, len);
         write_ellipsis(e + len, /* unicode= */ true);
 
-        char *dst = e + len + 3;
+        حرف *dst = e + len + 3;
 
-        if (has_ansi_seq)
+        𐡄𐡍 (has_ansi_seq)
                 /* Copy over any ANSI sequences in full */
-                for (const char *p = s + len; p < j; ) {
+                لكل (ثابت حرف *p = s + len; p < j; ) {
                         size_t slen = ansi_sequence_length(p, j - p);
-                        if (slen > 0) {
+                        𐡄𐡍 (slen > 0) {
                                 dst = mempcpy(dst, p, slen);
                                 p += slen;
-                        } else
+                        } وإلا
                                 p = utf8_next_char(p);
                 }
 
         memcpy_safe(dst, j, len2);
         dst[len2] = '\0';
 
-        return e;
+        أرجع e;
 }
 
-char* cellescape(char *buf, size_t len, const char *s) {
+حرف* cellescape(حرف *buf, size_t len, ثابت حرف *s) {
         /* Escape and ellipsize s into buffer buf of size len. Only non-control ASCII
          * characters are copied as they are, everything else is escaped. The result
          * is different then if escaping and ellipsization was performed in two
@@ -550,21 +550,21 @@ char* cellescape(char *buf, size_t len, const char *s) {
 
         size_t i = 0, last_char_width[4] = {}, k = 0;
 
-        assert(buf);
-        assert(len > 0); /* at least a terminating NUL */
-        assert(s);
+        أكد(buf);
+        أكد(len > 0); /* at least a terminating NUL */
+        أكد(s);
 
-        for (;;) {
-                char four[4];
-                int w;
+        لكل (;;) {
+                حرف four[4];
+                صحيح w;
 
-                if (*s == 0) /* terminating NUL detected? then we are done! */
-                        goto done;
+                𐡄𐡍 (*s == 0) /* terminating NUL detected? then we are done! */
+                        اذهب done;
 
                 w = cescape_char(*s, four);
-                if (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
+                𐡄𐡍 (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
                                       * ellipsize at the previous location */
-                        break;
+                        اكسر;
 
                 /* OK, there was space, let's add this escaped character to the buffer */
                 memcpy(buf + i, four, w);
@@ -579,101 +579,101 @@ char* cellescape(char *buf, size_t len, const char *s) {
 
         /* Ellipsation is necessary. This means we might need to truncate the string again to make space for 4
          * characters ideally, but the buffer is shorter than that in the first place take what we can get */
-        for (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
+        لكل (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
 
-                if (i + 4 <= len) /* nice, we reached our space goal */
-                        break;
+                𐡄𐡍 (i + 4 <= len) /* nice, we reached our space goal */
+                        اكسر;
 
                 k = k == 0 ? 3 : k - 1;
-                if (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
-                        break;
+                𐡄𐡍 (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
+                        اكسر;
 
-                assert(i >= last_char_width[k]);
+                أكد(i >= last_char_width[k]);
                 i -= last_char_width[k];
         }
 
-        if (i + 4 <= len) /* yay, enough space */
+        𐡄𐡍 (i + 4 <= len) /* yay, enough space */
                 i += write_ellipsis(buf + i, /* unicode= */ false);
-        else if (i + 3 <= len) { /* only space for ".." */
+        وإلا 𐡄𐡍 (i + 3 <= len) { /* only space for ".." */
                 buf[i++] = '.';
                 buf[i++] = '.';
-        } else if (i + 2 <= len) /* only space for a single "." */
+        } وإلا 𐡄𐡍 (i + 2 <= len) /* only space for a single "." */
                 buf[i++] = '.';
-        else
-                assert(i + 1 <= len);
+        وإلا
+                أكد(i + 1 <= len);
 
 done:
         buf[i] = '\0';
-        return buf;
+        أرجع buf;
 }
 
-char* strshorten(char *s, size_t l) {
-        assert(s);
+حرف* strshorten(حرف *s, size_t l) {
+        أكد(s);
 
-        if (l >= SIZE_MAX-1) /* Would not change anything */
-                return s;
+        𐡄𐡍 (l >= SIZE_MAX-1) /* Would not change anything */
+                أرجع s;
 
-        if (strnlen(s, l+1) > l)
+        𐡄𐡍 (strnlen(s, l+1) > l)
                 s[l] = 0;
 
-        return s;
+        أرجع s;
 }
 
-int strgrowpad0(char **s, size_t l) {
+صحيح strgrowpad0(حرف **s, size_t l) {
         size_t sz;
 
-        assert(s);
+        أكد(s);
 
-        if (*s) {
+        𐡄𐡍 (*s) {
                 sz = strlen(*s) + 1;
-                if (sz >= l) /* never shrink */
-                        return 0;
-        } else
+                𐡄𐡍 (sz >= l) /* never shrink */
+                        أرجع 0;
+        } وإلا
                 sz = 0;
 
-        char *q = realloc(*s, l);
-        if (!q)
-                return -ENOMEM;
+        حرف *q = realloc(*s, l);
+        𐡄𐡍 (!q)
+                أرجع -ENOMEM;
 
         *s = q;
 
         memzero(*s + sz, l - sz);
-        return 0;
+        أرجع 0;
 }
 
-char* strreplace(const char *text, const char *old_string, const char *new_string) {
+حرف* strreplace(ثابت حرف *text, ثابت حرف *old_string, ثابت حرف *new_string) {
         size_t l, old_len, new_len;
-        char *t, *ret = NULL;
-        const char *f;
+        حرف *t, *ret = عدم;
+        ثابت حرف *f;
 
-        assert(old_string);
-        assert(new_string);
+        أكد(old_string);
+        أكد(new_string);
 
-        if (!text)
-                return NULL;
+        𐡄𐡍 (!text)
+                أرجع عدم;
 
         old_len = strlen(old_string);
         new_len = strlen(new_string);
 
         l = strlen(text);
-        if (!GREEDY_REALLOC(ret, l+1))
-                return NULL;
+        𐡄𐡍 (!GREEDY_REALLOC(ret, l+1))
+                أرجع عدم;
 
         f = text;
         t = ret;
-        while (*f) {
+        طالما (*f) {
                 size_t d, nl;
 
-                if (!startswith(f, old_string)) {
+                𐡄𐡍 (!startswith(f, old_string)) {
                         *(t++) = *(f++);
-                        continue;
+                        استمر;
                 }
 
                 d = t - ret;
                 nl = l - old_len + new_len;
 
-                if (!GREEDY_REALLOC(ret, nl + 1))
-                        return mfree(ret);
+                𐡄𐡍 (!GREEDY_REALLOC(ret, nl + 1))
+                        أرجع mfree(ret);
 
                 l = nl;
                 t = ret + d;
@@ -683,57 +683,57 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
         }
 
         *t = 0;
-        return ret;
+        أرجع ret;
 }
 
-static void advance_offsets(
+ساكن فراغ advance_offsets(
                 ssize_t diff,
                 size_t offsets[2], /* note: we can't use [static 2] here, since this may be NULL */
-                size_t shift[static 2],
+                size_t shift[ساكن 2],
                 size_t size) {
 
-        if (!offsets)
-                return;
+        𐡄𐡍 (!offsets)
+                أرجع;
 
-        assert(shift);
+        أكد(shift);
 
-        if ((size_t) diff < offsets[0])
+        𐡄𐡍 ((size_t) diff < offsets[0])
                 shift[0] += size;
-        if ((size_t) diff < offsets[1])
+        𐡄𐡍 ((size_t) diff < offsets[1])
                 shift[1] += size;
 }
 
-static void retract_offsets(
+ساكن فراغ retract_offsets(
                 size_t begin,
                 size_t end,
                 size_t offsets[2], /* note: we can't use [static 2] here, since this may be NULL */
-                size_t shift[static 2]) {
+                size_t shift[ساكن 2]) {
 
         /* The input range [begin, end) was dropped from the output: offsets past it move back by its
          * length, offsets inside it collapse onto its beginning. The shift is tracked in unsigned modular
          * arithmetic, which is fine as the sum of all shifts applied to an offset is never negative: at most
          * as many bytes can be dropped before an offset as there are bytes before it. */
 
-        if (!offsets)
-                return;
+        𐡄𐡍 (!offsets)
+                أرجع;
 
-        assert(shift);
-        assert(begin <= end);
+        أكد(shift);
+        أكد(begin <= end);
 
-        for (size_t k = 0; k < 2; k++)
-                if (offsets[k] > begin)
+        لكل (size_t k = 0; k < 2; k++)
+                𐡄𐡍 (offsets[k] > begin)
                         shift[k] -= MIN(offsets[k], end) - begin;
 }
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
+حرف* strip_tab_ansi(حرف **ibuf, size_t *_isz, size_t highlight[2]) {
         _cleanup_(ansi_seq_parser_done) AnsiSeqParser parser = {};
         _cleanup_(memstream_done) MemStream m = {};
-        const char *begin = NULL;
+        ثابت حرف *begin = عدم;
         size_t isz, shift[2] = {}, n_carriage_returns = 0;
         FILE *f;
 
-        assert(ibuf);
-        assert(*ibuf);
+        أكد(ibuf);
+        أكد(*ibuf);
         POINTER_MAY_BE_NULL(_isz);
 
         /* This does three things:
@@ -753,36 +753,36 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
         /* Note we turn off internal locking on f for performance reasons. It's safe to do so since we
          * created f here and it doesn't leave our scope. */
         f = memstream_init(&m);
-        if (!f)
-                return NULL;
+        𐡄𐡍 (!f)
+                أرجع عدم;
 
-        for (const char *i = *ibuf; i < *ibuf + isz; i++) {
-                int e;
+        لكل (ثابت حرف *i = *ibuf; i < *ibuf + isz; i++) {
+                صحيح e;
 
-                for (;;) {
+                لكل (;;) {
                         e = ansi_seq_parser_feed(&parser, *i);
-                        if (e < 0)
-                                return NULL;
-                        if (e != ANSI_SEQ_EVENT_ABORT)
-                                break;
+                        𐡄𐡍 (e < 0)
+                                أرجع عدم;
+                        𐡄𐡍 (e != ANSI_SEQ_EVENT_ABORT)
+                                اكسر;
 
                         /* Eat up bogus sequences. The aborted sequence is over (and dropped, up to but
                          * excluding the current character, which is fed again), hence forget about it, so
                          * that the next sequence flushes pending carriage returns again. */
-                        if (begin) {
+                        𐡄𐡍 (begin) {
                                 retract_offsets(begin - *ibuf, i - *ibuf, highlight, shift);
-                                begin = NULL;
+                                begin = عدم;
                         }
                 }
 
-                switch (e) {
+                بدل (e) {
 
-                case ANSI_SEQ_EVENT_TEXT:
-                        if (*i == '\r') {
+                حالة ANSI_SEQ_EVENT_TEXT:
+                        𐡄𐡍 (*i == '\r') {
                                 n_carriage_returns++;
-                                continue;
+                                استمر;
                         }
-                        if (*i == '\n') {
+                        𐡄𐡍 (*i == '\n') {
                                 /* Ignore carriage returns before new line. They are dropped from the output,
                                  * hence the offsets need to account for them. (Note that pending carriage
                                  * returns always immediately precede the current character, since anything
@@ -794,68 +794,68 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
                                                 shift);
                                 n_carriage_returns = 0;
                         }
-                        for (; n_carriage_returns > 0; n_carriage_returns--)
+                        لكل (; n_carriage_returns > 0; n_carriage_returns--)
                                 fputc('\r', f);
 
-                        if (*i == '\t') {
+                        𐡄𐡍 (*i == '\t') {
                                 fputs("        ", f);
                                 advance_offsets(i - *ibuf, highlight, shift, 7);
-                        } else
+                        } وإلا
                                 fputc(*i, f);
 
-                        break;
+                        اكسر;
 
-                case ANSI_SEQ_EVENT_SEQUENCE:
-                        if (!begin) {
+                حالة ANSI_SEQ_EVENT_SEQUENCE:
+                        𐡄𐡍 (!begin) {
                                 /* This starts a new sequence, flush any pending carriage returns first */
-                                for (; n_carriage_returns > 0; n_carriage_returns--)
+                                لكل (; n_carriage_returns > 0; n_carriage_returns--)
                                         fputc('\r', f);
 
                                 begin = i;
                         }
-                        break;
+                        اكسر;
 
-                case ANSI_SEQ_EVENT_END:
+                حالة ANSI_SEQ_EVENT_END:
                         /* A complete sequence, drop it (the current character is its last one) */
-                        assert(begin);
+                        أكد(begin);
                         retract_offsets(begin - *ibuf, i + 1 - *ibuf, highlight, shift);
-                        begin = NULL;
-                        break;
+                        begin = عدم;
+                        اكسر;
 
-                default:
+                افتراضي:
                         assert_not_reached();
                 }
         }
 
         /* If the input ends in the middle of a sequence the truncated sequence is dropped as well, hence
          * the offsets need to account for it, too. */
-        if (begin)
+        𐡄𐡍 (begin)
                 retract_offsets(begin - *ibuf, isz, highlight, shift);
 
         /* Trailing carriage returns are dropped, too */
         retract_offsets(isz - n_carriage_returns, isz, highlight, shift);
 
-        char *obuf;
-        if (memstream_finalize(&m, &obuf, _isz) < 0)
-                return NULL;
+        حرف *obuf;
+        𐡄𐡍 (memstream_finalize(&m, &obuf, _isz) < 0)
+                أرجع عدم;
 
         free_and_replace(*ibuf, obuf);
 
-        if (highlight) {
+        𐡄𐡍 (highlight) {
                 highlight[0] += shift[0];
                 highlight[1] += shift[1];
         }
 
-        return *ibuf;
+        أرجع *ibuf;
 }
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
-        _cleanup_free_ char *buffer = NULL;
+حرف* strextendv_with_separator(حرف **x, ثابت حرف *separator, va_list ap) {
+        _cleanup_free_ حرف *buffer = عدم;
         size_t f, l, l_separator;
         bool need_separator;
-        char *nr, *p;
+        حرف *nr, *p;
 
-        if (!x)
+        𐡄𐡍 (!x)
                 x = &buffer;
 
         l = f = strlen_ptr(*x);
@@ -865,23 +865,23 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
 
         va_list aq;
         va_copy(aq, ap);
-        for (const char *t;;) {
+        لكل (ثابت حرف *t;;) {
                 size_t n;
 
-                t = va_arg(aq, const char *);
-                if (!t)
-                        break;
-                if (t == POINTER_MAX)
-                        continue;
+                t = va_arg(aq, ثابت حرف *);
+                𐡄𐡍 (!t)
+                        اكسر;
+                𐡄𐡍 (t == POINTER_MAX)
+                        استمر;
 
                 n = strlen(t);
 
-                if (need_separator)
+                𐡄𐡍 (need_separator)
                         n += l_separator;
 
-                if (n >= SIZE_MAX - l) {
+                𐡄𐡍 (n >= SIZE_MAX - l) {
                         va_end(aq);
-                        return NULL;
+                        أرجع عدم;
                 }
 
                 l += n;
@@ -892,22 +892,22 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         need_separator = !isempty(*x);
 
         nr = realloc(*x, GREEDY_ALLOC_ROUND_UP(l+1));
-        if (!nr)
-                return NULL;
+        𐡄𐡍 (!nr)
+                أرجع عدم;
 
         *x = nr;
         p = nr + f;
 
-        for (;;) {
-                const char *t;
+        لكل (;;) {
+                ثابت حرف *t;
 
-                t = va_arg(ap, const char *);
-                if (!t)
-                        break;
-                if (t == POINTER_MAX)
-                        continue;
+                t = va_arg(ap, ثابت حرف *);
+                𐡄𐡍 (!t)
+                        اكسر;
+                𐡄𐡍 (t == POINTER_MAX)
+                        استمر;
 
-                if (need_separator && separator)
+                𐡄𐡍 (need_separator && separator)
                         p = stpcpy(p, separator);
 
                 p = stpcpy(p, t);
@@ -915,61 +915,61 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
                 need_separator = true;
         }
 
-        assert(p == nr + l);
+        أكد(p == nr + l);
         *p = 0;
 
         /* If no buffer to extend was passed in return the start of the buffer */
-        if (buffer)
-                return TAKE_PTR(buffer);
+        𐡄𐡍 (buffer)
+                أرجع TAKE_PTR(buffer);
 
         /* Otherwise we extended the buffer: return the end */
-        return p;
+        أرجع p;
 }
 
-char* strextend_with_separator_internal(char **x, const char *separator, ...) {
+حرف* strextend_with_separator_internal(حرف **x, ثابت حرف *separator, ...) {
         va_list ap;
-        char *ret;
+        حرف *ret;
 
         va_start(ap, separator);
         ret = strextendv_with_separator(x, separator, ap);
         va_end(ap);
 
-        return ret;
+        أرجع ret;
 }
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) {
+صحيح strextendf_with_separator(حرف **x, ثابت حرف *separator, ثابت حرف *format, ...) {
         size_t m, a, l_separator;
         va_list ap;
-        int l;
+        صحيح l;
 
         /* Appends a formatted string to the specified string. Don't use this in inner loops, since then
          * we'll spend a tonload of time in determining the length of the string passed in, over and over
          * again. */
 
-        assert(x);
-        assert(format);
+        أكد(x);
+        أكد(format);
 
         l_separator = isempty(*x) ? 0 : strlen_ptr(separator);
 
         /* Let's try to use the allocated buffer, if there's room at the end still. Otherwise let's extend by 64 chars. */
-        if (*x) {
+        𐡄𐡍 (*x) {
                 m = strlen(*x);
                 a = MALLOC_SIZEOF_SAFE(*x);
-                assert(a >= m + 1);
-        } else
+                أكد(a >= m + 1);
+        } وإلا
                 m = a = 0;
 
-        if (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
-                char *n;
+        𐡄𐡍 (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
+                حرف *n;
 
-                if (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
-                        return -ENOMEM;
-                if (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
-                        return -ENOMEM;
+                𐡄𐡍 (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
+                        أرجع -ENOMEM;
+                𐡄𐡍 (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
+                        أرجع -ENOMEM;
 
                 n = realloc(*x, m + 64 + l_separator);
-                if (!n)
-                        return -ENOMEM;
+                𐡄𐡍 (!n)
+                        أرجع -ENOMEM;
 
                 *x = n;
                 a = MALLOC_SIZEOF_SAFE(*x);
@@ -981,276 +981,276 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
         l = vsnprintf(*x + m + l_separator, a - m - l_separator, format, ap);
         va_end(ap);
 
-        assert(l >= 0);
+        أكد(l >= 0);
 
-        if ((size_t) l < a - m - l_separator) {
-                char *n;
+        𐡄𐡍 ((size_t) l < a - m - l_separator) {
+                حرف *n;
 
                 /* Nice! This worked. We are done. But first, let's return the extra space we don't
                  * need. This should be a cheap operation, since we only lower the allocation size here,
                  * never increase. */
                 n = realloc(*x, m + (size_t) l + l_separator + 1);
-                if (n)
+                𐡄𐡍 (n)
                         *x = n;
-        } else {
-                char *n;
+        } وإلا {
+                حرف *n;
 
                 /* Wasn't enough. Then let's allocate exactly what we need. */
 
-                if (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
-                        goto oom;
-                if (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
-                        goto oom;
+                𐡄𐡍 (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
+                        اذهب oom;
+                𐡄𐡍 (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
+                        اذهب oom;
 
                 a = m + (size_t) l + l_separator + 1;
                 n = realloc(*x, a);
-                if (!n)
-                        goto oom;
+                𐡄𐡍 (!n)
+                        اذهب oom;
                 *x = n;
 
                 va_start(ap, format);
                 l = vsnprintf(*x + m + l_separator, a - m - l_separator, format, ap);
                 va_end(ap);
 
-                assert((size_t) l < a - m - l_separator);
+                أكد((size_t) l < a - m - l_separator);
         }
 
-        return 0;
+        أرجع 0;
 
 oom:
         /* truncate the bytes added after memcpy_safe() again */
         (*x)[m] = 0;
-        return -ENOMEM;
+        أرجع -ENOMEM;
 }
 
-char* strrep(const char *s, size_t n) {
-        char *ret, *p;
+حرف* strrep(ثابت حرف *s, size_t n) {
+        حرف *ret, *p;
         size_t l;
 
-        assert(s);
+        أكد(s);
 
         l = strlen(s);
-        if (!MUL_ASSIGN_SAFE(&l, n))
-                return NULL;
-        if (!INC_SAFE(&l, 1))
-                return NULL;
+        𐡄𐡍 (!MUL_ASSIGN_SAFE(&l, n))
+                أرجع عدم;
+        𐡄𐡍 (!INC_SAFE(&l, 1))
+                أرجع عدم;
 
         p = ret = malloc(l);
-        if (!ret)
-                return NULL;
+        𐡄𐡍 (!ret)
+                أرجع عدم;
 
-        for (size_t i = 0; i < n; i++)
+        لكل (size_t i = 0; i < n; i++)
                 p = stpcpy(p, s);
 
         *p = 0;
-        return ret;
+        أرجع ret;
 }
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second) {
-        assert(s);
-        assert(!isempty(sep));
+صحيح split_pair(ثابت حرف *s, ثابت حرف *sep, حرف **ret_first, حرف **ret_second) {
+        أكد(s);
+        أكد(!isempty(sep));
 
-        const char *x = strstr(s, sep);
-        if (!x)
-                return -EINVAL;
+        ثابت حرف *x = strstr(s, sep);
+        𐡄𐡍 (!x)
+                أرجع -EINVAL;
 
-        _cleanup_free_ char *a = NULL;
-        if (ret_first) {
+        _cleanup_free_ حرف *a = عدم;
+        𐡄𐡍 (ret_first) {
                 a = strndup(s, x - s);
-                if (!a)
-                        return -ENOMEM;
+                𐡄𐡍 (!a)
+                        أرجع -ENOMEM;
         }
 
-        _cleanup_free_ char *b = NULL;
-        if (ret_second) {
+        _cleanup_free_ حرف *b = عدم;
+        𐡄𐡍 (ret_second) {
                 b = strdup(x + strlen(sep));
-                if (!b)
-                        return -ENOMEM;
+                𐡄𐡍 (!b)
+                        أرجع -ENOMEM;
         }
 
-        if (ret_first)
+        𐡄𐡍 (ret_first)
                 *ret_first = TAKE_PTR(a);
-        if (ret_second)
+        𐡄𐡍 (ret_second)
                 *ret_second = TAKE_PTR(b);
-        return 0;
+        أرجع 0;
 }
 
-int free_and_strdup(char **p, const char *s) {
-        char *t;
+صحيح free_and_strdup(حرف **p, ثابت حرف *s) {
+        حرف *t;
 
-        assert(p);
+        أكد(p);
 
         /* Replaces a string pointer with a strdup()ed new string,
          * possibly freeing the old one. */
 
-        if (streq_ptr(*p, s))
-                return 0;
+        𐡄𐡍 (streq_ptr(*p, s))
+                أرجع 0;
 
-        if (s) {
+        𐡄𐡍 (s) {
                 t = strdup(s);
-                if (!t)
-                        return -ENOMEM;
-        } else
-                t = NULL;
+                𐡄𐡍 (!t)
+                        أرجع -ENOMEM;
+        } وإلا
+                t = عدم;
 
         free_and_replace(*p, t);
 
-        return 1;
+        أرجع 1;
 }
 
-int free_and_strdup_warn(char **p, const char *s) {
-        int r;
+صحيح free_and_strdup_warn(حرف **p, ثابت حرف *s) {
+        صحيح r;
 
         r = free_and_strdup(p, s);
-        if (r < 0)
-                return log_oom();
-        return r;
+        𐡄𐡍 (r < 0)
+                أرجع log_oom();
+        أرجع r;
 }
 
-int free_and_strndup(char **p, const char *s, size_t l) {
-        char *t;
+صحيح free_and_strndup(حرف **p, ثابت حرف *s, size_t l) {
+        حرف *t;
 
-        assert(p);
-        assert(s || l == 0);
+        أكد(p);
+        أكد(s || l == 0);
 
         /* Replaces a string pointer with a strndup()ed new string,
          * freeing the old one. */
 
-        if (!*p && !s)
-                return 0;
+        𐡄𐡍 (!*p && !s)
+                أرجع 0;
 
-        if (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
-                return 0;
+        𐡄𐡍 (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
+                أرجع 0;
 
-        if (s) {
+        𐡄𐡍 (s) {
                 t = strndup(s, l);
-                if (!t)
-                        return -ENOMEM;
-        } else
-                t = NULL;
+                𐡄𐡍 (!t)
+                        أرجع -ENOMEM;
+        } وإلا
+                t = عدم;
 
         free_and_replace(*p, t);
-        return 1;
+        أرجع 1;
 }
 
-int strdup_to_full(char **ret, const char *src) {
-        if (!src) {
-                if (ret)
-                        *ret = NULL;
+صحيح strdup_to_full(حرف **ret, ثابت حرف *src) {
+        𐡄𐡍 (!src) {
+                𐡄𐡍 (ret)
+                        *ret = عدم;
 
-                return 0;
-        } else {
-                if (ret) {
-                        char *t = strdup(src);
-                        if (!t)
-                                return -ENOMEM;
+                أرجع 0;
+        } وإلا {
+                𐡄𐡍 (ret) {
+                        حرف *t = strdup(src);
+                        𐡄𐡍 (!t)
+                                أرجع -ENOMEM;
                         *ret = t;
                 }
 
-                return 1;
+                أرجع 1;
         }
 };
 
-bool string_is_safe(const char *p, StringSafeFlags flags) {
+bool string_is_safe(ثابت حرف *p, StringSafeFlags flags) {
 
         /* Baseline checks are:
          *   • No control characters (i.e. 0…31 + 127)
          *   • UTF-8 valid (well, technically we skip this test if STRING_ASCII is set, since that is a tighter test)
          */
 
-        if (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
-                return false;
+        𐡄𐡍 (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
+                أرجع false;
 
-        if (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
-                return false;
+        𐡄𐡍 (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
+                أرجع false;
 
-        for (const char *t = p; *t; t++) {
+        لكل (ثابت حرف *t = p; *t; t++) {
                 /* never allow control characters, except for new line */
-                if ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
-                        return false;
+                𐡄𐡍 ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
+                        أرجع false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
-                        return false;
+                𐡄𐡍 (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
+                        أرجع false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
-                        return false;
+                𐡄𐡍 (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
+                        أرجع false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
-                        return false;
+                𐡄𐡍 (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
+                        أرجع false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
-                        return false;
+                𐡄𐡍 (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
+                        أرجع false;
 
-                if (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
-                        return false;
+                𐡄𐡍 (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
+                        أرجع false;
 
-                if (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
-                        return false;
+                𐡄𐡍 (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
+                        أرجع false;
         }
 
-        if (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
-                return false;
+        𐡄𐡍 (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
+                أرجع false;
 
-        if (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
-                return false;
+        𐡄𐡍 (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
+                أرجع false;
 
-        return true;
+        أرجع true;
 }
 
-char* str_realloc(char *p) {
+حرف* str_realloc(حرف *p) {
         /* Reallocate *p to actual size. Ignore failure, and return the original string on error. */
 
-        if (!p)
-                return NULL;
+        𐡄𐡍 (!p)
+                أرجع عدم;
 
-        return realloc(p, strlen(p) + 1) ?: p;
+        أرجع realloc(p, strlen(p) + 1) ?: p;
 }
 
-char* string_erase(char *x) {
-        if (!x)
-                return NULL;
+حرف* string_erase(حرف *x) {
+        𐡄𐡍 (!x)
+                أرجع عدم;
 
         /* A delicious drop of snake-oil! To be called on memory where we stored passphrases or so, after we
          * used them. */
         explicit_bzero_safe(x, strlen(x));
-        return x;
+        أرجع x;
 }
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
-        const char *p = s, *e = s;
+صحيح string_truncate_lines(ثابت حرف *s, size_t n_lines, حرف **ret) {
+        ثابت حرف *p = s, *e = s;
         bool truncation_applied = false;
-        char *copy;
+        حرف *copy;
         size_t n = 0;
 
-        assert(s);
-        assert(ret);
+        أكد(s);
+        أكد(ret);
 
         /* Truncate after the specified number of lines. Returns > 0 if a truncation was applied or == 0 if
          * there were fewer lines in the string anyway. Trailing newlines on input are ignored, and not
          * generated either. */
 
-        for (;;) {
+        لكل (;;) {
                 size_t k;
 
                 k = strcspn(p, "\n");
 
-                if (p[k] == 0) {
-                        if (k == 0) /* final empty line */
-                                break;
+                𐡄𐡍 (p[k] == 0) {
+                        𐡄𐡍 (k == 0) /* final empty line */
+                                اكسر;
 
-                        if (n >= n_lines) /* above threshold */
-                                break;
+                        𐡄𐡍 (n >= n_lines) /* above threshold */
+                                اكسر;
 
                         e = p + k; /* last line to include */
-                        break;
+                        اكسر;
                 }
 
-                assert(p[k] == '\n');
+                أكد(p[k] == '\n');
 
-                if (n >= n_lines)
-                        break;
+                𐡄𐡍 (n >= n_lines)
+                        اكسر;
 
-                if (k > 0)
+                𐡄𐡍 (k > 0)
                         e = p + k;
 
                 p += k + 1;
@@ -1258,27 +1258,27 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         }
 
         /* e points after the last character we want to keep */
-        if (isempty(e))
+        𐡄𐡍 (isempty(e))
                 copy = strdup(s);
-        else {
-                if (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
+        وإلا {
+                𐡄𐡍 (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
                                            * isn't a new-line or a series of them */
                         truncation_applied = true;
 
                 copy = strndup(s, e - s);
         }
-        if (!copy)
-                return -ENOMEM;
+        𐡄𐡍 (!copy)
+                أرجع -ENOMEM;
 
         *ret = copy;
-        return truncation_applied;
+        أرجع truncation_applied;
 }
 
-int string_extract_line(const char *s, size_t i, char **ret) {
-        const char *p = s;
+صحيح string_extract_line(ثابت حرف *s, size_t i, حرف **ret) {
+        ثابت حرف *p = s;
         size_t c = 0;
 
-        assert(ret);
+        أكد(ret);
 
         /* Extract the i'nth line from the specified string. Returns > 0 if there are more lines after that,
          * and == 0 if we are looking at the last line or already beyond the last line. As special
@@ -1286,148 +1286,148 @@ int string_extract_line(const char *s, size_t i, char **ret) {
          * NULL, indicating the input string should be used as is, and avoid a memory allocation for a very
          * common case. */
 
-        for (;;) {
-                const char *q;
+        لكل (;;) {
+                ثابت حرف *q;
 
                 q = strchr(p, '\n');
-                if (i == c) {
+                𐡄𐡍 (i == c) {
                         /* The line we are looking for! */
 
-                        if (q) {
-                                char *m;
+                        𐡄𐡍 (q) {
+                                حرف *m;
 
                                 m = strndup(p, q - p);
-                                if (!m)
-                                        return -ENOMEM;
+                                𐡄𐡍 (!m)
+                                        أرجع -ENOMEM;
 
                                 *ret = m;
-                                return !isempty(q + 1); /* More coming? */
-                        } else
+                                أرجع !isempty(q + 1); /* More coming? */
+                        } وإلا
                                 /* Tell the caller to use the input string if equal */
-                                return strdup_to(ret, p != s ? p : NULL);
+                                أرجع strdup_to(ret, p != s ? p : عدم);
                 }
 
-                if (!q)
+                𐡄𐡍 (!q)
                         /* No more lines, return empty line */
-                        return strdup_to(ret, "");
+                        أرجع strdup_to(ret, "");
 
                 p = q + 1;
                 c++;
         }
 }
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
+صحيح string_contains_word_strv(ثابت حرف *string, ثابت حرف *separators, حرف * ثابت *words, ثابت حرف **ret_word) {
         /* In the default mode with no separators specified, we split on whitespace and coalesce separators. */
-        const ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
-        const char *found = NULL;
-        int r;
+        ثابت ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
+        ثابت حرف *found = عدم;
+        صحيح r;
 
-        for (;;) {
-                _cleanup_free_ char *w = NULL;
+        لكل (;;) {
+                _cleanup_free_ حرف *w = عدم;
 
                 r = extract_first_word(&string, &w, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                𐡄𐡍 (r < 0)
+                        أرجع r;
+                𐡄𐡍 (r == 0)
+                        اكسر;
 
                 found = strv_find(words, w);
-                if (found)
-                        break;
+                𐡄𐡍 (found)
+                        اكسر;
         }
 
-        if (ret_word)
+        𐡄𐡍 (ret_word)
                 *ret_word = found;
-        return !!found;
+        أرجع !!found;
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok) {
-        if (!s1 && !s2)
-                return true;
-        if (!s1 || !s2)
-                return false;
+bool streq_skip_trailing_chars(ثابت حرف *s1, ثابت حرف *s2, ثابت حرف *ok) {
+        𐡄𐡍 (!s1 && !s2)
+                أرجع true;
+        𐡄𐡍 (!s1 || !s2)
+                أرجع false;
 
-        if (!ok)
+        𐡄𐡍 (!ok)
                 ok = WHITESPACE;
 
-        for (; *s1 && *s2; s1++, s2++)
-                if (*s1 != *s2)
-                        break;
+        لكل (; *s1 && *s2; s1++, s2++)
+                𐡄𐡍 (*s1 != *s2)
+                        اكسر;
 
-        return in_charset(s1, ok) && in_charset(s2, ok);
+        أرجع in_charset(s1, ok) && in_charset(s2, ok);
 }
 
-char* string_replace_char(char *str, char old_char, char new_char) {
-        assert(str);
-        assert(old_char != '\0');
-        assert(new_char != '\0');
-        assert(old_char != new_char);
+حرف* string_replace_char(حرف *str, حرف old_char, حرف new_char) {
+        أكد(str);
+        أكد(old_char != '\0');
+        أكد(new_char != '\0');
+        أكد(old_char != new_char);
 
-        for (char *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
+        لكل (حرف *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
                 *p = new_char;
 
-        return str;
+        أرجع str;
 }
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
-        char *b;
+صحيح make_cstring(ثابت فراغ *s, size_t n, MakeCStringMode mode, حرف **ret) {
+        حرف *b;
 
-        assert(s || n == 0);
-        assert(mode >= 0);
-        assert(mode < _MAKE_CSTRING_MODE_MAX);
+        أكد(s || n == 0);
+        أكد(mode >= 0);
+        أكد(mode < _MAKE_CSTRING_MODE_MAX);
 
         /* Converts a sized character buffer into a NUL-terminated NUL string, refusing if there are embedded
          * NUL bytes. Whether to expect a trailing NUL byte can be specified via 'mode' */
 
-        if (n == 0) {
-                if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+        𐡄𐡍 (n == 0) {
+                𐡄𐡍 (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        أرجع -EINVAL;
 
-                if (!ret)
-                        return 0;
+                𐡄𐡍 (!ret)
+                        أرجع 0;
 
-                b = new0(char, 1);
-        } else {
-                const uint8_t *nul;
+                b = new0(حرف, 1);
+        } وإلا {
+                ثابت uint8_t *nul;
 
                 nul = memchr(s, 0, n);
-                if (nul) {
-                        if (nul < (const uint8_t*) s + n - 1 || /* embedded NUL? */
+                𐡄𐡍 (nul) {
+                        𐡄𐡍 (nul < (ثابت uint8_t*) s + n - 1 || /* embedded NUL? */
                             mode == MAKE_CSTRING_REFUSE_TRAILING_NUL)
-                                return -EINVAL;
+                                أرجع -EINVAL;
 
                         n--;
-                } else if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+                } وإلا 𐡄𐡍 (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        أرجع -EINVAL;
 
-                if (!ret)
-                        return 0;
+                𐡄𐡍 (!ret)
+                        أرجع 0;
 
                 b = memdup_suffix0(s, n);
         }
-        if (!b)
-                return -ENOMEM;
+        𐡄𐡍 (!b)
+                أرجع -ENOMEM;
 
         *ret = b;
-        return 0;
+        أرجع 0;
 }
 
-size_t strspn_from_end(const char *str, const char *accept) {
+size_t strspn_from_end(ثابت حرف *str, ثابت حرف *accept) {
         size_t n = 0;
 
-        if (isempty(str))
-                return 0;
+        𐡄𐡍 (isempty(str))
+                أرجع 0;
 
-        if (isempty(accept))
-                return 0;
+        𐡄𐡍 (isempty(accept))
+                أرجع 0;
 
-        for (const char *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
+        لكل (ثابت حرف *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
                 n++;
 
-        return n;
+        أرجع n;
 }
 
-size_t strnspn(const char *str, const char *accept, size_t n) {
+size_t strnspn(ثابت حرف *str, ثابت حرف *accept, size_t n) {
         size_t i;
 
         /* Like strspn(), but reads at most 'n' bytes from 'str'. Returns the length of the initial
@@ -1435,98 +1435,98 @@ size_t strnspn(const char *str, const char *accept, size_t n) {
          * NUL byte too. Unlike strspn() this is safe on a buffer that is not NUL terminated within
          * 'n' bytes. */
 
-        assert(str || n == 0);
-        assert(accept);
+        أكد(str || n == 0);
+        أكد(accept);
 
-        for (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
+        لكل (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
                 ;
 
-        return i;
+        أرجع i;
 }
 
-char* strdupspn(const char *a, const char *accept) {
-        if (isempty(a) || isempty(accept))
-                return strdup("");
+حرف* strdupspn(ثابت حرف *a, ثابت حرف *accept) {
+        𐡄𐡍 (isempty(a) || isempty(accept))
+                أرجع strdup("");
 
-        return strndup(a, strspn(a, accept));
+        أرجع strndup(a, strspn(a, accept));
 }
 
-char* strdupcspn(const char *a, const char *reject) {
-        if (isempty(a))
-                return strdup("");
-        if (isempty(reject))
-                return strdup(a);
+حرف* strdupcspn(ثابت حرف *a, ثابت حرف *reject) {
+        𐡄𐡍 (isempty(a))
+                أرجع strdup("");
+        𐡄𐡍 (isempty(reject))
+                أرجع strdup(a);
 
-        return strndup(a, strcspn(a, reject));
+        أرجع strndup(a, strcspn(a, reject));
 }
 
-char* find_line_startswith_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+حرف* find_line_startswith_internal(ثابت حرف *haystack, ثابت حرف *needle) {
+        أكد(haystack);
+        أكد(needle);
 
         /* Finds the first line in 'haystack' that starts with the specified string. Returns a pointer to the
          * first character after it */
 
-        char *p = (char*) strstr(haystack, needle);
-        if (!p)
-                return NULL;
+        حرف *p = (حرف*) strstr(haystack, needle);
+        𐡄𐡍 (!p)
+                أرجع عدم;
 
-        if (p > haystack)
-                while (p[-1] != '\n') {
+        𐡄𐡍 (p > haystack)
+                طالما (p[-1] != '\n') {
                         p = strstr(p + 1, needle);
-                        if (!p)
-                                return NULL;
+                        𐡄𐡍 (!p)
+                                أرجع عدم;
                 }
 
-        return p + strlen(needle);
+        أرجع p + strlen(needle);
 }
 
-char* find_line_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+حرف* find_line_internal(ثابت حرف *haystack, ثابت حرف *needle) {
+        أكد(haystack);
+        أكد(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * beginning of the line */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        حرف *p = (حرف*) find_line_startswith(haystack, needle);
+        𐡄𐡍 (!p)
+                أرجع عدم;
 
-        if (*p == 0 || strchr(NEWLINE, *p))
-                return p - strlen(needle);
+        𐡄𐡍 (*p == 0 || strchr(NEWLINE, *p))
+                أرجع p - strlen(needle);
 
-        return NULL;
+        أرجع عدم;
 }
 
-char* find_line_after_internal(const char *haystack, const char *needle) {
-        assert(haystack);
-        assert(needle);
+حرف* find_line_after_internal(ثابت حرف *haystack, ثابت حرف *needle) {
+        أكد(haystack);
+        أكد(needle);
 
         /* Finds the first line in 'haystack' that match the specified string. Returns a pointer to the
          * next line after it */
 
-        char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        حرف *p = (حرف*) find_line_startswith(haystack, needle);
+        𐡄𐡍 (!p)
+                أرجع عدم;
 
-        if (*p == 0)
-                return p;
-        if (strchr(NEWLINE, *p))
-                return p + 1;
+        𐡄𐡍 (*p == 0)
+                أرجع p;
+        𐡄𐡍 (strchr(NEWLINE, *p))
+                أرجع p + 1;
 
-        return NULL;
+        أرجع عدم;
 }
 
-bool version_is_valid(const char *s, VersionFlags flags) {
+bool version_is_valid(ثابت حرف *s, VersionFlags flags) {
 
         /* Validates a version string superficially. This does not process the version string in any
          * semantical way, it mostly just validates that its charset is reasonable. */
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
-                return false;
+        𐡄𐡍 (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
+                أرجع false;
 
-        if (!filename_part_is_valid(s))
-                return false;
+        𐡄𐡍 (!filename_part_is_valid(s))
+                أرجع false;
 
         /* We always allow all characters specified by the UAPI.10 Version Specification, i.e. 0-9, a-z, A-Z,
          * ".", "-", "~", "^".
@@ -1549,69 +1549,69 @@ bool version_is_valid(const char *s, VersionFlags flags) {
          *
          * → https://uapi-group.org/specifications/specs/version_format_specification/ */
 
-        char charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
+        حرف charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
         size_t l = strlen(charset);
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
+        𐡄𐡍 (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
                 charset[l++] = '_';
-        if (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
+        𐡄𐡍 (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
                 charset[l++] = '+';
 
-        return in_charset(s, charset);
+        أرجع in_charset(s, charset);
 }
 
-ssize_t strlevenshtein(const char *x, const char *y) {
-        _cleanup_free_ size_t *t0 = NULL, *t1 = NULL, *t2 = NULL;
+ssize_t strlevenshtein(ثابت حرف *x, ثابت حرف *y) {
+        _cleanup_free_ size_t *t0 = عدم, *t1 = عدم, *t2 = عدم;
         size_t xl, yl;
 
         /* This is inspired from the Linux kernel's Levenshtein implementation */
 
-        if (streq_ptr(x, y))
-                return 0;
+        𐡄𐡍 (streq_ptr(x, y))
+                أرجع 0;
 
         xl = strlen_ptr(x);
-        if (xl > SSIZE_MAX)
-                return -E2BIG;
+        𐡄𐡍 (xl > SSIZE_MAX)
+                أرجع -E2BIG;
 
         yl = strlen_ptr(y);
-        if (yl > SSIZE_MAX)
-                return -E2BIG;
+        𐡄𐡍 (yl > SSIZE_MAX)
+                أرجع -E2BIG;
 
-        if (isempty(x))
-                return yl;
-        if (isempty(y))
-                return xl;
+        𐡄𐡍 (isempty(x))
+                أرجع yl;
+        𐡄𐡍 (isempty(y))
+                أرجع xl;
 
         t0 = new0(size_t, yl + 1);
-        if (!t0)
-                return -ENOMEM;
+        𐡄𐡍 (!t0)
+                أرجع -ENOMEM;
         t1 = new0(size_t, yl + 1);
-        if (!t1)
-                return -ENOMEM;
+        𐡄𐡍 (!t1)
+                أرجع -ENOMEM;
         t2 = new0(size_t, yl + 1);
-        if (!t2)
-                return -ENOMEM;
+        𐡄𐡍 (!t2)
+                أرجع -ENOMEM;
 
-        for (size_t i = 0; i <= yl; i++)
+        لكل (size_t i = 0; i <= yl; i++)
                 t1[i] = i;
 
-        for (size_t i = 0; i < xl; i++) {
+        لكل (size_t i = 0; i < xl; i++) {
                 t2[0] = i + 1;
 
-                for (size_t j = 0; j < yl; j++) {
+                لكل (size_t j = 0; j < yl; j++) {
                         /* Substitution */
                         t2[j+1] = t1[j] + (x[i] != y[j]);
 
                         /* Swap */
-                        if (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
+                        𐡄𐡍 (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
                                 t2[j+1] = t0[j-1] + 1;
 
                         /* Deletion */
-                        if (t2[j+1] > t1[j+1] + 1)
+                        𐡄𐡍 (t2[j+1] > t1[j+1] + 1)
                                 t2[j+1] = t1[j+1] + 1;
 
                         /* Insertion */
-                        if (t2[j+1] > t2[j] + 1)
+                        𐡄𐡍 (t2[j+1] > t2[j] + 1)
                                 t2[j+1] = t2[j] + 1;
                 }
 
@@ -1621,55 +1621,55 @@ ssize_t strlevenshtein(const char *x, const char *y) {
                 t2 = dummy;
         }
 
-        return t1[yl];
+        أرجع t1[yl];
 }
 
-char* strrstr_internal(const char *haystack, const char *needle) {
+حرف* strrstr_internal(ثابت حرف *haystack, ثابت حرف *needle) {
         /* Like strstr() but returns the last rather than the first occurrence of "needle" in "haystack". */
 
-        if (!haystack || !needle)
-                return NULL;
+        𐡄𐡍 (!haystack || !needle)
+                أرجع عدم;
 
         /* Special case: for the empty string we return the very last possible occurrence, i.e. *after* the
          * last char, not before. */
-        if (needle[0] == 0)
-                return (char*) strchr(haystack, 0);
+        𐡄𐡍 (needle[0] == 0)
+                أرجع (حرف*) strchr(haystack, 0);
 
         /* Special case: for single character strings, just use optimized strrchr() */
-        if (needle[1] == 0)
-                return (char*) strrchr(haystack, needle[0]);
+        𐡄𐡍 (needle[1] == 0)
+                أرجع (حرف*) strrchr(haystack, needle[0]);
 
-        for (const char *p = strstr(haystack, needle), *q; p; p = q) {
+        لكل (ثابت حرف *p = strstr(haystack, needle), *q; p; p = q) {
                 q = strstr(p + 1, needle);
-                if (!q)
-                        return (char*) p;
+                𐡄𐡍 (!q)
+                        أرجع (حرف*) p;
         }
-        return NULL;
+        أرجع عدم;
 }
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
+حرف* strrstr_no_case_internal(ثابت حرف *haystack, ثابت حرف *needle) {
+        𐡄𐡍 (!haystack || !needle)
+                أرجع عدم;
 
-        for (const char *p = strchr(haystack, 0); p > haystack; p--)
-                if (startswith_no_case(p, needle))
-                        return (char*) p;
+        لكل (ثابت حرف *p = strchr(haystack, 0); p > haystack; p--)
+                𐡄𐡍 (startswith_no_case(p, needle))
+                        أرجع (حرف*) p;
 
-        return startswith_no_case(haystack, needle) ? (char*) haystack : NULL;
+        أرجع startswith_no_case(haystack, needle) ? (حرف*) haystack : عدم;
 }
 
-size_t str_common_prefix(const char *a, const char *b) {
-        assert(a);
-        assert(b);
+size_t str_common_prefix(ثابت حرف *a, ثابت حرف *b) {
+        أكد(a);
+        أكد(b);
 
         /* Returns the length of the common prefix of the two specified strings, or SIZE_MAX in case the
          * strings are fully identical. */
 
-        for (size_t n = 0;; n++) {
-                char c = a[n];
-                if (c != b[n])
-                        return n;
-                if (c == 0)
-                        return SIZE_MAX;
+        لكل (size_t n = 0;; n++) {
+                حرف c = a[n];
+                𐡄𐡍 (c != b[n])
+                        أرجع n;
+                𐡄𐡍 (c == 0)
+                        أرجع SIZE_MAX;
         }
 }

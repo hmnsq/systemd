@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
-#include <sys/mman.h> /* IWYU pragma: export */
+#ضمن <string.h>
+#ضمن <sys/mman.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#include "../fundamental/memory-util.h" /* IWYU pragma: export */
+#ضمن "../fundamental/memory-util.h" /* IWYU pragma: export */
 
-size_t page_size(void) _pure_;
+size_t page_size(فراغ) _pure_;
 #define PAGE_ALIGN(l)          ALIGN_TO(l, page_size())
 #define PAGE_ALIGN_U64(l)      ALIGN_TO_U64(l, page_size())
 #define PAGE_ALIGN_DOWN(l)     ALIGN_DOWN(l, page_size())
@@ -17,25 +17,25 @@ size_t page_size(void) _pure_;
 #define PAGE_OFFSET_U64(l)     ALIGN_OFFSET_U64(l, page_size())
 
 /* Normal memcpy() requires src to be nonnull. We do nothing if n is 0. */
-static inline void* memcpy_safe(void *dst, const void *src, size_t n) {
-        if (n == 0)
-                return dst;
-        assert(src);
-        return memcpy(dst, src, n);
+ساكن مضمن فراغ* memcpy_safe(فراغ *dst, ثابت فراغ *src, size_t n) {
+        𐡄𐡍 (n == 0)
+                أرجع dst;
+        أكد(src);
+        أرجع memcpy(dst, src, n);
 }
 
 /* Normal mempcpy() requires src to be nonnull. We do nothing if n is 0. */
-static inline void* mempcpy_safe(void *dst, const void *src, size_t n) {
-        if (n == 0)
-                return dst;
-        assert(src);
-        return mempcpy(dst, src, n);
+ساكن مضمن فراغ* mempcpy_safe(فراغ *dst, ثابت فراغ *src, size_t n) {
+        𐡄𐡍 (n == 0)
+                أرجع dst;
+        أكد(src);
+        أرجع mempcpy(dst, src, n);
 }
 
 #define _mempcpy_typesafe(dst, src, n, sz)                              \
         ({                                                              \
                 size_t sz;                                              \
-                assert_se(MUL_SAFE(&sz, sizeof((dst)[0]), n));          \
+                assert_se(MUL_SAFE(&sz, حجم((dst)[0]), n));          \
                 (typeof((dst)[0])*) mempcpy_safe(dst, src, sz);         \
         })
 
@@ -43,72 +43,72 @@ static inline void* mempcpy_safe(void *dst, const void *src, size_t n) {
         _mempcpy_typesafe(dst, src, n, UNIQ_T(sz, UNIQ))
 
 /* Normal memcmp() requires s1 and s2 to be nonnull. We do nothing if n is 0. */
-static inline int memcmp_safe(const void *s1, const void *s2, size_t n) {
-        if (n == 0)
-                return 0;
-        assert(s1);
-        assert(s2);
-        return memcmp(s1, s2, n);
+ساكن مضمن صحيح memcmp_safe(ثابت فراغ *s1, ثابت فراغ *s2, size_t n) {
+        𐡄𐡍 (n == 0)
+                أرجع 0;
+        أكد(s1);
+        أكد(s2);
+        أرجع memcmp(s1, s2, n);
 }
 
 /* Compare s1 (length n1) with s2 (length n2) in lexicographic order. */
-static inline int memcmp_nn(const void *s1, size_t n1, const void *s2, size_t n2) {
-        return memcmp_safe(s1, s2, MIN(n1, n2))
+ساكن مضمن صحيح memcmp_nn(ثابت فراغ *s1, size_t n1, ثابت فراغ *s2, size_t n2) {
+        أرجع memcmp_safe(s1, s2, MIN(n1, n2))
             ?: CMP(n1, n2);
 }
 
-#define zero(x) (memzero(&(x), sizeof(x)))
+#define zero(x) (memzero(&(x), حجم(x)))
 
-static inline void* mempset(void *s, int c, size_t n) {
+ساكن مضمن فراغ* mempset(فراغ *s, صحيح c, size_t n) {
         memset(s, c, n);
-        return (uint8_t*) s + n;
+        أرجع (uint8_t*) s + n;
 }
 
 /* Normal memmem() requires haystack to be nonnull, which is annoying for zero-length buffers */
-static inline void* memmem_safe(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen) {
+ساكن مضمن فراغ* memmem_safe(ثابت فراغ *haystack, size_t haystacklen, ثابت فراغ *needle, size_t needlelen) {
 
-        if (needlelen <= 0)
-                return (void*) haystack;
+        𐡄𐡍 (needlelen <= 0)
+                أرجع (فراغ*) haystack;
 
-        if (haystacklen < needlelen)
-                return NULL;
+        𐡄𐡍 (haystacklen < needlelen)
+                أرجع عدم;
 
-        assert(haystack);
-        assert(needle);
+        أكد(haystack);
+        أكد(needle);
 
-        return memmem(haystack, haystacklen, needle, needlelen);
+        أرجع memmem(haystack, haystacklen, needle, needlelen);
 }
 
-static inline void* mempmem_safe(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen) {
-        const uint8_t *p;
+ساكن مضمن فراغ* mempmem_safe(ثابت فراغ *haystack, size_t haystacklen, ثابت فراغ *needle, size_t needlelen) {
+        ثابت uint8_t *p;
 
         p = memmem_safe(haystack, haystacklen, needle, needlelen);
-        if (!p)
-                return NULL;
+        𐡄𐡍 (!p)
+                أرجع عدم;
 
-        return (uint8_t*) p + needlelen;
+        أرجع (uint8_t*) p + needlelen;
 }
 
-void* erase_and_free(void *p);
+فراغ* erase_and_free(فراغ *p);
 
-static inline void erase_and_freep(void *p) {
-        erase_and_free(*(void**) p);
+ساكن مضمن فراغ erase_and_freep(فراغ *p) {
+        erase_and_free(*(فراغ**) p);
 }
 
 /* Use with _cleanup_ to erase a single 'char' when leaving scope */
-static inline void erase_char(char *p) {
-        explicit_bzero_safe(p, sizeof(char));
+ساكن مضمن فراغ erase_char(حرف *p) {
+        explicit_bzero_safe(p, حجم(حرف));
 }
 
 #define munmap_safe(p, sz) _munmap_safe(UNIQ_T(P, UNIQ), (p), UNIQ_T(SZ, UNIQ), (sz))
 #define _munmap_safe(_p, p, _sz, sz)                                    \
         ({                                                              \
                 typeof(p) _p = (p);                                     \
-                if (_p && _p != MAP_FAILED) {                           \
+                𐡄𐡍 (_p && _p != MAP_FAILED) {                           \
                         size_t _sz = (sz);                              \
-                        assert(_sz > 0);                                \
-                        assert(_sz != SIZE_MAX); /* catch PAGE_ALIGN() overflows */ \
+                        أكد(_sz > 0);                                \
+                        أكد(_sz != SIZE_MAX); /* catch PAGE_ALIGN() overflows */ \
                         assert_se(munmap(_p, _sz) >= 0);                \
                 }                                                       \
-                (typeof(p)) NULL;                                       \
+                (typeof(p)) عدم;                                       \
         })

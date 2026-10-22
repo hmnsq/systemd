@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#ضمن <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#ضمن "parse-util.h"
+#ضمن "stdio-util.h"
+#ضمن "string-table.h"
+#ضمن "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+ثابت حرف* string_table_lookup_to_string(ثابت حرف * ثابت *table, size_t len, ssize_t i) {
+        𐡄𐡍 (i < 0 || i >= (ssize_t) len)
+                أرجع عدم;
 
-        assert(table);
+        أكد(table);
 
-        return table[i];
+        أرجع table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(ثابت حرف * ثابت *table, size_t len, ثابت حرف *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        𐡄𐡍 (!key)
+                أرجع -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        لكل (size_t i = 0; i < len; ++i)
+                𐡄𐡍 (streq_ptr(table[i], key))
+                        أرجع (ssize_t) i;
 
-        return -EINVAL;
+        أرجع -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(ثابت حرف * ثابت *table, size_t len, ثابت حرف *key, ssize_t yes) {
+        𐡄𐡍 (!key)
+                أرجع -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        صحيح b = parse_boolean(key);
+        𐡄𐡍 (b == 0)
+                أرجع 0;
+        𐡄𐡍 (b > 0)
+                أرجع yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        أرجع string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+صحيح string_table_lookup_to_string_fallback(ثابت حرف * ثابت *table, size_t len, ssize_t i, size_t max, حرف **ret) {
+        حرف *s;
 
-        assert(table);
-        assert(ret);
+        أكد(table);
+        أكد(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        𐡄𐡍 (i < 0 || i > (ssize_t) max)
+                أرجع -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        𐡄𐡍 (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        وإلا
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        𐡄𐡍 (!s)
+                أرجع -ENOMEM;
 
         *ret = s;
-        return 0;
+        أرجع 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(ثابت حرف * ثابت *table, size_t len, ثابت حرف *s, size_t max) {
+        𐡄𐡍 (!s)
+                أرجع -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        𐡄𐡍 (i >= 0)
+                أرجع i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        𐡄𐡍 (safe_atou(s, &u) < 0)
+                أرجع -EINVAL;
+        𐡄𐡍 (u > max)
+                أرجع -EINVAL;
 
-        return u;
+        أرجع u;
 }
