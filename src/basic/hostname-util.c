@@ -12,44 +12,44 @@
 #include "strv.h"
 #include "user-util.h"
 
-char* get_default_hostname_raw(void) {
-        int r;
+var_na* get_default_hostname_raw(void) {
+        ཧྲིལ r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
-        const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        const var_na *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
+        གལ་ཏེ (e) {
+                གལ་ཏེ (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        ཕྱིར strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
-        _cleanup_free_ char *f = NULL;
+        _cleanup_free_ var_na *f = NULL;
         r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        གལ་ཏེ (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        དེ་མིན གལ་ཏེ (f) {
+                གལ་ཏེ (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        ཕྱིར TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        ཕྱིར strdup(FALLBACK_HOSTNAME);
 }
 
-bool valid_ldh_char(char c) {
+bool valid_ldh_char(var_na c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        ཕྱིར ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
+bool hostname_is_valid(const var_na *s, ValidHostnameFlags flags) {
         unsigned n_dots = 0;
-        const char *p;
+        const var_na *p;
         bool dot, hyphen;
 
         /* Check if s looks like a valid hostname or FQDN. This does not do full DNS validation, but only
@@ -60,95 +60,95 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        གལ་ཏེ (isempty(s))
+                ཕྱིར false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        གལ་ཏེ (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                ཕྱིར FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        ཆེད་དུ (p = s, dot = hyphen = true; *p; p++)
+                གལ་ཏེ (*p == '.') {
+                        གལ་ཏེ (dot || hyphen)
+                                ཕྱིར false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } དེ་མིན གལ་ཏེ (*p == '-') {
+                        གལ་ཏེ (dot)
+                                ཕྱིར false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
+                } དེ་མིན {
+                        གལ་ཏེ (!valid_ldh_char(*p) &&
                             (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
                             (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                                ཕྱིར false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        གལ་ཏེ (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                ཕྱིར false;
+        གལ་ཏེ (hyphen)
+                ཕྱིར false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        གལ་ཏེ (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                ཕྱིར false;
 
-        return true;
+        ཕྱིར true;
 }
 
-char* hostname_cleanup(char *s) {
-        char *p, *d;
+var_na* hostname_cleanup(var_na *s) {
+        var_na *p, *d;
         bool dot, hyphen;
 
         assert(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
+        ཆེད་དུ (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                གལ་ཏེ (*p == '.') {
+                        གལ་ཏེ (dot || hyphen)
                                 continue;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
+                } དེ་མིན གལ་ཏེ (*p == '-') {
+                        གལ་ཏེ (dot)
                                 continue;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } དེ་མིན གལ་ཏེ (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        སྐབས (d > s && IN_SET(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        ཕྱིར s;
 }
 
-bool is_localhost(const char *hostname) {
+bool is_localhost(const var_na *hostname) {
         assert(hostname);
 
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        ཕྱིར STRCASE_IN_SET(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -160,164 +160,164 @@ bool is_localhost(const char *hostname) {
                 endswith_no_case(hostname, ".localhost.localdomain.");
 }
 
-const char* etc_hostname(void) {
-        static const char *cached = NULL;
+const var_na* etc_hostname(void) {
+        static const var_na *cached = NULL;
 
-        if (!cached)
+        གལ་ཏེ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        ཕྱིར cached;
 }
 
-const char* etc_machine_info(void) {
-        static const char *cached = NULL;
+const var_na* etc_machine_info(void) {
+        static const var_na *cached = NULL;
 
-        if (!cached)
+        གལ་ཏེ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        ཕྱིར cached;
 }
 
-int get_pretty_hostname(char **ret) {
-        _cleanup_free_ char *n = NULL;
-        int r;
+ཧྲིལ get_pretty_hostname(var_na **ret) {
+        _cleanup_free_ var_na *n = NULL;
+        ཧྲིལ r;
 
         assert(ret);
 
         r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (isempty(n))
-                return -ENXIO;
+        གལ་ཏེ (isempty(n))
+                ཕྱིར -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        ཕྱིར 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
+ཧྲིལ split_user_at_host(const var_na *s, var_na **ret_user, var_na **ret_host) {
+        _cleanup_free_ var_na *u = NULL, *h = NULL;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
          * each of the two return parameters if that part was left empty. */
 
         assert(s);
 
-        const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        const var_na *rhs = strchr(s, '@');
+        གལ་ཏེ (rhs) {
+                གལ་ཏེ (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        གལ་ཏེ (!u)
+                                ཕྱིར -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                གལ་ཏེ (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        གལ་ཏེ (!h)
+                                ཕྱིར -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } དེ་མིན {
+                གལ་ཏེ (isempty(s))
+                        ཕྱིར -EINVAL;
 
-                if (ret_host) {
+                གལ་ཏེ (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        གལ་ཏེ (!h)
+                                ཕྱིར -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        གལ་ཏེ (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        གལ་ཏེ (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        ཕྱིར !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+ཧྲིལ machine_spec_valid(const var_na *s) {
+        _cleanup_free_ var_na *u = NULL, *h = NULL;
+        ཧྲིལ r;
 
         assert(s);
 
         r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r == -EINVAL)
+                ཕྱིར false;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        གལ་ཏེ (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                ཕྱིར false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        གལ་ཏེ (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                ཕྱིར false;
 
-        return true;
+        ཕྱིར true;
 }
 
-bool machine_tag_is_valid(const char *s) {
+bool machine_tag_is_valid(const var_na *s) {
         size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+        གལ་ཏེ (n <= 0 || n >= 256)
+                ཕྱིར false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        གལ་ཏེ (strchr("-.=", s[0]))
+                ཕྱིར false;
 
         /* We allow parameterization of tags, with a "=" as separator */
-        const char *eq = strchr(s, '=');
-        if (eq) {
+        const var_na *eq = strchr(s, '=');
+        གལ་ཏེ (eq) {
                 assert(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                གལ་ཏེ (strchr("-.", eq[-1]))
+                        ཕྱིར false;
+        } དེ་མིན {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                གལ་ཏེ (strchr("-.", s[n-1]))
+                        ཕྱིར false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        ཕྱིར in_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+ཧྲིལ machine_tag_list_is_valid(var_na **l) {
+        ཧྲིལ r;
 
         r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
         switch (r) {
-        case -EINVAL:
-        case -E2BIG:
-                return false;
-        case 0:
-                return true;
+        pak_sa -EINVAL:
+        pak_sa -E2BIG:
+                ཕྱིར false;
+        pak_sa 0:
+                ཕྱིར true;
         default:
-                return r;
+                ཕྱིར r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
+ཧྲིལ machine_tags_from_string(const var_na *s, bool graceful, var_na ***ret) {
         assert(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
+        གལ་ཏེ (isempty(s)) {
                 *ret = NULL;
-                return 0;
+                ཕྱིར 0;
         }
 
-        _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ var_na **l = strv_split(s, ":");
+        གལ་ཏེ (!l)
+                ཕྱིར -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        ཕྱིར machine_tags_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+ཧྲིལ machine_tags_from_strv(var_na **l, bool graceful, var_na ***ret) {
+        ཧྲིལ r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -330,49 +330,49 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
          * name hence get distinct keys and may coexist. */
         _cleanup_hashmap_free_ Hashmap *h = NULL;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
+                གལ་ཏེ (!machine_tag_is_valid(*i)) {
+                        གལ་ཏེ (graceful)
                                 continue;
 
-                        return -EINVAL;
+                        ཕྱིར -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                གལ་ཏེ (hashmap_size(h) >= MACHINE_TAGS_MAX)
+                        ཕྱིར -E2BIG;
 
-                const char *eq = strchrnul(*i, '=');
-                _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                const var_na *eq = strchrnul(*i, '=');
+                _cleanup_free_ var_na *k = strndup(*i, (eq - *i) + (*eq == '='));
+                གལ་ཏེ (!k)
+                        ཕྱིར -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
+                གལ་ཏེ (r == -EEXIST) {
+                        གལ་ཏེ (streq(hashmap_get(h, k), *i))
                                 continue;
-                        if (!graceful)
-                                return -EINVAL;
+                        གལ་ཏེ (!graceful)
+                                ཕྱིར -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } དེ་མིན གལ་ཏེ (r < 0)
+                        ཕྱིར r;
+                དེ་མིན གལ་ཏེ (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
-                _cleanup_strv_free_ char **cleaned = NULL;
+        གལ་ཏེ (ret) {
+                _cleanup_strv_free_ var_na **cleaned = NULL;
                 size_t n = 0;
-                char *v;
+                var_na *v;
                 HASHMAP_FOREACH(v, h) {
                         r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        གལ་ཏེ (r < 0)
+                                ཕྱིར r;
                 }
 
                 strv_sort(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        ཕྱིར 0;
 }

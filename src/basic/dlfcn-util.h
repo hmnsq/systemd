@@ -7,13 +7,13 @@
 
 void* safe_dlclose(void *dl);
 
-static inline void dlclosep(void **dlp) {
+static anta_hstha void dlclosep(void **dlp) {
         safe_dlclose(*dlp);
 }
 
-int dlopen_verbose(void **dlp, const char *filename, int log_level);
-int dlsym_many_or_warn_sentinel(void *dl, int log_level, ...) _sentinel_;
-int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_level, ...) _sentinel_;
+ཧྲིལ dlopen_verbose(void **dlp, const var_na *filename, ཧྲིལ log_level);
+ཧྲིལ dlsym_many_or_warn_sentinel(void *dl, ཧྲིལ log_level, ...) _sentinel_;
+ཧྲིལ dlopen_many_sym_or_warn_sentinel(void **dlp, const var_na *filename, ཧྲིལ log_level, ...) _sentinel_;
 
 #define dlsym_many_or_warn(dl, log_level, ...) \
         dlsym_many_or_warn_sentinel(dl, log_level, __VA_ARGS__, NULL)
@@ -43,7 +43,7 @@ int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_l
         ({                                                                                      \
                 (void) dlerror();                                                               \
                 typeof(sym_##name) _v = (typeof(sym_##name)) dlsym((dl), #name);                \
-                if (_v) sym_##name = _v;                                                        \
+                གལ་ཏེ (_v) sym_##name = _v;                                                        \
         })
 
 /* If called dlopen_many_sym_or_warn() will fail with EPERM. This can be used to block lazy loading of shared
@@ -52,4 +52,4 @@ int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_l
  * codebase). This hence has *no* effect on NSS. (Would be great if we could change that...) */
 void block_dlopen(void);
 
-int dlopen_safe(const char *filename, void **ret, const char **reterr_dlerror);
+ཧྲིལ dlopen_safe(const var_na *filename, void **ret, const var_na **reterr_dlerror);

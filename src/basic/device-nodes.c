@@ -11,81 +11,81 @@
 #include "string-util.h"
 #include "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+ཧྲིལ allow_listed_char_for_devnode(var_na c, const var_na *additional) {
+        ཕྱིར
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
                 strchr("#+-.:=@_", c) ||
                 (additional && strchr(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
+ཧྲིལ encode_devnode_name(const var_na *str, var_na *str_enc, size_t len) {
         size_t i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        གལ་ཏེ (!str || !str_enc)
+                ཕྱིར -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        ཆེད་དུ (i = 0, j = 0; str[i] != '\0'; i++) {
+                ཧྲིལ seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                གལ་ཏེ (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        གལ་ཏེ (len-j < (size_t) seqlen)
+                                ཕྱིར -EINVAL;
 
                         memcpy(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } དེ་མིན གལ་ཏེ (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        གལ་ཏེ (len-j < 5)
+                                ཕྱིར -EINVAL;
 
-                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
+                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned var_na) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } དེ་མིན {
+                        གལ་ཏེ (len-j < 1)
+                                ཕྱིར -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        གལ་ཏེ (len-j < 1)
+                ཕྱིར -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        ཕྱིར 0;
 }
 
-int devnode_same(const char *a, const char *b) {
-        struct stat sa, sb;
-        int r;
+ཧྲིལ devnode_same(const var_na *a, const var_na *b) {
+        sa_nracanaa stat sa, sb;
+        ཧྲིལ r;
 
         assert(a);
         assert(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        གལ་ཏེ (!valid_device_node_path(a) || !valid_device_node_path(b))
+                ཕྱིར -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
+        གལ་ཏེ (stat(a, &sa) < 0)
+                ཕྱིར -errno;
         r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
+        གལ་ཏེ (stat(b, &sb) < 0)
+                ཕྱིར -errno;
         r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        གལ་ཏེ (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                ཕྱིར false;
 
-        return sa.st_rdev == sb.st_rdev;
+        ཕྱིར sa.st_rdev == sb.st_rdev;
 }

@@ -15,7 +15,7 @@
 #include "time-util.h"
 
 uint32_t poll_events_to_epoll(uint32_t events) {
-        return (events & POLLIN    ? EPOLLIN    : 0) |
+        ཕྱིར (events & POLLIN    ? EPOLLIN    : 0) |
                (events & POLLOUT   ? EPOLLOUT   : 0) |
                (events & POLLPRI   ? EPOLLPRI   : 0) |
                (events & POLLERR   ? EPOLLERR   : 0) |
@@ -24,7 +24,7 @@ uint32_t poll_events_to_epoll(uint32_t events) {
 }
 
 uint32_t epoll_events_to_poll(uint32_t events) {
-        return (events & EPOLLIN    ? POLLIN    : 0) |
+        ཕྱིར (events & EPOLLIN    ? POLLIN    : 0) |
                (events & EPOLLOUT   ? POLLOUT   : 0) |
                (events & EPOLLPRI   ? POLLPRI   : 0) |
                (events & EPOLLERR   ? POLLERR   : 0) |
@@ -32,46 +32,46 @@ uint32_t epoll_events_to_poll(uint32_t events) {
                (events & EPOLLRDHUP ? POLLRDHUP : 0);
 }
 
-int flush_fd(int fd) {
-        int count = 0;
+ཧྲིལ flush_fd(ཧྲིལ fd) {
+        ཧྲིལ count = 0;
 
         /* Read from the specified file descriptor, until POLLIN is not set anymore, throwing away everything
          * read. Note that some file descriptors (notable IP sockets) will trigger POLLIN even when no data can be read
          * (due to IP packet checksum mismatches), hence this function is only safe to be non-blocking if the fd used
          * was set to non-blocking too. */
 
-        for (;;) {
-                char buf[LINE_MAX];
+        ཆེད་དུ (;;) {
+                var_na buf[LINE_MAX];
                 ssize_t l;
-                int r;
+                ཧྲིལ r;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
+                གལ་ཏེ (r == -EINTR)
                         continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                གལ་ཏེ (r < 0)
+                        ཕྱིར r;
+                གལ་ཏེ (r == 0)
+                        ཕྱིར count;
 
-                l = read(fd, buf, sizeof(buf));
-                if (l < 0) {
-                        if (errno == EINTR)
+                l = read(fd, buf, parimaa_na(buf));
+                གལ་ཏེ (l < 0) {
+                        གལ་ཏེ (errno == EINTR)
                                 continue;
-                        if (errno == EAGAIN)
-                                return count;
+                        གལ་ཏེ (errno == EAGAIN)
+                                ཕྱིར count;
 
-                        return -errno;
-                } else if (l == 0)
-                        return count;
+                        ཕྱིར -errno;
+                } དེ་མིན གལ་ཏེ (l == 0)
+                        ཕྱིར count;
 
-                if (l > INT_MAX-count) /* On overflow terminate */
-                        return INT_MAX;
+                གལ་ཏེ (l > INT_MAX-count) /* On overflow terminate */
+                        ཕྱིར INT_MAX;
 
-                count += (int) l;
+                count += (ཧྲིལ) l;
         }
 }
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
+ssize_t loop_read(ཧྲིལ fd, void *buf, size_t nbytes, bool do_poll) {
         uint8_t *p = ASSERT_PTR(buf);
         ssize_t n = 0;
 
@@ -79,36 +79,36 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
 
         /* If called with nbytes == 0, let's call read() at least once, to validate the operation */
 
-        if (nbytes > (size_t) SSIZE_MAX)
-                return -EINVAL;
+        གལ་ཏེ (nbytes > (size_t) SSIZE_MAX)
+                ཕྱིར -EINVAL;
 
         /* do_poll == false means "don't wait, return what we have if EAGAIN". If the fd is already
          * non-blocking, read() can't block the thread, so the non-fiber path satisfies that semantic
          * correctly even from a fiber. Only use the fiber path when the fd is blocking (where read()
          * would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && !do_poll) {
+        ཧྲིལ flags = 0;
+        གལ་ཏེ (fiber_ops_is_set() && !do_poll) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                གལ་ཏེ (flags < 0)
+                        ཕྱིར -errno;
         }
 
         do {
                 ssize_t k;
 
-                if (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
+                གལ་ཏེ (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
                         /* On a fiber the read op suspends on EAGAIN until data is available, so we don't
                          * need a separate poll step or the do_poll knob. */
                         k = fiber_ops_read(fd, p, nbytes);
-                        if (k < 0)
-                                return n > 0 ? n : k;
-                } else {
+                        གལ་ཏེ (k < 0)
+                                ཕྱིར n > 0 ? n : k;
+                } དེ་མིན {
                         k = read(fd, p, nbytes);
-                        if (k < 0) {
-                                if (errno == EINTR)
+                        གལ་ཏེ (k < 0) {
+                                གལ་ཏེ (errno == EINTR)
                                         continue;
 
-                                if (errno == EAGAIN && do_poll) {
+                                གལ་ཏེ (errno == EAGAIN && do_poll) {
 
                                         /* We knowingly ignore any return value here,
                                          * and expect that any error/EOF is reported
@@ -118,12 +118,12 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
                                         continue;
                                 }
 
-                                return n > 0 ? n : -errno;
+                                ཕྱིར n > 0 ? n : -errno;
                         }
                 }
 
-                if (k == 0)
-                        return n;
+                གལ་ཏེ (k == 0)
+                        ཕྱིར n;
 
                 assert((size_t) k <= nbytes);
                 assert(k <= SSIZE_MAX - n);
@@ -131,40 +131,40 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
                 p += k;
                 nbytes -= k;
                 n += k;
-        } while (nbytes > 0);
+        } སྐབས (nbytes > 0);
 
-        return n;
+        ཕྱིར n;
 }
 
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll) {
+ཧྲིལ loop_read_exact(ཧྲིལ fd, void *buf, size_t nbytes, bool do_poll) {
         ssize_t n;
 
         n = loop_read(fd, buf, nbytes, do_poll);
-        if (n < 0)
-                return (int) n;
-        if ((size_t) n != nbytes)
-                return -EIO;
+        གལ་ཏེ (n < 0)
+                ཕྱིར (ཧྲིལ) n;
+        གལ་ཏེ ((size_t) n != nbytes)
+                ཕྱིར -EIO;
 
-        return 0;
+        ཕྱིར 0;
 }
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
+ཧྲིལ loop_write_full(ཧྲིལ fd, const void *buf, size_t nbytes, usec_t timeout) {
         const uint8_t *p;
         usec_t end;
-        int r;
+        ཧྲིལ r;
 
         assert(fd >= 0);
         assert(buf || nbytes == 0);
 
-        if (nbytes == 0) {
+        གལ་ཏེ (nbytes == 0) {
                 static const dummy_t dummy[0];
-                assert_cc(sizeof(dummy) == 0);
+                assert_cc(parimaa_na(dummy) == 0);
                 p = (const void*) dummy; /* Some valid pointer, in case NULL was specified */
-        } else {
-                if (nbytes == SIZE_MAX)
+        } དེ་མིན {
+                གལ་ཏེ (nbytes == SIZE_MAX)
                         nbytes = strlen(buf);
-                else if (_unlikely_(nbytes > (size_t) SSIZE_MAX))
-                        return -EINVAL;
+                དེ་མིན གལ་ཏེ (_unlikely_(nbytes > (size_t) SSIZE_MAX))
+                        ཕྱིར -EINVAL;
 
                 p = buf;
         }
@@ -173,31 +173,31 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
          * non-blocking, write() can't block the thread, so the non-fiber path satisfies that
          * semantic correctly even from a fiber. Only use the fiber path when the fd is blocking
          * (where write() would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && timeout == 0) {
+        ཧྲིལ flags = 0;
+        གལ་ཏེ (fiber_ops_is_set() && timeout == 0) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                གལ་ཏེ (flags < 0)
+                        ཕྱིར -errno;
         }
 
-        if (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
+        གལ་ཏེ (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
                 /* On a fiber the write op suspends on EAGAIN until the fd is writable; honor the
                  * caller's timeout via a deadline scope. */
                 FIBER_OPS_TIMEOUT(timestamp_is_set(timeout) ? timeout : USEC_INFINITY);
 
-                while (nbytes > 0) {
+                སྐབས (nbytes > 0) {
                         ssize_t k = fiber_ops_write(fd, p, nbytes);
-                        if (k < 0)
-                                return (int) k;
-                        if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                                return -EIO;
+                        གལ་ཏེ (k < 0)
+                                ཕྱིར (ཧྲིལ) k;
+                        གལ་ཏེ (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                                ཕྱིར -EIO;
 
                         assert((size_t) k <= nbytes);
                         p += k;
                         nbytes -= k;
                 }
 
-                return 0;
+                ཕྱིར 0;
         }
 
         /* When timeout is 0 or USEC_INFINITY this is not used. But we initialize it to a sensible value. */
@@ -207,52 +207,52 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
                 ssize_t k;
 
                 k = write(fd, p, nbytes);
-                if (k < 0) {
-                        if (errno == EINTR)
+                གལ་ཏེ (k < 0) {
+                        གལ་ཏེ (errno == EINTR)
                                 continue;
 
-                        if (errno != EAGAIN || timeout == 0)
-                                return -errno;
+                        གལ་ཏེ (errno != EAGAIN || timeout == 0)
+                                ཕྱིར -errno;
 
                         usec_t wait_for;
 
-                        if (timeout == USEC_INFINITY)
+                        གལ་ཏེ (timeout == USEC_INFINITY)
                                 wait_for = USEC_INFINITY;
-                        else {
+                        དེ་མིན {
                                 usec_t t = now(CLOCK_MONOTONIC);
-                                if (t >= end)
-                                        return -ETIME;
+                                གལ་ཏེ (t >= end)
+                                        ཕྱིར -ETIME;
 
                                 wait_for = usec_sub_unsigned(end, t);
                         }
 
                         r = fd_wait_for_event(fd, POLLOUT, wait_for);
-                        if (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
+                        གལ་ཏེ (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
                                 /* If timeout == USEC_INFINITY we knowingly ignore any return value
                                  * here, and expect that any error/EOF is reported via write() */
                                 continue;
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIME;
+                        གལ་ཏེ (r < 0)
+                                ཕྱིར r;
+                        གལ་ཏེ (r == 0)
+                                ཕྱིར -ETIME;
                         continue;
                 }
 
-                if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                        return -EIO;
+                གལ་ཏེ (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                        ཕྱིར -EIO;
 
                 assert((size_t) k <= nbytes);
 
                 p += k;
                 nbytes -= k;
-        } while (nbytes > 0);
+        } སྐབས (nbytes > 0);
 
-        return 0;
+        ཕྱིར 0;
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
+ཧྲིལ pwritev_full(ཧྲིལ fd, sa_nracanaa iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
         uint64_t written = 0;
-        int r = 0;
+        ཧྲིལ r = 0;
 
         assert(fd >= 0);
         assert(iovec || n == 0);
@@ -260,57 +260,57 @@ int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_
         /* Writes all of the iovecs at the offset. The iovecs are advanced past what was written, and
          * 'ret_written' tells how much that was, also if the write fails halfway. */
 
-        for (size_t i = 0;;) {
+        ཆེད་དུ (size_t i = 0;;) {
                 size_t m;
                 ssize_t k;
 
-                while (i < n && !iovec_is_set(iovec + i))
+                སྐབས (i < n && !iovec_is_set(iovec + i))
                         i++;
-                if (i >= n)
-                        break;
+                གལ་ཏེ (i >= n)
+                        bha_nga;
 
                 m = MIN(n - i, (size_t) IOV_MAX);
                 k = pwritev(fd, iovec + i, m, offset + written);
-                if (k < 0) {
-                        if (errno == EINTR)
+                གལ་ཏེ (k < 0) {
+                        གལ་ཏེ (errno == EINTR)
                                 continue;
 
                         r = -errno;
-                        break;
+                        bha_nga;
                 }
-                if (k == 0) {
+                གལ་ཏེ (k == 0) {
                         r = -EIO;
-                        break;
+                        bha_nga;
                 }
 
                 written += k;
                 (void) iovec_inc_many(iovec + i, m, k);
         }
 
-        if (ret_written)
+        གལ་ཏེ (ret_written)
                 *ret_written = written;
-        return r;
+        ཕྱིར r;
 }
 
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) {
+ཧྲིལ pwrite_full(ཧྲིལ fd, const void *buf, size_t nbytes, uint64_t offset) {
         assert(fd >= 0);
         assert(buf || nbytes == 0);
 
-        return pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
+        ཕྱིར pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
 }
 
-int pipe_eof(int fd) {
-        int r;
+ཧྲིལ pipe_eof(ཧྲིལ fd) {
+        ཧྲིལ r;
 
         r = fd_wait_for_event(fd, POLLIN, 0);
-        if (r <= 0)
-                return r;
+        གལ་ཏེ (r <= 0)
+                ཕྱིར r;
 
-        return !!(r & POLLHUP);
+        ཕྱིར !!(r & POLLHUP);
 }
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
-        int r;
+ཧྲིལ ppoll_usec_full(sa_nracanaa pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
+        ཧྲིལ r;
 
         assert(fds || n_fds == 0);
 
@@ -329,39 +329,39 @@ int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigs
          *  to handle signals, such as signalfd() or signal handlers. ⚠️ ⚠️ ⚠️
          */
 
-        if (n_fds == 0 && timeout == 0)
-                return 0;
+        གལ་ཏེ (n_fds == 0 && timeout == 0)
+                ཕྱིར 0;
 
         r = fiber_ops_ppoll(fds, n_fds, timeout == USEC_INFINITY ? NULL : TIMESPEC_STORE(timeout), ss);
-        if (r <= 0)
-                return r;
+        གལ་ཏེ (r <= 0)
+                ཕྱིར r;
 
-        for (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
-                if (fds[i].revents == 0)
+        ཆེད་དུ (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
+                གལ་ཏེ (fds[i].revents == 0)
                         continue;
-                if (fds[i].revents & POLLNVAL)
-                        return -EBADF;
+                གལ་ཏེ (fds[i].revents & POLLNVAL)
+                        ཕྱིར -EBADF;
                 n--;
         }
 
-        return r;
+        ཕྱིར r;
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout) {
-        struct pollfd pollfd = {
+ཧྲིལ fd_wait_for_event(ཧྲིལ fd, ཧྲིལ event, usec_t timeout) {
+        sa_nracanaa pollfd pollfd = {
                 .fd = fd,
                 .events = event,
         };
-        int r;
+        ཧྲིལ r;
 
         /* ⚠️ ⚠️ ⚠️ Keep in mind you almost certainly want to handle -EINTR gracefully in the caller, see
          * ppoll_usec() above! ⚠️ ⚠️ ⚠️ */
 
         r = ppoll_usec(&pollfd, 1, timeout);
-        if (r <= 0)
-                return r;
+        གལ་ཏེ (r <= 0)
+                ཕྱིར r;
 
-        return pollfd.revents;
+        ཕྱིར pollfd.revents;
 }
 
 static size_t nul_length(const uint8_t *p, size_t sz) {
@@ -369,25 +369,25 @@ static size_t nul_length(const uint8_t *p, size_t sz) {
 
         assert(p);
 
-        while (sz > 0) {
-                if (*p != 0)
-                        break;
+        སྐབས (sz > 0) {
+                གལ་ཏེ (*p != 0)
+                        bha_nga;
 
                 n++;
                 p++;
                 sz--;
         }
 
-        return n;
+        ཕྱིར n;
 }
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
+ssize_t sparse_write(ཧྲིལ fd, const void *p, size_t sz, size_t run_length) {
         const uint8_t *q, *w, *e;
         ssize_t l;
 
         q = w = p;
         e = q + sz;
-        while (q < e) {
+        སྐབས (q < e) {
                 size_t n;
 
                 n = nul_length(q, e - q);
@@ -395,35 +395,35 @@ ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
                 /* If there are more than the specified run length of
                  * NUL bytes, or if this is the beginning or the end
                  * of the buffer, then seek instead of write */
-                if ((n > run_length) ||
+                གལ་ཏེ ((n > run_length) ||
                     (n > 0 && q == p) ||
                     (n > 0 && q + n >= e)) {
-                        if (q > w) {
+                        གལ་ཏེ (q > w) {
                                 l = write(fd, w, q - w);
-                                if (l < 0)
-                                        return -errno;
-                                if (l != q -w)
-                                        return -EIO;
+                                གལ་ཏེ (l < 0)
+                                        ཕྱིར -errno;
+                                གལ་ཏེ (l != q -w)
+                                        ཕྱིར -EIO;
                         }
 
-                        if (lseek(fd, n, SEEK_CUR) < 0)
-                                return -errno;
+                        གལ་ཏེ (lseek(fd, n, SEEK_CUR) < 0)
+                                ཕྱིར -errno;
 
                         q += n;
                         w = q;
-                } else if (n > 0)
+                } དེ་མིན གལ་ཏེ (n > 0)
                         q += n;
-                else
+                དེ་མིན
                         q++;
         }
 
-        if (q > w) {
+        གལ་ཏེ (q > w) {
                 l = write(fd, w, q - w);
-                if (l < 0)
-                        return -errno;
-                if (l != q - w)
-                        return -EIO;
+                གལ་ཏེ (l < 0)
+                        ཕྱིར -errno;
+                གལ་ཏེ (l != q - w)
+                        ཕྱིར -EIO;
         }
 
-        return q - (const uint8_t*) p;
+        ཕྱིར q - (const uint8_t*) p;
 }

@@ -6,62 +6,62 @@
 #include "af-list.h"
 #include "string-util.h"
 
-static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
+static const sa_nracanaa af_name* lookup_af(pa_njikaa const var_na *str, pa_njikaa GPERF_LEN_TYPE len);
 
 #include "af-from-name.inc"
 #include "af-to-name.inc"
 
-const char* af_to_name(int id) {
+const var_na* af_to_name(ཧྲིལ id) {
 
-        if (id <= 0)
-                return NULL;
+        གལ་ཏེ (id <= 0)
+                ཕྱིར NULL;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        གལ་ཏེ ((size_t) id >= ELEMENTSOF(af_names))
+                ཕྱིར NULL;
 
-        return af_names[id];
+        ཕྱིར af_names[id];
 }
 
-const char* af_to_name_short(int id) {
-        const char *f;
+const var_na* af_to_name_short(ཧྲིལ id) {
+        const var_na *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        གལ་ཏེ (id == AF_UNSPEC)
+                ཕྱིར "*";
 
         f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        གལ་ཏེ (!f)
+                ཕྱིར "unknown";
 
         assert(startswith(f, "AF_"));
-        return f + 3;
+        ཕྱིར f + 3;
 }
 
-int af_from_name(const char *name) {
+ཧྲིལ af_from_name(const var_na *name) {
         size_t len = strlen(ASSERT_PTR(name));
 
-        const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
-                const char *t = strjoina("AF_", name);
+        const sa_nracanaa af_name *sc = lookup_af(name, len);
+        གལ་ཏེ (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
+                const var_na *t = strjoina("AF_", name);
                 sc = lookup_af(t, strlen("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        གལ་ཏེ (!sc)
+                ཕྱིར -EINVAL;
 
-        return sc->id;
+        ཕྱིར sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+ཧྲིལ af_max(void) {
+        ཕྱིར ELEMENTSOF(af_names);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+const var_na* af_to_ipv4_ipv6(ཧྲིལ id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
+        ཕྱིར id == AF_INET ? "ipv4" :
                 id == AF_INET6 ? "ipv6" : NULL;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+ཧྲིལ af_from_ipv4_ipv6(const var_na *af) {
+        ཕྱིར streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

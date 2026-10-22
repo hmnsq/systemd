@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-typedef enum NamespaceType {
+typedef ga_nanaa NamespaceType {
         NAMESPACE_CGROUP,
         NAMESPACE_IPC,
         NAMESPACE_NET,
@@ -16,9 +16,9 @@ typedef enum NamespaceType {
         _NAMESPACE_TYPE_INVALID = -EINVAL,
 } NamespaceType;
 
-extern const struct namespace_info {
-        const char *proc_name;
-        const char *proc_path;
+extern const sa_nracanaa namespace_info {
+        const var_na *proc_name;
+        const var_na *proc_path;
         unsigned long clone_flag;
         unsigned long pidfd_get_ns_ioctl_cmd;
         ino_t root_inode;
@@ -28,25 +28,25 @@ NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag);
 
 bool namespace_type_supported(NamespaceType type);
 
-int pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
-int namespace_open_by_type(NamespaceType type);
+ཧྲིལ pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
+ཧྲིལ namespace_open_by_type(NamespaceType type);
 
-int pidref_namespace_open(
+ཧྲིལ pidref_namespace_open(
                 const PidRef *pidref,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
-int namespace_open(
+                ཧྲིལ *ret_pidns_fd,
+                ཧྲིལ *ret_mntns_fd,
+                ཧྲིལ *ret_netns_fd,
+                ཧྲིལ *ret_userns_fd,
+                ཧྲིལ *ret_root_fd);
+ཧྲིལ namespace_open(
                 pid_t pid,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
+                ཧྲིལ *ret_pidns_fd,
+                ཧྲིལ *ret_mntns_fd,
+                ཧྲིལ *ret_netns_fd,
+                ཧྲིལ *ret_userns_fd,
+                ཧྲིལ *ret_root_fd);
 
-typedef enum NamespaceEnterFlags {
+typedef ga_nanaa NamespaceEnterFlags {
         /* If root is not mapped in the user namespace, keep our UID/GID instead of failing. The caller must
          * ensure that retaining its original identity is appropriate in that case. Entering still fails
          * with -ENODATA if the namespace has no mappings at all yet, since root might still get mapped. */
@@ -54,64 +54,64 @@ typedef enum NamespaceEnterFlags {
 } NamespaceEnterFlags;
 
 /* If a user namespace is entered we become root in it, and fail if that's not possible. */
-int namespace_enter_full(
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+ཧྲིལ namespace_enter_full(
+                ཧྲིལ pidns_fd,
+                ཧྲིལ mntns_fd,
+                ཧྲིལ netns_fd,
+                ཧྲིལ userns_fd,
+                ཧྲིལ root_fd,
                 NamespaceEnterFlags flags);
 
-static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
+static anta_hstha ཧྲིལ namespace_enter(ཧྲིལ pidns_fd, ཧྲིལ mntns_fd, ཧྲིལ netns_fd, ཧྲིལ userns_fd, ཧྲིལ root_fd) {
+        ཕྱིར namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
 }
 
-int fd_is_namespace(int fd, NamespaceType type);
-int is_our_namespace(int fd, NamespaceType type);
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
+ཧྲིལ fd_is_namespace(ཧྲིལ fd, NamespaceType type);
+ཧྲིལ is_our_namespace(ཧྲིལ fd, NamespaceType type);
+ཧྲིལ are_our_namespaces(ཧྲིལ pidns_fd, ཧྲིལ mntns_fd, ཧྲིལ netns_fd, ཧྲིལ userns_fd, ཧྲིལ root_fd);
 
-int network_namespace_is_init(int socket_fd);
-int namespace_is_init(NamespaceType type);
+ཧྲིལ network_namespace_is_init(ཧྲིལ socket_fd);
+ཧྲིལ namespace_is_init(NamespaceType type);
 
-int pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
-int in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
+ཧྲིལ pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
+ཧྲིལ in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
 
-int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
+ཧྲིལ namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
 
-int detach_mount_namespace(void);
-int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
-int detach_mount_namespace_userns(int userns_fd);
+ཧྲིལ detach_mount_namespace(void);
+ཧྲིལ detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
+ཧྲིལ detach_mount_namespace_userns(ཧྲིལ userns_fd);
 
-static inline bool userns_shift_range_valid(uid_t shift, uid_t range) {
+static anta_hstha bool userns_shift_range_valid(uid_t shift, uid_t range) {
         /* Checks that the specified userns range makes sense, i.e. contains at least one UID, and the end
          * doesn't overflow uid_t. */
 
         assert_cc((uid_t) -1 > 0); /* verify that uid_t is unsigned */
 
-        if (range <= 0)
-                return false;
+        གལ་ཏེ (range <= 0)
+                ཕྱིར false;
 
-        if (shift > (uid_t) -1 - range)
-                return false;
+        གལ་ཏེ (shift > (uid_t) -1 - range)
+                ཕྱིར false;
 
-        return true;
+        ཕྱིར true;
 }
 
-int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
+ཧྲིལ parse_userns_uid_range(const var_na *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
 
-int userns_acquire_empty(void);
-int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
-int userns_acquire_self_root(void);
-int userns_enter_and_pin(int userns_fd, PidRef *ret);
+ཧྲིལ userns_acquire_empty(void);
+ཧྲིལ userns_acquire(const var_na *uid_map, const var_na *gid_map, bool setgroups_deny);
+ཧྲིལ userns_acquire_self_root(void);
+ཧྲིལ userns_enter_and_pin(ཧྲིལ userns_fd, PidRef *ret);
 bool userns_supported(void);
 
-int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid);
-int userns_has_root_mapping(int userns_fd);
+ཧྲིལ userns_get_base_uid(ཧྲིལ userns_fd, uid_t *ret_uid, gid_t *ret_gid);
+ཧྲིལ userns_has_root_mapping(ཧྲིལ userns_fd);
 
-int namespace_open_by_id(uint64_t ns_id);
+ཧྲིལ namespace_open_by_id(uint64_t ns_id);
 
-int process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
+ཧྲིལ process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
 
-int is_idmapping_supported(const char *path);
+ཧྲིལ is_idmapping_supported(const var_na *path);
 
-int netns_acquire(void);
+ཧྲིལ netns_acquire(void);

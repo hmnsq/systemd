@@ -30,8 +30,8 @@ typedef void* (*mfree_func_t)(void *p);
 
 #define _DEFINE_TRIVIAL_REF_FUNC(type, name, scope)                                     \
         scope type *name##_ref(type *p) {                                               \
-                if (!p)                                                                 \
-                        return NULL;                                                    \
+                གལ་ཏེ (!p)                                                                 \
+                        ཕྱིར NULL;                                                    \
                                                                                         \
                 /* For type check. */                                                   \
                 unsigned *q = &p->n_ref;                                                \
@@ -39,20 +39,20 @@ typedef void* (*mfree_func_t)(void *p);
                 assert_se(*q < UINT_MAX);                                               \
                                                                                         \
                 (*q)++;                                                                 \
-                return p;                                                               \
+                ཕྱིར p;                                                               \
         }
 
 #define _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, scope)                        \
         scope type *name##_unref(type *p) {                                             \
-                if (!p)                                                                 \
-                        return NULL;                                                    \
+                གལ་ཏེ (!p)                                                                 \
+                        ཕྱིར NULL;                                                    \
                                                                                         \
                 assert(p->n_ref > 0);                                                   \
                 p->n_ref--;                                                             \
-                if (p->n_ref > 0)                                                       \
-                        return NULL;                                                    \
+                གལ་ཏེ (p->n_ref > 0)                                                       \
+                        ཕྱིར NULL;                                                    \
                                                                                         \
-                return free_func(p);                                                    \
+                ཕྱིར free_func(p);                                                    \
         }
 
 #define DEFINE_TRIVIAL_REF_FUNC(type, name)     \
@@ -93,7 +93,7 @@ typedef void* (*mfree_func_t)(void *p);
 
 typedef void (*void_func_t)(void);
 
-static inline void dispatch_void_func(void_func_t *f) {
+static anta_hstha void dispatch_void_func(void_func_t *f) {
         assert(f);
         assert(*f);
         (*f)();

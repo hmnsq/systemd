@@ -4,35 +4,35 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(ཧྲིལ) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+ཧྲིལ format_ifname_full(ཧྲིལ ifindex, FormatIfnameFlag flag, var_na buf[static IF_NAMESIZE]) {
+        གལ་ཏེ (ifindex <= 0)
+                ཕྱིར -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        གལ་ཏེ (if_indextoname(ifindex, buf))
+                ཕྱིར 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        གལ་ཏེ (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                ཕྱིར -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        གལ་ཏེ (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        དེ་མིན
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        ཕྱིར 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
-        char buf[IF_NAMESIZE];
-        int r;
+ཧྲིལ format_ifname_full_alloc(ཧྲིལ ifindex, FormatIfnameFlag flag, var_na **ret) {
+        var_na buf[IF_NAMESIZE];
+        ཧྲིལ r;
 
         assert(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        return strdup_to(ret, buf);
+        ཕྱིར strdup_to(ret, buf);
 }

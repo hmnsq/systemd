@@ -4,30 +4,30 @@
 
 static const LabelOps *label_ops = NULL;
 
-int label_ops_set(const LabelOps *ops) {
+ཧྲིལ label_ops_set(const LabelOps *ops) {
         assert(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        གལ་ཏེ (label_ops)
+                ཕྱིར -EBUSY;
 
         label_ops = ops;
-        return 0;
+        ཕྱིར 0;
 }
 
 void label_ops_reset(void) {
         label_ops = NULL;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+ཧྲིལ label_ops_pre(ཧྲིལ dir_fd, const var_na *path, mode_t mode, LabelContext *label_context) {
+        གལ་ཏེ (!label_ops || !label_ops->pre)
+                ཕྱིར 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        ཕྱིར label_ops->pre(dir_fd, path, mode, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+ཧྲིལ label_ops_post(ཧྲིལ dir_fd, const var_na *path, bool created, LabelContext *label_context) {
+        གལ་ཏེ (!label_ops || !label_ops->post)
+                ཕྱིར 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        ཕྱིར label_ops->post(dir_fd, path, created, label_context);
 }

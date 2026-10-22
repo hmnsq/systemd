@@ -8,81 +8,81 @@
 #include "ordered-set.h"
 #include "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
+ཧྲིལ ordered_set_ensure_allocated(OrderedSet **s, const sa_nracanaa hash_ops *ops) {
         assert(s);
 
-        if (*s)
-                return 0;
+        གལ་ཏེ (*s)
+                ཕྱིར 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        གལ་ཏེ (!*s)
+                ཕྱིར -ENOMEM;
 
-        return 0;
+        ཕྱིར 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+ཧྲིལ ordered_set_ensure_put(OrderedSet **s, const sa_nracanaa hash_ops *ops, void *p) {
+        ཧྲིལ r;
 
         assert(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        return ordered_set_put(*s, p);
+        ཕྱིར ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+ཧྲིལ ordered_set_consume(OrderedSet *s, void *p) {
+        ཧྲིལ r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
+        གལ་ཏེ (r <= 0)
                 free(p);
 
-        return r;
+        ཕྱིར r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+ཧྲིལ ordered_set_put_strdup_full(OrderedSet **s, const sa_nracanaa hash_ops *hash_ops, const var_na *p) {
+        var_na *c;
+        ཧྲིལ r;
 
         assert(s);
         assert(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        གལ་ཏེ (ordered_set_contains(*s, p))
+                ཕྱིར 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        གལ་ཏེ (!c)
+                ཕྱིར -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        ཕྱིར ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+ཧྲིལ ordered_set_put_strdupv_full(OrderedSet **s, const sa_nracanaa hash_ops *hash_ops, var_na **l) {
+        ཧྲིལ r, ret = 0;
 
         assert(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                གལ་ཏེ (r < 0)
+                        ཕྱིར r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        ཕྱིར ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+ཧྲིལ ordered_set_put_string_set_full(OrderedSet **s, const sa_nracanaa hash_ops *hash_ops, OrderedSet *l) {
+        ཧྲིལ r, ret = 0;
+        var_na *p;
 
         assert(s);
 
@@ -90,24 +90,24 @@ int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                གལ་ཏེ (r < 0)
+                        ཕྱིར r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        ཕྱིར ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+void ordered_set_print(FILE *f, const var_na *field, OrderedSet *s) {
         bool space = false;
-        char *p;
+        var_na *p;
 
         assert(f);
         assert(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        གལ་ཏེ (ordered_set_isempty(s))
+                ཕྱིར;
 
         fputs(field, f);
 

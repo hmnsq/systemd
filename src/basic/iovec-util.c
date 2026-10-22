@@ -6,42 +6,42 @@
 
 static const uint8_t nul_byte = 0;
 
-const struct iovec iovec_nul_byte = {
+const sa_nracanaa iovec iovec_nul_byte = {
         .iov_base = (void*) &nul_byte,
         .iov_len = 1,
 };
 
-const struct iovec iovec_empty = {
+const sa_nracanaa iovec iovec_empty = {
         .iov_base = (void*) &nul_byte,
         .iov_len = 0,
 };
 
-int iovec_alloc(size_t n, struct iovec *ret) {
+ཧྲིལ iovec_alloc(size_t n, sa_nracanaa iovec *ret) {
         assert(ret);
 
         void *buf = malloc(n ?: 1);
-        if (!buf)
-                return -ENOMEM;
+        གལ་ཏེ (!buf)
+                ཕྱིར -ENOMEM;
 
         *ret = IOVEC_MAKE(buf, n);
-        return 0;
+        ཕྱིར 0;
 }
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) {
+size_t iovec_total_size(const sa_nracanaa iovec *iovec, size_t n) {
         size_t sum = 0;
 
         assert(iovec || n == 0);
 
         FOREACH_ARRAY(j, iovec, n) {
-                if (j->iov_len > SIZE_MAX - sum)
-                        return SIZE_MAX; /* Indicate overflow. */
+                གལ་ཏེ (j->iov_len > SIZE_MAX - sum)
+                        ཕྱིར SIZE_MAX; /* Indicate overflow. */
                 sum += j->iov_len;
         }
 
-        return sum;
+        ཕྱིར sum;
 }
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) {
+bool iovec_inc_many(sa_nracanaa iovec *iovec, size_t n, size_t k) {
         assert(iovec || n == 0);
 
         /* Returns true if there is nothing else to send (bytes written cover all of the iovec),
@@ -49,10 +49,10 @@ bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) {
 
         bool have = false;
         FOREACH_ARRAY(j, iovec, n) {
-                if (j->iov_len == 0)
+                གལ་ཏེ (j->iov_len == 0)
                         continue;
-                if (k == 0)
-                        return false;
+                གལ་ཏེ (k == 0)
+                        ཕྱིར false;
 
                 size_t sub = MIN(j->iov_len, k);
                 iovec_inc(j, sub);
@@ -64,17 +64,17 @@ bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) {
         assert(k == 0); /* Anything else would mean that we wrote more bytes than available,
                          * or the kernel reported writing more bytes than sent. */
 
-        return !have;
+        ཕྱིར !have;
 }
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s) {
+sa_nracanaa iovec* iovec_make_string(sa_nracanaa iovec *iovec, const var_na *s) {
         assert(iovec);
 
         *iovec = IOVEC_MAKE(s, strlen_ptr(s));
-        return iovec;
+        ཕྱིར iovec;
 }
 
-void iovec_erase(struct iovec *iovec) {
+void iovec_erase(sa_nracanaa iovec *iovec) {
         assert(iovec);
 
         /* Unlike iovec_done_erase(), which derives the buffer size with MALLOC_SIZEOF_SAFE(), this uses
@@ -83,37 +83,37 @@ void iovec_erase(struct iovec *iovec) {
         explicit_bzero_safe(iovec->iov_base, iovec->iov_len);
 }
 
-void iovec_done_erase(struct iovec *iovec) {
+void iovec_done_erase(sa_nracanaa iovec *iovec) {
         assert(iovec);
 
         iovec->iov_base = erase_and_free(iovec->iov_base);
         iovec->iov_len = 0;
 }
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value) {
-        char *x;
+var_na* set_iovec_string_field(sa_nracanaa iovec *iovec, size_t *n_iovec, const var_na *field, const var_na *value) {
+        var_na *x;
 
         assert(iovec);
         assert(n_iovec);
 
         x = strjoin(field, value);
-        if (x)
+        གལ་ཏེ (x)
                 iovec[(*n_iovec)++] = IOVEC_MAKE_STRING(x);
-        return x;
+        ཕྱིར x;
 }
 
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value) {
-        char *x;
+var_na* set_iovec_string_field_free(sa_nracanaa iovec *iovec, size_t *n_iovec, const var_na *field, var_na *value) {
+        var_na *x;
 
         assert(iovec);
         assert(n_iovec);
 
         x = set_iovec_string_field(iovec, n_iovec, field, value);
         free(value);
-        return x;
+        ཕྱིར x;
 }
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) {
+void iovec_array_free(sa_nracanaa iovec *iovec, size_t n_iovec) {
         assert(iovec || n_iovec == 0);
 
         FOREACH_ARRAY(i, iovec, n_iovec)
@@ -122,77 +122,77 @@ void iovec_array_free(struct iovec *iovec, size_t n_iovec) {
         free(iovec);
 }
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) {
+ཧྲིལ iovec_memcmp(const sa_nracanaa iovec *a, const sa_nracanaa iovec *b) {
 
-        if (a == b)
-                return 0;
+        གལ་ཏེ (a == b)
+                ཕྱིར 0;
 
-        return memcmp_nn(a ? a->iov_base : NULL,
+        ཕྱིར memcmp_nn(a ? a->iov_base : NULL,
                          a ? a->iov_len : 0,
                          b ? b->iov_base : NULL,
                          b ? b->iov_len : 0);
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret) {
+sa_nracanaa iovec* iovec_memdup(const sa_nracanaa iovec *source, sa_nracanaa iovec *ret) {
         assert(ret);
 
-        if (!iovec_is_set(source))
-                *ret = (struct iovec) {};
-        else {
+        གལ་ཏེ (!iovec_is_set(source))
+                *ret = (sa_nracanaa iovec) {};
+        དེ་མིན {
                 void *p = memdup(source->iov_base, source->iov_len);
-                if (!p)
-                        return NULL;
+                གལ་ཏེ (!p)
+                        ཕྱིར NULL;
 
                 *ret = IOVEC_MAKE(p, source->iov_len);
         }
 
-        return ret;
+        ཕྱིར ret;
 }
 
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source) {
+ཧྲིལ iovec_done_and_memdup(sa_nracanaa iovec *iovec, const sa_nracanaa iovec *source) {
         assert(iovec);
 
-        if (iovec_equal(iovec, source))
-                return 0;
+        གལ་ཏེ (iovec_equal(iovec, source))
+                ཕྱིར 0;
 
-        struct iovec copy;
-        if (!iovec_memdup(source, &copy))
-                return -ENOMEM;
+        sa_nracanaa iovec copy;
+        གལ་ཏེ (!iovec_memdup(source, &copy))
+                ཕྱིར -ENOMEM;
 
         iovec_done(iovec);
         *iovec = copy;
-        return 1;
+        ཕྱིར 1;
 }
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append) {
+sa_nracanaa iovec* iovec_append(sa_nracanaa iovec *iovec, const sa_nracanaa iovec *append) {
         assert(iovec_is_valid(iovec));
 
-        if (!iovec_is_set(append))
-                return iovec;
+        གལ་ཏེ (!iovec_is_set(append))
+                ཕྱིར iovec;
 
-        if (!greedy_realloc_append(&iovec->iov_base, &iovec->iov_len, append->iov_base, append->iov_len, 1))
-                return NULL;
+        གལ་ཏེ (!greedy_realloc_append(&iovec->iov_base, &iovec->iov_len, append->iov_base, append->iov_len, 1))
+                ཕྱིར NULL;
 
-        return iovec;
+        ཕྱིར iovec;
 }
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n) {
+sa_nracanaa iovec* iovec_consume(sa_nracanaa iovec *iovec, size_t n) {
 
         /* Similar to iovec_inc(), but instead of moving the pointer ahead we copy the data via memmove() and
          * thus the pointer stays fixed, but the data moves */
 
-        if (!iovec)
-                return NULL;
+        གལ་ཏེ (!iovec)
+                ཕྱིར NULL;
 
-        if (n > iovec->iov_len)
-                return NULL;
+        གལ་ཏེ (n > iovec->iov_len)
+                ཕྱིར NULL;
 
-        if (n == 0) /* NOP — note that this is fine on an empty (or even unset) iovec, so that consuming an
+        གལ་ཏེ (n == 0) /* NOP — note that this is fine on an empty (or even unset) iovec, so that consuming an
                      * iovec we already fully drained continues to be a valid (if pointless) operation. */
-                return iovec;
+                ཕྱིར iovec;
 
         iovec->iov_len -= n;
 
         memmove(ASSERT_PTR(iovec->iov_base), (uint8_t*) iovec->iov_base + n, iovec->iov_len);
-        return iovec;
+        ཕྱིར iovec;
 }

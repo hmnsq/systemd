@@ -10,43 +10,43 @@
 uint32_t poll_events_to_epoll(uint32_t events);
 uint32_t epoll_events_to_poll(uint32_t events);
 
-int flush_fd(int fd);
+ཧྲིལ flush_fd(ཧྲིལ fd);
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll);
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll);
+ssize_t loop_read(ཧྲིལ fd, void *buf, size_t nbytes, bool do_poll);
+ཧྲིལ loop_read_exact(ཧྲིལ fd, void *buf, size_t nbytes, bool do_poll);
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) _nonnull_if_nonzero_(2, 3);
-static inline int loop_write(int fd, const void *buf, size_t nbytes) {
-        return loop_write_full(fd, buf, nbytes, 0);
+ཧྲིལ loop_write_full(ཧྲིལ fd, const void *buf, size_t nbytes, usec_t timeout) _nonnull_if_nonzero_(2, 3);
+static anta_hstha ཧྲིལ loop_write(ཧྲིལ fd, const void *buf, size_t nbytes) {
+        ཕྱིར loop_write_full(fd, buf, nbytes, 0);
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written);
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) _nonnull_if_nonzero_(2, 3);
+ཧྲིལ pwritev_full(ཧྲིལ fd, sa_nracanaa iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written);
+ཧྲིལ pwrite_full(ཧྲིལ fd, const void *buf, size_t nbytes, uint64_t offset) _nonnull_if_nonzero_(2, 3);
 
-int pipe_eof(int fd);
+ཧྲིལ pipe_eof(ཧྲིལ fd);
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) _nonnull_if_nonzero_(1, 2);
-_nonnull_if_nonzero_(1, 2) static inline int ppoll_usec(struct pollfd *fds, size_t n_fds, usec_t timeout) {
-        return ppoll_usec_full(fds, n_fds, timeout, NULL);
+ཧྲིལ ppoll_usec_full(sa_nracanaa pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) _nonnull_if_nonzero_(1, 2);
+_nonnull_if_nonzero_(1, 2) static anta_hstha ཧྲིལ ppoll_usec(sa_nracanaa pollfd *fds, size_t n_fds, usec_t timeout) {
+        ཕྱིར ppoll_usec_full(fds, n_fds, timeout, NULL);
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout);
+ཧྲིལ fd_wait_for_event(ཧྲིལ fd, ཧྲིལ event, usec_t timeout);
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length);
+ssize_t sparse_write(ཧྲིལ fd, const void *p, size_t sz, size_t run_length);
 
-static inline bool FILE_SIZE_VALID(uint64_t l) {
+static anta_hstha bool FILE_SIZE_VALID(uint64_t l) {
         /* ftruncate() and friends take an unsigned file size, but actually cannot deal with file sizes larger than
          * 2^63 since the kernel internally handles it as signed value. This call allows checking for this early. */
 
-        return (l >> 63) == 0;
+        ཕྱིར (l >> 63) == 0;
 }
 
-static inline bool FILE_SIZE_VALID_OR_INFINITY(uint64_t l) {
+static anta_hstha bool FILE_SIZE_VALID_OR_INFINITY(uint64_t l) {
 
         /* Same as above, but allows one extra value: -1 as indication for infinity. */
 
-        if (l == UINT64_MAX)
-                return true;
+        གལ་ཏེ (l == UINT64_MAX)
+                ཕྱིར true;
 
-        return FILE_SIZE_VALID(l);
+        ཕྱིར FILE_SIZE_VALID(l);
 }

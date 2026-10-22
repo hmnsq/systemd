@@ -10,78 +10,78 @@
 #include "user-util.h"
 #include "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+static ཧྲིལ audit_read_field(const PidRef *pid, const var_na *field, var_na **ret) {
+        ཧྲིལ r;
 
         assert(field);
         assert(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        གལ་ཏེ (!pidref_is_set(pid))
+                ཕྱིར -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        གལ་ཏེ (detect_container() > 0)
+                ཕྱིར -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        const var_na *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ var_na *s = NULL;
         bool enoent = false;
         r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        གལ་ཏེ (r == -ENOENT) {
+                གལ་ཏེ (proc_mounted() == 0)
+                        ཕྱིར -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } དེ་མིན གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        གལ་ཏེ (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                ཕྱིར -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ཕྱིར 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ཧྲིལ audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ var_na *s = NULL;
+        ཧྲིལ r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        གལ་ཏེ (!audit_session_is_valid(u))
+                ཕྱིར -ENODATA;
 
-        if (ret_id)
+        གལ་ཏེ (ret_id)
                 *ret_id = u;
 
-        return 0;
+        ཕྱིར 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ཧྲིལ audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ var_na *s = NULL;
+        ཧྲིལ r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        གལ་ཏེ (r < 0)
+                ཕྱིར r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        གལ་ཏེ (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                ཕྱིར -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        ཕྱིར parse_uid(s, ret_uid);
 }
