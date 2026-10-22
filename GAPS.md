@@ -1,0 +1,596 @@
+# What is still missing
+
+76 languages. Each line says in how many languages it is missing.
+
+## Files in languages BURP cannot read yet
+
+- `.sh`: 6 files
+
+## Keywords with no word in a language's table
+
+- guru:_exit: 75
+- soochee:args: 75
+- soochee:replace: 75
+- soochee:join: 75
+- soochee:start: 74
+- soochee:out: 74
+- guru:size_t: 71
+- guru:errno: 71
+- guru:FILE: 71
+- guru:strchr: 71
+- guru:tm: 71
+- guru:ERANGE: 71
+- guru:va_list: 71
+- guru:va_end: 71
+- guru:UINT_MAX: 71
+- guru:offsetof: 71
+- guru:va_start: 71
+- guru:DIR: 71
+- guru:va_arg: 71
+- guru:stdout: 71
+- guru:strspn: 71
+- guru:fstat: 71
+- guru:memcmp: 71
+- guru:getenv: 71
+- guru:strrchr: 71
+- guru:EXIT_FAILURE: 71
+- guru:fputs: 71
+- guru:fputc: 71
+- guru:strcspn: 71
+- guru:realloc: 71
+- guru:clock: 71
+- guru:fopen: 71
+- guru:memchr: 71
+- guru:time_t: 71
+- guru:memmove: 71
+- guru:opendir: 71
+- guru:EXIT_SUCCESS: 71
+- guru:INT_MIN: 71
+- guru:strncpy: 71
+- guru:fflush: 71
+- guru:stdin: 71
+- guru:ferror: 71
+- guru:SEEK_SET: 71
+- guru:EOF: 71
+- guru:SIGTERM: 71
+- guru:USHRT_MAX: 71
+- guru:remove: 71
+- guru:kill: 71
+- guru:sprintf: 71
+- guru:SEEK_CUR: 71
+- guru:asm: 71
+- guru:abort: 71
+- guru:SIGSEGV: 71
+- guru:SIGILL: 71
+- guru:SIGFPE: 71
+- guru:closedir: 71
+- guru:rmdir: 71
+- guru:strftime: 71
+- guru:system: 71
+- guru:vprintf: 71
+- guru:fscanf: 71
+- guru:feof: 71
+- guru:close: 71
+- guru:fread: 71
+- guru:LONG_MAX: 71
+- guru:fgetc: 71
+- guru:bsearch: 71
+- guru:fprintf: 71
+- guru:setlocale: 71
+- guru:stderr: 71
+- guru:strtol: 71
+- guru:SIGINT: 71
+- guru:fork: 71
+- guru:pause: 71
+- guru:sig_atomic_t: 71
+- guru:SIG_IGN: 71
+- guru:readdir: 71
+- guru:fclose: 71
+- guru:setvbuf: 71
+- guru:fseek: 71
+- guru:ungetc: 71
+- guru:isprint: 71
+- guru:strtoul: 71
+- guru:SIG_DFL: 71
+- guru:wchar_t: 71
+- guru:labs: 71
+- guru:mktime: 71
+- guru:ULONG_MAX: 71
+- guru:open: 70
+- guru:strcpy: 70
+- guru:memset: 70
+- guru:strcmp: 70
+- guru:puts: 70
+- guru:qsort: 70
+- guru:strcat: 70
+- soochee:print: 67
+- soochee:def: 67
+- guru:restrict: 67
+- soochee:None: 67
+- guru:#define: 66
+- guru:#endif: 66
+- guru:#pragma: 66
+- guru:#ifndef: 66
+- guru:#ifdef: 66
+- guru:#undef: 66
+- guru:unsigned: 62
+- guru:long: 62
+- guru:strlen: 62
+- guru:INT_MAX: 62
+- guru:memcpy: 62
+- guru:malloc: 62
+- guru:printf: 62
+- guru:strstr: 62
+- guru:sscanf: 62
+- guru:template: 62
+- guru:putchar: 62
+- guru:calloc: 62
+- guru:abs: 62
+- guru:short: 62
+- guru:exit: 62
+- guru:signed: 62
+- soochee:elif: 26
+- soochee:True: 26
+- soochee:yield: 26
+- soochee:raise: 26
+- guru:const: 25
+- guru:assert: 25
+- guru:NULL: 25
+- guru:void: 25
+- guru:static: 25
+- guru:continue: 25
+- guru:typedef: 25
+- guru:goto: 25
+- guru:switch: 25
+- guru:free: 25
+- guru:default: 25
+- guru:#elif: 25
+- guru:extern: 25
+- guru:do: 25
+- guru:read: 25
+- guru:write: 25
+- soochee:import: 25
+- soochee:continue: 25
+- guru:raise: 25
+- soochee:in: 10
+- soochee:and: 10
+- soochee:from: 10
+- soochee:not: 10
+- guru:for: 9
+- soochee:for: 9
+- guru:char: 9
+- guru:struct: 9
+- guru:inline: 9
+- guru:case: 9
+- guru:break: 9
+- guru:sizeof: 9
+- guru:enum: 9
+- guru:union: 9
+- guru:double: 9
+- guru:volatile: 9
+- guru:register: 9
+- guru:signal: 9
+- soochee:break: 9
+- guru:return: 1
+- guru:if: 1
+- guru:int: 1
+- guru:else: 1
+- guru:#if: 1
+- guru:#else: 1
+- guru:while: 1
+- soochee:if: 1
+- soochee:else: 1
+
+## Names with no dictionary entry (the most common first)
+
+- `r`: 76
+- `p`: 76
+- `ret`: 76
+- `s`: 76
+- `fd`: 76
+- `i`: 76
+- `n`: 76
+- `l`: 76
+- `flags`: 76
+- `c`: 76
+- `a`: 76
+- `e`: 76
+- `t`: 76
+- `h`: 76
+- `b`: 76
+- `name`: 76
+- `f`: 76
+- `x`: 76
+- `k`: 76
+- `buf`: 76
+- `q`: 76
+- `_cleanup_free_`: 76
+- `pid`: 76
+- `dir_fd`: 76
+- `u`: 76
+- `type`: 76
+- `state`: 76
+- `v`: 76
+- `pidref`: 76
+- `d`: 76
+- `idx`: 76
+- `len`: 76
+- `uint8_t`: 76
+- `m`: 76
+- `log_debug_errno`: 76
+- `TAKE_PTR`: 76
+- `ap`: 76
+- `usec_t`: 76
+- `uint32_t`: 76
+- `st`: 76
+- `str`: 76
+- `PidRef`: 76
+- `level`: 76
+- `ts`: 76
+- `error`: 76
+- `uid`: 76
+- `isempty`: 76
+- `j`: 76
+- `hash_ops`: 76
+- `once`: 76
+- `defined`: 76
+- `define`: 76
+- `iovw`: 76
+- `_cleanup_close_`: 76
+- `filename`: 76
+- `sa`: 76
+- `de`: 76
+- `z`: 76
+- `range`: 76
+- `suffix`: 76
+- `addr`: 76
+- `fn`: 76
+- `RET_NERRNO`: 76
+- `gid`: 76
+- `family`: 76
+- `sz`: 76
+- `log_debug`: 76
+- `func`: 76
+- `sig`: 76
+- `rfd`: 76
+- `Hashmap`: 76
+- `userdata`: 76
+- `log_level`: 76
+- `dst`: 76
+- `_cleanup_`: 76
+- `prefixlen`: 76
+- `w`: 76
+- `open_flags`: 76
+- `chase_flags`: 76
+- `context`: 76
+- `typeof`: 76
+- `streq`: 76
+- `OrderedHashmap`: 76
+- `rl`: 76
+- `fname`: 76
+- `af`: 76
+- `format`: 76
+- `id`: 76
+- `startswith`: 76
+- `assert_se`: 76
+- `assert_cc`: 76
+- `val`: 76
+- `copy`: 76
+- `iovec_wrapper`: 76
+- `file`: 76
+- `STRV_FOREACH`: 76
+- `USEC_INFINITY`: 76
+- `userns_fd`: 76
+- `SYNTHETIC_ERRNO`: 76
+- `n_entries`: 76
+- `UNIQ_T`: 76
+- `space`: 76
+- `needle`: 76
+- `nr`: 76
+- `_cleanup_strv_free_`: 76
+- `ret_fd`: 76
+- `fstype`: 76
+- `entries`: 76
+- `UIDRange`: 76
+- `cached`: 76
+- `hash`: 76
+- `haystack`: 76
+- `tty`: 76
+- `UTF8`: 76
+- `y`: 76
+- `Compression`: 76
+- `label_context`: 76
+- `operation`: 76
+- `unit`: 76
+- `sx`: 76
+- `property`: 76
+- `MIN`: 76
+- `timeout`: 76
+- `IDX_NIL`: 76
+- `mp`: 76
+- `string`: 76
+- `UNIQ`: 76
+- `DLSYM_PROTOTYPE`: 76
+- `DLSYM_ARG`: 76
+- `siphash`: 76
+- `pw`: 76
+- `ss`: 76
+- `at_flags`: 76
+- `XAT_FDROOT`: 76
+- `cache`: 76
+- `getpid_cached`: 76
+- `ELEMENTSOF`: 76
+- `fh`: 76
+- `ConfFile`: 76
+- `now`: 76
+- `WHITESPACE`: 76
+- `dest`: 76
+- `from`: 76
+- `LIB_ARCH_TUPLE`: 76
+- `statx`: 76
+- `xopen_flags`: 76
+- `ConfFilesFlags`: 76
+- `LogContext`: 76
+- `other`: 76
+- `IOVEC_MAKE_STRING`: 76
+- `ans`: 76
+- `separator`: 76
+- `g`: 76
+- `mfree`: 76
+- `ChaseFlags`: 76
+- `variable`: 76
+- `gr`: 76
+- `endswith`: 76
+- `TAKE_FD`: 76
+- `compare_func`: 76
+- `bad`: 76
+- `in6`: 76
+- `fds`: 76
+- `dot`: 76
+- `STRLEN`: 76
+- `ret_file`: 76
+- `nsec_t`: 76
+- `usec`: 76
+- `Prioq`: 76
+- `GREEDY_REALLOC`: 76
+- `ret_unit`: 76
+- `separators`: 76
+- `flag`: 76
+- `inlen`: 76
+- `native_architecture`: 76
+- `strjoin`: 76
+- `current`: 76
+- `pidref_is_remote`: 76
+- `file_handle`: 76
+- `strempty`: 76
+- `cgroup`: 76
+- `attr`: 76
+- `dst_max`: 76
+- `CMP`: 76
+- `iovec_len`: 76
+- `ifname`: 76
+- `ret_uid`: 76
+- `fs`: 76
+- `PID_FMT`: 76
+- `n_fds`: 76
+- `nbytes`: 76
+- `bufsize`: 76
+- `_const_`: 76
+- `FOREACH_ARRAY`: 76
+- `argv`: 76
+- `_cleanup_fclose_`: 76
+- `begin`: 76
+- `off`: 76
+- `uniq`: 76
+- `wildcard_fd_is_valid`: 76
+- `CapabilityQuintet`: 76
+- `_b`: 76
+- `dirs`: 76
+- `eax`: 76
+- `LabelContext`: 76
+- `prio`: 76
+- `resource`: 76
+- `cap`: 76
+- `free_func`: 76
+- `scope`: 76
+- `dir`: 76
+- `ecx`: 76
+- `DECIMAL_STR_MAX`: 76
+- `si`: 76
+- `ret_gid`: 76
+- `extension`: 76
+- `cmsg`: 76
+- `gzip`: 76
+- `aq`: 76
+- `Iterator`: 76
+- `newdirfd`: 76
+- `VIRTUALIZATION_NONE`: 76
+- `stx`: 76
+- `bzip2`: 76
+- `skip`: 76
+- `ebx`: 76
+- `image_class`: 76
+- `output_fd`: 76
+- `need`: 76
+- `truncated`: 76
+- `log_error_errno`: 76
+- `PIDREF_NULL`: 76
+- `ret_files`: 76
+- `edx`: 76
+- `un`: 76
+- `padding`: 76
+- `ppid`: 76
+- `opened_fd`: 76
+- `ASSERT_PTR`: 76
+- `ptr`: 76
+- `fdt`: 76
+- `strlen_ptr`: 76
+- `newpath`: 76
+- `unichar`: 76
+- `base32hexchar`: 76
+- `unbase32hexchar`: 76
+- `ret_u`: 76
+- `mh`: 76
+- `Virtualization`: 76
+- `_unlikely_`: 76
+- `strna`: 76
+- `xz`: 76
+- `dfd`: 76
+- `signo`: 76
+- `ret_truncated`: 76
+- `DEFINE_ANSI_FUNC`: 76
+- `endif`: 76
+- `RET_GATHER`: 76
+- `unit_name_is_valid`: 76
+- `inode_fd`: 76
+- `uq`: 76
+- `accept_zero`: 76
+- `new0`: 76
+- `comm`: 76
+- `procfs_file_alloca`: 76
+- `output`: 76
+- `files`: 76
+- `ret_n_files`: 76
+- `_nonnull_if_nonzero_`: 76
+- `atfd`: 76
+- `hash_func`: 76
+- `lh`: 76
+- `NamespaceType`: 76
+- `pidns_fd`: 76
+- `mntns_fd`: 76
+- `netns_fd`: 76
+- `v3`: 76
+- `old_termios`: 76
+- `free_and_replace`: 76
+- `secure_getenv`: 76
+- `attribute`: 76
+- `allocated`: 76
+- `dl`: 76
+- `ret_contents`: 76
+- `shadow`: 76
+- `le`: 76
+- `relax_extension_release_check`: 76
+- `ws`: 76
+- `defs`: 76
+- `_u`: 76
+- `assert_not_reached`: 76
+- `greedy_realloc`: 76
+- `highlight`: 76
+- `env`: 76
+- `sockaddr_union`: 76
+- `dual_timestamp`: 76
+- `sc`: 76
+- `pidref_verify`: 76
+- `HAVE_ZSTD`: 76
+- `hi`: 76
+
+## Comments with no translation
+
+- IWYU pragma: export: 76
+- flags=: 76
+- path=: 76
+- IWYU pragma: keep: 76
+- label_context=: 76
+- utc=: 76
+- accept_dot_dot=: 76
+- suffix=: 76
+- need=: 76
+- follow=: 76
+- isdst=: 76
+- root=: 76
+- truncated: 76
+- xopen_flags=: 76
+- windowBits=: 76
+- verbosity=: 76
+- filter_duplicates=: 76
+- Note: the lifetime of the compound literal is the immediately surrounding block,
+ * see C11 §6.5.2.5: 76
+- gmtoff=: 76
+- overflow?: 76
+- ret_size=: 76
+- No progress possible with the current input.: 76
+- 000XXXXX: 76
+- XXXXXYYY: 76
+- Silence static analyzers: 76
+- only pass sx if user asked for it: 76
+- verify=: 76
+- fall through: 76
+- at_flags=: 76
+- Shortcut this call if none of the special features of this call are requested: 76
+- small=: 76
+- replacement=: 76
+- ret_inserted=: 76
+- created=: 76
+- overwrite=: 76
+- 000XXXYY: 76
+- 000YYYYY: 76
+- YYZZZZZW: 76
+- ret=: 76
+- ofd=: 76
+- owned=: 76
+- Do not call from library code.: 76
+- inode_fd=: 76
+- This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
+   : 76
+- Anything else is not a valid escape sequence, give up on it: 76
+- fall through on too long: 76
+- size=: 76
+- v1 only: 76
+- mandatory_attributes=: 76
+- for logging, can be NULL: 76
+- for logging: 76
+- Mark this one as masked: 76
+- ret_fd=: 76
+- strip trailing whitespace from key: 76
+- only used for logging: 76
+- bad=: 76
+- overflow check: 76
+- ret_path=: 76
+- 000YZZZZ: 76
+- WWWWSSSS: 76
+- 00XXXXXX: 76
+- XXXXXXYY: 76
+- See comment in log_close_journal(): 76
+- Use a curated list as first check, to avoid calling fsopen() which might load kmods, which might
+   : 76
+- filter_pid1_args=: 76
+- state: 76
+- ppid: 76
+- unicode=: 76
+- BEL: 76
+- success!: 76
+- On the first try, read multiple characters, i.e. the shortest valid
+                         * reply: 76
+- child=: 76
+- coalesce=: 76
+- MurmurHash2 was written by Austin Appleby, and is placed in the public: 76
+- Platform-specific functions and macros: 76
+- Microsoft Visual Studio: 76
+- Other compilers: 76
+- defined(_MSC_VER): 76
+- !defined(_MSC_VER): 76
+- prevent overflow: 76
+- Round down: 76
+- Note: do not log in this function, to avoid infinite recursion issues, as the log functions call
+   : 76
+- final byte, the sequence is complete: 76
+- parameter or intermediate byte, the sequence continues: 76
+- Ensure the whole errno range fits into this enum: 76
+- Invalid escape code, let's take it literal then: 76
+- list=: 76
+- right_now=: 76
+- v2 only: 76
+- optional_mask=: 76
+- Shortcut this call if none of the special features of this call are requested. We can't
+            : 76
+- Shortcut this call if none of the special features of this call are requested.: 76
+- Returns < 0 if we couldn't compress the data or the
+         * compressed result is longer than the : 76
+- method=: 76
+- memLevel=: 76
+- strategy=: 76
+- workFactor=: 76
+- Checks whether the decompressed blob starts with the mentioned prefix. The byte extra needs to
+     : 76
+- Decompressed text too short to match the prefix and extra: 76
+- avoid false maybe-uninitialized warning: 76
