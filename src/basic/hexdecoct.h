@@ -1,48 +1,48 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-char octchar(int x) _const_;
-int unoctchar(char c) _const_;
+حرف octchar(صحیح x) _const_;
+صحیح unoctchar(حرف c) _const_;
 
-char decchar(int x) _const_;
-int undecchar(char c) _const_;
+حرف decchar(صحیح x) _const_;
+صحیح undecchar(حرف c) _const_;
 
-char hexchar(int x) _const_;
-int unhexchar(char c) _const_;
+حرف hexchar(صحیح x) _const_;
+صحیح unhexchar(حرف c) _const_;
 
-char* hexmem(const void *p, size_t l) _nonnull_if_nonzero_(1, 2);
-int unhexmem_full(const char *p, size_t l, bool secure, void **ret_data, size_t *ret_size) _nonnull_if_nonzero_(1, 2);
-static inline int unhexmem(const char *p, void **ret_data, size_t *ret_size) {
-        return unhexmem_full(p, SIZE_MAX, false, ret_data, ret_size);
+حرف* hexmem(ثابت خالی *p, size_t l) _nonnull_if_nonzero_(1, 2);
+صحیح unhexmem_بھرا(ثابت حرف *p, size_t l, bool secure, خالی **ret_ڈیٹا, size_t *ret_سائز) _nonnull_if_nonzero_(1, 2);
+ساکن اندرونی صحیح unhexmem(ثابت حرف *p, خالی **ret_ڈیٹا, size_t *ret_سائز) {
+        واپس unhexmem_بھرا(p, SIZE_MAX, false, ret_ڈیٹا, ret_سائز);
 }
 
-char base32hexchar(int x) _const_;
-int unbase32hexchar(char c) _const_;
+حرف base32hexchar(صحیح x) _const_;
+صحیح unbase32hexchar(حرف c) _const_;
 
-char base64char(int x) _const_;
-char urlsafe_base64char(int x) _const_;
-int unbase64char(char c) _const_;
+حرف base64char(صحیح x) _const_;
+حرف urlsafe_base64char(صحیح x) _const_;
+صحیح unbase64char(حرف c) _const_;
 
-char* base32hexmem(const void *p, size_t l, bool padding) _nonnull_if_nonzero_(1, 2);
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *len) _nonnull_if_nonzero_(1, 2);
+حرف* base32hexmem(ثابت خالی *p, size_t l, bool padding) _nonnull_if_nonzero_(1, 2);
+صحیح unbase32hexmem(ثابت حرف *p, size_t l, bool padding, خالی **mem, size_t *len) _nonnull_if_nonzero_(1, 2);
 
-ssize_t base64mem_full(const void *p, size_t l, size_t line_break, char **ret) _nonnull_if_nonzero_(1, 2);
-static inline ssize_t base64mem(const void *p, size_t l, char **ret) {
-        return base64mem_full(p, l, SIZE_MAX, ret);
+ssize_t base64mem_بھرا(ثابت خالی *p, size_t l, size_t سطر_break, حرف **ret) _nonnull_if_nonzero_(1, 2);
+ساکن اندرونی ssize_t base64mem(ثابت خالی *p, size_t l, حرف **ret) {
+        واپس base64mem_بھرا(p, l, SIZE_MAX, ret);
 }
 
 ssize_t base64_append(
-                char **prefix,
+                حرف **سابقہ,
                 size_t plen,
-                const void *p,
+                ثابت خالی *p,
                 size_t l,
                 size_t indent,
                 size_t width);
-int unbase64mem_full(const char *p, size_t l, bool secure, void **ret_data, size_t *ret_size) _nonnull_if_nonzero_(1, 2);
-static inline int unbase64mem(const char *p, void **ret_data, size_t *ret_size) {
-        return unbase64mem_full(p, SIZE_MAX, false, ret_data, ret_size);
+صحیح unbase64mem_بھرا(ثابت حرف *p, size_t l, bool secure, خالی **ret_ڈیٹا, size_t *ret_سائز) _nonnull_if_nonzero_(1, 2);
+ساکن اندرونی صحیح unbase64mem(ثابت حرف *p, خالی **ret_ڈیٹا, size_t *ret_سائز) {
+        واپس unbase64mem_بھرا(p, SIZE_MAX, false, ret_ڈیٹا, ret_سائز);
 }
 
-void hexdump(FILE *f, const void *p, size_t s) _nonnull_if_nonzero_(2, 3);
+خالی hexdump(FILE *f, ثابت خالی *p, size_t s) _nonnull_if_nonzero_(2, 3);

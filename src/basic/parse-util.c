@@ -1,160 +1,160 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/ipv6.h>
-#include <linux/netfilter/nf_tables.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
+#شامل <linux/ipv6.h>
+#شامل <linux/netfilter/nf_tables.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <sys/socket.h>
 
-#include "alloc-util.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "errno-list.h"
-#include "extract-word.h"
-#include "locale-util.h"
-#include "log.h"
-#include "missing-network.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
+#شامل "alloc-util.h"
+#شامل "capability-list.h"
+#شامل "capability-util.h"
+#شامل "errno-list.h"
+#شامل "extract-word.h"
+#شامل "locale-util.h"
+#شامل "log.h"
+#شامل "missing-network.h"
+#شامل "parse-util.h"
+#شامل "path-util.h"
+#شامل "process-util.h"
+#شامل "string-util.h"
+#شامل "strv.h"
 
-int parse_boolean(const char *v) {
-        if (!v)
-                return -EINVAL;
+صحیح parse_boolean(ثابت حرف *v) {
+        اگر (!v)
+                واپس -EINVAL;
 
-        if (STRCASE_IN_SET(v,
+        اگر (STRCASE_اندر_سیٹ(v,
                            "1",
                            "yes",
                            "y",
                            "true",
                            "t",
                            "on"))
-                return 1;
+                واپس 1;
 
-        if (STRCASE_IN_SET(v,
+        اگر (STRCASE_اندر_سیٹ(v,
                            "0",
                            "no",
                            "n",
                            "false",
                            "f",
                            "off"))
-                return 0;
+                واپس 0;
 
-        return -EINVAL;
+        واپس -EINVAL;
 }
 
-int parse_tristate_full(const char *v, const char *third, int *ret) {
-        int r;
+صحیح parse_tristate_بھرا(ثابت حرف *v, ثابت حرف *تیسرا, صحیح *ret) {
+        صحیح r;
 
-        if (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
-                if (ret)
+        اگر (isempty(v) || streq_ptr(v, تیسرا)) { /* Empty string is always taken as the third/invalid/auto state */
+                اگر (ret)
                         *ret = -1;
-        } else {
+        } ورنہ {
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
 
-                if (ret)
+                اگر (ret)
                         *ret = r;
         }
 
-        return 0;
+        واپس 0;
 }
 
-int parse_pid(const char *s, pid_t *ret) {
-        unsigned long ul = 0;
+صحیح parse_pid(ثابت حرف *s, pid_t *ret) {
+        غیرعلامتی طویل ul = 0;
         pid_t pid;
-        int r;
+        صحیح r;
 
-        assert(s);
+        أكد(s);
 
-        r = safe_atolu(s, &ul);
-        if (r < 0)
-                return r;
+        r = محفوظ_atolu(s, &ul);
+        اگر (r < 0)
+                واپس r;
 
         pid = (pid_t) ul;
 
-        if ((unsigned long) pid != ul)
-                return -ERANGE;
+        اگر ((غیرعلامتی طویل) pid != ul)
+                واپس -ERANGE;
 
-        if (!pid_is_valid(pid))
-                return -ERANGE;
+        اگر (!pid_is_valid(pid))
+                واپس -ERANGE;
 
-        if (ret)
+        اگر (ret)
                 *ret = pid;
-        return 0;
+        واپس 0;
 }
 
-int parse_mode(const char *s, mode_t *ret) {
-        unsigned m;
-        int r;
+صحیح parse_منوال(ثابت حرف *s, mode_t *ret) {
+        غیرعلامتی m;
+        صحیح r;
 
-        assert(s);
+        أكد(s);
 
-        r = safe_atou_full(s, 8 |
-                           SAFE_ATO_REFUSE_PLUS_MINUS, /* Leading '+' or even '-' char? that's just weird,
+        r = محفوظ_atou_بھرا(s, 8 |
+                           محفوظ_ATO_REFUSE_PLUS_MINUS, /* Leading '+' or even '-' char? that's just weird,
                                                         * refuse. User might have wanted to add mode flags or
                                                         * so, but this parser doesn't allow that, so let's
                                                         * better be safe. */
                            &m);
-        if (r < 0)
-                return r;
-        if (m > 07777)
-                return -ERANGE;
+        اگر (r < 0)
+                واپس r;
+        اگر (m > 07777)
+                واپس -ERANGE;
 
-        if (ret)
+        اگر (ret)
                 *ret = m;
-        return 0;
+        واپس 0;
 }
 
-int parse_ifindex(const char *s) {
-        int ifi, r;
+صحیح parse_ifindex(ثابت حرف *s) {
+        صحیح ifi, r;
 
-        assert(s);
+        أكد(s);
 
-        r = safe_atoi(s, &ifi);
-        if (r < 0)
-                return r;
-        if (ifi <= 0)
-                return -EINVAL;
+        r = محفوظ_atoi(s, &ifi);
+        اگر (r < 0)
+                واپس r;
+        اگر (ifi <= 0)
+                واپس -EINVAL;
 
-        return ifi;
+        واپس ifi;
 }
 
-int parse_mtu(int family, const char *s, uint32_t *ret) {
+صحیح parse_mtu(صحیح family, ثابت حرف *s, uint32_t *ret) {
         uint64_t u, m;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = parse_size(s, 1024, &u);
-        if (r < 0)
-                return r;
+        r = parse_سائز(s, 1024, &u);
+        اگر (r < 0)
+                واپس r;
 
-        if (u > UINT32_MAX)
-                return -ERANGE;
+        اگر (u > UINT32_MAX)
+                واپس -ERANGE;
 
-        switch (family) {
-        case AF_INET:
+        انتخاب (family) {
+        حالت AF_INET:
                 m = IPV4_MIN_MTU; /* This is 68 */
-                break;
-        case AF_INET6:
+                توڑو;
+        حالت AF_INET6:
                 m = IPV6_MIN_MTU; /* This is 1280 */
-                break;
-        default:
+                توڑو;
+        طےشدہ:
                 m = 0;
         }
 
-        if (u < m)
-                return -ERANGE;
+        اگر (u < m)
+                واپس -ERANGE;
 
         *ret = (uint32_t) u;
-        return 0;
+        واپس 0;
 }
 
-int parse_size(const char *t, uint64_t base, uint64_t *size) {
+صحیح parse_سائز(ثابت حرف *t, uint64_t base, uint64_t *سائز) {
 
         /* Soo, sometimes we want to parse IEC binary suffixes, and
          * sometimes SI decimal suffixes. This function can parse
@@ -170,12 +170,12 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
          * to document which base you are parsing when you use this
          * call. */
 
-        struct table {
-                const char *suffix;
-                unsigned long long factor;
+        ساخت جدول {
+                ثابت حرف *suffix;
+                غیرعلامتی طویل طویل ضربی_عدد;
         };
 
-        static const struct table iec[] = {
+        ساکن ثابت ساخت جدول iec[] = {
                 { "E", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "P", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "T", 1024ULL*1024ULL*1024ULL*1024ULL },
@@ -186,7 +186,7 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        static const struct table si[] = {
+        ساکن ثابت ساخت جدول si[] = {
                 { "E", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "P", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "T", 1000ULL*1000ULL*1000ULL*1000ULL },
@@ -197,490 +197,490 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        const struct table *table;
-        const char *p;
-        unsigned long long r = 0;
-        unsigned n_entries, start_pos = 0;
+        ثابت ساخت جدول *جدول;
+        ثابت حرف *p;
+        غیرعلامتی طویل طویل r = 0;
+        غیرعلامتی n_entries, آغاز_pos = 0;
 
-        assert(t);
-        assert(IN_SET(base, 1000, 1024));
-        assert(size);
+        أكد(t);
+        أكد(اندر_سیٹ(base, 1000, 1024));
+        أكد(سائز);
 
-        if (base == 1000) {
-                table = si;
+        اگر (base == 1000) {
+                جدول = si;
                 n_entries = ELEMENTSOF(si);
-        } else {
-                table = iec;
+        } ورنہ {
+                جدول = iec;
                 n_entries = ELEMENTSOF(iec);
         }
 
         p = t;
-        do {
-                unsigned long long l, tmp;
-                double frac = 0;
-                char *e;
-                unsigned i;
+        کرو {
+                غیرعلامتی طویل طویل l, tmp;
+                دوہرا frac = 0;
+                حرف *e;
+                غیرعلامتی i;
 
                 p += strspn(p, WHITESPACE);
 
                 errno = 0;
                 l = strtoull(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (e == p)
-                        return -EINVAL;
-                if (*p == '-')
-                        return -ERANGE;
+                اگر (errno > 0)
+                        واپس -errno;
+                اگر (e == p)
+                        واپس -EINVAL;
+                اگر (*p == '-')
+                        واپس -ERANGE;
 
-                if (*e == '.') {
+                اگر (*e == '.') {
                         e++;
 
                         /* strtoull() itself would accept space/+/- */
-                        if (ascii_isdigit(*e)) {
-                                unsigned long long l2;
-                                char *e2;
+                        اگر (ascii_isdigit(*e)) {
+                                غیرعلامتی طویل طویل l2;
+                                حرف *e2;
 
                                 l2 = strtoull(e, &e2, 10);
-                                if (errno > 0)
-                                        return -errno;
+                                اگر (errno > 0)
+                                        واپس -errno;
 
                                 /* Ignore failure. E.g. 10.M is valid */
                                 frac = l2;
-                                for (; e < e2; e++)
+                                برائے (; e < e2; e++)
                                         frac /= 10;
                         }
                 }
 
                 e += strspn(e, WHITESPACE);
 
-                for (i = start_pos; i < n_entries; i++)
-                        if (startswith(e, table[i].suffix))
-                                break;
+                برائے (i = آغاز_pos; i < n_entries; i++)
+                        اگر (startswith(e, جدول[i].suffix))
+                                توڑو;
 
-                if (i >= n_entries)
-                        return -EINVAL;
+                اگر (i >= n_entries)
+                        واپس -EINVAL;
 
-                if (l + (frac > 0) > ULLONG_MAX / table[i].factor)
-                        return -ERANGE;
+                اگر (l + (frac > 0) > ULLONG_MAX / جدول[i].ضربی_عدد)
+                        واپس -ERANGE;
 
-                tmp = l * table[i].factor + (unsigned long long) (frac * table[i].factor);
-                if (tmp > ULLONG_MAX - r)
-                        return -ERANGE;
+                tmp = l * جدول[i].ضربی_عدد + (غیرعلامتی طویل طویل) (frac * جدول[i].ضربی_عدد);
+                اگر (tmp > ULLONG_MAX - r)
+                        واپس -ERANGE;
 
                 r += tmp;
-                if ((unsigned long long) (uint64_t) r != r)
-                        return -ERANGE;
+                اگر ((غیرعلامتی طویل طویل) (uint64_t) r != r)
+                        واپس -ERANGE;
 
-                p = e + strlen(table[i].suffix);
+                p = e + لڑی_لمبائی(جدول[i].suffix);
 
-                start_pos = i + 1;
+                آغاز_pos = i + 1;
 
-        } while (*p);
+        } جب (*p);
 
-        *size = r;
+        *سائز = r;
 
-        return 0;
+        واپس 0;
 }
 
-int parse_sector_size(const char *t, uint64_t *ret) {
-        int r;
+صحیح parse_sector_سائز(ثابت حرف *t, uint64_t *ret) {
+        صحیح r;
 
-        assert(t);
-        assert(ret);
+        أكد(t);
+        أكد(ret);
 
         uint64_t ss;
 
-        r = safe_atou64(t, &ss);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse sector size parameter %s", t);
-        if (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
-                return log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
-        if (!ISPOWEROF2(ss))
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
+        r = محفوظ_atou64(t, &ss);
+        اگر (r < 0)
+                واپس log_error_errno(r, "Failed to parse sector size parameter %s", t);
+        اگر (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
+                واپس log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
+        اگر (!ISPOWEROF2(ss))
+                واپس log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
 
         *ret = ss;
-        return 0;
+        واپس 0;
 }
 
-int parse_range(const char *t, unsigned *lower, unsigned *upper) {
-        _cleanup_free_ char *word = NULL;
-        unsigned l, u;
-        int r;
+صحیح parse_range(ثابت حرف *t, غیرعلامتی *زیریں, غیرعلامتی *بالائی) {
+        _cleanup_free_ حرف *لفظ = تہی;
+        غیرعلامتی l, u;
+        صحیح r;
 
-        assert(lower);
-        assert(upper);
+        أكد(زیریں);
+        أكد(بالائی);
 
         /* Extract the lower bound. */
-        r = extract_first_word(&t, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        r = نکالو_پہلا_لفظ(&t, &لفظ, "-", نکالو_DONT_COALESCE_SEPARATORS);
+        اگر (r < 0)
+                واپس r;
+        اگر (r == 0)
+                واپس -EINVAL;
 
-        r = safe_atou(word, &l);
-        if (r < 0)
-                return r;
+        r = محفوظ_atou(لفظ, &l);
+        اگر (r < 0)
+                واپس r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!t)
+        اگر (!t)
                 /* Single number with no dashes. */
                 u = l;
-        else if (!*t)
+        ورنہ اگر (!*t)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
-                r = safe_atou(t, &u);
-                if (r < 0)
-                        return r;
+                واپس -EINVAL;
+        ورنہ {
+                r = محفوظ_atou(t, &u);
+                اگر (r < 0)
+                        واپس r;
         }
 
-        *lower = l;
-        *upper = u;
-        return 0;
+        *زیریں = l;
+        *بالائی = u;
+        واپس 0;
 }
 
-int parse_errno(const char *t) {
-        int r, e;
+صحیح parse_errno(ثابت حرف *t) {
+        صحیح r, e;
 
-        assert(t);
+        أكد(t);
 
         r = errno_from_name(t);
-        if (r > 0)
-                return r;
+        اگر (r > 0)
+                واپس r;
 
-        r = safe_atoi(t, &e);
-        if (r < 0)
-                return r;
+        r = محفوظ_atoi(t, &e);
+        اگر (r < 0)
+                واپس r;
 
         /* 0 is also allowed here */
-        if (!errno_is_valid(e) && e != 0)
-                return -ERANGE;
+        اگر (!errno_is_valid(e) && e != 0)
+                واپس -ERANGE;
 
-        return e;
+        واپس e;
 }
 
-int parse_fd(const char *t) {
-        int r, fd;
+صحیح parse_fd(ثابت حرف *t) {
+        صحیح r, fd;
 
-        assert(t);
+        أكد(t);
 
-        r = safe_atoi(t, &fd);
-        if (r < 0)
-                return r;
+        r = محفوظ_atoi(t, &fd);
+        اگر (r < 0)
+                واپس r;
 
-        if (fd < 0)
-                return -EBADF;
+        اگر (fd < 0)
+                واپس -EBADF;
 
-        return fd;
+        واپس fd;
 }
 
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
-        char *sh;
-        int r;
+صحیح parse_user_shell(ثابت حرف *s, حرف **ret_sh, bool *ret_copy) {
+        حرف *sh;
+        صحیح r;
 
-        assert(ret_sh);
-        assert(ret_copy);
+        أكد(ret_sh);
+        أكد(ret_copy);
 
-        if (path_is_absolute(s) && path_is_normalized(s)) {
+        اگر (راستہ_is_absolute(s) && راستہ_is_normalized(s)) {
                 sh = strdup(s);
-                if (!sh)
-                        return -ENOMEM;
+                اگر (!sh)
+                        واپس -ENOMEM;
 
                 *ret_sh = sh;
                 *ret_copy = false;
-        } else {
+        } ورنہ {
                 r = parse_boolean(s);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
 
-                *ret_sh = NULL;
+                *ret_sh = تہی;
                 *ret_copy = r;
         }
 
-        return 0;
+        واپس 0;
 }
 
-static const char *mangle_base(const char *s, unsigned *base) {
-        const char *k;
+ساکن ثابت حرف *mangle_بنیاد(ثابت حرف *s, غیرعلامتی *base) {
+        ثابت حرف *k;
 
-        assert(s);
-        assert(base);
+        أكد(s);
+        أكد(base);
 
         /* Base already explicitly specified, then don't do anything. */
-        if (SAFE_ATO_MASK_FLAGS(*base) != 0)
-                return s;
+        اگر (محفوظ_ATO_نقاب_FLAGS(*base) != 0)
+                واپس s;
 
         /* Support Python 3 style "0b" and 0x" prefixes, because they truly make sense, much more than C's "0" prefix for octal. */
-        k = STARTSWITH_SET(s, "0b", "0B");
-        if (k) {
-                *base = 2 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+        k = STARTSWITH_سیٹ(s, "0b", "0B");
+        اگر (k) {
+                *base = 2 | (*base & محفوظ_ATO_ALL_FLAGS);
+                واپس k;
         }
 
-        k = STARTSWITH_SET(s, "0o", "0O");
-        if (k) {
-                *base = 8 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+        k = STARTSWITH_سیٹ(s, "0o", "0O");
+        اگر (k) {
+                *base = 8 | (*base & محفوظ_ATO_ALL_FLAGS);
+                واپس k;
         }
 
-        return s;
+        واپس s;
 }
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
-        char *x = NULL;
-        unsigned long l;
+صحیح محفوظ_atou_بھرا(ثابت حرف *s, غیرعلامتی base, غیرعلامتی *ret_u) {
+        حرف *x = تہی;
+        غیرعلامتی طویل l;
 
-        assert(s);
-        assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
+        أكد(s);
+        أكد(محفوظ_ATO_نقاب_FLAGS(base) <= 16);
 
         /* strtoul() is happy to parse negative values, and silently converts them to unsigned values without
          * generating an error. We want a clean error, hence let's look for the "-" prefix on our own, and
          * generate an error. But let's do so only after strtoul() validated that the string is clean
          * otherwise, so that we return EINVAL preferably over ERANGE. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        اگر (FLAGS_سیٹ(base, محفوظ_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                واپس -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
-            IN_SET(s[0], '+', '-'))
-                return -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
+        اگر (FLAGS_سیٹ(base, محفوظ_ATO_REFUSE_PLUS_MINUS) &&
+            اندر_سیٹ(s[0], '+', '-'))
+                واپس -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
                                  * different error. I.e. if the SAFE_ATO_REFUSE_PLUS_MINUS flag is set we
                                  * blanket refuse +/- prefixed integers, while if it is missing we'll just
                                  * return ERANGE, because the string actually parses correctly, but doesn't
                                  * fit in the return type. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        اگر (FLAGS_سیٹ(base, محفوظ_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && !streq(s, "0"))
-                return -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
+                واپس -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
                                  * notation and assumed-to-be-decimal integers with a leading zero. */
 
-        s = mangle_base(s, &base);
+        s = mangle_بنیاد(s, &base);
 
         errno = 0;
-        l = strtoul(s, &x, SAFE_ATO_MASK_FLAGS(base) /* Let's mask off the flags bits so that only the actual
+        l = strtoul(s, &x, محفوظ_ATO_نقاب_FLAGS(base) /* Let's mask off the flags bits so that only the actual
                                                       * base is left */);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
-        if ((unsigned long) (unsigned) l != l)
-                return -ERANGE;
+        اگر (errno > 0)
+                واپس -errno;
+        اگر (!x || x == s || *x != 0)
+                واپس -EINVAL;
+        اگر (l != 0 && s[0] == '-')
+                واپس -ERANGE;
+        اگر ((غیرعلامتی طویل) (غیرعلامتی) l != l)
+                واپس -ERANGE;
 
-        if (ret_u)
-                *ret_u = (unsigned) l;
+        اگر (ret_u)
+                *ret_u = (غیرعلامتی) l;
 
-        return 0;
+        واپس 0;
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
-        unsigned v;
-        int r;
+صحیح محفوظ_atou_bounded(ثابت حرف *s, غیرعلامتی min, غیرعلامتی max, غیرعلامتی *ret) {
+        غیرعلامتی v;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = safe_atou(s, &v);
-        if (r < 0)
-                return r;
+        r = محفوظ_atou(s, &v);
+        اگر (r < 0)
+                واپس r;
 
-        if (v < min || v > max)
-                return -ERANGE;
+        اگر (v < min || v > max)
+                واپس -ERANGE;
 
         *ret = v;
-        return 0;
+        واپس 0;
 }
 
-int safe_atoi(const char *s, int *ret_i) {
-        unsigned base = 0;
-        char *x = NULL;
-        long l;
+صحیح محفوظ_atoi(ثابت حرف *s, صحیح *ret_i) {
+        غیرعلامتی base = 0;
+        حرف *x = تہی;
+        طویل l;
 
-        assert(s);
+        أكد(s);
 
         s += strspn(s, WHITESPACE);
-        s = mangle_base(s, &base);
+        s = mangle_بنیاد(s, &base);
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int) l != l)
-                return -ERANGE;
+        اگر (errno > 0)
+                واپس -errno;
+        اگر (!x || x == s || *x != 0)
+                واپس -EINVAL;
+        اگر ((طویل) (صحیح) l != l)
+                واپس -ERANGE;
 
-        if (ret_i)
-                *ret_i = (int) l;
+        اگر (ret_i)
+                *ret_i = (صحیح) l;
 
-        return 0;
+        واپس 0;
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
-        char *x = NULL;
-        unsigned long long l;
+صحیح محفوظ_atollu_بھرا(ثابت حرف *s, غیرعلامتی base, غیرعلامتی طویل طویل *ret_llu) {
+        حرف *x = تہی;
+        غیرعلامتی طویل طویل l;
 
-        assert(s);
-        assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
+        أكد(s);
+        أكد(محفوظ_ATO_نقاب_FLAGS(base) <= 16);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        اگر (FLAGS_سیٹ(base, محفوظ_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                واپس -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
-            IN_SET(s[0], '+', '-'))
-                return -EINVAL;
+        اگر (FLAGS_سیٹ(base, محفوظ_ATO_REFUSE_PLUS_MINUS) &&
+            اندر_سیٹ(s[0], '+', '-'))
+                واپس -EINVAL;
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        اگر (FLAGS_سیٹ(base, محفوظ_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && s[1] != 0)
-                return -EINVAL;
+                واپس -EINVAL;
 
-        s = mangle_base(s, &base);
+        s = mangle_بنیاد(s, &base);
 
         errno = 0;
-        l = strtoull(s, &x, SAFE_ATO_MASK_FLAGS(base));
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
+        l = strtoull(s, &x, محفوظ_ATO_نقاب_FLAGS(base));
+        اگر (errno > 0)
+                واپس -errno;
+        اگر (!x || x == s || *x != 0)
+                واپس -EINVAL;
+        اگر (l != 0 && s[0] == '-')
+                واپس -ERANGE;
 
-        if (ret_llu)
+        اگر (ret_llu)
                 *ret_llu = l;
 
-        return 0;
+        واپس 0;
 }
 
-int safe_atolli(const char *s, long long *ret_lli) {
-        unsigned base = 0;
-        char *x = NULL;
-        long long l;
+صحیح محفوظ_atolli(ثابت حرف *s, طویل طویل *ret_lli) {
+        غیرعلامتی base = 0;
+        حرف *x = تہی;
+        طویل طویل l;
 
-        assert(s);
+        أكد(s);
 
         s += strspn(s, WHITESPACE);
-        s = mangle_base(s, &base);
+        s = mangle_بنیاد(s, &base);
 
         errno = 0;
         l = strtoll(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        اگر (errno > 0)
+                واپس -errno;
+        اگر (!x || x == s || *x != 0)
+                واپس -EINVAL;
 
-        if (ret_lli)
+        اگر (ret_lli)
                 *ret_lli = l;
 
-        return 0;
+        واپس 0;
 }
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
-        unsigned u;
-        int r;
+صحیح محفوظ_atou8_بھرا(ثابت حرف *s, غیرعلامتی base, uint8_t *ret) {
+        غیرعلامتی u;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT8_MAX)
-                return -ERANGE;
+        r = محفوظ_atou_بھرا(s, base, &u);
+        اگر (r < 0)
+                واپس r;
+        اگر (u > UINT8_MAX)
+                واپس -ERANGE;
 
         *ret = (uint8_t) u;
-        return 0;
+        واپس 0;
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
-        unsigned u;
-        int r;
+صحیح محفوظ_atou16_بھرا(ثابت حرف *s, غیرعلامتی base, uint16_t *ret) {
+        غیرعلامتی u;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT16_MAX)
-                return -ERANGE;
+        r = محفوظ_atou_بھرا(s, base, &u);
+        اگر (r < 0)
+                واپس r;
+        اگر (u > UINT16_MAX)
+                واپس -ERANGE;
 
         *ret = (uint16_t) u;
-        return 0;
+        واپس 0;
 }
 
-int safe_atoi16(const char *s, int16_t *ret) {
-        unsigned base = 0;
-        char *x = NULL;
-        long l;
+صحیح محفوظ_atoi16(ثابت حرف *s, int16_t *ret) {
+        غیرعلامتی base = 0;
+        حرف *x = تہی;
+        طویل l;
 
-        assert(s);
+        أكد(s);
 
         s += strspn(s, WHITESPACE);
-        s = mangle_base(s, &base);
+        s = mangle_بنیاد(s, &base);
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int16_t) l != l)
-                return -ERANGE;
+        اگر (errno > 0)
+                واپس -errno;
+        اگر (!x || x == s || *x != 0)
+                واپس -EINVAL;
+        اگر ((طویل) (int16_t) l != l)
+                واپس -ERANGE;
 
-        if (ret)
+        اگر (ret)
                 *ret = (int16_t) l;
 
-        return 0;
+        واپس 0;
 }
 
-int safe_atod(const char *s, double *ret_d) {
+صحیح محفوظ_atod(ثابت حرف *s, دوہرا *ret_d) {
         _cleanup_(freelocalep) locale_t loc = (locale_t) 0;
-        char *x = NULL;
-        double d = 0;
+        حرف *x = تہی;
+        دوہرا d = 0;
 
-        assert(s);
+        أكد(s);
 
         loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return -errno;
+        اگر (loc == (locale_t) 0)
+                واپس -errno;
 
         errno = 0;
         d = strtod_l(s, &x, loc);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        اگر (errno > 0)
+                واپس -errno;
+        اگر (!x || x == s || *x != 0)
+                واپس -EINVAL;
 
-        if (ret_d)
+        اگر (ret_d)
                 *ret_d = d;
 
-        return 0;
+        واپس 0;
 }
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
-        unsigned val = 0;
-        const char *s;
+صحیح parse_fractional_part_u(ثابت حرف **p, size_t digits, غیرعلامتی *res) {
+        غیرعلامتی val = 0;
+        ثابت حرف *s;
 
-        assert(p);
-        assert(res);
+        أكد(p);
+        أكد(res);
 
         s = *p;
 
         /* accept any number of digits, strtoull is limited to 19 */
-        for (size_t i = 0; i < digits; i++, s++) {
-                if (!ascii_isdigit(*s)) {
-                        if (i == 0)
-                                return -EINVAL;
+        برائے (size_t i = 0; i < digits; i++, s++) {
+                اگر (!ascii_isdigit(*s)) {
+                        اگر (i == 0)
+                                واپس -EINVAL;
 
                         /* too few digits, pad with 0 */
-                        for (; i < digits; i++)
+                        برائے (; i < digits; i++)
                                 val *= 10;
 
-                        break;
+                        توڑو;
                 }
 
                 val *= 10;
@@ -688,7 +688,7 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         }
 
         /* maybe round up */
-        if (*s >= '5' && *s <= '9')
+        اگر (*s >= '5' && *s <= '9')
                 val++;
 
         s += strspn(s, DIGITS);
@@ -696,176 +696,176 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         *p = s;
         *res = val;
 
-        return 0;
+        واپس 0;
 }
 
-int parse_nice(const char *s, int *ret) {
-        int n, r;
+صحیح parse_nice(ثابت حرف *s, صحیح *ret) {
+        صحیح n, r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = safe_atoi(s, &n);
-        if (r < 0)
-                return r;
+        r = محفوظ_atoi(s, &n);
+        اگر (r < 0)
+                واپس r;
 
-        if (!nice_is_valid(n))
-                return -ERANGE;
+        اگر (!nice_is_valid(n))
+                واپس -ERANGE;
 
         *ret = n;
-        return 0;
+        واپس 0;
 }
 
-int parse_ip_port(const char *s, uint16_t *ret) {
+صحیح parse_ip_پورٹ(ثابت حرف *s, uint16_t *ret) {
         uint16_t l;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = safe_atou16_full(s, SAFE_ATO_REFUSE_LEADING_WHITESPACE, &l);
-        if (r < 0)
-                return r;
+        r = محفوظ_atou16_بھرا(s, محفوظ_ATO_REFUSE_LEADING_WHITESPACE, &l);
+        اگر (r < 0)
+                واپس r;
 
-        if (l == 0)
-                return -EINVAL;
+        اگر (l == 0)
+                واپس -EINVAL;
 
         *ret = l;
 
-        return 0;
+        واپس 0;
 }
 
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
-        unsigned l, h;
-        int r;
+صحیح parse_ip_پورٹ_range(ثابت حرف *s, uint16_t *low, uint16_t *high, bool allow_zero) {
+        غیرعلامتی l, h;
+        صحیح r;
 
-        assert(low);
-        assert(high);
+        أكد(low);
+        أكد(high);
 
         r = parse_range(s, &l, &h);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (l > 65535 || h > 65535)
-                return -EINVAL;
+        اگر (l > 65535 || h > 65535)
+                واپس -EINVAL;
 
-        if (!allow_zero && (l == 0 || h == 0))
-                return -EINVAL;
+        اگر (!allow_zero && (l == 0 || h == 0))
+                واپس -EINVAL;
 
-        if (h < l)
-                return -EINVAL;
+        اگر (h < l)
+                واپس -EINVAL;
 
         *low = l;
         *high = h;
 
-        return 0;
+        واپس 0;
 }
 
-int parse_oom_score_adjust(const char *s, int *ret) {
-        int r, v;
+صحیح parse_oom_score_adjust(ثابت حرف *s, صحیح *ret) {
+        صحیح r, v;
 
-        assert(s);
-        assert(ret);
+        أكد(s);
+        أكد(ret);
 
-        r = safe_atoi(s, &v);
-        if (r < 0)
-                return r;
+        r = محفوظ_atoi(s, &v);
+        اگر (r < 0)
+                واپس r;
 
-        if (!oom_score_adjust_is_valid(v))
-                return -ERANGE;
+        اگر (!oom_score_adjust_is_valid(v))
+                واپس -ERANGE;
 
         *ret = v;
-        return 0;
+        واپس 0;
 }
 
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
-        assert(ret);
+صحیح store_loadavg_fixed_نقطہ(غیرعلامتی طویل i, غیرعلامتی طویل f, loadavg_t *ret) {
+        أكد(ret);
 
         /* Validate both parts *before* shifting them, so that the shifts themselves cannot overflow.
          * Rejecting f >= 100 is equivalent to the old check of the shifted value against
          * LOADAVG_FIXED_POINT_1_0, since DIV_ROUND_UP(99 << 11, 100) == 2028 and
          * DIV_ROUND_UP(100 << 11, 100) == 2048. */
-        if (i > (~0UL >> LOADAVG_PRECISION_BITS))
-                return -ERANGE;
+        اگر (i > (~0UL >> LOADAVG_PRECISION_بٹ))
+                واپس -ERANGE;
 
-        if (f >= 100)
-                return -ERANGE;
+        اگر (f >= 100)
+                واپس -ERANGE;
 
-        *ret = (i << LOADAVG_PRECISION_BITS) | DIV_ROUND_UP(f << LOADAVG_PRECISION_BITS, 100);
-        return 0;
+        *ret = (i << LOADAVG_PRECISION_بٹ) | DIV_باری_اوپر(f << LOADAVG_PRECISION_بٹ, 100);
+        واپس 0;
 }
 
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
-        const char *d, *f_str, *i_str;
-        unsigned long i, f;
-        int r;
+صحیح parse_loadavg_fixed_نقطہ(ثابت حرف *s, loadavg_t *ret) {
+        ثابت حرف *d, *f_str, *i_str;
+        غیرعلامتی طویل i, f;
+        صحیح r;
 
-        assert(s);
-        assert(ret);
+        أكد(s);
+        أكد(ret);
 
         d = strchr(s, '.');
-        if (!d)
-                return -EINVAL;
+        اگر (!d)
+                واپس -EINVAL;
 
-        i_str = strndupa_safe(s, d - s);
+        i_str = strndupa_محفوظ(s, d - s);
         f_str = d + 1;
 
-        r = safe_atolu_full(i_str, 10, &i);
-        if (r < 0)
-                return r;
+        r = محفوظ_atolu_بھرا(i_str, 10, &i);
+        اگر (r < 0)
+                واپس r;
 
-        r = safe_atolu_full(f_str, 10, &f);
-        if (r < 0)
-                return r;
+        r = محفوظ_atolu_بھرا(f_str, 10, &f);
+        اگر (r < 0)
+                واپس r;
 
-        return store_loadavg_fixed_point(i, f, ret);
+        واپس store_loadavg_fixed_نقطہ(i, f, ret);
 }
 
 /* Limitations are described in https://www.netfilter.org/projects/nftables/manpage.html and
  * https://bugzilla.netfilter.org/show_bug.cgi?id=1175 */
-bool nft_identifier_valid(const char *id) {
-        if (isempty(id))
-                return false;
+bool nft_identifier_valid(ثابت حرف *id) {
+        اگر (isempty(id))
+                واپس false;
 
-        if (strlen(id) >= NFT_NAME_MAXLEN)
-                return false;
+        اگر (لڑی_لمبائی(id) >= NFT_NAME_MAXLEN)
+                واپس false;
 
-        if (!ascii_isalpha(id[0]))
-                return false;
+        اگر (!ascii_isalpha(id[0]))
+                واپس false;
 
-        return in_charset(id + 1, ALPHANUMERICAL "/\\_.");
+        واپس اندر_charset(id + 1, ALPHANUMERICAL "/\\_.");
 }
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
-        int r;
+صحیح parse_capability_سیٹ(ثابت حرف *s, uint64_t initial, uint64_t *current) {
+        صحیح r;
 
-        assert(s);
-        assert(current);
+        أكد(s);
+        أكد(current);
 
-        if (isempty(s)) {
-                *current = CAP_MASK_UNSET;
-                return 1;
+        اگر (isempty(s)) {
+                *current = CAP_نقاب_UNSET;
+                واپس 1;
         }
 
         bool invert = false;
-        if (s[0] == '~') {
+        اگر (s[0] == '~') {
                 invert = true;
                 s++;
         }
 
         uint64_t parsed;
-        r = capability_set_from_string(s, &parsed);
-        if (r < 0)
-                return r;
+        r = capability_سیٹ_from_string(s, &parsed);
+        اگر (r < 0)
+                واپس r;
 
-        if (parsed == 0 || *current == initial)
+        اگر (parsed == 0 || *current == initial)
                 /* "~" or uninitialized data -> replace */
                 *current = invert ? all_capabilities() & ~parsed : parsed;
-        else {
+        ورنہ {
                 /* previous data -> merge */
-                if (invert)
+                اگر (invert)
                         *current &= ~parsed;
-                else
+                ورنہ
                         *current |= parsed;
         }
 
-        return r;
+        واپس r;
 }

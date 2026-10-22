@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-uint64_t physical_memory(void);
-uint64_t physical_memory_scale(uint64_t v, uint64_t max);
+uint64_t physical_حافظہ(خالی);
+uint64_t physical_حافظہ_scale(uint64_t v, uint64_t max);
 
-uint64_t system_tasks_max(void);
+uint64_t system_tasks_max(خالی);
 uint64_t system_tasks_max_scale(uint64_t v, uint64_t max);

@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
-#include "hash-funcs.h"
-#include "iterator.h"
+#شامل "forward.h"
+#شامل "hash-funcs.h"
+#شامل "iterator.h"
 
 /*
  * A hash table implementation. As a minor optimization a NULL hashmap object
@@ -16,226 +16,226 @@
  * - perform extra checks for invalid use of iterators
  */
 
-#define HASH_KEY_SIZE 16
+#تعریف_کرو HASH_کلید_سائز 16
 
 
 /* The base type for all hashmap and set types. Many functions in the implementation take (HashmapBase*)
  * parameters and are run-time polymorphic, though the API is not meant to be polymorphic (do not call
  * underscore-prefixed functions directly). */
-typedef struct HashmapBase HashmapBase;
+قسمتعریف ساخت Hashmap_بنیاد Hashmap_بنیاد;
 
 /* Specific hashmap/set types */
-typedef struct Hashmap Hashmap;               /* Maps keys to values */
-typedef struct OrderedHashmap OrderedHashmap; /* Like Hashmap, but also remembers entry insertion order */
-typedef struct Set Set;                       /* Stores just keys */
+قسمتعریف ساخت Hashmap Hashmap;               /* Maps keys to values */
+قسمتعریف ساخت OrderedHashmap OrderedHashmap; /* Like Hashmap, but also remembers entry insertion order */
+قسمتعریف ساخت سیٹ_2 سیٹ_2;                       /* Stores just keys */
 
-typedef struct IteratedCache IteratedCache;   /* Caches the iterated order of one of the above */
+قسمتعریف ساخت IteratedCache IteratedCache;   /* Caches the iterated order of one of the above */
 
 /* Macros for type checking */
-#define PTR_COMPATIBLE_WITH_HASHMAP_BASE(h) \
-        (__builtin_types_compatible_p(typeof(h), HashmapBase*) || \
+#تعریف_کرو PTR_COMPATIBLE_WITH_HASHMAP_بنیاد(h) \
+        (__builtin_types_compatible_p(typeof(h), Hashmap_بنیاد*) || \
          __builtin_types_compatible_p(typeof(h), Hashmap*) || \
          __builtin_types_compatible_p(typeof(h), OrderedHashmap*) || \
-         __builtin_types_compatible_p(typeof(h), Set*))
+         __builtin_types_compatible_p(typeof(h), سیٹ_2*))
 
-#define PTR_COMPATIBLE_WITH_PLAIN_HASHMAP(h) \
+#تعریف_کرو PTR_COMPATIBLE_WITH_PLAIN_HASHMAP(h) \
         (__builtin_types_compatible_p(typeof(h), Hashmap*) || \
          __builtin_types_compatible_p(typeof(h), OrderedHashmap*)) \
 
-#define HASHMAP_BASE(h) \
-        __builtin_choose_expr(PTR_COMPATIBLE_WITH_HASHMAP_BASE(h), \
-                (HashmapBase*)(h), \
-                (void)0)
+#تعریف_کرو HASHMAP_بنیاد(h) \
+        __builtin_choose_expr(PTR_COMPATIBLE_WITH_HASHMAP_بنیاد(h), \
+                (Hashmap_بنیاد*)(h), \
+                (خالی)0)
 
-#define PLAIN_HASHMAP(h) \
+#تعریف_کرو PLAIN_HASHMAP(h) \
         __builtin_choose_expr(PTR_COMPATIBLE_WITH_PLAIN_HASHMAP(h), \
                 (Hashmap*)(h), \
-                (void)0)
+                (خالی)0)
 
-Hashmap* hashmap_new(const struct hash_ops *hash_ops);
-OrderedHashmap* ordered_hashmap_new(const struct hash_ops *hash_ops);
+Hashmap* hashmap_new(ثابت ساخت hash_ops *hash_ops);
+OrderedHashmap* ordered_hashmap_new(ثابت ساخت hash_ops *hash_ops);
 
-#define hashmap_free_and_replace(a, b)                          \
-        free_and_replace_full(a, b, hashmap_free)
-#define ordered_hashmap_free_and_replace(a, b)                  \
-        free_and_replace_full(a, b, ordered_hashmap_free)
+#تعریف_کرو hashmap_free_and_replace(a, b)                          \
+        free_and_replace_بھرا(a, b, hashmap_free)
+#تعریف_کرو ordered_hashmap_free_and_replace(a, b)                  \
+        free_and_replace_بھرا(a, b, ordered_hashmap_free)
 
-HashmapBase* _hashmap_free(HashmapBase *h);
-static inline Hashmap* hashmap_free(Hashmap *h) {
-        return (void*) _hashmap_free(HASHMAP_BASE(h));
+Hashmap_بنیاد* _hashmap_free(Hashmap_بنیاد *h);
+ساکن اندرونی Hashmap* hashmap_free(Hashmap *h) {
+        واپس (خالی*) _hashmap_free(HASHMAP_بنیاد(h));
 }
-static inline OrderedHashmap* ordered_hashmap_free(OrderedHashmap *h) {
-        return (void*) _hashmap_free(HASHMAP_BASE(h));
+ساکن اندرونی OrderedHashmap* ordered_hashmap_free(OrderedHashmap *h) {
+        واپس (خالی*) _hashmap_free(HASHMAP_بنیاد(h));
 }
 
 IteratedCache* iterated_cache_free(IteratedCache *cache);
-int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void ***res_values, unsigned *res_n_entries);
+صحیح iterated_cache_get(IteratedCache *cache, ثابت خالی ***res_کلیدیں, ثابت خالی ***res_اقدار, غیرعلامتی *res_n_entries);
 
-HashmapBase* _hashmap_copy(HashmapBase *h);
-static inline Hashmap* hashmap_copy(Hashmap *h) {
-        return (Hashmap*) _hashmap_copy(HASHMAP_BASE(h));
+Hashmap_بنیاد* _hashmap_copy(Hashmap_بنیاد *h);
+ساکن اندرونی Hashmap* hashmap_copy(Hashmap *h) {
+        واپس (Hashmap*) _hashmap_copy(HASHMAP_بنیاد(h));
 }
-static inline OrderedHashmap* ordered_hashmap_copy(OrderedHashmap *h) {
-        return (OrderedHashmap*) _hashmap_copy(HASHMAP_BASE(h));
-}
-
-int hashmap_ensure_allocated(Hashmap **h, const struct hash_ops *hash_ops);
-int hashmap_ensure_put(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
-int ordered_hashmap_ensure_allocated(OrderedHashmap **h, const struct hash_ops *hash_ops);
-int hashmap_ensure_replace(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
-
-int ordered_hashmap_ensure_put(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
-int ordered_hashmap_ensure_replace(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value);
-
-IteratedCache* _hashmap_iterated_cache_new(HashmapBase *h);
-static inline IteratedCache* hashmap_iterated_cache_new(Hashmap *h) {
-        return _hashmap_iterated_cache_new(HASHMAP_BASE(h));
-}
-static inline IteratedCache* ordered_hashmap_iterated_cache_new(OrderedHashmap *h) {
-        return _hashmap_iterated_cache_new(HASHMAP_BASE(h));
+ساکن اندرونی OrderedHashmap* ordered_hashmap_copy(OrderedHashmap *h) {
+        واپس (OrderedHashmap*) _hashmap_copy(HASHMAP_بنیاد(h));
 }
 
-int hashmap_put(Hashmap *h, const void *key, void *value);
-static inline int ordered_hashmap_put(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_put(PLAIN_HASHMAP(h), key, value);
+صحیح hashmap_ensure_allocated(Hashmap **h, ثابت ساخت hash_ops *hash_ops);
+صحیح hashmap_ensure_put(Hashmap **h, ثابت ساخت hash_ops *hash_ops, ثابت خالی *کلید, خالی *قدر);
+صحیح ordered_hashmap_ensure_allocated(OrderedHashmap **h, ثابت ساخت hash_ops *hash_ops);
+صحیح hashmap_ensure_replace(Hashmap **h, ثابت ساخت hash_ops *hash_ops, ثابت خالی *کلید, خالی *قدر);
+
+صحیح ordered_hashmap_ensure_put(OrderedHashmap **h, ثابت ساخت hash_ops *hash_ops, ثابت خالی *کلید, خالی *قدر);
+صحیح ordered_hashmap_ensure_replace(OrderedHashmap **h, ثابت ساخت hash_ops *hash_ops, ثابت خالی *کلید, خالی *قدر);
+
+IteratedCache* _hashmap_iterated_cache_new(Hashmap_بنیاد *h);
+ساکن اندرونی IteratedCache* hashmap_iterated_cache_new(Hashmap *h) {
+        واپس _hashmap_iterated_cache_new(HASHMAP_بنیاد(h));
+}
+ساکن اندرونی IteratedCache* ordered_hashmap_iterated_cache_new(OrderedHashmap *h) {
+        واپس _hashmap_iterated_cache_new(HASHMAP_بنیاد(h));
 }
 
-int hashmap_put_strdup_full(Hashmap **h, const struct hash_ops *hash_ops, const char *k, const char *v);
-static inline int hashmap_put_strdup(Hashmap **h, const char *k, const char *v) {
-        return hashmap_put_strdup_full(h, &string_hash_ops_free_free, k, v);
+صحیح hashmap_put(Hashmap *h, ثابت خالی *کلید, خالی *قدر);
+ساکن اندرونی صحیح ordered_hashmap_put(OrderedHashmap *h, ثابت خالی *کلید, خالی *قدر) {
+        واپس hashmap_put(PLAIN_HASHMAP(h), کلید, قدر);
 }
 
-int hashmap_update(Hashmap *h, const void *key, void *value);
-static inline int ordered_hashmap_update(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_update(PLAIN_HASHMAP(h), key, value);
+صحیح hashmap_put_strdup_بھرا(Hashmap **h, ثابت ساخت hash_ops *hash_ops, ثابت حرف *k, ثابت حرف *v);
+ساکن اندرونی صحیح hashmap_put_strdup(Hashmap **h, ثابت حرف *k, ثابت حرف *v) {
+        واپس hashmap_put_strdup_بھرا(h, &string_hash_ops_free_free, k, v);
 }
 
-int hashmap_replace(Hashmap *h, const void *key, void *value);
-static inline int ordered_hashmap_replace(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_replace(PLAIN_HASHMAP(h), key, value);
+صحیح hashmap_update(Hashmap *h, ثابت خالی *کلید, خالی *قدر);
+ساکن اندرونی صحیح ordered_hashmap_update(OrderedHashmap *h, ثابت خالی *کلید, خالی *قدر) {
+        واپس hashmap_update(PLAIN_HASHMAP(h), کلید, قدر);
 }
 
-void* _hashmap_get(HashmapBase *h, const void *key);
-static inline void *hashmap_get(Hashmap *h, const void *key) {
-        return _hashmap_get(HASHMAP_BASE(h), key);
-}
-static inline void *ordered_hashmap_get(OrderedHashmap *h, const void *key) {
-        return _hashmap_get(HASHMAP_BASE(h), key);
+صحیح hashmap_replace(Hashmap *h, ثابت خالی *کلید, خالی *قدر);
+ساکن اندرونی صحیح ordered_hashmap_replace(OrderedHashmap *h, ثابت خالی *کلید, خالی *قدر) {
+        واپس hashmap_replace(PLAIN_HASHMAP(h), کلید, قدر);
 }
 
-void* hashmap_get2(Hashmap *h, const void *key, void **ret);
-static inline void *ordered_hashmap_get2(OrderedHashmap *h, const void *key, void **ret) {
-        return hashmap_get2(PLAIN_HASHMAP(h), key, ret);
+خالی* _hashmap_get(Hashmap_بنیاد *h, ثابت خالی *کلید);
+ساکن اندرونی خالی *hashmap_get(Hashmap *h, ثابت خالی *کلید) {
+        واپس _hashmap_get(HASHMAP_بنیاد(h), کلید);
+}
+ساکن اندرونی خالی *ordered_hashmap_get(OrderedHashmap *h, ثابت خالی *کلید) {
+        واپس _hashmap_get(HASHMAP_بنیاد(h), کلید);
 }
 
-bool _hashmap_contains(HashmapBase *h, const void *key);
-static inline bool hashmap_contains(Hashmap *h, const void *key) {
-        return _hashmap_contains(HASHMAP_BASE(h), key);
-}
-static inline bool ordered_hashmap_contains(OrderedHashmap *h, const void *key) {
-        return _hashmap_contains(HASHMAP_BASE(h), key);
+خالی* hashmap_get2(Hashmap *h, ثابت خالی *کلید, خالی **ret);
+ساکن اندرونی خالی *ordered_hashmap_get2(OrderedHashmap *h, ثابت خالی *کلید, خالی **ret) {
+        واپس hashmap_get2(PLAIN_HASHMAP(h), کلید, ret);
 }
 
-void* _hashmap_remove(HashmapBase *h, const void *key);
-static inline void *hashmap_remove(Hashmap *h, const void *key) {
-        return _hashmap_remove(HASHMAP_BASE(h), key);
+bool hashmap_شامل_ہے_2(Hashmap_بنیاد *h, ثابت خالی *کلید);
+ساکن اندرونی bool hashmap_شامل_ہے(Hashmap *h, ثابت خالی *کلید) {
+        واپس hashmap_شامل_ہے_2(HASHMAP_بنیاد(h), کلید);
 }
-static inline void *ordered_hashmap_remove(OrderedHashmap *h, const void *key) {
-        return _hashmap_remove(HASHMAP_BASE(h), key);
-}
-
-void* hashmap_remove2(Hashmap *h, const void *key, void **ret);
-static inline void *ordered_hashmap_remove2(OrderedHashmap *h, const void *key, void **ret) {
-        return hashmap_remove2(PLAIN_HASHMAP(h), key, ret);
+ساکن اندرونی bool ordered_hashmap_شامل_ہے(OrderedHashmap *h, ثابت خالی *کلید) {
+        واپس hashmap_شامل_ہے_2(HASHMAP_بنیاد(h), کلید);
 }
 
-void* _hashmap_remove_value(HashmapBase *h, const void *key, void *value);
-static inline void *hashmap_remove_value(Hashmap *h, const void *key, void *value) {
-        return _hashmap_remove_value(HASHMAP_BASE(h), key, value);
+خالی* _hashmap_remove(Hashmap_بنیاد *h, ثابت خالی *کلید);
+ساکن اندرونی خالی *hashmap_remove(Hashmap *h, ثابت خالی *کلید) {
+        واپس _hashmap_remove(HASHMAP_بنیاد(h), کلید);
+}
+ساکن اندرونی خالی *ordered_hashmap_remove(OrderedHashmap *h, ثابت خالی *کلید) {
+        واپس _hashmap_remove(HASHMAP_بنیاد(h), کلید);
 }
 
-static inline void* ordered_hashmap_remove_value(OrderedHashmap *h, const void *key, void *value) {
-        return hashmap_remove_value(PLAIN_HASHMAP(h), key, value);
+خالی* hashmap_remove2(Hashmap *h, ثابت خالی *کلید, خالی **ret);
+ساکن اندرونی خالی *ordered_hashmap_remove2(OrderedHashmap *h, ثابت خالی *کلید, خالی **ret) {
+        واپس hashmap_remove2(PLAIN_HASHMAP(h), کلید, ret);
 }
 
-int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value);
-static inline int ordered_hashmap_remove_and_put(OrderedHashmap *h, const void *old_key, const void *new_key, void *value) {
-        return hashmap_remove_and_put(PLAIN_HASHMAP(h), old_key, new_key, value);
+خالی* hashmap_remove_قدر(Hashmap_بنیاد *h, ثابت خالی *کلید, خالی *قدر);
+ساکن اندرونی خالی *hashmap_remove_قدر_2(Hashmap *h, ثابت خالی *کلید, خالی *قدر) {
+        واپس hashmap_remove_قدر(HASHMAP_بنیاد(h), کلید, قدر);
 }
 
-int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value);
-static inline int ordered_hashmap_remove_and_replace(OrderedHashmap *h, const void *old_key, const void *new_key, void *value) {
-        return hashmap_remove_and_replace(PLAIN_HASHMAP(h), old_key, new_key, value);
+ساکن اندرونی خالی* ordered_hashmap_remove_قدر(OrderedHashmap *h, ثابت خالی *کلید, خالی *قدر) {
+        واپس hashmap_remove_قدر_2(PLAIN_HASHMAP(h), کلید, قدر);
+}
+
+صحیح hashmap_remove_and_put(Hashmap *h, ثابت خالی *old_کلید, ثابت خالی *new_کلید, خالی *قدر);
+ساکن اندرونی صحیح ordered_hashmap_remove_and_put(OrderedHashmap *h, ثابت خالی *old_کلید, ثابت خالی *new_کلید, خالی *قدر) {
+        واپس hashmap_remove_and_put(PLAIN_HASHMAP(h), old_کلید, new_کلید, قدر);
+}
+
+صحیح hashmap_remove_and_replace(Hashmap *h, ثابت خالی *old_کلید, ثابت خالی *new_کلید, خالی *قدر);
+ساکن اندرونی صحیح ordered_hashmap_remove_and_replace(OrderedHashmap *h, ثابت خالی *old_کلید, ثابت خالی *new_کلید, خالی *قدر) {
+        واپس hashmap_remove_and_replace(PLAIN_HASHMAP(h), old_کلید, new_کلید, قدر);
 }
 
 /* Since merging data from an OrderedHashmap into a Hashmap or vice-versa
  * should just work, allow this by having looser type-checking here. */
-int _hashmap_merge(Hashmap *h, Hashmap *other);
-#define hashmap_merge(h, other) _hashmap_merge(PLAIN_HASHMAP(h), PLAIN_HASHMAP(other))
-#define ordered_hashmap_merge(h, other) hashmap_merge(h, other)
+صحیح hashmap_ملاؤ(Hashmap *h, Hashmap *other);
+#تعریف_کرو hashmap_ملاؤ_2(h, other) hashmap_ملاؤ(PLAIN_HASHMAP(h), PLAIN_HASHMAP(other))
+#تعریف_کرو ordered_hashmap_ملاؤ(h, other) hashmap_ملاؤ_2(h, other)
 
-int _hashmap_reserve(HashmapBase *h, unsigned entries_add);
-static inline int hashmap_reserve(Hashmap *h, unsigned entries_add) {
-        return _hashmap_reserve(HASHMAP_BASE(h), entries_add);
+صحیح _hashmap_reserve(Hashmap_بنیاد *h, غیرعلامتی entries_جوڑو);
+ساکن اندرونی صحیح hashmap_reserve(Hashmap *h, غیرعلامتی entries_جوڑو) {
+        واپس _hashmap_reserve(HASHMAP_بنیاد(h), entries_جوڑو);
 }
-static inline int ordered_hashmap_reserve(OrderedHashmap *h, unsigned entries_add) {
-        return _hashmap_reserve(HASHMAP_BASE(h), entries_add);
+ساکن اندرونی صحیح ordered_hashmap_reserve(OrderedHashmap *h, غیرعلامتی entries_جوڑو) {
+        واپس _hashmap_reserve(HASHMAP_بنیاد(h), entries_جوڑو);
 }
 
-int _hashmap_move(HashmapBase *h, HashmapBase *other);
+صحیح _hashmap_move(Hashmap_بنیاد *h, Hashmap_بنیاد *other);
 /* Unlike hashmap_merge, hashmap_move does not allow mixing the types. */
-static inline int hashmap_move(Hashmap *h, Hashmap *other) {
-        return _hashmap_move(HASHMAP_BASE(h), HASHMAP_BASE(other));
+ساکن اندرونی صحیح hashmap_move(Hashmap *h, Hashmap *other) {
+        واپس _hashmap_move(HASHMAP_بنیاد(h), HASHMAP_بنیاد(other));
 }
-static inline int ordered_hashmap_move(OrderedHashmap *h, OrderedHashmap *other) {
-        return _hashmap_move(HASHMAP_BASE(h), HASHMAP_BASE(other));
-}
-
-int _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key);
-static inline int hashmap_move_one(Hashmap *h, Hashmap *other, const void *key) {
-        return _hashmap_move_one(HASHMAP_BASE(h), HASHMAP_BASE(other), key);
-}
-static inline int ordered_hashmap_move_one(OrderedHashmap *h, OrderedHashmap *other, const void *key) {
-        return _hashmap_move_one(HASHMAP_BASE(h), HASHMAP_BASE(other), key);
+ساکن اندرونی صحیح ordered_hashmap_move(OrderedHashmap *h, OrderedHashmap *other) {
+        واپس _hashmap_move(HASHMAP_بنیاد(h), HASHMAP_بنیاد(other));
 }
 
-unsigned _hashmap_size(HashmapBase *h) _pure_;
-static inline unsigned hashmap_size(Hashmap *h) {
-        return _hashmap_size(HASHMAP_BASE(h));
+صحیح _hashmap_move_one(Hashmap_بنیاد *h, Hashmap_بنیاد *other, ثابت خالی *کلید);
+ساکن اندرونی صحیح hashmap_move_one(Hashmap *h, Hashmap *other, ثابت خالی *کلید) {
+        واپس _hashmap_move_one(HASHMAP_بنیاد(h), HASHMAP_بنیاد(other), کلید);
 }
-static inline unsigned ordered_hashmap_size(OrderedHashmap *h) {
-        return _hashmap_size(HASHMAP_BASE(h));
-}
-
-static inline bool hashmap_isempty(Hashmap *h) {
-        return hashmap_size(h) == 0;
-}
-static inline bool ordered_hashmap_isempty(OrderedHashmap *h) {
-        return ordered_hashmap_size(h) == 0;
+ساکن اندرونی صحیح ordered_hashmap_move_one(OrderedHashmap *h, OrderedHashmap *other, ثابت خالی *کلید) {
+        واپس _hashmap_move_one(HASHMAP_بنیاد(h), HASHMAP_بنیاد(other), کلید);
 }
 
-unsigned _hashmap_buckets(HashmapBase *h) _pure_;
-static inline unsigned hashmap_buckets(Hashmap *h) {
-        return _hashmap_buckets(HASHMAP_BASE(h));
+غیرعلامتی hashmap_سائز(Hashmap_بنیاد *h) خالص;
+ساکن اندرونی غیرعلامتی hashmap_سائز_2(Hashmap *h) {
+        واپس hashmap_سائز(HASHMAP_بنیاد(h));
 }
-static inline unsigned ordered_hashmap_buckets(OrderedHashmap *h) {
-        return _hashmap_buckets(HASHMAP_BASE(h));
-}
-
-bool _hashmap_iterate(HashmapBase *h, Iterator *i, void **value, const void **key);
-static inline bool hashmap_iterate(Hashmap *h, Iterator *i, void **value, const void **key) {
-        return _hashmap_iterate(HASHMAP_BASE(h), i, value, key);
-}
-static inline bool ordered_hashmap_iterate(OrderedHashmap *h, Iterator *i, void **value, const void **key) {
-        return _hashmap_iterate(HASHMAP_BASE(h), i, value, key);
+ساکن اندرونی غیرعلامتی ordered_hashmap_سائز(OrderedHashmap *h) {
+        واپس hashmap_سائز(HASHMAP_بنیاد(h));
 }
 
-void _hashmap_clear(HashmapBase *h);
-static inline void hashmap_clear(Hashmap *h) {
-        _hashmap_clear(HASHMAP_BASE(h));
+ساکن اندرونی bool hashmap_isempty(Hashmap *h) {
+        واپس hashmap_سائز_2(h) == 0;
 }
-static inline void ordered_hashmap_clear(OrderedHashmap *h) {
-        _hashmap_clear(HASHMAP_BASE(h));
+ساکن اندرونی bool ordered_hashmap_isempty(OrderedHashmap *h) {
+        واپس ordered_hashmap_سائز(h) == 0;
+}
+
+غیرعلامتی _hashmap_buckets(Hashmap_بنیاد *h) خالص;
+ساکن اندرونی غیرعلامتی hashmap_buckets(Hashmap *h) {
+        واپس _hashmap_buckets(HASHMAP_بنیاد(h));
+}
+ساکن اندرونی غیرعلامتی ordered_hashmap_buckets(OrderedHashmap *h) {
+        واپس _hashmap_buckets(HASHMAP_بنیاد(h));
+}
+
+bool _hashmap_iterate(Hashmap_بنیاد *h, Iterator *i, خالی **قدر, ثابت خالی **کلید);
+ساکن اندرونی bool hashmap_iterate(Hashmap *h, Iterator *i, خالی **قدر, ثابت خالی **کلید) {
+        واپس _hashmap_iterate(HASHMAP_بنیاد(h), i, قدر, کلید);
+}
+ساکن اندرونی bool ordered_hashmap_iterate(OrderedHashmap *h, Iterator *i, خالی **قدر, ثابت خالی **کلید) {
+        واپس _hashmap_iterate(HASHMAP_بنیاد(h), i, قدر, کلید);
+}
+
+خالی _hashmap_clear(Hashmap_بنیاد *h);
+ساکن اندرونی خالی hashmap_clear(Hashmap *h) {
+        _hashmap_clear(HASHMAP_بنیاد(h));
+}
+ساکن اندرونی خالی ordered_hashmap_clear(OrderedHashmap *h) {
+        _hashmap_clear(HASHMAP_بنیاد(h));
 }
 
 /*
@@ -249,80 +249,80 @@ static inline void ordered_hashmap_clear(OrderedHashmap *h) {
  * the first entry is O(1).
  */
 
-void *_hashmap_first_key_and_value(HashmapBase *h, bool remove, void **ret_key);
-static inline void *hashmap_steal_first_key_and_value(Hashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, ret);
+خالی *hashmap_پہلا_کلید_and_قدر(Hashmap_بنیاد *h, bool remove, خالی **ret_کلید);
+ساکن اندرونی خالی *hashmap_steal_پہلا_کلید_and_قدر(Hashmap *h, خالی **ret) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), true, ret);
 }
-static inline void *ordered_hashmap_steal_first_key_and_value(OrderedHashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, ret);
+ساکن اندرونی خالی *ordered_hashmap_steal_پہلا_کلید_and_قدر(OrderedHashmap *h, خالی **ret) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), true, ret);
 }
-static inline void *hashmap_first_key_and_value(Hashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, ret);
+ساکن اندرونی خالی *hashmap_پہلا_کلید_and_قدر_2(Hashmap *h, خالی **ret) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), false, ret);
 }
-static inline void *ordered_hashmap_first_key_and_value(OrderedHashmap *h, void **ret) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, ret);
-}
-
-static inline void *hashmap_steal_first(Hashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, NULL);
-}
-static inline void *ordered_hashmap_steal_first(OrderedHashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), true, NULL);
-}
-static inline void *hashmap_first(Hashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, NULL);
-}
-static inline void *ordered_hashmap_first(OrderedHashmap *h) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(h), false, NULL);
+ساکن اندرونی خالی *ordered_hashmap_پہلا_کلید_and_قدر(OrderedHashmap *h, خالی **ret) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), false, ret);
 }
 
-static inline void *_hashmap_first_key(HashmapBase *h, bool remove) {
-        void *key = NULL;
+ساکن اندرونی خالی *hashmap_steal_پہلا(Hashmap *h) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), true, تہی);
+}
+ساکن اندرونی خالی *ordered_hashmap_steal_پہلا(OrderedHashmap *h) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), true, تہی);
+}
+ساکن اندرونی خالی *hashmap_پہلا(Hashmap *h) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), false, تہی);
+}
+ساکن اندرونی خالی *ordered_hashmap_پہلا(OrderedHashmap *h) {
+        واپس hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), false, تہی);
+}
 
-        (void) _hashmap_first_key_and_value(HASHMAP_BASE(h), remove, &key);
-        return key;
+ساکن اندرونی خالی *hashmap_پہلا_کلید(Hashmap_بنیاد *h, bool remove) {
+        خالی *کلید = تہی;
+
+        (خالی) hashmap_پہلا_کلید_and_قدر(HASHMAP_بنیاد(h), remove, &کلید);
+        واپس کلید;
 }
-static inline void *hashmap_steal_first_key(Hashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), true);
+ساکن اندرونی خالی *hashmap_steal_پہلا_کلید(Hashmap *h) {
+        واپس hashmap_پہلا_کلید(HASHMAP_بنیاد(h), true);
 }
-static inline void *ordered_hashmap_steal_first_key(OrderedHashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), true);
+ساکن اندرونی خالی *ordered_hashmap_steal_پہلا_کلید(OrderedHashmap *h) {
+        واپس hashmap_پہلا_کلید(HASHMAP_بنیاد(h), true);
 }
-static inline void *hashmap_first_key(Hashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), false);
+ساکن اندرونی خالی *hashmap_پہلا_کلید_2(Hashmap *h) {
+        واپس hashmap_پہلا_کلید(HASHMAP_بنیاد(h), false);
 }
-static inline void *ordered_hashmap_first_key(OrderedHashmap *h) {
-        return _hashmap_first_key(HASHMAP_BASE(h), false);
+ساکن اندرونی خالی *ordered_hashmap_پہلا_کلید(OrderedHashmap *h) {
+        واپس hashmap_پہلا_کلید(HASHMAP_بنیاد(h), false);
 }
 
 /* no hashmap_next */
-void* ordered_hashmap_next(OrderedHashmap *h, const void *key);
+خالی* ordered_hashmap_اگلا(OrderedHashmap *h, ثابت خالی *کلید);
 
-char** _hashmap_get_strv(HashmapBase *h);
-static inline char** hashmap_get_strv(Hashmap *h) {
-        return _hashmap_get_strv(HASHMAP_BASE(h));
+حرف** _hashmap_get_strv(Hashmap_بنیاد *h);
+ساکن اندرونی حرف** hashmap_get_strv(Hashmap *h) {
+        واپس _hashmap_get_strv(HASHMAP_بنیاد(h));
 }
-static inline char** ordered_hashmap_get_strv(OrderedHashmap *h) {
-        return _hashmap_get_strv(HASHMAP_BASE(h));
-}
-
-int _hashmap_dump_sorted(HashmapBase *h, void ***ret, size_t *ret_n);
-static inline int hashmap_dump_sorted(Hashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
-}
-static inline int ordered_hashmap_dump_sorted(OrderedHashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
-}
-static inline int set_dump_sorted(Set *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_sorted(HASHMAP_BASE(h), ret, ret_n);
+ساکن اندرونی حرف** ordered_hashmap_get_strv(OrderedHashmap *h) {
+        واپس _hashmap_get_strv(HASHMAP_بنیاد(h));
 }
 
-int _hashmap_dump_keys_sorted(HashmapBase *h, void ***ret, size_t *ret_n);
-static inline int hashmap_dump_keys_sorted(Hashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_keys_sorted(HASHMAP_BASE(h), ret, ret_n);
+صحیح _hashmap_dump_sorted(Hashmap_بنیاد *h, خالی ***ret, size_t *ret_n);
+ساکن اندرونی صحیح hashmap_dump_sorted(Hashmap *h, خالی ***ret, size_t *ret_n) {
+        واپس _hashmap_dump_sorted(HASHMAP_بنیاد(h), ret, ret_n);
 }
-static inline int ordered_hashmap_dump_keys_sorted(OrderedHashmap *h, void ***ret, size_t *ret_n) {
-        return _hashmap_dump_keys_sorted(HASHMAP_BASE(h), ret, ret_n);
+ساکن اندرونی صحیح ordered_hashmap_dump_sorted(OrderedHashmap *h, خالی ***ret, size_t *ret_n) {
+        واپس _hashmap_dump_sorted(HASHMAP_بنیاد(h), ret, ret_n);
+}
+ساکن اندرونی صحیح سیٹ_dump_sorted(سیٹ_2 *h, خالی ***ret, size_t *ret_n) {
+        واپس _hashmap_dump_sorted(HASHMAP_بنیاد(h), ret, ret_n);
+}
+
+صحیح hashmap_dump_کلیدیں_sorted(Hashmap_بنیاد *h, خالی ***ret, size_t *ret_n);
+ساکن اندرونی صحیح hashmap_dump_کلیدیں_sorted_2(Hashmap *h, خالی ***ret, size_t *ret_n) {
+        واپس hashmap_dump_کلیدیں_sorted(HASHMAP_بنیاد(h), ret, ret_n);
+}
+ساکن اندرونی صحیح ordered_hashmap_dump_کلیدیں_sorted(OrderedHashmap *h, خالی ***ret, size_t *ret_n) {
+        واپس hashmap_dump_کلیدیں_sorted(HASHMAP_بنیاد(h), ret, ret_n);
 }
 
 /*
@@ -331,44 +331,44 @@ static inline int ordered_hashmap_dump_keys_sorted(OrderedHashmap *h, void ***re
  * the entries were inserted.
  * It is safe to remove the current entry.
  */
-#define _HASHMAP_BASE_FOREACH(e, h, i) \
-        for (Iterator i = ITERATOR_FIRST; _hashmap_iterate((h), &i, (void**)&(e), NULL); )
-#define HASHMAP_BASE_FOREACH(e, h) \
-        _HASHMAP_BASE_FOREACH(e, h, UNIQ_T(i, UNIQ))
+#تعریف_کرو HASHMAP_بنیاد_FOREACH(e, h, i) \
+        برائے (Iterator i = ITERATOR_پہلا; _hashmap_iterate((h), &i, (خالی**)&(e), تہی); )
+#تعریف_کرو HASHMAP_بنیاد_FOREACH_2(e, h) \
+        HASHMAP_بنیاد_FOREACH(e, h, UNIQ_T(i, UNIQ))
 
-#define _HASHMAP_FOREACH(e, h, i) \
-        for (Iterator i = ITERATOR_FIRST; hashmap_iterate((h), &i, (void**)&(e), NULL); )
-#define HASHMAP_FOREACH(e, h) \
+#تعریف_کرو _HASHMAP_FOREACH(e, h, i) \
+        برائے (Iterator i = ITERATOR_پہلا; hashmap_iterate((h), &i, (خالی**)&(e), تہی); )
+#تعریف_کرو HASHMAP_FOREACH(e, h) \
         _HASHMAP_FOREACH(e, h, UNIQ_T(i, UNIQ))
 
-#define _ORDERED_HASHMAP_FOREACH(e, h, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_hashmap_iterate((h), &i, (void**)&(e), NULL); )
-#define ORDERED_HASHMAP_FOREACH(e, h) \
+#تعریف_کرو _ORDERED_HASHMAP_FOREACH(e, h, i) \
+        برائے (Iterator i = ITERATOR_پہلا; ordered_hashmap_iterate((h), &i, (خالی**)&(e), تہی); )
+#تعریف_کرو ORDERED_HASHMAP_FOREACH(e, h) \
         _ORDERED_HASHMAP_FOREACH(e, h, UNIQ_T(i, UNIQ))
 
-#define _HASHMAP_BASE_FOREACH_KEY(e, k, h, i) \
-        for (Iterator i = ITERATOR_FIRST; _hashmap_iterate((h), &i, (void**)&(e), (const void**) &(k)); )
-#define HASHMAP_BASE_FOREACH_KEY(e, k, h) \
-        _HASHMAP_BASE_FOREACH_KEY(e, k, h, UNIQ_T(i, UNIQ))
+#تعریف_کرو HASHMAP_بنیاد_FOREACH_کلید(e, k, h, i) \
+        برائے (Iterator i = ITERATOR_پہلا; _hashmap_iterate((h), &i, (خالی**)&(e), (ثابت خالی**) &(k)); )
+#تعریف_کرو HASHMAP_بنیاد_FOREACH_کلید_2(e, k, h) \
+        HASHMAP_بنیاد_FOREACH_کلید(e, k, h, UNIQ_T(i, UNIQ))
 
-#define _HASHMAP_FOREACH_KEY(e, k, h, i) \
-        for (Iterator i = ITERATOR_FIRST; hashmap_iterate((h), &i, (void**)&(e), (const void**) &(k)); )
-#define HASHMAP_FOREACH_KEY(e, k, h) \
-        _HASHMAP_FOREACH_KEY(e, k, h, UNIQ_T(i, UNIQ))
+#تعریف_کرو HASHMAP_FOREACH_کلید(e, k, h, i) \
+        برائے (Iterator i = ITERATOR_پہلا; hashmap_iterate((h), &i, (خالی**)&(e), (ثابت خالی**) &(k)); )
+#تعریف_کرو HASHMAP_FOREACH_کلید_2(e, k, h) \
+        HASHMAP_FOREACH_کلید(e, k, h, UNIQ_T(i, UNIQ))
 
-#define _ORDERED_HASHMAP_FOREACH_KEY(e, k, h, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_hashmap_iterate((h), &i, (void**)&(e), (const void**) &(k)); )
-#define ORDERED_HASHMAP_FOREACH_KEY(e, k, h) \
-        _ORDERED_HASHMAP_FOREACH_KEY(e, k, h, UNIQ_T(i, UNIQ))
+#تعریف_کرو ORDERED_HASHMAP_FOREACH_کلید(e, k, h, i) \
+        برائے (Iterator i = ITERATOR_پہلا; ordered_hashmap_iterate((h), &i, (خالی**)&(e), (ثابت خالی**) &(k)); )
+#تعریف_کرو ORDERED_HASHMAP_FOREACH_کلید_2(e, k, h) \
+        ORDERED_HASHMAP_FOREACH_کلید(e, k, h, UNIQ_T(i, UNIQ))
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(Hashmap*, hashmap_free);
 DEFINE_TRIVIAL_CLEANUP_FUNC(OrderedHashmap*, ordered_hashmap_free);
 
-#define _cleanup_hashmap_free_ _cleanup_(hashmap_freep)
-#define _cleanup_ordered_hashmap_free_ _cleanup_(ordered_hashmap_freep)
+#تعریف_کرو _cleanup_hashmap_free_ _cleanup_(hashmap_freep)
+#تعریف_کرو _cleanup_ordered_hashmap_free_ _cleanup_(ordered_hashmap_freep)
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(IteratedCache*, iterated_cache_free);
 
-#define _cleanup_iterated_cache_free_ _cleanup_(iterated_cache_freep)
+#تعریف_کرو _cleanup_iterated_cache_free_ _cleanup_(iterated_cache_freep)
 
-void hashmap_trim_pools(void);
+خالی hashmap_trim_pools(خالی);

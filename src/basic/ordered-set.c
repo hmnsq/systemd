@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#شامل <stdio.h>
+#شامل <stdlib.h>
+#شامل <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#شامل "fileio.h"
+#شامل "ordered-set.h"
+#شامل "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+صحیح ordered_سیٹ_ensure_allocated(Ordered_سیٹ **s, ثابت ساخت hash_ops *ops) {
+        أكد(s);
 
-        if (*s)
-                return 0;
+        اگر (*s)
+                واپس 0;
 
-        *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        *s = ordered_سیٹ_new(ops);
+        اگر (!*s)
+                واپس -ENOMEM;
 
-        return 0;
+        واپس 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+صحیح ordered_سیٹ_ensure_put(Ordered_سیٹ **s, ثابت ساخت hash_ops *ops, خالی *p) {
+        صحیح r;
 
-        assert(s);
+        أكد(s);
 
-        r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        r = ordered_سیٹ_ensure_allocated(s, ops);
+        اگر (r < 0)
+                واپس r;
 
-        return ordered_set_put(*s, p);
+        واپس ordered_سیٹ_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+صحیح ordered_سیٹ_consume(Ordered_سیٹ *s, خالی *p) {
+        صحیح r;
 
-        r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        r = ordered_سیٹ_put(s, p);
+        اگر (r <= 0)
+                آزاد(p);
 
-        return r;
+        واپس r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+صحیح ordered_سیٹ_put_strdup_بھرا(Ordered_سیٹ **s, ثابت ساخت hash_ops *hash_ops, ثابت حرف *p) {
+        حرف *c;
+        صحیح r;
 
-        assert(s);
-        assert(p);
+        أكد(s);
+        أكد(p);
 
-        r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        r = ordered_سیٹ_ensure_allocated(s, hash_ops);
+        اگر (r < 0)
+                واپس r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        اگر (ordered_سیٹ_شامل_ہے(*s, p))
+                واپس 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        اگر (!c)
+                واپس -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        واپس ordered_سیٹ_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+صحیح ordered_سیٹ_put_strdupv_بھرا(Ordered_سیٹ **s, ثابت ساخت hash_ops *hash_ops, حرف **l) {
+        صحیح r, ret = 0;
 
-        assert(s);
+        أكد(s);
 
         STRV_FOREACH(i, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                r = ordered_سیٹ_put_strdup_بھرا(s, hash_ops, *i);
+                اگر (r < 0)
+                        واپس r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        واپس ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+صحیح ordered_سیٹ_put_string_سیٹ_بھرا(Ordered_سیٹ **s, ثابت ساخت hash_ops *hash_ops, Ordered_سیٹ *l) {
+        صحیح r, ret = 0;
+        حرف *p;
 
-        assert(s);
+        أكد(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
-        ORDERED_SET_FOREACH(p, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+        ORDERED_سیٹ_FOREACH(p, l) {
+                r = ordered_سیٹ_put_strdup_بھرا(s, hash_ops, p);
+                اگر (r < 0)
+                        واپس r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        واپس ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+خالی ordered_سیٹ_print(FILE *f, ثابت حرف *میدان, Ordered_سیٹ *s) {
         bool space = false;
-        char *p;
+        حرف *p;
 
-        assert(f);
-        assert(field);
+        أكد(f);
+        أكد(میدان);
 
-        if (ordered_set_isempty(s))
-                return;
+        اگر (ordered_سیٹ_isempty(s))
+                واپس;
 
-        fputs(field, f);
+        fputs(میدان, f);
 
-        ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+        ORDERED_سیٹ_FOREACH(p, s)
+                fputs_with_separator(f, p, تہی, &space);
 
         fputc('\n', f);
 }

@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <sys/sysmacros.h>
+#شامل <sys/sysmacros.h>
 
-#include "forward.h"
+#شامل "forward.h"
 
-int parse_devnum(const char *s, dev_t *ret);
+صحیح parse_devnum(ثابت حرف *s, dev_t *ret);
 
-#define DEVNUM_MAJOR_MAX ((UINT32_C(1) << 12) - 1U)
-#define DEVNUM_MINOR_MAX ((UINT32_C(1) << 20) - 1U)
+#تعریف_کرو DEVNUM_MAJOR_MAX ((UINT32_C(1) << 12) - 1U)
+#تعریف_کرو DEVNUM_MINOR_MAX ((UINT32_C(1) << 20) - 1U)
 
 /* glibc and the Linux kernel have different ideas about the major/minor size. These calls will check whether the
  * specified major is valid by the Linux kernel's standards, not by glibc's. Linux has 20bits of minor, and 12 bits of
@@ -16,49 +16,49 @@ int parse_devnum(const char *s, dev_t *ret);
  * comparing directly >= 0: it's to trick out -Wtype-limits, which would otherwise complain if the type is unsigned, as
  * such a test would be pointless in such a case.) */
 
-#define DEVICE_MAJOR_VALID(x)                                           \
+#تعریف_کرو DEVICE_MAJOR_VALID(x)                                           \
         ({                                                              \
                 typeof(x) _x = (x), _y = 0;                             \
                 _x >= _y && _x <= DEVNUM_MAJOR_MAX;                     \
                                                                         \
         })
 
-#define DEVICE_MINOR_VALID(x)                                           \
+#تعریف_کرو DEVICE_MINOR_VALID(x)                                           \
         ({                                                              \
                 typeof(x) _x = (x), _y = 0;                             \
                 _x >= _y && _x <= DEVNUM_MINOR_MAX;                     \
         })
 
-int device_path_make_major_minor(mode_t mode, dev_t devnum, char **ret);
-int device_path_make_inaccessible(mode_t mode, char **ret);
-int device_path_make_canonical(mode_t mode, dev_t devnum, char **ret);
-int device_path_parse_major_minor(const char *path, mode_t *ret_mode, dev_t *ret_devnum);
+صحیح device_راستہ_make_major_minor(mode_t منوال, dev_t devnum, حرف **ret);
+صحیح device_راستہ_make_inaccessible(mode_t منوال, حرف **ret);
+صحیح device_راستہ_make_canonical(mode_t منوال, dev_t devnum, حرف **ret);
+صحیح device_راستہ_parse_major_minor(ثابت حرف *راستہ, mode_t *ret_منوال, dev_t *ret_devnum);
 
-static inline bool devnum_set_and_equal(dev_t a, dev_t b) {
+ساکن اندرونی bool devnum_سیٹ_and_equal(dev_t a, dev_t b) {
         /* Returns true if a and b definitely refer to the same device. If either is zero, this means "don't
          * know" and we'll return false */
-        return a == b && a != 0;
+        واپس a == b && a != 0;
 }
 
 /* Maximum string length for a major:minor string. (Note that DECIMAL_STR_MAX includes space for a trailing NUL) */
-#define DEVNUM_STR_MAX (DECIMAL_STR_MAX(dev_t)-1+1+DECIMAL_STR_MAX(dev_t))
+#تعریف_کرو DEVNUM_STR_MAX (DECIMAL_STR_MAX(dev_t)-1+1+DECIMAL_STR_MAX(dev_t))
 
-#define DEVNUM_FORMAT_STR "%u:%u"
-#define DEVNUM_FORMAT_VAL(d) major(d), minor(d)
+#تعریف_کرو DEVNUM_FORMAT_STR "%u:%u"
+#تعریف_کرو DEVNUM_FORMAT_VAL(d) major(d), minor(d)
 
-char *format_devnum(dev_t d, char buf[static DEVNUM_STR_MAX]);
+حرف *format_devnum(dev_t d, حرف buf[ساکن DEVNUM_STR_MAX]);
 
-#define FORMAT_DEVNUM(d) format_devnum((d), (char[DEVNUM_STR_MAX]) {})
+#تعریف_کرو FORMAT_DEVNUM(d) format_devnum((d), (حرف[DEVNUM_STR_MAX]) {})
 
-static inline bool devnum_is_zero(dev_t d) {
-        return major(d) == 0 && minor(d) == 0;
+ساکن اندرونی bool devnum_is_zero(dev_t d) {
+        واپس major(d) == 0 && minor(d) == 0;
 }
 
-#define DEVNUM_TO_PTR(u) ((void*) (uintptr_t) (u))
-#define PTR_TO_DEVNUM(p) ((dev_t) ((uintptr_t) (p)))
+#تعریف_کرو DEVNUM_مقصد_PTR(u) ((خالی*) (uintptr_t) (u))
+#تعریف_کرو PTR_مقصد_DEVNUM(p) ((dev_t) ((uintptr_t) (p)))
 
 /* Convert a userspace dev_t (as returned by stat()) to the kernel's internal dev_t encoding. stat() returns
  * new_encode_dev(s_dev), while various kernel interfaces (e.g. the BPF sb helpers, or unix_diag's
  * udiag_vfs_dev) report s_dev directly, which uses MKDEV(major, minor) = (major << 20) | minor. */
-#define STAT_DEV_TO_KERNEL(dev) \
+#تعریف_کرو STAT_DEV_مقصد_KERNEL(dev) \
         ((uint32_t) major(dev) << 20 | (uint32_t) minor(dev))

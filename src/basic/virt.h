@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-typedef enum Virtualization {
+قسمتعریف شمار Virtualization {
         VIRTUALIZATION_NONE = 0,
 
-        VIRTUALIZATION_VM_FIRST,
-        VIRTUALIZATION_KVM = VIRTUALIZATION_VM_FIRST,
+        VIRTUALIZATION_VM_پہلا,
+        VIRTUALIZATION_KVM = VIRTUALIZATION_VM_پہلا,
         VIRTUALIZATION_AMAZON,
         VIRTUALIZATION_QEMU,
         VIRTUALIZATION_BOCHS,
@@ -26,10 +26,10 @@ typedef enum Virtualization {
         VIRTUALIZATION_SRE,
         VIRTUALIZATION_GOOGLE,
         VIRTUALIZATION_VM_OTHER,
-        VIRTUALIZATION_VM_LAST = VIRTUALIZATION_VM_OTHER,
+        VIRTUALIZATION_VM_آخری = VIRTUALIZATION_VM_OTHER,
 
-        VIRTUALIZATION_CONTAINER_FIRST,
-        VIRTUALIZATION_SYSTEMD_NSPAWN = VIRTUALIZATION_CONTAINER_FIRST,
+        VIRTUALIZATION_CONTAINER_پہلا,
+        VIRTUALIZATION_SYSTEMD_NSPAWN = VIRTUALIZATION_CONTAINER_پہلا,
         VIRTUALIZATION_LXC_LIBVIRT,
         VIRTUALIZATION_LXC,
         VIRTUALIZATION_OPENVZ,
@@ -40,28 +40,28 @@ typedef enum Virtualization {
         VIRTUALIZATION_PROOT,
         VIRTUALIZATION_POUCH,
         VIRTUALIZATION_CONTAINER_OTHER,
-        VIRTUALIZATION_CONTAINER_LAST = VIRTUALIZATION_CONTAINER_OTHER,
+        VIRTUALIZATION_CONTAINER_آخری = VIRTUALIZATION_CONTAINER_OTHER,
 
         _VIRTUALIZATION_MAX,
         _VIRTUALIZATION_INVALID = -EINVAL,
         _VIRTUALIZATION_ERRNO_MAX = -ERRNO_MAX, /* ensure full range of errno fits into this enum */
 } Virtualization;
 
-static inline bool VIRTUALIZATION_IS_VM(Virtualization x) {
-        return x >= VIRTUALIZATION_VM_FIRST && x <= VIRTUALIZATION_VM_LAST;
+ساکن اندرونی bool VIRTUALIZATION_IS_VM(Virtualization x) {
+        واپس x >= VIRTUALIZATION_VM_پہلا && x <= VIRTUALIZATION_VM_آخری;
 }
 
-static inline bool VIRTUALIZATION_IS_CONTAINER(Virtualization x) {
-        return x >= VIRTUALIZATION_CONTAINER_FIRST && x <= VIRTUALIZATION_CONTAINER_LAST;
+ساکن اندرونی bool VIRTUALIZATION_IS_CONTAINER(Virtualization x) {
+        واپس x >= VIRTUALIZATION_CONTAINER_پہلا && x <= VIRTUALIZATION_CONTAINER_آخری;
 }
 
-Virtualization detect_vm(void);
-Virtualization detect_container(void);
-Virtualization detect_virtualization(void);
+Virtualization detect_vm(خالی);
+Virtualization detect_container(خالی);
+Virtualization detect_virtualization(خالی);
 
-int running_in_userns(void);
-int running_in_chroot(void);
+صحیح running_اندر_userns(خالی);
+صحیح running_اندر_chroot(خالی);
 
-DECLARE_STRING_TABLE_LOOKUP(virtualization, Virtualization);
-bool has_cpu_with_flag(const char *flag);
-int cpu_known_features(char ***ret);
+DECLARE_STRING_جدول_LOOKUP(virtualization, Virtualization);
+bool has_cpu_with_flag(ثابت حرف *flag);
+صحیح cpu_معلوم_features(حرف ***ret);

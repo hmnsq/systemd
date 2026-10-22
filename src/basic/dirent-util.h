@@ -1,58 +1,58 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <dirent.h>             /* IWYU pragma: export */
+#شامل <dirent.h>             /* IWYU pragma: export */
 
-#include "forward.h"
-#include "path-util.h"          /* IWYU pragma: keep */
+#شامل "forward.h"
+#شامل "path-util.h"          /* IWYU pragma: keep */
 
-bool dirent_is_file(const struct dirent *de) _pure_;
-bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) _pure_;
-int dirent_ensure_type(int dir_fd, struct dirent *de);
+bool dirent_is_file(ثابت ساخت dirent *de) خالص;
+bool dirent_is_file_with_suffix(ثابت ساخت dirent *de, ثابت حرف *suffix) خالص;
+صحیح dirent_ensure_type(صحیح dir_fd, ساخت dirent *de);
 
-struct dirent* readdir_ensure_type(DIR *d);
-struct dirent* readdir_no_dot(DIR *dirp);
+ساخت dirent* readdir_ensure_type(DIR *d);
+ساخت dirent* readdir_no_dot(DIR *dirp);
 
-#define FOREACH_DIRENT_ALL(de, d, on_error)                             \
-        for (struct dirent *(de) = readdir_ensure_type(d);; (de) = readdir_ensure_type(d)) \
-                if (!de) {                                              \
-                        if (errno > 0) {                                \
+#تعریف_کرو FOREACH_DIRENT_ALL(de, d, on_error)                             \
+        برائے (ساخت dirent *(de) = readdir_ensure_type(d);; (de) = readdir_ensure_type(d)) \
+                اگر (!de) {                                              \
+                        اگر (errno > 0) {                                \
                                 on_error;                               \
                         }                                               \
-                        break;                                          \
-                } else
+                        توڑو;                                          \
+                } ورنہ
 
-#define FOREACH_DIRENT(de, d, on_error)                                 \
+#تعریف_کرو FOREACH_DIRENT(de, d, on_error)                                 \
         FOREACH_DIRENT_ALL(de, d, on_error)                             \
-             if (hidden_or_backup_file((de)->d_name))                   \
-                     continue;                                          \
-             else
+             اگر (hidden_or_backup_file((de)->d_name))                   \
+                     جاری;                                          \
+             ورنہ
 
 /* Maximum space one dirent structure might require at most */
-#define DIRENT_SIZE_MAX CONST_MAX(sizeof(struct dirent), offsetof(struct dirent, d_name) + NAME_MAX + 1)
+#تعریف_کرو DIRENT_سائز_MAX CONST_MAX(حجم(ساخت dirent), offsetof(ساخت dirent, d_name) + NAME_MAX + 1)
 
 /* Only if 64-bit off_t is enabled struct dirent + struct dirent64 are actually the same. We require this, and
  * we want them to be interchangeable to make getdents64() work, hence verify that. */
-assert_cc(_FILE_OFFSET_BITS == 64);
-assert_cc(sizeof(struct dirent) == sizeof(struct dirent64));
-assert_cc(offsetof(struct dirent, d_ino) == offsetof(struct dirent64, d_ino));
-assert_cc(sizeof_field(struct dirent, d_ino) == sizeof_field(struct dirent64, d_ino));
-assert_cc(offsetof(struct dirent, d_off) == offsetof(struct dirent64, d_off));
-assert_cc(sizeof_field(struct dirent, d_off) == sizeof_field(struct dirent64, d_off));
-assert_cc(offsetof(struct dirent, d_reclen) == offsetof(struct dirent64, d_reclen));
-assert_cc(sizeof_field(struct dirent, d_reclen) == sizeof_field(struct dirent64, d_reclen));
-assert_cc(offsetof(struct dirent, d_type) == offsetof(struct dirent64, d_type));
-assert_cc(sizeof_field(struct dirent, d_type) == sizeof_field(struct dirent64, d_type));
-assert_cc(offsetof(struct dirent, d_name) == offsetof(struct dirent64, d_name));
-assert_cc(sizeof_field(struct dirent, d_name) == sizeof_field(struct dirent64, d_name));
+assert_cc(FILE_انحراف_بٹ == 64);
+assert_cc(حجم(ساخت dirent) == حجم(ساخت dirent64));
+assert_cc(offsetof(ساخت dirent, d_ino) == offsetof(ساخت dirent64, d_ino));
+assert_cc(sizeof_میدان(ساخت dirent, d_ino) == sizeof_میدان(ساخت dirent64, d_ino));
+assert_cc(offsetof(ساخت dirent, d_off) == offsetof(ساخت dirent64, d_off));
+assert_cc(sizeof_میدان(ساخت dirent, d_off) == sizeof_میدان(ساخت dirent64, d_off));
+assert_cc(offsetof(ساخت dirent, d_reclen) == offsetof(ساخت dirent64, d_reclen));
+assert_cc(sizeof_میدان(ساخت dirent, d_reclen) == sizeof_میدان(ساخت dirent64, d_reclen));
+assert_cc(offsetof(ساخت dirent, d_type) == offsetof(ساخت dirent64, d_type));
+assert_cc(sizeof_میدان(ساخت dirent, d_type) == sizeof_میدان(ساخت dirent64, d_type));
+assert_cc(offsetof(ساخت dirent, d_name) == offsetof(ساخت dirent64, d_name));
+assert_cc(sizeof_میدان(ساخت dirent, d_name) == sizeof_میدان(ساخت dirent64, d_name));
 
-#define FOREACH_DIRENT_IN_BUFFER(de, buf, sz)                           \
-        for (void *_end = (uint8_t*) ({ (de) = (buf); }) + (sz);        \
-             (uint8_t*) (de) < (uint8_t*) _end;                         \
-             (de) = (struct dirent*) ((uint8_t*) (de) + (de)->d_reclen))
+#تعریف_کرو FOREACH_DIRENT_اندر_بفر(de, buf, sz)                           \
+        برائے (خالی *انتہا_2 = (uint8_t*) ({ (de) = (buf); }) + (sz);        \
+             (uint8_t*) (de) < (uint8_t*) انتہا_2;                         \
+             (de) = (ساخت dirent*) ((uint8_t*) (de) + (de)->d_reclen))
 
-#define DEFINE_DIRENT_BUFFER(name, sz)                                  \
-        union {                                                         \
-                struct dirent de;                                       \
-                uint8_t data[(sz) * DIRENT_SIZE_MAX];                   \
+#تعریف_کرو DEFINE_DIRENT_بفر(name, sz)                                  \
+        اتحاد {                                                         \
+                ساخت dirent de;                                       \
+                uint8_t ڈیٹا[(sz) * DIRENT_سائز_MAX];                   \
         } name

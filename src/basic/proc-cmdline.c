@@ -1,337 +1,337 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#شامل <stdlib.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "initrd-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "virt.h"
+#شامل "alloc-util.h"
+#شامل "extract-word.h"
+#شامل "fileio.h"
+#شامل "initrd-util.h"
+#شامل "log.h"
+#شامل "parse-util.h"
+#شامل "proc-cmdline.h"
+#شامل "process-util.h"
+#شامل "string-util.h"
+#شامل "strv.h"
+#شامل "virt.h"
 
-typedef enum ArgType {
-        no_argument,
-        required_argument,
-        optional_argument,
+قسمتعریف شمار ArgType {
+        no_دلیل,
+        required_دلیل,
+        optional_دلیل,
 } ArgType;
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
-        const struct {
-                const char *name;
+صحیح proc_cmdline_filter_pid1_دلائل(حرف **argv, حرف ***ret) {
+        ثابت ساخت {
+                ثابت حرف *name;
                 ArgType has_arg;
         } options[] = {
-                { "log-level",                required_argument },
-                { "log-target",               required_argument },
-                { "log-color",                optional_argument },
-                { "log-location",             optional_argument },
-                { "log-time",                 optional_argument },
-                { "unit",                     required_argument },
-                { "system",                   no_argument,      },
-                { "user",                     no_argument,      },
-                { "test",                     no_argument,      },
-                { "no-pager",                 no_argument,      },
-                { "help",                     no_argument,      },
-                { "version",                  no_argument,      },
-                { "introspect-cli",           no_argument,      },
-                { "dump-configuration-items", no_argument,      },
-                { "dump-bus-properties",      no_argument,      },
-                { "bus-introspect",           required_argument },
-                { "dump-core",                optional_argument },
-                { "crash-chvt",               required_argument },
-                { "crash-vt",                 required_argument },
-                { "crash-shell",              optional_argument },
-                { "crash-reboot",             optional_argument },
-                { "crash-action",             required_argument },
-                { "confirm-spawn",            optional_argument },
-                { "show-status",              optional_argument },
-                { "deserialize",              required_argument },
-                { "switched-root",            no_argument,      },
-                { "default-standard-output",  required_argument },
-                { "default-standard-error",   required_argument },
-                { "machine-id",               required_argument },
-                { "service-watchdogs",        required_argument },
-                { "exit-code",                required_argument },
-                { "timeout",                  required_argument },
+                { "log-level",                required_دلیل },
+                { "log-target",               required_دلیل },
+                { "log-color",                optional_دلیل },
+                { "log-location",             optional_دلیل },
+                { "log-time",                 optional_دلیل },
+                { "unit",                     required_دلیل },
+                { "system",                   no_دلیل,      },
+                { "user",                     no_دلیل,      },
+                { "test",                     no_دلیل,      },
+                { "no-pager",                 no_دلیل,      },
+                { "help",                     no_دلیل,      },
+                { "version",                  no_دلیل,      },
+                { "introspect-cli",           no_دلیل,      },
+                { "dump-configuration-items", no_دلیل,      },
+                { "dump-bus-properties",      no_دلیل,      },
+                { "bus-introspect",           required_دلیل },
+                { "dump-core",                optional_دلیل },
+                { "crash-chvt",               required_دلیل },
+                { "crash-vt",                 required_دلیل },
+                { "crash-shell",              optional_دلیل },
+                { "crash-reboot",             optional_دلیل },
+                { "crash-action",             required_دلیل },
+                { "confirm-spawn",            optional_دلیل },
+                { "show-status",              optional_دلیل },
+                { "deserialize",              required_دلیل },
+                { "switched-root",            no_دلیل,      },
+                { "default-standard-output",  required_دلیل },
+                { "default-standard-error",   required_دلیل },
+                { "machine-id",               required_دلیل },
+                { "service-watchdogs",        required_دلیل },
+                { "exit-code",                required_دلیل },
+                { "timeout",                  required_دلیل },
         };
-        const char *short_options = "hDbsz:";
+        ثابت حرف *short_options = "hDbsz:";
 
-        _cleanup_strv_free_ char **filtered = NULL;
-        int state, r;
+        _cleanup_strv_free_ حرف **filtered = تہی;
+        صحیح state, r;
 
-        assert(argv);
-        assert(ret);
+        أكد(argv);
+        أكد(ret);
 
         /* Currently, we do not support '-', '+', and ':' at the beginning. */
-        assert(!IN_SET(short_options[0], '-', '+', ':'));
+        أكد(!اندر_سیٹ(short_options[0], '-', '+', ':'));
 
         /* Filter out all known options. */
-        state = no_argument;
+        state = no_دلیل;
         STRV_FOREACH(p, strv_skip(argv, 1)) {
-                int prev_state = state;
-                const char *a = *p;
+                صحیح پچھلا_state = state;
+                ثابت حرف *a = *p;
 
                 /* Reset the state for the next step. */
-                state = no_argument;
+                state = no_دلیل;
 
-                if (prev_state == required_argument ||
-                    (prev_state == optional_argument && a[0] != '-'))
+                اگر (پچھلا_state == required_دلیل ||
+                    (پچھلا_state == optional_دلیل && a[0] != '-'))
                         /* Handled as an argument of the previous option, filtering out the string. */
-                        continue;
+                        جاری;
 
-                if (a[0] != '-') {
+                اگر (a[0] != '-') {
                         /* Not an option, accepting the string. */
                         r = strv_extend(&filtered, a);
-                        if (r < 0)
-                                return r;
-                        continue;
+                        اگر (r < 0)
+                                واپس r;
+                        جاری;
                 }
 
-                if (a[1] == '-') {
-                        if (a[2] == '\0') {
+                اگر (a[1] == '-') {
+                        اگر (a[2] == '\0') {
                                 /* "--" is specified, accepting remaining strings. */
                                 r = strv_extend_strv(&filtered, strv_skip(p, 1), /* filter_duplicates= */ false);
-                                if (r < 0)
-                                        return r;
-                                break;
+                                اگر (r < 0)
+                                        واپس r;
+                                توڑو;
                         }
 
                         /* long option, e.g. --foo */
                         FOREACH_ELEMENT(option, options) {
-                                const char *q = startswith(a + 2, option->name);
-                                if (!q || !IN_SET(q[0], '=', '\0'))
-                                        continue;
+                                ثابت حرف *q = startswith(a + 2, option->name);
+                                اگر (!q || !اندر_سیٹ(q[0], '=', '\0'))
+                                        جاری;
 
                                 /* Found matching option, updating the state if necessary. */
-                                if (q[0] == '\0' && option->has_arg == required_argument)
-                                        state = required_argument;
+                                اگر (q[0] == '\0' && option->has_arg == required_دلیل)
+                                        state = required_دلیل;
 
-                                break;
+                                توڑو;
                         }
-                        continue;
+                        جاری;
                 }
 
                 /* short option(s), e.g. -x or -xyz */
-                while (a && *++a != '\0')
-                        for (const char *q = short_options; *q != '\0'; q++) {
-                                if (*q != *a)
-                                        continue;
+                جب (a && *++a != '\0')
+                        برائے (ثابت حرف *q = short_options; *q != '\0'; q++) {
+                                اگر (*q != *a)
+                                        جاری;
 
                                 /* Found matching short option. */
 
-                                if (q[1] == ':') {
+                                اگر (q[1] == ':') {
                                         /* An argument is required or optional, and remaining part
                                          * is handled as argument if exists. */
-                                        state = a[1] != '\0' ? no_argument :
-                                                q[2] == ':' ? optional_argument : required_argument;
+                                        state = a[1] != '\0' ? no_دلیل :
+                                                q[2] == ':' ? optional_دلیل : required_دلیل;
 
-                                        a = NULL; /* Not necessary to parse remaining part. */
+                                        a = تہی; /* Not necessary to parse remaining part. */
                                 }
-                                break;
+                                توڑو;
                         }
         }
 
         *ret = TAKE_PTR(filtered);
-        return 0;
+        واپس 0;
 }
 
-int proc_cmdline(char **ret) {
-        assert(ret);
+صحیح proc_cmdline(حرف **ret) {
+        أكد(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strdup_to(ret, e);
+        ثابت حرف *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        اگر (e)
+                واپس strdup_مقصد(ret, e);
 
-        if (detect_container() > 0)
-                return pid_get_cmdline(1, SIZE_MAX, 0, ret);
+        اگر (detect_container() > 0)
+                واپس pid_get_cmdline(1, SIZE_MAX, 0, ret);
 
-        return read_full_file("/proc/cmdline", ret, /* ret_size= */  NULL);
+        واپس read_بھرا_file("/proc/cmdline", ret, /* ret_size= */  تہی);
 }
 
-static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
-        int r;
+ساکن صحیح proc_cmdline_strv_اندرونی(حرف ***ret, bool filter_pid1_دلائل) {
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strv_split_full(ret, e, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+        ثابت حرف *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        اگر (e)
+                واپس strv_بانٹو_بھرا(ret, e, تہی, نکالو_UNQUOTE|نکالو_RELAX|نکالو_RETAIN_ESCAPE);
 
-        if (detect_container() > 0) {
-                _cleanup_strv_free_ char **args = NULL;
+        اگر (detect_container() > 0) {
+                _cleanup_strv_free_ حرف **دلائل = تہی;
 
-                r = pid_get_cmdline_strv(1, /* flags= */ 0, &args);
-                if (r < 0)
-                        return r;
+                r = pid_get_cmdline_strv(1, /* flags= */ 0, &دلائل);
+                اگر (r < 0)
+                        واپس r;
 
-                if (filter_pid1_args)
-                        return proc_cmdline_filter_pid1_args(args, ret);
+                اگر (filter_pid1_دلائل)
+                        واپس proc_cmdline_filter_pid1_دلائل(دلائل, ret);
 
-                *ret = TAKE_PTR(args);
-                return 0;
+                *ret = TAKE_PTR(دلائل);
+                واپس 0;
 
-        } else {
-                _cleanup_free_ char *s = NULL;
+        } ورنہ {
+                _cleanup_free_ حرف *s = تہی;
 
-                r = read_full_file("/proc/cmdline", &s, NULL);
-                if (r < 0)
-                        return r;
+                r = read_بھرا_file("/proc/cmdline", &s, تہی);
+                اگر (r < 0)
+                        واپس r;
 
-                return strv_split_full(ret, s, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+                واپس strv_بانٹو_بھرا(ret, s, تہی, نکالو_UNQUOTE|نکالو_RELAX|نکالو_RETAIN_ESCAPE);
         }
 }
 
-int proc_cmdline_strv(char ***ret) {
-        return proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
+صحیح proc_cmdline_strv(حرف ***ret) {
+        واپس proc_cmdline_strv_اندرونی(ret, /* filter_pid1_args= */ false);
 }
 
-static char *mangle_word(const char *word, ProcCmdlineFlags flags) {
-        char *c = (char*) startswith(word, "rd.");
-        if (c) {
+ساکن حرف *mangle_لفظ(ثابت حرف *لفظ, ProcCmdlineFlags flags) {
+        حرف *c = (حرف*) startswith(لفظ, "rd.");
+        اگر (c) {
                 /* Filter out arguments that are intended only for the initrd */
 
-                if (!in_initrd())
-                        return NULL;
+                اگر (!اندر_initrd())
+                        واپس تہی;
 
-                if (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
-                        return c;
+                اگر (FLAGS_سیٹ(flags, PROC_CMDLINE_STRIP_RD_سابقہ))
+                        واپس c;
 
-        } else if (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
+        } ورنہ اگر (FLAGS_سیٹ(flags, PROC_CMDLINE_RD_STRICT) && اندر_initrd())
                 /* And optionally filter out arguments that are intended only for the host */
-                return NULL;
+                واپس تہی;
 
-        return (char*) word;
+        واپس (حرف*) لفظ;
 }
 
-#define mangle_word(word, flags) const_generic(word, mangle_word(word, flags))
+#تعریف_کرو mangle_لفظ(لفظ, flags) const_generic(لفظ, mangle_لفظ(لفظ, flags))
 
-static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        int r;
+ساکن صحیح proc_cmdline_parse_strv(حرف **دلائل, proc_cmdline_parse_t parse_شے, خالی *ڈیٹا, ProcCmdlineFlags flags) {
+        صحیح r;
 
-        assert(parse_item);
+        أكد(parse_شے);
 
-        STRV_FOREACH(word, args) {
-                char *key, *value;
+        STRV_FOREACH(لفظ, دلائل) {
+                حرف *کلید, *قدر;
 
-                key = mangle_word(*word, flags);
-                if (!key)
-                        continue;
+                کلید = mangle_لفظ(*لفظ, flags);
+                اگر (!کلید)
+                        جاری;
 
-                value = strchr(key, '=');
-                if (value)
-                        *(value++) = '\0';
+                قدر = strchr(کلید, '=');
+                اگر (قدر)
+                        *(قدر++) = '\0';
 
-                r = parse_item(key, value, data);
-                if (r < 0)
-                        return r;
+                r = parse_شے(کلید, قدر, ڈیٹا);
+                اگر (r < 0)
+                        واپس r;
         }
 
-        return 0;
+        واپس 0;
 }
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+صحیح proc_cmdline_parse(proc_cmdline_parse_t parse_شے, خالی *ڈیٹا, ProcCmdlineFlags flags) {
+        _cleanup_strv_free_ حرف **دلائل = تہی;
+        صحیح r;
 
-        assert(parse_item);
+        أكد(parse_شے);
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_parse(), let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        أكد(!(flags & (PROC_CMDLINE_قدر_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv_اندرونی(&دلائل, /* filter_pid1_args= */ true);
+        اگر (r < 0)
+                واپس r;
 
-        return proc_cmdline_parse_strv(args, parse_item, data, flags);
+        واپس proc_cmdline_parse_strv(دلائل, parse_شے, ڈیٹا, flags);
 }
 
-static bool relaxed_equal_char(char a, char b) {
-        return a == b ||
+ساکن bool relaxed_equal_char(حرف a, حرف b) {
+        واپس a == b ||
                 (a == '_' && b == '-') ||
                 (a == '-' && b == '_');
 }
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
-        assert(s);
-        assert(prefix);
+حرف* proc_cmdline_کلید_startswith(ثابت حرف *s, ثابت حرف *سابقہ) {
+        أكد(s);
+        أكد(سابقہ);
 
         /* Much like startswith(), but considers "-" and "_" the same */
 
-        for (; *prefix != 0; s++, prefix++)
-                if (!relaxed_equal_char(*s, *prefix))
-                        return NULL;
+        برائے (; *سابقہ != 0; s++, سابقہ++)
+                اگر (!relaxed_equal_char(*s, *سابقہ))
+                        واپس تہی;
 
-        return (char*) s;
+        واپس (حرف*) s;
 }
 
-bool proc_cmdline_key_streq(const char *x, const char *y) {
-        assert(x);
-        assert(y);
+bool proc_cmdline_کلید_streq(ثابت حرف *x, ثابت حرف *y) {
+        أكد(x);
+        أكد(y);
 
         /* Much like streq(), but considers "-" and "_" the same */
 
-        for (; *x != 0 || *y != 0; x++, y++)
-                if (!relaxed_equal_char(*x, *y))
-                        return false;
+        برائے (; *x != 0 || *y != 0; x++, y++)
+                اگر (!relaxed_equal_char(*x, *y))
+                        واپس false;
 
-        return true;
+        واپس true;
 }
 
-static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_free_ char *v = NULL;
-        bool found = false;
-        int r;
+ساکن صحیح cmdline_get_کلید(حرف **دلائل, ثابت حرف *کلید, ProcCmdlineFlags flags, حرف **ret_قدر) {
+        _cleanup_free_ حرف *v = تہی;
+        bool ملا = false;
+        صحیح r;
 
-        assert(key);
+        أكد(کلید);
 
-        STRV_FOREACH(p, args) {
-                const char *word;
+        STRV_FOREACH(p, دلائل) {
+                ثابت حرف *لفظ;
 
-                word = mangle_word(*p, flags);
-                if (!word)
-                        continue;
+                لفظ = mangle_لفظ(*p, flags);
+                اگر (!لفظ)
+                        جاری;
 
-                if (ret_value) {
-                        const char *e;
+                اگر (ret_قدر) {
+                        ثابت حرف *e;
 
-                        e = proc_cmdline_key_startswith(word, key);
-                        if (!e)
-                                continue;
+                        e = proc_cmdline_کلید_startswith(لفظ, کلید);
+                        اگر (!e)
+                                جاری;
 
-                        if (*e == '=') {
+                        اگر (*e == '=') {
                                 r = free_and_strdup(&v, e+1);
-                                if (r < 0)
-                                        return r;
+                                اگر (r < 0)
+                                        واپس r;
 
-                                found = true;
+                                ملا = true;
 
-                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL))
-                                found = true;
+                        } ورنہ اگر (*e == 0 && FLAGS_سیٹ(flags, PROC_CMDLINE_قدر_OPTIONAL))
+                                ملا = true;
 
-                } else {
-                        if (proc_cmdline_key_streq(word, key)) {
-                                found = true;
-                                break; /* we found what we were looking for */
+                } ورنہ {
+                        اگر (proc_cmdline_کلید_streq(لفظ, کلید)) {
+                                ملا = true;
+                                توڑو; /* we found what we were looking for */
                         }
                 }
         }
 
-        if (ret_value)
-                *ret_value = TAKE_PTR(v);
+        اگر (ret_قدر)
+                *ret_قدر = TAKE_PTR(v);
 
-        return found;
+        واپس ملا;
 }
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+صحیح proc_cmdline_get_کلید(ثابت حرف *کلید, ProcCmdlineFlags flags, حرف **ret_قدر) {
+        _cleanup_strv_free_ حرف **دلائل = تہی;
+        صحیح r;
 
         /* Looks for a specific key on the kernel command line. Supports three modes:
          *
@@ -347,109 +347,109 @@ int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_val
          * In all three cases, > 0 is returned if the key is found, 0 if not. */
 
         /* PROC_CMDLINE_TRUE_WHEN_MISSING doesn't really make sense for proc_cmdline_get_key(). */
-        assert(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
+        أكد(!FLAGS_سیٹ(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
 
-        if (isempty(key))
-                return -EINVAL;
+        اگر (isempty(کلید))
+                واپس -EINVAL;
 
-        if (FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL) && !ret_value)
-                return -EINVAL;
+        اگر (FLAGS_سیٹ(flags, PROC_CMDLINE_قدر_OPTIONAL) && !ret_قدر)
+                واپس -EINVAL;
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv_اندرونی(&دلائل, /* filter_pid1_args= */ true);
+        اگر (r < 0)
+                واپس r;
 
-        return cmdline_get_key(args, key, flags, ret_value);
+        واپس cmdline_get_کلید(دلائل, کلید, flags, ret_قدر);
 }
 
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+صحیح proc_cmdline_get_bool(ثابت حرف *کلید, ProcCmdlineFlags flags, bool *ret) {
+        _cleanup_free_ حرف *v = تہی;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = proc_cmdline_get_key(key, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_VALUE_OPTIONAL, &v);
-        if (r < 0)
-                return r;
-        if (r == 0) { /* key not specified at all */
-                *ret = FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
-                return 0;
+        r = proc_cmdline_get_کلید(کلید, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_قدر_OPTIONAL, &v);
+        اگر (r < 0)
+                واپس r;
+        اگر (r == 0) { /* key not specified at all */
+                *ret = FLAGS_سیٹ(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
+                واپس 0;
         }
 
-        if (v) { /* key with parameter passed */
+        اگر (v) { /* key with parameter passed */
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
                 *ret = r;
-        } else /* key without parameter passed */
+        } ورنہ /* key without parameter passed */
                 *ret = true;
 
-        return 1;
+        واپس 1;
 }
 
-static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list ap) {
-        int r, ret = 0;
+ساکن صحیح cmdline_get_کلید_ap(ProcCmdlineFlags flags, حرف* ثابت* دلائل, va_list ap) {
+        صحیح r, ret = 0;
 
-        for (;;) {
-                char **v;
-                const char *k, *e;
+        برائے (;;) {
+                حرف **v;
+                ثابت حرف *k, *e;
 
-                k = va_arg(ap, const char*);
-                if (!k)
-                        break;
+                k = va_arg(ap, ثابت حرف*);
+                اگر (!k)
+                        توڑو;
 
-                assert_se(v = va_arg(ap, char**));
+                assert_se(v = va_arg(ap, حرف**));
 
-                STRV_FOREACH(p, args) {
-                        const char *word;
+                STRV_FOREACH(p, دلائل) {
+                        ثابت حرف *لفظ;
 
-                        word = mangle_word(*p, flags);
-                        if (!word)
-                                continue;
+                        لفظ = mangle_لفظ(*p, flags);
+                        اگر (!لفظ)
+                                جاری;
 
-                        e = proc_cmdline_key_startswith(word, k);
-                        if (e && *e == '=') {
+                        e = proc_cmdline_کلید_startswith(لفظ, k);
+                        اگر (e && *e == '=') {
                                 r = free_and_strdup(v, e + 1);
-                                if (r < 0)
-                                        return r;
+                                اگر (r < 0)
+                                        واپس r;
 
                                 ret++;
                         }
                 }
         }
 
-        return ret;
+        واپس ret;
 }
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+صحیح proc_cmdline_get_کلید_many_اندرونی(ProcCmdlineFlags flags, ...) {
+        _cleanup_strv_free_ حرف **دلائل = تہی;
+        صحیح r;
         va_list ap;
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_get_key_many, let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        أكد(!(flags & (PROC_CMDLINE_قدر_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         /* This call may clobber arguments on failure! */
 
-        r = proc_cmdline_strv(&args);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv(&دلائل);
+        اگر (r < 0)
+                واپس r;
 
         va_start(ap, flags);
-        r = cmdline_get_key_ap(flags, args, ap);
+        r = cmdline_get_کلید_ap(flags, دلائل, ap);
         va_end(ap);
 
-        return r;
+        واپس r;
 }
 
-bool proc_cmdline_value_missing(const char *key, const char *value) {
-        assert(key);
+bool proc_cmdline_قدر_missing(ثابت حرف *کلید, ثابت حرف *قدر) {
+        أكد(کلید);
 
-        if (!value) {
-                log_warning("Missing argument for %s= kernel command line switch, ignoring.", key);
-                return true;
+        اگر (!قدر) {
+                log_warning("Missing argument for %s= kernel command line switch, ignoring.", کلید);
+                واپس true;
         }
 
-        return false;
+        واپس false;
 }

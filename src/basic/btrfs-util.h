@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-typedef enum BtrfsSubvolFlags {
+قسمتعریف شمار BtrfsSubvolFlags {
         BTRFS_SUBVOL_RO               = 1 << 0,
         BTRFS_SUBVOL_NODATACOW        = 1 << 1,
-        _BTRFS_SUBVOL_FLAGS_MASK      = BTRFS_SUBVOL_NODATACOW|BTRFS_SUBVOL_RO,
+        BTRFS_SUBVOL_FLAGS_نقاب      = BTRFS_SUBVOL_NODATACOW|BTRFS_SUBVOL_RO,
         _BTRFS_SUBVOL_FLAGS_INVALID   = -EINVAL,
         _BTRFS_SUBVOL_FLAGS_ERRNO_MAX = -ERRNO_MAX, /* Ensure the whole errno range fits into this enum */
 } BtrfsSubvolFlags;
 
-int btrfs_validate_subvolume_name(const char *name);
+صحیح btrfs_validate_subvolume_name(ثابت حرف *name);
 
-int btrfs_subvol_make(int dir_fd, const char *path);
+صحیح btrfs_subvol_make(صحیح dir_fd, ثابت حرف *راستہ);
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode);
+صحیح btrfs_subvol_make_fallback(صحیح dir_fd, ثابت حرف *راستہ, mode_t منوال);

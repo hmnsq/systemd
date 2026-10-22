@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <sys/stat.h>
+#شامل <sys/stat.h>
 
-#include "forward.h"
+#شامل "forward.h"
 
-static inline void umaskp(mode_t *u) {
+ساکن اندرونی خالی umaskp(mode_t *u) {
         umask(*u);
 }
 
-#define _cleanup_umask_ _cleanup_(umaskp)
+#تعریف_کرو _cleanup_umask_ _cleanup_(umaskp)
 
 /* We make use of the fact here that the umask() syscall uses only the lower 9 bits of mode_t, although
  * mode_t has space for the file type in the bits further up. We simply OR in the file type mask S_IFMT to
@@ -18,10 +18,10 @@ static inline void umaskp(mode_t *u) {
 
 assert_cc((S_IFMT & 0777) == 0);
 
-#define WITH_UMASK(mask)                                            \
-        for (_cleanup_umask_ mode_t _saved_umask_ = umask(mask) | S_IFMT; \
-             FLAGS_SET(_saved_umask_, S_IFMT);                          \
+#تعریف_کرو WITH_UMASK(نقاب_3)                                            \
+        برائے (_cleanup_umask_ mode_t _saved_umask_ = umask(نقاب_3) | S_IFMT; \
+             FLAGS_سیٹ(_saved_umask_, S_IFMT);                          \
              _saved_umask_ &= 0777)
 
-#define BLOCK_WITH_UMASK(mask) \
-        _unused_ _cleanup_umask_ mode_t _saved_umask_ = umask(mask);
+#تعریف_کرو بلاک_WITH_UMASK(نقاب_3) \
+        غیر_مستعمل _cleanup_umask_ mode_t _saved_umask_ = umask(نقاب_3);

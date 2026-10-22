@@ -3,29 +3,29 @@
 // MurmurHash2 was written by Austin Appleby, and is placed in the public
 // domain. The author hereby disclaims copyright to this source code.
 
-#pragma once
+#ہدایت once
 
 //-----------------------------------------------------------------------------
 // Platform-specific functions and macros
 
 // Microsoft Visual Studio
 
-#if defined(_MSC_VER)
+#اگر defined(_MSC_VER)
 
-typedef unsigned char uint8_t;
-typedef unsigned long uint32_t;
-typedef unsigned __int64 uint64_t;
+قسمتعریف غیرعلامتی حرف uint8_t;
+قسمتعریف غیرعلامتی طویل uint32_t;
+قسمتعریف غیرعلامتی __int64 uint64_t;
 
 // Other compilers
 
-#else        // defined(_MSC_VER)
+#ورنہ        // defined(_MSC_VER)
 
-#include <stdint.h>
+#شامل <stdint.h>
 
-#endif // !defined(_MSC_VER)
+#اگر_ختم // !defined(_MSC_VER)
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2        ( const void * key, int len, uint32_t seed );
+uint32_t MurmurHash2        ( ثابت خالی * کلید, صحیح len, uint32_t بیج );
 
 //-----------------------------------------------------------------------------

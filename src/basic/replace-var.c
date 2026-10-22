@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#شامل "alloc-util.h"
+#شامل "replace-var.h"
+#شامل "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+ساکن صحیح get_variable(ثابت حرف *b, حرف **r) {
         size_t k;
-        char *t;
+        حرف *t;
 
-        assert(b);
-        assert(r);
+        أكد(b);
+        أكد(r);
 
-        if (*b != '@')
-                return 0;
+        اگر (*b != '@')
+                واپس 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        اگر (k <= 0 || b[k+1] != '@')
+                واپس 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        اگر (!t)
+                واپس -ENOMEM;
 
         *r = t;
-        return 1;
+        واپس 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
+حرف* replace_var(ثابت حرف *متن, حرف *(*lookup)(ثابت حرف *variable, خالی *userdata), خالی *userdata) {
+        حرف *r, *t;
+        ثابت حرف *f;
         size_t l;
 
-        assert(text);
-        assert(lookup);
+        أكد(متن);
+        أكد(lookup);
 
-        l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        l = لڑی_لمبائی(متن);
+        r = new(حرف, l+1);
+        اگر (!r)
+                واپس تہی;
 
-        f = text;
+        f = متن;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
+        جب (*f) {
+                _cleanup_free_ حرف *v = تہی, *n = تہی;
+                حرف *a;
+                صحیح k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                اگر (k < 0)
+                        جاؤ oom;
+                اگر (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        جاری;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                اگر (!n)
+                        جاؤ oom;
 
-                skip = strlen(v) + 2;
+                skip = لڑی_لمبائی(v) + 2;
 
                 d = t - r;
-                nl = l - skip + strlen(n);
+                nl = l - skip + لڑی_لمبائی(n);
                 a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                اگر (!a)
+                        جاؤ oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        واپس r;
 
 oom:
-        return mfree(r);
+        واپس mfree(r);
 }

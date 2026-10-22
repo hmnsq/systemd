@@ -1,438 +1,438 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#شامل <stdio.h>
 
-#include "alloc-util.h"
-#include "iovec-util.h"
-#include "iovec-wrapper.h"
-#include "string-util.h"
-#include "unaligned.h"
+#شامل "alloc-util.h"
+#شامل "iovec-util.h"
+#شامل "iovec-wrapper.h"
+#شامل "string-util.h"
+#شامل "unaligned.h"
 
-void iovw_done(struct iovec_wrapper *iovw) {
-        assert(iovw);
+خالی iovw_مکمل(ساخت iovec_wrapper *iovw) {
+        أكد(iovw);
 
         iovw->iovec = mfree(iovw->iovec);
-        iovw->count = 0;
+        iovw->گنتی = 0;
 }
 
-void iovw_done_free(struct iovec_wrapper *iovw) {
-        assert(iovw);
+خالی iovw_مکمل_free(ساخت iovec_wrapper *iovw) {
+        أكد(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
-                iovec_done(i);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->گنتی)
+                iovec_مکمل(i);
 
-        iovw_done(iovw);
+        iovw_مکمل(iovw);
 }
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+ساخت iovec_wrapper* iovw_free(ساخت iovec_wrapper *iovw) {
+        اگر (!iovw)
+                واپس تہی;
 
-        iovw_done(iovw);
-        return mfree(iovw);
+        iovw_مکمل(iovw);
+        واپس mfree(iovw);
 }
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+ساخت iovec_wrapper* iovw_free_free(ساخت iovec_wrapper *iovw) {
+        اگر (!iovw)
+                واپس تہی;
 
-        iovw_done_free(iovw);
-        return mfree(iovw);
+        iovw_مکمل_free(iovw);
+        واپس mfree(iovw);
 }
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        int r;
+صحیح iovw_compare(ثابت ساخت iovec_wrapper *a, ثابت ساخت iovec_wrapper *b) {
+        صحیح r;
 
-        if (a == b)
-                return 0;
+        اگر (a == b)
+                واپس 0;
 
-        if (!a || !b)
-                return CMP(!!a, !!b);
+        اگر (!a || !b)
+                واپس CMP(!!a, !!b);
 
         /* Note, this performs structural (element-by-element) comparison, not content-based comparison.
          * Two wrappers with identical concatenated content but different element boundaries
          * (e.g., ["fo","o"] vs ["f","oo"]) will not compare as equal. */
 
-        for (size_t i = 0, n = MIN(a->count, b->count); i < n; i++) {
+        برائے (size_t i = 0, n = MIN(a->گنتی, b->گنتی); i < n; i++) {
                 r = iovec_memcmp(a->iovec + i, b->iovec + i);
-                if (r != 0)
-                        return r;
+                اگر (r != 0)
+                        واپس r;
         }
 
-        return CMP(a->count, b->count);
+        واپس CMP(a->گنتی, b->گنتی);
 }
 
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+صحیح iovw_put_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, خالی *ڈیٹا, size_t len) {
+        أكد(iovw);
+        أكد(ڈیٹا || len == 0);
 
-        if (len == 0 && !accept_zero)
-                return 0;
+        اگر (len == 0 && !accept_zero)
+                واپس 0;
 
-        if (iovw->count >= IOV_MAX)
-                return -E2BIG;
+        اگر (iovw->گنتی >= IOV_MAX)
+                واپس -E2BIG;
 
-        if (!GREEDY_REALLOC(iovw->iovec, iovw->count + 1))
-                return -ENOMEM;
+        اگر (!GREEDY_REALLOC(iovw->iovec, iovw->گنتی + 1))
+                واپس -ENOMEM;
 
-        iovw->iovec[iovw->count++] = IOVEC_MAKE(data, len);
-        return 1;
+        iovw->iovec[iovw->گنتی++] = IOVEC_MAKE(ڈیٹا, len);
+        واپس 1;
 }
 
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+صحیح iovw_put_iov_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec *iov) {
+        أكد(iovw);
 
-        if (!iov)
-                return 0;
+        اگر (!iov)
+                واپس 0;
 
-        return iovw_put_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        واپس iovw_put_بھرا(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+صحیح iovw_put_iovw_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec_wrapper *ماخذ) {
+        صحیح r;
 
-        assert(iovw);
+        أكد(iovw);
 
-        if (iovw_isempty(source))
-                return 0;
+        اگر (iovw_isempty(ماخذ))
+                واپس 0;
 
         /* We will reallocate iovw->iovec, hence the source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        اگر (iovw == ماخذ)
+                واپس -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        اگر (iovw->گنتی > SIZE_MAX - ماخذ->گنتی)
+                واپس -E2BIG;
+        اگر (iovw->گنتی + ماخذ->گنتی > IOV_MAX)
+                واپس -E2BIG;
 
-        if (accept_zero) {
-                if (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->count, source->iovec, source->count))
-                        return -ENOMEM;
+        اگر (accept_zero) {
+                اگر (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->گنتی, ماخذ->iovec, ماخذ->گنتی))
+                        واپس -ENOMEM;
 
-                return 0;
+                واپس 0;
         }
 
         /* When accept_zero is false, we need to filter zero length iovec in source. */
-        size_t original_count = iovw->count;
+        size_t original_گنتی = iovw->گنتی;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
-                r = iovw_put_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+        FOREACH_ARRAY(iovec, ماخذ->iovec, ماخذ->گنتی) {
+                r = iovw_put_iov_بھرا(iovw, accept_zero, iovec);
+                اگر (r < 0)
+                        جاؤ rollback;
         }
 
-        return 0;
+        واپس 0;
 
 rollback:
-        iovw->count = original_count;
-        return r;
+        iovw->گنتی = original_گنتی;
+        واپس r;
 }
 
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
+صحیح iovw_consume_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, خالی *ڈیٹا, size_t len) {
         /* Move data into iovw or free on error */
-        int r;
+        صحیح r;
 
-        r = iovw_put_full(iovw, accept_zero, data, len);
-        if (r <= 0)
-                free(data);
+        r = iovw_put_بھرا(iovw, accept_zero, ڈیٹا, len);
+        اگر (r <= 0)
+                آزاد(ڈیٹا);
 
-        return r;
+        واپس r;
 }
 
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov) {
-        int r;
+صحیح iovw_consume_iov_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ساخت iovec *iov) {
+        صحیح r;
 
-        assert(iovw);
+        أكد(iovw);
 
-        if (!iov)
-                return 0;
+        اگر (!iov)
+                واپس 0;
 
-        r = iovw_put_iov_full(iovw, accept_zero, iov);
-        if (r <= 0)
-                iovec_done(iov);
-        else
+        r = iovw_put_iov_بھرا(iovw, accept_zero, iov);
+        اگر (r <= 0)
+                iovec_مکمل(iov);
+        ورنہ
                 /* On success, iov->iov_base is now owned by iovw. Let's emptify iov, but do not call
                  * iovec_done(), of course. */
-                *iov = (struct iovec) {};
+                *iov = (ساخت iovec) {};
 
-        return r;
+        واپس r;
 }
 
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+صحیح iovw_extend_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت خالی *ڈیٹا, size_t len) {
+        أكد(iovw);
+        أكد(ڈیٹا || len == 0);
 
-        if (len == 0)
-                return iovw_put_full(iovw, accept_zero, /* data= */ NULL, /* len= */ 0);
+        اگر (len == 0)
+                واپس iovw_put_بھرا(iovw, accept_zero, /* data= */ تہی, /* len= */ 0);
 
-        void *c = memdup(data, len);
-        if (!c)
-                return -ENOMEM;
+        خالی *c = memdup(ڈیٹا, len);
+        اگر (!c)
+                واپس -ENOMEM;
 
-        return iovw_consume_full(iovw, accept_zero, c, len);
+        واپس iovw_consume_بھرا(iovw, accept_zero, c, len);
 }
 
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+صحیح iovw_extend_iov_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec *iov) {
+        أكد(iovw);
 
-        if (!iov)
-                return 0;
+        اگر (!iov)
+                واپس 0;
 
-        return iovw_extend_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        واپس iovw_extend_بھرا(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+صحیح iovw_extend_iovw_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec_wrapper *ماخذ) {
+        صحیح r;
 
-        assert(iovw);
+        أكد(iovw);
 
         /* This duplicates the source and merges it into the iovw. */
 
-        if (iovw_isempty(source))
-                return 0;
+        اگر (iovw_isempty(ماخذ))
+                واپس 0;
 
         /* iovw->iovec will be reallocated in the loop below, hence source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        اگر (iovw == ماخذ)
+                واپس -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        اگر (iovw->گنتی > SIZE_MAX - ماخذ->گنتی)
+                واپس -E2BIG;
+        اگر (iovw->گنتی + ماخذ->گنتی > IOV_MAX)
+                واپس -E2BIG;
 
-        size_t original_count = iovw->count;
+        size_t original_گنتی = iovw->گنتی;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
-                r = iovw_extend_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+        FOREACH_ARRAY(iovec, ماخذ->iovec, ماخذ->گنتی) {
+                r = iovw_extend_iov_بھرا(iovw, accept_zero, iovec);
+                اگر (r < 0)
+                        جاؤ rollback;
         }
 
-        return 0;
+        واپس 0;
 
 rollback:
-        for (size_t i = original_count; i < iovw->count; i++)
-                iovec_done(iovw->iovec + i);
+        برائے (size_t i = original_گنتی; i < iovw->گنتی; i++)
+                iovec_مکمل(iovw->iovec + i);
 
-        iovw->count = original_count;
-        return r;
+        iovw->گنتی = original_گنتی;
+        واپس r;
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value) {
-        _cleanup_free_ char *x = NULL;
-        int r;
+صحیح iovw_put_string_میدان_بھرا(ساخت iovec_wrapper *iovw, bool replace, ثابت حرف *میدان, ثابت حرف *قدر) {
+        _cleanup_free_ حرف *x = تہی;
+        صحیح r;
 
-        assert(iovw);
+        أكد(iovw);
 
-        x = strjoin(field, value);
-        if (!x)
-                return -ENOMEM;
+        x = strjoin(میدان, قدر);
+        اگر (!x)
+                واپس -ENOMEM;
 
-        if (replace)
-                FOREACH_ARRAY(iovec, iovw->iovec, iovw->count)
-                        if (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
-                                iovec->iov_len = strlen(x);
-                                return free_and_replace(iovec->iov_base, x);
+        اگر (replace)
+                FOREACH_ARRAY(iovec, iovw->iovec, iovw->گنتی)
+                        اگر (حافظہ_startswith(iovec->iov_base, iovec->iov_len, میدان)) {
+                                iovec->iov_len = لڑی_لمبائی(x);
+                                واپس free_and_replace(iovec->iov_base, x);
                         }
 
-        r = iovw_put(iovw, x, strlen(x));
-        if (r >= 0)
+        r = iovw_put(iovw, x, لڑی_لمبائی(x));
+        اگر (r >= 0)
                 TAKE_PTR(x);
 
-        return r;
+        واپس r;
 }
 
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) {
-        _cleanup_free_ char *value = NULL;
+صحیح iovw_put_string_fieldf_بھرا(ساخت iovec_wrapper *iovw, bool replace, ثابت حرف *میدان, ثابت حرف *format, ...) {
+        _cleanup_free_ حرف *قدر = تہی;
         va_list ap;
-        int r;
+        صحیح r;
 
-        assert(format);
+        أكد(format);
 
         va_start(ap, format);
-        r = vasprintf(&value, format, ap);
+        r = vasprintf(&قدر, format, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        اگر (r < 0)
+                واپس -ENOMEM;
 
-        return iovw_put_string_field_full(iovw, replace, field, value);
+        واپس iovw_put_string_میدان_بھرا(iovw, replace, میدان, قدر);
 }
 
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value) {
-        _cleanup_free_ _unused_ char *free_ptr = value;
+صحیح iovw_put_string_میدان_free(ساخت iovec_wrapper *iovw, ثابت حرف *میدان, حرف *قدر) {
+        _cleanup_free_ غیر_مستعمل حرف *free_ptr = قدر;
 
-        return iovw_put_string_field(iovw, field, value);
+        واپس iovw_put_string_میدان(iovw, میدان, قدر);
 }
 
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new) {
-        assert(iovw);
+خالی iovw_rebase(ساخت iovec_wrapper *iovw, خالی *old, خالی *new) {
+        أكد(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count) {
-                assert(i->iov_base >= old);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->گنتی) {
+                أكد(i->iov_base >= old);
                 i->iov_base = (uint8_t*) i->iov_base - (uint8_t*) old + (uint8_t*) new;
         }
 }
 
-size_t iovw_size(const struct iovec_wrapper *iovw) {
-        if (iovw_isempty(iovw))
-                return 0;
+size_t iovw_سائز(ثابت ساخت iovec_wrapper *iovw) {
+        اگر (iovw_isempty(iovw))
+                واپس 0;
 
-        return iovec_total_size(iovw->iovec, iovw->count);
+        واپس iovec_کل_سائز(iovw->iovec, iovw->گنتی);
 }
 
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
-        assert(iovw);
-        assert(ret);
+صحیح iovw_concat(ثابت ساخت iovec_wrapper *iovw, ساخت iovec *ret) {
+        أكد(iovw);
+        أكد(ret);
 
         /* Squish a series of iovecs into a single iovec. */
 
-        size_t len = iovw_size(iovw);
-        if (len == SIZE_MAX)
-                return -E2BIG;  /* Prevent theoretical overflow */
+        size_t len = iovw_سائز(iovw);
+        اگر (len == SIZE_MAX)
+                واپس -E2BIG;  /* Prevent theoretical overflow */
 
         /* Always allocate one more byte to make the result usable as a NUL-terminated string. */
-        _cleanup_free_ uint8_t *buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        _cleanup_free_ uint8_t *buf = حافظہ_دو(len + 1);
+        اگر (!buf)
+                واپس -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
-                p = mempcpy_safe(p, i->iov_base, i->iov_len);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->گنتی)
+                p = mempcpy_محفوظ(p, i->iov_base, i->iov_len);
 
         *p = 0;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), len);
-        return 0;
+        واپس 0;
 }
 
-char* iovw_to_cstring(const struct iovec_wrapper *iovw) {
-        assert(iovw);
+حرف* iovw_مقصد_cstring(ثابت ساخت iovec_wrapper *iovw) {
+        أكد(iovw);
 
         /* Squish a series of iovecs into a C string. Embedded NULs are not allowed.
          * The caller is expected to filter them out when populating the data. */
 
-        _cleanup_(iovec_done) struct iovec iov = {};
-        if (iovw_concat(iovw, &iov) < 0)
-                return NULL;
+        _cleanup_(iovec_مکمل) ساخت iovec iov = {};
+        اگر (iovw_concat(iovw, &iov) < 0)
+                واپس تہی;
 
-        assert(!memchr(iov.iov_base, 0, iov.iov_len));
-        return TAKE_PTR(iov.iov_base);
+        أكد(!memchr(iov.iov_base, 0, iov.iov_len));
+        واپس TAKE_PTR(iov.iov_base);
 }
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret) {
-        int r;
+صحیح iovec_بانٹو(ثابت ساخت iovec *iov, size_t لمبائی_سائز, ساخت iovec_wrapper *ret) {
+        صحیح r;
 
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+        أكد(اندر_سیٹ(لمبائی_سائز, 1, 2, 4));
+        أكد(ret);
 
         /* This parses the input iovec as length-prefixed data, and stores the result as iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        if (!iovec_is_set(iov)) {
-                *ret = (struct iovec_wrapper) {};
-                return 0;
+        اگر (!iovec_is_سیٹ(iov)) {
+                *ret = (ساخت iovec_wrapper) {};
+                واپس 0;
         }
 
-        _cleanup_(iovw_done_free) struct iovec_wrapper iovw = {};
-        for (struct iovec i = *iov; iovec_is_set(&i); ) {
-                if (i.iov_len < length_size)
-                        return -EBADMSG;
+        _cleanup_(iovw_مکمل_free) ساخت iovec_wrapper iovw = {};
+        برائے (ساخت iovec i = *iov; iovec_is_سیٹ(&i); ) {
+                اگر (i.iov_len < لمبائی_سائز)
+                        واپس -EBADMSG;
 
                 size_t len;
-                switch (length_size) {
-                case 1:
+                انتخاب (لمبائی_سائز) {
+                حالت 1:
                         len = *(uint8_t*) i.iov_base;
-                        break;
-                case 2:
+                        توڑو;
+                حالت 2:
                         len = unaligned_read_be16(i.iov_base);
-                        break;
-                case 4:
+                        توڑو;
+                حالت 4:
                         len = unaligned_read_be32(i.iov_base);
-                        break;
-                default:
+                        توڑو;
+                طےشدہ:
                         assert_not_reached();
                 }
 
-                iovec_inc(&i, length_size);
+                iovec_inc(&i, لمبائی_سائز);
 
-                if (len == 0)
-                        continue;
+                اگر (len == 0)
+                        جاری;
 
-                if (i.iov_len < len)
-                        return -EBADMSG;
+                اگر (i.iov_len < len)
+                        واپس -EBADMSG;
 
                 r = iovw_extend(&iovw, i.iov_base, len);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
 
                 iovec_inc(&i, len);
         }
 
         *ret = TAKE_STRUCT(iovw);
-        return 0;
+        واپس 0;
 }
 
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret) {
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+صحیح iovw_ملاؤ(ثابت ساخت iovec_wrapper *iovw, size_t لمبائی_سائز, ساخت iovec *ret) {
+        أكد(اندر_سیٹ(لمبائی_سائز, 1, 2, 4));
+        أكد(ret);
 
         /* This is the inverse of iovec_split(), and builds a length-prefixed data from iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        size_t sz = iovw_size(iovw);
-        if (sz == 0) {
-                *ret = (struct iovec) {};
-                return 0;
+        size_t sz = iovw_سائز(iovw);
+        اگر (sz == 0) {
+                *ret = (ساخت iovec) {};
+                واپس 0;
         }
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        اگر (sz == SIZE_MAX)
+                واپس -E2BIG;
 
-        if (size_multiply_overflow(length_size, iovw->count))
-                return -E2BIG;
+        اگر (سائز_multiply_حد_سے_تجاوز(لمبائی_سائز, iovw->گنتی))
+                واپس -E2BIG;
 
-        sz = size_add(sz, iovw->count * length_size);
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        sz = سائز_جوڑو(sz, iovw->گنتی * لمبائی_سائز);
+        اگر (sz == SIZE_MAX)
+                واپس -E2BIG;
 
         _cleanup_free_ uint8_t *buf = new(uint8_t, sz);
-        if (!buf)
-                return -ENOMEM;
+        اگر (!buf)
+                واپس -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(iov, iovw->iovec, iovw->count) {
-                if (iov->iov_len == 0)
-                        continue;
+        FOREACH_ARRAY(iov, iovw->iovec, iovw->گنتی) {
+                اگر (iov->iov_len == 0)
+                        جاری;
 
-                switch (length_size) {
-                case 1:
-                        if (iov->iov_len > UINT8_MAX)
-                                return -ERANGE;
+                انتخاب (لمبائی_سائز) {
+                حالت 1:
+                        اگر (iov->iov_len > UINT8_MAX)
+                                واپس -ERANGE;
 
                         *p = iov->iov_len;
-                        break;
-                case 2:
-                        if (iov->iov_len > UINT16_MAX)
-                                return -ERANGE;
+                        توڑو;
+                حالت 2:
+                        اگر (iov->iov_len > UINT16_MAX)
+                                واپس -ERANGE;
 
                         unaligned_write_be16(p, iov->iov_len);
-                        break;
-                case 4:
-                        if (iov->iov_len > UINT32_MAX)
-                                return -ERANGE;
+                        توڑو;
+                حالت 4:
+                        اگر (iov->iov_len > UINT32_MAX)
+                                واپس -ERANGE;
 
                         unaligned_write_be32(p, iov->iov_len);
-                        break;
-                default:
+                        توڑو;
+                طےشدہ:
                         assert_not_reached();
                 }
-                p += length_size;
+                p += لمبائی_سائز;
 
                 p = mempcpy(p, iov->iov_base, iov->iov_len);
         }
 
-        assert(sz >= (size_t) (p - buf));
+        أكد(sz >= (size_t) (p - buf));
         sz = p - buf;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), sz);
-        return 0;
+        واپس 0;
 }

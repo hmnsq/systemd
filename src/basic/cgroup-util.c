@@ -1,267 +1,267 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/fs.h>
-#include <linux/magic.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/xattr.h>
-#include <threads.h>
-#include <unistd.h>
+#شامل <linux/fs.h>
+#شامل <linux/magic.h>
+#شامل <signal.h>
+#شامل <stdlib.h>
+#شامل <sys/xattr.h>
+#شامل <threads.h>
+#شامل <unistd.h>
 
-#include "alloc-util.h"
-#include "capsule-util.h"
-#include "cgroup-util.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "login-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "set.h"
-#include "special.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "unaligned.h"
-#include "unit-name.h"
-#include "user-util.h"
-#include "xattr-util.h"
+#شامل "alloc-util.h"
+#شامل "capsule-util.h"
+#شامل "cgroup-util.h"
+#شامل "dirent-util.h"
+#شامل "errno-util.h"
+#شامل "extract-word.h"
+#شامل "fd-util.h"
+#شامل "fileio.h"
+#شامل "format-util.h"
+#شامل "fs-util.h"
+#شامل "log.h"
+#شامل "login-util.h"
+#شامل "parse-util.h"
+#شامل "path-util.h"
+#شامل "pidref.h"
+#شامل "process-util.h"
+#شامل "set.h"
+#شامل "special.h"
+#شامل "stat-util.h"
+#شامل "string-table.h"
+#شامل "string-util.h"
+#شامل "strv.h"
+#شامل "unaligned.h"
+#شامل "unit-name.h"
+#شامل "user-util.h"
+#شامل "xattr-util.h"
 
-int cg_is_available(void) {
-        struct statfs fs;
+صحیح cg_is_دستیاب(خالی) {
+        ساخت statfs fs;
 
-        if (statfs("/sys/fs/cgroup/", &fs) < 0) {
-                if (errno == ENOENT) /* sysfs not mounted? */
-                        return false;
+        اگر (statfs("/sys/fs/cgroup/", &fs) < 0) {
+                اگر (errno == ENOENT) /* sysfs not mounted? */
+                        واپس false;
 
-                return log_debug_errno(errno, "Failed to statfs /sys/fs/cgroup/: %m");
+                واپس log_debug_errno(errno, "Failed to statfs /sys/fs/cgroup/: %m");
         }
 
-        return is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
+        واپس is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
 }
 
-int cg_path_open(const char *path) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+صحیح cg_راستہ_open(ثابت حرف *راستہ) {
+        _cleanup_free_ حرف *fs = تہی;
+        صحیح r;
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, /* suffix= */ تہی, &fs);
+        اگر (r < 0)
+                واپس r;
 
-        return RET_NERRNO(open(fs, O_DIRECTORY|O_CLOEXEC));
+        واپس RET_NERRNO(open(fs, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id) {
-        _cleanup_close_ int fsfd = -EBADF;
+صحیح cg_cgroupid_open(صحیح cgroupfs_fd, uint64_t id) {
+        _cleanup_close_ صحیح fsfd = -EBADF;
 
-        if (cgroupfs_fd < 0) {
+        اگر (cgroupfs_fd < 0) {
                 fsfd = open("/sys/fs/cgroup", O_CLOEXEC|O_DIRECTORY);
-                if (fsfd < 0)
-                        return -errno;
+                اگر (fsfd < 0)
+                        واپس -errno;
 
                 cgroupfs_fd = fsfd;
         }
 
-        union {
-                struct file_handle file_handle;
-                uint8_t space[offsetof(struct file_handle, f_handle) + sizeof(uint64_t)];
+        اتحاد {
+                ساخت file_handle file_handle;
+                uint8_t space[offsetof(ساخت file_handle, f_handle) + حجم(uint64_t)];
         } fh = {
-                .file_handle.handle_bytes = sizeof(uint64_t),
+                .file_handle.handle_بائٹیں = حجم(uint64_t),
                 .file_handle.handle_type = FILEID_KERNFS,
         };
 
         unaligned_write_ne64(fh.file_handle.f_handle, id);
 
-        return RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
+        واپس RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret) {
-        _cleanup_close_ int cgfd = -EBADF;
-        int r;
+صحیح cg_راستہ_from_cgroupid(صحیح cgroupfs_fd, uint64_t id, حرف **ret) {
+        _cleanup_close_ صحیح cgfd = -EBADF;
+        صحیح r;
 
         cgfd = cg_cgroupid_open(cgroupfs_fd, id);
-        if (cgfd < 0)
-                return cgfd;
+        اگر (cgfd < 0)
+                واپس cgfd;
 
-        _cleanup_free_ char *path = NULL;
-        r = fd_get_path(cgfd, &path);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *راستہ = تہی;
+        r = fd_get_راستہ(cgfd, &راستہ);
+        اگر (r < 0)
+                واپس r;
 
-        if (!path_startswith(path, "/sys/fs/cgroup/"))
-                return -EXDEV; /* recognizable error */
+        اگر (!راستہ_startswith(راستہ, "/sys/fs/cgroup/"))
+                واپس -EXDEV; /* recognizable error */
 
-        if (ret)
-                *ret = TAKE_PTR(path);
-        return 0;
+        اگر (ret)
+                *ret = TAKE_PTR(راستہ);
+        واپس 0;
 }
 
-int cg_enumerate_processes(const char *path, FILE **ret) {
-        _cleanup_free_ char *fs = NULL;
+صحیح cg_enumerate_processes(ثابت حرف *راستہ, FILE **ret) {
+        _cleanup_free_ حرف *fs = تہی;
         FILE *f;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = cg_get_path(path, "cgroup.procs", &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, "cgroup.procs", &fs);
+        اگر (r < 0)
+                واپس r;
 
         f = fopen(fs, "re");
-        if (!f)
-                return -errno;
+        اگر (!f)
+                واپس -errno;
 
         *ret = f;
-        return 0;
+        واپس 0;
 }
 
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
-        unsigned long ul;
+صحیح cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
+        غیرعلامتی طویل ul;
 
         /* Note that the cgroup.procs might contain duplicates! See cgroups.txt for details. */
 
-        assert(f);
-        assert(ret);
+        أكد(f);
+        أكد(ret);
 
         /* NB: The kernel returns ENODEV if we tried to read from cgroup.procs of a cgroup that has been
          * removed already. Callers should handle that! */
 
-        for (;;) {
+        برائے (;;) {
                 errno = 0;
-                if (fscanf(f, "%lu", &ul) != 1) {
+                اگر (fscanf(f, "%lu", &ul) != 1) {
 
-                        if (feof(f)) {
+                        اگر (feof(f)) {
                                 *ret = 0;
-                                return 0;
+                                واپس 0;
                         }
 
-                        return errno_or_else(EIO);
+                        واپس errno_or_else(EIO);
                 }
 
-                if (ul > PID_T_MAX)
-                        return -EIO;
+                اگر (ul > PID_T_MAX)
+                        واپس -EIO;
 
                 /* In some circumstances (e.g. WSL), cgroups might contain unmappable PIDs from other
                  * contexts. These show up as zeros, and depending on the caller, can either be plain
                  * skipped over, or returned as-is. */
-                if (ul == 0 && !FLAGS_SET(flags, CGROUP_DONT_SKIP_UNMAPPED))
-                        continue;
+                اگر (ul == 0 && !FLAGS_سیٹ(flags, CGROUP_DONT_SKIP_UNMAPPED))
+                        جاری;
 
                 *ret = (pid_t) ul;
-                return 1;
+                واپس 1;
         }
 }
 
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags) {
-        int r;
+صحیح cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags) {
+        صحیح r;
 
-        assert(f);
-        assert(ret);
+        أكد(f);
+        أكد(ret);
 
-        for (;;) {
+        برائے (;;) {
                 pid_t pid;
 
                 r = cg_read_pid(f, &pid, flags);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to read pid from cgroup item: %m");
-                if (r == 0) {
+                اگر (r < 0)
+                        واپس log_debug_errno(r, "Failed to read pid from cgroup item: %m");
+                اگر (r == 0) {
                         *ret = PIDREF_NULL;
-                        return 0;
+                        واپس 0;
                 }
 
-                if (pid == 0)
-                        return -EREMOTE;
+                اگر (pid == 0)
+                        واپس -EREMOTE;
 
-                r = pidref_set_pid(ret, pid);
-                if (r >= 0)
-                        return 1;
-                if (r != -ESRCH)
-                        return r;
+                r = pidref_سیٹ_pid(ret, pid);
+                اگر (r >= 0)
+                        واپس 1;
+                اگر (r != -ESRCH)
+                        واپس r;
 
                 /* ESRCH → gone by now? just skip over it, read the next */
         }
 }
 
-bool cg_kill_supported(void) {
-        static thread_local int supported = -1;
+bool cg_kill_supported(خالی) {
+        ساکن thread_local صحیح supported = -1;
 
-        if (supported >= 0)
-                return supported;
+        اگر (supported >= 0)
+                واپس supported;
 
-        if (cg_is_available() <= 0)
-                return (supported = false);
+        اگر (cg_is_دستیاب() <= 0)
+                واپس (supported = false);
 
-        if (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
-                return (supported = true);
-        if (errno != ENOENT)
+        اگر (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
+                واپس (supported = true);
+        اگر (errno != ENOENT)
                 log_debug_errno(errno, "Failed to check whether cgroup.kill is available, assuming not: %m");
-        return (supported = false);
+        واپس (supported = false);
 }
 
-int cg_enumerate_subgroups(const char *path, DIR **ret) {
-        _cleanup_free_ char *fs = NULL;
+صحیح cg_enumerate_subgroups(ثابت حرف *راستہ, DIR **ret) {
+        _cleanup_free_ حرف *fs = تہی;
         DIR *d;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* This is not recursive! */
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, /* suffix= */ تہی, &fs);
+        اگر (r < 0)
+                واپس r;
 
         d = opendir(fs);
-        if (!d)
-                return -errno;
+        اگر (!d)
+                واپس -errno;
 
         *ret = d;
-        return 0;
+        واپس 0;
 }
 
-int cg_read_subgroup(DIR *d, char **ret) {
-        assert(d);
-        assert(ret);
+صحیح cg_read_subgroup(DIR *d, حرف **ret) {
+        أكد(d);
+        أكد(ret);
 
-        FOREACH_DIRENT_ALL(de, d, return -errno) {
-                if (de->d_type != DT_DIR)
-                        continue;
+        FOREACH_DIRENT_ALL(de, d, واپس -errno) {
+                اگر (de->d_type != DT_DIR)
+                        جاری;
 
-                if (dot_or_dot_dot(de->d_name))
-                        continue;
+                اگر (dot_or_dot_dot(de->d_name))
+                        جاری;
 
-                return strdup_to_full(ret, de->d_name);
+                واپس strdup_مقصد_بھرا(ret, de->d_name);
         }
 
-        *ret = NULL;
-        return 0;
+        *ret = تہی;
+        واپس 0;
 }
 
-int cg_kill(
-                const char *path,
-                int sig,
+صحیح cg_kill(
+                ثابت حرف *راستہ,
+                صحیح sig,
                 CGroupFlags flags,
-                Set *killed_pids,
+                سیٹ_2 *killed_pids,
                 cg_kill_log_func_t log_kill,
-                void *userdata) {
+                خالی *userdata) {
 
-        _cleanup_set_free_ Set *allocated_set = NULL;
-        int r, ret = 0;
+        cleanup_سیٹ_free سیٹ_2 *allocated_سیٹ = تہی;
+        صحیح r, ret = 0;
 
-        assert(path);
-        assert(sig >= 0);
+        أكد(راستہ);
+        أكد(sig >= 0);
 
          /* Don't send SIGCONT twice. Also, SIGKILL always works even when process is suspended, hence
           * don't send SIGCONT on SIGKILL. */
-        if (IN_SET(sig, SIGCONT, SIGKILL))
+        اگر (اندر_سیٹ(sig, SIGCONT, SIGKILL))
                 flags &= ~CGROUP_SIGCONT;
 
         /* This goes through the tasks list and kills them all. This is repeated until no further processes
@@ -269,1030 +269,1030 @@ int cg_kill(
          *
          * When sending SIGKILL, prefer cg_kill_kernel_sigkill(), which is fully atomic. */
 
-        if (!killed_pids) {
-                killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+        اگر (!killed_pids) {
+                killed_pids = allocated_سیٹ = سیٹ_new(تہی);
+                اگر (!killed_pids)
+                        واپس -ENOMEM;
         }
 
-        bool done;
-        do {
-                _cleanup_fclose_ FILE *f = NULL;
-                int ret_log_kill;
+        bool مکمل;
+        کرو {
+                _cleanup_fclose_ FILE *f = تہی;
+                صحیح ret_log_kill;
 
-                done = true;
+                مکمل = true;
 
-                r = cg_enumerate_processes(path, &f);
-                if (r == -ENOENT)
-                        break;
-                if (r < 0)
-                        return RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
+                r = cg_enumerate_processes(راستہ, &f);
+                اگر (r == -ENOENT)
+                        توڑو;
+                اگر (r < 0)
+                        واپس RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
 
-                for (;;) {
-                        _cleanup_(pidref_done) PidRef pidref = PIDREF_NULL;
+                برائے (;;) {
+                        _cleanup_(pidref_مکمل) PidRef pidref = PIDREF_NULL;
 
                         r = cg_read_pidref(f, &pidref, flags);
-                        if (r == -ENODEV) {
+                        اگر (r == -ENODEV) {
                                 /* reading from cgroup.pids will result in ENODEV if the cgroup is
                                  * concurrently removed. Just leave in that case, because a removed cgroup
                                  * contains no processes anymore. */
-                                done = true;
-                                break;
+                                مکمل = true;
+                                توڑو;
                         }
-                        if (r < 0)
-                                return RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", path));
-                        if (r == 0)
-                                break;
+                        اگر (r < 0)
+                                واپس RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", راستہ));
+                        اگر (r == 0)
+                                توڑو;
 
-                        if ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
-                                continue;
+                        اگر ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
+                                جاری;
 
-                        if (set_contains(killed_pids, PID_TO_PTR(pidref.pid)))
-                                continue;
+                        اگر (سیٹ_شامل_ہے(killed_pids, PID_مقصد_PTR(pidref.pid)))
+                                جاری;
 
                         /* Ignore kernel threads to mimic the behavior of cgroup.kill. */
-                        if (pidref_is_kernel_thread(&pidref) > 0) {
-                                log_debug("Ignoring kernel thread with pid " PID_FMT " in cgroup '%s'", pidref.pid, path);
-                                continue;
+                        اگر (pidref_is_kernel_thread(&pidref) > 0) {
+                                log_debug("Ignoring kernel thread with pid " PID_FMT " in cgroup '%s'", pidref.pid, راستہ);
+                                جاری;
                         }
 
-                        if (log_kill)
+                        اگر (log_kill)
                                 ret_log_kill = log_kill(&pidref, sig, userdata);
 
                         /* If we haven't killed this process yet, kill it */
                         r = pidref_kill(&pidref, sig);
-                        if (r < 0 && r != -ESRCH)
-                                RET_GATHER(ret, log_debug_errno(r, "Failed to kill process with pid " PID_FMT " from cgroup '%s': %m", pidref.pid, path));
-                        if (r >= 0) {
-                                if (flags & CGROUP_SIGCONT)
-                                        (void) pidref_kill(&pidref, SIGCONT);
+                        اگر (r < 0 && r != -ESRCH)
+                                RET_GATHER(ret, log_debug_errno(r, "Failed to kill process with pid " PID_FMT " from cgroup '%s': %m", pidref.pid, راستہ));
+                        اگر (r >= 0) {
+                                اگر (flags & CGROUP_SIGCONT)
+                                        (خالی) pidref_kill(&pidref, SIGCONT);
 
-                                if (ret == 0) {
-                                        if (log_kill)
+                                اگر (ret == 0) {
+                                        اگر (log_kill)
                                                 ret = ret_log_kill;
-                                        else
+                                        ورنہ
                                                 ret = 1;
                                 }
                         }
 
-                        done = false;
+                        مکمل = false;
 
-                        r = set_put(killed_pids, PID_TO_PTR(pidref.pid));
-                        if (r < 0)
-                                return RET_GATHER(ret, r);
+                        r = سیٹ_put(killed_pids, PID_مقصد_PTR(pidref.pid));
+                        اگر (r < 0)
+                                واپس RET_GATHER(ret, r);
                 }
 
                 /* To avoid racing against processes which fork quicker than we can kill them, we repeat this
                  * until no new pids need to be killed. */
 
-        } while (!done);
+        } جب (!مکمل);
 
-        return ret;
+        واپس ret;
 }
 
-int cg_kill_recursive(
-                const char *path,
-                int sig,
+صحیح cg_kill_recursive(
+                ثابت حرف *راستہ,
+                صحیح sig,
                 CGroupFlags flags,
-                Set *killed_pids,
+                سیٹ_2 *killed_pids,
                 cg_kill_log_func_t log_kill,
-                void *userdata) {
+                خالی *userdata) {
 
-        _cleanup_set_free_ Set *allocated_set = NULL;
-        _cleanup_closedir_ DIR *d = NULL;
-        int r, ret;
+        cleanup_سیٹ_free سیٹ_2 *allocated_سیٹ = تہی;
+        _cleanup_closedir_ DIR *d = تہی;
+        صحیح r, ret;
 
-        assert(path);
-        assert(sig >= 0);
+        أكد(راستہ);
+        أكد(sig >= 0);
 
-        if (!killed_pids) {
-                killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+        اگر (!killed_pids) {
+                killed_pids = allocated_سیٹ = سیٹ_new(تہی);
+                اگر (!killed_pids)
+                        واپس -ENOMEM;
         }
 
-        ret = cg_kill(path, sig, flags, killed_pids, log_kill, userdata);
+        ret = cg_kill(راستہ, sig, flags, killed_pids, log_kill, userdata);
 
-        r = cg_enumerate_subgroups(path, &d);
-        if (r < 0) {
-                if (r != -ENOENT)
-                        RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup '%s' subgroups: %m", path));
+        r = cg_enumerate_subgroups(راستہ, &d);
+        اگر (r < 0) {
+                اگر (r != -ENOENT)
+                        RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup '%s' subgroups: %m", راستہ));
 
-                return ret;
+                واپس ret;
         }
 
-        for (;;) {
-                _cleanup_free_ char *fn = NULL, *p = NULL;
+        برائے (;;) {
+                _cleanup_free_ حرف *fn = تہی, *p = تہی;
 
                 r = cg_read_subgroup(d, &fn);
-                if (r < 0) {
-                        RET_GATHER(ret, log_debug_errno(r, "Failed to read subgroup from cgroup '%s': %m", path));
-                        break;
+                اگر (r < 0) {
+                        RET_GATHER(ret, log_debug_errno(r, "Failed to read subgroup from cgroup '%s': %m", راستہ));
+                        توڑو;
                 }
-                if (r == 0)
-                        break;
+                اگر (r == 0)
+                        توڑو;
 
-                p = path_join(empty_to_root(path), fn);
-                if (!p)
-                        return -ENOMEM;
+                p = راستہ_join(خالی_خانے_مقصد_جڑ(راستہ), fn);
+                اگر (!p)
+                        واپس -ENOMEM;
 
                 r = cg_kill_recursive(p, sig, flags, killed_pids, log_kill, userdata);
-                if (r < 0)
+                اگر (r < 0)
                         log_debug_errno(r, "Failed to recursively kill processes in cgroup '%s': %m", p);
-                if (r != 0 && ret >= 0)
+                اگر (r != 0 && ret >= 0)
                         ret = r;
         }
 
-        return ret;
+        واپس ret;
 }
 
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed) {
-        _cleanup_free_ char *killfile = NULL;
+صحیح cg_kill_kernel_sigkill(ثابت حرف *راستہ, uint64_t *ret_n_pids_killed) {
+        _cleanup_free_ حرف *killfile = تہی;
         uint64_t n_pids = UINT64_MAX;
-        int r;
+        صحیح r;
 
         /* Kills the cgroup at `path` directly by writing to its cgroup.kill file.  This sends SIGKILL to all
          * processes in the cgroup and has the advantage of being completely atomic, unlike cg_kill_items(). */
 
-        assert(path);
+        أكد(راستہ);
 
-        if (!cg_kill_supported())
-                return -EOPNOTSUPP;
+        اگر (!cg_kill_supported())
+                واپس -EOPNOTSUPP;
 
-        r = cg_get_path(path, "cgroup.kill", &killfile);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, "cgroup.kill", &killfile);
+        اگر (r < 0)
+                واپس r;
 
-        if (ret_n_pids_killed) {
+        اگر (ret_n_pids_killed) {
                 /* This is not and cannot be atomic so there is a chance the counter might not be accurate
                  * if a process starts/stops between this read and the next write, but this is used for
                  * informational purposes so that's ok. */
-                r = cg_get_attribute_as_uint64(path, "pids.current", &n_pids);
-                if (r < 0)
-                        log_debug_errno(r, "Failed to read pids.current from cgroup '%s', ignoring: %m", path);
+                r = cg_get_attribute_as_uint64(راستہ, "pids.current", &n_pids);
+                اگر (r < 0)
+                        log_debug_errno(r, "Failed to read pids.current from cgroup '%s', ignoring: %m", راستہ);
         }
 
-        r = write_string_file(killfile, "1", WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", path);
+        r = write_string_file(killfile, "1", WRITE_STRING_FILE_DISABLE_بفر);
+        اگر (r < 0)
+                واپس log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", راستہ);
 
-        if (ret_n_pids_killed)
+        اگر (ret_n_pids_killed)
                 *ret_n_pids_killed = n_pids;
 
-        return 0;
+        واپس 0;
 }
 
-int cg_get_path(const char *path, const char *suffix, char **ret) {
-        char *t;
+صحیح cg_get_راستہ(ثابت حرف *راستہ, ثابت حرف *suffix, حرف **ret) {
+        حرف *t;
 
-        assert(ret);
+        أكد(ret);
 
-        if (isempty(path))
-                path = TAKE_PTR(suffix);
+        اگر (isempty(راستہ))
+                راستہ = TAKE_PTR(suffix);
 
-        t = path_join("/sys/fs/cgroup", path, suffix);
-        if (!t)
-                return -ENOMEM;
+        t = راستہ_join("/sys/fs/cgroup", راستہ, suffix);
+        اگر (!t)
+                واپس -ENOMEM;
 
-        *ret = path_simplify(t);
-        return 0;
+        *ret = راستہ_simplify(t);
+        واپس 0;
 }
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+صحیح cg_سیٹ_xattr(ثابت حرف *راستہ, ثابت حرف *name, ثابت خالی *قدر, size_t سائز, صحیح flags) {
+        _cleanup_free_ حرف *fs = تہی;
+        صحیح r;
 
-        assert(path);
-        assert(name);
-        assert(value || size <= 0);
+        أكد(راستہ);
+        أكد(name);
+        أكد(قدر || سائز <= 0);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, /* suffix= */ تہی, &fs);
+        اگر (r < 0)
+                واپس r;
 
-        return RET_NERRNO(setxattr(fs, name, value, size, flags));
+        واپس RET_NERRNO(setxattr(fs, name, قدر, سائز, flags));
 }
 
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+صحیح cg_get_xattr(ثابت حرف *راستہ, ثابت حرف *name, حرف **ret, size_t *ret_سائز) {
+        _cleanup_free_ حرف *fs = تہی;
+        صحیح r;
 
-        assert(path);
-        assert(name);
+        أكد(راستہ);
+        أكد(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, /* suffix= */ تہی, &fs);
+        اگر (r < 0)
+                واپس r;
 
-        return lgetxattr_malloc(fs, name, ret, ret_size);
+        واپس lgetxattr_malloc(fs, name, ret, ret_سائز);
 }
 
-int cg_get_xattr_bool(const char *path, const char *name) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+صحیح cg_get_xattr_bool(ثابت حرف *راستہ, ثابت حرف *name) {
+        _cleanup_free_ حرف *fs = تہی;
+        صحیح r;
 
-        assert(path);
-        assert(name);
+        أكد(راستہ);
+        أكد(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, /* suffix= */ تہی, &fs);
+        اگر (r < 0)
+                واپس r;
 
-        return getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
+        واپس getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
 }
 
-int cg_remove_xattr(const char *path, const char *name) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+صحیح cg_remove_xattr(ثابت حرف *راستہ, ثابت حرف *name) {
+        _cleanup_free_ حرف *fs = تہی;
+        صحیح r;
 
-        assert(path);
-        assert(name);
+        أكد(راستہ);
+        أكد(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, /* suffix= */ تہی, &fs);
+        اگر (r < 0)
+                واپس r;
 
-        return RET_NERRNO(removexattr(fs, name));
+        واپس RET_NERRNO(removexattr(fs, name));
 }
 
-int cg_pid_get_path(pid_t pid, char **ret_path) {
-        _cleanup_fclose_ FILE *f = NULL;
-        const char *fs;
-        int r;
+صحیح cg_pid_get_راستہ(pid_t pid, حرف **ret_راستہ) {
+        _cleanup_fclose_ FILE *f = تہی;
+        ثابت حرف *fs;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(ret_path);
+        أكد(pid >= 0);
+        أكد(ret_راستہ);
 
         fs = procfs_file_alloca(pid, "cgroup");
         r = fopen_unlocked(fs, "re", &f);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                char *e;
+        برائے (;;) {
+                _cleanup_free_ حرف *سطر = تہی;
+                حرف *e;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -ENODATA;
+                r = read_سطر(f, LONG_سطر_MAX, &سطر);
+                اگر (r < 0)
+                        واپس r;
+                اگر (r == 0)
+                        واپس -ENODATA;
 
-                e = startswith(line, "0:");
-                if (!e)
-                        continue;
+                e = startswith(سطر, "0:");
+                اگر (!e)
+                        جاری;
 
                 e = strchr(e, ':');
-                if (!e)
-                        continue;
+                اگر (!e)
+                        جاری;
 
-                _cleanup_free_ char *path = strdup(e + 1);
-                if (!path)
-                        return -ENOMEM;
+                _cleanup_free_ حرف *راستہ = strdup(e + 1);
+                اگر (!راستہ)
+                        واپس -ENOMEM;
 
                 /* Refuse cgroup paths from outside our cgroup namespace */
-                if (startswith(path, "/../"))
-                        return -EUNATCH;
+                اگر (startswith(راستہ, "/../"))
+                        واپس -EUNATCH;
 
                 /* Truncate suffix indicating the process is a zombie */
-                e = endswith(path, " (deleted)");
-                if (e)
+                e = endswith(راستہ, " (deleted)");
+                اگر (e)
                         *e = 0;
 
-                *ret_path = TAKE_PTR(path);
-                return 0;
+                *ret_راستہ = TAKE_PTR(راستہ);
+                واپس 0;
         }
 }
 
-int cg_pidref_get_path(const PidRef *pidref, char **ret_path) {
-        _cleanup_free_ char *path = NULL;
-        int r;
+صحیح cg_pidref_get_راستہ(ثابت PidRef *pidref, حرف **ret_راستہ) {
+        _cleanup_free_ حرف *راستہ = تہی;
+        صحیح r;
 
-        assert(ret_path);
+        أكد(ret_راستہ);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
 
         // XXX: Ideally we'd use pidfd_get_cgroupid() + cg_path_from_cgroupid() here, to extract this
         // bit of information from pidfd directly. However, the latter requires privilege and it's
         // not entirely clear how to handle cgroups from outer namespace.
 
-        r = cg_pid_get_path(pidref->pid, &path);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ(pidref->pid, &راستہ);
+        اگر (r < 0)
+                واپس r;
 
         /* Before we return the path, make sure the procfs entry for this pid still matches the pidref */
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        *ret_path = TAKE_PTR(path);
-        return 0;
+        *ret_راستہ = TAKE_PTR(راستہ);
+        واپس 0;
 }
 
-int cg_is_empty(const char *path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+صحیح cg_is_خالی_خانے(ثابت حرف *راستہ) {
+        _cleanup_free_ حرف *t = تہی;
+        صحیح r;
 
         /* Check if the cgroup hierarchy under 'path' is empty. On cgroup v2 it's exposed via the "populated"
          * attribute of "cgroup.events". */
 
-        assert(path);
+        أكد(راستہ);
 
         /* The root cgroup is always populated */
-        if (empty_or_root(path))
-                return false;
+        اگر (خالی_خانے_or_جڑ(راستہ))
+                واپس false;
 
-        r = cg_get_keyed_attribute(path, "cgroup.events", STRV_MAKE("populated"), &t);
-        if (r == -ENOENT)
-                return true;
-        if (r < 0)
-                return r;
+        r = cg_get_keyed_attribute(راستہ, "cgroup.events", STRV_MAKE("populated"), &t);
+        اگر (r == -ENOENT)
+                واپس true;
+        اگر (r < 0)
+                واپس r;
 
-        return streq(t, "0");
+        واپس streq(t, "0");
 }
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path) {
-        _cleanup_free_ char *controller = NULL;
-        const char *path;
-        int r;
+صحیح cg_بانٹو_spec(ثابت حرف *spec, حرف **ret_controller, حرف **ret_راستہ) {
+        _cleanup_free_ حرف *controller = تہی;
+        ثابت حرف *راستہ;
+        صحیح r;
 
-        assert(spec);
+        أكد(spec);
 
         /* This extracts the path part from the deprecated controller:path spec. The path must be absolute or
          * an empty string. No validation is done for the controller part. */
 
-        if (isempty(spec) || path_is_absolute(spec)) {
+        اگر (isempty(spec) || راستہ_is_absolute(spec)) {
                 /* Assume this does not contain controller. */
-                path = spec;
-                goto finalize;
+                راستہ = spec;
+                جاؤ finalize;
         }
 
-        const char *e = strchr(spec, ':');
-        if (!e) {
+        ثابت حرف *e = strchr(spec, ':');
+        اگر (!e) {
                 /* Controller only. */
-                if (ret_controller) {
+                اگر (ret_controller) {
                         controller = strdup(spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        اگر (!controller)
+                                واپس -ENOMEM;
                 }
 
-                path = NULL;
-        } else {
+                راستہ = تہی;
+        } ورنہ {
                 /* Both controller and path. */
-                if (ret_controller) {
+                اگر (ret_controller) {
                         controller = strndup(spec, e - spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        اگر (!controller)
+                                واپس -ENOMEM;
                 }
 
-                path = e + 1;
+                راستہ = e + 1;
         }
 
 finalize:
-        path = empty_to_null(path);
+        راستہ = خالی_خانے_مقصد_null(راستہ);
 
-        if (path) {
+        اگر (راستہ) {
                 /* Non-empty path must be absolute. */
-                if (!path_is_absolute(path))
-                        return -EINVAL;
+                اگر (!راستہ_is_absolute(راستہ))
+                        واپس -EINVAL;
 
                 /* Path must not contain dot-dot. */
-                if (!path_is_safe(path))
-                        return -EINVAL;
+                اگر (!راستہ_is_محفوظ(راستہ))
+                        واپس -EINVAL;
         }
 
-        if (ret_path) {
-                r = path_simplify_alloc(path, ret_path);
-                if (r < 0)
-                        return r;
+        اگر (ret_راستہ) {
+                r = راستہ_simplify_alloc(راستہ, ret_راستہ);
+                اگر (r < 0)
+                        واپس r;
         }
 
-        if (ret_controller)
+        اگر (ret_controller)
                 *ret_controller = TAKE_PTR(controller);
 
-        return 0;
+        واپس 0;
 }
 
-int cg_get_root_path(char **ret_path) {
-        char *p, *e;
-        int r;
+صحیح cg_get_جڑ_راستہ(حرف **ret_راستہ) {
+        حرف *p, *e;
+        صحیح r;
 
-        assert(ret_path);
+        أكد(ret_راستہ);
 
-        r = cg_pid_get_path(1, &p);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ(1, &p);
+        اگر (r < 0)
+                واپس r;
 
         e = endswith(p, "/" SPECIAL_INIT_SCOPE);
-        if (e)
+        اگر (e)
                 *e = 0;
 
-        *ret_path = p;
-        return 0;
+        *ret_راستہ = p;
+        واپس 0;
 }
 
-int cg_shift_path(const char *cgroup, const char *root, const char **ret_shifted) {
-        int r;
+صحیح cg_سرکاؤ_راستہ(ثابت حرف *cgroup, ثابت حرف *جڑ, ثابت حرف **ret_shifted) {
+        صحیح r;
 
-        assert(cgroup);
-        assert(ret_shifted);
+        أكد(cgroup);
+        أكد(ret_shifted);
 
-        _cleanup_free_ char *rt = NULL;
-        if (!root) {
+        _cleanup_free_ حرف *rt = تہی;
+        اگر (!جڑ) {
                 /* If the root was specified let's use that, otherwise
                  * let's determine it from PID 1 */
 
-                r = cg_get_root_path(&rt);
-                if (r < 0)
-                        return r;
+                r = cg_get_جڑ_راستہ(&rt);
+                اگر (r < 0)
+                        واپس r;
 
-                root = rt;
+                جڑ = rt;
         }
 
-        *ret_shifted = path_startswith_full(cgroup, root, PATH_STARTSWITH_RETURN_LEADING_SLASH|PATH_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
-        return 0;
+        *ret_shifted = راستہ_startswith_بھرا(cgroup, جڑ, راستہ_STARTSWITH_RETURN_LEADING_SLASH|راستہ_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
+        واپس 0;
 }
 
-int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
-        _cleanup_free_ char *raw = NULL;
-        const char *c;
-        int r;
+صحیح cg_pid_get_راستہ_shifted(pid_t pid, ثابت حرف *جڑ, حرف **ret_cgroup) {
+        _cleanup_free_ حرف *raw = تہی;
+        ثابت حرف *c;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(ret_cgroup);
+        أكد(pid >= 0);
+        أكد(ret_cgroup);
 
-        r = cg_pid_get_path(pid, &raw);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ(pid, &raw);
+        اگر (r < 0)
+                واپس r;
 
-        r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        r = cg_سرکاؤ_راستہ(raw, جڑ, &c);
+        اگر (r < 0)
+                واپس r;
 
-        if (c == raw) {
+        اگر (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                واپس 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        واپس strdup_مقصد(ret_cgroup, c);
 }
 
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *root, char **ret_cgroup) {
-        _cleanup_free_ char *raw = NULL;
-        const char *c;
-        int r;
+صحیح cg_pidref_get_راستہ_shifted(ثابت PidRef *pidref, ثابت حرف *جڑ, حرف **ret_cgroup) {
+        _cleanup_free_ حرف *raw = تہی;
+        ثابت حرف *c;
+        صحیح r;
 
-        assert(ret_cgroup);
+        أكد(ret_cgroup);
 
-        r = cg_pidref_get_path(pidref, &raw);
-        if (r < 0)
-                return r;
+        r = cg_pidref_get_راستہ(pidref, &raw);
+        اگر (r < 0)
+                واپس r;
 
-        r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        r = cg_سرکاؤ_راستہ(raw, جڑ, &c);
+        اگر (r < 0)
+                واپس r;
 
-        if (c == raw) {
+        اگر (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                واپس 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        واپس strdup_مقصد(ret_cgroup, c);
 }
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit) {
-        assert(cgroup);
+صحیح cg_راستہ_decode_unit(ثابت حرف *cgroup, حرف **ret_unit) {
+        أكد(cgroup);
 
         size_t n = strcspn(cgroup, "/");
-        if (n < 3)
-                return -ENXIO;
+        اگر (n < 3)
+                واپس -ENXIO;
 
-        char *c = strndupa_safe(cgroup, n);
+        حرف *c = strndupa_محفوظ(cgroup, n);
         c = cg_unescape(c);
 
-        if (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        اگر (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                واپس -ENXIO;
 
-        if (ret_unit)
-                return strdup_to(ret_unit, c);
+        اگر (ret_unit)
+                واپس strdup_مقصد(ret_unit, c);
 
-        return 0;
+        واپس 0;
 }
 
-static bool valid_slice_name(const char *p, size_t n) {
-        assert(p || n == 0);
+ساکن bool valid_قاش_name(ثابت حرف *p, size_t n) {
+        أكد(p || n == 0);
 
-        if (n < STRLEN("x.slice"))
-                return false;
+        اگر (n < STRLEN("x.slice"))
+                واپس false;
 
-        char *c = strndupa_safe(p, n);
-        if (!endswith(c, ".slice"))
-                return false;
+        حرف *c = strndupa_محفوظ(p, n);
+        اگر (!endswith(c, ".slice"))
+                واپس false;
 
-        return unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
+        واپس unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
 }
 
-static const char* skip_slices(const char *p) {
-        assert(p);
+ساکن ثابت حرف* skip_slices(ثابت حرف *p) {
+        أكد(p);
 
         /* Skips over all slice assignments */
 
-        for (;;) {
+        برائے (;;) {
                 size_t n;
 
                 p += strspn(p, "/");
 
                 n = strcspn(p, "/");
-                if (!valid_slice_name(p, n))
-                        return p;
+                اگر (!valid_قاش_name(p, n))
+                        واپس p;
 
                 p += n;
         }
 }
 
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
-        int r;
+صحیح cg_راستہ_get_unit_بھرا(ثابت حرف *راستہ, حرف **ret_unit, حرف **ret_subgroup) {
+        صحیح r;
 
-        assert(path);
+        أكد(راستہ);
 
-        const char *e = skip_slices(path);
+        ثابت حرف *e = skip_slices(راستہ);
 
-        _cleanup_free_ char *unit = NULL;
-        r = cg_path_decode_unit(e, &unit);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *unit = تہی;
+        r = cg_راستہ_decode_unit(e, &unit);
+        اگر (r < 0)
+                واپس r;
 
         /* We skipped over the slices, don't accept any now */
-        if (endswith(unit, ".slice"))
-                return -ENXIO;
+        اگر (endswith(unit, ".slice"))
+                واپس -ENXIO;
 
-        if (ret_subgroup) {
-                _cleanup_free_ char *subgroup = NULL;
+        اگر (ret_subgroup) {
+                _cleanup_free_ حرف *subgroup = تہی;
                 e += strcspn(e, "/");
                 e += strspn(e, "/");
 
-                if (isempty(e))
-                        subgroup = NULL;
-                else {
+                اگر (isempty(e))
+                        subgroup = تہی;
+                ورنہ {
                         subgroup = strdup(e);
-                        if (!subgroup)
-                                return -ENOMEM;
+                        اگر (!subgroup)
+                                واپس -ENOMEM;
                 }
 
-                path_simplify(subgroup);
+                راستہ_simplify(subgroup);
 
                 *ret_subgroup = TAKE_PTR(subgroup);
         }
 
-        if (ret_unit)
+        اگر (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
 
-        return 0;
+        واپس 0;
 }
 
-int cg_path_get_unit_path(const char *path, char **ret) {
-        _cleanup_free_ char *path_copy = NULL;
-        char *unit_name;
+صحیح cg_راستہ_get_unit_راستہ(ثابت حرف *راستہ, حرف **ret) {
+        _cleanup_free_ حرف *راستہ_copy = تہی;
+        حرف *unit_name;
 
-        assert(path);
-        assert(ret);
+        أكد(راستہ);
+        أكد(ret);
 
-        path_copy = strdup(path);
-        if (!path_copy)
-                return -ENOMEM;
+        راستہ_copy = strdup(راستہ);
+        اگر (!راستہ_copy)
+                واپس -ENOMEM;
 
-        unit_name = (char*) skip_slices(path_copy);
+        unit_name = (حرف*) skip_slices(راستہ_copy);
         unit_name[strcspn(unit_name, "/")] = 0;
 
-        if (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        اگر (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                واپس -ENXIO;
 
-        *ret = TAKE_PTR(path_copy);
+        *ret = TAKE_PTR(راستہ_copy);
 
-        return 0;
+        واپس 0;
 }
 
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+صحیح cg_pid_get_unit_بھرا(pid_t pid, حرف **ret_unit, حرف **ret_subgroup) {
+        صحیح r;
 
-        _cleanup_free_ char *cgroup = NULL;
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *cgroup = تہی;
+        r = cg_pid_get_راستہ_shifted(pid, تہی, &cgroup);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_path_get_unit_full(cgroup, ret_unit, ret_subgroup);
+        واپس cg_راستہ_get_unit_بھرا(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+صحیح cg_pidref_get_unit_بھرا(ثابت PidRef *pidref, حرف **ret_unit, حرف **ret_subgroup) {
+        صحیح r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
 
-        _cleanup_free_ char *unit = NULL, *subgroup = NULL;
-        r = cg_pid_get_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *unit = تہی, *subgroup = تہی;
+        r = cg_pid_get_unit_بھرا(pidref->pid, &unit, &subgroup);
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret_unit)
+        اگر (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        اگر (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        واپس 0;
 }
 
-static const char* skip_session(const char *p) {
+ساکن ثابت حرف* skip_session(ثابت حرف *p) {
         size_t n;
 
         /* Skip session-*.scope, but require it to be there. */
 
-        if (isempty(p))
-                return NULL;
+        اگر (isempty(p))
+                واپس تہی;
 
         p += strspn(p, "/");
 
         n = strcspn(p, "/");
-        if (n < STRLEN("session-x.scope"))
-                return NULL;
+        اگر (n < STRLEN("session-x.scope"))
+                واپس تہی;
 
-        const char *s = startswith(p, "session-");
-        if (!s)
-                return NULL;
+        ثابت حرف *s = startswith(p, "session-");
+        اگر (!s)
+                واپس تہی;
 
         /* Note that session scopes never need unescaping, since they cannot conflict with the kernel's
          * own names, hence we don't need to call cg_unescape() here. */
-        char *f = strndupa_safe(s, p + n - s),
+        حرف *f = strndupa_محفوظ(s, p + n - s),
              *e = endswith(f, ".scope");
-        if (!e)
-                return NULL;
+        اگر (!e)
+                واپس تہی;
         *e = '\0';
 
-        if (!session_id_valid(f))
-                return NULL;
+        اگر (!session_id_valid(f))
+                واپس تہی;
 
-        return skip_leading_slash(p + n);
+        واپس skip_leading_slash(p + n);
 }
 
-static const char* skip_user_manager(const char *p) {
+ساکن ثابت حرف* skip_user_manager(ثابت حرف *p) {
         size_t n;
 
         /* Skip user@*.service or capsule@*.service, but require either of them to be there. */
 
-        if (isempty(p))
-                return NULL;
+        اگر (isempty(p))
+                واپس تہی;
 
         p += strspn(p, "/");
 
         n = strcspn(p, "/");
-        if (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
-                return NULL;
+        اگر (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
+                واپس تہی;
 
         /* Any possible errors from functions called below are converted to NULL return, so our callers won't
          * resolve user/capsule name. */
-        _cleanup_free_ char *unit_name = strndup(p, n);
-        if (!unit_name)
-                return NULL;
+        _cleanup_free_ حرف *unit_name = strndup(p, n);
+        اگر (!unit_name)
+                واپس تہی;
 
-        _cleanup_free_ char *i = NULL;
-        UnitNameFlags type = unit_name_to_instance(unit_name, &i);
+        _cleanup_free_ حرف *i = تہی;
+        UnitNameFlags type = unit_name_مقصد_instance(unit_name, &i);
 
-        if (type != UNIT_NAME_INSTANCE)
-                return NULL;
+        اگر (type != UNIT_NAME_INSTANCE)
+                واپس تہی;
 
         /* Note that user manager services never need unescaping, since they cannot conflict with the
          * kernel's own names, hence we don't need to call cg_unescape() here.  Prudently check validity of
          * instance names, they should be always valid as we validate them upon unit start. */
-        if (!(startswith(unit_name, "user@") && parse_uid(i, NULL) >= 0) &&
+        اگر (!(startswith(unit_name, "user@") && parse_uid(i, تہی) >= 0) &&
             !(startswith(unit_name, "capsule@") && capsule_name_is_valid(i) > 0))
-                return NULL;
+                واپس تہی;
 
-        return skip_leading_slash(p + n);
+        واپس skip_leading_slash(p + n);
 }
 
-static const char* skip_user_prefix(const char *path) {
-        const char *e, *t;
+ساکن ثابت حرف* skip_user_سابقہ(ثابت حرف *راستہ) {
+        ثابت حرف *e, *t;
 
-        assert(path);
+        أكد(راستہ);
 
         /* Skip slices, if there are any */
-        e = skip_slices(path);
+        e = skip_slices(راستہ);
 
         /* Skip the user manager, if it's in the path now... */
         t = skip_user_manager(e);
-        if (t)
-                return t;
+        اگر (t)
+                واپس t;
 
         /* Alternatively skip the user session if it is in the path... */
-        return skip_session(e);
+        واپس skip_session(e);
 }
 
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
-        const char *t;
+صحیح cg_راستہ_get_user_unit_بھرا(ثابت حرف *راستہ, حرف **ret_unit, حرف **ret_subgroup) {
+        ثابت حرف *t;
 
-        assert(path);
+        أكد(راستہ);
 
-        t = skip_user_prefix(path);
-        if (!t)
-                return -ENXIO;
+        t = skip_user_سابقہ(راستہ);
+        اگر (!t)
+                واپس -ENXIO;
 
         /* And from here on it looks pretty much the same as for a system unit, hence let's use the same
          * parser. */
-        return cg_path_get_unit_full(t, ret_unit, ret_subgroup);
+        واپس cg_راستہ_get_unit_بھرا(t, ret_unit, ret_subgroup);
 }
 
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+صحیح cg_pid_get_user_unit_بھرا(pid_t pid, حرف **ret_unit, حرف **ret_subgroup) {
+        صحیح r;
 
-        _cleanup_free_ char *cgroup = NULL;
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *cgroup = تہی;
+        r = cg_pid_get_راستہ_shifted(pid, تہی, &cgroup);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_path_get_user_unit_full(cgroup, ret_unit, ret_subgroup);
+        واپس cg_راستہ_get_user_unit_بھرا(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+صحیح cg_pidref_get_user_unit_بھرا(ثابت PidRef *pidref, حرف **ret_unit, حرف **ret_subgroup) {
+        صحیح r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
 
-        _cleanup_free_ char *unit = NULL, *subgroup = NULL;
-        r = cg_pid_get_user_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *unit = تہی, *subgroup = تہی;
+        r = cg_pid_get_user_unit_بھرا(pidref->pid, &unit, &subgroup);
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret_unit)
+        اگر (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        اگر (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        واپس 0;
 }
 
-int cg_path_get_machine_name(const char *path, char **ret_machine) {
-        _cleanup_free_ char *u = NULL;
-        const char *sl;
-        int r;
+صحیح cg_راستہ_get_machine_name(ثابت حرف *راستہ, حرف **ret_machine) {
+        _cleanup_free_ حرف *u = تہی;
+        ثابت حرف *sl;
+        صحیح r;
 
-        r = cg_path_get_unit(path, &u);
-        if (r < 0)
-                return r;
+        r = cg_راستہ_get_unit(راستہ, &u);
+        اگر (r < 0)
+                واپس r;
 
         sl = strjoina("/run/systemd/machines/unit:", u);
-        return readlink_malloc(sl, ret_machine);
+        واپس readlink_malloc(sl, ret_machine);
 }
 
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+صحیح cg_pid_get_machine_name(pid_t pid, حرف **ret_machine) {
+        _cleanup_free_ حرف *cgroup = تہی;
+        صحیح r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ_shifted(pid, تہی, &cgroup);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_path_get_machine_name(cgroup, ret_machine);
+        واپس cg_راستہ_get_machine_name(cgroup, ret_machine);
 }
 
-int cg_path_get_session(const char *path, char **ret_session) {
-        _cleanup_free_ char *unit = NULL;
-        char *start, *end;
-        int r;
+صحیح cg_راستہ_get_session(ثابت حرف *راستہ, حرف **ret_session) {
+        _cleanup_free_ حرف *unit = تہی;
+        حرف *آغاز, *انتہا;
+        صحیح r;
 
-        assert(path);
+        أكد(راستہ);
 
-        r = cg_path_get_unit(path, &unit);
-        if (r < 0)
-                return r;
+        r = cg_راستہ_get_unit(راستہ, &unit);
+        اگر (r < 0)
+                واپس r;
 
-        start = startswith(unit, "session-");
-        if (!start)
-                return -ENXIO;
-        end = endswith(start, ".scope");
-        if (!end)
-                return -ENXIO;
+        آغاز = startswith(unit, "session-");
+        اگر (!آغاز)
+                واپس -ENXIO;
+        انتہا = endswith(آغاز, ".scope");
+        اگر (!انتہا)
+                واپس -ENXIO;
 
-        *end = 0;
-        if (!session_id_valid(start))
-                return -ENXIO;
+        *انتہا = 0;
+        اگر (!session_id_valid(آغاز))
+                واپس -ENXIO;
 
-        if (!ret_session)
-                return 0;
+        اگر (!ret_session)
+                واپس 0;
 
-        return strdup_to(ret_session, start);
+        واپس strdup_مقصد(ret_session, آغاز);
 }
 
-int cg_pid_get_session(pid_t pid, char **ret_session) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+صحیح cg_pid_get_session(pid_t pid, حرف **ret_session) {
+        _cleanup_free_ حرف *cgroup = تہی;
+        صحیح r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ_shifted(pid, تہی, &cgroup);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_path_get_session(cgroup, ret_session);
+        واپس cg_راستہ_get_session(cgroup, ret_session);
 }
 
-int cg_pidref_get_session(const PidRef *pidref, char **ret) {
-        int r;
+صحیح cg_pidref_get_session(ثابت PidRef *pidref, حرف **ret) {
+        صحیح r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
 
-        _cleanup_free_ char *session = NULL;
+        _cleanup_free_ حرف *session = تہی;
         r = cg_pid_get_session(pidref->pid, &session);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PTR(session);
-        return 0;
+        واپس 0;
 }
 
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
-        _cleanup_free_ char *slice = NULL;
-        char *start, *end;
-        int r;
+صحیح cg_راستہ_get_owner_uid(ثابت حرف *راستہ, uid_t *ret_uid) {
+        _cleanup_free_ حرف *قاش = تہی;
+        حرف *آغاز, *انتہا;
+        صحیح r;
 
-        assert(path);
+        أكد(راستہ);
 
-        r = cg_path_get_slice(path, &slice);
-        if (r < 0)
-                return r;
+        r = cg_راستہ_get_قاش(راستہ, &قاش);
+        اگر (r < 0)
+                واپس r;
 
-        start = startswith(slice, "user-");
-        if (!start)
-                return -ENXIO;
+        آغاز = startswith(قاش, "user-");
+        اگر (!آغاز)
+                واپس -ENXIO;
 
-        end = endswith(start, ".slice");
-        if (!end)
-                return -ENXIO;
+        انتہا = endswith(آغاز, ".slice");
+        اگر (!انتہا)
+                واپس -ENXIO;
 
-        *end = 0;
-        if (parse_uid(start, ret_uid) < 0)
-                return -ENXIO;
+        *انتہا = 0;
+        اگر (parse_uid(آغاز, ret_uid) < 0)
+                واپس -ENXIO;
 
-        return 0;
+        واپس 0;
 }
 
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+صحیح cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
+        _cleanup_free_ حرف *cgroup = تہی;
+        صحیح r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ_shifted(pid, تہی, &cgroup);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_path_get_owner_uid(cgroup, ret_uid);
+        واپس cg_راستہ_get_owner_uid(cgroup, ret_uid);
 }
 
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret) {
-        int r;
+صحیح cg_pidref_get_owner_uid(ثابت PidRef *pidref, uid_t *ret) {
+        صحیح r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
 
         uid_t uid;
         r = cg_pid_get_owner_uid(pidref->pid, &uid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
+        اگر (ret)
                 *ret = uid;
 
-        return 0;
+        واپس 0;
 }
 
-int cg_path_get_slice(const char *p, char **ret_slice) {
-        const char *e = NULL;
+صحیح cg_راستہ_get_قاش(ثابت حرف *p, حرف **ret_قاش) {
+        ثابت حرف *e = تہی;
 
-        assert(p);
+        أكد(p);
 
         /* Finds the right-most slice unit from the beginning, but stops before we come to
          * the first non-slice unit. */
 
-        for (;;) {
-                const char *s;
-                int n;
+        برائے (;;) {
+                ثابت حرف *s;
+                صحیح n;
 
-                n = path_find_first_component(&p, /* accept_dot_dot= */ false, &s);
-                if (n < 0)
-                        return n;
-                if (!valid_slice_name(s, n))
-                        break;
+                n = راستہ_ڈھونڈو_پہلا_component(&p, /* accept_dot_dot= */ false, &s);
+                اگر (n < 0)
+                        واپس n;
+                اگر (!valid_قاش_name(s, n))
+                        توڑو;
 
                 e = s;
         }
 
-        if (e)
-                return cg_path_decode_unit(e, ret_slice);
+        اگر (e)
+                واپس cg_راستہ_decode_unit(e, ret_قاش);
 
-        if (ret_slice)
-                return strdup_to(ret_slice, SPECIAL_ROOT_SLICE);
+        اگر (ret_قاش)
+                واپس strdup_مقصد(ret_قاش, SPECIAL_جڑ_قاش);
 
-        return 0;
+        واپس 0;
 }
 
-int cg_pid_get_slice(pid_t pid, char **ret_slice) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+صحیح cg_pid_get_قاش(pid_t pid, حرف **ret_قاش) {
+        _cleanup_free_ حرف *cgroup = تہی;
+        صحیح r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ_shifted(pid, تہی, &cgroup);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_path_get_slice(cgroup, ret_slice);
+        واپس cg_راستہ_get_قاش(cgroup, ret_قاش);
 }
 
-int cg_path_get_user_slice(const char *p, char **ret_slice) {
-        const char *t;
-        assert(p);
+صحیح cg_راستہ_get_user_قاش(ثابت حرف *p, حرف **ret_قاش) {
+        ثابت حرف *t;
+        أكد(p);
 
-        t = skip_user_prefix(p);
-        if (!t)
-                return -ENXIO;
+        t = skip_user_سابقہ(p);
+        اگر (!t)
+                واپس -ENXIO;
 
         /* And now it looks pretty much the same as for a system slice, so let's just use the same parser
          * from here on. */
-        return cg_path_get_slice(t, ret_slice);
+        واپس cg_راستہ_get_قاش(t, ret_قاش);
 }
 
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+صحیح cg_pid_get_user_قاش(pid_t pid, حرف **ret_قاش) {
+        _cleanup_free_ حرف *cgroup = تہی;
+        صحیح r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_راستہ_shifted(pid, تہی, &cgroup);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_path_get_user_slice(cgroup, ret_slice);
+        واپس cg_راستہ_get_user_قاش(cgroup, ret_قاش);
 }
 
-bool cg_needs_escape(const char *p) {
+bool cg_needs_escape(ثابت حرف *p) {
 
         /* Checks if the specified path is a valid cgroup name by our rules, or if it must be escaped. Note
          * that we consider escaped cgroup names invalid here, as they need to be escaped a second time if
          * they shall be used. Also note that various names cannot be made valid by escaping even if we
          * return true here (because too long, or contain the forbidden character "/"). */
 
-        if (!filename_is_valid(p))
-                return true;
+        اگر (!filename_is_valid(p))
+                واپس true;
 
-        if (IN_SET(p[0], '_', '.'))
-                return true;
+        اگر (اندر_سیٹ(p[0], '_', '.'))
+                واپس true;
 
-        if (STR_IN_SET(p, "notify_on_release", "release_agent", "tasks"))
-                return true;
+        اگر (STR_اندر_سیٹ(p, "notify_on_release", "release_agent", "tasks"))
+                واپس true;
 
-        if (startswith(p, "cgroup."))
-                return true;
+        اگر (startswith(p, "cgroup."))
+                واپس true;
 
-        for (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
-                const char *q;
+        برائے (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+                ثابت حرف *q;
 
-                q = startswith(p, cgroup_controller_to_string(c));
-                if (!q)
-                        continue;
+                q = startswith(p, cgroup_controller_مقصد_string(c));
+                اگر (!q)
+                        جاری;
 
-                if (q[0] == '.')
-                        return true;
+                اگر (q[0] == '.')
+                        واپس true;
         }
 
-        return false;
+        واپس false;
 }
 
-int cg_escape(const char *p, char **ret) {
-        _cleanup_free_ char *n = NULL;
+صحیح cg_escape(ثابت حرف *p, حرف **ret) {
+        _cleanup_free_ حرف *n = تہی;
 
-        assert(ret);
+        أكد(ret);
 
         /* This implements very minimal escaping for names to be used as file names in the cgroup tree: any
          * name which might conflict with a kernel name or is prefixed with '_' is prefixed with a '_'. That
@@ -1301,231 +1301,231 @@ int cg_escape(const char *p, char **ret) {
 
         /* The return value of this function (unlike cg_unescape()) needs free()! */
 
-        if (cg_needs_escape(p)) {
+        اگر (cg_needs_escape(p)) {
                 n = strjoin("_", p);
-                if (!n)
-                        return -ENOMEM;
+                اگر (!n)
+                        واپس -ENOMEM;
 
-                if (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
-                        return -EINVAL;
-        } else {
+                اگر (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
+                        واپس -EINVAL;
+        } ورنہ {
                 n = strdup(p);
-                if (!n)
-                        return -ENOMEM;
+                اگر (!n)
+                        واپس -ENOMEM;
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        واپس 0;
 }
 
-char* cg_unescape(const char *p) {
-        assert(p);
+حرف* cg_unescape(ثابت حرف *p) {
+        أكد(p);
 
         /* The return value of this function (unlike cg_escape())
          * doesn't need free()! */
 
-        if (p[0] == '_')
-                return (char*) p+1;
+        اگر (p[0] == '_')
+                واپس (حرف*) p+1;
 
-        return (char*) p;
+        واپس (حرف*) p;
 }
 
-int cg_slice_to_path(const char *unit, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL, *e = NULL;
-        const char *dash;
-        int r;
+صحیح cg_قاش_مقصد_راستہ(ثابت حرف *unit, حرف **ret) {
+        _cleanup_free_ حرف *p = تہی, *s = تہی, *e = تہی;
+        ثابت حرف *dash;
+        صحیح r;
 
-        assert(unit);
-        assert(ret);
+        أكد(unit);
+        أكد(ret);
 
-        if (streq(unit, SPECIAL_ROOT_SLICE))
-                return strdup_to(ret, "");
+        اگر (streq(unit, SPECIAL_جڑ_قاش))
+                واپس strdup_مقصد(ret, "");
 
-        if (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
+                واپس -EINVAL;
 
-        if (!endswith(unit, ".slice"))
-                return -EINVAL;
+        اگر (!endswith(unit, ".slice"))
+                واپس -EINVAL;
 
-        r = unit_name_to_prefix(unit, &p);
-        if (r < 0)
-                return r;
+        r = unit_name_مقصد_سابقہ(unit, &p);
+        اگر (r < 0)
+                واپس r;
 
         dash = strchr(p, '-');
 
         /* Don't allow initial dashes */
-        if (dash == p)
-                return -EINVAL;
+        اگر (dash == p)
+                واپس -EINVAL;
 
-        while (dash) {
-                _cleanup_free_ char *escaped = NULL;
-                char n[dash - p + sizeof(".slice")];
+        جب (dash) {
+                _cleanup_free_ حرف *escaped = تہی;
+                حرف n[dash - p + حجم(".slice")];
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#اگر HAS_FEATURE_حافظہ_SANITIZER
                 /* msan doesn't instrument stpncpy, so it thinks
                  * n is later used uninitialized:
                  * https://github.com/google/sanitizers/issues/926
                  */
                 zero(n);
-#endif
+#اگر_ختم
 
                 /* Don't allow trailing or double dashes */
-                if (IN_SET(dash[1], 0, '-'))
-                        return -EINVAL;
+                اگر (اندر_سیٹ(dash[1], 0, '-'))
+                        واپس -EINVAL;
 
                 strcpy(stpncpy(n, p, dash - p), ".slice");
-                if (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
-                        return -EINVAL;
+                اگر (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
+                        واپس -EINVAL;
 
                 r = cg_escape(n, &escaped);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
 
-                if (!strextend(&s, escaped, "/"))
-                        return -ENOMEM;
+                اگر (!strextend(&s, escaped, "/"))
+                        واپس -ENOMEM;
 
                 dash = strchr(dash+1, '-');
         }
 
         r = cg_escape(unit, &e);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (!strextend(&s, e))
-                return -ENOMEM;
+        اگر (!strextend(&s, e))
+                واپس -ENOMEM;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-int cg_is_threaded(const char *path) {
-        _cleanup_free_ char *fs = NULL, *contents = NULL;
-        _cleanup_strv_free_ char **v = NULL;
-        int r;
+صحیح cg_is_threaded(ثابت حرف *راستہ) {
+        _cleanup_free_ حرف *fs = تہی, *contents = تہی;
+        _cleanup_strv_free_ حرف **v = تہی;
+        صحیح r;
 
-        r = cg_get_path(path, "cgroup.type", &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, "cgroup.type", &fs);
+        اگر (r < 0)
+                واپس r;
 
-        r = read_full_virtual_file(fs, &contents, NULL);
-        if (r == -ENOENT)
-                return false; /* Assume no. */
-        if (r < 0)
-                return r;
+        r = read_بھرا_virtual_file(fs, &contents, تہی);
+        اگر (r == -ENOENT)
+                واپس false; /* Assume no. */
+        اگر (r < 0)
+                واپس r;
 
-        v = strv_split(contents, NULL);
-        if (!v)
-                return -ENOMEM;
+        v = strv_بانٹو(contents, تہی);
+        اگر (!v)
+                واپس -ENOMEM;
 
         /* If the cgroup is in the threaded mode, it contains "threaded".
          * If one of the parents or siblings is in the threaded mode, it may contain "invalid". */
-        return strv_contains(v, "threaded") || strv_contains(v, "invalid");
+        واپس strv_شامل_ہے(v, "threaded") || strv_شامل_ہے(v, "invalid");
 }
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+صحیح cg_سیٹ_attribute(ثابت حرف *راستہ, ثابت حرف *attribute, ثابت حرف *قدر) {
+        _cleanup_free_ حرف *p = تہی;
+        صحیح r;
 
-        assert(attribute);
+        أكد(attribute);
 
-        r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, attribute, &p);
+        اگر (r < 0)
+                واپس r;
 
         /* https://lore.kernel.org/all/20250419183545.1982187-1-shakeel.butt@linux.dev/ adds O_NONBLOCK
          * semantics to memory.max and memory.high to skip synchronous memory reclaim when O_NONBLOCK is
          * enabled. Let's always open cgroupv2 attribute files in nonblocking mode to immediately take
          * advantage of this and any other asynchronous resource reclaim that's added to the cgroupv2 API in
          * the future. */
-        return write_string_file(p, value, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
+        واپس write_string_file(p, قدر, WRITE_STRING_FILE_DISABLE_بفر|WRITE_STRING_FILE_OPEN_NONBLOCKING);
 }
 
-int cg_get_attribute(const char *path, const char *attribute, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+صحیح cg_get_attribute(ثابت حرف *راستہ, ثابت حرف *attribute, حرف **ret) {
+        _cleanup_free_ حرف *p = تہی;
+        صحیح r;
 
-        assert(attribute);
+        أكد(attribute);
 
-        r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, attribute, &p);
+        اگر (r < 0)
+                واپس r;
 
-        return read_one_line_file(p, ret);
+        واپس read_one_سطر_file(p, ret);
 }
 
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
+صحیح cg_get_attribute_as_uint64(ثابت حرف *راستہ, ثابت حرف *attribute, uint64_t *ret) {
+        _cleanup_free_ حرف *قدر = تہی;
         uint64_t v;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        r = cg_get_attribute(راستہ, attribute, &قدر);
+        اگر (r == -ENOENT)
+                واپس -ENODATA;
+        اگر (r < 0)
+                واپس r;
 
-        if (streq(value, "max")) {
-                *ret = CGROUP_LIMIT_MAX;
-                return 0;
+        اگر (streq(قدر, "max")) {
+                *ret = CGROUP_حد_بندی_MAX;
+                واپس 0;
         }
 
-        r = safe_atou64(value, &v);
-        if (r < 0)
-                return r;
+        r = محفوظ_atou64(قدر, &v);
+        اگر (r < 0)
+                واپس r;
 
         *ret = v;
-        return 0;
+        واپس 0;
 }
 
-int cg_get_attribute_as_bool(const char *path, const char *attribute) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+صحیح cg_get_attribute_as_bool(ثابت حرف *راستہ, ثابت حرف *attribute) {
+        _cleanup_free_ حرف *قدر = تہی;
+        صحیح r;
 
-        r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        r = cg_get_attribute(راستہ, attribute, &قدر);
+        اگر (r == -ENOENT)
+                واپس -ENODATA;
+        اگر (r < 0)
+                واپس r;
 
-        return parse_boolean(value);
+        واپس parse_boolean(قدر);
 }
 
-int cg_get_owner(const char *path, uid_t *ret_uid) {
-        _cleanup_free_ char *f = NULL;
-        struct stat stats;
-        int r;
+صحیح cg_get_owner(ثابت حرف *راستہ, uid_t *ret_uid) {
+        _cleanup_free_ حرف *f = تہی;
+        ساخت stat stats;
+        صحیح r;
 
-        assert(ret_uid);
+        أكد(ret_uid);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &f);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, /* suffix= */ تہی, &f);
+        اگر (r < 0)
+                واپس r;
 
-        if (stat(f, &stats) < 0)
-                return -errno;
+        اگر (stat(f, &stats) < 0)
+                واپس -errno;
 
         r = stat_verify_directory(&stats);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
         *ret_uid = stats.st_uid;
-        return 0;
+        واپس 0;
 }
 
-int cg_get_keyed_attribute(
-                const char *path,
-                const char *attribute,
-                char * const *keys,
-                char **values) {
+صحیح cg_get_keyed_attribute(
+                ثابت حرف *راستہ,
+                ثابت حرف *attribute,
+                حرف * ثابت *کلیدیں,
+                حرف **values) {
 
-        _cleanup_free_ char *filename = NULL, *contents = NULL;
+        _cleanup_free_ حرف *filename = تہی, *contents = تہی;
         size_t n;
-        int r;
+        صحیح r;
 
-        assert(path);
-        assert(attribute);
+        أكد(راستہ);
+        أكد(attribute);
 
         /* Reads one or more fields of a cgroup v2 keyed attribute file. The 'keys' parameter should be an strv with
          * all keys to retrieve. The 'values' parameter should be passed as string size with the same number of
@@ -1533,292 +1533,292 @@ int cg_get_keyed_attribute(
          *
          * If the attribute file doesn't exist at all returns ENOENT, if any key is not found returns ENXIO. */
 
-        r = cg_get_path(path, attribute, &filename);
-        if (r < 0)
-                return r;
+        r = cg_get_راستہ(راستہ, attribute, &filename);
+        اگر (r < 0)
+                واپس r;
 
-        r = read_full_file(filename, &contents, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        r = read_بھرا_file(filename, &contents, /* ret_size= */ تہی);
+        اگر (r < 0)
+                واپس r;
 
-        n = strv_length(keys);
-        if (n == 0) /* No keys to retrieve? That's easy, we are done then */
-                return 0;
-        assert(strv_is_uniq(keys));
+        n = strv_لمبائی(کلیدیں);
+        اگر (n == 0) /* No keys to retrieve? That's easy, we are done then */
+                واپس 0;
+        أكد(strv_is_uniq(کلیدیں));
 
         /* Let's build this up in a temporary array for now in order not to clobber the return parameter on failure */
-        char **v = newa0(char*, n);
-        size_t n_done = 0;
+        حرف **v = newa0(حرف*, n);
+        size_t n_مکمل = 0;
 
-        for (const char *p = contents; *p;) {
-                const char *w;
+        برائے (ثابت حرف *p = contents; *p;) {
+                ثابت حرف *w;
                 size_t i;
 
-                for (i = 0; i < n; i++) {
-                        w = first_word(p, keys[i]);
-                        if (w)
-                                break;
+                برائے (i = 0; i < n; i++) {
+                        w = پہلا_لفظ(p, کلیدیں[i]);
+                        اگر (w)
+                                توڑو;
                 }
 
-                if (w) {
-                        if (v[i]) { /* duplicate entry? */
+                اگر (w) {
+                        اگر (v[i]) { /* duplicate entry? */
                                 r = -EBADMSG;
-                                goto fail;
+                                جاؤ fail;
                         }
 
                         size_t l = strcspn(w, NEWLINE);
 
                         v[i] = strndup(w, l);
-                        if (!v[i]) {
+                        اگر (!v[i]) {
                                 r = -ENOMEM;
-                                goto fail;
+                                جاؤ fail;
                         }
 
-                        n_done++;
-                        if (n_done >= n)
-                                break;
+                        n_مکمل++;
+                        اگر (n_مکمل >= n)
+                                توڑو;
 
                         p = w + l;
-                } else
+                } ورنہ
                         p += strcspn(p, NEWLINE);
 
                 p += strspn(p, NEWLINE);
         }
 
-        if (n_done < n) {
+        اگر (n_مکمل < n) {
                 r = -ENXIO;
-                goto fail;
+                جاؤ fail;
         }
 
-        memcpy(values, v, sizeof(char*) * n);
-        return 0;
+        حافظہ_نقل(values, v, حجم(حرف*) * n);
+        واپس 0;
 
 fail:
         free_many_charp(v, n);
-        return r;
+        واپس r;
 }
 
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+صحیح cg_get_keyed_attribute_uint64(ثابت حرف *راستہ, ثابت حرف *attribute, ثابت حرف *کلید, uint64_t *ret) {
+        _cleanup_free_ حرف *val = تہی;
+        صحیح r;
 
-        assert(key);
-        assert(ret);
+        أكد(کلید);
+        أكد(ret);
 
-        r = cg_get_keyed_attribute(path, attribute, STRV_MAKE(key), &val);
-        if (r < 0)
-                return r;
+        r = cg_get_keyed_attribute(راستہ, attribute, STRV_MAKE(کلید), &val);
+        اگر (r < 0)
+                واپس r;
 
-        r = safe_atou64(val, ret);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, key, attribute);
+        r = محفوظ_atou64(val, ret);
+        اگر (r < 0)
+                واپس log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, کلید, attribute);
 
-        return 0;
+        واپس 0;
 }
 
-int cg_mask_to_string(CGroupMask mask, char **ret) {
-        _cleanup_free_ char *s = NULL;
+صحیح cg_نقاب_مقصد_string(CGroup_نقاب نقاب_3, حرف **ret) {
+        _cleanup_free_ حرف *s = تہی;
         bool space = false;
         CGroupController c;
         size_t n = 0;
 
-        assert(ret);
+        أكد(ret);
 
-        if (mask == 0) {
-                *ret = NULL;
-                return 0;
+        اگر (نقاب_3 == 0) {
+                *ret = تہی;
+                واپس 0;
         }
 
-        for (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
-                const char *k;
+        برائے (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+                ثابت حرف *k;
                 size_t l;
 
-                if (!FLAGS_SET(mask, CGROUP_CONTROLLER_TO_MASK(c)))
-                        continue;
+                اگر (!FLAGS_سیٹ(نقاب_3, CGROUP_CONTROLLER_مقصد_نقاب(c)))
+                        جاری;
 
-                k = cgroup_controller_to_string(c);
-                l = strlen(k);
+                k = cgroup_controller_مقصد_string(c);
+                l = لڑی_لمبائی(k);
 
-                if (!GREEDY_REALLOC(s, n + space + l + 1))
-                        return -ENOMEM;
+                اگر (!GREEDY_REALLOC(s, n + space + l + 1))
+                        واپس -ENOMEM;
 
-                if (space)
+                اگر (space)
                         s[n] = ' ';
-                memcpy(s + n + space, k, l);
+                حافظہ_نقل(s + n + space, k, l);
                 n += space + l;
 
                 space = true;
         }
 
-        assert(s);
+        أكد(s);
 
         s[n] = 0;
         *ret = TAKE_PTR(s);
 
-        return 0;
+        واپس 0;
 }
 
-int cg_mask_from_string(const char *s, CGroupMask *ret) {
-        CGroupMask m = 0;
+صحیح cg_نقاب_from_string(ثابت حرف *s, CGroup_نقاب *ret) {
+        CGroup_نقاب m = 0;
 
-        assert(ret);
-        assert(s);
+        أكد(ret);
+        أكد(s);
 
-        for (;;) {
-                _cleanup_free_ char *n = NULL;
+        برائے (;;) {
+                _cleanup_free_ حرف *n = تہی;
                 CGroupController v;
-                int r;
+                صحیح r;
 
-                r = extract_first_word(&s, &n, NULL, 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = نکالو_پہلا_لفظ(&s, &n, تہی, 0);
+                اگر (r < 0)
+                        واپس r;
+                اگر (r == 0)
+                        توڑو;
 
                 v = cgroup_controller_from_string(n);
-                if (v < 0)
-                        continue;
+                اگر (v < 0)
+                        جاری;
 
-                m |= CGROUP_CONTROLLER_TO_MASK(v);
+                m |= CGROUP_CONTROLLER_مقصد_نقاب(v);
         }
 
         *ret = m;
-        return 0;
+        واپس 0;
 }
 
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
-        CGroupMask mask;
-        int r;
+صحیح cg_نقاب_supported_subtree(ثابت حرف *جڑ, CGroup_نقاب *ret) {
+        CGroup_نقاب نقاب_3;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* Determines the mask of supported cgroup controllers. Only includes controllers we can make sense of and that
          * are actually accessible. Only covers real controllers, i.e. not the CGROUP_CONTROLLER_BPF_xyz
          * pseudo-controllers. */
 
         /* We can read the supported and accessible controllers from the top-level cgroup attribute */
-        _cleanup_free_ char *controllers = NULL, *path = NULL;
-        r = cg_get_path(root, "cgroup.controllers", &path);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *controllers = تہی, *راستہ = تہی;
+        r = cg_get_راستہ(جڑ, "cgroup.controllers", &راستہ);
+        اگر (r < 0)
+                واپس r;
 
-        r = read_one_line_file(path, &controllers);
-        if (r < 0)
-                return r;
+        r = read_one_سطر_file(راستہ, &controllers);
+        اگر (r < 0)
+                واپس r;
 
-        r = cg_mask_from_string(controllers, &mask);
-        if (r < 0)
-                return r;
+        r = cg_نقاب_from_string(controllers, &نقاب_3);
+        اگر (r < 0)
+                واپس r;
 
         /* Mask controllers that are not supported in cgroup v2. */
-        mask &= CGROUP_MASK_V2;
+        نقاب_3 &= CGROUP_نقاب_V2;
 
-        *ret = mask;
-        return 0;
+        *ret = نقاب_3;
+        واپس 0;
 }
 
-int cg_mask_supported(CGroupMask *ret) {
-        _cleanup_free_ char *root = NULL;
-        int r;
+صحیح cg_نقاب_supported(CGroup_نقاب *ret) {
+        _cleanup_free_ حرف *جڑ = تہی;
+        صحیح r;
 
-        r = cg_get_root_path(&root);
-        if (r < 0)
-                return r;
+        r = cg_get_جڑ_راستہ(&جڑ);
+        اگر (r < 0)
+                واپس r;
 
-        return cg_mask_supported_subtree(root, ret);
+        واپس cg_نقاب_supported_subtree(جڑ, ret);
 }
 
-int cg_is_delegated(const char *path) {
-        int r;
+صحیح cg_is_delegated(ثابت حرف *راستہ) {
+        صحیح r;
 
-        assert(path);
+        أكد(راستہ);
 
-        r = cg_get_xattr_bool(path, "trusted.delegate");
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        r = cg_get_xattr_bool(راستہ, "trusted.delegate");
+        اگر (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                واپس r;
 
         /* If the trusted xattr isn't set (preferred), then check the untrusted one. Under the assumption
          * that whoever is trusted enough to own the cgroup, is also trusted enough to decide if it is
          * delegated or not this should be safe. */
-        r = cg_get_xattr_bool(path, "user.delegate");
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        r = cg_get_xattr_bool(راستہ, "user.delegate");
+        واپس ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_is_delegated_fd(int fd) {
-        int r;
+صحیح cg_is_delegated_fd(صحیح fd) {
+        صحیح r;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        r = getxattr_at_bool(fd, /* path= */ NULL, "trusted.delegate", /* at_flags= */ 0);
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        r = getxattr_at_bool(fd, /* path= */ تہی, "trusted.delegate", /* at_flags= */ 0);
+        اگر (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                واپس r;
 
-        r = getxattr_at_bool(fd, /* path= */ NULL, "user.delegate", /* at_flags= */ 0);
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        r = getxattr_at_bool(fd, /* path= */ تہی, "user.delegate", /* at_flags= */ 0);
+        واپس ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_has_coredump_receive(const char *path) {
-        int r;
+صحیح cg_has_coredump_receive(ثابت حرف *راستہ) {
+        صحیح r;
 
-        assert(path);
+        أكد(راستہ);
 
-        r = cg_get_xattr_bool(path, "user.coredump_receive");
-        if (ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return false;
+        r = cg_get_xattr_bool(راستہ, "user.coredump_receive");
+        اگر (ERRNO_IS_NEG_XATTR_ABSENT(r))
+                واپس false;
 
-        return r;
+        واپس r;
 }
 
-const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX] = {
-        [CGROUP_IO_RBPS_MAX]  = CGROUP_LIMIT_MAX,
-        [CGROUP_IO_WBPS_MAX]  = CGROUP_LIMIT_MAX,
-        [CGROUP_IO_RIOPS_MAX] = CGROUP_LIMIT_MAX,
-        [CGROUP_IO_WIOPS_MAX] = CGROUP_LIMIT_MAX,
+ثابت uint64_t cgroup_io_حد_بندی_defaults[CGROUP_IO_حد_بندی_TYPE_MAX] = {
+        [CGROUP_IO_RBPS_MAX]  = CGROUP_حد_بندی_MAX,
+        [CGROUP_IO_WBPS_MAX]  = CGROUP_حد_بندی_MAX,
+        [CGROUP_IO_RIOPS_MAX] = CGROUP_حد_بندی_MAX,
+        [CGROUP_IO_WIOPS_MAX] = CGROUP_حد_بندی_MAX,
 };
 
-static const char* const cgroup_io_limit_type_table[_CGROUP_IO_LIMIT_TYPE_MAX] = {
+ساکن ثابت حرف* ثابت cgroup_io_حد_بندی_type_جدول[CGROUP_IO_حد_بندی_TYPE_MAX] = {
         [CGROUP_IO_RBPS_MAX]  = "IOReadBandwidthMax",
         [CGROUP_IO_WBPS_MAX]  = "IOWriteBandwidthMax",
         [CGROUP_IO_RIOPS_MAX] = "IOReadIOPSMax",
         [CGROUP_IO_WIOPS_MAX] = "IOWriteIOPSMax",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
+DEFINE_STRING_جدول_LOOKUP(cgroup_io_حد_بندی_type, CGroupIOLimitType);
 
-void cgroup_io_limits_list(void) {
-        DUMP_STRING_TABLE(cgroup_io_limit_type, CGroupIOLimitType, _CGROUP_IO_LIMIT_TYPE_MAX);
+خالی cgroup_io_limits_list(خالی) {
+        DUMP_STRING_جدول(cgroup_io_حد_بندی_type, CGroupIOLimitType, CGROUP_IO_حد_بندی_TYPE_MAX);
 }
 
-static const char *const cgroup_controller_table[_CGROUP_CONTROLLER_MAX] = {
+ساکن ثابت حرف *ثابت cgroup_controller_جدول[_CGROUP_CONTROLLER_MAX] = {
         [CGROUP_CONTROLLER_CPU]                             = "cpu",
         [CGROUP_CONTROLLER_CPUACCT]                         = "cpuacct",
         [CGROUP_CONTROLLER_CPUSET]                          = "cpuset",
         [CGROUP_CONTROLLER_IO]                              = "io",
         [CGROUP_CONTROLLER_BLKIO]                           = "blkio",
-        [CGROUP_CONTROLLER_MEMORY]                          = "memory",
+        [CGROUP_CONTROLLER_حافظہ]                          = "memory",
         [CGROUP_CONTROLLER_DEVICES]                         = "devices",
         [CGROUP_CONTROLLER_PIDS]                            = "pids",
         [CGROUP_CONTROLLER_BPF_FIREWALL]                    = "bpf-firewall",
         [CGROUP_CONTROLLER_BPF_DEVICES]                     = "bpf-devices",
         [CGROUP_CONTROLLER_BPF_FOREIGN]                     = "bpf-foreign",
         [CGROUP_CONTROLLER_BPF_SOCKET_BIND]                 = "bpf-socket-bind",
-        [CGROUP_CONTROLLER_BPF_RESTRICT_NETWORK_INTERFACES] = "bpf-restrict-network-interfaces",
-        [CGROUP_CONTROLLER_BPF_BIND_NETWORK_INTERFACE]      = "bpf-bind-network-interface",
+        [CGROUP_CONTROLLER_BPF_RESTRICT_جال_INTERFACES] = "bpf-restrict-network-interfaces",
+        [CGROUP_CONTROLLER_BPF_BIND_جال_INTERFACE]      = "bpf-bind-network-interface",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
+DEFINE_STRING_جدول_LOOKUP(cgroup_controller, CGroupController);
 
-static const char* const managed_oom_mode_table[_MANAGED_OOM_MODE_MAX] = {
+ساکن ثابت حرف* ثابت managed_oom_منوال_جدول[MANAGED_OOM_منوال_MAX] = {
         [MANAGED_OOM_AUTO] = "auto",
         [MANAGED_OOM_KILL] = "kill",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
+DEFINE_STRING_جدول_LOOKUP(managed_oom_منوال, ManagedOOMMode);
 
-static const char* const managed_oom_preference_table[_MANAGED_OOM_PREFERENCE_MAX] = {
+ساکن ثابت حرف* ثابت managed_oom_preference_جدول[_MANAGED_OOM_PREFERENCE_MAX] = {
         [MANAGED_OOM_PREFERENCE_NONE] = "none",
         [MANAGED_OOM_PREFERENCE_AVOID] = "avoid",
         [MANAGED_OOM_PREFERENCE_OMIT] = "omit",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(managed_oom_preference, ManagedOOMPreference);
+DEFINE_STRING_جدول_LOOKUP(managed_oom_preference, ManagedOOMPreference);

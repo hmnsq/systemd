@@ -1,106 +1,106 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <net/ethernet.h>
+#شامل <linux/if_infiniband.h>
+#شامل <netinet/in.h>
+#شامل <net/ethernet.h>
 
-#include "forward.h"
+#شامل "forward.h"
 
-struct hw_addr_data {
+ساخت hw_addr_ڈیٹا {
         size_t length;
-        union {
-                struct ether_addr ether;
+        اتحاد {
+                ساخت ether_addr ether;
                 uint8_t infiniband[INFINIBAND_ALEN];
-                struct in_addr in;
-                struct in6_addr in6;
-                uint8_t bytes[HW_ADDR_MAX_SIZE];
+                ساخت in_addr اندر;
+                ساخت in6_addr in6;
+                uint8_t بائٹیں[HW_ADDR_MAX_سائز];
         };
 };
 
-int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *ret);
-static inline int parse_hw_addr(const char *s, struct hw_addr_data *ret) {
-        return parse_hw_addr_full(s, 0, ret);
+صحیح parse_hw_addr_بھرا(ثابت حرف *s, size_t expected_len, ساخت hw_addr_ڈیٹا *ret);
+ساکن اندرونی صحیح parse_hw_addr(ثابت حرف *s, ساخت hw_addr_ڈیٹا *ret) {
+        واپس parse_hw_addr_بھرا(s, 0, ret);
 }
-int parse_ether_addr(const char *s, struct ether_addr *ret);
+صحیح parse_ether_addr(ثابت حرف *s, ساخت ether_addr *ret);
 
-typedef enum HardwareAddressToStringFlags {
-        HW_ADDR_TO_STRING_NO_COLON = 1 << 0,
-} HardwareAddressToStringFlags;
+قسمتعریف شمار Hardware_پتہ_مقصد_String_Flags {
+        HW_ADDR_مقصد_STRING_NO_COLON = 1 << 0,
+} Hardware_پتہ_مقصد_String_Flags;
 
-#define HW_ADDR_TO_STRING_MAX (3*HW_ADDR_MAX_SIZE)
-char* hw_addr_to_string_full(
-                const struct hw_addr_data *addr,
-                HardwareAddressToStringFlags flags,
-                char buffer[static HW_ADDR_TO_STRING_MAX]);
-static inline char* hw_addr_to_string(const struct hw_addr_data *addr, char buffer[static HW_ADDR_TO_STRING_MAX]) {
-        return hw_addr_to_string_full(addr, 0, buffer);
+#تعریف_کرو HW_ADDR_مقصد_STRING_MAX (3*HW_ADDR_MAX_سائز)
+حرف* hw_addr_مقصد_string_بھرا(
+                ثابت ساخت hw_addr_ڈیٹا *addr,
+                Hardware_پتہ_مقصد_String_Flags flags,
+                حرف بفر[ساکن HW_ADDR_مقصد_STRING_MAX]);
+ساکن اندرونی حرف* hw_addr_مقصد_string(ثابت ساخت hw_addr_ڈیٹا *addr, حرف بفر[ساکن HW_ADDR_مقصد_STRING_MAX]) {
+        واپس hw_addr_مقصد_string_بھرا(addr, 0, بفر);
 }
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
  * see C11 §6.5.2.5, and
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks */
-#define HW_ADDR_TO_STR_FULL(hw_addr, flags) hw_addr_to_string_full((hw_addr), flags, (char[HW_ADDR_TO_STRING_MAX]){})
-#define HW_ADDR_TO_STR(hw_addr) HW_ADDR_TO_STR_FULL(hw_addr, 0)
+#تعریف_کرو HW_ADDR_مقصد_STR_بھرا(hw_addr, flags) hw_addr_مقصد_string_بھرا((hw_addr), flags, (حرف[HW_ADDR_مقصد_STRING_MAX]){})
+#تعریف_کرو HW_ADDR_مقصد_STR(hw_addr) HW_ADDR_مقصد_STR_بھرا(hw_addr, 0)
 
-#define HW_ADDR_NULL ((const struct hw_addr_data){})
+#تعریف_کرو HW_ADDR_NULL ((ثابت ساخت hw_addr_ڈیٹا){})
 
-struct hw_addr_data *hw_addr_set(struct hw_addr_data *addr, const uint8_t *bytes, size_t length);
+ساخت hw_addr_ڈیٹا *hw_addr_سیٹ(ساخت hw_addr_ڈیٹا *addr, ثابت uint8_t *بائٹیں, size_t length);
 
-void hw_addr_hash_func(const struct hw_addr_data *p, struct siphash *state);
-int hw_addr_compare(const struct hw_addr_data *a, const struct hw_addr_data *b);
-static inline bool hw_addr_equal(const struct hw_addr_data *a, const struct hw_addr_data *b) {
-        return hw_addr_compare(a, b) == 0;
+خالی hw_addr_hash_func(ثابت ساخت hw_addr_ڈیٹا *p, ساخت siphash *state);
+صحیح hw_addr_compare(ثابت ساخت hw_addr_ڈیٹا *a, ثابت ساخت hw_addr_ڈیٹا *b);
+ساکن اندرونی bool hw_addr_equal(ثابت ساخت hw_addr_ڈیٹا *a, ثابت ساخت hw_addr_ڈیٹا *b) {
+        واپس hw_addr_compare(a, b) == 0;
 }
-bool hw_addr_is_null(const struct hw_addr_data *addr) _pure_;
-bool hw_addr_is_valid(const struct hw_addr_data *addr, uint16_t iftype);
+bool hw_addr_is_null(ثابت ساخت hw_addr_ڈیٹا *addr) خالص;
+bool hw_addr_is_valid(ثابت ساخت hw_addr_ڈیٹا *addr, uint16_t iftype);
 
-extern const struct hash_ops hw_addr_hash_ops;
-extern const struct hash_ops hw_addr_hash_ops_free;
+خارجی ثابت ساخت hash_ops hw_addr_hash_ops;
+خارجی ثابت ساخت hash_ops hw_addr_hash_ops_free;
 
-#define ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
-#define ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
+#تعریف_کرو ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
+#تعریف_کرو ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
 
-#define ETHER_ADDR_TO_STRING_MAX (3*6)
-char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR_TO_STRING_MAX]);
+#تعریف_کرو ETHER_ADDR_مقصد_STRING_MAX (3*6)
+حرف* ether_addr_مقصد_string(ثابت ساخت ether_addr *addr, حرف بفر[ETHER_ADDR_مقصد_STRING_MAX]);
 /* Use only as function argument, never stand-alone! */
-#define ETHER_ADDR_TO_STR(addr) ether_addr_to_string((addr), (char[ETHER_ADDR_TO_STRING_MAX]){})
+#تعریف_کرو ETHER_ADDR_مقصد_STR(addr) ether_addr_مقصد_string((addr), (حرف[ETHER_ADDR_مقصد_STRING_MAX]){})
 
-int ether_addr_compare(const struct ether_addr *a, const struct ether_addr *b);
-static inline bool ether_addr_equal(const struct ether_addr *a, const struct ether_addr *b) {
-        return ether_addr_compare(a, b) == 0;
+صحیح ether_addr_compare(ثابت ساخت ether_addr *a, ثابت ساخت ether_addr *b);
+ساکن اندرونی bool ether_addr_equal(ثابت ساخت ether_addr *a, ثابت ساخت ether_addr *b) {
+        واپس ether_addr_compare(a, b) == 0;
 }
 
-#define ETHER_ADDR_NULL ((const struct ether_addr){})
+#تعریف_کرو ETHER_ADDR_NULL ((ثابت ساخت ether_addr){})
 
-static inline bool ether_addr_is_null(const struct ether_addr *addr) {
-        return ether_addr_equal(addr, &ETHER_ADDR_NULL);
+ساکن اندرونی bool ether_addr_is_null(ثابت ساخت ether_addr *addr) {
+        واپس ether_addr_equal(addr, &ETHER_ADDR_NULL);
 }
 
-bool ether_addr_is_broadcast(const struct ether_addr *addr) _pure_;
+bool ether_addr_is_نشر(ثابت ساخت ether_addr *addr) خالص;
 
-static inline bool ether_addr_is_multicast(const struct ether_addr *addr) {
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x01);
+ساکن اندرونی bool ether_addr_is_multicast(ثابت ساخت ether_addr *addr) {
+        أكد(addr);
+        واپس FLAGS_سیٹ(addr->ether_addr_octet[0], 0x01);
 }
 
-static inline bool ether_addr_is_unicast(const struct ether_addr *addr) {
-        return !ether_addr_is_multicast(addr);
+ساکن اندرونی bool ether_addr_is_unicast(ثابت ساخت ether_addr *addr) {
+        واپس !ether_addr_is_multicast(addr);
 }
 
-static inline bool ether_addr_is_local(const struct ether_addr *addr) {
+ساکن اندرونی bool ether_addr_is_local(ثابت ساخت ether_addr *addr) {
         /* Determine if the Ethernet address is locally-assigned one (IEEE 802) */
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x02);
+        أكد(addr);
+        واپس FLAGS_سیٹ(addr->ether_addr_octet[0], 0x02);
 }
 
-static inline bool ether_addr_is_global(const struct ether_addr *addr) {
-        return !ether_addr_is_local(addr);
+ساکن اندرونی bool ether_addr_is_global(ثابت ساخت ether_addr *addr) {
+        واپس !ether_addr_is_local(addr);
 }
 
-extern const struct hash_ops ether_addr_hash_ops;
-extern const struct hash_ops ether_addr_hash_ops_free;
+خارجی ثابت ساخت hash_ops ether_addr_hash_ops;
+خارجی ثابت ساخت hash_ops ether_addr_hash_ops_free;
 
-void ether_addr_mark_random(struct ether_addr *addr);
+خالی ether_addr_mark_random(ساخت ether_addr *addr);
 
-int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type);
+صحیح hw_addr_ensure_نشر(ساخت hw_addr_ڈیٹا *bcast_addr, uint16_t arp_type);

@@ -1,376 +1,376 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "sd-id128.h"
+#شامل "sd-id128.h"
 
-#include "alloc-util.h"
-#include "glob-util.h"
-#include "hexdecoct.h"
-#include "log.h"
-#include "memory-util.h"
-#include "path-util.h"
-#include "sparse-endian.h"
-#include "special.h"
-#include "siphash24.h"
-#include "string-util.h"
-#include "unit-def.h"
-#include "unit-name.h"
+#شامل "alloc-util.h"
+#شامل "glob-util.h"
+#شامل "hexdecoct.h"
+#شامل "log.h"
+#شامل "memory-util.h"
+#شامل "path-util.h"
+#شامل "sparse-endian.h"
+#شامل "special.h"
+#شامل "siphash24.h"
+#شامل "string-util.h"
+#شامل "unit-def.h"
+#شامل "unit-name.h"
 
 /* Characters valid in a unit name. */
-#define VALID_CHARS                             \
+#تعریف_کرو VALID_CHARS                             \
         ALPHANUMERICAL                          \
         ":-_.\\"
 
 /* The same, but also permits the single @ character that may appear */
-#define VALID_CHARS_WITH_AT                     \
+#تعریف_کرو VALID_CHARS_WITH_AT                     \
         "@"                                     \
         VALID_CHARS
 
 /* All chars valid in a unit name glob */
-#define VALID_CHARS_GLOB                        \
+#تعریف_کرو VALID_CHARS_GLOB                        \
         VALID_CHARS_WITH_AT                     \
         "[]!-*?"
 
-#define LONG_UNIT_NAME_HASH_KEY SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
-#define UNIT_NAME_HASH_LENGTH_CHARS 16
+#تعریف_کرو LONG_UNIT_NAME_HASH_کلید SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
+#تعریف_کرو UNIT_NAME_HASH_لمبائی_CHARS 16
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) {
-        const char *e, *i, *at;
+bool unit_name_is_valid(ثابت حرف *n, UnitNameFlags flags) {
+        ثابت حرف *e, *i, *at;
 
-        assert((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
+        أكد((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
 
-        if (_unlikely_(flags == 0))
-                return false;
+        اگر (_unlikely_(flags == 0))
+                واپس false;
 
-        if (isempty(n))
-                return false;
+        اگر (isempty(n))
+                واپس false;
 
-        if (strlen(n) >= UNIT_NAME_MAX)
-                return false;
+        اگر (لڑی_لمبائی(n) >= UNIT_NAME_MAX)
+                واپس false;
 
         e = strrchr(n, '.');
-        if (!e || e == n)
-                return false;
+        اگر (!e || e == n)
+                واپس false;
 
-        if (unit_type_from_string(e + 1) < 0)
-                return false;
+        اگر (unit_type_from_string(e + 1) < 0)
+                واپس false;
 
-        for (i = n, at = NULL; i < e; i++) {
+        برائے (i = n, at = تہی; i < e; i++) {
 
-                if (*i == '@' && !at)
+                اگر (*i == '@' && !at)
                         at = i;
 
-                if (!strchr(VALID_CHARS_WITH_AT, *i))
-                        return false;
+                اگر (!strchr(VALID_CHARS_WITH_AT, *i))
+                        واپس false;
         }
 
-        if (at == n)
-                return false;
+        اگر (at == n)
+                واپس false;
 
-        if (flags & UNIT_NAME_PLAIN)
-                if (!at)
-                        return true;
+        اگر (flags & UNIT_NAME_PLAIN)
+                اگر (!at)
+                        واپس true;
 
-        if (flags & UNIT_NAME_INSTANCE)
-                if (at && e > at + 1)
-                        return true;
+        اگر (flags & UNIT_NAME_INSTANCE)
+                اگر (at && e > at + 1)
+                        واپس true;
 
-        if (flags & UNIT_NAME_TEMPLATE)
-                if (at && e == at + 1)
-                        return true;
+        اگر (flags & UNIT_NAME_TEMPLATE)
+                اگر (at && e == at + 1)
+                        واپس true;
 
-        return false;
+        واپس false;
 }
 
-bool unit_prefix_is_valid(const char *p) {
+bool unit_سابقہ_is_valid(ثابت حرف *p) {
 
         /* We don't allow additional @ in the prefix string */
 
-        if (isempty(p))
-                return false;
+        اگر (isempty(p))
+                واپس false;
 
-        return in_charset(p, VALID_CHARS);
+        واپس اندر_charset(p, VALID_CHARS);
 }
 
-bool unit_instance_is_valid(const char *i) {
+bool unit_instance_is_valid(ثابت حرف *i) {
 
         /* The max length depends on the length of the string, so we
          * don't really check this here. */
 
-        if (isempty(i))
-                return false;
+        اگر (isempty(i))
+                واپس false;
 
         /* We allow additional @ in the instance string, we do not
          * allow them in the prefix! */
 
-        return in_charset(i, "@" VALID_CHARS);
+        واپس اندر_charset(i, "@" VALID_CHARS);
 }
 
-bool unit_suffix_is_valid(const char *s) {
-        if (isempty(s))
-                return false;
+bool unit_suffix_is_valid(ثابت حرف *s) {
+        اگر (isempty(s))
+                واپس false;
 
-        if (s[0] != '.')
-                return false;
+        اگر (s[0] != '.')
+                واپس false;
 
-        if (unit_type_from_string(s + 1) < 0)
-                return false;
+        اگر (unit_type_from_string(s + 1) < 0)
+                واپس false;
 
-        return true;
+        واپس true;
 }
 
-int unit_name_to_prefix(const char *n, char **ret) {
-        const char *p;
-        char *s;
+صحیح unit_name_مقصد_سابقہ(ثابت حرف *n, حرف **ret) {
+        ثابت حرف *p;
+        حرف *s;
 
-        assert(n);
-        assert(ret);
+        أكد(n);
+        أكد(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                واپس -EINVAL;
 
         p = strchr(n, '@');
-        if (!p)
+        اگر (!p)
                 p = strrchr(n, '.');
 
         assert_se(p);
 
         s = strndup(n, p - n);
-        if (!s)
-                return -ENOMEM;
+        اگر (!s)
+                واپس -ENOMEM;
 
         *ret = s;
-        return 0;
+        واپس 0;
 }
 
-UnitNameFlags unit_name_to_instance(const char *n, char **ret) {
-        const char *p, *d;
+UnitNameFlags unit_name_مقصد_instance(ثابت حرف *n, حرف **ret) {
+        ثابت حرف *p, *d;
 
-        assert(n);
+        أكد(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                واپس -EINVAL;
 
         /* Everything past the first @ and before the last . is the instance */
         p = strchr(n, '@');
-        if (!p) {
-                if (ret)
-                        *ret = NULL;
-                return UNIT_NAME_PLAIN;
+        اگر (!p) {
+                اگر (ret)
+                        *ret = تہی;
+                واپس UNIT_NAME_PLAIN;
         }
 
         p++;
 
         d = strrchr(p, '.');
-        if (!d)
-                return -EINVAL;
+        اگر (!d)
+                واپس -EINVAL;
 
-        if (ret) {
-                char *i = strndup(p, d-p);
-                if (!i)
-                        return -ENOMEM;
+        اگر (ret) {
+                حرف *i = strndup(p, d-p);
+                اگر (!i)
+                        واپس -ENOMEM;
 
                 *ret = i;
         }
-        return d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
+        واپس d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
 }
 
-int unit_name_to_prefix_and_instance(const char *n, char **ret) {
-        const char *d;
-        char *s;
+صحیح unit_name_مقصد_سابقہ_and_instance(ثابت حرف *n, حرف **ret) {
+        ثابت حرف *d;
+        حرف *s;
 
-        assert(n);
-        assert(ret);
+        أكد(n);
+        أكد(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                واپس -EINVAL;
 
         d = strrchr(n, '.');
-        if (!d)
-                return -EINVAL;
+        اگر (!d)
+                واپس -EINVAL;
 
         s = strndup(n, d - n);
-        if (!s)
-                return -ENOMEM;
+        اگر (!s)
+                واپس -ENOMEM;
 
         *ret = s;
-        return 0;
+        واپس 0;
 }
 
-UnitType unit_name_to_type(const char *n) {
-        const char *e;
+UnitType unit_name_مقصد_type(ثابت حرف *n) {
+        ثابت حرف *e;
 
-        assert(n);
+        أكد(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return _UNIT_TYPE_INVALID;
+        اگر (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                واپس _UNIT_TYPE_INVALID;
 
         assert_se(e = strrchr(n, '.'));
 
-        return unit_type_from_string(e + 1);
+        واپس unit_type_from_string(e + 1);
 }
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
-        _cleanup_free_ char *s = NULL;
+صحیح unit_name_change_suffix(ثابت حرف *n, ثابت حرف *suffix, حرف **ret) {
+        _cleanup_free_ حرف *s = تہی;
         size_t a, b;
-        const char *e;
+        ثابت حرف *e;
 
-        assert(n);
-        assert(suffix);
-        assert(ret);
+        أكد(n);
+        أكد(suffix);
+        أكد(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                واپس -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        اگر (!unit_suffix_is_valid(suffix))
+                واپس -EINVAL;
 
         assert_se(e = strrchr(n, '.'));
 
         a = e - n;
-        b = strlen(suffix);
+        b = لڑی_لمبائی(suffix);
 
-        s = new(char, a + b + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(حرف, a + b + 1);
+        اگر (!s)
+                واپس -ENOMEM;
 
         strcpy(mempcpy(s, n, a), suffix);
 
         /* Make sure the name is still valid (i.e. didn't grow too large due to longer suffix) */
-        if (!unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(s, UNIT_NAME_ANY))
+                واپس -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret) {
+صحیح unit_name_build(ثابت حرف *سابقہ, ثابت حرف *instance, ثابت حرف *suffix, حرف **ret) {
         UnitType type;
 
-        assert(prefix);
-        assert(suffix);
-        assert(ret);
+        أكد(سابقہ);
+        أكد(suffix);
+        أكد(ret);
 
-        if (suffix[0] != '.')
-                return -EINVAL;
+        اگر (suffix[0] != '.')
+                واپس -EINVAL;
 
         type = unit_type_from_string(suffix + 1);
-        if (type < 0)
-                return type;
+        اگر (type < 0)
+                واپس type;
 
-        return unit_name_build_from_type(prefix, instance, type, ret);
+        واپس unit_name_build_from_type(سابقہ, instance, type, ret);
 }
 
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        const char *ut;
+صحیح unit_name_build_from_type(ثابت حرف *سابقہ, ثابت حرف *instance, UnitType type, حرف **ret) {
+        _cleanup_free_ حرف *s = تہی;
+        ثابت حرف *ut;
 
-        assert(prefix);
-        assert(type >= 0);
-        assert(type < _UNIT_TYPE_MAX);
-        assert(ret);
+        أكد(سابقہ);
+        أكد(type >= 0);
+        أكد(type < _UNIT_TYPE_MAX);
+        أكد(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        اگر (!unit_سابقہ_is_valid(سابقہ))
+                واپس -EINVAL;
 
-        ut = unit_type_to_string(type);
+        ut = unit_type_مقصد_string(type);
 
-        if (instance) {
-                if (!unit_instance_is_valid(instance))
-                        return -EINVAL;
+        اگر (instance) {
+                اگر (!unit_instance_is_valid(instance))
+                        واپس -EINVAL;
 
-                s = strjoin(prefix, "@", instance, ".", ut);
-        } else
-                s = strjoin(prefix, ".", ut);
-        if (!s)
-                return -ENOMEM;
+                s = strjoin(سابقہ, "@", instance, ".", ut);
+        } ورنہ
+                s = strjoin(سابقہ, ".", ut);
+        اگر (!s)
+                واپس -ENOMEM;
 
         /* Verify that this didn't grow too large (or otherwise is invalid) */
-        if (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
+                واپس -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-static char *do_escape_char(char c, char *t) {
-        assert(t);
+ساکن حرف *do_escape_char(حرف c, حرف *t) {
+        أكد(t);
 
         *(t++) = '\\';
         *(t++) = 'x';
         *(t++) = hexchar(c >> 4);
         *(t++) = hexchar(c);
 
-        return t;
+        واپس t;
 }
 
-static char *do_escape(const char *f, char *t) {
-        assert(f);
-        assert(t);
+ساکن حرف *do_escape(ثابت حرف *f, حرف *t) {
+        أكد(f);
+        أكد(t);
 
         /* do not create units with a leading '.', like for "/.dotdir" mount points */
-        if (*f == '.') {
+        اگر (*f == '.') {
                 t = do_escape_char(*f, t);
                 f++;
         }
 
-        for (; *f; f++) {
-                if (*f == '/')
+        برائے (; *f; f++) {
+                اگر (*f == '/')
                         *(t++) = '-';
-                else if (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
+                ورنہ اگر (اندر_سیٹ(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
                         t = do_escape_char(*f, t);
-                else
+                ورنہ
                         *(t++) = *f;
         }
 
-        return t;
+        واپس t;
 }
 
-char* unit_name_escape(const char *f) {
-        char *r, *t;
+حرف* unit_name_escape(ثابت حرف *f) {
+        حرف *r, *t;
 
-        assert(f);
+        أكد(f);
 
-        r = new(char, strlen(f)*4+1);
-        if (!r)
-                return NULL;
+        r = new(حرف, لڑی_لمبائی(f)*4+1);
+        اگر (!r)
+                واپس تہی;
 
         t = do_escape(f, r);
         *t = 0;
 
-        return r;
+        واپس r;
 }
 
-int unit_name_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *r = NULL;
-        char *t;
+صحیح unit_name_unescape(ثابت حرف *f, حرف **ret) {
+        _cleanup_free_ حرف *r = تہی;
+        حرف *t;
 
-        assert(f);
-        assert(ret);
+        أكد(f);
+        أكد(ret);
 
         r = strdup(f);
-        if (!r)
-                return -ENOMEM;
+        اگر (!r)
+                واپس -ENOMEM;
 
-        for (t = r; *f; f++) {
-                if (*f == '-')
+        برائے (t = r; *f; f++) {
+                اگر (*f == '-')
                         *(t++) = '/';
-                else if (*f == '\\') {
-                        int a, b;
+                ورنہ اگر (*f == '\\') {
+                        صحیح a, b;
 
-                        if (f[1] != 'x')
-                                return -EINVAL;
+                        اگر (f[1] != 'x')
+                                واپس -EINVAL;
 
                         a = unhexchar(f[2]);
-                        if (a < 0)
-                                return -EINVAL;
+                        اگر (a < 0)
+                                واپس -EINVAL;
 
                         b = unhexchar(f[3]);
-                        if (b < 0)
-                                return -EINVAL;
+                        اگر (b < 0)
+                                واپس -EINVAL;
 
-                        *(t++) = (char) (((uint8_t) a << 4U) | (uint8_t) b);
+                        *(t++) = (حرف) (((uint8_t) a << 4U) | (uint8_t) b);
                         f += 3;
-                } else
+                } ورنہ
                         *(t++) = *f;
         }
 
@@ -378,307 +378,307 @@ int unit_name_unescape(const char *f, char **ret) {
 
         *ret = TAKE_PTR(r);
 
-        return 0;
+        واپس 0;
 }
 
-int unit_name_path_escape(const char *f, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        char *s;
-        int r;
+صحیح unit_name_راستہ_escape(ثابت حرف *f, حرف **ret) {
+        _cleanup_free_ حرف *p = تہی;
+        حرف *s;
+        صحیح r;
 
-        assert(f);
-        assert(ret);
+        أكد(f);
+        أكد(ret);
 
-        r = path_simplify_alloc(f, &p);
-        if (r < 0)
-                return r;
+        r = راستہ_simplify_alloc(f, &p);
+        اگر (r < 0)
+                واپس r;
 
-        if (empty_or_root(p))
+        اگر (خالی_خانے_or_جڑ(p))
                 s = strdup("-");
-        else {
-                if (!path_is_normalized(p))
-                        return -EINVAL;
+        ورنہ {
+                اگر (!راستہ_is_normalized(p))
+                        واپس -EINVAL;
 
                 /* Truncate trailing slashes and skip leading slashes */
                 delete_trailing_chars(p, "/");
                 s = unit_name_escape(skip_leading_chars(p, "/"));
         }
-        if (!s)
-                return -ENOMEM;
+        اگر (!s)
+                واپس -ENOMEM;
 
         *ret = s;
-        return 0;
+        واپس 0;
 }
 
-int unit_name_path_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحیح unit_name_راستہ_unescape(ثابت حرف *f, حرف **ret) {
+        _cleanup_free_ حرف *s = تہی;
+        صحیح r;
 
-        assert(f);
+        أكد(f);
 
-        if (isempty(f))
-                return -EINVAL;
+        اگر (isempty(f))
+                واپس -EINVAL;
 
-        if (streq(f, "-")) {
+        اگر (streq(f, "-")) {
                 s = strdup("/");
-                if (!s)
-                        return -ENOMEM;
-        } else {
-                _cleanup_free_ char *w = NULL;
+                اگر (!s)
+                        واپس -ENOMEM;
+        } ورنہ {
+                _cleanup_free_ حرف *w = تہی;
 
                 r = unit_name_unescape(f, &w);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
 
                 /* Don't accept trailing or leading slashes */
-                if (startswith(w, "/") || endswith(w, "/"))
-                        return -EINVAL;
+                اگر (startswith(w, "/") || endswith(w, "/"))
+                        واپس -EINVAL;
 
                 /* Prefix a slash again */
                 s = strjoin("/", w);
-                if (!s)
-                        return -ENOMEM;
+                اگر (!s)
+                        واپس -ENOMEM;
 
-                if (!path_is_normalized(s))
-                        return -EINVAL;
+                اگر (!راستہ_is_normalized(s))
+                        واپس -EINVAL;
         }
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        واپس 0;
 }
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+صحیح unit_name_replace_instance_بھرا(
+                ثابت حرف *original,
+                ثابت حرف *instance,
                 bool accept_glob,
-                char **ret) {
+                حرف **ret) {
 
-        _cleanup_free_ char *s = NULL;
-        const char *prefix, *suffix;
+        _cleanup_free_ حرف *s = تہی;
+        ثابت حرف *سابقہ, *suffix;
         size_t pl;
 
-        assert(original);
-        assert(instance);
-        assert(ret);
+        أكد(original);
+        أكد(instance);
+        أكد(ret);
 
-        if (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
-        if (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                واپس -EINVAL;
+        اگر (!unit_instance_is_valid(instance) && !(accept_glob && اندر_charset(instance, VALID_CHARS_GLOB)))
+                واپس -EINVAL;
 
-        prefix = ASSERT_PTR(strchr(original, '@'));
+        سابقہ = ASSERT_PTR(strchr(original, '@'));
         suffix = ASSERT_PTR(strrchr(original, '.'));
-        assert(prefix < suffix);
+        أكد(سابقہ < suffix);
 
-        pl = prefix - original + 1; /* include '@' */
+        pl = سابقہ - original + 1; /* include '@' */
 
-        s = new(char, pl + strlen(instance) + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(حرف, pl + لڑی_لمبائی(instance) + لڑی_لمبائی(suffix) + 1);
+        اگر (!s)
+                واپس -ENOMEM;
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#اگر HAS_FEATURE_حافظہ_SANITIZER
         /* MSan doesn't like stpncpy... See also https://github.com/google/sanitizers/issues/926 */
-        memzero(s, pl + strlen(instance) + strlen(suffix) + 1);
-#endif
+        memzero(s, pl + لڑی_لمبائی(instance) + لڑی_لمبائی(suffix) + 1);
+#اگر_ختم
 
         strcpy(stpcpy(stpncpy(s, original, pl), instance), suffix);
 
         /* Make sure the resulting name still is valid, i.e. didn't grow too large. Globs will be expanded
          * by clients when used, so the check is pointless. */
-        if (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        اگر (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                واپس -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-int unit_name_template(const char *f, char **ret) {
-        const char *p, *e;
-        char *s;
+صحیح unit_name_template(ثابت حرف *f, حرف **ret) {
+        ثابت حرف *p, *e;
+        حرف *s;
         size_t a;
 
-        assert(f);
-        assert(ret);
+        أكد(f);
+        أكد(ret);
 
-        if (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                واپس -EINVAL;
 
         assert_se(p = strchr(f, '@'));
         assert_se(e = strrchr(f, '.'));
 
         a = p - f;
 
-        s = new(char, a + 1 + strlen(e) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(حرف, a + 1 + لڑی_لمبائی(e) + 1);
+        اگر (!s)
+                واپس -ENOMEM;
 
         strcpy(mempcpy(s, f, a + 1), e);
 
         *ret = s;
-        return 0;
+        واپس 0;
 }
 
-bool unit_name_is_hashed(const char *name) {
-        const char *s;
+bool unit_name_is_hashed(ثابت حرف *name) {
+        ثابت حرف *s;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        اگر (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                واپس false;
 
         assert_se(s = strrchr(name, '.'));
 
-        if (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
-                return false;
+        اگر (s - name < UNIT_NAME_HASH_لمبائی_CHARS + 1)
+                واپس false;
 
-        s -= UNIT_NAME_HASH_LENGTH_CHARS;
-        if (s[-1] != '_')
-                return false;
+        s -= UNIT_NAME_HASH_لمبائی_CHARS;
+        اگر (s[-1] != '_')
+                واپس false;
 
-        for (size_t i = 0; i < UNIT_NAME_HASH_LENGTH_CHARS; i++)
-                if (!strchr(LOWERCASE_HEXDIGITS, s[i]))
-                        return false;
+        برائے (size_t i = 0; i < UNIT_NAME_HASH_لمبائی_CHARS; i++)
+                اگر (!strchr(LOWERCASE_HEXDIGITS, s[i]))
+                        واپس false;
 
-        return true;
+        واپس true;
 }
 
-int unit_name_hash_long(const char *name, char **ret) {
-        _cleanup_free_ char *n = NULL, *hash = NULL;
-        const char *suffix;
+صحیح unit_name_hash_long(ثابت حرف *name, حرف **ret) {
+        _cleanup_free_ حرف *n = تہی, *hash = تہی;
+        ثابت حرف *suffix;
         le64_t h;
         size_t len;
 
-        assert(ret);
+        أكد(ret);
 
-        if (strlen(name) < UNIT_NAME_MAX)
-                return -EMSGSIZE;
+        اگر (لڑی_لمبائی(name) < UNIT_NAME_MAX)
+                واپس -EMSGSIZE;
 
         suffix = strrchr(name, '.');
-        if (!suffix)
-                return -EINVAL;
+        اگر (!suffix)
+                واپس -EINVAL;
 
-        if (unit_type_from_string(suffix+1) < 0)
-                return -EINVAL;
+        اگر (unit_type_from_string(suffix+1) < 0)
+                واپس -EINVAL;
 
-        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_KEY.bytes));
+        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_کلید.بائٹیں));
 
-        hash = hexmem(&h, sizeof(h));
-        if (!hash)
-                return -ENOMEM;
+        hash = hexmem(&h, حجم(h));
+        اگر (!hash)
+                واپس -ENOMEM;
 
-        assert_se(strlen(hash) == UNIT_NAME_HASH_LENGTH_CHARS);
+        assert_se(لڑی_لمبائی(hash) == UNIT_NAME_HASH_لمبائی_CHARS);
 
-        len = UNIT_NAME_MAX - 1 - strlen(suffix+1) - UNIT_NAME_HASH_LENGTH_CHARS - 2;
-        assert(len > 0 && len < UNIT_NAME_MAX);
+        len = UNIT_NAME_MAX - 1 - لڑی_لمبائی(suffix+1) - UNIT_NAME_HASH_لمبائی_CHARS - 2;
+        أكد(len > 0 && len < UNIT_NAME_MAX);
 
         n = strndup(name, len);
-        if (!n)
-                return -ENOMEM;
+        اگر (!n)
+                واپس -ENOMEM;
 
-        if (!strextend(&n, "_", hash, suffix))
-                return -ENOMEM;
+        اگر (!strextend(&n, "_", hash, suffix))
+                واپس -ENOMEM;
         assert_se(unit_name_is_valid(n, UNIT_NAME_PLAIN));
 
         *ret = TAKE_PTR(n);
 
-        return 0;
+        واپس 0;
 }
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+صحیح unit_name_from_راستہ(ثابت حرف *راستہ, ثابت حرف *suffix, حرف **ret) {
+        _cleanup_free_ حرف *p = تہی, *s = تہی;
+        صحیح r;
 
-        assert(path);
-        assert(suffix);
-        assert(ret);
+        أكد(راستہ);
+        أكد(suffix);
+        أكد(ret);
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        اگر (!unit_suffix_is_valid(suffix))
+                واپس -EINVAL;
 
-        r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        r = unit_name_راستہ_escape(راستہ, &p);
+        اگر (r < 0)
+                واپس r;
 
         s = strjoin(p, suffix);
-        if (!s)
-                return -ENOMEM;
+        اگر (!s)
+                واپس -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) {
-                _cleanup_free_ char *n = NULL;
+        اگر (لڑی_لمبائی(s) >= UNIT_NAME_MAX) {
+                _cleanup_free_ حرف *n = تہی;
 
                 log_debug("Unit name \"%s\" too long, falling back to hashed unit name.", s);
 
                 r = unit_name_hash_long(s, &n);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
 
                 free_and_replace(s, n);
         }
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
+                واپس -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+صحیح unit_name_from_راستہ_instance(ثابت حرف *سابقہ, ثابت حرف *راستہ, ثابت حرف *suffix, حرف **ret) {
+        _cleanup_free_ حرف *p = تہی, *s = تہی;
+        صحیح r;
 
-        assert(prefix);
-        assert(path);
-        assert(suffix);
-        assert(ret);
+        أكد(سابقہ);
+        أكد(راستہ);
+        أكد(suffix);
+        أكد(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        اگر (!unit_سابقہ_is_valid(سابقہ))
+                واپس -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        اگر (!unit_suffix_is_valid(suffix))
+                واپس -EINVAL;
 
-        r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        r = unit_name_راستہ_escape(راستہ, &p);
+        اگر (r < 0)
+                واپس r;
 
-        s = strjoin(prefix, "@", p, suffix);
-        if (!s)
-                return -ENOMEM;
+        s = strjoin(سابقہ, "@", p, suffix);
+        اگر (!s)
+                واپس -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
-                return -ENAMETOOLONG;
+        اگر (لڑی_لمبائی(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
+                واپس -ENAMETOOLONG;
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        اگر (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                واپس -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-int unit_name_to_path(const char *name, char **ret) {
-        _cleanup_free_ char *prefix = NULL;
-        int r;
+صحیح unit_name_مقصد_راستہ(ثابت حرف *name, حرف **ret) {
+        _cleanup_free_ حرف *سابقہ = تہی;
+        صحیح r;
 
-        assert(name);
+        أكد(name);
 
-        r = unit_name_to_prefix(name, &prefix);
-        if (r < 0)
-                return r;
+        r = unit_name_مقصد_سابقہ(name, &سابقہ);
+        اگر (r < 0)
+                واپس r;
 
-        if (unit_name_is_hashed(name))
-                return -ENAMETOOLONG;
+        اگر (unit_name_is_hashed(name))
+                واپس -ENAMETOOLONG;
 
-        return unit_name_path_unescape(prefix, ret);
+        واپس unit_name_راستہ_unescape(سابقہ, ret);
 }
 
-static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
-        const char *valid_chars;
+ساکن bool do_escape_mangle(ثابت حرف *f, bool allow_globs, حرف *t) {
+        ثابت حرف *valid_chars;
         bool mangled = false;
 
-        assert(f);
-        assert(t);
+        أكد(f);
+        أكد(t);
 
         /* We'll only escape the obvious characters here, to play safe.
          *
@@ -687,18 +687,18 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
 
         valid_chars = allow_globs ? VALID_CHARS_GLOB : VALID_CHARS_WITH_AT;
 
-        for (; *f; f++)
-                if (*f == '/') {
+        برائے (; *f; f++)
+                اگر (*f == '/') {
                         *(t++) = '-';
                         mangled = true;
-                } else if (!strchr(valid_chars, *f)) {
+                } ورنہ اگر (!strchr(valid_chars, *f)) {
                         t = do_escape_char(*f, t);
                         mangled = true;
-                } else
+                } ورنہ
                         *(t++) = *f;
         *t = 0;
 
-        return mangled;
+        واپس mangled;
 }
 
 /**
@@ -708,235 +708,235 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
  *
  *  If @allow_globs, globs characters are preserved. Otherwise, they are escaped.
  */
-int unit_name_mangle_with_suffix(
-                const char *name,
-                const char *operation,
+صحیح unit_name_mangle_with_suffix(
+                ثابت حرف *name,
+                ثابت حرف *operation,
                 UnitNameMangle flags,
-                const char *suffix,
-                char **ret) {
+                ثابت حرف *suffix,
+                حرف **ret) {
 
-        _cleanup_free_ char *s = NULL;
-        bool mangled, suggest_escape = true, warn = FLAGS_SET(flags, UNIT_NAME_MANGLE_WARN);
-        int r;
+        _cleanup_free_ حرف *s = تہی;
+        bool mangled, suggest_escape = true, warn = FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_WARN);
+        صحیح r;
 
-        assert(name);
-        assert(suffix);
-        assert(ret);
+        أكد(name);
+        أكد(suffix);
+        أكد(ret);
 
-        if (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
-                return -EINVAL;
+        اگر (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
+                واپس -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        اگر (!unit_suffix_is_valid(suffix))
+                واپس -EINVAL;
 
         /* Already a fully valid unit name? If so, no mangling is necessary... */
-        if (unit_name_is_valid(name, UNIT_NAME_ANY)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
-                        const char *e = ASSERT_PTR(strrchr(name, '.'));
+        اگر (unit_name_is_valid(name, UNIT_NAME_ANY)) {
+                اگر (FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
+                        ثابت حرف *e = ASSERT_PTR(strrchr(name, '.'));
 
-                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        واپس log_بھرا_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                               SYNTHETIC_ERRNO(EINVAL),
                                               "Unit name \"%s\" has unit type \"%s\", but \"%s\" is expected%s%s.",
                                               name, e + 1, suffix + 1,
                                               operation ? " " : "", strempty(operation));
                 }
 
-                goto good;
+                جاؤ good;
         }
 
         /* Already a fully valid globbing expression? If so, no mangling is necessary either... */
-        if (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
-                        goto good;
-                log_full(warn ? LOG_NOTICE : LOG_DEBUG,
+        اگر (string_is_glob(name) && اندر_charset(name, VALID_CHARS_GLOB)) {
+                اگر (FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_GLOB))
+                        جاؤ good;
+                log_بھرا(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Glob pattern passed%s%s, but globs are not supported for this.",
                          operation ? " " : "", strempty(operation));
                 suggest_escape = false;
         }
 
-        if (path_is_absolute(name)) {
-                _cleanup_free_ char *n = NULL, *u = NULL;
+        اگر (راستہ_is_absolute(name)) {
+                _cleanup_free_ حرف *n = تہی, *u = تہی;
 
-                r = path_simplify_alloc(name, &n);
-                if (r < 0)
-                        return r;
+                r = راستہ_simplify_alloc(name, &n);
+                اگر (r < 0)
+                        واپس r;
 
-                if (is_device_path(n)) {
-                        r = unit_name_from_path(n, ".device", &u);
-                        if (r >= 0) {
-                                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
-                                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                اگر (is_device_راستہ(n)) {
+                        r = unit_name_from_راستہ(n, ".device", &u);
+                        اگر (r >= 0) {
+                                اگر (FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
+                                        واپس log_بھرا_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                               SYNTHETIC_ERRNO(EINVAL),
                                                               "Path \"%s\" resolves to unit type \"device\", but \"%s\" is expected%s%s.",
                                                               name, suffix + 1,
                                                               operation ? " " : "", strempty(operation));
 
                                 *ret = TAKE_PTR(u);
-                                return 1;
+                                واپس 1;
                         }
-                        if (r != -EINVAL)
-                                return r;
+                        اگر (r != -EINVAL)
+                                واپس r;
                 }
 
-                r = unit_name_from_path(n, ".mount", &u);
-                if (r >= 0) {
-                        if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
-                                return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                r = unit_name_from_راستہ(n, ".mount", &u);
+                اگر (r >= 0) {
+                        اگر (FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
+                                واپس log_بھرا_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                       SYNTHETIC_ERRNO(EINVAL),
                                                       "Path \"%s\" resolves to unit type \"mount\", but \"%s\" is expected%s%s.",
                                                       name, suffix + 1,
                                                       operation ? " " : "", strempty(operation));
 
                         *ret = TAKE_PTR(u);
-                        return 1;
+                        واپس 1;
                 }
-                if (r != -EINVAL)
-                        return r;
+                اگر (r != -EINVAL)
+                        واپس r;
         }
 
-        s = new(char, strlen(name) * 4 + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(حرف, لڑی_لمبائی(name) * 4 + لڑی_لمبائی(suffix) + 1);
+        اگر (!s)
+                واپس -ENOMEM;
 
-        mangled = do_escape_mangle(name, FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB), s);
-        if (mangled)
-                log_full(warn ? LOG_NOTICE : LOG_DEBUG,
+        mangled = do_escape_mangle(name, FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_GLOB), s);
+        اگر (mangled)
+                log_بھرا(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Invalid unit name \"%s\" escaped as \"%s\"%s.",
                          name, s,
                          suggest_escape ? " (maybe you should use systemd-escape?)" : "");
 
         /* Append a suffix if it doesn't have any, but only if this is not a glob, so that we can allow
          * "foo.*" as a valid glob. */
-        if ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
+        اگر ((!FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_مقصد_type(s) < 0)
                 strcat(s, suffix);
 
         /* Make sure mangling didn't grow this too large (but don't do this check if globbing is allowed,
          * since globs generally do not qualify as valid unit names) */
-        if (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        اگر (!FLAGS_سیٹ(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
+                واپس -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 1;
+        واپس 1;
 
 good:
-        return strdup_to(ret, name);
+        واپس strdup_مقصد(ret, name);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret) {
-        assert(slice);
-        assert(ret);
+صحیح قاش_build_والد_قاش(ثابت حرف *قاش, حرف **ret) {
+        أكد(قاش);
+        أكد(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        اگر (!قاش_name_is_valid(قاش))
+                واپس -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE)) {
-                *ret = NULL;
-                return 0;
+        اگر (streq(قاش, SPECIAL_جڑ_قاش)) {
+                *ret = تہی;
+                واپس 0;
         }
 
-        _cleanup_free_ char *s = strdup(slice);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ حرف *s = strdup(قاش);
+        اگر (!s)
+                واپس -ENOMEM;
 
-        char *dash = strrchr(s, '-');
-        if (!dash)
-                return strdup_to_full(ret, SPECIAL_ROOT_SLICE);
+        حرف *dash = strrchr(s, '-');
+        اگر (!dash)
+                واپس strdup_مقصد_بھرا(ret, SPECIAL_جڑ_قاش);
 
         /* We know that s ended with .slice before truncation, so we have enough space. */
         strcpy(dash, ".slice");
 
         *ret = TAKE_PTR(s);
-        return 1;
+        واپس 1;
 }
 
-int slice_build_subslice(const char *slice, const char *name, char **ret) {
-        char *subslice;
+صحیح قاش_build_subslice(ثابت حرف *قاش, ثابت حرف *name, حرف **ret) {
+        حرف *subslice;
 
-        assert(slice);
-        assert(name);
-        assert(ret);
+        أكد(قاش);
+        أكد(name);
+        أكد(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        اگر (!قاش_name_is_valid(قاش))
+                واپس -EINVAL;
 
-        if (!unit_prefix_is_valid(name))
-                return -EINVAL;
+        اگر (!unit_سابقہ_is_valid(name))
+                واپس -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE))
+        اگر (streq(قاش, SPECIAL_جڑ_قاش))
                 subslice = strjoin(name, ".slice");
-        else {
-                const char *e;
+        ورنہ {
+                ثابت حرف *e;
 
-                assert_se(e = endswith(slice, ".slice"));
+                assert_se(e = endswith(قاش, ".slice"));
 
-                subslice = new(char, (e - slice) + 1 + strlen(name) + 6 + 1);
-                if (!subslice)
-                        return -ENOMEM;
+                subslice = new(حرف, (e - قاش) + 1 + لڑی_لمبائی(name) + 6 + 1);
+                اگر (!subslice)
+                        واپس -ENOMEM;
 
-                stpcpy(stpcpy(stpcpy(mempcpy(subslice, slice, e - slice), "-"), name), ".slice");
+                stpcpy(stpcpy(stpcpy(mempcpy(subslice, قاش, e - قاش), "-"), name), ".slice");
         }
 
         *ret = subslice;
-        return 0;
+        واپس 0;
 }
 
-bool slice_name_is_valid(const char *name) {
-        const char *p, *e;
+bool قاش_name_is_valid(ثابت حرف *name) {
+        ثابت حرف *p, *e;
         bool dash = false;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        اگر (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                واپس false;
 
-        if (streq(name, SPECIAL_ROOT_SLICE))
-                return true;
+        اگر (streq(name, SPECIAL_جڑ_قاش))
+                واپس true;
 
         e = endswith(name, ".slice");
-        if (!e)
-                return false;
+        اگر (!e)
+                واپس false;
 
-        for (p = name; p < e; p++) {
+        برائے (p = name; p < e; p++) {
 
-                if (*p == '-') {
+                اگر (*p == '-') {
 
                         /* Don't allow initial dash */
-                        if (p == name)
-                                return false;
+                        اگر (p == name)
+                                واپس false;
 
                         /* Don't allow multiple dashes */
-                        if (dash)
-                                return false;
+                        اگر (dash)
+                                واپس false;
 
                         dash = true;
-                } else
+                } ورنہ
                         dash = false;
         }
 
         /* Don't allow trailing hash */
-        if (dash)
-                return false;
+        اگر (dash)
+                واپس false;
 
-        return true;
+        واپس true;
 }
 
-bool unit_name_prefix_equal(const char *a, const char *b) {
-        const char *p, *q;
+bool unit_name_سابقہ_equal(ثابت حرف *a, ثابت حرف *b) {
+        ثابت حرف *p, *q;
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        if (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
-                return false;
+        اگر (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
+                واپس false;
 
         p = strchr(a, '@');
-        if (!p)
+        اگر (!p)
                 p = strrchr(a, '.');
 
         q = strchr(b, '@');
-        if (!q)
+        اگر (!q)
                 q = strrchr(b, '.');
 
-        assert(p);
-        assert(q);
+        أكد(p);
+        أكد(q);
 
-        return memcmp_nn(a, p - a, b, q - b) == 0;
+        واپس memcmp_nn(a, p - a, b, q - b) == 0;
 }

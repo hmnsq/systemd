@@ -1,88 +1,88 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
+#شامل <fcntl.h>
+#شامل <sys/ioctl.h>
+#شامل <sys/stat.h>
 
-#include "bitfield.h"
-#include "chattr-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "recurse-dir.h"
-#include "string-util.h"
+#شامل "bitfield.h"
+#شامل "chattr-util.h"
+#شامل "errno-util.h"
+#شامل "fd-util.h"
+#شامل "fs-util.h"
+#شامل "log.h"
+#شامل "recurse-dir.h"
+#شامل "string-util.h"
 
-int chattr_full(
-              int dir_fd,
-              const char *path,
-              unsigned value,
-              unsigned mask,
-              unsigned *ret_previous,
-              unsigned *ret_final,
+صحیح chattr_بھرا(
+              صحیح dir_fd,
+              ثابت حرف *راستہ,
+              غیرعلامتی قدر,
+              غیرعلامتی نقاب_3,
+              غیرعلامتی *ret_پچھلا,
+              غیرعلامتی *ret_final,
               ChattrApplyFlags flags) {
 
-        _cleanup_close_ int fd = -EBADF;
-        unsigned old_attr, new_attr;
-        int set_flags_errno = 0;
-        struct stat st;
+        _cleanup_close_ صحیح fd = -EBADF;
+        غیرعلامتی old_attr, new_attr;
+        صحیح سیٹ_flags_errno = 0;
+        ساخت stat st;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        fd = xopenat(dir_fd, path, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
-        if (fd < 0)
-                return fd;
+        fd = xopenat(dir_fd, راستہ, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
+        اگر (fd < 0)
+                واپس fd;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        اگر (fstat(fd, &st) < 0)
+                واپس -errno;
 
         /* Explicitly check whether this is a regular file or directory. If it is anything else (such
          * as a device node or fifo), then the ioctl will not hit the file systems but possibly
          * drivers, where the ioctl might have different effects. Notably, DRM is using the same
          * ioctl() number. */
 
-        if (!inode_type_can_chattr(st.st_mode))
-                return -ENOTTY;
+        اگر (!inode_type_can_chattr(st.st_mode))
+                واپس -ENOTTY;
 
-        if (mask == 0 && !ret_previous && !ret_final)
-                return 0;
+        اگر (نقاب_3 == 0 && !ret_پچھلا && !ret_final)
+                واپس 0;
 
-        if (ioctl(fd, FS_IOC_GETFLAGS, &old_attr) < 0)
-                return -errno;
+        اگر (ioctl(fd, FS_IOC_GETFLAGS, &old_attr) < 0)
+                واپس -errno;
 
-        new_attr = (old_attr & ~mask) | (value & mask);
-        if (new_attr == old_attr) {
-                if (ret_previous)
-                        *ret_previous = old_attr;
-                if (ret_final)
+        new_attr = (old_attr & ~نقاب_3) | (قدر & نقاب_3);
+        اگر (new_attr == old_attr) {
+                اگر (ret_پچھلا)
+                        *ret_پچھلا = old_attr;
+                اگر (ret_final)
                         *ret_final = old_attr;
-                return 0;
+                واپس 0;
         }
 
-        if (ioctl(fd, FS_IOC_SETFLAGS, &new_attr) >= 0) {
-                unsigned attr;
+        اگر (ioctl(fd, FS_IOC_SETFLAGS, &new_attr) >= 0) {
+                غیرعلامتی attr;
 
                 /* Some filesystems (BTRFS) silently fail when a flag cannot be set. Let's make sure our
                  * changes actually went through by querying the flags again and verifying they're equal to
                  * the flags we tried to configure. */
 
-                if (ioctl(fd, FS_IOC_GETFLAGS, &attr) < 0)
-                        return -errno;
+                اگر (ioctl(fd, FS_IOC_GETFLAGS, &attr) < 0)
+                        واپس -errno;
 
-                if (new_attr == attr) {
-                        if (ret_previous)
-                                *ret_previous = old_attr;
-                        if (ret_final)
+                اگر (new_attr == attr) {
+                        اگر (ret_پچھلا)
+                                *ret_پچھلا = old_attr;
+                        اگر (ret_final)
                                 *ret_final = new_attr;
-                        return 1;
+                        واپس 1;
                 }
 
                 /* Trigger the fallback logic. */
                 errno = EINVAL;
         }
 
-        if (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno) || !FLAGS_SET(flags, CHATTR_FALLBACK_BITWISE))
-                return -errno;
+        اگر (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno) || !FLAGS_سیٹ(flags, CHATTR_FALLBACK_BITWISE))
+                واپس -errno;
 
         /* When -EINVAL is returned, incompatible attributes might be simultaneously specified. E.g.,
          * compress(c) and nocow(C) attributes cannot be set to files on btrfs. As a fallback, let's try to
@@ -91,164 +91,164 @@ int chattr_full(
          * Alternatively, when we get EINVAL or EOPNOTSUPP (or a similar error code) we assume a flag might
          * just not be supported, and we can ignore it too */
 
-        unsigned current_attr = old_attr;
+        غیرعلامتی current_attr = old_attr;
 
-        BIT_FOREACH(i, mask) {
-                unsigned new_one, mask_one = 1u << i;
+        ثنائی_ہندسہ_FOREACH(i, نقاب_3) {
+                غیرعلامتی new_one, نقاب_one = 1u << i;
 
-                new_one = UPDATE_FLAG(current_attr, mask_one, FLAGS_SET(value, mask_one));
-                if (new_one == current_attr)
-                        continue;
+                new_one = UPDATE_FLAG(current_attr, نقاب_one, FLAGS_سیٹ(قدر, نقاب_one));
+                اگر (new_one == current_attr)
+                        جاری;
 
-                if (ioctl(fd, FS_IOC_SETFLAGS, &new_one) < 0) {
-                        if (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
-                                return -errno;
+                اگر (ioctl(fd, FS_IOC_SETFLAGS, &new_one) < 0) {
+                        اگر (!ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
+                                واپس -errno;
 
-                        log_full_errno(FLAGS_SET(flags, CHATTR_WARN_UNSUPPORTED_FLAGS) ? LOG_WARNING : LOG_DEBUG,
+                        log_بھرا_errno(FLAGS_سیٹ(flags, CHATTR_WARN_UNSUPPORTED_FLAGS) ? LOG_WARNING : LOG_DEBUG,
                                        errno,
-                                       "Unable to set file attribute 0x%x on %s, ignoring: %m", mask_one, strna(path));
+                                       "Unable to set file attribute 0x%x on %s, ignoring: %m", نقاب_one, strna(راستہ));
 
                         /* Ensures that we record whether only EOPNOTSUPP&friends are encountered, or if a more serious
                          * error (thus worth logging at a different level, etc) was seen too. */
-                        if (set_flags_errno == 0 || !ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
-                                set_flags_errno = -errno;
+                        اگر (سیٹ_flags_errno == 0 || !ERRNO_IS_IOCTL_NOT_SUPPORTED(errno))
+                                سیٹ_flags_errno = -errno;
 
-                        continue;
+                        جاری;
                 }
 
-                if (ioctl(fd, FS_IOC_GETFLAGS, &current_attr) < 0)
-                        return -errno;
+                اگر (ioctl(fd, FS_IOC_GETFLAGS, &current_attr) < 0)
+                        واپس -errno;
         }
 
-        if (ret_previous)
-                *ret_previous = old_attr;
-        if (ret_final)
+        اگر (ret_پچھلا)
+                *ret_پچھلا = old_attr;
+        اگر (ret_final)
                 *ret_final = current_attr;
 
         /* -ENOANO indicates that some attributes cannot be set. ERRNO_IS_IOCTL_NOT_SUPPORTED indicates that
          * all encountered failures were due to flags not supported by the FS, so return a specific error in
          * that case, so callers can handle it properly (e.g.: tmpfiles.d can use debug level logging). */
-        return current_attr == new_attr ? 1 : ERRNO_IS_IOCTL_NOT_SUPPORTED(set_flags_errno) ? set_flags_errno : -ENOANO;
+        واپس current_attr == new_attr ? 1 : ERRNO_IS_IOCTL_NOT_SUPPORTED(سیٹ_flags_errno) ? سیٹ_flags_errno : -ENOANO;
 }
 
-int read_attr_fd(int fd, unsigned *ret) {
-        struct stat st;
+صحیح read_attr_fd(صحیح fd, غیرعلامتی *ret) {
+        ساخت stat st;
 
-        assert(fd >= 0);
-        assert(ret);
+        أكد(fd >= 0);
+        أكد(ret);
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        اگر (fstat(fd, &st) < 0)
+                واپس -errno;
 
-        if (!inode_type_can_chattr(st.st_mode))
-                return -ENOTTY;
+        اگر (!inode_type_can_chattr(st.st_mode))
+                واپس -ENOTTY;
 
-        _cleanup_close_ int fd_close = -EBADF;
-        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_PATH, &fd_close); /* drop O_PATH if it is set */
-        if (fd < 0)
-                return fd;
+        _cleanup_close_ صحیح fd_close = -EBADF;
+        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_راستہ, &fd_close); /* drop O_PATH if it is set */
+        اگر (fd < 0)
+                واپس fd;
 
-        return RET_NERRNO(ioctl(fd, FS_IOC_GETFLAGS, ret));
+        واپس RET_NERRNO(ioctl(fd, FS_IOC_GETFLAGS, ret));
 }
 
-int read_attr_at(int dir_fd, const char *path, unsigned *ret) {
-        _cleanup_close_ int fd_close = -EBADF;
-        int fd;
+صحیح read_attr_at(صحیح dir_fd, ثابت حرف *راستہ, غیرعلامتی *ret) {
+        _cleanup_close_ صحیح fd_close = -EBADF;
+        صحیح fd;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(ret);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(ret);
 
-        if (isempty(path) && dir_fd != AT_FDCWD)
+        اگر (isempty(راستہ) && dir_fd != AT_FDCWD)
                 fd = dir_fd;
-        else {
-                fd_close = xopenat(dir_fd, path, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
-                if (fd_close < 0)
-                        return fd_close;
+        ورنہ {
+                fd_close = xopenat(dir_fd, راستہ, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW);
+                اگر (fd_close < 0)
+                        واپس fd_close;
 
                 fd = fd_close;
         }
 
-        return read_attr_fd(fd, ret);
+        واپس read_attr_fd(fd, ret);
 }
 
-int read_fs_xattr_fd(int fd, uint32_t *ret_xflags, uint32_t *ret_projid) {
-        struct fsxattr attrs;
-        _cleanup_close_ int fd_reopened = -EBADF;
+صحیح read_fs_xattr_fd(صحیح fd, uint32_t *ret_xflags, uint32_t *ret_projid) {
+        ساخت fsxattr attrs;
+        _cleanup_close_ صحیح fd_reopened = -EBADF;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_PATH, &fd_reopened);
-        if (fd < 0)
-                return fd;
+        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_راستہ, &fd_reopened);
+        اگر (fd < 0)
+                واپس fd;
 
-        if (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
-                return -errno;
+        اگر (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
+                واپس -errno;
 
-        if (ret_xflags)
+        اگر (ret_xflags)
                 *ret_xflags = attrs.fsx_xflags;
 
-        if (ret_projid)
+        اگر (ret_projid)
                 *ret_projid = attrs.fsx_projid;
 
-        return 0;
+        واپس 0;
 }
 
-int set_proj_id(int fd, uint32_t proj_id) {
-        struct fsxattr attrs;
-        _cleanup_close_ int fd_reopened = -EBADF;
+صحیح سیٹ_proj_id(صحیح fd, uint32_t proj_id) {
+        ساخت fsxattr attrs;
+        _cleanup_close_ صحیح fd_reopened = -EBADF;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_PATH, &fd_reopened);
-        if (fd < 0)
-                return fd;
+        fd = fd_reopen_condition(fd, O_RDONLY|O_CLOEXEC|O_NOCTTY, O_راستہ, &fd_reopened);
+        اگر (fd < 0)
+                واپس fd;
 
-        if (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
-                return -errno;
+        اگر (ioctl(fd, FS_IOC_FSGETXATTR, &attrs) < 0)
+                واپس -errno;
 
-        struct stat statbuf;
-        if (fstat(fd, &statbuf) < 0)
-                return -errno;
+        ساخت stat statbuf;
+        اگر (fstat(fd, &statbuf) < 0)
+                واپس -errno;
 
-        if (attrs.fsx_projid == proj_id && (!S_ISDIR(statbuf.st_mode) || FLAGS_SET(attrs.fsx_xflags, FS_XFLAG_PROJINHERIT)))
-                return 0;
+        اگر (attrs.fsx_projid == proj_id && (!S_ISDIR(statbuf.st_mode) || FLAGS_سیٹ(attrs.fsx_xflags, FS_XFLAG_PROJINHERIT)))
+                واپس 0;
 
         attrs.fsx_projid = proj_id;
-        if (S_ISDIR(statbuf.st_mode))
+        اگر (S_ISDIR(statbuf.st_mode))
                 attrs.fsx_xflags |= FS_XFLAG_PROJINHERIT;
 
-        return RET_NERRNO(ioctl(fd, FS_IOC_FSSETXATTR, &attrs));
+        واپس RET_NERRNO(ioctl(fd, FS_IOC_FSSETXATTR, &attrs));
 }
 
-static int set_proj_id_cb(
+ساکن صحیح سیٹ_proj_id_cb(
                 RecurseDirEvent event,
-                const char *path,
-                int dir_fd,
-                int inode_fd,
-                const struct dirent *de,
-                const struct statx *sx,
-                void *userdata) {
+                ثابت حرف *راستہ,
+                صحیح dir_fd,
+                صحیح inode_fd,
+                ثابت ساخت dirent *de,
+                ثابت ساخت statx *sx,
+                خالی *userdata) {
 
-        if (!IN_SET(event, RECURSE_DIR_ENTER, RECURSE_DIR_ENTRY))
-                return RECURSE_DIR_CONTINUE;
+        اگر (!اندر_سیٹ(event, RECURSE_DIR_ENTER, RECURSE_DIR_اندراج))
+                واپس RECURSE_DIR_CONTINUE;
 
-        if (de && !IN_SET(de->d_type, DT_DIR, DT_REG))
-                return RECURSE_DIR_CONTINUE;
+        اگر (de && !اندر_سیٹ(de->d_type, DT_DIR, DT_REG))
+                واپس RECURSE_DIR_CONTINUE;
 
-        return set_proj_id(inode_fd, PTR_TO_UINT32(userdata));
+        واپس سیٹ_proj_id(inode_fd, PTR_مقصد_UINT32(userdata));
 }
 
-int set_proj_id_recursive(int fd, uint32_t proj_id) {
-        return recurse_dir_at(
+صحیح سیٹ_proj_id_recursive(صحیح fd, uint32_t proj_id) {
+        واپس recurse_dir_at(
                         fd,
-                        /* path= */ NULL,
+                        /* path= */ تہی,
                         /* statx_mask= */ 0,
                         /* n_depth_max= */ UINT_MAX,
                         RECURSE_DIR_ENSURE_TYPE|RECURSE_DIR_TOPLEVEL|RECURSE_DIR_INODE_FD,
-                        set_proj_id_cb,
-                        UINT32_TO_PTR(proj_id));
+                        سیٹ_proj_id_cb,
+                        UINT32_مقصد_PTR(proj_id));
 }
 
-bool inode_type_can_chattr(mode_t mode) {
-        return IN_SET(mode & S_IFMT, S_IFREG, S_IFDIR);
+bool inode_type_can_chattr(mode_t منوال) {
+        واپس اندر_سیٹ(منوال & S_IFMT, S_IFREG, S_IFDIR);
 }

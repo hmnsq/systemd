@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-#define UNIT_NAME_MAX 256
+#تعریف_کرو UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+قسمتعریف شمار UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(ثابت حرف *n, UnitNameFlags flags) خالص;
+bool unit_سابقہ_is_valid(ثابت حرف *p) خالص;
+bool unit_instance_is_valid(ثابت حرف *i) خالص;
+bool unit_suffix_is_valid(ثابت حرف *s) خالص;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+صحیح unit_name_مقصد_سابقہ(ثابت حرف *n, حرف **ret);
+UnitNameFlags unit_name_مقصد_instance(ثابت حرف *n, حرف **ret);
+ساکن اندرونی UnitNameFlags unit_name_classify(ثابت حرف *n) {
+        واپس unit_name_مقصد_instance(n, تہی);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+صحیح unit_name_مقصد_سابقہ_and_instance(ثابت حرف *n, حرف **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_مقصد_type(ثابت حرف *n) خالص;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+صحیح unit_name_change_suffix(ثابت حرف *n, ثابت حرف *suffix, حرف **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+صحیح unit_name_build(ثابت حرف *سابقہ, ثابت حرف *instance, ثابت حرف *suffix, حرف **ret);
+صحیح unit_name_build_from_type(ثابت حرف *سابقہ, ثابت حرف *instance, UnitType type, حرف **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+حرف* unit_name_escape(ثابت حرف *f);
+صحیح unit_name_unescape(ثابت حرف *f, حرف **ret);
+صحیح unit_name_راستہ_escape(ثابت حرف *f, حرف **ret);
+صحیح unit_name_راستہ_unescape(ثابت حرف *f, حرف **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+صحیح unit_name_replace_instance_بھرا(
+                ثابت حرف *original,
+                ثابت حرف *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                حرف **ret);
+ساکن اندرونی صحیح unit_name_replace_instance(ثابت حرف *original, ثابت حرف *instance, حرف **ret) {
+        واپس unit_name_replace_instance_بھرا(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+صحیح unit_name_template(ثابت حرف *f, حرف **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+صحیح unit_name_hash_long(ثابت حرف *name, حرف **ret);
+bool unit_name_is_hashed(ثابت حرف *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+صحیح unit_name_from_راستہ(ثابت حرف *راستہ, ثابت حرف *suffix, حرف **ret);
+صحیح unit_name_from_راستہ_instance(ثابت حرف *سابقہ, ثابت حرف *راستہ, ثابت حرف *suffix, حرف **ret);
+صحیح unit_name_مقصد_راستہ(ثابت حرف *name, حرف **ret);
 
-typedef enum UnitNameMangle {
+قسمتعریف شمار UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+صحیح unit_name_mangle_with_suffix(ثابت حرف *name, ثابت حرف *operation, UnitNameMangle flags, ثابت حرف *suffix, حرف **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+ساکن اندرونی صحیح unit_name_mangle(ثابت حرف *name, UnitNameMangle flags, حرف **ret) {
+        واپس unit_name_mangle_with_suffix(name, تہی, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+صحیح قاش_build_والد_قاش(ثابت حرف *قاش, حرف **ret);
+صحیح قاش_build_subslice(ثابت حرف *قاش, ثابت حرف *name, حرف **ret);
+bool قاش_name_is_valid(ثابت حرف *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_سابقہ_equal(ثابت حرف *a, ثابت حرف *b);

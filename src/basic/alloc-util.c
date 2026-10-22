@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <malloc.h>
+#شامل <malloc.h>
 
-#include "alloc-util.h"
+#شامل "alloc-util.h"
 
-void* memdup(const void *p, size_t l) {
-        void *ret;
+خالی* memdup(ثابت خالی *p, size_t l) {
+        خالی *ret;
 
-        assert(l == 0 || p);
+        أكد(l == 0 || p);
 
-        ret = malloc(l ?: 1);
-        if (!ret)
-                return NULL;
+        ret = حافظہ_دو(l ?: 1);
+        اگر (!ret)
+                واپس تہی;
 
-        return memcpy_safe(ret, p, l);
+        واپس memcpy_محفوظ(ret, p, l);
 }
 
-void* memdup_suffix0(const void *p, size_t l) {
-        void *ret;
+خالی* memdup_suffix0(ثابت خالی *p, size_t l) {
+        خالی *ret;
 
-        assert(l == 0 || p);
+        أكد(l == 0 || p);
 
         /* The same as memdup() but place a safety NUL byte after the allocated memory */
 
-        if (_unlikely_(l == SIZE_MAX)) /* prevent overflow */
-                return NULL;
+        اگر (_unlikely_(l == SIZE_MAX)) /* prevent overflow */
+                واپس تہی;
 
-        ret = malloc(l + 1);
-        if (!ret)
-                return NULL;
+        ret = حافظہ_دو(l + 1);
+        اگر (!ret)
+                واپس تہی;
 
         ((uint8_t*) ret)[l] = 0;
-        return memcpy_safe(ret, p, l);
+        واپس memcpy_محفوظ(ret, p, l);
 }
 
-size_t malloc_sizeof_safe(void **xp) {
-        POINTER_MAY_BE_NULL(xp);
+size_t malloc_sizeof_محفوظ(خالی **xp) {
+        اشارہ_گر_MAY_BE_NULL(xp);
 
-        if (_unlikely_(!xp || !*xp))
-                return 0;
+        اگر (_unlikely_(!xp || !*xp))
+                واپس 0;
 
         /* Prevent the compiler from retaining a tighter object-size bound on *xp from a prior allocator call
          * (e.g. realloc()). This adds a simple no-op barrier after which the *xp pointer becomes clobbered,
@@ -46,129 +46,129 @@ size_t malloc_sizeof_safe(void **xp) {
          * (used with _FORTIFY_SOURCE=3) keeps the requested-size bound from realloc() and ignores
          * expand_to_usable()'s __alloc_size__, causing false-positive fortify failures when we zero the
          * malloc_usable_size() region in realloc0()/greedy_realloc0(). */
-        asm volatile("" : "+r"(*xp));
+        asm متلون("" : "+r"(*xp));
 
         size_t sz = malloc_usable_size(*xp);
-        *xp = expand_to_usable(*xp, sz);
+        *xp = expand_مقصد_usable(*xp, sz);
         /* GCC doesn't see the _returns_nonnull_ when built with ubsan, so yet another hint to make it doubly
          * clear that expand_to_usable won't return NULL.
          * See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79265 */
-        if (!*xp)
+        اگر (!*xp)
                 assert_not_reached();
-        return sz;
+        واپس sz;
 }
 
-void* expand_to_usable(void *ptr, size_t newsize _unused_) {
-        return ptr;
+خالی* expand_مقصد_usable(خالی *ptr, size_t newsize غیر_مستعمل) {
+        واپس ptr;
 }
 
-void* realloc0(void *p, size_t new_size) {
-        size_t old_size;
-        void *q;
+خالی* realloc0(خالی *p, size_t new_سائز) {
+        size_t old_سائز;
+        خالی *q;
 
         /* Like realloc(), but initializes anything appended to zero */
 
-        old_size = MALLOC_SIZEOF_SAFE(p);
+        old_سائز = MALLOC_SIZEOF_محفوظ(p);
 
-        q = realloc(p, new_size);
-        if (!q)
-                return NULL;
+        q = realloc(p, new_سائز);
+        اگر (!q)
+                واپس تہی;
 
-        new_size = MALLOC_SIZEOF_SAFE(q); /* Update with actually allocated space */
+        new_سائز = MALLOC_SIZEOF_محفوظ(q); /* Update with actually allocated space */
 
-        if (new_size > old_size)
-                memset((uint8_t*) q + old_size, 0, new_size - old_size);
+        اگر (new_سائز > old_سائز)
+                memset((uint8_t*) q + old_سائز, 0, new_سائز - old_سائز);
 
-        return q;
+        واپس q;
 }
 
-void* greedy_realloc(
-                void **p,
+خالی* greedy_realloc(
+                خالی **p,
                 size_t need,
-                size_t size) {
+                size_t سائز) {
 
         size_t newalloc;
-        void *q;
+        خالی *q;
 
-        assert(p);
+        أكد(p);
 
         /* We use malloc_usable_size() for determining the current allocated size. On all systems we care
          * about this should be safe to rely on. Should there ever arise the need to avoid relying on this we
          * can instead locally fall back to realloc() on every call, rounded up to the next exponent of 2 or
          * so. */
 
-        if (*p && (size == 0 || (MALLOC_SIZEOF_SAFE(*p) / size >= need)))
-                return *p;
+        اگر (*p && (سائز == 0 || (MALLOC_SIZEOF_محفوظ(*p) / سائز >= need)))
+                واپس *p;
 
-        if (_unlikely_(need > SIZE_MAX/2)) /* Overflow check */
-                return NULL;
+        اگر (_unlikely_(need > SIZE_MAX/2)) /* Overflow check */
+                واپس تہی;
         newalloc = need * 2;
 
-        if (!MUL_ASSIGN_SAFE(&newalloc, size))
-                return NULL;
+        اگر (!MUL_تفویض_محفوظ(&newalloc, سائز))
+                واپس تہی;
 
-        if (newalloc < 64) /* Allocate at least 64 bytes */
+        اگر (newalloc < 64) /* Allocate at least 64 bytes */
                 newalloc = 64;
 
         q = realloc(*p, newalloc);
-        if (!q)
-                return NULL;
+        اگر (!q)
+                واپس تہی;
 
-        return *p = q;
+        واپس *p = q;
 }
 
-void* greedy_realloc0(
-                void **p,
+خالی* greedy_realloc0(
+                خالی **p,
                 size_t need,
-                size_t size) {
+                size_t سائز) {
 
         size_t before, after;
         uint8_t *q;
 
-        assert(p);
+        أكد(p);
 
-        before = MALLOC_SIZEOF_SAFE(*p); /* malloc_usable_size() will return 0 on NULL input, as per docs */
+        before = MALLOC_SIZEOF_محفوظ(*p); /* malloc_usable_size() will return 0 on NULL input, as per docs */
 
-        q = greedy_realloc(p, need, size);
-        if (!q)
-                return NULL;
+        q = greedy_realloc(p, need, سائز);
+        اگر (!q)
+                واپس تہی;
 
-        after = MALLOC_SIZEOF_SAFE(q);
+        after = MALLOC_SIZEOF_محفوظ(q);
 
-        if (size == 0) /* avoid division by zero */
+        اگر (سائز == 0) /* avoid division by zero */
                 before = 0;
-        else
-                before = (before / size) * size; /* Round down */
+        ورنہ
+                before = (before / سائز) * سائز; /* Round down */
 
-        if (after > before)
+        اگر (after > before)
                 memzero(q + before, after - before);
 
-        return q;
+        واپس q;
 }
 
-void* greedy_realloc_append(
-                void **p,
+خالی* greedy_realloc_append(
+                خالی **p,
                 size_t *n_p,
-                const void *from,
+                ثابت خالی *from,
                 size_t n_from,
-                size_t size) {
+                size_t سائز) {
 
         uint8_t *q;
 
-        assert(p);
-        assert(n_p);
-        assert(from || n_from == 0);
+        أكد(p);
+        أكد(n_p);
+        أكد(from || n_from == 0);
 
-        if (n_from > SIZE_MAX - *n_p)
-                return NULL;
+        اگر (n_from > SIZE_MAX - *n_p)
+                واپس تہی;
 
-        q = greedy_realloc(p, *n_p + n_from, size);
-        if (!q)
-                return NULL;
+        q = greedy_realloc(p, *n_p + n_from, سائز);
+        اگر (!q)
+                واپس تہی;
 
-        memcpy_safe(q + *n_p * size, from, n_from * size);
+        memcpy_محفوظ(q + *n_p * سائز, from, n_from * سائز);
 
         *n_p += n_from;
 
-        return q;
+        واپس q;
 }

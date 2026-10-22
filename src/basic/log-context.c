@@ -1,97 +1,97 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
+#شامل <threads.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "iovec-util.h"
-#include "log.h"
-#include "log-context.h"
-#include "string-util.h"
-#include "strv.h"
+#شامل "alloc-util.h"
+#شامل "env-util.h"
+#شامل "iovec-util.h"
+#شامل "log.h"
+#شامل "log-context.h"
+#شامل "string-util.h"
+#شامل "strv.h"
 
-static int saved_log_context_enabled = -1;
-static thread_local LIST_HEAD(LogContext, _log_context) = NULL;
-static thread_local size_t _log_context_num_fields = 0;
+ساکن صحیح saved_log_context_enabled = -1;
+ساکن thread_local LIST_سر(LogContext, _log_context) = تہی;
+ساکن thread_local size_t log_context_عدد_fields = 0;
 
-bool log_context_enabled(void) {
-        int r;
+bool log_context_enabled(خالی) {
+        صحیح r;
 
-        if (log_get_max_level() == LOG_DEBUG)
-                return true;
+        اگر (log_get_max_level() == LOG_DEBUG)
+                واپس true;
 
-        if (saved_log_context_enabled >= 0)
-                return saved_log_context_enabled;
+        اگر (saved_log_context_enabled >= 0)
+                واپس saved_log_context_enabled;
 
         r = secure_getenv_bool("SYSTEMD_ENABLE_LOG_CONTEXT");
-        if (r < 0 && r != -ENXIO)
+        اگر (r < 0 && r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_ENABLE_LOG_CONTEXT, ignoring: %m");
 
         saved_log_context_enabled = r > 0;
 
-        return saved_log_context_enabled;
+        واپس saved_log_context_enabled;
 }
 
-static LogContext* log_context_attach(LogContext *c) {
-        assert(c);
+ساکن LogContext* log_context_attach(LogContext *c) {
+        أكد(c);
 
-        _log_context_num_fields += strv_length(c->fields);
-        _log_context_num_fields += c->n_input_iovec;
-        _log_context_num_fields += !!c->key;
+        log_context_عدد_fields += strv_لمبائی(c->fields);
+        log_context_عدد_fields += c->n_داخلہ_iovec;
+        log_context_عدد_fields += !!c->کلید;
 
-        return LIST_PREPEND(ll, _log_context, c);
+        واپس LIST_PREPEND(ll, _log_context, c);
 }
 
-static LogContext* log_context_detach(LogContext *c) {
-        if (!c)
-                return NULL;
+ساکن LogContext* log_context_detach(LogContext *c) {
+        اگر (!c)
+                واپس تہی;
 
-        assert(_log_context_num_fields >= strv_length(c->fields) + c->n_input_iovec +!!c->key);
-        _log_context_num_fields -= strv_length(c->fields);
-        _log_context_num_fields -= c->n_input_iovec;
-        _log_context_num_fields -= !!c->key;
+        أكد(log_context_عدد_fields >= strv_لمبائی(c->fields) + c->n_داخلہ_iovec +!!c->کلید);
+        log_context_عدد_fields -= strv_لمبائی(c->fields);
+        log_context_عدد_fields -= c->n_داخلہ_iovec;
+        log_context_عدد_fields -= !!c->کلید;
 
         LIST_REMOVE(ll, _log_context, c);
-        return NULL;
+        واپس تہی;
 }
 
-LogContext* log_context_new(const char *key, const char *value) {
-        assert(key);
-        assert(endswith(key, "="));
+LogContext* log_context_new(ثابت حرف *کلید, ثابت حرف *قدر) {
+        أكد(کلید);
+        أكد(endswith(کلید, "="));
 
-        if (!value)
-                return NULL;
+        اگر (!قدر)
+                واپس تہی;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->key == key && i->value == value)
-                        return log_context_ref(i);
+                اگر (i->کلید == کلید && i->قدر == قدر)
+                        واپس log_context_ref(i);
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        اگر (!c)
+                واپس تہی;
 
         *c = (LogContext) {
                 .n_ref = 1,
-                .key = (char *) key,
-                .value = (char *) value,
+                .کلید = (حرف *) کلید,
+                .قدر = (حرف *) قدر,
         };
 
-        return log_context_attach(c);
+        واپس log_context_attach(c);
 }
 
-LogContext* log_context_new_strv(char **fields, bool owned) {
-        if (!fields)
-                return NULL;
+LogContext* log_context_new_strv(حرف **fields, bool owned) {
+        اگر (!fields)
+                واپس تہی;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->fields == fields) {
-                        assert(!owned);
-                        return log_context_ref(i);
+                اگر (i->fields == fields) {
+                        أكد(!owned);
+                        واپس log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        اگر (!c)
+                واپس تہی;
 
         *c = (LogContext) {
                 .n_ref = 1,
@@ -99,94 +99,94 @@ LogContext* log_context_new_strv(char **fields, bool owned) {
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        واپس log_context_attach(c);
 }
 
-LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned) {
-        if (!input_iovec || n_input_iovec == 0)
-                return NULL;
+LogContext* log_context_new_iov(ساخت iovec *داخلہ_iovec, size_t n_داخلہ_iovec, bool owned) {
+        اگر (!داخلہ_iovec || n_داخلہ_iovec == 0)
+                واپس تہی;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->input_iovec == input_iovec && i->n_input_iovec == n_input_iovec) {
-                        assert(!owned);
-                        return log_context_ref(i);
+                اگر (i->داخلہ_iovec == داخلہ_iovec && i->n_داخلہ_iovec == n_داخلہ_iovec) {
+                        أكد(!owned);
+                        واپس log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        اگر (!c)
+                واپس تہی;
 
         *c = (LogContext) {
                 .n_ref = 1,
-                .input_iovec = input_iovec,
-                .n_input_iovec = n_input_iovec,
+                .داخلہ_iovec = داخلہ_iovec,
+                .n_داخلہ_iovec = n_داخلہ_iovec,
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        واپس log_context_attach(c);
 }
 
-static LogContext* log_context_free(LogContext *c) {
-        if (!c)
-                return NULL;
+ساکن LogContext* log_context_free(LogContext *c) {
+        اگر (!c)
+                واپس تہی;
 
         log_context_detach(c);
 
-        if (c->owned) {
+        اگر (c->owned) {
                 strv_free(c->fields);
-                iovec_array_free(c->input_iovec, c->n_input_iovec);
-                free(c->key);
-                free(c->value);
+                iovec_array_free(c->داخلہ_iovec, c->n_داخلہ_iovec);
+                آزاد(c->کلید);
+                آزاد(c->قدر);
         }
 
-        return mfree(c);
+        واپس mfree(c);
 }
 
 DEFINE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context, log_context_free);
 
-LogContext* log_context_new_strv_consume(char **fields) {
+LogContext* log_context_new_strv_consume(حرف **fields) {
         LogContext *c = log_context_new_strv(fields, /* owned= */ true);
-        if (!c)
+        اگر (!c)
                 strv_free(fields);
 
-        return c;
+        واپس c;
 }
 
-LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec) {
-        LogContext *c = log_context_new_iov(input_iovec, n_input_iovec, /* owned= */ true);
-        if (!c)
-                iovec_array_free(input_iovec, n_input_iovec);
+LogContext* log_context_new_iov_consume(ساخت iovec *داخلہ_iovec, size_t n_داخلہ_iovec) {
+        LogContext *c = log_context_new_iov(داخلہ_iovec, n_داخلہ_iovec, /* owned= */ true);
+        اگر (!c)
+                iovec_array_free(داخلہ_iovec, n_داخلہ_iovec);
 
-        return c;
+        واپس c;
 }
 
-LogContext* log_context_head(void) {
-        return _log_context;
+LogContext* log_context_سر(خالی) {
+        واپس _log_context;
 }
 
-size_t log_context_num_contexts(void) {
+size_t log_context_عدد_contexts(خالی) {
         size_t n = 0;
 
         LIST_FOREACH(ll, c, _log_context)
                 n++;
 
-        return n;
+        واپس n;
 }
 
-size_t log_context_num_fields(void) {
-        return _log_context_num_fields;
+size_t log_context_عدد_fields_2(خالی) {
+        واپس log_context_عدد_fields;
 }
 
-void log_context_swap(LogContext **log_context, size_t *num_fields) {
-        assert(log_context);
-        assert(num_fields);
+خالی log_context_تبادلہ(LogContext **log_context, size_t *عدد_fields) {
+        أكد(log_context);
+        أكد(عدد_fields);
 
-        SWAP_TWO(_log_context, *log_context);
-        SWAP_TWO(_log_context_num_fields, *num_fields);
+        تبادلہ_TWO(_log_context, *log_context);
+        تبادلہ_TWO(log_context_عدد_fields, *عدد_fields);
 }
 
-void _reset_log_level(int *saved_log_level) {
-        assert(saved_log_level);
+خالی _reset_log_level(صحیح *saved_log_level) {
+        أكد(saved_log_level);
 
-        log_set_max_level(*saved_log_level);
+        log_سیٹ_max_level(*saved_log_level);
 }

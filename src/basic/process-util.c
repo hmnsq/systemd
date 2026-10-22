@@ -1,171 +1,171 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/oom.h>
-#include <pthread.h>
-#include <spawn.h>
-#include <stdio.h>
-#include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/personality.h>
-#include <sys/prctl.h>
-#include <sys/wait.h>
-#include <syslog.h>
-#include <threads.h>
-#include <unistd.h>
-#if HAVE_VALGRIND_VALGRIND_H
-#include <valgrind/valgrind.h>
-#endif
+#شامل <linux/oom.h>
+#شامل <pthread.h>
+#شامل <spawn.h>
+#شامل <stdio.h>
+#شامل <sys/mman.h>
+#شامل <sys/mount.h>
+#شامل <sys/personality.h>
+#شامل <sys/prctl.h>
+#شامل <sys/wait.h>
+#شامل <syslog.h>
+#شامل <threads.h>
+#شامل <unistd.h>
+#اگر HAVE_VALGRIND_VALGRIND_H
+#شامل <valgrind/valgrind.h>
+#اگر_ختم
 
-#include "sd-messages.h"
+#شامل "sd-messages.h"
 
-#include "alloc-util.h"
-#include "architecture.h"
-#include "argv-util.h"
-#include "bitfield.h"
-#include "capability-util.h"
-#include "cgroup-util.h"
-#include "dirent-util.h"
-#include "dlfcn-util.h"
-#include "errno-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "locale-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "mountpoint-util.h"
-#include "namespace-util.h"
-#include "nulstr-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidfd-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "raw-clone.h"
-#include "rlimit-util.h"
-#include "signal-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "user-util.h"
+#شامل "alloc-util.h"
+#شامل "architecture.h"
+#شامل "argv-util.h"
+#شامل "bitfield.h"
+#شامل "capability-util.h"
+#شامل "cgroup-util.h"
+#شامل "dirent-util.h"
+#شامل "dlfcn-util.h"
+#شامل "errno-util.h"
+#شامل "escape.h"
+#شامل "fd-util.h"
+#شامل "fileio.h"
+#شامل "fs-util.h"
+#شامل "io-util.h"
+#شامل "iovec-util.h"
+#شامل "locale-util.h"
+#شامل "log.h"
+#شامل "memory-util.h"
+#شامل "mountpoint-util.h"
+#شامل "namespace-util.h"
+#شامل "nulstr-util.h"
+#شامل "parse-util.h"
+#شامل "path-util.h"
+#شامل "pidfd-util.h"
+#شامل "pidref.h"
+#شامل "process-util.h"
+#شامل "raw-clone.h"
+#شامل "rlimit-util.h"
+#شامل "signal-util.h"
+#شامل "socket-util.h"
+#شامل "stat-util.h"
+#شامل "stdio-util.h"
+#شامل "string-table.h"
+#شامل "string-util.h"
+#شامل "strv.h"
+#شامل "time-util.h"
+#شامل "user-util.h"
 
 /* The kernel limits userspace processes to TASK_COMM_LEN (16 bytes), but allows higher values for its own
  * workers, e.g. "kworker/u9:3-kcryptd/253:0". Let's pick a fixed smallish limit that will work for the kernel.
  */
-#define COMM_MAX_LEN 128
+#تعریف_کرو COMM_MAX_LEN 128
 
-static int get_process_state(pid_t pid) {
-        _cleanup_free_ char *line = NULL;
-        const char *p;
-        char state;
-        int r;
+ساکن صحیح get_process_state(pid_t pid) {
+        _cleanup_free_ حرف *سطر = تہی;
+        ثابت حرف *p;
+        حرف state;
+        صحیح r;
 
-        assert(pid >= 0);
+        أكد(pid >= 0);
 
         /* Shortcut: if we are enquired about our own state, we are obviously running */
-        if (pid == 0 || pid == getpid_cached())
-                return (unsigned char) 'R';
+        اگر (pid == 0 || pid == getpid_cached())
+                واپس (غیرعلامتی حرف) 'R';
 
         p = procfs_file_alloca(pid, "stat");
 
-        r = read_one_line_file(p, &line);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        r = read_one_سطر_file(p, &سطر);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        p = strrchr(line, ')');
-        if (!p)
-                return -EIO;
+        p = strrchr(سطر, ')');
+        اگر (!p)
+                واپس -EIO;
 
         p++;
 
-        if (sscanf(p, " %c", &state) != 1)
-                return -EIO;
+        اگر (لڑی_سے_پڑھو(p, " %c", &state) != 1)
+                واپس -EIO;
 
-        return (unsigned char) state;
+        واپس (غیرعلامتی حرف) state;
 }
 
-int pid_get_comm(pid_t pid, char **ret) {
-        _cleanup_free_ char *escaped = NULL, *comm = NULL;
-        int r;
+صحیح pid_get_comm(pid_t pid, حرف **ret) {
+        _cleanup_free_ حرف *escaped = تہی, *comm = تہی;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(ret);
 
-        if (pid == 0 || pid == getpid_cached()) {
-                comm = new0(char, TASK_COMM_LEN + 1); /* Must fit in 16 byte according to prctl(2) */
-                if (!comm)
-                        return -ENOMEM;
+        اگر (pid == 0 || pid == getpid_cached()) {
+                comm = new0(حرف, TASK_COMM_LEN + 1); /* Must fit in 16 byte according to prctl(2) */
+                اگر (!comm)
+                        واپس -ENOMEM;
 
-                r = prctl_safe(PR_GET_NAME, (unsigned long) comm, 0, 0, 0);
-                if (r < 0)
-                        return r;
-        } else {
-                const char *p;
+                r = prctl_محفوظ(PR_GET_NAME, (غیرعلامتی طویل) comm, 0, 0, 0);
+                اگر (r < 0)
+                        واپس r;
+        } ورنہ {
+                ثابت حرف *p;
 
                 p = procfs_file_alloca(pid, "comm");
 
                 /* Note that process names of kernel threads can be much longer than TASK_COMM_LEN */
-                r = read_one_line_file(p, &comm);
-                if (r == -ENOENT)
-                        return -ESRCH;
-                if (r < 0)
-                        return r;
+                r = read_one_سطر_file(p, &comm);
+                اگر (r == -ENOENT)
+                        واپس -ESRCH;
+                اگر (r < 0)
+                        واپس r;
         }
 
-        escaped = new(char, COMM_MAX_LEN);
-        if (!escaped)
-                return -ENOMEM;
+        escaped = new(حرف, COMM_MAX_LEN);
+        اگر (!escaped)
+                واپس -ENOMEM;
 
         /* Escape unprintable characters, just in case, but don't grow the string beyond the underlying size */
         cellescape(escaped, COMM_MAX_LEN, comm);
 
         *ret = TAKE_PTR(escaped);
-        return 0;
+        واپس 0;
 }
 
-int pidref_get_comm(const PidRef *pid, char **ret) {
-        _cleanup_free_ char *comm = NULL;
-        int r;
+صحیح pidref_get_comm(ثابت PidRef *pid, حرف **ret) {
+        _cleanup_free_ حرف *comm = تہی;
+        صحیح r;
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
         r = pid_get_comm(pid->pid, &comm);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PTR(comm);
-        return 0;
+        واپس 0;
 }
 
-static int pid_get_cmdline_nulstr(
+ساکن صحیح pid_get_cmdline_nulstr(
                 pid_t pid,
-                size_t max_size,
+                size_t max_سائز,
                 ProcessCmdlineFlags flags,
-                char **ret,
-                size_t *ret_size) {
+                حرف **ret,
+                size_t *ret_سائز) {
 
-        _cleanup_free_ char *t = NULL;
-        const char *p;
+        _cleanup_free_ حرف *t = تہی;
+        ثابت حرف *p;
         size_t k;
-        int r;
+        صحیح r;
 
         /* Retrieves a process' command line as a "sized nulstr", i.e. possibly without the last NUL, but
          * with a specified size.
@@ -179,50 +179,50 @@ static int pid_get_cmdline_nulstr(
          */
 
         p = procfs_file_alloca(pid, "cmdline");
-        r = read_virtual_file(p, max_size, &t, &k); /* Let's assume that each input byte results in >= 1
+        r = read_virtual_file(p, max_سائز, &t, &k); /* Let's assume that each input byte results in >= 1
                                                      * columns of output. We ignore zero-width codepoints. */
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        if (k == 0) {
-                if (!(flags & PROCESS_CMDLINE_COMM_FALLBACK))
-                        return -ENOENT;
+        اگر (k == 0) {
+                اگر (!(flags & PROCESS_CMDLINE_COMM_FALLBACK))
+                        واپس -ENOENT;
 
                 /* Kernel threads have no argv[] */
-                _cleanup_free_ char *comm = NULL;
+                _cleanup_free_ حرف *comm = تہی;
 
                 r = pid_get_comm(pid, &comm);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
 
-                free(t);
+                آزاد(t);
                 t = strjoin("[", comm, "]");
-                if (!t)
-                        return -ENOMEM;
+                اگر (!t)
+                        واپس -ENOMEM;
 
-                k = strlen(t);
-                r = k <= max_size;
-                if (r == 0) /* truncation */
-                        t[max_size] = '\0';
+                k = لڑی_لمبائی(t);
+                r = k <= max_سائز;
+                اگر (r == 0) /* truncation */
+                        t[max_سائز] = '\0';
         }
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PTR(t);
-        if (ret_size)
-                *ret_size = k;
+        اگر (ret_سائز)
+                *ret_سائز = k;
 
-        return r;
+        واپس r;
 }
 
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret) {
-        _cleanup_free_ char *t = NULL;
+صحیح pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, حرف **ret) {
+        _cleanup_free_ حرف *t = تہی;
         size_t k;
-        char *ans;
+        حرف *ans;
 
-        assert(pid >= 0);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(ret);
 
         /* Retrieve and format a command line. See above for discussion of retrieval options.
          *
@@ -238,517 +238,517 @@ int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, ch
          * Returns -ESRCH if the process doesn't exist, and -ENOENT if the process has no command line (and
          * PROCESS_CMDLINE_COMM_FALLBACK is not specified). Returns 0 and sets *line otherwise. */
 
-        int full = pid_get_cmdline_nulstr(pid, max_columns, flags, &t, &k);
-        if (full < 0)
-                return full;
+        صحیح بھرا = pid_get_cmdline_nulstr(pid, max_columns, flags, &t, &k);
+        اگر (بھرا < 0)
+                واپس بھرا;
 
-        if (flags & (PROCESS_CMDLINE_QUOTE | PROCESS_CMDLINE_QUOTE_POSIX)) {
-                ShellEscapeFlags shflags = SHELL_ESCAPE_EMPTY |
-                        FLAGS_SET(flags, PROCESS_CMDLINE_QUOTE_POSIX) * SHELL_ESCAPE_POSIX;
+        اگر (flags & (PROCESS_CMDLINE_QUOTE | PROCESS_CMDLINE_QUOTE_POSIX)) {
+                ShellEscapeFlags shflags = SHELL_ESCAPE_خالی_خانے |
+                        FLAGS_سیٹ(flags, PROCESS_CMDLINE_QUOTE_POSIX) * SHELL_ESCAPE_POSIX;
 
-                assert(!(flags & PROCESS_CMDLINE_USE_LOCALE));
+                أكد(!(flags & PROCESS_CMDLINE_USE_LOCALE));
 
-                _cleanup_strv_free_ char **args = NULL;
+                _cleanup_strv_free_ حرف **دلائل = تہی;
 
                 /* Drop trailing NULs, otherwise strv_parse_nulstr() adds additional empty strings at the end.
                  * See also issue #21186. */
-                args = strv_parse_nulstr_full(t, k, /* drop_trailing_nuls= */ true);
-                if (!args)
-                        return -ENOMEM;
+                دلائل = strv_parse_nulstr_بھرا(t, k, /* drop_trailing_nuls= */ true);
+                اگر (!دلائل)
+                        واپس -ENOMEM;
 
-                ans = quote_command_line(args, shflags);
-                if (!ans)
-                        return -ENOMEM;
-        } else {
+                ans = quote_command_سطر(دلائل, shflags);
+                اگر (!ans)
+                        واپس -ENOMEM;
+        } ورنہ {
                 /* Arguments are separated by NULs. Let's replace those with spaces. */
-                for (size_t i = 0; i < k - 1; i++)
-                        if (t[i] == '\0')
+                برائے (size_t i = 0; i < k - 1; i++)
+                        اگر (t[i] == '\0')
                                 t[i] = ' ';
 
                 delete_trailing_chars(t, WHITESPACE);
 
-                bool eight_bit = (flags & PROCESS_CMDLINE_USE_LOCALE) && !is_locale_utf8();
+                bool eight_ثنائی_ہندسہ = (flags & PROCESS_CMDLINE_USE_LOCALE) && !is_locale_utf8();
 
-                ans = escape_non_printable_full(t, max_columns,
-                                                eight_bit * XESCAPE_8_BIT | !full * XESCAPE_FORCE_ELLIPSIS);
-                if (!ans)
-                        return -ENOMEM;
+                ans = escape_non_printable_بھرا(t, max_columns,
+                                                eight_ثنائی_ہندسہ * XESCAPE_8_ثنائی_ہندسہ | !بھرا * XESCAPE_FORCE_ELLIPSIS);
+                اگر (!ans)
+                        واپس -ENOMEM;
 
                 ans = str_realloc(ans);
         }
 
         *ret = ans;
-        return 0;
+        واپس 0;
 }
 
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحیح pidref_get_cmdline(ثابت PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, حرف **ret) {
+        _cleanup_free_ حرف *s = تہی;
+        صحیح r;
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
         r = pid_get_cmdline(pid->pid, max_columns, flags, &s);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret) {
-        _cleanup_free_ char *t = NULL;
-        char **args;
+صحیح pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, حرف ***ret) {
+        _cleanup_free_ حرف *t = تہی;
+        حرف **دلائل;
         size_t k;
-        int r;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert((flags & ~PROCESS_CMDLINE_COMM_FALLBACK) == 0);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد((flags & ~PROCESS_CMDLINE_COMM_FALLBACK) == 0);
+        أكد(ret);
 
         r = pid_get_cmdline_nulstr(pid, SIZE_MAX, flags, &t, &k);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        args = strv_parse_nulstr_full(t, k, /* drop_trailing_nuls= */ true);
-        if (!args)
-                return -ENOMEM;
+        دلائل = strv_parse_nulstr_بھرا(t, k, /* drop_trailing_nuls= */ true);
+        اگر (!دلائل)
+                واپس -ENOMEM;
 
-        *ret = args;
-        return 0;
+        *ret = دلائل;
+        واپس 0;
 }
 
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+صحیح pidref_get_cmdline_strv(ثابت PidRef *pid, ProcessCmdlineFlags flags, حرف ***ret) {
+        _cleanup_strv_free_ حرف **دلائل = تہی;
+        صحیح r;
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
-        r = pid_get_cmdline_strv(pid->pid, flags, &args);
-        if (r < 0)
-                return r;
+        r = pid_get_cmdline_strv(pid->pid, flags, &دلائل);
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
-                *ret = TAKE_PTR(args);
+        اگر (ret)
+                *ret = TAKE_PTR(دلائل);
 
-        return 0;
+        واپس 0;
 }
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret) {
-        int r;
+صحیح procfs_get_stat_flags(ثابت حرف *راستہ, غیرعلامتی طویل طویل *ret) {
+        صحیح r;
 
-        assert(path);
-        assert(ret);
+        أكد(راستہ);
+        أكد(ret);
 
         /* Read the 'flags' field (9th field, task->flags) from the given /proc/[pid]/stat or
          * /proc/[pid]/task/[tid]/stat file. */
 
-        _cleanup_free_ char *line = NULL;
-        r = read_one_line_file(path, &line);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *سطر = تہی;
+        r = read_one_سطر_file(راستہ, &سطر);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
         /* Skip past the comm field */
-        char *q = strrchr(line, ')');
-        if (!q)
-                return -EINVAL;
+        حرف *q = strrchr(سطر, ')');
+        اگر (!q)
+                واپس -EINVAL;
         q++;
 
         /* Skip 6 fields to reach the flags field */
-        for (size_t i = 0; i < 6; i++) {
+        برائے (size_t i = 0; i < 6; i++) {
                 size_t l = strspn(q, WHITESPACE);
-                if (l < 1)
-                        return -EINVAL;
+                اگر (l < 1)
+                        واپس -EINVAL;
                 q += l;
 
                 l = strcspn(q, WHITESPACE);
-                if (l < 1)
-                        return -EINVAL;
+                اگر (l < 1)
+                        واپس -EINVAL;
                 q += l;
         }
 
         /* Skip preceding whitespace */
         size_t l = strspn(q, WHITESPACE);
-        if (l < 1)
-                return -EINVAL;
+        اگر (l < 1)
+                واپس -EINVAL;
         q += l;
 
         /* Truncate the rest */
         l = strcspn(q, WHITESPACE);
-        if (l < 1)
-                return -EINVAL;
+        اگر (l < 1)
+                واپس -EINVAL;
         q[l] = 0;
 
-        return safe_atollu(q, ret);
+        واپس محفوظ_atollu(q, ret);
 }
 
-int pid_is_kernel_thread(pid_t pid) {
-        int r;
+صحیح pid_is_kernel_thread(pid_t pid) {
+        صحیح r;
 
-        if (IN_SET(pid, 0, 1) || pid == getpid_cached()) /* pid 1, and we ourselves certainly aren't a kernel thread */
-                return 0;
-        if (!pid_is_valid(pid))
-                return -EINVAL;
+        اگر (اندر_سیٹ(pid, 0, 1) || pid == getpid_cached()) /* pid 1, and we ourselves certainly aren't a kernel thread */
+                واپس 0;
+        اگر (!pid_is_valid(pid))
+                واپس -EINVAL;
 
-        const char *p = procfs_file_alloca(pid, "stat");
+        ثابت حرف *p = procfs_file_alloca(pid, "stat");
 
-        unsigned long long flags;
+        غیرعلامتی طویل طویل flags;
         r = procfs_get_stat_flags(p, &flags);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        return !!(flags & PF_KTHREAD);
+        واپس !!(flags & PF_KTHREAD);
 }
 
-int pidref_is_kernel_thread(const PidRef *pid) {
-        int result, r;
+صحیح pidref_is_kernel_thread(ثابت PidRef *pid) {
+        صحیح نتیجہ, r;
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
-        result = pid_is_kernel_thread(pid->pid);
-        if (result < 0)
-                return result;
+        نتیجہ = pid_is_kernel_thread(pid->pid);
+        اگر (نتیجہ < 0)
+                واپس نتیجہ;
 
         r = pidref_verify(pid); /* Verify that the PID wasn't reused since */
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        return result;
+        واپس نتیجہ;
 }
 
-static int get_process_link_contents(pid_t pid, const char *proc_file, char **ret) {
-        const char *p;
-        int r;
+ساکن صحیح get_process_link_contents(pid_t pid, ثابت حرف *proc_file, حرف **ret) {
+        ثابت حرف *p;
+        صحیح r;
 
-        assert(proc_file);
+        أكد(proc_file);
 
         p = procfs_file_alloca(pid, proc_file);
 
         r = readlink_malloc(p, ret);
-        return (r == -ENOENT && proc_mounted() > 0) ? -ESRCH : r;
+        واپس (r == -ENOENT && proc_mounted() > 0) ? -ESRCH : r;
 }
 
-int get_process_exe(pid_t pid, char **ret) {
-        char *d;
-        int r;
+صحیح get_process_exe(pid_t pid, حرف **ret) {
+        حرف *d;
+        صحیح r;
 
-        assert(pid >= 0);
+        أكد(pid >= 0);
 
         r = get_process_link_contents(pid, "exe", ret);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret) {
+        اگر (ret) {
                 d = endswith(*ret, " (deleted)");
-                if (d)
+                اگر (d)
                         *d = '\0';
         }
 
-        return 0;
+        واپس 0;
 }
 
-int pid_get_uid(pid_t pid, uid_t *ret) {
-        int r;
+صحیح pid_get_uid(pid_t pid, uid_t *ret) {
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(ret);
 
-        if (pid == 0 || pid == getpid_cached()) {
+        اگر (pid == 0 || pid == getpid_cached()) {
                 *ret = getuid();
-                return 0;
+                واپس 0;
         }
 
-        _cleanup_free_ char *v = NULL;
-        r = procfs_file_get_field(pid, "status", "Uid", &v);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *v = تہی;
+        r = procfs_file_get_میدان(pid, "status", "Uid", &v);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        return parse_uid(v, ret);
+        واپس parse_uid(v, ret);
 }
 
-int pidref_get_uid(const PidRef *pid, uid_t *ret) {
-        int r;
+صحیح pidref_get_uid(ثابت PidRef *pid, uid_t *ret) {
+        صحیح r;
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
-        if (pid->fd >= 0) {
+        اگر (pid->fd >= 0) {
                 r = pidfd_get_uid(pid->fd, ret);
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return r;
+                اگر (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        واپس r;
         }
 
         uid_t uid;
         r = pid_get_uid(pid->pid, &uid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
+        اگر (ret)
                 *ret = uid;
-        return 0;
+        واپس 0;
 }
 
-int get_process_gid(pid_t pid, gid_t *ret) {
-        int r;
+صحیح get_process_gid(pid_t pid, gid_t *ret) {
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(ret);
 
-        if (pid == 0 || pid == getpid_cached()) {
+        اگر (pid == 0 || pid == getpid_cached()) {
                 *ret = getgid();
-                return 0;
+                واپس 0;
         }
 
-        _cleanup_free_ char *v = NULL;
-        r = procfs_file_get_field(pid, "status", "Gid", &v);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *v = تہی;
+        r = procfs_file_get_میدان(pid, "status", "Gid", &v);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        return parse_gid(v, ret);
+        واپس parse_gid(v, ret);
 }
 
-int get_process_cwd(pid_t pid, char **ret) {
-        assert(pid >= 0);
+صحیح get_process_cwd(pid_t pid, حرف **ret) {
+        أكد(pid >= 0);
 
-        if (pid == 0 || pid == getpid_cached())
-                return safe_getcwd(ret);
+        اگر (pid == 0 || pid == getpid_cached())
+                واپس محفوظ_getcwd(ret);
 
-        return get_process_link_contents(pid, "cwd", ret);
+        واپس get_process_link_contents(pid, "cwd", ret);
 }
 
-int get_process_root(pid_t pid, char **ret) {
-        assert(pid >= 0);
-        return get_process_link_contents(pid, "root", ret);
+صحیح get_process_جڑ(pid_t pid, حرف **ret) {
+        أكد(pid >= 0);
+        واپس get_process_link_contents(pid, "root", ret);
 }
 
-#define ENVIRONMENT_BLOCK_MAX (5U*1024U*1024U)
+#تعریف_کرو ENVIRONMENT_بلاک_MAX (5U*1024U*1024U)
 
-int get_process_environ(pid_t pid, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *outcome = NULL;
+صحیح get_process_environ(pid_t pid, حرف **ret) {
+        _cleanup_fclose_ FILE *f = تہی;
+        _cleanup_free_ حرف *outcome = تہی;
         size_t sz = 0;
-        const char *p;
-        int r;
+        ثابت حرف *p;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(ret);
 
         p = procfs_file_alloca(pid, "environ");
 
         r = fopen_unlocked(p, "re", &f);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        for (;;) {
-                char c;
+        برائے (;;) {
+                حرف c;
 
-                if (sz >= ENVIRONMENT_BLOCK_MAX)
-                        return -ENOBUFS;
+                اگر (sz >= ENVIRONMENT_بلاک_MAX)
+                        واپس -ENOBUFS;
 
-                if (!GREEDY_REALLOC(outcome, sz + 5))
-                        return -ENOMEM;
+                اگر (!GREEDY_REALLOC(outcome, sz + 5))
+                        واپس -ENOMEM;
 
-                r = safe_fgetc(f, &c);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = محفوظ_fgetc(f, &c);
+                اگر (r < 0)
+                        واپس r;
+                اگر (r == 0)
+                        توڑو;
 
-                if (c == '\0')
+                اگر (c == '\0')
                         outcome[sz++] = '\n';
-                else
+                ورنہ
                         sz += cescape_char(c, outcome + sz);
         }
 
         outcome[sz] = '\0';
         *ret = TAKE_PTR(outcome);
 
-        return 0;
+        واپس 0;
 }
 
-int pid_get_ppid(pid_t pid, pid_t *ret) {
-        _cleanup_free_ char *line = NULL;
-        unsigned long ppid;
-        const char *p;
-        int r;
+صحیح pid_get_ppid(pid_t pid, pid_t *ret) {
+        _cleanup_free_ حرف *سطر = تہی;
+        غیرعلامتی طویل ppid;
+        ثابت حرف *p;
+        صحیح r;
 
-        assert(pid >= 0);
+        أكد(pid >= 0);
 
-        if (pid == 0)
+        اگر (pid == 0)
                 pid = getpid_cached();
-        if (pid == 1) /* PID 1 has no parent, shortcut this case */
-                return -EADDRNOTAVAIL;
+        اگر (pid == 1) /* PID 1 has no parent, shortcut this case */
+                واپس -EADDRNOTAVAIL;
 
-        if (pid == getpid_cached()) {
-                if (ret)
+        اگر (pid == getpid_cached()) {
+                اگر (ret)
                         *ret = getppid();
-                return 0;
+                واپس 0;
         }
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        r = read_one_سطر_file(p, &سطر);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
         /* Let's skip the pid and comm fields. The latter is enclosed in () but does not escape any () in its
          * value, so let's skip over it manually */
 
-        p = strrchr(line, ')');
-        if (!p)
-                return -EIO;
+        p = strrchr(سطر, ')');
+        اگر (!p)
+                واپس -EIO;
         p++;
 
-        if (sscanf(p, " "
+        اگر (لڑی_سے_پڑھو(p, " "
                    "%*c "  /* state */
                    "%lu ", /* ppid */
                    &ppid) != 1)
-                return -EIO;
+                واپس -EIO;
 
         /* If ppid is zero the process has no parent. Which might be the case for PID 1 (caught above)
          * but also for processes originating in other namespaces that are inserted into a pidns.
          * Return a recognizable error in this case. */
-        if (ppid == 0)
-                return -EADDRNOTAVAIL;
+        اگر (ppid == 0)
+                واپس -EADDRNOTAVAIL;
 
-        if ((pid_t) ppid < 0 || (unsigned long) (pid_t) ppid != ppid)
-                return -ERANGE;
+        اگر ((pid_t) ppid < 0 || (غیرعلامتی طویل) (pid_t) ppid != ppid)
+                واپس -ERANGE;
 
-        if (ret)
+        اگر (ret)
                 *ret = (pid_t) ppid;
 
-        return 0;
+        واپس 0;
 }
 
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret) {
-        int r;
+صحیح pidref_get_ppid(ثابت PidRef *pidref, pid_t *ret) {
+        صحیح r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
 
-        if (pidref->fd >= 0) {
+        اگر (pidref->fd >= 0) {
                 r = pidfd_get_ppid(pidref->fd, ret);
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return r;
+                اگر (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        واپس r;
         }
 
         pid_t ppid;
-        r = pid_get_ppid(pidref->pid, ret ? &ppid : NULL);
-        if (r < 0)
-                return r;
+        r = pid_get_ppid(pidref->pid, ret ? &ppid : تہی);
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
+        اگر (ret)
                 *ret = ppid;
-        return 0;
+        واپس 0;
 }
 
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret) {
+صحیح pidref_get_ppid_as_pidref(ثابت PidRef *pidref, PidRef *ret) {
         pid_t ppid;
-        int r;
+        صحیح r;
 
-        POINTER_MAY_BE_NULL(pidref);
-        assert(ret);
+        اشارہ_گر_MAY_BE_NULL(pidref);
+        أكد(ret);
 
         r = pidref_get_ppid(pidref, &ppid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        for (unsigned attempt = 0; attempt < 16; attempt++) {
-                _cleanup_(pidref_done) PidRef parent = PIDREF_NULL;
+        برائے (غیرعلامتی attempt = 0; attempt < 16; attempt++) {
+                _cleanup_(pidref_مکمل) PidRef والد = PIDREF_NULL;
 
-                r = pidref_set_pid(&parent, ppid);
-                if (r < 0)
-                        return r;
+                r = pidref_سیٹ_pid(&والد, ppid);
+                اگر (r < 0)
+                        واپس r;
 
                 /* If we have a pidfd of the original PID, let's verify that the process we acquired really
                  * is the parent still */
-                if (pidref->fd >= 0) {
+                اگر (pidref->fd >= 0) {
                         r = pidref_get_ppid(pidref, &ppid);
-                        if (r < 0)
-                                return r;
+                        اگر (r < 0)
+                                واپس r;
 
                         /* Did the PPID change since we queried it? if so we might have pinned the wrong
                          * process, if its PID got reused by now. Let's try again */
-                        if (parent.pid != ppid)
-                                continue;
+                        اگر (والد.pid != ppid)
+                                جاری;
                 }
 
-                *ret = TAKE_PIDREF(parent);
-                return 0;
+                *ret = TAKE_PIDREF(والد);
+                واپس 0;
         }
 
         /* Give up after 16 tries */
-        return -ENOTRECOVERABLE;
+        واپس -ENOTRECOVERABLE;
 }
 
-int pid_get_start_time(pid_t pid, usec_t *ret) {
-        _cleanup_free_ char *line = NULL;
-        const char *p;
-        int r;
+صحیح pid_get_آغاز_وقت(pid_t pid, usec_t *ret) {
+        _cleanup_free_ حرف *سطر = تہی;
+        ثابت حرف *p;
+        صحیح r;
 
-        assert(pid >= 0);
+        أكد(pid >= 0);
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        r = read_one_سطر_file(p, &سطر);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
         /* Let's skip the pid and comm fields. The latter is enclosed in () but does not escape any () in its
          * value, so let's skip over it manually */
 
-        p = strrchr(line, ')');
-        if (!p)
-                return -EIO;
+        p = strrchr(سطر, ')');
+        اگر (!p)
+                واپس -EIO;
         p++;
 
-        unsigned long llu;
+        غیرعلامتی طویل llu;
 
-        if (sscanf(p, " "
+        اگر (لڑی_سے_پڑھو(p, " "
                    "%*c " /* state */
                    "%*u " /* ppid */
                    "%*u " /* pgrp */
@@ -764,105 +764,105 @@ int pid_get_start_time(pid_t pid, usec_t *ret) {
                    "%*u " /* stime */
                    "%*u " /* cutime */
                    "%*u " /* cstime */
-                   "%*i " /* priority */
+                   "%*i " /*ترجیح*/
                    "%*i " /* nice */
                    "%*u " /* num_threads */
                    "%*u " /* itrealvalue */
                    "%lu ", /* starttime */
                    &llu) != 1)
-                return -EIO;
+                واپس -EIO;
 
-        if (ret)
-                *ret = jiffies_to_usec(llu); /* CLOCK_BOOTTIME */
+        اگر (ret)
+                *ret = jiffies_مقصد_usec(llu); /* CLOCK_BOOTTIME */
 
-        return 0;
+        واپس 0;
 }
 
-int pidref_get_start_time(const PidRef *pid, usec_t *ret) {
+صحیح pidref_get_آغاز_وقت(ثابت PidRef *pid, usec_t *ret) {
         usec_t t;
-        int r;
+        صحیح r;
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
-        r = pid_get_start_time(pid->pid, ret ? &t : NULL);
-        if (r < 0)
-                return r;
+        r = pid_get_آغاز_وقت(pid->pid, ret ? &t : تہی);
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (ret)
+        اگر (ret)
                 *ret = t;
 
-        return 0;
+        واپس 0;
 }
 
-int get_process_umask(pid_t pid, mode_t *ret) {
-        _cleanup_free_ char *m = NULL;
-        int r;
+صحیح get_process_umask(pid_t pid, mode_t *ret) {
+        _cleanup_free_ حرف *m = تہی;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(ret);
 
-        r = procfs_file_get_field(pid, "status", "Umask", &m);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        r = procfs_file_get_میدان(pid, "status", "Umask", &m);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        return parse_mode(m, ret);
+        واپس parse_منوال(m, ret);
 }
 
-static int pid_get_sigmask(pid_t pid, const char *field_name, uint64_t *ret) {
-        _cleanup_free_ char *field = NULL;
-        int r;
+ساکن صحیح pid_get_sigmask(pid_t pid, ثابت حرف *میدان_name, uint64_t *ret) {
+        _cleanup_free_ حرف *میدان = تہی;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(field_name);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(میدان_name);
+        أكد(ret);
 
-        r = procfs_file_get_field(pid, "status", field_name, &field);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        r = procfs_file_get_میدان(pid, "status", میدان_name, &میدان);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        return safe_atou64_full(field, 16, ret);
+        واپس محفوظ_atou64_بھرا(میدان, 16, ret);
 }
 
-static int pidref_has_sigmask(const PidRef *pidref, int sig, const char *field_name) {
-        uint64_t mask;
-        int r;
+ساکن صحیح pidref_has_sigmask(ثابت PidRef *pidref, صحیح sig, ثابت حرف *میدان_name) {
+        uint64_t نقاب_3;
+        صحیح r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
+        اگر (!SIGNAL_VALID(sig))
+                واپس -EINVAL;
 
-        r = pid_get_sigmask(pidref->pid, field_name, &mask);
-        if (r < 0)
-                return r;
+        r = pid_get_sigmask(pidref->pid, میدان_name, &نقاب_3);
+        اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        return BIT_SET(mask, sig - 1);
+        واپس ثنائی_ہندسہ_سیٹ(نقاب_3, sig - 1);
 }
 
-int pidref_has_sigcgt(const PidRef *pidref, int sig) {
-        return pidref_has_sigmask(pidref, sig, "SigCgt");
+صحیح pidref_has_sigcgt(ثابت PidRef *pidref, صحیح sig) {
+        واپس pidref_has_sigmask(pidref, sig, "SigCgt");
 }
 
-int pidref_has_sigblk(const PidRef *pidref, int sig) {
-        return pidref_has_sigmask(pidref, sig, "SigBlk");
+صحیح pidref_has_sigblk(ثابت PidRef *pidref, صحیح sig) {
+        واپس pidref_has_sigmask(pidref, sig, "SigBlk");
 }
 
 /*
@@ -879,318 +879,318 @@ int pidref_has_sigblk(const PidRef *pidref, int sig) {
  * A warning is emitted if the process terminates abnormally,
  * and also if it returns non-zero unless check_exit_code is true.
  */
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags) {
-        int r;
+صحیح pidref_wait_for_terminate_and_check(ثابت حرف *name, PidRef *pidref, WaitFlags flags) {
+        صحیح r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
-        if (pidref->pid == 1 || pidref_is_self(pidref))
-                return -ECHILD;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
+        اگر (pidref->pid == 1 || pidref_is_self(pidref))
+                واپس -ECHILD;
 
-        _cleanup_free_ char *buffer = NULL;
-        if (!name) {
-                r = pidref_get_comm(pidref, &buffer);
-                if (r < 0)
+        _cleanup_free_ حرف *بفر = تہی;
+        اگر (!name) {
+                r = pidref_get_comm(pidref, &بفر);
+                اگر (r < 0)
                         log_debug_errno(r, "Failed to acquire process name of " PID_FMT ", ignoring: %m", pidref->pid);
-                else
-                        name = buffer;
+                ورنہ
+                        name = بفر;
         }
 
-        int prio = flags & WAIT_LOG_ABNORMAL ? LOG_ERR : LOG_DEBUG;
+        صحیح prio = flags & WAIT_LOG_ABNORMAL ? LOG_ERR : LOG_DEBUG;
 
         siginfo_t status;
         r = pidref_wait_for_terminate(pidref, &status);
-        if (r < 0)
-                return log_full_errno(prio, r, "Failed to wait for '%s': %m", strna(name));
+        اگر (r < 0)
+                واپس log_بھرا_errno(prio, r, "Failed to wait for '%s': %m", strna(name));
 
-        if (status.si_code == CLD_EXITED) {
-                if (status.si_status != EXIT_SUCCESS)
-                        log_full(flags & WAIT_LOG_NON_ZERO_EXIT_STATUS ? LOG_ERR : LOG_DEBUG,
+        اگر (status.si_code == CLD_EXITED) {
+                اگر (status.si_status != EXIT_SUCCESS)
+                        log_بھرا(flags & WAIT_LOG_NON_ZERO_EXIT_حالت ? LOG_ERR : LOG_DEBUG,
                                  "'%s' failed with exit status %i.", strna(name), status.si_status);
-                else
+                ورنہ
                         log_debug("'%s' succeeded.", name);
 
-                return status.si_status;
+                واپس status.si_status;
 
-        } else if (IN_SET(status.si_code, CLD_KILLED, CLD_DUMPED))
-                return log_full_errno(prio, SYNTHETIC_ERRNO(EPROTO),
-                                      "'%s' terminated by signal %s.", strna(name), signal_to_string(status.si_status));
+        } ورنہ اگر (اندر_سیٹ(status.si_code, CLD_KILLED, CLD_DUMPED))
+                واپس log_بھرا_errno(prio, SYNTHETIC_ERRNO(EPROTO),
+                                      "'%s' terminated by signal %s.", strna(name), signal_مقصد_string(status.si_status));
 
-        return log_full_errno(prio, SYNTHETIC_ERRNO(EPROTO),
+        واپس log_بھرا_errno(prio, SYNTHETIC_ERRNO(EPROTO),
                               "'%s' failed due to unknown reason.", strna(name));
 }
 
-int kill_and_sigcont(pid_t pid, int sig) {
-        int r;
+صحیح kill_and_sigcont(pid_t pid, صحیح sig) {
+        صحیح r;
 
         r = RET_NERRNO(kill(pid, sig));
 
         /* If this worked, also send SIGCONT, unless we already just sent a SIGCONT, or SIGKILL was sent which isn't
          * affected by a process being suspended anyway. */
-        if (r >= 0 && !IN_SET(sig, SIGCONT, SIGKILL))
-                (void) kill(pid, SIGCONT);
+        اگر (r >= 0 && !اندر_سیٹ(sig, SIGCONT, SIGKILL))
+                (خالی) kill(pid, SIGCONT);
 
-        return r;
+        واپس r;
 }
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        const char *path;
-        size_t sum = 0;
-        int r;
+صحیح getenv_for_pid(pid_t pid, ثابت حرف *میدان, حرف **ret) {
+        _cleanup_fclose_ FILE *f = تہی;
+        ثابت حرف *راستہ;
+        size_t مجموع = 0;
+        صحیح r;
 
-        assert(pid >= 0);
-        assert(field);
-        assert(ret);
+        أكد(pid >= 0);
+        أكد(میدان);
+        أكد(ret);
 
-        if (pid == 0 || pid == getpid_cached())
-                return strdup_to_full(ret, getenv(field));
+        اگر (pid == 0 || pid == getpid_cached())
+                واپس strdup_مقصد_بھرا(ret, getenv(میدان));
 
-        if (!pid_is_valid(pid))
-                return -EINVAL;
+        اگر (!pid_is_valid(pid))
+                واپس -EINVAL;
 
-        path = procfs_file_alloca(pid, "environ");
+        راستہ = procfs_file_alloca(pid, "environ");
 
-        r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        r = fopen_unlocked(راستہ, "re", &f);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                const char *match;
+        برائے (;;) {
+                _cleanup_free_ حرف *سطر = تہی;
+                ثابت حرف *مطابقت;
 
-                if (sum > ENVIRONMENT_BLOCK_MAX) /* Give up searching eventually */
-                        return -ENOBUFS;
+                اگر (مجموع > ENVIRONMENT_بلاک_MAX) /* Give up searching eventually */
+                        واپس -ENOBUFS;
 
-                r = read_nul_string(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)  /* EOF */
-                        break;
+                r = read_nul_string(f, LONG_سطر_MAX, &سطر);
+                اگر (r < 0)
+                        واپس r;
+                اگر (r == 0)  /* EOF */
+                        توڑو;
 
-                sum += r;
+                مجموع += r;
 
-                match = startswith(line, field);
-                if (match && *match == '=')
-                        return strdup_to_full(ret, match + 1);
+                مطابقت = startswith(سطر, میدان);
+                اگر (مطابقت && *مطابقت == '=')
+                        واپس strdup_مقصد_بھرا(ret, مطابقت + 1);
         }
 
-        *ret = NULL;
-        return 0;
+        *ret = تہی;
+        واپس 0;
 }
 
-int pidref_is_my_child(PidRef *pid) {
-        int r;
+صحیح pidref_is_my_بچہ(PidRef *pid) {
+        صحیح r;
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
-        if (pid->pid == 1 || pidref_is_self(pid))
-                return false;
+        اگر (pid->pid == 1 || pidref_is_self(pid))
+                واپس false;
 
         pid_t ppid;
         r = pidref_get_ppid(pid, &ppid);
-        if (r == -EADDRNOTAVAIL) /* if this process is outside of our pidns, it is definitely not our child */
-                return false;
-        if (r < 0)
-                return r;
+        اگر (r == -EADDRNOTAVAIL) /* if this process is outside of our pidns, it is definitely not our child */
+                واپس false;
+        اگر (r < 0)
+                واپس r;
 
-        return ppid == getpid_cached();
+        واپس ppid == getpid_cached();
 }
 
-int pid_is_my_child(pid_t pid) {
+صحیح pid_is_my_بچہ(pid_t pid) {
 
-        if (pid == 0)
-                return false;
+        اگر (pid == 0)
+                واپس false;
 
-        return pidref_is_my_child(&PIDREF_MAKE_FROM_PID(pid));
+        واپس pidref_is_my_بچہ(&PIDREF_MAKE_FROM_PID(pid));
 }
 
-int pidref_is_unwaited(PidRef *pid) {
-        int r;
+صحیح pidref_is_unwaited(PidRef *pid) {
+        صحیح r;
 
         /* Checks whether a PID is still valid at all, including a zombie */
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pid))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pid))
+                واپس -EREMOTE;
 
-        if (pid->pid == 1 || pidref_is_self(pid))
-                return true;
+        اگر (pid->pid == 1 || pidref_is_self(pid))
+                واپس true;
 
         r = pidref_kill(pid, 0);
-        if (r == -ESRCH)
-                return false;
-        if (r < 0)
-                return r;
+        اگر (r == -ESRCH)
+                واپس false;
+        اگر (r < 0)
+                واپس r;
 
-        return true;
+        واپس true;
 }
 
-int pid_is_unwaited(pid_t pid) {
+صحیح pid_is_unwaited(pid_t pid) {
 
-        if (pid == 0)
-                return true;
+        اگر (pid == 0)
+                واپس true;
 
-        return pidref_is_unwaited(&PIDREF_MAKE_FROM_PID(pid));
+        واپس pidref_is_unwaited(&PIDREF_MAKE_FROM_PID(pid));
 }
 
-int pid_is_alive(pid_t pid) {
-        int r;
+صحیح pid_is_alive(pid_t pid) {
+        صحیح r;
 
         /* Checks whether a PID is still valid and not a zombie */
 
-        if (pid < 0)
-                return -ESRCH;
+        اگر (pid < 0)
+                واپس -ESRCH;
 
-        if (pid <= 1) /* If we or PID 1 would be a zombie, this code would not be running */
-                return true;
+        اگر (pid <= 1) /* If we or PID 1 would be a zombie, this code would not be running */
+                واپس true;
 
-        if (pid == getpid_cached())
-                return true;
+        اگر (pid == getpid_cached())
+                واپس true;
 
         r = get_process_state(pid);
-        if (r == -ESRCH)
-                return false;
-        if (r < 0)
-                return r;
+        اگر (r == -ESRCH)
+                واپس false;
+        اگر (r < 0)
+                واپس r;
 
-        return r != 'Z';
+        واپس r != 'Z';
 }
 
-int pidref_is_alive(const PidRef *pidref) {
-        int r, result;
+صحیح pidref_is_alive(ثابت PidRef *pidref) {
+        صحیح r, نتیجہ;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pidref))
+                واپس -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        اگر (pidref_is_remote(pidref))
+                واپس -EREMOTE;
 
-        result = pid_is_alive(pidref->pid);
-        if (result < 0) {
-                assert(result != -ESRCH);
-                return result;
+        نتیجہ = pid_is_alive(pidref->pid);
+        اگر (نتیجہ < 0) {
+                أكد(نتیجہ != -ESRCH);
+                واپس نتیجہ;
         }
 
         r = pidref_verify(pidref);
-        if (r == -ESRCH)
-                return false;
-        if (r < 0)
-                return r;
+        اگر (r == -ESRCH)
+                واپس false;
+        اگر (r < 0)
+                واپس r;
 
-        return result;
+        واپس نتیجہ;
 }
 
-int pidref_from_same_root_fs(PidRef *a, PidRef *b) {
-        _cleanup_(pidref_done) PidRef self = PIDREF_NULL;
-        int r;
+صحیح pidref_from_same_جڑ_fs(PidRef *a, PidRef *b) {
+        _cleanup_(pidref_مکمل) PidRef self = PIDREF_NULL;
+        صحیح r;
 
         /* Checks if the two specified processes have the same root fs. Either can be specified as NULL in
          * which case we'll check against ourselves. */
 
-        if (!a || !b) {
-                r = pidref_set_self(&self);
-                if (r < 0)
-                        return r;
-                if (!a)
+        اگر (!a || !b) {
+                r = pidref_سیٹ_self(&self);
+                اگر (r < 0)
+                        واپس r;
+                اگر (!a)
                         a = &self;
-                if (!b)
+                اگر (!b)
                         b = &self;
         }
 
-        if (!pidref_is_set(a) || !pidref_is_set(b))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(a) || !pidref_is_سیٹ(b))
+                واپس -ESRCH;
 
         /* If one of the two processes have the same root they cannot have the same root fs, but if both of
          * them do we don't know */
-        if (pidref_is_remote(a) && pidref_is_remote(b))
-                return -EREMOTE;
-        if (pidref_is_remote(a) || pidref_is_remote(b))
-                return false;
+        اگر (pidref_is_remote(a) && pidref_is_remote(b))
+                واپس -EREMOTE;
+        اگر (pidref_is_remote(a) || pidref_is_remote(b))
+                واپس false;
 
-        if (pidref_equal(a, b))
-                return true;
+        اگر (pidref_equal(a, b))
+                واپس true;
 
-        const char *roota = procfs_file_alloca(a->pid, "root");
-        const char *rootb = procfs_file_alloca(b->pid, "root");
+        ثابت حرف *roota = procfs_file_alloca(a->pid, "root");
+        ثابت حرف *rootb = procfs_file_alloca(b->pid, "root");
 
-        int result = inode_same(roota, rootb, 0);
-        if (result == -ENOENT)
-                return proc_mounted() == 0 ? -ENOSYS : -ESRCH;
-        if (result < 0)
-                return result;
+        صحیح نتیجہ = inode_same(roota, rootb, 0);
+        اگر (نتیجہ == -ENOENT)
+                واپس proc_mounted() == 0 ? -ENOSYS : -ESRCH;
+        اگر (نتیجہ < 0)
+                واپس نتیجہ;
 
         r = pidref_verify(a);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
         r = pidref_verify(b);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        return result;
+        واپس نتیجہ;
 }
 
-bool is_main_thread(void) {
-        static thread_local int cached = -1;
+bool is_main_thread(خالی) {
+        ساکن thread_local صحیح cached = -1;
 
-        if (cached < 0)
+        اگر (cached < 0)
                 cached = getpid_cached() == gettid();
 
-        return cached;
+        واپس cached;
 }
 
-unsigned long personality_from_string(const char *s) {
+غیرعلامتی طویل personality_from_string(ثابت حرف *s) {
         Architecture architecture;
 
-        if (!s)
-                return PERSONALITY_INVALID;
+        اگر (!s)
+                واپس PERSONALITY_INVALID;
 
         /* Parse a personality specifier. We use our own identifiers that indicate specific ABIs, rather than just
          * hints regarding the register size, since we want to keep things open for multiple locally supported ABIs for
          * the same register size. */
 
         architecture = architecture_from_string(s);
-        if (architecture < 0)
-                return PERSONALITY_INVALID;
+        اگر (architecture < 0)
+                واپس PERSONALITY_INVALID;
 
-        if (architecture == native_architecture())
-                return PER_LINUX;
-#ifdef ARCHITECTURE_SECONDARY
-        if (architecture == ARCHITECTURE_SECONDARY)
-                return PER_LINUX32;
-#endif
+        اگر (architecture == native_architecture())
+                واپس PER_LINUX;
+#اگر_تعریف_شدہ ARCHITECTURE_SECONDARY
+        اگر (architecture == ARCHITECTURE_SECONDARY)
+                واپس PER_LINUX32;
+#اگر_ختم
 
-        return PERSONALITY_INVALID;
+        واپس PERSONALITY_INVALID;
 }
 
-const char* personality_to_string(unsigned long p) {
+ثابت حرف* personality_مقصد_string(غیرعلامتی طویل p) {
         Architecture architecture = _ARCHITECTURE_INVALID;
 
-        if (p == PER_LINUX)
+        اگر (p == PER_LINUX)
                 architecture = native_architecture();
-#ifdef ARCHITECTURE_SECONDARY
-        else if (p == PER_LINUX32)
+#اگر_تعریف_شدہ ARCHITECTURE_SECONDARY
+        ورنہ اگر (p == PER_LINUX32)
                 architecture = ARCHITECTURE_SECONDARY;
-#endif
+#اگر_ختم
 
-        if (architecture < 0)
-                return NULL;
+        اگر (architecture < 0)
+                واپس تہی;
 
-        return architecture_to_string(architecture);
+        واپس architecture_مقصد_string(architecture);
 }
 
-int safe_personality(unsigned long p) {
-        int ret;
+صحیح محفوظ_personality(غیرعلامتی طویل p) {
+        صحیح ret;
 
         /* So here's the deal, personality() is weirdly defined by glibc. In some cases it returns a failure via errno,
          * and in others as negative return value containing an errno-like value. Let's work around this: this is a
@@ -1201,99 +1201,99 @@ int safe_personality(unsigned long p) {
 
         errno = 0;
         ret = personality(p);
-        if (ret < 0) {
-                if (errno != 0)
-                        return -errno;
+        اگر (ret < 0) {
+                اگر (errno != 0)
+                        واپس -errno;
 
                 errno = -ret;
         }
 
-        return ret;
+        واپس ret;
 }
 
-int opinionated_personality(unsigned long *ret) {
-        int current;
+صحیح opinionated_personality(غیرعلامتی طویل *ret) {
+        صحیح current;
 
-        assert(ret);
+        أكد(ret);
 
         /* Returns the current personality, or PERSONALITY_INVALID if we can't determine it. This function is a bit
          * opinionated though, and ignores all the finer-grained bits and exotic personalities, only distinguishing the
          * two most relevant personalities: PER_LINUX and PER_LINUX32. */
 
-        current = safe_personality(PERSONALITY_INVALID);
-        if (current < 0)
-                return current;
+        current = محفوظ_personality(PERSONALITY_INVALID);
+        اگر (current < 0)
+                واپس current;
 
-        if (((unsigned long) current & OPINIONATED_PERSONALITY_MASK) == PER_LINUX32)
+        اگر (((غیرعلامتی طویل) current & OPINIONATED_PERSONALITY_نقاب) == PER_LINUX32)
                 *ret = PER_LINUX32;
-        else
+        ورنہ
                 *ret = PER_LINUX;
 
-        return 0;
+        واپس 0;
 }
 
-void valgrind_summary_hack(void) {
-#if HAVE_VALGRIND_VALGRIND_H
-        if (getpid_cached() == 1 && RUNNING_ON_VALGRIND) {
+خالی valgrind_summary_hack(خالی) {
+#اگر HAVE_VALGRIND_VALGRIND_H
+        اگر (getpid_cached() == 1 && RUNNING_ON_VALGRIND) {
                 pid_t pid;
                 pid = raw_clone(SIGCHLD);
-                if (pid < 0)
+                اگر (pid < 0)
                         log_struct_errno(
                                 LOG_EMERG, errno,
-                                LOG_MESSAGE_ID(SD_MESSAGE_VALGRIND_HELPER_FORK_STR),
-                                LOG_MESSAGE("Failed to fork off valgrind helper: %m"));
-                else if (pid == 0)
-                        exit(EXIT_SUCCESS);
-                else {
+                                LOG_پیغام_ID(SD_پیغام_VALGRIND_HELPER_FORK_STR),
+                                LOG_پیغام("Failed to fork off valgrind helper: %m"));
+                ورنہ اگر (pid == 0)
+                        باہر_نکلو(EXIT_SUCCESS);
+                ورنہ {
                         log_info("Spawned valgrind helper as PID "PID_FMT".", pid);
-                        _cleanup_(pidref_done) PidRef pidref = PIDREF_MAKE_FROM_PID(pid);
-                        (void) pidref_set_pid(&pidref, pid);
-                        (void) pidref_wait_for_terminate(&pidref, NULL);
+                        _cleanup_(pidref_مکمل) PidRef pidref = PIDREF_MAKE_FROM_PID(pid);
+                        (خالی) pidref_سیٹ_pid(&pidref, pid);
+                        (خالی) pidref_wait_for_terminate(&pidref, تہی);
                 }
         }
-#endif
+#اگر_ختم
 }
 
-int pid_compare_func(const pid_t *a, const pid_t *b) {
+صحیح pid_compare_func(ثابت pid_t *a, ثابت pid_t *b) {
         /* Suitable for usage in qsort() */
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        return CMP(*a, *b);
+        واپس CMP(*a, *b);
 }
 
-bool nice_is_valid(int n) {
-        return n >= PRIO_MIN && n < PRIO_MAX;
+bool nice_is_valid(صحیح n) {
+        واپس n >= PRIO_MIN && n < PRIO_MAX;
 }
 
-bool sched_policy_is_valid(int policy) {
-        return IN_SET(policy, SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO, SCHED_RR, SCHED_EXT);
+bool sched_policy_is_valid(صحیح policy) {
+        واپس اندر_سیٹ(policy, SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO, SCHED_RR, SCHED_EXT);
 }
 
-bool sched_policy_supported(int policy) {
-        return sched_get_priority_min(policy) >= 0;
+bool sched_policy_supported(صحیح policy) {
+        واپس sched_get_priority_min(policy) >= 0;
 }
 
 /* Wrappers around sched_get_priority_{min,max}() that gracefully handles missing SCHED_EXT support in the kernel */
-int sched_get_priority_min_safe(int policy) {
-        int r;
+صحیح sched_get_ترجیح_min_محفوظ(صحیح policy) {
+        صحیح r;
 
         r = sched_get_priority_min(policy);
-        if (r >= 0)
-                return r;
+        اگر (r >= 0)
+                واپس r;
 
         /* Fallback priority */
-        return 0;
+        واپس 0;
 }
 
-int sched_get_priority_max_safe(int policy) {
-        int r;
+صحیح sched_get_ترجیح_max_محفوظ(صحیح policy) {
+        صحیح r;
 
         r = sched_get_priority_max(policy);
-        if (r >= 0)
-                return r;
+        اگر (r >= 0)
+                واپس r;
 
-        return 0;
+        واپس 0;
 }
 
 /* The cached PID, possible values:
@@ -1303,19 +1303,19 @@ int sched_get_priority_max_safe(int policy) {
  *     any other     → the cached PID
  */
 
-#define CACHED_PID_UNSET ((pid_t) 0)
-#define CACHED_PID_BUSY ((pid_t) -1)
+#تعریف_کرو CACHED_PID_UNSET ((pid_t) 0)
+#تعریف_کرو CACHED_PID_BUSY ((pid_t) -1)
 
-static pid_t cached_pid = CACHED_PID_UNSET;
+ساکن pid_t cached_pid = CACHED_PID_UNSET;
 
-void reset_cached_pid(void) {
+خالی reset_cached_pid(خالی) {
         /* Invoked in the child after a fork(), i.e. at the first moment the PID changed */
         cached_pid = CACHED_PID_UNSET;
 }
 
-pid_t getpid_cached(void) {
-        static bool installed = false;
-        pid_t current_value;
+pid_t getpid_cached(خالی) {
+        ساکن bool installed = false;
+        pid_t current_قدر;
 
         /* getpid_cached() is much like getpid(), but caches the value in local memory, to avoid having to invoke a
          * system call each time. This restores glibc behaviour from before 2.24, when getpid() was unconditionally
@@ -1328,64 +1328,64 @@ pid_t getpid_cached(void) {
 
         /* The compare-and-exchange below is a locked read-modify-write even when it fails. Almost all calls
          * find the PID cached, hence check for it with a plain load first. */
-        current_value = __atomic_load_n(&cached_pid, __ATOMIC_RELAXED);
-        if (current_value > 0)
-                return current_value;
+        current_قدر = __atomic_load_n(&cached_pid, __ATOMIC_RELAXED);
+        اگر (current_قدر > 0)
+                واپس current_قدر;
 
-        current_value = CACHED_PID_UNSET;
-        (void) __atomic_compare_exchange_n(
+        current_قدر = CACHED_PID_UNSET;
+        (خالی) __atomic_compare_exchange_n(
                         &cached_pid,
-                        &current_value,
+                        &current_قدر,
                         CACHED_PID_BUSY,
                         false,
                         __ATOMIC_SEQ_CST,
                         __ATOMIC_SEQ_CST);
 
-        switch (current_value) {
+        انتخاب (current_قدر) {
 
-        case CACHED_PID_UNSET: { /* Not initialized yet, then do so now */
+        حالت CACHED_PID_UNSET: { /* Not initialized yet, then do so now */
                 pid_t new_pid;
 
                 new_pid = getpid();
 
-                if (!installed) {
+                اگر (!installed) {
                         /* __register_atfork() either returns 0 or -ENOMEM, in its glibc implementation. Since it's
                          * only half-documented (glibc doesn't document it but LSB does — though only superficially)
                          * we'll check for errors only in the most generic fashion possible. */
 
-                        if (pthread_atfork(NULL, NULL, reset_cached_pid) != 0) {
+                        اگر (pthread_atfork(تہی, تہی, reset_cached_pid) != 0) {
                                 /* OOM? Let's try again later */
                                 cached_pid = CACHED_PID_UNSET;
-                                return new_pid;
+                                واپس new_pid;
                         }
 
                         installed = true;
                 }
 
                 cached_pid = new_pid;
-                return new_pid;
+                واپس new_pid;
         }
 
-        case CACHED_PID_BUSY: /* Somebody else is currently initializing */
-                return getpid();
+        حالت CACHED_PID_BUSY: /* Somebody else is currently initializing */
+                واپس getpid();
 
-        default: /* Properly initialized */
-                return current_value;
+        طےشدہ: /* Properly initialized */
+                واپس current_قدر;
         }
 }
 
-int must_be_root(void) {
+صحیح must_be_جڑ(خالی) {
 
-        if (geteuid() == 0)
-                return 0;
+        اگر (geteuid() == 0)
+                واپس 0;
 
-        return log_error_errno(SYNTHETIC_ERRNO(EPERM), "Need to be root.");
+        واپس log_error_errno(SYNTHETIC_ERRNO(EPERM), "Need to be root.");
 }
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata) {
+pid_t clone_with_nested_ڈھیر(صحیح (*fn)(خالی *), صحیح flags, خالی *userdata) {
         size_t ps;
         pid_t pid;
-        void *mystack;
+        خالی *mystack;
 
         /* A wrapper around glibc's clone() call that automatically sets up a "nested" stack. Only supports
          * invocations without CLONE_VM, so that we can continue to use the parent's stack mapping.
@@ -1395,8 +1395,8 @@ pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata) {
          * are likely going to run into deadlocks. Hence: if you use this function make sure your parent is
          * strictly single-threaded or your child never calls malloc(). */
 
-        assert((flags & (CLONE_VM|CLONE_PARENT_SETTID|CLONE_CHILD_SETTID|
-                         CLONE_CHILD_CLEARTID|CLONE_SETTLS)) == 0);
+        أكد((flags & (CLONE_VM|CLONE_والد_SETTID|CLONE_بچہ_SETTID|
+                         CLONE_بچہ_CLEARTID|CLONE_SETTLS)) == 0);
 
         /* We allocate some space on the stack to use as the stack for the child (hence "nested"). Note that
          * the net effect is that the child will have the start of its stack inside the stack of the parent,
@@ -1405,45 +1405,45 @@ pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata) {
          * forwards we'll allocate one more and place the stack address in the middle. Except that we also
          * want it page aligned, hence we'll allocate one page more. Makes 3. */
 
-        ps = page_size();
+        ps = صفحہ_سائز();
         mystack = alloca(ps*3);
         mystack = (uint8_t*) mystack + ps; /* move pointer one page ahead since stacks usually grow backwards */
-        mystack = (void*) ALIGN_TO((uintptr_t) mystack, ps); /* align to page size (moving things further ahead) */
+        mystack = (خالی*) ALIGN_مقصد((uintptr_t) mystack, ps); /* align to page size (moving things further ahead) */
 
-#if HAVE_CLONE
+#اگر HAVE_CLONE
         pid = clone(fn, mystack, flags, userdata);
-#else
+#ورنہ
         pid = __clone2(fn, mystack, ps, flags, userdata);
-#endif
-        if (pid < 0)
-                return -errno;
+#اگر_ختم
+        اگر (pid < 0)
+                واپس -errno;
 
-        return pid;
+        واپس pid;
 }
 
-static int fork_flags_to_signal(ForkFlags flags) {
-        return (flags & FORK_DEATHSIG_SIGTERM) ? SIGTERM :
+ساکن صحیح fork_flags_مقصد_signal(ForkFlags flags) {
+        واپس (flags & FORK_DEATHSIG_SIGTERM) ? SIGTERM :
                 (flags & FORK_DEATHSIG_SIGINT) ? SIGINT :
                                                  SIGKILL;
 }
 
-int pidref_safe_fork_full(
-                const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+صحیح pidref_محفوظ_fork_بھرا(
+                ثابت حرف *name,
+                ثابت صحیح stdio_fds[3],
+                صحیح except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret) {
 
         pid_t original_pid, pid;
         sigset_t saved_ss, ss;
-        _unused_ _cleanup_(block_signals_reset) sigset_t *saved_ssp = NULL;
-        bool block_signals = false, block_all = false, intermediary = false;
-        _cleanup_close_pair_ int pidref_transport_fds[2] = EBADF_PAIR;
-        int prio, r;
+        غیر_مستعمل _cleanup_(بلاک_اشارات_reset) sigset_t *saved_ssp = تہی;
+        bool بلاک_اشارات = false, بلاک_all = false, intermediary = false;
+        _cleanup_close_pair_ صحیح pidref_transport_fds[2] = EBADF_PAIR;
+        صحیح prio, r;
 
-        assert(!FLAGS_SET(flags, FORK_WAIT|FORK_FREEZE));
-        assert(!FLAGS_SET(flags, FORK_DETACH) ||
+        أكد(!FLAGS_سیٹ(flags, FORK_WAIT|FORK_FREEZE));
+        أكد(!FLAGS_سیٹ(flags, FORK_DETACH) ||
                (flags & (FORK_WAIT|FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT|FORK_DEATHSIG_SIGKILL)) == 0);
 
         /* A wrapper around fork(), that does a couple of important initializations in addition to mere
@@ -1454,119 +1454,119 @@ int pidref_safe_fork_full(
 
         original_pid = getpid_cached();
 
-        if (flags & FORK_FLUSH_STDIO) {
+        اگر (flags & FORK_FLUSH_STDIO) {
                 fflush(stdout);
                 fflush(stderr); /* This one shouldn't be necessary, stderr should be unbuffered anyway, but let's better be safe than sorry */
         }
 
-        if (flags & (FORK_RESET_SIGNALS|FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT)) {
+        اگر (flags & (FORK_RESET_اشارات|FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT)) {
                 /* We temporarily block all signals, so that the new child has them blocked initially. This
                  * way, we can be sure that SIGTERMs are not lost we might send to the child. (Note that for
                  * FORK_DEATHSIG_SIGKILL we don't bother, since it cannot be blocked anyway.) */
 
                 assert_se(sigfillset(&ss) >= 0);
-                block_signals = block_all = true;
+                بلاک_اشارات = بلاک_all = true;
 
-        } else if (flags & FORK_WAIT) {
+        } ورنہ اگر (flags & FORK_WAIT) {
                 /* Let's block SIGCHLD at least, so that we can safely watch for the child process */
 
                 assert_se(sigemptyset(&ss) >= 0);
                 assert_se(sigaddset(&ss, SIGCHLD) >= 0);
-                block_signals = true;
+                بلاک_اشارات = true;
         }
 
-        if (block_signals) {
-                if (sigprocmask(SIG_BLOCK, &ss, &saved_ss) < 0)
-                        return log_full_errno(prio, errno, "Failed to block signal mask: %m");
+        اگر (بلاک_اشارات) {
+                اگر (sigprocmask(SIG_BLOCK, &ss, &saved_ss) < 0)
+                        واپس log_بھرا_errno(prio, errno, "Failed to block signal mask: %m");
                 saved_ssp = &saved_ss;
         }
 
-        if (FLAGS_SET(flags, FORK_DETACH)) {
+        اگر (FLAGS_سیٹ(flags, FORK_DETACH)) {
                 /* Fork off intermediary child if needed */
 
                 r = is_reaper_process();
-                if (r < 0)
-                        return log_full_errno(prio, r, "Failed to determine if we are a reaper process: %m");
+                اگر (r < 0)
+                        واپس log_بھرا_errno(prio, r, "Failed to determine if we are a reaper process: %m");
 
-                if (!r) {
+                اگر (!r) {
                         /* Not a reaper process, hence do a double fork() so we are reparented to one */
 
-                        if (ret && socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pidref_transport_fds) < 0)
-                                return log_full_errno(prio, errno, "Failed to allocate pidref socket: %m");
+                        اگر (ret && socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pidref_transport_fds) < 0)
+                                واپس log_بھرا_errno(prio, errno, "Failed to allocate pidref socket: %m");
 
                         pid = fork();
-                        if (pid < 0)
-                                return log_full_errno(prio, errno, "Failed to fork off '%s': %m", strna(name));
-                        if (pid > 0) {
+                        اگر (pid < 0)
+                                واپس log_بھرا_errno(prio, errno, "Failed to fork off '%s': %m", strna(name));
+                        اگر (pid > 0) {
                                 log_debug("Successfully forked off intermediary '%s' as PID " PID_FMT ".", strna(name), pid);
 
-                                pidref_transport_fds[1] = safe_close(pidref_transport_fds[1]);
+                                pidref_transport_fds[1] = محفوظ_close(pidref_transport_fds[1]);
 
-                                if (pidref_transport_fds[0] >= 0) {
+                                اگر (pidref_transport_fds[0] >= 0) {
                                         /* Wait for the intermediary child to exit so the caller can be
                                          * certain the actual child process has been reparented by the time
                                          * this function returns. */
                                         r = pidref_wait_for_terminate_and_check(
                                                         name,
                                                         &PIDREF_MAKE_FROM_PID(pid),
-                                                        FLAGS_SET(flags, FORK_LOG) ? WAIT_LOG : 0);
-                                        if (r < 0)
-                                                return log_full_errno(prio, r, "Failed to wait for intermediary process: %m");
-                                        if (r != EXIT_SUCCESS) /* exit status > 0 should be treated as failure, too */
-                                                return -EPROTO;
+                                                        FLAGS_سیٹ(flags, FORK_LOG) ? WAIT_LOG : 0);
+                                        اگر (r < 0)
+                                                واپس log_بھرا_errno(prio, r, "Failed to wait for intermediary process: %m");
+                                        اگر (r != EXIT_SUCCESS) /* exit status > 0 should be treated as failure, too */
+                                                واپس -EPROTO;
 
-                                        int pidfd;
+                                        صحیح pidfd;
                                         ssize_t n = receive_one_fd_iov(
                                                         pidref_transport_fds[0],
-                                                        &IOVEC_MAKE(&pid, sizeof(pid)),
+                                                        &IOVEC_MAKE(&pid, حجم(pid)),
                                                         /* iovlen= */ 1,
                                                         /* flags= */ 0,
                                                         &pidfd);
-                                        if (n < 0)
-                                                return log_full_errno(prio, n, "Failed to receive child pidref: %m");
+                                        اگر (n < 0)
+                                                واپس log_بھرا_errno(prio, n, "Failed to receive child pidref: %m");
 
                                         *ret = (PidRef) { .pid = pid, .fd = pidfd };
                                 }
 
-                                return 1; /* return in the parent */
+                                واپس 1; /* return in the parent */
                         }
 
-                        pidref_transport_fds[0] = safe_close(pidref_transport_fds[0]);
+                        pidref_transport_fds[0] = محفوظ_close(pidref_transport_fds[0]);
                         intermediary = true;
                 }
         }
 
-        if ((flags & (FORK_NEW_MOUNTNS|FORK_NEW_USERNS|FORK_NEW_NETNS|FORK_NEW_PIDNS)) != 0)
+        اگر ((flags & (FORK_NEW_MOUNTNS|FORK_NEW_USERNS|FORK_NEW_NETNS|FORK_NEW_PIDNS)) != 0)
                 pid = raw_clone(SIGCHLD|
-                                (FLAGS_SET(flags, FORK_NEW_MOUNTNS) ? CLONE_NEWNS : 0) |
-                                (FLAGS_SET(flags, FORK_NEW_USERNS) ? CLONE_NEWUSER : 0) |
-                                (FLAGS_SET(flags, FORK_NEW_NETNS) ? CLONE_NEWNET : 0) |
-                                (FLAGS_SET(flags, FORK_NEW_PIDNS) ? CLONE_NEWPID : 0));
-        else
+                                (FLAGS_سیٹ(flags, FORK_NEW_MOUNTNS) ? CLONE_NEWNS : 0) |
+                                (FLAGS_سیٹ(flags, FORK_NEW_USERNS) ? CLONE_NEWUSER : 0) |
+                                (FLAGS_سیٹ(flags, FORK_NEW_NETNS) ? CLONE_NEWNET : 0) |
+                                (FLAGS_سیٹ(flags, FORK_NEW_PIDNS) ? CLONE_NEWPID : 0));
+        ورنہ
                 pid = fork();
-        if (pid < 0)
-                return log_full_errno(prio, errno, "Failed to fork off '%s': %m", strna(name));
-        if (pid > 0) {
+        اگر (pid < 0)
+                واپس log_بھرا_errno(prio, errno, "Failed to fork off '%s': %m", strna(name));
+        اگر (pid > 0) {
 
                 /* If we are in the intermediary process, exit now */
-                if (intermediary) {
-                        if (pidref_transport_fds[1] >= 0) {
-                                _cleanup_(pidref_done) PidRef pidref = PIDREF_NULL;
+                اگر (intermediary) {
+                        اگر (pidref_transport_fds[1] >= 0) {
+                                _cleanup_(pidref_مکمل) PidRef pidref = PIDREF_NULL;
 
-                                r = pidref_set_pid(&pidref, pid);
-                                if (r < 0) {
-                                        log_full_errno(prio, r, "Failed to open reference to PID "PID_FMT": %m", pid);
+                                r = pidref_سیٹ_pid(&pidref, pid);
+                                اگر (r < 0) {
+                                        log_بھرا_errno(prio, r, "Failed to open reference to PID "PID_FMT": %m", pid);
                                         _exit(EXIT_FAILURE);
                                 }
 
                                 r = send_one_fd_iov(
                                                 pidref_transport_fds[1],
                                                 pidref.fd,
-                                                &IOVEC_MAKE(&pidref.pid, sizeof(pidref.pid)),
+                                                &IOVEC_MAKE(&pidref.pid, حجم(pidref.pid)),
                                                 /* iovlen= */ 1,
                                                 /* flags= */ 0);
-                                if (r < 0) {
-                                        log_full_errno(prio, r, "Failed to send child pidref: %m");
+                                اگر (r < 0) {
+                                        log_بھرا_errno(prio, r, "Failed to send child pidref: %m");
                                         _exit(EXIT_FAILURE);
                                 }
                         }
@@ -1577,57 +1577,57 @@ int pidref_safe_fork_full(
                 /* We are in the parent process */
                 log_debug("Successfully forked off '%s' as PID " PID_FMT ".", strna(name), pid);
 
-                if (flags & FORK_WAIT) {
-                        if (block_all) {
+                اگر (flags & FORK_WAIT) {
+                        اگر (بلاک_all) {
                                 /* undo everything except SIGCHLD */
                                 ss = saved_ss;
                                 assert_se(sigaddset(&ss, SIGCHLD) >= 0);
-                                (void) sigprocmask(SIG_SETMASK, &ss, NULL);
+                                (خالی) sigprocmask(SIG_SETMASK, &ss, تہی);
                         }
 
                         r = pidref_wait_for_terminate_and_check(
                                         name,
                                         &PIDREF_MAKE_FROM_PID(pid),
-                                        FLAGS_SET(flags, FORK_LOG) ? WAIT_LOG : 0);
-                        if (r < 0)
-                                return r;
-                        if (r != EXIT_SUCCESS) /* exit status > 0 should be treated as failure, too */
-                                return -EPROTO;
+                                        FLAGS_سیٹ(flags, FORK_LOG) ? WAIT_LOG : 0);
+                        اگر (r < 0)
+                                واپس r;
+                        اگر (r != EXIT_SUCCESS) /* exit status > 0 should be treated as failure, too */
+                                واپس -EPROTO;
 
                         /* If we are in the parent and successfully waited, then the process doesn't exist anymore. */
-                        if (ret)
+                        اگر (ret)
                                 *ret = PIDREF_NULL;
 
-                        return 1;
+                        واپس 1;
                 }
 
-                if (ret) {
-                        r = pidref_set_pid(ret, pid);
-                        if (r < 0) /* Let's not fail for this, no matter what, the process exists after all, and that's key */
+                اگر (ret) {
+                        r = pidref_سیٹ_pid(ret, pid);
+                        اگر (r < 0) /* Let's not fail for this, no matter what, the process exists after all, and that's key */
                                 *ret = PIDREF_MAKE_FROM_PID(pid);
                 }
 
-                return 1;
+                واپس 1;
         }
 
         /* We are in the child process */
 
-        pidref_transport_fds[1] = safe_close(pidref_transport_fds[1]);
+        pidref_transport_fds[1] = محفوظ_close(pidref_transport_fds[1]);
 
         /* Restore signal mask manually */
-        saved_ssp = NULL;
+        saved_ssp = تہی;
 
-        if (flags & FORK_REOPEN_LOG) {
+        اگر (flags & FORK_REOPEN_LOG) {
                 /* Close the logs if requested, before we log anything. And make sure we reopen it if needed. */
                 log_close();
-                log_set_open_when_needed(true);
-                log_settle_target();
+                log_سیٹ_open_when_needed(true);
+                log_settle_ہدف();
         }
 
-        if (name) {
+        اگر (name) {
                 r = rename_process(name);
-                if (r < 0)
-                        log_full_errno(flags & FORK_LOG ? LOG_WARNING : LOG_DEBUG,
+                اگر (r < 0)
+                        log_بھرا_errno(flags & FORK_LOG ? LOG_WARNING : LOG_DEBUG,
                                        r, "Failed to rename process, ignoring: %m");
         }
 
@@ -1638,183 +1638,183 @@ int pidref_safe_fork_full(
          * foreign environment. Note that this has no effect on NSS! (i.e. it only has effect on uses of our
          * dlopen_safe(), which we use comprehensively in our codebase, but glibc NSS doesn't bother, of
          * course.) */
-        if (!FLAGS_SET(flags, FORK_ALLOW_DLOPEN))
-                block_dlopen();
+        اگر (!FLAGS_سیٹ(flags, FORK_ALLOW_DLOPEN))
+                بلاک_dlopen();
 
-        if (flags & (FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT|FORK_DEATHSIG_SIGKILL)) {
-                r = prctl_safe(PR_SET_PDEATHSIG, fork_flags_to_signal(flags), 0, 0, 0);
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to set death signal: %m");
+        اگر (flags & (FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT|FORK_DEATHSIG_SIGKILL)) {
+                r = prctl_محفوظ(PR_SET_PDEATHSIG, fork_flags_مقصد_signal(flags), 0, 0, 0);
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to set death signal: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (flags & FORK_RESET_SIGNALS) {
+        اگر (flags & FORK_RESET_اشارات) {
                 r = reset_all_signal_handlers();
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to reset signal handlers: %m");
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to reset signal handlers: %m");
                         _exit(EXIT_FAILURE);
                 }
 
                 /* This implicitly undoes the signal mask stuff we did before the fork()ing above */
-                r = reset_signal_mask();
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to reset signal mask: %m");
+                r = reset_signal_نقاب();
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to reset signal mask: %m");
                         _exit(EXIT_FAILURE);
                 }
-        } else if (block_signals) { /* undo what we did above */
-                if (sigprocmask(SIG_SETMASK, &saved_ss, NULL) < 0) {
-                        log_full_errno(prio, errno, "Failed to restore signal mask: %m");
+        } ورنہ اگر (بلاک_اشارات) { /* undo what we did above */
+                اگر (sigprocmask(SIG_SETMASK, &saved_ss, تہی) < 0) {
+                        log_بھرا_errno(prio, errno, "Failed to restore signal mask: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (flags & (FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGKILL|FORK_DEATHSIG_SIGINT)) {
+        اگر (flags & (FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGKILL|FORK_DEATHSIG_SIGINT)) {
                 pid_t ppid;
                 /* Let's see if the parent PID is still the one we started from? If not, then the parent
                  * already died by the time we set PR_SET_PDEATHSIG, hence let's emulate the effect */
 
                 ppid = getppid();
-                if (ppid == 0)
+                اگر (ppid == 0)
                         /* Parent is in a different PID namespace. */;
-                else if (ppid != original_pid) {
-                        int sig = fork_flags_to_signal(flags);
-                        log_debug("Parent died early, raising %s.", signal_to_string(sig));
-                        (void) raise(sig);
+                ورنہ اگر (ppid != original_pid) {
+                        صحیح sig = fork_flags_مقصد_signal(flags);
+                        log_debug("Parent died early, raising %s.", signal_مقصد_string(sig));
+                        (خالی) اٹھاؤ(sig);
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (FLAGS_SET(flags, FORK_NEW_MOUNTNS | FORK_MOUNTNS_SLAVE)) {
+        اگر (FLAGS_سیٹ(flags, FORK_NEW_MOUNTNS | FORK_MOUNTNS_SLAVE)) {
                 /* Optionally, make sure we never propagate mounts to the host. */
-                if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0) {
-                        log_full_errno(prio, errno, "Failed to remount root directory as MS_SLAVE: %m");
+                اگر (mount(تہی, "/", تہی, MS_SLAVE | MS_REC, تہی) < 0) {
+                        log_بھرا_errno(prio, errno, "Failed to remount root directory as MS_SLAVE: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (FLAGS_SET(flags, FORK_PRIVATE_TMP)) {
-                assert(FLAGS_SET(flags, FORK_NEW_MOUNTNS));
+        اگر (FLAGS_سیٹ(flags, FORK_نجی_TMP)) {
+                أكد(FLAGS_سیٹ(flags, FORK_NEW_MOUNTNS));
 
                 /* Optionally, overmount new tmpfs instance on /tmp/. */
                 r = mount_nofollow("tmpfs", "/tmp", "tmpfs",
                                    MS_NOSUID|MS_NODEV,
-                                   "mode=01777" TMPFS_LIMITS_RUN);
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to overmount /tmp/: %m");
+                                   "mode=01777" TMPFS_LIMITS_تسلسل);
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to overmount /tmp/: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (flags & FORK_REARRANGE_STDIO) {
-                if (stdio_fds) {
+        اگر (flags & FORK_REARRANGE_STDIO) {
+                اگر (stdio_fds) {
                         r = rearrange_stdio(stdio_fds[0], stdio_fds[1], stdio_fds[2]);
-                        if (r < 0) {
-                                log_full_errno(prio, r, "Failed to rearrange stdio fds: %m");
+                        اگر (r < 0) {
+                                log_بھرا_errno(prio, r, "Failed to rearrange stdio fds: %m");
                                 _exit(EXIT_FAILURE);
                         }
 
                         /* Turn off O_NONBLOCK on the fdio fds, in case it was left on */
                         stdio_disable_nonblock();
-                } else {
+                } ورنہ {
                         r = make_null_stdio();
-                        if (r < 0) {
-                                log_full_errno(prio, r, "Failed to connect stdin/stdout to /dev/null: %m");
+                        اگر (r < 0) {
+                                log_بھرا_errno(prio, r, "Failed to connect stdin/stdout to /dev/null: %m");
                                 _exit(EXIT_FAILURE);
                         }
                 }
-        } else if (flags & FORK_STDOUT_TO_STDERR) {
-                if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) {
-                        log_full_errno(prio, errno, "Failed to connect stdout to stderr: %m");
+        } ورنہ اگر (flags & FORK_STDOUT_مقصد_STDERR) {
+                اگر (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) {
+                        log_بھرا_errno(prio, errno, "Failed to connect stdout to stderr: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (flags & FORK_CLOSE_ALL_FDS) {
+        اگر (flags & FORK_CLOSE_ALL_FDS) {
                 /* Close the logs here in case it got reopened above, as close_all_fds() would close them for us */
                 log_close();
 
                 r = close_all_fds(except_fds, n_except_fds);
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to close all file descriptors: %m");
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to close all file descriptors: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (flags & FORK_PACK_FDS) {
+        اگر (flags & FORK_PACK_FDS) {
                 /* FORK_CLOSE_ALL_FDS ensures that except_fds are the only FDs >= 3 that are
                  * open, this is including the log. This is required by pack_fds, which will
                  * get stuck in an infinite loop of any FDs other than except_fds are open. */
-                assert(FLAGS_SET(flags, FORK_CLOSE_ALL_FDS));
+                أكد(FLAGS_سیٹ(flags, FORK_CLOSE_ALL_FDS));
 
                 r = pack_fds(except_fds, n_except_fds);
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to pack file descriptors: %m");
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to pack file descriptors: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (flags & FORK_CLOEXEC_OFF) {
+        اگر (flags & FORK_CLOEXEC_OFF) {
                 r = fd_cloexec_many(except_fds, n_except_fds, false);
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to turn off O_CLOEXEC on file descriptors: %m");
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to turn off O_CLOEXEC on file descriptors: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
         /* When we were asked to reopen the logs, do so again now */
-        if (flags & FORK_REOPEN_LOG) {
+        اگر (flags & FORK_REOPEN_LOG) {
                 log_open();
-                log_set_open_when_needed(false);
+                log_سیٹ_open_when_needed(false);
         }
 
-        if (flags & FORK_RLIMIT_NOFILE_SAFE) {
-                r = rlimit_nofile_safe();
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to lower RLIMIT_NOFILE's soft limit to 1K: %m");
+        اگر (flags & FORK_RLIMIT_NOFILE_محفوظ) {
+                r = rlimit_nofile_محفوظ();
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to lower RLIMIT_NOFILE's soft limit to 1K: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (!FLAGS_SET(flags, FORK_KEEP_NOTIFY_SOCKET)) {
+        اگر (!FLAGS_سیٹ(flags, FORK_KEEP_NOTIFY_SOCKET)) {
                 r = RET_NERRNO(unsetenv("NOTIFY_SOCKET"));
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to unset $NOTIFY_SOCKET: %m");
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to unset $NOTIFY_SOCKET: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        if (FLAGS_SET(flags, FORK_FREEZE))
+        اگر (FLAGS_سیٹ(flags, FORK_FREEZE))
                 freeze();
 
-        if (ret) {
-                r = pidref_set_self(ret);
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to acquire PID reference on ourselves: %m");
+        اگر (ret) {
+                r = pidref_سیٹ_self(ret);
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to acquire PID reference on ourselves: %m");
                         _exit(EXIT_FAILURE);
                 }
         }
 
-        return 0;
+        واپس 0;
 }
 
-int namespace_fork_full(
-                const char *outer_name,
-                const char *inner_name,
-                int except_fds[],
+صحیح namespace_fork_بھرا(
+                ثابت حرف *outer_name,
+                ثابت حرف *inner_name,
+                صحیح except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                صحیح pidns_fd,
+                صحیح mntns_fd,
+                صحیح netns_fd,
+                صحیح userns_fd,
+                صحیح جڑ_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret) {
 
-        _cleanup_(pidref_done_sigkill_wait) PidRef pidref_outer = PIDREF_NULL;
-        _cleanup_close_pair_ int errno_pipe_fd[2] = EBADF_PAIR;
-        int r, prio = FLAGS_SET(flags, FORK_LOG) ? LOG_ERR : LOG_DEBUG;
+        _cleanup_(pidref_مکمل_sigkill_wait) PidRef pidref_outer = PIDREF_NULL;
+        _cleanup_close_pair_ صحیح errno_pipe_fd[2] = EBADF_PAIR;
+        صحیح r, prio = FLAGS_سیٹ(flags, FORK_LOG) ? LOG_ERR : LOG_DEBUG;
 
         /* This is much like safe_fork(), but forks twice, and joins the specified namespaces in the middle
          * process. This ensures that we are fully a member of the destination namespace, with pidns an all, so that
@@ -1825,293 +1825,293 @@ int namespace_fork_full(
 
         /* Insist on PDEATHSIG being enabled, as the pid returned is the one of the middle man, and otherwise
          * killing of it won't be propagated to the inner child. */
-        assert((flags & (FORK_DEATHSIG_SIGKILL|FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT)) != 0);
-        assert((flags & (FORK_DETACH|FORK_FREEZE)) == 0);
-        assert(!FLAGS_SET(flags, FORK_ALLOW_DLOPEN)); /* never allow loading shared library from another ns */
+        أكد((flags & (FORK_DEATHSIG_SIGKILL|FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT)) != 0);
+        أكد((flags & (FORK_DETACH|FORK_FREEZE)) == 0);
+        أكد(!FLAGS_سیٹ(flags, FORK_ALLOW_DLOPEN)); /* never allow loading shared library from another ns */
 
         /* We want read() to block as a synchronization point */
-        assert_cc(sizeof(int) <= PIPE_BUF);
-        if (pipe2(errno_pipe_fd, O_CLOEXEC) < 0)
-                return log_full_errno(prio, errno, "Failed to create pipe: %m");
+        assert_cc(حجم(صحیح) <= PIPE_BUF);
+        اگر (pipe2(errno_pipe_fd, O_CLOEXEC) < 0)
+                واپس log_بھرا_errno(prio, errno, "Failed to create pipe: %m");
 
-        r = pidref_safe_fork_full(
+        r = pidref_محفوظ_fork_بھرا(
                         outer_name,
-                        /* stdio_fds= */ NULL, /* except_fds= */ NULL, /* n_except_fds= */ 0,
-                        (flags|FORK_DEATHSIG_SIGKILL) & ~(FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT|FORK_REOPEN_LOG|FORK_NEW_MOUNTNS|FORK_MOUNTNS_SLAVE|FORK_NEW_USERNS|FORK_NEW_NETNS|FORK_NEW_PIDNS|FORK_CLOSE_ALL_FDS|FORK_PACK_FDS|FORK_CLOEXEC_OFF|FORK_RLIMIT_NOFILE_SAFE),
+                        /* stdio_fds= */ تہی, /* except_fds= */ تہی, /* n_except_fds= */ 0,
+                        (flags|FORK_DEATHSIG_SIGKILL) & ~(FORK_DEATHSIG_SIGTERM|FORK_DEATHSIG_SIGINT|FORK_REOPEN_LOG|FORK_NEW_MOUNTNS|FORK_MOUNTNS_SLAVE|FORK_NEW_USERNS|FORK_NEW_NETNS|FORK_NEW_PIDNS|FORK_CLOSE_ALL_FDS|FORK_PACK_FDS|FORK_CLOEXEC_OFF|FORK_RLIMIT_NOFILE_محفوظ),
                         &pidref_outer);
-        if (r == -EPROTO && FLAGS_SET(flags, FORK_WAIT)) {
-                errno_pipe_fd[1] = safe_close(errno_pipe_fd[1]);
+        اگر (r == -EPROTO && FLAGS_سیٹ(flags, FORK_WAIT)) {
+                errno_pipe_fd[1] = محفوظ_close(errno_pipe_fd[1]);
 
-                int k = read_errno(errno_pipe_fd[0]);
-                if (k < 0 && k != -EIO)
-                        return k;
+                صحیح k = read_errno(errno_pipe_fd[0]);
+                اگر (k < 0 && k != -EIO)
+                        واپس k;
         }
-        if (r < 0)
-                return r;
-        if (r == 0) {
-                _cleanup_(pidref_done) PidRef pidref_inner = PIDREF_NULL;
+        اگر (r < 0)
+                واپس r;
+        اگر (r == 0) {
+                _cleanup_(pidref_مکمل) PidRef pidref_inner = PIDREF_NULL;
 
-                /* Child */
+                /*بچہ*/
 
-                errno_pipe_fd[0] = safe_close(errno_pipe_fd[0]);
+                errno_pipe_fd[0] = محفوظ_close(errno_pipe_fd[0]);
 
-                r = namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, namespace_flags);
-                if (r < 0) {
-                        log_full_errno(prio, r, "Failed to join namespace: %m");
+                r = namespace_enter_بھرا(pidns_fd, mntns_fd, netns_fd, userns_fd, جڑ_fd, namespace_flags);
+                اگر (r < 0) {
+                        log_بھرا_errno(prio, r, "Failed to join namespace: %m");
                         report_errno_and_exit(errno_pipe_fd[1], r);
                 }
 
                 /* We mask a few flags here that either make no sense for the grandchild, or that we don't have to do again */
-                r = pidref_safe_fork_full(
+                r = pidref_محفوظ_fork_بھرا(
                                 inner_name,
-                                NULL,
+                                تہی,
                                 except_fds, n_except_fds,
-                                flags & ~(FORK_WAIT|FORK_RESET_SIGNALS|FORK_REARRANGE_STDIO|FORK_FLUSH_STDIO|FORK_STDOUT_TO_STDERR),
+                                flags & ~(FORK_WAIT|FORK_RESET_اشارات|FORK_REARRANGE_STDIO|FORK_FLUSH_STDIO|FORK_STDOUT_مقصد_STDERR),
                                 &pidref_inner);
-                if (r < 0)
+                اگر (r < 0)
                         report_errno_and_exit(errno_pipe_fd[1], r);
-                if (r == 0) {
-                        /* Child */
+                اگر (r == 0) {
+                        /*بچہ*/
 
-                        if (!FLAGS_SET(flags, FORK_CLOSE_ALL_FDS)) {
-                                errno_pipe_fd[1] = safe_close(errno_pipe_fd[1]);
-                                pidref_done(&pidref_outer);
-                        } else {
+                        اگر (!FLAGS_سیٹ(flags, FORK_CLOSE_ALL_FDS)) {
+                                errno_pipe_fd[1] = محفوظ_close(errno_pipe_fd[1]);
+                                pidref_مکمل(&pidref_outer);
+                        } ورنہ {
                                 errno_pipe_fd[1] = -EBADF;
                                 pidref_outer = PIDREF_NULL;
                         }
 
-                        if (ret)
+                        اگر (ret)
                                 *ret = TAKE_PIDREF(pidref_inner);
-                        return 0;
+                        واپس 0;
                 }
 
                 log_forget_fds();
-                log_set_open_when_needed(true);
+                log_سیٹ_open_when_needed(true);
 
-                (void) close_all_fds(&pidref_inner.fd, 1);
+                (خالی) close_all_fds(&pidref_inner.fd, 1);
 
                 r = pidref_wait_for_terminate_and_check(
                                 inner_name,
                                 &pidref_inner,
-                                FLAGS_SET(flags, FORK_LOG) ? WAIT_LOG : 0);
-                if (r < 0)
+                                FLAGS_سیٹ(flags, FORK_LOG) ? WAIT_LOG : 0);
+                اگر (r < 0)
                         _exit(EXIT_FAILURE);
 
                 _exit(r);
         }
 
-        errno_pipe_fd[1] = safe_close(errno_pipe_fd[1]);
+        errno_pipe_fd[1] = محفوظ_close(errno_pipe_fd[1]);
 
         r = read_errno(errno_pipe_fd[0]);
-        if (r < 0)
-                return r; /* the child logs about failures on its own, no need to duplicate here */
+        اگر (r < 0)
+                واپس r; /* the child logs about failures on its own, no need to duplicate here */
 
-        if (ret)
+        اگر (ret)
                 *ret = TAKE_PIDREF(pidref_outer);
-        else
-                pidref_done(&pidref_outer); /* disarm sigkill_wait */
+        ورنہ
+                pidref_مکمل(&pidref_outer); /* disarm sigkill_wait */
 
-        return 1;
+        واپس 1;
 }
 
-int namespace_fork(
-                const char *outer_name,
-                const char *inner_name,
+صحیح namespace_fork(
+                ثابت حرف *outer_name,
+                ثابت حرف *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                صحیح pidns_fd,
+                صحیح mntns_fd,
+                صحیح netns_fd,
+                صحیح userns_fd,
+                صحیح جڑ_fd,
                 PidRef *ret) {
 
-        return namespace_fork_full(outer_name, inner_name, /* except_fds= */ NULL, /* n_except_fds= */ 0, flags,
-                                   pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd,
+        واپس namespace_fork_بھرا(outer_name, inner_name, /* except_fds= */ تہی, /* n_except_fds= */ 0, flags,
+                                   pidns_fd, mntns_fd, netns_fd, userns_fd, جڑ_fd,
                                    /* namespace_flags= */ 0, ret);
 }
 
-bool oom_score_adjust_is_valid(int oa) {
-        return oa >= OOM_SCORE_ADJ_MIN && oa <= OOM_SCORE_ADJ_MAX;
+bool oom_score_adjust_is_valid(صحیح oa) {
+        واپس oa >= OOM_SCORE_ADJ_MIN && oa <= OOM_SCORE_ADJ_MAX;
 }
 
-int set_oom_score_adjust(int value) {
-        char t[DECIMAL_STR_MAX(int)];
+صحیح سیٹ_oom_score_adjust(صحیح قدر) {
+        حرف t[DECIMAL_STR_MAX(صحیح)];
 
-        if (!oom_score_adjust_is_valid(value))
-                return -EINVAL;
+        اگر (!oom_score_adjust_is_valid(قدر))
+                واپس -EINVAL;
 
-        xsprintf(t, "%i", value);
+        xsprintf(t, "%i", قدر);
 
-        return write_string_file("/proc/self/oom_score_adj", t,
-                                 WRITE_STRING_FILE_VERIFY_ON_FAILURE|WRITE_STRING_FILE_DISABLE_BUFFER);
+        واپس write_string_file("/proc/self/oom_score_adj", t,
+                                 WRITE_STRING_FILE_VERIFY_ON_FAILURE|WRITE_STRING_FILE_DISABLE_بفر);
 }
 
-int get_oom_score_adjust(int *ret) {
-        _cleanup_free_ char *t = NULL;
-        int r, a;
+صحیح get_oom_score_adjust(صحیح *ret) {
+        _cleanup_free_ حرف *t = تہی;
+        صحیح r, a;
 
-        r = read_virtual_file("/proc/self/oom_score_adj", SIZE_MAX, &t, NULL);
-        if (r < 0)
-                return r;
+        r = read_virtual_file("/proc/self/oom_score_adj", SIZE_MAX, &t, تہی);
+        اگر (r < 0)
+                واپس r;
 
         delete_trailing_chars(t, WHITESPACE);
 
-        r = safe_atoi(t, &a);
-        if (r < 0)
-                return r;
+        r = محفوظ_atoi(t, &a);
+        اگر (r < 0)
+                واپس r;
 
-        if (!oom_score_adjust_is_valid(a))
-                return -ENODATA;
+        اگر (!oom_score_adjust_is_valid(a))
+                واپس -ENODATA;
 
-        if (ret)
+        اگر (ret)
                 *ret = a;
 
-        return 0;
+        واپس 0;
 }
 
-static int rlimit_to_nice(rlim_t limit) {
-        if (limit <= 1)
-                return PRIO_MAX-1; /* i.e. 19 */
+ساکن صحیح rlimit_مقصد_nice(rlim_t limit) {
+        اگر (limit <= 1)
+                واپس PRIO_MAX-1; /* i.e. 19 */
 
-        if (limit >= -PRIO_MIN + PRIO_MAX)
-                return PRIO_MIN; /* i.e. -20 */
+        اگر (limit >= -PRIO_MIN + PRIO_MAX)
+                واپس PRIO_MIN; /* i.e. -20 */
 
-        return PRIO_MAX - (int) limit;
+        واپس PRIO_MAX - (صحیح) limit;
 }
 
-int setpriority_closest(int priority) {
-        struct rlimit highest;
-        int r, current, limit;
+صحیح setpriority_closest(صحیح priority) {
+        ساخت rlimit highest;
+        صحیح r, current, limit;
 
         /* Try to set requested nice level */
         r = RET_NERRNO(setpriority(PRIO_PROCESS, 0, priority));
-        if (r >= 0)
-                return 1;
-        if (!ERRNO_IS_NEG_PRIVILEGE(r))
-                return r;
+        اگر (r >= 0)
+                واپس 1;
+        اگر (!ERRNO_IS_NEG_PRIVILEGE(r))
+                واپس r;
 
         errno = 0;
         current = getpriority(PRIO_PROCESS, 0);
-        if (errno != 0)
-                return -errno;
+        اگر (errno != 0)
+                واپس -errno;
 
-        if (priority == current)
-                return 1;
+        اگر (priority == current)
+                واپس 1;
 
        /* Hmm, we'd expect that raising the nice level from our status quo would always work. If it doesn't,
         * then the whole setpriority() system call is blocked to us, hence let's propagate the error
         * right-away */
-        if (priority > current)
-                return r;
+        اگر (priority > current)
+                واپس r;
 
-        if (getrlimit(RLIMIT_NICE, &highest) < 0)
-                return -errno;
+        اگر (getrlimit(RLIMIT_NICE, &highest) < 0)
+                واپس -errno;
 
-        limit = rlimit_to_nice(highest.rlim_cur);
+        limit = rlimit_مقصد_nice(highest.rlim_cur);
 
         /* Push to the allowed limit if we're higher than that. Note that we could also be less nice than
          * limit allows us, but still higher than what's requested. In that case our current value is
          * the best choice. */
-        if (current > limit)
-                if (setpriority(PRIO_PROCESS, 0, limit) < 0)
-                        return -errno;
+        اگر (current > limit)
+                اگر (setpriority(PRIO_PROCESS, 0, limit) < 0)
+                        واپس -errno;
 
         log_debug("Cannot set requested nice level (%i), using next best (%i).", priority, MIN(current, limit));
-        return 0;
+        واپس 0;
 }
 
-_noreturn_ void freeze(void) {
+_noreturn_ خالی freeze(خالی) {
         log_close();
 
         /* Make sure nobody waits for us (i.e. on one of our sockets) anymore. Note that we use
          * close_all_fds_without_malloc() instead of plain close_all_fds() here, since we want this function
          * to be compatible with being called from signal handlers. */
-        (void) close_all_fds_without_malloc(NULL, 0);
+        (خالی) close_all_fds_without_malloc(تہی, 0);
 
         /* Let's not freeze right away, but keep reaping zombies. */
-        for (;;) {
+        برائے (;;) {
                 siginfo_t si = {};
 
-                if (waitid(P_ALL, 0, &si, WEXITED) < 0 && errno != EINTR)
-                        break;
+                اگر (waitid(P_ALL, 0, &si, WEXITED) < 0 && errno != EINTR)
+                        توڑو;
         }
 
         /* waitid() failed with an ECHLD error (because there are no left-over child processes) or any other
          * (unexpected) error. Freeze for good now! */
-        for (;;)
+        برائے (;;)
                 pause();
 }
 
-int get_process_threads(pid_t pid) {
-        _cleanup_free_ char *t = NULL;
-        int n, r;
+صحیح get_process_دھاگے(pid_t pid) {
+        _cleanup_free_ حرف *t = تہی;
+        صحیح n, r;
 
-        if (pid < 0)
-                return -EINVAL;
+        اگر (pid < 0)
+                واپس -EINVAL;
 
-        r = procfs_file_get_field(pid, "status", "Threads", &t);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        r = procfs_file_get_میدان(pid, "status", "Threads", &t);
+        اگر (r == -ENOENT)
+                واپس -ESRCH;
+        اگر (r < 0)
+                واپس r;
 
-        r = safe_atoi(t, &n);
-        if (r < 0)
-                return r;
-        if (n < 0)
-                return -EINVAL;
+        r = محفوظ_atoi(t, &n);
+        اگر (r < 0)
+                واپس r;
+        اگر (n < 0)
+                واپس -EINVAL;
 
-        return n;
+        واپس n;
 }
 
-int is_reaper_process(void) {
-        int b = 0, r;
+صحیح is_reaper_process(خالی) {
+        صحیح b = 0, r;
 
         /* Checks if we are running in a reaper process, i.e. if we are expected to deal with processes
          * reparented to us. This simply checks if we are PID 1 or if PR_SET_CHILD_SUBREAPER was called. */
 
-        if (getpid_cached() == 1)
-                return true;
+        اگر (getpid_cached() == 1)
+                واپس true;
 
-        r = prctl_safe(PR_GET_CHILD_SUBREAPER, (unsigned long) &b, 0, 0, 0);
-        if (r < 0)
-                return r;
+        r = prctl_محفوظ(PR_GET_CHILD_SUBREAPER, (غیرعلامتی طویل) &b, 0, 0, 0);
+        اگر (r < 0)
+                واپس r;
 
-        return b != 0;
+        واپس b != 0;
 }
 
-int make_reaper_process(bool b) {
-        int r;
+صحیح make_reaper_process(bool b) {
+        صحیح r;
 
-        if (getpid_cached() == 1) {
+        اگر (getpid_cached() == 1) {
 
-                if (!b)
-                        return -EINVAL;
+                اگر (!b)
+                        واپس -EINVAL;
 
-                return 0;
+                واپس 0;
         }
 
-        r = prctl_safe(PR_SET_CHILD_SUBREAPER, b, 0, 0, 0);
-        if (r < 0)
-                return r;
+        r = prctl_محفوظ(PR_SET_CHILD_SUBREAPER, b, 0, 0, 0);
+        اگر (r < 0)
+                واپس r;
 
-        return 0;
+        واپس 0;
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(posix_spawnattr_t*, posix_spawnattr_destroy, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_بھرا(posix_spawnattr_t*, posix_spawnattr_destroy, تہی);
 
-int posix_spawn_wrapper(
-                const char *path,
-                char * const *argv,
-                char * const *envp,
-                const char *cgroup,
+صحیح posix_spawn_wrapper(
+                ثابت حرف *راستہ,
+                حرف * ثابت *argv,
+                حرف * ثابت *envp,
+                ثابت حرف *cgroup,
                 PidRef *ret_pidref) {
 
-        short flags = POSIX_SPAWN_SETSIGMASK;
+        مختصر flags = POSIX_SPAWN_SETSIGMASK;
         posix_spawnattr_t attr;
-        sigset_t mask;
-        int r;
+        sigset_t نقاب_3;
+        صحیح r;
 
         /* Forks and invokes 'path' with 'argv' and 'envp' using CLONE_VM and CLONE_VFORK, which means the
          * caller will be blocked until the child either exits or exec's. The memory of the child will be
@@ -2124,57 +2124,57 @@ int posix_spawn_wrapper(
          *         0: 'cgroup' not specified or POSIX_SPAWN_SETCGROUP is not supported. The caller
          *            needs to call 'cg_attach' on their own */
 
-        assert(path);
-        assert(argv);
-        assert(ret_pidref);
+        أكد(راستہ);
+        أكد(argv);
+        أكد(ret_pidref);
 
-        assert_se(sigfillset(&mask) >= 0);
+        assert_se(sigfillset(&نقاب_3) >= 0);
 
         r = posix_spawnattr_init(&attr);
-        if (r != 0)
-                return -r; /* These functions return a positive errno on failure */
+        اگر (r != 0)
+                واپس -r; /* These functions return a positive errno on failure */
 
         /* Initialization needs to succeed before we can set up a destructor. */
-        _unused_ _cleanup_(posix_spawnattr_destroyp) posix_spawnattr_t *attr_destructor = &attr;
+        غیر_مستعمل _cleanup_(posix_spawnattr_destroyp) posix_spawnattr_t *attr_destructor = &attr;
 
-        static bool have_clone_into_cgroup = true; /* kernel 5.7+ */
-        _cleanup_close_ int cgroup_fd = -EBADF;
+        ساکن bool have_clone_into_cgroup = true; /* kernel 5.7+ */
+        _cleanup_close_ صحیح cgroup_fd = -EBADF;
 
-        if (cgroup && have_clone_into_cgroup) {
-                _cleanup_free_ char *resolved_cgroup = NULL;
+        اگر (cgroup && have_clone_into_cgroup) {
+                _cleanup_free_ حرف *resolved_cgroup = تہی;
 
-                r = cg_get_path(cgroup, /* suffix= */ NULL, &resolved_cgroup);
-                if (r < 0)
-                        return r;
+                r = cg_get_راستہ(cgroup, /* suffix= */ تہی, &resolved_cgroup);
+                اگر (r < 0)
+                        واپس r;
 
-                cgroup_fd = open(resolved_cgroup, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (cgroup_fd < 0)
-                        return -errno;
+                cgroup_fd = open(resolved_cgroup, O_راستہ|O_DIRECTORY|O_CLOEXEC);
+                اگر (cgroup_fd < 0)
+                        واپس -errno;
 
                 r = posix_spawnattr_setcgroup_np(&attr, cgroup_fd);
-                if (r == 0)
+                اگر (r == 0)
                         flags |= POSIX_SPAWN_SETCGROUP;
-                else if (r != ENOSYS)
-                        return -r;
+                ورنہ اگر (r != ENOSYS)
+                        واپس -r;
                 /* If libc lacks posix_spawnattr_setcgroup_np we silently skip POSIX_SPAWN_SETCGROUP — the
                  * caller will then need to attach the child to the cgroup themselves. */
         }
 
         r = posix_spawnattr_setflags(&attr, flags);
-        if (r != 0)
-                return -r;
-        r = posix_spawnattr_setsigmask(&attr, &mask);
-        if (r != 0)
-                return -r;
+        اگر (r != 0)
+                واپس -r;
+        r = posix_spawnattr_setsigmask(&attr, &نقاب_3);
+        اگر (r != 0)
+                واپس -r;
 
-        _cleanup_close_ int pidfd = -EBADF;
+        _cleanup_close_ صحیح pidfd = -EBADF;
 
-        r = pidfd_spawn(&pidfd, path, NULL, &attr, argv, envp);
-        if (ERRNO_IS_NOT_SUPPORTED(r) && FLAGS_SET(flags, POSIX_SPAWN_SETCGROUP) && cg_is_threaded(cgroup) > 0)
-                return -EUCLEAN; /* clone3() could also return EOPNOTSUPP if the target cgroup is in threaded mode,
+        r = pidfd_spawn(&pidfd, راستہ, تہی, &attr, argv, envp);
+        اگر (ERRNO_IS_NOT_SUPPORTED(r) && FLAGS_سیٹ(flags, POSIX_SPAWN_SETCGROUP) && cg_is_threaded(cgroup) > 0)
+                واپس -EUCLEAN; /* clone3() could also return EOPNOTSUPP if the target cgroup is in threaded mode,
                                     turn that into something recognizable */
-        if ((ERRNO_IS_NOT_SUPPORTED(r) || ERRNO_IS_PRIVILEGE(r)) &&
-            FLAGS_SET(flags, POSIX_SPAWN_SETCGROUP)) {
+        اگر ((ERRNO_IS_NOT_SUPPORTED(r) || ERRNO_IS_PRIVILEGE(r)) &&
+            FLAGS_سیٹ(flags, POSIX_SPAWN_SETCGROUP)) {
                 /* Compiled on a newer host, or seccomp&friends blocking clone3()? Fallback, but
                  * need to disable POSIX_SPAWN_SETCGROUP, which is what redirects to clone3().
                  * CLONE_INTO_CGROUP definitely won't work, hence remember the fact so that we don't
@@ -2185,125 +2185,125 @@ int posix_spawn_wrapper(
 
                 flags &= ~POSIX_SPAWN_SETCGROUP;
                 r = posix_spawnattr_setflags(&attr, flags);
-                if (r != 0)
-                        return -r;
+                اگر (r != 0)
+                        واپس -r;
 
-                r = pidfd_spawn(&pidfd, path, NULL, &attr, argv, envp);
+                r = pidfd_spawn(&pidfd, راستہ, تہی, &attr, argv, envp);
         }
-        if (r == 0) {
-                r = pidref_set_pidfd_consume(ret_pidref, TAKE_FD(pidfd));
-                if (r < 0)
-                        return r;
+        اگر (r == 0) {
+                r = pidref_سیٹ_pidfd_consume(ret_pidref, TAKE_FD(pidfd));
+                اگر (r < 0)
+                        واپس r;
 
-                return FLAGS_SET(flags, POSIX_SPAWN_SETCGROUP);
+                واپس FLAGS_سیٹ(flags, POSIX_SPAWN_SETCGROUP);
         }
-        if (!ERRNO_IS_NOT_SUPPORTED(r))
-                return -r;
+        اگر (!ERRNO_IS_NOT_SUPPORTED(r))
+                واپس -r;
 
         /* pidfd_spawn unavailable (libc or kernel missing) — fall back to plain posix_spawn. */
 
         pid_t pid;
 
-        r = posix_spawn(&pid, path, NULL, &attr, argv, envp);
-        if (r != 0)
-                return -r;
+        r = posix_spawn(&pid, راستہ, تہی, &attr, argv, envp);
+        اگر (r != 0)
+                واپس -r;
 
-        r = pidref_set_pid(ret_pidref, pid);
-        if (r < 0)
-                return r;
+        r = pidref_سیٹ_pid(ret_pidref, pid);
+        اگر (r < 0)
+                واپس r;
 
-        return 0; /* We did not use CLONE_INTO_CGROUP so return 0, the caller will have to move the child */
+        واپس 0; /* We did not use CLONE_INTO_CGROUP so return 0, the caller will have to move the child */
 }
 
-int proc_dir_open(DIR **ret) {
+صحیح proc_dir_open(DIR **ret) {
         DIR *d;
 
-        assert(ret);
+        أكد(ret);
 
         d = opendir("/proc");
-        if (!d)
-                return -errno;
+        اگر (!d)
+                واپس -errno;
 
         *ret = d;
-        return 0;
+        واپس 0;
 }
 
-int proc_dir_read(DIR *d, pid_t *ret) {
-        assert(d);
+صحیح proc_dir_read(DIR *d, pid_t *ret) {
+        أكد(d);
 
-        for (;;) {
-                struct dirent *de;
+        برائے (;;) {
+                ساخت dirent *de;
 
                 errno = 0;
                 de = readdir_no_dot(d);
-                if (!de) {
-                        if (errno != 0)
-                                return -errno;
+                اگر (!de) {
+                        اگر (errno != 0)
+                                واپس -errno;
 
-                        break;
+                        توڑو;
                 }
 
-                if (!IN_SET(de->d_type, DT_DIR, DT_UNKNOWN))
-                        continue;
+                اگر (!اندر_سیٹ(de->d_type, DT_DIR, DT_UNKNOWN))
+                        جاری;
 
-                if (parse_pid(de->d_name, ret) >= 0)
-                        return 1;
+                اگر (parse_pid(de->d_name, ret) >= 0)
+                        واپس 1;
         }
 
-        if (ret)
+        اگر (ret)
                 *ret = 0;
-        return 0;
+        واپس 0;
 }
 
-int proc_dir_read_pidref(DIR *d, PidRef *ret) {
-        int r;
+صحیح proc_dir_read_pidref(DIR *d, PidRef *ret) {
+        صحیح r;
 
-        assert(d);
+        أكد(d);
 
-        for (;;) {
+        برائے (;;) {
                 pid_t pid;
 
                 r = proc_dir_read(d, &pid);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                اگر (r < 0)
+                        واپس r;
+                اگر (r == 0)
+                        توڑو;
 
-                r = pidref_set_pid(ret, pid);
-                if (r == -ESRCH) /* gone by now? skip it */
-                        continue;
-                if (r < 0)
-                        return r;
+                r = pidref_سیٹ_pid(ret, pid);
+                اگر (r == -ESRCH) /* gone by now? skip it */
+                        جاری;
+                اگر (r < 0)
+                        واپس r;
 
-                return 1;
+                واپس 1;
         }
 
-        if (ret)
+        اگر (ret)
                 *ret = PIDREF_NULL;
-        return 0;
+        واپس 0;
 }
 
-int safe_mlockall(int flags) {
-        int r;
+صحیح محفوظ_mlockall(صحیح flags) {
+        صحیح r;
 
         /* When dealing with sensitive data, let's lock ourselves into memory. We do this only when
          * privileged however, as otherwise the amount of lockable memory that RLIMIT_MEMLOCK grants us is
          * frequently too low to make this work. The resource limit has no effect on CAP_IPC_LOCK processes,
          * hence that's the capability we check for. */
         r = have_effective_cap(CAP_IPC_LOCK);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to determine if we have CAP_IPC_LOCK: %m");
-        if (r == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(EPERM), "Lacking CAP_IPC_LOCK, skipping mlockall().");
+        اگر (r < 0)
+                واپس log_debug_errno(r, "Failed to determine if we have CAP_IPC_LOCK: %m");
+        اگر (r == 0)
+                واپس log_debug_errno(SYNTHETIC_ERRNO(EPERM), "Lacking CAP_IPC_LOCK, skipping mlockall().");
 
-        if (mlockall(flags) < 0)
-                return log_debug_errno(errno, "Failed to call mlockall(): %m");
+        اگر (mlockall(flags) < 0)
+                واپس log_debug_errno(errno, "Failed to call mlockall(): %m");
 
         log_debug("Successfully called mlockall().");
-        return 0;
+        واپس 0;
 }
 
-static const char *const sigchld_code_table[] = {
+ساکن ثابت حرف *ثابت sigchld_رمز_جدول[] = {
         [CLD_EXITED] = "exited",
         [CLD_KILLED] = "killed",
         [CLD_DUMPED] = "dumped",
@@ -2312,9 +2312,9 @@ static const char *const sigchld_code_table[] = {
         [CLD_CONTINUED] = "continued",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(sigchld_code, int);
+DEFINE_STRING_جدول_LOOKUP(sigchld_رمز, صحیح);
 
-static const char* const sched_policy_table[] = {
+ساکن ثابت حرف* ثابت sched_policy_جدول[] = {
         [SCHED_OTHER] = "other",
         [SCHED_BATCH] = "batch",
         [SCHED_IDLE]  = "idle",
@@ -2323,50 +2323,50 @@ static const char* const sched_policy_table[] = {
         [SCHED_RR]    = "rr",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int, INT_MAX);
+DEFINE_STRING_جدول_LOOKUP_WITH_FALLBACK(sched_policy, صحیح, زیادہ_سے_زیادہ_عدد);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error) {
-        int r;
+_noreturn_ خالی report_errno_and_exit(صحیح errno_fd, صحیح error) {
+        صحیح r;
 
-        if (error >= 0)
+        اگر (error >= 0)
                 _exit(EXIT_SUCCESS);
 
-        assert(errno_fd >= 0);
+        أكد(errno_fd >= 0);
 
-        r = loop_write(errno_fd, &error, sizeof(error));
-        if (r < 0)
+        r = loop_write(errno_fd, &error, حجم(error));
+        اگر (r < 0)
                 log_debug_errno(r, "Failed to write errno to errno_fd=%d: %m", errno_fd);
 
         _exit(EXIT_FAILURE);
 }
 
-int read_errno(int errno_fd) {
-        int r;
+صحیح read_errno(صحیح errno_fd) {
+        صحیح r;
 
-        assert(errno_fd >= 0);
+        أكد(errno_fd >= 0);
 
         /* The issue here is that it's impossible to distinguish between an error code returned by child and
          * IO error arose when reading it. So, the function logs errors and return EIO for the later case. */
 
-        ssize_t n = loop_read(errno_fd, &r, sizeof(r), /* do_poll= */ false);
-        if (n < 0) {
+        ssize_t n = loop_read(errno_fd, &r, حجم(r), /* do_poll= */ false);
+        اگر (n < 0) {
                 log_debug_errno(n, "Failed to read errno: %m");
-                return -EIO;
+                واپس -EIO;
         }
-        if (n == 0) /* the process exited without reporting an error, assuming success */
-                return 0;
-        if (n != sizeof(r))
-                return log_debug_errno(SYNTHETIC_ERRNO(EIO), "Received unexpected amount of bytes (%zi) while reading errno.", n);
+        اگر (n == 0) /* the process exited without reporting an error, assuming success */
+                واپس 0;
+        اگر (n != حجم(r))
+                واپس log_debug_errno(SYNTHETIC_ERRNO(EIO), "Received unexpected amount of bytes (%zi) while reading errno.", n);
 
-        if (r == 0)
-                return 0;
-        if (r < 0) /* child process reported an error, return it */
-                return log_debug_errno(r, "Child process failed with errno: %m");
+        اگر (r == 0)
+                واپس 0;
+        اگر (r < 0) /* child process reported an error, return it */
+                واپس log_debug_errno(r, "Child process failed with errno: %m");
 
-        return log_debug_errno(SYNTHETIC_ERRNO(EIO), "Received positive errno from child, refusing: %d", r);
+        واپس log_debug_errno(SYNTHETIC_ERRNO(EIO), "Received positive errno from child, refusing: %d", r);
 }
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5) {
+صحیح prctl_محفوظ(صحیح op, غیرعلامتی طویل arg2, غیرعلامتی طویل arg3, غیرعلامتی طویل arg4, غیرعلامتی طویل arg5) {
 
         /* prctl(2) is a bit messy: it's a variadic function, defined with "unsigned long" arguments. This
          * means that unless people explicitly cast it's quite likely they end up passing a shorter type even
@@ -2375,23 +2375,23 @@ int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg
          * care. Let's define this wrapper to enforce the right types, and that all arguments are always
          * passed, to avoid this confusion. */
 
-        return RET_NERRNO(prctl(op, arg2, arg3, arg4, arg5));
+        واپس RET_NERRNO(prctl(op, arg2, arg3, arg4, arg5));
 }
 
-int proc_set_comm(const char *comm) {
-        return prctl_safe(PR_SET_NAME, (unsigned long) comm, 0, 0, 0);
+صحیح proc_سیٹ_comm(ثابت حرف *comm) {
+        واپس prctl_محفوظ(PR_SET_NAME, (غیرعلامتی طویل) comm, 0, 0, 0);
 }
 
-int proc_set_nnp(void) {
-        return prctl_safe(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+صحیح proc_سیٹ_nnp(خالی) {
+        واپس prctl_محفوظ(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 }
 
-nsec_t proc_get_timerslack(void) {
-        int r;
+nsec_t proc_get_timerslack(خالی) {
+        صحیح r;
 
-        r = prctl_safe(PR_GET_TIMERSLACK, 0, 0, 0, 0);
-        if (r < 0)
-                return NSEC_INFINITY;
+        r = prctl_محفوظ(PR_GET_TIMERSLACK, 0, 0, 0, 0);
+        اگر (r < 0)
+                واپس NSEC_INFINITY;
 
-        return r;
+        واپس r;
 }

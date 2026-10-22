@@ -1,92 +1,92 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#شامل <stdlib.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
+#شامل "alloc-util.h"
+#شامل "sort-util.h"
 
 /* hey glibc, APIs with callbacks without a user pointer are so useless */
-void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
-                 comparison_userdata_fn_t compar, void *arg) {
+خالی *xbsearch_r(ثابت خالی *کلید, ثابت خالی *base, size_t nmemb, size_t سائز,
+                 comparison_userdata_fn_t compar, خالی *arg) {
         size_t l, u, idx;
-        const void *p;
-        int comparison;
+        ثابت خالی *p;
+        صحیح comparison;
 
-        assert(!size_multiply_overflow(nmemb, size));
+        أكد(!سائز_multiply_حد_سے_تجاوز(nmemb, سائز));
 
         l = 0;
         u = nmemb;
-        while (l < u) {
+        جب (l < u) {
                 idx = (l + u) / 2;
-                p = (const uint8_t*) base + idx * size;
-                comparison = compar(key, p, arg);
-                if (comparison < 0)
+                p = (ثابت uint8_t*) base + idx * سائز;
+                comparison = compar(کلید, p, arg);
+                اگر (comparison < 0)
                         u = idx;
-                else if (comparison > 0)
+                ورنہ اگر (comparison > 0)
                         l = idx + 1;
-                else
-                        return (void *)p;
+                ورنہ
+                        واپس (خالی *)p;
         }
-        return NULL;
+        واپس تہی;
 }
 
-void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
+خالی* bsearch_محفوظ_اندرونی(ثابت خالی *کلید, ثابت خالی *base, size_t nmemb, size_t سائز, comparison_fn_t compar) {
         /**
         * Normal bsearch requires base to be nonnull. Here were require
         * that only if nmemb > 0.
         */
 
-        if (nmemb <= 0)
-                return NULL;
+        اگر (nmemb <= 0)
+                واپس تہی;
 
-        assert(base);
-        return (void*) bsearch(key, base, nmemb, size, compar);
+        أكد(base);
+        واپس (خالی*) bsearch(کلید, base, nmemb, سائز, compar);
 }
 
-void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
+خالی qsort_محفوظ(خالی *base, size_t nmemb, size_t سائز, comparison_fn_t compar) {
         /**
          * Normal qsort requires base to be nonnull. Here were require
          * that only if nmemb > 0.
          */
 
-        if (nmemb <= 1)
-                return;
+        اگر (nmemb <= 1)
+                واپس;
 
-        assert(base);
-        qsort(base, nmemb, size, compar);
+        أكد(base);
+        qsort(base, nmemb, سائز, compar);
 }
 
-void qsort_r_safe(void *base, size_t nmemb, size_t size, comparison_userdata_fn_t compar, void *userdata) {
-        if (nmemb <= 1)
-                return;
+خالی qsort_r_محفوظ(خالی *base, size_t nmemb, size_t سائز, comparison_userdata_fn_t compar, خالی *userdata) {
+        اگر (nmemb <= 1)
+                واپس;
 
-        assert(base);
-        qsort_r(base, nmemb, size, compar, userdata);
+        أكد(base);
+        qsort_r(base, nmemb, سائز, compar, userdata);
 }
 
-int cmp_int(const int *a, const int *b) {
+صحیح cmp_int(ثابت صحیح *a, ثابت صحیح *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
-        POINTER_MAY_BE_NULL(a);
-        POINTER_MAY_BE_NULL(b);
+        اشارہ_گر_MAY_BE_NULL(a);
+        اشارہ_گر_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        واپس CMP(*a, *b);
 }
 
-int cmp_uint16(const uint16_t *a, const uint16_t *b) {
+صحیح cmp_uint16(ثابت uint16_t *a, ثابت uint16_t *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
-        POINTER_MAY_BE_NULL(a);
-        POINTER_MAY_BE_NULL(b);
+        اشارہ_گر_MAY_BE_NULL(a);
+        اشارہ_گر_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        واپس CMP(*a, *b);
 }
 
-int cmp_unsigned(const unsigned *a, const unsigned *b) {
+صحیح cmp_unsigned(ثابت غیرعلامتی *a, ثابت غیرعلامتی *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
-        POINTER_MAY_BE_NULL(a);
-        POINTER_MAY_BE_NULL(b);
+        اشارہ_گر_MAY_BE_NULL(a);
+        اشارہ_گر_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        واپس CMP(*a, *b);
 }

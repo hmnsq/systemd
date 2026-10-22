@@ -1,34 +1,34 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-int parse_env_filev(FILE *f, const char *fname, va_list ap);
-int parse_env_file_fdv(int fd, const char *fname, va_list ap);
-int parse_env_file_sentinel(FILE *f, const char *fname, ...) _sentinel_;
-#define parse_env_file(f, fname, ...) parse_env_file_sentinel(f, fname, __VA_ARGS__, NULL)
-int parse_env_file_fd_sentinel(int fd, const char *fname, ...) _sentinel_;
-#define parse_env_file_fd(fd, fname, ...) parse_env_file_fd_sentinel(fd, fname, __VA_ARGS__, NULL)
+صحیح parse_env_filev(FILE *f, ثابت حرف *fname, va_list ap);
+صحیح parse_env_file_fdv(صحیح fd, ثابت حرف *fname, va_list ap);
+صحیح parse_env_file_sentinel(FILE *f, ثابت حرف *fname, ...) _sentinel_;
+#تعریف_کرو parse_env_file(f, fname, ...) parse_env_file_sentinel(f, fname, __VA_ARGS__, تہی)
+صحیح parse_env_file_fd_sentinel(صحیح fd, ثابت حرف *fname, ...) _sentinel_;
+#تعریف_کرو parse_env_file_fd(fd, fname, ...) parse_env_file_fd_sentinel(fd, fname, __VA_ARGS__, تہی)
 
-int parse_env_datav(const char *data, size_t size, const char *fname, va_list ap);
-int parse_env_data_sentinel(const char *data, size_t size, const char *fname, ...) _sentinel_;
-#define parse_env_data(text, size, fname, ...) parse_env_data_sentinel(text, size, fname, __VA_ARGS__, NULL)
+صحیح parse_env_datav(ثابت حرف *ڈیٹا, size_t سائز, ثابت حرف *fname, va_list ap);
+صحیح parse_env_ڈیٹا_sentinel(ثابت حرف *ڈیٹا, size_t سائز, ثابت حرف *fname, ...) _sentinel_;
+#تعریف_کرو parse_env_ڈیٹا(متن, سائز, fname, ...) parse_env_ڈیٹا_sentinel(متن, سائز, fname, __VA_ARGS__, تہی)
 
-int load_env_file(FILE *f, const char *fname, char ***ret);
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret);
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret);
+صحیح بھرو_env_file(FILE *f, ثابت حرف *fname, حرف ***ret);
+صحیح بھرو_env_file_جوڑے(FILE *f, ثابت حرف *fname, حرف ***ret);
+صحیح بھرو_env_file_جوڑے_fd(صحیح fd, ثابت حرف *fname, حرف ***ret);
 
-int merge_env_file(char ***env, FILE *f, const char *fname);
+صحیح ملاؤ_env_file(حرف ***env, FILE *f, ثابت حرف *fname);
 
-typedef enum WriteEnvFileFlags {
+قسمتعریف شمار WriteEnvFileFlags {
         WRITE_ENV_FILE_LABEL = 1 << 0,
 } WriteEnvFileFlags;
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context);
-static inline int write_env_file(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags) {
-        return write_env_file_label(dir_fd, fname, headers, l, flags, /* label_context= */ NULL);
+صحیح write_env_file_label(صحیح dir_fd, ثابت حرف *fname, حرف **سرخیاں, حرف **l, WriteEnvFileFlags flags, LabelContext *label_context);
+ساکن اندرونی صحیح write_env_file(صحیح dir_fd, ثابت حرف *fname, حرف **سرخیاں, حرف **l, WriteEnvFileFlags flags) {
+        واپس write_env_file_label(dir_fd, fname, سرخیاں, l, flags, /* label_context= */ تہی);
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l);
+صحیح write_vconsole_conf(صحیح dir_fd, ثابت حرف *fname, حرف **l);
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v);
+خالی env_file_fputs_assignment(FILE *f, ثابت حرف *k, ثابت حرف *v);

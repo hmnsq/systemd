@@ -1,94 +1,94 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/btrfs.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
+#شامل <linux/btrfs.h>
+#شامل <sys/ioctl.h>
+#شامل <sys/stat.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "path-util.h"
-#include "string-util.h"
+#شامل "alloc-util.h"
+#شامل "btrfs-util.h"
+#شامل "errno-util.h"
+#شامل "fd-util.h"
+#شامل "fs-util.h"
+#شامل "path-util.h"
+#شامل "string-util.h"
 
-int btrfs_validate_subvolume_name(const char *name) {
+صحیح btrfs_validate_subvolume_name(ثابت حرف *name) {
 
-        if (!filename_is_valid(name))
-                return -EINVAL;
+        اگر (!filename_is_valid(name))
+                واپس -EINVAL;
 
-        if (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
-                return -E2BIG;
+        اگر (لڑی_لمبائی(name) > BTRFS_SUBVOL_NAME_MAX)
+                واپس -E2BIG;
 
-        return 0;
+        واپس 0;
 }
 
-static int extract_subvolume_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+ساکن صحیح نکالو_subvolume_name(ثابت حرف *راستہ, حرف **ret) {
+        _cleanup_free_ حرف *fn = تہی;
+        صحیح r;
 
-        assert(path);
-        assert(ret);
+        أكد(راستہ);
+        أكد(ret);
 
-        r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
+        r = راستہ_نکالو_filename(راستہ, &fn);
+        اگر (r < 0)
+                واپس r;
 
         r = btrfs_validate_subvolume_name(fn);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        واپس 0;
 }
 
-int btrfs_subvol_make(int dir_fd, const char *path) {
-        struct btrfs_ioctl_vol_args args = {};
-        _cleanup_free_ char *subvolume = NULL, *parent = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+صحیح btrfs_subvol_make(صحیح dir_fd, ثابت حرف *راستہ) {
+        ساخت btrfs_ioctl_vol_args دلائل = {};
+        _cleanup_free_ حرف *subvolume = تہی, *والد = تہی;
+        _cleanup_close_ صحیح fd = -EBADF;
+        صحیح r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(!isempty(path));
+        أكد(wildcard_fd_is_valid(dir_fd));
+        أكد(!isempty(راستہ));
 
-        r = extract_subvolume_name(path, &subvolume);
-        if (r < 0)
-                return r;
+        r = نکالو_subvolume_name(راستہ, &subvolume);
+        اگر (r < 0)
+                واپس r;
 
-        r = path_extract_directory(path, &parent);
-        if (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
-                return r;
+        r = راستہ_نکالو_directory(راستہ, &والد);
+        اگر (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
+                واپس r;
 
-        fd = xopenat(dir_fd, parent ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        fd = xopenat(dir_fd, والد ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
+        اگر (fd < 0)
+                واپس fd;
 
-        strncpy(args.name, subvolume, sizeof(args.name)-1);
+        strncpy(دلائل.name, subvolume, حجم(دلائل.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        واپس RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &دلائل));
 }
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode) {
+صحیح btrfs_subvol_make_fallback(صحیح dir_fd, ثابت حرف *راستہ, mode_t منوال) {
         mode_t old, combined;
-        int r;
+        صحیح r;
 
-        assert(path);
+        أكد(راستہ);
 
         /* Let's work like mkdir(), i.e. take the specified mode, and mask it with the current umask. */
-        old = umask(~mode);
-        combined = old | ~mode;
-        if (combined != ~mode)
+        old = umask(~منوال);
+        combined = old | ~منوال;
+        اگر (combined != ~منوال)
                 umask(combined);
-        r = btrfs_subvol_make(dir_fd, path);
+        r = btrfs_subvol_make(dir_fd, راستہ);
         umask(old);
 
-        if (r >= 0)
-                return 1; /* subvol worked */
-        if (!ERRNO_IS_NOT_SUPPORTED(r))
-                return r;
+        اگر (r >= 0)
+                واپس 1; /* subvol worked */
+        اگر (!ERRNO_IS_NOT_SUPPORTED(r))
+                واپس r;
 
-        if (mkdirat(dir_fd, path, mode) < 0)
-                return -errno;
+        اگر (mkdirat(dir_fd, راستہ, منوال) < 0)
+                واپس -errno;
 
-        return 0; /* plain directory */
+        واپس 0; /* plain directory */
 }

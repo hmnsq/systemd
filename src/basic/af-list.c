@@ -1,67 +1,67 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/socket.h>
+#شامل <string.h>
+#شامل <sys/socket.h>
 
-#include "af-list.h"
-#include "string-util.h"
+#شامل "af-list.h"
+#شامل "string-util.h"
 
-static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
+ساکن ثابت ساخت af_name* lookup_af(اندراج ثابت حرف *str, اندراج GPERF_LEN_TYPE len);
 
-#include "af-from-name.inc"
-#include "af-to-name.inc"
+#شامل "af-from-name.inc"
+#شامل "af-to-name.inc"
 
-const char* af_to_name(int id) {
+ثابت حرف* af_مقصد_name(صحیح id) {
 
-        if (id <= 0)
-                return NULL;
+        اگر (id <= 0)
+                واپس تہی;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        اگر ((size_t) id >= ELEMENTSOF(af_نام))
+                واپس تہی;
 
-        return af_names[id];
+        واپس af_نام[id];
 }
 
-const char* af_to_name_short(int id) {
-        const char *f;
+ثابت حرف* af_مقصد_name_short(صحیح id) {
+        ثابت حرف *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        اگر (id == AF_UNSPEC)
+                واپس "*";
 
-        f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        f = af_مقصد_name(id);
+        اگر (!f)
+                واپس "unknown";
 
-        assert(startswith(f, "AF_"));
-        return f + 3;
+        أكد(startswith(f, "AF_"));
+        واپس f + 3;
 }
 
-int af_from_name(const char *name) {
-        size_t len = strlen(ASSERT_PTR(name));
+صحیح af_from_name(ثابت حرف *name) {
+        size_t len = لڑی_لمبائی(ASSERT_PTR(name));
 
-        const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
-                const char *t = strjoina("AF_", name);
-                sc = lookup_af(t, strlen("AF_") + len);
+        ثابت ساخت af_name *sc = lookup_af(name, len);
+        اگر (!sc && len + لڑی_لمبائی("AF_") <= MAX_لفظ_لمبائی) {
+                ثابت حرف *t = strjoina("AF_", name);
+                sc = lookup_af(t, لڑی_لمبائی("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        اگر (!sc)
+                واپس -EINVAL;
 
-        return sc->id;
+        واپس sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+صحیح af_max(خالی) {
+        واپس ELEMENTSOF(af_نام);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+ثابت حرف* af_مقصد_ipv4_ipv6(صحیح id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
-                id == AF_INET6 ? "ipv6" : NULL;
+        واپس id == AF_INET ? "ipv4" :
+                id == AF_INET6 ? "ipv6" : تہی;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+صحیح af_from_ipv4_ipv6(ثابت حرف *af) {
+        واپس streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

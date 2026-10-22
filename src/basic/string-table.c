@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#شامل <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#شامل "parse-util.h"
+#شامل "stdio-util.h"
+#شامل "string-table.h"
+#شامل "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+ثابت حرف* string_جدول_lookup_مقصد_string(ثابت حرف * ثابت *جدول, size_t len, ssize_t i) {
+        اگر (i < 0 || i >= (ssize_t) len)
+                واپس تہی;
 
-        assert(table);
+        أكد(جدول);
 
-        return table[i];
+        واپس جدول[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
-        assert_return(table, -EINVAL);
+ssize_t string_جدول_lookup_from_string(ثابت حرف * ثابت *جدول, size_t len, ثابت حرف *کلید) {
+        assert_return(جدول, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        اگر (!کلید)
+                واپس -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        برائے (size_t i = 0; i < len; ++i)
+                اگر (streq_ptr(جدول[i], کلید))
+                        واپس (ssize_t) i;
 
-        return -EINVAL;
+        واپس -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_جدول_lookup_from_string_with_boolean(ثابت حرف * ثابت *جدول, size_t len, ثابت حرف *کلید, ssize_t yes) {
+        اگر (!کلید)
+                واپس -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        صحیح b = parse_boolean(کلید);
+        اگر (b == 0)
+                واپس 0;
+        اگر (b > 0)
+                واپس yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        واپس string_جدول_lookup_from_string(جدول, len, کلید);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+صحیح string_جدول_lookup_مقصد_string_fallback(ثابت حرف * ثابت *جدول, size_t len, ssize_t i, size_t max, حرف **ret) {
+        حرف *s;
 
-        assert(table);
-        assert(ret);
+        أكد(جدول);
+        أكد(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        اگر (i < 0 || i > (ssize_t) max)
+                واپس -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
-                s = strdup(table[i]);
-        else
-                s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        اگر (i < (ssize_t) len && جدول[i])
+                s = strdup(جدول[i]);
+        ورنہ
+                s = asprintf_محفوظ("%zd", i);
+        اگر (!s)
+                واپس -ENOMEM;
 
         *ret = s;
-        return 0;
+        واپس 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_جدول_lookup_from_string_fallback(ثابت حرف * ثابت *جدول, size_t len, ثابت حرف *s, size_t max) {
+        اگر (!s)
+                واپس -EINVAL;
 
-        ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        ssize_t i = string_جدول_lookup_from_string(جدول, len, s);
+        اگر (i >= 0)
+                واپس i;
 
-        unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        غیرعلامتی u;
+        اگر (محفوظ_atou(s, &u) < 0)
+                واپس -EINVAL;
+        اگر (u > max)
+                واپس -EINVAL;
 
-        return u;
+        واپس u;
 }

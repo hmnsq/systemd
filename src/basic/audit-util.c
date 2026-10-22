@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#شامل "alloc-util.h"
+#شامل "audit-util.h"
+#شامل "fileio.h"
+#شامل "parse-util.h"
+#شامل "pidref.h"
+#شامل "process-util.h"
+#شامل "stat-util.h"
+#شامل "user-util.h"
+#شامل "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+ساکن صحیح audit_read_میدان(ثابت PidRef *pid, ثابت حرف *میدان, حرف **ret) {
+        صحیح r;
 
-        assert(field);
-        assert(ret);
+        أكد(میدان);
+        أكد(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        اگر (!pidref_is_سیٹ(pid))
+                واپس -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        اگر (detect_container() > 0)
+                واپس -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        ثابت حرف *p = procfs_file_alloca(pid->pid, میدان);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ حرف *s = تہی;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_بھرا_virtual_file(p, &s, /* ret_size= */ تہی);
+        اگر (r == -ENOENT) {
+                اگر (proc_mounted() == 0)
+                        واپس -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } ورنہ اگر (r < 0)
+                واپس r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        اگر (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                واپس -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        واپس 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحیح audit_session_from_pid(ثابت PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ حرف *s = تہی;
+        صحیح r;
 
-        r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        r = audit_read_میدان(pid, "sessionid", &s);
+        اگر (r < 0)
+                واپس r;
 
         uint32_t u;
-        r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        r = محفوظ_atou32(s, &u);
+        اگر (r < 0)
+                واپس r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        اگر (!audit_session_is_valid(u))
+                واپس -ENODATA;
 
-        if (ret_id)
+        اگر (ret_id)
                 *ret_id = u;
 
-        return 0;
+        واپس 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحیح audit_loginuid_from_pid(ثابت PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ حرف *s = تہی;
+        صحیح r;
 
-        r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        r = audit_read_میدان(pid, "loginuid", &s);
+        اگر (r < 0)
+                واپس r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        اگر (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                واپس -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        واپس parse_uid(s, ret_uid);
 }

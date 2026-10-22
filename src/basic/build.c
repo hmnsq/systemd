@@ -1,312 +1,312 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#شامل <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "build.h"
-#include "env-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "version.h"
+#شامل "alloc-util.h"
+#شامل "ansi-color.h"
+#شامل "build.h"
+#شامل "env-util.h"
+#شامل "extract-word.h"
+#شامل "log.h"
+#شامل "string-util.h"
+#شامل "version.h"
 
-const char* const systemd_features =
+ثابت حرف* ثابت systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#اگر HAVE_PAM
         "+PAM"
-#else
+#ورنہ
         "-PAM"
-#endif
+#اگر_ختم
 
-#if HAVE_AUDIT
+#اگر HAVE_AUDIT
         " +AUDIT"
-#else
+#ورنہ
         " -AUDIT"
-#endif
+#اگر_ختم
 
-#if HAVE_SELINUX
+#اگر HAVE_SELINUX
         " +SELINUX"
-#else
+#ورنہ
         " -SELINUX"
-#endif
+#اگر_ختم
 
-#if HAVE_APPARMOR
+#اگر HAVE_APPARMOR
         " +APPARMOR"
-#else
+#ورنہ
         " -APPARMOR"
-#endif
+#اگر_ختم
 
-#if ENABLE_IMA
+#اگر ENABLE_IMA
         " +IMA"
-#else
+#ورنہ
         " -IMA"
-#endif
+#اگر_ختم
 
-#if ENABLE_IPE
+#اگر ENABLE_IPE
         " +IPE"
-#else
+#ورنہ
         " -IPE"
-#endif
+#اگر_ختم
 
-#if ENABLE_SMACK
+#اگر ENABLE_SMACK
         " +SMACK"
-#else
+#ورنہ
         " -SMACK"
-#endif
+#اگر_ختم
 
-#if HAVE_SECCOMP
+#اگر HAVE_SECCOMP
         " +SECCOMP"
-#else
+#ورنہ
         " -SECCOMP"
-#endif
+#اگر_ختم
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#اگر HAVE_GNUTLS
         " +GNUTLS"
-#else
+#ورنہ
         " -GNUTLS"
-#endif
+#اگر_ختم
 
-#if HAVE_OPENSSL
+#اگر HAVE_OPENSSL
         " +OPENSSL"
-#else
+#ورنہ
         " -OPENSSL"
-#endif
+#اگر_ختم
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#اگر HAVE_ACL
         " +ACL"
-#else
+#ورنہ
         " -ACL"
-#endif
+#اگر_ختم
 
-#if HAVE_BLKID
+#اگر HAVE_BLKID
         " +BLKID"
-#else
+#ورنہ
         " -BLKID"
-#endif
+#اگر_ختم
 
-#if HAVE_LIBCURL
+#اگر HAVE_LIBCURL
         " +CURL"
-#else
+#ورنہ
         " -CURL"
-#endif
+#اگر_ختم
 
-#if HAVE_ELFUTILS
+#اگر HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#ورنہ
         " -ELFUTILS"
-#endif
+#اگر_ختم
 
-#if HAVE_LIBFIDO2
+#اگر HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#ورنہ
         " -FIDO2"
-#endif
+#اگر_ختم
 
-#if HAVE_LIBIDN2
+#اگر HAVE_LIBIDN2
         " +IDN2"
-#else
+#ورنہ
         " -IDN2"
-#endif
+#اگر_ختم
 
-#if HAVE_KMOD
+#اگر HAVE_KMOD
         " +KMOD"
-#else
+#ورنہ
         " -KMOD"
-#endif
+#اگر_ختم
 
-#if HAVE_LIBCRYPTSETUP
+#اگر HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#ورنہ
         " -LIBCRYPTSETUP"
-#endif
+#اگر_ختم
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#اگر HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#ورنہ
         " -LIBCRYPTSETUP_PLUGINS"
-#endif
+#اگر_ختم
 
-#if HAVE_LIBFDISK
+#اگر HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#ورنہ
         " -LIBFDISK"
-#endif
+#اگر_ختم
 
-#if HAVE_PCRE2
+#اگر HAVE_PCRE2
         " +PCRE2"
-#else
+#ورنہ
         " -PCRE2"
-#endif
+#اگر_ختم
 
-#if HAVE_PWQUALITY
+#اگر HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#ورنہ
         " -PWQUALITY"
-#endif
+#اگر_ختم
 
-#if HAVE_P11KIT
+#اگر HAVE_P11KIT
         " +P11KIT"
-#else
+#ورنہ
         " -P11KIT"
-#endif
+#اگر_ختم
 
-#if HAVE_QRENCODE
+#اگر HAVE_QRENCODE
         " +QRENCODE"
-#else
+#ورنہ
         " -QRENCODE"
-#endif
+#اگر_ختم
 
-#if HAVE_TPM2
+#اگر HAVE_TPM2
         " +TPM2"
-#else
+#ورنہ
         " -TPM2"
-#endif
+#اگر_ختم
 
         /* compressors */
 
-#if HAVE_BZIP2
+#اگر HAVE_BZIP2
         " +BZIP2"
-#else
+#ورنہ
         " -BZIP2"
-#endif
+#اگر_ختم
 
-#if HAVE_LZ4
+#اگر HAVE_LZ4
         " +LZ4"
-#else
+#ورنہ
         " -LZ4"
-#endif
+#اگر_ختم
 
-#if HAVE_XZ
+#اگر HAVE_XZ
         " +XZ"
-#else
+#ورنہ
         " -XZ"
-#endif
+#اگر_ختم
 
-#if HAVE_ZLIB
+#اگر HAVE_ZLIB
         " +ZLIB"
-#else
+#ورنہ
         " -ZLIB"
-#endif
+#اگر_ختم
 
-#if HAVE_ZSTD
+#اگر HAVE_ZSTD
         " +ZSTD"
-#else
+#ورنہ
         " -ZSTD"
-#endif
+#اگر_ختم
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#اگر BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#ورنہ
         " -BPF_FRAMEWORK"
-#endif
+#اگر_ختم
 
-#if HAVE_VMLINUX_H
+#اگر HAVE_VMLINUX_H
         " +BTF"
-#else
+#ورنہ
         " -BTF"
-#endif
+#اگر_ختم
 
-#if HAVE_XKBCOMMON
+#اگر HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#ورنہ
         " -XKBCOMMON"
-#endif
+#اگر_ختم
 
-#if ENABLE_UTMP
+#اگر ENABLE_UTMP
         " +UTMP"
-#else
+#ورنہ
         " -UTMP"
-#endif
+#اگر_ختم
 
-#if HAVE_LIBARCHIVE
+#اگر HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#ورنہ
         " -LIBARCHIVE"
-#endif
+#اگر_ختم
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#اگر EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
-#elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
+#وگرنہ_اگر EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#ورنہ
         " -EXPERIMENTAL"
-#endif
+#اگر_ختم
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+ساکن حرف* systemd_features_with_color(خالی) {
+        ثابت حرف *p = systemd_features;
+        _cleanup_free_ حرف *ret = تہی;
+        صحیح r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        برائے (;;) {
+                _cleanup_free_ حرف *لفظ = تہی;
+                حرف *q;
 
-                r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                r = نکالو_پہلا_لفظ(&p, &لفظ, تہی, 0);
+                اگر (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        واپس تہی;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                اگر (r == 0)
+                        واپس TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                اگر (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        واپس تہی;
                 }
 
-                if (word[0] == '+')
-                        q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
-                        q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
-                        q = strextend(&ret, word);
-                if (!q) {
+                اگر (لفظ[0] == '+')
+                        q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_مقصد_STR(لفظ[0]), ANSI_GREEN, لفظ+1, ANSI_معمول);
+                ورنہ اگر (لفظ[0] == '-')
+                        q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_مقصد_STR(لفظ[0]), ANSI_RED, لفظ+1, ANSI_معمول);
+                ورنہ
+                        q = strextend(&ret, لفظ);
+                اگر (!q) {
                         log_oom_warning();
-                        return NULL;
+                        واپس تہی;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+صحیح نسخہ(خالی) {
+        _cleanup_free_ حرف *b = تہی;
 
-        if (colors_enabled())
+        اگر (colors_enabled())
                 b = systemd_features_with_color();
 
-        printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
-               ansi_highlight(), PROJECT_VERSION, ansi_normal(),
+        لکھو("%ssystemd %i%s (" GIT_نسخہ ")\n%s\n",
+               ansi_highlight(), PROJECT_نسخہ, ansi_معمول(),
                b ?: systemd_features);
-        return 0;
+        واپس 0;
 }
 
-int version_only(void) {
+صحیح نسخہ_only(خالی) {
         /* Used by udev. Dracut relies on the version being a single integer */
-        puts(PROJECT_VERSION_STR);
-        return 0;
+        puts(PROJECT_نسخہ_STR);
+        واپس 0;
 }
 
-bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+bool experimental_enabled(خالی) {
+#اگر EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        واپس false;
+#ورنہ
+        صحیح r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        اگر (r >= 0)
+                واپس r;
+        اگر (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
-#endif
+        واپس EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+#اگر_ختم
 }

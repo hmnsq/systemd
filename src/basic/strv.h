@@ -1,228 +1,228 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-#include "../fundamental/strv.h"   /* IWYU pragma: export */
+#شامل "../fundamental/strv.h"   /* IWYU pragma: export */
 
-char* strv_find(char * const *l, const char *name) _pure_;
-char* strv_find_case(char * const *l, const char *name) _pure_;
-char* strv_find_prefix(char * const *l, const char *name) _pure_;
-char* strv_find_startswith(char * const *l, const char *name) _pure_;
-char* strv_find_closest(char * const *l, const char *name) _pure_;
+حرف* strv_ڈھونڈو(حرف * ثابت *l, ثابت حرف *name) خالص;
+حرف* strv_ڈھونڈو_case(حرف * ثابت *l, ثابت حرف *name) خالص;
+حرف* strv_ڈھونڈو_سابقہ(حرف * ثابت *l, ثابت حرف *name) خالص;
+حرف* strv_ڈھونڈو_startswith(حرف * ثابت *l, ثابت حرف *name) خالص;
+حرف* strv_ڈھونڈو_closest(حرف * ثابت *l, ثابت حرف *name) خالص;
 /* Given two vectors, the first a list of keys and the second a list of key-value pairs, returns the value
  * of the first key from the first vector that is found in the second vector. */
-char* strv_find_first_field(char * const *needles, char * const *haystack) _pure_;
+حرف* strv_ڈھونڈو_پہلا_میدان(حرف * ثابت *needles, حرف * ثابت *haystack) خالص;
 
-#define strv_contains(l, s) (!!strv_find((l), (s)))
-#define strv_contains_case(l, s) (!!strv_find_case((l), (s)))
+#تعریف_کرو strv_شامل_ہے(l, s) (!!strv_ڈھونڈو((l), (s)))
+#تعریف_کرو strv_شامل_ہے_case(l, s) (!!strv_ڈھونڈو_case((l), (s)))
 
-char** strv_free(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free);
-#define _cleanup_strv_free_ _cleanup_(strv_freep)
+حرف** strv_free(حرف **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(حرف**, strv_free);
+#تعریف_کرو _cleanup_strv_free_ _cleanup_(strv_freep)
 
-char** strv_free_erase(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free_erase);
-#define _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
+حرف** strv_free_erase(حرف **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(حرف**, strv_free_erase);
+#تعریف_کرو _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
 
-void strv_free_many(char ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
+خالی strv_free_many(حرف ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
 
-char** strv_copy_n(char * const *l, size_t n);
-static inline char** strv_copy(char * const *l) {
-        return strv_copy_n(l, SIZE_MAX);
+حرف** strv_copy_n(حرف * ثابت *l, size_t n);
+ساکن اندرونی حرف** strv_copy(حرف * ثابت *l) {
+        واپس strv_copy_n(l, SIZE_MAX);
 }
-int strv_copy_unless_empty(char * const *l, char ***ret);
+صحیح strv_copy_unless_خالی_خانے(حرف * ثابت *l, حرف ***ret);
 
-size_t strv_length(char * const *l) _pure_;
+size_t strv_لمبائی(حرف * ثابت *l) خالص;
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
+صحیح strv_extend_strv(حرف ***a, حرف * ثابت *b, bool filter_duplicates);
+صحیح strv_extend_strv_consume(حرف ***a, حرف **b, bool filter_duplicates);
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
-static inline int strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
-        return strv_extend_strv_biconcat(a, NULL, b, suffix);
+صحیح strv_extend_strv_biconcat(حرف ***a, ثابت حرف *سابقہ, ثابت حرف* ثابت *b, ثابت حرف *suffix);
+ساکن اندرونی صحیح strv_extend_strv_concat(حرف ***a, ثابت حرف* ثابت *b, ثابت حرف *suffix) {
+        واپس strv_extend_strv_biconcat(a, تہی, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+صحیح strv_prepend(حرف ***l, ثابت حرف *قدر);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+صحیح strv_extend_with_سائز(حرف ***l, size_t *n, ثابت حرف *قدر);
+ساکن اندرونی صحیح strv_extend(حرف ***l, ثابت حرف *قدر) {
+        واپس strv_extend_with_سائز(l, تہی, قدر);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
-#define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
+صحیح strv_extend_many_اندرونی(حرف ***l, ثابت حرف *قدر, ...);
+#تعریف_کرو strv_extend_many(l, ...) strv_extend_many_اندرونی(l, __VA_ARGS__, اشارہ_گر_MAX)
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
-#define strv_extendf(l, ...) strv_extendf_with_size(l, NULL, __VA_ARGS__)
+صحیح strv_extendf_with_سائز(حرف ***l, size_t *n, ثابت حرف *format, ...) _printf_(3,4);
+#تعریف_کرو strv_extendf(l, ...) strv_extendf_with_سائز(l, تہی, __VA_ARGS__)
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
-#define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
-#define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
+صحیح strv_extend_joined_with_سائز_sentinel(حرف ***l, size_t *n, ...) _sentinel_;
+#تعریف_کرو strv_extend_joined_with_سائز(l, n, ...) strv_extend_joined_with_سائز_sentinel(l, n, __VA_ARGS__, تہی)
+#تعریف_کرو strv_extend_joined(l, ...) strv_extend_joined_with_سائز(l, تہی, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+صحیح strv_ڈالو_with_سائز(حرف ***l, size_t *n, حرف *قدر);
+ساکن اندرونی صحیح strv_ڈالو(حرف ***l, حرف *قدر) {
+        واپس strv_ڈالو_with_سائز(l, تہی, قدر);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+صحیح strv_ڈالو_pair(حرف ***l, حرف *a, حرف *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+صحیح strv_داخل_کرو(حرف ***l, size_t position, حرف *قدر);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
-}
-
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+ساکن اندرونی صحیح strv_ڈالو_prepend(حرف ***l, حرف *قدر) {
+        واپس strv_داخل_کرو(l, 0, قدر);
 }
 
-int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
-
-char** strv_remove(char **l, const char *s);
-char** strv_remove_strv(char **l, char *const*ll);
-char** strv_uniq(char **l);
-bool strv_is_uniq(char * const *l) _pure_;
-
-int strv_compare(char * const *a, char * const *b) _pure_;
-static inline bool strv_equal(char * const *a, char * const *b) {
-        return strv_compare(a, b) == 0;
+صحیح strv_consume_with_سائز(حرف ***l, size_t *n, حرف *قدر);
+ساکن اندرونی صحیح strv_consume(حرف ***l, حرف *قدر) {
+        واپس strv_consume_with_سائز(l, تہی, قدر);
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) _pure_;
+صحیح strv_consume_pair(حرف ***l, حرف *a, حرف *b);
+صحیح strv_consume_prepend(حرف ***l, حرف *قدر);
 
-char** strv_new_internal(const char *x, ...) _sentinel_;
-char** strv_new_ap(const char *x, va_list ap);
-#define strv_new(...) strv_new_internal(__VA_ARGS__, NULL)
+حرف** strv_remove(حرف **l, ثابت حرف *s);
+حرف** strv_remove_strv(حرف **l, حرف *ثابت*ll);
+حرف** strv_uniq(حرف **l);
+bool strv_is_uniq(حرف * ثابت *l) خالص;
 
-#define STRV_IGNORE ((const char *) POINTER_MAX)
-
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ?: STRV_IGNORE;
+صحیح strv_compare(حرف * ثابت *a, حرف * ثابت *b) خالص;
+ساکن اندرونی bool strv_equal(حرف * ثابت *a, حرف * ثابت *b) {
+        واپس strv_compare(a, b) == 0;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
-char** strv_split(const char *s, const char *separators);
+bool strv_equal_ignore_ترتیب(حرف * ثابت *a, حرف * ثابت *b) خالص;
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
+حرف** strv_new_اندرونی(ثابت حرف *x, ...) _sentinel_;
+حرف** strv_new_ap(ثابت حرف *x, va_list ap);
+#تعریف_کرو strv_new(...) strv_new_اندرونی(__VA_ARGS__, تہی)
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
-char** strv_split_newlines(const char *s);
+#تعریف_کرو STRV_IGNORE ((ثابت حرف *) اشارہ_گر_MAX)
+
+ساکن اندرونی ثابت حرف* STRV_IFNOTNULL(ثابت حرف *x) {
+        واپس x ?: STRV_IGNORE;
+}
+
+صحیح strv_بانٹو_بھرا(حرف ***t, ثابت حرف *s, ثابت حرف *separators, نکالو_Flags flags);
+حرف** strv_بانٹو(ثابت حرف *s, ثابت حرف *separators);
+
+صحیح strv_بانٹو_and_extend_بھرا(حرف ***t, ثابت حرف *s, ثابت حرف *separators, bool filter_duplicates, نکالو_Flags flags);
+صحیح strv_بانٹو_and_extend(حرف ***t, ثابت حرف *s, ثابت حرف *separators, bool filter_duplicates);
+
+صحیح strv_بانٹو_newlines_بھرا(حرف ***ret, ثابت حرف *s, نکالو_Flags flags);
+حرف** strv_بانٹو_newlines(ثابت حرف *s);
 
 /* Given a string containing white-space separated tuples of words themselves separated by ':',
  * returns a vector of strings. If the second element in a tuple is missing, the corresponding
  * string in the vector is an empty string. */
-int strv_split_colon_pairs(char ***t, const char *s);
+صحیح strv_بانٹو_colon_جوڑے(حرف ***t, ثابت حرف *s);
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix);
-static inline char *strv_join(char * const *l, const char *separator) {
-        return strv_join_full(l, separator, NULL);
+حرف* strv_join_بھرا(حرف * ثابت *l, ثابت حرف *separator, ثابت حرف *سابقہ);
+ساکن اندرونی حرف *strv_join(حرف * ثابت *l, ثابت حرف *separator) {
+        واپس strv_join_بھرا(l, separator, تہی);
 }
 
-bool strv_overlap(char * const *a, char * const *b) _pure_;
+bool strv_overlap(حرف * ثابت *a, حرف * ثابت *b) خالص;
 
-#define _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
-        for (typeof(*(l)) *s, *h = (l), *i = ({                         \
-                                size_t _len = strv_length(h);           \
-                                _len > 0 ? h + _len - 1 : NULL;         \
+#تعریف_کرو _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
+        برائے (typeof(*(l)) *s, *h = (l), *i = ({                         \
+                                size_t _len = strv_لمبائی(h);           \
+                                _len > 0 ? h + _len - 1 : تہی;         \
                         });                                             \
              (s = i);                                                   \
              i = PTR_SUB1(i, h))
 
-#define STRV_FOREACH_BACKWARDS(s, l)                                    \
+#تعریف_کرو STRV_FOREACH_BACKWARDS(s, l)                                    \
         _STRV_FOREACH_BACKWARDS(s, l, UNIQ_T(h, UNIQ), UNIQ_T(i, UNIQ))
 
-#define _STRV_FOREACH_PAIR(x, y, l, i)                          \
-        for (typeof(*(l)) *x, *y, *i = (l);                     \
+#تعریف_کرو _STRV_FOREACH_PAIR(x, y, l, i)                          \
+        برائے (typeof(*(l)) *x, *y, *i = (l);                     \
              i && *(x = i) && *(y = i + 1);                     \
              i += 2)
 
-#define STRV_FOREACH_PAIR(x, y, l)                      \
+#تعریف_کرو STRV_FOREACH_PAIR(x, y, l)                      \
         _STRV_FOREACH_PAIR(x, y, l, UNIQ_T(i, UNIQ))
 
-char** strv_sort(char **l);
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
-char** strv_sort_uniq(char **l);
-void strv_print_full(char * const *l, const char *prefix);
-static inline void strv_print(char * const *l) {
-        strv_print_full(l, NULL);
+حرف** strv_ترتیب_دو(حرف **l);
+حرف** strv_ترتیب_دو_uniq_بھرا(حرف **l, صحیح (*compare)(حرف * ثابت *a, حرف * ثابت *b));
+حرف** strv_ترتیب_دو_uniq(حرف **l);
+خالی strv_print_بھرا(حرف * ثابت *l, ثابت حرف *سابقہ);
+ساکن اندرونی خالی strv_print(حرف * ثابت *l) {
+        strv_print_بھرا(l, تہی);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l);
-#define startswith_strv(s, l) const_generic(s, startswith_strv_internal(s, l))
+حرف* startswith_strv_اندرونی(ثابت حرف *s, حرف * ثابت *l);
+#تعریف_کرو startswith_strv(s, l) const_generic(s, startswith_strv_اندرونی(s, l))
 
-#define STARTSWITH_SET(p, ...)                                  \
+#تعریف_کرو STARTSWITH_سیٹ(p, ...)                                  \
         startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-char* endswith_strv_internal(const char *s, char * const *l);
-#define endswith_strv(s, l) const_generic(s, endswith_strv_internal(s, l))
+حرف* endswith_strv_اندرونی(ثابت حرف *s, حرف * ثابت *l);
+#تعریف_کرو endswith_strv(s, l) const_generic(s, endswith_strv_اندرونی(s, l))
 
-#define ENDSWITH_SET(p, ...)                                    \
+#تعریف_کرو ENDSWITH_سیٹ(p, ...)                                    \
         endswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-#define STR_IN_SET(x, ...) strv_contains(STRV_MAKE(__VA_ARGS__), x)
-#define STRPTR_IN_SET(x, ...)                                    \
+#تعریف_کرو STR_اندر_سیٹ(x, ...) strv_شامل_ہے(STRV_MAKE(__VA_ARGS__), x)
+#تعریف_کرو STRPTR_اندر_سیٹ(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
-                _x && strv_contains(STRV_MAKE(__VA_ARGS__), _x); \
+                ثابت حرف* _x = (x);                            \
+                _x && strv_شامل_ہے(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
-#define STRCASE_IN_SET(x, ...) strv_contains_case(STRV_MAKE(__VA_ARGS__), x)
-#define STRCASEPTR_IN_SET(x, ...)                                    \
+#تعریف_کرو STRCASE_اندر_سیٹ(x, ...) strv_شامل_ہے_case(STRV_MAKE(__VA_ARGS__), x)
+#تعریف_کرو STRCASEPTR_اندر_سیٹ(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
-                _x && strv_contains_case(STRV_MAKE(__VA_ARGS__), _x); \
+                ثابت حرف* _x = (x);                            \
+                _x && strv_شامل_ہے_case(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
-#define _FOREACH_STRING(uniq, x, y, ...)                                \
-        for (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
+#تعریف_کرو _FOREACH_STRING(uniq, x, y, ...)                                \
+        برائے (ثابت حرف *x, * ثابت*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
              x;                                                         \
              x = *(++UNIQ_T(l, uniq)))
 
-#define FOREACH_STRING(x, y, ...)                       \
+#تعریف_کرو FOREACH_STRING(x, y, ...)                       \
         _FOREACH_STRING(UNIQ, x, y, ##__VA_ARGS__)
 
-char** strv_reverse(char **l);
-char** strv_shell_escape(char **l, const char *bad);
+حرف** strv_الٹ(حرف **l);
+حرف** strv_shell_escape(حرف **l, ثابت حرف *bad);
 
-bool strv_fnmatch_full(char* const* patterns, const char *s, int flags, size_t *ret_matched_pos);
-static inline bool strv_fnmatch(char* const* patterns, const char *s) {
-        return strv_fnmatch_full(patterns, s, 0, NULL);
+bool strv_fnmatch_بھرا(حرف* ثابت* patterns, ثابت حرف *s, صحیح flags, size_t *ret_matched_pos);
+ساکن اندرونی bool strv_fnmatch(حرف* ثابت* patterns, ثابت حرف *s) {
+        واپس strv_fnmatch_بھرا(patterns, s, 0, تہی);
 }
-static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, int flags) {
-        assert(s);
-        return strv_isempty(patterns) ||
-               strv_fnmatch_full(patterns, s, flags, NULL);
+ساکن اندرونی bool strv_fnmatch_or_خالی_خانے(حرف* ثابت* patterns, ثابت حرف *s, صحیح flags) {
+        أكد(s);
+        واپس strv_isempty(patterns) ||
+               strv_fnmatch_بھرا(patterns, s, flags, تہی);
 }
 
-char** strv_skip(char **l, size_t n);
+حرف** strv_skip(حرف **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+صحیح strv_extend_n(حرف ***l, ثابت حرف *قدر, size_t n);
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
+صحیح strv_extend_assignment(حرف ***l, ثابت حرف *lhs, ثابت حرف *rhs);
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
+صحیح fputstrv(FILE *f, حرف * ثابت *l, ثابت حرف *separator, bool *space);
 
-#define strv_free_and_replace(a, b)             \
-        free_and_replace_full(a, b, strv_free)
+#تعریف_کرو strv_free_and_replace(a, b)             \
+        free_and_replace_بھرا(a, b, strv_free)
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+خالی string_strv_hashmap_remove(Hashmap *h, ثابت حرف *کلید, ثابت حرف *قدر);
+خالی string_strv_ordered_hashmap_remove(OrderedHashmap *h, ثابت حرف *کلید, ثابت حرف *قدر);
+صحیح string_strv_hashmap_put(Hashmap **h, ثابت حرف *کلید, ثابت حرف *قدر);
+صحیح string_strv_ordered_hashmap_put(OrderedHashmap **h, ثابت حرف *کلید, ثابت حرف *قدر);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+صحیح strv_rebreak_سطریں(حرف **l, size_t width, حرف ***ret);
 
-char** strv_filter_prefix(char * const *l, const char *prefix);
+حرف** strv_filter_سابقہ(حرف * ثابت *l, ثابت حرف *سابقہ);
 
 /* whenever we need to initialize something with a constant non-NULL, but empty strv, we can use this shared
  * one */
-extern const char* const strv_empty[1];
+خارجی ثابت حرف* ثابت strv_خالی_خانے[1];
 
-#define STRV_EMPTY ((char**) strv_empty)
+#تعریف_کرو STRV_خالی_خانے ((حرف**) strv_خالی_خانے)

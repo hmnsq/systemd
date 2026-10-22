@@ -1,79 +1,79 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-struct iovec_wrapper {
-        struct iovec *iovec;
-        size_t count;
+ساخت iovec_wrapper {
+        ساخت iovec *iovec;
+        size_t گنتی;
 };
 
-void iovw_done_free(struct iovec_wrapper *iovw);
-void iovw_done(struct iovec_wrapper *iovw);
+خالی iovw_مکمل_free(ساخت iovec_wrapper *iovw);
+خالی iovw_مکمل(ساخت iovec_wrapper *iovw);
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free);
+ساخت iovec_wrapper* iovw_free(ساخت iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ساخت iovec_wrapper*, iovw_free);
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct iovec_wrapper*, iovw_free_free);
+ساخت iovec_wrapper* iovw_free_free(ساخت iovec_wrapper *iovw);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ساخت iovec_wrapper*, iovw_free_free);
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) _pure_;
-static inline bool iovw_equal(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        return iovw_compare(a, b) == 0;
-}
-
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_put(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_put_full(iovw, false, data, len);
-}
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_put_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_put_iov_full(iovw, false, iov);
-}
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_put_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_put_iovw_full(iovw, false, source);
-}
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len);
-static inline int iovw_consume(struct iovec_wrapper *iovw, void *data, size_t len) {
-        return iovw_consume_full(iovw, false, data, len);
-}
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov);
-static inline int iovw_consume_iov(struct iovec_wrapper *iovw, struct iovec *iov) {
-        return iovw_consume_iov_full(iovw, false, iov);
-}
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len);
-static inline int iovw_extend(struct iovec_wrapper *iovw, const void *data, size_t len) {
-        return iovw_extend_full(iovw, false, data, len);
-}
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov);
-static inline int iovw_extend_iov(struct iovec_wrapper *iovw, const struct iovec *iov) {
-        return iovw_extend_iov_full(iovw, false, iov);
-}
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source);
-static inline int iovw_extend_iovw(struct iovec_wrapper *iovw, const struct iovec_wrapper *source) {
-        return iovw_extend_iovw_full(iovw, false, source);
+صحیح iovw_compare(ثابت ساخت iovec_wrapper *a, ثابت ساخت iovec_wrapper *b) خالص;
+ساکن اندرونی bool iovw_equal(ثابت ساخت iovec_wrapper *a, ثابت ساخت iovec_wrapper *b) {
+        واپس iovw_compare(a, b) == 0;
 }
 
-static inline bool iovw_isempty(const struct iovec_wrapper *iovw) {
-        return !iovw || iovw->count == 0;
+صحیح iovw_put_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, خالی *ڈیٹا, size_t len);
+ساکن اندرونی صحیح iovw_put(ساخت iovec_wrapper *iovw, خالی *ڈیٹا, size_t len) {
+        واپس iovw_put_بھرا(iovw, false, ڈیٹا, len);
+}
+صحیح iovw_put_iov_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec *iov);
+ساکن اندرونی صحیح iovw_put_iov(ساخت iovec_wrapper *iovw, ثابت ساخت iovec *iov) {
+        واپس iovw_put_iov_بھرا(iovw, false, iov);
+}
+صحیح iovw_put_iovw_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec_wrapper *ماخذ);
+ساکن اندرونی صحیح iovw_put_iovw(ساخت iovec_wrapper *iovw, ثابت ساخت iovec_wrapper *ماخذ) {
+        واپس iovw_put_iovw_بھرا(iovw, false, ماخذ);
+}
+صحیح iovw_consume_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, خالی *ڈیٹا, size_t len);
+ساکن اندرونی صحیح iovw_consume(ساخت iovec_wrapper *iovw, خالی *ڈیٹا, size_t len) {
+        واپس iovw_consume_بھرا(iovw, false, ڈیٹا, len);
+}
+صحیح iovw_consume_iov_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ساخت iovec *iov);
+ساکن اندرونی صحیح iovw_consume_iov(ساخت iovec_wrapper *iovw, ساخت iovec *iov) {
+        واپس iovw_consume_iov_بھرا(iovw, false, iov);
+}
+صحیح iovw_extend_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت خالی *ڈیٹا, size_t len);
+ساکن اندرونی صحیح iovw_extend(ساخت iovec_wrapper *iovw, ثابت خالی *ڈیٹا, size_t len) {
+        واپس iovw_extend_بھرا(iovw, false, ڈیٹا, len);
+}
+صحیح iovw_extend_iov_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec *iov);
+ساکن اندرونی صحیح iovw_extend_iov(ساخت iovec_wrapper *iovw, ثابت ساخت iovec *iov) {
+        واپس iovw_extend_iov_بھرا(iovw, false, iov);
+}
+صحیح iovw_extend_iovw_بھرا(ساخت iovec_wrapper *iovw, bool accept_zero, ثابت ساخت iovec_wrapper *ماخذ);
+ساکن اندرونی صحیح iovw_extend_iovw(ساخت iovec_wrapper *iovw, ثابت ساخت iovec_wrapper *ماخذ) {
+        واپس iovw_extend_iovw_بھرا(iovw, false, ماخذ);
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value);
-static inline int iovw_put_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, false, field, value);
+ساکن اندرونی bool iovw_isempty(ثابت ساخت iovec_wrapper *iovw) {
+        واپس !iovw || iovw->گنتی == 0;
 }
-static inline int iovw_replace_string_field(struct iovec_wrapper *iovw, const char *field, const char *value) {
-        return iovw_put_string_field_full(iovw, true, field, value);
-}
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) _printf_(4, 5);
-#define iovw_put_string_fieldf(iovw, ...)     iovw_put_string_fieldf_full(iovw, false, __VA_ARGS__)
-#define iovw_replace_string_fieldf(iovw, ...) iovw_put_string_fieldf_full(iovw, true, __VA_ARGS__)
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value);
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new);
-size_t iovw_size(const struct iovec_wrapper *iovw);
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret);
-char* iovw_to_cstring(const struct iovec_wrapper *iovw);
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret);
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret);
+صحیح iovw_put_string_میدان_بھرا(ساخت iovec_wrapper *iovw, bool replace, ثابت حرف *میدان, ثابت حرف *قدر);
+ساکن اندرونی صحیح iovw_put_string_میدان(ساخت iovec_wrapper *iovw, ثابت حرف *میدان, ثابت حرف *قدر) {
+        واپس iovw_put_string_میدان_بھرا(iovw, false, میدان, قدر);
+}
+ساکن اندرونی صحیح iovw_replace_string_میدان(ساخت iovec_wrapper *iovw, ثابت حرف *میدان, ثابت حرف *قدر) {
+        واپس iovw_put_string_میدان_بھرا(iovw, true, میدان, قدر);
+}
+صحیح iovw_put_string_fieldf_بھرا(ساخت iovec_wrapper *iovw, bool replace, ثابت حرف *میدان, ثابت حرف *format, ...) _printf_(4, 5);
+#تعریف_کرو iovw_put_string_fieldf(iovw, ...)     iovw_put_string_fieldf_بھرا(iovw, false, __VA_ARGS__)
+#تعریف_کرو iovw_replace_string_fieldf(iovw, ...) iovw_put_string_fieldf_بھرا(iovw, true, __VA_ARGS__)
+صحیح iovw_put_string_میدان_free(ساخت iovec_wrapper *iovw, ثابت حرف *میدان, حرف *قدر);
+خالی iovw_rebase(ساخت iovec_wrapper *iovw, خالی *old, خالی *new);
+size_t iovw_سائز(ثابت ساخت iovec_wrapper *iovw);
+صحیح iovw_concat(ثابت ساخت iovec_wrapper *iovw, ساخت iovec *ret);
+حرف* iovw_مقصد_cstring(ثابت ساخت iovec_wrapper *iovw);
+
+صحیح iovec_بانٹو(ثابت ساخت iovec *iov, size_t لمبائی_سائز, ساخت iovec_wrapper *ret);
+صحیح iovw_ملاؤ(ثابت ساخت iovec_wrapper *iovw, size_t لمبائی_سائز, ساخت iovec *ret);

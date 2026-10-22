@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "filesystems-gperf.h"
-#include "stat-util.h"
-#include "string-util.h"
+#شامل "filesystems-gperf.h"
+#شامل "stat-util.h"
+#شامل "string-util.h"
 
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret) {
-        const struct FilesystemMagic *fs_magic;
+صحیح fs_type_from_string(ثابت حرف *name, ثابت statfs_f_type_t **ret) {
+        ثابت ساخت FilesystemMagic *fs_magic;
 
-        assert(name);
-        assert(ret);
+        أكد(name);
+        أكد(ret);
 
-        fs_magic = filesystems_gperf_lookup(name, strlen(name));
-        if (!fs_magic)
-                return -EINVAL;
+        fs_magic = filesystems_gperf_lookup(name, لڑی_لمبائی(name));
+        اگر (!fs_magic)
+                واپس -EINVAL;
 
         *ret = fs_magic->magic;
-        return 0;
+        واپس 0;
 }
 
-const FilesystemSet* filesystem_set_find(const char *name) {
-        if (isempty(name) || name[0] != '@')
-                return NULL;
+ثابت Filesystem_سیٹ* filesystem_سیٹ_ڈھونڈو(ثابت حرف *name) {
+        اگر (isempty(name) || name[0] != '@')
+                واپس تہی;
 
-        for (FilesystemGroups i = 0; i < _FILESYSTEM_SET_MAX; i++)
-                if (streq(filesystem_sets[i].name, name))
-                        return filesystem_sets + i;
+        برائے (FilesystemGroups i = 0; i < FILESYSTEM_سیٹ_MAX; i++)
+                اگر (streq(filesystem_sets[i].name, name))
+                        واپس filesystem_sets + i;
 
-        return NULL;
+        واپس تہی;
 }

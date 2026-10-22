@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <glob.h>       /* IWYU pragma: export */
+#شامل <glob.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#شامل "forward.h"
 
-typedef DIR* (*opendir_t)(const char *);
+قسمتعریف DIR* (*opendir_t)(ثابت حرف *);
 
-int safe_glob_full(const char *path, int flags, opendir_t opendir_func, char ***ret);
-static inline int safe_glob(const char *path, int flags, char ***ret) {
-        return safe_glob_full(path, flags, NULL, ret);
+صحیح محفوظ_glob_بھرا(ثابت حرف *راستہ, صحیح flags, opendir_t opendir_func, حرف ***ret);
+ساکن اندرونی صحیح محفوظ_glob(ثابت حرف *راستہ, صحیح flags, حرف ***ret) {
+        واپس محفوظ_glob_بھرا(راستہ, flags, تہی, ret);
 }
 
 /* Note: which match is returned depends on the implementation/system and not guaranteed to be stable */
-int glob_first(const char *path, char **ret);
-#define glob_exists(path) glob_first(path, NULL)
-int glob_extend(char ***strv, const char *path, int flags);
+صحیح glob_پہلا(ثابت حرف *راستہ, حرف **ret);
+#تعریف_کرو glob_exists(راستہ) glob_پہلا(راستہ, تہی)
+صحیح glob_extend(حرف ***strv, ثابت حرف *راستہ, صحیح flags);
 
-int glob_non_glob_prefix(const char *path, char **ret);
+صحیح glob_non_glob_سابقہ(ثابت حرف *راستہ, حرف **ret);
 
-bool string_is_glob(const char *p) _pure_;
+bool string_is_glob(ثابت حرف *p) خالص;

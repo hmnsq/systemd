@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <math.h>       /* IWYU pragma: export */
+#شامل <math.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#شامل "forward.h"
 
 /* On some optimization level, iszero(x) is converted to (x == 0.0), and emits warning -Wfloat-equal.
  * The argument must be a floating point, i.e. one of float, double, or long double. */
-#define iszero_safe(x) (fpclassify(x) == FP_ZERO)
+#تعریف_کرو iszero_محفوظ(x) (fpclassify(x) == FP_ZERO)
 
 /* To avoid x == y and triggering compile warning -Wfloat-equal. This returns false if one of the argument is
  * NaN or infinity. One of the argument must be a floating point.
@@ -20,14 +20,14 @@
  * the one operation guaranteed to truncate. The temporaries inherit the type of the subtraction
  * expression so the macro stays generic over float / double / long double rather than silently
  * truncating wider arguments. */
-#define fp_equal(x, y)                                                  \
+#تعریف_کرو fp_equal(x, y)                                                  \
         ({                                                              \
-                volatile __typeof__((x) - (y)) _fp_x = (x);             \
-                volatile __typeof__((x) - (y)) _fp_y = (y);             \
-                iszero_safe(_fp_x - _fp_y);                             \
+                متلون __typeof__((x) - (y)) _fp_x = (x);             \
+                متلون __typeof__((x) - (y)) _fp_y = (y);             \
+                iszero_محفوظ(_fp_x - _fp_y);                             \
         })
 
 /* 10^n. Exact for |n| ≤ 22; otherwise multiplies and may accumulate rounding error. Saturates to
  * 0.0 or +Inf outside binary64's exponent range; large |n| is capped internally so untrusted
  * inputs can't cause unbounded work. */
-double xexp10i(int n);
+دوہرا xexp10i(صحیح n);

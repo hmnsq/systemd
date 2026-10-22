@@ -1,274 +1,274 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#شامل <unistd.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "format-util.h"
-#include "fs-util.h"
-#include "hashmap.h"
-#include "log.h"
-#include "mkdir.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
-#include "user-util.h"
+#شامل "alloc-util.h"
+#شامل "btrfs-util.h"
+#شامل "chase.h"
+#شامل "errno-util.h"
+#شامل "fd-util.h"
+#شامل "format-util.h"
+#شامل "fs-util.h"
+#شامل "hashmap.h"
+#شامل "log.h"
+#شامل "mkdir.h"
+#شامل "path-util.h"
+#شامل "stat-util.h"
+#شامل "string-util.h"
+#شامل "time-util.h"
+#شامل "user-util.h"
 
-int mkdirat_safe_internal(
-                int dir_fd,
-                const char *path,
-                mode_t mode,
+صحیح mkdirat_محفوظ_اندرونی(
+                صحیح dir_fd,
+                ثابت حرف *راستہ,
+                mode_t منوال,
                 uid_t uid,
                 gid_t gid,
                 MkdirFlags flags,
                 mkdirat_func_t _mkdirat,
                 LabelContext *label_context) {
 
-        struct stat st;
-        int r;
+        ساخت stat st;
+        صحیح r;
 
-        assert(path);
-        assert(mode != MODE_INVALID);
-        assert(_mkdirat);
+        أكد(راستہ);
+        أكد(منوال != منوال_INVALID);
+        أكد(_mkdirat);
 
-        r = _mkdirat(dir_fd, path, mode, label_context);
-        if (r >= 0)
-                return chmod_and_chown_at(dir_fd, path, mode, uid, gid);
-        if (r != -EEXIST)
-                return r;
+        r = _mkdirat(dir_fd, راستہ, منوال, label_context);
+        اگر (r >= 0)
+                واپس chmod_and_chown_at(dir_fd, راستہ, منوال, uid, gid);
+        اگر (r != -EEXIST)
+                واپس r;
 
-        if (fstatat(dir_fd, path, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                return -errno;
+        اگر (fstatat(dir_fd, راستہ, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                واپس -errno;
 
-        if ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
-                _cleanup_free_ char *p = NULL;
+        اگر ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
+                _cleanup_free_ حرف *p = تہی;
 
-                r = chaseat(XAT_FDROOT, dir_fd, path, CHASE_NONEXISTENT, &p, NULL);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return mkdirat_safe_internal(dir_fd, p, mode, uid, gid,
+                r = chaseat(XAT_FDROOT, dir_fd, راستہ, CHASE_NONEXISTENT, &p, تہی);
+                اگر (r < 0)
+                        واپس r;
+                اگر (r == 0)
+                        واپس mkdirat_محفوظ_اندرونی(dir_fd, p, منوال, uid, gid,
                                                      flags & ~MKDIR_FOLLOW_SYMLINK,
                                                      _mkdirat, label_context);
 
-                if (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                        return -errno;
+                اگر (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                        واپس -errno;
         }
 
-        if (flags & MKDIR_IGNORE_EXISTING)
-                return 0;
+        اگر (flags & MKDIR_IGNORE_EXISTING)
+                واپس 0;
 
-        if (!S_ISDIR(st.st_mode))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
-                                      "Path \"%s\" already exists and is not a directory, refusing.", path);
+        اگر (!S_ISDIR(st.st_mode))
+                واپس log_بھرا_errno(flags & MKDIR_WARN_منوال ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
+                                      "Path \"%s\" already exists and is not a directory, refusing.", راستہ);
 
-        if ((st.st_mode & ~mode & 0777) != 0)
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+        اگر ((st.st_mode & ~منوال & 0777) != 0)
+                واپس log_بھرا_errno(flags & MKDIR_WARN_منوال ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but has mode %04o that is too permissive (%04o was requested), refusing.",
-                                      path, st.st_mode & 0777, mode);
+                                      راستہ, st.st_mode & 0777, منوال);
 
-        if ((uid != UID_INVALID && st.st_uid != uid) ||
+        اگر ((uid != UID_INVALID && st.st_uid != uid) ||
             (gid != GID_INVALID && st.st_gid != gid))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+                واپس log_بھرا_errno(flags & MKDIR_WARN_منوال ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but is owned by "UID_FMT":"GID_FMT" (%s:%s was requested), refusing.",
-                                      path, st.st_uid, st.st_gid, uid != UID_INVALID ? FORMAT_UID(uid) : "-",
+                                      راستہ, st.st_uid, st.st_gid, uid != UID_INVALID ? FORMAT_UID(uid) : "-",
                                       gid != UID_INVALID ? FORMAT_GID(gid) : "-");
 
-        return 0;
+        واپس 0;
 }
 
-int mkdirat_errno_wrapper(int dirfd, const char *pathname, mode_t mode, LabelContext *label_context) {
-        return RET_NERRNO(mkdirat(dirfd, pathname, mode));
+صحیح mkdirat_errno_wrapper(صحیح dirfd, ثابت حرف *pathname, mode_t منوال, LabelContext *label_context) {
+        واپس RET_NERRNO(mkdirat(dirfd, pathname, منوال));
 }
 
-int mkdirat_safe(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+صحیح mkdirat_محفوظ(صحیح dir_fd, ثابت حرف *راستہ, mode_t منوال, uid_t uid, gid_t gid, MkdirFlags flags) {
+        واپس mkdirat_محفوظ_اندرونی(dir_fd, راستہ, منوال, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ تہی);
 }
 
-int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        const char *e = NULL;
-        int r;
+صحیح mkdirat_parents_اندرونی(صحیح dir_fd, ثابت حرف *راستہ, mode_t منوال, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        ثابت حرف *e = تہی;
+        صحیح r;
 
-        assert(path);
-        assert(_mkdirat);
+        أكد(راستہ);
+        أكد(_mkdirat);
 
-        if (isempty(path))
-                return 0;
+        اگر (isempty(راستہ))
+                واپس 0;
 
-        if (!path_is_safe(path))
-                return -ENOTDIR;
+        اگر (!راستہ_is_محفوظ(راستہ))
+                واپس -ENOTDIR;
 
         /* return immediately if directory exists */
-        r = path_find_last_component(path, /* accept_dot_dot= */ false, &e, NULL);
-        if (r <= 0) /* r == 0 means path is equivalent to prefix. */
-                return r;
-        if (e == path)
-                return 0;
+        r = راستہ_ڈھونڈو_آخری_component(راستہ, /* accept_dot_dot= */ false, &e, تہی);
+        اگر (r <= 0) /* r == 0 means path is equivalent to prefix. */
+                واپس r;
+        اگر (e == راستہ)
+                واپس 0;
 
-        assert(e > path);
-        assert(*e == '/');
+        أكد(e > راستہ);
+        أكد(*e == '/');
 
         /* drop the last component */
-        path = strndupa_safe(path, e - path);
-        r = is_dir_at(dir_fd, path, /* follow= */ true);
-        if (r > 0)
-                return 0;
-        if (r == 0)
-                return -ENOTDIR;
+        راستہ = strndupa_محفوظ(راستہ, e - راستہ);
+        r = is_dir_at(dir_fd, راستہ, /* follow= */ true);
+        اگر (r > 0)
+                واپس 0;
+        اگر (r == 0)
+                واپس -ENOTDIR;
 
         /* create every parent directory in the path, except the last component */
-        for (const char *p = path;;) {
-                char *s;
-                int n;
+        برائے (ثابت حرف *p = راستہ;;) {
+                حرف *s;
+                صحیح n;
 
-                n = path_find_first_component(&p, /* accept_dot_dot= */ false, (const char **) &s);
-                if (n <= 0)
-                        return n;
+                n = راستہ_ڈھونڈو_پہلا_component(&p, /* accept_dot_dot= */ false, (ثابت حرف **) &s);
+                اگر (n <= 0)
+                        واپس n;
 
-                assert(p);
-                assert(s >= path);
-                assert(IN_SET(s[n], '/', '\0'));
+                أكد(p);
+                أكد(s >= راستہ);
+                أكد(اندر_سیٹ(s[n], '/', '\0'));
 
                 s[n] = '\0';
 
-                r = mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags | MKDIR_IGNORE_EXISTING, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+                r = mkdirat_محفوظ_اندرونی(dir_fd, راستہ, منوال, uid, gid, flags | MKDIR_IGNORE_EXISTING, _mkdirat, label_context);
+                اگر (r < 0 && r != -EEXIST)
+                        واپس r;
 
                 s[n] = *p == '\0' ? '\0' : '/';
         }
 }
 
-int mkdir_parents_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        _cleanup_close_ int fd = AT_FDCWD;
-        const char *p;
+صحیح mkdir_parents_اندرونی(ثابت حرف *سابقہ, ثابت حرف *راستہ, mode_t منوال, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        _cleanup_close_ صحیح fd = AT_FDCWD;
+        ثابت حرف *p;
 
-        assert(path);
-        assert(_mkdirat);
+        أكد(راستہ);
+        أكد(_mkdirat);
 
-        if (prefix) {
-                p = path_startswith_full(path, prefix, PATH_STARTSWITH_REFUSE_DOT_DOT);
-                if (!p)
-                        return -EINVAL;
+        اگر (سابقہ) {
+                p = راستہ_startswith_بھرا(راستہ, سابقہ, راستہ_STARTSWITH_REFUSE_DOT_DOT);
+                اگر (!p)
+                        واپس -EINVAL;
 
-                fd = open(prefix, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
-        } else
-                p = path;
+                fd = open(سابقہ, O_راستہ|O_DIRECTORY|O_CLOEXEC);
+                اگر (fd < 0)
+                        واپس -errno;
+        } ورنہ
+                p = راستہ;
 
-        return mkdirat_parents_internal(fd, p, mode, uid, gid, flags, _mkdirat, label_context);
+        واپس mkdirat_parents_اندرونی(fd, p, منوال, uid, gid, flags, _mkdirat, label_context);
 }
 
-int mkdirat_parents(int dir_fd, const char *path, mode_t mode) {
-        return mkdirat_parents_internal(dir_fd, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+صحیح mkdirat_parents(صحیح dir_fd, ثابت حرف *راستہ, mode_t منوال) {
+        واپس mkdirat_parents_اندرونی(dir_fd, راستہ, منوال, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ تہی);
 }
 
-int mkdir_parents_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_parents_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+صحیح mkdir_parents_محفوظ(ثابت حرف *سابقہ, ثابت حرف *راستہ, mode_t منوال, uid_t uid, gid_t gid, MkdirFlags flags) {
+        واپس mkdir_parents_اندرونی(سابقہ, راستہ, منوال, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ تہی);
 }
 
-int mkdir_p_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        int r;
+صحیح mkdir_p_اندرونی(ثابت حرف *سابقہ, ثابت حرف *راستہ, mode_t منوال, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        صحیح r;
 
         /* Like mkdir -p */
 
-        assert(_mkdirat);
+        أكد(_mkdirat);
 
-        r = mkdir_parents_internal(prefix, path, mode, uid, gid, flags | MKDIR_FOLLOW_SYMLINK, _mkdirat, label_context);
-        if (r < 0)
-                return r;
+        r = mkdir_parents_اندرونی(سابقہ, راستہ, منوال, uid, gid, flags | MKDIR_FOLLOW_SYMLINK, _mkdirat, label_context);
+        اگر (r < 0)
+                واپس r;
 
-        if (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
-                r = _mkdirat(AT_FDCWD, path, mode, label_context);
-                if (r < 0 && (r != -EEXIST || is_dir(path, true) <= 0))
-                        return r;
-        } else {
-                r = mkdir_safe_internal(path, mode, uid, gid, flags, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+        اگر (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
+                r = _mkdirat(AT_FDCWD, راستہ, منوال, label_context);
+                اگر (r < 0 && (r != -EEXIST || is_dir(راستہ, true) <= 0))
+                        واپس r;
+        } ورنہ {
+                r = mkdir_محفوظ_اندرونی(راستہ, منوال, uid, gid, flags, _mkdirat, label_context);
+                اگر (r < 0 && r != -EEXIST)
+                        واپس r;
         }
 
-        return 0;
+        واپس 0;
 }
 
-int mkdir_p(const char *path, mode_t mode) {
-        return mkdir_p_internal(/* prefix= */ NULL, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+صحیح mkdir_p(ثابت حرف *راستہ, mode_t منوال) {
+        واپس mkdir_p_اندرونی(/* prefix= */ تہی, راستہ, منوال, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ تہی);
 }
 
-int mkdir_p_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_p_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+صحیح mkdir_p_محفوظ(ثابت حرف *سابقہ, ثابت حرف *راستہ, mode_t منوال, uid_t uid, gid_t gid, MkdirFlags flags) {
+        واپس mkdir_p_اندرونی(سابقہ, راستہ, منوال, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ تہی);
 }
 
-int mkdir_p_root_full(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
-        _cleanup_free_ char *pp = NULL, *bn = NULL;
-        _cleanup_close_ int dfd = -EBADF;
-        int r;
+صحیح mkdir_p_جڑ_بھرا(ثابت حرف *جڑ, ثابت حرف *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
+        _cleanup_free_ حرف *pp = تہی, *bn = تہی;
+        _cleanup_close_ صحیح dfd = -EBADF;
+        صحیح r;
 
-        assert(p);
+        أكد(p);
 
-        r = path_extract_directory(p, &pp);
-        if (r == -EDESTADDRREQ) {
+        r = راستہ_نکالو_directory(p, &pp);
+        اگر (r == -EDESTADDRREQ) {
                 /* only fname is passed, no prefix to operate on */
                 dfd = open(".", O_RDONLY|O_CLOEXEC|O_DIRECTORY);
-                if (dfd < 0)
-                        return -errno;
-        } else if (r == -EADDRNOTAVAIL)
+                اگر (dfd < 0)
+                        واپس -errno;
+        } ورنہ اگر (r == -EADDRNOTAVAIL)
                 /* only root dir or "." was passed, i.e. there is no parent to extract, in that case there's nothing to do. */
-                return 0;
-        else if (r < 0)
-                return r;
-        else {
+                واپس 0;
+        ورنہ اگر (r < 0)
+                واپس r;
+        ورنہ {
                 /* Extracting the parent dir worked, hence we aren't top-level? Recurse up first. */
-                r = mkdir_p_root_full(root, pp, uid, gid, m, ts, subvolumes);
-                if (r < 0)
-                        return r;
+                r = mkdir_p_جڑ_بھرا(جڑ, pp, uid, gid, m, ts, subvolumes);
+                اگر (r < 0)
+                        واپس r;
 
-                dfd = chase_and_open(pp, root, CHASE_PREFIX_ROOT, O_CLOEXEC|O_DIRECTORY, NULL);
-                if (dfd < 0)
-                        return dfd;
+                dfd = chase_and_open(pp, جڑ, CHASE_سابقہ_جڑ, O_CLOEXEC|O_DIRECTORY, تہی);
+                اگر (dfd < 0)
+                        واپس dfd;
         }
 
-        r = path_extract_filename(p, &bn);
-        if (r == -EADDRNOTAVAIL) /* Already top-level */
-                return 0;
-        if (r < 0)
-                return r;
+        r = راستہ_نکالو_filename(p, &bn);
+        اگر (r == -EADDRNOTAVAIL) /* Already top-level */
+                واپس 0;
+        اگر (r < 0)
+                واپس r;
 
         XOpenFlags flags = 0;
-        if (hashmap_contains(subvolumes, p)) {
+        اگر (hashmap_شامل_ہے(subvolumes, p)) {
                 flags = XO_SUBVOLUME;
-                if ((PTR_TO_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
+                اگر ((PTR_مقصد_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
                         flags |= XO_NOCOW;
         }
 
-        _cleanup_close_ int nfd = xopenat_full(
+        _cleanup_close_ صحیح nfd = xopenat_بھرا(
                                 dfd, bn,
                                 O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,
                                 flags,
                                 m);
-        if (nfd == -EEXIST)
-                return 0;
-        if (nfd < 0)
-                return nfd;
+        اگر (nfd == -EEXIST)
+                واپس 0;
+        اگر (nfd < 0)
+                واپس nfd;
 
-        if ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
-                return -errno;
+        اگر ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
+                واپس -errno;
 
-        if (ts != USEC_INFINITY) {
-                struct timespec tspec;
+        اگر (ts != USEC_INFINITY) {
+                ساخت timespec tspec;
                 timespec_store(&tspec, ts);
 
-                if (futimens(dfd, (const struct timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
-                        return -errno;
+                اگر (futimens(dfd, (ثابت ساخت timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
+                        واپس -errno;
 
-                if (futimens(nfd, (const struct timespec[2]) { tspec, tspec }) < 0)
-                        return -errno;
+                اگر (futimens(nfd, (ثابت ساخت timespec[2]) { tspec, tspec }) < 0)
+                        واپس -errno;
         }
 
-        return 1;
+        واپس 1;
 }

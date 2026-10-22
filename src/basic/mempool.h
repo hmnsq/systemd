@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-struct pool;
+ساخت pool;
 
-struct mempool {
-        struct pool *first_pool;
-        void *freelist;
-        size_t tile_size;
-        size_t at_least;
+ساخت mempool {
+        ساخت pool *پہلا_pool;
+        خالی *freelist;
+        size_t tile_سائز;
+        size_t at_کم_سے_کم;
 };
 
-void* mempool_alloc_tile(struct mempool *mp);
-void* mempool_alloc0_tile(struct mempool *mp);
-void* mempool_free_tile(struct mempool *mp, void *p);
+خالی* mempool_alloc_tile(ساخت mempool *mp);
+خالی* mempool_alloc0_tile(ساخت mempool *mp);
+خالی* mempool_free_tile(ساخت mempool *mp, خالی *p);
 
-#define DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_least) \
-static struct mempool pool_name = { \
-        .tile_size = sizeof(tile_type), \
-        .at_least = alloc_at_least, \
+#تعریف_کرو DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_کم_سے_کم) \
+ساکن ساخت mempool pool_name = { \
+        .tile_سائز = حجم(tile_type), \
+        .at_کم_سے_کم = alloc_at_کم_سے_کم, \
 }
 
-bool mempool_enabled(void) _weak_ _pure_;
+bool mempool_enabled(خالی) _weak_ خالص;
 
-void mempool_trim(struct mempool *mp);
+خالی mempool_trim(ساخت mempool *mp);

@@ -1,122 +1,122 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/xattr.h>
-#include <threads.h>
+#شامل <fcntl.h>
+#شامل <sys/xattr.h>
+#شامل <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "nulstr-util.h"
-#include "parse-util.h"
-#include "sparse-endian.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "xattr-util.h"
+#شامل "alloc-util.h"
+#شامل "errno-util.h"
+#شامل "fd-util.h"
+#شامل "fs-util.h"
+#شامل "nulstr-util.h"
+#شامل "parse-util.h"
+#شامل "sparse-endian.h"
+#شامل "stat-util.h"
+#شامل "string-util.h"
+#شامل "strv.h"
+#شامل "time-util.h"
+#شامل "xattr-util.h"
 
 /* Use a single cache for all of *xattrat syscalls (added in kernel 6.13) */
-static thread_local bool have_xattrat = true;
+ساکن thread_local bool have_xattrat = true;
 
-static int normalize_and_maybe_pin_inode(
-                int *fd,
-                const char **path,
-                int *at_flags,
-                int *ret_tfd,
+ساکن صحیح normalize_and_maybe_pin_inode(
+                صحیح *fd,
+                ثابت حرف **راستہ,
+                صحیح *at_flags,
+                صحیح *ret_tfd,
                 bool *ret_opath) {
 
-        int r;
+        صحیح r;
 
-        assert(fd);
-        assert(*fd >= 0 || *fd == AT_FDCWD);
-        assert(path);
-        assert(at_flags);
-        assert(ret_tfd);
-        assert(ret_opath);
+        أكد(fd);
+        أكد(*fd >= 0 || *fd == AT_FDCWD);
+        أكد(راستہ);
+        أكد(at_flags);
+        أكد(ret_tfd);
+        أكد(ret_opath);
 
-        *path = empty_to_null(*path); /* Normalize "" to NULL */
+        *راستہ = خالی_خانے_مقصد_null(*راستہ); /* Normalize "" to NULL */
 
-        if (*fd == AT_FDCWD) {
-                if (!*path) /* Both unspecified? Then operate on current working directory */
-                        *path = ".";
+        اگر (*fd == AT_FDCWD) {
+                اگر (!*راستہ) /* Both unspecified? Then operate on current working directory */
+                        *راستہ = ".";
 
                 *ret_tfd = -EBADF;
                 *ret_opath = false;
-                return 0;
+                واپس 0;
         }
 
-        *at_flags |= AT_EMPTY_PATH;
+        *at_flags |= AT_خالی_خانے_راستہ;
 
-        if (!*path) {
+        اگر (!*راستہ) {
                 r = fd_is_opath(*fd);
-                if (r < 0)
-                        return r;
+                اگر (r < 0)
+                        واپس r;
                 *ret_opath = r;
                 *ret_tfd = -EBADF;
-                return 0;
+                واپس 0;
         }
 
         /* If both have been specified, then we go via O_PATH */
 
-        int tfd = openat(*fd, *path, O_PATH|O_CLOEXEC|(FLAGS_SET(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
-        if (tfd < 0)
-                return -errno;
+        صحیح tfd = openat(*fd, *راستہ, O_راستہ|O_CLOEXEC|(FLAGS_سیٹ(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
+        اگر (tfd < 0)
+                واپس -errno;
 
         *fd = *ret_tfd = tfd;
-        *path = NULL;
+        *راستہ = تہی;
         *ret_opath = true;
 
-        return 0;
+        واپس 0;
 }
 
-static ssize_t getxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+ساکن ssize_t getxattr_pinned_اندرونی(
+                صحیح fd,
+                ثابت حرف *راستہ,
+                صحیح at_flags,
                 bool by_procfs,
-                const char *name,
-                char *buf,
-                size_t size) {
+                ثابت حرف *name,
+                حرف *buf,
+                size_t سائز) {
 
         ssize_t n;
 
-        assert(!path || !isempty(path));
-        assert((fd >= 0) == !path);
-        assert(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
-        assert(name);
-        assert(buf || size == 0);
+        أكد(!راستہ || !isempty(راستہ));
+        أكد((fd >= 0) == !راستہ);
+        أكد(راستہ || FLAGS_سیٹ(at_flags, AT_خالی_خانے_راستہ));
+        أكد(name);
+        أكد(buf || سائز == 0);
 
-        if (path)
-                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? getxattr(path, name, buf, size)
-                                                           : lgetxattr(path, name, buf, size);
-        else
-                n = by_procfs ? getxattr(FORMAT_PROC_FD_PATH(fd), name, buf, size)
-                              : fgetxattr(fd, name, buf, size);
-        if (n < 0)
-                return -errno;
+        اگر (راستہ)
+                n = FLAGS_سیٹ(at_flags, AT_SYMLINK_FOLLOW) ? getxattr(راستہ, name, buf, سائز)
+                                                           : lgetxattr(راستہ, name, buf, سائز);
+        ورنہ
+                n = by_procfs ? getxattr(FORMAT_PROC_FD_راستہ(fd), name, buf, سائز)
+                              : fgetxattr(fd, name, buf, سائز);
+        اگر (n < 0)
+                واپس -errno;
 
-        assert(size == 0 || (size_t) n <= size);
-        return n;
+        أكد(سائز == 0 || (size_t) n <= سائز);
+        واپس n;
 }
 
-int getxattr_at_malloc(
-                int fd,
-                const char *path,
-                const char *name,
-                int at_flags,
-                char **ret,
-                size_t *ret_size) {
+صحیح getxattr_at_malloc(
+                صحیح fd,
+                ثابت حرف *راستہ,
+                ثابت حرف *name,
+                صحیح at_flags,
+                حرف **ret,
+                size_t *ret_سائز) {
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ صحیح opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        صحیح r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert(name);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(ret);
+        أكد(fd >= 0 || fd == AT_FDCWD);
+        أكد(name);
+        أكد((at_flags & ~(AT_SYMLINK_FOLLOW|AT_خالی_خانے_راستہ)) == 0);
+        أكد(ret);
 
         /* So, this is single function that does what getxattr()/lgetxattr()/fgetxattr() does, but in one go,
          * and with additional bells and whistles. Specifically:
@@ -127,308 +127,308 @@ int getxattr_at_malloc(
          * 4. NUL-terminates the returned buffer (for safety)
          */
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &راستہ, &at_flags, &opened_fd, &by_procfs);
+        اگر (r < 0)
+                واپس r;
 
         size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        برائے (غیرعلامتی n_attempts = 7;;) {
+                _cleanup_free_ حرف *v = تہی;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                اگر (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        واپس -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(حرف, l+1);
+                اگر (!v)
+                        واپس -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
                 ssize_t n;
-                n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, v, l);
-                if (n >= 0) {
+                n = getxattr_pinned_اندرونی(fd, راستہ, at_flags, by_procfs, name, v, l);
+                اگر (n >= 0) {
                         /* Refuse extended attributes with embedded NUL bytes if the caller isn't interested
                          * in the size. After all this must mean the caller assumes we return a NUL
                          * terminated strings, but if there's a NUL byte embedded they are definitely not
                          * regular strings */
-                        if (!ret_size && n > 1 && memchr(v, 0, n - 1))
-                                return -EBADMSG;
+                        اگر (!ret_سائز && n > 1 && memchr(v, 0, n - 1))
+                                واپس -EBADMSG;
 
                         v[n] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        if (ret_size)
-                                *ret_size = (size_t) n;
+                        اگر (ret_سائز)
+                                *ret_سائز = (size_t) n;
 
-                        return 0;
+                        واپس 0;
                 }
-                if (n != -ERANGE)
-                        return (int) n;
+                اگر (n != -ERANGE)
+                        واپس (صحیح) n;
 
-                n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, NULL, 0);
-                if (n < 0)
-                        return (int) n;
+                n = getxattr_pinned_اندرونی(fd, راستہ, at_flags, by_procfs, name, تہی, 0);
+                اگر (n < 0)
+                        واپس (صحیح) n;
 
                 l = (size_t) n;
         }
 }
 
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+صحیح getxattr_at_bool(صحیح fd, ثابت حرف *راستہ, ثابت حرف *name, صحیح at_flags) {
+        _cleanup_free_ حرف *v = تہی;
+        صحیح r;
 
-        r = getxattr_at_malloc(fd, path, name, at_flags, &v, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        r = getxattr_at_malloc(fd, راستہ, name, at_flags, &v, /* ret_size= */ تہی);
+        اگر (r < 0)
+                واپس r;
 
-        return parse_boolean(v);
+        واپس parse_boolean(v);
 }
 
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv) {
-        _cleanup_free_ char *nulstr = NULL;
-        size_t nulstr_size;
-        int r;
+صحیح getxattr_at_strv(صحیح fd, ثابت حرف *راستہ, ثابت حرف *name, صحیح at_flags, حرف ***ret_strv) {
+        _cleanup_free_ حرف *nulstr = تہی;
+        size_t nulstr_سائز;
+        صحیح r;
 
-        assert(ret_strv);
+        أكد(ret_strv);
 
-        r = getxattr_at_malloc(fd, path, name, at_flags, &nulstr, &nulstr_size);
-        if (r < 0)
-                return r;
+        r = getxattr_at_malloc(fd, راستہ, name, at_flags, &nulstr, &nulstr_سائز);
+        اگر (r < 0)
+                واپس r;
 
-        _cleanup_strv_free_ char **l = strv_parse_nulstr(nulstr, nulstr_size);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ حرف **l = strv_parse_nulstr(nulstr, nulstr_سائز);
+        اگر (!l)
+                واپس -ENOMEM;
 
         *ret_strv = TAKE_PTR(l);
-        return 0;
+        واپس 0;
 }
 
-static int listxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+ساکن صحیح listxattr_pinned_اندرونی(
+                صحیح fd,
+                ثابت حرف *راستہ,
+                صحیح at_flags,
                 bool by_procfs,
-                char *buf,
-                size_t size) {
+                حرف *buf,
+                size_t سائز) {
 
         ssize_t n;
 
-        assert(!path || !isempty(path));
-        assert((fd >= 0) == !path);
-        assert(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
-        assert(buf || size == 0);
+        أكد(!راستہ || !isempty(راستہ));
+        أكد((fd >= 0) == !راستہ);
+        أكد(راستہ || FLAGS_سیٹ(at_flags, AT_خالی_خانے_راستہ));
+        أكد(buf || سائز == 0);
 
-        if (path)
-                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? listxattr(path, buf, size)
-                                                           : llistxattr(path, buf, size);
-        else
-                n = by_procfs ? listxattr(FORMAT_PROC_FD_PATH(fd), buf, size)
-                              : flistxattr(fd, buf, size);
-        if (n < 0)
-                return -errno;
+        اگر (راستہ)
+                n = FLAGS_سیٹ(at_flags, AT_SYMLINK_FOLLOW) ? listxattr(راستہ, buf, سائز)
+                                                           : llistxattr(راستہ, buf, سائز);
+        ورنہ
+                n = by_procfs ? listxattr(FORMAT_PROC_FD_راستہ(fd), buf, سائز)
+                              : flistxattr(fd, buf, سائز);
+        اگر (n < 0)
+                واپس -errno;
 
-        assert(size == 0 || (size_t) n <= size);
+        أكد(سائز == 0 || (size_t) n <= سائز);
 
-        if (n > INT_MAX) /* We couldn't return this as 'int' anymore */
-                return -E2BIG;
+        اگر (n > زیادہ_سے_زیادہ_عدد) /* We couldn't return this as 'int' anymore */
+                واپس -E2BIG;
 
-        return (int) n;
+        واپس (صحیح) n;
 }
 
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret) {
-        _cleanup_close_ int opened_fd = -EBADF;
+صحیح listxattr_at_malloc(صحیح fd, ثابت حرف *راستہ, صحیح at_flags, حرف **ret) {
+        _cleanup_close_ صحیح opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        صحیح r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(ret);
+        أكد(fd >= 0 || fd == AT_FDCWD);
+        أكد((at_flags & ~(AT_SYMLINK_FOLLOW|AT_خالی_خانے_راستہ)) == 0);
+        أكد(ret);
 
         /* This is to listxattr()/llistattr()/flistattr() what getxattr_at_malloc() is to getxattr()/… */
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &راستہ, &at_flags, &opened_fd, &by_procfs);
+        اگر (r < 0)
+                واپس r;
 
         size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        برائے (غیرعلامتی n_attempts = 7;;) {
+                _cleanup_free_ حرف *v = تہی;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                اگر (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        واپس -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(حرف, l+1);
+                اگر (!v)
+                        واپس -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
-                r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, v, l);
-                if (r >= 0) {
+                r = listxattr_pinned_اندرونی(fd, راستہ, at_flags, by_procfs, v, l);
+                اگر (r >= 0) {
                         v[r] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        return r;
+                        واپس r;
                 }
-                if (r != -ERANGE)
-                        return r;
+                اگر (r != -ERANGE)
+                        واپس r;
 
-                r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, NULL, 0);
-                if (r < 0)
-                        return r;
+                r = listxattr_pinned_اندرونی(fd, راستہ, at_flags, by_procfs, تہی, 0);
+                اگر (r < 0)
+                        واپس r;
 
                 l = (size_t) r;
         }
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
-                size_t size,
-                int xattr_flags) {
+صحیح xsetxattr_بھرا(
+                صحیح fd,
+                ثابت حرف *راستہ,
+                صحیح at_flags,
+                ثابت حرف *name,
+                ثابت حرف *قدر,
+                size_t سائز,
+                صحیح xattr_flags) {
 
-        int r;
+        صحیح r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(name);
-        assert(value || size == 0);
+        أكد(fd >= 0 || fd == AT_FDCWD);
+        أكد((at_flags & ~(AT_SYMLINK_FOLLOW|AT_خالی_خانے_راستہ)) == 0);
+        أكد(name);
+        أكد(قدر || سائز == 0);
 
-        if (size == SIZE_MAX)
-                size = strlen(value);
+        اگر (سائز == SIZE_MAX)
+                سائز = لڑی_لمبائی(قدر);
 
         /* Skip the write if the xattr already has the correct value, to avoid
          * unnecessary timestamp changes on the file. Only do this for plain
          * replace mode (xattr_flags == 0) — XATTR_CREATE callers expect
          * -EEXIST when the xattr already exists. */
-        _cleanup_free_ char *old_value = NULL;
-        size_t old_size;
+        _cleanup_free_ حرف *old_قدر = تہی;
+        size_t old_سائز;
 
-        if (xattr_flags == 0 &&
-            getxattr_at_malloc(fd, path, name, at_flags, &old_value, &old_size) >= 0 &&
-            memcmp_nn(old_value, old_size, value, size) == 0)
-                return 0;
+        اگر (xattr_flags == 0 &&
+            getxattr_at_malloc(fd, راستہ, name, at_flags, &old_قدر, &old_سائز) >= 0 &&
+            memcmp_nn(old_قدر, old_سائز, قدر, سائز) == 0)
+                واپس 0;
 
-        if (have_xattrat && !isempty(path)) {
-                struct xattr_args args = {
-                        .value = PTR_TO_UINT64(value),
-                        .size = size,
+        اگر (have_xattrat && !isempty(راستہ)) {
+                ساخت xattr_دلائل دلائل = {
+                        .قدر = PTR_مقصد_UINT64(قدر),
+                        .سائز = سائز,
                         .flags = xattr_flags,
                 };
 
-                r = RET_NERRNO(setxattrat(fd, path,
+                r = RET_NERRNO(setxattrat(fd, راستہ,
                                           at_flags_normalize_nofollow(at_flags),
                                           name,
-                                          &args, sizeof(args)));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                                          &دلائل, حجم(دلائل)));
+                اگر (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        واپس r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ صحیح opened_fd = -EBADF;
         bool by_procfs;
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &راستہ, &at_flags, &opened_fd, &by_procfs);
+        اگر (r < 0)
+                واپس r;
 
-        if (path)
-                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(path, name, value, size, xattr_flags)
-                                                           : lsetxattr(path, name, value, size, xattr_flags);
-        else
-                r = by_procfs ? setxattr(FORMAT_PROC_FD_PATH(fd), name, value, size, xattr_flags)
-                              : fsetxattr(fd, name, value, size, xattr_flags);
-        if (r < 0)
-                return -errno;
+        اگر (راستہ)
+                r = FLAGS_سیٹ(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(راستہ, name, قدر, سائز, xattr_flags)
+                                                           : lsetxattr(راستہ, name, قدر, سائز, xattr_flags);
+        ورنہ
+                r = by_procfs ? setxattr(FORMAT_PROC_FD_راستہ(fd), name, قدر, سائز, xattr_flags)
+                              : fsetxattr(fd, name, قدر, سائز, xattr_flags);
+        اگر (r < 0)
+                واپس -errno;
 
-        return 0;
+        واپس 0;
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l) {
-        _cleanup_free_ char *nulstr = NULL;
-        size_t size;
-        int r;
+صحیح xsetxattr_strv(صحیح fd, ثابت حرف *راستہ, صحیح at_flags, ثابت حرف *name, حرف * ثابت *l) {
+        _cleanup_free_ حرف *nulstr = تہی;
+        size_t سائز;
+        صحیح r;
 
-        assert(name);
+        أكد(name);
 
-        r = strv_make_nulstr(l, &nulstr, &size);
-        if (r < 0)
-                return r;
+        r = strv_make_nulstr(l, &nulstr, &سائز);
+        اگر (r < 0)
+                واپس r;
 
-        return xsetxattr_full(fd, path, at_flags, name, nulstr, size, /* xattr_flags= */ 0);
+        واپس xsetxattr_بھرا(fd, راستہ, at_flags, name, nulstr, سائز, /* xattr_flags= */ 0);
 }
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name) {
-        int r;
+صحیح xremovexattr(صحیح fd, ثابت حرف *راستہ, صحیح at_flags, ثابت حرف *name) {
+        صحیح r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(name);
+        أكد(fd >= 0 || fd == AT_FDCWD);
+        أكد((at_flags & ~(AT_SYMLINK_FOLLOW|AT_خالی_خانے_راستہ)) == 0);
+        أكد(name);
 
-        if (have_xattrat && !isempty(path)) {
-                r = RET_NERRNO(removexattrat(fd, path,
+        اگر (have_xattrat && !isempty(راستہ)) {
+                r = RET_NERRNO(removexattrat(fd, راستہ,
                                              at_flags_normalize_nofollow(at_flags),
                                              name));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                اگر (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        واپس r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int tfd = -EBADF;
+        _cleanup_close_ صحیح tfd = -EBADF;
         bool by_procfs;
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &tfd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &راستہ, &at_flags, &tfd, &by_procfs);
+        اگر (r < 0)
+                واپس r;
 
-        if (path)
-                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? removexattr(path, name)
-                                                           : lremovexattr(path, name);
-        else
-                r = by_procfs ? removexattr(FORMAT_PROC_FD_PATH(fd), name)
+        اگر (راستہ)
+                r = FLAGS_سیٹ(at_flags, AT_SYMLINK_FOLLOW) ? removexattr(راستہ, name)
+                                                           : lremovexattr(راستہ, name);
+        ورنہ
+                r = by_procfs ? removexattr(FORMAT_PROC_FD_راستہ(fd), name)
                               : fremovexattr(fd, name);
-        if (r < 0)
-                return -errno;
+        اگر (r < 0)
+                واپس -errno;
 
-        return 0;
+        واپس 0;
 }
 
-static int parse_crtime(le64_t le, usec_t *ret) {
+ساکن صحیح parse_crtime(le64_t le, usec_t *ret) {
         usec_t u;
 
-        assert(ret);
+        أكد(ret);
 
-        assert_cc(sizeof(usec_t) == sizeof(uint64_t));
+        assert_cc(حجم(usec_t) == حجم(uint64_t));
         assert_cc((usec_t) UINT64_MAX == USEC_INFINITY);
 
         u = (usec_t) le64toh(le);
-        if (!timestamp_is_set(u))
-                return -EIO;
+        اگر (!timestamp_is_سیٹ(u))
+                واپس -EIO;
 
         *ret = u;
-        return 0;
+        واپس 0;
 }
 
-int getcrtime_at(
-                int fd,
-                const char *path,
-                int at_flags,
+صحیح getcrtime_at(
+                صحیح fd,
+                ثابت حرف *راستہ,
+                صحیح at_flags,
                 usec_t *ret) {
 
-        _cleanup_free_ le64_t *le = NULL;
-        struct statx sx;
+        _cleanup_free_ le64_t *le = تہی;
+        ساخت statx sx;
         usec_t a, b;
-        int r;
+        صحیح r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
+        أكد(fd >= 0 || fd == AT_FDCWD);
+        أكد((at_flags & ~(AT_SYMLINK_FOLLOW|AT_خالی_خانے_راستہ)) == 0);
 
         /* So here's the deal: the creation/birth time (crtime/btime) of a file is a relatively newly supported concept
          * on Linux (or more strictly speaking: a concept that only recently got supported in the API, it was
@@ -440,63 +440,63 @@ int getcrtime_at(
          * concept is useful for determining how "old" a file really is, and hence using the older of the two makes
          * most sense. */
 
-        r = xstatx_full(fd,
-                        path,
+        r = xstatx_بھرا(fd,
+                        راستہ,
                         at_flags_normalize_nofollow(at_flags)|AT_STATX_DONT_SYNC,
                         /* xstatx_flags= */ 0,
                         /* mandatory_mask= */ 0,
                         STATX_BTIME,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
-                a = statx_timestamp_load(&sx.stx_btime);
-        else
+        اگر (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
+                a = statx_timestamp_بھرو(&sx.stx_btime);
+        ورنہ
                 a = USEC_INFINITY;
 
-        size_t le_size;
-        r = getxattr_at_malloc(fd, path, "user.crtime_usec", at_flags, (char**) &le, &le_size);
-        if (r >= 0) {
-                if (le_size != sizeof(*le))
+        size_t le_سائز;
+        r = getxattr_at_malloc(fd, راستہ, "user.crtime_usec", at_flags, (حرف**) &le, &le_سائز);
+        اگر (r >= 0) {
+                اگر (le_سائز != حجم(*le))
                         r = -EIO;
-                else
+                ورنہ
                         r = parse_crtime(*le, &b);
         }
-        if (r < 0) {
-                if (a != USEC_INFINITY) {
-                        if (ret)
+        اگر (r < 0) {
+                اگر (a != USEC_INFINITY) {
+                        اگر (ret)
                                 *ret = a;
-                        return 0;
+                        واپس 0;
                 }
 
-                return r;
+                واپس r;
         }
 
-        if (ret)
+        اگر (ret)
                 *ret = MIN(a, b);
-        return 0;
+        واپس 0;
 }
 
-int fd_setcrtime(int fd, usec_t usec) {
+صحیح fd_setcrtime(صحیح fd, usec_t usec) {
         le64_t le;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
-        if (!timestamp_is_set(usec))
+        اگر (!timestamp_is_سیٹ(usec))
                 usec = now(CLOCK_REALTIME);
 
         le = htole64((uint64_t) usec);
-        return xsetxattr_full(fd, /* path= */ NULL, AT_EMPTY_PATH,
-                              "user.crtime_usec", (const char*) &le, sizeof(le),
+        واپس xsetxattr_بھرا(fd, /* path= */ تہی, AT_خالی_خانے_راستہ,
+                              "user.crtime_usec", (ثابت حرف*) &le, حجم(le),
                               /* xattr_flags= */ 0);
 }
 
-bool xattr_is_acl(const char *name) {
-        return STR_IN_SET(
+bool xattr_is_acl(ثابت حرف *name) {
+        واپس STR_اندر_سیٹ(
                         ASSERT_PTR(name),
                         "system.posix_acl_access",
                         "system.posix_acl_default");
 }
 
-bool xattr_is_selinux(const char *name) {
-        return streq(ASSERT_PTR(name), "security.selinux");
+bool xattr_is_selinux(ثابت حرف *name) {
+        واپس streq(ASSERT_PTR(name), "security.selinux");
 }

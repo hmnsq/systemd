@@ -1,965 +1,965 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <arpa/inet.h>
-#include <endian.h>
-#include <stdio.h>
+#شامل <arpa/inet.h>
+#شامل <endian.h>
+#شامل <stdio.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "hash-funcs.h"
-#include "in-addr-util.h"
-#include "logarithm.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "random-util.h"
-#include "siphash24.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#شامل "alloc-util.h"
+#شامل "errno-util.h"
+#شامل "hash-funcs.h"
+#شامل "in-addr-util.h"
+#شامل "logarithm.h"
+#شامل "memory-util.h"
+#شامل "parse-util.h"
+#شامل "random-util.h"
+#شامل "siphash24.h"
+#شامل "stdio-util.h"
+#شامل "string-util.h"
 
-bool in4_addr_is_null(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_null(ثابت ساخت in_addr *a) {
+        أكد(a);
 
-        return a->s_addr == 0;
+        واپس a->s_addr == 0;
 }
 
-bool in6_addr_is_null(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_null(ثابت ساخت in6_addr *a) {
+        أكد(a);
 
-        return eqzero(a->s6_addr32);
+        واپس eqzero(a->s6_addr32);
 }
 
-int in_addr_is_null(int family, const union in_addr_union *u) {
-        assert(u);
+صحیح اندر_addr_is_null(صحیح family, ثابت اتحاد اندر_addr_union *u) {
+        أكد(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_null(&u->in);
+        اگر (family == AF_INET)
+                واپس in4_addr_is_null(&u->اندر);
 
-        if (family == AF_INET6)
-                return in6_addr_is_null(&u->in6);
+        اگر (family == AF_INET6)
+                واپس in6_addr_is_null(&u->in6);
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-bool in4_addr_is_link_local(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_link_local(ثابت ساخت in_addr *a) {
+        أكد(a);
 
-        return (be32toh(a->s_addr) & UINT32_C(0xFFFF0000)) == (UINT32_C(169) << 24 | UINT32_C(254) << 16);
+        واپس (be32toh(a->s_addr) & UINT32_C(0xFFFF0000)) == (UINT32_C(169) << 24 | UINT32_C(254) << 16);
 }
 
-bool in4_addr_is_link_local_dynamic(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_link_local_dynamic(ثابت ساخت in_addr *a) {
+        أكد(a);
 
-        if (!in4_addr_is_link_local(a))
-                return false;
+        اگر (!in4_addr_is_link_local(a))
+                واپس false;
 
         /* 169.254.0.0/24 and 169.254.255.0/24 must not be used for the dynamic IPv4LL assignment.
          * See RFC 3927 Section 2.1:
          * The IPv4 prefix 169.254/16 is registered with the IANA for this purpose. The first 256 and last
          * 256 addresses in the 169.254/16 prefix are reserved for future use and MUST NOT be selected by a
          * host using this dynamic configuration mechanism. */
-        return !IN_SET(be32toh(a->s_addr) & 0x0000FF00U, 0x0000U, 0xFF00U);
+        واپس !اندر_سیٹ(be32toh(a->s_addr) & 0x0000FF00U, 0x0000U, 0xFF00U);
 }
 
-bool in6_addr_is_link_local(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_link_local(ثابت ساخت in6_addr *a) {
+        أكد(a);
 
-        return (a->s6_addr32[0] & htobe32(0xffc00000)) == htobe32(0xfe800000);
+        واپس (a->s6_addr32[0] & htobe32(0xffc00000)) == htobe32(0xfe800000);
 }
 
-int in_addr_is_link_local(int family, const union in_addr_union *u) {
-        assert(u);
+صحیح اندر_addr_is_link_local(صحیح family, ثابت اتحاد اندر_addr_union *u) {
+        أكد(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_link_local(&u->in);
+        اگر (family == AF_INET)
+                واپس in4_addr_is_link_local(&u->اندر);
 
-        if (family == AF_INET6)
-                return in6_addr_is_link_local(&u->in6);
+        اگر (family == AF_INET6)
+                واپس in6_addr_is_link_local(&u->in6);
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-bool in6_addr_is_link_local_all_nodes(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_link_local_all_nodes(ثابت ساخت in6_addr *a) {
+        أكد(a);
 
         /* ff02::1 */
-        return be32toh(a->s6_addr32[0]) == UINT32_C(0xff020000) &&
+        واپس be32toh(a->s6_addr32[0]) == UINT32_C(0xff020000) &&
                 a->s6_addr32[1] == 0 &&
                 a->s6_addr32[2] == 0 &&
                 be32toh(a->s6_addr32[3]) == UINT32_C(0x00000001);
 }
 
-bool in4_addr_is_multicast(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_multicast(ثابت ساخت in_addr *a) {
+        أكد(a);
 
-        return IN_MULTICAST(be32toh(a->s_addr));
+        واپس IN_MULTICAST(be32toh(a->s_addr));
 }
 
-bool in6_addr_is_multicast(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_multicast(ثابت ساخت in6_addr *a) {
+        أكد(a);
 
-        return a->s6_addr[0] == 0xff;
+        واپس a->s6_addr[0] == 0xff;
 }
 
-int in_addr_is_multicast(int family, const union in_addr_union *u) {
-        assert(u);
+صحیح اندر_addr_is_multicast(صحیح family, ثابت اتحاد اندر_addr_union *u) {
+        أكد(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_multicast(&u->in);
+        اگر (family == AF_INET)
+                واپس in4_addr_is_multicast(&u->اندر);
 
-        if (family == AF_INET6)
-                return in6_addr_is_multicast(&u->in6);
+        اگر (family == AF_INET6)
+                واپس in6_addr_is_multicast(&u->in6);
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-bool in4_addr_is_local_multicast(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_local_multicast(ثابت ساخت in_addr *a) {
+        أكد(a);
 
-        return (be32toh(a->s_addr) & UINT32_C(0xffffff00)) == UINT32_C(0xe0000000);
+        واپس (be32toh(a->s_addr) & UINT32_C(0xffffff00)) == UINT32_C(0xe0000000);
 }
 
-bool in4_addr_is_localhost(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_localhost(ثابت ساخت in_addr *a) {
+        أكد(a);
 
         /* All of 127.x.x.x is localhost. */
-        return (be32toh(a->s_addr) & UINT32_C(0xFF000000)) == UINT32_C(127) << 24;
+        واپس (be32toh(a->s_addr) & UINT32_C(0xFF000000)) == UINT32_C(127) << 24;
 }
 
-bool in4_addr_is_non_local(const struct in_addr *a) {
+bool in4_addr_is_non_local(ثابت ساخت in_addr *a) {
         /* Whether the address is not null and not localhost.
          *
          * As such, it is suitable to configure as DNS/NTP server from DHCP. */
-        return !in4_addr_is_null(a) &&
+        واپس !in4_addr_is_null(a) &&
                !in4_addr_is_localhost(a);
 }
 
-static bool in6_addr_is_loopback(const struct in6_addr *a) {
-        return memcmp(a, &(struct in6_addr) IN6ADDR_LOOPBACK_INIT, sizeof(struct in6_addr)) == 0;
+ساکن bool in6_addr_is_loopback(ثابت ساخت in6_addr *a) {
+        واپس memcmp(a, &(ساخت in6_addr) IN6ADDR_LOOPBACK_INIT, حجم(ساخت in6_addr)) == 0;
 }
 
-int in_addr_is_localhost(int family, const union in_addr_union *u) {
-        assert(u);
+صحیح اندر_addr_is_localhost(صحیح family, ثابت اتحاد اندر_addr_union *u) {
+        أكد(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_localhost(&u->in);
+        اگر (family == AF_INET)
+                واپس in4_addr_is_localhost(&u->اندر);
 
-        if (family == AF_INET6)
-                return in6_addr_is_loopback(&u->in6);
+        اگر (family == AF_INET6)
+                واپس in6_addr_is_loopback(&u->in6);
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-int in_addr_is_localhost_one(int family, const union in_addr_union *u) {
-        assert(u);
+صحیح اندر_addr_is_localhost_one(صحیح family, ثابت اتحاد اندر_addr_union *u) {
+        أكد(u);
 
-        if (family == AF_INET)
+        اگر (family == AF_INET)
                 /* 127.0.0.1 */
-                return be32toh(u->in.s_addr) == UINT32_C(0x7F000001);
+                واپس be32toh(u->اندر.s_addr) == UINT32_C(0x7F000001);
 
-        if (family == AF_INET6)
-                return in6_addr_is_loopback(&u->in6);
+        اگر (family == AF_INET6)
+                واپس in6_addr_is_loopback(&u->in6);
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-bool in6_addr_is_ipv4_mapped_address(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_ipv4_mapped_پتہ(ثابت ساخت in6_addr *a) {
+        أكد(a);
 
-        return a->s6_addr32[0] == 0 &&
+        واپس a->s6_addr32[0] == 0 &&
                 a->s6_addr32[1] == 0 &&
                 a->s6_addr32[2] == htobe32(UINT32_C(0x0000ffff));
 }
 
-bool in4_addr_equal(const struct in_addr *a, const struct in_addr *b) {
-        assert(a);
-        assert(b);
+bool in4_addr_equal(ثابت ساخت in_addr *a, ثابت ساخت in_addr *b) {
+        أكد(a);
+        أكد(b);
 
-        return a->s_addr == b->s_addr;
+        واپس a->s_addr == b->s_addr;
 }
 
-bool in6_addr_equal(const struct in6_addr *a, const struct in6_addr *b) {
-        assert(a);
-        assert(b);
+bool in6_addr_equal(ثابت ساخت in6_addr *a, ثابت ساخت in6_addr *b) {
+        أكد(a);
+        أكد(b);
 
-        return memcmp(a, b, sizeof(struct in6_addr)) == 0;
+        واپس memcmp(a, b, حجم(ساخت in6_addr)) == 0;
 }
 
-int in_addr_equal(int family, const union in_addr_union *a, const union in_addr_union *b) {
-        assert(a);
-        assert(b);
+صحیح اندر_addr_equal(صحیح family, ثابت اتحاد اندر_addr_union *a, ثابت اتحاد اندر_addr_union *b) {
+        أكد(a);
+        أكد(b);
 
-        if (family == AF_INET)
-                return in4_addr_equal(&a->in, &b->in);
+        اگر (family == AF_INET)
+                واپس in4_addr_equal(&a->اندر, &b->اندر);
 
-        if (family == AF_INET6)
-                return in6_addr_equal(&a->in6, &b->in6);
+        اگر (family == AF_INET6)
+                واپس in6_addr_equal(&a->in6, &b->in6);
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-bool in4_addr_prefix_intersect(
-                const struct in_addr *a,
-                unsigned aprefixlen,
-                const struct in_addr *b,
-                unsigned bprefixlen) {
+bool in4_addr_سابقہ_intersect(
+                ثابت ساخت in_addr *a,
+                غیرعلامتی aprefixlen,
+                ثابت ساخت in_addr *b,
+                غیرعلامتی bprefixlen) {
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        unsigned m = MIN3(aprefixlen, bprefixlen, (unsigned) (sizeof(struct in_addr) * 8));
-        if (m == 0)
-                return true; /* Let's return earlier, to avoid shift by 32. */
+        غیرعلامتی m = MIN3(aprefixlen, bprefixlen, (غیرعلامتی) (حجم(ساخت in_addr) * 8));
+        اگر (m == 0)
+                واپس true; /* Let's return earlier, to avoid shift by 32. */
 
         uint32_t x = be32toh(a->s_addr ^ b->s_addr);
         uint32_t n = 0xFFFFFFFFUL << (32 - m);
-        return (x & n) == 0;
+        واپس (x & n) == 0;
 }
 
-bool in6_addr_prefix_intersect(
-                const struct in6_addr *a,
-                unsigned aprefixlen,
-                const struct in6_addr *b,
-                unsigned bprefixlen) {
+bool in6_addr_سابقہ_intersect(
+                ثابت ساخت in6_addr *a,
+                غیرعلامتی aprefixlen,
+                ثابت ساخت in6_addr *b,
+                غیرعلامتی bprefixlen) {
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
-        unsigned m = MIN3(aprefixlen, bprefixlen, (unsigned) (sizeof(struct in6_addr) * 8));
-        if (m == 0)
-                return true;
+        غیرعلامتی m = MIN3(aprefixlen, bprefixlen, (غیرعلامتی) (حجم(ساخت in6_addr) * 8));
+        اگر (m == 0)
+                واپس true;
 
-        for (size_t i = 0; i < sizeof(struct in6_addr); i++) {
+        برائے (size_t i = 0; i < حجم(ساخت in6_addr); i++) {
                 uint8_t x = a->s6_addr[i] ^ b->s6_addr[i];
                 uint8_t n = m < 8 ? (0xFF << (8 - m)) : 0xFF;
-                if ((x & n) != 0)
-                        return false;
+                اگر ((x & n) != 0)
+                        واپس false;
 
-                if (m <= 8)
-                        break;
+                اگر (m <= 8)
+                        توڑو;
 
                 m -= 8;
         }
 
-        return true;
+        واپس true;
 }
 
-int in_addr_prefix_intersect(
-                int family,
-                const union in_addr_union *a,
-                unsigned aprefixlen,
-                const union in_addr_union *b,
-                unsigned bprefixlen) {
+صحیح اندر_addr_سابقہ_intersect(
+                صحیح family,
+                ثابت اتحاد اندر_addr_union *a,
+                غیرعلامتی aprefixlen,
+                ثابت اتحاد اندر_addr_union *b,
+                غیرعلامتی bprefixlen) {
 
-        assert(a);
-        assert(b);
+        أكد(a);
+        أكد(b);
 
         /* Checks whether there are any addresses that are in both networks. */
 
-        if (family == AF_INET)
-                return in4_addr_prefix_intersect(&a->in, aprefixlen, &b->in, bprefixlen);
+        اگر (family == AF_INET)
+                واپس in4_addr_سابقہ_intersect(&a->اندر, aprefixlen, &b->اندر, bprefixlen);
 
-        if (family == AF_INET6)
-                return in6_addr_prefix_intersect(&a->in6, aprefixlen, &b->in6, bprefixlen);
+        اگر (family == AF_INET6)
+                واپس in6_addr_سابقہ_intersect(&a->in6, aprefixlen, &b->in6, bprefixlen);
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-int in_addr_random_prefix(
-                int family,
-                union in_addr_union *u,
-                unsigned prefixlen_fixed_part,
-                unsigned prefixlen) {
+صحیح اندر_addr_random_سابقہ(
+                صحیح family,
+                اتحاد اندر_addr_union *u,
+                غیرعلامتی prefixlen_fixed_part,
+                غیرعلامتی prefixlen) {
 
-        assert(u);
+        أكد(u);
 
         /* Random network part of an address by one. */
 
-        if (prefixlen <= 0)
-                return 0;
+        اگر (prefixlen <= 0)
+                واپس 0;
 
-        if (family == AF_INET) {
+        اگر (family == AF_INET) {
                 uint32_t c, n;
 
-                if (prefixlen_fixed_part > 32)
+                اگر (prefixlen_fixed_part > 32)
                         prefixlen_fixed_part = 32;
-                if (prefixlen > 32)
+                اگر (prefixlen > 32)
                         prefixlen = 32;
-                if (prefixlen_fixed_part >= prefixlen)
-                        return -EINVAL;
+                اگر (prefixlen_fixed_part >= prefixlen)
+                        واپس -EINVAL;
 
-                c = be32toh(u->in.s_addr);
+                c = be32toh(u->اندر.s_addr);
                 c &= ((UINT32_C(1) << prefixlen_fixed_part) - 1) << (32 - prefixlen_fixed_part);
 
-                random_bytes(&n, sizeof(n));
+                random_بائٹیں(&n, حجم(n));
                 n &= ((UINT32_C(1) << (prefixlen - prefixlen_fixed_part)) - 1) << (32 - prefixlen);
 
-                u->in.s_addr = htobe32(n | c);
-                return 1;
+                u->اندر.s_addr = htobe32(n | c);
+                واپس 1;
         }
 
-        if (family == AF_INET6) {
-                struct in6_addr n;
-                unsigned i, j;
+        اگر (family == AF_INET6) {
+                ساخت in6_addr n;
+                غیرعلامتی i, j;
 
-                if (prefixlen_fixed_part > 128)
+                اگر (prefixlen_fixed_part > 128)
                         prefixlen_fixed_part = 128;
-                if (prefixlen > 128)
+                اگر (prefixlen > 128)
                         prefixlen = 128;
-                if (prefixlen_fixed_part >= prefixlen)
-                        return -EINVAL;
+                اگر (prefixlen_fixed_part >= prefixlen)
+                        واپس -EINVAL;
 
-                random_bytes(&n, sizeof(n));
+                random_بائٹیں(&n, حجم(n));
 
-                for (i = 0; i < 16; i++) {
-                        uint8_t mask_fixed_part = 0, mask = 0;
+                برائے (i = 0; i < 16; i++) {
+                        uint8_t نقاب_fixed_part = 0, نقاب_3 = 0;
 
-                        if (i < (prefixlen_fixed_part + 7) / 8) {
-                                if (i < prefixlen_fixed_part / 8)
-                                        mask_fixed_part = 0xffu;
-                                else {
+                        اگر (i < (prefixlen_fixed_part + 7) / 8) {
+                                اگر (i < prefixlen_fixed_part / 8)
+                                        نقاب_fixed_part = 0xffu;
+                                ورنہ {
                                         j = prefixlen_fixed_part % 8;
-                                        mask_fixed_part = ((UINT8_C(1) << (j + 1)) - 1) << (8 - j);
+                                        نقاب_fixed_part = ((UINT8_C(1) << (j + 1)) - 1) << (8 - j);
                                 }
                         }
 
-                        if (i < (prefixlen + 7) / 8) {
-                                if (i < prefixlen / 8)
-                                        mask = 0xffu ^ mask_fixed_part;
-                                else {
+                        اگر (i < (prefixlen + 7) / 8) {
+                                اگر (i < prefixlen / 8)
+                                        نقاب_3 = 0xffu ^ نقاب_fixed_part;
+                                ورنہ {
                                         j = prefixlen % 8;
-                                        mask = (((UINT8_C(1) << (j + 1)) - 1) << (8 - j)) ^ mask_fixed_part;
+                                        نقاب_3 = (((UINT8_C(1) << (j + 1)) - 1) << (8 - j)) ^ نقاب_fixed_part;
                                 }
                         }
 
-                        u->in6.s6_addr[i] &= mask_fixed_part;
-                        u->in6.s6_addr[i] |= n.s6_addr[i] & mask;
+                        u->in6.s6_addr[i] &= نقاب_fixed_part;
+                        u->in6.s6_addr[i] |= n.s6_addr[i] & نقاب_3;
                 }
 
-                return 1;
+                واپس 1;
         }
 
-        return -EAFNOSUPPORT;
+        واپس -EAFNOSUPPORT;
 }
 
-int in_addr_prefix_range(
-                int family,
-                const union in_addr_union *in,
-                unsigned prefixlen,
-                union in_addr_union *ret_start,
-                union in_addr_union *ret_end) {
+صحیح اندر_addr_سابقہ_range(
+                صحیح family,
+                ثابت اتحاد اندر_addr_union *اندر,
+                غیرعلامتی prefixlen,
+                اتحاد اندر_addr_union *ret_آغاز,
+                اتحاد اندر_addr_union *ret_انتہا) {
 
-        int r;
+        صحیح r;
 
-        assert(in);
+        أكد(اندر);
 
         /* Note, on overflow, e.g. input is 255.255.255.255, then ret_end will be a null address. */
 
-        switch (family) {
-        case AF_INET:
-                if (prefixlen > 32)
-                        return -EINVAL;
-                break;
-        case AF_INET6:
-                if (prefixlen > 128)
-                        return -EINVAL;
-                break;
-        default:
-                return -EAFNOSUPPORT;
+        انتخاب (family) {
+        حالت AF_INET:
+                اگر (prefixlen > 32)
+                        واپس -EINVAL;
+                توڑو;
+        حالت AF_INET6:
+                اگر (prefixlen > 128)
+                        واپس -EINVAL;
+                توڑو;
+        طےشدہ:
+                واپس -EAFNOSUPPORT;
         }
 
-        if (prefixlen == 0) {
+        اگر (prefixlen == 0) {
                 /* shortcut for trivial case */
-                if (ret_start)
-                        *ret_start = IN_ADDR_NULL;
-                if (ret_end)
-                        *ret_end = IN_ADDR_NULL;
-                return 0;
+                اگر (ret_آغاز)
+                        *ret_آغاز = اندر_ADDR_NULL;
+                اگر (ret_انتہا)
+                        *ret_انتہا = اندر_ADDR_NULL;
+                واپس 0;
         }
 
-        union in_addr_union start = *in;
-        r = in_addr_mask(family, &start, prefixlen);
-        if (r < 0)
-                return r;
+        اتحاد اندر_addr_union آغاز = *اندر;
+        r = اندر_addr_نقاب(family, &آغاز, prefixlen);
+        اگر (r < 0)
+                واپس r;
 
-        union in_addr_union end = start;
-        uint8_t add = UINT8_C(1) << ((FAMILY_ADDRESS_SIZE(family) * 8 - prefixlen) % 8);
-        for (unsigned i = DIV_ROUND_UP(prefixlen, 8); i-- > 0;)
-                if (add > UINT8_MAX - end.bytes[i]) {
-                        end.bytes[i] = 0;
-                        add = 1;
-                } else {
-                        end.bytes[i] += add;
-                        break;
+        اتحاد اندر_addr_union انتہا = آغاز;
+        uint8_t جوڑو = UINT8_C(1) << ((FAMILY_پتہ_سائز(family) * 8 - prefixlen) % 8);
+        برائے (غیرعلامتی i = DIV_باری_اوپر(prefixlen, 8); i-- > 0;)
+                اگر (جوڑو > UINT8_MAX - انتہا.بائٹیں[i]) {
+                        انتہا.بائٹیں[i] = 0;
+                        جوڑو = 1;
+                } ورنہ {
+                        انتہا.بائٹیں[i] += جوڑو;
+                        توڑو;
                 }
 
-        if (ret_start)
-                *ret_start = start;
-        if (ret_end)
-                *ret_end = end;
+        اگر (ret_آغاز)
+                *ret_آغاز = آغاز;
+        اگر (ret_انتہا)
+                *ret_انتہا = انتہا;
 
-        return 0;
+        واپس 0;
 }
 
-int in_addr_to_string(int family, const union in_addr_union *u, char **ret) {
-        _cleanup_free_ char *x = NULL;
+صحیح اندر_addr_مقصد_string(صحیح family, ثابت اتحاد اندر_addr_union *u, حرف **ret) {
+        _cleanup_free_ حرف *x = تہی;
         size_t l;
 
-        assert(u);
-        assert(ret);
+        أكد(u);
+        أكد(ret);
 
-        if (family == AF_INET)
+        اگر (family == AF_INET)
                 l = INET_ADDRSTRLEN;
-        else if (family == AF_INET6)
+        ورنہ اگر (family == AF_INET6)
                 l = INET6_ADDRSTRLEN;
-        else
-                return -EAFNOSUPPORT;
+        ورنہ
+                واپس -EAFNOSUPPORT;
 
-        x = new(char, l);
-        if (!x)
-                return -ENOMEM;
+        x = new(حرف, l);
+        اگر (!x)
+                واپس -ENOMEM;
 
         errno = 0;
-        if (!typesafe_inet_ntop(family, u, x, l))
-                return errno_or_else(EINVAL);
+        اگر (!typesafe_inet_ntop(family, u, x, l))
+                واپس errno_or_else(EINVAL);
 
         *ret = TAKE_PTR(x);
-        return 0;
+        واپس 0;
 }
 
-const char* typesafe_inet_ntop(int family, const union in_addr_union *a, char *buf, size_t len) {
-        return inet_ntop(family, a, buf, len);
+ثابت حرف* typesafe_inet_ntop(صحیح family, ثابت اتحاد اندر_addr_union *a, حرف *buf, size_t len) {
+        واپس inet_ntop(family, a, buf, len);
 }
 
-const char* typesafe_inet_ntop4(const struct in_addr *a, char *buf, size_t len) {
-        return inet_ntop(AF_INET, a, buf, len);
+ثابت حرف* typesafe_inet_ntop4(ثابت ساخت in_addr *a, حرف *buf, size_t len) {
+        واپس inet_ntop(AF_INET, a, buf, len);
 }
 
-const char* typesafe_inet_ntop6(const struct in6_addr *a, char *buf, size_t len) {
-        return inet_ntop(AF_INET6, a, buf, len);
+ثابت حرف* typesafe_inet_ntop6(ثابت ساخت in6_addr *a, حرف *buf, size_t len) {
+        واپس inet_ntop(AF_INET6, a, buf, len);
 }
 
-int in_addr_prefix_to_string(
-                int family,
-                const union in_addr_union *u,
-                unsigned prefixlen,
-                char *buf,
+صحیح اندر_addr_سابقہ_مقصد_string(
+                صحیح family,
+                ثابت اتحاد اندر_addr_union *u,
+                غیرعلامتی prefixlen,
+                حرف *buf,
                 size_t buf_len) {
 
-        assert(u);
-        assert(buf);
+        أكد(u);
+        أكد(buf);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        اگر (!اندر_سیٹ(family, AF_INET, AF_INET6))
+                واپس -EAFNOSUPPORT;
 
         errno = 0;
-        if (!typesafe_inet_ntop(family, u, buf, buf_len))
-                return errno_or_else(ENOSPC);
+        اگر (!typesafe_inet_ntop(family, u, buf, buf_len))
+                واپس errno_or_else(ENOSPC);
 
-        size_t l = strlen(buf);
-        if (!snprintf_ok(buf + l, buf_len - l, "/%u", prefixlen))
-                return -ENOSPC;
-        return 0;
+        size_t l = لڑی_لمبائی(buf);
+        اگر (!snprintf_ok(buf + l, buf_len - l, "/%u", prefixlen))
+                واپس -ENOSPC;
+        واپس 0;
 }
 
-int in_addr_port_ifindex_name_to_string(int family, const union in_addr_union *u, uint16_t port, int ifindex, const char *server_name, char **ret) {
-        _cleanup_free_ char *ip_str = NULL, *x = NULL;
-        int r;
+صحیح اندر_addr_پورٹ_ifindex_name_مقصد_string(صحیح family, ثابت اتحاد اندر_addr_union *u, uint16_t port, صحیح ifindex, ثابت حرف *server_name, حرف **ret) {
+        _cleanup_free_ حرف *ip_str = تہی, *x = تہی;
+        صحیح r;
 
-        assert(IN_SET(family, AF_INET, AF_INET6));
-        assert(u);
-        assert(ret);
+        أكد(اندر_سیٹ(family, AF_INET, AF_INET6));
+        أكد(u);
+        أكد(ret);
 
         /* Much like in_addr_to_string(), but optionally appends the zone interface index to the address, to properly
          * handle IPv6 link-local addresses. */
 
-        r = in_addr_to_string(family, u, &ip_str);
-        if (r < 0)
-                return r;
+        r = اندر_addr_مقصد_string(family, u, &ip_str);
+        اگر (r < 0)
+                واپس r;
 
-        if (family == AF_INET6) {
-                r = in_addr_is_link_local(family, u);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+        اگر (family == AF_INET6) {
+                r = اندر_addr_is_link_local(family, u);
+                اگر (r < 0)
+                        واپس r;
+                اگر (r == 0)
                         ifindex = 0;
-        } else
+        } ورنہ
                 ifindex = 0; /* For IPv4 address, ifindex is always ignored. */
 
-        if (port == 0 && ifindex == 0 && isempty(server_name)) {
+        اگر (port == 0 && ifindex == 0 && isempty(server_name)) {
                 *ret = TAKE_PTR(ip_str);
-                return 0;
+                واپس 0;
         }
 
-        const char *separator = isempty(server_name) ? "" : "#";
+        ثابت حرف *separator = isempty(server_name) ? "" : "#";
         server_name = strempty(server_name);
 
-        if (port > 0) {
-                if (family == AF_INET6) {
-                        if (ifindex > 0)
-                                x = asprintf_safe("[%s]:%"PRIu16"%%%i%s%s", ip_str, port, ifindex, separator, server_name);
-                        else
-                                x = asprintf_safe("[%s]:%"PRIu16"%s%s", ip_str, port, separator, server_name);
-                } else
-                        x = asprintf_safe("%s:%"PRIu16"%s%s", ip_str, port, separator, server_name);
-        } else {
-                if (ifindex > 0)
-                        x = asprintf_safe("%s%%%i%s%s", ip_str, ifindex, separator, server_name);
-                else
+        اگر (port > 0) {
+                اگر (family == AF_INET6) {
+                        اگر (ifindex > 0)
+                                x = asprintf_محفوظ("[%s]:%"PRIu16"%%%i%s%s", ip_str, port, ifindex, separator, server_name);
+                        ورنہ
+                                x = asprintf_محفوظ("[%s]:%"PRIu16"%s%s", ip_str, port, separator, server_name);
+                } ورنہ
+                        x = asprintf_محفوظ("%s:%"PRIu16"%s%s", ip_str, port, separator, server_name);
+        } ورنہ {
+                اگر (ifindex > 0)
+                        x = asprintf_محفوظ("%s%%%i%s%s", ip_str, ifindex, separator, server_name);
+                ورنہ
                         x = strjoin(ip_str, separator, server_name);
         }
-        if (!x)
-                return -ENOMEM;
+        اگر (!x)
+                واپس -ENOMEM;
 
         *ret = TAKE_PTR(x);
-        return 0;
+        واپس 0;
 }
 
-int in_addr_from_string(int family, const char *s, union in_addr_union *ret) {
-        union in_addr_union buffer;
-        assert(s);
+صحیح اندر_addr_from_string(صحیح family, ثابت حرف *s, اتحاد اندر_addr_union *ret) {
+        اتحاد اندر_addr_union بفر;
+        أكد(s);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        اگر (!اندر_سیٹ(family, AF_INET, AF_INET6))
+                واپس -EAFNOSUPPORT;
 
         errno = 0;
-        if (inet_pton(family, s, ret ?: &buffer) <= 0)
-                return errno_or_else(EINVAL);
+        اگر (inet_pton(family, s, ret ?: &بفر) <= 0)
+                واپس errno_or_else(EINVAL);
 
-        return 0;
+        واپس 0;
 }
 
-int in_addr_from_string_auto(const char *s, int *ret_family, union in_addr_union *ret) {
-        int r;
+صحیح اندر_addr_from_string_auto(ثابت حرف *s, صحیح *ret_family, اتحاد اندر_addr_union *ret) {
+        صحیح r;
 
-        assert(s);
+        أكد(s);
 
-        r = in_addr_from_string(AF_INET, s, ret);
-        if (r >= 0) {
-                if (ret_family)
+        r = اندر_addr_from_string(AF_INET, s, ret);
+        اگر (r >= 0) {
+                اگر (ret_family)
                         *ret_family = AF_INET;
-                return 0;
+                واپس 0;
         }
 
-        r = in_addr_from_string(AF_INET6, s, ret);
-        if (r >= 0) {
-                if (ret_family)
+        r = اندر_addr_from_string(AF_INET6, s, ret);
+        اگر (r >= 0) {
+                اگر (ret_family)
                         *ret_family = AF_INET6;
-                return 0;
+                واپس 0;
         }
 
-        return -EINVAL;
+        واپس -EINVAL;
 }
 
-unsigned char in4_addr_netmask_to_prefixlen(const struct in_addr *addr) {
-        assert(addr);
+غیرعلامتی حرف in4_addr_netmask_مقصد_prefixlen(ثابت ساخت in_addr *addr) {
+        أكد(addr);
 
-        return 32U - u32ctz(be32toh(addr->s_addr));
+        واپس 32U - u32ctz(be32toh(addr->s_addr));
 }
 
 /* Calculate an IPv4 netmask from prefix length, for example /8 -> 255.0.0.0. */
-struct in_addr* in4_addr_prefixlen_to_netmask(struct in_addr *addr, unsigned char prefixlen) {
-        assert(addr);
-        assert(prefixlen <= 32);
+ساخت in_addr* in4_addr_prefixlen_مقصد_netmask(ساخت in_addr *addr, غیرعلامتی حرف prefixlen) {
+        أكد(addr);
+        أكد(prefixlen <= 32);
 
         /* Shifting beyond 32 is not defined, handle this specially. */
-        if (prefixlen == 0)
+        اگر (prefixlen == 0)
                 addr->s_addr = 0;
-        else
+        ورنہ
                 addr->s_addr = htobe32((0xffffffff << (32 - prefixlen)) & 0xffffffff);
 
-        return addr;
+        واپس addr;
 }
 
 /* Calculate an IPv6 netmask from prefix length, for example /16 -> ffff::. */
-struct in6_addr* in6_addr_prefixlen_to_netmask(struct in6_addr *addr, unsigned char prefixlen) {
-        assert(addr);
-        assert(prefixlen <= 128);
+ساخت in6_addr* in6_addr_prefixlen_مقصد_netmask(ساخت in6_addr *addr, غیرعلامتی حرف prefixlen) {
+        أكد(addr);
+        أكد(prefixlen <= 128);
 
-        for (unsigned i = 0; i < 16; i++) {
-                uint8_t mask;
+        برائے (غیرعلامتی i = 0; i < 16; i++) {
+                uint8_t نقاب_3;
 
-                if (prefixlen >= 8) {
-                        mask = 0xFF;
+                اگر (prefixlen >= 8) {
+                        نقاب_3 = 0xFF;
                         prefixlen -= 8;
-                } else if (prefixlen > 0) {
-                        mask = 0xFF << (8 - prefixlen);
+                } ورنہ اگر (prefixlen > 0) {
+                        نقاب_3 = 0xFF << (8 - prefixlen);
                         prefixlen = 0;
-                } else {
-                        assert(prefixlen == 0);
-                        mask = 0;
+                } ورنہ {
+                        أكد(prefixlen == 0);
+                        نقاب_3 = 0;
                 }
 
-                addr->s6_addr[i] = mask;
+                addr->s6_addr[i] = نقاب_3;
         }
 
-        return addr;
+        واپس addr;
 }
 
 /* Calculate an IPv4 or IPv6 netmask from prefix length, for example /8 -> 255.0.0.0 or /16 -> ffff::. */
-int in_addr_prefixlen_to_netmask(int family, union in_addr_union *addr, unsigned char prefixlen) {
-        assert(addr);
+صحیح اندر_addr_prefixlen_مقصد_netmask(صحیح family, اتحاد اندر_addr_union *addr, غیرعلامتی حرف prefixlen) {
+        أكد(addr);
 
-        switch (family) {
-        case AF_INET:
-                in4_addr_prefixlen_to_netmask(&addr->in, prefixlen);
-                return 0;
-        case AF_INET6:
-                in6_addr_prefixlen_to_netmask(&addr->in6, prefixlen);
-                return 0;
-        default:
-                return -EAFNOSUPPORT;
+        انتخاب (family) {
+        حالت AF_INET:
+                in4_addr_prefixlen_مقصد_netmask(&addr->اندر, prefixlen);
+                واپس 0;
+        حالت AF_INET6:
+                in6_addr_prefixlen_مقصد_netmask(&addr->in6, prefixlen);
+                واپس 0;
+        طےشدہ:
+                واپس -EAFNOSUPPORT;
         }
 }
 
-int in4_addr_default_prefixlen(const struct in_addr *addr, unsigned char *prefixlen) {
+صحیح in4_addr_default_prefixlen(ثابت ساخت in_addr *addr, غیرعلامتی حرف *prefixlen) {
         uint8_t msb_octet = *(uint8_t*) addr;
 
         /* addr may not be aligned, so make sure we only access it byte-wise */
 
-        assert(addr);
-        assert(prefixlen);
+        أكد(addr);
+        أكد(prefixlen);
 
-        if (msb_octet < 128)
+        اگر (msb_octet < 128)
                 /* class A, leading bits: 0 */
                 *prefixlen = 8;
-        else if (msb_octet < 192)
+        ورنہ اگر (msb_octet < 192)
                 /* class B, leading bits 10 */
                 *prefixlen = 16;
-        else if (msb_octet < 224)
+        ورنہ اگر (msb_octet < 224)
                 /* class C, leading bits 110 */
                 *prefixlen = 24;
-        else
+        ورنہ
                 /* class D or E, no default prefixlen */
-                return -ERANGE;
+                واپس -ERANGE;
 
-        return 0;
+        واپس 0;
 }
 
-int in4_addr_default_subnet_mask(const struct in_addr *addr, struct in_addr *mask) {
-        unsigned char prefixlen;
-        int r;
+صحیح in4_addr_default_subnet_نقاب(ثابت ساخت in_addr *addr, ساخت in_addr *نقاب_3) {
+        غیرعلامتی حرف prefixlen;
+        صحیح r;
 
-        assert(addr);
-        assert(mask);
+        أكد(addr);
+        أكد(نقاب_3);
 
         r = in4_addr_default_prefixlen(addr, &prefixlen);
-        if (r < 0)
-                return r;
+        اگر (r < 0)
+                واپس r;
 
-        in4_addr_prefixlen_to_netmask(mask, prefixlen);
-        return 0;
+        in4_addr_prefixlen_مقصد_netmask(نقاب_3, prefixlen);
+        واپس 0;
 }
 
-int in4_addr_mask(struct in_addr *addr, unsigned char prefixlen) {
-        struct in_addr mask;
+صحیح in4_addr_نقاب(ساخت in_addr *addr, غیرعلامتی حرف prefixlen) {
+        ساخت in_addr نقاب_3;
 
-        assert(addr);
+        أكد(addr);
 
-        if (!in4_addr_prefixlen_to_netmask(&mask, prefixlen))
-                return -EINVAL;
+        اگر (!in4_addr_prefixlen_مقصد_netmask(&نقاب_3, prefixlen))
+                واپس -EINVAL;
 
-        addr->s_addr &= mask.s_addr;
-        return 0;
+        addr->s_addr &= نقاب_3.s_addr;
+        واپس 0;
 }
 
-int in6_addr_mask(struct in6_addr *addr, unsigned char prefixlen) {
-        unsigned i;
+صحیح in6_addr_نقاب(ساخت in6_addr *addr, غیرعلامتی حرف prefixlen) {
+        غیرعلامتی i;
 
-        assert(addr);
+        أكد(addr);
 
-        for (i = 0; i < 16; i++) {
-                uint8_t mask;
+        برائے (i = 0; i < 16; i++) {
+                uint8_t نقاب_3;
 
-                if (prefixlen >= 8) {
-                        mask = 0xFF;
+                اگر (prefixlen >= 8) {
+                        نقاب_3 = 0xFF;
                         prefixlen -= 8;
-                } else if (prefixlen > 0) {
-                        mask = 0xFF << (8 - prefixlen);
+                } ورنہ اگر (prefixlen > 0) {
+                        نقاب_3 = 0xFF << (8 - prefixlen);
                         prefixlen = 0;
-                } else {
-                        assert(prefixlen == 0);
-                        mask = 0;
+                } ورنہ {
+                        أكد(prefixlen == 0);
+                        نقاب_3 = 0;
                 }
 
-                addr->s6_addr[i] &= mask;
+                addr->s6_addr[i] &= نقاب_3;
         }
 
-        return 0;
+        واپس 0;
 }
 
-int in_addr_mask(int family, union in_addr_union *addr, unsigned char prefixlen) {
-        assert(addr);
+صحیح اندر_addr_نقاب(صحیح family, اتحاد اندر_addr_union *addr, غیرعلامتی حرف prefixlen) {
+        أكد(addr);
 
-        switch (family) {
-        case AF_INET:
-                return in4_addr_mask(&addr->in, prefixlen);
-        case AF_INET6:
-                return in6_addr_mask(&addr->in6, prefixlen);
-        default:
-                return -EAFNOSUPPORT;
-        }
-}
-
-int in4_addr_prefix_covers_full(
-                const struct in_addr *prefix,
-                unsigned char prefixlen,
-                const struct in_addr *address,
-                unsigned char address_prefixlen) {
-
-        struct in_addr masked_prefix, masked_address;
-        int r;
-
-        assert(prefix);
-        assert(address);
-
-        if (prefixlen > address_prefixlen)
-                return false;
-
-        masked_prefix = *prefix;
-        r = in4_addr_mask(&masked_prefix, prefixlen);
-        if (r < 0)
-                return r;
-
-        masked_address = *address;
-        r = in4_addr_mask(&masked_address, prefixlen);
-        if (r < 0)
-                return r;
-
-        return in4_addr_equal(&masked_prefix, &masked_address);
-}
-
-int in6_addr_prefix_covers_full(
-                const struct in6_addr *prefix,
-                unsigned char prefixlen,
-                const struct in6_addr *address,
-                unsigned char address_prefixlen) {
-
-        struct in6_addr masked_prefix, masked_address;
-        int r;
-
-        assert(prefix);
-        assert(address);
-
-        if (prefixlen > address_prefixlen)
-                return false;
-
-        masked_prefix = *prefix;
-        r = in6_addr_mask(&masked_prefix, prefixlen);
-        if (r < 0)
-                return r;
-
-        masked_address = *address;
-        r = in6_addr_mask(&masked_address, prefixlen);
-        if (r < 0)
-                return r;
-
-        return in6_addr_equal(&masked_prefix, &masked_address);
-}
-
-int in_addr_prefix_covers_full(
-                int family,
-                const union in_addr_union *prefix,
-                unsigned char prefixlen,
-                const union in_addr_union *address,
-                unsigned char address_prefixlen) {
-
-        assert(prefix);
-        assert(address);
-
-        switch (family) {
-        case AF_INET:
-                return in4_addr_prefix_covers_full(&prefix->in, prefixlen, &address->in, address_prefixlen);
-        case AF_INET6:
-                return in6_addr_prefix_covers_full(&prefix->in6, prefixlen, &address->in6, address_prefixlen);
-        default:
-                return -EAFNOSUPPORT;
+        انتخاب (family) {
+        حالت AF_INET:
+                واپس in4_addr_نقاب(&addr->اندر, prefixlen);
+        حالت AF_INET6:
+                واپس in6_addr_نقاب(&addr->in6, prefixlen);
+        طےشدہ:
+                واپس -EAFNOSUPPORT;
         }
 }
 
-int in_addr_parse_prefixlen(int family, const char *p, unsigned char *ret) {
+صحیح in4_addr_سابقہ_covers_بھرا(
+                ثابت ساخت in_addr *سابقہ,
+                غیرعلامتی حرف prefixlen,
+                ثابت ساخت in_addr *پتہ,
+                غیرعلامتی حرف پتہ_prefixlen) {
+
+        ساخت in_addr masked_سابقہ, masked_پتہ;
+        صحیح r;
+
+        أكد(سابقہ);
+        أكد(پتہ);
+
+        اگر (prefixlen > پتہ_prefixlen)
+                واپس false;
+
+        masked_سابقہ = *سابقہ;
+        r = in4_addr_نقاب(&masked_سابقہ, prefixlen);
+        اگر (r < 0)
+                واپس r;
+
+        masked_پتہ = *پتہ;
+        r = in4_addr_نقاب(&masked_پتہ, prefixlen);
+        اگر (r < 0)
+                واپس r;
+
+        واپس in4_addr_equal(&masked_سابقہ, &masked_پتہ);
+}
+
+صحیح in6_addr_سابقہ_covers_بھرا(
+                ثابت ساخت in6_addr *سابقہ,
+                غیرعلامتی حرف prefixlen,
+                ثابت ساخت in6_addr *پتہ,
+                غیرعلامتی حرف پتہ_prefixlen) {
+
+        ساخت in6_addr masked_سابقہ, masked_پتہ;
+        صحیح r;
+
+        أكد(سابقہ);
+        أكد(پتہ);
+
+        اگر (prefixlen > پتہ_prefixlen)
+                واپس false;
+
+        masked_سابقہ = *سابقہ;
+        r = in6_addr_نقاب(&masked_سابقہ, prefixlen);
+        اگر (r < 0)
+                واپس r;
+
+        masked_پتہ = *پتہ;
+        r = in6_addr_نقاب(&masked_پتہ, prefixlen);
+        اگر (r < 0)
+                واپس r;
+
+        واپس in6_addr_equal(&masked_سابقہ, &masked_پتہ);
+}
+
+صحیح اندر_addr_سابقہ_covers_بھرا(
+                صحیح family,
+                ثابت اتحاد اندر_addr_union *سابقہ,
+                غیرعلامتی حرف prefixlen,
+                ثابت اتحاد اندر_addr_union *پتہ,
+                غیرعلامتی حرف پتہ_prefixlen) {
+
+        أكد(سابقہ);
+        أكد(پتہ);
+
+        انتخاب (family) {
+        حالت AF_INET:
+                واپس in4_addr_سابقہ_covers_بھرا(&سابقہ->اندر, prefixlen, &پتہ->اندر, پتہ_prefixlen);
+        حالت AF_INET6:
+                واپس in6_addr_سابقہ_covers_بھرا(&سابقہ->in6, prefixlen, &پتہ->in6, پتہ_prefixlen);
+        طےشدہ:
+                واپس -EAFNOSUPPORT;
+        }
+}
+
+صحیح اندر_addr_parse_prefixlen(صحیح family, ثابت حرف *p, غیرعلامتی حرف *ret) {
         uint8_t u;
-        int r;
+        صحیح r;
 
-        assert(ret);
+        أكد(ret);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        اگر (!اندر_سیٹ(family, AF_INET, AF_INET6))
+                واپس -EAFNOSUPPORT;
 
-        r = safe_atou8(p, &u);
-        if (r < 0)
-                return r;
+        r = محفوظ_atou8(p, &u);
+        اگر (r < 0)
+                واپس r;
 
-        if (u > FAMILY_ADDRESS_SIZE(family) * 8)
-                return -ERANGE;
+        اگر (u > FAMILY_پتہ_سائز(family) * 8)
+                واپس -ERANGE;
 
         *ret = u;
-        return 0;
+        واپس 0;
 }
 
-int in_addr_prefix_from_string(
-                const char *p,
-                int family,
-                union in_addr_union *ret_prefix,
-                unsigned char *ret_prefixlen) {
+صحیح اندر_addr_سابقہ_from_string(
+                ثابت حرف *p,
+                صحیح family,
+                اتحاد اندر_addr_union *ret_سابقہ,
+                غیرعلامتی حرف *ret_prefixlen) {
 
-        _cleanup_free_ char *str = NULL;
-        union in_addr_union buffer;
-        const char *e, *l;
-        unsigned char k;
-        int r;
+        _cleanup_free_ حرف *str = تہی;
+        اتحاد اندر_addr_union بفر;
+        ثابت حرف *e, *l;
+        غیرعلامتی حرف k;
+        صحیح r;
 
-        assert(p);
+        أكد(p);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        اگر (!اندر_سیٹ(family, AF_INET, AF_INET6))
+                واپس -EAFNOSUPPORT;
 
         e = strchr(p, '/');
-        if (e) {
+        اگر (e) {
                 str = strndup(p, e - p);
-                if (!str)
-                        return -ENOMEM;
+                اگر (!str)
+                        واپس -ENOMEM;
 
                 l = str;
-        } else
+        } ورنہ
                 l = p;
 
-        r = in_addr_from_string(family, l, &buffer);
-        if (r < 0)
-                return r;
+        r = اندر_addr_from_string(family, l, &بفر);
+        اگر (r < 0)
+                واپس r;
 
-        if (e) {
-                r = in_addr_parse_prefixlen(family, e+1, &k);
-                if (r < 0)
-                        return r;
-        } else
-                k = FAMILY_ADDRESS_SIZE(family) * 8;
+        اگر (e) {
+                r = اندر_addr_parse_prefixlen(family, e+1, &k);
+                اگر (r < 0)
+                        واپس r;
+        } ورنہ
+                k = FAMILY_پتہ_سائز(family) * 8;
 
-        if (ret_prefix)
-                *ret_prefix = buffer;
-        if (ret_prefixlen)
+        اگر (ret_سابقہ)
+                *ret_سابقہ = بفر;
+        اگر (ret_prefixlen)
                 *ret_prefixlen = k;
 
-        return 0;
+        واپس 0;
 }
 
-int in_addr_prefix_from_string_auto_full(
-                const char *p,
-                InAddrPrefixLenMode mode,
-                int *ret_family,
-                union in_addr_union *ret_prefix,
-                unsigned char *ret_prefixlen) {
+صحیح اندر_addr_سابقہ_from_string_auto_بھرا(
+                ثابت حرف *p,
+                اندر_Addr_سابقہ_Len_منوال منوال,
+                صحیح *ret_family,
+                اتحاد اندر_addr_union *ret_سابقہ,
+                غیرعلامتی حرف *ret_prefixlen) {
 
-        _cleanup_free_ char *str = NULL;
-        union in_addr_union buffer;
-        const char *e, *l;
-        unsigned char k;
-        int family, r;
+        _cleanup_free_ حرف *str = تہی;
+        اتحاد اندر_addr_union بفر;
+        ثابت حرف *e, *l;
+        غیرعلامتی حرف k;
+        صحیح family, r;
 
-        assert(p);
+        أكد(p);
 
         e = strchr(p, '/');
-        if (e) {
+        اگر (e) {
                 str = strndup(p, e - p);
-                if (!str)
-                        return -ENOMEM;
+                اگر (!str)
+                        واپس -ENOMEM;
 
                 l = str;
-        } else
+        } ورنہ
                 l = p;
 
-        r = in_addr_from_string_auto(l, &family, &buffer);
-        if (r < 0)
-                return r;
+        r = اندر_addr_from_string_auto(l, &family, &بفر);
+        اگر (r < 0)
+                واپس r;
 
-        if (e) {
-                r = in_addr_parse_prefixlen(family, e+1, &k);
-                if (r < 0)
-                        return r;
-        } else
-                switch (mode) {
-                case PREFIXLEN_FULL:
-                        k = FAMILY_ADDRESS_SIZE(family) * 8;
-                        break;
-                case PREFIXLEN_REFUSE:
-                        return -ENOANO; /* To distinguish this error from others. */
-                default:
+        اگر (e) {
+                r = اندر_addr_parse_prefixlen(family, e+1, &k);
+                اگر (r < 0)
+                        واپس r;
+        } ورنہ
+                انتخاب (منوال) {
+                حالت PREFIXLEN_بھرا:
+                        k = FAMILY_پتہ_سائز(family) * 8;
+                        توڑو;
+                حالت PREFIXLEN_REFUSE:
+                        واپس -ENOANO; /* To distinguish this error from others. */
+                طےشدہ:
                         assert_not_reached();
                 }
 
-        if (ret_family)
+        اگر (ret_family)
                 *ret_family = family;
-        if (ret_prefix)
-                *ret_prefix = buffer;
-        if (ret_prefixlen)
+        اگر (ret_سابقہ)
+                *ret_سابقہ = بفر;
+        اگر (ret_prefixlen)
                 *ret_prefixlen = k;
 
-        return 0;
+        واپس 0;
 }
 
-void in_addr_hash_func(const union in_addr_union *u, int family, struct siphash *state) {
-        assert(u);
-        assert(state);
+خالی اندر_addr_hash_func(ثابت اتحاد اندر_addr_union *u, صحیح family, ساخت siphash *state) {
+        أكد(u);
+        أكد(state);
 
-        siphash24_compress(u->bytes, FAMILY_ADDRESS_SIZE(family), state);
+        siphash24_compress(u->بائٹیں, FAMILY_پتہ_سائز(family), state);
 }
 
-void in_addr_data_hash_func(const struct in_addr_data *a, struct siphash *state) {
-        assert(a);
-        assert(state);
+خالی اندر_addr_ڈیٹا_hash_func(ثابت ساخت اندر_addr_ڈیٹا *a, ساخت siphash *state) {
+        أكد(a);
+        أكد(state);
 
         siphash24_compress_typesafe(a->family, state);
-        in_addr_hash_func(&a->address, a->family, state);
+        اندر_addr_hash_func(&a->پتہ, a->family, state);
 }
 
-int in_addr_data_compare_func(const struct in_addr_data *x, const struct in_addr_data *y) {
-        int r;
+صحیح اندر_addr_ڈیٹا_compare_func(ثابت ساخت اندر_addr_ڈیٹا *x, ثابت ساخت اندر_addr_ڈیٹا *y) {
+        صحیح r;
 
-        assert(x);
-        assert(y);
+        أكد(x);
+        أكد(y);
 
         r = CMP(x->family, y->family);
-        if (r != 0)
-                return r;
+        اگر (r != 0)
+                واپس r;
 
-        return memcmp(&x->address, &y->address, FAMILY_ADDRESS_SIZE(x->family));
+        واپس memcmp(&x->پتہ, &y->پتہ, FAMILY_پتہ_سائز(x->family));
 }
 
 DEFINE_HASH_OPS(
-        in_addr_data_hash_ops,
-        struct in_addr_data,
-        in_addr_data_hash_func,
-        in_addr_data_compare_func);
+        اندر_addr_ڈیٹا_hash_ops,
+        ساخت اندر_addr_ڈیٹا,
+        اندر_addr_ڈیٹا_hash_func,
+        اندر_addr_ڈیٹا_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
-        in_addr_data_hash_ops_free,
-        struct in_addr_data,
-        in_addr_data_hash_func,
-        in_addr_data_compare_func,
-        free);
+DEFINE_HASH_OPS_WITH_کلید_DESTRUCTOR(
+        اندر_addr_ڈیٹا_hash_ops_free,
+        ساخت اندر_addr_ڈیٹا,
+        اندر_addr_ڈیٹا_hash_func,
+        اندر_addr_ڈیٹا_compare_func,
+        آزاد);
 
-void in6_addr_hash_func(const struct in6_addr *addr, struct siphash *state) {
-        assert(addr);
-        assert(state);
+خالی in6_addr_hash_func(ثابت ساخت in6_addr *addr, ساخت siphash *state) {
+        أكد(addr);
+        أكد(state);
 
         siphash24_compress_typesafe(*addr, state);
 }
 
-int in6_addr_compare_func(const struct in6_addr *a, const struct in6_addr *b) {
-        assert(a);
-        assert(b);
+صحیح in6_addr_compare_func(ثابت ساخت in6_addr *a, ثابت ساخت in6_addr *b) {
+        أكد(a);
+        أكد(b);
 
-        return memcmp(a, b, sizeof(*a));
+        واپس memcmp(a, b, حجم(*a));
 }
 
 DEFINE_HASH_OPS(
         in6_addr_hash_ops,
-        struct in6_addr,
+        ساخت in6_addr,
         in6_addr_hash_func,
         in6_addr_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
+DEFINE_HASH_OPS_WITH_کلید_DESTRUCTOR(
         in6_addr_hash_ops_free,
-        struct in6_addr,
+        ساخت in6_addr,
         in6_addr_hash_func,
         in6_addr_compare_func,
-        free);
+        آزاد);

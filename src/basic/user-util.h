@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include <grp.h>
-#if ENABLE_GSHADOW
+#شامل <grp.h>
+#اگر ENABLE_GSHADOW
 #  include <gshadow.h>
-#endif
-#include <pwd.h>
-#include <shadow.h>
+#اگر_ختم
+#شامل <pwd.h>
+#شامل <shadow.h>
 
-#include "forward.h"
-#include "errno-util.h"
+#شامل "forward.h"
+#شامل "errno-util.h"
 
 /* Users managed by systemd-homed. See https://systemd.io/UIDS-GIDS for details
  * how this range fits into the rest of the world. */
-#define HOME_UID_MIN ((uid_t) 60001)
-#define HOME_UID_MAX ((uid_t) 60513)
+#تعریف_کرو HOME_UID_MIN ((uid_t) 60001)
+#تعریف_کرو HOME_UID_MAX ((uid_t) 60513)
 
 /* Users mapped from host into a container */
-#define MAP_UID_MIN ((uid_t) 60514)
-#define MAP_UID_MAX ((uid_t) 60577)
+#تعریف_کرو MAP_UID_MIN ((uid_t) 60514)
+#تعریف_کرو MAP_UID_MAX ((uid_t) 60577)
 
 /* A helper to print an error message when user or group resolution fails. */
-const char* strerror_user(int errnum, char *buf, size_t buflen);
-#define STRERROR_USER(errnum) strerror_user(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
-const char* strerror_group(int errnum, char *buf, size_t buflen);
-#define STRERROR_GROUP(errnum) strerror_group(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+ثابت حرف* strerror_user(صحیح errnum, حرف *buf, size_t buflen);
+#تعریف_کرو STRERROR_USER(errnum) strerror_user(errnum, (حرف[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
+ثابت حرف* strerror_گروہ(صحیح errnum, حرف *buf, size_t buflen);
+#تعریف_کرو STRERROR_گروہ(errnum) strerror_گروہ(errnum, (حرف[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
-static inline bool ERRNO_IS_NEG_BAD_ACCOUNT(intmax_t r) {
-        return IN_SET(r,
+ساکن اندرونی bool ERRNO_IS_NEG_BAD_ACCOUNT(intmax_t r) {
+        واپس اندر_سیٹ(r,
                       -ESRCH,
                       -ENOEXEC);
 }
@@ -35,70 +35,70 @@ _DEFINE_ABS_WRAPPER(BAD_ACCOUNT);
 
 bool uid_is_valid(uid_t uid) _const_;
 
-static inline bool gid_is_valid(gid_t gid) {
-        return uid_is_valid((uid_t) gid);
+ساکن اندرونی bool gid_is_valid(gid_t gid) {
+        واپس uid_is_valid((uid_t) gid);
 }
 
-int parse_uid(const char *s, uid_t* ret_uid);
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper);
+صحیح parse_uid(ثابت حرف *s, uid_t* ret_uid);
+صحیح parse_uid_range(ثابت حرف *s, uid_t *ret_زیریں, uid_t *ret_بالائی);
 
-static inline int parse_gid(const char *s, gid_t *ret_gid) {
-        return parse_uid(s, (uid_t*) ret_gid);
+ساکن اندرونی صحیح parse_gid(ثابت حرف *s, gid_t *ret_gid) {
+        واپس parse_uid(s, (uid_t*) ret_gid);
 }
 
-char* getlogname_malloc(void);
-char* getusername_malloc(void);
+حرف* getlogname_malloc(خالی);
+حرف* getusername_malloc(خالی);
 
-const char* default_root_shell_at(int rfd);
-const char* default_root_shell(const char *root);
+ثابت حرف* default_جڑ_shell_at(صحیح rfd);
+ثابت حرف* default_جڑ_shell(ثابت حرف *جڑ);
 
-bool is_nologin_shell(const char *shell) _pure_;
-bool shell_is_placeholder(const char *shell) _pure_;
+bool is_nologin_shell(ثابت حرف *shell) خالص;
+bool shell_is_placeholder(ثابت حرف *shell) خالص;
 
-typedef enum UserCredsFlags {
+قسمتعریف شمار UserCredsFlags {
         USER_CREDS_PREFER_NSS           = 1 << 0,  /* if set, only synthesize user records if database lacks them. Normally we bypass the userdb entirely for the records we can synthesize */
         USER_CREDS_ALLOW_MISSING        = 1 << 1,  /* if a numeric UID string is resolved, be OK if there's no record for it */
         USER_CREDS_CLEAN                = 1 << 2,  /* try to clean up shell and home fields with invalid data */
         USER_CREDS_SUPPRESS_PLACEHOLDER = 1 << 3,  /* suppress home and/or shell fields if value is placeholder (root/empty/nologin) */
 } UserCredsFlags;
 
-int get_user_creds(
-                const char *username,
+صحیح get_user_creds(
+                ثابت حرف *username,
                 UserCredsFlags flags,
-                char **ret_username,
+                حرف **ret_username,
                 uid_t *ret_uid, gid_t *ret_gid,
-                char **ret_home,
-                char **ret_shell);
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid);
+                حرف **ret_home,
+                حرف **ret_shell);
+صحیح get_گروہ_creds(ثابت حرف *groupname, UserCredsFlags flags, حرف **ret_name, gid_t *ret_gid);
 
-char* uid_to_name(uid_t uid);
-char* gid_to_name(gid_t gid);
+حرف* uid_مقصد_name(uid_t uid);
+حرف* gid_مقصد_name(gid_t gid);
 
-int in_gid(gid_t gid);
-int in_group(const char *name);
+صحیح اندر_gid(gid_t gid);
+صحیح اندر_گروہ(ثابت حرف *name);
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret);
-int getgroups_alloc(gid_t **ret);
+صحیح ملاؤ_gid_lists(ثابت gid_t *list1, size_t size1, ثابت gid_t *list2, size_t size2, gid_t **ret);
+صحیح getgroups_alloc(gid_t **ret);
 
-int get_home_dir(char **ret);
-int get_shell(char **ret);
+صحیح get_home_dir(حرف **ret);
+صحیح get_shell(حرف **ret);
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids);
-static inline int reset_uid_gid(void) {
-        return fully_set_uid_gid(0, 0, NULL, 0);
+صحیح fully_سیٹ_uid_gid(uid_t uid, gid_t gid, ثابت gid_t supplementary_gids[], size_t n_supplementary_gids);
+ساکن اندرونی صحیح reset_uid_gid(خالی) {
+        واپس fully_سیٹ_uid_gid(0, 0, تہی, 0);
 }
 
-int take_etc_passwd_lock(const char *root);
+صحیح take_etc_passwd_تالا(ثابت حرف *جڑ);
 
-#define UID_INVALID ((uid_t) -1)
-#define GID_INVALID ((gid_t) -1)
+#تعریف_کرو UID_INVALID ((uid_t) -1)
+#تعریف_کرو GID_INVALID ((gid_t) -1)
 
-#define UID_NOBODY ((uid_t) 65534U)
-#define GID_NOBODY ((gid_t) 65534U)
+#تعریف_کرو UID_NOBODY ((uid_t) 65534U)
+#تعریف_کرو GID_NOBODY ((gid_t) 65534U)
 
 /* Conventional size of a user-namespace UID/GID delegation block (64K).
  * Untyped so it can be used in both UID and GID contexts without casts. */
-#define USERNS_RANGE_SIZE 0x10000U
+#تعریف_کرو USERNS_RANGE_سائز 0x10000U
 
 /* If REMOUNT_IDMAPPING_HOST_ROOT is set for remount_idmap() we'll include a mapping here that maps the host
  * root user accessing the idmapped mount to the this user ID on the backing fs. This is the last valid UID in
@@ -110,96 +110,96 @@ int take_etc_passwd_lock(const char *root);
  * our usual logic of assigning a 16-bit UID range to each container, so that the upper 16-bit of a 32-bit UID
  * value indicate kind of a "container ID" and the lower 16-bit map directly to the intended user you can read
  * this specific UID as the "nobody" user of the container with ID 0x7FFF, which is kinda nice. */
-#define UID_MAPPED_ROOT ((uid_t) (INT32_MAX-1))
-#define GID_MAPPED_ROOT ((gid_t) (INT32_MAX-1))
+#تعریف_کرو UID_MAPPED_جڑ ((uid_t) (INT32_MAX-1))
+#تعریف_کرو GID_MAPPED_جڑ ((gid_t) (INT32_MAX-1))
 
-#define ETC_PASSWD_LOCK_FILENAME ".pwd.lock"
-#define ETC_PASSWD_LOCK_PATH "/etc/" ETC_PASSWD_LOCK_FILENAME
+#تعریف_کرو ETC_PASSWD_تالا_FILENAME ".pwd.lock"
+#تعریف_کرو ETC_PASSWD_تالا_راستہ "/etc/" ETC_PASSWD_تالا_FILENAME
 
 /* The following macros add 1 when converting things, since UID 0 is a valid UID, while the pointer
  * NULL is special */
-#define PTR_TO_UID(p) ((uid_t) (((uintptr_t) (p))-1))
-#define UID_TO_PTR(u) ((void*) (((uintptr_t) (u))+1))
+#تعریف_کرو PTR_مقصد_UID(p) ((uid_t) (((uintptr_t) (p))-1))
+#تعریف_کرو UID_مقصد_PTR(u) ((خالی*) (((uintptr_t) (u))+1))
 
-#define PTR_TO_GID(p) ((gid_t) (((uintptr_t) (p))-1))
-#define GID_TO_PTR(u) ((void*) (((uintptr_t) (u))+1))
+#تعریف_کرو PTR_مقصد_GID(p) ((gid_t) (((uintptr_t) (p))-1))
+#تعریف_کرو GID_مقصد_PTR(u) ((خالی*) (((uintptr_t) (u))+1))
 
-typedef enum ValidUserFlags {
+قسمتعریف شمار ValidUserFlags {
         VALID_USER_RELAX         = 1 << 0,
         VALID_USER_WARN          = 1 << 1,
         VALID_USER_ALLOW_NUMERIC = 1 << 2,
 } ValidUserFlags;
 
-bool valid_user_group_name(const char *u, ValidUserFlags flags);
-bool valid_gecos(const char *d);
-char* mangle_gecos(const char *d);
-bool valid_home(const char *p);
-bool valid_shell(const char *p);
+bool valid_user_گروہ_name(ثابت حرف *u, ValidUserFlags flags);
+bool valid_gecos(ثابت حرف *d);
+حرف* mangle_gecos(ثابت حرف *d);
+bool valid_home(ثابت حرف *p);
+bool valid_shell(ثابت حرف *p);
 
-int maybe_setgroups(size_t size, const gid_t *list);
+صحیح maybe_setgroups(size_t سائز, ثابت gid_t *list);
 
-bool synthesize_nobody(void);
+bool synthesize_nobody(خالی);
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw);
-int fgetspent_sane(FILE *stream, struct spwd **sp);
-int fgetgrent_sane(FILE *stream, struct group **gr);
-int putpwent_sane(const struct passwd *pw, FILE *stream);
-int putspent_sane(const struct spwd *sp, FILE *stream);
-int putgrent_sane(const struct group *gr, FILE *stream);
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg);
-int putsgent_sane(const struct sgrp *sg, FILE *stream);
-#endif
+صحیح fgetpwent_sane(FILE *دھارا, ساخت passwd **pw);
+صحیح fgetspent_sane(FILE *دھارا, ساخت spwd **sp);
+صحیح fgetgrent_sane(FILE *دھارا, ساخت group **gr);
+صحیح putpwent_sane(ثابت ساخت passwd *pw, FILE *دھارا);
+صحیح putspent_sane(ثابت ساخت spwd *sp, FILE *دھارا);
+صحیح putgrent_sane(ثابت ساخت group *gr, FILE *دھارا);
+#اگر ENABLE_GSHADOW
+صحیح fgetsgent_sane(FILE *دھارا, ساخت sgrp **sg);
+صحیح putsgent_sane(ثابت ساخت sgrp *sg, FILE *دھارا);
+#اگر_ختم
 
-int is_this_me(const char *username);
+صحیح is_this_me(ثابت حرف *username);
 
-const char* get_home_root(void);
+ثابت حرف* get_home_جڑ(خالی);
 
-static inline bool hashed_password_is_locked_or_invalid(const char *password) {
-        return password && password[0] != '$';
+ساکن اندرونی bool hashed_password_is_locked_or_invalid(ثابت حرف *password) {
+        واپس password && password[0] != '$';
 }
 
 /* Places where we will try to load account data from */
-#define PASSWD_FILES STRV_MAKE("/etc/passwd", "/usr/lib/passwd")
-#define GROUP_FILES STRV_MAKE("/etc/group", "/usr/lib/group")
+#تعریف_کرو PASSWD_FILES STRV_MAKE("/etc/passwd", "/usr/lib/passwd")
+#تعریف_کرو گروہ_FILES STRV_MAKE("/etc/group", "/usr/lib/group")
 
 /* A locked *and* invalid password for "struct spwd"'s .sp_pwdp and "struct passwd"'s .pw_passwd field */
-#define PASSWORD_LOCKED_AND_INVALID "!*"
+#تعریف_کرو PASSWORD_LOCKED_AND_INVALID "!*"
 
 /* A password indicating "look in shadow file, please!" for "struct passwd"'s .pw_passwd */
-#define PASSWORD_SEE_SHADOW "x"
+#تعریف_کرو PASSWORD_SEE_SHADOW "x"
 
 /* A password indicating "hey, no password required for login" */
-#define PASSWORD_NONE ""
+#تعریف_کرو PASSWORD_NONE ""
 
 /* Used by sysusers to indicate that the password should be filled in by firstboot.
  * Also see https://github.com/systemd/systemd/pull/24680#pullrequestreview-1439464325.
  */
-#define PASSWORD_UNPROVISIONED "!unprovisioned"
+#تعریف_کرو PASSWORD_UNPROVISIONED "!unprovisioned"
 
-int sysconf_ngroups_max(void);
+صحیح sysconf_ngroups_max(خالی);
 
-int lookup_pwent_in_files(
-                char * const *files,
-                const char *name,
+صحیح lookup_pwent_اندر_files(
+                حرف * ثابت *files,
+                ثابت حرف *name,
                 uid_t uid,
-                struct passwd **ret);
-int lookup_grent_in_files(
-                char * const *files,
-                const char *name,
+                ساخت passwd **ret);
+صحیح lookup_grent_اندر_files(
+                حرف * ثابت *files,
+                ثابت حرف *name,
                 gid_t gid,
-                struct group **ret);
+                ساخت group **ret);
 
-ssize_t lookup_groups_in_files(
-                char * const *files,
-                const char *name,
+ssize_t lookup_groups_اندر_files(
+                حرف * ثابت *files,
+                ثابت حرف *name,
                 gid_t gid,
                 gid_t **ret);
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret);
-int initgroups_wrapper(const char *user, gid_t gid);
+صحیح getgrouplist_malloc(ثابت حرف *user, gid_t gid, gid_t **ret);
+صحیح initgroups_wrapper(ثابت حرف *user, gid_t gid);
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret);
-int getpwnam_malloc(const char *name, struct passwd **ret);
+صحیح getpwuid_malloc(uid_t uid, ساخت passwd **ret);
+صحیح getpwnam_malloc(ثابت حرف *name, ساخت passwd **ret);
 
-int getgrnam_malloc(const char *name, struct group **ret);
-int getgrgid_malloc(gid_t gid, struct group **ret);
+صحیح getgrnam_malloc(ثابت حرف *name, ساخت group **ret);
+صحیح getgrgid_malloc(gid_t gid, ساخت group **ret);

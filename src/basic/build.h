@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#ہدایت once
 
-#include "forward.h"
+#شامل "forward.h"
 
-extern const char* const systemd_features;
+خارجی ثابت حرف* ثابت systemd_features;
 
-int version(void);
-int version_only(void);
+صحیح نسخہ(خالی);
+صحیح نسخہ_only(خالی);
 
-#define EXPERIMENTAL_DISABLED 0
-#define EXPERIMENTAL_ENVVAR 1
-#define EXPERIMENTAL_ENABLED 2
+#تعریف_کرو EXPERIMENTAL_DISABLED 0
+#تعریف_کرو EXPERIMENTAL_ENVVAR 1
+#تعریف_کرو EXPERIMENTAL_ENABLED 2
 
-bool experimental_enabled(void);
+bool experimental_enabled(خالی);
