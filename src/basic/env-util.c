@@ -1,69 +1,69 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "syslog-util.h"
-#include "utf8.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "env-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "format-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "syslog-util.h"
+#അന്തര്ഭാവ "utf8.h"
 
 /* We follow bash for the character set. Different shells have different rules. */
 #define VALID_BASH_ENV_NAME_CHARS               \
         ALPHANUMERICAL                          \
         "_"
 
-size_t sc_arg_max(void) {
+size_t sc_arg_max(ശൂന്യം) {
         long l = sysconf(_SC_ARG_MAX);
-        assert(l > 0);
-        return (size_t) l;
+        പ്രതിജ്ഞാ(l > 0);
+        തിരികെ (size_t) l;
 }
 
-static bool env_name_is_valid_n(const char *e, size_t n) {
+സ്ഥിതം bool env_name_is_valid_n(സ്ഥിരം അക്ഷരം *e, size_t n) {
 
-        if (n == SIZE_MAX)
+        എങ്കിൽ (n == SIZE_MAX)
                 n = strlen_ptr(e);
 
-        if (n == 0)
-                return false;
+        എങ്കിൽ (n == 0)
+                തിരികെ false;
 
-        assert(e);
+        പ്രതിജ്ഞാ(e);
 
-        if (ascii_isdigit(e[0]))
-                return false;
+        എങ്കിൽ (ascii_isdigit(e[0]))
+                തിരികെ false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the equal sign and trailing NUL this hence leaves ARG_MAX-2 as
          * longest possible variable name. */
-        if (_unlikely_(n > sc_arg_max() - 2))
-                return false;
+        എങ്കിൽ (_unlikely_(n > sc_arg_max() - 2))
+                തിരികെ false;
 
-        for (const char *p = e; p < e + n; p++)
-                if (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
-                        return false;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം *p = e; p < e + n; p++)
+                എങ്കിൽ (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
+                        തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-bool env_name_is_valid(const char *e) {
-        return env_name_is_valid_n(e, SIZE_MAX);
+bool env_name_is_valid(സ്ഥിരം അക്ഷരം *e) {
+        തിരികെ env_name_is_valid_n(e, SIZE_MAX);
 }
 
-bool env_value_is_valid(const char *e) {
-        if (!e)
-                return false;
+bool env_മൂല്യം_is_valid(സ്ഥിരം അക്ഷരം *e) {
+        എങ്കിൽ (!e)
+                തിരികെ false;
 
-        if (!utf8_is_valid(e))
-                return false;
+        എങ്കിൽ (!utf8_is_valid(e))
+                തിരികെ false;
 
         /* Note that variable *values* may contain control characters, in particular NL, TAB, BS, DEL, ESC…
          * When printing those variables with show-environment, we'll escape them. Make sure to print
@@ -72,83 +72,83 @@ bool env_value_is_valid(const char *e) {
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the shortest possible variable name of length 1, the equal
          * sign and trailing NUL this hence leaves ARG_MAX-3 as longest possible variable value. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 3))
-                return false;
+        എങ്കിൽ (_unlikely_(strlen(e) > sc_arg_max() - 3))
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-bool env_assignment_is_valid(const char *e) {
-        const char *eq;
+bool env_assignment_is_valid(സ്ഥിരം അക്ഷരം *e) {
+        സ്ഥിരം അക്ഷരം *eq;
 
-        assert(e);
+        പ്രതിജ്ഞാ(e);
 
         eq = strchr(e, '=');
-        if (!eq)
-                return false;
+        എങ്കിൽ (!eq)
+                തിരികെ false;
 
-        if (!env_name_is_valid_n(e, eq - e))
-                return false;
+        എങ്കിൽ (!env_name_is_valid_n(e, eq - e))
+                തിരികെ false;
 
-        if (!env_value_is_valid(eq + 1))
-                return false;
+        എങ്കിൽ (!env_മൂല്യം_is_valid(eq + 1))
+                തിരികെ false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
          * variable assignments cannot be either, but let's leave room for one trailing NUL byte. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 1))
-                return false;
+        എങ്കിൽ (_unlikely_(strlen(e) > sc_arg_max() - 1))
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-bool strv_env_is_valid(char * const *e) {
+bool strv_env_is_valid(അക്ഷരം * സ്ഥിരം *e) {
         STRV_FOREACH(p, e) {
                 size_t k;
 
-                if (!env_assignment_is_valid(*p))
-                        return false;
+                എങ്കിൽ (!env_assignment_is_valid(*p))
+                        തിരികെ false;
 
                 /* Check if there are duplicate assignments */
                 k = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, k) && (*q)[k] == '=')
-                                return false;
+                        എങ്കിൽ (strneq(*p, *q, k) && (*q)[k] == '=')
+                                തിരികെ false;
         }
 
-        return true;
+        തിരികെ true;
 }
 
-bool strv_env_name_is_valid(char * const *l) {
+bool strv_env_name_is_valid(അക്ഷരം * സ്ഥിരം *l) {
         STRV_FOREACH(p, l) {
-                if (!env_name_is_valid(*p))
-                        return false;
+                എങ്കിൽ (!env_name_is_valid(*p))
+                        തിരികെ false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                എങ്കിൽ (strv_contains(p + 1, *p))
+                        തിരികെ false;
         }
 
-        return true;
+        തിരികെ true;
 }
 
-bool strv_env_name_or_assignment_is_valid(char * const *l) {
+bool strv_env_name_or_assignment_is_valid(അക്ഷരം * സ്ഥിരം *l) {
         STRV_FOREACH(p, l) {
-                if (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
-                        return false;
+                എങ്കിൽ (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
+                        തിരികെ false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                എങ്കിൽ (strv_contains(p + 1, *p))
+                        തിരികെ false;
         }
 
-        return true;
+        തിരികെ true;
 }
 
-static int env_append(char **e, char ***k, char **a) {
-        assert(e);
-        assert(k);
-        assert(*k >= e);
+സ്ഥിതം പൂർണ്ണസംഖ്യ env_append(അക്ഷരം **e, അക്ഷരം ***k, അക്ഷരം **a) {
+        പ്രതിജ്ഞാ(e);
+        പ്രതിജ്ഞാ(k);
+        പ്രതിജ്ഞാ(*k >= e);
 
-        if (!a)
-                return 0;
+        എങ്കിൽ (!a)
+                തിരികെ 0;
 
         /* Expects the following arguments: 'e' shall point to the beginning of an strv we are going to append to, 'k'
          * to a pointer pointing to the NULL entry at the end of the same array. 'a' shall point to another strv.
@@ -157,36 +157,36 @@ static int env_append(char **e, char ***k, char **a) {
          *
          * This call assumes 'e' has enough pre-allocated space to grow by all of 'a''s items. */
 
-        for (; *a; a++) {
-                char **j, *c;
+        വേണ്ടി (; *a; a++) {
+                അക്ഷരം **j, *c;
                 size_t n;
 
                 n = strcspn(*a, "=");
-                if ((*a)[n] == '=')
+                എങ്കിൽ ((*a)[n] == '=')
                         n++;
 
-                for (j = e; j < *k; j++)
-                        if (strneq(*j, *a, n))
-                                break;
+                വേണ്ടി (j = e; j < *k; j++)
+                        എങ്കിൽ (strneq(*j, *a, n))
+                                നിർത്തുക;
 
                 c = strdup(*a);
-                if (!c)
-                        return -ENOMEM;
+                എങ്കിൽ (!c)
+                        തിരികെ -ENOMEM;
 
-                if (j >= *k) { /* Append to the end? */
+                എങ്കിൽ (j >= *k) { /* Append to the end? */
                         (*k)[0] = c;
-                        (*k)[1] = NULL;
+                        (*k)[1] = ശൂന്യ;
                         (*k)++;
-                } else
+                } അല്ലെങ്കിൽ
                         free_and_replace(*j, c); /* Override existing item */
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-char** _strv_env_merge(char **first, ...) {
-        _cleanup_strv_free_ char **merged = NULL;
-        char **k;
+അക്ഷരം** _strv_env_merge(അക്ഷരം **first, ...) {
+        _cleanup_strv_free_ അക്ഷരം **merged = ശൂന്യ;
+        അക്ഷരം **k;
         va_list ap;
 
         /* Merges an arbitrary number of environment sets */
@@ -194,46 +194,46 @@ char** _strv_env_merge(char **first, ...) {
         size_t n = strv_length(first);
 
         va_start(ap, first);
-        for (;;) {
-                char **l;
+        വേണ്ടി (;;) {
+                അക്ഷരം **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, അക്ഷരം**);
+                എങ്കിൽ (l == POINTER_MAX)
+                        നിർത്തുക;
 
                 n += strv_length(l);
         }
         va_end(ap);
 
-        k = merged = new(char*, n + 1);
-        if (!merged)
-                return NULL;
-        merged[0] = NULL;
+        k = merged = new(അക്ഷരം*, n + 1);
+        എങ്കിൽ (!merged)
+                തിരികെ ശൂന്യ;
+        merged[0] = ശൂന്യ;
 
-        if (env_append(merged, &k, first) < 0)
-                return NULL;
+        എങ്കിൽ (env_append(merged, &k, first) < 0)
+                തിരികെ ശൂന്യ;
 
         va_start(ap, first);
-        for (;;) {
-                char **l;
+        വേണ്ടി (;;) {
+                അക്ഷരം **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, അക്ഷരം**);
+                എങ്കിൽ (l == POINTER_MAX)
+                        നിർത്തുക;
 
-                if (env_append(merged, &k, l) < 0) {
+                എങ്കിൽ (env_append(merged, &k, l) < 0) {
                         va_end(ap);
-                        return NULL;
+                        തിരികെ ശൂന്യ;
                 }
         }
         va_end(ap);
 
-        return TAKE_PTR(merged);
+        തിരികെ TAKE_PTR(merged);
 }
 
-static bool env_match(const char *t, const char *pattern) {
-        assert(t);
-        assert(pattern);
+സ്ഥിതം bool env_match(സ്ഥിരം അക്ഷരം *t, സ്ഥിരം അക്ഷരം *pattern) {
+        പ്രതിജ്ഞാ(t);
+        പ്രതിജ്ഞാ(pattern);
 
         /* pattern a matches string a
          *         a matches a=
@@ -245,34 +245,34 @@ static bool env_match(const char *t, const char *pattern) {
          *         a=b does not match a
          *         a=b does not match a=c */
 
-        if (streq(t, pattern))
-                return true;
+        എങ്കിൽ (streq(t, pattern))
+                തിരികെ true;
 
-        if (!strchr(pattern, '=')) {
+        എങ്കിൽ (!strchr(pattern, '=')) {
                 t = startswith(t, pattern);
 
-                return t && *t == '=';
+                തിരികെ t && *t == '=';
         }
 
-        return false;
+        തിരികെ false;
 }
 
-static bool env_entry_has_name(const char *entry, const char *name) {
-        const char *t;
+സ്ഥിതം bool env_entry_has_name(സ്ഥിരം അക്ഷരം *entry, സ്ഥിരം അക്ഷരം *name) {
+        സ്ഥിരം അക്ഷരം *t;
 
-        assert(entry);
-        assert(name);
+        പ്രതിജ്ഞാ(entry);
+        പ്രതിജ്ഞാ(name);
 
         t = startswith(entry, name);
-        if (!t)
-                return false;
+        എങ്കിൽ (!t)
+                തിരികെ false;
 
-        return *t == '=';
+        തിരികെ *t == '=';
 }
 
-char** strv_env_delete(char **x, size_t n_lists, ...) {
+അക്ഷരം** strv_env_delete(അക്ഷരം **x, size_t n_lists, ...) {
         size_t n, i = 0;
-        _cleanup_strv_free_ char **t = NULL;
+        _cleanup_strv_free_ അക്ഷരം **t = ശൂന്യ;
         va_list ap;
 
         /* Deletes every entry from x that is mentioned in the other
@@ -280,103 +280,103 @@ char** strv_env_delete(char **x, size_t n_lists, ...) {
 
         n = strv_length(x);
 
-        t = new(char*, n+1);
-        if (!t)
-                return NULL;
+        t = new(അക്ഷരം*, n+1);
+        എങ്കിൽ (!t)
+                തിരികെ ശൂന്യ;
 
         STRV_FOREACH(k, x) {
                 va_start(ap, n_lists);
-                for (size_t v = 0; v < n_lists; v++) {
-                        char **l;
+                വേണ്ടി (size_t v = 0; v < n_lists; v++) {
+                        അക്ഷരം **l;
 
-                        l = va_arg(ap, char**);
+                        l = va_arg(ap, അക്ഷരം**);
                         STRV_FOREACH(j, l)
-                                if (env_match(*k, *j))
-                                        goto skip;
+                                എങ്കിൽ (env_match(*k, *j))
+                                        പോകുക skip;
                 }
                 va_end(ap);
 
                 t[i] = strdup(*k);
-                if (!t[i])
-                        return NULL;
+                എങ്കിൽ (!t[i])
+                        തിരികെ ശൂന്യ;
 
                 i++;
-                continue;
+                തുടരുക;
 
         skip:
                 va_end(ap);
         }
 
-        t[i] = NULL;
+        t[i] = ശൂന്യ;
 
-        assert(i <= n);
+        പ്രതിജ്ഞാ(i <= n);
 
-        return TAKE_PTR(t);
+        തിരികെ TAKE_PTR(t);
 }
 
-char** strv_env_unset(char **l, const char *p) {
-        assert(p);
+അക്ഷരം** strv_env_unset(അക്ഷരം **l, സ്ഥിരം അക്ഷരം *p) {
+        പ്രതിജ്ഞാ(p);
 
-        if (!l)
-                return NULL;
+        എങ്കിൽ (!l)
+                തിരികെ ശൂന്യ;
 
         /* Drops every occurrence of the env var setting p in the
          * string list. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                if (env_match(*f, p)) {
-                        free(*f);
-                        continue;
+        അക്ഷരം **f, **t;
+        വേണ്ടി (f = t = l; *f; f++) {
+                എങ്കിൽ (env_match(*f, p)) {
+                        സ്വതന്ത്രം(*f);
+                        തുടരുക;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = ശൂന്യ;
+        തിരികെ l;
 }
 
-char** strv_env_unset_many_internal(char **l, ...) {
-        if (!l)
-                return NULL;
+അക്ഷരം** strv_env_unset_many_internal(അക്ഷരം **l, ...) {
+        എങ്കിൽ (!l)
+                തിരികെ ശൂന്യ;
 
         /* Like strv_env_unset() but applies many at once. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
+        അക്ഷരം **f, **t;
+        വേണ്ടി (f = t = l; *f; f++) {
                 bool found = false;
-                const char *p;
+                സ്ഥിരം അക്ഷരം *p;
                 va_list ap;
 
                 va_start(ap, l);
 
-                while ((p = va_arg(ap, const char*)))
-                        if (env_match(*f, p)) {
+                ആകുമ്പോൾ ((p = va_arg(ap, സ്ഥിരം അക്ഷരം*)))
+                        എങ്കിൽ (env_match(*f, p)) {
                                 found = true;
-                                break;
+                                നിർത്തുക;
                         }
 
                 va_end(ap);
 
-                if (found) {
-                        free(*f);
-                        continue;
+                എങ്കിൽ (found) {
+                        സ്വതന്ത്രം(*f);
+                        തുടരുക;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = ശൂന്യ;
+        തിരികെ l;
 }
 
-int strv_env_replace_consume(char ***l, char *p) {
-        const char *t, *name;
-        int r;
+പൂർണ്ണസംഖ്യ strv_env_replace_consume(അക്ഷരം ***l, അക്ഷരം *p) {
+        സ്ഥിരം അക്ഷരം *t, *name;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(l);
-        assert(p);
+        പ്രതിജ്ഞാ(l);
+        പ്രതിജ്ഞാ(p);
 
         /* Replace first occurrence of the env var or add a new one in the string list. Drop other
          * occurrences. Edits in-place. Does not copy p and CONSUMES p EVEN ON FAILURE.
@@ -384,576 +384,576 @@ int strv_env_replace_consume(char ***l, char *p) {
          * p must be a valid key=value assignment. */
 
         t = strchr(p, '=');
-        if (!t) {
-                free(p);
-                return -EINVAL;
+        എങ്കിൽ (!t) {
+                സ്വതന്ത്രം(p);
+                തിരികെ -EINVAL;
         }
 
         name = strndupa_safe(p, t - p);
 
         STRV_FOREACH(f, *l)
-                if (env_entry_has_name(*f, name)) {
+                എങ്കിൽ (env_entry_has_name(*f, name)) {
                         free_and_replace(*f, p);
                         strv_env_unset(f + 1, *f);
-                        return 0;
+                        തിരികെ 0;
                 }
 
         /* We didn't find a match, we need to append p or create a new strv */
         r = strv_consume(l, p);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return 1;
+        തിരികെ 1;
 }
 
-int strv_env_replace_strdup(char ***l, const char *assignment) {
+പൂർണ്ണസംഖ്യ strv_env_replace_strdup(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *assignment) {
         /* Like strv_env_replace_consume(), but copies the argument. */
 
-        assert(l);
-        assert(assignment);
+        പ്രതിജ്ഞാ(l);
+        പ്രതിജ്ഞാ(assignment);
 
-        char *p = strdup(assignment);
-        if (!p)
-                return -ENOMEM;
+        അക്ഷരം *p = strdup(assignment);
+        എങ്കിൽ (!p)
+                തിരികെ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        തിരികെ strv_env_replace_consume(l, p);
 }
 
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
-        char *p;
+പൂർണ്ണസംഖ്യ strv_env_replace_strdup_passthrough(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *assignment) {
+        അക്ഷരം *p;
 
         /* Like strv_env_replace_strdup(), but pulls the variable from the environment of
          * the calling program, if a variable name without value is specified. */
 
-        assert(l);
-        assert(assignment);
+        പ്രതിജ്ഞാ(l);
+        പ്രതിജ്ഞാ(assignment);
 
-        if (strchr(assignment, '=')) {
-                if (!env_assignment_is_valid(assignment))
-                        return -EINVAL;
+        എങ്കിൽ (strchr(assignment, '=')) {
+                എങ്കിൽ (!env_assignment_is_valid(assignment))
+                        തിരികെ -EINVAL;
 
                 p = strdup(assignment);
-        } else {
-                if (!env_name_is_valid(assignment))
-                        return -EINVAL;
+        } അല്ലെങ്കിൽ {
+                എങ്കിൽ (!env_name_is_valid(assignment))
+                        തിരികെ -EINVAL;
 
                 /* If we can't find the variable in our environment, we will use
                  * the empty string. This way "passthrough" is equivalent to passing
                  * --setenv=FOO=$FOO in the shell. */
                 p = strjoin(assignment, "=", secure_getenv(assignment));
         }
-        if (!p)
-                return -ENOMEM;
+        എങ്കിൽ (!p)
+                തിരികെ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        തിരികെ strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
-        assert(l);
+പൂർണ്ണസംഖ്യ strv_env_assign(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        പ്രതിജ്ഞാ(l);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        എങ്കിൽ (!env_name_is_valid(താക്കോൽ))
+                തിരികെ -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
-                strv_env_unset(*l, key);
-                return 0;
+        എങ്കിൽ (!മൂല്യം) {
+                strv_env_unset(*l, താക്കോൽ);
+                തിരികെ 0;
         }
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        അക്ഷരം *p = strjoin(താക്കോൽ, "=", മൂല്യം);
+        എങ്കിൽ (!p)
+                തിരികെ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        തിരികെ strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
-        int r;
+പൂർണ്ണസംഖ്യ strv_env_assignf(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *valuef, ...) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(l);
-        assert(key);
+        പ്രതിജ്ഞാ(l);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        എങ്കിൽ (!env_name_is_valid(താക്കോൽ))
+                തിരികെ -EINVAL;
 
-        if (!valuef) {
-                strv_env_unset(*l, key);
-                return 0;
+        എങ്കിൽ (!valuef) {
+                strv_env_unset(*l, താക്കോൽ);
+                തിരികെ 0;
         }
 
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ അക്ഷരം *മൂല്യം = ശൂന്യ;
         va_list ap;
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&മൂല്യം, valuef, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        എങ്കിൽ (r < 0)
+                തിരികെ -ENOMEM;
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        അക്ഷരം *p = strjoin(താക്കോൽ, "=", മൂല്യം);
+        എങ്കിൽ (!p)
+                തിരികെ -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        തിരികെ strv_env_replace_consume(l, p);
 }
 
-int _strv_env_assign_many(char ***l, ...) {
+പൂർണ്ണസംഖ്യ _strv_env_assign_many(അക്ഷരം ***l, ...) {
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(l);
+        പ്രതിജ്ഞാ(l);
 
         va_start(ap, l);
-        for (;;) {
-                const char *key, *value;
+        വേണ്ടി (;;) {
+                സ്ഥിരം അക്ഷരം *താക്കോൽ, *മൂല്യം;
 
-                key = va_arg(ap, const char *);
-                if (!key)
-                        break;
+                താക്കോൽ = va_arg(ap, സ്ഥിരം അക്ഷരം *);
+                എങ്കിൽ (!താക്കോൽ)
+                        നിർത്തുക;
 
-                if (!env_name_is_valid(key)) {
+                എങ്കിൽ (!env_name_is_valid(താക്കോൽ)) {
                         va_end(ap);
-                        return -EINVAL;
+                        തിരികെ -EINVAL;
                 }
 
-                value = va_arg(ap, const char *);
-                if (!value) {
-                        strv_env_unset(*l, key);
-                        continue;
+                മൂല്യം = va_arg(ap, സ്ഥിരം അക്ഷരം *);
+                എങ്കിൽ (!മൂല്യം) {
+                        strv_env_unset(*l, താക്കോൽ);
+                        തുടരുക;
                 }
 
-                char *p = strjoin(key, "=", value);
-                if (!p) {
+                അക്ഷരം *p = strjoin(താക്കോൽ, "=", മൂല്യം);
+                എങ്കിൽ (!p) {
                         va_end(ap);
-                        return -ENOMEM;
+                        തിരികെ -ENOMEM;
                 }
 
                 r = strv_env_replace_consume(l, p);
-                if (r < 0) {
+                എങ്കിൽ (r < 0) {
                         va_end(ap);
-                        return r;
+                        തിരികെ r;
                 }
         }
         va_end(ap);
 
-        return 0;
+        തിരികെ 0;
 }
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags) {
-        assert(name);
+അക്ഷരം* strv_env_get_n(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name, size_t k, ReplaceEnvFlags flags) {
+        പ്രതിജ്ഞാ(name);
 
-        if (k == SIZE_MAX)
+        എങ്കിൽ (k == SIZE_MAX)
                 k = strlen(name);
-        if (k <= 0)
-                return NULL;
+        എങ്കിൽ (k <= 0)
+                തിരികെ ശൂന്യ;
 
         STRV_FOREACH_BACKWARDS(i, l)
-                if (strneq(*i, name, k) && (*i)[k] == '=')
-                        return (char*) *i + k + 1;
+                എങ്കിൽ (strneq(*i, name, k) && (*i)[k] == '=')
+                        തിരികെ (അക്ഷരം*) *i + k + 1;
 
-        if (flags & REPLACE_ENV_USE_ENVIRONMENT) {
-                const char *t;
+        എങ്കിൽ (flags & REPLACE_ENV_USE_ENVIRONMENT) {
+                സ്ഥിരം അക്ഷരം *t;
 
                 /* Safety check that the name is not overly long, before we do a stack allocation */
-                if (k > sc_arg_max() - 2)
-                        return NULL;
+                എങ്കിൽ (k > sc_arg_max() - 2)
+                        തിരികെ ശൂന്യ;
 
                 t = strndupa_safe(name, k);
-                return secure_getenv(t);
+                തിരികെ secure_getenv(t);
         };
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-char* strv_env_pairs_get(char **l, const char *name) {
-        char *result = NULL;
+അക്ഷരം* strv_env_pairs_get(അക്ഷരം **l, സ്ഥിരം അക്ഷരം *name) {
+        അക്ഷരം *result = ശൂന്യ;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
-        STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
-                        result = *value;
+        STRV_FOREACH_PAIR(താക്കോൽ, മൂല്യം, l)
+                എങ്കിൽ (streq(*താക്കോൽ, name))
+                        result = *മൂല്യം;
 
-        return result;
+        തിരികെ result;
 }
 
-int strv_env_get_merged(char **l, char ***ret) {
-        _cleanup_strv_free_ char **v = NULL;
+പൂർണ്ണസംഖ്യ strv_env_get_merged(അക്ഷരം **l, അക്ഷരം ***ret) {
+        _cleanup_strv_free_ അക്ഷരം **v = ശൂന്യ;
         size_t n = 0;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         /* This converts a strv with pairs of environment variable name + value into a strv of name and
          * value concatenated with a "=" separator. E.g.
          * input  : { "NAME", "value", "FOO", "var" }
          * output : { "NAME=value", "FOO=var" } */
 
-        STRV_FOREACH_PAIR(key, value, l) {
-                char *s;
+        STRV_FOREACH_PAIR(താക്കോൽ, മൂല്യം, l) {
+                അക്ഷരം *s;
 
-                s = strjoin(*key, "=", *value);
-                if (!s)
-                        return -ENOMEM;
+                s = strjoin(*താക്കോൽ, "=", *മൂല്യം);
+                എങ്കിൽ (!s)
+                        തിരികെ -ENOMEM;
 
                 r = strv_consume_with_size(&v, &n, s);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
         *ret = TAKE_PTR(v);
-        return 0;
+        തിരികെ 0;
 }
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata) {
-        int k = 0;
+അക്ഷരം** strv_env_clean_with_callback(അക്ഷരം **l, ശൂന്യം (*invalid_callback)(സ്ഥിരം അക്ഷരം *p, ശൂന്യം *userdata), ശൂന്യം *userdata) {
+        പൂർണ്ണസംഖ്യ k = 0;
 
         STRV_FOREACH(p, l) {
                 size_t n;
                 bool duplicate = false;
 
-                if (!env_assignment_is_valid(*p)) {
-                        if (invalid_callback)
+                എങ്കിൽ (!env_assignment_is_valid(*p)) {
+                        എങ്കിൽ (invalid_callback)
                                 invalid_callback(*p, userdata);
-                        free(*p);
-                        continue;
+                        സ്വതന്ത്രം(*p);
+                        തുടരുക;
                 }
 
                 n = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, n) && (*q)[n] == '=') {
+                        എങ്കിൽ (strneq(*p, *q, n) && (*q)[n] == '=') {
                                 duplicate = true;
-                                break;
+                                നിർത്തുക;
                         }
 
-                if (duplicate) {
-                        free(*p);
-                        continue;
+                എങ്കിൽ (duplicate) {
+                        സ്വതന്ത്രം(*p);
+                        തുടരുക;
                 }
 
                 l[k++] = *p;
         }
 
-        if (l)
-                l[k] = NULL;
+        എങ്കിൽ (l)
+                l[k] = ശൂന്യ;
 
-        return l;
+        തിരികെ l;
 }
 
-static int strv_extend_with_length(char ***l, const char *s, size_t n) {
-        char *c;
+സ്ഥിതം പൂർണ്ണസംഖ്യ strv_extend_with_length(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *s, size_t n) {
+        അക്ഷരം *c;
 
         c = strndup(s, n);
-        if (!c)
-                return -ENOMEM;
+        എങ്കിൽ (!c)
+                തിരികെ -ENOMEM;
 
-        return strv_consume(l, c);
+        തിരികെ strv_consume(l, c);
 }
 
-static int strv_env_get_n_validated(
-                char **env,
-                const char *name,
+സ്ഥിതം പൂർണ്ണസംഖ്യ strv_env_get_n_validated(
+                അക്ഷരം **env,
+                സ്ഥിരം അക്ഷരം *name,
                 size_t l,
                 ReplaceEnvFlags flags,
-                char **ret,              /* points into the env block! do not free! */
-                char ***unset_variables, /* updated in place */
-                char ***bad_variables) { /* ditto */
+                അക്ഷരം **ret,              /* points into the env block! do not free! */
+                അക്ഷരം ***unset_variables, /* updated in place */
+                അക്ഷരം ***bad_variables) { /* ditto */
 
-        char *e;
-        int r;
+        അക്ഷരം *e;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(l == 0 || name);
-        assert(ret);
+        പ്രതിജ്ഞാ(l == 0 || name);
+        പ്രതിജ്ഞാ(ret);
 
-        if (env_name_is_valid_n(name, l)) {
+        എങ്കിൽ (env_name_is_valid_n(name, l)) {
                 e = strv_env_get_n(env, name, l, flags);
-                if (!e && unset_variables) {
+                എങ്കിൽ (!e && unset_variables) {
                         r = strv_extend_with_length(unset_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
-        } else {
-                e = NULL; /* Resolve invalid variable names the same way as unset ones */
+        } അല്ലെങ്കിൽ {
+                e = ശൂന്യ; /* Resolve invalid variable names the same way as unset ones */
 
-                if (bad_variables) {
+                എങ്കിൽ (bad_variables) {
                         r = strv_extend_with_length(bad_variables, name, l);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
         }
 
         *ret = e;
-        return !!e;
+        തിരികെ !!e;
 }
 
-int replace_env_full(
-                const char *format,
+പൂർണ്ണസംഖ്യ replace_env_full(
+                സ്ഥിരം അക്ഷരം *format,
                 size_t length,
-                char **env,
+                അക്ഷരം **env,
                 ReplaceEnvFlags flags,
-                char **ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+                അക്ഷരം **ret,
+                അക്ഷരം ***ret_unset_variables,
+                അക്ഷരം ***ret_bad_variables) {
 
-        enum {
+        എണ്ണൽ {
                 WORD,
                 CURLY,
                 VARIABLE,
                 VARIABLE_RAW,
                 TEST,
-                DEFAULT_VALUE,
-                ALTERNATE_VALUE,
+                DEFAULT_മൂല്യം,
+                ALTERNATE_മൂല്യം,
         } state = WORD;
 
-        _cleanup_strv_free_ char **unset_variables = NULL, **bad_variables = NULL;
-        const char *e, *word = format, *test_value = NULL; /* test_value is initialized to appease gcc */
-        _cleanup_free_ char *s = NULL;
-        char ***pu, ***pb;
+        _cleanup_strv_free_ അക്ഷരം **unset_variables = ശൂന്യ, **bad_variables = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *e, *word = format, *test_മൂല്യം = ശൂന്യ; /* test_value is initialized to appease gcc */
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        അക്ഷരം ***pu, ***pb;
         size_t i, len = 0; /* len is initialized to appease gcc */
-        int nest = 0, r;
+        പൂർണ്ണസംഖ്യ nest = 0, r;
 
-        assert(format);
+        പ്രതിജ്ഞാ(format);
 
-        if (length == SIZE_MAX)
+        എങ്കിൽ (length == SIZE_MAX)
                 length = strlen(format);
 
-        pu = ret_unset_variables ? &unset_variables : NULL;
-        pb = ret_bad_variables ? &bad_variables : NULL;
+        pu = ret_unset_variables ? &unset_variables : ശൂന്യ;
+        pb = ret_bad_variables ? &bad_variables : ശൂന്യ;
 
-        for (e = format, i = 0; *e && i < length; e++, i++)
-                switch (state) {
+        വേണ്ടി (e = format, i = 0; *e && i < length; e++, i++)
+                തിരഞ്ഞെടുപ്പ് (state) {
 
-                case WORD:
-                        if (*e == '$')
+                അവസ്ഥ WORD:
+                        എങ്കിൽ (*e == '$')
                                 state = CURLY;
-                        break;
+                        നിർത്തുക;
 
-                case CURLY:
-                        if (*e == '{') {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                അവസ്ഥ CURLY:
+                        എങ്കിൽ (*e == '{') {
+                                എങ്കിൽ (!strextendn(&s, word, e-word-1))
+                                        തിരികെ -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE;
                                 nest++;
 
-                        } else if (*e == '$') {
-                                if (!strextendn(&s, word, e-word))
-                                        return -ENOMEM;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (*e == '$') {
+                                എങ്കിൽ (!strextendn(&s, word, e-word))
+                                        തിരികെ -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
 
-                        } else if (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                എങ്കിൽ (!strextendn(&s, word, e-word-1))
+                                        തിരികെ -ENOMEM;
 
                                 word = e-1;
                                 state = VARIABLE_RAW;
 
-                        } else
+                        } അല്ലെങ്കിൽ
                                 state = WORD;
-                        break;
+                        നിർത്തുക;
 
-                case VARIABLE:
-                        if (*e == '}') {
-                                char *t;
+                അവസ്ഥ VARIABLE:
+                        എങ്കിൽ (*e == '}') {
+                                അക്ഷരം *t;
 
                                 r = strv_env_get_n_validated(env, word+2, e-word-2, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!strextend(&s, t))
+                                        തിരികെ -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                                 nest--;
-                        } else if (*e == ':') {
-                                if (flags & REPLACE_ENV_ALLOW_EXTENDED) {
+                        } അല്ലെങ്കിൽ എങ്കിൽ (*e == ':') {
+                                എങ്കിൽ (flags & REPLACE_ENV_ALLOW_EXTENDED) {
                                         len = e - word - 2;
                                         state = TEST;
-                                } else
+                                } അല്ലെങ്കിൽ
                                         /* Treat this as unsupported syntax, i.e. do no replacement */
                                         state = WORD;
                         }
-                        break;
+                        നിർത്തുക;
 
-                case TEST:
-                        if (*e == '-')
-                                state = DEFAULT_VALUE;
-                        else if (*e == '+')
-                                state = ALTERNATE_VALUE;
-                        else {
+                അവസ്ഥ TEST:
+                        എങ്കിൽ (*e == '-')
+                                state = DEFAULT_മൂല്യം;
+                        അല്ലെങ്കിൽ എങ്കിൽ (*e == '+')
+                                state = ALTERNATE_മൂല്യം;
+                        അല്ലെങ്കിൽ {
                                 state = WORD;
-                                break;
+                                നിർത്തുക;
                         }
 
-                        test_value = e+1;
-                        break;
+                        test_മൂല്യം = e+1;
+                        നിർത്തുക;
 
-                case DEFAULT_VALUE: /* fall through */
-                case ALTERNATE_VALUE:
-                        assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
+                അവസ്ഥ DEFAULT_മൂല്യം: /* fall through */
+                അവസ്ഥ ALTERNATE_മൂല്യം:
+                        പ്രതിജ്ഞാ(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
-                        if (*e == '{') {
+                        എങ്കിൽ (*e == '{') {
                                 nest++;
-                                break;
+                                നിർത്തുക;
                         }
 
-                        if (*e != '}')
-                                break;
+                        എങ്കിൽ (*e != '}')
+                                നിർത്തുക;
 
                         nest--;
-                        if (nest == 0) {
-                                _cleanup_strv_free_ char **u = NULL, **b = NULL;
-                                _cleanup_free_ char *v = NULL;
-                                char *t = NULL;
+                        എങ്കിൽ (nest == 0) {
+                                _cleanup_strv_free_ അക്ഷരം **u = ശൂന്യ, **b = ശൂന്യ;
+                                _cleanup_free_ അക്ഷരം *v = ശൂന്യ;
+                                അക്ഷരം *t = ശൂന്യ;
 
                                 r = strv_env_get_n_validated(env, word+2, len, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
-                                if (t && state == ALTERNATE_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                എങ്കിൽ (t && state == ALTERNATE_മൂല്യം) {
+                                        r = replace_env_full(test_മൂല്യം, e-test_മൂല്യം, env, flags, &v, pu ? &u : ശൂന്യ, pb ? &b : ശൂന്യ);
+                                        എങ്കിൽ (r < 0)
+                                                തിരികെ r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                } അല്ലെങ്കിൽ എങ്കിൽ (!t && state == DEFAULT_മൂല്യം) {
+                                        r = replace_env_full(test_മൂല്യം, e-test_മൂല്യം, env, flags, &v, pu ? &u : ശൂന്യ, pb ? &b : ശൂന്യ);
+                                        എങ്കിൽ (r < 0)
+                                                തിരികെ r;
 
                                         t = v;
                                 }
 
                                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
                                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!strextend(&s, t))
+                                        തിരികെ -ENOMEM;
 
                                 word = e+1;
                                 state = WORD;
                         }
-                        break;
+                        നിർത്തുക;
 
-                case VARIABLE_RAW:
-                        assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                അവസ്ഥ VARIABLE_RAW:
+                        പ്രതിജ്ഞാ(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                        if (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                char *t = NULL;
+                        എങ്കിൽ (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                അക്ഷരം *t = ശൂന്യ;
 
                                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!strextend(&s, t))
+                                        തിരികെ -ENOMEM;
 
                                 word = e--;
                                 i--;
                                 state = WORD;
                         }
-                        break;
+                        നിർത്തുക;
                 }
 
-        if (state == VARIABLE_RAW) {
-                char *t;
+        എങ്കിൽ (state == VARIABLE_RAW) {
+                അക്ഷരം *t;
 
-                assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                പ്രതിജ്ഞാ(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
                 r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (!strextend(&s, t))
-                        return -ENOMEM;
+                എങ്കിൽ (!strextend(&s, t))
+                        തിരികെ -ENOMEM;
 
-        } else if (!strextendn(&s, word, e-word))
-                return -ENOMEM;
+        } അല്ലെങ്കിൽ എങ്കിൽ (!strextendn(&s, word, e-word))
+                തിരികെ -ENOMEM;
 
-        if (ret_unset_variables)
+        എങ്കിൽ (ret_unset_variables)
                 *ret_unset_variables = TAKE_PTR(unset_variables);
-        if (ret_bad_variables)
+        എങ്കിൽ (ret_bad_variables)
                 *ret_bad_variables = TAKE_PTR(bad_variables);
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int replace_env_argv(
-                char **argv,
-                char **env,
-                char ***ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+പൂർണ്ണസംഖ്യ replace_env_argv(
+                അക്ഷരം **argv,
+                അക്ഷരം **env,
+                അക്ഷരം ***ret,
+                അക്ഷരം ***ret_unset_variables,
+                അക്ഷരം ***ret_bad_variables) {
 
-        _cleanup_strv_free_ char **n = NULL, **unset_variables = NULL, **bad_variables = NULL;
+        _cleanup_strv_free_ അക്ഷരം **n = ശൂന്യ, **unset_variables = ശൂന്യ, **bad_variables = ശൂന്യ;
         size_t k = 0, l;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(!strv_isempty(argv));
-        assert(ret);
+        പ്രതിജ്ഞാ(!strv_isempty(argv));
+        പ്രതിജ്ഞാ(ret);
 
         l = strv_length(argv);
 
-        n = new(char*, l+1);
-        if (!n)
-                return -ENOMEM;
+        n = new(അക്ഷരം*, l+1);
+        എങ്കിൽ (!n)
+                തിരികെ -ENOMEM;
 
         STRV_FOREACH(i, argv) {
-                const char *word = *i;
+                സ്ഥിരം അക്ഷരം *word = *i;
 
                 /* If $FOO appears as single word, replace it by the split up variable */
-                if (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
-                        _cleanup_strv_free_ char **m = NULL;
-                        const char *name = word + 1;
-                        char *e, **w;
+                എങ്കിൽ (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
+                        _cleanup_strv_free_ അക്ഷരം **m = ശൂന്യ;
+                        സ്ഥിരം അക്ഷരം *name = word + 1;
+                        അക്ഷരം *e, **w;
                         size_t q;
 
-                        if (env_name_is_valid(name)) {
+                        എങ്കിൽ (env_name_is_valid(name)) {
                                 e = strv_env_get(env, name);
-                                if (e)
+                                എങ്കിൽ (e)
                                         r = strv_split_full(&m, e, WHITESPACE, EXTRACT_RELAX|EXTRACT_UNQUOTE);
-                                else if (ret_unset_variables)
+                                അല്ലെങ്കിൽ എങ്കിൽ (ret_unset_variables)
                                         r = strv_extend(&unset_variables, name);
-                                else
+                                അല്ലെങ്കിൽ
                                         r = 0;
-                        } else if (ret_bad_variables)
+                        } അല്ലെങ്കിൽ എങ്കിൽ (ret_bad_variables)
                                 r = strv_extend(&bad_variables, name);
-                        else
+                        അല്ലെങ്കിൽ
                                 r = 0;
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
 
                         q = strv_length(m);
                         l = l + q - 1;
 
-                        w = reallocarray(n, l + 1, sizeof(char*));
-                        if (!w)
-                                return -ENOMEM;
+                        w = reallocarray(n, l + 1, വലുപ്പം(അക്ഷരം*));
+                        എങ്കിൽ (!w)
+                                തിരികെ -ENOMEM;
 
                         n = w;
-                        if (m) {
-                                memcpy(n + k, m, (q + 1) * sizeof(char*));
+                        എങ്കിൽ (m) {
+                                memcpy(n + k, m, (q + 1) * വലുപ്പം(അക്ഷരം*));
                                 m = mfree(m);
                         }
 
                         k += q;
                         /* reallocarray() does not zero-initialize the grown tail, add NUL termination */
-                        n[k] = NULL;
-                        continue;
+                        n[k] = ശൂന്യ;
+                        തുടരുക;
                 }
 
-                _cleanup_strv_free_ char **u = NULL, **b = NULL;
+                _cleanup_strv_free_ അക്ഷരം **u = ശൂന്യ, **b = ശൂന്യ;
 
                 /* If ${FOO} appears as part of a word, replace it by the variable as-is */
                 r = replace_env_full(
@@ -962,212 +962,212 @@ int replace_env_argv(
                                 env,
                                 /* flags= */ 0,
                                 n + k,
-                                ret_unset_variables ? &u : NULL,
-                                ret_bad_variables ? &b : NULL);
-                if (r < 0)
-                        return r;
-                n[++k] = NULL;
+                                ret_unset_variables ? &u : ശൂന്യ,
+                                ret_bad_variables ? &b : ശൂന്യ);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                n[++k] = ശൂന്യ;
 
                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (ret_unset_variables) {
+        എങ്കിൽ (ret_unset_variables) {
                 strv_sort_uniq(unset_variables);
                 *ret_unset_variables = TAKE_PTR(unset_variables);
         }
-        if (ret_bad_variables) {
+        എങ്കിൽ (ret_bad_variables) {
                 strv_sort_uniq(bad_variables);
                 *ret_bad_variables = TAKE_PTR(bad_variables);
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        തിരികെ 0;
 }
 
-int getenv_bool(const char *p) {
-        const char *e;
+പൂർണ്ണസംഖ്യ getenv_bool(സ്ഥിരം അക്ഷരം *p) {
+        സ്ഥിരം അക്ഷരം *e;
 
         e = getenv(p);
-        if (!e)
-                return -ENXIO;
+        എങ്കിൽ (!e)
+                തിരികെ -ENXIO;
 
-        return parse_boolean(e);
+        തിരികെ parse_boolean(e);
 }
 
-int secure_getenv_bool(const char *p) {
-        const char *e;
+പൂർണ്ണസംഖ്യ secure_getenv_bool(സ്ഥിരം അക്ഷരം *p) {
+        സ്ഥിരം അക്ഷരം *e;
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        എങ്കിൽ (!e)
+                തിരികെ -ENXIO;
 
-        return parse_boolean(e);
+        തിരികെ parse_boolean(e);
 }
 
-int secure_getenv_uint64(const char *p, uint64_t *ret) {
-        const char *e;
+പൂർണ്ണസംഖ്യ secure_getenv_uint64(സ്ഥിരം അക്ഷരം *p, uint64_t *ret) {
+        സ്ഥിരം അക്ഷരം *e;
 
-        assert(p);
+        പ്രതിജ്ഞാ(p);
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        എങ്കിൽ (!e)
+                തിരികെ -ENXIO;
 
-        return safe_atou64(e, ret);
+        തിരികെ safe_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
-        assert(name);
+പൂർണ്ണസംഖ്യ set_unset_env(സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *മൂല്യം, bool overwrite) {
+        പ്രതിജ്ഞാ(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        എങ്കിൽ (മൂല്യം)
+                തിരികെ RET_NERRNO(setenv(name, മൂല്യം, overwrite));
 
-        return RET_NERRNO(unsetenv(name));
+        തിരികെ RET_NERRNO(unsetenv(name));
 }
 
-int putenv_dup(const char *assignment, bool override) {
-        const char *e, *n;
+പൂർണ്ണസംഖ്യ putenv_dup(സ്ഥിരം അക്ഷരം *assignment, bool override) {
+        സ്ഥിരം അക്ഷരം *e, *n;
 
         e = strchr(assignment, '=');
-        if (!e)
-                return -EINVAL;
+        എങ്കിൽ (!e)
+                തിരികെ -EINVAL;
 
         n = strndupa_safe(assignment, e - assignment);
 
         /* This is like putenv(), but uses setenv() so that our memory doesn't become part of environ[]. */
-        return RET_NERRNO(setenv(n, e + 1, override));
+        തിരികെ RET_NERRNO(setenv(n, e + 1, override));
 }
 
-int setenv_systemd_exec_pid(bool update_only) {
-        const char *e;
-        int r;
+പൂർണ്ണസംഖ്യ setenv_systemd_exec_pid(bool update_only) {
+        സ്ഥിരം അക്ഷരം *e;
+        പൂർണ്ണസംഖ്യ r;
 
         /* Update $SYSTEMD_EXEC_PID=pid except when '*' is set for the variable. */
 
         e = secure_getenv("SYSTEMD_EXEC_PID");
-        if (!e && update_only)
-                return 0;
+        എങ്കിൽ (!e && update_only)
+                തിരികെ 0;
 
-        if (streq_ptr(e, "*"))
-                return 0;
+        എങ്കിൽ (streq_ptr(e, "*"))
+                തിരികെ 0;
 
         r = setenvf("SYSTEMD_EXEC_PID", /* overwrite= */ 1, PID_FMT, getpid_cached());
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return 1;
+        തിരികെ 1;
 }
 
-int setenv_systemd_log_level(void) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ setenv_systemd_log_level(ശൂന്യം) {
+        _cleanup_free_ അക്ഷരം *val = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
         r = log_level_to_string_alloc(log_get_max_level(), &val);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
+        തിരികെ RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
 }
 
-int getenv_path_list(const char *name, char ***ret_paths) {
-        _cleanup_strv_free_ char **l = NULL;
-        const char *e;
-        int r;
+പൂർണ്ണസംഖ്യ getenv_path_list(സ്ഥിരം അക്ഷരം *name, അക്ഷരം ***ret_paths) {
+        _cleanup_strv_free_ അക്ഷരം **l = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *e;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(name);
-        assert(ret_paths);
+        പ്രതിജ്ഞാ(name);
+        പ്രതിജ്ഞാ(ret_paths);
 
         e = secure_getenv(name);
-        if (!e)
-                return -ENXIO;
+        എങ്കിൽ (!e)
+                തിരികെ -ENXIO;
 
         r = strv_split_full(&l, e, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse $%s: %m", name);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to parse $%s: %m", name);
 
         STRV_FOREACH(p, l) {
-                if (!path_is_absolute(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                എങ്കിൽ (!path_is_absolute(*p))
+                        തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not absolute, refusing.", *p);
 
-                if (!path_is_normalized(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                എങ്കിൽ (!path_is_normalized(*p))
+                        തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not normalized, refusing.", *p);
 
-                if (path_equal(*p, "/"))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                എങ്കിൽ (path_equal(*p, "/"))
+                        തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is the root fs, refusing.", *p);
         }
 
-        if (strv_isempty(l))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        എങ്കിൽ (strv_isempty(l))
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "No paths specified, refusing.");
 
         *ret_paths = TAKE_PTR(l);
-        return 1;
+        തിരികെ 1;
 }
 
-int getenv_steal_erase(const char *name, char **ret) {
-        _cleanup_(erase_and_freep) char *a = NULL;
-        char *e;
+പൂർണ്ണസംഖ്യ getenv_steal_erase(സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret) {
+        _cleanup_(erase_and_freep) അക്ഷരം *a = ശൂന്യ;
+        അക്ഷരം *e;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
         /* Reads an environment variable, makes a copy of it, erases its memory in the environment block and removes
          * it from there. Usecase: reading passwords from the env block (which is a bad idea, but useful for
          * testing, and given that people are likely going to misuse this, be thorough) */
 
         e = secure_getenv(name);
-        if (!e) {
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        എങ്കിൽ (!e) {
+                എങ്കിൽ (ret)
+                        *ret = ശൂന്യ;
+                തിരികെ 0;
         }
 
-        if (ret) {
+        എങ്കിൽ (ret) {
                 a = strdup(e);
-                if (!a)
-                        return -ENOMEM;
+                എങ്കിൽ (!a)
+                        തിരികെ -ENOMEM;
         }
 
         string_erase(e);
 
-        if (unsetenv(name) < 0)
-                return -errno;
+        എങ്കിൽ (unsetenv(name) < 0)
+                തിരികെ -errno;
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = TAKE_PTR(a);
 
-        return 1;
+        തിരികെ 1;
 }
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
-        _cleanup_free_ char *value = NULL;
+പൂർണ്ണസംഖ്യ setenvf(സ്ഥിരം അക്ഷരം *name, bool overwrite, സ്ഥിരം അക്ഷരം *valuef, ...) {
+        _cleanup_free_ അക്ഷരം *മൂല്യം = ശൂന്യ;
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
-        if (!valuef)
-                return RET_NERRNO(unsetenv(name));
+        എങ്കിൽ (!valuef)
+                തിരികെ RET_NERRNO(unsetenv(name));
 
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&മൂല്യം, valuef, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        എങ്കിൽ (r < 0)
+                തിരികെ -ENOMEM;
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
-                return 0;
+        എങ്കിൽ (streq_ptr(getenv(name), മൂല്യം))
+                തിരികെ 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        തിരികെ RET_NERRNO(setenv(name, മൂല്യം, overwrite));
 }

@@ -1,145 +1,145 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <linux/if_packet.h>
-#include <linux/netlink.h>
-#include <linux/vm_sockets.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/un.h>
+#അന്തര്ഭാവ <linux/if_packet.h>
+#അന്തര്ഭാവ <linux/netlink.h>
+#അന്തര്ഭാവ <linux/vm_sockets.h>
+#അന്തര്ഭാവ <netinet/in.h>
+#അന്തര്ഭാവ <sys/socket.h>
+#അന്തര്ഭാവ <sys/un.h>
 
-#include "forward.h"
-#include "memory-util.h"
-#include "missing-network.h"
+#അന്തര്ഭാവ "forward.h"
+#അന്തര്ഭാവ "memory-util.h"
+#അന്തര്ഭാവ "missing-network.h"
 
-union sockaddr_union {
+സംഘം sockaddr_union {
         /* The minimal, abstract version */
-        struct sockaddr sa;
+        ഘടന sockaddr sa;
 
         /* The libc provided version that allocates "enough room" for every protocol */
-        struct sockaddr_storage storage;
+        ഘടന sockaddr_storage storage;
 
         /* Protocol-specific implementations */
-        struct sockaddr_in in;
-        struct sockaddr_in6 in6;
-        struct sockaddr_un un;
-        struct sockaddr_nl nl;
-        struct sockaddr_ll ll;
-        struct sockaddr_vm vm;
+        ഘടന sockaddr_in in;
+        ഘടന sockaddr_in6 in6;
+        ഘടന sockaddr_un un;
+        ഘടന sockaddr_nl nl;
+        ഘടന sockaddr_ll ll;
+        ഘടന sockaddr_vm vm;
 
         /* Ensure there is enough space to store an arbitrary hardware address, e.g. Infiniband */
-        uint8_t ll_buffer[offsetof(struct sockaddr_ll, sll_addr) + HW_ADDR_MAX_SIZE];
+        uint8_t ll_buffer[offsetof(ഘടന sockaddr_ll, sll_addr) + HW_ADDR_MAX_SIZE];
 
         /* Ensure there is enough space after the AF_UNIX sun_path for one more NUL byte, just to be sure that the path
          * component is always followed by at least one NUL byte. */
-        uint8_t un_buffer[sizeof(struct sockaddr_un) + 1];
+        uint8_t un_buffer[വലുപ്പം(ഘടന sockaddr_un) + 1];
 };
 
-#define SUN_PATH_LEN (sizeof(((struct sockaddr_un){}).sun_path))
+#define SUN_PATH_LEN (വലുപ്പം(((ഘടന sockaddr_un){}).sun_path))
 
-typedef struct SocketAddress {
-        union sockaddr_union sockaddr;
+തരനിർവചനം ഘടന SocketAddress {
+        സംഘം sockaddr_union sockaddr;
 
         /* We store the size here explicitly due to the weird
          * sockaddr_un semantics for abstract sockets */
         socklen_t size;
 
         /* Socket type, i.e. SOCK_STREAM, SOCK_DGRAM, ... */
-        int type;
+        പൂർണ്ണസംഖ്യ type;
 
         /* Socket protocol, IPPROTO_xxx, usually 0, except for netlink */
-        int protocol;
+        പൂർണ്ണസംഖ്യ protocol;
 } SocketAddress;
 
 #define socket_address_family(a) ((a)->sockaddr.sa.sa_family)
 
-DECLARE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DECLARE_STRING_TABLE_LOOKUP(socket_address_type, പൂർണ്ണസംഖ്യ);
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa);
+പൂർണ്ണസംഖ്യ sockaddr_un_unlink(സ്ഥിരം ഘടന sockaddr_un *sa);
 
-static inline int socket_address_unlink(const SocketAddress *a) {
-        return socket_address_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ socket_address_unlink(സ്ഥിരം SocketAddress *a) {
+        തിരികെ socket_address_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
 }
 
-bool socket_address_can_accept(const SocketAddress *a) _pure_;
+bool socket_address_can_accept(സ്ഥിരം SocketAddress *a) _pure_;
 
-int socket_address_verify(const SocketAddress *a, bool strict) _pure_;
-int socket_address_print(const SocketAddress *a, char **ret);
-bool socket_address_matches_fd(const SocketAddress *a, int fd);
+പൂർണ്ണസംഖ്യ socket_address_verify(സ്ഥിരം SocketAddress *a, bool strict) _pure_;
+പൂർണ്ണസംഖ്യ socket_address_print(സ്ഥിരം SocketAddress *a, അക്ഷരം **ret);
+bool socket_address_matches_fd(സ്ഥിരം SocketAddress *a, പൂർണ്ണസംഖ്യ fd);
 
-bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) _pure_;
+bool socket_address_equal(സ്ഥിരം SocketAddress *a, സ്ഥിരം SocketAddress *b) _pure_;
 
-const char* socket_address_get_path(const SocketAddress *a);
+സ്ഥിരം അക്ഷരം* socket_address_get_path(സ്ഥിരം SocketAddress *a);
 
-bool socket_ipv6_is_supported(void);
-bool socket_ipv6_is_enabled(void);
+bool socket_ipv6_is_supported(ശൂന്യം);
+bool socket_ipv6_is_enabled(ശൂന്യം);
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *port);
-const union in_addr_union *sockaddr_in_addr(const struct sockaddr *sa);
-int sockaddr_set_in_addr(union sockaddr_union *u, int family, const union in_addr_union *a, uint16_t port);
+പൂർണ്ണസംഖ്യ sockaddr_port(സ്ഥിരം ഘടന sockaddr *_sa, unsigned *port);
+സ്ഥിരം സംഘം in_addr_union *sockaddr_in_addr(സ്ഥിരം ഘടന sockaddr *sa);
+പൂർണ്ണസംഖ്യ sockaddr_set_in_addr(സംഘം sockaddr_union *u, പൂർണ്ണസംഖ്യ family, സ്ഥിരം സംഘം in_addr_union *a, uint16_t port);
 
-int sockaddr_pretty(const struct sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_port, char **ret);
-int getpeername_pretty(int fd, bool include_port, char **ret);
-int getsockname_pretty(int fd, char **ret);
+പൂർണ്ണസംഖ്യ sockaddr_pretty(സ്ഥിരം ഘടന sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_port, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ getpeername_pretty(പൂർണ്ണസംഖ്യ fd, bool include_port, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ getsockname_pretty(പൂർണ്ണസംഖ്യ fd, അക്ഷരം **ret);
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **_ret);
+പൂർണ്ണസംഖ്യ socknameinfo_pretty(സ്ഥിരം ഘടന sockaddr *sa, socklen_t salen, അക്ഷരം **_ret);
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, പൂർണ്ണസംഖ്യ);
 
-bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b);
+bool sockaddr_equal(സ്ഥിരം സംഘം sockaddr_union *a, സ്ഥിരം സംഘം sockaddr_union *b);
 
-int fd_set_sndbuf(int fd, size_t n, bool increase);
-static inline int fd_inc_sndbuf(int fd, size_t n) {
-        return fd_set_sndbuf(fd, n, true);
+പൂർണ്ണസംഖ്യ fd_set_sndbuf(പൂർണ്ണസംഖ്യ fd, size_t n, bool increase);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ fd_inc_sndbuf(പൂർണ്ണസംഖ്യ fd, size_t n) {
+        തിരികെ fd_set_sndbuf(fd, n, true);
 }
-int fd_set_rcvbuf(int fd, size_t n, bool increase);
-static inline int fd_increase_rxbuf(int fd, size_t n) {
-        return fd_set_rcvbuf(fd, n, true);
+പൂർണ്ണസംഖ്യ fd_set_rcvbuf(പൂർണ്ണസംഖ്യ fd, size_t n, bool increase);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ fd_increase_rxbuf(പൂർണ്ണസംഖ്യ fd, size_t n) {
+        തിരികെ fd_set_rcvbuf(fd, n, true);
 }
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, പൂർണ്ണസംഖ്യ);
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
         IFNAME_VALID_ALTERNATIVE = 1 << 0, /* Allow "altnames" too */
         IFNAME_VALID_NUMERIC     = 1 << 1, /* Allow decimal formatted ifindexes too */
         IFNAME_VALID_SPECIAL     = 1 << 2, /* Allow the special names "all" and "default" */
         _IFNAME_VALID_ALL        = IFNAME_VALID_ALTERNATIVE | IFNAME_VALID_NUMERIC | IFNAME_VALID_SPECIAL,
 } IfnameValidFlags;
-bool ifname_valid_char(char a) _const_;
-bool ifname_valid_full(const char *p, IfnameValidFlags flags) _pure_;
-static inline bool ifname_valid(const char *p) {
-        return ifname_valid_full(p, 0);
+bool ifname_valid_char(അക്ഷരം a) _const_;
+bool ifname_valid_full(സ്ഥിരം അക്ഷരം *p, IfnameValidFlags flags) _pure_;
+സ്ഥിതം വരിയിൽ bool ifname_valid(സ്ഥിരം അക്ഷരം *p) {
+        തിരികെ ifname_valid_full(p, 0);
 }
-bool address_label_valid(const char *p) _pure_;
+bool address_label_valid(സ്ഥിരം അക്ഷരം *p) _pure_;
 
-int getpeercred(int fd, struct ucred *ucred);
-int getpeersec(int fd, char **ret);
-int getpeergroups(int fd, gid_t **ret);
-int getpeerpidfd(int fd);
-int getpeerpidref(int fd, PidRef *ret);
+പൂർണ്ണസംഖ്യ getpeercred(പൂർണ്ണസംഖ്യ fd, ഘടന ucred *ucred);
+പൂർണ്ണസംഖ്യ getpeersec(പൂർണ്ണസംഖ്യ fd, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ getpeergroups(പൂർണ്ണസംഖ്യ fd, gid_t **ret);
+പൂർണ്ണസംഖ്യ getpeerpidfd(പൂർണ്ണസംഖ്യ fd);
+പൂർണ്ണസംഖ്യ getpeerpidref(പൂർണ്ണസംഖ്യ fd, PidRef *ret);
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
-                const struct iovec *iov, size_t iovlen,
-                const struct sockaddr *sa, socklen_t len,
-                int flags);
-int send_one_fd_sa(int transport_fd,
-                   int fd,
-                   const struct sockaddr *sa, socklen_t len,
-                   int flags);
-#define send_one_fd_iov(transport_fd, fd, iov, iovlen, flags) send_one_fd_iov_sa(transport_fd, fd, iov, iovlen, NULL, 0, flags)
-#define send_one_fd(transport_fd, fd, flags) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, NULL, 0, flags)
-ssize_t receive_one_fd_iov(int transport_fd, struct iovec *iov, size_t iovlen, int flags, int *ret_fd);
-int receive_one_fd(int transport_fd, int flags);
+                പൂർണ്ണസംഖ്യ transport_fd,
+                പൂർണ്ണസംഖ്യ fd,
+                സ്ഥിരം ഘടന iovec *iov, size_t iovlen,
+                സ്ഥിരം ഘടന sockaddr *sa, socklen_t len,
+                പൂർണ്ണസംഖ്യ flags);
+പൂർണ്ണസംഖ്യ send_one_fd_sa(പൂർണ്ണസംഖ്യ transport_fd,
+                   പൂർണ്ണസംഖ്യ fd,
+                   സ്ഥിരം ഘടന sockaddr *sa, socklen_t len,
+                   പൂർണ്ണസംഖ്യ flags);
+#define send_one_fd_iov(transport_fd, fd, iov, iovlen, flags) send_one_fd_iov_sa(transport_fd, fd, iov, iovlen, ശൂന്യ, 0, flags)
+#define send_one_fd(transport_fd, fd, flags) send_one_fd_iov_sa(transport_fd, fd, ശൂന്യ, 0, ശൂന്യ, 0, flags)
+ssize_t receive_one_fd_iov(പൂർണ്ണസംഖ്യ transport_fd, ഘടന iovec *iov, size_t iovlen, പൂർണ്ണസംഖ്യ flags, പൂർണ്ണസംഖ്യ *ret_fd);
+പൂർണ്ണസംഖ്യ receive_one_fd(പൂർണ്ണസംഖ്യ transport_fd, പൂർണ്ണസംഖ്യ flags);
 
-ssize_t next_datagram_size_fd(int fd);
+ssize_t next_datagram_size_fd(പൂർണ്ണസംഖ്യ fd);
 
-int flush_accept(int fd);
-ssize_t flush_mqueue(int fd);
+പൂർണ്ണസംഖ്യ flush_accept(പൂർണ്ണസംഖ്യ fd);
+ssize_t flush_mqueue(പൂർണ്ണസംഖ്യ fd);
 
 #define CMSG_FOREACH(cmsg, mh)                                          \
-        for ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
+        വേണ്ടി ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
 
 /* Returns the cmsghdr's data pointer, but safely cast to the specified type. Does two alignment checks: one
  * at compile time, that the requested type has a smaller or same alignment as 'struct cmsghdr', and one
@@ -149,114 +149,114 @@ ssize_t flush_mqueue(int fd);
  * riscv32. */
 #define CMSG_TYPED_DATA(cmsg, type)                                     \
         ({                                                              \
-                struct cmsghdr *_cmsg = (cmsg);                         \
-                assert_cc(alignof(type) <= alignof(struct cmsghdr));    \
-                _cmsg ? CAST_ALIGN_PTR(type, CMSG_DATA(_cmsg)) : (type*) NULL; \
+                ഘടന cmsghdr *_cmsg = (cmsg);                         \
+                assert_cc(alignof(type) <= alignof(ഘടന cmsghdr));    \
+                _cmsg ? CAST_ALIGN_PTR(type, CMSG_DATA(_cmsg)) : (type*) ശൂന്യ; \
         })
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length);
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len);
+ഘടന cmsghdr* cmsg_find(ഘടന msghdr *mh, പൂർണ്ണസംഖ്യ level, പൂർണ്ണസംഖ്യ type, socklen_t length);
+ശൂന്യം* cmsg_find_and_copy_data(ഘടന msghdr *mh, പൂർണ്ണസംഖ്യ level, പൂർണ്ണസംഖ്യ type, ശൂന്യം *buf, size_t buf_len);
 
 /* Type-safe, dereferencing version of cmsg_find() */
 #define CMSG_FIND_DATA(mh, level, type, ctype)                          \
-        CMSG_TYPED_DATA(cmsg_find(mh, level, type, CMSG_LEN(sizeof(ctype))), ctype)
+        CMSG_TYPED_DATA(cmsg_find(mh, level, type, CMSG_LEN(വലുപ്പം(ctype))), ctype)
 
 /* Type-safe version of cmsg_find_and_copy_data() */
 #define CMSG_FIND_AND_COPY_DATA(mh, level, type, ctype)             \
-        (ctype*) cmsg_find_and_copy_data(mh, level, type, &(ctype){}, sizeof(ctype))
+        (ctype*) cmsg_find_and_copy_data(mh, level, type, &(ctype){}, വലുപ്പം(ctype))
 
 /* Resolves to a type that can carry cmsghdr structures. Make sure things are properly aligned, i.e. the type
  * itself is placed properly in memory and the size is also aligned to what's appropriate for "cmsghdr"
  * structures. */
 #define CMSG_BUFFER_TYPE(size)                                          \
-        union {                                                         \
-                struct cmsghdr cmsghdr;                                 \
+        സംഘം {                                                         \
+                ഘടന cmsghdr cmsghdr;                                 \
                 uint8_t buf[size];                                      \
                 uint8_t align_check[(size) >= CMSG_SPACE(0) &&          \
                                     (size) == CMSG_ALIGN(size) ? 1 : -1]; \
         }
 
-size_t sockaddr_ll_len(const struct sockaddr_ll *sa);
-size_t sockaddr_un_len(const struct sockaddr_un *sa);
-size_t sockaddr_len(const union sockaddr_union *sa);
+size_t sockaddr_ll_len(സ്ഥിരം ഘടന sockaddr_ll *sa);
+size_t sockaddr_un_len(സ്ഥിരം ഘടന sockaddr_un *sa);
+size_t sockaddr_len(സ്ഥിരം സംഘം sockaddr_union *sa);
 
-int socket_ioctl_fd(void);
+പൂർണ്ണസംഖ്യ socket_ioctl_fd(ശൂന്യം);
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path);
+പൂർണ്ണസംഖ്യ sockaddr_un_set_path(ഘടന sockaddr_un *ret, സ്ഥിരം അക്ഷരം *path);
 
-static inline int setsockopt_int(int fd, int level, int optname, int value) {
-        if (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
-                return -errno;
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ setsockopt_int(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ level, പൂർണ്ണസംഖ്യ optname, പൂർണ്ണസംഖ്യ മൂല്യം) {
+        എങ്കിൽ (setsockopt(fd, level, optname, &മൂല്യം, വലുപ്പം(മൂല്യം)) < 0)
+                തിരികെ -errno;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret);
+പൂർണ്ണസംഖ്യ getsockopt_int(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ level, പൂർണ്ണസംഖ്യ optname, പൂർണ്ണസംഖ്യ *ret);
 
-int socket_bind_to_ifname(int fd, const char *ifname);
-int socket_bind_to_ifindex(int fd, int ifindex);
+പൂർണ്ണസംഖ്യ socket_bind_to_ifname(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *ifname);
+പൂർണ്ണസംഖ്യ socket_bind_to_ifindex(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ ifindex);
 
-int socket_autobind(int fd, char **ret_name);
+പൂർണ്ണസംഖ്യ socket_autobind(പൂർണ്ണസംഖ്യ fd, അക്ഷരം **ret_name);
 
 /* glibc duplicates timespec/timeval on certain 32-bit arches, once in 32-bit and once in 64-bit.
  * See __convert_scm_timestamps() in glibc source code. Hence, we need additional buffer space for them
  * to prevent truncating control msg (recvmsg() MSG_CTRUNC). */
 #define CMSG_SPACE_TIMEVAL                                              \
-        (CMSG_SPACE(sizeof(struct timeval)) + CMSG_SPACE(2 * sizeof(uint64_t)))
+        (CMSG_SPACE(വലുപ്പം(ഘടന timeval)) + CMSG_SPACE(2 * വലുപ്പം(uint64_t)))
 #define CMSG_SPACE_TIMESPEC                                             \
-        (CMSG_SPACE(sizeof(struct timespec)) + CMSG_SPACE(2 * sizeof(uint64_t)))
+        (CMSG_SPACE(വലുപ്പം(ഘടന timespec)) + CMSG_SPACE(2 * വലുപ്പം(uint64_t)))
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags);
+ssize_t recvmsg_safe(പൂർണ്ണസംഖ്യ sockfd, ഘടന msghdr *msg, പൂർണ്ണസംഖ്യ flags);
 
-int socket_get_family(int fd);
-int socket_set_recvpktinfo(int fd, int af, bool b);
-int socket_set_unicast_if(int fd, int af, int ifi);
+പൂർണ്ണസംഖ്യ socket_get_family(പൂർണ്ണസംഖ്യ fd);
+പൂർണ്ണസംഖ്യ socket_set_recvpktinfo(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, bool b);
+പൂർണ്ണസംഖ്യ socket_set_unicast_if(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, പൂർണ്ണസംഖ്യ ifi);
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val);
-static inline int socket_set_recverr(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
+പൂർണ്ണസംഖ്യ socket_set_option(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, പൂർണ്ണസംഖ്യ opt_ipv4, പൂർണ്ണസംഖ്യ opt_ipv6, പൂർണ്ണസംഖ്യ val);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ socket_set_recverr(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, bool b) {
+        തിരികെ socket_set_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
 }
-static inline int socket_set_recvttl(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ socket_set_recvttl(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, bool b) {
+        തിരികെ socket_set_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
 }
-static inline int socket_set_ttl(int fd, int af, int ttl) {
-        return socket_set_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ socket_set_ttl(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, പൂർണ്ണസംഖ്യ ttl) {
+        തിരികെ socket_set_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
 }
-static inline int socket_set_freebind(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ socket_set_freebind(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, bool b) {
+        തിരികെ socket_set_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
 }
-static inline int socket_set_transparent(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ socket_set_transparent(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, bool b) {
+        തിരികെ socket_set_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
 }
-static inline int socket_set_recvfragsize(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ socket_set_recvfragsize(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, bool b) {
+        തിരികെ socket_set_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret);
+പൂർണ്ണസംഖ്യ socket_get_mtu(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ af, size_t *ret);
 
 /* an initializer for struct ucred that initialized all fields to the invalid value appropriate for each */
 #define UCRED_INVALID { .pid = 0, .uid = UID_INVALID, .gid = GID_INVALID }
 
-int connect_unix_path(int fd, int dir_fd, const char *path);
+പൂർണ്ണസംഖ്യ connect_unix_path(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path);
 
-static inline bool VSOCK_CID_IS_REGULAR(unsigned cid) {
+സ്ഥിതം വരിയിൽ bool VSOCK_CID_IS_REGULAR(unsigned cid) {
         /* Refuse special CID values */
-        return !IN_SET(cid,
+        തിരികെ !IN_SET(cid,
                        VMADDR_CID_HYPERVISOR,
                        VMADDR_CID_LOCAL,
                        VMADDR_CID_HOST,
                        VMADDR_CID_ANY);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret);
-int vsock_parse_cid(const char *s, unsigned *ret);
+പൂർണ്ണസംഖ്യ vsock_parse_port(സ്ഥിരം അക്ഷരം *s, unsigned *ret);
+പൂർണ്ണസംഖ്യ vsock_parse_cid(സ്ഥിരം അക്ഷരം *s, unsigned *ret);
 
 /* Parses AF_UNIX and AF_VSOCK addresses. AF_INET[6] require some netlink calls, so it cannot be in
  * src/basic/ and is done from 'socket_local_address from src/shared/. Return -EPROTO in case of
  * protocol mismatch. */
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s);
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s);
-int socket_address_equal_unix(const char *a, const char *b);
+പൂർണ്ണസംഖ്യ socket_address_parse_unix(SocketAddress *ret_address, സ്ഥിരം അക്ഷരം *s);
+പൂർണ്ണസംഖ്യ socket_address_parse_vsock(SocketAddress *ret_address, സ്ഥിരം അക്ഷരം *s);
+പൂർണ്ണസംഖ്യ socket_address_equal_unix(സ്ഥിരം അക്ഷരം *a, സ്ഥിരം അക്ഷരം *b);
 
 /* libc's SOMAXCONN is defined to 128 or 4096 (at least on glibc). But actually, the value can be much
  * larger. In our codebase we want to set it to the max usually, since nowadays socket memory is properly
@@ -265,12 +265,12 @@ int socket_address_equal_unix(const char *a, const char *b);
  * authoritative. */
 #define SOMAXCONN_DELUXE INT_MAX
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups);
+പൂർണ്ണസംഖ്യ netlink_socket_get_multicast_groups(പൂർണ്ണസംഖ്യ fd, size_t *ret_len, uint32_t **ret_groups);
 
-int socket_get_cookie(int fd, uint64_t *ret);
+പൂർണ്ണസംഖ്യ socket_get_cookie(പൂർണ്ണസംഖ്യ fd, uint64_t *ret);
 
-void cmsg_close_all(struct msghdr *mh);
+ശൂന്യം cmsg_close_all(ഘടന msghdr *mh);
 
-int tos_to_priority(uint8_t tos);
+പൂർണ്ണസംഖ്യ tos_to_priority(uint8_t tos);
 
-int socket_xattr_supported(void);
+പൂർണ്ണസംഖ്യ socket_xattr_supported(ശൂന്യം);

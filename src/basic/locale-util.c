@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <langinfo.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <langinfo.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <sys/mman.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "dirent-util.h"
-#include "env-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "locale-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "set.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#അന്തര്ഭാവ "dirent-util.h"
+#അന്തര്ഭാവ "env-util.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "locale-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "memory-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "set.h"
+#അന്തര്ഭാവ "stat-util.h"
+#അന്തര്ഭാവ "string-table.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "utf8.h"
 
-static char* normalize_locale(const char *name) {
-        const char *e;
+സ്ഥിതം അക്ഷരം* normalize_locale(സ്ഥിരം അക്ഷരം *name) {
+        സ്ഥിരം അക്ഷരം *e;
 
         /* Locale names are weird: glibc has some magic rules when looking for the charset name on disk: it
          * lowercases everything, and removes most special chars. This means the official .UTF-8 suffix
@@ -33,39 +33,39 @@ static char* normalize_locale(const char *name) {
          * that for UTF-8 however, since it's kinda the only charset that matters. */
 
         e = endswith(name, ".utf8");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        എങ്കിൽ (e) {
+                _cleanup_free_ അക്ഷരം *prefix = ശൂന്യ;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                എങ്കിൽ (!prefix)
+                        തിരികെ ശൂന്യ;
 
-                return strjoin(prefix, ".UTF-8");
+                തിരികെ strjoin(prefix, ".UTF-8");
         }
 
         e = strstr(name, ".utf8@");
-        if (e) {
-                _cleanup_free_ char *prefix = NULL;
+        എങ്കിൽ (e) {
+                _cleanup_free_ അക്ഷരം *prefix = ശൂന്യ;
 
                 prefix = strndup(name, e - name);
-                if (!prefix)
-                        return NULL;
+                എങ്കിൽ (!prefix)
+                        തിരികെ ശൂന്യ;
 
-                return strjoin(prefix, ".UTF-8@", e + 6);
+                തിരികെ strjoin(prefix, ".UTF-8@", e + 6);
         }
 
-        return strdup(name);
+        തിരികെ strdup(name);
 }
 
 #ifdef __GLIBC__
-static const char* get_locale_dir(void) {
-        return secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
+സ്ഥിതം സ്ഥിരം അക്ഷരം* get_locale_dir(ശൂന്യം) {
+        തിരികെ secure_getenv("SYSTEMD_LOCALE_DIRECTORY") ?: "/usr/lib/locale/";
 }
 
-static int add_locales_from_archive(Set *locales) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ add_locales_from_archive(Set *locales) {
         /* Stolen from glibc... */
 
-        struct locarhead {
+        ഘടന locarhead {
                 uint32_t magic;
                 /* Serial number.  */
                 uint32_t serial;
@@ -87,7 +87,7 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t sumhash_size;
         };
 
-        struct namehashent {
+        ഘടന namehashent {
                 /* Hash value of the name.  */
                 uint32_t hashval;
                 /* Offset of the name in the string table.  */
@@ -96,321 +96,321 @@ static int add_locales_from_archive(Set *locales) {
                 uint32_t locrec_offset;
         };
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(locales);
+        പ്രതിജ്ഞാ(locales);
 
-        _cleanup_free_ char *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
-        if (!locale_archive_file)
-                return -ENOMEM;
+        _cleanup_free_ അക്ഷരം *locale_archive_file = path_join(get_locale_dir(), "locale-archive");
+        എങ്കിൽ (!locale_archive_file)
+                തിരികെ -ENOMEM;
 
-        _cleanup_close_ int fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return errno == ENOENT ? 0 : -errno;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = open(locale_archive_file, O_RDONLY|O_NOCTTY|O_CLOEXEC);
+        എങ്കിൽ (fd < 0)
+                തിരികെ errno == ENOENT ? 0 : -errno;
 
-        struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ഘടന stat st;
+        എങ്കിൽ (fstat(fd, &st) < 0)
+                തിരികെ -errno;
 
         r = stat_verify_regular(&st);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (st.st_size < (off_t) sizeof(struct locarhead))
-                return -EBADMSG;
+        എങ്കിൽ (st.st_size < (off_t) വലുപ്പം(ഘടന locarhead))
+                തിരികെ -EBADMSG;
 
-        if (file_offset_beyond_memory_size(st.st_size))
-                return -EFBIG;
+        എങ്കിൽ (file_offset_beyond_memory_size(st.st_size))
+                തിരികെ -EFBIG;
 
-        void *p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-        if (p == MAP_FAILED)
-                return -errno;
+        ശൂന്യം *p = mmap(ശൂന്യ, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+        എങ്കിൽ (p == MAP_FAILED)
+                തിരികെ -errno;
 
-        const struct namehashent *e;
-        const struct locarhead *h = p;
-        if (h->magic != 0xde020109 ||
+        സ്ഥിരം ഘടന namehashent *e;
+        സ്ഥിരം ഘടന locarhead *h = p;
+        എങ്കിൽ (h->magic != 0xde020109 ||
             h->namehash_offset + h->namehash_size > st.st_size ||
             h->string_offset + h->string_size > st.st_size ||
             h->locrectab_offset + h->locrectab_size > st.st_size ||
             h->sumhash_offset + h->sumhash_size > st.st_size) {
                 r = -EBADMSG;
-                goto finish;
+                പോകുക finish;
         }
 
-        e = (const struct namehashent*) ((const uint8_t*) p + h->namehash_offset);
-        for (size_t i = 0; i < h->namehash_size; i++) {
-                char *z;
+        e = (സ്ഥിരം ഘടന namehashent*) ((സ്ഥിരം uint8_t*) p + h->namehash_offset);
+        വേണ്ടി (size_t i = 0; i < h->namehash_size; i++) {
+                അക്ഷരം *z;
 
-                if (e[i].locrec_offset == 0)
-                        continue;
+                എങ്കിൽ (e[i].locrec_offset == 0)
+                        തുടരുക;
 
-                if (!utf8_is_valid((char*) p + e[i].name_offset))
-                        continue;
+                എങ്കിൽ (!utf8_is_valid((അക്ഷരം*) p + e[i].name_offset))
+                        തുടരുക;
 
-                z = normalize_locale((char*) p + e[i].name_offset);
-                if (!z) {
+                z = normalize_locale((അക്ഷരം*) p + e[i].name_offset);
+                എങ്കിൽ (!z) {
                         r = -ENOMEM;
-                        goto finish;
+                        പോകുക finish;
                 }
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        goto finish;
+                എങ്കിൽ (r < 0)
+                        പോകുക finish;
         }
 
         r = 0;
 
 finish:
         munmap_safe(p, st.st_size);
-        return r;
+        തിരികെ r;
 }
 
-static int add_locales_from_libdir(Set *locales) {
-        _cleanup_closedir_ DIR *dir = NULL;
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ add_locales_from_libdir(Set *locales) {
+        _cleanup_closedir_ DIR *dir = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(locales);
+        പ്രതിജ്ഞാ(locales);
 
         dir = opendir(get_locale_dir());
-        if (!dir)
-                return errno == ENOENT ? 0 : -errno;
+        എങ്കിൽ (!dir)
+                തിരികെ errno == ENOENT ? 0 : -errno;
 
-        FOREACH_DIRENT(de, dir, return -errno) {
-                char *z;
+        FOREACH_DIRENT(de, dir, തിരികെ -errno) {
+                അക്ഷരം *z;
 
-                if (de->d_type != DT_DIR)
-                        continue;
+                എങ്കിൽ (de->d_type != DT_DIR)
+                        തുടരുക;
 
                 z = normalize_locale(de->d_name);
-                if (!z)
-                        return -ENOMEM;
+                എങ്കിൽ (!z)
+                        തിരികെ -ENOMEM;
 
                 r = set_consume(locales, z);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-#else
+#അല്ലെങ്കിൽ
 
-static const char* const musl_locale_dirs[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം* സ്ഥിരം musl_locale_dirs[] = {
         "/etc/musl/locale",
         "/usr/share/musl/locale",
         "/share/musl/locale",
         "/usr/share/i18n/locales/musl", // compat with musl-locales 0.1.0
-        NULL
+        ശൂന്യ
 };
 
-static int add_locales_for_musl(Set *locales) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ add_locales_for_musl(Set *locales) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(locales);
+        പ്രതിജ്ഞാ(locales);
 
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        സ്ഥിരം അക്ഷരം *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
                 _cleanup_closedir_ DIR *dir = opendir(*d);
-                if (!dir)
-                        continue;
+                എങ്കിൽ (!dir)
+                        തുടരുക;
 
-                FOREACH_DIRENT(de, dir, return -errno) {
-                        if (de->d_type != DT_REG)
-                                continue;
+                FOREACH_DIRENT(de, dir, തിരികെ -errno) {
+                        എങ്കിൽ (de->d_type != DT_REG)
+                                തുടരുക;
 
-                        char *z = normalize_locale(de->d_name);
-                        if (!z)
-                                return -ENOMEM;
+                        അക്ഷരം *z = normalize_locale(de->d_name);
+                        എങ്കിൽ (!z)
+                                തിരികെ -ENOMEM;
 
                         r = set_consume(locales, z);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
         }
 
-        return 0;
+        തിരികെ 0;
 }
 #endif
 
-int get_locales(char ***ret) {
-        _cleanup_set_free_ Set *locales = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ get_locales(അക്ഷരം ***ret) {
+        _cleanup_set_free_ Set *locales = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         locales = set_new(&string_hash_ops_free);
-        if (!locales)
-                return -ENOMEM;
+        എങ്കിൽ (!locales)
+                തിരികെ -ENOMEM;
 
 #ifdef __GLIBC__
         r = add_locales_from_archive(locales);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        എങ്കിൽ (r < 0 && r != -ENOENT)
+                തിരികെ r;
 
         r = add_locales_from_libdir(locales);
-        if (r < 0)
-                return r;
-#else
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+#അല്ലെങ്കിൽ
         r = add_locales_for_musl(locales);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 #endif
 
-        char *locale;
+        അക്ഷരം *locale;
         SET_FOREACH(locale, locales) {
                 r = locale_is_installed(locale);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        free(set_remove(locales, locale));
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        സ്വതന്ത്രം(set_remove(locales, locale));
         }
 
-        _cleanup_strv_free_ char **l = set_to_strv(&locales);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ അക്ഷരം **l = set_to_strv(&locales);
+        എങ്കിൽ (!l)
+                തിരികെ -ENOMEM;
 
         r = getenv_bool("SYSTEMD_LIST_NON_UTF8_LOCALES");
-        if (r <= 0) {
-                if (!IN_SET(r, -ENXIO, 0))
+        എങ്കിൽ (r <= 0) {
+                എങ്കിൽ (!IN_SET(r, -ENXIO, 0))
                         log_debug_errno(r, "Failed to parse $SYSTEMD_LIST_NON_UTF8_LOCALES as boolean, ignoring: %m");
 
                 /* Filter out non-UTF-8 locales, because it's 2019, by default */
-                char **b = l;
+                അക്ഷരം **b = l;
                 STRV_FOREACH(a, l)
-                        if (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
+                        എങ്കിൽ (endswith(*a, "UTF-8") || strstr(*a, ".UTF-8@"))
                                 *(b++) = *a;
-                        else
-                                free(*a);
+                        അല്ലെങ്കിൽ
+                                സ്വതന്ത്രം(*a);
 
-                *b = NULL;
+                *b = ശൂന്യ;
         }
 
         strv_sort(l);
 
         *ret = TAKE_PTR(l);
 
-        return 0;
+        തിരികെ 0;
 }
 
-bool locale_is_valid(const char *name) {
+bool locale_is_valid(സ്ഥിരം അക്ഷരം *name) {
 
-        if (isempty(name))
-                return false;
+        എങ്കിൽ (isempty(name))
+                തിരികെ false;
 
-        if (strlen(name) >= 128)
-                return false;
+        എങ്കിൽ (strlen(name) >= 128)
+                തിരികെ false;
 
-        if (!utf8_is_valid(name))
-                return false;
+        എങ്കിൽ (!utf8_is_valid(name))
+                തിരികെ false;
 
-        if (!filename_is_valid(name))
-                return false;
+        എങ്കിൽ (!filename_is_valid(name))
+                തിരികെ false;
 
         /* Locales look like: ll_CC.ENC@variant, where ll and CC are alphabetic, ENC is alphanumeric with
          * dashes, and variant seems to be alphabetic.
          * See: https://www.gnu.org/software/gettext/manual/html_node/Locale-Names.html */
-        if (!in_charset(name, ALPHANUMERICAL "_.-@"))
-                return false;
+        എങ്കിൽ (!in_charset(name, ALPHANUMERICAL "_.-@"))
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-int locale_is_installed(const char *name) {
-        if (!locale_is_valid(name))
-                return false;
+പൂർണ്ണസംഖ്യ locale_is_installed(സ്ഥിരം അക്ഷരം *name) {
+        എങ്കിൽ (!locale_is_valid(name))
+                തിരികെ false;
 
-        if (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
-                return true;
+        എങ്കിൽ (STR_IN_SET(name, "C", "POSIX")) /* These ones are always OK */
+                തിരികെ true;
 
 #ifdef __GLIBC__
         _cleanup_(freelocalep) locale_t loc = newlocale(LC_ALL_MASK, name, (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return errno == ENOMEM ? -ENOMEM : false;
+        എങ്കിൽ (loc == (locale_t) 0)
+                തിരികെ errno == ENOMEM ? -ENOMEM : false;
 
-        return true;
-#else
+        തിരികെ true;
+#അല്ലെങ്കിൽ
         /* musl also has C.UTF-8 as builtin */
-        if (streq(name, "C.UTF-8"))
-                return true;
+        എങ്കിൽ (streq(name, "C.UTF-8"))
+                തിരികെ true;
 
         /* musl's newlocale() always succeeds and provides a fake locale object even when the locale does
          * not exist. Hence, we need to explicitly check if the locale file exists. */
-        const char *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
+        സ്ഥിരം അക്ഷരം *e = secure_getenv("SYSTEMD_LOCALE_DIRECTORY");
 
         STRV_FOREACH(d, e ? STRV_MAKE_CONST(e) : musl_locale_dirs) {
-                _cleanup_free_ char *p = path_join(*d, name);
-                if (!p)
-                        return -ENOMEM;
+                _cleanup_free_ അക്ഷരം *p = path_join(*d, name);
+                എങ്കിൽ (!p)
+                        തിരികെ -ENOMEM;
 
-                if (access(p, F_OK) >= 0)
-                        return true;
+                എങ്കിൽ (access(p, F_OK) >= 0)
+                        തിരികെ true;
         }
 
-        return false;
+        തിരികെ false;
 #endif
 }
 
-static bool is_locale_utf8_impl(void) {
-        const char *set;
-        int r;
+സ്ഥിതം bool is_locale_utf8_impl(ശൂന്യം) {
+        സ്ഥിരം അക്ഷരം *set;
+        പൂർണ്ണസംഖ്യ r;
 
         /* Note that we default to 'true' here, since today UTF8 is pretty much supported everywhere. */
 
         r = secure_getenv_bool("SYSTEMD_UTF8");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        എങ്കിൽ (r >= 0)
+                തിരികെ r;
+        എങ്കിൽ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_UTF8, ignoring: %m");
 
         /* This function may be called from libsystemd, and setlocale() is not thread safe. Assuming yes. */
-        if (!is_main_thread())
-                return true;
+        എങ്കിൽ (!is_main_thread())
+                തിരികെ true;
 
-        if (!setlocale(LC_ALL, ""))
-                return true;
+        എങ്കിൽ (!setlocale(LC_ALL, ""))
+                തിരികെ true;
 
         set = nl_langinfo(CODESET);
-        if (!set || streq(set, "UTF-8"))
-                return true;
+        എങ്കിൽ (!set || streq(set, "UTF-8"))
+                തിരികെ true;
 
-        set = setlocale(LC_CTYPE, NULL);
-        if (!set)
-                return true;
+        set = setlocale(LC_CTYPE, ശൂന്യ);
+        എങ്കിൽ (!set)
+                തിരികെ true;
 
         /* Unless LC_CTYPE is explicitly overridden, return true. Because here CTYPE is effectively unset
          * and everything can do to UTF-8 nowadays. */
-        return STR_IN_SET(set, "C", "POSIX") &&
+        തിരികെ STR_IN_SET(set, "C", "POSIX") &&
                 !getenv("LC_ALL") &&
                 !getenv("LC_CTYPE") &&
                 !getenv("LANG");
 }
 
-bool is_locale_utf8(void) {
-        static int cached = -1;
+bool is_locale_utf8(ശൂന്യം) {
+        സ്ഥിതം പൂർണ്ണസംഖ്യ cached = -1;
 
-        if (cached < 0)
+        എങ്കിൽ (cached < 0)
                 cached = is_locale_utf8_impl();
 
-        return cached;
+        തിരികെ cached;
 }
 
-void locale_variables_free(char *l[_VARIABLE_LC_MAX]) {
+ശൂന്യം locale_variables_free(അക്ഷരം *l[_VARIABLE_LC_MAX]) {
         free_many_charp(l, _VARIABLE_LC_MAX);
 }
 
-void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]) {
-        assert(l);
+ശൂന്യം locale_variables_simplify(അക്ഷരം *l[_VARIABLE_LC_MAX]) {
+        പ്രതിജ്ഞാ(l);
 
-        for (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
-                if (p == VARIABLE_LANG)
-                        continue;
-                if (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
+        വേണ്ടി (LocaleVariable p = 0; p < _VARIABLE_LC_MAX; p++) {
+                എങ്കിൽ (p == VARIABLE_LANG)
+                        തുടരുക;
+                എങ്കിൽ (isempty(l[p]) || streq_ptr(l[VARIABLE_LANG], l[p]))
                         l[p] = mfree(l[p]);
         }
 }
 
-static const char * const locale_variable_table[_VARIABLE_LC_MAX] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം * സ്ഥിരം locale_variable_table[_VARIABLE_LC_MAX] = {
         [VARIABLE_LANG]              = "LANG",
         [VARIABLE_LANGUAGE]          = "LANGUAGE",
         [VARIABLE_LC_CTYPE]          = "LC_CTYPE",

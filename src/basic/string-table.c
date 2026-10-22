@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#അന്തര്ഭാവ <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "stdio-util.h"
+#അന്തര്ഭാവ "string-table.h"
+#അന്തര്ഭാവ "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+സ്ഥിരം അക്ഷരം* string_table_lookup_to_string(സ്ഥിരം അക്ഷരം * സ്ഥിരം *table, size_t len, ssize_t i) {
+        എങ്കിൽ (i < 0 || i >= (ssize_t) len)
+                തിരികെ ശൂന്യ;
 
-        assert(table);
+        പ്രതിജ്ഞാ(table);
 
-        return table[i];
+        തിരികെ table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(സ്ഥിരം അക്ഷരം * സ്ഥിരം *table, size_t len, സ്ഥിരം അക്ഷരം *താക്കോൽ) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        എങ്കിൽ (!താക്കോൽ)
+                തിരികെ -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        വേണ്ടി (size_t i = 0; i < len; ++i)
+                എങ്കിൽ (streq_ptr(table[i], താക്കോൽ))
+                        തിരികെ (ssize_t) i;
 
-        return -EINVAL;
+        തിരികെ -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(സ്ഥിരം അക്ഷരം * സ്ഥിരം *table, size_t len, സ്ഥിരം അക്ഷരം *താക്കോൽ, ssize_t yes) {
+        എങ്കിൽ (!താക്കോൽ)
+                തിരികെ -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        പൂർണ്ണസംഖ്യ b = parse_boolean(താക്കോൽ);
+        എങ്കിൽ (b == 0)
+                തിരികെ 0;
+        എങ്കിൽ (b > 0)
+                തിരികെ yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        തിരികെ string_table_lookup_from_string(table, len, താക്കോൽ);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+പൂർണ്ണസംഖ്യ string_table_lookup_to_string_fallback(സ്ഥിരം അക്ഷരം * സ്ഥിരം *table, size_t len, ssize_t i, size_t max, അക്ഷരം **ret) {
+        അക്ഷരം *s;
 
-        assert(table);
-        assert(ret);
+        പ്രതിജ്ഞാ(table);
+        പ്രതിജ്ഞാ(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        എങ്കിൽ (i < 0 || i > (ssize_t) max)
+                തിരികെ -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        എങ്കിൽ (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        അല്ലെങ്കിൽ
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         *ret = s;
-        return 0;
+        തിരികെ 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(സ്ഥിരം അക്ഷരം * സ്ഥിരം *table, size_t len, സ്ഥിരം അക്ഷരം *s, size_t max) {
+        എങ്കിൽ (!s)
+                തിരികെ -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        എങ്കിൽ (i >= 0)
+                തിരികെ i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        എങ്കിൽ (safe_atou(s, &u) < 0)
+                തിരികെ -EINVAL;
+        എങ്കിൽ (u > max)
+                തിരികെ -EINVAL;
 
-        return u;
+        തിരികെ u;
 }

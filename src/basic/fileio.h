@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-#define LONG_LINE_MAX (1U*1024U*1024U)
+#define LONG_വരി_MAX (1U*1024U*1024U)
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
         WRITE_STRING_FILE_CREATE                     = 1 << 0,
         WRITE_STRING_FILE_TRUNCATE                   = 1 << 1,
         WRITE_STRING_FILE_ATOMIC                     = 1 << 2,
@@ -23,7 +23,7 @@ typedef enum {
         WRITE_STRING_FILE_OPEN_NONBLOCKING           = 1 << 14,
 } WriteStringFileFlags;
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
         READ_FULL_FILE_SECURE              = 1 << 0, /* erase any buffers we employ internally, after use */
         READ_FULL_FILE_UNBASE64            = 1 << 1, /* base64 decode what we read */
         READ_FULL_FILE_UNHEX               = 1 << 2, /* hex decode what we read */
@@ -33,148 +33,148 @@ typedef enum {
         READ_FULL_FILE_VERIFY_REGULAR      = 1 << 6, /* before reading, verify this is a regular file */
 } ReadFullFileFlags;
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret);
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret);
-FILE* take_fdopen(int *fd, const char *options);
-DIR* take_fdopendir(int *dfd);
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc);
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode);
+പൂർണ്ണസംഖ്യ fdopen_unlocked(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *options, FILE **ret);
+പൂർണ്ണസംഖ്യ take_fdopen_unlocked(പൂർണ്ണസംഖ്യ *fd, സ്ഥിരം അക്ഷരം *options, FILE **ret);
+FILE* take_fdopen(പൂർണ്ണസംഖ്യ *fd, സ്ഥിരം അക്ഷരം *options);
+DIR* take_fdopendir(പൂർണ്ണസംഖ്യ *dfd);
+FILE* open_memstream_unlocked(അക്ഷരം **ptr, size_t *sizeloc);
+FILE* fmemopen_unlocked(ശൂന്യം *buf, size_t size, സ്ഥിരം അക്ഷരം *mode);
 
-int write_string_stream_full(FILE *f, const char *line, WriteStringFileFlags flags, const struct timespec *ts);
-static inline int write_string_stream(FILE *f, const char *line, WriteStringFileFlags flags) {
-        return write_string_stream_full(f, line, flags, NULL);
-}
-
-int write_string_file_full_label(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn, LabelContext *label_context);
-static inline int write_string_file_full(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn) {
-        return write_string_file_full_label(dir_fd, fn, line, flags, ts, label_fn, /* label_context= */ NULL);
-}
-static inline int write_string_file_at(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_full(dir_fd, fn, line, flags, NULL, NULL);
-}
-static inline int write_string_file_fd(int dir_fd, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(dir_fd, NULL, line, flags);
-}
-static inline int write_string_file(const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(AT_FDCWD, fn, line, flags);
-}
-int write_string_filef(const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(3, 4);
-int write_string_filef_at(int dir_fd, const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(4, 5);
-
-int write_base64_file_at(int dir_fd, const char *fn, const struct iovec *data, WriteStringFileFlags flags);
-
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret);
-static inline int read_one_line_file(const char *filename, char **ret) {
-        return read_one_line_file_at(AT_FDCWD, filename, ret);
-}
-int read_boolean_file_at(int dir_fd, const char *filename);
-static inline int read_boolean_file(const char *filename) {
-        return read_boolean_file_at(AT_FDCWD, filename);
-}
-int read_full_file_full(int dir_fd, const char *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, const char *bind_name, char **ret_contents, size_t *ret_size);
-static inline int read_full_file_at(int dir_fd, const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_full_file_full(dir_fd, filename, UINT64_MAX, SIZE_MAX, 0, NULL, ret_contents, ret_size);
-}
-static inline int read_full_file(const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_full_file_full(AT_FDCWD, filename, UINT64_MAX, SIZE_MAX, 0, NULL, ret_contents, ret_size);
+പൂർണ്ണസംഖ്യ write_string_stream_full(FILE *f, സ്ഥിരം അക്ഷരം *വരി, WriteStringFileFlags flags, സ്ഥിരം ഘടന timespec *ts);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ write_string_stream(FILE *f, സ്ഥിരം അക്ഷരം *വരി, WriteStringFileFlags flags) {
+        തിരികെ write_string_stream_full(f, വരി, flags, ശൂന്യ);
 }
 
-int read_virtual_file_at(int dir_fd, const char *filename, size_t max_size, char **ret_contents, size_t *ret_size);
-static inline int read_virtual_file_fd(int fd, size_t max_size, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file_at(fd, NULL, max_size, ret_contents, ret_size);
+പൂർണ്ണസംഖ്യ write_string_file_full_label(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം അക്ഷരം *വരി, WriteStringFileFlags flags, സ്ഥിരം ഘടന timespec *ts, സ്ഥിരം അക്ഷരം *label_fn, LabelContext *label_context);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ write_string_file_full(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം അക്ഷരം *വരി, WriteStringFileFlags flags, സ്ഥിരം ഘടന timespec *ts, സ്ഥിരം അക്ഷരം *label_fn) {
+        തിരികെ write_string_file_full_label(dir_fd, fn, വരി, flags, ts, label_fn, /* label_context= */ ശൂന്യ);
 }
-static inline int read_virtual_file(const char *filename, size_t max_size, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file_at(AT_FDCWD, filename, max_size, ret_contents, ret_size);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ write_string_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം അക്ഷരം *വരി, WriteStringFileFlags flags) {
+        തിരികെ write_string_file_full(dir_fd, fn, വരി, flags, ശൂന്യ, ശൂന്യ);
 }
-static inline int read_full_virtual_file(const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file(filename, SIZE_MAX, ret_contents, ret_size);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ write_string_file_fd(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *വരി, WriteStringFileFlags flags) {
+        തിരികെ write_string_file_at(dir_fd, ശൂന്യ, വരി, flags);
+}
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ write_string_file(സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം അക്ഷരം *വരി, WriteStringFileFlags flags) {
+        തിരികെ write_string_file_at(AT_FDCWD, fn, വരി, flags);
+}
+പൂർണ്ണസംഖ്യ write_string_filef(സ്ഥിരം അക്ഷരം *fn, WriteStringFileFlags flags, സ്ഥിരം അക്ഷരം *format, ...) _printf_(3, 4);
+പൂർണ്ണസംഖ്യ write_string_filef_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fn, WriteStringFileFlags flags, സ്ഥിരം അക്ഷരം *format, ...) _printf_(4, 5);
+
+പൂർണ്ണസംഖ്യ write_base64_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം ഘടന iovec *data, WriteStringFileFlags flags);
+
+പൂർണ്ണസംഖ്യ read_one_വരി_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *filename, അക്ഷരം **ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_one_വരി_file(സ്ഥിരം അക്ഷരം *filename, അക്ഷരം **ret) {
+        തിരികെ read_one_വരി_file_at(AT_FDCWD, filename, ret);
+}
+പൂർണ്ണസംഖ്യ read_boolean_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *filename);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_boolean_file(സ്ഥിരം അക്ഷരം *filename) {
+        തിരികെ read_boolean_file_at(AT_FDCWD, filename);
+}
+പൂർണ്ണസംഖ്യ read_full_file_full(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, സ്ഥിരം അക്ഷരം *bind_name, അക്ഷരം **ret_contents, size_t *ret_size);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_full_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *filename, അക്ഷരം **ret_contents, size_t *ret_size) {
+        തിരികെ read_full_file_full(dir_fd, filename, UINT64_MAX, SIZE_MAX, 0, ശൂന്യ, ret_contents, ret_size);
+}
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_full_file(സ്ഥിരം അക്ഷരം *filename, അക്ഷരം **ret_contents, size_t *ret_size) {
+        തിരികെ read_full_file_full(AT_FDCWD, filename, UINT64_MAX, SIZE_MAX, 0, ശൂന്യ, ret_contents, ret_size);
 }
 
-int read_full_stream_full(FILE *f, const char *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, char **ret_contents, size_t *ret_size);
-static inline int read_full_stream(FILE *f, char **ret_contents, size_t *ret_size) {
-        return read_full_stream_full(f, NULL, UINT64_MAX, SIZE_MAX, 0, ret_contents, ret_size);
+പൂർണ്ണസംഖ്യ read_virtual_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *filename, size_t max_size, അക്ഷരം **ret_contents, size_t *ret_size);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_virtual_file_fd(പൂർണ്ണസംഖ്യ fd, size_t max_size, അക്ഷരം **ret_contents, size_t *ret_size) {
+        തിരികെ read_virtual_file_at(fd, ശൂന്യ, max_size, ret_contents, ret_size);
+}
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_virtual_file(സ്ഥിരം അക്ഷരം *filename, size_t max_size, അക്ഷരം **ret_contents, size_t *ret_size) {
+        തിരികെ read_virtual_file_at(AT_FDCWD, filename, max_size, ret_contents, ret_size);
+}
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_full_virtual_file(സ്ഥിരം അക്ഷരം *filename, അക്ഷരം **ret_contents, size_t *ret_size) {
+        തിരികെ read_virtual_file(filename, SIZE_MAX, ret_contents, ret_size);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl);
+പൂർണ്ണസംഖ്യ read_full_stream_full(FILE *f, സ്ഥിരം അക്ഷരം *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, അക്ഷരം **ret_contents, size_t *ret_size);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_full_stream(FILE *f, അക്ഷരം **ret_contents, size_t *ret_size) {
+        തിരികെ read_full_stream_full(f, ശൂന്യ, UINT64_MAX, SIZE_MAX, 0, ret_contents, ret_size);
+}
 
-int script_get_shebang_interpreter(const char *path, char **ret);
+പൂർണ്ണസംഖ്യ verify_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം അക്ഷരം *blob, bool accept_extra_nl);
 
-int get_proc_field(const char *path, const char *key, char **ret);
+പൂർണ്ണസംഖ്യ script_get_shebang_interpreter(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret);
 
-DIR* xopendirat(int dir_fd, const char *path, int flags);
+പൂർണ്ണസംഖ്യ get_proc_field(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *താക്കോൽ, അക്ഷരം **ret);
 
-typedef enum XfopenFlags {
+DIR* xopendirat(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags);
+
+തരനിർവചനം എണ്ണൽ XfopenFlags {
         XFOPEN_UNLOCKED = 1 << 0, /* call __fsetlocking(FSETLOCKING_BYCALLER) after opened */
         XFOPEN_SOCKET   = 1 << 1, /* also try to open unix socket */
 } XfopenFlags;
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+പൂർണ്ണസംഖ്യ xfopenat_full(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം അക്ഷരം *mode,
+                പൂർണ്ണസംഖ്യ open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
+                സ്ഥിരം അക്ഷരം *bind_name,
                 FILE **ret);
-static inline int xfopenat(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
-        return xfopenat_full(dir_fd, path, mode, open_flags, 0, NULL, ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ xfopenat(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *mode, പൂർണ്ണസംഖ്യ open_flags, FILE **ret) {
+        തിരികെ xfopenat_full(dir_fd, path, mode, open_flags, 0, ശൂന്യ, ret);
 }
-static inline int fopen_unlocked_at(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
-        return xfopenat_full(dir_fd, path, mode, open_flags, XFOPEN_UNLOCKED, NULL, ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ fopen_unlocked_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *mode, പൂർണ്ണസംഖ്യ open_flags, FILE **ret) {
+        തിരികെ xfopenat_full(dir_fd, path, mode, open_flags, XFOPEN_UNLOCKED, ശൂന്യ, ret);
 }
-static inline int fopen_unlocked(const char *path, const char *mode, FILE **ret) {
-        return fopen_unlocked_at(AT_FDCWD, path, mode, 0, ret);
-}
-
-int fdopen_independent(int fd, const char *mode, FILE **ret);
-
-int search_and_open(const char *path, int mode, const char *root, char **search, int *ret_fd, char **ret_path);
-static inline int search_and_access(const char *path, int mode, const char *root, char**search, char **ret_path) {
-        return search_and_open(path, mode, root, search, NULL, ret_path);
-}
-int search_and_fopen(const char *path, const char *mode, const char *root, const char **search, FILE **ret_file, char **ret_path);
-int search_and_fopen_nulstr(const char *path, const char *mode, const char *root, const char *search, FILE **ret_file, char **ret_path);
-
-int fflush_and_check(FILE *f);
-int fflush_sync_and_check(FILE *f);
-
-int write_timestamp_file_atomic(const char *fn, usec_t n);
-int read_timestamp_file(const char *fn, usec_t *ret);
-
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space);
-int fputs_with_newline(FILE *f, const char *s);
-
-typedef enum ReadLineFlags {
-        READ_LINE_ONLY_NUL  = 1 << 0,
-        READ_LINE_IS_A_TTY  = 1 << 1,
-        READ_LINE_NOT_A_TTY = 1 << 2,
-} ReadLineFlags;
-
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret);
-static inline int read_line(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, 0, ret);
-}
-static inline int read_nul_string(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, READ_LINE_ONLY_NUL, ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ fopen_unlocked(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *mode, FILE **ret) {
+        തിരികെ fopen_unlocked_at(AT_FDCWD, path, mode, 0, ret);
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret);
+പൂർണ്ണസംഖ്യ fdopen_independent(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *mode, FILE **ret);
 
-static inline bool file_offset_beyond_memory_size(off_t x) {
-        if (x < 0) /* off_t is signed, filter that out */
-                return false;
-        return (uint64_t) x > (uint64_t) SIZE_MAX;
+പൂർണ്ണസംഖ്യ തിരയൽ_and_open(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode, സ്ഥിരം അക്ഷരം *വേര്, അക്ഷരം **തിരയൽ, പൂർണ്ണസംഖ്യ *ret_fd, അക്ഷരം **ret_path);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ തിരയൽ_and_access(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode, സ്ഥിരം അക്ഷരം *വേര്, അക്ഷരം**തിരയൽ, അക്ഷരം **ret_path) {
+        തിരികെ തിരയൽ_and_open(path, mode, വേര്, തിരയൽ, ശൂന്യ, ret_path);
+}
+പൂർണ്ണസംഖ്യ തിരയൽ_and_fopen(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *mode, സ്ഥിരം അക്ഷരം *വേര്, സ്ഥിരം അക്ഷരം **തിരയൽ, FILE **ret_file, അക്ഷരം **ret_path);
+പൂർണ്ണസംഖ്യ തിരയൽ_and_fopen_nulstr(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *mode, സ്ഥിരം അക്ഷരം *വേര്, സ്ഥിരം അക്ഷരം *തിരയൽ, FILE **ret_file, അക്ഷരം **ret_path);
+
+പൂർണ്ണസംഖ്യ fflush_and_check(FILE *f);
+പൂർണ്ണസംഖ്യ fflush_sync_and_check(FILE *f);
+
+പൂർണ്ണസംഖ്യ write_timestamp_file_atomic(സ്ഥിരം അക്ഷരം *fn, usec_t n);
+പൂർണ്ണസംഖ്യ read_timestamp_file(സ്ഥിരം അക്ഷരം *fn, usec_t *ret);
+
+പൂർണ്ണസംഖ്യ fputs_with_separator(FILE *f, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separator, bool *space);
+പൂർണ്ണസംഖ്യ fputs_with_newline(FILE *f, സ്ഥിരം അക്ഷരം *s);
+
+തരനിർവചനം എണ്ണൽ Read_വരി_Flags {
+        READ_വരി_ONLY_NUL  = 1 << 0,
+        READ_വരി_IS_A_TTY  = 1 << 1,
+        READ_വരി_NOT_A_TTY = 1 << 2,
+} Read_വരി_Flags;
+
+പൂർണ്ണസംഖ്യ read_വരി_full(FILE *f, size_t limit, Read_വരി_Flags flags, അക്ഷരം **ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_വരി(FILE *f, size_t limit, അക്ഷരം **ret) {
+        തിരികെ read_വരി_full(f, limit, 0, ret);
+}
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ read_nul_string(FILE *f, size_t limit, അക്ഷരം **ret) {
+        തിരികെ read_വരി_full(f, limit, READ_വരി_ONLY_NUL, ret);
 }
 
-int safe_fgetc(FILE *f, char *ret);
+പൂർണ്ണസംഖ്യ read_stripped_വരി(FILE *f, size_t limit, അക്ഷരം **ret);
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line);
+സ്ഥിതം വരിയിൽ bool file_offset_beyond_memory_size(off_t x) {
+        എങ്കിൽ (x < 0) /* off_t is signed, filter that out */
+                തിരികെ false;
+        തിരികെ (uint64_t) x > (uint64_t) SIZE_MAX;
+}
 
-int fopen_mode_to_flags(const char *mode);
+പൂർണ്ണസംഖ്യ safe_fgetc(FILE *f, അക്ഷരം *ret);
 
-typedef enum WriteDataFileFlags {
+പൂർണ്ണസംഖ്യ warn_file_is_world_accessible(സ്ഥിരം അക്ഷരം *filename, ഘടന stat *st, സ്ഥിരം അക്ഷരം *unit, unsigned വരി);
+
+പൂർണ്ണസംഖ്യ fopen_mode_to_flags(സ്ഥിരം അക്ഷരം *mode);
+
+തരനിർവചനം എണ്ണൽ WriteDataFileFlags {
         WRITE_DATA_FILE_MKDIR_0755 = 1 << 0,
         WRITE_DATA_FILE_MODE_0400  = 1 << 1,
 } WriteDataFileFlags;
 
-int write_data_file_atomic_at(int dir_fd, const char *path, const struct iovec *iovec, WriteDataFileFlags flags);
+പൂർണ്ണസംഖ്യ write_data_file_atomic_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം ഘടന iovec *iovec, WriteDataFileFlags flags);

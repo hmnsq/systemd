@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <net/if.h>
+#അന്തര്ഭാവ <net/if.h>
 
-typedef enum {
+തരനിർവചനം എണ്ണൽ {
         FORMAT_IFNAME_IFINDEX              = 1 << 0,
         FORMAT_IFNAME_IFINDEX_WITH_PERCENT = (1 << 1) | FORMAT_IFNAME_IFINDEX,
 } FormatIfnameFlag;
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]);
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret);
+പൂർണ്ണസംഖ്യ format_ifname_full(പൂർണ്ണസംഖ്യ ifindex, FormatIfnameFlag flag, അക്ഷരം buf[സ്ഥിതം IF_NAMESIZE]);
+പൂർണ്ണസംഖ്യ format_ifname_full_alloc(പൂർണ്ണസംഖ്യ ifindex, FormatIfnameFlag flag, അക്ഷരം **ret);
 
-static inline int format_ifname(int ifindex, char buf[static IF_NAMESIZE]) {
-        return format_ifname_full(ifindex, 0, buf);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ format_ifname(പൂർണ്ണസംഖ്യ ifindex, അക്ഷരം buf[സ്ഥിതം IF_NAMESIZE]) {
+        തിരികെ format_ifname_full(ifindex, 0, buf);
 }
-static inline int format_ifname_alloc(int ifindex, char **ret) {
-        return format_ifname_full_alloc(ifindex, 0, ret);
-}
-
-static inline char* _format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        (void) format_ifname_full(ifindex, flag, buf);
-        return buf;
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ format_ifname_alloc(പൂർണ്ണസംഖ്യ ifindex, അക്ഷരം **ret) {
+        തിരികെ format_ifname_full_alloc(ifindex, 0, ret);
 }
 
-#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (char[IF_NAMESIZE]){})
-#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (char[IF_NAMESIZE]){})
+സ്ഥിതം വരിയിൽ അക്ഷരം* _format_ifname_full(പൂർണ്ണസംഖ്യ ifindex, FormatIfnameFlag flag, അക്ഷരം buf[സ്ഥിതം IF_NAMESIZE]) {
+        (ശൂന്യം) format_ifname_full(ifindex, flag, buf);
+        തിരികെ buf;
+}
+
+#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (അക്ഷരം[IF_NAMESIZE]){})
+#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (അക്ഷരം[IF_NAMESIZE]){})

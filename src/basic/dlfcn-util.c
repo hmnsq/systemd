@@ -1,150 +1,150 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "dlfcn-util.h"
-#include "errno-util.h"
-#include "log.h"
+#അന്തര്ഭാവ "dlfcn-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "log.h"
 
-void* safe_dlclose(void *dl) {
-        if (!dl)
-                return NULL;
+ശൂന്യം* safe_dlclose(ശൂന്യം *dl) {
+        എങ്കിൽ (!dl)
+                തിരികെ ശൂന്യ;
 
         assert_se(dlclose(dl) == 0);
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-static int dlsym_many_or_warnv(void *dl, int log_level, va_list ap) {
-        void (**fn)(void);
+സ്ഥിതം പൂർണ്ണസംഖ്യ dlsym_many_or_warnv(ശൂന്യം *dl, പൂർണ്ണസംഖ്യ log_level, va_list ap) {
+        ശൂന്യം (**fn)(ശൂന്യം);
 
         /* Tries to resolve a bunch of function symbols, and logs an error about if it cannot resolve one of
          * them. Note that this function possibly modifies the supplied function pointers if the whole
          * operation fails. */
 
-        while ((fn = va_arg(ap, typeof(fn)))) {
-                void (*tfn)(void);
-                const char *symbol;
+        ആകുമ്പോൾ ((fn = va_arg(ap, typeof(fn)))) {
+                ശൂന്യം (*tfn)(ശൂന്യം);
+                സ്ഥിരം അക്ഷരം *ചിഹ്നം;
 
-                symbol = va_arg(ap, typeof(symbol));
+                ചിഹ്നം = va_arg(ap, typeof(ചിഹ്നം));
 
-                tfn = (typeof(tfn)) dlsym(dl, symbol);
-                if (!tfn)
-                        return log_full_errno(log_level,
+                tfn = (typeof(tfn)) dlsym(dl, ചിഹ്നം);
+                എങ്കിൽ (!tfn)
+                        തിരികെ log_full_errno(log_level,
                                               SYNTHETIC_ERRNO(ELIBBAD),
-                                              "Can't find symbol %s: %s", symbol, dlerror());
+                                              "Can't find symbol %s: %s", ചിഹ്നം, dlerror());
                 *fn = tfn;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-int dlsym_many_or_warn_sentinel(void *dl, int log_level, ...) {
+പൂർണ്ണസംഖ്യ dlsym_many_or_warn_sentinel(ശൂന്യം *dl, പൂർണ്ണസംഖ്യ log_level, ...) {
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         va_start(ap, log_level);
         r = dlsym_many_or_warnv(dl, log_level, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-int dlopen_verbose(void **dlp, const char *filename, int log_level) {
-        int r;
+പൂർണ്ണസംഖ്യ dlopen_verbose(ശൂന്യം **dlp, സ്ഥിരം അക്ഷരം *filename, പൂർണ്ണസംഖ്യ log_level) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(dlp);
+        പ്രതിജ്ഞാ(dlp);
 
-        if (*dlp)
-                return 0; /* Already loaded */
+        എങ്കിൽ (*dlp)
+                തിരികെ 0; /* Already loaded */
 
-        _cleanup_(dlclosep) void *dl = NULL;
-        const char *dle = NULL;
+        _cleanup_(dlclosep) ശൂന്യം *dl = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *dle = ശൂന്യ;
         r = dlopen_safe(filename, &dl, &dle);
-        if (r < 0)
-                return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+        എങ്കിൽ (r < 0)
+                തിരികെ log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                                       "Shared library '%s' is not available: %s", filename, dle ?: STRERROR(r));
 
         log_debug("Loaded shared library '%s' via dlopen().", filename);
         *dlp = TAKE_PTR(dl);
-        return 1;
+        തിരികെ 1;
 }
 
-int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_level, ...) {
-        int r;
+പൂർണ്ണസംഖ്യ dlopen_many_sym_or_warn_sentinel(ശൂന്യം **dlp, സ്ഥിരം അക്ഷരം *filename, പൂർണ്ണസംഖ്യ log_level, ...) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(dlp);
+        പ്രതിജ്ഞാ(dlp);
 
-        if (*dlp)
-                return 0; /* Already loaded */
+        എങ്കിൽ (*dlp)
+                തിരികെ 0; /* Already loaded */
 
-        _cleanup_(dlclosep) void *dl = NULL;
+        _cleanup_(dlclosep) ശൂന്യം *dl = ശൂന്യ;
         r = dlopen_verbose(&dl, filename, log_level);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         va_list ap;
         va_start(ap, log_level);
         r = dlsym_many_or_warnv(dl, log_level, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         /* Note that we never release the reference here, because there's no real reason to. After all this
          * was traditionally a regular shared library dependency which lives forever too. */
         *dlp = TAKE_PTR(dl);
-        return 1;
+        തിരികെ 1;
 }
 
-static bool dlopen_blocked = false;
+സ്ഥിതം bool dlopen_blocked = false;
 
-void block_dlopen(void) {
+ശൂന്യം block_dlopen(ശൂന്യം) {
         dlopen_blocked = true;
 }
 
-int dlopen_safe(const char *filename, void **ret, const char **reterr_dlerror) {
-#if BUILD_STATIC
-        return log_debug_errno(SYNTHETIC_ERRNO(EOPNOTSUPP),
+പൂർണ്ണസംഖ്യ dlopen_safe(സ്ഥിരം അക്ഷരം *filename, ശൂന്യം **ret, സ്ഥിരം അക്ഷരം **reterr_dlerror) {
+#എങ്കിൽ BUILD_STATIC
+        തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EOPNOTSUPP),
                                "dlopen is not supported in static builds, cannot load %s.", filename);
-#else
-        _cleanup_(dlclosep) void *dl = NULL;
-        int r;
+#അല്ലെങ്കിൽ
+        _cleanup_(dlclosep) ശൂന്യം *dl = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(filename);
+        പ്രതിജ്ഞാ(filename);
 
         /* A wrapper around dlopen(), that takes dlopen_blocked into account, and tries to normalize the
          * error reporting a bit. */
 
-        int flags = RTLD_NOW|RTLD_NODELETE; /* Always set RTLD_NOW + RTLD_NODELETE, for security reasons */
+        പൂർണ്ണസംഖ്യ flags = RTLD_NOW|RTLD_NODELETE; /* Always set RTLD_NOW + RTLD_NODELETE, for security reasons */
 
         /* If dlopen() is blocked we'll still try it, but set RTLD_NOLOAD, so that it will still work if
          * already loaded (for example because the binary linked to things regularly), but fail if not. */
-        if (dlopen_blocked)
+        എങ്കിൽ (dlopen_blocked)
                 flags |= RTLD_NOLOAD;
 
         errno = 0;
         dl = dlopen(filename, flags);
-        if (!dl) {
-                if (dlopen_blocked) {
-                        (void) dlerror(); /* consume error, so that no later call will return it */
+        എങ്കിൽ (!dl) {
+                എങ്കിൽ (dlopen_blocked) {
+                        (ശൂന്യം) dlerror(); /* consume error, so that no later call will return it */
 
-                        if (reterr_dlerror)
-                                *reterr_dlerror = NULL;
+                        എങ്കിൽ (reterr_dlerror)
+                                *reterr_dlerror = ശൂന്യ;
 
-                        return log_debug_errno(SYNTHETIC_ERRNO(EPERM), "Refusing loading of '%s', as loading further dlopen() modules has been blocked.", filename);
+                        തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EPERM), "Refusing loading of '%s', as loading further dlopen() modules has been blocked.", filename);
                 }
 
                 r = errno_or_else(ENOPKG);
 
-                if (reterr_dlerror)
+                എങ്കിൽ (reterr_dlerror)
                         *reterr_dlerror = dlerror();
-                else
-                        (void) dlerror(); /* consume error, so that no later call will return it */
+                അല്ലെങ്കിൽ
+                        (ശൂന്യം) dlerror(); /* consume error, so that no later call will return it */
 
-                return r;
+                തിരികെ r;
         }
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = TAKE_PTR(dl);
 
-        return 0;
+        തിരികെ 0;
 #endif
 }

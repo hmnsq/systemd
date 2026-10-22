@@ -1,249 +1,249 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sched.h>
-#include <string.h>
+#അന്തര്ഭാവ <sched.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "format-util.h"
-#include "namespace-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "sort-util.h"
-#include "stat-util.h"
-#include "uid-range.h"
-#include "user-util.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "format-util.h"
+#അന്തര്ഭാവ "namespace-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "pidref.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "sort-util.h"
+#അന്തര്ഭാവ "stat-util.h"
+#അന്തര്ഭാവ "uid-range.h"
+#അന്തര്ഭാവ "user-util.h"
 
 UIDRange *uid_range_free(UIDRange *range) {
-        if (!range)
-                return NULL;
+        എങ്കിൽ (!range)
+                തിരികെ ശൂന്യ;
 
-        free(range->entries);
-        return mfree(range);
+        സ്വതന്ത്രം(range->entries);
+        തിരികെ mfree(range);
 }
 
-static bool uid_range_entry_intersect(const UIDRangeEntry *a, const UIDRangeEntry *b) {
-        assert(a);
-        assert(b);
+സ്ഥിതം bool uid_range_entry_intersect(സ്ഥിരം UIDRangeEntry *a, സ്ഥിരം UIDRangeEntry *b) {
+        പ്രതിജ്ഞാ(a);
+        പ്രതിജ്ഞാ(b);
 
-        return a->start <= b->start + b->nr && a->start + a->nr >= b->start;
+        തിരികെ a->start <= b->start + b->nr && a->start + a->nr >= b->start;
 }
 
-static int uid_range_entry_compare(const UIDRangeEntry *a, const UIDRangeEntry *b) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ uid_range_entry_compare(സ്ഥിരം UIDRangeEntry *a, സ്ഥിരം UIDRangeEntry *b) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(a);
-        assert(b);
+        പ്രതിജ്ഞാ(a);
+        പ്രതിജ്ഞാ(b);
 
         r = CMP(a->start, b->start);
-        if (r != 0)
-                return r;
+        എങ്കിൽ (r != 0)
+                തിരികെ r;
 
-        return CMP(a->nr, b->nr);
+        തിരികെ CMP(a->nr, b->nr);
 }
 
-static void uid_range_coalesce(UIDRange *range) {
-        assert(range);
+സ്ഥിതം ശൂന്യം uid_range_coalesce(UIDRange *range) {
+        പ്രതിജ്ഞാ(range);
 
-        if (range->n_entries <= 0)
-                return;
+        എങ്കിൽ (range->n_entries <= 0)
+                തിരികെ;
 
         typesafe_qsort(range->entries, range->n_entries, uid_range_entry_compare);
 
-        for (size_t i = 0; i < range->n_entries; i++) {
+        വേണ്ടി (size_t i = 0; i < range->n_entries; i++) {
                 UIDRangeEntry *x = range->entries + i;
 
-                for (size_t j = i + 1; j < range->n_entries; j++) {
+                വേണ്ടി (size_t j = i + 1; j < range->n_entries; j++) {
                         UIDRangeEntry *y = range->entries + j;
                         uid_t begin, end;
 
-                        if (!uid_range_entry_intersect(x, y))
-                                break;
+                        എങ്കിൽ (!uid_range_entry_intersect(x, y))
+                                നിർത്തുക;
 
                         begin = MIN(x->start, y->start);
 
                         /* Silence static analyzers, overflow is prevented by uid_range_add_internal() */
-                        assert(x->start <= UINT32_MAX - x->nr);
-                        assert(y->start <= UINT32_MAX - y->nr);
+                        പ്രതിജ്ഞാ(x->start <= UINT32_MAX - x->nr);
+                        പ്രതിജ്ഞാ(y->start <= UINT32_MAX - y->nr);
                         end = MAX(x->start + x->nr, y->start + y->nr);
 
                         x->start = begin;
                         x->nr = end - begin;
 
-                        if (range->n_entries > j + 1)
-                                memmove(y, y + 1, sizeof(UIDRangeEntry) * (range->n_entries - j - 1));
+                        എങ്കിൽ (range->n_entries > j + 1)
+                                memmove(y, y + 1, വലുപ്പം(UIDRangeEntry) * (range->n_entries - j - 1));
 
                         /* Silence static analyzers, n_entries > 0 since j < n_entries holds in the loop condition */
-                        assert(range->n_entries > 0);
+                        പ്രതിജ്ഞാ(range->n_entries > 0);
                         range->n_entries--;
 
                         /* Silence static analyzers, j cannot be 0 here since it starts at i + 1, i.e. >= 1 */
-                        assert(j > 0);
+                        പ്രതിജ്ഞാ(j > 0);
                         j--;
                 }
         }
 }
 
-int uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce) {
-        _cleanup_(uid_range_freep) UIDRange *range_new = NULL;
+പൂർണ്ണസംഖ്യ uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce) {
+        _cleanup_(uid_range_freep) UIDRange *range_new = ശൂന്യ;
         UIDRange *p;
 
-        assert(range);
+        പ്രതിജ്ഞാ(range);
 
-        if (nr <= 0)
-                return 0;
+        എങ്കിൽ (nr <= 0)
+                തിരികെ 0;
 
-        if (start > UINT32_MAX - nr) /* overflow check */
-                return -ERANGE;
+        എങ്കിൽ (start > UINT32_MAX - nr) /* overflow check */
+                തിരികെ -ERANGE;
 
-        if (*range)
+        എങ്കിൽ (*range)
                 p = *range;
-        else {
+        അല്ലെങ്കിൽ {
                 range_new = new0(UIDRange, 1);
-                if (!range_new)
-                        return -ENOMEM;
+                എങ്കിൽ (!range_new)
+                        തിരികെ -ENOMEM;
 
                 p = range_new;
         }
 
-        if (!GREEDY_REALLOC(p->entries, p->n_entries + 1))
-                return -ENOMEM;
+        എങ്കിൽ (!GREEDY_REALLOC(p->entries, p->n_entries + 1))
+                തിരികെ -ENOMEM;
 
         p->entries[p->n_entries++] = (UIDRangeEntry) {
                 .start = start,
                 .nr = nr,
         };
 
-        if (coalesce)
+        എങ്കിൽ (coalesce)
                 uid_range_coalesce(p);
 
         TAKE_PTR(range_new);
         *range = p;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int uid_range_add_str_full(UIDRange **range, const char *s, bool coalesce) {
+പൂർണ്ണസംഖ്യ uid_range_add_str_full(UIDRange **range, സ്ഥിരം അക്ഷരം *s, bool coalesce) {
         uid_t start, end;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(range);
-        assert(s);
+        പ്രതിജ്ഞാ(range);
+        പ്രതിജ്ഞാ(s);
 
         r = parse_uid_range(s, &start, &end);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return uid_range_add_internal(range, start, end - start + 1, coalesce);
+        തിരികെ uid_range_add_internal(range, start, end - start + 1, coalesce);
 }
 
-int uid_range_next_lower(const UIDRange *range, uid_t *uid) {
+പൂർണ്ണസംഖ്യ uid_range_next_lower(സ്ഥിരം UIDRange *range, uid_t *uid) {
         uid_t closest = UID_INVALID, candidate;
 
-        assert(range);
-        assert(uid);
+        പ്രതിജ്ഞാ(range);
+        പ്രതിജ്ഞാ(uid);
 
-        if (*uid == 0)
-                return -EBUSY;
+        എങ്കിൽ (*uid == 0)
+                തിരികെ -EBUSY;
 
         candidate = *uid - 1;
 
-        for (size_t i = 0; i < range->n_entries; i++) {
+        വേണ്ടി (size_t i = 0; i < range->n_entries; i++) {
                 uid_t begin, end;
 
                 begin = range->entries[i].start;
                 end = range->entries[i].start + range->entries[i].nr - 1;
 
-                if (candidate >= begin && candidate <= end) {
+                എങ്കിൽ (candidate >= begin && candidate <= end) {
                         *uid = candidate;
-                        return 1;
+                        തിരികെ 1;
                 }
 
-                if (end < candidate)
+                എങ്കിൽ (end < candidate)
                         closest = end;
         }
 
-        if (closest == UID_INVALID)
-                return -EBUSY;
+        എങ്കിൽ (closest == UID_INVALID)
+                തിരികെ -EBUSY;
 
         *uid = closest;
-        return 1;
+        തിരികെ 1;
 }
 
-bool uid_range_covers(const UIDRange *range, uid_t start, uid_t nr) {
-        if (nr == 0) /* empty range? always covered... */
-                return true;
+bool uid_range_covers(സ്ഥിരം UIDRange *range, uid_t start, uid_t nr) {
+        എങ്കിൽ (nr == 0) /* empty range? always covered... */
+                തിരികെ true;
 
-        if (start > UINT32_MAX - nr) /* range overflows? definitely not covered... */
-                return false;
+        എങ്കിൽ (start > UINT32_MAX - nr) /* range overflows? definitely not covered... */
+                തിരികെ false;
 
-        if (!range)
-                return false;
+        എങ്കിൽ (!range)
+                തിരികെ false;
 
         FOREACH_ARRAY(i, range->entries, range->n_entries)
-                if (start >= i->start &&
+                എങ്കിൽ (start >= i->start &&
                     start + nr <= i->start + i->nr)
-                        return true;
+                        തിരികെ true;
 
-        return false;
+        തിരികെ false;
 }
 
-int uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range) {
+പൂർണ്ണസംഖ്യ uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range) {
         uid_t uid_base, uid_shift, uid_range;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
         errno = 0;
         r = fscanf(f, UID_FMT " " UID_FMT " " UID_FMT "\n", &uid_base, &uid_shift, &uid_range);
-        if (r == EOF)
-                return errno_or_else(ENOMSG);
-        assert(r >= 0);
-        if (r != 3)
-                return -EBADMSG;
-        if (uid_range <= 0)
-                return -EBADMSG;
+        എങ്കിൽ (r == EOF)
+                തിരികെ errno_or_else(ENOMSG);
+        പ്രതിജ്ഞാ(r >= 0);
+        എങ്കിൽ (r != 3)
+                തിരികെ -EBADMSG;
+        എങ്കിൽ (uid_range <= 0)
+                തിരികെ -EBADMSG;
 
-        if (ret_base)
+        എങ്കിൽ (ret_base)
                 *ret_base = uid_base;
-        if (ret_shift)
+        എങ്കിൽ (ret_shift)
                 *ret_shift = uid_shift;
-        if (ret_range)
+        എങ്കിൽ (ret_range)
                 *ret_range = uid_range;
 
-        return 0;
+        തിരികെ 0;
 }
 
-unsigned uid_range_size(const UIDRange *range) {
-        if (!range)
-                return 0;
+unsigned uid_range_size(സ്ഥിരം UIDRange *range) {
+        എങ്കിൽ (!range)
+                തിരികെ 0;
 
         unsigned n = 0;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
                 n += e->nr;
 
-        return n;
+        തിരികെ n;
 }
 
-bool uid_range_is_empty(const UIDRange *range) {
+bool uid_range_is_empty(സ്ഥിരം UIDRange *range) {
 
-        if (!range)
-                return true;
+        എങ്കിൽ (!range)
+                തിരികെ true;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                if (e->nr > 0)
-                        return false;
+                എങ്കിൽ (e->nr > 0)
+                        തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
-        _cleanup_(uid_range_freep) UIDRange *range = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ uid_range_load_userns_full(സ്ഥിരം അക്ഷരം *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
+        _cleanup_(uid_range_freep) UIDRange *range = ശൂന്യ;
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
         /* If 'path' is NULL loads the UID range of the userns namespace we run. Otherwise load the data from
          * the specified file (which can be either uid_map or gid_map, in case caller needs to deal with GID
@@ -251,117 +251,117 @@ int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool c
          *
          * To simplify things this will modify the passed array in case of later failure. */
 
-        assert(mode >= 0);
-        assert(mode < _UID_RANGE_USERNS_MODE_MAX);
-        assert(ret);
+        പ്രതിജ്ഞാ(mode >= 0);
+        പ്രതിജ്ഞാ(mode < _UID_RANGE_USERNS_MODE_MAX);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!path)
+        എങ്കിൽ (!path)
                 path = IN_SET(mode, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "/proc/self/uid_map" : "/proc/self/gid_map";
 
         f = fopen(path, "re");
-        if (!f) {
+        എങ്കിൽ (!f) {
                 r = -errno;
 
-                if (r == -ENOENT && path_startswith(path, "/proc/"))
-                        return proc_mounted() > 0 ? -EOPNOTSUPP : -ENOSYS;
+                എങ്കിൽ (r == -ENOENT && path_startswith(path, "/proc/"))
+                        തിരികെ proc_mounted() > 0 ? -EOPNOTSUPP : -ENOSYS;
 
-                return r;
+                തിരികെ r;
         }
 
         range = new0(UIDRange, 1);
-        if (!range)
-                return -ENOMEM;
+        എങ്കിൽ (!range)
+                തിരികെ -ENOMEM;
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 uid_t uid_base, uid_shift, uid_range;
 
                 r = uid_map_read_one(f, &uid_base, &uid_shift, &uid_range);
-                if (r == -ENOMSG)
-                        break;
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r == -ENOMSG)
+                        നിർത്തുക;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 r = uid_range_add_internal(
                                 &range,
                                 IN_SET(mode, UID_RANGE_USERNS_INSIDE, GID_RANGE_USERNS_INSIDE) ? uid_base : uid_shift,
                                 uid_range,
                                 /* coalesce= */ false);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (coalesce)
+        എങ്കിൽ (coalesce)
                 uid_range_coalesce(range);
 
         *ret = TAKE_PTR(range);
-        return 0;
+        തിരികെ 0;
 }
 
-int uid_range_load_userns_by_fd_full(int userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
+പൂർണ്ണസംഖ്യ uid_range_load_userns_by_fd_full(പൂർണ്ണസംഖ്യ userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
         _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(userns_fd >= 0);
-        assert(mode >= 0);
-        assert(mode < _UID_RANGE_USERNS_MODE_MAX);
-        assert(ret);
+        പ്രതിജ്ഞാ(userns_fd >= 0);
+        പ്രതിജ്ഞാ(mode >= 0);
+        പ്രതിജ്ഞാ(mode < _UID_RANGE_USERNS_MODE_MAX);
+        പ്രതിജ്ഞാ(ret);
 
         r = is_our_namespace(userns_fd, NAMESPACE_USER);
-        if (r < 0)
-                return r;
-        if (r > 0)
-                return uid_range_load_userns_full(/* path= */ NULL, mode, coalesce, ret);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r > 0)
+                തിരികെ uid_range_load_userns_full(/* path= */ ശൂന്യ, mode, coalesce, ret);
 
         r = userns_enter_and_pin(userns_fd, &pidref);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        const char *p = procfs_file_alloca(
+        സ്ഥിരം അക്ഷരം *p = procfs_file_alloca(
                         pidref.pid,
                         IN_SET(mode, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "uid_map" : "gid_map");
 
-        return uid_range_load_userns_full(p, mode, coalesce, ret);
+        തിരികെ uid_range_load_userns_full(p, mode, coalesce, ret);
 }
 
-bool uid_range_overlaps(const UIDRange *range, uid_t start, uid_t nr) {
+bool uid_range_overlaps(സ്ഥിരം UIDRange *range, uid_t start, uid_t nr) {
 
-        if (!range)
-                return false;
+        എങ്കിൽ (!range)
+                തിരികെ false;
 
         /* Avoid overflow */
-        if (start > UINT32_MAX - nr)
+        എങ്കിൽ (start > UINT32_MAX - nr)
                 nr = UINT32_MAX - start;
 
-        if (nr == 0)
-                return false;
+        എങ്കിൽ (nr == 0)
+                തിരികെ false;
 
         FOREACH_ARRAY(entry, range->entries, range->n_entries)
-                if (start < entry->start + entry->nr &&
+                എങ്കിൽ (start < entry->start + entry->nr &&
                     start + nr >= entry->start)
-                        return true;
+                        തിരികെ true;
 
-        return false;
+        തിരികെ false;
 }
 
-int uid_range_clip(UIDRange *range, uid_t min, uid_t max) {
-        assert(range);
+പൂർണ്ണസംഖ്യ uid_range_clip(UIDRange *range, uid_t min, uid_t max) {
+        പ്രതിജ്ഞാ(range);
 
-        if (min > max)
-                return -EINVAL;
+        എങ്കിൽ (min > max)
+                തിരികെ -EINVAL;
 
         size_t t = 0;
         FOREACH_ARRAY(e, range->entries, range->n_entries) {
                 uid_t entry_end = e->start + e->nr; /* one past the last UID in entry */
 
                 /* Skip entries completely outside [min, max] */
-                if (entry_end <= min || e->start > max)
-                        continue;
+                എങ്കിൽ (entry_end <= min || e->start > max)
+                        തുടരുക;
 
                 /* Trim the entry to fit within [min, max] */
                 uid_t new_start = MAX(e->start, min);
                 /* entry_end is exclusive, avoid overflow when max == UINT32_MAX */
                 uid_t new_end = entry_end <= max ? entry_end : max + 1;
-                assert(new_end > new_start);
+                പ്രതിജ്ഞാ(new_end > new_start);
 
                 range->entries[t++] = (UIDRangeEntry) {
                         .start = new_start,
@@ -371,12 +371,12 @@ int uid_range_clip(UIDRange *range, uid_t min, uid_t max) {
 
         range->n_entries = t;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int uid_range_partition(UIDRange *range, uid_t size) {
-        assert(range);
-        assert(size > 0);
+പൂർണ്ണസംഖ്യ uid_range_partition(UIDRange *range, uid_t size) {
+        പ്രതിജ്ഞാ(range);
+        പ്രതിജ്ഞാ(size > 0);
 
         /* Partitions the UID range entries into buckets of the given size. Any entry larger than the given
          * size will be partitioned into multiple entries, each of the given size. Any leftover UIDs in the
@@ -387,30 +387,30 @@ int uid_range_partition(UIDRange *range, uid_t size) {
         FOREACH_ARRAY(e, range->entries, range->n_entries)
                 n_new_entries += e->nr / size;
 
-        if (n_new_entries == 0) {
+        എങ്കിൽ (n_new_entries == 0) {
                 range->n_entries = 0;
-                return 0;
+                തിരികെ 0;
         }
 
-        if (n_new_entries > range->n_entries && !GREEDY_REALLOC(range->entries, n_new_entries))
-                return -ENOMEM;
+        എങ്കിൽ (n_new_entries > range->n_entries && !GREEDY_REALLOC(range->entries, n_new_entries))
+                തിരികെ -ENOMEM;
 
         /* Compact in place: drop entries that contribute zero partitions (nr < size). This forward pass
          * reads each entry once and only writes to lower-or-equal indices, so it cannot alias an unread
          * source entry. */
         size_t n_src = 0;
-        for (size_t i = 0; i < range->n_entries; i++)
-                if (range->entries[i].nr >= size)
+        വേണ്ടി (size_t i = 0; i < range->n_entries; i++)
+                എങ്കിൽ (range->entries[i].nr >= size)
                         range->entries[n_src++] = range->entries[i];
 
         /* Pre-compaction guarantees every surviving entry contributes at least one partition slot, so the
          * write cursor t stays ahead of the read index. */
         size_t t = n_new_entries;
-        for (size_t i = n_src; i > 0; i--) {
+        വേണ്ടി (size_t i = n_src; i > 0; i--) {
                 UIDRangeEntry *e = range->entries + i - 1;
                 unsigned n_parts = e->nr / size;
 
-                for (unsigned j = n_parts; j > 0; j--)
+                വേണ്ടി (unsigned j = n_parts; j > 0; j--)
                         range->entries[--t] = (UIDRangeEntry) {
                                 .start = e->start + (j - 1) * size,
                                 .nr = size,
@@ -419,54 +419,54 @@ int uid_range_partition(UIDRange *range, uid_t size) {
 
         range->n_entries = n_new_entries;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int uid_range_copy(const UIDRange *range, UIDRange **ret) {
-        assert(ret);
+പൂർണ്ണസംഖ്യ uid_range_copy(സ്ഥിരം UIDRange *range, UIDRange **ret) {
+        പ്രതിജ്ഞാ(ret);
 
-        if (!range) {
-                *ret = NULL;
-                return 0;
+        എങ്കിൽ (!range) {
+                *ret = ശൂന്യ;
+                തിരികെ 0;
         }
 
         _cleanup_(uid_range_freep) UIDRange *copy = new0(UIDRange, 1);
-        if (!copy)
-                return -ENOMEM;
+        എങ്കിൽ (!copy)
+                തിരികെ -ENOMEM;
 
-        if (range->n_entries > 0) {
+        എങ്കിൽ (range->n_entries > 0) {
                 copy->entries = newdup(UIDRangeEntry, range->entries, range->n_entries);
-                if (!copy->entries)
-                        return -ENOMEM;
+                എങ്കിൽ (!copy->entries)
+                        തിരികെ -ENOMEM;
 
                 copy->n_entries = range->n_entries;
         }
 
         *ret = TAKE_PTR(copy);
-        return 0;
+        തിരികെ 0;
 }
 
-int uid_range_remove(UIDRange *range, uid_t start, uid_t size) {
-        assert(range);
+പൂർണ്ണസംഖ്യ uid_range_remove(UIDRange *range, uid_t start, uid_t size) {
+        പ്രതിജ്ഞാ(range);
 
-        if (size == 0)
-                return 0;
+        എങ്കിൽ (size == 0)
+                തിരികെ 0;
 
         uid_t end = start + size; /* one past the last UID to remove */
 
-        for (size_t i = 0; i < range->n_entries; i++) {
+        വേണ്ടി (size_t i = 0; i < range->n_entries; i++) {
                 UIDRangeEntry *e = range->entries + i;
                 uid_t entry_end = e->start + e->nr;
 
                 /* No overlap */
-                if (entry_end <= start || e->start >= end)
-                        continue;
+                എങ്കിൽ (entry_end <= start || e->start >= end)
+                        തുടരുക;
 
                 /* Check if this removal splits the entry into two parts */
-                if (e->start < start && entry_end > end) {
+                എങ്കിൽ (e->start < start && entry_end > end) {
                         /* Need to split: grow the array first */
-                        if (!GREEDY_REALLOC(range->entries, range->n_entries + 1))
-                                return -ENOMEM;
+                        എങ്കിൽ (!GREEDY_REALLOC(range->entries, range->n_entries + 1))
+                                തിരികെ -ENOMEM;
 
                         /* Re-fetch pointer after potential realloc */
                         e = range->entries + i;
@@ -474,7 +474,7 @@ int uid_range_remove(UIDRange *range, uid_t start, uid_t size) {
 
                         /* Shift everything after this entry to make room */
                         memmove(range->entries + i + 2, range->entries + i + 1,
-                                (range->n_entries - i - 1) * sizeof(UIDRangeEntry));
+                                (range->n_entries - i - 1) * വലുപ്പം(UIDRangeEntry));
                         range->n_entries++;
 
                         /* First part: before the removed range */
@@ -491,37 +491,37 @@ int uid_range_remove(UIDRange *range, uid_t start, uid_t size) {
 
                         /* Skip the newly inserted entry */
                         i++;
-                        continue;
+                        തുടരുക;
                 }
 
                 /* Removal covers the entire entry */
-                if (start <= e->start && end >= entry_end) {
-                        memmove(e, e + 1, (range->n_entries - i - 1) * sizeof(UIDRangeEntry));
+                എങ്കിൽ (start <= e->start && end >= entry_end) {
+                        memmove(e, e + 1, (range->n_entries - i - 1) * വലുപ്പം(UIDRangeEntry));
                         range->n_entries--;
                         i--;
-                        continue;
+                        തുടരുക;
                 }
 
                 /* Removal trims the start of the entry */
-                if (start <= e->start && end > e->start) {
+                എങ്കിൽ (start <= e->start && end > e->start) {
                         e->nr = entry_end - end;
                         e->start = end;
-                        continue;
+                        തുടരുക;
                 }
 
                 /* Removal trims the end of the entry */
-                if (start < entry_end && end >= entry_end) {
+                എങ്കിൽ (start < entry_end && end >= entry_end) {
                         e->nr = start - e->start;
-                        continue;
+                        തുടരുക;
                 }
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret) {
-        assert(uid_range_entries(outside) == uid_range_entries(inside));
-        assert(ret);
+പൂർണ്ണസംഖ്യ uid_range_translate(സ്ഥിരം UIDRange *outside, സ്ഥിരം UIDRange *inside, uid_t uid, uid_t *ret) {
+        പ്രതിജ്ഞാ(uid_range_entries(outside) == uid_range_entries(inside));
+        പ്രതിജ്ഞാ(ret);
 
         /* Given two UID ranges that represent the outside UID range of a user namespace (the 2nd and 3rd
          * columns in /proc/xxx/uid_map) and the inside UID range of a user namespace (the 1st and 3rd
@@ -534,107 +534,107 @@ int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t u
          * calling uid_range_translate(inside, outside, 0) will return 1000 as the output UID.
          */
 
-        for (size_t i = 0; i < uid_range_entries(outside); i++)
-                assert(outside->entries[i].nr == inside->entries[i].nr);
+        വേണ്ടി (size_t i = 0; i < uid_range_entries(outside); i++)
+                പ്രതിജ്ഞാ(outside->entries[i].nr == inside->entries[i].nr);
 
-        for (size_t i = 0; i < uid_range_entries(outside); i++) {
-                const UIDRangeEntry *e = outside->entries + i;
+        വേണ്ടി (size_t i = 0; i < uid_range_entries(outside); i++) {
+                സ്ഥിരം UIDRangeEntry *e = outside->entries + i;
 
-                if (uid < e->start || uid >= e->start + e->nr)
-                        continue;
+                എങ്കിൽ (uid < e->start || uid >= e->start + e->nr)
+                        തുടരുക;
 
                 *ret = inside->entries[i].start + uid - e->start;
-                return 0;
+                തിരികെ 0;
         }
 
-        return -ESRCH;
+        തിരികെ -ESRCH;
 }
 
-int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret) {
-        int r;
+പൂർണ്ണസംഖ്യ uid_range_translate_userns_fd(പൂർണ്ണസംഖ്യ userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(userns_fd >= 0);
-        assert(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
+        പ്രതിജ്ഞാ(userns_fd >= 0);
+        പ്രതിജ്ഞാ(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
 
-        _cleanup_(uid_range_freep) UIDRange *outside_range = NULL;
+        _cleanup_(uid_range_freep) UIDRange *outside_range = ശൂന്യ;
         r = uid_range_load_userns_by_fd_full(userns_fd, mode, /* coalesce= */ false, &outside_range);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         mode = mode == UID_RANGE_USERNS_OUTSIDE ? UID_RANGE_USERNS_INSIDE : GID_RANGE_USERNS_INSIDE;
 
-        _cleanup_(uid_range_freep) UIDRange *inside_range = NULL;
+        _cleanup_(uid_range_freep) UIDRange *inside_range = ശൂന്യ;
         r = uid_range_load_userns_by_fd_full(userns_fd, mode, /* coalesce= */ false, &inside_range);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return uid_range_translate(outside_range, inside_range, uid, ret);
+        തിരികെ uid_range_translate(outside_range, inside_range, uid, ret);
 }
 
-bool uid_range_equal(const UIDRange *a, const UIDRange *b) {
-        if (a == b)
-                return true;
+bool uid_range_equal(സ്ഥിരം UIDRange *a, സ്ഥിരം UIDRange *b) {
+        എങ്കിൽ (a == b)
+                തിരികെ true;
 
-        if (!a || !b)
-                return false;
+        എങ്കിൽ (!a || !b)
+                തിരികെ false;
 
-        if (a->n_entries != b->n_entries)
-                return false;
+        എങ്കിൽ (a->n_entries != b->n_entries)
+                തിരികെ false;
 
-        for (size_t i = 0; i < a->n_entries; i++) {
-                if (a->entries[i].start != b->entries[i].start)
-                        return false;
-                if (a->entries[i].nr != b->entries[i].nr)
-                        return false;
+        വേണ്ടി (size_t i = 0; i < a->n_entries; i++) {
+                എങ്കിൽ (a->entries[i].start != b->entries[i].start)
+                        തിരികെ false;
+                എങ്കിൽ (a->entries[i].nr != b->entries[i].nr)
+                        തിരികെ false;
         }
 
-        return true;
+        തിരികെ true;
 }
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret) {
-        int r;
+പൂർണ്ണസംഖ്യ uid_map_തിരയൽ_വേര്(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(pid_is_valid(pid));
-        assert(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
+        പ്രതിജ്ഞാ(pid_is_valid(pid));
+        പ്രതിജ്ഞാ(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
 
-        const char *p = procfs_file_alloca(pid, mode == UID_RANGE_USERNS_OUTSIDE ? "uid_map" : "gid_map");
+        സ്ഥിരം അക്ഷരം *p = procfs_file_alloca(pid, mode == UID_RANGE_USERNS_OUTSIDE ? "uid_map" : "gid_map");
         _cleanup_fclose_ FILE *f = fopen(p, "re");
-        if (!f) {
-                if (errno != ENOENT)
-                        return -errno;
+        എങ്കിൽ (!f) {
+                എങ്കിൽ (errno != ENOENT)
+                        തിരികെ -errno;
 
                 r = proc_mounted();
-                if (r < 0)
-                        return -ENOENT; /* original error, if we can't determine /proc/ state */
+                എങ്കിൽ (r < 0)
+                        തിരികെ -ENOENT; /* original error, if we can't determine /proc/ state */
 
-                return r ? -ENOPKG : -ENOSYS;
+                തിരികെ r ? -ENOPKG : -ENOSYS;
         }
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 uid_t uid_base = UID_INVALID, uid_shift = UID_INVALID;
 
-                r = uid_map_read_one(f, &uid_base, &uid_shift, /* ret_range= */ NULL);
-                if (r < 0)
-                        return r;
+                r = uid_map_read_one(f, &uid_base, &uid_shift, /* ret_range= */ ശൂന്യ);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (uid_base == 0) {
-                        if (ret)
+                എങ്കിൽ (uid_base == 0) {
+                        എങ്കിൽ (ret)
                                 *ret = uid_shift;
-                        return 0;
+                        തിരികെ 0;
                 }
         }
 }
 
-uid_t uid_range_base(const UIDRange *range) {
+uid_t uid_range_base(സ്ഥിരം UIDRange *range) {
         /* Returns the lowest UID in the range (notw that elements are sorted, hence we just need to look at
          * the first one that is populated. */
 
-        if (uid_range_is_empty(range))
-                return UID_INVALID;
+        എങ്കിൽ (uid_range_is_empty(range))
+                തിരികെ UID_INVALID;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                if (e->nr > 0)
-                        return e->start;
+                എങ്കിൽ (e->nr > 0)
+                        തിരികെ e->start;
 
-        return UID_INVALID;
+        തിരികെ UID_INVALID;
 }

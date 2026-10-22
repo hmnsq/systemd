@@ -1,136 +1,136 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-#include "../fundamental/strv.h"   /* IWYU pragma: export */
+#അന്തര്ഭാവ "../fundamental/strv.h"   /* IWYU pragma: export */
 
-char* strv_find(char * const *l, const char *name) _pure_;
-char* strv_find_case(char * const *l, const char *name) _pure_;
-char* strv_find_prefix(char * const *l, const char *name) _pure_;
-char* strv_find_startswith(char * const *l, const char *name) _pure_;
-char* strv_find_closest(char * const *l, const char *name) _pure_;
+അക്ഷരം* strv_find(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) _pure_;
+അക്ഷരം* strv_find_case(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) _pure_;
+അക്ഷരം* strv_find_prefix(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) _pure_;
+അക്ഷരം* strv_find_startswith(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) _pure_;
+അക്ഷരം* strv_find_closest(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) _pure_;
 /* Given two vectors, the first a list of keys and the second a list of key-value pairs, returns the value
  * of the first key from the first vector that is found in the second vector. */
-char* strv_find_first_field(char * const *needles, char * const *haystack) _pure_;
+അക്ഷരം* strv_find_first_field(അക്ഷരം * സ്ഥിരം *needles, അക്ഷരം * സ്ഥിരം *haystack) _pure_;
 
 #define strv_contains(l, s) (!!strv_find((l), (s)))
 #define strv_contains_case(l, s) (!!strv_find_case((l), (s)))
 
-char** strv_free(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free);
+അക്ഷരം** strv_free(അക്ഷരം **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(അക്ഷരം**, strv_free);
 #define _cleanup_strv_free_ _cleanup_(strv_freep)
 
-char** strv_free_erase(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free_erase);
+അക്ഷരം** strv_free_erase(അക്ഷരം **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(അക്ഷരം**, strv_free_erase);
 #define _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
 
-void strv_free_many(char ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
+ശൂന്യം strv_free_many(അക്ഷരം ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
 
-char** strv_copy_n(char * const *l, size_t n);
-static inline char** strv_copy(char * const *l) {
-        return strv_copy_n(l, SIZE_MAX);
+അക്ഷരം** strv_copy_n(അക്ഷരം * സ്ഥിരം *l, size_t n);
+സ്ഥിതം വരിയിൽ അക്ഷരം** strv_copy(അക്ഷരം * സ്ഥിരം *l) {
+        തിരികെ strv_copy_n(l, SIZE_MAX);
 }
-int strv_copy_unless_empty(char * const *l, char ***ret);
+പൂർണ്ണസംഖ്യ strv_copy_unless_empty(അക്ഷരം * സ്ഥിരം *l, അക്ഷരം ***ret);
 
-size_t strv_length(char * const *l) _pure_;
+size_t strv_length(അക്ഷരം * സ്ഥിരം *l) _pure_;
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
+പൂർണ്ണസംഖ്യ strv_extend_strv(അക്ഷരം ***a, അക്ഷരം * സ്ഥിരം *b, bool filter_duplicates);
+പൂർണ്ണസംഖ്യ strv_extend_strv_consume(അക്ഷരം ***a, അക്ഷരം **b, bool filter_duplicates);
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
-static inline int strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
-        return strv_extend_strv_biconcat(a, NULL, b, suffix);
+പൂർണ്ണസംഖ്യ strv_extend_strv_biconcat(അക്ഷരം ***a, സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം* സ്ഥിരം *b, സ്ഥിരം അക്ഷരം *suffix);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ strv_extend_strv_concat(അക്ഷരം ***a, സ്ഥിരം അക്ഷരം* സ്ഥിരം *b, സ്ഥിരം അക്ഷരം *suffix) {
+        തിരികെ strv_extend_strv_biconcat(a, ശൂന്യ, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+പൂർണ്ണസംഖ്യ strv_prepend(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *മൂല്യം);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+പൂർണ്ണസംഖ്യ strv_extend_with_size(അക്ഷരം ***l, size_t *n, സ്ഥിരം അക്ഷരം *മൂല്യം);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ strv_extend(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        തിരികെ strv_extend_with_size(l, ശൂന്യ, മൂല്യം);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
+പൂർണ്ണസംഖ്യ strv_extend_many_internal(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *മൂല്യം, ...);
 #define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
-#define strv_extendf(l, ...) strv_extendf_with_size(l, NULL, __VA_ARGS__)
+പൂർണ്ണസംഖ്യ strv_extendf_with_size(അക്ഷരം ***l, size_t *n, സ്ഥിരം അക്ഷരം *format, ...) _printf_(3,4);
+#define strv_extendf(l, ...) strv_extendf_with_size(l, ശൂന്യ, __VA_ARGS__)
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
-#define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
-#define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
+പൂർണ്ണസംഖ്യ strv_extend_joined_with_size_sentinel(അക്ഷരം ***l, size_t *n, ...) _sentinel_;
+#define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, ശൂന്യ)
+#define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, ശൂന്യ, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+പൂർണ്ണസംഖ്യ strv_തള്ളുക_with_size(അക്ഷരം ***l, size_t *n, അക്ഷരം *മൂല്യം);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ strv_തള്ളുക(അക്ഷരം ***l, അക്ഷരം *മൂല്യം) {
+        തിരികെ strv_തള്ളുക_with_size(l, ശൂന്യ, മൂല്യം);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+പൂർണ്ണസംഖ്യ strv_തള്ളുക_pair(അക്ഷരം ***l, അക്ഷരം *a, അക്ഷരം *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+പൂർണ്ണസംഖ്യ strv_തിരുകുക(അക്ഷരം ***l, size_t position, അക്ഷരം *മൂല്യം);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
-}
-
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ strv_തള്ളുക_prepend(അക്ഷരം ***l, അക്ഷരം *മൂല്യം) {
+        തിരികെ strv_തിരുകുക(l, 0, മൂല്യം);
 }
 
-int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
-
-char** strv_remove(char **l, const char *s);
-char** strv_remove_strv(char **l, char *const*ll);
-char** strv_uniq(char **l);
-bool strv_is_uniq(char * const *l) _pure_;
-
-int strv_compare(char * const *a, char * const *b) _pure_;
-static inline bool strv_equal(char * const *a, char * const *b) {
-        return strv_compare(a, b) == 0;
+പൂർണ്ണസംഖ്യ strv_consume_with_size(അക്ഷരം ***l, size_t *n, അക്ഷരം *മൂല്യം);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ strv_consume(അക്ഷരം ***l, അക്ഷരം *മൂല്യം) {
+        തിരികെ strv_consume_with_size(l, ശൂന്യ, മൂല്യം);
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) _pure_;
+പൂർണ്ണസംഖ്യ strv_consume_pair(അക്ഷരം ***l, അക്ഷരം *a, അക്ഷരം *b);
+പൂർണ്ണസംഖ്യ strv_consume_prepend(അക്ഷരം ***l, അക്ഷരം *മൂല്യം);
 
-char** strv_new_internal(const char *x, ...) _sentinel_;
-char** strv_new_ap(const char *x, va_list ap);
-#define strv_new(...) strv_new_internal(__VA_ARGS__, NULL)
+അക്ഷരം** strv_remove(അക്ഷരം **l, സ്ഥിരം അക്ഷരം *s);
+അക്ഷരം** strv_remove_strv(അക്ഷരം **l, അക്ഷരം *സ്ഥിരം*ll);
+അക്ഷരം** strv_uniq(അക്ഷരം **l);
+bool strv_is_uniq(അക്ഷരം * സ്ഥിരം *l) _pure_;
 
-#define STRV_IGNORE ((const char *) POINTER_MAX)
-
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ?: STRV_IGNORE;
+പൂർണ്ണസംഖ്യ strv_compare(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) _pure_;
+സ്ഥിതം വരിയിൽ bool strv_equal(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) {
+        തിരികെ strv_compare(a, b) == 0;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
-char** strv_split(const char *s, const char *separators);
+bool strv_equal_ignore_order(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) _pure_;
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
+അക്ഷരം** strv_new_internal(സ്ഥിരം അക്ഷരം *x, ...) _sentinel_;
+അക്ഷരം** strv_new_ap(സ്ഥിരം അക്ഷരം *x, va_list ap);
+#define strv_new(...) strv_new_internal(__VA_ARGS__, ശൂന്യ)
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
-char** strv_split_newlines(const char *s);
+#define STRV_IGNORE ((സ്ഥിരം അക്ഷരം *) POINTER_MAX)
+
+സ്ഥിതം വരിയിൽ സ്ഥിരം അക്ഷരം* STRV_IFNOTNULL(സ്ഥിരം അക്ഷരം *x) {
+        തിരികെ x ?: STRV_IGNORE;
+}
+
+പൂർണ്ണസംഖ്യ strv_split_full(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators, ExtractFlags flags);
+അക്ഷരം** strv_split(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators);
+
+പൂർണ്ണസംഖ്യ strv_split_and_extend_full(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators, bool filter_duplicates, ExtractFlags flags);
+പൂർണ്ണസംഖ്യ strv_split_and_extend(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators, bool filter_duplicates);
+
+പൂർണ്ണസംഖ്യ strv_split_newlines_full(അക്ഷരം ***ret, സ്ഥിരം അക്ഷരം *s, ExtractFlags flags);
+അക്ഷരം** strv_split_newlines(സ്ഥിരം അക്ഷരം *s);
 
 /* Given a string containing white-space separated tuples of words themselves separated by ':',
  * returns a vector of strings. If the second element in a tuple is missing, the corresponding
  * string in the vector is an empty string. */
-int strv_split_colon_pairs(char ***t, const char *s);
+പൂർണ്ണസംഖ്യ strv_split_colon_pairs(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s);
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix);
-static inline char *strv_join(char * const *l, const char *separator) {
-        return strv_join_full(l, separator, NULL);
+അക്ഷരം* strv_join_full(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *separator, സ്ഥിരം അക്ഷരം *prefix);
+സ്ഥിതം വരിയിൽ അക്ഷരം *strv_join(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *separator) {
+        തിരികെ strv_join_full(l, separator, ശൂന്യ);
 }
 
-bool strv_overlap(char * const *a, char * const *b) _pure_;
+bool strv_overlap(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) _pure_;
 
 #define _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
-        for (typeof(*(l)) *s, *h = (l), *i = ({                         \
+        വേണ്ടി (typeof(*(l)) *s, *h = (l), *i = ({                         \
                                 size_t _len = strv_length(h);           \
-                                _len > 0 ? h + _len - 1 : NULL;         \
+                                _len > 0 ? h + _len - 1 : ശൂന്യ;         \
                         });                                             \
              (s = i);                                                   \
              i = PTR_SUB1(i, h))
@@ -139,28 +139,28 @@ bool strv_overlap(char * const *a, char * const *b) _pure_;
         _STRV_FOREACH_BACKWARDS(s, l, UNIQ_T(h, UNIQ), UNIQ_T(i, UNIQ))
 
 #define _STRV_FOREACH_PAIR(x, y, l, i)                          \
-        for (typeof(*(l)) *x, *y, *i = (l);                     \
+        വേണ്ടി (typeof(*(l)) *x, *y, *i = (l);                     \
              i && *(x = i) && *(y = i + 1);                     \
              i += 2)
 
 #define STRV_FOREACH_PAIR(x, y, l)                      \
         _STRV_FOREACH_PAIR(x, y, l, UNIQ_T(i, UNIQ))
 
-char** strv_sort(char **l);
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
-char** strv_sort_uniq(char **l);
-void strv_print_full(char * const *l, const char *prefix);
-static inline void strv_print(char * const *l) {
-        strv_print_full(l, NULL);
+അക്ഷരം** strv_sort(അക്ഷരം **l);
+അക്ഷരം** strv_sort_uniq_full(അക്ഷരം **l, പൂർണ്ണസംഖ്യ (*compare)(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b));
+അക്ഷരം** strv_sort_uniq(അക്ഷരം **l);
+ശൂന്യം strv_print_full(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *prefix);
+സ്ഥിതം വരിയിൽ ശൂന്യം strv_print(അക്ഷരം * സ്ഥിരം *l) {
+        strv_print_full(l, ശൂന്യ);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l);
+അക്ഷരം* startswith_strv_internal(സ്ഥിരം അക്ഷരം *s, അക്ഷരം * സ്ഥിരം *l);
 #define startswith_strv(s, l) const_generic(s, startswith_strv_internal(s, l))
 
 #define STARTSWITH_SET(p, ...)                                  \
         startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-char* endswith_strv_internal(const char *s, char * const *l);
+അക്ഷരം* endswith_strv_internal(സ്ഥിരം അക്ഷരം *s, അക്ഷരം * സ്ഥിരം *l);
 #define endswith_strv(s, l) const_generic(s, endswith_strv_internal(s, l))
 
 #define ENDSWITH_SET(p, ...)                                    \
@@ -169,60 +169,60 @@ char* endswith_strv_internal(const char *s, char * const *l);
 #define STR_IN_SET(x, ...) strv_contains(STRV_MAKE(__VA_ARGS__), x)
 #define STRPTR_IN_SET(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
+                സ്ഥിരം അക്ഷരം* _x = (x);                            \
                 _x && strv_contains(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
 #define STRCASE_IN_SET(x, ...) strv_contains_case(STRV_MAKE(__VA_ARGS__), x)
 #define STRCASEPTR_IN_SET(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
+                സ്ഥിരം അക്ഷരം* _x = (x);                            \
                 _x && strv_contains_case(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
 #define _FOREACH_STRING(uniq, x, y, ...)                                \
-        for (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
+        വേണ്ടി (സ്ഥിരം അക്ഷരം *x, * സ്ഥിരം*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
              x;                                                         \
              x = *(++UNIQ_T(l, uniq)))
 
 #define FOREACH_STRING(x, y, ...)                       \
         _FOREACH_STRING(UNIQ, x, y, ##__VA_ARGS__)
 
-char** strv_reverse(char **l);
-char** strv_shell_escape(char **l, const char *bad);
+അക്ഷരം** strv_reverse(അക്ഷരം **l);
+അക്ഷരം** strv_shell_escape(അക്ഷരം **l, സ്ഥിരം അക്ഷരം *bad);
 
-bool strv_fnmatch_full(char* const* patterns, const char *s, int flags, size_t *ret_matched_pos);
-static inline bool strv_fnmatch(char* const* patterns, const char *s) {
-        return strv_fnmatch_full(patterns, s, 0, NULL);
+bool strv_fnmatch_full(അക്ഷരം* സ്ഥിരം* patterns, സ്ഥിരം അക്ഷരം *s, പൂർണ്ണസംഖ്യ flags, size_t *ret_matched_pos);
+സ്ഥിതം വരിയിൽ bool strv_fnmatch(അക്ഷരം* സ്ഥിരം* patterns, സ്ഥിരം അക്ഷരം *s) {
+        തിരികെ strv_fnmatch_full(patterns, s, 0, ശൂന്യ);
 }
-static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, int flags) {
-        assert(s);
-        return strv_isempty(patterns) ||
-               strv_fnmatch_full(patterns, s, flags, NULL);
+സ്ഥിതം വരിയിൽ bool strv_fnmatch_or_empty(അക്ഷരം* സ്ഥിരം* patterns, സ്ഥിരം അക്ഷരം *s, പൂർണ്ണസംഖ്യ flags) {
+        പ്രതിജ്ഞാ(s);
+        തിരികെ strv_isempty(patterns) ||
+               strv_fnmatch_full(patterns, s, flags, ശൂന്യ);
 }
 
-char** strv_skip(char **l, size_t n);
+അക്ഷരം** strv_skip(അക്ഷരം **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+പൂർണ്ണസംഖ്യ strv_extend_n(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *മൂല്യം, size_t n);
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
+പൂർണ്ണസംഖ്യ strv_extend_assignment(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *lhs, സ്ഥിരം അക്ഷരം *rhs);
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
+പൂർണ്ണസംഖ്യ fputstrv(FILE *f, അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *separator, bool *space);
 
 #define strv_free_and_replace(a, b)             \
         free_and_replace_full(a, b, strv_free)
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+ശൂന്യം string_strv_hashmap_remove(Hashmap *h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം);
+ശൂന്യം string_strv_ordered_hashmap_remove(OrderedHashmap *h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം);
+പൂർണ്ണസംഖ്യ string_strv_hashmap_put(Hashmap **h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം);
+പൂർണ്ണസംഖ്യ string_strv_ordered_hashmap_put(OrderedHashmap **h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+പൂർണ്ണസംഖ്യ strv_rebreak_വരികൾ(അക്ഷരം **l, size_t width, അക്ഷരം ***ret);
 
-char** strv_filter_prefix(char * const *l, const char *prefix);
+അക്ഷരം** strv_filter_prefix(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *prefix);
 
 /* whenever we need to initialize something with a constant non-NULL, but empty strv, we can use this shared
  * one */
-extern const char* const strv_empty[1];
+ബാഹ്യ സ്ഥിരം അക്ഷരം* സ്ഥിരം strv_empty[1];
 
-#define STRV_EMPTY ((char**) strv_empty)
+#define STRV_EMPTY ((അക്ഷരം**) strv_empty)

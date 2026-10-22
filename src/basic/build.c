@@ -1,312 +1,312 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#അന്തര്ഭാവ <stdio.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "build.h"
-#include "env-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "version.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "ansi-color.h"
+#അന്തര്ഭാവ "build.h"
+#അന്തര്ഭാവ "env-util.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "version.h"
 
-const char* const systemd_features =
+സ്ഥിരം അക്ഷരം* സ്ഥിരം systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#എങ്കിൽ HAVE_PAM
         "+PAM"
-#else
+#അല്ലെങ്കിൽ
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#എങ്കിൽ HAVE_AUDIT
         " +AUDIT"
-#else
+#അല്ലെങ്കിൽ
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#എങ്കിൽ HAVE_SELINUX
         " +SELINUX"
-#else
+#അല്ലെങ്കിൽ
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#എങ്കിൽ HAVE_APPARMOR
         " +APPARMOR"
-#else
+#അല്ലെങ്കിൽ
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#എങ്കിൽ ENABLE_IMA
         " +IMA"
-#else
+#അല്ലെങ്കിൽ
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#എങ്കിൽ ENABLE_IPE
         " +IPE"
-#else
+#അല്ലെങ്കിൽ
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#എങ്കിൽ ENABLE_SMACK
         " +SMACK"
-#else
+#അല്ലെങ്കിൽ
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#എങ്കിൽ HAVE_SECCOMP
         " +SECCOMP"
-#else
+#അല്ലെങ്കിൽ
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#എങ്കിൽ HAVE_GNUTLS
         " +GNUTLS"
-#else
+#അല്ലെങ്കിൽ
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#എങ്കിൽ HAVE_OPENSSL
         " +OPENSSL"
-#else
+#അല്ലെങ്കിൽ
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#എങ്കിൽ HAVE_ACL
         " +ACL"
-#else
+#അല്ലെങ്കിൽ
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#എങ്കിൽ HAVE_BLKID
         " +BLKID"
-#else
+#അല്ലെങ്കിൽ
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#എങ്കിൽ HAVE_LIBCURL
         " +CURL"
-#else
+#അല്ലെങ്കിൽ
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#എങ്കിൽ HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#അല്ലെങ്കിൽ
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#എങ്കിൽ HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#അല്ലെങ്കിൽ
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#എങ്കിൽ HAVE_LIBIDN2
         " +IDN2"
-#else
+#അല്ലെങ്കിൽ
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#എങ്കിൽ HAVE_KMOD
         " +KMOD"
-#else
+#അല്ലെങ്കിൽ
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#എങ്കിൽ HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#അല്ലെങ്കിൽ
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#എങ്കിൽ HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#അല്ലെങ്കിൽ
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#എങ്കിൽ HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#അല്ലെങ്കിൽ
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#എങ്കിൽ HAVE_PCRE2
         " +PCRE2"
-#else
+#അല്ലെങ്കിൽ
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#എങ്കിൽ HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#അല്ലെങ്കിൽ
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#എങ്കിൽ HAVE_P11KIT
         " +P11KIT"
-#else
+#അല്ലെങ്കിൽ
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#എങ്കിൽ HAVE_QRENCODE
         " +QRENCODE"
-#else
+#അല്ലെങ്കിൽ
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#എങ്കിൽ HAVE_TPM2
         " +TPM2"
-#else
+#അല്ലെങ്കിൽ
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#എങ്കിൽ HAVE_BZIP2
         " +BZIP2"
-#else
+#അല്ലെങ്കിൽ
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#എങ്കിൽ HAVE_LZ4
         " +LZ4"
-#else
+#അല്ലെങ്കിൽ
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#എങ്കിൽ HAVE_XZ
         " +XZ"
-#else
+#അല്ലെങ്കിൽ
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#എങ്കിൽ HAVE_ZLIB
         " +ZLIB"
-#else
+#അല്ലെങ്കിൽ
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#എങ്കിൽ HAVE_ZSTD
         " +ZSTD"
-#else
+#അല്ലെങ്കിൽ
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#എങ്കിൽ BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#അല്ലെങ്കിൽ
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#എങ്കിൽ HAVE_VMLINUX_H
         " +BTF"
-#else
+#അല്ലെങ്കിൽ
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#എങ്കിൽ HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#അല്ലെങ്കിൽ
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#എങ്കിൽ ENABLE_UTMP
         " +UTMP"
-#else
+#അല്ലെങ്കിൽ
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#എങ്കിൽ HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#അല്ലെങ്കിൽ
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#എങ്കിൽ EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
-#elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
+#അല്ലെങ്കിലെങ്കിൽ EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#അല്ലെങ്കിൽ
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+സ്ഥിതം അക്ഷരം* systemd_features_with_color(ശൂന്യം) {
+        സ്ഥിരം അക്ഷരം *p = systemd_features;
+        _cleanup_free_ അക്ഷരം *ret = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        വേണ്ടി (;;) {
+                _cleanup_free_ അക്ഷരം *word = ശൂന്യ;
+                അക്ഷരം *q;
 
-                r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                r = extract_first_word(&p, &word, ശൂന്യ, 0);
+                എങ്കിൽ (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        തിരികെ ശൂന്യ;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                എങ്കിൽ (r == 0)
+                        തിരികെ TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                എങ്കിൽ (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        തിരികെ ശൂന്യ;
                 }
 
-                if (word[0] == '+')
+                എങ്കിൽ (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                അല്ലെങ്കിൽ എങ്കിൽ (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                അല്ലെങ്കിൽ
                         q = strextend(&ret, word);
-                if (!q) {
+                എങ്കിൽ (!q) {
                         log_oom_warning();
-                        return NULL;
+                        തിരികെ ശൂന്യ;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+പൂർണ്ണസംഖ്യ version(ശൂന്യം) {
+        _cleanup_free_ അക്ഷരം *b = ശൂന്യ;
 
-        if (colors_enabled())
+        എങ്കിൽ (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        തിരികെ 0;
 }
 
-int version_only(void) {
+പൂർണ്ണസംഖ്യ version_only(ശൂന്യം) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        തിരികെ 0;
 }
 
-bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+bool experimental_enabled(ശൂന്യം) {
+#എങ്കിൽ EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        തിരികെ false;
+#അല്ലെങ്കിൽ
+        പൂർണ്ണസംഖ്യ r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        എങ്കിൽ (r >= 0)
+                തിരികെ r;
+        എങ്കിൽ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        തിരികെ EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

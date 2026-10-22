@@ -10,121 +10,121 @@
  * The underlying algorithm used in this implementation is a Heap.
  */
 
-#include "alloc-util.h"
-#include "prioq.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "prioq.h"
 
-struct prioq_item {
-        void *data;
+ഘടന prioq_item {
+        ശൂന്യം *data;
         unsigned *idx;
 };
 
-struct Prioq {
+ഘടന Prioq {
         compare_func_t compare_func;
-        unsigned n_items;
-        struct prioq_item *items;
+        unsigned n_ഇനങ്ങൾ;
+        ഘടന prioq_item *ഇനങ്ങൾ;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        എങ്കിൽ (!q)
+                തിരികെ q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        തിരികെ q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        എങ്കിൽ (!q)
+                തിരികെ ശൂന്യ;
 
         /* Invalidate the index fields of any remaining objects */
-        FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
+        FOREACH_ARRAY(item, q->ഇനങ്ങൾ, q->n_ഇനങ്ങൾ)
+                എങ്കിൽ (item->idx)
                         *(item->idx) = PRIOQ_IDX_NULL;
 
-        free(q->items);
-        return mfree(q);
+        സ്വതന്ത്രം(q->ഇനങ്ങൾ);
+        തിരികെ mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
-        assert(q);
+പൂർണ്ണസംഖ്യ prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+        പ്രതിജ്ഞാ(q);
 
-        if (*q) {
-                assert((*q)->compare_func == compare_func);
-                return 0;
+        എങ്കിൽ (*q) {
+                പ്രതിജ്ഞാ((*q)->compare_func == compare_func);
+                തിരികെ 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        എങ്കിൽ (!*q)
+                തിരികെ -ENOMEM;
 
-        return 0;
+        തിരികെ 0;
 }
 
-static void swap(Prioq *q, unsigned j, unsigned k) {
-        assert(q);
-        assert(j < q->n_items);
-        assert(k < q->n_items);
+സ്ഥിതം ശൂന്യം swap(Prioq *q, unsigned j, unsigned k) {
+        പ്രതിജ്ഞാ(q);
+        പ്രതിജ്ഞാ(j < q->n_ഇനങ്ങൾ);
+        പ്രതിജ്ഞാ(k < q->n_ഇനങ്ങൾ);
 
-        assert(!q->items[j].idx || *(q->items[j].idx) == j);
-        assert(!q->items[k].idx || *(q->items[k].idx) == k);
+        പ്രതിജ്ഞാ(!q->ഇനങ്ങൾ[j].idx || *(q->ഇനങ്ങൾ[j].idx) == j);
+        പ്രതിജ്ഞാ(!q->ഇനങ്ങൾ[k].idx || *(q->ഇനങ്ങൾ[k].idx) == k);
 
-        SWAP_TWO(q->items[j].data, q->items[k].data);
-        SWAP_TWO(q->items[j].idx, q->items[k].idx);
+        SWAP_TWO(q->ഇനങ്ങൾ[j].data, q->ഇനങ്ങൾ[k].data);
+        SWAP_TWO(q->ഇനങ്ങൾ[j].idx, q->ഇനങ്ങൾ[k].idx);
 
-        if (q->items[j].idx)
-                *q->items[j].idx = j;
+        എങ്കിൽ (q->ഇനങ്ങൾ[j].idx)
+                *q->ഇനങ്ങൾ[j].idx = j;
 
-        if (q->items[k].idx)
-                *q->items[k].idx = k;
+        എങ്കിൽ (q->ഇനങ്ങൾ[k].idx)
+                *q->ഇനങ്ങൾ[k].idx = k;
 }
 
-static unsigned shuffle_up(Prioq *q, unsigned idx) {
-        assert(q);
-        assert(idx < q->n_items);
+സ്ഥിതം unsigned shuffle_up(Prioq *q, unsigned idx) {
+        പ്രതിജ്ഞാ(q);
+        പ്രതിജ്ഞാ(idx < q->n_ഇനങ്ങൾ);
 
-        while (idx > 0) {
+        ആകുമ്പോൾ (idx > 0) {
                 unsigned k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                എങ്കിൽ (q->compare_func(q->ഇനങ്ങൾ[k].data, q->ഇനങ്ങൾ[idx].data) <= 0)
+                        നിർത്തുക;
 
                 swap(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        തിരികെ idx;
 }
 
-static unsigned shuffle_down(Prioq *q, unsigned idx) {
-        assert(q);
+സ്ഥിതം unsigned shuffle_down(Prioq *q, unsigned idx) {
+        പ്രതിജ്ഞാ(q);
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 unsigned j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                എങ്കിൽ (j >= q->n_ഇനങ്ങൾ)
+                        നിർത്തുക;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                എങ്കിൽ (q->compare_func(q->ഇനങ്ങൾ[j].data, q->ഇനങ്ങൾ[idx].data) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                അല്ലെങ്കിൽ
                         s = idx;
 
-                if (k < q->n_items &&
-                    q->compare_func(q->items[k].data, q->items[s].data) < 0)
+                എങ്കിൽ (k < q->n_ഇനങ്ങൾ &&
+                    q->compare_func(q->ഇനങ്ങൾ[k].data, q->ഇനങ്ങൾ[s].data) < 0)
 
                         /* So our right child is smaller than we are, let's
                          * remember this fact */
@@ -132,179 +132,179 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                എങ്കിൽ (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        നിർത്തുക;
 
                 swap(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        തിരികെ idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
+പൂർണ്ണസംഖ്യ prioq_put(Prioq *q, ശൂന്യം *data, unsigned *idx) {
         unsigned k;
 
-        assert(q);
+        പ്രതിജ്ഞാ(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        എങ്കിൽ (!GREEDY_REALLOC(q->ഇനങ്ങൾ, MAX(q->n_ഇനങ്ങൾ + 1, 16u)))
+                തിരികെ -ENOMEM;
 
-        k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
+        k = q->n_ഇനങ്ങൾ++;
+        q->ഇനങ്ങൾ[k] = (ഘടന prioq_item) {
                 .data = data,
                 .idx = idx,
         };
 
-        if (idx)
+        എങ്കിൽ (idx)
                 *idx = k;
 
         shuffle_up(q, k);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+പൂർണ്ണസംഖ്യ _prioq_ensure_put(Prioq **q, compare_func_t compare_func, ശൂന്യം *data, unsigned *idx) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(q);
+        പ്രതിജ്ഞാ(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return prioq_put(*q, data, idx);
+        തിരികെ prioq_put(*q, data, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+സ്ഥിതം ശൂന്യം remove_item(Prioq *q, ഘടന prioq_item *i) {
+        ഘടന prioq_item *l;
 
-        assert(q);
-        assert(i);
+        പ്രതിജ്ഞാ(q);
+        പ്രതിജ്ഞാ(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        എങ്കിൽ (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
-        l = q->items + q->n_items - 1;
+        l = q->ഇനങ്ങൾ + q->n_ഇനങ്ങൾ - 1;
 
-        if (i == l)
+        എങ്കിൽ (i == l)
                 /* Last entry, let's just remove it */
-                q->n_items--;
-        else {
+                q->n_ഇനങ്ങൾ--;
+        അല്ലെങ്കിൽ {
                 unsigned k;
 
                 /* Not last entry, let's replace the last entry with
                  * this one, and reshuffle */
 
-                assert(i >= q->items);
-                k = i - q->items;
+                പ്രതിജ്ഞാ(i >= q->ഇനങ്ങൾ);
+                k = i - q->ഇനങ്ങൾ;
 
                 i->data = l->data;
                 i->idx = l->idx;
-                if (i->idx)
+                എങ്കിൽ (i->idx)
                         *i->idx = k;
-                q->n_items--;
+                q->n_ഇനങ്ങൾ--;
 
                 k = shuffle_down(q, k);
                 shuffle_up(q, k);
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+സ്ഥിതം ഘടന prioq_item* find_item(Prioq *q, ശൂന്യം *data, unsigned *idx) {
+        ഘടന prioq_item *i;
 
-        assert(q);
+        പ്രതിജ്ഞാ(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        എങ്കിൽ (q->n_ഇനങ്ങൾ <= 0)
+                തിരികെ ശൂന്യ;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
-                    *idx >= q->n_items)
-                        return NULL;
+        എങ്കിൽ (idx) {
+                എങ്കിൽ (*idx == PRIOQ_IDX_NULL ||
+                    *idx >= q->n_ഇനങ്ങൾ)
+                        തിരികെ ശൂന്യ;
 
-                i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                i = q->ഇനങ്ങൾ + *idx;
+                എങ്കിൽ (i->data != data)
+                        തിരികെ ശൂന്യ;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                തിരികെ i;
+        } അല്ലെങ്കിൽ {
+                വേണ്ടി (i = q->ഇനങ്ങൾ; i < q->ഇനങ്ങൾ + q->n_ഇനങ്ങൾ; i++)
+                        എങ്കിൽ (i->data == data)
+                                തിരികെ i;
+                തിരികെ ശൂന്യ;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+പൂർണ്ണസംഖ്യ prioq_remove(Prioq *q, ശൂന്യം *data, unsigned *idx) {
+        ഘടന prioq_item *i;
 
-        if (!q)
-                return 0;
+        എങ്കിൽ (!q)
+                തിരികെ 0;
 
         i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        എങ്കിൽ (!i)
+                തിരികെ 0;
 
         remove_item(q, i);
-        return 1;
+        തിരികെ 1;
 }
 
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+ശൂന്യം prioq_reshuffle(Prioq *q, ശൂന്യം *data, unsigned *idx) {
+        ഘടന prioq_item *i;
         unsigned k;
 
-        assert(q);
+        പ്രതിജ്ഞാ(q);
 
         i = find_item(q, data, idx);
-        if (!i)
-                return;
+        എങ്കിൽ (!i)
+                തിരികെ;
 
-        assert(i >= q->items);
-        k = i - q->items;
+        പ്രതിജ്ഞാ(i >= q->ഇനങ്ങൾ);
+        k = i - q->ഇനങ്ങൾ;
         k = shuffle_down(q, k);
         shuffle_up(q, k);
 }
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+ശൂന്യം* prioq_peek_by_index(Prioq *q, unsigned idx) {
+        എങ്കിൽ (!q)
+                തിരികെ ശൂന്യ;
 
-        if (idx >= q->n_items)
-                return NULL;
+        എങ്കിൽ (idx >= q->n_ഇനങ്ങൾ)
+                തിരികെ ശൂന്യ;
 
-        return q->items[idx].data;
+        തിരികെ q->ഇനങ്ങൾ[idx].data;
 }
 
-void* prioq_pop(Prioq *q) {
-        void *data;
+ശൂന്യം* prioq_എടുക്കുക(Prioq *q) {
+        ശൂന്യം *data;
 
-        if (!q)
-                return NULL;
+        എങ്കിൽ (!q)
+                തിരികെ ശൂന്യ;
 
-        if (q->n_items <= 0)
-                return NULL;
+        എങ്കിൽ (q->n_ഇനങ്ങൾ <= 0)
+                തിരികെ ശൂന്യ;
 
-        data = q->items[0].data;
-        remove_item(q, q->items);
-        return data;
+        data = q->ഇനങ്ങൾ[0].data;
+        remove_item(q, q->ഇനങ്ങൾ);
+        തിരികെ data;
 }
 
 unsigned prioq_size(Prioq *q) {
 
-        if (!q)
-                return 0;
+        എങ്കിൽ (!q)
+                തിരികെ 0;
 
-        return q->n_items;
+        തിരികെ q->n_ഇനങ്ങൾ;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        എങ്കിൽ (!q)
+                തിരികെ true;
 
-        return q->n_items <= 0;
+        തിരികെ q->n_ഇനങ്ങൾ <= 0;
 }

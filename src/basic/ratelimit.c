@@ -1,64 +1,64 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "ratelimit.h"
-#include "time-util.h"
+#അന്തര്ഭാവ "ratelimit.h"
+#അന്തര്ഭാവ "time-util.h"
 
 /* Modelled after Linux' lib/ratelimit.c by Dave Young
  * <hidave.darkstar@gmail.com>, which is licensed GPLv2. */
 
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
-        assert(rl);
+        പ്രതിജ്ഞാ(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        എങ്കിൽ (!ratelimit_configured(rl))
+                തിരികെ true;
 
-        if (rl->begin <= 0 ||
+        എങ്കിൽ (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
-                rl->num = 1;     /* Reset counter */
-                return true;
+                rl->അക്കം = 1;     /* Reset counter */
+                തിരികെ true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        എങ്കിൽ (_unlikely_(rl->അക്കം == UINT_MAX))
+                തിരികെ false;
 
-        rl->num++;
-        return rl->num <= rl->burst;
+        rl->അക്കം++;
+        തിരികെ rl->അക്കം <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
-        assert(rl);
+        പ്രതിജ്ഞാ(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        എങ്കിൽ (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                തിരികെ true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        തിരികെ ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
-unsigned ratelimit_num_dropped(const RateLimit *rl) {
-        assert(rl);
+unsigned ratelimit_അക്കം_dropped(സ്ഥിരം RateLimit *rl) {
+        പ്രതിജ്ഞാ(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        എങ്കിൽ (rl->അക്കം == UINT_MAX) /* overflow, return as special case */
+                തിരികെ UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        തിരികെ LESS_BY(rl->അക്കം, rl->burst);
 }
 
-usec_t ratelimit_end(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_end(സ്ഥിരം RateLimit *rl) {
+        പ്രതിജ്ഞാ(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        എങ്കിൽ (rl->begin == 0)
+                തിരികെ 0;
 
-        return usec_add(rl->begin, rl->interval);
+        തിരികെ usec_add(rl->begin, rl->interval);
 }
 
-usec_t ratelimit_left(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_ഇടത്(സ്ഥിരം RateLimit *rl) {
+        പ്രതിജ്ഞാ(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        എങ്കിൽ (rl->begin == 0)
+                തിരികെ 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        തിരികെ usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

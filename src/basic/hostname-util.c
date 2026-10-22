@@ -1,55 +1,55 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#അന്തര്ഭാവ <stdlib.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "hashmap.h"
-#include "hostname-util.h"
-#include "log.h"
-#include "os-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "user-util.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "env-file.h"
+#അന്തര്ഭാവ "hashmap.h"
+#അന്തര്ഭാവ "hostname-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "os-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "user-util.h"
 
-char* get_default_hostname_raw(void) {
-        int r;
+അക്ഷരം* get_default_hostname_raw(ശൂന്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
-        const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        സ്ഥിരം അക്ഷരം *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
+        എങ്കിൽ (e) {
+                എങ്കിൽ (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        തിരികെ strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
-        _cleanup_free_ char *f = NULL;
-        r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        _cleanup_free_ അക്ഷരം *f = ശൂന്യ;
+        r = parse_os_release(ശൂന്യ, "DEFAULT_HOSTNAME", &f);
+        എങ്കിൽ (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        അല്ലെങ്കിൽ എങ്കിൽ (f) {
+                എങ്കിൽ (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        തിരികെ TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        തിരികെ strdup(FALLBACK_HOSTNAME);
 }
 
-bool valid_ldh_char(char c) {
+bool valid_ldh_char(അക്ഷരം c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        തിരികെ ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
+bool hostname_is_valid(സ്ഥിരം അക്ഷരം *s, ValidHostnameFlags flags) {
         unsigned n_dots = 0;
-        const char *p;
+        സ്ഥിരം അക്ഷരം *p;
         bool dot, hyphen;
 
         /* Check if s looks like a valid hostname or FQDN. This does not do full DNS validation, but only
@@ -60,95 +60,95 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        എങ്കിൽ (isempty(s))
+                തിരികെ false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        എങ്കിൽ (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                തിരികെ FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        വേണ്ടി (p = s, dot = hyphen = true; *p; p++)
+                എങ്കിൽ (*p == '.') {
+                        എങ്കിൽ (dot || hyphen)
+                                തിരികെ false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } അല്ലെങ്കിൽ എങ്കിൽ (*p == '-') {
+                        എങ്കിൽ (dot)
+                                തിരികെ false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
+                } അല്ലെങ്കിൽ {
+                        എങ്കിൽ (!valid_ldh_char(*p) &&
                             (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
                             (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                                തിരികെ false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        എങ്കിൽ (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                തിരികെ false;
+        എങ്കിൽ (hyphen)
+                തിരികെ false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        എങ്കിൽ (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-char* hostname_cleanup(char *s) {
-        char *p, *d;
+അക്ഷരം* hostname_cleanup(അക്ഷരം *s) {
+        അക്ഷരം *p, *d;
         bool dot, hyphen;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                continue;
+        വേണ്ടി (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                എങ്കിൽ (*p == '.') {
+                        എങ്കിൽ (dot || hyphen)
+                                തുടരുക;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                continue;
+                } അല്ലെങ്കിൽ എങ്കിൽ (*p == '-') {
+                        എങ്കിൽ (dot)
+                                തുടരുക;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        ആകുമ്പോൾ (d > s && IN_SET(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        തിരികെ s;
 }
 
-bool is_localhost(const char *hostname) {
-        assert(hostname);
+bool is_localhost(സ്ഥിരം അക്ഷരം *hostname) {
+        പ്രതിജ്ഞാ(hostname);
 
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        തിരികെ STRCASE_IN_SET(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -160,164 +160,164 @@ bool is_localhost(const char *hostname) {
                 endswith_no_case(hostname, ".localhost.localdomain.");
 }
 
-const char* etc_hostname(void) {
-        static const char *cached = NULL;
+സ്ഥിരം അക്ഷരം* etc_hostname(ശൂന്യം) {
+        സ്ഥിതം സ്ഥിരം അക്ഷരം *cached = ശൂന്യ;
 
-        if (!cached)
+        എങ്കിൽ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        തിരികെ cached;
 }
 
-const char* etc_machine_info(void) {
-        static const char *cached = NULL;
+സ്ഥിരം അക്ഷരം* etc_machine_info(ശൂന്യം) {
+        സ്ഥിതം സ്ഥിരം അക്ഷരം *cached = ശൂന്യ;
 
-        if (!cached)
+        എങ്കിൽ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        തിരികെ cached;
 }
 
-int get_pretty_hostname(char **ret) {
-        _cleanup_free_ char *n = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ get_pretty_hostname(അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *n = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        r = parse_env_file(ശൂന്യ, etc_machine_info(), "PRETTY_HOSTNAME", &n);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (isempty(n))
-                return -ENXIO;
+        എങ്കിൽ (isempty(n))
+                തിരികെ -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        തിരികെ 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
+പൂർണ്ണസംഖ്യ split_user_at_host(സ്ഥിരം അക്ഷരം *s, അക്ഷരം **ret_user, അക്ഷരം **ret_host) {
+        _cleanup_free_ അക്ഷരം *u = ശൂന്യ, *h = ശൂന്യ;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
          * each of the two return parameters if that part was left empty. */
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
-        const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        സ്ഥിരം അക്ഷരം *rhs = strchr(s, '@');
+        എങ്കിൽ (rhs) {
+                എങ്കിൽ (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        എങ്കിൽ (!u)
+                                തിരികെ -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                എങ്കിൽ (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        എങ്കിൽ (!h)
+                                തിരികെ -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } അല്ലെങ്കിൽ {
+                എങ്കിൽ (isempty(s))
+                        തിരികെ -EINVAL;
 
-                if (ret_host) {
+                എങ്കിൽ (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        എങ്കിൽ (!h)
+                                തിരികെ -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        എങ്കിൽ (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        എങ്കിൽ (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        തിരികെ !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ machine_spec_valid(സ്ഥിരം അക്ഷരം *s) {
+        _cleanup_free_ അക്ഷരം *u = ശൂന്യ, *h = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r == -EINVAL)
+                തിരികെ false;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        എങ്കിൽ (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                തിരികെ false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        എങ്കിൽ (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-bool machine_tag_is_valid(const char *s) {
+bool machine_tag_is_valid(സ്ഥിരം അക്ഷരം *s) {
         size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+        എങ്കിൽ (n <= 0 || n >= 256)
+                തിരികെ false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        എങ്കിൽ (strchr("-.=", s[0]))
+                തിരികെ false;
 
         /* We allow parameterization of tags, with a "=" as separator */
-        const char *eq = strchr(s, '=');
-        if (eq) {
-                assert(eq > s);
+        സ്ഥിരം അക്ഷരം *eq = strchr(s, '=');
+        എങ്കിൽ (eq) {
+                പ്രതിജ്ഞാ(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                എങ്കിൽ (strchr("-.", eq[-1]))
+                        തിരികെ false;
+        } അല്ലെങ്കിൽ {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                എങ്കിൽ (strchr("-.", s[n-1]))
+                        തിരികെ false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        തിരികെ in_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+പൂർണ്ണസംഖ്യ machine_tag_list_is_valid(അക്ഷരം **l) {
+        പൂർണ്ണസംഖ്യ r;
 
-        r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
-        switch (r) {
-        case -EINVAL:
-        case -E2BIG:
-                return false;
-        case 0:
-                return true;
-        default:
-                return r;
+        r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ ശൂന്യ);
+        തിരഞ്ഞെടുപ്പ് (r) {
+        അവസ്ഥ -EINVAL:
+        അവസ്ഥ -E2BIG:
+                തിരികെ false;
+        അവസ്ഥ 0:
+                തിരികെ true;
+        സ്ഥിരസ്ഥിതി:
+                തിരികെ r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
-        assert(ret);
+പൂർണ്ണസംഖ്യ machine_tags_from_string(സ്ഥിരം അക്ഷരം *s, bool graceful, അക്ഷരം ***ret) {
+        പ്രതിജ്ഞാ(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
-                *ret = NULL;
-                return 0;
+        എങ്കിൽ (isempty(s)) {
+                *ret = ശൂന്യ;
+                തിരികെ 0;
         }
 
-        _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ അക്ഷരം **l = strv_split(s, ":");
+        എങ്കിൽ (!l)
+                തിരികെ -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        തിരികെ machine_tags_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+പൂർണ്ണസംഖ്യ machine_tags_from_strv(അക്ഷരം **l, bool graceful, അക്ഷരം ***ret) {
+        പൂർണ്ണസംഖ്യ r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -328,51 +328,51 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
         /* Maps the key of each tag, i.e. everything up to and including the first '=', or the whole tag if
          * it has no '=', to the tag itself (borrowed from 'l'). A bare tag and an assignment of the same
          * name hence get distinct keys and may coexist. */
-        _cleanup_hashmap_free_ Hashmap *h = NULL;
+        _cleanup_hashmap_free_ Hashmap *h = ശൂന്യ;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
-                                continue;
+                എങ്കിൽ (!machine_tag_is_valid(*i)) {
+                        എങ്കിൽ (graceful)
+                                തുടരുക;
 
-                        return -EINVAL;
+                        തിരികെ -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                എങ്കിൽ (hashmap_size(h) >= MACHINE_TAGS_MAX)
+                        തിരികെ -E2BIG;
 
-                const char *eq = strchrnul(*i, '=');
-                _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                സ്ഥിരം അക്ഷരം *eq = strchrnul(*i, '=');
+                _cleanup_free_ അക്ഷരം *k = strndup(*i, (eq - *i) + (*eq == '='));
+                എങ്കിൽ (!k)
+                        തിരികെ -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
-                                continue;
-                        if (!graceful)
-                                return -EINVAL;
+                എങ്കിൽ (r == -EEXIST) {
+                        എങ്കിൽ (streq(hashmap_get(h, k), *i))
+                                തുടരുക;
+                        എങ്കിൽ (!graceful)
+                                തിരികെ -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } അല്ലെങ്കിൽ എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                അല്ലെങ്കിൽ എങ്കിൽ (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
-                _cleanup_strv_free_ char **cleaned = NULL;
+        എങ്കിൽ (ret) {
+                _cleanup_strv_free_ അക്ഷരം **cleaned = ശൂന്യ;
                 size_t n = 0;
-                char *v;
+                അക്ഷരം *v;
                 HASHMAP_FOREACH(v, h) {
                         r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
 
                 strv_sort(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        തിരികെ 0;
 }

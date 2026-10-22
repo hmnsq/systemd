@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#അന്തര്ഭാവ "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(ശൂന്യം) _weak_ _pure_;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+ശൂന്യം log_assert_failed_return(സ്ഥിരം അക്ഷരം *text, സ്ഥിരം അക്ഷരം *file, പൂർണ്ണസംഖ്യ വരി, സ്ഥിരം അക്ഷരം *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#define assert_log(വ്യഞ്ജകം)                                                \
+        (_likely_(വ്യഞ്ജകം) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#define assert_return(വ്യഞ്ജകം, r)                                          \
+        ചെയ്യുക {                                                            \
+                എങ്കിൽ (!assert_log(വ്യഞ്ജകം))                                  \
+                        തിരികെ (r);                                     \
+        } ആകുമ്പോൾ (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#define assert_return_errno(വ്യഞ്ജകം, r, err)                               \
+        ചെയ്യുക {                                                            \
+                എങ്കിൽ (!assert_log(വ്യഞ്ജകം)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        തിരികെ (r);                                     \
                 }                                                       \
-        } while (false)
+        } ആകുമ്പോൾ (false)

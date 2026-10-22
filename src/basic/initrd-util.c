@@ -1,64 +1,64 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "env-util.h"
-#include "errno-util.h"
-#include "initrd-util.h"
-#include "log.h"
+#അന്തര്ഭാവ "env-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "initrd-util.h"
+#അന്തര്ഭാവ "log.h"
 
-static int saved_in_initrd = -1;
+സ്ഥിതം പൂർണ്ണസംഖ്യ saved_in_initrd = -1;
 
-bool in_initrd(void) {
-        int r;
+bool in_initrd(ശൂന്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
-        if (saved_in_initrd >= 0)
-                return saved_in_initrd;
+        എങ്കിൽ (saved_in_initrd >= 0)
+                തിരികെ saved_in_initrd;
 
         /* If /etc/initrd-release exists, we're in an initrd.
          * This can be overridden by setting SYSTEMD_IN_INITRD=0|1.
          */
 
         r = secure_getenv_bool("SYSTEMD_IN_INITRD");
-        if (r < 0 && r != -ENXIO)
+        എങ്കിൽ (r < 0 && r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_IN_INITRD, ignoring: %m");
 
-        if (r >= 0)
+        എങ്കിൽ (r >= 0)
                 saved_in_initrd = r > 0;
-        else {
+        അല്ലെങ്കിൽ {
                 r = RET_NERRNO(access("/etc/initrd-release", F_OK));
-                if (r < 0 && r != -ENOENT)
+                എങ്കിൽ (r < 0 && r != -ENOENT)
                         log_debug_errno(r, "Failed to check if /etc/initrd-release exists, assuming it does not: %m");
                 saved_in_initrd = r >= 0;
         }
 
-        return saved_in_initrd;
+        തിരികെ saved_in_initrd;
 }
 
-void in_initrd_force(bool value) {
-        saved_in_initrd = value;
+ശൂന്യം in_initrd_force(bool മൂല്യം) {
+        saved_in_initrd = മൂല്യം;
 }
 
-int in_first_boot(void) {
-        static int first_boot_env_parse_cached = -1;
-        int r;
+പൂർണ്ണസംഖ്യ in_first_boot(ശൂന്യം) {
+        സ്ഥിതം പൂർണ്ണസംഖ്യ first_boot_env_parse_cached = -1;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (first_boot_env_parse_cached >= 0)
-                return first_boot_env_parse_cached;
+        എങ്കിൽ (first_boot_env_parse_cached >= 0)
+                തിരികെ first_boot_env_parse_cached;
 
         r = secure_getenv_bool("SYSTEMD_FIRST_BOOT");
-        if (r >= 0)
-                return (first_boot_env_parse_cached = r);
-        if (r != -ENXIO)
+        എങ്കിൽ (r >= 0)
+                തിരികെ (first_boot_env_parse_cached = r);
+        എങ്കിൽ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_FIRST_BOOT, ignoring: %m");
 
         /* This is not cached and must *never* be cached, other parts of systemd write it to signal
          * an update to the first-boot state. */
         r = RET_NERRNO(access("/run/systemd/first-boot", F_OK));
-        if (r >= 0)
-                return true;
-        if (r == -ENOENT)
-                return false;
+        എങ്കിൽ (r >= 0)
+                തിരികെ true;
+        എങ്കിൽ (r == -ENOENT)
+                തിരികെ false;
 
-        return log_debug_errno(r, "Failed to check /run/systemd/first-boot: %m");
+        തിരികെ log_debug_errno(r, "Failed to check /run/systemd/first-boot: %m");
 }

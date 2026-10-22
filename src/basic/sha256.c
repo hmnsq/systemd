@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "sha256.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "hexdecoct.h"
+#അന്തര്ഭാവ "sha256.h"
+#അന്തര്ഭാവ "string-util.h"
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        struct sha256_ctx ctx;
+പൂർണ്ണസംഖ്യ sha256_fd(പൂർണ്ണസംഖ്യ fd, uint64_t max_size, uint8_t ret[സ്ഥിതം SHA256_DIGEST_SIZE]) {
+        ഘടന sha256_ctx ctx;
         uint64_t total_size = 0;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         sha256_init_ctx(&ctx);
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 uint8_t buffer[64 * 1024];
                 ssize_t n;
 
-                n = read(fd, buffer, sizeof(buffer));
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = പഠ(fd, buffer, വലുപ്പം(buffer));
+                എങ്കിൽ (n < 0)
+                        തിരികെ -errno;
+                എങ്കിൽ (n == 0)
+                        നിർത്തുക;
 
-                if (!INC_SAFE(&total_size, n) || total_size > max_size)
-                        return -EFBIG;
+                എങ്കിൽ (!INC_SAFE(&total_size, n) || total_size > max_size)
+                        തിരികെ -EFBIG;
 
                 sha256_process_bytes(buffer, n, &ctx);
         }
 
         sha256_finish_ctx(&ctx, ret);
-        return 0;
+        തിരികെ 0;
 }
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        _cleanup_free_ uint8_t *data = NULL;
+പൂർണ്ണസംഖ്യ parse_sha256(സ്ഥിരം അക്ഷരം *s, uint8_t ret[സ്ഥിതം SHA256_DIGEST_SIZE]) {
+        _cleanup_free_ uint8_t *data = ശൂന്യ;
         size_t size = 0;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (!sha256_is_valid(s))
-                return -EINVAL;
+        എങ്കിൽ (!sha256_is_valid(s))
+                തിരികെ -EINVAL;
 
-        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (void**) &data, &size);
-        if (r < 0)
-                return r;
-        assert(size == SHA256_DIGEST_SIZE);
+        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (ശൂന്യം**) &data, &size);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        പ്രതിജ്ഞാ(size == SHA256_DIGEST_SIZE);
 
         memcpy(ret, data, size);
-        return 0;
+        തിരികെ 0;
 }
 
-bool sha256_is_valid(const char *s) {
-        return s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
+bool sha256_is_valid(സ്ഥിരം അക്ഷരം *s) {
+        തിരികെ s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
 }
 
-char* sha256_direct_hex(const void *buffer, size_t sz) {
-        assert(buffer || sz == 0);
+അക്ഷരം* sha256_direct_hex(സ്ഥിരം ശൂന്യം *buffer, size_t sz) {
+        പ്രതിജ്ഞാ(buffer || sz == 0);
 
-        if (sz == SIZE_MAX)
+        എങ്കിൽ (sz == SIZE_MAX)
                 sz = strlen(buffer);
 
-        return hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
+        തിരികെ hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
 }

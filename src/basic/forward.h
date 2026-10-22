@@ -3,140 +3,140 @@
 
 /* IWYU pragma: always_keep */
 
-#include <errno.h>                      /* IWYU pragma: export */
-#include <inttypes.h>                   /* IWYU pragma: export */
-#include <limits.h>                     /* IWYU pragma: export */
-#include <paths.h>                      /* IWYU pragma: export */
-#include <stdarg.h>                     /* IWYU pragma: export */
-#include <stdbool.h>                    /* IWYU pragma: export */
-#include <stddef.h>                     /* IWYU pragma: export */
-#include <stdint.h>                     /* IWYU pragma: export */
-#include <sys/types.h>                  /* IWYU pragma: export */
-#include <uchar.h>                      /* IWYU pragma: export */
+#അന്തര്ഭാവ <errno.h>                      /* IWYU pragma: export */
+#അന്തര്ഭാവ <inttypes.h>                   /* IWYU pragma: export */
+#അന്തര്ഭാവ <limits.h>                     /* IWYU pragma: export */
+#അന്തര്ഭാവ <paths.h>                      /* IWYU pragma: export */
+#അന്തര്ഭാവ <stdarg.h>                     /* IWYU pragma: export */
+#അന്തര്ഭാവ <stdbool.h>                    /* IWYU pragma: export */
+#അന്തര്ഭാവ <stddef.h>                     /* IWYU pragma: export */
+#അന്തര്ഭാവ <stdint.h>                     /* IWYU pragma: export */
+#അന്തര്ഭാവ <sys/types.h>                  /* IWYU pragma: export */
+#അന്തര്ഭാവ <uchar.h>                      /* IWYU pragma: export */
 
-#include "assert-util.h"                /* IWYU pragma: export */
-#include "cleanup-util.h"               /* IWYU pragma: export */
-#include "macro.h"                      /* IWYU pragma: export */
+#അന്തര്ഭാവ "assert-util.h"                /* IWYU pragma: export */
+#അന്തര്ഭാവ "cleanup-util.h"               /* IWYU pragma: export */
+#അന്തര്ഭാവ "macro.h"                      /* IWYU pragma: export */
 
-#include "../fundamental/string-table.h"   /* IWYU pragma: export */
+#അന്തര്ഭാവ "../fundamental/string-table.h"   /* IWYU pragma: export */
 
 /* Generic types */
 
-typedef uint64_t usec_t;
-typedef uint64_t nsec_t;
+തരനിർവചനം uint64_t usec_t;
+തരനിർവചനം uint64_t nsec_t;
 
 /* Libc/Linux forward declarations */
 
-struct __kernel_timespec;
-struct dirent;
-struct ether_addr;
-struct fiemap;
-struct file_handle;
-struct glob_t;
-struct group;
-struct icmp6_hdr;
-struct in_addr;
-struct in6_addr;
-struct inotify_event;
-struct iovec;
-struct mount_attr;
-struct msghdr;
-struct passwd;
-struct pollfd;
-struct rlimit;
-struct sgrp;
-struct shadow;
-struct signalfd_siginfo;
-struct siphash;
-struct sockaddr;
-struct spwd;
-struct stat;
-struct statfs;
-struct statx_timestamp;
-struct statx;
-struct termios;
-struct tm;
-struct ucred;
-struct unix_diag_msg;
+ഘടന __kernel_timespec;
+ഘടന dirent;
+ഘടന ether_addr;
+ഘടന fiemap;
+ഘടന file_handle;
+ഘടന glob_t;
+ഘടന group;
+ഘടന icmp6_hdr;
+ഘടന in_addr;
+ഘടന in6_addr;
+ഘടന inotify_event;
+ഘടന iovec;
+ഘടന mount_attr;
+ഘടന msghdr;
+ഘടന passwd;
+ഘടന pollfd;
+ഘടന rlimit;
+ഘടന sgrp;
+ഘടന shadow;
+ഘടന signalfd_siginfo;
+ഘടന siphash;
+ഘടന sockaddr;
+ഘടന spwd;
+ഘടന stat;
+ഘടന statfs;
+ഘടന statx_timestamp;
+ഘടന statx;
+ഘടന termios;
+ഘടന tm;
+ഘടന ucred;
+ഘടന unix_diag_സന്ദേശം;
 
 /* To forward declare FILE and DIR, we have to declare the internal struct names for them. Since these are
  * used for C++ symbol name mangling, they're effectively part of the ABI and won't actually change. */
-typedef struct _IO_FILE FILE;
-typedef struct __dirstream DIR;
+തരനിർവചനം ഘടന _IO_FILE FILE;
+തരനിർവചനം ഘടന __dirstream DIR;
 
 /* 3rd-party library forward declarations */
 
-enum bpf_map_type;
+എണ്ണൽ bpf_map_type;
 
-struct fdisk_context;
-struct fdisk_table;
-struct crypt_device;
+ഘടന fdisk_context;
+ഘടന fdisk_table;
+ഘടന crypt_device;
 
-typedef struct buf_mem_st BUF_MEM;
-typedef struct evp_pkey_st EVP_PKEY;
-typedef struct evp_md_st EVP_MD;
-typedef struct evp_md_ctx_st EVP_MD_CTX;
-typedef struct ssl_st SSL;
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct ssl_session_st SSL_SESSION;
-typedef struct x509_st X509;
+തരനിർവചനം ഘടന buf_mem_st BUF_MEM;
+തരനിർവചനം ഘടന evp_pkey_st EVP_PKEY;
+തരനിർവചനം ഘടന evp_md_st EVP_MD;
+തരനിർവചനം ഘടന evp_md_ctx_st EVP_MD_CTX;
+തരനിർവചനം ഘടന ssl_st SSL;
+തരനിർവചനം ഘടന ssl_ctx_st SSL_CTX;
+തരനിർവചനം ഘടന ssl_session_st SSL_SESSION;
+തരനിർവചനം ഘടന x509_st X509;
 
 /* basic/ forward declarations */
 
-typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
-typedef compare_func_t comparison_fn_t;
-typedef int (*comparison_userdata_fn_t)(const void *, const void *, void *);
+തരനിർവചനം ശൂന്യം (*hash_func_t)(സ്ഥിരം ശൂന്യം *p, ഘടന siphash *state);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*compare_func_t)(സ്ഥിരം ശൂന്യം *a, സ്ഥിരം ശൂന്യം *b);
+തരനിർവചനം compare_func_t comparison_fn_t;
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*comparison_userdata_fn_t)(സ്ഥിരം ശൂന്യം *, സ്ഥിരം ശൂന്യം *, ശൂന്യം *);
 
-struct hash_ops;
-struct hw_addr_data;
-struct in_addr_data;
-struct iovec_wrapper;
-union in_addr_union;
-union sockaddr_union;
+ഘടന hash_ops;
+ഘടന hw_addr_data;
+ഘടന in_addr_data;
+ഘടന iovec_wrapper;
+സംഘം in_addr_union;
+സംഘം sockaddr_union;
 
-typedef enum Architecture Architecture;
-typedef enum CGroupFlags CGroupFlags;
-typedef enum CGroupMask CGroupMask;
-typedef enum ChaseFlags ChaseFlags;
-typedef enum ConfFilesFlags ConfFilesFlags;
-typedef enum ExtractFlags ExtractFlags;
-typedef enum ForkFlags ForkFlags;
-typedef enum Glyph Glyph;
-typedef enum ImageClass ImageClass;
-typedef enum JobMode JobMode;
-typedef enum NamespaceEnterFlags NamespaceEnterFlags;
-typedef enum RuntimeScope RuntimeScope;
-typedef enum StringSafeFlags StringSafeFlags;
-typedef enum TimestampStyle TimestampStyle;
-typedef enum UnitActiveState UnitActiveState;
-typedef enum UnitDependency UnitDependency;
-typedef enum UnitNameMangle UnitNameMangle;
-typedef enum UnitType UnitType;
-typedef enum WaitFlags WaitFlags;
-typedef enum XOpenFlags XOpenFlags;
+തരനിർവചനം എണ്ണൽ Architecture Architecture;
+തരനിർവചനം എണ്ണൽ CGroupFlags CGroupFlags;
+തരനിർവചനം എണ്ണൽ CGroupMask CGroupMask;
+തരനിർവചനം എണ്ണൽ ChaseFlags ChaseFlags;
+തരനിർവചനം എണ്ണൽ ConfFilesFlags ConfFilesFlags;
+തരനിർവചനം എണ്ണൽ ExtractFlags ExtractFlags;
+തരനിർവചനം എണ്ണൽ ForkFlags ForkFlags;
+തരനിർവചനം എണ്ണൽ Glyph Glyph;
+തരനിർവചനം എണ്ണൽ ImageClass ImageClass;
+തരനിർവചനം എണ്ണൽ JobMode JobMode;
+തരനിർവചനം എണ്ണൽ NamespaceEnterFlags NamespaceEnterFlags;
+തരനിർവചനം എണ്ണൽ RuntimeScope RuntimeScope;
+തരനിർവചനം എണ്ണൽ StringSafeFlags StringSafeFlags;
+തരനിർവചനം എണ്ണൽ TimestampStyle TimestampStyle;
+തരനിർവചനം എണ്ണൽ UnitActiveState UnitActiveState;
+തരനിർവചനം എണ്ണൽ UnitDependency UnitDependency;
+തരനിർവചനം എണ്ണൽ UnitNameMangle UnitNameMangle;
+തരനിർവചനം എണ്ണൽ UnitType UnitType;
+തരനിർവചനം എണ്ണൽ WaitFlags WaitFlags;
+തരനിർവചനം എണ്ണൽ XOpenFlags XOpenFlags;
 
-typedef struct Fiber Fiber;
-typedef struct FiberOps FiberOps;
-typedef struct Hashmap Hashmap;
-typedef struct HashmapBase HashmapBase;
-typedef struct IteratedCache IteratedCache;
-typedef struct Iterator Iterator;
-typedef struct LogContext LogContext;
-typedef struct OrderedHashmap OrderedHashmap;
-typedef struct OrderedSet OrderedSet;
-typedef struct Set Set;
+തരനിർവചനം ഘടന Fiber Fiber;
+തരനിർവചനം ഘടന FiberOps FiberOps;
+തരനിർവചനം ഘടന Hashmap Hashmap;
+തരനിർവചനം ഘടന HashmapBase HashmapBase;
+തരനിർവചനം ഘടന IteratedCache IteratedCache;
+തരനിർവചനം ഘടന Iterator Iterator;
+തരനിർവചനം ഘടന LogContext LogContext;
+തരനിർവചനം ഘടന OrderedHashmap OrderedHashmap;
+തരനിർവചനം ഘടന OrderedSet OrderedSet;
+തരനിർവചനം ഘടന Set Set;
 
-typedef struct dual_timestamp dual_timestamp;
-typedef struct triple_timestamp triple_timestamp;
-typedef struct Compressor Compressor;
-typedef struct ConfFile ConfFile;
-typedef struct LabelContext LabelContext;
-typedef struct LockFile LockFile;
-typedef struct PidRef PidRef;
-typedef struct Prioq Prioq;
-typedef struct RateLimit RateLimit;
-typedef struct SocketAddress SocketAddress;
+തരനിർവചനം ഘടന dual_timestamp dual_timestamp;
+തരനിർവചനം ഘടന triple_timestamp triple_timestamp;
+തരനിർവചനം ഘടന Compressor Compressor;
+തരനിർവചനം ഘടന ConfFile ConfFile;
+തരനിർവചനം ഘടന LabelContext LabelContext;
+തരനിർവചനം ഘടന LockFile LockFile;
+തരനിർവചനം ഘടന PidRef PidRef;
+തരനിർവചനം ഘടന Prioq Prioq;
+തരനിർവചനം ഘടന RateLimit RateLimit;
+തരനിർവചനം ഘടന SocketAddress SocketAddress;
 
 /* Constants */
 
@@ -146,7 +146,7 @@ typedef struct SocketAddress SocketAddress;
 /* glibc defines AT_FDCWD as -100, but musl defines it as (-100). */
 #ifdef __GLIBC__
 #define AT_FDCWD                -100
-#else
+#അല്ലെങ്കിൽ
 #define AT_FDCWD                (-100)
 #endif
 #define AT_EMPTY_PATH           0x1000

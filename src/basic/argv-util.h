@@ -1,17 +1,17 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-extern int saved_argc;
-extern char **saved_argv;
+ബാഹ്യ പൂർണ്ണസംഖ്യ saved_argc;
+ബാഹ്യ അക്ഷരം **saved_argv;
 
-void save_argc_argv(int argc, char **argv);
+ശൂന്യം save_argc_argv(പൂർണ്ണസംഖ്യ argc, അക്ഷരം **argv);
 
-bool invoked_as(char *argv[], const char *token);
-bool invoked_by_systemd(void) _const_;
+bool invoked_as(അക്ഷരം *argv[], സ്ഥിരം അക്ഷരം *token);
+bool invoked_by_systemd(ശൂന്യം) _const_;
 
-int rename_process_full(const char *comm, const char *invocation);
-static inline int rename_process(const char *name) {
-        return rename_process_full(name, name);
+പൂർണ്ണസംഖ്യ rename_process_full(സ്ഥിരം അക്ഷരം *comm, സ്ഥിരം അക്ഷരം *invocation);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ rename_process(സ്ഥിരം അക്ഷരം *name) {
+        തിരികെ rename_process_full(name, name);
 }

@@ -1,112 +1,112 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <string.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "hexdecoct.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "escape.h"
+#അന്തര്ഭാവ "hexdecoct.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "utf8.h"
 
-int cescape_char(char c, char *buf) {
-        char *buf_old = buf;
+പൂർണ്ണസംഖ്യ cescape_char(അക്ഷരം c, അക്ഷരം *buf) {
+        അക്ഷരം *buf_old = buf;
 
         /* Needs space for 4 characters in the buffer */
 
-        switch (c) {
+        തിരഞ്ഞെടുപ്പ് (c) {
 
-                case '\a':
+                അവസ്ഥ '\a':
                         *(buf++) = '\\';
                         *(buf++) = 'a';
-                        break;
-                case '\b':
+                        നിർത്തുക;
+                അവസ്ഥ '\b':
                         *(buf++) = '\\';
                         *(buf++) = 'b';
-                        break;
-                case '\f':
+                        നിർത്തുക;
+                അവസ്ഥ '\f':
                         *(buf++) = '\\';
                         *(buf++) = 'f';
-                        break;
-                case '\n':
+                        നിർത്തുക;
+                അവസ്ഥ '\n':
                         *(buf++) = '\\';
                         *(buf++) = 'n';
-                        break;
-                case '\r':
+                        നിർത്തുക;
+                അവസ്ഥ '\r':
                         *(buf++) = '\\';
                         *(buf++) = 'r';
-                        break;
-                case '\t':
+                        നിർത്തുക;
+                അവസ്ഥ '\t':
                         *(buf++) = '\\';
                         *(buf++) = 't';
-                        break;
-                case '\v':
+                        നിർത്തുക;
+                അവസ്ഥ '\v':
                         *(buf++) = '\\';
                         *(buf++) = 'v';
-                        break;
-                case '\\':
+                        നിർത്തുക;
+                അവസ്ഥ '\\':
                         *(buf++) = '\\';
                         *(buf++) = '\\';
-                        break;
-                case '"':
+                        നിർത്തുക;
+                അവസ്ഥ '"':
                         *(buf++) = '\\';
                         *(buf++) = '"';
-                        break;
-                case '\'':
+                        നിർത്തുക;
+                അവസ്ഥ '\'':
                         *(buf++) = '\\';
                         *(buf++) = '\'';
-                        break;
+                        നിർത്തുക;
 
-                default:
+                സ്ഥിരസ്ഥിതി:
                         /* For special chars we prefer octal over
                          * hexadecimal encoding, simply because glib's
                          * g_strescape() does the same */
-                        if ((c < ' ') || (c >= 127)) {
+                        എങ്കിൽ ((c < ' ') || (c >= 127)) {
                                 *(buf++) = '\\';
-                                *(buf++) = octchar((unsigned char) c >> 6);
-                                *(buf++) = octchar((unsigned char) c >> 3);
-                                *(buf++) = octchar((unsigned char) c);
-                        } else
+                                *(buf++) = octchar((unsigned അക്ഷരം) c >> 6);
+                                *(buf++) = octchar((unsigned അക്ഷരം) c >> 3);
+                                *(buf++) = octchar((unsigned അക്ഷരം) c);
+                        } അല്ലെങ്കിൽ
                                 *(buf++) = c;
-                        break;
+                        നിർത്തുക;
         }
 
-        return buf - buf_old;
+        തിരികെ buf - buf_old;
 }
 
-char* cescape_length(const char *s, size_t n) {
-        const char *f;
-        char *r, *t;
+അക്ഷരം* cescape_length(സ്ഥിരം അക്ഷരം *s, size_t n) {
+        സ്ഥിരം അക്ഷരം *f;
+        അക്ഷരം *r, *t;
 
         /* Does C style string escaping. May be reversed with cunescape(). */
 
-        assert(s || n == 0);
+        പ്രതിജ്ഞാ(s || n == 0);
 
-        if (n == SIZE_MAX)
+        എങ്കിൽ (n == SIZE_MAX)
                 n = strlen(s);
 
-        if (n > (SIZE_MAX - 1) / 4)
-                return NULL;
+        എങ്കിൽ (n > (SIZE_MAX - 1) / 4)
+                തിരികെ ശൂന്യ;
 
-        r = new(char, n*4 + 1);
-        if (!r)
-                return NULL;
+        r = new(അക്ഷരം, n*4 + 1);
+        എങ്കിൽ (!r)
+                തിരികെ ശൂന്യ;
 
-        for (f = s, t = r; f < s + n; f++)
+        വേണ്ടി (f = s, t = r; f < s + n; f++)
                 t += cescape_char(*f, t);
 
         *t = 0;
 
-        return r;
+        തിരികെ r;
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
-        int r = 1;
+പൂർണ്ണസംഖ്യ cunescape_one(സ്ഥിരം അക്ഷരം *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
+        പൂർണ്ണസംഖ്യ r = 1;
 
-        assert(p);
-        assert(ret);
-        assert(eight_bit);
+        പ്രതിജ്ഞാ(p);
+        പ്രതിജ്ഞാ(ret);
+        പ്രതിജ്ഞാ(eight_bit);
 
         /* Unescapes C style. Returns the unescaped character in ret.
          * Sets *eight_bit to true if the escaped sequence either fits in
@@ -114,267 +114,267 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
          * instead be copied directly.
          */
 
-        if (length != SIZE_MAX && length < 1)
-                return -EINVAL;
+        എങ്കിൽ (length != SIZE_MAX && length < 1)
+                തിരികെ -EINVAL;
 
-        switch (p[0]) {
+        തിരഞ്ഞെടുപ്പ് (p[0]) {
 
-        case 'a':
+        അവസ്ഥ 'a':
                 *ret = '\a';
-                break;
-        case 'b':
+                നിർത്തുക;
+        അവസ്ഥ 'b':
                 *ret = '\b';
-                break;
-        case 'f':
+                നിർത്തുക;
+        അവസ്ഥ 'f':
                 *ret = '\f';
-                break;
-        case 'n':
+                നിർത്തുക;
+        അവസ്ഥ 'n':
                 *ret = '\n';
-                break;
-        case 'r':
+                നിർത്തുക;
+        അവസ്ഥ 'r':
                 *ret = '\r';
-                break;
-        case 't':
+                നിർത്തുക;
+        അവസ്ഥ 't':
                 *ret = '\t';
-                break;
-        case 'v':
+                നിർത്തുക;
+        അവസ്ഥ 'v':
                 *ret = '\v';
-                break;
-        case '\\':
+                നിർത്തുക;
+        അവസ്ഥ '\\':
                 *ret = '\\';
-                break;
-        case '"':
+                നിർത്തുക;
+        അവസ്ഥ '"':
                 *ret = '"';
-                break;
-        case '\'':
+                നിർത്തുക;
+        അവസ്ഥ '\'':
                 *ret = '\'';
-                break;
+                നിർത്തുക;
 
-        case 's':
+        അവസ്ഥ 's':
                 /* This is an extension of the XDG syntax files */
                 *ret = ' ';
-                break;
+                നിർത്തുക;
 
-        case 'x': {
+        അവസ്ഥ 'x': {
                 /* hexadecimal encoding */
-                int a, b;
+                പൂർണ്ണസംഖ്യ a, b;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                എങ്കിൽ (length != SIZE_MAX && length < 3)
+                        തിരികെ -EINVAL;
 
                 a = unhexchar(p[1]);
-                if (a < 0)
-                        return -EINVAL;
+                എങ്കിൽ (a < 0)
+                        തിരികെ -EINVAL;
 
                 b = unhexchar(p[2]);
-                if (b < 0)
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ -EINVAL;
 
                 /* Don't allow NUL bytes */
-                if (a == 0 && b == 0 && !accept_nul)
-                        return -EINVAL;
+                എങ്കിൽ (a == 0 && b == 0 && !accept_nul)
+                        തിരികെ -EINVAL;
 
                 *ret = (a << 4U) | b;
                 *eight_bit = true;
                 r = 3;
-                break;
+                നിർത്തുക;
         }
 
-        case 'u': {
+        അവസ്ഥ 'u': {
                 /* C++11 style 16-bit unicode */
 
-                int a[4];
+                പൂർണ്ണസംഖ്യ a[4];
                 size_t i;
                 uint32_t c;
 
-                if (length != SIZE_MAX && length < 5)
-                        return -EINVAL;
+                എങ്കിൽ (length != SIZE_MAX && length < 5)
+                        തിരികെ -EINVAL;
 
-                for (i = 0; i < 4; i++) {
+                വേണ്ടി (i = 0; i < 4; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        എങ്കിൽ (a[i] < 0)
+                                തിരികെ a[i];
                 }
 
                 c = ((uint32_t) a[0] << 12U) | ((uint32_t) a[1] << 8U) | ((uint32_t) a[2] << 4U) | (uint32_t) a[3];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                എങ്കിൽ (c == 0 && !accept_nul)
+                        തിരികെ -EINVAL;
 
                 /* Don't allow UTF-16 surrogates, they cannot be encoded as valid UTF-8. Note we
                  * deliberately do *not* use unichar_is_valid() here (unlike the \U case below):
                  * it also rejects noncharacters such as U+FFFE, which callers legitimately round-trip
                  * through \u (e.g. systemd.mount-extra= parsing, see test-fstab-generator). */
-                if (utf16_is_surrogate(c))
-                        return -EINVAL;
+                എങ്കിൽ (utf16_is_surrogate(c))
+                        തിരികെ -EINVAL;
 
                 *ret = c;
                 r = 5;
-                break;
+                നിർത്തുക;
         }
 
-        case 'U': {
+        അവസ്ഥ 'U': {
                 /* C++11 style 32-bit unicode */
 
-                int a[8];
+                പൂർണ്ണസംഖ്യ a[8];
                 size_t i;
                 char32_t c;
 
-                if (length != SIZE_MAX && length < 9)
-                        return -EINVAL;
+                എങ്കിൽ (length != SIZE_MAX && length < 9)
+                        തിരികെ -EINVAL;
 
-                for (i = 0; i < 8; i++) {
+                വേണ്ടി (i = 0; i < 8; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        എങ്കിൽ (a[i] < 0)
+                                തിരികെ a[i];
                 }
 
                 c = ((uint32_t) a[0] << 28U) | ((uint32_t) a[1] << 24U) | ((uint32_t) a[2] << 20U) | ((uint32_t) a[3] << 16U) |
                     ((uint32_t) a[4] << 12U) | ((uint32_t) a[5] <<  8U) | ((uint32_t) a[6] <<  4U) |  (uint32_t) a[7];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                എങ്കിൽ (c == 0 && !accept_nul)
+                        തിരികെ -EINVAL;
 
                 /* Don't allow invalid code points */
-                if (!unichar_is_valid(c))
-                        return -EINVAL;
+                എങ്കിൽ (!unichar_is_valid(c))
+                        തിരികെ -EINVAL;
 
                 *ret = c;
                 r = 9;
-                break;
+                നിർത്തുക;
         }
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7': {
+        അവസ്ഥ '0':
+        അവസ്ഥ '1':
+        അവസ്ഥ '2':
+        അവസ്ഥ '3':
+        അവസ്ഥ '4':
+        അവസ്ഥ '5':
+        അവസ്ഥ '6':
+        അവസ്ഥ '7': {
                 /* octal encoding */
-                int a, b, c;
+                പൂർണ്ണസംഖ്യ a, b, c;
                 char32_t m;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                എങ്കിൽ (length != SIZE_MAX && length < 3)
+                        തിരികെ -EINVAL;
 
                 a = unoctchar(p[0]);
-                if (a < 0)
-                        return -EINVAL;
+                എങ്കിൽ (a < 0)
+                        തിരികെ -EINVAL;
 
                 b = unoctchar(p[1]);
-                if (b < 0)
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ -EINVAL;
 
                 c = unoctchar(p[2]);
-                if (c < 0)
-                        return -EINVAL;
+                എങ്കിൽ (c < 0)
+                        തിരികെ -EINVAL;
 
                 /* don't allow NUL bytes */
-                if (a == 0 && b == 0 && c == 0 && !accept_nul)
-                        return -EINVAL;
+                എങ്കിൽ (a == 0 && b == 0 && c == 0 && !accept_nul)
+                        തിരികെ -EINVAL;
 
                 /* Don't allow bytes above 255 */
                 m = ((uint32_t) a << 6U) | ((uint32_t) b << 3U) | (uint32_t) c;
-                if (m > 255)
-                        return -EINVAL;
+                എങ്കിൽ (m > 255)
+                        തിരികെ -EINVAL;
 
                 *ret = m;
                 *eight_bit = true;
                 r = 3;
-                break;
+                നിർത്തുക;
         }
 
-        default:
-                return -EINVAL;
+        സ്ഥിരസ്ഥിതി:
+                തിരികെ -EINVAL;
         }
 
-        return r;
+        തിരികെ r;
 }
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret) {
-        _cleanup_free_ char *ans = NULL;
-        char *t;
-        const char *f;
+ssize_t cunescape_length_with_prefix(സ്ഥിരം അക്ഷരം *s, size_t length, സ്ഥിരം അക്ഷരം *prefix, UnescapeFlags flags, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *ans = ശൂന്യ;
+        അക്ഷരം *t;
+        സ്ഥിരം അക്ഷരം *f;
         size_t pl;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(s);
-        assert(ret);
+        പ്രതിജ്ഞാ(s);
+        പ്രതിജ്ഞാ(ret);
 
         /* Undoes C style string escaping, and optionally prefixes it. */
 
-        if (length == SIZE_MAX)
+        എങ്കിൽ (length == SIZE_MAX)
                 length = strlen(s);
 
         pl = strlen_ptr(prefix);
 
-        ans = new(char, pl+length+1);
-        if (!ans)
-                return -ENOMEM;
+        ans = new(അക്ഷരം, pl+length+1);
+        എങ്കിൽ (!ans)
+                തിരികെ -ENOMEM;
 
-        if (prefix)
+        എങ്കിൽ (prefix)
                 memcpy(ans, prefix, pl);
 
-        for (f = s, t = ans + pl; f < s + length; f++) {
+        വേണ്ടി (f = s, t = ans + pl; f < s + length; f++) {
                 size_t remaining;
                 bool eight_bit = false;
                 char32_t u;
 
                 remaining = s + length - f;
-                assert(remaining > 0);
+                പ്രതിജ്ഞാ(remaining > 0);
 
-                if (*f != '\\') {
+                എങ്കിൽ (*f != '\\') {
                         /* A literal, copy verbatim */
                         *(t++) = *f;
-                        continue;
+                        തുടരുക;
                 }
 
-                if (remaining == 1) {
-                        if (flags & UNESCAPE_RELAX) {
+                എങ്കിൽ (remaining == 1) {
+                        എങ്കിൽ (flags & UNESCAPE_RELAX) {
                                 /* A trailing backslash, copy verbatim */
                                 *(t++) = *f;
-                                continue;
+                                തുടരുക;
                         }
 
-                        return -EINVAL;
+                        തിരികെ -EINVAL;
                 }
 
                 r = cunescape_one(f + 1, remaining - 1, &u, &eight_bit, flags & UNESCAPE_ACCEPT_NUL);
-                if (r < 0) {
-                        if (flags & UNESCAPE_RELAX) {
+                എങ്കിൽ (r < 0) {
+                        എങ്കിൽ (flags & UNESCAPE_RELAX) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '\\';
-                                continue;
+                                തുടരുക;
                         }
 
-                        return r;
+                        തിരികെ r;
                 }
 
                 f += r;
-                if (eight_bit)
+                എങ്കിൽ (eight_bit)
                         /* One byte? Set directly as specified */
                         *(t++) = u;
-                else
+                അല്ലെങ്കിൽ
                         /* Otherwise encode as multi-byte UTF-8 */
                         t += utf8_encode_unichar(t, u);
         }
 
         *t = 0;
 
-        assert(t >= ans); /* Let static analyzers know that the answer is non-negative. */
+        പ്രതിജ്ഞാ(t >= ans); /* Let static analyzers know that the answer is non-negative. */
         *ret = TAKE_PTR(ans);
-        return t - *ret;
+        തിരികെ t - *ret;
 }
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags) {
-        char *ans, *t, *prev, *prev2;
-        const char *f;
+അക്ഷരം* xescape_full(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *bad, size_t console_width, XEscapeFlags flags) {
+        അക്ഷരം *ans, *t, *prev, *prev2;
+        സ്ഥിരം അക്ഷരം *f;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         /* Escapes all chars in bad, in addition to \ and all special chars, in \xFF style escaping. May be
          * reversed with cunescape(). If XESCAPE_8_BIT is specified, characters >= 127 are let through
@@ -383,44 +383,44 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
          * If console_width is reached, or XESCAPE_FORCE_ELLIPSIS is set, output is truncated and "..." is
          * appended. */
 
-        if (console_width == 0)
-                return strdup("");
+        എങ്കിൽ (console_width == 0)
+                തിരികെ strdup("");
 
         size_t len_forced_ellipsis = FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
         size_t len_s = strlen(s);
 
         size_t len_body = MIN(console_width, SIZE_MAX - 1); /* We need room for the NUL byte */
-        if (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
+        എങ്കിൽ (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
                 len_body = len_s * 4 + len_forced_ellipsis;
 
-        ans = new(char, len_body + 1);
-        if (!ans)
-                return NULL;
+        ans = new(അക്ഷരം, len_body + 1);
+        എങ്കിൽ (!ans)
+                തിരികെ ശൂന്യ;
 
-        for (f = s, t = prev = prev2 = ans; ; f++) {
-                char *tmp_t = t;
+        വേണ്ടി (f = s, t = prev = prev2 = ans; ; f++) {
+                അക്ഷരം *tmp_t = t;
 
-                if (!*f) {
-                        if (len_forced_ellipsis != 0)
-                                break;
+                എങ്കിൽ (!*f) {
+                        എങ്കിൽ (len_forced_ellipsis != 0)
+                                നിർത്തുക;
 
                         *t = 0;
-                        return ans;
+                        തിരികെ ans;
                 }
 
-                if ((unsigned char) *f < ' ' ||
-                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned char) *f >= 127) ||
+                എങ്കിൽ ((unsigned അക്ഷരം) *f < ' ' ||
+                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned അക്ഷരം) *f >= 127) ||
                     *f == '\\' || (bad && strchr(bad, *f))) {
-                        if ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
-                                break;
+                        എങ്കിൽ ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
+                                നിർത്തുക;
 
                         *(t++) = '\\';
                         *(t++) = 'x';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else {
-                        if ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
-                                break;
+                } അല്ലെങ്കിൽ {
+                        എങ്കിൽ ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
+                                നിർത്തുക;
 
                         *(t++) = *f;
                 }
@@ -433,166 +433,166 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
         /* We can just write where we want, since chars are one-byte */
         size_t c = MIN(len_body, STRLEN("...")); /* If the console is too narrow, write fewer dots */
         size_t off;
-        if (len_body - c >= (size_t) (t - ans))
+        എങ്കിൽ (len_body - c >= (size_t) (t - ans))
                 off = (size_t) (t - ans);
-        else if (len_body - c >= (size_t) (prev - ans))
+        അല്ലെങ്കിൽ എങ്കിൽ (len_body - c >= (size_t) (prev - ans))
                 off = (size_t) (prev - ans);
-        else if (len_body - c >= (size_t) (prev2 - ans))
+        അല്ലെങ്കിൽ എങ്കിൽ (len_body - c >= (size_t) (prev2 - ans))
                 off = (size_t) (prev2 - ans);
-        else
+        അല്ലെങ്കിൽ
                 off = len_body - c;
-        assert(off <= (size_t) (t - ans));
+        പ്രതിജ്ഞാ(off <= (size_t) (t - ans));
 
         memcpy(ans + off, "...", c);
         ans[off + c] = '\0';
-        return ans;
+        തിരികെ ans;
 }
 
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags) {
-        if (FLAGS_SET(flags, XESCAPE_8_BIT))
-                return xescape_full(str, /* bad= */ NULL, console_width, flags);
-        else
-                return utf8_escape_non_printable_full(str,
+അക്ഷരം* escape_non_printable_full(സ്ഥിരം അക്ഷരം *str, size_t console_width, XEscapeFlags flags) {
+        എങ്കിൽ (FLAGS_SET(flags, XESCAPE_8_BIT))
+                തിരികെ xescape_full(str, /* bad= */ ശൂന്യ, console_width, flags);
+        അല്ലെങ്കിൽ
+                തിരികെ utf8_escape_non_printable_full(str,
                                                       console_width,
                                                       FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS));
 }
 
-char* octescape_full(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+അക്ഷരം* octescape_full(സ്ഥിരം അക്ഷരം *s, size_t len, സ്ഥിരം അക്ഷരം *bad) {
+        അക്ഷരം *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn octal style escaping. May be
          * reversed with cunescape(). */
 
-        assert(s || len == 0);
+        പ്രതിജ്ഞാ(s || len == 0);
 
-        if (len == SIZE_MAX)
+        എങ്കിൽ (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        എങ്കിൽ (len > (SIZE_MAX - 1) / 4)
+                തിരികെ ശൂന്യ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(അക്ഷരം, len * 4 + 1);
+        എങ്കിൽ (!buf)
+                തിരികെ ശൂന്യ;
 
-        for (size_t i = 0; i < len; i++) {
+        വേണ്ടി (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
+                എങ്കിൽ (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u >> 6);
                         *(t++) = '0' + ((u >> 3) & 7);
                         *(t++) = '0' + (u & 7);
-                } else
+                } അല്ലെങ്കിൽ
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        തിരികെ buf;
 }
 
-char* decescape(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+അക്ഷരം* decescape(സ്ഥിരം അക്ഷരം *s, size_t len, സ്ഥിരം അക്ഷരം *bad) {
+        അക്ഷരം *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn decimal style escaping. */
 
-        assert(s || len == 0);
+        പ്രതിജ്ഞാ(s || len == 0);
 
-        if (len == SIZE_MAX)
+        എങ്കിൽ (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        എങ്കിൽ (len > (SIZE_MAX - 1) / 4)
+                തിരികെ ശൂന്യ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(അക്ഷരം, len * 4 + 1);
+        എങ്കിൽ (!buf)
+                തിരികെ ശൂന്യ;
 
-        for (size_t i = 0; i < len; i++) {
+        വേണ്ടി (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
+                എങ്കിൽ (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u / 100);
                         *(t++) = '0' + ((u / 10) % 10);
                         *(t++) = '0' + (u % 10);
-                } else
+                } അല്ലെങ്കിൽ
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        തിരികെ buf;
 }
 
-static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
-        assert(bad);
-        assert(t);
-        assert(s);
+സ്ഥിതം അക്ഷരം* strcpy_backslash_escaped(അക്ഷരം *t, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *bad) {
+        പ്രതിജ്ഞാ(bad);
+        പ്രതിജ്ഞാ(t);
+        പ്രതിജ്ഞാ(s);
 
-        while (*s) {
-                int l = utf8_encoded_valid_unichar(s, SIZE_MAX);
+        ആകുമ്പോൾ (*s) {
+                പൂർണ്ണസംഖ്യ l = utf8_encoded_valid_unichar(s, SIZE_MAX);
 
-                if (char_is_cc(*s) || l < 0)
+                എങ്കിൽ (char_is_cc(*s) || l < 0)
                         t += cescape_char(*(s++), t);
-                else if (l == 1) {
-                        if (*s == '\\' || strchr(bad, *s))
+                അല്ലെങ്കിൽ എങ്കിൽ (l == 1) {
+                        എങ്കിൽ (*s == '\\' || strchr(bad, *s))
                                 *(t++) = '\\';
                         *(t++) = *(s++);
-                } else {
+                } അല്ലെങ്കിൽ {
                         t = mempcpy(t, s, l);
                         s += l;
                 }
         }
 
-        return t;
+        തിരികെ t;
 }
 
-char* shell_escape(const char *s, const char *bad) {
-        char *buf, *t;
+അക്ഷരം* shell_escape(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *bad) {
+        അക്ഷരം *buf, *t;
 
-        buf = new(char, strlen(s)*4+1);
-        if (!buf)
-                return NULL;
+        buf = new(അക്ഷരം, strlen(s)*4+1);
+        എങ്കിൽ (!buf)
+                തിരികെ ശൂന്യ;
 
         t = strcpy_backslash_escaped(buf, s, bad);
         *t = 0;
 
-        return buf;
+        തിരികെ buf;
 }
 
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
-        const char *p;
-        char *buf, *t;
+അക്ഷരം* shell_maybe_quote(സ്ഥിരം അക്ഷരം *s, ShellEscapeFlags flags) {
+        സ്ഥിരം അക്ഷരം *p;
+        അക്ഷരം *buf, *t;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         /* Encloses a string in quotes if necessary to make it OK as a shell string. */
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
-                return strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
+        എങ്കിൽ (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
+                തിരികെ strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
 
-        for (p = s; *p; ) {
-                int l = utf8_encoded_valid_unichar(p, SIZE_MAX);
+        വേണ്ടി (p = s; *p; ) {
+                പൂർണ്ണസംഖ്യ l = utf8_encoded_valid_unichar(p, SIZE_MAX);
 
-                if (char_is_cc(*p) || l < 0 ||
+                എങ്കിൽ (char_is_cc(*p) || l < 0 ||
                     strchr(WHITESPACE SHELL_NEED_QUOTES, *p))
-                        break;
+                        നിർത്തുക;
 
                 p += l;
         }
 
-        if (!*p)
-                return strdup(s);
+        എങ്കിൽ (!*p)
+                തിരികെ strdup(s);
 
-        buf = new(char, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
-        if (!buf)
-                return NULL;
+        buf = new(അക്ഷരം, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
+        എങ്കിൽ (!buf)
+                തിരികെ ശൂന്യ;
 
         t = buf;
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
+        എങ്കിൽ (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
                 *(t++) = '$';
                 *(t++) = '\'';
-        } else
+        } അല്ലെങ്കിൽ
                 *(t++) = '"';
 
         t = mempcpy(t, s, p - s);
@@ -600,30 +600,30 @@ char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
         t = strcpy_backslash_escaped(t, p,
                                      FLAGS_SET(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
+        എങ്കിൽ (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
                 *(t++) = '\'';
-        else
+        അല്ലെങ്കിൽ
                 *(t++) = '"';
         *t = 0;
 
-        return str_realloc(buf);
+        തിരികെ str_realloc(buf);
 }
 
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
-        _cleanup_free_ char *result = NULL;
+അക്ഷരം* quote_command_വരി(അക്ഷരം * സ്ഥിരം *argv, ShellEscapeFlags flags) {
+        _cleanup_free_ അക്ഷരം *result = ശൂന്യ;
 
-        assert(argv);
+        പ്രതിജ്ഞാ(argv);
 
         STRV_FOREACH(a, argv) {
-                _cleanup_free_ char *t = NULL;
+                _cleanup_free_ അക്ഷരം *t = ശൂന്യ;
 
                 t = shell_maybe_quote(*a, flags);
-                if (!t)
-                        return NULL;
+                എങ്കിൽ (!t)
+                        തിരികെ ശൂന്യ;
 
-                if (!strextend_with_separator(&result, " ", t))
-                        return NULL;
+                എങ്കിൽ (!strextend_with_separator(&result, " ", t))
+                        തിരികെ ശൂന്യ;
         }
 
-        return str_realloc(TAKE_PTR(result));
+        തിരികെ str_realloc(TAKE_PTR(result));
 }

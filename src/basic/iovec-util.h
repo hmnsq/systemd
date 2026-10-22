@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#അന്തര്ഭാവ <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#അന്തര്ഭാവ "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+ബാഹ്യ സ്ഥിരം ഘടന iovec iovec_nul_byte; /* Points to a single NUL byte */
+ബാഹ്യ സ്ഥിരം ഘടന iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+പൂർണ്ണസംഖ്യ iovec_alloc(size_t n, ഘടന iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_total_size(സ്ഥിരം ഘടന iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(ഘടന iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+ഘടന iovec* iovec_make_string(ഘടന iovec *iovec, സ്ഥിരം അക്ഷരം *s);
 
 #define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+        *iovec_make_string(&(ഘടന iovec) {}, s)
 
 #define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+        (സ്ഥിരം ഘടന iovec) {                  \
+                .iov_base = (അക്ഷരം*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
 #define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+        (സ്ഥിരം ഘടന iovec) {                                  \
+                .iov_base = (അക്ഷരം*) ((സ്ഥിരം അക്ഷരം[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
@@ -39,22 +39,22 @@ struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
                 IOVEC_MAKE(alloca_safe(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+ശൂന്യം iovec_erase(ഘടന iovec *iovec);
+ശൂന്യം iovec_done_erase(ഘടന iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+അക്ഷരം* set_iovec_string_field(ഘടന iovec *iovec, size_t *n_iovec, സ്ഥിരം അക്ഷരം *field, സ്ഥിരം അക്ഷരം *മൂല്യം);
+അക്ഷരം* set_iovec_string_field_free(ഘടന iovec *iovec, size_t *n_iovec, സ്ഥിരം അക്ഷരം *field, അക്ഷരം *മൂല്യം);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+ശൂന്യം iovec_array_free(ഘടന iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+പൂർണ്ണസംഖ്യ iovec_memcmp(സ്ഥിരം ഘടന iovec *a, സ്ഥിരം ഘടന iovec *b) _pure_;
+സ്ഥിതം വരിയിൽ bool iovec_equal(സ്ഥിരം ഘടന iovec *a, സ്ഥിരം ഘടന iovec *b) {
+        തിരികെ iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+ഘടന iovec* iovec_memdup(സ്ഥിരം ഘടന iovec *source, ഘടന iovec *ret);
+പൂർണ്ണസംഖ്യ iovec_done_and_memdup(ഘടന iovec *iovec, സ്ഥിരം ഘടന iovec *source);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+ഘടന iovec* iovec_append(ഘടന iovec *iovec, സ്ഥിരം ഘടന iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+ഘടന iovec* iovec_consume(ഘടന iovec *iovec, size_t n);

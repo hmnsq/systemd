@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <math.h>       /* IWYU pragma: export */
+#അന്തര്ഭാവ <math.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
 /* On some optimization level, iszero(x) is converted to (x == 0.0), and emits warning -Wfloat-equal.
  * The argument must be a floating point, i.e. one of float, double, or long double. */
@@ -22,12 +22,12 @@
  * truncating wider arguments. */
 #define fp_equal(x, y)                                                  \
         ({                                                              \
-                volatile __typeof__((x) - (y)) _fp_x = (x);             \
-                volatile __typeof__((x) - (y)) _fp_y = (y);             \
+                അസ്ഥിര __typeof__((x) - (y)) _fp_x = (x);             \
+                അസ്ഥിര __typeof__((x) - (y)) _fp_y = (y);             \
                 iszero_safe(_fp_x - _fp_y);                             \
         })
 
 /* 10^n. Exact for |n| ≤ 22; otherwise multiplies and may accumulate rounding error. Saturates to
  * 0.0 or +Inf outside binary64's exponent range; large |n| is capped internally so untrusted
  * inputs can't cause unbounded work. */
-double xexp10i(int n);
+ഇരട്ട xexp10i(പൂർണ്ണസംഖ്യ n);

@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <libintl.h>    /* IWYU pragma: export */
-#include <locale.h>     /* IWYU pragma: export */
+#അന്തര്ഭാവ <libintl.h>    /* IWYU pragma: export */
+#അന്തര്ഭാവ <locale.h>     /* IWYU pragma: export */
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-typedef enum LocaleVariable {
+തരനിർവചനം എണ്ണൽ LocaleVariable {
         /* We don't list LC_ALL here on purpose. People should be
          * using LANG instead. */
 
@@ -28,26 +28,26 @@ typedef enum LocaleVariable {
         _VARIABLE_LC_INVALID = -EINVAL,
 } LocaleVariable;
 
-int get_locales(char ***ret);
-bool locale_is_valid(const char *name);
-int locale_is_installed(const char *name);
+പൂർണ്ണസംഖ്യ get_locales(അക്ഷരം ***ret);
+bool locale_is_valid(സ്ഥിരം അക്ഷരം *name);
+പൂർണ്ണസംഖ്യ locale_is_installed(സ്ഥിരം അക്ഷരം *name);
 
 #define _(String) dgettext(GETTEXT_PACKAGE, String)
 #define N_(String) String
 
-bool is_locale_utf8(void);
+bool is_locale_utf8(ശൂന്യം);
 
 DECLARE_STRING_TABLE_LOOKUP(locale_variable, LocaleVariable);
 
-static inline void freelocalep(locale_t *p) {
-        if (*p == (locale_t) 0)
-                return;
+സ്ഥിതം വരിയിൽ ശൂന്യം freelocalep(locale_t *p) {
+        എങ്കിൽ (*p == (locale_t) 0)
+                തിരികെ;
 
         freelocale(*p);
 }
 
-void locale_variables_free(char* l[_VARIABLE_LC_MAX]);
-static inline void locale_variables_freep(char*(*l)[_VARIABLE_LC_MAX]) {
+ശൂന്യം locale_variables_free(അക്ഷരം* l[_VARIABLE_LC_MAX]);
+സ്ഥിതം വരിയിൽ ശൂന്യം locale_variables_freep(അക്ഷരം*(*l)[_VARIABLE_LC_MAX]) {
         locale_variables_free(*l);
 }
-void locale_variables_simplify(char *l[_VARIABLE_LC_MAX]);
+ശൂന്യം locale_variables_simplify(അക്ഷരം *l[_VARIABLE_LC_MAX]);

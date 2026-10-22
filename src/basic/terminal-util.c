@@ -1,109 +1,109 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/kd.h>
-#include <linux/magic.h>
-#include <linux/tiocl.h>
-#include <linux/vt.h>
-#include <poll.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/inotify.h>
-#include <sys/ioctl.h>
-#include <sys/sysmacros.h>
-#include <termios.h>
-#include <time.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <linux/kd.h>
+#അന്തര്ഭാവ <linux/magic.h>
+#അന്തര്ഭാവ <linux/tiocl.h>
+#അന്തര്ഭാവ <linux/vt.h>
+#അന്തര്ഭാവ <poll.h>
+#അന്തര്ഭാവ <signal.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <sys/inotify.h>
+#അന്തര്ഭാവ <sys/ioctl.h>
+#അന്തര്ഭാവ <sys/sysmacros.h>
+#അന്തര്ഭാവ <termios.h>
+#അന്തര്ഭാവ <time.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "chase.h"
-#include "devnum-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "hexdecoct.h"
-#include "inotify-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "namespace-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "terminal-util.h"
-#include "time-util.h"
-#include "utf8.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "ansi-color.h"
+#അന്തര്ഭാവ "chase.h"
+#അന്തര്ഭാവ "devnum-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "fs-util.h"
+#അന്തര്ഭാവ "hexdecoct.h"
+#അന്തര്ഭാവ "inotify-util.h"
+#അന്തര്ഭാവ "io-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "namespace-util.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "pidref.h"
+#അന്തര്ഭാവ "proc-cmdline.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "signal-util.h"
+#അന്തര്ഭാവ "socket-util.h"
+#അന്തര്ഭാവ "stat-util.h"
+#അന്തര്ഭാവ "stdio-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "terminal-util.h"
+#അന്തര്ഭാവ "time-util.h"
+#അന്തര്ഭാവ "utf8.h"
 
 /* How much to wait when reading/writing ANSI sequences from/to the console */
 #define CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC (333 * USEC_PER_MSEC)
 
-static volatile unsigned cached_columns = 0;
-static volatile unsigned cached_lines = 0;
+സ്ഥിതം അസ്ഥിര unsigned cached_columns = 0;
+സ്ഥിതം അസ്ഥിര unsigned cached_വരികൾ = 0;
 
-static volatile int cached_on_tty = -1;
-static volatile int cached_on_dev_null = -1;
+സ്ഥിതം അസ്ഥിര പൂർണ്ണസംഖ്യ cached_on_tty = -1;
+സ്ഥിതം അസ്ഥിര പൂർണ്ണസംഖ്യ cached_on_dev_null = -1;
 
-bool isatty_safe(int fd) {
-        assert(fd >= 0);
+bool isatty_safe(പൂർണ്ണസംഖ്യ fd) {
+        പ്രതിജ്ഞാ(fd >= 0);
 
-        if (isatty(fd))
-                return true;
+        എങ്കിൽ (isatty(fd))
+                തിരികെ true;
 
         /* Linux/glibc returns EIO for hung up TTY on isatty(). Which is wrong, the thing doesn't stop being
          * a TTY after all, just because it is temporarily hung up. Let's work around this here, until this
          * is fixed in glibc. See: https://sourceware.org/bugzilla/show_bug.cgi?id=32103 */
-        if (errno == EIO)
-                return true;
+        എങ്കിൽ (errno == EIO)
+                തിരികെ true;
 
         /* Be resilient if we're working on stdio, since they're set up by parent process. */
-        assert(errno != EBADF || IN_SET(fd, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO));
+        പ്രതിജ്ഞാ(errno != EBADF || IN_SET(fd, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO));
 
-        return false;
+        തിരികെ false;
 }
 
-int chvt(int vt) {
-        _cleanup_close_ int fd = -EBADF;
+പൂർണ്ണസംഖ്യ chvt(പൂർണ്ണസംഖ്യ vt) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
 
         /* Switch to the specified vt number. If the VT is specified <= 0 switch to the VT the kernel log messages go,
          * if that's configured. */
 
         fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return fd;
+        എങ്കിൽ (fd < 0)
+                തിരികെ fd;
 
-        if (vt <= 0) {
-                int tiocl[2] = {
+        എങ്കിൽ (vt <= 0) {
+                പൂർണ്ണസംഖ്യ tiocl[2] = {
                         TIOCL_GETKMSGREDIRECT,
                         0
                 };
 
-                if (ioctl(fd, TIOCLINUX, tiocl) < 0)
-                        return -errno;
+                എങ്കിൽ (ioctl(fd, TIOCLINUX, tiocl) < 0)
+                        തിരികെ -errno;
 
                 vt = tiocl[0] <= 0 ? 1 : tiocl[0];
         }
 
-        return RET_NERRNO(ioctl(fd, VT_ACTIVATE, vt));
+        തിരികെ RET_NERRNO(ioctl(fd, VT_ACTIVATE, vt));
 }
 
-int read_one_char(FILE *f, char *ret, usec_t t, bool echo, bool *need_nl) {
-        _cleanup_free_ char *line = NULL;
-        struct termios old_termios;
-        int r, fd;
+പൂർണ്ണസംഖ്യ read_one_char(FILE *f, അക്ഷരം *ret, usec_t t, bool echo, bool *need_nl) {
+        _cleanup_free_ അക്ഷരം *വരി = ശൂന്യ;
+        ഘടന termios old_termios;
+        പൂർണ്ണസംഖ്യ r, fd;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!f)
+        എങ്കിൽ (!f)
                 f = stdin;
 
         /* If this is a terminal, then switch canonical mode off, so that we can read a single
@@ -111,78 +111,78 @@ int read_one_char(FILE *f, char *ret, usec_t t, bool echo, bool *need_nl) {
          * nicely.) If 'echo' is false we'll also disable ECHO mode so that the pressed key is not made
          * visible to the user. */
         fd = fileno(f);
-        if (fd >= 0 && tcgetattr(fd, &old_termios) >= 0) {
-                struct termios new_termios = old_termios;
+        എങ്കിൽ (fd >= 0 && tcgetattr(fd, &old_termios) >= 0) {
+                ഘടന termios new_termios = old_termios;
 
                 new_termios.c_lflag &= ~(ICANON|(echo ? 0 : ECHO));
                 new_termios.c_cc[VMIN] = 1;
                 new_termios.c_cc[VTIME] = 0;
 
-                if (tcsetattr(fd, TCSANOW, &new_termios) >= 0) {
-                        char c;
+                എങ്കിൽ (tcsetattr(fd, TCSANOW, &new_termios) >= 0) {
+                        അക്ഷരം c;
 
-                        if (t != USEC_INFINITY) {
-                                if (fd_wait_for_event(fd, POLLIN, t) <= 0) {
-                                        (void) tcsetattr(fd, TCSANOW, &old_termios);
-                                        return -ETIMEDOUT;
+                        എങ്കിൽ (t != USEC_INFINITY) {
+                                എങ്കിൽ (fd_wait_for_event(fd, POLLIN, t) <= 0) {
+                                        (ശൂന്യം) tcsetattr(fd, TCSANOW, &old_termios);
+                                        തിരികെ -ETIMEDOUT;
                                 }
                         }
 
                         r = safe_fgetc(f, &c);
-                        (void) tcsetattr(fd, TCSANOW, &old_termios);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EIO;
+                        (ശൂന്യം) tcsetattr(fd, TCSANOW, &old_termios);
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        എങ്കിൽ (r == 0)
+                                തിരികെ -EIO;
 
-                        if (need_nl)
+                        എങ്കിൽ (need_nl)
                                 *need_nl = c != '\n';
 
                         *ret = c;
-                        return 0;
+                        തിരികെ 0;
                 }
         }
 
-        if (t != USEC_INFINITY && fd >= 0) {
+        എങ്കിൽ (t != USEC_INFINITY && fd >= 0) {
                 /* Let's wait the specified amount of time for input. When we have no fd we skip this, under
                  * the assumption that this is an fmemopen() stream or so where waiting doesn't make sense
                  * anyway, as the data is either already in the stream or cannot possible be placed there
                  * while we access the stream */
 
-                if (fd_wait_for_event(fd, POLLIN, t) <= 0)
-                        return -ETIMEDOUT;
+                എങ്കിൽ (fd_wait_for_event(fd, POLLIN, t) <= 0)
+                        തിരികെ -ETIMEDOUT;
         }
 
         /* If this is not a terminal, then read a full line instead */
 
-        r = read_line(f, 16, &line); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EIO;
+        r = read_വരി(f, 16, &വരി); /* longer than necessary, to eat up UTF-8 chars/vt100 key sequences */
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0)
+                തിരികെ -EIO;
 
-        if (strlen(line) != 1)
-                return -EBADMSG;
+        എങ്കിൽ (strlen(വരി) != 1)
+                തിരികെ -EBADMSG;
 
-        if (need_nl)
+        എങ്കിൽ (need_nl)
                 *need_nl = false;
 
-        *ret = line[0];
-        return 0;
+        *ret = വരി[0];
+        തിരികെ 0;
 }
 
 #define DEFAULT_ASK_REFRESH_USEC (2*USEC_PER_SEC)
 
-int ask_char(char *ret, const char *replies, const char *fmt, ...) {
-        int r;
+പൂർണ്ണസംഖ്യ ask_char(അക്ഷരം *ret, സ്ഥിരം അക്ഷരം *replies, സ്ഥിരം അക്ഷരം *fmt, ...) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
-        assert(replies);
-        assert(fmt);
+        പ്രതിജ്ഞാ(ret);
+        പ്രതിജ്ഞാ(replies);
+        പ്രതിജ്ഞാ(fmt);
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 va_list ap;
-                char c;
+                അക്ഷരം c;
                 bool need_nl = true;
 
                 fputs(ansi_highlight(), stdout);
@@ -198,33 +198,33 @@ int ask_char(char *ret, const char *replies, const char *fmt, ...) {
                 fflush(stdout);
 
                 r = read_one_char(stdin, &c, DEFAULT_ASK_REFRESH_USEC, /* echo= */ true, &need_nl);
-                if (r < 0) {
+                എങ്കിൽ (r < 0) {
 
-                        if (r == -ETIMEDOUT)
-                                continue;
+                        എങ്കിൽ (r == -ETIMEDOUT)
+                                തുടരുക;
 
-                        if (r == -EBADMSG) {
+                        എങ്കിൽ (r == -EBADMSG) {
                                 puts("Bad input, please try again.");
-                                continue;
+                                തുടരുക;
                         }
 
                         putchar('\n');
-                        return r;
+                        തിരികെ r;
                 }
 
-                if (need_nl)
+                എങ്കിൽ (need_nl)
                         putchar('\n');
 
-                if (strchr(replies, c)) {
+                എങ്കിൽ (strchr(replies, c)) {
                         *ret = c;
-                        return 0;
+                        തിരികെ 0;
                 }
 
                 puts("Read unexpected character, please try again.");
         }
 }
 
-typedef enum CompletionResult{
+തരനിർവചനം എണ്ണൽ CompletionResult{
         COMPLETION_ALREADY,       /* the input string is already complete */
         COMPLETION_FULL,          /* completed the input string to be complete now */
         COMPLETION_PARTIAL,       /* completed the input string so that is still incomplete */
@@ -234,34 +234,34 @@ typedef enum CompletionResult{
         _COMPLETION_RESULT_ERRNO_MAX = -ERRNO_MAX,
 } CompletionResult;
 
-static CompletionResult pick_completion(const char *string, char *const*completions, char **ret) {
-        _cleanup_free_ char *found = NULL;
+സ്ഥിതം CompletionResult pick_completion(സ്ഥിരം അക്ഷരം *string, അക്ഷരം *സ്ഥിരം*completions, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *found = ശൂന്യ;
         bool partial = false;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         string = strempty(string);
 
         STRV_FOREACH(c, completions) {
 
                 /* Ignore entries that are not actually completions */
-                if (!startswith(*c, string))
-                        continue;
+                എങ്കിൽ (!startswith(*c, string))
+                        തുടരുക;
 
                 /* Store first completion that matches */
-                if (!found) {
+                എങ്കിൽ (!found) {
                         found = strdup(*c);
-                        if (!found)
-                                return -ENOMEM;
+                        എങ്കിൽ (!found)
+                                തിരികെ -ENOMEM;
 
-                        continue;
+                        തുടരുക;
                 }
 
                 /* If there's another completion that works truncate the one we already found by common
                  * prefix */
                 size_t n = str_common_prefix(found, *c);
-                if (n == SIZE_MAX)
-                        continue;
+                എങ്കിൽ (n == SIZE_MAX)
+                        തുടരുക;
 
                 found[n] = 0;
                 partial = true;
@@ -269,55 +269,55 @@ static CompletionResult pick_completion(const char *string, char *const*completi
 
         *ret = TAKE_PTR(found);
 
-        if (!*ret)
-                return COMPLETION_NONE;
-        if (partial)
-                return COMPLETION_PARTIAL;
+        എങ്കിൽ (!*ret)
+                തിരികെ COMPLETION_NONE;
+        എങ്കിൽ (partial)
+                തിരികെ COMPLETION_PARTIAL;
 
-        return streq(string, *ret) ? COMPLETION_ALREADY : COMPLETION_FULL;
+        തിരികെ streq(string, *ret) ? COMPLETION_ALREADY : COMPLETION_FULL;
 }
 
-static void clear_by_backspace(size_t n) {
+സ്ഥിതം ശൂന്യം clear_by_backspace(size_t n) {
         /* Erase the specified number of character cells backwards on the terminal */
-        for (size_t i = 0; i < n; i++)
+        വേണ്ടി (size_t i = 0; i < n; i++)
                 fputs("\b \b", stdout);
 }
 
-int ask_string_full(
-                char **ret,
-                const char *prefill,
+പൂർണ്ണസംഖ്യ ask_string_full(
+                അക്ഷരം **ret,
+                സ്ഥിരം അക്ഷരം *prefill,
                 GetCompletionsCallback get_completions,
-                void *userdata,
-                const char *text, ...) {
+                ശൂന്യം *userdata,
+                സ്ഥിരം അക്ഷരം *text, ...) {
 
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
-        assert(text);
+        പ്രതിജ്ഞാ(ret);
+        പ്രതിജ്ഞാ(text);
 
-        _cleanup_free_ char *string = NULL;
+        _cleanup_free_ അക്ഷരം *string = ശൂന്യ;
         size_t n = 0;
 
-        if (prefill) {
+        എങ്കിൽ (prefill) {
                 /* Prefill query with explicit data if specified */
 
                 string = strdup(prefill);
-                if (!string)
-                        return -ENOMEM;
+                എങ്കിൽ (!string)
+                        തിരികെ -ENOMEM;
 
                 n = strlen(string);
 
-        } else if (get_completions) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (get_completions) {
                 /* Otherwise, figure out what string to preselect the query with */
-                _cleanup_strv_free_ char **completions = NULL;
+                _cleanup_strv_free_ അക്ഷരം **completions = ശൂന്യ;
                 r = get_completions("", GET_COMPLETIONS_PRESELECT, &completions, userdata);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 CompletionResult cr = pick_completion(string, completions, &string);
-                if (cr < 0)
-                        return cr;
+                എങ്കിൽ (cr < 0)
+                        തിരികെ cr;
 
                 n = strlen_ptr(string);
         }
@@ -328,60 +328,60 @@ int ask_string_full(
         vprintf(text, ap);
         va_end(ap);
         fputs(ansi_normal(), stdout);
-        if (string)
+        എങ്കിൽ (string)
                 fputs(string, stdout);
         fflush(stdout);
 
         /* Do interactive logic only if stdin + stdout are connected to the same place. And yes, we could use
          * STDIN_FILENO and STDOUT_FILENO here, but let's be overly correct for once, after all libc allows
          * swapping out stdin/stdout. */
-        int fd_input = fileno(stdin);
-        int fd_output = fileno(stdout);
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(fd_input, old_termios);
+        പൂർണ്ണസംഖ്യ fd_നിവേശം = fileno(stdin);
+        പൂർണ്ണസംഖ്യ fd_output = fileno(stdout);
+        ഘടന termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(fd_നിവേശം, old_termios);
 
-        if (fd_input < 0 || fd_output < 0 || same_fd(fd_input, fd_output) <= 0)
-                goto fallback;
+        എങ്കിൽ (fd_നിവേശം < 0 || fd_output < 0 || same_fd(fd_നിവേശം, fd_output) <= 0)
+                പോകുക fallback;
 
         /* Try to disable echo, which also tells us if this even is a terminal */
-        if (tcgetattr(fd_input, &old_termios) < 0) {
+        എങ്കിൽ (tcgetattr(fd_നിവേശം, &old_termios) < 0) {
                 old_termios = TERMIOS_NULL;
-                goto fallback;
+                പോകുക fallback;
         }
 
-        struct termios new_termios = old_termios;
+        ഘടന termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
-        if (tcsetattr(fd_input, TCSANOW, &new_termios) < 0)
-                return -errno;
+        എങ്കിൽ (tcsetattr(fd_നിവേശം, TCSANOW, &new_termios) < 0)
+                തിരികെ -errno;
 
-        for (;;) {
-                int c = fgetc(stdin);
+        വേണ്ടി (;;) {
+                പൂർണ്ണസംഖ്യ c = fgetc(stdin);
 
                 /* On EOF or NUL, end the request, don't output anything anymore */
-                if (IN_SET(c, EOF, 0))
-                        break;
+                എങ്കിൽ (IN_SET(c, EOF, 0))
+                        നിർത്തുക;
 
                 /* On Return also end the request, but make this visible */
-                if (IN_SET(c, '\n', '\r')) {
+                എങ്കിൽ (IN_SET(c, '\n', '\r')) {
                         fputc('\n', stdout);
-                        break;
+                        നിർത്തുക;
                 }
 
-                if (c == '\t') {
+                എങ്കിൽ (c == '\t') {
                         /* Tab */
 
-                        _cleanup_strv_free_ char **completions = NULL;
-                        if (get_completions) {
+                        _cleanup_strv_free_ അക്ഷരം **completions = ശൂന്യ;
+                        എങ്കിൽ (get_completions) {
                                 r = get_completions(string, /* flags= */ 0, &completions, userdata);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
                         }
 
-                        _cleanup_free_ char *new_string = NULL;
+                        _cleanup_free_ അക്ഷരം *new_string = ശൂന്യ;
                         CompletionResult cr = pick_completion(string, completions, &new_string);
-                        if (cr < 0)
-                                return cr;
-                        if (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_FULL)) {
+                        എങ്കിൽ (cr < 0)
+                                തിരികെ cr;
+                        എങ്കിൽ (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_FULL)) {
                                 /* Output the new suffix we learned */
                                 fputs(ASSERT_PTR(startswith(new_string, strempty(string))), stdout);
 
@@ -389,18 +389,18 @@ int ask_string_full(
                                 free_and_replace(string, new_string);
                                 n = strlen(string);
                         }
-                        if (cr == COMPLETION_NONE)
+                        എങ്കിൽ (cr == COMPLETION_NONE)
                                 fputc('\a', stdout); /* BEL */
 
-                        if (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_ALREADY)) {
+                        എങ്കിൽ (IN_SET(cr, COMPLETION_PARTIAL, COMPLETION_ALREADY)) {
                                 /* If this worked only partially, or if the user hit TAB even though we were
                                  * complete already, then show the remaining options (in the latter case just
                                  * the one). */
                                 fputc('\n', stdout);
 
-                                _cleanup_strv_free_ char **filtered = strv_filter_prefix(completions, string);
-                                if (!filtered)
-                                        return -ENOMEM;
+                                _cleanup_strv_free_ അക്ഷരം **filtered = strv_filter_prefix(completions, string);
+                                എങ്കിൽ (!filtered)
+                                        തിരികെ -ENOMEM;
 
                                 r = show_menu(filtered,
                                               /* n_columns= */ SIZE_MAX,
@@ -408,8 +408,8 @@ int ask_string_full(
                                               /* ellipsize_percentage= */ 0,
                                               /* grey_prefix= */ string,
                                               /* with_numbers= */ false);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
                                 /* Show the prompt again */
                                 fputs(ansi_highlight(), stdout);
@@ -420,45 +420,45 @@ int ask_string_full(
                                 fputs(string, stdout);
                         }
 
-                } else if (IN_SET(c, '\b', 127)) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (IN_SET(c, '\b', 127)) {
                         /* Backspace */
 
-                        if (n == 0)
+                        എങ്കിൽ (n == 0)
                                 fputc('\a', stdout); /* BEL */
-                        else {
+                        അല്ലെങ്കിൽ {
                                 size_t m = utf8_last_length(string, n);
 
-                                char *e = string + n - m;
+                                അക്ഷരം *e = string + n - m;
                                 clear_by_backspace(utf8_console_width(e));
 
                                 *e = 0;
                                 n -= m;
                         }
 
-                } else if (c == 21) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (c == 21) {
                         /* Ctrl-u → erase all input */
 
                         clear_by_backspace(utf8_console_width(string));
-                        if (string)
+                        എങ്കിൽ (string)
                                 string[n = 0] = 0;
-                        else
-                                assert(n == 0);
+                        അല്ലെങ്കിൽ
+                                പ്രതിജ്ഞാ(n == 0);
 
-                } else if (c == 4) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (c == 4) {
                         /* Ctrl-d → cancel this field input */
 
-                        return -ECANCELED;
+                        തിരികെ -ECANCELED;
 
-                } else if (char_is_cc(c) || n >= LINE_MAX)
+                } അല്ലെങ്കിൽ എങ്കിൽ (char_is_cc(c) || n >= LINE_MAX)
                         /* refuse control characters and too long strings */
                         fputc('\a', stdout); /* BEL */
-                else {
+                അല്ലെങ്കിൽ {
                         /* Regular char */
 
-                        if (!GREEDY_REALLOC(string, n+2))
-                                return -ENOMEM;
+                        എങ്കിൽ (!GREEDY_REALLOC(string, n+2))
+                                തിരികെ -ENOMEM;
 
-                        string[n++] = (char) c;
+                        string[n++] = (അക്ഷരം) c;
                         string[n] = 0;
 
                         fputc(c, stdout);
@@ -467,29 +467,29 @@ int ask_string_full(
                 fflush(stdout);
         }
 
-        if (!string) {
+        എങ്കിൽ (!string) {
                 string = strdup("");
-                if (!string)
-                        return -ENOMEM;
+                എങ്കിൽ (!string)
+                        തിരികെ -ENOMEM;
         }
 
         *ret = TAKE_PTR(string);
-        return 0;
+        തിരികെ 0;
 
 fallback:
         /* A simple fallback without TTY magic */
         string = mfree(string);
-        r = read_line(stdin, LONG_LINE_MAX, &string);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EIO;
+        r = read_വരി(stdin, LONG_വരി_MAX, &string);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0)
+                തിരികെ -EIO;
 
         *ret = TAKE_PTR(string);
-        return 0;
+        തിരികെ 0;
 }
 
-bool any_key_to_proceed(void) {
+bool any_താക്കോൽ_to_proceed(ശൂന്യം) {
 
         /* Insert a new line here as well as to when the user inputs, as this is also used during the boot up
          * sequence when status messages may be interleaved with the current program output. This ensures
@@ -502,16 +502,16 @@ bool any_key_to_proceed(void) {
         fputc('\n', stdout);
         fflush(stdout);
 
-        char key = 0;
-        (void) read_one_char(stdin, &key, USEC_INFINITY, /* echo= */ false, /* need_nl= */ NULL);
+        അക്ഷരം താക്കോൽ = 0;
+        (ശൂന്യം) read_one_char(stdin, &താക്കോൽ, USEC_INFINITY, /* echo= */ false, /* need_nl= */ ശൂന്യ);
 
         fputc('\n', stdout);
         fflush(stdout);
 
-        return key != 'q';
+        തിരികെ താക്കോൽ != 'q';
 }
 
-static size_t widest_list_element(char *const*l) {
+സ്ഥിതം size_t widest_list_element(അക്ഷരം *സ്ഥിരം*l) {
         size_t w = 0;
 
         /* Returns the largest console width of all elements in 'l' */
@@ -519,38 +519,38 @@ static size_t widest_list_element(char *const*l) {
         STRV_FOREACH(i, l)
                 w = MAX(w, utf8_console_width(*i));
 
-        return w;
+        തിരികെ w;
 }
 
-int show_menu(char **x,
+പൂർണ്ണസംഖ്യ show_menu(അക്ഷരം **x,
               size_t n_columns,
               size_t column_width,
               unsigned ellipsize_percentage,
-              const char *grey_prefix,
+              സ്ഥിരം അക്ഷരം *grey_prefix,
               bool with_numbers) {
 
-        assert(n_columns > 0);
-        assert(column_width > 0);
+        പ്രതിജ്ഞാ(n_columns > 0);
+        പ്രതിജ്ഞാ(column_width > 0);
 
-        if (n_columns == SIZE_MAX)
+        എങ്കിൽ (n_columns == SIZE_MAX)
                 n_columns = 3;
 
-        if (column_width == SIZE_MAX) {
+        എങ്കിൽ (column_width == SIZE_MAX) {
                 size_t widest = widest_list_element(x);
 
                 /* If not specified, derive column width from screen width */
                 size_t column_max = (columns()-1) / n_columns;
 
                 /* Subtract room for numbers */
-                if (with_numbers)
+                എങ്കിൽ (with_numbers)
                         column_max = LESS_BY(column_max, 6U);
 
                 /* If columns would get too tight let's make this a linear list instead. */
-                if (column_max < 10 && widest > 10) {
+                എങ്കിൽ (column_max < 10 && widest > 10) {
                         n_columns = 1;
                         column_max = columns()-1;
 
-                        if (with_numbers)
+                        എങ്കിൽ (with_numbers)
                                 column_max = LESS_BY(column_max, 6U);
                 }
 
@@ -562,59 +562,59 @@ int show_menu(char **x,
         size_t n = strv_length(x);
         size_t per_column = DIV_ROUND_UP(n, n_columns);
 
-        size_t break_lines = lines();
-        if (break_lines > 2)
-                break_lines--;
+        size_t break_വരികൾ = വരികൾ();
+        എങ്കിൽ (break_വരികൾ > 2)
+                break_വരികൾ--;
 
         /* The first page gets two extra lines, since we want to show a title */
-        size_t break_modulo = break_lines;
-        if (break_modulo > 3)
+        size_t break_modulo = break_വരികൾ;
+        എങ്കിൽ (break_modulo > 3)
                 break_modulo -= 3;
 
-        for (size_t i = 0; i < per_column; i++) {
+        വേണ്ടി (size_t i = 0; i < per_column; i++) {
 
-                for (size_t j = 0; j < n_columns; j++) {
-                        _cleanup_free_ char *e = NULL;
+                വേണ്ടി (size_t j = 0; j < n_columns; j++) {
+                        _cleanup_free_ അക്ഷരം *e = ശൂന്യ;
 
                         size_t p = j * per_column + i;
-                        if (p >= n)
-                                break;
+                        എങ്കിൽ (p >= n)
+                                നിർത്തുക;
 
                         e = ellipsize(x[p], column_width, ellipsize_percentage);
-                        if (!e)
-                                return -ENOMEM;
+                        എങ്കിൽ (!e)
+                                തിരികെ -ENOMEM;
 
-                        if (with_numbers)
+                        എങ്കിൽ (with_numbers)
                                 printf("%s%4zu)%s ",
                                        ansi_grey(),
                                        p + 1,
                                        ansi_normal());
 
-                        if (grey_prefix && startswith(e, grey_prefix)) {
+                        എങ്കിൽ (grey_prefix && startswith(e, grey_prefix)) {
                                 size_t k = MIN(strlen(grey_prefix), column_width);
                                 printf("%s%.*s%s",
                                        ansi_grey(),
-                                       (int) k, e,
+                                       (പൂർണ്ണസംഖ്യ) k, e,
                                        ansi_normal());
                                 printf("%-*s",
-                                       (int) (column_width - k), e+k);
-                        } else
-                                printf("%-*s", (int) column_width, e);
+                                       (പൂർണ്ണസംഖ്യ) (column_width - k), e+k);
+                        } അല്ലെങ്കിൽ
+                                printf("%-*s", (പൂർണ്ണസംഖ്യ) column_width, e);
                 }
 
                 putchar('\n');
 
                 /* on the first screen we reserve 2 extra lines for the title */
-                if (i % break_lines == break_modulo)
-                        if (!any_key_to_proceed())
-                                return 0;
+                എങ്കിൽ (i % break_വരികൾ == break_modulo)
+                        എങ്കിൽ (!any_താക്കോൽ_to_proceed())
+                                തിരികെ 0;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-int open_terminal(const char *name, int mode) {
-        _cleanup_close_ int fd = -EBADF;
+പൂർണ്ണസംഖ്യ open_terminal(സ്ഥിരം അക്ഷരം *name, പൂർണ്ണസംഖ്യ mode) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
 
         /*
          * If a TTY is in the process of being closed opening it might cause EIO. This is horribly awful, but
@@ -624,43 +624,43 @@ int open_terminal(const char *name, int mode) {
          * https://bugs.launchpad.net/ubuntu/+source/linux/+bug/554172/comments/245
          */
 
-        assert((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
+        പ്രതിജ്ഞാ((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
 
-        for (unsigned c = 0;; c++) {
+        വേണ്ടി (unsigned c = 0;; c++) {
                 fd = open(name, mode, 0);
-                if (fd >= 0)
-                        break;
+                എങ്കിൽ (fd >= 0)
+                        നിർത്തുക;
 
-                if (errno != EIO)
-                        return -errno;
+                എങ്കിൽ (errno != EIO)
+                        തിരികെ -errno;
 
                 /* Max 1s in total */
-                if (c >= 20)
-                        return -EIO;
+                എങ്കിൽ (c >= 20)
+                        തിരികെ -EIO;
 
-                (void) usleep_safe(50 * USEC_PER_MSEC);
+                (ശൂന്യം) usleep_safe(50 * USEC_PER_MSEC);
         }
 
-        if (!isatty_safe(fd))
-                return -ENOTTY;
+        എങ്കിൽ (!isatty_safe(fd))
+                തിരികെ -ENOTTY;
 
-        return TAKE_FD(fd);
+        തിരികെ TAKE_FD(fd);
 }
 
-int acquire_terminal(
-                const char *name,
+പൂർണ്ണസംഖ്യ acquire_terminal(
+                സ്ഥിരം അക്ഷരം *name,
                 AcquireTerminalFlags flags,
                 usec_t timeout) {
 
-        _cleanup_close_ int notify = -EBADF, fd = -EBADF;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ notify = -EBADF, fd = -EBADF;
         usec_t ts = USEC_INFINITY;
-        int r, wd = -1;
+        പൂർണ്ണസംഖ്യ r, wd = -1;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
         AcquireTerminalFlags mode = flags & _ACQUIRE_TERMINAL_MODE_MASK;
-        assert(IN_SET(mode, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
-        assert(mode == ACQUIRE_TERMINAL_WAIT || !FLAGS_SET(flags, ACQUIRE_TERMINAL_WATCH_SIGTERM));
+        പ്രതിജ്ഞാ(IN_SET(mode, ACQUIRE_TERMINAL_TRY, ACQUIRE_TERMINAL_FORCE, ACQUIRE_TERMINAL_WAIT));
+        പ്രതിജ്ഞാ(mode == ACQUIRE_TERMINAL_WAIT || !FLAGS_SET(flags, ACQUIRE_TERMINAL_WATCH_SIGTERM));
 
         /* We use inotify to be notified when the tty is closed. We create the watch before checking if we can actually
          * acquire it, so that we don't lose any event.
@@ -671,115 +671,115 @@ int acquire_terminal(
          * not configure any service on the same tty as an untrusted user this should not be a problem. (Which they
          * probably should not do anyway.) */
 
-        if (mode == ACQUIRE_TERMINAL_WAIT) {
+        എങ്കിൽ (mode == ACQUIRE_TERMINAL_WAIT) {
                 notify = inotify_init1(IN_CLOEXEC | IN_NONBLOCK);
-                if (notify < 0)
-                        return -errno;
+                എങ്കിൽ (notify < 0)
+                        തിരികെ -errno;
 
                 wd = inotify_add_watch(notify, name, IN_CLOSE);
-                if (wd < 0)
-                        return -errno;
+                എങ്കിൽ (wd < 0)
+                        തിരികെ -errno;
 
-                if (timeout != USEC_INFINITY)
+                എങ്കിൽ (timeout != USEC_INFINITY)
                         ts = now(CLOCK_MONOTONIC);
         }
 
         /* If we are called with ACQUIRE_TERMINAL_WATCH_SIGTERM we'll unblock SIGTERM during ppoll() temporarily */
         sigset_t poll_ss;
-        assert_se(sigprocmask(SIG_SETMASK, /* newset= */ NULL, &poll_ss) >= 0);
-        if (flags & ACQUIRE_TERMINAL_WATCH_SIGTERM) {
+        assert_se(sigprocmask(SIG_SETMASK, /* newset= */ ശൂന്യ, &poll_ss) >= 0);
+        എങ്കിൽ (flags & ACQUIRE_TERMINAL_WATCH_SIGTERM) {
                 assert_se(sigismember(&poll_ss, SIGTERM) > 0);
                 assert_se(sigdelset(&poll_ss, SIGTERM) >= 0);
         }
 
-        for (;;) {
-                if (notify >= 0) {
+        വേണ്ടി (;;) {
+                എങ്കിൽ (notify >= 0) {
                         r = flush_fd(notify);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
 
                 /* We pass here O_NOCTTY only so that we can check the return value TIOCSCTTY and have a reliable way
                  * to figure out if we successfully became the controlling process of the tty */
                 fd = open_terminal(name, O_RDWR|O_NOCTTY|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                എങ്കിൽ (fd < 0)
+                        തിരികെ fd;
 
                 /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed if we already own the tty. */
-                struct sigaction sa_old;
+                ഘടന sigaction sa_old;
                 assert_se(sigaction(SIGHUP, &sigaction_ignore, &sa_old) >= 0);
 
                 /* First, try to get the tty */
                 r = RET_NERRNO(ioctl(fd, TIOCSCTTY, mode == ACQUIRE_TERMINAL_FORCE));
 
                 /* Reset signal handler to old value */
-                assert_se(sigaction(SIGHUP, &sa_old, NULL) >= 0);
+                assert_se(sigaction(SIGHUP, &sa_old, ശൂന്യ) >= 0);
 
                 /* Success? Exit the loop now! */
-                if (r >= 0)
-                        break;
+                എങ്കിൽ (r >= 0)
+                        നിർത്തുക;
 
                 /* Any failure besides -EPERM? Fail, regardless of the mode. */
-                if (r != -EPERM)
-                        return r;
+                എങ്കിൽ (r != -EPERM)
+                        തിരികെ r;
 
-                if (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
+                എങ്കിൽ (flags & ACQUIRE_TERMINAL_PERMISSIVE) /* If we are in permissive mode, then EPERM is fine, turn this
                                                           * into a success. Note that EPERM is also returned if we
                                                           * already are the owner of the TTY. */
-                        break;
+                        നിർത്തുക;
 
-                if (mode != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
-                        return r;
+                എങ്കിൽ (mode != ACQUIRE_TERMINAL_WAIT) /* If we are in TRY or FORCE mode, then propagate EPERM as EPERM */
+                        തിരികെ r;
 
-                assert(notify >= 0);
-                assert(wd >= 0);
+                പ്രതിജ്ഞാ(notify >= 0);
+                പ്രതിജ്ഞാ(wd >= 0);
 
-                for (;;) {
-                        usec_t left;
-                        if (timeout == USEC_INFINITY)
-                                left = USEC_INFINITY;
-                        else {
-                                assert(ts != USEC_INFINITY);
+                വേണ്ടി (;;) {
+                        usec_t ഇടത്;
+                        എങ്കിൽ (timeout == USEC_INFINITY)
+                                ഇടത് = USEC_INFINITY;
+                        അല്ലെങ്കിൽ {
+                                പ്രതിജ്ഞാ(ts != USEC_INFINITY);
 
                                 usec_t n = usec_sub_unsigned(now(CLOCK_MONOTONIC), ts);
-                                if (n >= timeout)
-                                        return -ETIMEDOUT;
+                                എങ്കിൽ (n >= timeout)
+                                        തിരികെ -ETIMEDOUT;
 
-                                left = timeout - n;
+                                ഇടത് = timeout - n;
                         }
 
                         r = ppoll_usec_full(
-                                        &(struct pollfd) {
+                                        &(ഘടന pollfd) {
                                                 .fd = notify,
                                                 .events = POLLIN,
                                         },
                                         /* n_fds= */ 1,
-                                        left,
+                                        ഇടത്,
                                         &poll_ss);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIMEDOUT;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        എങ്കിൽ (r == 0)
+                                തിരികെ -ETIMEDOUT;
 
-                        union inotify_event_buffer buffer;
+                        സംഘം inotify_event_buffer buffer;
                         ssize_t l;
-                        l = read(notify, &buffer, sizeof(buffer));
-                        if (l < 0) {
-                                if (ERRNO_IS_TRANSIENT(errno))
-                                        continue;
+                        l = പഠ(notify, &buffer, വലുപ്പം(buffer));
+                        എങ്കിൽ (l < 0) {
+                                എങ്കിൽ (ERRNO_IS_TRANSIENT(errno))
+                                        തുടരുക;
 
-                                return -errno;
+                                തിരികെ -errno;
                         }
 
                         FOREACH_INOTIFY_EVENT(e, buffer, l) {
-                                if (e->mask & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
-                                        break;
+                                എങ്കിൽ (e->mask & IN_Q_OVERFLOW) /* If we hit an inotify queue overflow, simply check if the terminal is up for grabs now. */
+                                        നിർത്തുക;
 
-                                if (e->wd != wd || !(e->mask & IN_CLOSE)) /* Safety checks */
-                                        return -EIO;
+                                എങ്കിൽ (e->wd != wd || !(e->mask & IN_CLOSE)) /* Safety checks */
+                                        തിരികെ -EIO;
                         }
 
-                        break;
+                        നിർത്തുക;
                 }
 
                 /* We close the tty fd here since if the old session ended our handle will be dead. It's important that
@@ -787,30 +787,30 @@ int acquire_terminal(
                 fd = safe_close(fd);
         }
 
-        return TAKE_FD(fd);
+        തിരികെ TAKE_FD(fd);
 }
 
-int release_terminal(void) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+പൂർണ്ണസംഖ്യ release_terminal(ശൂന്യം) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
         fd = open("/dev/tty", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd < 0)
-                return -errno;
+        എങ്കിൽ (fd < 0)
+                തിരികെ -errno;
 
         /* Temporarily ignore SIGHUP, so that we don't get SIGHUP'ed
          * by our own TIOCNOTTY */
-        struct sigaction sa_old;
+        ഘടന sigaction sa_old;
         assert_se(sigaction(SIGHUP, &sigaction_ignore, &sa_old) >= 0);
 
         r = RET_NERRNO(ioctl(fd, TIOCNOTTY));
 
-        assert_se(sigaction(SIGHUP, &sa_old, NULL) >= 0);
+        assert_se(sigaction(SIGHUP, &sa_old, ശൂന്യ) >= 0);
 
-        return r;
+        തിരികെ r;
 }
 
-int terminal_new_session(void) {
+പൂർണ്ണസംഖ്യ terminal_new_session(ശൂന്യം) {
 
         /* Make us the new session leader, and set stdin tty to be our controlling terminal.
          *
@@ -819,62 +819,62 @@ int terminal_new_session(void) {
          * (that side channel being signal delivery, i.e. SIGINT, SIGHUP et al). Hence we focus on input,
          * not output here. */
 
-        if (!isatty_safe(STDIN_FILENO))
-                return -ENXIO;
+        എങ്കിൽ (!isatty_safe(STDIN_FILENO))
+                തിരികെ -ENXIO;
 
-        (void) setsid();
-        return RET_NERRNO(ioctl(STDIN_FILENO, TIOCSCTTY, 0));
+        (ശൂന്യം) setsid();
+        തിരികെ RET_NERRNO(ioctl(STDIN_FILENO, TIOCSCTTY, 0));
 }
 
-void terminal_detach_session(void) {
-        (void) setsid();
-        (void) release_terminal();
+ശൂന്യം terminal_detach_session(ശൂന്യം) {
+        (ശൂന്യം) setsid();
+        (ശൂന്യം) release_terminal();
 }
 
-int terminal_vhangup_fd(int fd) {
-        assert(fd >= 0);
-        return RET_NERRNO(ioctl(fd, TIOCVHANGUP));
+പൂർണ്ണസംഖ്യ terminal_vhangup_fd(പൂർണ്ണസംഖ്യ fd) {
+        പ്രതിജ്ഞാ(fd >= 0);
+        തിരികെ RET_NERRNO(ioctl(fd, TIOCVHANGUP));
 }
 
-int terminal_vhangup(const char *tty) {
-        _cleanup_close_ int fd = -EBADF;
+പൂർണ്ണസംഖ്യ terminal_vhangup(സ്ഥിരം അക്ഷരം *tty) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
 
-        assert(tty);
+        പ്രതിജ്ഞാ(tty);
 
         fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        എങ്കിൽ (fd < 0)
+                തിരികെ fd;
 
-        return terminal_vhangup_fd(fd);
+        തിരികെ terminal_vhangup_fd(fd);
 }
 
-int vt_disallocate(const char *tty_path) {
-        assert(tty_path);
+പൂർണ്ണസംഖ്യ vt_disallocate(സ്ഥിരം അക്ഷരം *tty_path) {
+        പ്രതിജ്ഞാ(tty_path);
 
         /* Deallocate the VT if possible. If not possible (i.e. because it is the active one), at least clear
          * it entirely (including the scrollback buffer). */
 
-        int ttynr = vtnr_from_tty(tty_path);
-        if (ttynr > 0) {
-                _cleanup_close_ int fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-                if (fd < 0)
-                        return fd;
+        പൂർണ്ണസംഖ്യ ttynr = vtnr_from_tty(tty_path);
+        എങ്കിൽ (ttynr > 0) {
+                _cleanup_close_ പൂർണ്ണസംഖ്യ fd = open_terminal("/dev/tty0", O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+                എങ്കിൽ (fd < 0)
+                        തിരികെ fd;
 
                 /* Try to deallocate */
-                if (ioctl(fd, VT_DISALLOCATE, ttynr) >= 0)
-                        return 0;
-                if (errno != EBUSY)
-                        return -errno;
+                എങ്കിൽ (ioctl(fd, VT_DISALLOCATE, ttynr) >= 0)
+                        തിരികെ 0;
+                എങ്കിൽ (errno != EBUSY)
+                        തിരികെ -errno;
         }
 
         /* So this is not a VT (in which case we cannot deallocate it), or we failed to deallocate. Let's at
          * least clear the screen. */
 
-        _cleanup_close_ int fd2 = open_terminal(tty_path, O_WRONLY|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (fd2 < 0)
-                return fd2;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd2 = open_terminal(tty_path, O_WRONLY|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+        എങ്കിൽ (fd2 < 0)
+                തിരികെ fd2;
 
-        return loop_write_full(fd2,
+        തിരികെ loop_write_full(fd2,
                                "\033[r"   /* clear scrolling region */
                                "\033[H"   /* move home */
                                "\033[3J"  /* clear screen including scrollback, requires Linux 2.6.40 */
@@ -883,53 +883,53 @@ int vt_disallocate(const char *tty_path) {
                                CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
 }
 
-static int vt_default_utf8(void) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ vt_default_utf8(ശൂന്യം) {
         /* Read the default VT UTF8 setting from the kernel */
-        return read_boolean_file("/sys/module/vt/parameters/default_utf8");
+        തിരികെ read_boolean_file("/sys/module/vt/parameters/default_utf8");
 }
 
-static int vt_reset_keyboard(int fd) {
-        int r, kb;
+സ്ഥിതം പൂർണ്ണസംഖ്യ vt_reset_keyboard(പൂർണ്ണസംഖ്യ fd) {
+        പൂർണ്ണസംഖ്യ r, kb;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         /* If we can't read the default, then default to Unicode. It's 2024 after all. */
         r = vt_default_utf8();
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 log_debug_errno(r, "Failed to determine kernel VT UTF-8 mode, assuming enabled: %m");
 
         kb = vt_default_utf8() != 0 ? K_UNICODE : K_XLATE;
-        return RET_NERRNO(ioctl(fd, KDSKBMODE, kb));
+        തിരികെ RET_NERRNO(ioctl(fd, KDSKBMODE, kb));
 }
 
-static int terminal_reset_ioctl(int fd, bool switch_to_text) {
-        struct termios termios;
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ terminal_reset_ioctl(പൂർണ്ണസംഖ്യ fd, bool switch_to_text) {
+        ഘടന termios termios;
+        പൂർണ്ണസംഖ്യ r;
 
         /* Set terminal to some sane defaults */
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         /* We leave locked terminal attributes untouched, so that Plymouth may set whatever it wants to set,
          * and we don't interfere with that. */
 
         /* Disable exclusive mode, just in case */
-        if (ioctl(fd, TIOCNXCL) < 0)
+        എങ്കിൽ (ioctl(fd, TIOCNXCL) < 0)
                 log_debug_errno(errno, "TIOCNXCL ioctl failed on TTY, ignoring: %m");
 
         /* Switch to text mode */
-        if (switch_to_text)
-                if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
+        എങ്കിൽ (switch_to_text)
+                എങ്കിൽ (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
                         log_debug_errno(errno, "KDSETMODE ioctl for switching to text mode failed on TTY, ignoring: %m");
 
         /* Set default keyboard mode */
         r = vt_reset_keyboard(fd);
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 log_debug_errno(r, "Failed to reset VT keyboard, ignoring: %m");
 
-        if (tcgetattr(fd, &termios) < 0) {
+        എങ്കിൽ (tcgetattr(fd, &termios) < 0) {
                 r = log_debug_errno(errno, "Failed to get terminal parameters: %m");
-                goto finish;
+                പോകുക finish;
         }
 
         /* We only reset the stuff that matters to the software. How
@@ -960,29 +960,29 @@ static int terminal_reset_ioctl(int fd, bool switch_to_text) {
         termios.c_cc[VMIN]   = 1;
 
         r = RET_NERRNO(tcsetattr(fd, TCSANOW, &termios));
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 log_debug_errno(r, "Failed to set terminal parameters: %m");
 
 finish:
         /* Just in case, flush all crap out */
-        (void) tcflush(fd, TCIOFLUSH);
+        (ശൂന്യം) tcflush(fd, TCIOFLUSH);
 
-        return r;
+        തിരികെ r;
 }
 
-int terminal_reset_ansi_seq(int fd) {
-        _cleanup_(nonblock_resetp) int nonblock_reset = -EBADF;
-        int r;
+പൂർണ്ണസംഖ്യ terminal_reset_ansi_seq(പൂർണ്ണസംഖ്യ fd) {
+        _cleanup_(nonblock_resetp) പൂർണ്ണസംഖ്യ nonblock_reset = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
-        if (getenv_terminal_is_dumb())
-                return 0;
+        എങ്കിൽ (getenv_terminal_is_dumb())
+                തിരികെ 0;
 
         r = fd_nonblock(fd, true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
-        if (r > 0)
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
+        എങ്കിൽ (r > 0)
                 nonblock_reset = fd;
 
         r = loop_write_full(fd,
@@ -994,455 +994,455 @@ int terminal_reset_ansi_seq(int fd) {
                             "\033[0J",             /* erase till end of screen */
                             SIZE_MAX,
                             CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 log_debug_errno(r, "Failed to reset terminal through ANSI sequences: %m");
 
-        return r;
+        തിരികെ r;
 }
 
-void reset_dev_console_fd(int fd, bool switch_to_text) {
-        int r;
+ശൂന്യം reset_dev_console_fd(പൂർണ്ണസംഖ്യ fd, bool switch_to_text) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
-        _cleanup_close_ int lock_fd = lock_dev_console();
-        if (lock_fd < 0)
+        _cleanup_close_ പൂർണ്ണസംഖ്യ lock_fd = lock_dev_console();
+        എങ്കിൽ (lock_fd < 0)
                 log_debug_errno(lock_fd, "Failed to lock /dev/console, ignoring: %m");
 
         r = terminal_reset_ioctl(fd, switch_to_text);
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 log_warning_errno(r, "Failed to reset /dev/console, ignoring: %m");
 
         unsigned rows, cols;
         r = proc_cmdline_tty_size("/dev/console", &rows, &cols);
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 log_warning_errno(r, "Failed to get /dev/console size, ignoring: %m");
-        else if (r > 0) {
-                r = terminal_set_size_fd(fd, NULL, rows, cols);
-                if (r < 0)
+        അല്ലെങ്കിൽ എങ്കിൽ (r > 0) {
+                r = terminal_set_size_fd(fd, ശൂന്യ, rows, cols);
+                എങ്കിൽ (r < 0)
                         log_warning_errno(r, "Failed to set configured terminal size on /dev/console, ignoring: %m");
-        } else
-                (void) terminal_fix_size(fd, fd);
+        } അല്ലെങ്കിൽ
+                (ശൂന്യം) terminal_fix_size(fd, fd);
 
         r = terminal_reset_ansi_seq(fd);
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 log_warning_errno(r, "Failed to reset /dev/console using ANSI sequences, ignoring: %m");
 }
 
-int lock_dev_console(void) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+പൂർണ്ണസംഖ്യ lock_dev_console(ശൂന്യം) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
         /* NB: We do not use O_NOFOLLOW here, because some container managers might place a symlink to some
          * pty in /dev/console, in which case it should be fine to lock the target TTY. */
         fd = open_terminal("/dev/console", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd < 0)
-                return fd;
+        എങ്കിൽ (fd < 0)
+                തിരികെ fd;
 
         r = lock_generic(fd, LOCK_BSD, LOCK_EX);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return TAKE_FD(fd);
+        തിരികെ TAKE_FD(fd);
 }
 
-int make_console_stdio(bool switch_to_text) {
-        int fd, r;
+പൂർണ്ണസംഖ്യ make_console_stdio(bool switch_to_text) {
+        പൂർണ്ണസംഖ്യ fd, r;
 
         /* Make /dev/console the controlling terminal and stdin/stdout/stderr, if we can. If we can't use
          * /dev/null instead. This is particularly useful if /dev/console is turned off, e.g. if console=null
          * is specified on the kernel command line. */
 
         fd = acquire_terminal("/dev/console", ACQUIRE_TERMINAL_FORCE|ACQUIRE_TERMINAL_PERMISSIVE, USEC_INFINITY);
-        if (fd < 0) {
+        എങ്കിൽ (fd < 0) {
                 log_warning_errno(fd, "Failed to acquire terminal, using /dev/null stdin/stdout/stderr instead: %m");
 
                 r = make_null_stdio();
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make /dev/null stdin/stdout/stderr: %m");
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_error_errno(r, "Failed to make /dev/null stdin/stdout/stderr: %m");
 
-        } else {
+        } അല്ലെങ്കിൽ {
                 reset_dev_console_fd(fd, switch_to_text);
 
                 r = rearrange_stdio(fd, fd, fd); /* This invalidates 'fd' both on success and on failure. */
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make terminal stdin/stdout/stderr: %m");
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_error_errno(r, "Failed to make terminal stdin/stdout/stderr: %m");
         }
 
         reset_terminal_feature_caches();
-        return 0;
+        തിരികെ 0;
 }
 
-static int vtnr_from_tty_raw(const char *tty, unsigned *ret) {
-        assert(tty);
+സ്ഥിതം പൂർണ്ണസംഖ്യ vtnr_from_tty_raw(സ്ഥിരം അക്ഷരം *tty, unsigned *ret) {
+        പ്രതിജ്ഞാ(tty);
 
         tty = skip_dev_prefix(tty);
 
-        const char *e = startswith(tty, "tty");
-        if (!e)
-                return -EINVAL;
+        സ്ഥിരം അക്ഷരം *e = startswith(tty, "tty");
+        എങ്കിൽ (!e)
+                തിരികെ -EINVAL;
 
-        return safe_atou(e, ret);
+        തിരികെ safe_atou(e, ret);
 }
 
-int vtnr_from_tty(const char *tty) {
+പൂർണ്ണസംഖ്യ vtnr_from_tty(സ്ഥിരം അക്ഷരം *tty) {
         unsigned u;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(tty);
+        പ്രതിജ്ഞാ(tty);
 
         r = vtnr_from_tty_raw(tty, &u);
-        if (r < 0)
-                return r;
-        if (!vtnr_is_valid(u))
-                return -ERANGE;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (!vtnr_is_valid(u))
+                തിരികെ -ERANGE;
 
-        return (int) u;
+        തിരികെ (പൂർണ്ണസംഖ്യ) u;
 }
 
-bool tty_is_vc(const char *tty) {
-        assert(tty);
+bool tty_is_vc(സ്ഥിരം അക്ഷരം *tty) {
+        പ്രതിജ്ഞാ(tty);
 
         /* NB: for >= 0 values no range check is conducted here, on the assumption that the caller will
          * either extract vtnr through vtnr_from_tty() later where ERANGE would be reported, or doesn't care
          * about whether it's strictly valid, but only asking "does this fall into the vt category?", for which
          * "yes" seems to be a better answer. */
 
-        return vtnr_from_tty_raw(tty, /* ret= */ NULL) >= 0;
+        തിരികെ vtnr_from_tty_raw(tty, /* ret= */ ശൂന്യ) >= 0;
 }
 
-bool tty_is_console(const char *tty) {
-        assert(tty);
+bool tty_is_console(സ്ഥിരം അക്ഷരം *tty) {
+        പ്രതിജ്ഞാ(tty);
 
-        return streq(skip_dev_prefix(tty), "console");
+        തിരികെ streq(skip_dev_prefix(tty), "console");
 }
 
-int resolve_dev_console(char **ret) {
-        int r;
+പൂർണ്ണസംഖ്യ resolve_dev_console(അക്ഷരം **ret) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         /* Resolve where /dev/console is pointing to. If /dev/console is a symlink (like in container
          * managers), we'll just resolve the symlink. If it's a real device node, we'll use if
          * /sys/class/tty/tty0/active, but only if /sys/ is actually ours (i.e. not read-only-mounted which
          * is a sign for container setups). */
 
-        _cleanup_free_ char *chased = NULL;
-        r = chase("/dev/console", /* root= */ NULL, /* flags= */ 0, &chased, /* ret_fd= */ NULL);
-        if (r < 0)
-                return r;
-        if (!path_equal(chased, "/dev/console")) {
+        _cleanup_free_ അക്ഷരം *chased = ശൂന്യ;
+        r = chase("/dev/console", /* root= */ ശൂന്യ, /* flags= */ 0, &chased, /* ret_fd= */ ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (!path_equal(chased, "/dev/console")) {
                 *ret = TAKE_PTR(chased);
-                return 0;
+                തിരികെ 0;
         }
 
         r = path_is_read_only_fs("/sys");
-        if (r < 0)
-                return r;
-        if (r > 0)
-                return -ENOMEDIUM;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r > 0)
+                തിരികെ -ENOMEDIUM;
 
-        _cleanup_free_ char *active = NULL;
-        r = read_one_line_file("/sys/class/tty/console/active", &active);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENXIO;
+        _cleanup_free_ അക്ഷരം *active = ശൂന്യ;
+        r = read_one_വരി_file("/sys/class/tty/console/active", &active);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0)
+                തിരികെ -ENXIO;
 
         /* If multiple log outputs are configured the last one is what /dev/console points to */
-        const char *tty = strrchr(active, ' ');
-        if (tty)
+        സ്ഥിരം അക്ഷരം *tty = strrchr(active, ' ');
+        എങ്കിൽ (tty)
                 tty++;
-        else
+        അല്ലെങ്കിൽ
                 tty = active;
 
-        if (streq(tty, "tty0")) {
+        എങ്കിൽ (streq(tty, "tty0")) {
                 active = mfree(active);
 
                 /* Get the active VC (e.g. tty1) */
-                r = read_one_line_file("/sys/class/tty/tty0/active", &active);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -ENXIO;
+                r = read_one_വരി_file("/sys/class/tty/tty0/active", &active);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        തിരികെ -ENXIO;
 
                 tty = active;
         }
 
-        _cleanup_free_ char *path = NULL;
+        _cleanup_free_ അക്ഷരം *path = ശൂന്യ;
         path = path_join("/dev", tty);
-        if (!path)
-                return -ENOMEM;
+        എങ്കിൽ (!path)
+                തിരികെ -ENOMEM;
 
         *ret = TAKE_PTR(path);
-        return 0;
+        തിരികെ 0;
 }
 
-int get_kernel_consoles(char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        _cleanup_free_ char *line = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ get_kernel_consoles(അക്ഷരം ***ret) {
+        _cleanup_strv_free_ അക്ഷരം **l = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *വരി = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         /* If /sys/ is mounted read-only this means we are running in some kind of container environment.
          * In that case /sys/ would reflect the host system, not us, hence ignore the data we can read from it. */
-        if (path_is_read_only_fs("/sys") > 0)
-                goto fallback;
+        എങ്കിൽ (path_is_read_only_fs("/sys") > 0)
+                പോകുക fallback;
 
-        r = read_one_line_file("/sys/class/tty/console/active", &line);
-        if (r < 0)
-                return r;
+        r = read_one_വരി_file("/sys/class/tty/console/active", &വരി);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        for (const char *p = line;;) {
-                _cleanup_free_ char *tty = NULL, *path = NULL;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം *p = വരി;;) {
+                _cleanup_free_ അക്ഷരം *tty = ശൂന്യ, *path = ശൂന്യ;
 
-                r = extract_first_word(&p, &tty, NULL, 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&p, &tty, ശൂന്യ, 0);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        നിർത്തുക;
 
-                if (streq(tty, "tty0")) {
+                എങ്കിൽ (streq(tty, "tty0")) {
                         tty = mfree(tty);
-                        r = read_one_line_file("/sys/class/tty/tty0/active", &tty);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) {
+                        r = read_one_വരി_file("/sys/class/tty/tty0/active", &tty);
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        എങ്കിൽ (r == 0) {
                                 log_debug("No VT active, skipping /dev/tty0.");
-                                continue;
+                                തുടരുക;
                         }
                 }
 
                 path = path_join("/dev", tty);
-                if (!path)
-                        return -ENOMEM;
+                എങ്കിൽ (!path)
+                        തിരികെ -ENOMEM;
 
-                if (access(path, F_OK) < 0) {
+                എങ്കിൽ (access(path, F_OK) < 0) {
                         log_debug_errno(errno, "Console device %s is not accessible, skipping: %m", path);
-                        continue;
+                        തുടരുക;
                 }
 
                 r = strv_consume(&l, TAKE_PTR(path));
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (strv_isempty(l)) {
+        എങ്കിൽ (strv_isempty(l)) {
                 log_debug("No devices found for system console");
-                goto fallback;
+                പോകുക fallback;
         }
 
         *ret = TAKE_PTR(l);
-        return strv_length(*ret);
+        തിരികെ strv_length(*ret);
 
 fallback:
         r = strv_extend(&l, "/dev/console");
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         *ret = TAKE_PTR(l);
-        return 0;
+        തിരികെ 0;
 }
 
-bool tty_is_vc_resolve(const char *tty) {
-        _cleanup_free_ char *resolved = NULL;
+bool tty_is_vc_resolve(സ്ഥിരം അക്ഷരം *tty) {
+        _cleanup_free_ അക്ഷരം *resolved = ശൂന്യ;
 
-        assert(tty);
+        പ്രതിജ്ഞാ(tty);
 
-        if (streq(skip_dev_prefix(tty), "console")) {
-                if (resolve_dev_console(&resolved) < 0)
-                        return false;
+        എങ്കിൽ (streq(skip_dev_prefix(tty), "console")) {
+                എങ്കിൽ (resolve_dev_console(&resolved) < 0)
+                        തിരികെ false;
 
                 tty = resolved;
         }
 
-        return tty_is_vc(tty);
+        തിരികെ tty_is_vc(tty);
 }
 
-int fd_columns(int fd) {
-        struct winsize ws = {};
+പൂർണ്ണസംഖ്യ fd_columns(പൂർണ്ണസംഖ്യ fd) {
+        ഘടന winsize ws = {};
 
-        if (fd < 0)
-                return -EBADF;
+        എങ്കിൽ (fd < 0)
+                തിരികെ -EBADF;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return -errno;
+        എങ്കിൽ (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                തിരികെ -errno;
 
-        if (ws.ws_col <= 0)
-                return -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
+        എങ്കിൽ (ws.ws_col <= 0)
+                തിരികെ -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
 
-        return ws.ws_col;
+        തിരികെ ws.ws_col;
 }
 
-int getenv_columns(void) {
-        int r;
+പൂർണ്ണസംഖ്യ getenv_columns(ശൂന്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
-        const char *e = getenv("COLUMNS");
-        if (!e)
-                return -ENXIO;
+        സ്ഥിരം അക്ഷരം *e = getenv("COLUMNS");
+        എങ്കിൽ (!e)
+                തിരികെ -ENXIO;
 
         unsigned c;
         r = safe_atou_bounded(e, 1, USHRT_MAX, &c);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return (int) c;
+        തിരികെ (പൂർണ്ണസംഖ്യ) c;
 }
 
-unsigned columns(void) {
+unsigned columns(ശൂന്യം) {
 
-        if (cached_columns > 0)
-                return cached_columns;
+        എങ്കിൽ (cached_columns > 0)
+                തിരികെ cached_columns;
 
-        int c = getenv_columns();
-        if (c < 0) {
+        പൂർണ്ണസംഖ്യ c = getenv_columns();
+        എങ്കിൽ (c < 0) {
                 c = fd_columns(STDOUT_FILENO);
-                if (c < 0)
+                എങ്കിൽ (c < 0)
                         c = 80;
         }
 
-        assert(c > 0);
+        പ്രതിജ്ഞാ(c > 0);
 
         cached_columns = c;
-        return cached_columns;
+        തിരികെ cached_columns;
 }
 
-int fd_lines(int fd) {
-        struct winsize ws = {};
+പൂർണ്ണസംഖ്യ fd_വരികൾ(പൂർണ്ണസംഖ്യ fd) {
+        ഘടന winsize ws = {};
 
-        if (fd < 0)
-                return -EBADF;
+        എങ്കിൽ (fd < 0)
+                തിരികെ -EBADF;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return -errno;
+        എങ്കിൽ (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                തിരികെ -errno;
 
-        if (ws.ws_row <= 0)
-                return -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
+        എങ്കിൽ (ws.ws_row <= 0)
+                തിരികെ -ENODATA; /* some tty types come up with invalid row/column initially, return a recognizable error for that */
 
-        return ws.ws_row;
+        തിരികെ ws.ws_row;
 }
 
-unsigned lines(void) {
-        const char *e;
-        int l;
+unsigned വരികൾ(ശൂന്യം) {
+        സ്ഥിരം അക്ഷരം *e;
+        പൂർണ്ണസംഖ്യ l;
 
-        if (cached_lines > 0)
-                return cached_lines;
+        എങ്കിൽ (cached_വരികൾ > 0)
+                തിരികെ cached_വരികൾ;
 
         l = 0;
         e = getenv("LINES");
-        if (e)
-                (void) safe_atoi(e, &l);
+        എങ്കിൽ (e)
+                (ശൂന്യം) safe_atoi(e, &l);
 
-        if (l <= 0 || l > USHRT_MAX) {
-                l = fd_lines(STDOUT_FILENO);
-                if (l <= 0)
+        എങ്കിൽ (l <= 0 || l > USHRT_MAX) {
+                l = fd_വരികൾ(STDOUT_FILENO);
+                എങ്കിൽ (l <= 0)
                         l = 24;
         }
 
-        cached_lines = l;
-        return cached_lines;
+        cached_വരികൾ = l;
+        തിരികെ cached_വരികൾ;
 }
 
-int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols) {
-        struct winsize ws;
+പൂർണ്ണസംഖ്യ terminal_set_size_fd(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *ident, unsigned rows, unsigned cols) {
+        ഘടന winsize ws;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
-        if (!ident)
+        എങ്കിൽ (!ident)
                 ident = "TTY";
 
-        if (rows == UINT_MAX && cols == UINT_MAX)
-                return 0;
+        എങ്കിൽ (rows == UINT_MAX && cols == UINT_MAX)
+                തിരികെ 0;
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return log_debug_errno(errno,
+        എങ്കിൽ (ioctl(fd, TIOCGWINSZ, &ws) < 0)
+                തിരികെ log_debug_errno(errno,
                                        "TIOCGWINSZ ioctl for getting %s size failed, not setting terminal size: %m",
                                        ident);
 
-        if (rows == UINT_MAX)
+        എങ്കിൽ (rows == UINT_MAX)
                 rows = ws.ws_row;
-        else if (rows > USHRT_MAX)
+        അല്ലെങ്കിൽ എങ്കിൽ (rows > USHRT_MAX)
                 rows = USHRT_MAX;
 
-        if (cols == UINT_MAX)
+        എങ്കിൽ (cols == UINT_MAX)
                 cols = ws.ws_col;
-        else if (cols > USHRT_MAX)
+        അല്ലെങ്കിൽ എങ്കിൽ (cols > USHRT_MAX)
                 cols = USHRT_MAX;
 
-        if (rows == ws.ws_row && cols == ws.ws_col)
-                return 0;
+        എങ്കിൽ (rows == ws.ws_row && cols == ws.ws_col)
+                തിരികെ 0;
 
         ws.ws_row = rows;
         ws.ws_col = cols;
 
-        if (ioctl(fd, TIOCSWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "TIOCSWINSZ ioctl for setting %s size failed: %m", ident);
+        എങ്കിൽ (ioctl(fd, TIOCSWINSZ, &ws) < 0)
+                തിരികെ log_debug_errno(errno, "TIOCSWINSZ ioctl for setting %s size failed: %m", ident);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols) {
-        _cleanup_free_ char *rowskey = NULL, *rowsvalue = NULL, *colskey = NULL, *colsvalue = NULL;
+പൂർണ്ണസംഖ്യ proc_cmdline_tty_size(സ്ഥിരം അക്ഷരം *tty, unsigned *ret_rows, unsigned *ret_cols) {
+        _cleanup_free_ അക്ഷരം *rowskey = ശൂന്യ, *rowsvalue = ശൂന്യ, *colskey = ശൂന്യ, *colsvalue = ശൂന്യ;
         unsigned rows = UINT_MAX, cols = UINT_MAX;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(tty);
+        പ്രതിജ്ഞാ(tty);
 
-        if (!ret_rows && !ret_cols)
-                return 0;
+        എങ്കിൽ (!ret_rows && !ret_cols)
+                തിരികെ 0;
 
         tty = skip_dev_prefix(tty);
-        if (path_startswith(tty, "pts/"))
-                return -EMEDIUMTYPE;
-        if (!in_charset(tty, ALPHANUMERICAL))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        എങ്കിൽ (path_startswith(tty, "pts/"))
+                തിരികെ -EMEDIUMTYPE;
+        എങ്കിൽ (!in_charset(tty, ALPHANUMERICAL))
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "TTY name '%s' contains non-alphanumeric characters, not searching kernel cmdline for size.", tty);
 
         rowskey = strjoin("systemd.tty.rows.", tty);
-        if (!rowskey)
-                return -ENOMEM;
+        എങ്കിൽ (!rowskey)
+                തിരികെ -ENOMEM;
 
         colskey = strjoin("systemd.tty.columns.", tty);
-        if (!colskey)
-                return -ENOMEM;
+        എങ്കിൽ (!colskey)
+                തിരികെ -ENOMEM;
 
-        r = proc_cmdline_get_key_many(/* flags= */ 0,
+        r = proc_cmdline_get_താക്കോൽ_many(/* flags= */ 0,
                                       rowskey, &rowsvalue,
                                       colskey, &colsvalue);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to read TTY size of %s from kernel cmdline: %m", tty);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to read TTY size of %s from kernel cmdline: %m", tty);
 
-        if (rowsvalue) {
+        എങ്കിൽ (rowsvalue) {
                 r = safe_atou(rowsvalue, &rows);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to parse %s=%s: %m", rowskey, rowsvalue);
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_debug_errno(r, "Failed to parse %s=%s: %m", rowskey, rowsvalue);
         }
 
-        if (colsvalue) {
+        എങ്കിൽ (colsvalue) {
                 r = safe_atou(colsvalue, &cols);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to parse %s=%s: %m", colskey, colsvalue);
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_debug_errno(r, "Failed to parse %s=%s: %m", colskey, colsvalue);
         }
 
-        if (ret_rows)
+        എങ്കിൽ (ret_rows)
                 *ret_rows = rows;
-        if (ret_cols)
+        എങ്കിൽ (ret_cols)
                 *ret_cols = cols;
 
-        return rows != UINT_MAX || cols != UINT_MAX;
+        തിരികെ rows != UINT_MAX || cols != UINT_MAX;
 }
 
 /* intended to be used as a SIGWINCH sighandler */
-void columns_lines_cache_reset(int signum) {
+ശൂന്യം columns_വരികൾ_cache_reset(പൂർണ്ണസംഖ്യ signum) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_വരികൾ = 0;
 }
 
-void reset_terminal_feature_caches(void) {
+ശൂന്യം reset_terminal_feature_caches(ശൂന്യം) {
         cached_columns = 0;
-        cached_lines = 0;
+        cached_വരികൾ = 0;
 
         cached_on_tty = -1;
         cached_on_dev_null = -1;
@@ -1450,7 +1450,7 @@ void reset_terminal_feature_caches(void) {
         reset_ansi_feature_caches();
 }
 
-bool on_tty(void) {
+bool on_tty(ശൂന്യം) {
 
         /* We check both stdout and stderr, so that situations where pipes on the shell are used are reliably
          * recognized, regardless if only the output or the errors are piped to some place. Since on_tty() is generally
@@ -1458,102 +1458,102 @@ bool on_tty(void) {
          * here, and check for both. Note that we don't check for STDIN_FILENO, because it should fine to use fancy
          * terminal functionality when outputting stuff, even if the input is piped to us. */
 
-        if (cached_on_tty < 0)
+        എങ്കിൽ (cached_on_tty < 0)
                 cached_on_tty =
                         isatty_safe(STDOUT_FILENO) &&
                         isatty_safe(STDERR_FILENO);
 
-        return cached_on_tty;
+        തിരികെ cached_on_tty;
 }
 
-int getttyname_malloc(int fd, char **ret) {
-        char path[PATH_MAX]; /* PATH_MAX is counted *with* the trailing NUL byte */
-        int r;
+പൂർണ്ണസംഖ്യ getttyname_malloc(പൂർണ്ണസംഖ്യ fd, അക്ഷരം **ret) {
+        അക്ഷരം path[PATH_MAX]; /* PATH_MAX is counted *with* the trailing NUL byte */
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
-        assert(ret);
+        പ്രതിജ്ഞാ(fd >= 0);
+        പ്രതിജ്ഞാ(ret);
 
-        r = ttyname_r(fd, path, sizeof path); /* positive error */
-        assert(r >= 0);
-        if (r == ERANGE)
-                return -ENAMETOOLONG;
-        if (r > 0)
-                return -r;
+        r = ttyname_r(fd, path, വലുപ്പം path); /* positive error */
+        പ്രതിജ്ഞാ(r >= 0);
+        എങ്കിൽ (r == ERANGE)
+                തിരികെ -ENAMETOOLONG;
+        എങ്കിൽ (r > 0)
+                തിരികെ -r;
 
-        return strdup_to(ret, skip_dev_prefix(path));
+        തിരികെ strdup_to(ret, skip_dev_prefix(path));
 }
 
-int getttyname_harder(int fd, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ getttyname_harder(പൂർണ്ണസംഖ്യ fd, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         r = getttyname_malloc(fd, &s);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (streq(s, "tty"))
-                return get_ctty(0, NULL, ret);
+        എങ്കിൽ (streq(s, "tty"))
+                തിരികെ get_ctty(0, ശൂന്യ, ret);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        തിരികെ 0;
 }
 
-int get_ctty_devnr(pid_t pid, dev_t *ret) {
-        _cleanup_free_ char *line = NULL;
+പൂർണ്ണസംഖ്യ get_ctty_devnr(pid_t pid, dev_t *ret) {
+        _cleanup_free_ അക്ഷരം *വരി = ശൂന്യ;
         unsigned long ttynr;
-        const char *p;
-        int r;
+        സ്ഥിരം അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(pid >= 0);
+        പ്രതിജ്ഞാ(pid >= 0);
 
         p = procfs_file_alloca(pid, "stat");
-        r = read_one_line_file(p, &line);
-        if (r < 0)
-                return r;
+        r = read_one_വരി_file(p, &വരി);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        p = strrchr(line, ')');
-        if (!p)
-                return -EIO;
+        p = strrchr(വരി, ')');
+        എങ്കിൽ (!p)
+                തിരികെ -EIO;
 
         p++;
 
-        if (sscanf(p, " "
+        എങ്കിൽ (sscanf(p, " "
                    "%*c "  /* state */
                    "%*d "  /* ppid */
                    "%*d "  /* pgrp */
                    "%*d "  /* session */
                    "%lu ", /* ttynr */
                    &ttynr) != 1)
-                return -EIO;
+                തിരികെ -EIO;
 
-        if (devnum_is_zero(ttynr))
-                return -ENXIO;
+        എങ്കിൽ (devnum_is_zero(ttynr))
+                തിരികെ -ENXIO;
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = (dev_t) ttynr;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret) {
-        char pty[STRLEN("/dev/pts/") + DECIMAL_STR_MAX(dev_t) + 1];
-        _cleanup_free_ char *buf = NULL;
-        const char *fn = NULL, *w;
+പൂർണ്ണസംഖ്യ get_ctty(pid_t pid, dev_t *ret_devnr, അക്ഷരം **ret) {
+        അക്ഷരം pty[STRLEN("/dev/pts/") + DECIMAL_STR_MAX(dev_t) + 1];
+        _cleanup_free_ അക്ഷരം *buf = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *fn = ശൂന്യ, *w;
         dev_t devnr;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         r = get_ctty_devnr(pid, &devnr);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         r = device_path_make_canonical(S_IFCHR, devnr, &buf);
-        if (r < 0) {
-                struct stat st;
+        എങ്കിൽ (r < 0) {
+                ഘടന stat st;
 
-                if (r != -ENOENT) /* No symlink for this in /dev/char/? */
-                        return r;
+                എങ്കിൽ (r != -ENOENT) /* No symlink for this in /dev/char/? */
+                        തിരികെ r;
 
                 /* Maybe this is PTY? PTY devices are not listed in /dev/char/, as they don't follow the
                  * Linux device model and hence device_path_make_canonical() doesn't work for them. Let's
@@ -1563,129 +1563,129 @@ int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret) {
                  * the minor number of the pty. */
                 xsprintf(pty, "/dev/pts/%u", minor(devnr));
 
-                if (stat(pty, &st) < 0) {
-                        if (errno != ENOENT)
-                                return -errno;
+                എങ്കിൽ (stat(pty, &st) < 0) {
+                        എങ്കിൽ (errno != ENOENT)
+                                തിരികെ -errno;
 
-                } else if (S_ISCHR(st.st_mode) && devnr == st.st_rdev) /* Bingo! */
+                } അല്ലെങ്കിൽ എങ്കിൽ (S_ISCHR(st.st_mode) && devnr == st.st_rdev) /* Bingo! */
                         fn = pty;
 
-                if (!fn) {
+                എങ്കിൽ (!fn) {
                         /* Doesn't exist, or not a PTY? Probably something similar to the PTYs which have no
                          * symlink in /dev/char/. Let's return something vaguely useful. */
                         r = device_path_make_major_minor(S_IFCHR, devnr, &buf);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
 
                         fn = buf;
                 }
-        } else
+        } അല്ലെങ്കിൽ
                 fn = buf;
 
         w = path_startswith(fn, "/dev/");
-        if (!w)
-                return -EINVAL;
+        എങ്കിൽ (!w)
+                തിരികെ -EINVAL;
 
-        if (ret) {
+        എങ്കിൽ (ret) {
                 r = strdup_to(ret, w);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (ret_devnr)
+        എങ്കിൽ (ret_devnr)
                 *ret_devnr = devnr;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int ptsname_malloc(int fd, char **ret) {
-        assert(fd >= 0);
-        assert(ret);
+പൂർണ്ണസംഖ്യ ptsname_malloc(പൂർണ്ണസംഖ്യ fd, അക്ഷരം **ret) {
+        പ്രതിജ്ഞാ(fd >= 0);
+        പ്രതിജ്ഞാ(ret);
 
-        for (size_t l = 50;;) {
-                _cleanup_free_ char *c = NULL;
+        വേണ്ടി (size_t l = 50;;) {
+                _cleanup_free_ അക്ഷരം *c = ശൂന്യ;
 
-                c = new(char, l);
-                if (!c)
-                        return -ENOMEM;
+                c = new(അക്ഷരം, l);
+                എങ്കിൽ (!c)
+                        തിരികെ -ENOMEM;
 
-                if (ptsname_r(fd, c, l) >= 0) {
+                എങ്കിൽ (ptsname_r(fd, c, l) >= 0) {
                         *ret = TAKE_PTR(c);
-                        return 0;
+                        തിരികെ 0;
                 }
-                if (errno != ERANGE)
-                        return -errno;
+                എങ്കിൽ (errno != ERANGE)
+                        തിരികെ -errno;
 
-                if (!MUL_ASSIGN_SAFE(&l, 2))
-                        return -ENOMEM;
+                എങ്കിൽ (!MUL_ASSIGN_SAFE(&l, 2))
+                        തിരികെ -ENOMEM;
         }
 }
 
-int openpt_allocate(int flags, char **ret_peer_path) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+പൂർണ്ണസംഖ്യ openpt_allocate(പൂർണ്ണസംഖ്യ flags, അക്ഷരം **ret_peer_path) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
         fd = posix_openpt(flags|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        എങ്കിൽ (fd < 0)
+                തിരികെ -errno;
 
-        _cleanup_free_ char *p = NULL;
-        if (ret_peer_path) {
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        എങ്കിൽ (ret_peer_path) {
                 r = ptsname_malloc(fd, &p);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (!path_startswith(p, "/dev/pts/"))
-                        return -EINVAL;
+                എങ്കിൽ (!path_startswith(p, "/dev/pts/"))
+                        തിരികെ -EINVAL;
         }
 
-        if (unlockpt(fd) < 0)
-                return -errno;
+        എങ്കിൽ (unlockpt(fd) < 0)
+                തിരികെ -errno;
 
-        if (ret_peer_path)
+        എങ്കിൽ (ret_peer_path)
                 *ret_peer_path = TAKE_PTR(p);
 
-        return TAKE_FD(fd);
+        തിരികെ TAKE_FD(fd);
 }
 
-static int ptsname_namespace(int pty, char **ret) {
-        int no = -1;
+സ്ഥിതം പൂർണ്ണസംഖ്യ ptsname_namespace(പൂർണ്ണസംഖ്യ pty, അക്ഷരം **ret) {
+        പൂർണ്ണസംഖ്യ no = -1;
 
-        assert(pty >= 0);
-        assert(ret);
+        പ്രതിജ്ഞാ(pty >= 0);
+        പ്രതിജ്ഞാ(ret);
 
         /* Like ptsname(), but doesn't assume that the path is
          * accessible in the local namespace. */
 
-        if (ioctl(pty, TIOCGPTN, &no) < 0)
-                return -errno;
+        എങ്കിൽ (ioctl(pty, TIOCGPTN, &no) < 0)
+                തിരികെ -errno;
 
-        if (no < 0)
-                return -EIO;
+        എങ്കിൽ (no < 0)
+                തിരികെ -EIO;
 
-        if (asprintf(ret, "/dev/pts/%i", no) < 0)
-                return -ENOMEM;
+        എങ്കിൽ (asprintf(ret, "/dev/pts/%i", no) < 0)
+                തിരികെ -ENOMEM;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int openpt_allocate_in_namespace(
-                const PidRef *pidref,
-                int flags,
-                char **ret_peer_path) {
+പൂർണ്ണസംഖ്യ openpt_allocate_in_namespace(
+                സ്ഥിരം PidRef *pidref,
+                പൂർണ്ണസംഖ്യ flags,
+                അക്ഷരം **ret_peer_path) {
 
-        _cleanup_close_ int pidnsfd = -EBADF, mntnsfd = -EBADF, usernsfd = -EBADF, rootfd = -EBADF, fd = -EBADF;
-        _cleanup_close_pair_ int pair[2] = EBADF_PAIR;
-        int r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ pidnsfd = -EBADF, mntnsfd = -EBADF, usernsfd = -EBADF, rootfd = -EBADF, fd = -EBADF;
+        _cleanup_close_pair_ പൂർണ്ണസംഖ്യ pair[2] = EBADF_PAIR;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(pidref);
+        പ്രതിജ്ഞാ(pidref);
 
-        r = pidref_namespace_open(pidref, &pidnsfd, &mntnsfd, /* ret_netns_fd= */ NULL, &usernsfd, &rootfd);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to open namespaces of PID "PID_FMT": %m", pidref->pid);
+        r = pidref_namespace_open(pidref, &pidnsfd, &mntnsfd, /* ret_netns_fd= */ ശൂന്യ, &usernsfd, &rootfd);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to open namespaces of PID "PID_FMT": %m", pidref->pid);
 
-        if (socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pair) < 0)
-                return -errno;
+        എങ്കിൽ (socketpair(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, 0, pair) < 0)
+                തിരികെ -errno;
 
         r = namespace_fork(
                         "(sd-openptns)",
@@ -1696,17 +1696,17 @@ int openpt_allocate_in_namespace(
                         /* netns_fd= */ -EBADF,
                         usernsfd,
                         rootfd,
-                        /* ret= */ NULL);
-        if (r < 0)
-                return r;
-        if (r == 0) {
+                        /* ret= */ ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0) {
                 pair[0] = safe_close(pair[0]);
 
-                fd = openpt_allocate(flags, /* ret_peer_path= */ NULL);
-                if (fd < 0)
+                fd = openpt_allocate(flags, /* ret_peer_path= */ ശൂന്യ);
+                എങ്കിൽ (fd < 0)
                         _exit(EXIT_FAILURE);
 
-                if (send_one_fd(pair[1], fd, 0) < 0)
+                എങ്കിൽ (send_one_fd(pair[1], fd, 0) < 0)
                         _exit(EXIT_FAILURE);
 
                 _exit(EXIT_SUCCESS);
@@ -1715,61 +1715,61 @@ int openpt_allocate_in_namespace(
         pair[1] = safe_close(pair[1]);
 
         fd = receive_one_fd(pair[0], 0);
-        if (fd < 0)
-                return fd;
+        എങ്കിൽ (fd < 0)
+                തിരികെ fd;
 
-        if (ret_peer_path) {
+        എങ്കിൽ (ret_peer_path) {
                 r = ptsname_namespace(fd, ret_peer_path);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        return TAKE_FD(fd);
+        തിരികെ TAKE_FD(fd);
 }
 
-static bool on_dev_null(void) {
-        struct stat dst, ost, est;
+സ്ഥിതം bool on_dev_null(ശൂന്യം) {
+        ഘടന stat dst, ost, est;
 
-        if (cached_on_dev_null >= 0)
-                return cached_on_dev_null;
+        എങ്കിൽ (cached_on_dev_null >= 0)
+                തിരികെ cached_on_dev_null;
 
-        if (stat("/dev/null", &dst) < 0 || fstat(STDOUT_FILENO, &ost) < 0 || fstat(STDERR_FILENO, &est) < 0)
+        എങ്കിൽ (stat("/dev/null", &dst) < 0 || fstat(STDOUT_FILENO, &ost) < 0 || fstat(STDERR_FILENO, &est) < 0)
                 cached_on_dev_null = false;
-        else
+        അല്ലെങ്കിൽ
                 cached_on_dev_null = stat_inode_same(&dst, &ost) && stat_inode_same(&dst, &est);
 
-        return cached_on_dev_null;
+        തിരികെ cached_on_dev_null;
 }
 
-bool term_env_valid(const char *term) {
+bool term_env_valid(സ്ഥിരം അക്ഷരം *term) {
         /* Checks if the specified $TERM value is suitable for propagation, i.e. is not empty, not set to
          * "unknown" (as is common in CI), and only contains characters valid in terminal type names.
          * Valid $TERM values are things like "xterm-256color", "linux", "screen.xterm-256color", i.e.
          * alphanumeric characters, hyphens, underscores, dots, and plus signs. */
-        return !isempty(term) &&
+        തിരികെ !isempty(term) &&
                 !streq(term, "unknown") &&
                 in_charset(term, ALPHANUMERICAL "-_+.");
 }
 
-bool getenv_terminal_is_dumb(void) {
-        const char *e;
+bool getenv_terminal_is_dumb(ശൂന്യം) {
+        സ്ഥിരം അക്ഷരം *e;
 
         e = getenv("TERM");
-        if (!e)
-                return true;
+        എങ്കിൽ (!e)
+                തിരികെ true;
 
-        return streq(e, "dumb");
+        തിരികെ streq(e, "dumb");
 }
 
-bool terminal_is_dumb(void) {
-        if (!on_tty() && !on_dev_null())
-                return true;
+bool terminal_is_dumb(ശൂന്യം) {
+        എങ്കിൽ (!on_tty() && !on_dev_null())
+                തിരികെ true;
 
-        return getenv_terminal_is_dumb();
+        തിരികെ getenv_terminal_is_dumb();
 }
 
-bool dev_console_colors_enabled(void) {
-        _cleanup_free_ char *s = NULL;
+bool dev_console_colors_enabled(ശൂന്യം) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
         ColorMode m;
 
         /* Returns true if we assume that color is supported on /dev/console.
@@ -1780,389 +1780,389 @@ bool dev_console_colors_enabled(void) {
          * colors_enabled() operates. */
 
         m = parse_systemd_colors();
-        if (m >= 0)
-                return m;
+        എങ്കിൽ (m >= 0)
+                തിരികെ m;
 
-        if (getenv("NO_COLOR"))
-                return false;
+        എങ്കിൽ (getenv("NO_COLOR"))
+                തിരികെ false;
 
-        if (getenv_for_pid(1, "TERM", &s) <= 0)
-                (void) proc_cmdline_get_key("TERM", 0, &s);
+        എങ്കിൽ (getenv_for_pid(1, "TERM", &s) <= 0)
+                (ശൂന്യം) proc_cmdline_get_താക്കോൽ("TERM", 0, &s);
 
-        return !streq_ptr(s, "dumb");
+        തിരികെ !streq_ptr(s, "dumb");
 }
 
-int vt_restore(int fd) {
+പൂർണ്ണസംഖ്യ vt_restore(പൂർണ്ണസംഖ്യ fd) {
 
-        static const struct vt_mode mode = {
+        സ്ഥിതം സ്ഥിരം ഘടന vt_mode mode = {
                 .mode = VT_AUTO,
         };
 
-        int r, ret = 0;
+        പൂർണ്ണസംഖ്യ r, ret = 0;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
-        if (!isatty_safe(fd))
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to restore the VT for an fd that does not refer to a terminal.");
+        എങ്കിൽ (!isatty_safe(fd))
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to restore the VT for an fd that does not refer to a terminal.");
 
-        if (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
+        എങ്കിൽ (ioctl(fd, KDSETMODE, KD_TEXT) < 0)
                 RET_GATHER(ret, log_debug_errno(errno, "Failed to set VT to text mode, ignoring: %m"));
 
         r = vt_reset_keyboard(fd);
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 RET_GATHER(ret, log_debug_errno(r, "Failed to reset keyboard mode, ignoring: %m"));
 
-        if (ioctl(fd, VT_SETMODE, &mode) < 0)
+        എങ്കിൽ (ioctl(fd, VT_SETMODE, &mode) < 0)
                 RET_GATHER(ret, log_debug_errno(errno, "Failed to set VT_AUTO mode, ignoring: %m"));
 
         r = fchmod_and_chown(fd, TTY_MODE, 0, GID_INVALID);
-        if (r < 0)
+        എങ്കിൽ (r < 0)
                 RET_GATHER(ret, log_debug_errno(r, "Failed to chmod()/chown() VT, ignoring: %m"));
 
-        return ret;
+        തിരികെ ret;
 }
 
-int vt_release(int fd, bool restore) {
-        assert(fd >= 0);
+പൂർണ്ണസംഖ്യ vt_release(പൂർണ്ണസംഖ്യ fd, bool restore) {
+        പ്രതിജ്ഞാ(fd >= 0);
 
         /* This function releases the VT by acknowledging the VT-switch signal
          * sent by the kernel and optionally reset the VT in text and auto
          * VT-switching modes. */
 
-        if (!isatty_safe(fd))
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to release the VT for an fd that does not refer to a terminal.");
+        എങ്കിൽ (!isatty_safe(fd))
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(ENOTTY), "Asked to release the VT for an fd that does not refer to a terminal.");
 
-        if (ioctl(fd, VT_RELDISP, 1) < 0)
-                return -errno;
+        എങ്കിൽ (ioctl(fd, VT_RELDISP, 1) < 0)
+                തിരികെ -errno;
 
-        if (restore)
-                return vt_restore(fd);
+        എങ്കിൽ (restore)
+                തിരികെ vt_restore(fd);
 
-        return 0;
+        തിരികെ 0;
 }
 
-void get_log_colors(int priority, const char **on, const char **off, const char **highlight) {
+ശൂന്യം get_log_colors(പൂർണ്ണസംഖ്യ priority, സ്ഥിരം അക്ഷരം **on, സ്ഥിരം അക്ഷരം **off, സ്ഥിരം അക്ഷരം **highlight) {
         /* Note that this will initialize output variables only when there's something to output.
          * The caller must pre-initialize to "" or NULL as appropriate. */
 
-        if (priority <= LOG_ERR) {
-                if (on)
+        എങ്കിൽ (priority <= LOG_ERR) {
+                എങ്കിൽ (on)
                         *on = ansi_highlight_red();
-                if (off)
+                എങ്കിൽ (off)
                         *off = ansi_normal();
-                if (highlight)
+                എങ്കിൽ (highlight)
                         *highlight = ansi_highlight();
 
-        } else if (priority <= LOG_WARNING) {
-                if (on)
+        } അല്ലെങ്കിൽ എങ്കിൽ (priority <= LOG_WARNING) {
+                എങ്കിൽ (on)
                         *on = ansi_highlight_yellow();
-                if (off)
+                എങ്കിൽ (off)
                         *off = ansi_normal();
-                if (highlight)
+                എങ്കിൽ (highlight)
                         *highlight = ansi_highlight();
 
-        } else if (priority <= LOG_NOTICE) {
-                if (on)
+        } അല്ലെങ്കിൽ എങ്കിൽ (priority <= LOG_NOTICE) {
+                എങ്കിൽ (on)
                         *on = ansi_highlight();
-                if (off)
+                എങ്കിൽ (off)
                         *off = ansi_normal();
-                if (highlight)
+                എങ്കിൽ (highlight)
                         *highlight = ansi_highlight_red();
 
-        } else if (priority >= LOG_DEBUG) {
-                if (on)
+        } അല്ലെങ്കിൽ എങ്കിൽ (priority >= LOG_DEBUG) {
+                എങ്കിൽ (on)
                         *on = ansi_grey();
-                if (off)
+                എങ്കിൽ (off)
                         *off = ansi_normal();
-                if (highlight)
+                എങ്കിൽ (highlight)
                         *highlight = ansi_highlight_red();
         }
 }
 
-int terminal_set_cursor_position(int fd, unsigned row, unsigned column) {
-        assert(fd >= 0);
+പൂർണ്ണസംഖ്യ terminal_set_cursor_position(പൂർണ്ണസംഖ്യ fd, unsigned row, unsigned column) {
+        പ്രതിജ്ഞാ(fd >= 0);
 
-        char cursor_position[STRLEN("\x1B[" ";" "H") + DECIMAL_STR_MAX(unsigned) * 2 + 1];
+        അക്ഷരം cursor_position[STRLEN("\x1B[" ";" "H") + DECIMAL_STR_MAX(unsigned) * 2 + 1];
         xsprintf(cursor_position, "\x1B[%u;%uH", row, column);
 
-        return loop_write(fd, cursor_position, SIZE_MAX);
+        തിരികെ loop_write(fd, cursor_position, SIZE_MAX);
 }
 
-static int terminal_verify_same(int input_fd, int output_fd) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ terminal_verify_same(പൂർണ്ണസംഖ്യ നിവേശം_fd, പൂർണ്ണസംഖ്യ output_fd) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
+        പ്രതിജ്ഞാ(നിവേശം_fd >= 0);
+        പ്രതിജ്ഞാ(output_fd >= 0);
 
         /* Validates that the specified fds reference the same TTY */
 
-        if (input_fd != output_fd) {
-                struct stat sti;
-                if (fstat(input_fd, &sti) < 0)
-                        return -errno;
+        എങ്കിൽ (നിവേശം_fd != output_fd) {
+                ഘടന stat sti;
+                എങ്കിൽ (fstat(നിവേശം_fd, &sti) < 0)
+                        തിരികെ -errno;
 
                 r = stat_verify_char(&sti); /* TTYs are character devices */
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                struct stat sto;
-                if (fstat(output_fd, &sto) < 0)
-                        return -errno;
+                ഘടന stat sto;
+                എങ്കിൽ (fstat(output_fd, &sto) < 0)
+                        തിരികെ -errno;
 
                 r = stat_verify_char(&sto);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (sti.st_rdev != sto.st_rdev)
-                        return -ENOLINK;
+                എങ്കിൽ (sti.st_rdev != sto.st_rdev)
+                        തിരികെ -ENOLINK;
         }
 
-        if (!isatty_safe(input_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
-                return -ENOTTY;
+        എങ്കിൽ (!isatty_safe(നിവേശം_fd)) /* The check above was just for char device, but now let's ensure it's actually a tty */
+                തിരികെ -ENOTTY;
 
-        return 0;
+        തിരികെ 0;
 }
 
-typedef enum CursorPositionState {
+തരനിർവചനം എണ്ണൽ CursorPositionState {
         CURSOR_TEXT,
         CURSOR_ESCAPE,
         CURSOR_ROW,
         CURSOR_COLUMN,
 } CursorPositionState;
 
-typedef struct CursorPositionContext {
+തരനിർവചനം ഘടന CursorPositionContext {
         CursorPositionState state;
         unsigned row, column;
 } CursorPositionContext;
 
-static int scan_cursor_position_response(
+സ്ഥിതം പൂർണ്ണസംഖ്യ scan_cursor_position_response(
                 CursorPositionContext *context,
-                const char *buf,
+                സ്ഥിരം അക്ഷരം *buf,
                 size_t size,
                 size_t *ret_processed) {
 
-        assert(context);
-        assert(buf);
-        assert(ret_processed);
+        പ്രതിജ്ഞാ(context);
+        പ്രതിജ്ഞാ(buf);
+        പ്രതിജ്ഞാ(ret_processed);
 
-        for (size_t i = 0; i < size; i++) {
-                char c = buf[i];
+        വേണ്ടി (size_t i = 0; i < size; i++) {
+                അക്ഷരം c = buf[i];
 
-                switch (context->state) {
+                തിരഞ്ഞെടുപ്പ് (context->state) {
 
-                case CURSOR_TEXT:
+                അവസ്ഥ CURSOR_TEXT:
                         context->state = c == '\x1B' ? CURSOR_ESCAPE : CURSOR_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case CURSOR_ESCAPE:
+                അവസ്ഥ CURSOR_ESCAPE:
                         context->state = c == '[' ? CURSOR_ROW : CURSOR_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case CURSOR_ROW:
-                        if (c == ';')
+                അവസ്ഥ CURSOR_ROW:
+                        എങ്കിൽ (c == ';')
                                 context->state = context->row > 0 ? CURSOR_COLUMN : CURSOR_TEXT;
-                        else {
-                                int d = undecchar(c);
+                        അല്ലെങ്കിൽ {
+                                പൂർണ്ണസംഖ്യ d = undecchar(c);
 
                                 /* We read a decimal character, let's suffix it to the number we so far read,
                                  * but let's do an overflow check first. */
-                                if (d < 0 || context->row > (UINT_MAX-d)/10)
+                                എങ്കിൽ (d < 0 || context->row > (UINT_MAX-d)/10)
                                         context->state = CURSOR_TEXT;
-                                else
+                                അല്ലെങ്കിൽ
                                         context->row = context->row * 10 + d;
                         }
-                        break;
+                        നിർത്തുക;
 
-                case CURSOR_COLUMN:
-                        if (c == 'R') {
-                                if (context->column > 0) {
+                അവസ്ഥ CURSOR_COLUMN:
+                        എങ്കിൽ (c == 'R') {
+                                എങ്കിൽ (context->column > 0) {
                                         *ret_processed = i + 1;
-                                        return 1; /* success! */
+                                        തിരികെ 1; /* success! */
                                 }
 
                                 context->state = CURSOR_TEXT;
-                        } else {
-                                int d = undecchar(c);
+                        } അല്ലെങ്കിൽ {
+                                പൂർണ്ണസംഖ്യ d = undecchar(c);
 
                                 /* As above, add the decimal character to our column number */
-                                if (d < 0 || context->column > (UINT_MAX-d)/10)
+                                എങ്കിൽ (d < 0 || context->column > (UINT_MAX-d)/10)
                                         context->state = CURSOR_TEXT;
-                                else
+                                അല്ലെങ്കിൽ
                                         context->column = context->column * 10 + d;
                         }
 
-                        break;
+                        നിർത്തുക;
                 }
 
                 /* Reset any positions we might have picked up */
-                if (IN_SET(context->state, CURSOR_TEXT, CURSOR_ESCAPE))
+                എങ്കിൽ (IN_SET(context->state, CURSOR_TEXT, CURSOR_ESCAPE))
                         context->row = context->column = 0;
         }
 
         *ret_processed = size;
-        return 0; /* all good, but not enough data yet */
+        തിരികെ 0; /* all good, but not enough data yet */
 }
 
-int terminal_get_cursor_position(
-                int input_fd,
-                int output_fd,
+പൂർണ്ണസംഖ്യ terminal_get_cursor_position(
+                പൂർണ്ണസംഖ്യ നിവേശം_fd,
+                പൂർണ്ണസംഖ്യ output_fd,
                 unsigned *ret_row,
                 unsigned *ret_column) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
-        int r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ nonblock_നിവേശം_fd = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
+        പ്രതിജ്ഞാ(നിവേശം_fd >= 0);
+        പ്രതിജ്ഞാ(output_fd >= 0);
 
-        if (getenv_terminal_is_dumb())
-                return -EOPNOTSUPP;
+        എങ്കിൽ (getenv_terminal_is_dumb())
+                തിരികെ -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
-        if (r < 0)
-                return log_debug_errno(r, "Called with distinct input/output fds: %m");
+        r = terminal_verify_same(നിവേശം_fd, output_fd);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Failure to reset the terminal is ignored here and in similar cases below.
          * We already have our result; if cleanup fails it doesn't change the validity of the result. */
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(input_fd, old_termios);
+        ഘടന termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(നിവേശം_fd, old_termios);
 
-        if (tcgetattr(input_fd, &old_termios) < 0)
-                return log_debug_errno(errno, "Failed to get terminal settings: %m");
+        എങ്കിൽ (tcgetattr(നിവേശം_fd, &old_termios) < 0)
+                തിരികെ log_debug_errno(errno, "Failed to get terminal settings: %m");
 
-        struct termios new_termios = old_termios;
+        ഘടന termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(input_fd, TCSANOW, &new_termios) < 0)
-                return log_debug_errno(errno, "Failed to set new terminal settings: %m");
+        എങ്കിൽ (tcsetattr(നിവേശം_fd, TCSANOW, &new_termios) < 0)
+                തിരികെ log_debug_errno(errno, "Failed to set new terminal settings: %m");
 
         /* Request cursor position (DSR/CPR) */
         r = loop_write(output_fd, "\x1B[6n", SIZE_MAX);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read() should someone
          * else process the POLLIN. */
 
-        nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        nonblock_നിവേശം_fd = r = fd_reopen(നിവേശം_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
+        അക്ഷരം buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
         size_t buf_full = 0;
         CursorPositionContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        വേണ്ടി (bool first = true;; first = false) {
+                എങ്കിൽ (buf_full == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        എങ്കിൽ (n >= end)
+                                തിരികെ -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_നിവേശം_fd, POLLIN, usec_sub_unsigned(end, n));
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        എങ്കിൽ (r == 0)
+                                തിരികെ -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
+                        ssize_t l = പഠ(nonblock_നിവേശം_fd, buf, first ? വലുപ്പം(buf) : 1);
+                        എങ്കിൽ (l < 0) {
+                                എങ്കിൽ (errno == EAGAIN)
+                                        തുടരുക;
 
-                                return -errno;
+                                തിരികെ -errno;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
+                        പ്രതിജ്ഞാ((size_t) l <= വലുപ്പം(buf));
                         buf_full = l;
                 }
 
                 size_t processed;
                 r = scan_cursor_position_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                assert(processed <= buf_full);
+                പ്രതിജ്ഞാ(processed <= buf_full);
                 buf_full -= processed;
                 memmove(buf, buf + processed, buf_full);
 
-                if (r > 0) {
+                എങ്കിൽ (r > 0) {
                         /* Superficial validity check */
-                        if (context.row >= 32766 || context.column >= 32766)
-                                return -ENODATA;
+                        എങ്കിൽ (context.row >= 32766 || context.column >= 32766)
+                                തിരികെ -ENODATA;
 
-                        if (ret_row)
+                        എങ്കിൽ (ret_row)
                                 *ret_row = context.row;
-                        if (ret_column)
+                        എങ്കിൽ (ret_column)
                                 *ret_column = context.column;
 
-                        return 0;
+                        തിരികെ 0;
                 }
         }
 }
 
-int terminal_reset_defensive(int fd, TerminalResetFlags flags) {
-        int r = 0;
+പൂർണ്ണസംഖ്യ terminal_reset_defensive(പൂർണ്ണസംഖ്യ fd, TerminalResetFlags flags) {
+        പൂർണ്ണസംഖ്യ r = 0;
 
-        assert(fd >= 0);
-        assert(!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ|TERMINAL_RESET_FORCE_ANSI_SEQ));
+        പ്രതിജ്ഞാ(fd >= 0);
+        പ്രതിജ്ഞാ(!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ|TERMINAL_RESET_FORCE_ANSI_SEQ));
 
         /* Resets the terminal comprehensively, i.e. via both ioctl()s and via ANSI sequences, but do so only
          * if $TERM is unset or set to "dumb" */
 
-        if (!isatty_safe(fd))
-                return -ENOTTY;
+        എങ്കിൽ (!isatty_safe(fd))
+                തിരികെ -ENOTTY;
 
         RET_GATHER(r, terminal_reset_ioctl(fd, FLAGS_SET(flags, TERMINAL_RESET_SWITCH_TO_TEXT)));
 
-        if (!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ) &&
+        എങ്കിൽ (!FLAGS_SET(flags, TERMINAL_RESET_AVOID_ANSI_SEQ) &&
             (FLAGS_SET(flags, TERMINAL_RESET_FORCE_ANSI_SEQ) || !getenv_terminal_is_dumb()))
                 RET_GATHER(r, terminal_reset_ansi_seq(fd));
 
-        return r;
+        തിരികെ r;
 }
 
-int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags) {
-        assert(fd >= 0);
+പൂർണ്ണസംഖ്യ terminal_reset_defensive_locked(പൂർണ്ണസംഖ്യ fd, TerminalResetFlags flags) {
+        പ്രതിജ്ഞാ(fd >= 0);
 
-        _cleanup_close_ int lock_fd = lock_dev_console();
-        if (lock_fd < 0)
+        _cleanup_close_ പൂർണ്ണസംഖ്യ lock_fd = lock_dev_console();
+        എങ്കിൽ (lock_fd < 0)
                 log_debug_errno(lock_fd, "Failed to acquire lock for /dev/console, ignoring: %m");
 
-        return terminal_reset_defensive(fd, flags);
+        തിരികെ terminal_reset_defensive(fd, flags);
 }
 
-void termios_disable_echo(struct termios *termios) {
-        assert(termios);
+ശൂന്യം termios_disable_echo(ഘടന termios *termios) {
+        പ്രതിജ്ഞാ(termios);
 
         termios->c_lflag &= ~(ICANON|ECHO);
         termios->c_cc[VMIN] = 1;
         termios->c_cc[VTIME] = 0;
 }
 
-static bool termios_is_null(const struct termios *t) {
-        if (!t)
-                return true;
+സ്ഥിതം bool termios_is_null(സ്ഥിരം ഘടന termios *t) {
+        എങ്കിൽ (!t)
+                തിരികെ true;
 
-        return t->c_iflag == UINT_MAX &&
+        തിരികെ t->c_iflag == UINT_MAX &&
                t->c_oflag == UINT_MAX &&
                t->c_cflag == UINT_MAX &&
                t->c_lflag == UINT_MAX;
 }
 
-void termios_reset(const TermiosResetContext *c) {
-        assert(c);
+ശൂന്യം termios_reset(സ്ഥിരം TermiosResetContext *c) {
+        പ്രതിജ്ഞാ(c);
 
         PROTECT_ERRNO;
 
-        if (c->fd && *c->fd >= 0 && !termios_is_null(c->termios))
-                (void) tcsetattr(*c->fd, TCSANOW, c->termios);
+        എങ്കിൽ (c->fd && *c->fd >= 0 && !termios_is_null(c->termios))
+                (ശൂന്യം) tcsetattr(*c->fd, TCSANOW, c->termios);
 }
 
-typedef enum BackgroundColorState {
+തരനിർവചനം എണ്ണൽ BackgroundColorState {
         BACKGROUND_TEXT,
         BACKGROUND_ESCAPE,
         BACKGROUND_BRACKET,
@@ -2178,125 +2178,125 @@ typedef enum BackgroundColorState {
         BACKGROUND_STRING_TERMINATOR,
 } BackgroundColorState;
 
-typedef struct BackgroundColorContext {
+തരനിർവചനം ഘടന BackgroundColorContext {
         BackgroundColorState state;
         uint32_t red, green, blue;
         unsigned red_bits, green_bits, blue_bits;
 } BackgroundColorContext;
 
-static int scan_background_color_response(
+സ്ഥിതം പൂർണ്ണസംഖ്യ scan_background_color_response(
                 BackgroundColorContext *context,
-                const char *buf,
+                സ്ഥിരം അക്ഷരം *buf,
                 size_t size,
                 size_t *ret_processed) {
 
-        assert(context);
-        assert(buf);
-        assert(ret_processed);
+        പ്രതിജ്ഞാ(context);
+        പ്രതിജ്ഞാ(buf);
+        പ്രതിജ്ഞാ(ret_processed);
 
-        for (size_t i = 0; i < size; i++) {
-                char c = buf[i];
+        വേണ്ടി (size_t i = 0; i < size; i++) {
+                അക്ഷരം c = buf[i];
 
-                switch (context->state) {
+                തിരഞ്ഞെടുപ്പ് (context->state) {
 
-                case BACKGROUND_TEXT:
+                അവസ്ഥ BACKGROUND_TEXT:
                         context->state = c == '\x1B' ? BACKGROUND_ESCAPE : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_ESCAPE:
+                അവസ്ഥ BACKGROUND_ESCAPE:
                         context->state = c == ']' ? BACKGROUND_BRACKET : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_BRACKET:
+                അവസ്ഥ BACKGROUND_BRACKET:
                         context->state = c == '1' ? BACKGROUND_FIRST_ONE : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_FIRST_ONE:
+                അവസ്ഥ BACKGROUND_FIRST_ONE:
                         context->state = c == '1' ? BACKGROUND_SECOND_ONE : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_SECOND_ONE:
+                അവസ്ഥ BACKGROUND_SECOND_ONE:
                         context->state = c == ';' ? BACKGROUND_SEMICOLON : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_SEMICOLON:
+                അവസ്ഥ BACKGROUND_SEMICOLON:
                         context->state = c == 'r' ? BACKGROUND_R : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_R:
+                അവസ്ഥ BACKGROUND_R:
                         context->state = c == 'g' ? BACKGROUND_G : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_G:
+                അവസ്ഥ BACKGROUND_G:
                         context->state = c == 'b' ? BACKGROUND_B : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_B:
+                അവസ്ഥ BACKGROUND_B:
                         context->state = c == ':' ? BACKGROUND_RED : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_RED:
-                        if (c == '/')
+                അവസ്ഥ BACKGROUND_RED:
+                        എങ്കിൽ (c == '/')
                                 context->state = context->red_bits > 0 ? BACKGROUND_GREEN : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->red_bits >= sizeof(context->red)*8)
+                        അല്ലെങ്കിൽ {
+                                പൂർണ്ണസംഖ്യ d = unhexchar(c);
+                                എങ്കിൽ (d < 0 || context->red_bits >= വലുപ്പം(context->red)*8)
                                         context->state = BACKGROUND_TEXT;
-                                else {
+                                അല്ലെങ്കിൽ {
                                         context->red = (context->red << 4) | d;
                                         context->red_bits += 4;
                                 }
                         }
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_GREEN:
-                        if (c == '/')
+                അവസ്ഥ BACKGROUND_GREEN:
+                        എങ്കിൽ (c == '/')
                                 context->state = context->green_bits > 0 ? BACKGROUND_BLUE : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->green_bits >= sizeof(context->green)*8)
+                        അല്ലെങ്കിൽ {
+                                പൂർണ്ണസംഖ്യ d = unhexchar(c);
+                                എങ്കിൽ (d < 0 || context->green_bits >= വലുപ്പം(context->green)*8)
                                         context->state = BACKGROUND_TEXT;
-                                else {
+                                അല്ലെങ്കിൽ {
                                         context->green = (context->green << 4) | d;
                                         context->green_bits += 4;
                                 }
                         }
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_BLUE:
-                        if (c == '\x07') {
-                                if (context->blue_bits > 0) {
+                അവസ്ഥ BACKGROUND_BLUE:
+                        എങ്കിൽ (c == '\x07') {
+                                എങ്കിൽ (context->blue_bits > 0) {
                                         *ret_processed = i + 1;
-                                        return 1; /* success! */
+                                        തിരികെ 1; /* success! */
                                 }
 
                                 context->state = BACKGROUND_TEXT;
-                        } else if (c == '\x1b')
+                        } അല്ലെങ്കിൽ എങ്കിൽ (c == '\x1b')
                                 context->state = context->blue_bits > 0 ? BACKGROUND_STRING_TERMINATOR : BACKGROUND_TEXT;
-                        else {
-                                int d = unhexchar(c);
-                                if (d < 0 || context->blue_bits >= sizeof(context->blue)*8)
+                        അല്ലെങ്കിൽ {
+                                പൂർണ്ണസംഖ്യ d = unhexchar(c);
+                                എങ്കിൽ (d < 0 || context->blue_bits >= വലുപ്പം(context->blue)*8)
                                         context->state = BACKGROUND_TEXT;
-                                else {
+                                അല്ലെങ്കിൽ {
                                         context->blue = (context->blue << 4) | d;
                                         context->blue_bits += 4;
                                 }
                         }
-                        break;
+                        നിർത്തുക;
 
-                case BACKGROUND_STRING_TERMINATOR:
-                        if (c == '\\') {
+                അവസ്ഥ BACKGROUND_STRING_TERMINATOR:
+                        എങ്കിൽ (c == '\\') {
                                 *ret_processed = i + 1;
-                                return 1; /* success! */
+                                തിരികെ 1; /* success! */
                         }
 
                         context->state = c == ']' ? BACKGROUND_ESCAPE : BACKGROUND_TEXT;
-                        break;
+                        നിർത്തുക;
 
                 }
 
                 /* Reset any colors we might have picked up */
-                if (IN_SET(context->state, BACKGROUND_TEXT, BACKGROUND_ESCAPE)) {
+                എങ്കിൽ (IN_SET(context->state, BACKGROUND_TEXT, BACKGROUND_ESCAPE)) {
                         /* reset color */
                         context->red = context->green = context->blue = 0;
                         context->red_bits = context->green_bits = context->blue_bits = 0;
@@ -2304,99 +2304,99 @@ static int scan_background_color_response(
         }
 
         *ret_processed = size;
-        return 0; /* all good, but not enough data yet */
+        തിരികെ 0; /* all good, but not enough data yet */
 }
 
-int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue) {
-        int r;
+പൂർണ്ണസംഖ്യ get_default_background_color(ഇരട്ട *ret_red, ഇരട്ട *ret_green, ഇരട്ട *ret_blue) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret_red);
-        assert(ret_green);
-        assert(ret_blue);
+        പ്രതിജ്ഞാ(ret_red);
+        പ്രതിജ്ഞാ(ret_green);
+        പ്രതിജ്ഞാ(ret_blue);
 
-        if (!colors_enabled())
-                return -EOPNOTSUPP;
+        എങ്കിൽ (!colors_enabled())
+                തിരികെ -EOPNOTSUPP;
 
         r = terminal_verify_same(STDIN_FILENO, STDOUT_FILENO);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (streq_ptr(getenv("TERM"), "linux")) {
+        എങ്കിൽ (streq_ptr(getenv("TERM"), "linux")) {
                 /* Linux console is black */
                 *ret_red = *ret_green = *ret_blue = 0.0;
-                return 0;
+                തിരികെ 0;
         }
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ nonblock_നിവേശം_fd = r = fd_reopen(STDIN_FILENO, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
+        ഘടന termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(nonblock_നിവേശം_fd, old_termios);
 
-        if (tcgetattr(nonblock_input_fd, &old_termios) < 0)
-                return -errno;
+        എങ്കിൽ (tcgetattr(nonblock_നിവേശം_fd, &old_termios) < 0)
+                തിരികെ -errno;
 
-        struct termios new_termios = old_termios;
+        ഘടന termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
-                return -errno;
+        എങ്കിൽ (tcsetattr(nonblock_നിവേശം_fd, TCSANOW, &new_termios) < 0)
+                തിരികെ -errno;
 
         r = loop_write(STDOUT_FILENO, ANSI_OSC "11;?" ANSI_ST, SIZE_MAX);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(ANSI_OSC "11;rgb:0/0/0" ANSI_ST)]; /* shortest possible reply */
+        അക്ഷരം buf[STRLEN(ANSI_OSC "11;rgb:0/0/0" ANSI_ST)]; /* shortest possible reply */
         size_t buf_full = 0;
         BackgroundColorContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        വേണ്ടി (bool first = true;; first = false) {
+                എങ്കിൽ (buf_full == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        എങ്കിൽ (n >= end)
+                                തിരികെ -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_നിവേശം_fd, POLLIN, usec_sub_unsigned(end, n));
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        എങ്കിൽ (r == 0)
+                                തിരികെ -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
-                                return -errno;
+                        ssize_t l = പഠ(nonblock_നിവേശം_fd, buf, first ? വലുപ്പം(buf) : 1);
+                        എങ്കിൽ (l < 0) {
+                                എങ്കിൽ (errno == EAGAIN)
+                                        തുടരുക;
+                                തിരികെ -errno;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
+                        പ്രതിജ്ഞാ((size_t) l <= വലുപ്പം(buf));
                         buf_full = l;
                 }
 
                 size_t processed;
                 r = scan_background_color_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                assert(processed <= buf_full);
+                പ്രതിജ്ഞാ(processed <= buf_full);
                 buf_full -= processed;
                 memmove(buf, buf + processed, buf_full);
 
-                if (r > 0) {
-                        assert(context.red_bits > 0);
-                        *ret_red = (double) context.red / ((UINT64_C(1) << context.red_bits) - 1);
-                        assert(context.green_bits > 0);
-                        *ret_green = (double) context.green / ((UINT64_C(1) << context.green_bits) - 1);
-                        assert(context.blue_bits > 0);
-                        *ret_blue = (double) context.blue / ((UINT64_C(1) << context.blue_bits) - 1);
-                        return 0;
+                എങ്കിൽ (r > 0) {
+                        പ്രതിജ്ഞാ(context.red_bits > 0);
+                        *ret_red = (ഇരട്ട) context.red / ((UINT64_C(1) << context.red_bits) - 1);
+                        പ്രതിജ്ഞാ(context.green_bits > 0);
+                        *ret_green = (ഇരട്ട) context.green / ((UINT64_C(1) << context.green_bits) - 1);
+                        പ്രതിജ്ഞാ(context.blue_bits > 0);
+                        *ret_blue = (ഇരട്ട) context.blue / ((UINT64_C(1) << context.blue_bits) - 1);
+                        തിരികെ 0;
                 }
         }
 }
@@ -2407,16 +2407,16 @@ int get_default_background_color(double *ret_red, double *ret_green, double *ret
  * of whether the response is received.
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
-static int terminal_query_size_by_dsr(
-                int nonblock_input_fd,
-                int output_fd,
+സ്ഥിതം പൂർണ്ണസംഖ്യ terminal_query_size_by_dsr(
+                പൂർണ്ണസംഖ്യ nonblock_നിവേശം_fd,
+                പൂർണ്ണസംഖ്യ output_fd,
                 unsigned *ret_rows,
                 unsigned *ret_columns) {
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(nonblock_input_fd >= 0);
-        assert(output_fd >= 0);
+        പ്രതിജ്ഞാ(nonblock_നിവേശം_fd >= 0);
+        പ്രതിജ്ഞാ(output_fd >= 0);
 
         /* Use DECSC/DECRC to save/restore cursor instead of querying position via DSR. This way the cursor
          * is always restored — even on timeout — and we only need one DSR response instead of two. */
@@ -2427,109 +2427,109 @@ static int terminal_query_size_by_dsr(
                             "\x1B" "8",             /* DECRC: restore cursor position */
                             SIZE_MAX,
                             CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
+        അക്ഷരം buf[STRLEN("\x1B[1;1R")]; /* The shortest valid reply possible */
         size_t buf_full = 0;
         CursorPositionContext context = {};
 
-        for (bool first = true;; first = false) {
-                if (buf_full == 0) {
+        വേണ്ടി (bool first = true;; first = false) {
+                എങ്കിൽ (buf_full == 0) {
                         usec_t n = now(CLOCK_MONOTONIC);
-                        if (n >= end)
-                                return -EOPNOTSUPP;
+                        എങ്കിൽ (n >= end)
+                                തിരികെ -EOPNOTSUPP;
 
-                        r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -EOPNOTSUPP;
+                        r = fd_wait_for_event(nonblock_നിവേശം_fd, POLLIN, usec_sub_unsigned(end, n));
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        എങ്കിൽ (r == 0)
+                                തിരികെ -EOPNOTSUPP;
 
                         /* On the first try, read multiple characters, i.e. the shortest valid
                          * reply. Afterwards read byte-wise, since we don't want to read too much, and
                          * unnecessarily drop too many characters from the input queue. */
-                        ssize_t l = read(nonblock_input_fd, buf, first ? sizeof(buf) : 1);
-                        if (l < 0) {
-                                if (errno == EAGAIN)
-                                        continue;
+                        ssize_t l = പഠ(nonblock_നിവേശം_fd, buf, first ? വലുപ്പം(buf) : 1);
+                        എങ്കിൽ (l < 0) {
+                                എങ്കിൽ (errno == EAGAIN)
+                                        തുടരുക;
 
-                                return -errno;
+                                തിരികെ -errno;
                         }
 
-                        assert((size_t) l <= sizeof(buf));
+                        പ്രതിജ്ഞാ((size_t) l <= വലുപ്പം(buf));
                         buf_full = l;
                 }
 
                 size_t processed;
                 r = scan_cursor_position_response(&context, buf, buf_full, &processed);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                assert(processed <= buf_full);
+                പ്രതിജ്ഞാ(processed <= buf_full);
                 buf_full -= processed;
                 memmove(buf, buf + processed, buf_full);
 
-                if (r > 0) {
+                എങ്കിൽ (r > 0) {
                         /* Superficial validity checks (no particular reason to check for < 4, it's
                          * just a way to look for unreasonably small values) */
-                        if (context.row < 4 || context.column < 4 || context.row >= 32766 || context.column >= 32766)
-                                return -ENODATA;
+                        എങ്കിൽ (context.row < 4 || context.column < 4 || context.row >= 32766 || context.column >= 32766)
+                                തിരികെ -ENODATA;
 
-                        if (ret_rows)
+                        എങ്കിൽ (ret_rows)
                                 *ret_rows = context.row;
-                        if (ret_columns)
+                        എങ്കിൽ (ret_columns)
                                 *ret_columns = context.column;
 
-                        return 0;
+                        തിരികെ 0;
                 }
         }
 }
 
 /* Common setup for ANSI terminal queries: validate the fds, open a non-blocking input fd, and configure
  * termios with echo and canonical mode disabled. Caller must restore termios and close the fd when done. */
-static int terminal_prepare_query(
-                int input_fd,
-                int output_fd,
-                int *ret_nonblock_fd,
-                struct termios *ret_saved_termios) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ terminal_prepare_query(
+                പൂർണ്ണസംഖ്യ നിവേശം_fd,
+                പൂർണ്ണസംഖ്യ output_fd,
+                പൂർണ്ണസംഖ്യ *ret_nonblock_fd,
+                ഘടന termios *ret_saved_termios) {
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(input_fd >= 0);
-        assert(output_fd >= 0);
-        assert(ret_nonblock_fd);
-        assert(ret_saved_termios);
+        പ്രതിജ്ഞാ(നിവേശം_fd >= 0);
+        പ്രതിജ്ഞാ(output_fd >= 0);
+        പ്രതിജ്ഞാ(ret_nonblock_fd);
+        പ്രതിജ്ഞാ(ret_saved_termios);
 
         /* Use getenv_terminal_is_dumb() instead of terminal_is_dumb() here since we operate on an
          * explicitly passed fd, not on stdio. terminal_is_dumb() additionally checks on_tty() which
          * tests whether *stderr* is a tty — that's irrelevant when we're querying a directly opened
          * terminal such as /dev/console. */
-        if (getenv_terminal_is_dumb())
-                return -EOPNOTSUPP;
+        എങ്കിൽ (getenv_terminal_is_dumb())
+                തിരികെ -EOPNOTSUPP;
 
-        r = terminal_verify_same(input_fd, output_fd);
-        if (r < 0)
-                return log_debug_errno(r, "Called with distinct input/output fds: %m");
+        r = terminal_verify_same(നിവേശം_fd, output_fd);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Called with distinct input/output fds: %m");
 
         /* Open a 2nd input fd, in non-blocking mode, so that we won't ever hang in read()
          * should someone else process the POLLIN. Do all subsequent operations on the new fd. */
-        _cleanup_close_ int nonblock_input_fd = r = fd_reopen(input_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
-        if (r < 0)
-                return r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ nonblock_നിവേശം_fd = r = fd_reopen(നിവേശം_fd, O_RDONLY|O_CLOEXEC|O_NONBLOCK|O_NOCTTY);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (tcgetattr(nonblock_input_fd, ret_saved_termios) < 0)
-                return log_debug_errno(errno, "Failed to get terminal settings: %m");
+        എങ്കിൽ (tcgetattr(nonblock_നിവേശം_fd, ret_saved_termios) < 0)
+                തിരികെ log_debug_errno(errno, "Failed to get terminal settings: %m");
 
-        struct termios new_termios = *ret_saved_termios;
+        ഘടന termios new_termios = *ret_saved_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(nonblock_input_fd, TCSANOW, &new_termios) < 0)
-                return log_debug_errno(errno, "Failed to set new terminal settings: %m");
+        എങ്കിൽ (tcsetattr(nonblock_നിവേശം_fd, TCSANOW, &new_termios) < 0)
+                തിരികെ log_debug_errno(errno, "Failed to set new terminal settings: %m");
 
-        *ret_nonblock_fd = TAKE_FD(nonblock_input_fd);
-        return 0;
+        *ret_nonblock_fd = TAKE_FD(nonblock_നിവേശം_fd);
+        തിരികെ 0;
 }
 
 /*
@@ -2541,194 +2541,194 @@ static int terminal_prepare_query(
 #define CSI18_R0 CSI18_Rp "1;1t"          /* Shortest reply */
 #define CSI18_R1 CSI18_Rp "32766;32766t"  /* Longest reply */
 
-static int scan_text_area_size_response(
-                const char *buf,
+സ്ഥിതം പൂർണ്ണസംഖ്യ scan_text_area_size_response(
+                സ്ഥിരം അക്ഷരം *buf,
                 size_t size,
                 unsigned *ret_rows,
                 unsigned *ret_columns) {
 
-        assert(buf);
-        assert(ret_rows);
-        assert(ret_columns);
+        പ്രതിജ്ഞാ(buf);
+        പ്രതിജ്ഞാ(ret_rows);
+        പ്രതിജ്ഞാ(ret_columns);
 
         /* Check if we have enough space for the shortest possible answer. */
-        if (size < STRLEN(CSI18_R0))
-                return -EAGAIN;
+        എങ്കിൽ (size < STRLEN(CSI18_R0))
+                തിരികെ -EAGAIN;
 
         /* Check if the terminating sequence is present */
-        if (buf[size - 1] != 't')
-                return -EAGAIN;
+        എങ്കിൽ (buf[size - 1] != 't')
+                തിരികെ -EAGAIN;
 
         unsigned short rows, columns;
-        if (sscanf(buf, CSI18_Rp "%hu;%hut", &rows, &columns) != 2)
-                return -EINVAL;
+        എങ്കിൽ (sscanf(buf, CSI18_Rp "%hu;%hut", &rows, &columns) != 2)
+                തിരികെ -EINVAL;
 
         *ret_rows = rows;
         *ret_columns = columns;
-        return 0;
+        തിരികെ 0;
 }
 
 /* Determine terminal dimensions by means of an ANSI CSI 18 sequence.
  *
  * Caller must have already opened a non-blocking input fd and configured termios (echo/icanon off). */
-static int terminal_query_size_by_csi18(
-                int nonblock_input_fd,
-                int output_fd,
+സ്ഥിതം പൂർണ്ണസംഖ്യ terminal_query_size_by_csi18(
+                പൂർണ്ണസംഖ്യ nonblock_നിവേശം_fd,
+                പൂർണ്ണസംഖ്യ output_fd,
                 unsigned *ret_rows,
                 unsigned *ret_columns) {
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(nonblock_input_fd >= 0);
-        assert(output_fd >= 0);
+        പ്രതിജ്ഞാ(nonblock_നിവേശം_fd >= 0);
+        പ്രതിജ്ഞാ(output_fd >= 0);
 
         r = loop_write_full(output_fd, CSI18_Q, SIZE_MAX, CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(CSI18_R1)];
+        അക്ഷരം buf[STRLEN(CSI18_R1)];
         size_t bytes = 0;
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 usec_t n = now(CLOCK_MONOTONIC);
-                if (n >= end)
-                        return -EOPNOTSUPP;
+                എങ്കിൽ (n >= end)
+                        തിരികെ -EOPNOTSUPP;
 
-                r = fd_wait_for_event(nonblock_input_fd, POLLIN, usec_sub_unsigned(end, n));
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EOPNOTSUPP;
+                r = fd_wait_for_event(nonblock_നിവേശം_fd, POLLIN, usec_sub_unsigned(end, n));
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        തിരികെ -EOPNOTSUPP;
 
                 /* On the first read, read multiple characters, i.e. the shortest valid reply. Afterwards
                  * read byte by byte, since we don't want to read too much and drop characters from the input
                  * queue. */
-                ssize_t l = read(nonblock_input_fd, buf + bytes, bytes == 0 ? STRLEN(CSI18_R0) : 1);
-                if (l < 0) {
-                        if (errno == EAGAIN)
-                                continue;
-                        return -errno;
+                ssize_t l = പഠ(nonblock_നിവേശം_fd, buf + bytes, bytes == 0 ? STRLEN(CSI18_R0) : 1);
+                എങ്കിൽ (l < 0) {
+                        എങ്കിൽ (errno == EAGAIN)
+                                തുടരുക;
+                        തിരികെ -errno;
                 }
 
-                assert((size_t) l <= sizeof(buf) - bytes);
+                പ്രതിജ്ഞാ((size_t) l <= വലുപ്പം(buf) - bytes);
                 bytes += l;
 
                 r = scan_text_area_size_response(buf, bytes, ret_rows, ret_columns);
-                if (r != -EAGAIN)
-                        return r;
+                എങ്കിൽ (r != -EAGAIN)
+                        തിരികെ r;
 
-                if (bytes == sizeof(buf))
-                        return -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
+                എങ്കിൽ (bytes == വലുപ്പം(buf))
+                        തിരികെ -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
                                              * answer with a terminator in the allotted space. Something is
                                              * wrong, possibly some unrelated bytes got injected into the
                                              * answer. */
         }
 }
 
-int terminal_get_size(
-                int input_fd,
-                int output_fd,
+പൂർണ്ണസംഖ്യ terminal_get_size(
+                പൂർണ്ണസംഖ്യ നിവേശം_fd,
+                പൂർണ്ണസംഖ്യ output_fd,
                 unsigned *ret_rows,
                 unsigned *ret_columns,
                 bool try_dsr,
                 bool try_csi18) {
 
-        _cleanup_close_ int nonblock_input_fd = -EBADF;
-        struct termios old_termios = TERMIOS_NULL;
-        CLEANUP_TERMIOS_RESET(nonblock_input_fd, old_termios);
-        _cleanup_(nonblock_resetp) int nonblock_reset = -EBADF;
-        int r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ nonblock_നിവേശം_fd = -EBADF;
+        ഘടന termios old_termios = TERMIOS_NULL;
+        CLEANUP_TERMIOS_RESET(nonblock_നിവേശം_fd, old_termios);
+        _cleanup_(nonblock_resetp) പൂർണ്ണസംഖ്യ nonblock_reset = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(try_dsr || try_csi18);
+        പ്രതിജ്ഞാ(try_dsr || try_csi18);
 
-        r = terminal_prepare_query(input_fd, output_fd, &nonblock_input_fd, &old_termios);
-        if (r < 0)
-                return r;
+        r = terminal_prepare_query(നിവേശം_fd, output_fd, &nonblock_നിവേശം_fd, &old_termios);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         /* Put the output fd in non-blocking mode with a write timeout, to avoid blocking indefinitely on
          * write if the terminal is not consuming data (e.g. serial console with flow control). */
         r = fd_nonblock(output_fd, true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
-        if (r > 0)
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to set terminal to non-blocking mode: %m");
+        എങ്കിൽ (r > 0)
                 nonblock_reset = output_fd;
 
         /* Flush any stale input that might confuse the response parsers. */
-        (void) tcflush(nonblock_input_fd, TCIFLUSH);
+        (ശൂന്യം) tcflush(nonblock_നിവേശം_fd, TCIFLUSH);
 
-        if (try_csi18) {
-                r = terminal_query_size_by_csi18(nonblock_input_fd, output_fd, ret_rows, ret_columns);
-                if (r >= 0)
-                        return r;
-
-                /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
-
-                if (!IN_SET(r, -EOPNOTSUPP, -EINVAL))
-                        return r;
-        }
-
-        if (try_dsr) {
-                r = terminal_query_size_by_dsr(nonblock_input_fd, output_fd, ret_rows, ret_columns);
-                if (r >= 0)
-                        return r;
+        എങ്കിൽ (try_csi18) {
+                r = terminal_query_size_by_csi18(nonblock_നിവേശം_fd, output_fd, ret_rows, ret_columns);
+                എങ്കിൽ (r >= 0)
+                        തിരികെ r;
 
                 /* Query failed. Flush any outstanding input. */
-                (void) tcflush(nonblock_input_fd, TCIFLUSH);
+                (ശൂന്യം) tcflush(nonblock_നിവേശം_fd, TCIFLUSH);
+
+                എങ്കിൽ (!IN_SET(r, -EOPNOTSUPP, -EINVAL))
+                        തിരികെ r;
         }
 
-        return r;
+        എങ്കിൽ (try_dsr) {
+                r = terminal_query_size_by_dsr(nonblock_നിവേശം_fd, output_fd, ret_rows, ret_columns);
+                എങ്കിൽ (r >= 0)
+                        തിരികെ r;
+
+                /* Query failed. Flush any outstanding input. */
+                (ശൂന്യം) tcflush(nonblock_നിവേശം_fd, TCIFLUSH);
+        }
+
+        തിരികെ r;
 }
 
-static int fd_is_vc(int fd) {
-        _cleanup_free_ char *name = NULL;
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ fd_is_vc(പൂർണ്ണസംഖ്യ fd) {
+        _cleanup_free_ അക്ഷരം *name = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         r = getttyname_harder(fd, &name);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return tty_is_vc_resolve(name);
+        തിരികെ tty_is_vc_resolve(name);
 }
 
-int terminal_fix_size(int input_fd, int output_fd) {
+പൂർണ്ണസംഖ്യ terminal_fix_size(പൂർണ്ണസംഖ്യ നിവേശം_fd, പൂർണ്ണസംഖ്യ output_fd) {
         unsigned rows, columns;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         /* Don't ask a virtual console at all. There is no intermediary here that could be wrong about the
          * dimensions: the kernel renders the screen itself, so its winsize is authoritative. */
-        r = fd_is_vc(input_fd);
-        if (r < 0)
+        r = fd_is_vc(നിവേശം_fd);
+        എങ്കിൽ (r < 0)
                 log_debug_errno(r, "Failed to determine whether terminal is a virtual console, assuming it is not: %m");
-        else if (r > 0) {
+        അല്ലെങ്കിൽ എങ്കിൽ (r > 0) {
                 log_debug("Not querying dimensions of a virtual console, kernel dimensions are authoritative.");
-                return 0;
+                തിരികെ 0;
         }
 
-        struct winsize ws = {};
-        if (ioctl(output_fd, TIOCGWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "Failed to query terminal dimensions, ignoring: %m");
+        ഘടന winsize ws = {};
+        എങ്കിൽ (ioctl(output_fd, TIOCGWINSZ, &ws) < 0)
+                തിരികെ log_debug_errno(errno, "Failed to query terminal dimensions, ignoring: %m");
 
-        r = terminal_get_size(input_fd, output_fd, &rows, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to acquire terminal dimensions via ANSI sequences, not adjusting terminal dimensions: %m");
+        r = terminal_get_size(നിവേശം_fd, output_fd, &rows, &columns, /* try_dsr= */ true, /* try_csi18= */ true);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to acquire terminal dimensions via ANSI sequences, not adjusting terminal dimensions: %m");
 
-        if (ws.ws_row == rows && ws.ws_col == columns) {
+        എങ്കിൽ (ws.ws_row == rows && ws.ws_col == columns) {
                 log_debug("Terminal dimensions reported via ANSI sequences match currently set terminal dimensions, not changing.");
-                return 0;
+                തിരികെ 0;
         }
 
         ws.ws_col = columns;
         ws.ws_row = rows;
 
-        if (ioctl(output_fd, TIOCSWINSZ, &ws) < 0)
-                return log_debug_errno(errno, "Failed to update terminal dimensions, ignoring: %m");
+        എങ്കിൽ (ioctl(output_fd, TIOCSWINSZ, &ws) < 0)
+                തിരികെ log_debug_errno(errno, "Failed to update terminal dimensions, ignoring: %m");
 
         log_debug("Fixed terminal dimensions to %ux%u based on ANSI sequence information.", columns, rows);
-        return 1;
+        തിരികെ 1;
 }
 
 #define MAX_TERMINFO_LENGTH 64
@@ -2739,210 +2739,210 @@ int terminal_fix_size(int input_fd, int output_fd) {
 #define DCS_TERMINFO_R1 ANSI_DCS "1+r" "6E616D65" "=" /* This is followed by Pt ST. */
 assert_cc(STRLEN(DCS_TERMINFO_R0) <= STRLEN(DCS_TERMINFO_R1 ANSI_ST));
 
-static int scan_terminfo_response(
-                const char *buf,
+സ്ഥിതം പൂർണ്ണസംഖ്യ scan_terminfo_response(
+                സ്ഥിരം അക്ഷരം *buf,
                 size_t size,
-                char **ret_name) {
-        int r;
+                അക്ഷരം **ret_name) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(buf);
-        assert(ret_name);
+        പ്രതിജ്ഞാ(buf);
+        പ്രതിജ്ഞാ(ret_name);
 
         /* Check if we have enough space for the shortest possible answer. */
-        if (size < STRLEN(DCS_TERMINFO_R0))
-                return -EAGAIN;
+        എങ്കിൽ (size < STRLEN(DCS_TERMINFO_R0))
+                തിരികെ -EAGAIN;
 
         /* Check if the terminating sequence is present */
-        if (memcmp(buf + size - STRLEN(ANSI_ST), ANSI_ST, STRLEN(ANSI_ST)) != 0)
-                return -EAGAIN;
+        എങ്കിൽ (memcmp(buf + size - STRLEN(ANSI_ST), ANSI_ST, STRLEN(ANSI_ST)) != 0)
+                തിരികെ -EAGAIN;
 
-        if (size <= STRLEN(DCS_TERMINFO_R1 ANSI_ST))
-                return -EINVAL;  /* The answer is invalid or empty */
+        എങ്കിൽ (size <= STRLEN(DCS_TERMINFO_R1 ANSI_ST))
+                തിരികെ -EINVAL;  /* The answer is invalid or empty */
 
-        if (memcmp(buf, DCS_TERMINFO_R1, STRLEN(DCS_TERMINFO_R1)) != 0)
-                return -EINVAL;  /* The answer is not valid */
+        എങ്കിൽ (memcmp(buf, DCS_TERMINFO_R1, STRLEN(DCS_TERMINFO_R1)) != 0)
+                തിരികെ -EINVAL;  /* The answer is not valid */
 
-        _cleanup_free_ void *dec = NULL;
+        _cleanup_free_ ശൂന്യം *dec = ശൂന്യ;
         size_t dec_size;
         r = unhexmem_full(buf + STRLEN(DCS_TERMINFO_R1), size - STRLEN(DCS_TERMINFO_R1 ANSI_ST),
                           /* secure= */ false,
                           &dec, &dec_size);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        assert(((const char *) dec)[dec_size] == '\0'); /* unhexmem appends NUL for our convenience */
-        if (memchr(dec, '\0', dec_size) || string_has_cc(dec, NULL) || !filename_is_valid(dec))
-                return -EUCLEAN;
+        പ്രതിജ്ഞാ(((സ്ഥിരം അക്ഷരം *) dec)[dec_size] == '\0'); /* unhexmem appends NUL for our convenience */
+        എങ്കിൽ (memchr(dec, '\0', dec_size) || string_has_cc(dec, ശൂന്യ) || !filename_is_valid(dec))
+                തിരികെ -EUCLEAN;
 
         *ret_name = TAKE_PTR(dec);
-        return 0;
+        തിരികെ 0;
 }
 
-int terminal_get_terminfo_by_dcs(int fd, char **ret_name) {
-        int r;
+പൂർണ്ണസംഖ്യ terminal_get_terminfo_by_dcs(പൂർണ്ണസംഖ്യ fd, അക്ഷരം **ret_name) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
-        assert(ret_name);
+        പ്രതിജ്ഞാ(fd >= 0);
+        പ്രതിജ്ഞാ(ret_name);
 
         /* Note: fd must be in non-blocking read-write mode! */
 
-        struct termios old_termios = TERMIOS_NULL;
+        ഘടന termios old_termios = TERMIOS_NULL;
         CLEANUP_TERMIOS_RESET(fd, old_termios);
 
-        if (tcgetattr(fd, &old_termios) < 0)
-                return -errno;
+        എങ്കിൽ (tcgetattr(fd, &old_termios) < 0)
+                തിരികെ -errno;
 
-        struct termios new_termios = old_termios;
+        ഘടന termios new_termios = old_termios;
         termios_disable_echo(&new_termios);
 
-        if (tcsetattr(fd, TCSANOW, &new_termios) < 0)
-                return -errno;
+        എങ്കിൽ (tcsetattr(fd, TCSANOW, &new_termios) < 0)
+                തിരികെ -errno;
 
         r = loop_write(fd, DCS_TERMINFO_Q, SIZE_MAX);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         usec_t end = usec_add(now(CLOCK_MONOTONIC), CONSOLE_ANSI_SEQUENCE_TIMEOUT_USEC);
-        char buf[STRLEN(DCS_TERMINFO_R1) + MAX_TERMINFO_LENGTH + STRLEN(ANSI_ST)];
+        അക്ഷരം buf[STRLEN(DCS_TERMINFO_R1) + MAX_TERMINFO_LENGTH + STRLEN(ANSI_ST)];
         size_t bytes = 0;
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 usec_t n = now(CLOCK_MONOTONIC);
-                if (n >= end)
-                        return -EOPNOTSUPP;
+                എങ്കിൽ (n >= end)
+                        തിരികെ -EOPNOTSUPP;
 
                 r = fd_wait_for_event(fd, POLLIN, usec_sub_unsigned(end, n));
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EOPNOTSUPP;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        തിരികെ -EOPNOTSUPP;
 
                 /* On the first read, read multiple characters, i.e. the shortest valid reply. Afterwards
                  * read byte by byte, since we don't want to read too much and drop characters from the input
                  * queue. */
-                ssize_t l = read(fd, buf + bytes, bytes == 0 ? STRLEN(DCS_TERMINFO_R0) : 1);
-                if (l < 0) {
-                        if (errno == EAGAIN)
-                                continue;
-                        return -errno;
+                ssize_t l = പഠ(fd, buf + bytes, bytes == 0 ? STRLEN(DCS_TERMINFO_R0) : 1);
+                എങ്കിൽ (l < 0) {
+                        എങ്കിൽ (errno == EAGAIN)
+                                തുടരുക;
+                        തിരികെ -errno;
                 }
 
-                assert((size_t) l <= sizeof(buf) - bytes);
+                പ്രതിജ്ഞാ((size_t) l <= വലുപ്പം(buf) - bytes);
                 bytes += l;
 
                 r = scan_terminfo_response(buf, bytes, ret_name);
-                if (r != -EAGAIN)
-                        return r;
+                എങ്കിൽ (r != -EAGAIN)
+                        തിരികെ r;
 
-                if (bytes == sizeof(buf))
-                        return -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
+                എങ്കിൽ (bytes == വലുപ്പം(buf))
+                        തിരികെ -EOPNOTSUPP; /* The response has the right prefix, but we didn't find a valid
                                              * answer with a terminator in the allotted space. Something is
                                              * wrong, possibly some unrelated bytes got injected into the
                                              * answer. */
         }
 }
 
-int have_terminfo_file(const char *name) {
+പൂർണ്ണസംഖ്യ have_terminfo_file(സ്ഥിരം അക്ഷരം *name) {
         /* This is a heuristic check if we have the file, using the directory layout used on
          * current Linux systems. Checks for other layouts can be added later if appropriate. */
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(filename_is_valid(name));
+        പ്രതിജ്ഞാ(filename_is_valid(name));
 
-        _cleanup_free_ char *p = path_join("/usr/share/terminfo", CHAR_TO_STR(name[0]), name);
-        if (!p)
-                return log_oom_debug();
+        _cleanup_free_ അക്ഷരം *p = path_join("/usr/share/terminfo", CHAR_TO_STR(name[0]), name);
+        എങ്കിൽ (!p)
+                തിരികെ log_oom_debug();
 
         r = RET_NERRNO(access(p, F_OK));
-        if (r == -ENOENT)
-                return false;
-        if (r < 0)
-                return r;
-        return true;
+        എങ്കിൽ (r == -ENOENT)
+                തിരികെ false;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        തിരികെ true;
 }
 
-int query_term_for_tty(const char *tty, char **ret_term) {
-        _cleanup_free_ char *dcs_term = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ query_term_for_tty(സ്ഥിരം അക്ഷരം *tty, അക്ഷരം **ret_term) {
+        _cleanup_free_ അക്ഷരം *dcs_term = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(tty);
-        assert(ret_term);
+        പ്രതിജ്ഞാ(tty);
+        പ്രതിജ്ഞാ(ret_term);
 
-        if (tty_is_vc_resolve(tty))
-                return strdup_to(ret_term, "linux");
+        എങ്കിൽ (tty_is_vc_resolve(tty))
+                തിരികെ strdup_to(ret_term, "linux");
 
         /* Try to query the terminal implementation that we're on. This will not work in all
          * cases, which is fine, since this is intended to be used as a fallback. */
 
-        _cleanup_close_ int tty_fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
-        if (tty_fd < 0)
-                return log_debug_errno(tty_fd, "Failed to open %s to query terminfo: %m", tty);
+        _cleanup_close_ പൂർണ്ണസംഖ്യ tty_fd = open_terminal(tty, O_RDWR|O_NOCTTY|O_CLOEXEC|O_NONBLOCK);
+        എങ്കിൽ (tty_fd < 0)
+                തിരികെ log_debug_errno(tty_fd, "Failed to open %s to query terminfo: %m", tty);
 
         r = terminal_get_terminfo_by_dcs(tty_fd, &dcs_term);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to query %s for terminfo: %m", tty);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to query %s for terminfo: %m", tty);
 
         r = have_terminfo_file(dcs_term);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to look for terminfo %s: %m", dcs_term);
-        if (r == 0)
-                return log_info_errno(SYNTHETIC_ERRNO(ENODATA),
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Failed to look for terminfo %s: %m", dcs_term);
+        എങ്കിൽ (r == 0)
+                തിരികെ log_info_errno(SYNTHETIC_ERRNO(ENODATA),
                                       "Terminfo %s not found for %s.", dcs_term, tty);
 
         *ret_term = TAKE_PTR(dcs_term);
-        return 0;
+        തിരികെ 0;
 }
 
-int terminal_is_pty_fd(int fd) {
-        int r;
+പൂർണ്ണസംഖ്യ terminal_is_pty_fd(പൂർണ്ണസംഖ്യ fd) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         /* Returns true if we are looking at a pty, i.e. if it's backed by the /dev/pts/ file system */
 
-        if (!isatty_safe(fd))
-                return false;
+        എങ്കിൽ (!isatty_safe(fd))
+                തിരികെ false;
 
-        r = is_fs_type_at(fd, NULL, DEVPTS_SUPER_MAGIC);
-        if (r != 0)
-                return r;
+        r = is_fs_type_at(fd, ശൂന്യ, DEVPTS_SUPER_MAGIC);
+        എങ്കിൽ (r != 0)
+                തിരികെ r;
 
         /* The ptmx device is weird, it exists twice, once inside and once outside devpts. To detect the
          * latter case, let's fire off an ioctl() that only works on ptmx devices. */
 
-        int v;
-        if (ioctl(fd, TIOCGPKT, &v) < 0) {
-                if (ERRNO_IS_NOT_SUPPORTED(errno))
-                        return false;
+        പൂർണ്ണസംഖ്യ v;
+        എങ്കിൽ (ioctl(fd, TIOCGPKT, &v) < 0) {
+                എങ്കിൽ (ERRNO_IS_NOT_SUPPORTED(errno))
+                        തിരികെ false;
 
-                return -errno;
+                തിരികെ -errno;
         }
 
-        return true;
+        തിരികെ true;
 }
 
-int pty_open_peer(int fd, int mode) {
-        assert(fd >= 0);
+പൂർണ്ണസംഖ്യ pty_open_peer(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ mode) {
+        പ്രതിജ്ഞാ(fd >= 0);
 
         /* Opens the peer PTY using the new race-free TIOCGPTPEER ioctl() (kernel 4.13).
          *
          * This is safe to be called on TTYs from other namespaces. */
 
-        assert((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
+        പ്രതിജ്ഞാ((mode & (O_CREAT|O_PATH|O_DIRECTORY|O_TMPFILE)) == 0);
 
         /* This replicates the EIO retry logic of open_terminal() in a modified way. */
-        for (unsigned c = 0;; c++) {
-                int peer_fd = ioctl(fd, TIOCGPTPEER, mode);
-                if (peer_fd >= 0)
-                        return peer_fd;
+        വേണ്ടി (unsigned c = 0;; c++) {
+                പൂർണ്ണസംഖ്യ peer_fd = ioctl(fd, TIOCGPTPEER, mode);
+                എങ്കിൽ (peer_fd >= 0)
+                        തിരികെ peer_fd;
 
-                if (errno != EIO)
-                        return -errno;
+                എങ്കിൽ (errno != EIO)
+                        തിരികെ -errno;
 
                 /* Max 1s in total */
-                if (c >= 20)
-                        return -EIO;
+                എങ്കിൽ (c >= 20)
+                        തിരികെ -EIO;
 
-                (void) usleep_safe(50 * USEC_PER_MSEC);
+                (ശൂന്യം) usleep_safe(50 * USEC_PER_MSEC);
         }
 }

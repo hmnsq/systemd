@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
 /* The limit used for /dev itself. 4MB should be enough since device nodes and symlinks don't
  * consume any space and udev isn't supposed to create regular file either. There's no limit on the
@@ -32,61 +32,61 @@
 #define TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
 #define TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
 
-bool is_name_to_handle_at_fatal_error(int err);
+bool is_name_to_handle_at_fatal_error(പൂർണ്ണസംഖ്യ err);
 
-int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_try_fid(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_u64(int fd, const char *path, uint64_t *ret);
-static inline int path_to_handle_u64(const char *path, uint64_t *ret) {
-        return name_to_handle_at_u64(AT_FDCWD, path, ret);
+പൂർണ്ണസംഖ്യ name_to_handle_at_loop(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *path, ഘടന file_handle **ret_handle, പൂർണ്ണസംഖ്യ *ret_mnt_id, uint64_t *ret_unique_mnt_id, പൂർണ്ണസംഖ്യ flags);
+പൂർണ്ണസംഖ്യ name_to_handle_at_try_fid(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *path, ഘടന file_handle **ret_handle, പൂർണ്ണസംഖ്യ *ret_mnt_id, uint64_t *ret_unique_mnt_id, പൂർണ്ണസംഖ്യ flags);
+പൂർണ്ണസംഖ്യ name_to_handle_at_u64(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *path, uint64_t *ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ path_to_handle_u64(സ്ഥിരം അക്ഷരം *path, uint64_t *ret) {
+        തിരികെ name_to_handle_at_u64(AT_FDCWD, path, ret);
 }
-static inline int fd_to_handle_u64(int fd, uint64_t *ret) {
-        return name_to_handle_at_u64(fd, NULL, ret);
-}
-
-bool file_handle_equal(const struct file_handle *a, const struct file_handle *b);
-struct file_handle* file_handle_dup(const struct file_handle *fh);
-
-int path_get_mnt_id_at(int dir_fd, const char *path, int *ret);
-static inline int path_get_mnt_id(const char *path, int *ret) {
-        return path_get_mnt_id_at(AT_FDCWD, path, ret);
-}
-int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
-
-int is_mount_point_at(int dir_fd, const char *path, int flags);
-int path_is_mount_point_full(const char *path, const char *root, int flags);
-static inline int path_is_mount_point(const char *path) {
-        return path_is_mount_point_full(path, NULL, 0);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ fd_to_handle_u64(പൂർണ്ണസംഖ്യ fd, uint64_t *ret) {
+        തിരികെ name_to_handle_at_u64(fd, ശൂന്യ, ret);
 }
 
-bool fstype_is_network(const char *fstype);
-bool fstype_needs_quota(const char *fstype);
-bool fstype_has_internal_quota(const char *fstype);
-bool fstype_is_api_vfs(const char *fstype);
-bool fstype_is_blockdev_backed(const char *fstype);
-bool fstype_is_ro(const char *fsype);
-bool fstype_can_discard(const char *fstype);
-bool fstype_can_ownership(const char *fstype);
-bool fstype_can_uid_gid(const char *fstype);
-bool fstype_can_fmask_dmask(const char *fstype);
+bool file_handle_equal(സ്ഥിരം ഘടന file_handle *a, സ്ഥിരം ഘടന file_handle *b);
+ഘടന file_handle* file_handle_dup(സ്ഥിരം ഘടന file_handle *fh);
 
-const char* fstype_norecovery_option(const char *fstype);
+പൂർണ്ണസംഖ്യ path_get_mnt_id_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ *ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ path_get_mnt_id(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ *ret) {
+        തിരികെ path_get_mnt_id_at(AT_FDCWD, path, ret);
+}
+പൂർണ്ണസംഖ്യ path_get_unique_mnt_id_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, uint64_t *ret);
 
-int dev_is_devtmpfs(void);
+പൂർണ്ണസംഖ്യ is_mount_point_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags);
+പൂർണ്ണസംഖ്യ path_is_mount_point_full(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *വേര്, പൂർണ്ണസംഖ്യ flags);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ path_is_mount_point(സ്ഥിരം അക്ഷരം *path) {
+        തിരികെ path_is_mount_point_full(path, ശൂന്യ, 0);
+}
 
-int mount_nofollow(
-                const char *source,
-                const char *target,
-                const char *filesystemtype,
+bool fstype_is_network(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_needs_quota(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_has_internal_quota(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_is_api_vfs(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_is_blockdev_backed(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_is_ro(സ്ഥിരം അക്ഷരം *fsype);
+bool fstype_can_discard(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_can_ownership(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_can_uid_gid(സ്ഥിരം അക്ഷരം *fstype);
+bool fstype_can_fmask_dmask(സ്ഥിരം അക്ഷരം *fstype);
+
+സ്ഥിരം അക്ഷരം* fstype_norecovery_option(സ്ഥിരം അക്ഷരം *fstype);
+
+പൂർണ്ണസംഖ്യ dev_is_devtmpfs(ശൂന്യം);
+
+പൂർണ്ണസംഖ്യ mount_nofollow(
+                സ്ഥിരം അക്ഷരം *source,
+                സ്ഥിരം അക്ഷരം *target,
+                സ്ഥിരം അക്ഷരം *filesystemtype,
                 unsigned long mountflags,
-                const void *data);
+                സ്ഥിരം ശൂന്യം *data);
 
-const char* mount_propagation_flag_to_string(unsigned long flags);
-int mount_propagation_flag_from_string(const char *name, unsigned long *ret);
+സ്ഥിരം അക്ഷരം* mount_propagation_flag_to_string(unsigned long flags);
+പൂർണ്ണസംഖ്യ mount_propagation_flag_from_string(സ്ഥിരം അക്ഷരം *name, unsigned long *ret);
 bool mount_propagation_flag_is_valid(unsigned long flag);
 
-bool mount_new_api_supported(void);
+bool mount_new_api_supported(ശൂന്യം);
 
-int mount_option_supported(const char *fstype, const char *key, const char *value);
+പൂർണ്ണസംഖ്യ mount_option_supported(സ്ഥിരം അക്ഷരം *fstype, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം);
 
-bool path_below_api_vfs(const char *p);
+bool path_below_api_vfs(സ്ഥിരം അക്ഷരം *p);

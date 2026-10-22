@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#അന്തര്ഭാവ <stdio.h>
 
-#include "af-list.h"
-#include "alloc-util.h"
-#include "fileio.h"
-#include "hashmap.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "string-util.h"
-#include "sysctl-util.h"
+#അന്തര്ഭാവ "af-list.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "hashmap.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "socket-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "sysctl-util.h"
 
-char* sysctl_normalize(char *s) {
-        char *n;
+അക്ഷരം* sysctl_normalize(അക്ഷരം *s) {
+        അക്ഷരം *n;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         n = strpbrk(s, "/.");
 
@@ -24,101 +24,101 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        എങ്കിൽ (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
-                do {
-                        if (*n == '.')
+                ചെയ്യുക {
+                        എങ്കിൽ (*n == '.')
                                 *n = '/';
-                        else
+                        അല്ലെങ്കിൽ
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } ആകുമ്പോൾ (n);
 
         path_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
+        എങ്കിൽ (s[0] == '/' && s[1] != 0)
                 memmove(s, s+1, strlen(s));
 
-        return s;
+        തിരികെ s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
-        _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ shadow_update(Hashmap **shadow, സ്ഥിരം അക്ഷരം *property, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        _cleanup_free_ അക്ഷരം *k = ശൂന്യ, *v = ശൂന്യ, *cur_k = ശൂന്യ, *cur_v = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(property);
-        assert(value);
+        പ്രതിജ്ഞാ(property);
+        പ്രതിജ്ഞാ(മൂല്യം);
 
-        if (!shadow)
-                return 0;
+        എങ്കിൽ (!shadow)
+                തിരികെ 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        എങ്കിൽ (!k)
+                തിരികെ -ENOMEM;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(മൂല്യം);
+        എങ്കിൽ (!v)
+                തിരികെ -ENOMEM;
 
-        cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
+        cur_v = hashmap_remove2(*shadow, k, (ശൂന്യം**)&cur_k);
 
         r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
-                assert(r != -EEXIST);
+        എങ്കിൽ (r < 0) {
+                പ്രതിജ്ഞാ(r != -EEXIST);
 
-                return r;
+                തിരികെ r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
-        char *p;
-        int r;
+പൂർണ്ണസംഖ്യ sysctl_write_full(സ്ഥിരം അക്ഷരം *property, സ്ഥിരം അക്ഷരം *മൂല്യം, Hashmap **shadow) {
+        അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(property);
-        assert(value);
+        പ്രതിജ്ഞാ(property);
+        പ്രതിജ്ഞാ(മൂല്യം);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        എങ്കിൽ (!path_is_normalized(p))
+                തിരികെ -EINVAL;
 
-        log_debug("Setting '%s' to '%s'", p, value);
+        log_debug("Setting '%s' to '%s'", p, മൂല്യം);
 
-        r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        r = shadow_update(shadow, p, മൂല്യം);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        തിരികെ write_string_file(p, മൂല്യം, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
-        _cleanup_free_ char *v = NULL;
+പൂർണ്ണസംഖ്യ sysctl_writef(സ്ഥിരം അക്ഷരം *property, സ്ഥിരം അക്ഷരം *format, ...) {
+        _cleanup_free_ അക്ഷരം *v = ശൂന്യ;
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        എങ്കിൽ (r < 0)
+                തിരികെ -ENOMEM;
 
-        return sysctl_write(property, v);
+        തിരികെ sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+പൂർണ്ണസംഖ്യ sysctl_write_verify(സ്ഥിരം അക്ഷരം *property, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(property);
-        assert(value);
+        പ്രതിജ്ഞാ(property);
+        പ്രതിജ്ഞാ(മൂല്യം);
 
         /* Some sysctl settings accept invalid values on write, but refuses on read. E.g. coredump pattern,
          * be1e0283021ec73c2eb92839db9a471a068709d9 (v6.17) and 7d7c1fb85cba5627bbe741fb7539c709435e3848
@@ -126,18 +126,18 @@ int sysctl_write_verify(const char *property, const char *value) {
          * 304aa560385720baf3660fe8500f6dd425b63ea9 (v6.17.5). Let's first save the original value, and
          * restore to the saved value if the new value is refused. */
 
-        _cleanup_free_ char *original = NULL;
+        _cleanup_free_ അക്ഷരം *original = ശൂന്യ;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        എങ്കിൽ (r >= 0 && streq(original, മൂല്യം))
+                തിരികെ 0; /* Already set. */
 
-        r = sysctl_write(property, value);
-        if (r >= 0) {
-                _cleanup_free_ char *current = NULL;
+        r = sysctl_write(property, മൂല്യം);
+        എങ്കിൽ (r >= 0) {
+                _cleanup_free_ അക്ഷരം *current = ശൂന്യ;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                എങ്കിൽ (r >= 0) {
+                        എങ്കിൽ (streq(current, മൂല്യം))
+                                തിരികെ 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
-                (void) sysctl_write(property, original);
+        എങ്കിൽ (original)
+                (ശൂന്യം) sysctl_write(property, original);
 
-        return r;
+        തിരികെ r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+സ്ഥിതം സ്ഥിരം അക്ഷരം* af_to_sysctl_dir(പൂർണ്ണസംഖ്യ af) {
+        എങ്കിൽ (af == AF_MPLS)
+                തിരികെ "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        തിരികെ af_to_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+പൂർണ്ണസംഖ്യ sysctl_write_ip_property(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *ifname, സ്ഥിരം അക്ഷരം *property, സ്ഥിരം അക്ഷരം *മൂല്യം, Hashmap **shadow) {
+        സ്ഥിരം അക്ഷരം *p;
 
-        assert(property);
-        assert(value);
+        പ്രതിജ്ഞാ(property);
+        പ്രതിജ്ഞാ(മൂല്യം);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        എങ്കിൽ (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                തിരികെ -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        എങ്കിൽ (ifname) {
+                എങ്കിൽ (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        തിരികെ -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } അല്ലെങ്കിൽ
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        തിരികെ sysctl_write_full(p, മൂല്യം, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+പൂർണ്ണസംഖ്യ sysctl_write_ip_property_boolean(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *ifname, സ്ഥിരം അക്ഷരം *property, bool മൂല്യം, Hashmap **shadow) {
+        തിരികെ sysctl_write_ip_property(af, ifname, property, one_zero(മൂല്യം), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+പൂർണ്ണസംഖ്യ sysctl_write_ip_neighbor_property(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *ifname, സ്ഥിരം അക്ഷരം *property, സ്ഥിരം അക്ഷരം *മൂല്യം, Hashmap **shadow) {
+        സ്ഥിരം അക്ഷരം *p;
 
-        assert(property);
-        assert(value);
-        assert(ifname);
+        പ്രതിജ്ഞാ(property);
+        പ്രതിജ്ഞാ(മൂല്യം);
+        പ്രതിജ്ഞാ(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        എങ്കിൽ (!IN_SET(af, AF_INET, AF_INET6))
+                തിരികെ -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        എങ്കിൽ (ifname) {
+                എങ്കിൽ (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        തിരികെ -EINVAL;
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
+        } അല്ലെങ്കിൽ
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        തിരികെ sysctl_write_full(p, മൂല്യം, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
-        char buf[DECIMAL_STR_MAX(uint32_t)];
-        xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+പൂർണ്ണസംഖ്യ sysctl_write_ip_neighbor_property_uint32(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *ifname, സ്ഥിരം അക്ഷരം *property, uint32_t മൂല്യം, Hashmap **shadow) {
+        അക്ഷരം buf[DECIMAL_STR_MAX(uint32_t)];
+        xsprintf(buf, "%u", മൂല്യം);
+        തിരികെ sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
-        char *p;
-        int r;
+പൂർണ്ണസംഖ്യ sysctl_read(സ്ഥിരം അക്ഷരം *property, അക്ഷരം **ret) {
+        അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(property);
+        പ്രതിജ്ഞാ(property);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        എങ്കിൽ (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                തിരികെ -EINVAL;
 
-        r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        r = read_full_virtual_file(p, ret, ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        തിരികെ r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
-        const char *p;
+പൂർണ്ണസംഖ്യ sysctl_read_ip_property(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *ifname, സ്ഥിരം അക്ഷരം *property, അക്ഷരം **ret) {
+        സ്ഥിരം അക്ഷരം *p;
 
-        assert(property);
+        പ്രതിജ്ഞാ(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        എങ്കിൽ (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                തിരികെ -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        എങ്കിൽ (ifname) {
+                എങ്കിൽ (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        തിരികെ -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } അല്ലെങ്കിൽ
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        തിരികെ sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ sysctl_read_ip_property_int(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *ifname, സ്ഥിരം അക്ഷരം *property, പൂർണ്ണസംഖ്യ *ret) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return safe_atoi(s, ret);
+        തിരികെ safe_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ sysctl_read_ip_property_uint32(പൂർണ്ണസംഖ്യ af, സ്ഥിരം അക്ഷരം *ifname, സ്ഥിരം അക്ഷരം *property, uint32_t *ret) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return safe_atou32(s, ret);
+        തിരികെ safe_atou32(s, ret);
 }

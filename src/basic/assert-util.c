@@ -1,56 +1,56 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
 
-#include "assert-util.h"
-#include "errno-util.h"
-#include "log.h"
+#അന്തര്ഭാവ "assert-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "log.h"
 
 /* Akin to glibc's __abort_msg; which is private and we hence cannot
  * use here. */
-static char *log_abort_msg = NULL;
+സ്ഥിതം അക്ഷരം *log_abort_സന്ദേശം = ശൂന്യ;
 
-static void log_assert(
-        int level,
-        const char *text,
-        const char *file,
-        int line,
-        const char *func,
-        const char *format) {
+സ്ഥിതം ശൂന്യം log_assert(
+        പൂർണ്ണസംഖ്യ level,
+        സ്ഥിരം അക്ഷരം *text,
+        സ്ഥിരം അക്ഷരം *file,
+        പൂർണ്ണസംഖ്യ വരി,
+        സ്ഥിരം അക്ഷരം *func,
+        സ്ഥിരം അക്ഷരം *format) {
 
-        static char buffer[LINE_MAX];
+        സ്ഥിതം അക്ഷരം buffer[LINE_MAX];
 
-        if (_likely_(LOG_PRI(level) > log_get_max_level()))
-                return;
+        എങ്കിൽ (_likely_(LOG_PRI(level) > log_get_max_level()))
+                തിരികെ;
 
         DISABLE_WARNING_FORMAT_NONLITERAL;
-        (void) snprintf(buffer, sizeof buffer, format, text, file, line, func);
+        (ശൂന്യം) snprintf(buffer, വലുപ്പം buffer, format, text, file, വരി, func);
         REENABLE_WARNING;
 
-        log_abort_msg = buffer;
+        log_abort_സന്ദേശം = buffer;
 
-        log_dispatch_internal(level, 0, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        log_dispatch_internal(level, 0, file, വരി, func, ശൂന്യ, ശൂന്യ, ശൂന്യ, ശൂന്യ, buffer);
 }
 
-_noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func) {
-        log_assert(LOG_CRIT, text, file, line, func,
+_noreturn_ ശൂന്യം log_assert_failed(സ്ഥിരം അക്ഷരം *text, സ്ഥിരം അക്ഷരം *file, പൂർണ്ണസംഖ്യ വരി, സ്ഥിരം അക്ഷരം *func) {
+        log_assert(LOG_CRIT, text, file, വരി, func,
                    "Assertion '%s' failed at %s:%u, function %s(). Aborting.");
         abort();
 }
 
-_noreturn_ void log_assert_failed_unreachable(const char *file, int line, const char *func) {
-        log_assert(LOG_CRIT, "Code should not be reached", file, line, func,
+_noreturn_ ശൂന്യം log_assert_failed_unreachable(സ്ഥിരം അക്ഷരം *file, പൂർണ്ണസംഖ്യ വരി, സ്ഥിരം അക്ഷരം *func) {
+        log_assert(LOG_CRIT, "Code should not be reached", file, വരി, func,
                    "%s at %s:%u, function %s(). Aborting. 💥");
         abort();
 }
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func) {
+ശൂന്യം log_assert_failed_return(സ്ഥിരം അക്ഷരം *text, സ്ഥിരം അക്ഷരം *file, പൂർണ്ണസംഖ്യ വരി, സ്ഥിരം അക്ഷരം *func) {
         /* log_get_assert_return_is_critical is a weak symbol. It may be NULL. */
-        if (log_get_assert_return_is_critical && log_get_assert_return_is_critical())
-                log_assert_failed(text, file, line, func);
+        എങ്കിൽ (log_get_assert_return_is_critical && log_get_assert_return_is_critical())
+                log_assert_failed(text, file, വരി, func);
 
         PROTECT_ERRNO;
-        log_assert(LOG_DEBUG, text, file, line, func,
+        log_assert(LOG_DEBUG, text, file, വരി, func,
                    "Assertion '%s' failed at %s:%u, function %s(), ignoring.");
 }

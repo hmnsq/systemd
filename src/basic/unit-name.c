@@ -1,19 +1,19 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "sd-id128.h"
+#അന്തര്ഭാവ "sd-id128.h"
 
-#include "alloc-util.h"
-#include "glob-util.h"
-#include "hexdecoct.h"
-#include "log.h"
-#include "memory-util.h"
-#include "path-util.h"
-#include "sparse-endian.h"
-#include "special.h"
-#include "siphash24.h"
-#include "string-util.h"
-#include "unit-def.h"
-#include "unit-name.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "glob-util.h"
+#അന്തര്ഭാവ "hexdecoct.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "memory-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "sparse-endian.h"
+#അന്തര്ഭാവ "special.h"
+#അന്തര്ഭാവ "siphash24.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "unit-def.h"
+#അന്തര്ഭാവ "unit-name.h"
 
 /* Characters valid in a unit name. */
 #define VALID_CHARS                             \
@@ -30,347 +30,347 @@
         VALID_CHARS_WITH_AT                     \
         "[]!-*?"
 
-#define LONG_UNIT_NAME_HASH_KEY SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
+#define LONG_UNIT_NAME_HASH_താക്കോൽ SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
 #define UNIT_NAME_HASH_LENGTH_CHARS 16
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) {
-        const char *e, *i, *at;
+bool unit_name_is_valid(സ്ഥിരം അക്ഷരം *n, UnitNameFlags flags) {
+        സ്ഥിരം അക്ഷരം *e, *i, *at;
 
-        assert((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
+        പ്രതിജ്ഞാ((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
 
-        if (_unlikely_(flags == 0))
-                return false;
+        എങ്കിൽ (_unlikely_(flags == 0))
+                തിരികെ false;
 
-        if (isempty(n))
-                return false;
+        എങ്കിൽ (isempty(n))
+                തിരികെ false;
 
-        if (strlen(n) >= UNIT_NAME_MAX)
-                return false;
+        എങ്കിൽ (strlen(n) >= UNIT_NAME_MAX)
+                തിരികെ false;
 
         e = strrchr(n, '.');
-        if (!e || e == n)
-                return false;
+        എങ്കിൽ (!e || e == n)
+                തിരികെ false;
 
-        if (unit_type_from_string(e + 1) < 0)
-                return false;
+        എങ്കിൽ (unit_type_from_string(e + 1) < 0)
+                തിരികെ false;
 
-        for (i = n, at = NULL; i < e; i++) {
+        വേണ്ടി (i = n, at = ശൂന്യ; i < e; i++) {
 
-                if (*i == '@' && !at)
+                എങ്കിൽ (*i == '@' && !at)
                         at = i;
 
-                if (!strchr(VALID_CHARS_WITH_AT, *i))
-                        return false;
+                എങ്കിൽ (!strchr(VALID_CHARS_WITH_AT, *i))
+                        തിരികെ false;
         }
 
-        if (at == n)
-                return false;
+        എങ്കിൽ (at == n)
+                തിരികെ false;
 
-        if (flags & UNIT_NAME_PLAIN)
-                if (!at)
-                        return true;
+        എങ്കിൽ (flags & UNIT_NAME_PLAIN)
+                എങ്കിൽ (!at)
+                        തിരികെ true;
 
-        if (flags & UNIT_NAME_INSTANCE)
-                if (at && e > at + 1)
-                        return true;
+        എങ്കിൽ (flags & UNIT_NAME_INSTANCE)
+                എങ്കിൽ (at && e > at + 1)
+                        തിരികെ true;
 
-        if (flags & UNIT_NAME_TEMPLATE)
-                if (at && e == at + 1)
-                        return true;
+        എങ്കിൽ (flags & UNIT_NAME_TEMPLATE)
+                എങ്കിൽ (at && e == at + 1)
+                        തിരികെ true;
 
-        return false;
+        തിരികെ false;
 }
 
-bool unit_prefix_is_valid(const char *p) {
+bool unit_prefix_is_valid(സ്ഥിരം അക്ഷരം *p) {
 
         /* We don't allow additional @ in the prefix string */
 
-        if (isempty(p))
-                return false;
+        എങ്കിൽ (isempty(p))
+                തിരികെ false;
 
-        return in_charset(p, VALID_CHARS);
+        തിരികെ in_charset(p, VALID_CHARS);
 }
 
-bool unit_instance_is_valid(const char *i) {
+bool unit_instance_is_valid(സ്ഥിരം അക്ഷരം *i) {
 
         /* The max length depends on the length of the string, so we
          * don't really check this here. */
 
-        if (isempty(i))
-                return false;
+        എങ്കിൽ (isempty(i))
+                തിരികെ false;
 
         /* We allow additional @ in the instance string, we do not
          * allow them in the prefix! */
 
-        return in_charset(i, "@" VALID_CHARS);
+        തിരികെ in_charset(i, "@" VALID_CHARS);
 }
 
-bool unit_suffix_is_valid(const char *s) {
-        if (isempty(s))
-                return false;
+bool unit_suffix_is_valid(സ്ഥിരം അക്ഷരം *s) {
+        എങ്കിൽ (isempty(s))
+                തിരികെ false;
 
-        if (s[0] != '.')
-                return false;
+        എങ്കിൽ (s[0] != '.')
+                തിരികെ false;
 
-        if (unit_type_from_string(s + 1) < 0)
-                return false;
+        എങ്കിൽ (unit_type_from_string(s + 1) < 0)
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-int unit_name_to_prefix(const char *n, char **ret) {
-        const char *p;
-        char *s;
+പൂർണ്ണസംഖ്യ unit_name_to_prefix(സ്ഥിരം അക്ഷരം *n, അക്ഷരം **ret) {
+        സ്ഥിരം അക്ഷരം *p;
+        അക്ഷരം *s;
 
-        assert(n);
-        assert(ret);
+        പ്രതിജ്ഞാ(n);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                തിരികെ -EINVAL;
 
         p = strchr(n, '@');
-        if (!p)
+        എങ്കിൽ (!p)
                 p = strrchr(n, '.');
 
         assert_se(p);
 
         s = strndup(n, p - n);
-        if (!s)
-                return -ENOMEM;
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         *ret = s;
-        return 0;
+        തിരികെ 0;
 }
 
-UnitNameFlags unit_name_to_instance(const char *n, char **ret) {
-        const char *p, *d;
+UnitNameFlags unit_name_to_instance(സ്ഥിരം അക്ഷരം *n, അക്ഷരം **ret) {
+        സ്ഥിരം അക്ഷരം *p, *d;
 
-        assert(n);
+        പ്രതിജ്ഞാ(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                തിരികെ -EINVAL;
 
         /* Everything past the first @ and before the last . is the instance */
         p = strchr(n, '@');
-        if (!p) {
-                if (ret)
-                        *ret = NULL;
-                return UNIT_NAME_PLAIN;
+        എങ്കിൽ (!p) {
+                എങ്കിൽ (ret)
+                        *ret = ശൂന്യ;
+                തിരികെ UNIT_NAME_PLAIN;
         }
 
         p++;
 
         d = strrchr(p, '.');
-        if (!d)
-                return -EINVAL;
+        എങ്കിൽ (!d)
+                തിരികെ -EINVAL;
 
-        if (ret) {
-                char *i = strndup(p, d-p);
-                if (!i)
-                        return -ENOMEM;
+        എങ്കിൽ (ret) {
+                അക്ഷരം *i = strndup(p, d-p);
+                എങ്കിൽ (!i)
+                        തിരികെ -ENOMEM;
 
                 *ret = i;
         }
-        return d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
+        തിരികെ d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
 }
 
-int unit_name_to_prefix_and_instance(const char *n, char **ret) {
-        const char *d;
-        char *s;
+പൂർണ്ണസംഖ്യ unit_name_to_prefix_and_instance(സ്ഥിരം അക്ഷരം *n, അക്ഷരം **ret) {
+        സ്ഥിരം അക്ഷരം *d;
+        അക്ഷരം *s;
 
-        assert(n);
-        assert(ret);
+        പ്രതിജ്ഞാ(n);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                തിരികെ -EINVAL;
 
         d = strrchr(n, '.');
-        if (!d)
-                return -EINVAL;
+        എങ്കിൽ (!d)
+                തിരികെ -EINVAL;
 
         s = strndup(n, d - n);
-        if (!s)
-                return -ENOMEM;
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         *ret = s;
-        return 0;
+        തിരികെ 0;
 }
 
-UnitType unit_name_to_type(const char *n) {
-        const char *e;
+UnitType unit_name_to_type(സ്ഥിരം അക്ഷരം *n) {
+        സ്ഥിരം അക്ഷരം *e;
 
-        assert(n);
+        പ്രതിജ്ഞാ(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return _UNIT_TYPE_INVALID;
+        എങ്കിൽ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                തിരികെ _UNIT_TYPE_INVALID;
 
         assert_se(e = strrchr(n, '.'));
 
-        return unit_type_from_string(e + 1);
+        തിരികെ unit_type_from_string(e + 1);
 }
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
-        _cleanup_free_ char *s = NULL;
+പൂർണ്ണസംഖ്യ unit_name_change_suffix(സ്ഥിരം അക്ഷരം *n, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
         size_t a, b;
-        const char *e;
+        സ്ഥിരം അക്ഷരം *e;
 
-        assert(n);
-        assert(suffix);
-        assert(ret);
+        പ്രതിജ്ഞാ(n);
+        പ്രതിജ്ഞാ(suffix);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                തിരികെ -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        എങ്കിൽ (!unit_suffix_is_valid(suffix))
+                തിരികെ -EINVAL;
 
         assert_se(e = strrchr(n, '.'));
 
         a = e - n;
         b = strlen(suffix);
 
-        s = new(char, a + b + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(അക്ഷരം, a + b + 1);
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         strcpy(mempcpy(s, n, a), suffix);
 
         /* Make sure the name is still valid (i.e. didn't grow too large due to longer suffix) */
-        if (!unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(s, UNIT_NAME_ANY))
+                തിരികെ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret) {
+പൂർണ്ണസംഖ്യ unit_name_build(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *instance, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret) {
         UnitType type;
 
-        assert(prefix);
-        assert(suffix);
-        assert(ret);
+        പ്രതിജ്ഞാ(prefix);
+        പ്രതിജ്ഞാ(suffix);
+        പ്രതിജ്ഞാ(ret);
 
-        if (suffix[0] != '.')
-                return -EINVAL;
+        എങ്കിൽ (suffix[0] != '.')
+                തിരികെ -EINVAL;
 
         type = unit_type_from_string(suffix + 1);
-        if (type < 0)
-                return type;
+        എങ്കിൽ (type < 0)
+                തിരികെ type;
 
-        return unit_name_build_from_type(prefix, instance, type, ret);
+        തിരികെ unit_name_build_from_type(prefix, instance, type, ret);
 }
 
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        const char *ut;
+പൂർണ്ണസംഖ്യ unit_name_build_from_type(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *instance, UnitType type, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *ut;
 
-        assert(prefix);
-        assert(type >= 0);
-        assert(type < _UNIT_TYPE_MAX);
-        assert(ret);
+        പ്രതിജ്ഞാ(prefix);
+        പ്രതിജ്ഞാ(type >= 0);
+        പ്രതിജ്ഞാ(type < _UNIT_TYPE_MAX);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        എങ്കിൽ (!unit_prefix_is_valid(prefix))
+                തിരികെ -EINVAL;
 
         ut = unit_type_to_string(type);
 
-        if (instance) {
-                if (!unit_instance_is_valid(instance))
-                        return -EINVAL;
+        എങ്കിൽ (instance) {
+                എങ്കിൽ (!unit_instance_is_valid(instance))
+                        തിരികെ -EINVAL;
 
                 s = strjoin(prefix, "@", instance, ".", ut);
-        } else
+        } അല്ലെങ്കിൽ
                 s = strjoin(prefix, ".", ut);
-        if (!s)
-                return -ENOMEM;
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         /* Verify that this didn't grow too large (or otherwise is invalid) */
-        if (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
+                തിരികെ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        തിരികെ 0;
 }
 
-static char *do_escape_char(char c, char *t) {
-        assert(t);
+സ്ഥിതം അക്ഷരം *do_escape_char(അക്ഷരം c, അക്ഷരം *t) {
+        പ്രതിജ്ഞാ(t);
 
         *(t++) = '\\';
         *(t++) = 'x';
         *(t++) = hexchar(c >> 4);
         *(t++) = hexchar(c);
 
-        return t;
+        തിരികെ t;
 }
 
-static char *do_escape(const char *f, char *t) {
-        assert(f);
-        assert(t);
+സ്ഥിതം അക്ഷരം *do_escape(സ്ഥിരം അക്ഷരം *f, അക്ഷരം *t) {
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(t);
 
         /* do not create units with a leading '.', like for "/.dotdir" mount points */
-        if (*f == '.') {
+        എങ്കിൽ (*f == '.') {
                 t = do_escape_char(*f, t);
                 f++;
         }
 
-        for (; *f; f++) {
-                if (*f == '/')
+        വേണ്ടി (; *f; f++) {
+                എങ്കിൽ (*f == '/')
                         *(t++) = '-';
-                else if (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
+                അല്ലെങ്കിൽ എങ്കിൽ (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
                         t = do_escape_char(*f, t);
-                else
+                അല്ലെങ്കിൽ
                         *(t++) = *f;
         }
 
-        return t;
+        തിരികെ t;
 }
 
-char* unit_name_escape(const char *f) {
-        char *r, *t;
+അക്ഷരം* unit_name_escape(സ്ഥിരം അക്ഷരം *f) {
+        അക്ഷരം *r, *t;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
-        r = new(char, strlen(f)*4+1);
-        if (!r)
-                return NULL;
+        r = new(അക്ഷരം, strlen(f)*4+1);
+        എങ്കിൽ (!r)
+                തിരികെ ശൂന്യ;
 
         t = do_escape(f, r);
         *t = 0;
 
-        return r;
+        തിരികെ r;
 }
 
-int unit_name_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *r = NULL;
-        char *t;
+പൂർണ്ണസംഖ്യ unit_name_unescape(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *r = ശൂന്യ;
+        അക്ഷരം *t;
 
-        assert(f);
-        assert(ret);
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(ret);
 
         r = strdup(f);
-        if (!r)
-                return -ENOMEM;
+        എങ്കിൽ (!r)
+                തിരികെ -ENOMEM;
 
-        for (t = r; *f; f++) {
-                if (*f == '-')
+        വേണ്ടി (t = r; *f; f++) {
+                എങ്കിൽ (*f == '-')
                         *(t++) = '/';
-                else if (*f == '\\') {
-                        int a, b;
+                അല്ലെങ്കിൽ എങ്കിൽ (*f == '\\') {
+                        പൂർണ്ണസംഖ്യ a, b;
 
-                        if (f[1] != 'x')
-                                return -EINVAL;
+                        എങ്കിൽ (f[1] != 'x')
+                                തിരികെ -EINVAL;
 
                         a = unhexchar(f[2]);
-                        if (a < 0)
-                                return -EINVAL;
+                        എങ്കിൽ (a < 0)
+                                തിരികെ -EINVAL;
 
                         b = unhexchar(f[3]);
-                        if (b < 0)
-                                return -EINVAL;
+                        എങ്കിൽ (b < 0)
+                                തിരികെ -EINVAL;
 
-                        *(t++) = (char) (((uint8_t) a << 4U) | (uint8_t) b);
+                        *(t++) = (അക്ഷരം) (((uint8_t) a << 4U) | (uint8_t) b);
                         f += 3;
-                } else
+                } അല്ലെങ്കിൽ
                         *(t++) = *f;
         }
 
@@ -378,107 +378,107 @@ int unit_name_unescape(const char *f, char **ret) {
 
         *ret = TAKE_PTR(r);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_path_escape(const char *f, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        char *s;
-        int r;
+പൂർണ്ണസംഖ്യ unit_name_path_escape(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        അക്ഷരം *s;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f);
-        assert(ret);
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(ret);
 
         r = path_simplify_alloc(f, &p);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (empty_or_root(p))
+        എങ്കിൽ (empty_or_വേര്(p))
                 s = strdup("-");
-        else {
-                if (!path_is_normalized(p))
-                        return -EINVAL;
+        അല്ലെങ്കിൽ {
+                എങ്കിൽ (!path_is_normalized(p))
+                        തിരികെ -EINVAL;
 
                 /* Truncate trailing slashes and skip leading slashes */
                 delete_trailing_chars(p, "/");
                 s = unit_name_escape(skip_leading_chars(p, "/"));
         }
-        if (!s)
-                return -ENOMEM;
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         *ret = s;
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_path_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ unit_name_path_unescape(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
-        if (isempty(f))
-                return -EINVAL;
+        എങ്കിൽ (isempty(f))
+                തിരികെ -EINVAL;
 
-        if (streq(f, "-")) {
+        എങ്കിൽ (streq(f, "-")) {
                 s = strdup("/");
-                if (!s)
-                        return -ENOMEM;
-        } else {
-                _cleanup_free_ char *w = NULL;
+                എങ്കിൽ (!s)
+                        തിരികെ -ENOMEM;
+        } അല്ലെങ്കിൽ {
+                _cleanup_free_ അക്ഷരം *w = ശൂന്യ;
 
                 r = unit_name_unescape(f, &w);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 /* Don't accept trailing or leading slashes */
-                if (startswith(w, "/") || endswith(w, "/"))
-                        return -EINVAL;
+                എങ്കിൽ (startswith(w, "/") || endswith(w, "/"))
+                        തിരികെ -EINVAL;
 
                 /* Prefix a slash again */
                 s = strjoin("/", w);
-                if (!s)
-                        return -ENOMEM;
+                എങ്കിൽ (!s)
+                        തിരികെ -ENOMEM;
 
-                if (!path_is_normalized(s))
-                        return -EINVAL;
+                എങ്കിൽ (!path_is_normalized(s))
+                        തിരികെ -EINVAL;
         }
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+പൂർണ്ണസംഖ്യ unit_name_replace_instance_full(
+                സ്ഥിരം അക്ഷരം *original,
+                സ്ഥിരം അക്ഷരം *instance,
                 bool accept_glob,
-                char **ret) {
+                അക്ഷരം **ret) {
 
-        _cleanup_free_ char *s = NULL;
-        const char *prefix, *suffix;
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *prefix, *suffix;
         size_t pl;
 
-        assert(original);
-        assert(instance);
-        assert(ret);
+        പ്രതിജ്ഞാ(original);
+        പ്രതിജ്ഞാ(instance);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
-        if (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                തിരികെ -EINVAL;
+        എങ്കിൽ (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
+                തിരികെ -EINVAL;
 
         prefix = ASSERT_PTR(strchr(original, '@'));
         suffix = ASSERT_PTR(strrchr(original, '.'));
-        assert(prefix < suffix);
+        പ്രതിജ്ഞാ(prefix < suffix);
 
         pl = prefix - original + 1; /* include '@' */
 
-        s = new(char, pl + strlen(instance) + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(അക്ഷരം, pl + strlen(instance) + strlen(suffix) + 1);
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#എങ്കിൽ HAS_FEATURE_MEMORY_SANITIZER
         /* MSan doesn't like stpncpy... See also https://github.com/google/sanitizers/issues/926 */
         memzero(s, pl + strlen(instance) + strlen(suffix) + 1);
 #endif
@@ -487,198 +487,198 @@ int unit_name_replace_instance_full(
 
         /* Make sure the resulting name still is valid, i.e. didn't grow too large. Globs will be expanded
          * by clients when used, so the check is pointless. */
-        if (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        എങ്കിൽ (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                തിരികെ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_template(const char *f, char **ret) {
-        const char *p, *e;
-        char *s;
+പൂർണ്ണസംഖ്യ unit_name_template(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret) {
+        സ്ഥിരം അക്ഷരം *p, *e;
+        അക്ഷരം *s;
         size_t a;
 
-        assert(f);
-        assert(ret);
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                തിരികെ -EINVAL;
 
         assert_se(p = strchr(f, '@'));
         assert_se(e = strrchr(f, '.'));
 
         a = p - f;
 
-        s = new(char, a + 1 + strlen(e) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(അക്ഷരം, a + 1 + strlen(e) + 1);
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         strcpy(mempcpy(s, f, a + 1), e);
 
         *ret = s;
-        return 0;
+        തിരികെ 0;
 }
 
-bool unit_name_is_hashed(const char *name) {
-        const char *s;
+bool unit_name_is_hashed(സ്ഥിരം അക്ഷരം *name) {
+        സ്ഥിരം അക്ഷരം *s;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        എങ്കിൽ (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                തിരികെ false;
 
         assert_se(s = strrchr(name, '.'));
 
-        if (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
-                return false;
+        എങ്കിൽ (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
+                തിരികെ false;
 
         s -= UNIT_NAME_HASH_LENGTH_CHARS;
-        if (s[-1] != '_')
-                return false;
+        എങ്കിൽ (s[-1] != '_')
+                തിരികെ false;
 
-        for (size_t i = 0; i < UNIT_NAME_HASH_LENGTH_CHARS; i++)
-                if (!strchr(LOWERCASE_HEXDIGITS, s[i]))
-                        return false;
+        വേണ്ടി (size_t i = 0; i < UNIT_NAME_HASH_LENGTH_CHARS; i++)
+                എങ്കിൽ (!strchr(LOWERCASE_HEXDIGITS, s[i]))
+                        തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-int unit_name_hash_long(const char *name, char **ret) {
-        _cleanup_free_ char *n = NULL, *hash = NULL;
-        const char *suffix;
+പൂർണ്ണസംഖ്യ unit_name_hash_long(സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *n = ശൂന്യ, *hash = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *suffix;
         le64_t h;
         size_t len;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        if (strlen(name) < UNIT_NAME_MAX)
-                return -EMSGSIZE;
+        എങ്കിൽ (strlen(name) < UNIT_NAME_MAX)
+                തിരികെ -EMSGSIZE;
 
         suffix = strrchr(name, '.');
-        if (!suffix)
-                return -EINVAL;
+        എങ്കിൽ (!suffix)
+                തിരികെ -EINVAL;
 
-        if (unit_type_from_string(suffix+1) < 0)
-                return -EINVAL;
+        എങ്കിൽ (unit_type_from_string(suffix+1) < 0)
+                തിരികെ -EINVAL;
 
-        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_KEY.bytes));
+        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_താക്കോൽ.bytes));
 
-        hash = hexmem(&h, sizeof(h));
-        if (!hash)
-                return -ENOMEM;
+        hash = hexmem(&h, വലുപ്പം(h));
+        എങ്കിൽ (!hash)
+                തിരികെ -ENOMEM;
 
         assert_se(strlen(hash) == UNIT_NAME_HASH_LENGTH_CHARS);
 
         len = UNIT_NAME_MAX - 1 - strlen(suffix+1) - UNIT_NAME_HASH_LENGTH_CHARS - 2;
-        assert(len > 0 && len < UNIT_NAME_MAX);
+        പ്രതിജ്ഞാ(len > 0 && len < UNIT_NAME_MAX);
 
         n = strndup(name, len);
-        if (!n)
-                return -ENOMEM;
+        എങ്കിൽ (!n)
+                തിരികെ -ENOMEM;
 
-        if (!strextend(&n, "_", hash, suffix))
-                return -ENOMEM;
+        എങ്കിൽ (!strextend(&n, "_", hash, suffix))
+                തിരികെ -ENOMEM;
         assert_se(unit_name_is_valid(n, UNIT_NAME_PLAIN));
 
         *ret = TAKE_PTR(n);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ unit_name_from_path(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ, *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
-        assert(suffix);
-        assert(ret);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(suffix);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        എങ്കിൽ (!unit_suffix_is_valid(suffix))
+                തിരികെ -EINVAL;
 
         r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         s = strjoin(p, suffix);
-        if (!s)
-                return -ENOMEM;
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) {
-                _cleanup_free_ char *n = NULL;
+        എങ്കിൽ (strlen(s) >= UNIT_NAME_MAX) {
+                _cleanup_free_ അക്ഷരം *n = ശൂന്യ;
 
                 log_debug("Unit name \"%s\" too long, falling back to hashed unit name.", s);
 
                 r = unit_name_hash_long(s, &n);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 free_and_replace(s, n);
         }
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
+                തിരികെ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ unit_name_from_path_instance(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ, *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(prefix);
-        assert(path);
-        assert(suffix);
-        assert(ret);
+        പ്രതിജ്ഞാ(prefix);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(suffix);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        എങ്കിൽ (!unit_prefix_is_valid(prefix))
+                തിരികെ -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        എങ്കിൽ (!unit_suffix_is_valid(suffix))
+                തിരികെ -EINVAL;
 
         r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         s = strjoin(prefix, "@", p, suffix);
-        if (!s)
-                return -ENOMEM;
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
-                return -ENAMETOOLONG;
+        എങ്കിൽ (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
+                തിരികെ -ENAMETOOLONG;
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        എങ്കിൽ (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                തിരികെ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        തിരികെ 0;
 }
 
-int unit_name_to_path(const char *name, char **ret) {
-        _cleanup_free_ char *prefix = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ unit_name_to_path(സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *prefix = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
         r = unit_name_to_prefix(name, &prefix);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (unit_name_is_hashed(name))
-                return -ENAMETOOLONG;
+        എങ്കിൽ (unit_name_is_hashed(name))
+                തിരികെ -ENAMETOOLONG;
 
-        return unit_name_path_unescape(prefix, ret);
+        തിരികെ unit_name_path_unescape(prefix, ret);
 }
 
-static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
-        const char *valid_chars;
+സ്ഥിതം bool do_escape_mangle(സ്ഥിരം അക്ഷരം *f, bool allow_globs, അക്ഷരം *t) {
+        സ്ഥിരം അക്ഷരം *valid_chars;
         bool mangled = false;
 
-        assert(f);
-        assert(t);
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(t);
 
         /* We'll only escape the obvious characters here, to play safe.
          *
@@ -687,18 +687,18 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
 
         valid_chars = allow_globs ? VALID_CHARS_GLOB : VALID_CHARS_WITH_AT;
 
-        for (; *f; f++)
-                if (*f == '/') {
+        വേണ്ടി (; *f; f++)
+                എങ്കിൽ (*f == '/') {
                         *(t++) = '-';
                         mangled = true;
-                } else if (!strchr(valid_chars, *f)) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (!strchr(valid_chars, *f)) {
                         t = do_escape_char(*f, t);
                         mangled = true;
-                } else
+                } അല്ലെങ്കിൽ
                         *(t++) = *f;
         *t = 0;
 
-        return mangled;
+        തിരികെ mangled;
 }
 
 /**
@@ -708,98 +708,98 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
  *
  *  If @allow_globs, globs characters are preserved. Otherwise, they are escaped.
  */
-int unit_name_mangle_with_suffix(
-                const char *name,
-                const char *operation,
+പൂർണ്ണസംഖ്യ unit_name_mangle_with_suffix(
+                സ്ഥിരം അക്ഷരം *name,
+                സ്ഥിരം അക്ഷരം *operation,
                 UnitNameMangle flags,
-                const char *suffix,
-                char **ret) {
+                സ്ഥിരം അക്ഷരം *suffix,
+                അക്ഷരം **ret) {
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
         bool mangled, suggest_escape = true, warn = FLAGS_SET(flags, UNIT_NAME_MANGLE_WARN);
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(name);
-        assert(suffix);
-        assert(ret);
+        പ്രതിജ്ഞാ(name);
+        പ്രതിജ്ഞാ(suffix);
+        പ്രതിജ്ഞാ(ret);
 
-        if (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
-                return -EINVAL;
+        എങ്കിൽ (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
+                തിരികെ -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        എങ്കിൽ (!unit_suffix_is_valid(suffix))
+                തിരികെ -EINVAL;
 
         /* Already a fully valid unit name? If so, no mangling is necessary... */
-        if (unit_name_is_valid(name, UNIT_NAME_ANY)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
-                        const char *e = ASSERT_PTR(strrchr(name, '.'));
+        എങ്കിൽ (unit_name_is_valid(name, UNIT_NAME_ANY)) {
+                എങ്കിൽ (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
+                        സ്ഥിരം അക്ഷരം *e = ASSERT_PTR(strrchr(name, '.'));
 
-                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        തിരികെ log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                               SYNTHETIC_ERRNO(EINVAL),
                                               "Unit name \"%s\" has unit type \"%s\", but \"%s\" is expected%s%s.",
                                               name, e + 1, suffix + 1,
                                               operation ? " " : "", strempty(operation));
                 }
 
-                goto good;
+                പോകുക good;
         }
 
         /* Already a fully valid globbing expression? If so, no mangling is necessary either... */
-        if (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
-                        goto good;
+        എങ്കിൽ (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
+                എങ്കിൽ (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
+                        പോകുക good;
                 log_full(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Glob pattern passed%s%s, but globs are not supported for this.",
                          operation ? " " : "", strempty(operation));
                 suggest_escape = false;
         }
 
-        if (path_is_absolute(name)) {
-                _cleanup_free_ char *n = NULL, *u = NULL;
+        എങ്കിൽ (path_is_absolute(name)) {
+                _cleanup_free_ അക്ഷരം *n = ശൂന്യ, *u = ശൂന്യ;
 
                 r = path_simplify_alloc(name, &n);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (is_device_path(n)) {
+                എങ്കിൽ (is_device_path(n)) {
                         r = unit_name_from_path(n, ".device", &u);
-                        if (r >= 0) {
-                                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
-                                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        എങ്കിൽ (r >= 0) {
+                                എങ്കിൽ (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
+                                        തിരികെ log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                               SYNTHETIC_ERRNO(EINVAL),
                                                               "Path \"%s\" resolves to unit type \"device\", but \"%s\" is expected%s%s.",
                                                               name, suffix + 1,
                                                               operation ? " " : "", strempty(operation));
 
                                 *ret = TAKE_PTR(u);
-                                return 1;
+                                തിരികെ 1;
                         }
-                        if (r != -EINVAL)
-                                return r;
+                        എങ്കിൽ (r != -EINVAL)
+                                തിരികെ r;
                 }
 
                 r = unit_name_from_path(n, ".mount", &u);
-                if (r >= 0) {
-                        if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
-                                return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                എങ്കിൽ (r >= 0) {
+                        എങ്കിൽ (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
+                                തിരികെ log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                       SYNTHETIC_ERRNO(EINVAL),
                                                       "Path \"%s\" resolves to unit type \"mount\", but \"%s\" is expected%s%s.",
                                                       name, suffix + 1,
                                                       operation ? " " : "", strempty(operation));
 
                         *ret = TAKE_PTR(u);
-                        return 1;
+                        തിരികെ 1;
                 }
-                if (r != -EINVAL)
-                        return r;
+                എങ്കിൽ (r != -EINVAL)
+                        തിരികെ r;
         }
 
-        s = new(char, strlen(name) * 4 + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(അക്ഷരം, strlen(name) * 4 + strlen(suffix) + 1);
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         mangled = do_escape_mangle(name, FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB), s);
-        if (mangled)
+        എങ്കിൽ (mangled)
                 log_full(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Invalid unit name \"%s\" escaped as \"%s\"%s.",
                          name, s,
@@ -807,136 +807,136 @@ int unit_name_mangle_with_suffix(
 
         /* Append a suffix if it doesn't have any, but only if this is not a glob, so that we can allow
          * "foo.*" as a valid glob. */
-        if ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
+        എങ്കിൽ ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
                 strcat(s, suffix);
 
         /* Make sure mangling didn't grow this too large (but don't do this check if globbing is allowed,
          * since globs generally do not qualify as valid unit names) */
-        if (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        എങ്കിൽ (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
+                തിരികെ -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 1;
+        തിരികെ 1;
 
 good:
-        return strdup_to(ret, name);
+        തിരികെ strdup_to(ret, name);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret) {
-        assert(slice);
-        assert(ret);
+പൂർണ്ണസംഖ്യ slice_build_parent_slice(സ്ഥിരം അക്ഷരം *slice, അക്ഷരം **ret) {
+        പ്രതിജ്ഞാ(slice);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        എങ്കിൽ (!slice_name_is_valid(slice))
+                തിരികെ -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE)) {
-                *ret = NULL;
-                return 0;
+        എങ്കിൽ (streq(slice, SPECIAL_വേര്_SLICE)) {
+                *ret = ശൂന്യ;
+                തിരികെ 0;
         }
 
-        _cleanup_free_ char *s = strdup(slice);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ അക്ഷരം *s = strdup(slice);
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
-        char *dash = strrchr(s, '-');
-        if (!dash)
-                return strdup_to_full(ret, SPECIAL_ROOT_SLICE);
+        അക്ഷരം *dash = strrchr(s, '-');
+        എങ്കിൽ (!dash)
+                തിരികെ strdup_to_full(ret, SPECIAL_വേര്_SLICE);
 
         /* We know that s ended with .slice before truncation, so we have enough space. */
         strcpy(dash, ".slice");
 
         *ret = TAKE_PTR(s);
-        return 1;
+        തിരികെ 1;
 }
 
-int slice_build_subslice(const char *slice, const char *name, char **ret) {
-        char *subslice;
+പൂർണ്ണസംഖ്യ slice_build_subslice(സ്ഥിരം അക്ഷരം *slice, സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret) {
+        അക്ഷരം *subslice;
 
-        assert(slice);
-        assert(name);
-        assert(ret);
+        പ്രതിജ്ഞാ(slice);
+        പ്രതിജ്ഞാ(name);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        എങ്കിൽ (!slice_name_is_valid(slice))
+                തിരികെ -EINVAL;
 
-        if (!unit_prefix_is_valid(name))
-                return -EINVAL;
+        എങ്കിൽ (!unit_prefix_is_valid(name))
+                തിരികെ -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE))
+        എങ്കിൽ (streq(slice, SPECIAL_വേര്_SLICE))
                 subslice = strjoin(name, ".slice");
-        else {
-                const char *e;
+        അല്ലെങ്കിൽ {
+                സ്ഥിരം അക്ഷരം *e;
 
                 assert_se(e = endswith(slice, ".slice"));
 
-                subslice = new(char, (e - slice) + 1 + strlen(name) + 6 + 1);
-                if (!subslice)
-                        return -ENOMEM;
+                subslice = new(അക്ഷരം, (e - slice) + 1 + strlen(name) + 6 + 1);
+                എങ്കിൽ (!subslice)
+                        തിരികെ -ENOMEM;
 
                 stpcpy(stpcpy(stpcpy(mempcpy(subslice, slice, e - slice), "-"), name), ".slice");
         }
 
         *ret = subslice;
-        return 0;
+        തിരികെ 0;
 }
 
-bool slice_name_is_valid(const char *name) {
-        const char *p, *e;
+bool slice_name_is_valid(സ്ഥിരം അക്ഷരം *name) {
+        സ്ഥിരം അക്ഷരം *p, *e;
         bool dash = false;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        എങ്കിൽ (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                തിരികെ false;
 
-        if (streq(name, SPECIAL_ROOT_SLICE))
-                return true;
+        എങ്കിൽ (streq(name, SPECIAL_വേര്_SLICE))
+                തിരികെ true;
 
         e = endswith(name, ".slice");
-        if (!e)
-                return false;
+        എങ്കിൽ (!e)
+                തിരികെ false;
 
-        for (p = name; p < e; p++) {
+        വേണ്ടി (p = name; p < e; p++) {
 
-                if (*p == '-') {
+                എങ്കിൽ (*p == '-') {
 
                         /* Don't allow initial dash */
-                        if (p == name)
-                                return false;
+                        എങ്കിൽ (p == name)
+                                തിരികെ false;
 
                         /* Don't allow multiple dashes */
-                        if (dash)
-                                return false;
+                        എങ്കിൽ (dash)
+                                തിരികെ false;
 
                         dash = true;
-                } else
+                } അല്ലെങ്കിൽ
                         dash = false;
         }
 
         /* Don't allow trailing hash */
-        if (dash)
-                return false;
+        എങ്കിൽ (dash)
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-bool unit_name_prefix_equal(const char *a, const char *b) {
-        const char *p, *q;
+bool unit_name_prefix_equal(സ്ഥിരം അക്ഷരം *a, സ്ഥിരം അക്ഷരം *b) {
+        സ്ഥിരം അക്ഷരം *p, *q;
 
-        assert(a);
-        assert(b);
+        പ്രതിജ്ഞാ(a);
+        പ്രതിജ്ഞാ(b);
 
-        if (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
-                return false;
+        എങ്കിൽ (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
+                തിരികെ false;
 
         p = strchr(a, '@');
-        if (!p)
+        എങ്കിൽ (!p)
                 p = strrchr(a, '.');
 
         q = strchr(b, '@');
-        if (!q)
+        എങ്കിൽ (!q)
                 q = strrchr(b, '.');
 
-        assert(p);
-        assert(q);
+        പ്രതിജ്ഞാ(p);
+        പ്രതിജ്ഞാ(q);
 
-        return memcmp_nn(a, p - a, b, q - b) == 0;
+        തിരികെ memcmp_nn(a, p - a, b, q - b) == 0;
 }

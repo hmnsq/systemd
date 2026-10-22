@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-typedef struct LabelOps {
-        int (*pre)(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-        int (*post)(int dir_fd, const char *path, bool created, LabelContext *label_context);
+തരനിർവചനം ഘടന LabelOps {
+        പൂർണ്ണസംഖ്യ (*pre)(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode, LabelContext *label_context);
+        പൂർണ്ണസംഖ്യ (*post)(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, bool created, LabelContext *label_context);
 } LabelOps;
 
-int label_ops_set(const LabelOps *label_ops);
-void label_ops_reset(void);
+പൂർണ്ണസംഖ്യ label_ops_set(സ്ഥിരം LabelOps *label_ops);
+ശൂന്യം label_ops_reset(ശൂന്യം);
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context);
+പൂർണ്ണസംഖ്യ label_ops_pre(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode, LabelContext *label_context);
+പൂർണ്ണസംഖ്യ label_ops_post(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, bool created, LabelContext *label_context);

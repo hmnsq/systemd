@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
-import shlex
-import subprocess
-import sys
-from collections.abc import Iterator
+ഇറക്കുമതി shlex
+ഇറക്കുമതി subprocess
+ഇറക്കുമതി sys
+തഃ collections.abc ഇറക്കുമതി Iterator
 
 NAME_TO_MAGIC = {
     'apparmorfs':      ['AAFS_MAGIC'],
@@ -247,7 +247,7 @@ FILESYSTEM_SETS = [
     (
         '@known',
         'All known filesystems declared in the kernel',
-        *NAME_TO_MAGIC.keys(),
+        *NAME_TO_MAGIC.താക്കോലുകൾ(),
     ),
 ]
 
@@ -279,7 +279,7 @@ struct FilesystemMagic;
 %struct-type
 %includes
 %%''')
-    for name, magics in NAME_TO_MAGIC.items():
+    വേണ്ടി name, magics ഇൽ NAME_TO_MAGIC.ഇനങ്ങൾ():
         print(f'{name + ",":16} {{{", ".join(magics)}}}')
 
 
@@ -296,10 +296,10 @@ def generate_fs_type_to_string():
 const char* fs_type_to_string(statfs_f_type_t magic) {
         switch (magic) {''')
 
-    for name, magics in NAME_TO_MAGIC.items():
-        if name in OBSOLETE_NAMES:
-            continue
-        for magic in magics:
+    വേണ്ടി name, magics ഇൽ NAME_TO_MAGIC.ഇനങ്ങൾ():
+        എങ്കിൽ name ഇൽ OBSOLETE_NAMES:
+            തുടരുക
+        വേണ്ടി magic ഇൽ magics:
             print(f'        case (statfs_f_type_t) {magic}:')
         print(f'                return "{name}";')
 
@@ -313,11 +313,11 @@ def generate_fs_in_group():
     print('bool fs_in_group(const struct statfs *st, FilesystemGroups fs_group) {')
     print('        switch (fs_group) {')
 
-    for name, _, *filesystems in FILESYSTEM_SETS:
-        magics = sorted(set(sum((NAME_TO_MAGIC[fs] for fs in filesystems), start=[])))
+    വേണ്ടി name, _, *filesystems ഇൽ FILESYSTEM_SETS:
+        magics = sorted(set(sum((NAME_TO_MAGIC[fs] വേണ്ടി fs ഇൽ filesystems), start=[])))
         enum = 'FILESYSTEM_SET_' + name[1:].upper().replace('-', '_')
         print(f'        case {enum}:')
-        opts = '\n                    || '.join(f'F_TYPE_EQUAL(st->f_type, {magic})' for magic in magics)
+        opts = '\n                    || '.join(f'F_TYPE_EQUAL(st->f_type, {magic})' വേണ്ടി magic ഇൽ magics)
         print(f'                return {opts};')
 
     print('        default: assert_not_reached();')
@@ -328,14 +328,14 @@ def generate_fs_in_group():
 def generate_filesystem_sets():
     print('const FilesystemSet filesystem_sets[_FILESYSTEM_SET_MAX] = {')
 
-    for name, desc, *filesystems in FILESYSTEM_SETS:
+    വേണ്ടി name, desc, *filesystems ഇൽ FILESYSTEM_SETS:
         enum = 'FILESYSTEM_SET_' + name[1:].upper().replace('-', '_')
 
         print(f'        [{enum}] = {{')
         print(f'                .name = "{name}",')
         print(f'                .help = "{desc}",')
         print('                .value =')
-        for filesystem in filesystems:
+        വേണ്ടി filesystem ഇൽ filesystems:
             print(f'                "{filesystem}\\0"')
         print('        },')
 
@@ -348,48 +348,48 @@ def magic_defines(args: list[str]) -> Iterator[str]:
     out = subprocess.check_output(
         [*cpp, '-dM', '-include', 'linux/magic.h', *include_dirs, '-'],
         stdin=subprocess.DEVNULL,
-        text=True,
+        text=സത്യം,
     )
-    for line in out.splitlines():
-        _, name, *rest = line.split()
-        if (
-            '_MAGIC' in name
-            and rest
-            and rest[0].startswith('0x')
-            and name
-            not in {
+    വേണ്ടി വരി ഇൽ out.splitlines():
+        _, name, *rest = വരി.split()
+        എങ്കിൽ (
+            '_MAGIC' ഇൽ name
+            ഒപ്പം rest
+            ഒപ്പം rest[0].startswith('0x')
+            ഒപ്പം name
+            അല്ല ഇൽ {
                 'STACK_END_MAGIC',
                 'MTD_INODE_FS_MAGIC',
                 'FUTEXFS_SUPER_MAGIC',
                 'CRAMFS_MAGIC_WEND',
             }
         ):
-            yield name
+            നൽകുക name
 
 
 def check(args: list[str]) -> None:
     kernel_magics = set(magic_defines(args))
     our_magics = set(sum(NAME_TO_MAGIC.values(), start=[]))
     extra = kernel_magics - our_magics
-    if extra:
+    എങ്കിൽ extra:
         sys.exit(f'kernel knows additional filesystem magics: {", ".join(sorted(extra))}')
 
 
-if __name__ == '__main__':
+എങ്കിൽ __name__ == '__main__':
     args = sys.argv[1:]
 
-    for i, arg in enumerate(args):
-        if arg == 'gperf':
+    വേണ്ടി i, arg ഇൽ enumerate(args):
+        എങ്കിൽ arg == 'gperf':
             generate_gperf()
-        elif arg == 'fs-type-to-string':
+        അല്ലെങ്കിലെങ്കിൽ arg == 'fs-type-to-string':
             generate_fs_type_to_string()
-        elif arg == 'filesystem-sets':
+        അല്ലെങ്കിലെങ്കിൽ arg == 'filesystem-sets':
             generate_filesystem_sets()
-        elif arg == 'fs-in-group':
+        അല്ലെങ്കിലെങ്കിൽ arg == 'fs-in-group':
             generate_fs_in_group()
-        elif arg == 'check':
+        അല്ലെങ്കിലെങ്കിൽ arg == 'check':
             # 'check' must be the last command; pass the remaining arguments to check().
             check(args[i + 1 :])
-            break
-        else:
-            raise ValueError
+            നിർത്തുക
+        അല്ലെങ്കിൽ:
+            ഉയർത്തുക മൂല്യം_Error

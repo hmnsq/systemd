@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-struct pool;
+ഘടന pool;
 
-struct mempool {
-        struct pool *first_pool;
-        void *freelist;
+ഘടന mempool {
+        ഘടന pool *first_pool;
+        ശൂന്യം *freelist;
         size_t tile_size;
         size_t at_least;
 };
 
-void* mempool_alloc_tile(struct mempool *mp);
-void* mempool_alloc0_tile(struct mempool *mp);
-void* mempool_free_tile(struct mempool *mp, void *p);
+ശൂന്യം* mempool_alloc_tile(ഘടന mempool *mp);
+ശൂന്യം* mempool_alloc0_tile(ഘടന mempool *mp);
+ശൂന്യം* mempool_free_tile(ഘടന mempool *mp, ശൂന്യം *p);
 
 #define DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_least) \
-static struct mempool pool_name = { \
-        .tile_size = sizeof(tile_type), \
+സ്ഥിതം ഘടന mempool pool_name = { \
+        .tile_size = വലുപ്പം(tile_type), \
         .at_least = alloc_at_least, \
 }
 
-bool mempool_enabled(void) _weak_ _pure_;
+bool mempool_enabled(ശൂന്യം) _weak_ _pure_;
 
-void mempool_trim(struct mempool *mp);
+ശൂന്യം mempool_trim(ഘടന mempool *mp);

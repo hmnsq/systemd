@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-typedef struct UIDRangeEntry {
+തരനിർവചനം ഘടന UIDRangeEntry {
         uid_t start, nr;
 } UIDRangeEntry;
 
-typedef struct UIDRange {
+തരനിർവചനം ഘടന UIDRange {
         UIDRangeEntry *entries;
         size_t n_entries;
 } UIDRange;
@@ -15,34 +15,34 @@ typedef struct UIDRange {
 UIDRange* uid_range_free(UIDRange *range);
 DEFINE_TRIVIAL_CLEANUP_FUNC(UIDRange*, uid_range_free);
 
-int uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce);
-static inline int uid_range_add(UIDRange **range, uid_t start, uid_t nr) {
-        return uid_range_add_internal(range, start, nr, true);
+പൂർണ്ണസംഖ്യ uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ uid_range_add(UIDRange **range, uid_t start, uid_t nr) {
+        തിരികെ uid_range_add_internal(range, start, nr, true);
 }
-int uid_range_add_str_full(UIDRange **range, const char *s, bool coalesce);
-static inline int uid_range_add_str(UIDRange **range, const char *s) {
-        return uid_range_add_str_full(range, s, true);
-}
-
-int uid_range_next_lower(const UIDRange *range, uid_t *uid);
-
-bool uid_range_covers(const UIDRange *range, uid_t start, uid_t nr);
-static inline bool uid_range_contains(const UIDRange *range, uid_t uid) {
-        return uid_range_covers(range, uid, 1);
+പൂർണ്ണസംഖ്യ uid_range_add_str_full(UIDRange **range, സ്ഥിരം അക്ഷരം *s, bool coalesce);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ uid_range_add_str(UIDRange **range, സ്ഥിരം അക്ഷരം *s) {
+        തിരികെ uid_range_add_str_full(range, s, true);
 }
 
-int uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range);
+പൂർണ്ണസംഖ്യ uid_range_next_lower(സ്ഥിരം UIDRange *range, uid_t *uid);
 
-static inline size_t uid_range_entries(const UIDRange *range) {
-        return range ? range->n_entries : 0;
+bool uid_range_covers(സ്ഥിരം UIDRange *range, uid_t start, uid_t nr);
+സ്ഥിതം വരിയിൽ bool uid_range_contains(സ്ഥിരം UIDRange *range, uid_t uid) {
+        തിരികെ uid_range_covers(range, uid, 1);
 }
 
-unsigned uid_range_size(const UIDRange *range) _pure_;
-bool uid_range_is_empty(const UIDRange *range) _pure_;
+പൂർണ്ണസംഖ്യ uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range);
 
-bool uid_range_equal(const UIDRange *a, const UIDRange *b);
+സ്ഥിതം വരിയിൽ size_t uid_range_entries(സ്ഥിരം UIDRange *range) {
+        തിരികെ range ? range->n_entries : 0;
+}
 
-typedef enum UIDRangeUsernsMode {
+unsigned uid_range_size(സ്ഥിരം UIDRange *range) _pure_;
+bool uid_range_is_empty(സ്ഥിരം UIDRange *range) _pure_;
+
+bool uid_range_equal(സ്ഥിരം UIDRange *a, സ്ഥിരം UIDRange *b);
+
+തരനിർവചനം എണ്ണൽ UIDRangeUsernsMode {
         UID_RANGE_USERNS_INSIDE,
         UID_RANGE_USERNS_OUTSIDE,
         GID_RANGE_USERNS_INSIDE,
@@ -51,24 +51,24 @@ typedef enum UIDRangeUsernsMode {
         _UID_RANGE_USERNS_MODE_INVALID = -EINVAL,
 } UIDRangeUsernsMode;
 
-int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns(const char *path, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_full(path, mode, true, ret);
+പൂർണ്ണസംഖ്യ uid_range_load_userns_full(സ്ഥിരം അക്ഷരം *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ uid_range_load_userns(സ്ഥിരം അക്ഷരം *path, UIDRangeUsernsMode mode, UIDRange **ret) {
+        തിരികെ uid_range_load_userns_full(path, mode, true, ret);
 }
-int uid_range_load_userns_by_fd_full(int userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns_by_fd(int userns_fd, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_by_fd_full(userns_fd, mode, true, ret);
+പൂർണ്ണസംഖ്യ uid_range_load_userns_by_fd_full(പൂർണ്ണസംഖ്യ userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ uid_range_load_userns_by_fd(പൂർണ്ണസംഖ്യ userns_fd, UIDRangeUsernsMode mode, UIDRange **ret) {
+        തിരികെ uid_range_load_userns_by_fd_full(userns_fd, mode, true, ret);
 }
 
-bool uid_range_overlaps(const UIDRange *range, uid_t start, uid_t nr);
+bool uid_range_overlaps(സ്ഥിരം UIDRange *range, uid_t start, uid_t nr);
 
-int uid_range_clip(UIDRange *range, uid_t min, uid_t max);
-int uid_range_partition(UIDRange *range, uid_t size);
-int uid_range_copy(const UIDRange *range, UIDRange **ret);
-int uid_range_remove(UIDRange *range, uid_t start, uid_t size);
-int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret);
-int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret);
+പൂർണ്ണസംഖ്യ uid_range_clip(UIDRange *range, uid_t min, uid_t max);
+പൂർണ്ണസംഖ്യ uid_range_partition(UIDRange *range, uid_t size);
+പൂർണ്ണസംഖ്യ uid_range_copy(സ്ഥിരം UIDRange *range, UIDRange **ret);
+പൂർണ്ണസംഖ്യ uid_range_remove(UIDRange *range, uid_t start, uid_t size);
+പൂർണ്ണസംഖ്യ uid_range_translate(സ്ഥിരം UIDRange *outside, സ്ഥിരം UIDRange *inside, uid_t uid, uid_t *ret);
+പൂർണ്ണസംഖ്യ uid_range_translate_userns_fd(പൂർണ്ണസംഖ്യ userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret);
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret);
+പൂർണ്ണസംഖ്യ uid_map_തിരയൽ_വേര്(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret);
 
-uid_t uid_range_base(const UIDRange *range);
+uid_t uid_range_base(സ്ഥിരം UIDRange *range);

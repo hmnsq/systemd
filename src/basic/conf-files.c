@@ -1,251 +1,251 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "conf-files.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "glyph-util.h"
-#include "hashmap.h"
-#include "log.h"
-#include "nulstr-util.h"
-#include "path-util.h"
-#include "set.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "chase.h"
+#അന്തര്ഭാവ "conf-files.h"
+#അന്തര്ഭാവ "dirent-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "glyph-util.h"
+#അന്തര്ഭാവ "hashmap.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "nulstr-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "set.h"
+#അന്തര്ഭാവ "stat-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
 
 ConfFile* conf_file_free(ConfFile *c) {
-        if (!c)
-                return NULL;
+        എങ്കിൽ (!c)
+                തിരികെ ശൂന്യ;
 
-        free(c->filename);
-        free(c->result);
-        free(c->original_path);
-        free(c->resolved_path);
+        സ്വതന്ത്രം(c->filename);
+        സ്വതന്ത്രം(c->result);
+        സ്വതന്ത്രം(c->original_path);
+        സ്വതന്ത്രം(c->resolved_path);
         safe_close(c->fd);
 
-        return mfree(c);
+        തിരികെ mfree(c);
 }
 
 DEFINE_POINTER_ARRAY_FREE_FUNC(ConfFile*, conf_file_free);
 
-static int conf_files_log_level(ConfFilesFlags flags) {
-        return FLAGS_SET(flags, CONF_FILES_WARN) ? LOG_WARNING : LOG_DEBUG;
+സ്ഥിതം പൂർണ്ണസംഖ്യ conf_files_log_level(ConfFilesFlags flags) {
+        തിരികെ FLAGS_SET(flags, CONF_FILES_WARN) ? LOG_WARNING : LOG_DEBUG;
 }
 
-static int prepare_dirs(
-                const char *root,
+സ്ഥിതം പൂർണ്ണസംഖ്യ prepare_dirs(
+                സ്ഥിരം അക്ഷരം *വേര്,
                 ConfFilesFlags flags,
-                char * const *dirs,
-                char **ret_root,
-                int *ret_rfd,
-                char ***ret_dirs) {
+                അക്ഷരം * സ്ഥിരം *dirs,
+                അക്ഷരം **ret_വേര്,
+                പൂർണ്ണസംഖ്യ *ret_rfd,
+                അക്ഷരം ***ret_dirs) {
 
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        int r;
+        _cleanup_free_ അക്ഷരം *വേര്_abs = ശൂന്യ;
+        _cleanup_strv_free_ അക്ഷരം **dirs_abs = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret_root);
-        assert(ret_rfd);
-        assert(ret_dirs || strv_isempty(dirs));
+        പ്രതിജ്ഞാ(ret_വേര്);
+        പ്രതിജ്ഞാ(ret_rfd);
+        പ്രതിജ്ഞാ(ret_dirs || strv_isempty(dirs));
 
-        int log_level = conf_files_log_level(flags);
+        പൂർണ്ണസംഖ്യ log_level = conf_files_log_level(flags);
 
-        r = empty_or_root_harder_to_null(&root);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to determine if '%s' points to the root directory: %m", strempty(root));
+        r = empty_or_വേര്_harder_to_null(&വേര്);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_full_errno(log_level, r, "Failed to determine if '%s' points to the root directory: %m", strempty(വേര്));
 
-        if (ret_dirs) {
+        എങ്കിൽ (ret_dirs) {
                 dirs_abs = strv_copy(dirs);
-                if (!dirs_abs)
-                        return log_oom_full(log_level);
+                എങ്കിൽ (!dirs_abs)
+                        തിരികെ log_oom_full(log_level);
         }
 
-        _cleanup_close_ int rfd = XAT_FDROOT;
-        if (root) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = XAT_FDROOT;
+        എങ്കിൽ (വേര്) {
                 /* When a non-trivial root is specified, we will prefix the result later. Hence, it is not
                  * necessary to modify each config directories here. but needs to normalize the root directory. */
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to make '%s' absolute: %m", root);
+                r = path_make_absolute_cwd(വേര്, &വേര്_abs);
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_full_errno(log_level, r, "Failed to make '%s' absolute: %m", വേര്);
 
-                path_simplify(root_abs);
+                path_simplify(വേര്_abs);
 
-                rfd = open(root, O_CLOEXEC|O_DIRECTORY|O_PATH);
-                if (rfd < 0)
-                        return log_full_errno(log_level, errno, "Failed to open '%s': %m", root_abs);
+                rfd = open(വേര്, O_CLOEXEC|O_DIRECTORY|O_PATH);
+                എങ്കിൽ (rfd < 0)
+                        തിരികെ log_full_errno(log_level, errno, "Failed to open '%s': %m", വേര്_abs);
 
-        } else if (ret_dirs) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (ret_dirs) {
                 /* When an empty root or "/" is specified, we will open "/" below, hence we need to make
                  * each config directory absolute if relative. */
                 r = path_strv_make_absolute_cwd(dirs_abs);
-                if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to make directories absolute: %m");
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_full_errno(log_level, r, "Failed to make directories absolute: %m");
         }
 
-        *ret_root = TAKE_PTR(root_abs);
+        *ret_വേര് = TAKE_PTR(വേര്_abs);
         *ret_rfd = TAKE_FD(rfd);
-        if (ret_dirs)
+        എങ്കിൽ (ret_dirs)
                 *ret_dirs = TAKE_PTR(dirs_abs);
-        return 0;
+        തിരികെ 0;
 }
 
-static int conf_file_prefix_root(ConfFile *c, const char *root, ConfFilesFlags flags) {
-        char *p;
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ conf_file_prefix_വേര്(ConfFile *c, സ്ഥിരം അക്ഷരം *വേര്, ConfFilesFlags flags) {
+        അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(c);
+        പ്രതിജ്ഞാ(c);
 
-        if (FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_ROOT))
-                return 0;
+        എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_വേര്))
+                തിരികെ 0;
 
-        int log_level = conf_files_log_level(flags);
+        പൂർണ്ണസംഖ്യ log_level = conf_files_log_level(flags);
 
-        r = chaseat_prefix_root(c->result, root, &p);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, root);
+        r = chaseat_prefix_വേര്(c->result, വേര്, &p);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, വേര്);
         free_and_replace(c->result, p);
 
-        r = chaseat_prefix_root(c->resolved_path, root, &p);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->resolved_path, root);
+        r = chaseat_prefix_വേര്(c->resolved_path, വേര്, &p);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->resolved_path, വേര്);
         free_and_replace(c->resolved_path, p);
 
         /* Do not use chaseat_prefix_root(), as it is for the result of chaseat(), but the path is not chased. */
-        p = path_join(empty_to_root(root), skip_leading_slash(c->original_path));
-        if (!p)
-                return log_oom_full(log_level);
+        p = path_join(empty_to_വേര്(വേര്), skip_leading_slash(c->original_path));
+        എങ്കിൽ (!p)
+                തിരികെ log_oom_full(log_level);
 
         path_simplify(p);
-        return free_and_replace(c->original_path, p);
+        തിരികെ free_and_replace(c->original_path, p);
 }
 
-static bool conf_files_need_stat(ConfFilesFlags flags) {
-        return (flags & (CONF_FILES_FILTER_MASKED | CONF_FILES_REGULAR | CONF_FILES_DIRECTORY | CONF_FILES_EXECUTABLE)) != 0;
+സ്ഥിതം bool conf_files_need_stat(ConfFilesFlags flags) {
+        തിരികെ (flags & (CONF_FILES_FILTER_MASKED | CONF_FILES_REGULAR | CONF_FILES_DIRECTORY | CONF_FILES_EXECUTABLE)) != 0;
 }
 
-static ChaseFlags conf_files_chase_flags(ConfFilesFlags flags) {
+സ്ഥിതം ChaseFlags conf_files_chase_flags(ConfFilesFlags flags) {
         ChaseFlags chase_flags = 0;
 
-        if (!conf_files_need_stat(flags) || FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK))
+        എങ്കിൽ (!conf_files_need_stat(flags) || FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK))
                 /* Even if no verification is requested, let's unconditionally call chaseat(),
                  * to drop unsafe symlinks. */
                 chase_flags |= CHASE_NONEXISTENT;
 
-        return chase_flags;
+        തിരികെ chase_flags;
 }
 
-static int conf_file_chase_and_verify(
-                const char *root,          /* for logging, can be NULL */
-                int rfd,
-                const char *original_path, /* for logging */
-                const char *path,
-                const char *name,
+സ്ഥിതം പൂർണ്ണസംഖ്യ conf_file_chase_and_verify(
+                സ്ഥിരം അക്ഷരം *വേര്,          /* for logging, can be NULL */
+                പൂർണ്ണസംഖ്യ rfd,
+                സ്ഥിരം അക്ഷരം *original_path, /* for logging */
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം അക്ഷരം *name,
                 Set **masked,              /* optional */
                 ConfFilesFlags flags,
-                char **ret_path,
-                int *ret_fd,
-                struct stat *ret_stat) {
+                അക്ഷരം **ret_path,
+                പൂർണ്ണസംഖ്യ *ret_fd,
+                ഘടന stat *ret_stat) {
 
-        _cleanup_free_ char *resolved_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        struct stat st = {};
-        int r;
+        _cleanup_free_ അക്ഷരം *resolved_path = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        ഘടന stat st = {};
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(original_path);
-        assert(path);
-        assert(name);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(original_path);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(name);
 
-        int log_level = conf_files_log_level(flags);
+        പൂർണ്ണസംഖ്യ log_level = conf_files_log_level(flags);
 
-        root = empty_to_root(root);
+        വേര് = empty_to_വേര്(വേര്);
 
         r = chaseat(rfd, rfd, path, conf_files_chase_flags(flags), &resolved_path, &fd);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to chase '%s%s': %m",
-                                      root, skip_leading_slash(original_path));
-        if (r == 0) {
-                if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK)) {
+        എങ്കിൽ (r < 0)
+                തിരികെ log_full_errno(log_level, r, "Failed to chase '%s%s': %m",
+                                      വേര്, skip_leading_slash(original_path));
+        എങ്കിൽ (r == 0) {
+                എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK)) {
                         /* If the path points to /dev/null in a image or so, then the device node may not exist. */
-                        if (path_equal(skip_leading_slash(resolved_path), "dev/null")) {
-                                if (masked) {
+                        എങ്കിൽ (path_equal(skip_leading_slash(resolved_path), "dev/null")) {
+                                എങ്കിൽ (masked) {
                                         /* Mark this one as masked */
                                         r = set_put_strdup(masked, name);
-                                        if (r < 0)
-                                                return log_oom_full(log_level);
+                                        എങ്കിൽ (r < 0)
+                                                തിരികെ log_oom_full(log_level);
                                 }
 
-                                return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
+                                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                                        "File '%s%s' is a mask (symlink to /dev/null).",
-                                                       root, skip_leading_slash(original_path));
+                                                       വേര്, skip_leading_slash(original_path));
                         }
                 }
 
-                if (conf_files_need_stat(flags))
+                എങ്കിൽ (conf_files_need_stat(flags))
                         /* If we need to have stat, skip the entry. */
-                        return log_full_errno(log_level, SYNTHETIC_ERRNO(ENOENT), "Failed to chase '%s%s': %m",
-                                              root, skip_leading_slash(original_path));
+                        തിരികെ log_full_errno(log_level, SYNTHETIC_ERRNO(ENOENT), "Failed to chase '%s%s': %m",
+                                              വേര്, skip_leading_slash(original_path));
         }
 
         /* Even if we do not need stat, let's take stat now. The caller may use the info later. */
-        if (fd >= 0 && fstat(fd, &st) < 0)
-                return log_full_errno(log_level, errno, "Failed to stat '%s%s': %m",
-                                      root, skip_leading_slash(original_path));
+        എങ്കിൽ (fd >= 0 && fstat(fd, &st) < 0)
+                തിരികെ log_full_errno(log_level, errno, "Failed to stat '%s%s': %m",
+                                      വേര്, skip_leading_slash(original_path));
 
         /* Is this a masking entry? */
-        if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK) && stat_may_be_dev_null(&st)) {
-                if (masked) {
+        എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK) && stat_may_be_dev_null(&st)) {
+                എങ്കിൽ (masked) {
                         /* Mark this one as masked */
                         r = set_put_strdup(masked, name);
-                        if (r < 0)
-                                return log_oom_full(log_level);
+                        എങ്കിൽ (r < 0)
+                                തിരികെ log_oom_full(log_level);
                 }
 
-                return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                        "File '%s%s' is a mask (symlink to /dev/null).",
-                                       root, skip_leading_slash(original_path));
+                                       വേര്, skip_leading_slash(original_path));
         }
 
-        if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_EMPTY) && stat_is_empty(&st)) {
-                if (masked) {
+        എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_EMPTY) && stat_is_empty(&st)) {
+                എങ്കിൽ (masked) {
                         /* Mark this one as masked */
                         r = set_put_strdup(masked, name);
-                        if (r < 0)
-                                return log_oom_full(log_level);
+                        എങ്കിൽ (r < 0)
+                                തിരികെ log_oom_full(log_level);
                 }
 
-                return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                        "File '%s%s' is a mask (an empty file).",
-                                       root, skip_leading_slash(original_path));
+                                       വേര്, skip_leading_slash(original_path));
         }
 
-        if (FLAGS_SET(flags, CONF_FILES_REGULAR|CONF_FILES_DIRECTORY)) {
-                if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADFD),
+        എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_REGULAR|CONF_FILES_DIRECTORY)) {
+                എങ്കിൽ (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
+                        തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EBADFD),
                                                "File '%s%s' is neither a regular file or directory.",
-                                               root, skip_leading_slash(original_path));
-        } else {
+                                               വേര്, skip_leading_slash(original_path));
+        } അല്ലെങ്കിൽ {
                 /* Is this node a regular file? */
-                if (FLAGS_SET(flags, CONF_FILES_REGULAR)) {
+                എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return log_debug_errno(r, "File '%s%s' is not a regular file: %m",
-                                                       root, skip_leading_slash(original_path));
+                        എങ്കിൽ (r < 0)
+                                തിരികെ log_debug_errno(r, "File '%s%s' is not a regular file: %m",
+                                                       വേര്, skip_leading_slash(original_path));
                 }
 
                 /* Is this node a directory? */
-                if (FLAGS_SET(flags, CONF_FILES_DIRECTORY)) {
+                എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_DIRECTORY)) {
                         r = stat_verify_directory(&st);
-                        if (r < 0)
-                                return log_debug_errno(r, "File '%s%s' is not a directory: %m",
-                                                       root, skip_leading_slash(original_path));
+                        എങ്കിൽ (r < 0)
+                                തിരികെ log_debug_errno(r, "File '%s%s' is not a directory: %m",
+                                                       വേര്, skip_leading_slash(original_path));
                 }
         }
 
@@ -253,188 +253,188 @@ static int conf_file_chase_and_verify(
          * As requested: check if the file is marked executable. Note that we don't check access(X_OK) here,
          * as we care about whether the file is marked executable at all, and not whether it is executable
          * for us, because if so, such errors are stuff we should log about. */
-        if (FLAGS_SET(flags, CONF_FILES_EXECUTABLE) && (st.st_mode & 0111) == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOEXEC),
+        എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_EXECUTABLE) && (st.st_mode & 0111) == 0)
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(ENOEXEC),
                                        "File '%s%s' is not marked executable.",
-                                       root, skip_leading_slash(original_path));
+                                       വേര്, skip_leading_slash(original_path));
 
-        if (ret_path)
+        എങ്കിൽ (ret_path)
                 *ret_path = TAKE_PTR(resolved_path);
-        if (ret_fd)
+        എങ്കിൽ (ret_fd)
                 *ret_fd = TAKE_FD(fd);
-        if (ret_stat)
+        എങ്കിൽ (ret_stat)
                 *ret_stat = st;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int conf_file_new_at(
-                const char *path,
-                const char *root,
-                int rfd,
+പൂർണ്ണസംഖ്യ conf_file_new_at(
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം അക്ഷരം *വേര്,
+                പൂർണ്ണസംഖ്യ rfd,
                 ConfFilesFlags flags,
                 ConfFile **ret) {
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(ret);
 
-        int log_level = conf_files_log_level(flags);
+        പൂർണ്ണസംഖ്യ log_level = conf_files_log_level(flags);
 
-        _cleanup_free_ char *_root = NULL;
-        if (DEBUG_LOGGING && !root) {
-                (void) fd_get_path(rfd, &_root);
-                root = _root;
+        _cleanup_free_ അക്ഷരം *വേര്_2 = ശൂന്യ;
+        എങ്കിൽ (DEBUG_LOGGING && !വേര്) {
+                (ശൂന്യം) fd_get_path(rfd, &വേര്_2);
+                വേര് = വേര്_2;
         }
 
         _cleanup_(conf_file_freep) ConfFile *c = new(ConfFile, 1);
-        if (!c)
-                return log_oom_full(log_level);
+        എങ്കിൽ (!c)
+                തിരികെ log_oom_full(log_level);
 
         *c = (ConfFile) {
                 .original_path = strdup(path),
                 .fd = -EBADF,
         };
 
-        if (!c->original_path)
-                return log_oom_full(log_level);
+        എങ്കിൽ (!c->original_path)
+                തിരികെ log_oom_full(log_level);
 
         r = path_extract_filename(path, &c->filename);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to extract filename from '%s': %m", path);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_full_errno(log_level, r, "Failed to extract filename from '%s': %m", path);
 
-        _cleanup_free_ char *dirpath = NULL, *resolved_dirpath = NULL;
+        _cleanup_free_ അക്ഷരം *dirpath = ശൂന്യ, *resolved_dirpath = ശൂന്യ;
         r = path_extract_directory(path, &dirpath);
-        if (r < 0 && r != -EDESTADDRREQ)
-                return log_full_errno(log_level, r, "Failed to extract directory from '%s': %m", path);
-        if (r >= 0) {
+        എങ്കിൽ (r < 0 && r != -EDESTADDRREQ)
+                തിരികെ log_full_errno(log_level, r, "Failed to extract directory from '%s': %m", path);
+        എങ്കിൽ (r >= 0) {
                 r = chaseat(rfd, rfd, dirpath,
                             CHASE_MUST_BE_DIRECTORY | conf_files_chase_flags(flags),
-                            &resolved_dirpath, /* ret_fd= */ NULL);
-                if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to chase '%s%s': %m", empty_to_root(root), skip_leading_slash(dirpath));
+                            &resolved_dirpath, /* ret_fd= */ ശൂന്യ);
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_full_errno(log_level, r, "Failed to chase '%s%s': %m", empty_to_വേര്(വേര്), skip_leading_slash(dirpath));
         }
 
         c->result = path_join(resolved_dirpath, c->filename);
-        if (!c->result)
-                return log_oom_full(log_level);
+        എങ്കിൽ (!c->result)
+                തിരികെ log_oom_full(log_level);
 
         r = conf_file_chase_and_verify(
-                        root,
+                        വേര്,
                         rfd,
                         c->original_path,
                         c->result,
                         c->filename,
-                        /* masked= */ NULL,
+                        /* masked= */ ശൂന്യ,
                         flags,
                         &c->resolved_path,
                         &c->fd,
                         &c->st);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         *ret = TAKE_PTR(c);
-        return 0;
+        തിരികെ 0;
 }
 
-int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, ConfFile **ret) {
-        int r;
+പൂർണ്ണസംഖ്യ conf_file_new(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *വേര്, ConfFilesFlags flags, ConfFile **ret) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
-        assert(ret);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(ret);
 
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_close_ int rfd = -EBADF;
-        r = prepare_dirs(root, flags, /* dirs= */ NULL, &root_abs, &rfd, /* ret_dirs= */ NULL);
-        if (r < 0)
-                return r;
+        _cleanup_free_ അക്ഷരം *വേര്_abs = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = -EBADF;
+        r = prepare_dirs(വേര്, flags, /* dirs= */ ശൂന്യ, &വേര്_abs, &rfd, /* ret_dirs= */ ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        _cleanup_free_ char *path_abs = NULL;
-        if (!root_abs) {
+        _cleanup_free_ അക്ഷരം *path_abs = ശൂന്യ;
+        എങ്കിൽ (!വേര്_abs) {
                 r = path_make_absolute_cwd(path, &path_abs);
-                if (r < 0)
-                        return log_full_errno(conf_files_log_level(flags), r, "Failed to make '%s' absolute: %m", path);
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_full_errno(conf_files_log_level(flags), r, "Failed to make '%s' absolute: %m", path);
 
                 path = path_abs;
         }
 
-        _cleanup_(conf_file_freep) ConfFile *c = NULL;
-        r = conf_file_new_at(path, root_abs, rfd, flags, &c);
-        if (r < 0)
-                return r;
+        _cleanup_(conf_file_freep) ConfFile *c = ശൂന്യ;
+        r = conf_file_new_at(path, വേര്_abs, rfd, flags, &c);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        r = conf_file_prefix_root(c, root_abs, flags);
-        if (r < 0)
-                return r;
+        r = conf_file_prefix_വേര്(c, വേര്_abs, flags);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         *ret = TAKE_PTR(c);
-        return 0;
+        തിരികെ 0;
 }
 
-DEFINE_PRIVATE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
+DEFINE_PRIVATE_HASH_OPS_WITH_മൂല്യം_DESTRUCTOR(
                 conf_file_hash_ops,
-                char, string_hash_func, string_compare_func,
+                അക്ഷരം, string_hash_func, string_compare_func,
                 ConfFile, conf_file_free);
 
-static int files_add(
+സ്ഥിതം പൂർണ്ണസംഖ്യ files_add(
                 DIR *dir,
-                const char *original_dirpath,
-                const char *resolved_dirpath,
-                const char *root, /* for logging, can be NULL */
-                int rfd,
+                സ്ഥിരം അക്ഷരം *original_dirpath,
+                സ്ഥിരം അക്ഷരം *resolved_dirpath,
+                സ്ഥിരം അക്ഷരം *വേര്, /* for logging, can be NULL */
+                പൂർണ്ണസംഖ്യ rfd,
                 Hashmap **files,
                 Set **masked,
-                const char *suffix,
+                സ്ഥിരം അക്ഷരം *suffix,
                 ConfFilesFlags flags) {
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(dir);
-        assert(original_dirpath);
-        assert(resolved_dirpath);
-        assert(wildcard_fd_is_valid(rfd));
-        assert(files);
-        assert(masked);
+        പ്രതിജ്ഞാ(dir);
+        പ്രതിജ്ഞാ(original_dirpath);
+        പ്രതിജ്ഞാ(resolved_dirpath);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(files);
+        പ്രതിജ്ഞാ(masked);
 
-        int log_level = conf_files_log_level(flags);
+        പൂർണ്ണസംഖ്യ log_level = conf_files_log_level(flags);
 
-        root = empty_to_root(root);
+        വേര് = empty_to_വേര്(വേര്);
 
-        FOREACH_DIRENT(de, dir, return log_full_errno(log_level, errno, "Failed to read directory '%s%s': %m",
-                                                      root, skip_leading_slash(original_dirpath))) {
+        FOREACH_DIRENT(de, dir, തിരികെ log_full_errno(log_level, errno, "Failed to read directory '%s%s': %m",
+                                                      വേര്, skip_leading_slash(original_dirpath))) {
 
-                _cleanup_free_ char *original_path = path_join(original_dirpath, de->d_name);
-                if (!original_path)
-                        return log_oom_full(log_level);
+                _cleanup_free_ അക്ഷരം *original_path = path_join(original_dirpath, de->d_name);
+                എങ്കിൽ (!original_path)
+                        തിരികെ log_oom_full(log_level);
 
                 /* Does this match the suffix? */
-                if (suffix && !endswith(de->d_name, suffix)) {
-                        log_debug("Skipping file '%s%s', suffix is not '%s'.", root, skip_leading_slash(original_path), suffix);
-                        continue;
+                എങ്കിൽ (suffix && !endswith(de->d_name, suffix)) {
+                        log_debug("Skipping file '%s%s', suffix is not '%s'.", വേര്, skip_leading_slash(original_path), suffix);
+                        തുടരുക;
                 }
 
                 /* Has this file already been found in an earlier directory? */
-                if (hashmap_contains(*files, de->d_name)) {
-                        log_debug("Skipping overridden file '%s%s'.", root, skip_leading_slash(original_path));
-                        continue;
+                എങ്കിൽ (hashmap_contains(*files, de->d_name)) {
+                        log_debug("Skipping overridden file '%s%s'.", വേര്, skip_leading_slash(original_path));
+                        തുടരുക;
                 }
 
                 /* Has this been masked in an earlier directory? */
-                if ((flags & CONF_FILES_FILTER_MASKED) != 0 && set_contains(*masked, de->d_name)) {
-                        log_debug("File '%s%s' is masked by previous entry.", root, skip_leading_slash(original_path));
-                        continue;
+                എങ്കിൽ ((flags & CONF_FILES_FILTER_MASKED) != 0 && set_contains(*masked, de->d_name)) {
+                        log_debug("File '%s%s' is masked by previous entry.", വേര്, skip_leading_slash(original_path));
+                        തുടരുക;
                 }
 
-                _cleanup_free_ char *p = path_join(resolved_dirpath, de->d_name);
-                if (!p)
-                        return log_oom_full(log_level);
+                _cleanup_free_ അക്ഷരം *p = path_join(resolved_dirpath, de->d_name);
+                എങ്കിൽ (!p)
+                        തിരികെ log_oom_full(log_level);
 
-                _cleanup_free_ char *resolved_path = NULL;
-                _cleanup_close_ int fd = -EBADF;
-                struct stat st;
+                _cleanup_free_ അക്ഷരം *resolved_path = ശൂന്യ;
+                _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+                ഘടന stat st;
                 r = conf_file_chase_and_verify(
-                                root,
+                                വേര്,
                                 rfd,
                                 original_path,
                                 p,
@@ -444,14 +444,14 @@ static int files_add(
                                 &resolved_path,
                                 &fd,
                                 &st);
-                if (r == -ENOMEM)
-                        return r;
-                if (r < 0)
-                        continue;
+                എങ്കിൽ (r == -ENOMEM)
+                        തിരികെ r;
+                എങ്കിൽ (r < 0)
+                        തുടരുക;
 
                 _cleanup_(conf_file_freep) ConfFile *c = new(ConfFile, 1);
-                if (!c)
-                        return log_oom_full(log_level);
+                എങ്കിൽ (!c)
+                        തിരികെ log_oom_full(log_level);
 
                 *c = (ConfFile) {
                         .filename = strdup(de->d_name),
@@ -462,454 +462,454 @@ static int files_add(
                         .st = st,
                 };
 
-                if (!c->filename)
-                        return log_oom_full(log_level);
+                എങ്കിൽ (!c->filename)
+                        തിരികെ log_oom_full(log_level);
 
                 r = hashmap_ensure_put(files, &conf_file_hash_ops, c->filename, c);
-                if (r < 0) {
-                        assert(r == -ENOMEM);
-                        return log_oom_full(log_level);
+                എങ്കിൽ (r < 0) {
+                        പ്രതിജ്ഞാ(r == -ENOMEM);
+                        തിരികെ log_oom_full(log_level);
                 }
-                assert(r > 0);
+                പ്രതിജ്ഞാ(r > 0);
 
                 TAKE_PTR(c);
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-static int dump_files(Hashmap *fh, const char *root, ConfFilesFlags flags, ConfFile ***ret_files, size_t *ret_n_files) {
-        ConfFile **files = NULL;
+സ്ഥിതം പൂർണ്ണസംഖ്യ dump_files(Hashmap *fh, സ്ഥിരം അക്ഷരം *വേര്, ConfFilesFlags flags, ConfFile ***ret_files, size_t *ret_n_files) {
+        ConfFile **files = ശൂന്യ;
         size_t n_files = 0;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         CLEANUP_ARRAY(files, n_files, conf_file_free_array);
 
-        assert(ret_files);
-        assert(ret_n_files);
+        പ്രതിജ്ഞാ(ret_files);
+        പ്രതിജ്ഞാ(ret_n_files);
 
         /* The entries in the array given by hashmap_dump_sorted() are still owned by the hashmap. */
-        r = hashmap_dump_sorted(fh, (void***) &files, &n_files);
-        if (r < 0)
-                return log_oom_full(conf_files_log_level(flags));
+        r = hashmap_dump_sorted(fh, (ശൂന്യം***) &files, &n_files);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_oom_full(conf_files_log_level(flags));
 
         /* Hence, we need to remove them from the hashmap. */
         FOREACH_ARRAY(i, files, n_files)
                 assert_se(hashmap_remove(fh, (*i)->filename) == *i);
 
-        if (root)
+        എങ്കിൽ (വേര്)
                 FOREACH_ARRAY(i, files, n_files) {
-                        r = conf_file_prefix_root(*i, root, flags);
-                        if (r < 0)
-                                return r;
+                        r = conf_file_prefix_വേര്(*i, വേര്, flags);
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
 
         *ret_files = TAKE_PTR(files);
         *ret_n_files = n_files;
-        return 0;
+        തിരികെ 0;
 }
 
-static int copy_and_sort_files_from_hashmap(
+സ്ഥിതം പൂർണ്ണസംഖ്യ copy_and_sort_files_from_hashmap(
                 Hashmap *fh,
-                const char *suffix,
-                const char *root,
+                സ്ഥിരം അക്ഷരം *suffix,
+                സ്ഥിരം അക്ഷരം *വേര്,
                 ConfFilesFlags flags,
-                char ***ret) {
+                അക്ഷരം ***ret) {
 
-        _cleanup_strv_free_ char **results = NULL;
-        _cleanup_free_ ConfFile **files = NULL;
+        _cleanup_strv_free_ അക്ഷരം **results = ശൂന്യ;
+        _cleanup_free_ ConfFile **files = ശൂന്യ;
         size_t n_files = 0, n_results = 0;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        int log_level = conf_files_log_level(flags);
+        പൂർണ്ണസംഖ്യ log_level = conf_files_log_level(flags);
 
         /* The entries in the array given by hashmap_dump_sorted() are still owned by the hashmap.
          * Hence, do not use conf_file_free_array() for 'entries' */
-        r = hashmap_dump_sorted(fh, (void***) &files, &n_files);
-        if (r < 0)
-                return log_oom_full(log_level);
+        r = hashmap_dump_sorted(fh, (ശൂന്യം***) &files, &n_files);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_oom_full(log_level);
 
         FOREACH_ARRAY(i, files, n_files) {
                 ConfFile *c = *i;
-                const char *add = NULL;
+                സ്ഥിരം അക്ഷരം *add = ശൂന്യ;
 
-                if (FLAGS_SET(flags, CONF_FILES_BASENAME))
+                എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_BASENAME))
                         add = c->filename;
-                else if (root && !FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_ROOT)) {
-                        _cleanup_free_ char *p = NULL;
+                അല്ലെങ്കിൽ എങ്കിൽ (വേര് && !FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_വേര്)) {
+                        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
 
-                        r = chaseat_prefix_root(c->result, root, &p);
-                        if (r < 0)
-                                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, root);
+                        r = chaseat_prefix_വേര്(c->result, വേര്, &p);
+                        എങ്കിൽ (r < 0)
+                                തിരികെ log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, വേര്);
 
-                        if (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX) && suffix) {
-                                char *e = endswith(p, suffix);
-                                if (!e)
-                                        continue;
+                        എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX) && suffix) {
+                                അക്ഷരം *e = endswith(p, suffix);
+                                എങ്കിൽ (!e)
+                                        തുടരുക;
 
                                 *e = 0;
                         }
 
-                        if (strv_consume_with_size(&results, &n_results, TAKE_PTR(p)) < 0)
-                                return log_oom_full(log_level);
+                        എങ്കിൽ (strv_consume_with_size(&results, &n_results, TAKE_PTR(p)) < 0)
+                                തിരികെ log_oom_full(log_level);
 
-                        continue;
-                } else
+                        തുടരുക;
+                } അല്ലെങ്കിൽ
                         add = c->result;
 
-                if (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX)) {
-                        const char *e = endswith(add, suffix);
-                        if (!e)
-                                continue;
+                എങ്കിൽ (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX)) {
+                        സ്ഥിരം അക്ഷരം *e = endswith(add, suffix);
+                        എങ്കിൽ (!e)
+                                തുടരുക;
 
-                        _cleanup_free_ char *n = strndup(add, e - add);
-                        if (!n)
-                                return log_oom_full(log_level);
+                        _cleanup_free_ അക്ഷരം *n = strndup(add, e - add);
+                        എങ്കിൽ (!n)
+                                തിരികെ log_oom_full(log_level);
 
                         r = strv_consume_with_size(&results, &n_results, TAKE_PTR(n));
-                } else
+                } അല്ലെങ്കിൽ
                         r = strv_extend_with_size(&results, &n_results, add);
-                if (r < 0)
-                        return log_oom_full(log_level);
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_oom_full(log_level);
         }
 
         *ret = TAKE_PTR(results);
-        return 0;
+        തിരികെ 0;
 }
 
-static int insert_replacement(Hashmap **fh, ConfFile *replacement, ConfFilesFlags flags, const ConfFile **ret) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ തിരുകുക_replacement(Hashmap **fh, ConfFile *replacement, ConfFilesFlags flags, സ്ഥിരം ConfFile **ret) {
         _cleanup_(conf_file_freep) ConfFile *c = ASSERT_PTR(replacement);
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fh);
-        assert(ret);
+        പ്രതിജ്ഞാ(fh);
+        പ്രതിജ്ഞാ(ret);
 
         /* This consumes the input ConfFile. */
 
         ConfFile *existing = hashmap_get(*fh, c->filename);
-        if (existing) {
+        എങ്കിൽ (existing) {
                 log_debug("An entry with higher priority '%s' -> '%s' already exists, ignoring the replacement: %s",
                           existing->filename, existing->result, c->original_path);
-                *ret = NULL;
-                return 0;
+                *ret = ശൂന്യ;
+                തിരികെ 0;
         }
 
         r = hashmap_ensure_put(fh, &conf_file_hash_ops, c->filename, c);
-        if (r < 0) {
-                assert(r == -ENOMEM);
-                return log_oom_full(conf_files_log_level(flags));
+        എങ്കിൽ (r < 0) {
+                പ്രതിജ്ഞാ(r == -ENOMEM);
+                തിരികെ log_oom_full(conf_files_log_level(flags));
         }
-        assert(r > 0);
+        പ്രതിജ്ഞാ(r > 0);
 
         log_debug("Inserted replacement: '%s' -> '%s'", c->filename, c->result);
 
         *ret = TAKE_PTR(c);
-        return 0;
+        തിരികെ 0;
 }
 
-static int conf_files_list_impl(
-                const char *suffix,
-                const char *root, /* for logging, can be NULL */
-                int rfd,
+സ്ഥിതം പൂർണ്ണസംഖ്യ conf_files_list_impl(
+                സ്ഥിരം അക്ഷരം *suffix,
+                സ്ഥിരം അക്ഷരം *വേര്, /* for logging, can be NULL */
+                പൂർണ്ണസംഖ്യ rfd,
                 ConfFilesFlags flags,
-                const char * const *dirs,
-                const char *replacement,
+                സ്ഥിരം അക്ഷരം * സ്ഥിരം *dirs,
+                സ്ഥിരം അക്ഷരം *replacement,
                 Hashmap **ret,
-                const ConfFile **ret_inserted) {
+                സ്ഥിരം ConfFile **ret_inserted) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_set_free_ Set *masked = NULL;
-        _cleanup_(conf_file_freep) ConfFile *c = NULL;
-        const ConfFile *inserted = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ശൂന്യ;
+        _cleanup_set_free_ Set *masked = ശൂന്യ;
+        _cleanup_(conf_file_freep) ConfFile *c = ശൂന്യ;
+        സ്ഥിരം ConfFile *inserted = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(ret);
 
-        root = empty_to_root(root);
+        വേര് = empty_to_വേര്(വേര്);
 
-        if (replacement) {
-                r = conf_file_new_at(replacement, root, rfd, flags & CONF_FILES_WARN, &c);
-                if (r < 0)
-                        return r;
+        എങ്കിൽ (replacement) {
+                r = conf_file_new_at(replacement, വേര്, rfd, flags & CONF_FILES_WARN, &c);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
         STRV_FOREACH(p, dirs) {
-                _cleanup_closedir_ DIR *dir = NULL;
-                _cleanup_free_ char *path = NULL;
+                _cleanup_closedir_ DIR *dir = ശൂന്യ;
+                _cleanup_free_ അക്ഷരം *path = ശൂന്യ;
 
                 r = chase_and_opendirat(rfd, rfd, *p, 0, &path, &dir);
-                if (r < 0) {
-                        if (r != -ENOENT)
+                എങ്കിൽ (r < 0) {
+                        എങ്കിൽ (r != -ENOENT)
                                 log_full_errno(conf_files_log_level(flags), r,
                                                "Failed to chase and open directory '%s%s', ignoring: %m",
-                                               root, skip_leading_slash(*p));
-                        continue;
+                                               വേര്, skip_leading_slash(*p));
+                        തുടരുക;
                 }
 
-                if (c && streq_ptr(path_startswith(c->result, path), c->filename)) {
-                        r = insert_replacement(&fh, TAKE_PTR(c), flags, &inserted);
-                        if (r < 0)
-                                return r;
+                എങ്കിൽ (c && streq_ptr(path_startswith(c->result, path), c->filename)) {
+                        r = തിരുകുക_replacement(&fh, TAKE_PTR(c), flags, &inserted);
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
 
-                r = files_add(dir, *p, path, root, rfd, &fh, &masked, suffix, flags);
-                if (r == -ENOMEM)
-                        return r;
+                r = files_add(dir, *p, path, വേര്, rfd, &fh, &masked, suffix, flags);
+                എങ്കിൽ (r == -ENOMEM)
+                        തിരികെ r;
         }
 
-        if (c) {
-                r = insert_replacement(&fh, TAKE_PTR(c), flags, &inserted);
-                if (r < 0)
-                        return r;
+        എങ്കിൽ (c) {
+                r = തിരുകുക_replacement(&fh, TAKE_PTR(c), flags, &inserted);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
         *ret = TAKE_PTR(fh);
-        if (ret_inserted)
+        എങ്കിൽ (ret_inserted)
                 *ret_inserted = inserted;
-        return 0;
+        തിരികെ 0;
 }
 
-int conf_files_list_strv(
-                char ***ret,
-                const char *suffix,
-                const char *root,
+പൂർണ്ണസംഖ്യ conf_files_list_strv(
+                അക്ഷരം ***ret,
+                സ്ഥിരം അക്ഷരം *suffix,
+                സ്ഥിരം അക്ഷരം *വേര്,
                 ConfFilesFlags flags,
-                const char * const *dirs) {
+                സ്ഥിരം അക്ഷരം * സ്ഥിരം *dirs) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = -EBADF;
+        _cleanup_free_ അക്ഷരം *വേര്_abs = ശൂന്യ;
+        _cleanup_strv_free_ അക്ഷരം **dirs_abs = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        r = prepare_dirs(root, flags, (char**) dirs, &root_abs, &rfd, &dirs_abs);
-        if (r < 0)
-                return r;
+        r = prepare_dirs(വേര്, flags, (അക്ഷരം**) dirs, &വേര്_abs, &rfd, &dirs_abs);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        r = conf_files_list_impl(suffix, root_abs, rfd, flags, (const char * const *) dirs_abs,
-                                 /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, വേര്_abs, rfd, flags, (സ്ഥിരം അക്ഷരം * സ്ഥിരം *) dirs_abs,
+                                 /* replacement= */ ശൂന്യ, &fh, /* ret_inserted= */ ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return copy_and_sort_files_from_hashmap(fh, suffix, empty_to_root(root_abs), flags, ret);
+        തിരികെ copy_and_sort_files_from_hashmap(fh, suffix, empty_to_വേര്(വേര്_abs), flags, ret);
 }
 
-int conf_files_list_strv_full(
-                const char *suffix,
-                const char *root,
+പൂർണ്ണസംഖ്യ conf_files_list_strv_full(
+                സ്ഥിരം അക്ഷരം *suffix,
+                സ്ഥിരം അക്ഷരം *വേര്,
                 ConfFilesFlags flags,
-                const char * const *dirs,
+                സ്ഥിരം അക്ഷരം * സ്ഥിരം *dirs,
                 ConfFile ***ret_files,
                 size_t *ret_n_files) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = -EBADF;
+        _cleanup_free_ അക്ഷരം *വേര്_abs = ശൂന്യ;
+        _cleanup_strv_free_ അക്ഷരം **dirs_abs = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret_files);
-        assert(ret_n_files);
+        പ്രതിജ്ഞാ(ret_files);
+        പ്രതിജ്ഞാ(ret_n_files);
 
-        r = prepare_dirs(root, flags, (char**) dirs, &root_abs, &rfd, &dirs_abs);
-        if (r < 0)
-                return r;
+        r = prepare_dirs(വേര്, flags, (അക്ഷരം**) dirs, &വേര്_abs, &rfd, &dirs_abs);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        r = conf_files_list_impl(suffix, root_abs, rfd, flags, (const char * const *) dirs_abs,
-                                 /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, വേര്_abs, rfd, flags, (സ്ഥിരം അക്ഷരം * സ്ഥിരം *) dirs_abs,
+                                 /* replacement= */ ശൂന്യ, &fh, /* ret_inserted= */ ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return dump_files(fh, empty_to_root(root_abs), flags, ret_files, ret_n_files);
+        തിരികെ dump_files(fh, empty_to_വേര്(വേര്_abs), flags, ret_files, ret_n_files);
 }
 
-int conf_files_list_strv_at(
-                char ***ret,
-                const char *suffix,
-                int rfd,
+പൂർണ്ണസംഖ്യ conf_files_list_strv_at(
+                അക്ഷരം ***ret,
+                സ്ഥിരം അക്ഷരം *suffix,
+                പൂർണ്ണസംഖ്യ rfd,
                 ConfFilesFlags flags,
-                const char * const *dirs) {
+                സ്ഥിരം അക്ഷരം * സ്ഥിരം *dirs) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *root = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *വേര് = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(ret);
 
-        if (DEBUG_LOGGING)
-                (void) fd_get_path(rfd, &root); /* for logging */
+        എങ്കിൽ (DEBUG_LOGGING)
+                (ശൂന്യം) fd_get_path(rfd, &വേര്); /* for logging */
 
-        r = conf_files_list_impl(suffix, root, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, വേര്, rfd, flags, dirs, /* replacement= */ ശൂന്യ, &fh, /* ret_inserted= */ ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return copy_and_sort_files_from_hashmap(fh, suffix, /* root= */ NULL, flags, ret);
+        തിരികെ copy_and_sort_files_from_hashmap(fh, suffix, /* root= */ ശൂന്യ, flags, ret);
 }
 
-int conf_files_list_strv_at_full(
-                const char *suffix,
-                int rfd,
+പൂർണ്ണസംഖ്യ conf_files_list_strv_at_full(
+                സ്ഥിരം അക്ഷരം *suffix,
+                പൂർണ്ണസംഖ്യ rfd,
                 ConfFilesFlags flags,
-                const char * const *dirs,
+                സ്ഥിരം അക്ഷരം * സ്ഥിരം *dirs,
                 ConfFile ***ret_files,
                 size_t *ret_n_files) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *root = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *വേര് = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret_files);
-        assert(ret_n_files);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(ret_files);
+        പ്രതിജ്ഞാ(ret_n_files);
 
-        if (DEBUG_LOGGING)
-                (void) fd_get_path(rfd, &root); /* for logging */
+        എങ്കിൽ (DEBUG_LOGGING)
+                (ശൂന്യം) fd_get_path(rfd, &വേര്); /* for logging */
 
-        r = conf_files_list_impl(suffix, root, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, വേര്, rfd, flags, dirs, /* replacement= */ ശൂന്യ, &fh, /* ret_inserted= */ ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return dump_files(fh, /* root= */ NULL, flags, ret_files, ret_n_files);
+        തിരികെ dump_files(fh, /* root= */ ശൂന്യ, flags, ret_files, ret_n_files);
 }
 
-int conf_files_list(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dir) {
-        return conf_files_list_strv(ret, suffix, root, flags, STRV_MAKE_CONST(dir));
+പൂർണ്ണസംഖ്യ conf_files_list(അക്ഷരം ***ret, സ്ഥിരം അക്ഷരം *suffix, സ്ഥിരം അക്ഷരം *വേര്, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dir) {
+        തിരികെ conf_files_list_strv(ret, suffix, വേര്, flags, STRV_MAKE_CONST(dir));
 }
 
-int conf_files_list_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files) {
-        return conf_files_list_strv_full(suffix, root, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
+പൂർണ്ണസംഖ്യ conf_files_list_full(സ്ഥിരം അക്ഷരം *suffix, സ്ഥിരം അക്ഷരം *വേര്, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dir, ConfFile ***ret_files, size_t *ret_n_files) {
+        തിരികെ conf_files_list_strv_full(suffix, വേര്, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
 }
 
-int conf_files_list_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dir) {
-        return conf_files_list_strv_at(ret, suffix, rfd, flags, STRV_MAKE_CONST(dir));
+പൂർണ്ണസംഖ്യ conf_files_list_at(അക്ഷരം ***ret, സ്ഥിരം അക്ഷരം *suffix, പൂർണ്ണസംഖ്യ rfd, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dir) {
+        തിരികെ conf_files_list_strv_at(ret, suffix, rfd, flags, STRV_MAKE_CONST(dir));
 }
 
-int conf_files_list_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files) {
-        return conf_files_list_strv_at_full(suffix, rfd, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
+പൂർണ്ണസംഖ്യ conf_files_list_at_full(സ്ഥിരം അക്ഷരം *suffix, പൂർണ്ണസംഖ്യ rfd, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dir, ConfFile ***ret_files, size_t *ret_n_files) {
+        തിരികെ conf_files_list_strv_at_full(suffix, rfd, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
 }
 
-int conf_files_list_nulstr(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs) {
-        _cleanup_strv_free_ char **d = NULL;
+പൂർണ്ണസംഖ്യ conf_files_list_nulstr(അക്ഷരം ***ret, സ്ഥിരം അക്ഷരം *suffix, സ്ഥിരം അക്ഷരം *വേര്, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dirs) {
+        _cleanup_strv_free_ അക്ഷരം **d = ശൂന്യ;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        എങ്കിൽ (!d)
+                തിരികെ log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv(ret, suffix, root, flags, (const char**) d);
+        തിരികെ conf_files_list_strv(ret, suffix, വേര്, flags, (സ്ഥിരം അക്ഷരം**) d);
 }
 
-int conf_files_list_nulstr_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
-        _cleanup_strv_free_ char **d = NULL;
+പൂർണ്ണസംഖ്യ conf_files_list_nulstr_full(സ്ഥിരം അക്ഷരം *suffix, സ്ഥിരം അക്ഷരം *വേര്, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
+        _cleanup_strv_free_ അക്ഷരം **d = ശൂന്യ;
 
-        assert(ret_files);
-        assert(ret_n_files);
+        പ്രതിജ്ഞാ(ret_files);
+        പ്രതിജ്ഞാ(ret_n_files);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        എങ്കിൽ (!d)
+                തിരികെ log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_full(suffix, root, flags, (const char**) d, ret_files, ret_n_files);
+        തിരികെ conf_files_list_strv_full(suffix, വേര്, flags, (സ്ഥിരം അക്ഷരം**) d, ret_files, ret_n_files);
 }
 
-int conf_files_list_nulstr_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs) {
-        _cleanup_strv_free_ char **d = NULL;
+പൂർണ്ണസംഖ്യ conf_files_list_nulstr_at(അക്ഷരം ***ret, സ്ഥിരം അക്ഷരം *suffix, പൂർണ്ണസംഖ്യ rfd, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dirs) {
+        _cleanup_strv_free_ അക്ഷരം **d = ശൂന്യ;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        എങ്കിൽ (!d)
+                തിരികെ log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_at(ret, suffix, rfd, flags, (const char**) d);
+        തിരികെ conf_files_list_strv_at(ret, suffix, rfd, flags, (സ്ഥിരം അക്ഷരം**) d);
 }
 
-int conf_files_list_nulstr_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
-        _cleanup_strv_free_ char **d = NULL;
+പൂർണ്ണസംഖ്യ conf_files_list_nulstr_at_full(സ്ഥിരം അക്ഷരം *suffix, പൂർണ്ണസംഖ്യ rfd, ConfFilesFlags flags, സ്ഥിരം അക്ഷരം *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
+        _cleanup_strv_free_ അക്ഷരം **d = ശൂന്യ;
 
-        assert(ret_files);
-        assert(ret_n_files);
+        പ്രതിജ്ഞാ(ret_files);
+        പ്രതിജ്ഞാ(ret_n_files);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        എങ്കിൽ (!d)
+                തിരികെ log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_at_full(suffix, rfd, flags, (const char**) d, ret_files, ret_n_files);
+        തിരികെ conf_files_list_strv_at_full(suffix, rfd, flags, (സ്ഥിരം അക്ഷരം**) d, ret_files, ret_n_files);
 }
 
-int conf_files_list_with_replacement(
-                const char *root,
-                char **config_dirs,
-                const char *replacement,
-                char ***ret_files,
-                char **ret_inserted) {
+പൂർണ്ണസംഖ്യ conf_files_list_with_replacement(
+                സ്ഥിരം അക്ഷരം *വേര്,
+                അക്ഷരം **config_dirs,
+                സ്ഥിരം അക്ഷരം *replacement,
+                അക്ഷരം ***ret_files,
+                അക്ഷരം **ret_inserted) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *inserted = NULL;
+        _cleanup_hashmap_free_ Hashmap *fh = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *inserted = ശൂന്യ;
         ConfFilesFlags flags = CONF_FILES_REGULAR | CONF_FILES_FILTER_MASKED_BY_SYMLINK | CONF_FILES_WARN;
-        _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        const ConfFile *c = NULL;
-        int r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = -EBADF;
+        _cleanup_free_ അക്ഷരം *വേര്_abs = ശൂന്യ;
+        _cleanup_strv_free_ അക്ഷരം **dirs_abs = ശൂന്യ;
+        സ്ഥിരം ConfFile *c = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret_files);
+        പ്രതിജ്ഞാ(ret_files);
 
-        r = prepare_dirs(root, flags, config_dirs, &root_abs, &rfd, &dirs_abs);
-        if (r < 0)
-                return r;
+        r = prepare_dirs(വേര്, flags, config_dirs, &വേര്_abs, &rfd, &dirs_abs);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        r = conf_files_list_impl(".conf", root_abs, rfd, flags, (const char * const *) dirs_abs,
-                                 replacement, &fh, ret_inserted ? &c : NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(".conf", വേര്_abs, rfd, flags, (സ്ഥിരം അക്ഷരം * സ്ഥിരം *) dirs_abs,
+                                 replacement, &fh, ret_inserted ? &c : ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (c) {
-                r = chaseat_prefix_root(c->result, root_abs, &inserted);
-                if (r < 0)
-                        return log_full_errno(conf_files_log_level(flags), r,
+        എങ്കിൽ (c) {
+                r = chaseat_prefix_വേര്(c->result, വേര്_abs, &inserted);
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_full_errno(conf_files_log_level(flags), r,
                                               "Failed to prefix '%s' with root '%s': %m",
-                                              c->result, empty_to_root(root_abs));
+                                              c->result, empty_to_വേര്(വേര്_abs));
         }
 
-        r = copy_and_sort_files_from_hashmap(fh, ".conf", empty_to_root(root_abs), flags, ret_files);
-        if (r < 0)
-                return r;
+        r = copy_and_sort_files_from_hashmap(fh, ".conf", empty_to_വേര്(വേര്_abs), flags, ret_files);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (ret_inserted)
+        എങ്കിൽ (ret_inserted)
                 *ret_inserted = TAKE_PTR(inserted);
-        return 0;
+        തിരികെ 0;
 }
 
-int conf_files_list_dropins(
-                char ***ret,
-                const char *dropin_dirname,
-                const char *root,
-                int root_fd,
+പൂർണ്ണസംഖ്യ conf_files_list_dropins(
+                അക്ഷരം ***ret,
+                സ്ഥിരം അക്ഷരം *dropin_dirname,
+                സ്ഥിരം അക്ഷരം *വേര്,
+                പൂർണ്ണസംഖ്യ വേര്_fd,
                 ConfFilesFlags flags,
-                const char * const *dirs) {
+                സ്ഥിരം അക്ഷരം * സ്ഥിരം *dirs) {
 
-        _cleanup_strv_free_ char **dropin_dirs = NULL;
-        const char *suffix;
-        int r;
+        _cleanup_strv_free_ അക്ഷരം **dropin_dirs = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *suffix;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
-        assert(dropin_dirname);
-        assert(dirs);
+        പ്രതിജ്ഞാ(ret);
+        പ്രതിജ്ഞാ(dropin_dirname);
+        പ്രതിജ്ഞാ(dirs);
 
         suffix = strjoina("/", dropin_dirname);
         r = strv_extend_strv_concat(&dropin_dirs, dirs, suffix);
-        if (r < 0)
-                return log_oom_full(conf_files_log_level(flags));
+        എങ്കിൽ (r < 0)
+                തിരികെ log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_at(ret, ".conf", root_fd, flags, (const char* const*) dropin_dirs);
+        തിരികെ conf_files_list_strv_at(ret, ".conf", വേര്_fd, flags, (സ്ഥിരം അക്ഷരം* സ്ഥിരം*) dropin_dirs);
 }
 
 /**
@@ -922,86 +922,86 @@ int conf_files_list_dropins(
  *
  * This method is only suitable for configuration files which have a flat layout without dropins.
  */
-int conf_file_read(
-                const char *root,
-                const char **config_dirs,
-                const char *fn,
-                parse_line_t parse_line,
-                void *userdata,
+പൂർണ്ണസംഖ്യ conf_file_read(
+                സ്ഥിരം അക്ഷരം *വേര്,
+                സ്ഥിരം അക്ഷരം **config_dirs,
+                സ്ഥിരം അക്ഷരം *fn,
+                parse_വരി_t parse_വരി,
+                ശൂന്യം *userdata,
                 bool ignore_enoent,
                 bool *invalid_config) {
 
-        _cleanup_fclose_ FILE *_f = NULL;
-        _cleanup_free_ char *_fn = NULL;
+        _cleanup_fclose_ FILE *_f = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *_fn = ശൂന്യ;
         unsigned v = 0;
         FILE *f;
-        int r = 0;
+        പൂർണ്ണസംഖ്യ r = 0;
 
-        assert(fn);
+        പ്രതിജ്ഞാ(fn);
 
-        if (streq(fn, "-")) {
+        എങ്കിൽ (streq(fn, "-")) {
                 f = stdin;
                 fn = "<stdin>";
 
                 log_debug("Reading config from stdin%s", glyph(GLYPH_ELLIPSIS));
 
-        } else if (is_path(fn)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (is_path(fn)) {
                 r = path_make_absolute_cwd(fn, &_fn);
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make path absolute: %m");
+                എങ്കിൽ (r < 0)
+                        തിരികെ log_error_errno(r, "Failed to make path absolute: %m");
                 fn = _fn;
 
                 f = _f = fopen(fn, "re");
-                if (!_f)
+                എങ്കിൽ (!_f)
                         r = -errno;
-                else
+                അല്ലെങ്കിൽ
                         log_debug("Reading config file \"%s\"%s", fn, glyph(GLYPH_ELLIPSIS));
 
-        } else {
-                r = search_and_fopen(fn, "re", root, config_dirs, &_f, &_fn);
-                if (r >= 0) {
+        } അല്ലെങ്കിൽ {
+                r = തിരയൽ_and_fopen(fn, "re", വേര്, config_dirs, &_f, &_fn);
+                എങ്കിൽ (r >= 0) {
                         f = _f;
                         fn = _fn;
                         log_debug("Reading config file \"%s\"%s", fn, glyph(GLYPH_ELLIPSIS));
                 }
         }
 
-        if (r == -ENOENT && ignore_enoent) {
+        എങ്കിൽ (r == -ENOENT && ignore_enoent) {
                 log_debug_errno(r, "Failed to open \"%s\", ignoring: %m", fn);
-                return 0; /* No error, but nothing happened. */
+                തിരികെ 0; /* No error, but nothing happened. */
         }
-        if (r < 0)
-                return log_error_errno(r, "Failed to read '%s': %m", fn);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_error_errno(r, "Failed to read '%s': %m", fn);
 
         r = 1;  /* We entered the part where we may modify state. */
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                bool invalid_line = false;
-                int k;
+        വേണ്ടി (;;) {
+                _cleanup_free_ അക്ഷരം *വരി = ശൂന്യ;
+                bool invalid_വരി = false;
+                പൂർണ്ണസംഖ്യ k;
 
-                k = read_stripped_line(f, LONG_LINE_MAX, &line);
-                if (k < 0)
-                        return log_error_errno(k, "Failed to read '%s': %m", fn);
-                if (k == 0)
-                        break;
+                k = read_stripped_വരി(f, LONG_വരി_MAX, &വരി);
+                എങ്കിൽ (k < 0)
+                        തിരികെ log_error_errno(k, "Failed to read '%s': %m", fn);
+                എങ്കിൽ (k == 0)
+                        നിർത്തുക;
 
                 v++;
 
-                if (IN_SET(line[0], 0, '#'))
-                        continue;
+                എങ്കിൽ (IN_SET(വരി[0], 0, '#'))
+                        തുടരുക;
 
-                k = parse_line(fn, v, line, invalid_config ? &invalid_line : NULL, userdata);
-                if (k < 0 && invalid_line)
+                k = parse_വരി(fn, v, വരി, invalid_config ? &invalid_വരി : ശൂന്യ, userdata);
+                എങ്കിൽ (k < 0 && invalid_വരി)
                         /* Allow reporting with a special code if the caller requested this. */
                         *invalid_config = true;
-                else
+                അല്ലെങ്കിൽ
                         /* The first error, if any, becomes our return value. */
                         RET_GATHER(r, k);
         }
 
-        if (ferror(f))
+        എങ്കിൽ (ferror(f))
                 RET_GATHER(r, log_error_errno(SYNTHETIC_ERRNO(EIO), "Failed to read from file %s.", fn));
 
-        return r;
+        തിരികെ r;
 }

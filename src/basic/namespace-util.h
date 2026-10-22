@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-typedef enum NamespaceType {
+തരനിർവചനം എണ്ണൽ NamespaceType {
         NAMESPACE_CGROUP,
         NAMESPACE_IPC,
         NAMESPACE_NET,
@@ -16,102 +16,102 @@ typedef enum NamespaceType {
         _NAMESPACE_TYPE_INVALID = -EINVAL,
 } NamespaceType;
 
-extern const struct namespace_info {
-        const char *proc_name;
-        const char *proc_path;
+ബാഹ്യ സ്ഥിരം ഘടന namespace_info {
+        സ്ഥിരം അക്ഷരം *proc_name;
+        സ്ഥിരം അക്ഷരം *proc_path;
         unsigned long clone_flag;
         unsigned long pidfd_get_ns_ioctl_cmd;
-        ino_t root_inode;
+        ino_t വേര്_inode;
 } namespace_info[_NAMESPACE_TYPE_MAX + 1];
 
 NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag);
 
 bool namespace_type_supported(NamespaceType type);
 
-int pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
-int namespace_open_by_type(NamespaceType type);
+പൂർണ്ണസംഖ്യ pidref_namespace_open_by_type(സ്ഥിരം PidRef *pidref, NamespaceType type);
+പൂർണ്ണസംഖ്യ namespace_open_by_type(NamespaceType type);
 
-int pidref_namespace_open(
-                const PidRef *pidref,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
-int namespace_open(
+പൂർണ്ണസംഖ്യ pidref_namespace_open(
+                സ്ഥിരം PidRef *pidref,
+                പൂർണ്ണസംഖ്യ *ret_pidns_fd,
+                പൂർണ്ണസംഖ്യ *ret_mntns_fd,
+                പൂർണ്ണസംഖ്യ *ret_netns_fd,
+                പൂർണ്ണസംഖ്യ *ret_userns_fd,
+                പൂർണ്ണസംഖ്യ *ret_വേര്_fd);
+പൂർണ്ണസംഖ്യ namespace_open(
                 pid_t pid,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
+                പൂർണ്ണസംഖ്യ *ret_pidns_fd,
+                പൂർണ്ണസംഖ്യ *ret_mntns_fd,
+                പൂർണ്ണസംഖ്യ *ret_netns_fd,
+                പൂർണ്ണസംഖ്യ *ret_userns_fd,
+                പൂർണ്ണസംഖ്യ *ret_വേര്_fd);
 
-typedef enum NamespaceEnterFlags {
+തരനിർവചനം എണ്ണൽ NamespaceEnterFlags {
         /* If root is not mapped in the user namespace, keep our UID/GID instead of failing. The caller must
          * ensure that retaining its original identity is appropriate in that case. Entering still fails
          * with -ENODATA if the namespace has no mappings at all yet, since root might still get mapped. */
-        NAMESPACE_ENTER_KEEP_UID_GID_IF_ROOT_UNMAPPED = 1 << 0,
+        NAMESPACE_ENTER_KEEP_UID_GID_IF_വേര്_UNMAPPED = 1 << 0,
 } NamespaceEnterFlags;
 
 /* If a user namespace is entered we become root in it, and fail if that's not possible. */
-int namespace_enter_full(
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+പൂർണ്ണസംഖ്യ namespace_enter_full(
+                പൂർണ്ണസംഖ്യ pidns_fd,
+                പൂർണ്ണസംഖ്യ mntns_fd,
+                പൂർണ്ണസംഖ്യ netns_fd,
+                പൂർണ്ണസംഖ്യ userns_fd,
+                പൂർണ്ണസംഖ്യ വേര്_fd,
                 NamespaceEnterFlags flags);
 
-static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ namespace_enter(പൂർണ്ണസംഖ്യ pidns_fd, പൂർണ്ണസംഖ്യ mntns_fd, പൂർണ്ണസംഖ്യ netns_fd, പൂർണ്ണസംഖ്യ userns_fd, പൂർണ്ണസംഖ്യ വേര്_fd) {
+        തിരികെ namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, വേര്_fd, /* flags= */ 0);
 }
 
-int fd_is_namespace(int fd, NamespaceType type);
-int is_our_namespace(int fd, NamespaceType type);
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
+പൂർണ്ണസംഖ്യ fd_is_namespace(പൂർണ്ണസംഖ്യ fd, NamespaceType type);
+പൂർണ്ണസംഖ്യ is_our_namespace(പൂർണ്ണസംഖ്യ fd, NamespaceType type);
+പൂർണ്ണസംഖ്യ are_our_namespaces(പൂർണ്ണസംഖ്യ pidns_fd, പൂർണ്ണസംഖ്യ mntns_fd, പൂർണ്ണസംഖ്യ netns_fd, പൂർണ്ണസംഖ്യ userns_fd, പൂർണ്ണസംഖ്യ വേര്_fd);
 
-int network_namespace_is_init(int socket_fd);
-int namespace_is_init(NamespaceType type);
+പൂർണ്ണസംഖ്യ network_namespace_is_init(പൂർണ്ണസംഖ്യ socket_fd);
+പൂർണ്ണസംഖ്യ namespace_is_init(NamespaceType type);
 
-int pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
-int in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
+പൂർണ്ണസംഖ്യ pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
+പൂർണ്ണസംഖ്യ in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
 
-int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
+പൂർണ്ണസംഖ്യ namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
 
-int detach_mount_namespace(void);
-int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
-int detach_mount_namespace_userns(int userns_fd);
+പൂർണ്ണസംഖ്യ detach_mount_namespace(ശൂന്യം);
+പൂർണ്ണസംഖ്യ detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
+പൂർണ്ണസംഖ്യ detach_mount_namespace_userns(പൂർണ്ണസംഖ്യ userns_fd);
 
-static inline bool userns_shift_range_valid(uid_t shift, uid_t range) {
+സ്ഥിതം വരിയിൽ bool userns_shift_range_valid(uid_t shift, uid_t range) {
         /* Checks that the specified userns range makes sense, i.e. contains at least one UID, and the end
          * doesn't overflow uid_t. */
 
         assert_cc((uid_t) -1 > 0); /* verify that uid_t is unsigned */
 
-        if (range <= 0)
-                return false;
+        എങ്കിൽ (range <= 0)
+                തിരികെ false;
 
-        if (shift > (uid_t) -1 - range)
-                return false;
+        എങ്കിൽ (shift > (uid_t) -1 - range)
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
+പൂർണ്ണസംഖ്യ parse_userns_uid_range(സ്ഥിരം അക്ഷരം *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
 
-int userns_acquire_empty(void);
-int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
-int userns_acquire_self_root(void);
-int userns_enter_and_pin(int userns_fd, PidRef *ret);
-bool userns_supported(void);
+പൂർണ്ണസംഖ്യ userns_acquire_empty(ശൂന്യം);
+പൂർണ്ണസംഖ്യ userns_acquire(സ്ഥിരം അക്ഷരം *uid_map, സ്ഥിരം അക്ഷരം *gid_map, bool setgroups_deny);
+പൂർണ്ണസംഖ്യ userns_acquire_self_വേര്(ശൂന്യം);
+പൂർണ്ണസംഖ്യ userns_enter_and_pin(പൂർണ്ണസംഖ്യ userns_fd, PidRef *ret);
+bool userns_supported(ശൂന്യം);
 
-int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid);
-int userns_has_root_mapping(int userns_fd);
+പൂർണ്ണസംഖ്യ userns_get_base_uid(പൂർണ്ണസംഖ്യ userns_fd, uid_t *ret_uid, gid_t *ret_gid);
+പൂർണ്ണസംഖ്യ userns_has_വേര്_mapping(പൂർണ്ണസംഖ്യ userns_fd);
 
-int namespace_open_by_id(uint64_t ns_id);
+പൂർണ്ണസംഖ്യ namespace_open_by_id(uint64_t ns_id);
 
-int process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
+പൂർണ്ണസംഖ്യ process_is_owned_by_uid(സ്ഥിരം PidRef *pidref, uid_t uid);
 
-int is_idmapping_supported(const char *path);
+പൂർണ്ണസംഖ്യ is_idmapping_supported(സ്ഥിരം അക്ഷരം *path);
 
-int netns_acquire(void);
+പൂർണ്ണസംഖ്യ netns_acquire(ശൂന്യം);

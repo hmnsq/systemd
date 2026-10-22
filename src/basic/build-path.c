@@ -1,129 +1,129 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <elf.h>
-#include <fcntl.h>
-#include <link.h>
-#include <stdlib.h>
-#include <sys/auxv.h>
+#അന്തര്ഭാവ <elf.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <link.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <sys/auxv.h>
 
-#include "alloc-util.h"
-#include "build-path.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "unistd.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "build-path.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "unistd.h"
 
-static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ get_runpath_from_dynamic(സ്ഥിരം ElfW(Dyn) *d, ElfW(Addr) bias, സ്ഥിരം അക്ഷരം **ret) {
         size_t runpath_index = SIZE_MAX, rpath_index = SIZE_MAX;
-        const char *strtab = NULL;
+        സ്ഥിരം അക്ഷരം *strtab = ശൂന്യ;
 
-        assert(d);
+        പ്രതിജ്ഞാ(d);
 
         /* Iterates through the PT_DYNAMIC section to find the DT_RUNPATH/DT_RPATH entries */
 
-        for (; d->d_tag != DT_NULL; d++) {
+        വേണ്ടി (; d->d_tag != DT_NULL; d++) {
 
-                switch (d->d_tag) {
+                തിരഞ്ഞെടുപ്പ് (d->d_tag) {
 
-                case DT_RUNPATH:
+                അവസ്ഥ DT_RUNPATH:
                         runpath_index = (size_t) d->d_un.d_val;
-                        break;
+                        നിർത്തുക;
 
-                case DT_RPATH:
+                അവസ്ഥ DT_RPATH:
                         rpath_index = (size_t) d->d_un.d_val;
-                        break;
+                        നിർത്തുക;
 
-                case DT_STRTAB:
+                അവസ്ഥ DT_STRTAB:
                         /* On MIPS, RISC-V, or with musl, DT_STRTAB records an offset, not a valid address,
                          * so it has to be adjusted using the bias calculated earlier. */
-                        if (d->d_un.d_val != 0)
-                                strtab = (const char *) ((uintptr_t) d->d_un.d_val
-#if defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
+                        എങ്കിൽ (d->d_un.d_val != 0)
+                                strtab = (സ്ഥിരം അക്ഷരം *) ((uintptr_t) d->d_un.d_val
+#എങ്കിൽ defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
                                          + bias
 #endif
                                 );
-                        break;
+                        നിർത്തുക;
                 }
 
                 /* runpath wins, hence if we have the table and runpath we can exit the loop early */
-                if (strtab && runpath_index != SIZE_MAX)
-                        break;
+                എങ്കിൽ (strtab && runpath_index != SIZE_MAX)
+                        നിർത്തുക;
         }
 
-        if (!strtab)
-                return -ENOTRECOVERABLE;
+        എങ്കിൽ (!strtab)
+                തിരികെ -ENOTRECOVERABLE;
 
         /* According to ld.so runpath wins if both runpath and rpath are defined. */
-        if (runpath_index != SIZE_MAX) {
-                if (ret)
+        എങ്കിൽ (runpath_index != SIZE_MAX) {
+                എങ്കിൽ (ret)
                         *ret = strtab + runpath_index;
-                return 1;
+                തിരികെ 1;
         }
 
-        if (rpath_index != SIZE_MAX) {
-                if (ret)
+        എങ്കിൽ (rpath_index != SIZE_MAX) {
+                എങ്കിൽ (ret)
                         *ret = strtab + rpath_index;
-                return 1;
+                തിരികെ 1;
         }
 
-        if (ret)
-                *ret = NULL;
+        എങ്കിൽ (ret)
+                *ret = ശൂന്യ;
 
-        return 0;
+        തിരികെ 0;
 }
 
-static int get_runpath(const char **ret) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ get_runpath(സ്ഥിരം അക്ഷരം **ret) {
         unsigned long phdr, phent, phnum;
 
         /* Finds the rpath/runpath in the program headers of the main executable we are running in */
 
         phdr = getauxval(AT_PHDR);      /* Start offset of phdr */
-        if (phdr == 0)
-                return -ENOTRECOVERABLE;
+        എങ്കിൽ (phdr == 0)
+                തിരികെ -ENOTRECOVERABLE;
 
         phnum = getauxval(AT_PHNUM);    /* Number of entries in phdr */
-        if (phnum == 0)
-                return -ENOTRECOVERABLE;
+        എങ്കിൽ (phnum == 0)
+                തിരികെ -ENOTRECOVERABLE;
 
         phent = getauxval(AT_PHENT);    /* Size of entries in phdr */
-        if (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
-                return -ENOTRECOVERABLE;
+        എങ്കിൽ (phent < വലുപ്പം(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
+                തിരികെ -ENOTRECOVERABLE;
 
         ElfW(Addr) bias = 0, dyn = 0;
         bool found_bias = false, found_dyn = false;
 
         /* Iterate through the Phdr structures to find the PT_PHDR and PT_DYNAMIC sections */
-        for (unsigned long i = 0; i < phnum; i++) {
-                const ElfW(Phdr) *p = (const ElfW(Phdr)*) (phdr + (i * phent));
+        വേണ്ടി (unsigned long i = 0; i < phnum; i++) {
+                സ്ഥിരം ElfW(Phdr) *p = (സ്ഥിരം ElfW(Phdr)*) (phdr + (i * phent));
 
-                switch (p->p_type) {
+                തിരഞ്ഞെടുപ്പ് (p->p_type) {
 
-                case PT_PHDR:
-                        if (p->p_vaddr > phdr) /* safety overflow check */
-                                return -ENOTRECOVERABLE;
+                അവസ്ഥ PT_PHDR:
+                        എങ്കിൽ (p->p_vaddr > phdr) /* safety overflow check */
+                                തിരികെ -ENOTRECOVERABLE;
 
                         bias = (ElfW(Addr)) phdr - p->p_vaddr;
                         found_bias = true;
-                        break;
+                        നിർത്തുക;
 
-                case PT_DYNAMIC:
+                അവസ്ഥ PT_DYNAMIC:
                         dyn = p->p_vaddr;
                         found_dyn = true;
-                        break;
+                        നിർത്തുക;
                 }
 
-                if (found_bias && found_dyn)
-                        break;
+                എങ്കിൽ (found_bias && found_dyn)
+                        നിർത്തുക;
         }
 
-        if (!found_dyn)
-                return -ENOTRECOVERABLE;
+        എങ്കിൽ (!found_dyn)
+                തിരികെ -ENOTRECOVERABLE;
 
-        return get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
+        തിരികെ get_runpath_from_dynamic((സ്ഥിരം ElfW(Dyn)*) (bias + dyn), bias, ret);
 }
 
-int get_build_exec_dir(char **ret) {
-        int r;
+പൂർണ്ണസംഖ്യ get_build_exec_dir(അക്ഷരം **ret) {
+        പൂർണ്ണസംഖ്യ r;
 
         /* Returns the build execution directory if we are invoked in a build environment. Specifically, this
          * checks if the main program binary has an rpath/runpath set (i.e. an explicit directory where to
@@ -151,140 +151,140 @@ int get_build_exec_dir(char **ret) {
          *     -NOTRECOVERABLE  → Dynamic binary information missing?
          */
 
-        static int runpath_cached = -ERRNO_MAX-1;
-        if (runpath_cached == -ERRNO_MAX-1) {
-                const char *runpath = NULL;
+        സ്ഥിതം പൂർണ്ണസംഖ്യ runpath_cached = -ERRNO_MAX-1;
+        എങ്കിൽ (runpath_cached == -ERRNO_MAX-1) {
+                സ്ഥിരം അക്ഷരം *runpath = ശൂന്യ;
 
                 runpath_cached = get_runpath(&runpath);
 
                 /* We only care if the runpath starts with $ORIGIN/ */
-                if (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
+                എങ്കിൽ (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
                         runpath_cached = 0;
         }
-        if (runpath_cached < 0)
-                return runpath_cached;
-        if (runpath_cached == 0)
-                return -ENOEXEC;
+        എങ്കിൽ (runpath_cached < 0)
+                തിരികെ runpath_cached;
+        എങ്കിൽ (runpath_cached == 0)
+                തിരികെ -ENOEXEC;
 
-        _cleanup_free_ char *exe = NULL;
+        _cleanup_free_ അക്ഷരം *exe = ശൂന്യ;
         r = get_process_exe(0, &exe);
-        if (r < 0)
-                return runpath_cached = r;
+        എങ്കിൽ (r < 0)
+                തിരികെ runpath_cached = r;
 
-        return path_extract_directory(exe, ret);
+        തിരികെ path_extract_directory(exe, ret);
 }
 
-static int find_build_dir_binary(const char *fn, char **ret) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ find_build_dir_ദ്വിമാന(സ്ഥിരം അക്ഷരം *fn, അക്ഷരം **ret) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fn);
-        assert(ret);
+        പ്രതിജ്ഞാ(fn);
+        പ്രതിജ്ഞാ(ret);
 
-        _cleanup_free_ char *build_dir = NULL;
+        _cleanup_free_ അക്ഷരം *build_dir = ശൂന്യ;
         r = get_build_exec_dir(&build_dir);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        _cleanup_free_ char *np = path_join(build_dir, fn);
-        if (!np)
-                return -ENOMEM;
+        _cleanup_free_ അക്ഷരം *np = path_join(build_dir, fn);
+        എങ്കിൽ (!np)
+                തിരികെ -ENOMEM;
 
         *ret = TAKE_PTR(np);
-        return 0;
+        തിരികെ 0;
 }
 
-static int find_environment_binary(const char *fn, const char **ret) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ find_environment_ദ്വിമാന(സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം അക്ഷരം **ret) {
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         /* If a path such as /usr/lib/systemd/systemd-foobar is specified, then this will check for an
          * environment variable SYSTEMD_FOOBAR_PATH and return it if set. */
 
-        _cleanup_free_ char *s = strdup(fn);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ അക്ഷരം *s = strdup(fn);
+        എങ്കിൽ (!s)
+                തിരികെ -ENOMEM;
 
         ascii_strupper(s);
         string_replace_char(s, '-', '_');
 
-        if (!strextend(&s, "_PATH"))
-                return -ENOMEM;
+        എങ്കിൽ (!strextend(&s, "_PATH"))
+                തിരികെ -ENOMEM;
 
-        const char *e;
+        സ്ഥിരം അക്ഷരം *e;
         e = secure_getenv(s);
-        if (!e)
-                return -ENXIO;
+        എങ്കിൽ (!e)
+                തിരികെ -ENXIO;
 
         *ret = e;
-        return 0;
+        തിരികെ 0;
 }
 
-int invoke_callout_binary(const char *path, char *const argv[]) {
-        int r;
+പൂർണ്ണസംഖ്യ invoke_callout_ദ്വിമാന(സ്ഥിരം അക്ഷരം *path, അക്ഷരം *സ്ഥിരം argv[]) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
+        പ്രതിജ്ഞാ(path);
 
         /* Just like execv(), but tries to execute the specified binary in the build dir instead, if known */
 
-        _cleanup_free_ char *fn = NULL;
+        _cleanup_free_ അക്ഷരം *fn = ശൂന്യ;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == O_DIRECTORY) /* Uh? */
+                തിരികെ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        സ്ഥിരം അക്ഷരം *e;
+        എങ്കിൽ (find_environment_ദ്വിമാന(fn, &e) >= 0) {
                 /* If there's an explicit environment variable set for this binary, prefer it */
                 execv(e, argv);
-                return -errno; /* The environment variable counts, let's fail otherwise */
+                തിരികെ -errno; /* The environment variable counts, let's fail otherwise */
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0)
+        _cleanup_free_ അക്ഷരം *np = ശൂന്യ;
+        എങ്കിൽ (find_build_dir_ദ്വിമാന(fn, &np) >= 0)
                 execv(np, argv);
 
         execvp(path, argv);
-        return -errno;
+        തിരികെ -errno;
 }
 
-int pin_callout_binary(const char *path, char **ret_path) {
-        int r, fd;
+പൂർണ്ണസംഖ്യ pin_callout_ദ്വിമാന(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_path) {
+        പൂർണ്ണസംഖ്യ r, fd;
 
-        assert(path);
+        പ്രതിജ്ഞാ(path);
 
         /* Similar to invoke_callout_binary(), but pins (i.e. O_PATH opens) the binary instead of executing
          * it, also optionally provides the path to the binary. */
 
-        _cleanup_free_ char *fn = NULL;
+        _cleanup_free_ അക്ഷരം *fn = ശൂന്യ;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == O_DIRECTORY) /* Uh? */
+                തിരികെ -EISDIR;
 
-        const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        സ്ഥിരം അക്ഷരം *e;
+        എങ്കിൽ (find_environment_ദ്വിമാന(fn, &e) >= 0) {
                 /* The environment variable counts. We'd fail if the executable is not available/invalid. */
-                r = open_and_check_executable(e, /* root= */ NULL, ret_path, &fd);
-                if (r < 0)
-                        return r;
+                r = open_and_check_executable(e, /* root= */ ശൂന്യ, ret_path, &fd);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                return fd;
+                തിരികെ fd;
         }
 
-        _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0) {
-                r = open_and_check_executable(np, /* root= */ NULL, ret_path, &fd);
-                if (r >= 0)
-                        return fd;
+        _cleanup_free_ അക്ഷരം *np = ശൂന്യ;
+        എങ്കിൽ (find_build_dir_ദ്വിമാന(fn, &np) >= 0) {
+                r = open_and_check_executable(np, /* root= */ ശൂന്യ, ret_path, &fd);
+                എങ്കിൽ (r >= 0)
+                        തിരികെ fd;
         }
 
-        r = find_executable_full(path, /* root= */ NULL,
-                                 /* exec_search_path= */ NULL, /* use_path_envvar= */ true,
+        r = find_executable_full(path, /* root= */ ശൂന്യ,
+                                 /* exec_search_path= */ ശൂന്യ, /* use_path_envvar= */ true,
                                  ret_path, &fd);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return fd;
+        തിരികെ fd;
 }

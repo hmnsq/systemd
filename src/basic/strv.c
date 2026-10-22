@@ -1,217 +1,217 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
+#അന്തര്ഭാവ <fnmatch.h>
+#അന്തര്ഭാവ <stdio.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "gunicode.h"
-#include "hashmap.h"
-#include "log.h"
-#include "memory-util.h"
-#include "sort-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "env-util.h"
+#അന്തര്ഭാവ "escape.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "gunicode.h"
+#അന്തര്ഭാവ "hashmap.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "memory-util.h"
+#അന്തര്ഭാവ "sort-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "utf8.h"
 
-char* strv_find(char * const *l, const char *name) {
-        assert(name);
-
-        STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
-
-        return NULL;
-}
-
-char* strv_find_case(char * const *l, const char *name) {
-        assert(name);
+അക്ഷരം* strv_find(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) {
+        പ്രതിജ്ഞാ(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                എങ്കിൽ (streq(*i, name))
+                        തിരികെ *i;
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-char* strv_find_prefix(char * const *l, const char *name) {
-        assert(name);
+അക്ഷരം* strv_find_case(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) {
+        പ്രതിജ്ഞാ(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                എങ്കിൽ (strcaseeq(*i, name))
+                        തിരികെ *i;
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-char* strv_find_startswith(char * const *l, const char *name) {
-        assert(name);
+അക്ഷരം* strv_find_prefix(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) {
+        പ്രതിജ്ഞാ(name);
+
+        STRV_FOREACH(i, l)
+                എങ്കിൽ (startswith(*i, name))
+                        തിരികെ *i;
+
+        തിരികെ ശൂന്യ;
+}
+
+അക്ഷരം* strv_find_startswith(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) {
+        പ്രതിജ്ഞാ(name);
 
         /* Like strv_find_prefix, but actually returns only the
          * suffix, not the whole item */
 
         STRV_FOREACH(i, l) {
-                char *e;
+                അക്ഷരം *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                എങ്കിൽ (e)
+                        തിരികെ e;
         }
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-static char* strv_find_closest_prefix(char * const *l, const char *name) {
+സ്ഥിതം അക്ഷരം* strv_find_closest_prefix(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) {
         size_t best_distance = SIZE_MAX;
-        char *best = NULL;
+        അക്ഷരം *best = ശൂന്യ;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
         STRV_FOREACH(s, l) {
-                char *e = startswith(*s, name);
-                if (!e)
-                        continue;
+                അക്ഷരം *e = startswith(*s, name);
+                എങ്കിൽ (!e)
+                        തുടരുക;
 
                 size_t n = strlen(e);
-                if (n < best_distance) {
+                എങ്കിൽ (n < best_distance) {
                         best_distance = n;
                         best = *s;
                 }
         }
 
-        return best;
+        തിരികെ best;
 }
 
-static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
+സ്ഥിതം അക്ഷരം* strv_find_closest_by_levenshtein(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) {
         ssize_t best_distance = SSIZE_MAX;
-        char *best = NULL;
+        അക്ഷരം *best = ശൂന്യ;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
         STRV_FOREACH(i, l) {
                 ssize_t distance;
 
                 distance = strlevenshtein(*i, name);
-                if (distance < 0) {
+                എങ്കിൽ (distance < 0) {
                         log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                        തിരികെ ശൂന്യ;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
-                        continue;
+                എങ്കിൽ (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                        തുടരുക;
 
-                if (distance < best_distance) {
+                എങ്കിൽ (distance < best_distance) {
                         best_distance = distance;
                         best = *i;
                 }
         }
 
-        return best;
+        തിരികെ best;
 }
 
-char* strv_find_closest(char * const *l, const char *name) {
-        assert(name);
+അക്ഷരം* strv_find_closest(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *name) {
+        പ്രതിജ്ഞാ(name);
 
         /* Be more helpful to the user, and give a hint what the user might have wanted to type. We search
          * with two mechanisms: a simple prefix match and – if that didn't yield results –, a Levenshtein
          * word distance based match. */
 
-        char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        അക്ഷരം *found = strv_find_closest_prefix(l, name);
+        എങ്കിൽ (found)
+                തിരികെ found;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        തിരികെ strv_find_closest_by_levenshtein(l, name);
 }
 
-char* strv_find_first_field(char * const *needles, char * const *haystack) {
+അക്ഷരം* strv_find_first_field(അക്ഷരം * സ്ഥിരം *needles, അക്ഷരം * സ്ഥിരം *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                അക്ഷരം *മൂല്യം = strv_env_pairs_get((അക്ഷരം **)haystack, *k);
+                എങ്കിൽ (മൂല്യം)
+                        തിരികെ മൂല്യം;
         }
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-char** strv_free(char **l) {
+അക്ഷരം** strv_free(അക്ഷരം **l) {
         STRV_FOREACH(k, l)
-                free(*k);
+                സ്വതന്ത്രം(*k);
 
-        return mfree(l);
+        തിരികെ mfree(l);
 }
 
-char** strv_free_erase(char **l) {
+അക്ഷരം** strv_free_erase(അക്ഷരം **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        തിരികെ mfree(l);
 }
 
-void strv_free_many(char ***strvs, size_t n) {
-        assert(strvs || n == 0);
+ശൂന്യം strv_free_many(അക്ഷരം ***strvs, size_t n) {
+        പ്രതിജ്ഞാ(strvs || n == 0);
 
         FOREACH_ARRAY (i, strvs, n)
                 strv_free(*i);
 
-        free(strvs);
+        സ്വതന്ത്രം(strvs);
 }
 
-char** strv_copy_n(char * const *l, size_t n) {
-        _cleanup_strv_free_ char **result = NULL;
-        char **k;
+അക്ഷരം** strv_copy_n(അക്ഷരം * സ്ഥിരം *l, size_t n) {
+        _cleanup_strv_free_ അക്ഷരം **result = ശൂന്യ;
+        അക്ഷരം **k;
 
-        result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        result = new(അക്ഷരം*, MIN(strv_length(l), n) + 1);
+        എങ്കിൽ (!result)
+                തിരികെ ശൂന്യ;
 
         k = result;
         STRV_FOREACH(i, l) {
-                if (n == 0)
-                        break;
+                എങ്കിൽ (n == 0)
+                        നിർത്തുക;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                എങ്കിൽ (!*k)
+                        തിരികെ ശൂന്യ;
                 k++;
 
-                if (n != SIZE_MAX)
+                എങ്കിൽ (n != SIZE_MAX)
                         n--;
         }
 
-        *k = NULL;
-        return TAKE_PTR(result);
+        *k = ശൂന്യ;
+        തിരികെ TAKE_PTR(result);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
-        assert(ret);
+പൂർണ്ണസംഖ്യ strv_copy_unless_empty(അക്ഷരം * സ്ഥിരം *l, അക്ഷരം ***ret) {
+        പ്രതിജ്ഞാ(ret);
 
-        if (strv_isempty(l)) {
-                *ret = NULL;
-                return 0;
+        എങ്കിൽ (strv_isempty(l)) {
+                *ret = ശൂന്യ;
+                തിരികെ 0;
         }
 
-        char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        അക്ഷരം **copy = strv_copy(l);
+        എങ്കിൽ (!copy)
+                തിരികെ -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        തിരികെ 1;
 }
 
-size_t strv_length(char * const *l) {
+size_t strv_length(അക്ഷരം * സ്ഥിരം *l) {
         size_t n = 0;
 
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        തിരികെ n;
 }
 
-char** strv_new_ap(const char *x, va_list ap) {
-        _cleanup_strv_free_ char **a = NULL;
+അക്ഷരം** strv_new_ap(സ്ഥിരം അക്ഷരം *x, va_list ap) {
+        _cleanup_strv_free_ അക്ഷരം **a = ശൂന്യ;
         size_t n = 0, i = 0;
         va_list aq;
 
@@ -221,320 +221,320 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം *s = x; s; s = va_arg(aq, സ്ഥിരം അക്ഷരം*)) {
+                എങ്കിൽ (s == STRV_IGNORE)
+                        തുടരുക;
 
                 n++;
         }
         va_end(aq);
 
-        a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        a = new(അക്ഷരം*, n+1);
+        എങ്കിൽ (!a)
+                തിരികെ ശൂന്യ;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം *s = x; s; s = va_arg(ap, സ്ഥിരം അക്ഷരം*)) {
+                എങ്കിൽ (s == STRV_IGNORE)
+                        തുടരുക;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                എങ്കിൽ (!a[i])
+                        തിരികെ ശൂന്യ;
 
                 i++;
         }
 
-        a[i] = NULL;
+        a[i] = ശൂന്യ;
 
-        return TAKE_PTR(a);
+        തിരികെ TAKE_PTR(a);
 }
 
-char** strv_new_internal(const char *x, ...) {
-        char **r;
+അക്ഷരം** strv_new_internal(സ്ഥിരം അക്ഷരം *x, ...) {
+        അക്ഷരം **r;
         va_list ap;
 
         va_start(ap, x);
         r = strv_new_ap(x, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
+പൂർണ്ണസംഖ്യ strv_extend_strv(അക്ഷരം ***a, അക്ഷരം * സ്ഥിരം *b, bool filter_duplicates) {
         size_t p, q, i = 0;
 
-        assert(a);
+        പ്രതിജ്ഞാ(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        എങ്കിൽ (q == 0)
+                തിരികെ 0;
 
         p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        എങ്കിൽ (p >= SIZE_MAX - q)
+                തിരികെ -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        അക്ഷരം **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), വലുപ്പം(അക്ഷരം *));
+        എങ്കിൽ (!t)
+                തിരികെ -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ശൂന്യ;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
-                        continue;
+                എങ്കിൽ (filter_duplicates && strv_contains(t, *s))
+                        തുടരുക;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
-                        goto rollback;
+                എങ്കിൽ (!t[p+i])
+                        പോകുക rollback;
 
                 i++;
-                t[p+i] = NULL;
+                t[p+i] = ശൂന്യ;
         }
 
-        assert(i <= q);
+        പ്രതിജ്ഞാ(i <= q);
 
-        return (int) i;
+        തിരികെ (പൂർണ്ണസംഖ്യ) i;
 
 rollback:
         free_many_charp(t + p, i);
-        t[p] = NULL;
-        return -ENOMEM;
+        t[p] = ശൂന്യ;
+        തിരികെ -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
-        _cleanup_strv_free_ char **b_consume = b;
+പൂർണ്ണസംഖ്യ strv_extend_strv_consume(അക്ഷരം ***a, അക്ഷരം **b, bool filter_duplicates) {
+        _cleanup_strv_free_ അക്ഷരം **b_consume = b;
         size_t p, q, i;
 
-        assert(a);
+        പ്രതിജ്ഞാ(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        എങ്കിൽ (q == 0)
+                തിരികെ 0;
 
         p = strv_length(*a);
-        if (p == 0) {
+        എങ്കിൽ (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                എങ്കിൽ (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                തിരികെ strv_length(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        എങ്കിൽ (p >= SIZE_MAX - q)
+                തിരികെ -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        അക്ഷരം **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), വലുപ്പം(അക്ഷരം *));
+        എങ്കിൽ (!t)
+                തിരികെ -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ശൂന്യ;
         *a = t;
 
-        if (!filter_duplicates) {
-                *mempcpy_typesafe(t + p, b, q) = NULL;
+        എങ്കിൽ (!filter_duplicates) {
+                *mempcpy_typesafe(t + p, b, q) = ശൂന്യ;
                 i = q;
-        } else {
+        } അല്ലെങ്കിൽ {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
-                                free(*s);
-                                continue;
+                        എങ്കിൽ (strv_contains(t, *s)) {
+                                സ്വതന്ത്രം(*s);
+                                തുടരുക;
                         }
 
                         t[p+i] = *s;
 
                         i++;
-                        t[p+i] = NULL;
+                        t[p+i] = ശൂന്യ;
                 }
         }
 
-        assert(i <= q);
+        പ്രതിജ്ഞാ(i <= q);
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        തിരികെ (പൂർണ്ണസംഖ്യ) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+പൂർണ്ണസംഖ്യ strv_extend_strv_biconcat(അക്ഷരം ***a, സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം* സ്ഥിരം *b, സ്ഥിരം അക്ഷരം *suffix) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(a);
+        പ്രതിജ്ഞാ(a);
 
         STRV_FOREACH(s, b) {
-                char *v;
+                അക്ഷരം *v;
 
                 v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                എങ്കിൽ (!v)
+                        തിരികെ -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+പൂർണ്ണസംഖ്യ strv_split_newlines_full(അക്ഷരം ***ret, സ്ഥിരം അക്ഷരം *s, ExtractFlags flags) {
+        _cleanup_strv_free_ അക്ഷരം **l = ശൂന്യ;
         size_t n;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
-        assert(s);
+        പ്രതിജ്ഞാ(ret);
+        പ്രതിജ്ഞാ(s);
 
         /* Special version of strv_split_full() that splits on newlines and
          * suppresses an empty string at the end. */
 
         r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        എങ്കിൽ (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        തിരികെ n;
 }
 
-char** strv_split_newlines(const char *s) {
-        char **ret;
+അക്ഷരം** strv_split_newlines(സ്ഥിരം അക്ഷരം *s) {
+        അക്ഷരം **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        എങ്കിൽ (strv_split_newlines_full(&ret, s, 0) < 0)
+                തിരികെ ശൂന്യ;
 
-        return ret;
+        തിരികെ ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+പൂർണ്ണസംഖ്യ strv_split_full(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators, ExtractFlags flags) {
+        _cleanup_strv_free_ അക്ഷരം **l = ശൂന്യ;
         size_t n = 0;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(t);
-        assert(s);
+        പ്രതിജ്ഞാ(t);
+        പ്രതിജ്ഞാ(s);
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
+        വേണ്ടി (;;) {
+                _cleanup_free_ അക്ഷരം *word = ശൂന്യ;
 
                 r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        നിർത്തുക;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                എങ്കിൽ (!GREEDY_REALLOC(l, n + 2))
+                        തിരികെ -ENOMEM;
 
                 l[n++] = TAKE_PTR(word);
-                l[n] = NULL;
+                l[n] = ശൂന്യ;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        എങ്കിൽ (!l) {
+                l = new0(അക്ഷരം*, 1);
+                എങ്കിൽ (!l)
+                        തിരികെ -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        തിരികെ (പൂർണ്ണസംഖ്യ) n;
 }
 
-char** strv_split(const char *s, const char *separators) {
-        char **ret;
+അക്ഷരം** strv_split(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators) {
+        അക്ഷരം **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        എങ്കിൽ (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
+                തിരികെ ശൂന്യ;
 
-        return ret;
+        തിരികെ ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
-        char **l;
-        int r;
+പൂർണ്ണസംഖ്യ strv_split_and_extend_full(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators, bool filter_duplicates, ExtractFlags flags) {
+        അക്ഷരം **l;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(t);
-        assert(s);
+        പ്രതിജ്ഞാ(t);
+        പ്രതിജ്ഞാ(s);
 
         r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return (int) strv_length(*t);
+        തിരികെ (പൂർണ്ണസംഖ്യ) strv_length(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+പൂർണ്ണസംഖ്യ strv_split_and_extend(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separators, bool filter_duplicates) {
+        തിരികെ strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+പൂർണ്ണസംഖ്യ strv_split_colon_pairs(അക്ഷരം ***t, സ്ഥിരം അക്ഷരം *s) {
+        _cleanup_strv_free_ അക്ഷരം **l = ശൂന്യ;
         size_t n = 0;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(t);
-        assert(s);
+        പ്രതിജ്ഞാ(t);
+        പ്രതിജ്ഞാ(s);
 
-        for (;;) {
-                _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
+        വേണ്ടി (;;) {
+                _cleanup_free_ അക്ഷരം *first = ശൂന്യ, *second = ശൂന്യ, *tuple = ശൂന്യ, *second_or_empty = ശൂന്യ;
 
-                r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&s, &tuple, ശൂന്യ, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        നിർത്തുക;
 
-                const char *p = tuple;
-                r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
+                സ്ഥിരം അക്ഷരം *p = tuple;
+                r = extract_many_വാക്കുകൾ(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        continue;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        തുടരുക;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                എങ്കിൽ (!isempty(p))
+                        തിരികെ -EINVAL;
 
                 second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                എങ്കിൽ (!second_or_empty)
+                        തിരികെ -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                എങ്കിൽ (!GREEDY_REALLOC(l, n + 3))
+                        തിരികെ -ENOMEM;
 
                 l[n++] = TAKE_PTR(first);
                 l[n++] = TAKE_PTR(second_or_empty);
 
-                l[n] = NULL;
+                l[n] = ശൂന്യ;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        എങ്കിൽ (!l) {
+                l = new0(അക്ഷരം*, 1);
+                എങ്കിൽ (!l)
+                        തിരികെ -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        തിരികെ (പൂർണ്ണസംഖ്യ) n;
 }
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
-        char *r, *e;
+അക്ഷരം* strv_join_full(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *separator, സ്ഥിരം അക്ഷരം *prefix) {
+        അക്ഷരം *r, *e;
         size_t n, k, m;
 
-        if (!separator)
+        എങ്കിൽ (!separator)
                 separator = " ";
 
         k = strlen(separator);
@@ -542,22 +542,22 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                എങ്കിൽ (s != l)
                         n += k;
 
                 n += m + strlen(*s);
         }
 
-        r = new(char, n+1);
-        if (!r)
-                return NULL;
+        r = new(അക്ഷരം, n+1);
+        എങ്കിൽ (!r)
+                തിരികെ ശൂന്യ;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                എങ്കിൽ (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
+                എങ്കിൽ (prefix)
                         e = stpcpy(e, prefix);
 
                 e = stpcpy(e, *s);
@@ -565,683 +565,683 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         *e = 0;
 
-        return r;
+        തിരികെ r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+പൂർണ്ണസംഖ്യ strv_തള്ളുക_with_size(അക്ഷരം ***l, size_t *n, അക്ഷരം *മൂല്യം) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
          * If value is empty, no action is taken and *n is not set. */
 
-        assert(l);
+        പ്രതിജ്ഞാ(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        എങ്കിൽ (!മൂല്യം)
+                തിരികെ 0;
 
         size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
+        എങ്കിൽ (size == SIZE_MAX)
                 size = strv_length(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        എങ്കിൽ (size > SIZE_MAX-2)
+                തിരികെ -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        അക്ഷരം **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), വലുപ്പം(അക്ഷരം*));
+        എങ്കിൽ (!c)
+                തിരികെ -ENOMEM;
 
-        c[size] = value;
-        c[size+1] = NULL;
+        c[size] = മൂല്യം;
+        c[size+1] = ശൂന്യ;
 
         *l = c;
-        if (n)
+        എങ്കിൽ (n)
                 *n = size + 1;
-        return 0;
+        തിരികെ 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
-        char **c;
+പൂർണ്ണസംഖ്യ strv_തള്ളുക_pair(അക്ഷരം ***l, അക്ഷരം *a, അക്ഷരം *b) {
+        അക്ഷരം **c;
         size_t n;
 
-        assert(l);
+        പ്രതിജ്ഞാ(l);
 
-        if (!a && !b)
-                return 0;
+        എങ്കിൽ (!a && !b)
+                തിരികെ 0;
 
         n = strv_length(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        എങ്കിൽ (n > SIZE_MAX-3)
+                തിരികെ -ENOMEM;
 
         /* increase and check for overflow */
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), വലുപ്പം(അക്ഷരം*));
+        എങ്കിൽ (!c)
+                തിരികെ -ENOMEM;
 
-        if (a)
+        എങ്കിൽ (a)
                 c[n++] = a;
-        if (b)
+        എങ്കിൽ (b)
                 c[n++] = b;
-        c[n] = NULL;
+        c[n] = ശൂന്യ;
 
         *l = c;
-        return 0;
+        തിരികെ 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
-        char **c;
+പൂർണ്ണസംഖ്യ strv_തിരുകുക(അക്ഷരം ***l, size_t position, അക്ഷരം *മൂല്യം) {
+        അക്ഷരം **c;
         size_t n, m;
 
-        assert(l);
+        പ്രതിജ്ഞാ(l);
 
-        if (!value)
-                return 0;
+        എങ്കിൽ (!മൂല്യം)
+                തിരികെ 0;
 
         n = strv_length(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        എങ്കിൽ (n > SIZE_MAX - 2)
+                തിരികെ -ENOMEM;
         m = n + 2;
 
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), വലുപ്പം(അക്ഷരം*));
+        എങ്കിൽ (!c)
+                തിരികെ -ENOMEM;
 
-        if (n > position)
-                memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
+        എങ്കിൽ (n > position)
+                memmove(c + position + 1, c + position, (n - position) * വലുപ്പം(അക്ഷരം*));
 
-        c[position] = value;
-        c[n + 1] = NULL;
+        c[position] = മൂല്യം;
+        c[n + 1] = ശൂന്യ;
 
         *l = c;
-        return 0;
+        തിരികെ 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+പൂർണ്ണസംഖ്യ strv_consume_with_size(അക്ഷരം ***l, size_t *n, അക്ഷരം *മൂല്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
-        r = strv_push_with_size(l, n, value);
-        if (r < 0)
-                free(value);
+        r = strv_തള്ളുക_with_size(l, n, മൂല്യം);
+        എങ്കിൽ (r < 0)
+                സ്വതന്ത്രം(മൂല്യം);
 
-        return r;
+        തിരികെ r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+പൂർണ്ണസംഖ്യ strv_consume_pair(അക്ഷരം ***l, അക്ഷരം *a, അക്ഷരം *b) {
+        പൂർണ്ണസംഖ്യ r;
 
-        r = strv_push_pair(l, a, b);
-        if (r < 0) {
-                free(a);
-                free(b);
+        r = strv_തള്ളുക_pair(l, a, b);
+        എങ്കിൽ (r < 0) {
+                സ്വതന്ത്രം(a);
+                സ്വതന്ത്രം(b);
         }
 
-        return r;
+        തിരികെ r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+പൂർണ്ണസംഖ്യ strv_consume_prepend(അക്ഷരം ***l, അക്ഷരം *മൂല്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
-        r = strv_push_prepend(l, value);
-        if (r < 0)
-                free(value);
+        r = strv_തള്ളുക_prepend(l, മൂല്യം);
+        എങ്കിൽ (r < 0)
+                സ്വതന്ത്രം(മൂല്യം);
 
-        return r;
+        തിരികെ r;
 }
 
-int strv_prepend(char ***l, const char *value) {
-        char *v;
+പൂർണ്ണസംഖ്യ strv_prepend(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        അക്ഷരം *v;
 
-        if (!value)
-                return 0;
+        എങ്കിൽ (!മൂല്യം)
+                തിരികെ 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(മൂല്യം);
+        എങ്കിൽ (!v)
+                തിരികെ -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        തിരികെ strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
-        char *v;
+പൂർണ്ണസംഖ്യ strv_extend_with_size(അക്ഷരം ***l, size_t *n, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        അക്ഷരം *v;
 
-        if (!value)
-                return 0;
+        എങ്കിൽ (!മൂല്യം)
+                തിരികെ 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(മൂല്യം);
+        എങ്കിൽ (!v)
+                തിരികെ -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        തിരികെ strv_consume_with_size(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+പൂർണ്ണസംഖ്യ strv_extend_many_internal(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *മൂല്യം, ...) {
         va_list ap;
         size_t n, m;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(l);
+        പ്രതിജ്ഞാ(l);
 
         m = n = strv_length(*l);
 
         r = 0;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, മൂല്യം);
+        വേണ്ടി (സ്ഥിരം അക്ഷരം *s = മൂല്യം; s != POINTER_MAX; s = va_arg(ap, സ്ഥിരം അക്ഷരം*)) {
+                എങ്കിൽ (!s)
+                        തുടരുക;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                എങ്കിൽ (m > SIZE_MAX-1) { /* overflow */
                         r = -ENOMEM;
-                        break;
+                        നിർത്തുക;
                 }
                 m++;
         }
         va_end(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (m > SIZE_MAX-1)
+                തിരികെ -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        അക്ഷരം **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), വലുപ്പം(അക്ഷരം*));
+        എങ്കിൽ (!c)
+                തിരികെ -ENOMEM;
         *l = c;
 
         r = 0;
         size_t i = n;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, മൂല്യം);
+        വേണ്ടി (സ്ഥിരം അക്ഷരം *s = മൂല്യം; s != POINTER_MAX; s = va_arg(ap, സ്ഥിരം അക്ഷരം*)) {
+                എങ്കിൽ (!s)
+                        തുടരുക;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                എങ്കിൽ (!c[i]) {
                         r = -ENOMEM;
-                        break;
+                        നിർത്തുക;
                 }
                 i++;
         }
         va_end(ap);
 
-        if (r < 0) {
+        എങ്കിൽ (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                വേണ്ടി (size_t j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                തിരികെ r;
         }
 
-        c[i] = NULL;
-        return 0;
+        c[i] = ശൂന്യ;
+        തിരികെ 0;
 }
 
-char** strv_uniq(char **l) {
+അക്ഷരം** strv_uniq(അക്ഷരം **l) {
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        തിരികെ l;
 }
 
-bool strv_is_uniq(char * const *l) {
+bool strv_is_uniq(അക്ഷരം * സ്ഥിരം *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                എങ്കിൽ (strv_contains(i+1, *i))
+                        തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+അക്ഷരം** strv_remove(അക്ഷരം **l, സ്ഥിരം അക്ഷരം *s) {
+        എങ്കിൽ (!l)
+                തിരികെ ശൂന്യ;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
-                        free(*f);
-                else
+        അക്ഷരം **f, **t;
+        വേണ്ടി (f = t = l; *f; f++)
+                എങ്കിൽ (streq(*f, s))
+                        സ്വതന്ത്രം(*f);
+                അല്ലെങ്കിൽ
                         *(t++) = *f;
 
-        *t = NULL;
-        return l;
+        *t = ശൂന്യ;
+        തിരികെ l;
 }
 
-char** strv_remove_strv(char **l, char *const*ll) {
+അക്ഷരം** strv_remove_strv(അക്ഷരം **l, അക്ഷരം *സ്ഥിരം*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        എങ്കിൽ (strv_isempty(l))
+                തിരികെ l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        തിരികെ l;
 }
 
-bool strv_overlap(char * const *a, char * const *b) {
+bool strv_overlap(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) {
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                എങ്കിൽ (strv_contains(b, *i))
+                        തിരികെ true;
 
-        return false;
+        തിരികെ false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ str_compare(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        തിരികെ strcmp(*a, *b);
 }
 
-char** strv_sort(char **l) {
+അക്ഷരം** strv_sort(അക്ഷരം **l) {
         typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+        തിരികെ l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
-        assert(compare);
+അക്ഷരം** strv_sort_uniq_full(അക്ഷരം **l, പൂർണ്ണസംഖ്യ (*compare)(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b)) {
+        പ്രതിജ്ഞാ(compare);
 
-        if (strv_isempty(l))
-                return l;
+        എങ്കിൽ (strv_isempty(l))
+                തിരികെ l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
 
         typesafe_qsort(l, strv_length(l), compare);
 
-        char **tail = l + 1;
+        അക്ഷരം **tail = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
-                        free(*i);
-                else
+                എങ്കിൽ (compare(i, tail - 1) == 0)
+                        സ്വതന്ത്രം(*i);
+                അല്ലെങ്കിൽ
                         *(tail++) = *i;
 
-        *tail = NULL;
-        return l;
+        *tail = ശൂന്യ;
+        തിരികെ l;
 }
 
-char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+അക്ഷരം** strv_sort_uniq(അക്ഷരം **l) {
+        തിരികെ strv_sort_uniq_full(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+പൂർണ്ണസംഖ്യ strv_compare(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) {
+        പൂർണ്ണസംഖ്യ r;
 
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        എങ്കിൽ (strv_isempty(a)) {
+                എങ്കിൽ (strv_isempty(b))
+                        തിരികെ 0;
+                അല്ലെങ്കിൽ
+                        തിരികെ -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        എങ്കിൽ (strv_isempty(b))
+                തിരികെ 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        വേണ്ടി ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                എങ്കിൽ (r != 0)
+                        തിരികെ r;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) {
+bool strv_equal_ignore_order(അക്ഷരം * സ്ഥിരം *a, അക്ഷരം * സ്ഥിരം *b) {
 
         /* Just like strv_equal(), but doesn't care about the order of elements or about redundant entries
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        എങ്കിൽ (a == b)
+                തിരികെ true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                എങ്കിൽ (!strv_contains(b, *i))
+                        തിരികെ false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                എങ്കിൽ (!strv_contains(a, *i))
+                        തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+ശൂന്യം strv_print_full(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *prefix) {
         STRV_FOREACH(s, l)
                 printf("%s%s\n", strempty(prefix), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
+പൂർണ്ണസംഖ്യ strv_extendf_with_size(അക്ഷരം ***l, size_t *n, സ്ഥിരം അക്ഷരം *format, ...) {
         va_list ap;
-        char *x;
-        int r;
+        അക്ഷരം *x;
+        പൂർണ്ണസംഖ്യ r;
 
         va_start(ap, format);
         r = vasprintf(&x, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        എങ്കിൽ (r < 0)
+                തിരികെ -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        തിരികെ strv_consume_with_size(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
+പൂർണ്ണസംഖ്യ strv_extend_joined_with_size_sentinel(അക്ഷരം ***l, size_t *n, ...) {
         va_list ap;
 
         va_start(ap, n);
-        char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
+        അക്ഷരം *x = strextendv_with_separator(/* x= */ ശൂന്യ, /* separator= */ ശൂന്യ, ap);
         va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        എങ്കിൽ (!x)
+                തിരികെ -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        തിരികെ strv_consume_with_size(l, n, x);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l) {
+അക്ഷരം* startswith_strv_internal(സ്ഥിരം അക്ഷരം *s, അക്ഷരം * സ്ഥിരം *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                അക്ഷരം *found = (അക്ഷരം*) startswith(s, *i);
+                എങ്കിൽ (found)
+                        തിരികെ found;
         }
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-char* endswith_strv_internal(const char *s, char * const *l) {
+അക്ഷരം* endswith_strv_internal(സ്ഥിരം അക്ഷരം *s, അക്ഷരം * സ്ഥിരം *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                അക്ഷരം *found = (അക്ഷരം*) endswith(s, *i);
+                എങ്കിൽ (found)
+                        തിരികെ found;
         }
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-char** strv_reverse(char **l) {
+അക്ഷരം** strv_reverse(അക്ഷരം **l) {
         size_t n;
 
         n = strv_length(l);
-        if (n <= 1)
-                return l;
+        എങ്കിൽ (n <= 1)
+                തിരികെ l;
 
-        for (size_t i = 0; i < n / 2; i++)
+        വേണ്ടി (size_t i = 0; i < n / 2; i++)
                 SWAP_TWO(l[i], l[n-1-i]);
 
-        return l;
+        തിരികെ l;
 }
 
-char** strv_shell_escape(char **l, const char *bad) {
+അക്ഷരം** strv_shell_escape(അക്ഷരം **l, സ്ഥിരം അക്ഷരം *bad) {
         /* Escapes every character in every string in l that is in bad,
          * edits in-place, does not roll-back on error. */
 
         STRV_FOREACH(s, l) {
-                char *v;
+                അക്ഷരം *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                എങ്കിൽ (!v)
+                        തിരികെ ശൂന്യ;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        തിരികെ l;
 }
 
 bool strv_fnmatch_full(
-                char* const* patterns,
-                const char *s,
-                int flags,
+                അക്ഷരം* സ്ഥിരം* patterns,
+                സ്ഥിരം അക്ഷരം *s,
+                പൂർണ്ണസംഖ്യ flags,
                 size_t *ret_matched_pos) {
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        എങ്കിൽ (patterns)
+                വേണ്ടി (size_t i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        എങ്കിൽ (fnmatch(patterns[i], s, flags) == 0) {
+                                എങ്കിൽ (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                തിരികെ true;
                         }
 
-        if (ret_matched_pos)
+        എങ്കിൽ (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        തിരികെ false;
 }
 
-char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+അക്ഷരം** strv_skip(അക്ഷരം **l, size_t n) {
+        ആകുമ്പോൾ (n > 0) {
+                എങ്കിൽ (strv_isempty(l))
+                        തിരികെ ശൂന്യ;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        എങ്കിൽ (strv_isempty(l))
+                തിരികെ ശൂന്യ;
+        തിരികെ l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+പൂർണ്ണസംഖ്യ strv_extend_n(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *മൂല്യം, size_t n) {
         size_t i, k;
-        char **nl;
+        അക്ഷരം **nl;
 
-        assert(l);
+        പ്രതിജ്ഞാ(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        എങ്കിൽ (!മൂല്യം)
+                തിരികെ 0;
+        എങ്കിൽ (n == 0)
+                തിരികെ 0;
 
         /* Adds the value n times to l */
 
         k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        എങ്കിൽ (n >= SIZE_MAX - k)
+                തിരികെ -ENOMEM;
 
-        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), വലുപ്പം(അക്ഷരം *));
+        എങ്കിൽ (!nl)
+                തിരികെ -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
-                nl[i] = strdup(value);
-                if (!nl[i])
-                        goto rollback;
+        വേണ്ടി (i = k; i < k + n; i++) {
+                nl[i] = strdup(മൂല്യം);
+                എങ്കിൽ (!nl[i])
+                        പോകുക rollback;
         }
-        nl[i] = NULL;
+        nl[i] = ശൂന്യ;
 
-        return 0;
+        തിരികെ 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
-                free(nl[j]);
-        nl[k] = NULL;
+        വേണ്ടി (size_t j = k; j < i; j++)
+                സ്വതന്ത്രം(nl[j]);
+        nl[k] = ശൂന്യ;
 
-        return -ENOMEM;
+        തിരികെ -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
-        char *j;
+പൂർണ്ണസംഖ്യ strv_extend_assignment(അക്ഷരം ***l, സ്ഥിരം അക്ഷരം *lhs, സ്ഥിരം അക്ഷരം *rhs) {
+        അക്ഷരം *j;
 
-        assert(l);
-        assert(lhs);
+        പ്രതിജ്ഞാ(l);
+        പ്രതിജ്ഞാ(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        എങ്കിൽ (!rhs) /* value is optional, in which case we suppress the field */
+                തിരികെ 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        എങ്കിൽ (!j)
+                തിരികെ -ENOMEM;
 
-        return strv_consume(l, j);
+        തിരികെ strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+പൂർണ്ണസംഖ്യ fputstrv(FILE *f, അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *separator, bool *space) {
         bool b = false;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        എങ്കിൽ (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+ശൂന്യം string_strv_hashmap_remove(Hashmap *h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+        എങ്കിൽ (മൂല്യം) {
+                അക്ഷരം **l = hashmap_get(h, താക്കോൽ);
+                എങ്കിൽ (!l)
+                        തിരികെ;
 
-                strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                strv_remove(l, മൂല്യം);
+                എങ്കിൽ (!strv_isempty(l))
+                        തിരികെ;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        _unused_ _cleanup_free_ അക്ഷരം *താക്കോൽ_free = ശൂന്യ;
+        strv_free(hashmap_remove2(h, താക്കോൽ, (ശൂന്യം**) &താക്കോൽ_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
-        string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
+ശൂന്യം string_strv_ordered_hashmap_remove(OrderedHashmap *h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        string_strv_hashmap_remove(PLAIN_HASHMAP(h), താക്കോൽ, മൂല്യം);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
-        char **l;
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ string_strv_hashmap_put_internal(Hashmap *h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        അക്ഷരം **l;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        പ്രതിജ്ഞാ(h);
+        പ്രതിജ്ഞാ(താക്കോൽ);
+        പ്രതിജ്ഞാ(മൂല്യം);
 
-        l = hashmap_get(h, key);
-        if (l) {
+        l = hashmap_get(h, താക്കോൽ);
+        എങ്കിൽ (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                എങ്കിൽ (strv_contains(l, മൂല്യം))
+                        തിരികെ 0;
 
-                r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l, മൂല്യം);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+                assert_se(hashmap_update(h, താക്കോൽ, l) >= 0);
+        } അല്ലെങ്കിൽ {
                 /* No list for this key exists yet, create one */
-                _cleanup_strv_free_ char **l2 = NULL;
-                _cleanup_free_ char *t = NULL;
+                _cleanup_strv_free_ അക്ഷരം **l2 = ശൂന്യ;
+                _cleanup_free_ അക്ഷരം *t = ശൂന്യ;
 
-                t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                t = strdup(താക്കോൽ);
+                എങ്കിൽ (!t)
+                        തിരികെ -ENOMEM;
 
-                r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l2, മൂല്യം);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        തിരികെ 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+പൂർണ്ണസംഖ്യ string_strv_hashmap_put(Hashmap **h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        പ്രതിജ്ഞാ(h);
+        പ്രതിജ്ഞാ(താക്കോൽ);
+        പ്രതിജ്ഞാ(മൂല്യം);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        തിരികെ string_strv_hashmap_put_internal(*h, താക്കോൽ, മൂല്യം);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+പൂർണ്ണസംഖ്യ string_strv_ordered_hashmap_put(OrderedHashmap **h, സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        പ്രതിജ്ഞാ(h);
+        പ്രതിജ്ഞാ(താക്കോൽ);
+        പ്രതിജ്ഞാ(മൂല്യം);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        തിരികെ string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), താക്കോൽ, മൂല്യം);
 }
 
-static int rebreak_flush_line(
-                char ***broken,
-                const char *start,
-                const char *end,
+സ്ഥിതം പൂർണ്ണസംഖ്യ rebreak_flush_വരി(
+                അക്ഷരം ***broken,
+                സ്ഥിരം അക്ഷരം *start,
+                സ്ഥിരം അക്ഷരം *end,
                 bool in_prefix,
-                const char *whitespace_begin,
-                const char *whitespace_end) {
+                സ്ഥിരം അക്ഷരം *whitespace_begin,
+                സ്ഥിരം അക്ഷരം *whitespace_end) {
 
-        assert(broken);
-        assert(start);
-        assert(end >= start);
+        പ്രതിജ്ഞാ(broken);
+        പ്രതിജ്ഞാ(start);
+        പ്രതിജ്ഞാ(end >= start);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        എങ്കിൽ (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
+                തിരികെ strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
+        എങ്കിൽ (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
                 end = whitespace_begin;
 
-        _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        _cleanup_free_ അക്ഷരം *truncated = strndup(start, end - start);
+        എങ്കിൽ (!truncated)
+                തിരികെ -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        തിരികെ strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
-        _cleanup_strv_free_ char **broken = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ strv_rebreak_വരികൾ(അക്ഷരം **l, size_t width, അക്ഷരം ***ret) {
+        _cleanup_strv_free_ അക്ഷരം **broken = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         /* Implements a simple UTF-8 line breaking algorithm
          *
@@ -1250,44 +1250,44 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        എങ്കിൽ (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                എങ്കിൽ (!broken)
+                        തിരികെ -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                തിരികെ 0;
         }
 
         STRV_FOREACH(i, l) {
-                const char *start = *i, *whitespace_begin = NULL, *whitespace_end = NULL;
+                സ്ഥിരം അക്ഷരം *start = *i, *whitespace_begin = ശൂന്യ, *whitespace_end = ശൂന്യ;
                 bool in_prefix = true; /* still in the whitespace in the beginning of the line? */
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
                 size_t w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                വേണ്ടി (സ്ഥിരം അക്ഷരം *p = start; *p != 0; ) {
+                        എങ്കിൽ (strchr(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
-                                r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                r = rebreak_flush_വരി(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
                                 start = p;
                                 in_prefix = true;
                                 after_newline = true;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = ശൂന്യ;
                                 w = 0;
-                                continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                                തുടരുക;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (strchr(WHITESPACE, *p)) {
+                                എങ്കിൽ (!in_prefix && (!whitespace_begin || whitespace_end)) {
                                         whitespace_begin = p;
-                                        whitespace_end = NULL;
+                                        whitespace_end = ശൂന്യ;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
+                        } അല്ലെങ്കിൽ {
+                                എങ്കിൽ (whitespace_begin && !whitespace_end)
                                         whitespace_end = p;
 
                                 in_prefix = false;
@@ -1298,31 +1298,31 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        പൂർണ്ണസംഖ്യ cw = utf8_char_console_width(p);
+                        എങ്കിൽ (cw < 0)
+                                തിരികെ log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
-                                _cleanup_free_ char *truncated = NULL;
+                        എങ്കിൽ (w > width && whitespace_begin && whitespace_end) {
+                                _cleanup_free_ അക്ഷരം *truncated = ശൂന്യ;
 
                                 truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                എങ്കിൽ (!truncated)
+                                        തിരികെ -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
                                  * the new line yet, hence reset the width and reprocess it. */
                                 p = start = whitespace_end;
                                 after_newline = false;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = ശൂന്യ;
                                 w = 0;
-                                continue;
+                                തുടരുക;
                         }
 
                         p = utf8_next_char(p);
@@ -1331,38 +1331,38 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                 /* Process rest of the line, except if all that's left after the last newline we already
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
-                assert(start);
-                if (after_newline && in_prefix)
-                        continue;
+                പ്രതിജ്ഞാ(start);
+                എങ്കിൽ (after_newline && in_prefix)
+                        തുടരുക;
 
-                r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                r = rebreak_flush_വരി(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        തിരികെ 0;
 }
 
-char** strv_filter_prefix(char * const *l, const char *prefix) {
+അക്ഷരം** strv_filter_prefix(അക്ഷരം * സ്ഥിരം *l, സ്ഥിരം അക്ഷരം *prefix) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        എങ്കിൽ (isempty(prefix))
+                തിരികെ strv_copy(l);
 
-        _cleanup_strv_free_ char **f = NULL;
+        _cleanup_strv_free_ അക്ഷരം **f = ശൂന്യ;
         size_t sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
-                        continue;
+                എങ്കിൽ (!startswith(*i, prefix))
+                        തുടരുക;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                എങ്കിൽ (strv_extend_with_size(&f, &sz, *i) < 0)
+                        തിരികെ ശൂന്യ;
         }
 
-        return TAKE_PTR(f);
+        തിരികെ TAKE_PTR(f);
 }
 
-const char* const strv_empty[] = { NULL };
+സ്ഥിരം അക്ഷരം* സ്ഥിരം strv_empty[] = { ശൂന്യ };

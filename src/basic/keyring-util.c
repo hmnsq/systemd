@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "keyring-util.h"
-#include "log.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "keyring-util.h"
+#അന്തര്ഭാവ "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+പൂർണ്ണസംഖ്യ keyring_read(താക്കോൽ_serial_t serial, ശൂന്യം **ret, size_t *ret_size) {
         size_t bufsize = 100;
 
-        for (;;) {
-                _cleanup_(erase_and_freep) uint8_t *buf = NULL;
+        വേണ്ടി (;;) {
+                _cleanup_(erase_and_freep) uint8_t *buf = ശൂന്യ;
                 long n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                എങ്കിൽ (!buf)
+                        തിരികെ -ENOMEM;
 
                 n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                എങ്കിൽ (n < 0)
+                        തിരികെ -errno;
 
-                if ((size_t) n <= bufsize) {
+                എങ്കിൽ ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        എങ്കിൽ (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
+                        എങ്കിൽ (ret_size)
                                 *ret_size = n;
 
-                        return 0;
+                        തിരികെ 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
-        _cleanup_free_ char *tuple = NULL;
+പൂർണ്ണസംഖ്യ keyring_describe(താക്കോൽ_serial_t serial, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *tuple = ശൂന്യ;
         size_t sz = 64;
-        int c;
+        പൂർണ്ണസംഖ്യ c;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        for (;;) {
-                tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+        വേണ്ടി (;;) {
+                tuple = new(അക്ഷരം, sz);
+                എങ്കിൽ (!tuple)
+                        തിരികെ log_oom_debug();
 
                 c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                എങ്കിൽ (c < 0)
+                        തിരികെ log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
-                        break;
+                എങ്കിൽ ((size_t) c <= sz)
+                        നിർത്തുക;
 
                 sz = c;
-                free(tuple);
+                സ്വതന്ത്രം(tuple);
         }
 
         /* The kernel returns a final NUL in the string, verify that. */
-        assert(tuple[c-1] == 0);
+        പ്രതിജ്ഞാ(tuple[c-1] == 0);
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        തിരികെ 0;
 }

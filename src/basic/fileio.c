@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio_ext.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <stdio_ext.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "hexdecoct.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "mkdir.h"
-#include "nulstr-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "sync-util.h"
-#include "terminal-util.h"
-#include "time-util.h"
-#include "tmpfile-util.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "chase.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "fs-util.h"
+#അന്തര്ഭാവ "hexdecoct.h"
+#അന്തര്ഭാവ "io-util.h"
+#അന്തര്ഭാവ "iovec-util.h"
+#അന്തര്ഭാവ "label-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "mkdir.h"
+#അന്തര്ഭാവ "nulstr-util.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "socket-util.h"
+#അന്തര്ഭാവ "stat-util.h"
+#അന്തര്ഭാവ "stdio-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "sync-util.h"
+#അന്തര്ഭാവ "terminal-util.h"
+#അന്തര്ഭാവ "time-util.h"
+#അന്തര്ഭാവ "tmpfile-util.h"
 
 /* The maximum size of the file we'll read in one go in read_full_file() (64M). */
 #define READ_FULL_BYTES_MAX (64U * U64_MB - UINT64_C(1))
@@ -48,160 +48,160 @@
  * can detect EOFs. */
 #define READ_VIRTUAL_BYTES_MAX (4U * U64_MB - UINT64_C(2))
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret) {
-        assert(ret);
+പൂർണ്ണസംഖ്യ fdopen_unlocked(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *options, FILE **ret) {
+        പ്രതിജ്ഞാ(ret);
 
         FILE *f = fdopen(fd, options);
-        if (!f)
-                return -errno;
+        എങ്കിൽ (!f)
+                തിരികെ -errno;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (ശൂന്യം) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        തിരികെ 0;
 }
 
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret) {
-        int r;
+പൂർണ്ണസംഖ്യ take_fdopen_unlocked(പൂർണ്ണസംഖ്യ *fd, സ്ഥിരം അക്ഷരം *options, FILE **ret) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd);
+        പ്രതിജ്ഞാ(fd);
 
         r = fdopen_unlocked(*fd, options, ret);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         *fd = -EBADF;
 
-        return 0;
+        തിരികെ 0;
 }
 
-FILE* take_fdopen(int *fd, const char *options) {
-        assert(fd);
+FILE* take_fdopen(പൂർണ്ണസംഖ്യ *fd, സ്ഥിരം അക്ഷരം *options) {
+        പ്രതിജ്ഞാ(fd);
 
         FILE *f = fdopen(*fd, options);
-        if (!f)
-                return NULL;
+        എങ്കിൽ (!f)
+                തിരികെ ശൂന്യ;
 
         *fd = -EBADF;
 
-        return f;
+        തിരികെ f;
 }
 
-DIR* take_fdopendir(int *dfd) {
-        assert(dfd);
+DIR* take_fdopendir(പൂർണ്ണസംഖ്യ *dfd) {
+        പ്രതിജ്ഞാ(dfd);
 
         DIR *d = fdopendir(*dfd);
-        if (!d)
-                return NULL;
+        എങ്കിൽ (!d)
+                തിരികെ ശൂന്യ;
 
         *dfd = -EBADF;
 
-        return d;
+        തിരികെ d;
 }
 
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc) {
+FILE* open_memstream_unlocked(അക്ഷരം **ptr, size_t *sizeloc) {
         FILE *f = open_memstream(ptr, sizeloc);
-        if (!f)
-                return NULL;
+        എങ്കിൽ (!f)
+                തിരികെ ശൂന്യ;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (ശൂന്യം) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        തിരികെ f;
 }
 
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
+FILE* fmemopen_unlocked(ശൂന്യം *buf, size_t size, സ്ഥിരം അക്ഷരം *mode) {
         FILE *f = fmemopen(buf, size, mode);
-        if (!f)
-                return NULL;
+        എങ്കിൽ (!f)
+                തിരികെ ശൂന്യ;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (ശൂന്യം) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        തിരികെ f;
 }
 
-int write_string_stream_full(
+പൂർണ്ണസംഖ്യ write_string_stream_full(
                 FILE *f,
-                const char *line,
+                സ്ഥിരം അക്ഷരം *വരി,
                 WriteStringFileFlags flags,
-                const struct timespec *ts) {
+                സ്ഥിരം ഘടന timespec *ts) {
 
         bool needs_nl;
-        int r, fd = -EBADF;
+        പൂർണ്ണസംഖ്യ r, fd = -EBADF;
 
-        assert(f);
-        assert(line);
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(വരി);
 
-        if (ferror(f))
-                return -EIO;
+        എങ്കിൽ (ferror(f))
+                തിരികെ -EIO;
 
-        if (ts) {
+        എങ്കിൽ (ts) {
                 /* If we shall set the timestamp we need the fd. But fmemopen() streams generally don't have
                  * an fd. Let's fail early in that case. */
                 fd = fileno(f);
-                if (fd < 0)
-                        return -EBADF;
+                എങ്കിൽ (fd < 0)
+                        തിരികെ -EBADF;
         }
 
-        if (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
-                _cleanup_free_ char *t = NULL;
+        എങ്കിൽ (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
+                _cleanup_free_ അക്ഷരം *t = ശൂന്യ;
 
                 /* If value to be written is same as that of the existing value, then suppress the write. */
 
-                if (fd < 0) {
+                എങ്കിൽ (fd < 0) {
                         fd = fileno(f);
-                        if (fd < 0)
-                                return -EBADF;
+                        എങ്കിൽ (fd < 0)
+                                തിരികെ -EBADF;
                 }
 
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
-                    streq_skip_trailing_chars(line, t, NEWLINE)) {
-                        log_debug("No change in value '%s', suppressing write", line);
-                        return 0;
+                എങ്കിൽ (read_virtual_file_fd(fd, strlen(വരി)+1, &t, ശൂന്യ) > 0 &&
+                    streq_skip_trailing_chars(വരി, t, NEWLINE)) {
+                        log_debug("No change in value '%s', suppressing write", വരി);
+                        തിരികെ 0;
                 }
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                എങ്കിൽ (lseek(fd, 0, SEEK_SET) < 0)
+                        തിരികെ -errno;
         }
 
-        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
+        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(വരി, "\n");
 
-        if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
+        എങ്കിൽ (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
-                line = strjoina(line, "\n");
+                വരി = strjoina(വരി, "\n");
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
-                return -errno;
+        എങ്കിൽ (fputs(വരി, f) == EOF)
+                തിരികെ -errno;
 
-        if (needs_nl)
-                if (fputc('\n', f) == EOF)
-                        return -errno;
+        എങ്കിൽ (needs_nl)
+                എങ്കിൽ (fputc('\n', f) == EOF)
+                        തിരികെ -errno;
 
-        if (flags & WRITE_STRING_FILE_SYNC)
+        എങ്കിൽ (flags & WRITE_STRING_FILE_SYNC)
                 r = fflush_sync_and_check(f);
-        else
+        അല്ലെങ്കിൽ
                 r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (ts) {
-                const struct timespec twice[2] = {*ts, *ts};
+        എങ്കിൽ (ts) {
+                സ്ഥിരം ഘടന timespec twice[2] = {*ts, *ts};
 
-                assert(fd >= 0);
-                if (futimens(fd, twice) < 0)
-                        return -errno;
+                പ്രതിജ്ഞാ(fd >= 0);
+                എങ്കിൽ (futimens(fd, twice) < 0)
+                        തിരികെ -errno;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
+സ്ഥിതം mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
 
         /* We support three different modes, that are the ones that really make sense for text files like this:
          *
@@ -210,24 +210,24 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
          *     → 0644 (i.e. writable for root, readable for everyone else)
          */
 
-        return FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
+        തിരികെ FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
                 FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0444) ? 0444 : 0644;
 }
 
-static int write_string_file_atomic_at(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+സ്ഥിതം പൂർണ്ണസംഖ്യ write_string_file_atomic_at(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *fn,
+                സ്ഥിരം അക്ഷരം *വരി,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
+                സ്ഥിരം ഘടന timespec *ts,
                 LabelContext *label_context) {
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fn);
-        assert(line);
+        പ്രതിജ്ഞാ(fn);
+        പ്രതിജ്ഞാ(വരി);
 
         /* Note that we'd really like to use O_TMPFILE here, but can't really, since we want replacement
          * semantics here, and O_TMPFILE can't offer that. i.e. rename() replaces but linkat() doesn't. */
@@ -235,102 +235,102 @@ static int write_string_file_atomic_at(
         mode_t mode = write_string_file_flags_to_mode(flags);
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
+        എങ്കിൽ (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fn, mode, label_context);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 call_label_ops_post = true;
         }
 
         r = fopen_temporary_at(dir_fd, fn, &f, &p);
-        int k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
+        പൂർണ്ണസംഖ്യ k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? ശൂന്യ : fn, /* created= */ !!f, label_context) : 0;
         /* If fopen_temporary_at() failed in the above, propagate the error code, and ignore failures in
          * label_ops_post(). */
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
         CLEANUP_TMPFILE_AT(dir_fd, p);
-        if (k < 0)
-                return k;
+        എങ്കിൽ (k < 0)
+                തിരികെ k;
 
-        r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                return r;
+        r = write_string_stream_full(f, വരി, flags, ts);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         r = fchmod_umask(fileno(f), mode);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         r = RET_NERRNO(renameat(dir_fd, p, dir_fd, fn));
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
+        എങ്കിൽ (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
                 /* Sync the rename, too */
                 r = fsync_directory_of_file(fileno(f));
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-int write_string_file_full_label(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+പൂർണ്ണസംഖ്യ write_string_file_full_label(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *fn,
+                സ്ഥിരം അക്ഷരം *വരി,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
-                const char *label_fn,
+                സ്ഥിരം ഘടന timespec *ts,
+                സ്ഥിരം അക്ഷരം *label_fn,
                 LabelContext *label_context) {
 
         bool made_file = false;
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(dir_fd == AT_FDCWD || dir_fd >= 0);
-        assert(line);
+        പ്രതിജ്ഞാ(dir_fd == AT_FDCWD || dir_fd >= 0);
+        പ്രതിജ്ഞാ(വരി);
 
         /* We don't know how to verify whether the file contents was already on-disk. */
-        assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
+        പ്രതിജ്ഞാ(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
 
-        if (flags & WRITE_STRING_FILE_MKDIR_0755) {
-                assert(fn);
+        എങ്കിൽ (flags & WRITE_STRING_FILE_MKDIR_0755) {
+                പ്രതിജ്ഞാ(fn);
 
                 r = mkdirat_parents(dir_fd, fn, 0755);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (flags & WRITE_STRING_FILE_ATOMIC) {
-                assert(fn);
-                assert(flags & WRITE_STRING_FILE_CREATE);
+        എങ്കിൽ (flags & WRITE_STRING_FILE_ATOMIC) {
+                പ്രതിജ്ഞാ(fn);
+                പ്രതിജ്ഞാ(flags & WRITE_STRING_FILE_CREATE);
 
-                r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
-                if (r < 0)
-                        goto fail;
+                r = write_string_file_atomic_at(dir_fd, fn, വരി, flags, ts, label_context);
+                എങ്കിൽ (r < 0)
+                        പോകുക fail;
 
-                return r;
+                തിരികെ r;
         }
 
         /* We manually build our own version of fopen(..., "we") that works without O_CREAT and with O_NOFOLLOW if needed. */
-        if (isempty(fn))
+        എങ്കിൽ (isempty(fn))
                 r = fd = fd_reopen(
                                 ASSERT_FD(dir_fd), O_CLOEXEC | O_NOCTTY |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
-        else {
+        അല്ലെങ്കിൽ {
                 mode_t mode = write_string_file_flags_to_mode(flags);
                 bool call_label_ops_post = false;
 
-                if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
+                എങ്കിൽ (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
                         r = label_ops_pre(dir_fd, label_fn ?: fn, mode, label_context);
-                        if (r < 0)
-                                goto fail;
+                        എങ്കിൽ (r < 0)
+                                പോകുക fail;
 
                         call_label_ops_post = true;
                 }
@@ -344,176 +344,176 @@ int write_string_file_full_label(
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
                                 mode,
                                 &made_file);
-                if (call_label_ops_post)
+                എങ്കിൽ (call_label_ops_post)
                         /* If openat_report_new() failed in the above, propagate the error code, and ignore
                          * failures in label_ops_post(). */
-                        RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : fn, made_file, label_context));
+                        RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? ശൂന്യ : fn, made_file, label_context));
         }
-        if (r < 0)
-                goto fail;
+        എങ്കിൽ (r < 0)
+                പോകുക fail;
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0)
-                goto fail;
+        എങ്കിൽ (r < 0)
+                പോകുക fail;
 
-        if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
-                setvbuf(f, NULL, _IONBF, 0);
+        എങ്കിൽ (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
+                setvbuf(f, ശൂന്യ, _IONBF, 0);
 
-        r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                goto fail;
+        r = write_string_stream_full(f, വരി, flags, ts);
+        എങ്കിൽ (r < 0)
+                പോകുക fail;
 
-        return 0;
+        തിരികെ 0;
 
 fail:
-        if (made_file)
-                (void) unlinkat(dir_fd, fn, 0);
+        എങ്കിൽ (made_file)
+                (ശൂന്യം) unlinkat(dir_fd, fn, 0);
 
-        if (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
-                return r;
+        എങ്കിൽ (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
+                തിരികെ r;
 
         f = safe_fclose(f);
         fd = safe_close(fd);
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
-                return 0;
+        എങ്കിൽ (verify_file_at(dir_fd, fn, വരി, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+                തിരികെ 0;
 
-        return r;
+        തിരികെ r;
 }
 
-int write_string_filef(
-                const char *fn,
+പൂർണ്ണസംഖ്യ write_string_filef(
+                സ്ഥിരം അക്ഷരം *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                സ്ഥിരം അക്ഷരം *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        എങ്കിൽ (r < 0)
+                തിരികെ -ENOMEM;
 
-        return write_string_file(fn, p, flags);
+        തിരികെ write_string_file(fn, p, flags);
 }
 
-int write_string_filef_at(
-                int dir_fd,
-                const char *fn,
+പൂർണ്ണസംഖ്യ write_string_filef_at(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                സ്ഥിരം അക്ഷരം *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        എങ്കിൽ (r < 0)
+                തിരികെ -ENOMEM;
 
-        return write_string_file_at(dir_fd, fn, p, flags);
+        തിരികെ write_string_file_at(dir_fd, fn, p, flags);
 }
 
-int write_base64_file_at(
-                int dir_fd,
-                const char *fn,
-                const struct iovec *data,
+പൂർണ്ണസംഖ്യ write_base64_file_at(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *fn,
+                സ്ഥിരം ഘടന iovec *data,
                 WriteStringFileFlags flags) {
 
-        _cleanup_free_ char *encoded = NULL;
+        _cleanup_free_ അക്ഷരം *encoded = ശൂന്യ;
         ssize_t n;
 
-        n = base64mem_full(data ? data->iov_base : NULL, data ? data->iov_len : 0, 79, &encoded);
-        if (n < 0)
-                return n;
+        n = base64mem_full(data ? data->iov_base : ശൂന്യ, data ? data->iov_len : 0, 79, &encoded);
+        എങ്കിൽ (n < 0)
+                തിരികെ n;
 
-        return write_string_file_at(dir_fd, fn, encoded, flags);
+        തിരികെ write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ read_one_വരി_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *filename, അക്ഷരം **ret) {
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(filename);
-        assert(ret);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(dir_fd));
+        പ്രതിജ്ഞാ(filename);
+        പ്രതിജ്ഞാ(ret);
 
         r = fopen_unlocked_at(dir_fd, filename, "re", /* open_flags= */ 0, &f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        തിരികെ read_വരി(f, LONG_വരി_MAX, ret);
 }
 
-int read_boolean_file_at(int dir_fd, const char *filename) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ read_boolean_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *filename) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(filename);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(dir_fd));
+        പ്രതിജ്ഞാ(filename);
 
-        r = read_one_line_file_at(dir_fd, filename, &s);
-        if (r < 0)
-                return r;
+        r = read_one_വരി_file_at(dir_fd, filename, &s);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return parse_boolean(s);
+        തിരികെ parse_boolean(s);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *buf = NULL;
+പൂർണ്ണസംഖ്യ verify_file_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fn, സ്ഥിരം അക്ഷരം *blob, bool accept_extra_nl) {
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *buf = ശൂന്യ;
         size_t l, k;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(blob);
+        പ്രതിജ്ഞാ(blob);
 
         l = strlen(blob);
 
-        if (accept_extra_nl && endswith(blob, "\n"))
+        എങ്കിൽ (accept_extra_nl && endswith(blob, "\n"))
                 accept_extra_nl = false;
 
         buf = malloc(l + accept_extra_nl + 1);
-        if (!buf)
-                return -ENOMEM;
+        എങ്കിൽ (!buf)
+                തിരികെ -ENOMEM;
 
         r = fopen_unlocked_at(dir_fd, strempty(fn), "re", 0, &f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         /* We try to read one byte more than we need, so that we know whether we hit eof */
         errno = 0;
         k = fread(buf, 1, l + accept_extra_nl + 1, f);
-        if (ferror(f))
-                return errno_or_else(EIO);
+        എങ്കിൽ (ferror(f))
+                തിരികെ errno_or_else(EIO);
 
-        if (k != l && k != l + accept_extra_nl)
-                return 0;
-        if (memcmp(buf, blob, l) != 0)
-                return 0;
-        if (k > l && buf[l] != '\n')
-                return 0;
+        എങ്കിൽ (k != l && k != l + accept_extra_nl)
+                തിരികെ 0;
+        എങ്കിൽ (memcmp(buf, blob, l) != 0)
+                തിരികെ 0;
+        എങ്കിൽ (k > l && buf[l] != '\n')
+                തിരികെ 0;
 
-        return 1;
+        തിരികെ 1;
 }
 
-int read_virtual_file_at(
-                int dir_fd,
-                const char *filename,
+പൂർണ്ണസംഖ്യ read_virtual_file_at(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *filename,
                 size_t max_size,
-                char **ret_contents,
+                അക്ഷരം **ret_contents,
                 size_t *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ അക്ഷരം *buf = ശൂന്യ;
         size_t n, size;
-        int n_retries;
+        പൂർണ്ണസംഖ്യ n_retries;
         bool truncated = false;
 
         /* Virtual filesystems such as sysfs or procfs use kernfs, and kernfs can work with two sorts of
@@ -533,127 +533,127 @@ int read_virtual_file_at(
          *       for kernfs files using "raw" → use read_virtual_file_at()
          */
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
+        പ്രതിജ്ഞാ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        പ്രതിജ്ഞാ(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
 
-        _cleanup_close_ int fd = -EBADF;
-        if (isempty(filename))
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        എങ്കിൽ (isempty(filename))
                 fd = fd_reopen(ASSERT_FD(dir_fd), O_RDONLY | O_NOCTTY | O_CLOEXEC);
-        else
+        അല്ലെങ്കിൽ
                 fd = RET_NERRNO(openat(dir_fd, filename, O_RDONLY | O_NOCTTY | O_CLOEXEC));
-        if (fd < 0)
-                return fd;
+        എങ്കിൽ (fd < 0)
+                തിരികെ fd;
 
         /* Limit the number of attempts to read the number of bytes returned by fstat(). */
         n_retries = 3;
 
-        for (;;) {
-                struct stat st;
+        വേണ്ടി (;;) {
+                ഘടന stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                എങ്കിൽ (fstat(fd, &st) < 0)
+                        തിരികെ -errno;
 
-                if (!S_ISREG(st.st_mode))
-                        return -EBADF;
+                എങ്കിൽ (!S_ISREG(st.st_mode))
+                        തിരികെ -EBADF;
 
                 /* Be prepared for files from /proc which generally report a file size of 0. */
                 assert_cc(READ_VIRTUAL_BYTES_MAX < SSIZE_MAX);
-                if (st.st_size > 0 && n_retries > 1) {
+                എങ്കിൽ (st.st_size > 0 && n_retries > 1) {
                         /* Let's use the file size if we have more than 1 attempt left. On the last attempt
                          * we'll ignore the file size */
 
-                        if (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
+                        എങ്കിൽ (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
 
-                                if (max_size == SIZE_MAX)
-                                        return -EFBIG;
+                                എങ്കിൽ (max_size == SIZE_MAX)
+                                        തിരികെ -EFBIG;
 
                                 size = max_size;
-                        } else {
+                        } അല്ലെങ്കിൽ {
                                 size = MIN((size_t) st.st_size, max_size);
 
-                                if (size > READ_VIRTUAL_BYTES_MAX)
-                                        return -EFBIG;
+                                എങ്കിൽ (size > READ_VIRTUAL_BYTES_MAX)
+                                        തിരികെ -EFBIG;
                         }
 
                         n_retries--;
-                } else if (n_retries > 1) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (n_retries > 1) {
                         /* Files in /proc are generally smaller than the page size so let's start with
                          * a page size buffer from malloc and only use the max buffer on the final try. */
                         size = MIN3(page_size() - 1, READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 1;
-                } else {
+                } അല്ലെങ്കിൽ {
                         size = MIN(READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 0;
                 }
 
                 buf = malloc(size + 1);
-                if (!buf)
-                        return -ENOMEM;
+                എങ്കിൽ (!buf)
+                        തിരികെ -ENOMEM;
 
                 /* Use a bigger allocation if we got it anyway, but not more than the limit. */
                 size = MIN3(MALLOC_SIZEOF_SAFE(buf) - 1, max_size, READ_VIRTUAL_BYTES_MAX);
 
-                for (;;) {
+                വേണ്ടി (;;) {
                         ssize_t k;
 
                         /* Read one more byte so we can detect whether the content of the
                          * file has already changed or the guessed size for files from /proc
                          * wasn't large enough . */
-                        k = read(fd, buf, size + 1);
-                        if (k >= 0) {
+                        k = പഠ(fd, buf, size + 1);
+                        എങ്കിൽ (k >= 0) {
                                 n = k;
-                                break;
+                                നിർത്തുക;
                         }
 
-                        if (errno != EINTR)
-                                return -errno;
+                        എങ്കിൽ (errno != EINTR)
+                                തിരികെ -errno;
                 }
 
                 /* Consider a short read as EOF */
-                if (n <= size)
-                        break;
+                എങ്കിൽ (n <= size)
+                        നിർത്തുക;
 
                 /* If a maximum size is specified and we already read more we know the file is larger, and
                  * can handle this as truncation case. Note that if the size of what we read equals the
                  * maximum size then this doesn't mean truncation, the file might or might not end on that
                  * byte. We need to rerun the loop in that case, with a larger buffer size, so that we read
                  * at least one more byte to be able to distinguish EOF from truncation. */
-                if (max_size != SIZE_MAX && n > max_size) {
+                എങ്കിൽ (max_size != SIZE_MAX && n > max_size) {
                         n = size; /* Make sure we never use more than what we sized the buffer for (so that
                                    * we have one free byte in it for the trailing NUL we add below). */
                         truncated = true;
-                        break;
+                        നിർത്തുക;
                 }
 
                 /* We have no further attempts left? Then the file is apparently larger than our limits. Give up. */
-                if (n_retries <= 0)
-                        return -EFBIG;
+                എങ്കിൽ (n_retries <= 0)
+                        തിരികെ -EFBIG;
 
                 /* Hmm... either we read too few bytes from /proc or less likely the content of the file
                  * might have been changed (and is now bigger) while we were processing, let's try again
                  * either with the new file size. */
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                എങ്കിൽ (lseek(fd, 0, SEEK_SET) < 0)
+                        തിരികെ -errno;
 
                 buf = mfree(buf);
         }
 
-        if (ret_contents) {
+        എങ്കിൽ (ret_contents) {
 
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
-                if (!ret_size && memchr(buf, 0, n))
-                        return -EBADMSG;
+                എങ്കിൽ (!ret_size && memchr(buf, 0, n))
+                        തിരികെ -EBADMSG;
 
-                if (n < size) {
-                        char *p;
+                എങ്കിൽ (n < size) {
+                        അക്ഷരം *p;
 
                         /* Return rest of the buffer to libc */
                         p = realloc(buf, n + 1);
-                        if (!p)
-                                return -ENOMEM;
+                        എങ്കിൽ (!p)
+                                തിരികെ -ENOMEM;
                         buf = p;
                 }
 
@@ -661,55 +661,55 @@ int read_virtual_file_at(
                 *ret_contents = TAKE_PTR(buf);
         }
 
-        if (ret_size)
+        എങ്കിൽ (ret_size)
                 *ret_size = n;
 
-        return !truncated;
+        തിരികെ !truncated;
 }
 
-int read_full_stream_full(
+പൂർണ്ണസംഖ്യ read_full_stream_full(
                 FILE *f,
-                const char *filename,
+                സ്ഥിരം അക്ഷരം *filename,
                 uint64_t offset,
                 size_t size,
                 ReadFullFileFlags flags,
-                char **ret_contents,
+                അക്ഷരം **ret_contents,
                 size_t *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ അക്ഷരം *buf = ശൂന്യ;
         size_t n, n_next = 0, l, expected_decoded_size = size;
-        int fd, r;
+        പൂർണ്ണസംഖ്യ fd, r;
 
-        assert(f);
-        assert(ret_contents);
-        assert(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
-        assert(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(ret_contents);
+        പ്രതിജ്ഞാ(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
+        പ്രതിജ്ഞാ(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
 
-        if (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
-                return -ERANGE;
+        എങ്കിൽ (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
+                തിരികെ -ERANGE;
 
-        if ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
-                if (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
+        എങ്കിൽ ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
+                എങ്കിൽ (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
                         size *= READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
-                else
+                അല്ലെങ്കിൽ
                         size = SIZE_MAX;
         }
 
         fd = fileno(f);
-        if (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
+        എങ്കിൽ (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
                         * fmemopen()), let's optimize our buffering */
-                struct stat st;
+                ഘടന stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                എങ്കിൽ (fstat(fd, &st) < 0)
+                        തിരികെ -errno;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
+                എങ്കിൽ (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
 
-                if (S_ISREG(st.st_mode)) {
+                എങ്കിൽ (S_ISREG(st.st_mode)) {
 
                         /* Try to start with the right file size if we shall read the file in full. Note
                          * that we increase the size to read here by one, so that the first read attempt
@@ -717,59 +717,59 @@ int read_full_stream_full(
                          * avoid this logic however, since quite likely it might be a virtual file in procfs
                          * that all report a zero file size. */
 
-                        if (st.st_size > 0 &&
+                        എങ്കിൽ (st.st_size > 0 &&
                             (size == SIZE_MAX || FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER))) {
 
                                 uint64_t rsize =
                                         LESS_BY((uint64_t) st.st_size, offset == UINT64_MAX ? 0 : offset);
 
-                                if (rsize < SIZE_MAX) /* overflow check */
+                                എങ്കിൽ (rsize < SIZE_MAX) /* overflow check */
                                         n_next = rsize + 1;
                         }
 
-                        if (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
-                                (void) warn_file_is_world_accessible(filename, &st, NULL, 0);
+                        എങ്കിൽ (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
+                                (ശൂന്യം) warn_file_is_world_accessible(filename, &st, ശൂന്യ, 0);
                 }
-        } else if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
-                return -EBADFD;
+        } അല്ലെങ്കിൽ എങ്കിൽ (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
+                തിരികെ -EBADFD;
 
         /* If we don't know how much to read, figure it out now. If we shall read a part of the file, then
          * allocate the requested size. If we shall load the full file start with LINE_MAX. Note that if
          * READ_FULL_FILE_FAIL_WHEN_LARGER we consider the specified size a safety limit, and thus also start
          * with LINE_MAX, under assumption the file is most likely much shorter. */
-        if (n_next == 0)
+        എങ്കിൽ (n_next == 0)
                 n_next = size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) ? size : LINE_MAX;
 
         /* Never read more than we need to determine that our own limit is hit */
-        if (n_next > READ_FULL_BYTES_MAX)
+        എങ്കിൽ (n_next > READ_FULL_BYTES_MAX)
                 n_next = READ_FULL_BYTES_MAX + 1;
 
-        if (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
-                return -errno;
+        എങ്കിൽ (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
+                തിരികെ -errno;
 
         n = l = 0;
-        for (;;) {
-                char *t;
+        വേണ്ടി (;;) {
+                അക്ഷരം *t;
                 size_t k;
 
                 /* If we shall fail when reading overly large data, then read exactly one byte more than the
                  * specified size at max, since that'll tell us if there's anymore data beyond the limit. */
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
+                എങ്കിൽ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
                         n_next = size + 1;
 
-                if (flags & READ_FULL_FILE_SECURE) {
+                എങ്കിൽ (flags & READ_FULL_FILE_SECURE) {
                         t = malloc(n_next + 1);
-                        if (!t) {
+                        എങ്കിൽ (!t) {
                                 r = -ENOMEM;
-                                goto finalize;
+                                പോകുക finalize;
                         }
                         memcpy_safe(t, buf, n);
                         explicit_bzero_safe(buf, n);
-                        free(buf);
-                } else {
+                        സ്വതന്ത്രം(buf);
+                } അല്ലെങ്കിൽ {
                         t = realloc(buf, n_next + 1);
-                        if (!t)
-                                return -ENOMEM;
+                        എങ്കിൽ (!t)
+                                തിരികെ -ENOMEM;
                 }
 
                 buf = t;
@@ -780,738 +780,738 @@ int read_full_stream_full(
                 errno = 0;
                 k = fread(buf + l, 1, n - l, f);
 
-                assert(k <= n - l);
+                പ്രതിജ്ഞാ(k <= n - l);
                 l += k;
 
-                if (ferror(f)) {
+                എങ്കിൽ (ferror(f)) {
                         r = errno_or_else(EIO);
-                        goto finalize;
+                        പോകുക finalize;
                 }
-                if (feof(f))
-                        break;
+                എങ്കിൽ (feof(f))
+                        നിർത്തുക;
 
-                if (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
+                എങ്കിൽ (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
                         /* If we got asked to read some specific size, we already sized the buffer right,
                          * hence leave. */
-                        assert(l == size);
-                        break;
+                        പ്രതിജ്ഞാ(l == size);
+                        നിർത്തുക;
                 }
 
-                assert(k > 0); /* we can't have read zero bytes because that would have been EOF */
+                പ്രതിജ്ഞാ(k > 0); /* we can't have read zero bytes because that would have been EOF */
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
+                എങ്കിൽ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
                         r = -E2BIG;
-                        goto finalize;
+                        പോകുക finalize;
                 }
 
-                if (n >= READ_FULL_BYTES_MAX) {
+                എങ്കിൽ (n >= READ_FULL_BYTES_MAX) {
                         r = -E2BIG;
-                        goto finalize;
+                        പോകുക finalize;
                 }
 
                 n_next = MIN(n * 2, READ_FULL_BYTES_MAX);
         }
 
-        if (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
-                _cleanup_free_ void *decoded = NULL;
+        എങ്കിൽ (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
+                _cleanup_free_ ശൂന്യം *decoded = ശൂന്യ;
                 size_t decoded_size;
 
                 buf[l++] = 0;
-                if (flags & READ_FULL_FILE_UNBASE64)
+                എങ്കിൽ (flags & READ_FULL_FILE_UNBASE64)
                         r = unbase64mem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                else
+                അല്ലെങ്കിൽ
                         r = unhexmem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                if (r < 0)
-                        goto finalize;
+                എങ്കിൽ (r < 0)
+                        പോകുക finalize;
 
-                if (flags & READ_FULL_FILE_SECURE)
+                എങ്കിൽ (flags & READ_FULL_FILE_SECURE)
                         explicit_bzero_safe(buf, n);
                 free_and_replace(buf, decoded);
                 n = l = decoded_size;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
+                എങ്കിൽ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
                         r = -E2BIG;
-                        goto finalize;
+                        പോകുക finalize;
                 }
         }
 
-        if (!ret_size) {
+        എങ്കിൽ (!ret_size) {
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
 
-                if (memchr(buf, 0, l)) {
+                എങ്കിൽ (memchr(buf, 0, l)) {
                         r = -EBADMSG;
-                        goto finalize;
+                        പോകുക finalize;
                 }
         }
 
         buf[l] = 0;
         *ret_contents = TAKE_PTR(buf);
 
-        if (ret_size)
+        എങ്കിൽ (ret_size)
                 *ret_size = l;
 
-        return 0;
+        തിരികെ 0;
 
 finalize:
-        if (flags & READ_FULL_FILE_SECURE)
+        എങ്കിൽ (flags & READ_FULL_FILE_SECURE)
                 explicit_bzero_safe(buf, n);
 
-        return r;
+        തിരികെ r;
 }
 
-int read_full_file_full(
-                int dir_fd,
-                const char *filename,
+പൂർണ്ണസംഖ്യ read_full_file_full(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *filename,
                 uint64_t offset,
                 size_t size,
                 ReadFullFileFlags flags,
-                const char *bind_name,
-                char **ret_contents,
+                സ്ഥിരം അക്ഷരം *bind_name,
+                അക്ഷരം **ret_contents,
                 size_t *ret_size) {
 
-        _cleanup_fclose_ FILE *f = NULL;
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
         XfopenFlags xflags = XFOPEN_UNLOCKED;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret_contents);
+        പ്രതിജ്ഞാ(ret_contents);
 
-        if (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
+        എങ്കിൽ (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
             offset == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
                 xflags |= XFOPEN_SOCKET;
 
         r = xfopenat_full(dir_fd, filename, "re", 0, xflags, bind_name, &f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
+        തിരികെ read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
 }
 
-int script_get_shebang_interpreter(const char *path, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ script_get_shebang_interpreter(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret) {
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
+        പ്രതിജ്ഞാ(path);
 
         f = fopen(path, "re");
-        if (!f)
-                return -errno;
+        എങ്കിൽ (!f)
+                തിരികെ -errno;
 
-        char c;
+        അക്ഷരം c;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '#')
-                return -EMEDIUMTYPE;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0)
+                തിരികെ -EBADMSG;
+        എങ്കിൽ (c != '#')
+                തിരികെ -EMEDIUMTYPE;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '!')
-                return -EMEDIUMTYPE;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0)
+                തിരികെ -EBADMSG;
+        എങ്കിൽ (c != '!')
+                തിരികെ -EMEDIUMTYPE;
 
-        _cleanup_free_ char *line = NULL;
-        r = read_line(f, LONG_LINE_MAX, &line);
-        if (r < 0)
-                return r;
+        _cleanup_free_ അക്ഷരം *വരി = ശൂന്യ;
+        r = read_വരി(f, LONG_വരി_MAX, &വരി);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        _cleanup_free_ char *p = NULL;
-        const char *s = line;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *s = വരി;
 
-        r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENOEXEC;
+        r = extract_first_word(&s, &p, /* separators= */ ശൂന്യ, /* flags= */ 0);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0)
+                തിരികെ -ENOEXEC;
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = TAKE_PTR(p);
-        return 0;
+        തിരികെ 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ get_proc_field(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *താക്കോൽ, അക്ഷരം **ret) {
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
         /* Retrieve one field from a file like /proc/self/status. "key" matches the beginning of the line
          * and should not include whitespace or the delimiter (':').
          * Whitespaces after the ':' will be skipped. Only the first element is returned
          * (i.e. for /proc/meminfo line "MemTotal: 1024 kB" -> return "1024"). */
 
-        assert(path);
-        assert(key);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
         r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT && proc_mounted() == 0)
-                return -ENOSYS;
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r == -ENOENT && proc_mounted() == 0)
+                തിരികെ -ENOSYS;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        for (;;) {
-                 _cleanup_free_ char *line = NULL;
+        വേണ്ടി (;;) {
+                 _cleanup_free_ അക്ഷരം *വരി = ശൂന്യ;
 
-                 r = read_line(f, LONG_LINE_MAX, &line);
-                 if (r < 0)
-                         return r;
-                 if (r == 0)
-                         return -ENODATA;
+                 r = read_വരി(f, LONG_വരി_MAX, &വരി);
+                 എങ്കിൽ (r < 0)
+                         തിരികെ r;
+                 എങ്കിൽ (r == 0)
+                         തിരികെ -ENODATA;
 
-                 char *l = startswith(line, key);
-                 if (l && *l == ':') {
-                         if (ret) {
-                                 char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
-                                 if (!s)
-                                         return -ENOMEM;
+                 അക്ഷരം *l = startswith(വരി, താക്കോൽ);
+                 എങ്കിൽ (l && *l == ':') {
+                         എങ്കിൽ (ret) {
+                                 അക്ഷരം *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
+                                 എങ്കിൽ (!s)
+                                         തിരികെ -ENOMEM;
 
                                  *ret = s;
                          }
 
-                         return 0;
+                         തിരികെ 0;
                  }
         }
 }
 
-DIR* xopendirat(int dir_fd, const char *path, int flags) {
-        _cleanup_close_ int fd = -EBADF;
+DIR* xopendirat(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(!(flags & (O_CREAT|O_TMPFILE)));
+        പ്രതിജ്ഞാ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        പ്രതിജ്ഞാ(!(flags & (O_CREAT|O_TMPFILE)));
 
-        if ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
+        എങ്കിൽ ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
             (flags &~ O_DIRECTORY) == 0)
-                return opendir(path);
+                തിരികെ opendir(path);
 
-        if (isempty(path)) {
+        എങ്കിൽ (isempty(path)) {
                 path = ".";
                 flags |= O_NOFOLLOW;
         }
 
         fd = openat(dir_fd, path, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
-        if (fd < 0)
-                return NULL;
+        എങ്കിൽ (fd < 0)
+                തിരികെ ശൂന്യ;
 
-        return take_fdopendir(&fd);
+        തിരികെ take_fdopendir(&fd);
 }
 
-int fopen_mode_to_flags(const char *mode) {
-        const char *p;
-        int flags;
+പൂർണ്ണസംഖ്യ fopen_mode_to_flags(സ്ഥിരം അക്ഷരം *mode) {
+        സ്ഥിരം അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ flags;
 
-        assert(mode);
+        പ്രതിജ്ഞാ(mode);
 
-        if ((p = startswith(mode, "r+")))
+        എങ്കിൽ ((p = startswith(mode, "r+")))
                 flags = O_RDWR;
-        else if ((p = startswith(mode, "r")))
+        അല്ലെങ്കിൽ എങ്കിൽ ((p = startswith(mode, "r")))
                 flags = O_RDONLY;
-        else if ((p = startswith(mode, "w+")))
+        അല്ലെങ്കിൽ എങ്കിൽ ((p = startswith(mode, "w+")))
                 flags = O_RDWR|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "w")))
+        അല്ലെങ്കിൽ എങ്കിൽ ((p = startswith(mode, "w")))
                 flags = O_WRONLY|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "a+")))
+        അല്ലെങ്കിൽ എങ്കിൽ ((p = startswith(mode, "a+")))
                 flags = O_RDWR|O_CREAT|O_APPEND;
-        else if ((p = startswith(mode, "a")))
+        അല്ലെങ്കിൽ എങ്കിൽ ((p = startswith(mode, "a")))
                 flags = O_WRONLY|O_CREAT|O_APPEND;
-        else
-                return -EINVAL;
+        അല്ലെങ്കിൽ
+                തിരികെ -EINVAL;
 
-        for (; *p != 0; p++) {
+        വേണ്ടി (; *p != 0; p++) {
 
-                switch (*p) {
+                തിരഞ്ഞെടുപ്പ് (*p) {
 
-                case 'e':
+                അവസ്ഥ 'e':
                         flags |= O_CLOEXEC;
-                        break;
+                        നിർത്തുക;
 
-                case 'x':
+                അവസ്ഥ 'x':
                         flags |= O_EXCL;
-                        break;
+                        നിർത്തുക;
 
-                case 'm':
+                അവസ്ഥ 'm':
                         /* ignore this here, fdopen() might care later though */
-                        break;
+                        നിർത്തുക;
 
-                case 'c': /* not sure what to do about this one */
-                default:
-                        return -EINVAL;
+                അവസ്ഥ 'c': /* not sure what to do about this one */
+                സ്ഥിരസ്ഥിതി:
+                        തിരികെ -EINVAL;
                 }
         }
 
-        return flags;
+        തിരികെ flags;
 }
 
-static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ xfopenat_regular(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *mode, പൂർണ്ണസംഖ്യ open_flags, FILE **ret) {
         FILE *f;
 
         /* A combination of fopen() with openat() */
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(mode);
-        assert(ret);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(dir_fd));
+        പ്രതിജ്ഞാ(mode);
+        പ്രതിജ്ഞാ(ret);
 
-        if (dir_fd == AT_FDCWD && path && open_flags == 0)
+        എങ്കിൽ (dir_fd == AT_FDCWD && path && open_flags == 0)
                 f = fopen(path, mode);
-        else if (dir_fd == XAT_FDROOT && path && open_flags == 0) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        അല്ലെങ്കിൽ എങ്കിൽ (dir_fd == XAT_FDROOT && path && open_flags == 0) {
+                _cleanup_free_ അക്ഷരം *j = strjoin("/", path);
+                എങ്കിൽ (!j)
+                        തിരികെ -ENOMEM;
 
                 f = fopen(j, mode);
-        } else {
-                _cleanup_close_ int fd = -EBADF;
-                int mode_flags;
+        } അല്ലെങ്കിൽ {
+                _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+                പൂർണ്ണസംഖ്യ mode_flags;
 
                 mode_flags = fopen_mode_to_flags(mode);
-                if (mode_flags < 0)
-                        return mode_flags;
+                എങ്കിൽ (mode_flags < 0)
+                        തിരികെ mode_flags;
 
-                if (path) {
+                എങ്കിൽ (path) {
                         fd = openat(dir_fd, path, mode_flags | open_flags);
-                        if (fd < 0)
-                                return -errno;
-                } else {
-                        if (dir_fd == AT_FDCWD)
-                                return -EBADF;
+                        എങ്കിൽ (fd < 0)
+                                തിരികെ -errno;
+                } അല്ലെങ്കിൽ {
+                        എങ്കിൽ (dir_fd == AT_FDCWD)
+                                തിരികെ -EBADF;
 
                         fd = fd_reopen(dir_fd, (mode_flags | open_flags) & ~O_NOFOLLOW);
-                        if (fd < 0)
-                                return fd;
+                        എങ്കിൽ (fd < 0)
+                                തിരികെ fd;
                 }
 
                 f = take_fdopen(&fd, mode);
         }
-        if (!f)
-                return -errno;
+        എങ്കിൽ (!f)
+                തിരികെ -errno;
 
         *ret = f;
-        return 0;
+        തിരികെ 0;
 }
 
-static int xfopenat_unix_socket(int dir_fd, const char *path, const char *bind_name, FILE **ret) {
-        _cleanup_close_ int sk = -EBADF;
+സ്ഥിതം പൂർണ്ണസംഖ്യ xfopenat_unix_socket(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *bind_name, FILE **ret) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ sk = -EBADF;
         FILE *f;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(dir_fd));
+        പ്രതിജ്ഞാ(ret);
 
         sk = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-        if (sk < 0)
-                return -errno;
+        എങ്കിൽ (sk < 0)
+                തിരികെ -errno;
 
-        if (bind_name) {
+        എങ്കിൽ (bind_name) {
                 /* If the caller specified a socket name to bind to, do so before connecting. This is
                  * useful to communicate some minor, short meta-information token from the client to
                  * the server. */
-                union sockaddr_union bsa;
+                സംഘം sockaddr_union bsa;
 
                 r = sockaddr_un_set_path(&bsa.un, bind_name);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (bind(sk, &bsa.sa, r) < 0)
-                        return -errno;
+                എങ്കിൽ (bind(sk, &bsa.sa, r) < 0)
+                        തിരികെ -errno;
         }
 
         r = connect_unix_path(sk, dir_fd, path);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (shutdown(sk, SHUT_WR) < 0)
-                return -errno;
+        എങ്കിൽ (shutdown(sk, SHUT_WR) < 0)
+                തിരികെ -errno;
 
         f = take_fdopen(&sk, "r");
-        if (!f)
-                return -errno;
+        എങ്കിൽ (!f)
+                തിരികെ -errno;
 
         *ret = f;
-        return 0;
+        തിരികെ 0;
 }
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+പൂർണ്ണസംഖ്യ xfopenat_full(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം അക്ഷരം *mode,
+                പൂർണ്ണസംഖ്യ open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
+                സ്ഥിരം അക്ഷരം *bind_name,
                 FILE **ret) {
 
-        FILE *f = NULL;  /* avoid false maybe-uninitialized warning */
-        int r;
+        FILE *f = ശൂന്യ;  /* avoid false maybe-uninitialized warning */
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(mode);
-        assert(ret);
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(dir_fd));
+        പ്രതിജ്ഞാ(mode);
+        പ്രതിജ്ഞാ(ret);
 
         r = xfopenat_regular(dir_fd, path, mode, open_flags, &f);
-        if (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
+        എങ്കിൽ (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
                 /* ENXIO is what Linux returns if we open a node that is an AF_UNIX socket */
                 r = xfopenat_unix_socket(dir_fd, path, bind_name, &f);
-                if (IN_SET(r, -ENOTSOCK, -EINVAL))
-                        return -ENXIO; /* propagate original error if this is not a socket after all */
+                എങ്കിൽ (IN_SET(r, -ENOTSOCK, -EINVAL))
+                        തിരികെ -ENXIO; /* propagate original error if this is not a socket after all */
         }
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (FLAGS_SET(flags, XFOPEN_UNLOCKED))
-                (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        എങ്കിൽ (FLAGS_SET(flags, XFOPEN_UNLOCKED))
+                (ശൂന്യം) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        തിരികെ 0;
 }
 
-int fdopen_independent(int fd, const char *mode, FILE **ret) {
-        _cleanup_close_ int copy_fd = -EBADF;
-        _cleanup_fclose_ FILE *f = NULL;
-        int mode_flags;
+പൂർണ്ണസംഖ്യ fdopen_independent(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *mode, FILE **ret) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ copy_fd = -EBADF;
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ mode_flags;
 
-        assert(fd >= 0);
-        assert(mode);
-        assert(ret);
+        പ്രതിജ്ഞാ(fd >= 0);
+        പ്രതിജ്ഞാ(mode);
+        പ്രതിജ്ഞാ(ret);
 
         /* A combination of fdopen() + fd_reopen(). i.e. reopens the inode the specified fd points to and
          * returns a FILE* for it */
 
         mode_flags = fopen_mode_to_flags(mode);
-        if (mode_flags < 0)
-                return mode_flags;
+        എങ്കിൽ (mode_flags < 0)
+                തിരികെ mode_flags;
 
         /* Flags returned by fopen_mode_to_flags might contain O_CREAT, but it doesn't make sense for fd_reopen
          * since we're working on an existing fd anyway. Let's drop it here to avoid triggering assertion. */
         copy_fd = fd_reopen(fd, mode_flags & ~O_CREAT);
-        if (copy_fd < 0)
-                return copy_fd;
+        എങ്കിൽ (copy_fd < 0)
+                തിരികെ copy_fd;
 
         f = take_fdopen(&copy_fd, mode);
-        if (!f)
-                return -errno;
+        എങ്കിൽ (!f)
+                തിരികെ -errno;
 
         *ret = TAKE_PTR(f);
-        return 0;
+        തിരികെ 0;
 }
 
-static int search_and_open_internal(
-                const char *path,
-                int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ തിരയൽ_and_open_internal(
+                സ്ഥിരം അക്ഷരം *path,
+                പൂർണ്ണസംഖ്യ mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
+                സ്ഥിരം അക്ഷരം *വേര്,
+                അക്ഷരം **തിരയൽ,
+                പൂർണ്ണസംഖ്യ *ret_fd,
+                അക്ഷരം **ret_path) {
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
-        assert(path);
+        പ്രതിജ്ഞാ(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
+        പ്രതിജ്ഞാ(path);
 
-        if (path_is_absolute(path)) {
-                _cleanup_close_ int fd = -EBADF;
+        എങ്കിൽ (path_is_absolute(path)) {
+                _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
 
-                if (ret_fd)
+                എങ്കിൽ (ret_fd)
                         /* We only specify 0777 here to appease static analyzers, it's never used since we
                          * don't support O_CREAT here */
                         r = fd = RET_NERRNO(open(path, mode, 0777));
-                else
+                അല്ലെങ്കിൽ
                         r = RET_NERRNO(access(path, mode));
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (ret_path) {
+                എങ്കിൽ (ret_path) {
                         r = path_simplify_alloc(path, ret_path);
-                        if (r < 0)
-                                return r;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
                 }
 
-                if (ret_fd)
+                എങ്കിൽ (ret_fd)
                         *ret_fd = TAKE_FD(fd);
 
-                return 0;
+                തിരികെ 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
-                return -ENOMEM;
+        എങ്കിൽ (!path_strv_resolve_uniq(തിരയൽ, വേര്))
+                തിരികെ -ENOMEM;
 
-        STRV_FOREACH(i, search) {
-                _cleanup_close_ int fd = -EBADF;
-                _cleanup_free_ char *p = NULL;
+        STRV_FOREACH(i, തിരയൽ) {
+                _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+                _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
 
-                p = path_join(root, *i, path);
-                if (!p)
-                        return -ENOMEM;
+                p = path_join(വേര്, *i, path);
+                എങ്കിൽ (!p)
+                        തിരികെ -ENOMEM;
 
-                if (ret_fd)
+                എങ്കിൽ (ret_fd)
                         /* as above, 0777 is static analyzer appeasement */
                         r = fd = RET_NERRNO(open(p, mode, 0777));
-                else
+                അല്ലെങ്കിൽ
                         r = RET_NERRNO(access(p, F_OK));
-                if (r >= 0) {
-                        if (ret_path)
+                എങ്കിൽ (r >= 0) {
+                        എങ്കിൽ (ret_path)
                                 *ret_path = path_simplify(TAKE_PTR(p));
 
-                        if (ret_fd)
+                        എങ്കിൽ (ret_fd)
                                 *ret_fd = TAKE_FD(fd);
 
-                        return 0;
+                        തിരികെ 0;
                 }
-                if (r != -ENOENT)
-                        return r;
+                എങ്കിൽ (r != -ENOENT)
+                        തിരികെ r;
         }
 
-        return -ENOENT;
+        തിരികെ -ENOENT;
 }
 
-int search_and_open(
-                const char *path,
-                int mode,
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+പൂർണ്ണസംഖ്യ തിരയൽ_and_open(
+                സ്ഥിരം അക്ഷരം *path,
+                പൂർണ്ണസംഖ്യ mode,
+                സ്ഥിരം അക്ഷരം *വേര്,
+                അക്ഷരം **തിരയൽ,
+                പൂർണ്ണസംഖ്യ *ret_fd,
+                അക്ഷരം **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ അക്ഷരം **copy = ശൂന്യ;
 
-        assert(path);
+        പ്രതിജ്ഞാ(path);
 
-        copy = strv_copy(search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy(തിരയൽ);
+        എങ്കിൽ (!copy)
+                തിരികെ -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        തിരികെ തിരയൽ_and_open_internal(path, mode, വേര്, copy, ret_fd, ret_path);
 }
 
-static int search_and_fopen_internal(
-                const char *path,
-                const char *mode,
-                const char *root,
-                char **search,
+സ്ഥിതം പൂർണ്ണസംഖ്യ തിരയൽ_and_fopen_internal(
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം അക്ഷരം *mode,
+                സ്ഥിരം അക്ഷരം *വേര്,
+                അക്ഷരം **തിരയൽ,
                 FILE **ret_file,
-                char **ret_path) {
+                അക്ഷരം **ret_path) {
 
-        _cleanup_free_ char *found_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_free_ അക്ഷരം *found_path = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
-        assert(mode || !ret_file);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(mode || !ret_file);
 
-        r = search_and_open_internal(
+        r = തിരയൽ_and_open_internal(
                         path,
                         mode ? fopen_mode_to_flags(mode) : 0,
-                        root,
-                        search,
-                        ret_file ? &fd : NULL,
-                        ret_path ? &found_path : NULL);
-        if (r < 0)
-                return r;
+                        വേര്,
+                        തിരയൽ,
+                        ret_file ? &fd : ശൂന്യ,
+                        ret_path ? &found_path : ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (ret_file) {
+        എങ്കിൽ (ret_file) {
                 FILE *f = take_fdopen(&fd, mode);
-                if (!f)
-                        return -errno;
+                എങ്കിൽ (!f)
+                        തിരികെ -errno;
 
                 *ret_file = f;
         }
 
-        if (ret_path)
+        എങ്കിൽ (ret_path)
                 *ret_path = TAKE_PTR(found_path);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int search_and_fopen(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char **search,
+പൂർണ്ണസംഖ്യ തിരയൽ_and_fopen(
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം അക്ഷരം *mode,
+                സ്ഥിരം അക്ഷരം *വേര്,
+                സ്ഥിരം അക്ഷരം **തിരയൽ,
                 FILE **ret_file,
-                char **ret_path) {
+                അക്ഷരം **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ അക്ഷരം **copy = ശൂന്യ;
 
-        assert(path);
-        assert(mode || !ret_file);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(mode || !ret_file);
 
-        copy = strv_copy((char**) search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy((അക്ഷരം**) തിരയൽ);
+        എങ്കിൽ (!copy)
+                തിരികെ -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        തിരികെ തിരയൽ_and_fopen_internal(path, mode, വേര്, copy, ret_file, ret_path);
 }
 
-int search_and_fopen_nulstr(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char *search,
+പൂർണ്ണസംഖ്യ തിരയൽ_and_fopen_nulstr(
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം അക്ഷരം *mode,
+                സ്ഥിരം അക്ഷരം *വേര്,
+                സ്ഥിരം അക്ഷരം *തിരയൽ,
                 FILE **ret_file,
-                char **ret_path) {
+                അക്ഷരം **ret_path) {
 
-        _cleanup_strv_free_ char **l = NULL;
+        _cleanup_strv_free_ അക്ഷരം **l = ശൂന്യ;
 
-        assert(path);
-        assert(mode || !ret_file);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(mode || !ret_file);
 
-        l = strv_split_nulstr(search);
-        if (!l)
-                return -ENOMEM;
+        l = strv_split_nulstr(തിരയൽ);
+        എങ്കിൽ (!l)
+                തിരികെ -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        തിരികെ തിരയൽ_and_fopen_internal(path, mode, വേര്, l, ret_file, ret_path);
 }
 
-int fflush_and_check(FILE *f) {
-        assert(f);
+പൂർണ്ണസംഖ്യ fflush_and_check(FILE *f) {
+        പ്രതിജ്ഞാ(f);
 
         errno = 0;
         fflush(f);
 
-        if (ferror(f))
-                return errno_or_else(EIO);
+        എങ്കിൽ (ferror(f))
+                തിരികെ errno_or_else(EIO);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int fflush_sync_and_check(FILE *f) {
-        int r, fd;
+പൂർണ്ണസംഖ്യ fflush_sync_and_check(FILE *f) {
+        പൂർണ്ണസംഖ്യ r, fd;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         /* Not all file streams have an fd associated (think: fmemopen()), let's handle this gracefully and
          * assume that in that case we need no explicit syncing */
         fd = fileno(f);
-        if (fd < 0)
-                return 0;
+        എങ്കിൽ (fd < 0)
+                തിരികെ 0;
 
         r = fsync_full(fd);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int write_timestamp_file_atomic(const char *fn, usec_t n) {
-        char ln[DECIMAL_STR_MAX(n)+2];
+പൂർണ്ണസംഖ്യ write_timestamp_file_atomic(സ്ഥിരം അക്ഷരം *fn, usec_t n) {
+        അക്ഷരം ln[DECIMAL_STR_MAX(n)+2];
 
         /* Creates a "timestamp" file, that contains nothing but a
          * usec_t timestamp, formatted in ASCII. */
 
-        if (!timestamp_is_set(n))
-                return -ERANGE;
+        എങ്കിൽ (!timestamp_is_set(n))
+                തിരികെ -ERANGE;
 
         xsprintf(ln, USEC_FMT "\n", n);
 
-        return write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
+        തിരികെ write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
 }
 
-int read_timestamp_file(const char *fn, usec_t *ret) {
-        _cleanup_free_ char *ln = NULL;
+പൂർണ്ണസംഖ്യ read_timestamp_file(സ്ഥിരം അക്ഷരം *fn, usec_t *ret) {
+        _cleanup_free_ അക്ഷരം *ln = ശൂന്യ;
         uint64_t t;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        r = read_one_line_file(fn, &ln);
-        if (r < 0)
-                return r;
+        r = read_one_വരി_file(fn, &ln);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         r = safe_atou64(ln, &t);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (!timestamp_is_set(t))
-                return -ERANGE;
+        എങ്കിൽ (!timestamp_is_set(t))
+                തിരികെ -ERANGE;
 
         *ret = (usec_t) t;
-        return 0;
+        തിരികെ 0;
 }
 
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
-        assert(s);
-        assert(space);
+പൂർണ്ണസംഖ്യ fputs_with_separator(FILE *f, സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *separator, bool *space) {
+        പ്രതിജ്ഞാ(s);
+        പ്രതിജ്ഞാ(space);
 
         /* Outputs the specified string with fputs(), but optionally prefixes it with a separator.
          * The *space parameter when specified shall initially point to a boolean variable initialized
          * to false. It is set to true after the first invocation. This call is supposed to be use in loops,
          * where a separator shall be inserted between each element, but not before the first one. */
 
-        if (!f)
+        എങ്കിൽ (!f)
                 f = stdout;
 
-        if (!separator)
+        എങ്കിൽ (!separator)
                 separator = " ";
 
-        if (*space)
-                if (fputs(separator, f) < 0)
-                        return -EIO;
+        എങ്കിൽ (*space)
+                എങ്കിൽ (fputs(separator, f) < 0)
+                        തിരികെ -EIO;
 
         *space = true;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        എങ്കിൽ (fputs(s, f) < 0)
+                തിരികെ -EIO;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int fputs_with_newline(FILE *f, const char *s) {
+പൂർണ്ണസംഖ്യ fputs_with_newline(FILE *f, സ്ഥിരം അക്ഷരം *s) {
 
         /* This is like fputs() but outputs a trailing newline char, but only if the string isn't empty
          * and doesn't end in a newline already. Returns 0 in case we didn't append a newline, > 0 otherwise. */
 
-        if (isempty(s))
-                return 0;
+        എങ്കിൽ (isempty(s))
+                തിരികെ 0;
 
-        if (!f)
+        എങ്കിൽ (!f)
                 f = stdout;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        എങ്കിൽ (fputs(s, f) < 0)
+                തിരികെ -EIO;
 
-        if (endswith(s, "\n"))
-                return 0;
+        എങ്കിൽ (endswith(s, "\n"))
+                തിരികെ 0;
 
-        if (fputc('\n', f) < 0)
-                return -EIO;
+        എങ്കിൽ (fputc('\n', f) < 0)
+                തിരികെ -EIO;
 
-        return 1;
+        തിരികെ 1;
 }
 
 /* A bitmask of the EOL markers we know */
-typedef enum EndOfLineMarker {
+തരനിർവചനം എണ്ണൽ End_Of_വരി_Marker {
         EOL_NONE     = 0,
         EOL_ZERO     = 1 << 0,  /* \0 (aka NUL) */
         EOL_TEN      = 1 << 1,  /* \n (aka NL, aka LF)  */
         EOL_THIRTEEN = 1 << 2,  /* \r (aka CR)  */
-} EndOfLineMarker;
+} End_Of_വരി_Marker;
 
-static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
+സ്ഥിതം End_Of_വരി_Marker categorize_eol(അക്ഷരം c, Read_വരി_Flags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
-                if (c == '\n')
-                        return EOL_TEN;
-                if (c == '\r')
-                        return EOL_THIRTEEN;
+        എങ്കിൽ (!FLAGS_SET(flags, READ_വരി_ONLY_NUL)) {
+                എങ്കിൽ (c == '\n')
+                        തിരികെ EOL_TEN;
+                എങ്കിൽ (c == '\r')
+                        തിരികെ EOL_THIRTEEN;
         }
 
-        if (c == '\0')
-                return EOL_ZERO;
+        എങ്കിൽ (c == '\0')
+                തിരികെ EOL_ZERO;
 
-        return EOL_NONE;
+        തിരികെ EOL_NONE;
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, ശൂന്യ);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
-        _cleanup_free_ char *buffer = NULL;
-        size_t n = 0, count = 0;
-        int r;
+പൂർണ്ണസംഖ്യ read_വരി_full(FILE *f, size_t limit, Read_വരി_Flags flags, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *buffer = ശൂന്യ;
+        size_t n = 0, എണ്ണം = 0;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
         /* Something like a bounded version of getline().
          *
@@ -1537,35 +1537,35 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
          *
          * If a line shall be skipped ret may be initialized as NULL. */
 
-        if (ret) {
-                if (!GREEDY_REALLOC(buffer, 1))
-                        return -ENOMEM;
+        എങ്കിൽ (ret) {
+                എങ്കിൽ (!GREEDY_REALLOC(buffer, 1))
+                        തിരികെ -ENOMEM;
         }
 
         {
                 _unused_ _cleanup_(funlockfilep) FILE *flocked = f;
-                EndOfLineMarker previous_eol = EOL_NONE;
+                End_Of_വരി_Marker previous_eol = EOL_NONE;
                 flockfile(f);
 
-                for (;;) {
-                        EndOfLineMarker eol;
-                        char c;
+                വേണ്ടി (;;) {
+                        End_Of_വരി_Marker eol;
+                        അക്ഷരം c;
 
-                        if (n >= limit)
-                                return -ENOBUFS;
+                        എങ്കിൽ (n >= limit)
+                                തിരികെ -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
-                                return -ENOBUFS;
+                        എങ്കിൽ (എണ്ണം >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
+                                തിരികെ -ENOBUFS;
 
                         r = safe_fgetc(f, &c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) /* EOF is definitely EOL */
-                                break;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        എങ്കിൽ (r == 0) /* EOF is definitely EOL */
+                                നിർത്തുക;
 
                         eol = categorize_eol(c, flags);
 
-                        if (FLAGS_SET(previous_eol, EOL_ZERO) ||
+                        എങ്കിൽ (FLAGS_SET(previous_eol, EOL_ZERO) ||
                             (eol == EOL_NONE && previous_eol != EOL_NONE) ||
                             (eol != EOL_NONE && (previous_eol & eol) != 0)) {
                                 /* Previous char was a NUL? This is not an EOL, but the previous char was? This type of
@@ -1577,41 +1577,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                                  * actually happy with most negative characters and implicitly casts them back to
                                  * positive ones as needed, except for \xff (aka -1, aka EOF), which it refuses. What a
                                  * godawful API!) */
-                                assert_se(ungetc((unsigned char) c, f) != EOF);
-                                break;
+                                assert_se(ungetc((unsigned അക്ഷരം) c, f) != EOF);
+                                നിർത്തുക;
                         }
 
-                        count++;
+                        എണ്ണം++;
 
-                        if (eol != EOL_NONE) {
+                        എങ്കിൽ (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
                                  * generally means waiting for the user, interactively. In the case of a TTY
                                  * we expect only \n as the single EOL marker, so we are in the lucky
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
-                                        int fd;
+                                എങ്കിൽ ((flags & (READ_വരി_IS_A_TTY|READ_വരി_NOT_A_TTY)) == 0) {
+                                        പൂർണ്ണസംഖ്യ fd;
 
                                         fd = fileno(f);
-                                        if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
+                                        എങ്കിൽ (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
-                                                flags |= READ_LINE_NOT_A_TTY;
-                                        else
-                                                flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
+                                                flags |= READ_വരി_NOT_A_TTY;
+                                        അല്ലെങ്കിൽ
+                                                flags |= isatty_safe(fd) ? READ_വരി_IS_A_TTY : READ_വരി_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
-                                        break;
+                                എങ്കിൽ (FLAGS_SET(flags, READ_വരി_IS_A_TTY))
+                                        നിർത്തുക;
                         }
 
-                        if (eol != EOL_NONE) {
+                        എങ്കിൽ (eol != EOL_NONE) {
                                 previous_eol |= eol;
-                                continue;
+                                തുടരുക;
                         }
 
-                        if (ret) {
-                                if (!GREEDY_REALLOC(buffer, n + 2))
-                                        return -ENOMEM;
+                        എങ്കിൽ (ret) {
+                                എങ്കിൽ (!GREEDY_REALLOC(buffer, n + 2))
+                                        തിരികെ -ENOMEM;
 
                                 buffer[n] = c;
                         }
@@ -1620,43 +1620,43 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 }
         }
 
-        if (ret) {
+        എങ്കിൽ (ret) {
                 buffer[n] = 0;
 
                 *ret = TAKE_PTR(buffer);
         }
 
-        return (int) count;
+        തിരികെ (പൂർണ്ണസംഖ്യ) എണ്ണം;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r, k;
+പൂർണ്ണസംഖ്യ read_stripped_വരി(FILE *f, size_t limit, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r, k;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
-        r = read_line(f, limit, ret ? &s : NULL);
-        if (r < 0)
-                return r;
+        r = read_വരി(f, limit, ret ? &s : ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (ret) {
-                const char *p = strstrip(s);
-                if (p == s)
+        എങ്കിൽ (ret) {
+                സ്ഥിരം അക്ഷരം *p = strstrip(s);
+                എങ്കിൽ (p == s)
                         *ret = TAKE_PTR(s);
-                else {
+                അല്ലെങ്കിൽ {
                         k = strdup_to(ret, p);
-                        if (k < 0)
-                                return k;
+                        എങ്കിൽ (k < 0)
+                                തിരികെ k;
                 }
         }
 
-        return r > 0;          /* Return 1 if something was read. */
+        തിരികെ r > 0;          /* Return 1 if something was read. */
 }
 
-int safe_fgetc(FILE *f, char *ret) {
-        int k;
+പൂർണ്ണസംഖ്യ safe_fgetc(FILE *f, അക്ഷരം *ret) {
+        പൂർണ്ണസംഖ്യ k;
 
-        assert(f);
+        പ്രതിജ്ഞാ(f);
 
         /* A safer version of plain fgetc(): let's propagate the error that happened while reading as such, and
          * separate the EOF condition from the byte read, to avoid those confusion signed/unsigned issues fgetc()
@@ -1664,103 +1664,103 @@ int safe_fgetc(FILE *f, char *ret) {
 
         errno = 0;
         k = fgetc(f);
-        if (k == EOF) {
-                if (ferror(f))
-                        return errno_or_else(EIO);
+        എങ്കിൽ (k == EOF) {
+                എങ്കിൽ (ferror(f))
+                        തിരികെ errno_or_else(EIO);
 
-                if (ret)
+                എങ്കിൽ (ret)
                         *ret = 0;
 
-                return 0;
+                തിരികെ 0;
         }
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = k;
 
-        return 1;
+        തിരികെ 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
-        struct stat _st;
+പൂർണ്ണസംഖ്യ warn_file_is_world_accessible(സ്ഥിരം അക്ഷരം *filename, ഘടന stat *st, സ്ഥിരം അക്ഷരം *unit, unsigned വരി) {
+        ഘടന stat _st;
 
-        if (!filename)
-                return 0;
+        എങ്കിൽ (!filename)
+                തിരികെ 0;
 
-        if (!st) {
-                if (stat(filename, &_st) < 0)
-                        return -errno;
+        എങ്കിൽ (!st) {
+                എങ്കിൽ (stat(filename, &_st) < 0)
+                        തിരികെ -errno;
                 st = &_st;
         }
 
-        if ((st->st_mode & S_IRWXO) == 0)
-                return 0;
+        എങ്കിൽ ((st->st_mode & S_IRWXO) == 0)
+                തിരികെ 0;
 
-        if (unit)
-                log_syntax(unit, LOG_WARNING, filename, line, 0,
+        എങ്കിൽ (unit)
+                log_syntax(unit, LOG_WARNING, filename, വരി, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
-        else
+        അല്ലെങ്കിൽ
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                             filename, st->st_mode & 07777);
-        return 0;
+        തിരികെ 0;
 }
 
-int write_data_file_atomic_at(
-                int dir_fd,
-                const char *path,
-                const struct iovec *iovec,
+പൂർണ്ണസംഖ്യ write_data_file_atomic_at(
+                പൂർണ്ണസംഖ്യ dir_fd,
+                സ്ഥിരം അക്ഷരം *path,
+                സ്ഥിരം ഘടന iovec *iovec,
                 WriteDataFileFlags flags) {
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(dir_fd));
 
         /* This is a cousin of write_string_file_atomic(), but operates with arbitrary struct iovec binary
          * data (rather than strings), works without FILE* streams, and does direct syscalls instead. */
 
-        _cleanup_free_ char *dn = NULL, *fn = NULL;
+        _cleanup_free_ അക്ഷരം *dn = ശൂന്യ, *fn = ശൂന്യ;
         r = path_split_prefix_filename(path, &dn, &fn);
-        if (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
-                return -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
-        if (r < 0)
-                return r;
+        എങ്കിൽ (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
+                തിരികെ -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        _cleanup_close_ int mfd = -EBADF;
-        if (dn) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ mfd = -EBADF;
+        എങ്കിൽ (dn) {
                 /* If there's a directory component, readjust our position */
                 r = chaseat(XAT_FDROOT,
                             dir_fd,
                             dn,
                             FLAGS_SET(flags, WRITE_DATA_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
-                            /* ret_path= */ NULL,
+                            /* ret_path= */ ശൂന്യ,
                             &mfd);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 dir_fd = mfd;
         }
 
-        _cleanup_free_ char *t = NULL;
-        _cleanup_close_ int fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
-        if (fd < 0)
-                return fd;
+        _cleanup_free_ അക്ഷരം *t = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
+        എങ്കിൽ (fd < 0)
+                തിരികെ fd;
 
         CLEANUP_TMPFILE_AT(dir_fd, t);
 
-        if (iovec_is_set(iovec)) {
+        എങ്കിൽ (iovec_is_set(iovec)) {
                 r = loop_write(fd, iovec->iov_base, iovec->iov_len);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
         r = fchmod_umask(fd, FLAGS_SET(flags, WRITE_DATA_FILE_MODE_0400) ? 0400 : 0644);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         r = link_tmpfile_at(fd, dir_fd, t, fn, LINK_TMPFILE_REPLACE);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         t = mfree(t); /* disarm CLEANUP_TMPFILE_AT */
-        return 0;
+        തിരികെ 0;
 }

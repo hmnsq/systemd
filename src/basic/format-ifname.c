@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "format-ifname.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "format-ifname.h"
+#അന്തര്ഭാവ "stdio-util.h"
+#അന്തര്ഭാവ "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(പൂർണ്ണസംഖ്യ) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+പൂർണ്ണസംഖ്യ format_ifname_full(പൂർണ്ണസംഖ്യ ifindex, FormatIfnameFlag flag, അക്ഷരം buf[സ്ഥിതം IF_NAMESIZE]) {
+        എങ്കിൽ (ifindex <= 0)
+                തിരികെ -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        എങ്കിൽ (if_indextoname(ifindex, buf))
+                തിരികെ 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        എങ്കിൽ (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                തിരികെ -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        എങ്കിൽ (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        അല്ലെങ്കിൽ
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        തിരികെ 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
-        char buf[IF_NAMESIZE];
-        int r;
+പൂർണ്ണസംഖ്യ format_ifname_full_alloc(പൂർണ്ണസംഖ്യ ifindex, FormatIfnameFlag flag, അക്ഷരം **ret) {
+        അക്ഷരം buf[IF_NAMESIZE];
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return strdup_to(ret, buf);
+        തിരികെ strdup_to(ret, buf);
 }

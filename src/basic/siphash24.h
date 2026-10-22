@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-struct siphash {
+ഘടന siphash {
         uint64_t v0;
         uint64_t v1;
         uint64_t v2;
@@ -13,35 +13,35 @@ struct siphash {
         size_t inlen;
 };
 
-void siphash24_init(struct siphash *state, const uint8_t k[static 16]);
-void siphash24_compress(const void *in, size_t inlen, struct siphash *state);
-#define siphash24_compress_byte(byte, state) siphash24_compress((const uint8_t[]) { (byte) }, 1, (state))
+ശൂന്യം siphash24_init(ഘടന siphash *state, സ്ഥിരം uint8_t k[സ്ഥിതം 16]);
+ശൂന്യം siphash24_compress(സ്ഥിരം ശൂന്യം *in, size_t inlen, ഘടന siphash *state);
+#define siphash24_compress_byte(byte, state) siphash24_compress((സ്ഥിരം uint8_t[]) { (byte) }, 1, (state))
 #define siphash24_compress_typesafe(in, state)                  \
-        siphash24_compress(&(in), sizeof(typeof(in)), (state))
+        siphash24_compress(&(in), വലുപ്പം(typeof(in)), (state))
 
-static inline void siphash24_compress_boolean(bool in, struct siphash *state) {
+സ്ഥിതം വരിയിൽ ശൂന്യം siphash24_compress_boolean(bool in, ഘടന siphash *state) {
         siphash24_compress_byte(in, state);
 }
 
-static inline void siphash24_compress_usec_t(usec_t in, struct siphash *state) {
+സ്ഥിതം വരിയിൽ ശൂന്യം siphash24_compress_usec_t(usec_t in, ഘടന siphash *state) {
         uint64_t u = htole64(in);
         siphash24_compress_typesafe(u, state);
 }
 
-static inline void siphash24_compress_safe(const void *in, size_t inlen, struct siphash *state) {
-        if (inlen == 0)
-                return;
+സ്ഥിതം വരിയിൽ ശൂന്യം siphash24_compress_safe(സ്ഥിരം ശൂന്യം *in, size_t inlen, ഘടന siphash *state) {
+        എങ്കിൽ (inlen == 0)
+                തിരികെ;
 
         siphash24_compress(in, inlen, state);
 }
 
-void siphash24_compress_string(const char *in, struct siphash *state);
-void siphash24_compress_iovec(const struct iovec *iov, struct siphash *state);
+ശൂന്യം siphash24_compress_string(സ്ഥിരം അക്ഷരം *in, ഘടന siphash *state);
+ശൂന്യം siphash24_compress_iovec(സ്ഥിരം ഘടന iovec *iov, ഘടന siphash *state);
 
-uint64_t siphash24_finalize(struct siphash *state);
+uint64_t siphash24_finalize(ഘടന siphash *state);
 
-uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]);
+uint64_t siphash24(സ്ഥിരം ശൂന്യം *in, size_t inlen, സ്ഥിരം uint8_t k[സ്ഥിതം 16]);
 
-uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]);
+uint64_t siphash24_uint64(uint64_t in, സ്ഥിരം uint8_t k[സ്ഥിതം 16]);
 
-uint64_t siphash24_string(const char *s, const uint8_t k[static 16]);
+uint64_t siphash24_string(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം uint8_t k[സ്ഥിതം 16]);

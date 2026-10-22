@@ -1,157 +1,157 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "parse-util.h"
-#include "percent-util.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "percent-util.h"
+#അന്തര്ഭാവ "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
-        const char *pc, *n;
-        int r, v;
+സ്ഥിതം പൂർണ്ണസംഖ്യ parse_parts_മൂല്യം_whole(സ്ഥിരം അക്ഷരം *p, സ്ഥിരം അക്ഷരം *ചിഹ്നം) {
+        സ്ഥിരം അക്ഷരം *pc, *n;
+        പൂർണ്ണസംഖ്യ r, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, ചിഹ്നം);
+        എങ്കിൽ (!pc)
+                തിരികെ -EINVAL;
 
         n = strndupa_safe(p, pc - p);
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (v < 0)
+                തിരികെ -ERANGE;
 
-        return v;
+        തിരികെ v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+സ്ഥിതം പൂർണ്ണസംഖ്യ parse_parts_മൂല്യം_with_tenths_place(സ്ഥിരം അക്ഷരം *p, സ്ഥിരം അക്ഷരം *ചിഹ്നം) {
+        സ്ഥിരം അക്ഷരം *pc, *dot, *n;
+        പൂർണ്ണസംഖ്യ r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, ചിഹ്നം);
+        എങ്കിൽ (!pc)
+                തിരികെ -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        എങ്കിൽ (dot) {
+                എങ്കിൽ (dot + 2 != pc)
+                        തിരികെ -EINVAL;
+                എങ്കിൽ (dot[1] < '0' || dot[1] > '9')
+                        തിരികെ -EINVAL;
                 q = dot[1] - '0';
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } അല്ലെങ്കിൽ {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (v < 0)
+                തിരികെ -ERANGE;
+        എങ്കിൽ (v > (INT_MAX - q) / 10)
+                തിരികെ -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        തിരികെ v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+സ്ഥിതം പൂർണ്ണസംഖ്യ parse_parts_മൂല്യം_with_hundredths_place(സ്ഥിരം അക്ഷരം *p, സ്ഥിരം അക്ഷരം *ചിഹ്നം) {
+        സ്ഥിരം അക്ഷരം *pc, *dot, *n;
+        പൂർണ്ണസംഖ്യ r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, ചിഹ്നം);
+        എങ്കിൽ (!pc)
+                തിരികെ -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        എങ്കിൽ (dot) {
+                എങ്കിൽ (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        എങ്കിൽ (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                തിരികെ -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        എങ്കിൽ (dot[1] < '0' || dot[1] > '9')
+                                തിരികെ -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } അല്ലെങ്കിൽ
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        തിരികെ -EINVAL;
 
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } അല്ലെങ്കിൽ {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (v < 0)
+                തിരികെ -ERANGE;
+        എങ്കിൽ (v > (INT_MAX - q) / 100)
+                തിരികെ -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        തിരികെ v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+പൂർണ്ണസംഖ്യ parse_percent_unbounded(സ്ഥിരം അക്ഷരം *p) {
+        തിരികെ parse_parts_മൂല്യം_whole(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+പൂർണ്ണസംഖ്യ parse_percent(സ്ഥിരം അക്ഷരം *p) {
+        പൂർണ്ണസംഖ്യ v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        എങ്കിൽ (v > 100)
+                തിരികെ -ERANGE;
 
-        return v;
+        തിരികെ v;
 }
 
-int parse_permille_unbounded(const char *p) {
-        const char *pm;
+പൂർണ്ണസംഖ്യ parse_permille_unbounded(സ്ഥിരം അക്ഷരം *p) {
+        സ്ഥിരം അക്ഷരം *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        എങ്കിൽ (pm)
+                തിരികെ parse_parts_മൂല്യം_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        തിരികെ parse_parts_മൂല്യം_with_tenths_place(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+പൂർണ്ണസംഖ്യ parse_permille(സ്ഥിരം അക്ഷരം *p) {
+        പൂർണ്ണസംഖ്യ v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        എങ്കിൽ (v > 1000)
+                തിരികെ -ERANGE;
 
-        return v;
+        തിരികെ v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
-        const char *pm;
+പൂർണ്ണസംഖ്യ parse_permyriad_unbounded(സ്ഥിരം അക്ഷരം *p) {
+        സ്ഥിരം അക്ഷരം *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        എങ്കിൽ (pm)
+                തിരികെ parse_parts_മൂല്യം_whole(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        എങ്കിൽ (pm)
+                തിരികെ parse_parts_മൂല്യം_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        തിരികെ parse_parts_മൂല്യം_with_hundredths_place(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+പൂർണ്ണസംഖ്യ parse_permyriad(സ്ഥിരം അക്ഷരം *p) {
+        പൂർണ്ണസംഖ്യ v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        എങ്കിൽ (v > 10000)
+                തിരികെ -ERANGE;
 
-        return v;
+        തിരികെ v;
 }

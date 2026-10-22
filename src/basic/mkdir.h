@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-typedef enum MkdirFlags {
+തരനിർവചനം എണ്ണൽ MkdirFlags {
         MKDIR_FOLLOW_SYMLINK  = 1 << 0,
         MKDIR_IGNORE_EXISTING = 1 << 1,  /* Quietly accept a preexisting directory (or file) */
         MKDIR_WARN_MODE       = 1 << 2,  /* Log at LOG_WARNING when mode doesn't match */
 } MkdirFlags;
 
-int mkdirat_errno_wrapper(int dirfd, const char *pathname, mode_t mode, LabelContext *label_context);
+പൂർണ്ണസംഖ്യ mkdirat_errno_wrapper(പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *pathname, mode_t mode, LabelContext *label_context);
 
-int mkdirat_safe(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-static inline int mkdir_safe(const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdirat_safe(AT_FDCWD, path, mode, uid, gid, flags);
+പൂർണ്ണസംഖ്യ mkdirat_safe(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ mkdir_safe(സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
+        തിരികെ mkdirat_safe(AT_FDCWD, path, mode, uid, gid, flags);
 }
-int mkdirat_parents(int dir_fd, const char *path, mode_t mode);
-static inline int mkdir_parents(const char *path, mode_t mode) {
-        return mkdirat_parents(AT_FDCWD, path, mode);
+പൂർണ്ണസംഖ്യ mkdirat_parents(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ mkdir_parents(സ്ഥിരം അക്ഷരം *path, mode_t mode) {
+        തിരികെ mkdirat_parents(AT_FDCWD, path, mode);
 }
-int mkdir_parents_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-int mkdir_p(const char *path, mode_t mode);
-int mkdir_p_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-int mkdir_p_root_full(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes);
-static inline int mkdir_p_root(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m) {
-        return mkdir_p_root_full(root, p, uid, gid, m, USEC_INFINITY, NULL);
+പൂർണ്ണസംഖ്യ mkdir_parents_safe(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
+പൂർണ്ണസംഖ്യ mkdir_p(സ്ഥിരം അക്ഷരം *path, mode_t mode);
+പൂർണ്ണസംഖ്യ mkdir_p_safe(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
+പൂർണ്ണസംഖ്യ mkdir_p_വേര്_full(സ്ഥിരം അക്ഷരം *വേര്, സ്ഥിരം അക്ഷരം *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ mkdir_p_വേര്(സ്ഥിരം അക്ഷരം *വേര്, സ്ഥിരം അക്ഷരം *p, uid_t uid, gid_t gid, mode_t m) {
+        തിരികെ mkdir_p_വേര്_full(വേര്, p, uid, gid, m, USEC_INFINITY, ശൂന്യ);
 }
 
 /* The following are used to implement the mkdir_xyz_label() calls, don't use otherwise. */
-typedef int (*mkdirat_func_t)(int dir_fd, const char *pathname, mode_t mode, LabelContext *label_context);
-int mkdirat_safe_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
-static inline int mkdir_safe_internal(const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context) {
-        return mkdirat_safe_internal(AT_FDCWD, path, mode, uid, gid, flags, _mkdir, label_context);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*mkdirat_func_t)(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *pathname, mode_t mode, LabelContext *label_context);
+പൂർണ്ണസംഖ്യ mkdirat_safe_internal(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ mkdir_safe_internal(സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context) {
+        തിരികെ mkdirat_safe_internal(AT_FDCWD, path, mode, uid, gid, flags, _mkdir, label_context);
 }
-int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context);
-int mkdir_parents_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
-int mkdir_p_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+പൂർണ്ണസംഖ്യ mkdirat_parents_internal(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context);
+പൂർണ്ണസംഖ്യ mkdir_parents_internal(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+പൂർണ്ണസംഖ്യ mkdir_p_internal(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);

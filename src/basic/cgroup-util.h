@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
 #define SYSTEMD_CGROUP_CONTROLLER "_systemd"
 
 /* An enum of well known cgroup controllers */
-typedef enum CGroupController {
+തരനിർവചനം എണ്ണൽ CGroupController {
         /* Original cgroup controllers */
         CGROUP_CONTROLLER_CPU,
         CGROUP_CONTROLLER_CPUACCT,    /* v1 only */
@@ -35,7 +35,7 @@ typedef enum CGroupController {
 #define CGROUP_CONTROLLER_TO_MASK(c) (1U << (c))
 
 /* A bit mask of well known cgroup controllers */
-typedef enum CGroupMask {
+തരനിർവചനം എണ്ണൽ CGroupMask {
         CGROUP_MASK_CPU = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPU),
         CGROUP_MASK_CPUACCT = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUACCT),
         CGROUP_MASK_CPUSET = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUSET),
@@ -76,14 +76,14 @@ typedef enum CGroupMask {
 #define CGROUP_LIMIT_MIN UINT64_C(0)
 #define CGROUP_LIMIT_MAX UINT64_MAX
 
-static inline bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
-        return
+സ്ഥിതം വരിയിൽ bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
+        തിരികെ
             x == CGROUP_WEIGHT_INVALID ||
             (x >= CGROUP_WEIGHT_MIN && x <= CGROUP_WEIGHT_MAX);
 }
 
 /* IO limits on unified hierarchy */
-typedef enum CGroupIOLimitType {
+തരനിർവചനം എണ്ണൽ CGroupIOLimitType {
         CGROUP_IO_RBPS_MAX,
         CGROUP_IO_WBPS_MAX,
         CGROUP_IO_RIOPS_MAX,
@@ -93,10 +93,10 @@ typedef enum CGroupIOLimitType {
         _CGROUP_IO_LIMIT_TYPE_INVALID = -EINVAL,
 } CGroupIOLimitType;
 
-extern const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
+ബാഹ്യ സ്ഥിരം uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
-void cgroup_io_limits_list(void);
+ശൂന്യം cgroup_io_limits_list(ശൂന്യം);
 
 /* Special values for the io.bfq.weight attribute */
 #define CGROUP_BFQ_WEIGHT_INVALID UINT64_MAX
@@ -105,8 +105,8 @@ void cgroup_io_limits_list(void);
 #define CGROUP_BFQ_WEIGHT_DEFAULT UINT64_C(100)
 
 /* Convert the normal io.weight value to io.bfq.weight */
-static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
-        return
+സ്ഥിതം വരിയിൽ uint64_t BFQ_WEIGHT(uint64_t io_weight) {
+        തിരികെ
             io_weight <= CGROUP_WEIGHT_DEFAULT ?
             CGROUP_BFQ_WEIGHT_DEFAULT - (CGROUP_WEIGHT_DEFAULT - io_weight) * (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) / (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) :
             CGROUP_BFQ_WEIGHT_DEFAULT + (io_weight - CGROUP_WEIGHT_DEFAULT) * (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT) / (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT);
@@ -119,127 +119,127 @@ static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
  * generate paths with multiple adjacent / removed.
  */
 
-int cg_is_available(void);
+പൂർണ്ണസംഖ്യ cg_is_available(ശൂന്യം);
 
-int cg_path_open(const char *path);
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id);
+പൂർണ്ണസംഖ്യ cg_path_open(സ്ഥിരം അക്ഷരം *path);
+പൂർണ്ണസംഖ്യ cg_cgroupid_open(പൂർണ്ണസംഖ്യ cgroupfs_fd, uint64_t id);
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret);
+പൂർണ്ണസംഖ്യ cg_path_from_cgroupid(പൂർണ്ണസംഖ്യ cgroupfs_fd, uint64_t id, അക്ഷരം **ret);
 
-typedef enum CGroupFlags {
+തരനിർവചനം എണ്ണൽ CGroupFlags {
         CGROUP_SIGCONT            = 1 << 0,
         CGROUP_IGNORE_SELF        = 1 << 1,
         CGROUP_DONT_SKIP_UNMAPPED = 1 << 2,
 } CGroupFlags;
 
-int cg_enumerate_processes(const char *path, FILE **ret);
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
+പൂർണ്ണസംഖ്യ cg_enumerate_processes(സ്ഥിരം അക്ഷരം *path, FILE **ret);
+പൂർണ്ണസംഖ്യ cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
+പൂർണ്ണസംഖ്യ cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
 
-int cg_enumerate_subgroups(const char *path, DIR **ret);
-int cg_read_subgroup(DIR *d, char **ret);
+പൂർണ്ണസംഖ്യ cg_enumerate_subgroups(സ്ഥിരം അക്ഷരം *path, DIR **ret);
+പൂർണ്ണസംഖ്യ cg_read_subgroup(DIR *d, അക്ഷരം **ret);
 
-typedef int (*cg_kill_log_func_t)(const PidRef *pid, int sig, void *userdata);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*cg_kill_log_func_t)(സ്ഥിരം PidRef *pid, പൂർണ്ണസംഖ്യ sig, ശൂന്യം *userdata);
 
-int cg_kill(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed);
-int cg_kill_recursive(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+പൂർണ്ണസംഖ്യ cg_kill(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, ശൂന്യം *userdata);
+പൂർണ്ണസംഖ്യ cg_kill_kernel_sigkill(സ്ഥിരം അക്ഷരം *path, uint64_t *ret_n_pids_killed);
+പൂർണ്ണസംഖ്യ cg_kill_recursive(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, ശൂന്യം *userdata);
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path);
+പൂർണ്ണസംഖ്യ cg_split_spec(സ്ഥിരം അക്ഷരം *spec, അക്ഷരം **ret_controller, അക്ഷരം **ret_path);
 
-int cg_get_path(const char *path, const char *suffix, char **ret);
+പൂർണ്ണസംഖ്യ cg_get_path(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret);
 
-int cg_pid_get_path(pid_t pid, char **ret);
-int cg_pidref_get_path(const PidRef *pidref, char **ret);
+പൂർണ്ണസംഖ്യ cg_pid_get_path(pid_t pid, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ cg_pidref_get_path(സ്ഥിരം PidRef *pidref, അക്ഷരം **ret);
 
-int cg_is_threaded(const char *path);
+പൂർണ്ണസംഖ്യ cg_is_threaded(സ്ഥിരം അക്ഷരം *path);
 
-int cg_is_delegated(const char *path);
-int cg_is_delegated_fd(int fd);
+പൂർണ്ണസംഖ്യ cg_is_delegated(സ്ഥിരം അക്ഷരം *path);
+പൂർണ്ണസംഖ്യ cg_is_delegated_fd(പൂർണ്ണസംഖ്യ fd);
 
-int cg_has_coredump_receive(const char *path);
+പൂർണ്ണസംഖ്യ cg_has_coredump_receive(സ്ഥിരം അക്ഷരം *path);
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value);
-int cg_get_attribute(const char *path, const char *attribute, char **ret);
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
-int cg_get_attribute_as_bool(const char *path, const char *attribute);
+പൂർണ്ണസംഖ്യ cg_set_attribute(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *attribute, സ്ഥിരം അക്ഷരം *മൂല്യം);
+പൂർണ്ണസംഖ്യ cg_get_attribute(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *attribute, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ cg_get_attribute_as_uint64(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *attribute, uint64_t *ret);
+പൂർണ്ണസംഖ്യ cg_get_attribute_as_bool(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *attribute);
 
-int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
+പൂർണ്ണസംഖ്യ cg_get_keyed_attribute(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *attribute, അക്ഷരം * സ്ഥിരം *താക്കോലുകൾ, അക്ഷരം **values);
+പൂർണ്ണസംഖ്യ cg_get_keyed_attribute_uint64(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *attribute, സ്ഥിരം അക്ഷരം *താക്കോൽ, uint64_t *ret);
 
-int cg_get_owner(const char *path, uid_t *ret_uid);
+പൂർണ്ണസംഖ്യ cg_get_owner(സ്ഥിരം അക്ഷരം *path, uid_t *ret_uid);
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
+പൂർണ്ണസംഖ്യ cg_set_xattr(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *name, സ്ഥിരം ശൂന്യം *മൂല്യം, size_t size, പൂർണ്ണസംഖ്യ flags);
+പൂർണ്ണസംഖ്യ cg_get_xattr(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret, size_t *ret_size);
 /* Returns negative on error, and 0 or 1 on success for the bool value */
-int cg_get_xattr_bool(const char *path, const char *name);
-int cg_remove_xattr(const char *path, const char *name);
+പൂർണ്ണസംഖ്യ cg_get_xattr_bool(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *name);
+പൂർണ്ണസംഖ്യ cg_remove_xattr(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *name);
 
-int cg_is_empty(const char *path);
+പൂർണ്ണസംഖ്യ cg_is_empty(സ്ഥിരം അക്ഷരം *path);
 
-int cg_get_root_path(char **path);
+പൂർണ്ണസംഖ്യ cg_get_വേര്_path(അക്ഷരം **path);
 
-int cg_path_get_session(const char *path, char **ret_session);
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_unit(const char *path, char **ret_unit) {
-        return cg_path_get_unit_full(path, ret_unit, NULL);
+പൂർണ്ണസംഖ്യ cg_path_get_session(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_session);
+പൂർണ്ണസംഖ്യ cg_path_get_owner_uid(സ്ഥിരം അക്ഷരം *path, uid_t *ret_uid);
+പൂർണ്ണസംഖ്യ cg_path_get_unit_full(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_unit, അക്ഷരം **ret_subgroup);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ cg_path_get_unit(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_unit) {
+        തിരികെ cg_path_get_unit_full(path, ret_unit, ശൂന്യ);
 }
-int cg_path_get_unit_path(const char *path, char **ret_unit);
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_user_unit(const char *path, char **ret_unit) {
-        return cg_path_get_user_unit_full(path, ret_unit, NULL);
+പൂർണ്ണസംഖ്യ cg_path_get_unit_path(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_unit);
+പൂർണ്ണസംഖ്യ cg_path_get_user_unit_full(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_unit, അക്ഷരം **ret_subgroup);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ cg_path_get_user_unit(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_unit) {
+        തിരികെ cg_path_get_user_unit_full(path, ret_unit, ശൂന്യ);
 }
-int cg_path_get_machine_name(const char *path, char **ret_machine);
-int cg_path_get_slice(const char *path, char **ret_slice);
-int cg_path_get_user_slice(const char *path, char **ret_slice);
+പൂർണ്ണസംഖ്യ cg_path_get_machine_name(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_machine);
+പൂർണ്ണസംഖ്യ cg_path_get_slice(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_slice);
+പൂർണ്ണസംഖ്യ cg_path_get_user_slice(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret_slice);
 
-int cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
-int cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
+പൂർണ്ണസംഖ്യ cg_shift_path(സ്ഥിരം അക്ഷരം *cgroup, സ്ഥിരം അക്ഷരം *cached_വേര്, സ്ഥിരം അക്ഷരം **ret_shifted);
+പൂർണ്ണസംഖ്യ cg_pid_get_path_shifted(pid_t pid, സ്ഥിരം അക്ഷരം *cached_വേര്, അക്ഷരം **ret_cgroup);
+പൂർണ്ണസംഖ്യ cg_pidref_get_path_shifted(സ്ഥിരം PidRef *pidref, സ്ഥിരം അക്ഷരം *cached_വേര്, അക്ഷരം **ret_cgroup);
 
-int cg_pid_get_session(pid_t pid, char **ret_session);
-int cg_pidref_get_session(const PidRef *pidref, char **ret);
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_unit_full(pid, ret_unit, NULL);
+പൂർണ്ണസംഖ്യ cg_pid_get_session(pid_t pid, അക്ഷരം **ret_session);
+പൂർണ്ണസംഖ്യ cg_pidref_get_session(സ്ഥിരം PidRef *pidref, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
+പൂർണ്ണസംഖ്യ cg_pidref_get_owner_uid(സ്ഥിരം PidRef *pidref, uid_t *ret);
+പൂർണ്ണസംഖ്യ cg_pid_get_unit_full(pid_t pid, അക്ഷരം **ret_unit, അക്ഷരം **ret_subgroup);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ cg_pid_get_unit(pid_t pid, അക്ഷരം **ret_unit) {
+        തിരികെ cg_pid_get_unit_full(pid, ret_unit, ശൂന്യ);
 }
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_unit_full(pidref, ret_unit, NULL);
+പൂർണ്ണസംഖ്യ cg_pidref_get_unit_full(സ്ഥിരം PidRef *pidref, അക്ഷരം **ret_unit, അക്ഷരം **ret_subgroup);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ cg_pidref_get_unit(സ്ഥിരം PidRef *pidref, അക്ഷരം **ret_unit) {
+        തിരികെ cg_pidref_get_unit_full(pidref, ret_unit, ശൂന്യ);
 }
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_user_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_user_unit_full(pid, ret_unit, NULL);
+പൂർണ്ണസംഖ്യ cg_pid_get_user_unit_full(pid_t pid, അക്ഷരം **ret_unit, അക്ഷരം **ret_subgroup);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ cg_pid_get_user_unit(pid_t pid, അക്ഷരം **ret_unit) {
+        തിരികെ cg_pid_get_user_unit_full(pid, ret_unit, ശൂന്യ);
 }
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_user_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
+പൂർണ്ണസംഖ്യ cg_pidref_get_user_unit_full(സ്ഥിരം PidRef *pidref, അക്ഷരം **ret_unit, അക്ഷരം **ret_subgroup);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ cg_pidref_get_user_unit(സ്ഥിരം PidRef *pidref, അക്ഷരം **ret_unit) {
+        തിരികെ cg_pidref_get_user_unit_full(pidref, ret_unit, ശൂന്യ);
 }
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine);
-int cg_pid_get_slice(pid_t pid, char **ret_slice);
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice);
+പൂർണ്ണസംഖ്യ cg_pid_get_machine_name(pid_t pid, അക്ഷരം **ret_machine);
+പൂർണ്ണസംഖ്യ cg_pid_get_slice(pid_t pid, അക്ഷരം **ret_slice);
+പൂർണ്ണസംഖ്യ cg_pid_get_user_slice(pid_t pid, അക്ഷരം **ret_slice);
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit);
+പൂർണ്ണസംഖ്യ cg_path_decode_unit(സ്ഥിരം അക്ഷരം *cgroup, അക്ഷരം **ret_unit);
 
-bool cg_needs_escape(const char *p) _pure_;
-int cg_escape(const char *p, char **ret);
-char* cg_unescape(const char *p) _pure_;
+bool cg_needs_escape(സ്ഥിരം അക്ഷരം *p) _pure_;
+പൂർണ്ണസംഖ്യ cg_escape(സ്ഥിരം അക്ഷരം *p, അക്ഷരം **ret);
+അക്ഷരം* cg_unescape(സ്ഥിരം അക്ഷരം *p) _pure_;
 
-int cg_slice_to_path(const char *unit, char **ret);
+പൂർണ്ണസംഖ്യ cg_slice_to_path(സ്ഥിരം അക്ഷരം *unit, അക്ഷരം **ret);
 
-int cg_mask_supported(CGroupMask *ret);
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
-int cg_mask_from_string(const char *s, CGroupMask *ret);
-int cg_mask_to_string(CGroupMask mask, char **ret);
+പൂർണ്ണസംഖ്യ cg_mask_supported(CGroupMask *ret);
+പൂർണ്ണസംഖ്യ cg_mask_supported_subtree(സ്ഥിരം അക്ഷരം *വേര്, CGroupMask *ret);
+പൂർണ്ണസംഖ്യ cg_mask_from_string(സ്ഥിരം അക്ഷരം *s, CGroupMask *ret);
+പൂർണ്ണസംഖ്യ cg_mask_to_string(CGroupMask mask, അക്ഷരം **ret);
 
-bool cg_kill_supported(void);
+bool cg_kill_supported(ശൂന്യം);
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
 
-typedef enum ManagedOOMMode {
+തരനിർവചനം എണ്ണൽ ManagedOOMMode {
         MANAGED_OOM_AUTO,
         MANAGED_OOM_KILL,
         _MANAGED_OOM_MODE_MAX,
@@ -248,7 +248,7 @@ typedef enum ManagedOOMMode {
 
 DECLARE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
 
-typedef enum ManagedOOMPreference {
+തരനിർവചനം എണ്ണൽ ManagedOOMPreference {
         MANAGED_OOM_PREFERENCE_NONE = 0,
         MANAGED_OOM_PREFERENCE_AVOID = 1,
         MANAGED_OOM_PREFERENCE_OMIT = 2,

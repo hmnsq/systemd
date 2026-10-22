@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-struct strbuf {
-        char *buf;
+ഘടന strbuf {
+        അക്ഷരം *buf;
         size_t len;
-        struct strbuf_node *root;
+        ഘടന strbuf_കണ്ണി *വേര്;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_എണ്ണം;
+        size_t in_എണ്ണം;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_എണ്ണം;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+ഘടന strbuf_കണ്ണി {
+        size_t മൂല്യം_off;
+        size_t മൂല്യം_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        ഘടന strbuf_child_entry *children;
+        uint8_t children_എണ്ണം;
 };
 
-struct strbuf_child_entry {
+ഘടന strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        ഘടന strbuf_കണ്ണി *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+ഘടന strbuf* strbuf_new(ശൂന്യം);
+ssize_t strbuf_add_string_full(ഘടന strbuf *str, സ്ഥിരം അക്ഷരം *s, size_t len);
+സ്ഥിതം വരിയിൽ ssize_t strbuf_add_string(ഘടന strbuf *str, സ്ഥിരം അക്ഷരം *s) {
+        തിരികെ strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+ശൂന്യം strbuf_complete(ഘടന strbuf *str);
+ഘടന strbuf* strbuf_free(ഘടന strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ഘടന strbuf*, strbuf_free);

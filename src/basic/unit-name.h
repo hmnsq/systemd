@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
 #define UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+തരനിർവചനം എണ്ണൽ UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(സ്ഥിരം അക്ഷരം *n, UnitNameFlags flags) _pure_;
+bool unit_prefix_is_valid(സ്ഥിരം അക്ഷരം *p) _pure_;
+bool unit_instance_is_valid(സ്ഥിരം അക്ഷരം *i) _pure_;
+bool unit_suffix_is_valid(സ്ഥിരം അക്ഷരം *s) _pure_;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+പൂർണ്ണസംഖ്യ unit_name_to_prefix(സ്ഥിരം അക്ഷരം *n, അക്ഷരം **ret);
+UnitNameFlags unit_name_to_instance(സ്ഥിരം അക്ഷരം *n, അക്ഷരം **ret);
+സ്ഥിതം വരിയിൽ UnitNameFlags unit_name_classify(സ്ഥിരം അക്ഷരം *n) {
+        തിരികെ unit_name_to_instance(n, ശൂന്യ);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+പൂർണ്ണസംഖ്യ unit_name_to_prefix_and_instance(സ്ഥിരം അക്ഷരം *n, അക്ഷരം **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_to_type(സ്ഥിരം അക്ഷരം *n) _pure_;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+പൂർണ്ണസംഖ്യ unit_name_change_suffix(സ്ഥിരം അക്ഷരം *n, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+പൂർണ്ണസംഖ്യ unit_name_build(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *instance, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ unit_name_build_from_type(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *instance, UnitType type, അക്ഷരം **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+അക്ഷരം* unit_name_escape(സ്ഥിരം അക്ഷരം *f);
+പൂർണ്ണസംഖ്യ unit_name_unescape(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ unit_name_path_escape(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ unit_name_path_unescape(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+പൂർണ്ണസംഖ്യ unit_name_replace_instance_full(
+                സ്ഥിരം അക്ഷരം *original,
+                സ്ഥിരം അക്ഷരം *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                അക്ഷരം **ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ unit_name_replace_instance(സ്ഥിരം അക്ഷരം *original, സ്ഥിരം അക്ഷരം *instance, അക്ഷരം **ret) {
+        തിരികെ unit_name_replace_instance_full(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+പൂർണ്ണസംഖ്യ unit_name_template(സ്ഥിരം അക്ഷരം *f, അക്ഷരം **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+പൂർണ്ണസംഖ്യ unit_name_hash_long(സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret);
+bool unit_name_is_hashed(സ്ഥിരം അക്ഷരം *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+പൂർണ്ണസംഖ്യ unit_name_from_path(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ unit_name_from_path_instance(സ്ഥിരം അക്ഷരം *prefix, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ unit_name_to_path(സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret);
 
-typedef enum UnitNameMangle {
+തരനിർവചനം എണ്ണൽ UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+പൂർണ്ണസംഖ്യ unit_name_mangle_with_suffix(സ്ഥിരം അക്ഷരം *name, സ്ഥിരം അക്ഷരം *operation, UnitNameMangle flags, സ്ഥിരം അക്ഷരം *suffix, അക്ഷരം **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ unit_name_mangle(സ്ഥിരം അക്ഷരം *name, UnitNameMangle flags, അക്ഷരം **ret) {
+        തിരികെ unit_name_mangle_with_suffix(name, ശൂന്യ, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+പൂർണ്ണസംഖ്യ slice_build_parent_slice(സ്ഥിരം അക്ഷരം *slice, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ slice_build_subslice(സ്ഥിരം അക്ഷരം *slice, സ്ഥിരം അക്ഷരം *name, അക്ഷരം **ret);
+bool slice_name_is_valid(സ്ഥിരം അക്ഷരം *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_prefix_equal(സ്ഥിരം അക്ഷരം *a, സ്ഥിരം അക്ഷരം *b);

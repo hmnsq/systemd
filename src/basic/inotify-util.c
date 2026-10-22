@@ -1,75 +1,75 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "fd-util.h"
-#include "inotify-util.h"
-#include "log.h"
-#include "memory-util.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "inotify-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "memory-util.h"
 
 bool inotify_event_next(
-                union inotify_event_buffer *buffer,
+                സംഘം inotify_event_buffer *buffer,
                 size_t size,
-                struct inotify_event **iterator,
-                int log_level) {
+                ഘടന inotify_event **iterator,
+                പൂർണ്ണസംഖ്യ log_level) {
 
-        struct inotify_event *e;
+        ഘടന inotify_event *e;
         size_t offset = 0;
 
-        assert(buffer);
-        assert(iterator);
+        പ്രതിജ്ഞാ(buffer);
+        പ്രതിജ്ഞാ(iterator);
 
-        if (*iterator) {
-                assert((uint8_t*) *iterator >= buffer->raw);
+        എങ്കിൽ (*iterator) {
+                പ്രതിജ്ഞാ((uint8_t*) *iterator >= buffer->raw);
                 offset = (uint8_t*) *iterator - buffer->raw;
-                offset += offsetof(struct inotify_event, name) + (*iterator)->len;
+                offset += offsetof(ഘടന inotify_event, name) + (*iterator)->len;
         }
 
-        if (size == offset)
-                return false; /* reached end of list */
+        എങ്കിൽ (size == offset)
+                തിരികെ false; /* reached end of list */
 
-        if (size < offset ||
-            size - offset < offsetof(struct inotify_event, name)) {
+        എങ്കിൽ (size < offset ||
+            size - offset < offsetof(ഘടന inotify_event, name)) {
                 log_full(log_level, "Received invalid inotify event, ignoring.");
-                return false;
+                തിരികെ false;
         }
 
-        e = CAST_ALIGN_PTR(struct inotify_event, buffer->raw + offset);
-        if (size - offset - offsetof(struct inotify_event, name) < e->len) {
+        e = CAST_ALIGN_PTR(ഘടന inotify_event, buffer->raw + offset);
+        എങ്കിൽ (size - offset - offsetof(ഘടന inotify_event, name) < e->len) {
                 log_full(log_level, "Received invalid inotify event, ignoring.");
-                return false;
+                തിരികെ false;
         }
 
         *iterator = e;
-        return true;
+        തിരികെ true;
 }
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask) {
-        int wd;
+പൂർണ്ണസംഖ്യ inotify_add_watch_fd(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ what, uint32_t mask) {
+        പൂർണ്ണസംഖ്യ wd;
 
-        assert(fd >= 0);
-        assert(what >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
+        പ്രതിജ്ഞാ(what >= 0);
 
         /* This is like inotify_add_watch(), except that the file to watch is not referenced by a path, but by an fd */
         wd = inotify_add_watch(fd, FORMAT_PROC_FD_PATH(what), mask);
-        if (wd < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        എങ്കിൽ (wd < 0) {
+                എങ്കിൽ (errno != ENOENT)
+                        തിരികെ -errno;
 
-                return proc_fd_enoent_errno();
+                തിരികെ proc_fd_enoent_errno();
         }
 
-        return wd;
+        തിരികെ wd;
 }
 
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask) {
-        int wd;
+പൂർണ്ണസംഖ്യ inotify_add_watch_and_warn(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *pathname, uint32_t mask) {
+        പൂർണ്ണസംഖ്യ wd;
 
         wd = inotify_add_watch(fd, pathname, mask);
-        if (wd < 0) {
-                if (errno == ENOSPC)
-                        return log_error_errno(errno, "Failed to add a watch for %s: inotify watch limit reached", pathname);
+        എങ്കിൽ (wd < 0) {
+                എങ്കിൽ (errno == ENOSPC)
+                        തിരികെ log_error_errno(errno, "Failed to add a watch for %s: inotify watch limit reached", pathname);
 
-                return log_error_errno(errno, "Failed to add a watch for %s: %m", pathname);
+                തിരികെ log_error_errno(errno, "Failed to add a watch for %s: %m", pathname);
         }
 
-        return wd;
+        തിരികെ wd;
 }

@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "ordered-set.h"
+#അന്തര്ഭാവ "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+പൂർണ്ണസംഖ്യ ordered_set_ensure_allocated(OrderedSet **s, സ്ഥിരം ഘടന hash_ops *ops) {
+        പ്രതിജ്ഞാ(s);
 
-        if (*s)
-                return 0;
+        എങ്കിൽ (*s)
+                തിരികെ 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        എങ്കിൽ (!*s)
+                തിരികെ -ENOMEM;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+പൂർണ്ണസംഖ്യ ordered_set_ensure_put(OrderedSet **s, സ്ഥിരം ഘടന hash_ops *ops, ശൂന്യം *p) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return ordered_set_put(*s, p);
+        തിരികെ ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+പൂർണ്ണസംഖ്യ ordered_set_consume(OrderedSet *s, ശൂന്യം *p) {
+        പൂർണ്ണസംഖ്യ r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        എങ്കിൽ (r <= 0)
+                സ്വതന്ത്രം(p);
 
-        return r;
+        തിരികെ r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+പൂർണ്ണസംഖ്യ ordered_set_put_strdup_full(OrderedSet **s, സ്ഥിരം ഘടന hash_ops *hash_ops, സ്ഥിരം അക്ഷരം *p) {
+        അക്ഷരം *c;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(s);
-        assert(p);
+        പ്രതിജ്ഞാ(s);
+        പ്രതിജ്ഞാ(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        എങ്കിൽ (ordered_set_contains(*s, p))
+                തിരികെ 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        എങ്കിൽ (!c)
+                തിരികെ -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        തിരികെ ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+പൂർണ്ണസംഖ്യ ordered_set_put_strdupv_full(OrderedSet **s, സ്ഥിരം ഘടന hash_ops *hash_ops, അക്ഷരം **l) {
+        പൂർണ്ണസംഖ്യ r, ret = 0;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        തിരികെ ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+പൂർണ്ണസംഖ്യ ordered_set_put_string_set_full(OrderedSet **s, സ്ഥിരം ഘടന hash_ops *hash_ops, OrderedSet *l) {
+        പൂർണ്ണസംഖ്യ r, ret = 0;
+        അക്ഷരം *p;
 
-        assert(s);
+        പ്രതിജ്ഞാ(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        തിരികെ ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+ശൂന്യം ordered_set_print(FILE *f, സ്ഥിരം അക്ഷരം *field, OrderedSet *s) {
         bool space = false;
-        char *p;
+        അക്ഷരം *p;
 
-        assert(f);
-        assert(field);
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        എങ്കിൽ (ordered_set_isempty(s))
+                തിരികെ;
 
         fputs(field, f);
 
         ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+                fputs_with_separator(f, p, ശൂന്യ, &space);
 
         fputc('\n', f);
 }

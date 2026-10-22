@@ -10,22 +10,22 @@
 
 // Microsoft Visual Studio
 
-#if defined(_MSC_VER)
+#എങ്കിൽ defined(_MSC_VER)
 
-typedef unsigned char uint8_t;
-typedef unsigned long uint32_t;
-typedef unsigned __int64 uint64_t;
+തരനിർവചനം unsigned അക്ഷരം uint8_t;
+തരനിർവചനം unsigned long uint32_t;
+തരനിർവചനം unsigned __int64 uint64_t;
 
 // Other compilers
 
-#else        // defined(_MSC_VER)
+#അല്ലെങ്കിൽ        // defined(_MSC_VER)
 
-#include <stdint.h>
+#അന്തര്ഭാവ <stdint.h>
 
 #endif // !defined(_MSC_VER)
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2        ( const void * key, int len, uint32_t seed );
+uint32_t MurmurHash2        ( സ്ഥിരം ശൂന്യം * താക്കോൽ, പൂർണ്ണസംഖ്യ len, uint32_t seed );
 
 //-----------------------------------------------------------------------------

@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "errno-list.h"
+#അന്തര്ഭാവ "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+സ്ഥിതം സ്ഥിരം ഘടന errno_name* lookup_errno(രജിസ്റ്റർ സ്ഥിരം അക്ഷരം *str,
+                                             രജിസ്റ്റർ GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#അന്തര്ഭാവ "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+പൂർണ്ണസംഖ്യ errno_from_name(സ്ഥിരം അക്ഷരം *name) {
+        സ്ഥിരം ഘടന errno_name *sc;
 
-        assert(name);
+        പ്രതിജ്ഞാ(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        എങ്കിൽ (!sc)
+                തിരികെ -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        പ്രതിജ്ഞാ(sc->id > 0);
+        തിരികെ sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+സ്ഥിരം അക്ഷരം* errno_name_no_fallback(പൂർണ്ണസംഖ്യ id) {
+        എങ്കിൽ (id == 0) /* To stay in line with our implementation below.  */
+                തിരികെ ശൂന്യ;
 
-        return strerrorname_np(ABS(id));
+        തിരികെ strerrorname_np(ABS(id));
 }
-#else
+#അല്ലെങ്കിൽ
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+സ്ഥിരം അക്ഷരം* errno_name_no_fallback(പൂർണ്ണസംഖ്യ id) {
+        എങ്കിൽ (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        എങ്കിൽ ((size_t) id >= ELEMENTSOF(errno_names))
+                തിരികെ ശൂന്യ;
 
-        return errno_names[id];
+        തിരികെ errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+സ്ഥിരം അക്ഷരം* errno_name(പൂർണ്ണസംഖ്യ id, അക്ഷരം buf[സ്ഥിതം ERRNO_NAME_BUF_LEN]) {
+        സ്ഥിരം അക്ഷരം *a = errno_name_no_fallback(id);
+        എങ്കിൽ (a)
+                തിരികെ a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        തിരികെ buf;
 }

@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
-typedef enum ExtractFlags {
+തരനിർവചനം എണ്ണൽ ExtractFlags {
         EXTRACT_RELAX                    = 1 << 0, /* Allow unbalanced quote and eat up trailing backslash. */
         EXTRACT_CUNESCAPE                = 1 << 1, /* Unescape known escape sequences. */
         EXTRACT_UNESCAPE_RELAX           = 1 << 2, /* Allow and keep unknown escape sequences, allow and keep trailing backslash. */
@@ -17,9 +17,9 @@ typedef enum ExtractFlags {
         /* Note that if no flags are specified, escaped escape characters will be silently stripped. */
 } ExtractFlags;
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags);
-int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned line, const char *rvalue);
+പൂർണ്ണസംഖ്യ extract_first_word(സ്ഥിരം അക്ഷരം **p, അക്ഷരം **ret, സ്ഥിരം അക്ഷരം *separators, ExtractFlags flags);
+പൂർണ്ണസംഖ്യ extract_first_word_and_warn(സ്ഥിരം അക്ഷരം **p, അക്ഷരം **ret, സ്ഥിരം അക്ഷരം *separators, ExtractFlags flags, സ്ഥിരം അക്ഷരം *unit, സ്ഥിരം അക്ഷരം *filename, unsigned വരി, സ്ഥിരം അക്ഷരം *rvalue);
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
-#define extract_many_words(p, separators, flags, ...) \
-        extract_many_words_internal(p, separators, flags, ##__VA_ARGS__, NULL)
+പൂർണ്ണസംഖ്യ extract_many_വാക്കുകൾ_internal(സ്ഥിരം അക്ഷരം **p, സ്ഥിരം അക്ഷരം *separators, unsigned flags, ...) _sentinel_;
+#define extract_many_വാക്കുകൾ(p, separators, flags, ...) \
+        extract_many_വാക്കുകൾ_internal(p, separators, flags, ##__VA_ARGS__, ശൂന്യ)

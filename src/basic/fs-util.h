@@ -1,117 +1,117 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "lock-util.h"
+#അന്തര്ഭാവ "forward.h"
+#അന്തര്ഭാവ "lock-util.h"
 
 /* The following macros add 1 when converting things, since 0 is a valid mode, while the pointer
  * NULL is special */
-static inline mode_t PTR_TO_MODE(void *p) {
-        return p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
+സ്ഥിതം വരിയിൽ mode_t PTR_TO_MODE(ശൂന്യം *p) {
+        തിരികെ p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
 }
-static inline void* MODE_TO_PTR(mode_t m) {
-        return m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
-}
-
-int rmdir_parents(const char *path, const char *stop);
-
-int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-
-int readlinkat_malloc(int fd, const char *p, char **ret);
-static inline int readlink_malloc(const char *p, char **ret) {
-        return readlinkat_malloc(AT_FDCWD, p, ret);
-}
-int readlink_value(const char *p, char **ret);
-int readlink_and_make_absolute(const char *p, char **ret);
-
-int chmod_and_chown_at(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int chmod_and_chown(const char *path, mode_t mode, uid_t uid, gid_t gid) {
-        return chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
-}
-int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int fchmod_and_chown(int fd, mode_t mode, uid_t uid, gid_t gid) {
-        return fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
+സ്ഥിതം വരിയിൽ ശൂന്യം* MODE_TO_PTR(mode_t m) {
+        തിരികെ m == MODE_INVALID ? ശൂന്യ : (ശൂന്യം *) ((uintptr_t) m + 1);
 }
 
-int fchmod_umask(int fd, mode_t mode);
-int fchmod_opath(int fd, mode_t m);
+പൂർണ്ണസംഖ്യ rmdir_parents(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *stop);
 
-int futimens_opath(int fd, const struct timespec ts[2]);
+പൂർണ്ണസംഖ്യ rename_noreplace(പൂർണ്ണസംഖ്യ olddirfd, സ്ഥിരം അക്ഷരം *oldpath, പൂർണ്ണസംഖ്യ newdirfd, സ്ഥിരം അക്ഷരം *newpath);
 
-int fd_warn_permissions(const char *path, int fd);
-int stat_warn_permissions(const char *path, const struct stat *st);
+പൂർണ്ണസംഖ്യ readlinkat_malloc(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *p, അക്ഷരം **ret);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ readlink_malloc(സ്ഥിരം അക്ഷരം *p, അക്ഷരം **ret) {
+        തിരികെ readlinkat_malloc(AT_FDCWD, p, ret);
+}
+പൂർണ്ണസംഖ്യ readlink_മൂല്യം(സ്ഥിരം അക്ഷരം *p, അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ readlink_and_make_absolute(സ്ഥിരം അക്ഷരം *p, അക്ഷരം **ret);
 
-int access_nofollow(const char *path, int mode);
-int access_fd(int fd, int mode);
-
-int touch_fd(int fd, usec_t stamp);
-int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
-int touch(const char *path);
-
-int symlinkat_idempotent(const char *target, int atfd, const char *linkpath, bool make_relative);
-static inline int symlink_idempotent(const char *target, const char *linkpath, bool make_relative) {
-        return symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+പൂർണ്ണസംഖ്യ chmod_and_chown_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ chmod_and_chown(സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid) {
+        തിരികെ chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
+}
+പൂർണ്ണസംഖ്യ fchmod_and_chown_with_fallback(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *path, mode_t mode, uid_t uid, gid_t gid);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ fchmod_and_chown(പൂർണ്ണസംഖ്യ fd, mode_t mode, uid_t uid, gid_t gid) {
+        തിരികെ fchmod_and_chown_with_fallback(fd, ശൂന്യ, mode, uid, gid); /* no fallback */
 }
 
-typedef enum SymlinkFlags {
+പൂർണ്ണസംഖ്യ fchmod_umask(പൂർണ്ണസംഖ്യ fd, mode_t mode);
+പൂർണ്ണസംഖ്യ fchmod_opath(പൂർണ്ണസംഖ്യ fd, mode_t m);
+
+പൂർണ്ണസംഖ്യ futimens_opath(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം ഘടന timespec ts[2]);
+
+പൂർണ്ണസംഖ്യ fd_warn_permissions(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ fd);
+പൂർണ്ണസംഖ്യ stat_warn_permissions(സ്ഥിരം അക്ഷരം *path, സ്ഥിരം ഘടന stat *st);
+
+പൂർണ്ണസംഖ്യ access_nofollow(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ mode);
+പൂർണ്ണസംഖ്യ access_fd(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ mode);
+
+പൂർണ്ണസംഖ്യ touch_fd(പൂർണ്ണസംഖ്യ fd, usec_t stamp);
+പൂർണ്ണസംഖ്യ touch_file(സ്ഥിരം അക്ഷരം *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
+പൂർണ്ണസംഖ്യ touch(സ്ഥിരം അക്ഷരം *path);
+
+പൂർണ്ണസംഖ്യ symlinkat_idempotent(സ്ഥിരം അക്ഷരം *target, പൂർണ്ണസംഖ്യ atfd, സ്ഥിരം അക്ഷരം *linkpath, bool make_relative);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ symlink_idempotent(സ്ഥിരം അക്ഷരം *target, സ്ഥിരം അക്ഷരം *linkpath, bool make_relative) {
+        തിരികെ symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+}
+
+തരനിർവചനം എണ്ണൽ SymlinkFlags {
         SYMLINK_MAKE_RELATIVE = 1 << 0,
         SYMLINK_LABEL         = 1 << 1,
 } SymlinkFlags;
 
-int symlinkat_atomic_full_label(const char *target, int atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context);
-static inline int symlinkat_atomic_full(const char *target, int atfd, const char *linkpath, SymlinkFlags flags) {
-        return symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
+പൂർണ്ണസംഖ്യ symlinkat_atomic_full_label(സ്ഥിരം അക്ഷരം *target, പൂർണ്ണസംഖ്യ atfd, സ്ഥിരം അക്ഷരം *linkpath, SymlinkFlags flags, LabelContext *label_context);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ symlinkat_atomic_full(സ്ഥിരം അക്ഷരം *target, പൂർണ്ണസംഖ്യ atfd, സ്ഥിരം അക്ഷരം *linkpath, SymlinkFlags flags) {
+        തിരികെ symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ ശൂന്യ);
 }
-static inline int symlink_atomic(const char *target, const char *linkpath) {
-        return symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
-}
-
-int mknodat_atomic(int atfd, const char *path, mode_t mode, dev_t dev);
-static inline int mknod_atomic(const char *path, mode_t mode, dev_t dev) {
-        return mknodat_atomic(AT_FDCWD, path, mode, dev);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ symlink_atomic(സ്ഥിരം അക്ഷരം *target, സ്ഥിരം അക്ഷരം *linkpath) {
+        തിരികെ symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
 }
 
-int mkfifoat_atomic(int dir_fd, const char *path, mode_t mode);
-static inline int mkfifo_atomic(const char *path, mode_t mode) {
-        return mkfifoat_atomic(AT_FDCWD, path, mode);
+പൂർണ്ണസംഖ്യ mknodat_atomic(പൂർണ്ണസംഖ്യ atfd, സ്ഥിരം അക്ഷരം *path, mode_t mode, dev_t dev);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ mknod_atomic(സ്ഥിരം അക്ഷരം *path, mode_t mode, dev_t dev) {
+        തിരികെ mknodat_atomic(AT_FDCWD, path, mode, dev);
 }
 
-int get_files_in_directory(const char *path, char ***list);
+പൂർണ്ണസംഖ്യ mkfifoat_atomic(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, mode_t mode);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ mkfifo_atomic(സ്ഥിരം അക്ഷരം *path, mode_t mode) {
+        തിരികെ mkfifoat_atomic(AT_FDCWD, path, mode);
+}
 
-int tmp_dir(const char **ret);
-int var_tmp_dir(const char **ret);
+പൂർണ്ണസംഖ്യ get_files_in_directory(സ്ഥിരം അക്ഷരം *path, അക്ഷരം ***list);
 
-int unlink_or_warn(const char *filename);
+പൂർണ്ണസംഖ്യ tmp_dir(സ്ഥിരം അക്ഷരം **ret);
+പൂർണ്ണസംഖ്യ var_tmp_dir(സ്ഥിരം അക്ഷരം **ret);
+
+പൂർണ്ണസംഖ്യ unlink_or_warn(സ്ഥിരം അക്ഷരം *filename);
 
 /* Useful for usage with _cleanup_(), removes a directory and frees the pointer */
-char *rmdir_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, rmdir_and_free);
+അക്ഷരം *rmdir_and_free(അക്ഷരം *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(അക്ഷരം*, rmdir_and_free);
 
-char* unlink_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, unlink_and_free);
+അക്ഷരം* unlink_and_free(അക്ഷരം *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(അക്ഷരം*, unlink_and_free);
 
-typedef enum UnlinkDeallocateFlags {
+തരനിർവചനം എണ്ണൽ UnlinkDeallocateFlags {
         UNLINK_REMOVEDIR = 1 << 0,
         UNLINK_ERASE     = 1 << 1,
 } UnlinkDeallocateFlags;
 
-int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags);
+പൂർണ്ണസംഖ്യ unlinkat_deallocate(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *name, UnlinkDeallocateFlags flags);
 
-int open_parent_at(int dir_fd, const char *path, int flags, mode_t mode);
-static inline int open_parent(const char *path, int flags, mode_t mode) {
-        return open_parent_at(AT_FDCWD, path, flags, mode);
+പൂർണ്ണസംഖ്യ open_parent_at(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, mode_t mode);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ open_parent(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, mode_t mode) {
+        തിരികെ open_parent_at(AT_FDCWD, path, flags, mode);
 }
 
-int conservative_renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-static inline int conservative_rename(const char *oldpath, const char *newpath) {
-        return conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
+പൂർണ്ണസംഖ്യ conservative_renameat(പൂർണ്ണസംഖ്യ olddirfd, സ്ഥിരം അക്ഷരം *oldpath, പൂർണ്ണസംഖ്യ newdirfd, സ്ഥിരം അക്ഷരം *newpath);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ conservative_rename(സ്ഥിരം അക്ഷരം *oldpath, സ്ഥിരം അക്ഷരം *newpath) {
+        തിരികെ conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
 }
 
-int posix_fallocate_loop(int fd, uint64_t offset, uint64_t size);
+പൂർണ്ണസംഖ്യ posix_fallocate_loop(പൂർണ്ണസംഖ്യ fd, uint64_t offset, uint64_t size);
 
-int parse_cifs_service(const char *s, char **ret_host, char **ret_service, char **ret_path);
+പൂർണ്ണസംഖ്യ parse_cifs_service(സ്ഥിരം അക്ഷരം *s, അക്ഷരം **ret_host, അക്ഷരം **ret_service, അക്ഷരം **ret_path);
 
-typedef enum XOpenFlags {
+തരനിർവചനം എണ്ണൽ XOpenFlags {
         XO_LABEL             = 1 << 0, /* When creating: relabel */
         XO_SUBVOLUME         = 1 << 1, /* When creating as directory: make it a subvolume */
         XO_NOCOW             = 1 << 2, /* Enable NOCOW mode after opening */
@@ -122,53 +122,53 @@ typedef enum XOpenFlags {
         XO_AUTO_RW_RO        = 1 << 7, /* Open in O_RDWR mode if possible, O_RDONLY if not */
 } XOpenFlags;
 
-int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int open_mkdir_at_full(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode) {
-        return open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
+പൂർണ്ണസംഖ്യ open_mkdir_at_full_label(പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ open_mkdir_at_full(പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, XOpenFlags xopen_flags, mode_t mode) {
+        തിരികെ open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ ശൂന്യ);
 }
-static inline int open_mkdir_at(int dirfd, const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(dirfd, path, flags, 0, mode);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ open_mkdir_at(പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, mode_t mode) {
+        തിരികെ open_mkdir_at_full(dirfd, path, flags, 0, mode);
 }
-static inline int open_mkdir(const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
-}
-
-int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, bool *ret_newly_created);
-
-int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int xopenat_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode) {
-        return xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
-}
-static inline int xopenat(int dir_fd, const char *path, int open_flags) {
-        return xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ open_mkdir(സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ flags, mode_t mode) {
+        തിരികെ open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
 }
 
-int xopenat_lock_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation, LabelContext *label_context);
-static inline int xopenat_lock_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation) {
-        return xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+പൂർണ്ണസംഖ്യ openat_report_new(പൂർണ്ണസംഖ്യ dirfd, സ്ഥിരം അക്ഷരം *pathname, പൂർണ്ണസംഖ്യ flags, mode_t mode, bool *ret_newly_created);
+
+പൂർണ്ണസംഖ്യ xopenat_full_label(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ xopenat_full(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ open_flags, XOpenFlags xopen_flags, mode_t mode) {
+        തിരികെ xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ ശൂന്യ);
 }
-static inline int xopenat_lock(int dir_fd, const char *path, int open_flags, LockType locktype, int operation) {
-        return xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ xopenat(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ open_flags) {
+        തിരികെ xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
 }
 
-int link_fd(int fd, int newdirfd, const char *newpath);
+പൂർണ്ണസംഖ്യ xopenat_lock_full_label(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, പൂർണ്ണസംഖ്യ operation, LabelContext *label_context);
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ xopenat_lock_full(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, പൂർണ്ണസംഖ്യ operation) {
+        തിരികെ xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ ശൂന്യ);
+}
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ xopenat_lock(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *path, പൂർണ്ണസംഖ്യ open_flags, LockType locktype, പൂർണ്ണസംഖ്യ operation) {
+        തിരികെ xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+}
 
-int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
+പൂർണ്ണസംഖ്യ link_fd(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ newdirfd, സ്ഥിരം അക്ഷരം *newpath);
 
-static inline int at_flags_normalize_nofollow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
-                assert(!FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW));
+പൂർണ്ണസംഖ്യ linkat_replace(പൂർണ്ണസംഖ്യ olddirfd, സ്ഥിരം അക്ഷരം *oldpath, പൂർണ്ണസംഖ്യ newdirfd, സ്ഥിരം അക്ഷരം *newpath);
+
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ at_flags_normalize_nofollow(പൂർണ്ണസംഖ്യ flags) {
+        എങ്കിൽ (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
+                പ്രതിജ്ഞാ(!FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW));
                 flags &= ~AT_SYMLINK_FOLLOW;
-        } else
+        } അല്ലെങ്കിൽ
                 flags |= AT_SYMLINK_NOFOLLOW;
-        return flags;
+        തിരികെ flags;
 }
 
-static inline int at_flags_normalize_follow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
-                assert(!FLAGS_SET(flags, AT_SYMLINK_FOLLOW));
+സ്ഥിതം വരിയിൽ പൂർണ്ണസംഖ്യ at_flags_normalize_follow(പൂർണ്ണസംഖ്യ flags) {
+        എങ്കിൽ (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
+                പ്രതിജ്ഞാ(!FLAGS_SET(flags, AT_SYMLINK_FOLLOW));
                 flags &= ~AT_SYMLINK_NOFOLLOW;
-        } else
+        } അല്ലെങ്കിൽ
                 flags |= AT_SYMLINK_FOLLOW;
-        return flags;
+        തിരികെ flags;
 }

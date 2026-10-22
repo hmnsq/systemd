@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#അന്തര്ഭാവ <stdlib.h>
 
-#include "alloc-util.h"
-#include "ansi-color.h"
-#include "chase.h"
-#include "dirent-util.h"
-#include "env-file.h"
-#include "errno-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "glyph-util.h"
-#include "log.h"
-#include "os-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "utf8.h"
-#include "xattr-util.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "ansi-color.h"
+#അന്തര്ഭാവ "chase.h"
+#അന്തര്ഭാവ "dirent-util.h"
+#അന്തര്ഭാവ "env-file.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "escape.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "fs-util.h"
+#അന്തര്ഭാവ "glyph-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "os-util.h"
+#അന്തര്ഭാവ "path-util.h"
+#അന്തര്ഭാവ "stat-util.h"
+#അന്തര്ഭാവ "string-table.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "time-util.h"
+#അന്തര്ഭാവ "utf8.h"
+#അന്തര്ഭാവ "xattr-util.h"
 
-static const char* const image_class_table[_IMAGE_CLASS_MAX] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം* സ്ഥിരം image_class_table[_IMAGE_CLASS_MAX] = {
         [IMAGE_MACHINE]  = "machine",
         [IMAGE_PORTABLE] = "portable",
         [IMAGE_SYSEXT]   = "sysext",
@@ -33,9 +33,9 @@ static const char* const image_class_table[_IMAGE_CLASS_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(image_class, ImageClass);
 
 /* Helper struct for naming simplicity and reusability */
-static const struct {
-        const char *release_file_directory;
-        const char *release_file_path_prefix;
+സ്ഥിതം സ്ഥിരം ഘടന {
+        സ്ഥിരം അക്ഷരം *release_file_directory;
+        സ്ഥിരം അക്ഷരം *release_file_path_prefix;
 } image_class_release_info[_IMAGE_CLASS_MAX] = {
         [IMAGE_SYSEXT] = {
                 .release_file_directory = "/usr/lib/extension-release.d/",
@@ -47,203 +47,203 @@ static const struct {
         }
 };
 
-bool image_name_is_valid(const char *s) {
-        if (!filename_is_valid(s))
-                return false;
+bool image_name_is_valid(സ്ഥിരം അക്ഷരം *s) {
+        എങ്കിൽ (!filename_is_valid(s))
+                തിരികെ false;
 
-        if (string_has_cc(s, NULL))
-                return false;
+        എങ്കിൽ (string_has_cc(s, ശൂന്യ))
+                തിരികെ false;
 
-        if (!utf8_is_valid(s))
-                return false;
+        എങ്കിൽ (!utf8_is_valid(s))
+                തിരികെ false;
 
         /* Temporary files for atomically creating new files */
-        if (startswith(s, ".#"))
-                return false;
+        എങ്കിൽ (startswith(s, ".#"))
+                തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-int path_extract_image_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ path_extract_image_name(സ്ഥിരം അക്ഷരം *path, അക്ഷരം **ret) {
+        _cleanup_free_ അക്ഷരം *fn = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
-        assert(ret);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(ret);
 
         /* Extract last component from path, without any "/" suffixes. */
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r != O_DIRECTORY) {
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r != O_DIRECTORY) {
                 /* Chop off any image suffixes we recognize (unless we already know this must refer to some dir) */
-                char *m = ENDSWITH_SET(fn, ".sysext.raw", ".confext.raw", ".raw");
-                if (m)
+                അക്ഷരം *m = ENDSWITH_SET(fn, ".sysext.raw", ".confext.raw", ".raw");
+                എങ്കിൽ (m)
                         *m = 0;
         }
 
         /* Truncate the version/counting suffixes */
         fn[strcspn(fn, "_+")] = 0;
 
-        if (!image_name_is_valid(fn))
-                return -EINVAL;
+        എങ്കിൽ (!image_name_is_valid(fn))
+                തിരികെ -EINVAL;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        തിരികെ 0;
 }
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check) {
-        int r;
+പൂർണ്ണസംഖ്യ path_is_extension_വൃക്ഷം(ImageClass image_class, സ്ഥിരം അക്ഷരം *path, സ്ഥിരം അക്ഷരം *extension, bool relax_extension_release_check) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
+        പ്രതിജ്ഞാ(path);
 
         /* Does the path exist at all? If not, generate an error immediately. This is useful so that a missing root dir
          * always results in -ENOENT, and we can properly distinguish the case where the whole root doesn't exist from
          * the case where just the os-release file is missing. */
         r = access_nofollow(path, F_OK);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         /* We use /usr/lib/extension-release.d/extension-release[.NAME] as flag for something being a system extension,
          * /etc/extension-release.d/extension-release[.NAME] as flag for something being a system configuration, and finally,
          * and {/etc|/usr/lib}/os-release as a flag for something being an OS (when not an extension). */
-        r = open_extension_release(path, image_class, extension, relax_extension_release_check, NULL, NULL);
-        if (r == -ENOENT) /* We got nothing */
-                return 0;
-        if (r < 0)
-                return r;
+        r = open_extension_release(path, image_class, extension, relax_extension_release_check, ശൂന്യ, ശൂന്യ);
+        എങ്കിൽ (r == -ENOENT) /* We got nothing */
+                തിരികെ 0;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return 1;
+        തിരികെ 1;
 }
 
-int fd_is_os_tree(int fd) {
-        int r;
+പൂർണ്ണസംഖ്യ fd_is_os_വൃക്ഷം(പൂർണ്ണസംഖ്യ fd) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         r = open_extension_release_at(
                         fd,
                         IMAGE_MACHINE,
-                        /* extension= */ NULL,
+                        /* extension= */ ശൂന്യ,
                         /* relax_extension_release_check= */ false,
-                        /* ret_path= */ NULL,
-                        /* ret_fd= */ NULL);
-        if (r == -ENOENT)
-                return false;
-        if (r < 0)
-                return r;
+                        /* ret_path= */ ശൂന്യ,
+                        /* ret_fd= */ ശൂന്യ);
+        എങ്കിൽ (r == -ENOENT)
+                തിരികെ false;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return true;
+        തിരികെ true;
 }
 
-static int extension_release_strict_xattr_value(int extension_release_fd, const char *extension_release_dir_path, const char *filename) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ extension_release_strict_xattr_മൂല്യം(പൂർണ്ണസംഖ്യ extension_release_fd, സ്ഥിരം അക്ഷരം *extension_release_dir_path, സ്ഥിരം അക്ഷരം *filename) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(extension_release_fd >= 0);
-        assert(extension_release_dir_path);
-        assert(filename);
+        പ്രതിജ്ഞാ(extension_release_fd >= 0);
+        പ്രതിജ്ഞാ(extension_release_dir_path);
+        പ്രതിജ്ഞാ(filename);
 
         /* No xattr or cannot parse it? Then skip this. */
-        r = getxattr_at_bool(extension_release_fd, /* path= */ NULL, "user.extension-release.strict", /* at_flags= */ 0);
-        if (ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return log_debug_errno(r, "%s/%s does not have user.extension-release.strict xattr, ignoring.",
+        r = getxattr_at_bool(extension_release_fd, /* path= */ ശൂന്യ, "user.extension-release.strict", /* at_flags= */ 0);
+        എങ്കിൽ (ERRNO_IS_NEG_XATTR_ABSENT(r))
+                തിരികെ log_debug_errno(r, "%s/%s does not have user.extension-release.strict xattr, ignoring.",
                                        extension_release_dir_path, filename);
-        if (r < 0)
-                return log_debug_errno(r, "%s/%s: Failed to read 'user.extension-release.strict' extended attribute from file, ignoring: %m",
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "%s/%s: Failed to read 'user.extension-release.strict' extended attribute from file, ignoring: %m",
                                        extension_release_dir_path, filename);
 
         /* Explicitly set to request strict matching? Skip it. */
-        if (r > 0) {
+        എങ്കിൽ (r > 0) {
                 log_debug("%s/%s: 'user.extension-release.strict' attribute is true, ignoring file.",
                           extension_release_dir_path, filename);
-                return true;
+                തിരികെ true;
         }
 
         log_debug("%s/%s: 'user.extension-release.strict' attribute is false%s",
                   extension_release_dir_path, filename,
                   glyph(GLYPH_ELLIPSIS));
 
-        return false;
+        തിരികെ false;
 }
 
-int open_os_release_at(int rfd, char **ret_path, int *ret_fd) {
-        const char *e;
-        int r;
+പൂർണ്ണസംഖ്യ open_os_release_at(പൂർണ്ണസംഖ്യ rfd, അക്ഷരം **ret_path, പൂർണ്ണസംഖ്യ *ret_fd) {
+        സ്ഥിരം അക്ഷരം *e;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
 
         e = secure_getenv("SYSTEMD_OS_RELEASE");
-        if (e)
-                return chaseat(rfd, rfd, e, /* flags= */ 0, ret_path, ret_fd);
+        എങ്കിൽ (e)
+                തിരികെ chaseat(rfd, rfd, e, /* flags= */ 0, ret_path, ret_fd);
 
         FOREACH_STRING(path, "/etc/os-release", "/usr/lib/os-release") {
                 r = chaseat(rfd, rfd, path, /* flags= */ 0, ret_path, ret_fd);
-                if (r != -ENOENT)
-                        return r;
+                എങ്കിൽ (r != -ENOENT)
+                        തിരികെ r;
         }
 
-        return -ENOENT;
+        തിരികെ -ENOENT;
 }
 
-int open_os_release(const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int rfd = XAT_FDROOT, fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ open_os_release(സ്ഥിരം അക്ഷരം *വേര്, അക്ഷരം **ret_path, പൂർണ്ണസംഖ്യ *ret_fd) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = XAT_FDROOT, fd = -EBADF;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        എങ്കിൽ (!empty_or_വേര്(വേര്)) {
+                rfd = open(വേര്, O_CLOEXEC | O_DIRECTORY | O_PATH);
+                എങ്കിൽ (rfd < 0)
+                        തിരികെ -errno;
         }
 
-        r = open_os_release_at(rfd, ret_path ? &p : NULL, ret_fd ? &fd : NULL);
-        if (r < 0)
-                return r;
+        r = open_os_release_at(rfd, ret_path ? &p : ശൂന്യ, ret_fd ? &fd : ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
-                if (r < 0)
-                        return r;
+        എങ്കിൽ (ret_path) {
+                r = chaseat_prefix_വേര്(p, വേര്, ret_path);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (ret_fd)
+        എങ്കിൽ (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int open_extension_release_at(
-                int rfd,
+പൂർണ്ണസംഖ്യ open_extension_release_at(
+                പൂർണ്ണസംഖ്യ rfd,
                 ImageClass image_class,
-                const char *extension,
+                സ്ഥിരം അക്ഷരം *extension,
                 bool relax_extension_release_check,
-                char **ret_path,
-                int *ret_fd) {
+                അക്ഷരം **ret_path,
+                പൂർണ്ണസംഖ്യ *ret_fd) {
 
-        _cleanup_free_ char *dir_path = NULL, *path_found = NULL;
-        _cleanup_close_ int fd_found = -EBADF;
-        _cleanup_closedir_ DIR *dir = NULL;
+        _cleanup_free_ അക്ഷരം *dir_path = ശൂന്യ, *path_found = ശൂന്യ;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd_found = -EBADF;
+        _cleanup_closedir_ DIR *dir = ശൂന്യ;
         bool found = false;
-        const char *p;
-        int r;
+        സ്ഥിരം അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(!extension || (image_class >= 0 && image_class < _IMAGE_CLASS_MAX));
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(!extension || (image_class >= 0 && image_class < _IMAGE_CLASS_MAX));
 
-        if (!extension)
-                return open_os_release_at(rfd, ret_path, ret_fd);
+        എങ്കിൽ (!extension)
+                തിരികെ open_os_release_at(rfd, ret_path, ret_fd);
 
-        if (!IN_SET(image_class, IMAGE_SYSEXT, IMAGE_CONFEXT))
-                return -EINVAL;
+        എങ്കിൽ (!IN_SET(image_class, IMAGE_SYSEXT, IMAGE_CONFEXT))
+                തിരികെ -EINVAL;
 
-        if (!image_name_is_valid(extension))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The extension name %s is invalid.", extension);
+        എങ്കിൽ (!image_name_is_valid(extension))
+                തിരികെ log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The extension name %s is invalid.", extension);
 
         p = strjoina(image_class_release_info[image_class].release_file_path_prefix, extension);
         r = chaseat(rfd, rfd, p, /* flags= */ 0, ret_path, ret_fd);
         log_full_errno_zerook(LOG_DEBUG, MIN(r, 0), "Checking for %s: %m", p);
-        if (r != -ENOENT)
-                return r;
+        എങ്കിൽ (r != -ENOENT)
+                തിരികെ r;
 
         /* Cannot find the expected extension-release file? The image filename might have been mangled on
          * deployment, so fallback to checking for any file in the extension-release.d directory, and return
@@ -252,310 +252,310 @@ int open_extension_release_at(
 
         p = image_class_release_info[image_class].release_file_directory;
         r = chase_and_opendirat(rfd, rfd, p, /* chase_flags= */ 0, &dir_path, &dir);
-        if (r < 0)
-                return log_debug_errno(r, "Cannot open %s, ignoring: %m", p);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_debug_errno(r, "Cannot open %s, ignoring: %m", p);
 
-        FOREACH_DIRENT(de, dir, return -errno) {
-                _cleanup_close_ int fd = -EBADF;
-                const char *image_name;
+        FOREACH_DIRENT(de, dir, തിരികെ -errno) {
+                _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+                സ്ഥിരം അക്ഷരം *image_name;
 
-                if (!IN_SET(de->d_type, DT_REG, DT_UNKNOWN))
-                        continue;
+                എങ്കിൽ (!IN_SET(de->d_type, DT_REG, DT_UNKNOWN))
+                        തുടരുക;
 
                 image_name = startswith(de->d_name, "extension-release.");
-                if (!image_name)
-                        continue;
+                എങ്കിൽ (!image_name)
+                        തുടരുക;
 
-                if (!image_name_is_valid(image_name)) {
+                എങ്കിൽ (!image_name_is_valid(image_name)) {
                         log_debug("%s/%s is not a valid release file name, ignoring.", dir_path, de->d_name);
-                        continue;
+                        തുടരുക;
                 }
 
                 /* We already chased the directory, and checked that this is a real file, so we shouldn't
                  * fail to open it. */
                 fd = openat(dirfd(dir), de->d_name, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-                if (fd < 0)
-                        return log_debug_errno(errno, "Failed to open release file %s/%s: %m", dir_path, de->d_name);
+                എങ്കിൽ (fd < 0)
+                        തിരികെ log_debug_errno(errno, "Failed to open release file %s/%s: %m", dir_path, de->d_name);
 
                 /* Really ensure it is a regular file after we open it. */
                 r = fd_verify_regular(fd);
-                if (r < 0) {
+                എങ്കിൽ (r < 0) {
                         log_debug_errno(r, "%s/%s is not a regular file, ignoring: %m", dir_path, de->d_name);
-                        continue;
+                        തുടരുക;
                 }
 
-                if (!relax_extension_release_check) {
-                        _cleanup_free_ char *base_extension = NULL;
+                എങ്കിൽ (!relax_extension_release_check) {
+                        _cleanup_free_ അക്ഷരം *base_extension = ശൂന്യ;
 
                         r = path_extract_image_name(extension, &base_extension);
-                        if (r < 0) {
+                        എങ്കിൽ (r < 0) {
                                 log_debug_errno(r, "Failed to extract image name from %s, ignoring: %m", extension);
-                                continue;
+                                തുടരുക;
                         }
 
-                        if (!streq(image_name, base_extension) &&
-                            extension_release_strict_xattr_value(fd, dir_path, image_name) != 0)
-                                continue;
+                        എങ്കിൽ (!streq(image_name, base_extension) &&
+                            extension_release_strict_xattr_മൂല്യം(fd, dir_path, image_name) != 0)
+                                തുടരുക;
                 }
 
                 /* We already found what we were looking for, but there's another candidate? We treat this as
                  * an error, as we want to enforce that there are no ambiguities in case we are in the
                  * fallback path. */
-                if (found)
-                        return -ENOTUNIQ;
+                എങ്കിൽ (found)
+                        തിരികെ -ENOTUNIQ;
 
                 found = true;
 
-                if (ret_fd)
+                എങ്കിൽ (ret_fd)
                         fd_found = TAKE_FD(fd);
 
-                if (ret_path) {
+                എങ്കിൽ (ret_path) {
                         path_found = path_join(dir_path, de->d_name);
-                        if (!path_found)
-                                return -ENOMEM;
+                        എങ്കിൽ (!path_found)
+                                തിരികെ -ENOMEM;
                 }
         }
-        if (!found)
-                return -ENOENT;
+        എങ്കിൽ (!found)
+                തിരികെ -ENOENT;
 
-        if (ret_fd)
+        എങ്കിൽ (ret_fd)
                 *ret_fd = TAKE_FD(fd_found);
-        if (ret_path)
+        എങ്കിൽ (ret_path)
                 *ret_path = TAKE_PTR(path_found);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int open_extension_release(
-                const char *root,
+പൂർണ്ണസംഖ്യ open_extension_release(
+                സ്ഥിരം അക്ഷരം *വേര്,
                 ImageClass image_class,
-                const char *extension,
+                സ്ഥിരം അക്ഷരം *extension,
                 bool relax_extension_release_check,
-                char **ret_path,
-                int *ret_fd) {
+                അക്ഷരം **ret_path,
+                പൂർണ്ണസംഖ്യ *ret_fd) {
 
-        _cleanup_close_ int rfd = XAT_FDROOT, fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = XAT_FDROOT, fd = -EBADF;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        എങ്കിൽ (!empty_or_വേര്(വേര്)) {
+                rfd = open(വേര്, O_CLOEXEC | O_DIRECTORY | O_PATH);
+                എങ്കിൽ (rfd < 0)
+                        തിരികെ -errno;
         }
 
         r = open_extension_release_at(rfd, image_class, extension, relax_extension_release_check,
-                                      ret_path ? &p : NULL, ret_fd ? &fd : NULL);
-        if (r < 0)
-                return r;
+                                      ret_path ? &p : ശൂന്യ, ret_fd ? &fd : ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (ret_path) {
-                r = chaseat_prefix_root(p, root, ret_path);
-                if (r < 0)
-                        return r;
+        എങ്കിൽ (ret_path) {
+                r = chaseat_prefix_വേര്(p, വേര്, ret_path);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (ret_fd)
+        എങ്കിൽ (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        തിരികെ 0;
 }
 
-static int parse_extension_release_atv(
-                int rfd,
+സ്ഥിതം പൂർണ്ണസംഖ്യ parse_extension_release_atv(
+                പൂർണ്ണസംഖ്യ rfd,
                 ImageClass image_class,
-                const char *extension,
+                സ്ഥിരം അക്ഷരം *extension,
                 bool relax_extension_release_check,
                 va_list ap) {
 
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
 
         r = open_extension_release_at(rfd, image_class, extension, relax_extension_release_check, &p, &fd);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return parse_env_file_fdv(fd, p, ap);
+        തിരികെ parse_env_file_fdv(fd, p, ap);
 }
 
-int parse_extension_release_at_sentinel(
-                int rfd,
+പൂർണ്ണസംഖ്യ parse_extension_release_at_sentinel(
+                പൂർണ്ണസംഖ്യ rfd,
                 ImageClass image_class,
                 bool relax_extension_release_check,
-                const char *extension,
+                സ്ഥിരം അക്ഷരം *extension,
                 ...) {
 
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(wildcard_fd_is_valid(rfd));
+        പ്രതിജ്ഞാ(wildcard_fd_is_valid(rfd));
 
         va_start(ap, extension);
         r = parse_extension_release_atv(rfd, image_class, extension, relax_extension_release_check, ap);
         va_end(ap);
-        return r;
+        തിരികെ r;
 }
 
-int parse_extension_release_sentinel(
-                const char *root,
+പൂർണ്ണസംഖ്യ parse_extension_release_sentinel(
+                സ്ഥിരം അക്ഷരം *വേര്,
                 ImageClass image_class,
                 bool relax_extension_release_check,
-                const char *extension,
+                സ്ഥിരം അക്ഷരം *extension,
                 ...) {
 
-        _cleanup_close_ int rfd = XAT_FDROOT;
+        _cleanup_close_ പൂർണ്ണസംഖ്യ rfd = XAT_FDROOT;
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (!empty_or_root(root)) {
-                rfd = open(root, O_CLOEXEC | O_DIRECTORY | O_PATH);
-                if (rfd < 0)
-                        return -errno;
+        എങ്കിൽ (!empty_or_വേര്(വേര്)) {
+                rfd = open(വേര്, O_CLOEXEC | O_DIRECTORY | O_PATH);
+                എങ്കിൽ (rfd < 0)
+                        തിരികെ -errno;
         }
 
         va_start(ap, extension);
         r = parse_extension_release_atv(rfd, image_class, extension, relax_extension_release_check, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret) {
-        _cleanup_strv_free_ char **os_release_pairs = NULL, **os_release_pairs_prefixed = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ load_os_release_pairs_with_prefix(സ്ഥിരം അക്ഷരം *വേര്, സ്ഥിരം അക്ഷരം *prefix, അക്ഷരം ***ret) {
+        _cleanup_strv_free_ അക്ഷരം **os_release_pairs = ശൂന്യ, **os_release_pairs_prefixed = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        r = load_os_release_pairs(root, &os_release_pairs);
-        if (r < 0)
-                return r;
+        r = load_os_release_pairs(വേര്, &os_release_pairs);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         STRV_FOREACH_PAIR(p, q, os_release_pairs) {
-                char *line;
+                അക്ഷരം *വരി;
 
                 /* We strictly return only the four main ID fields and ignore the rest */
-                if (!STR_IN_SET(*p, "ID", "VERSION_ID", "BUILD_ID", "VARIANT_ID"))
-                        continue;
+                എങ്കിൽ (!STR_IN_SET(*p, "ID", "VERSION_ID", "BUILD_ID", "VARIANT_ID"))
+                        തുടരുക;
 
                 ascii_strlower(*p);
-                line = strjoin(prefix, *p, "=", *q);
-                if (!line)
-                        return -ENOMEM;
-                r = strv_consume(&os_release_pairs_prefixed, line);
-                if (r < 0)
-                        return r;
+                വരി = strjoin(prefix, *p, "=", *q);
+                എങ്കിൽ (!വരി)
+                        തിരികെ -ENOMEM;
+                r = strv_consume(&os_release_pairs_prefixed, വരി);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
         *ret = TAKE_PTR(os_release_pairs_prefixed);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ load_extension_release_pairs(സ്ഥിരം അക്ഷരം *വേര്, ImageClass image_class, സ്ഥിരം അക്ഷരം *extension, bool relax_extension_release_check, അക്ഷരം ***ret) {
+        _cleanup_close_ പൂർണ്ണസംഖ്യ fd = -EBADF;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        r = open_extension_release(root, image_class, extension, relax_extension_release_check, &p, &fd);
-        if (r < 0)
-                return r;
+        r = open_extension_release(വേര്, image_class, extension, relax_extension_release_check, &p, &fd);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return load_env_file_pairs_fd(fd, p, ret);
+        തിരികെ load_env_file_pairs_fd(fd, p, ret);
 }
 
-int os_release_support_ended(const char *support_end, bool quiet, usec_t *ret_eol) {
-        _cleanup_free_ char *_support_end_alloc = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ os_release_support_ended(സ്ഥിരം അക്ഷരം *support_end, bool quiet, usec_t *ret_eol) {
+        _cleanup_free_ അക്ഷരം *_support_end_alloc = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (!support_end) {
+        എങ്കിൽ (!support_end) {
                 /* If the caller has the variably handy, they can pass it in. If not, we'll read it
                  * ourselves. */
 
-                r = parse_os_release(NULL,
+                r = parse_os_release(ശൂന്യ,
                                      "SUPPORT_END", &_support_end_alloc);
-                if (r < 0 && r != -ENOENT)
-                        return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
+                എങ്കിൽ (r < 0 && r != -ENOENT)
+                        തിരികെ log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
                                               "Failed to read os-release file, ignoring: %m");
 
                 support_end = _support_end_alloc;
         }
 
-        if (isempty(support_end)) { /* An empty string is a explicit way to say "no EOL exists" */
-                if (ret_eol)
+        എങ്കിൽ (isempty(support_end)) { /* An empty string is a explicit way to say "no EOL exists" */
+                എങ്കിൽ (ret_eol)
                         *ret_eol = USEC_INFINITY;
 
-                return false;  /* no end date defined */
+                തിരികെ false;  /* no end date defined */
         }
 
-        struct tm tm = {};
-        const char *k = strptime(support_end, "%Y-%m-%d", &tm);
-        if (!k || *k)
-                return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, SYNTHETIC_ERRNO(EINVAL),
+        ഘടന tm tm = {};
+        സ്ഥിരം അക്ഷരം *k = strptime(support_end, "%Y-%m-%d", &tm);
+        എങ്കിൽ (!k || *k)
+                തിരികെ log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, SYNTHETIC_ERRNO(EINVAL),
                                       "Failed to parse SUPPORT_END= from os-release file, ignoring: %s", support_end);
 
         usec_t eol;
         r = mktime_or_timegm_usec(&tm, /* utc= */ true, &eol);
-        if (r < 0)
-                return log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
+        എങ്കിൽ (r < 0)
+                തിരികെ log_full_errno(quiet ? LOG_DEBUG : LOG_WARNING, r,
                                       "Failed to convert SUPPORT_END= time from os-release file, ignoring: %m");
 
-        if (ret_eol)
+        എങ്കിൽ (ret_eol)
                 *ret_eol = eol;
 
-        return now(CLOCK_REALTIME) > eol;
+        തിരികെ now(CLOCK_REALTIME) > eol;
 }
 
-const char* os_release_pretty_name(const char *pretty_name, const char *name) {
+സ്ഥിരം അക്ഷരം* os_release_pretty_name(സ്ഥിരം അക്ഷരം *pretty_name, സ്ഥിരം അക്ഷരം *name) {
         /* Distills a "pretty" name to show from os-release data. First argument is supposed to be the
          * PRETTY_NAME= field, the second one the NAME= field. This function is trivial, of course, and
          * exists mostly to ensure we use the same logic wherever possible. */
 
-        return empty_to_null(pretty_name) ?:
+        തിരികെ empty_to_null(pretty_name) ?:
                 empty_to_null(name) ?: "Linux";
 }
 
-char *unescape_fancy_name(char **fancy_name) {
-        assert(fancy_name);
+അക്ഷരം *unescape_fancy_name(അക്ഷരം **fancy_name) {
+        പ്രതിജ്ഞാ(fancy_name);
 
         /* Checks if the fancy name is valid, unescapes if it is, nullifies it if not */
 
-        _cleanup_free_ char *unescaped_fancy_name = NULL;
+        _cleanup_free_ അക്ഷരം *unescaped_fancy_name = ശൂന്യ;
 
-        if (isempty(*fancy_name))
-                goto clear;
+        എങ്കിൽ (isempty(*fancy_name))
+                പോകുക clear;
 
         /* We undo one level of C escapes on this */
         ssize_t n = cunescape(*fancy_name, /* flags= */ 0, &unescaped_fancy_name);
-        if (n < 0) {
-                log_debug_errno((int) n, "Failed to unescape FANCY_NAME= string, suppressing: %m");
-                goto clear;
+        എങ്കിൽ (n < 0) {
+                log_debug_errno((പൂർണ്ണസംഖ്യ) n, "Failed to unescape FANCY_NAME= string, suppressing: %m");
+                പോകുക clear;
         }
 
-        if (!utf8_is_valid(unescaped_fancy_name)) {
+        എങ്കിൽ (!utf8_is_valid(unescaped_fancy_name)) {
                 log_debug("Unescaped FANCY_NAME= string is not valid UTF-8, suppressing.");
-                goto clear;
+                പോകുക clear;
         }
 
         free_and_replace(*fancy_name, unescaped_fancy_name);
-        return *fancy_name;
+        തിരികെ *fancy_name;
 
 clear:
         *fancy_name = mfree(*fancy_name);
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-bool use_fancy_name(const char *fancy_name) {
+bool use_fancy_name(സ്ഥിരം അക്ഷരം *fancy_name) {
 
         /* Decides whether to show the specified fancy name */
 
-        if (isempty(fancy_name))
-                return false;
+        എങ്കിൽ (isempty(fancy_name))
+                തിരികെ false;
 
-        if (!colors_enabled())
-                return false;
+        എങ്കിൽ (!colors_enabled())
+                തിരികെ false;
 
-        return emoji_enabled() || ascii_is_valid(fancy_name);
+        തിരികെ emoji_enabled() || ascii_is_valid(fancy_name);
 }

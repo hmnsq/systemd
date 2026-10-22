@@ -1,160 +1,160 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <ctype.h>
-#include <stdio.h>
+#അന്തര്ഭാവ <ctype.h>
+#അന്തര്ഭാവ <stdio.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "memory-util.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "hexdecoct.h"
+#അന്തര്ഭാവ "memory-util.h"
+#അന്തര്ഭാവ "string-util.h"
 
-char octchar(int x) {
-        return '0' + (x & 7);
+അക്ഷരം octchar(പൂർണ്ണസംഖ്യ x) {
+        തിരികെ '0' + (x & 7);
 }
 
-int unoctchar(char c) {
+പൂർണ്ണസംഖ്യ unoctchar(അക്ഷരം c) {
 
-        if (c >= '0' && c <= '7')
-                return c - '0';
+        എങ്കിൽ (c >= '0' && c <= '7')
+                തിരികെ c - '0';
 
-        return -EINVAL;
+        തിരികെ -EINVAL;
 }
 
-char decchar(int x) {
-        return '0' + (x % 10);
+അക്ഷരം decchar(പൂർണ്ണസംഖ്യ x) {
+        തിരികെ '0' + (x % 10);
 }
 
-int undecchar(char c) {
+പൂർണ്ണസംഖ്യ undecchar(അക്ഷരം c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        എങ്കിൽ (c >= '0' && c <= '9')
+                തിരികെ c - '0';
 
-        return -EINVAL;
+        തിരികെ -EINVAL;
 }
 
-char hexchar(int x) {
-        const char *table = LOWERCASE_HEXDIGITS;
-        return table[x & 15];
+അക്ഷരം hexchar(പൂർണ്ണസംഖ്യ x) {
+        സ്ഥിരം അക്ഷരം *table = LOWERCASE_HEXDIGITS;
+        തിരികെ table[x & 15];
 }
 
-int unhexchar(char c) {
+പൂർണ്ണസംഖ്യ unhexchar(അക്ഷരം c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        എങ്കിൽ (c >= '0' && c <= '9')
+                തിരികെ c - '0';
 
-        if (c >= 'a' && c <= 'f')
-                return c - 'a' + 10;
+        എങ്കിൽ (c >= 'a' && c <= 'f')
+                തിരികെ c - 'a' + 10;
 
-        if (c >= 'A' && c <= 'F')
-                return c - 'A' + 10;
+        എങ്കിൽ (c >= 'A' && c <= 'F')
+                തിരികെ c - 'A' + 10;
 
-        return -EINVAL;
+        തിരികെ -EINVAL;
 }
 
-char* hexmem(const void *p, size_t l) {
-        const uint8_t *x;
-        char *r, *z;
+അക്ഷരം* hexmem(സ്ഥിരം ശൂന്യം *p, size_t l) {
+        സ്ഥിരം uint8_t *x;
+        അക്ഷരം *r, *z;
 
-        assert(p || l == 0);
+        പ്രതിജ്ഞാ(p || l == 0);
 
-        z = r = new(char, l * 2 + 1);
-        if (!r)
-                return NULL;
+        z = r = new(അക്ഷരം, l * 2 + 1);
+        എങ്കിൽ (!r)
+                തിരികെ ശൂന്യ;
 
-        for (x = p; x && x < (const uint8_t*) p + l; x++) {
+        വേണ്ടി (x = p; x && x < (സ്ഥിരം uint8_t*) p + l; x++) {
                 *(z++) = hexchar(*x >> 4);
                 *(z++) = hexchar(*x & 15);
         }
 
         *z = 0;
-        return r;
+        തിരികെ r;
 }
 
-static int unhex_next(const char **p, size_t *l) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ unhex_next(സ്ഥിരം അക്ഷരം **p, size_t *l) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(p);
-        assert(l);
+        പ്രതിജ്ഞാ(p);
+        പ്രതിജ്ഞാ(l);
 
         /* Find the next non-whitespace character, and decode it. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        വേണ്ടി (;;) {
+                എങ്കിൽ (*l == 0)
+                        തിരികെ -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                എങ്കിൽ (!strchr(WHITESPACE, **p))
+                        നിർത്തുക;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
         r = unhexchar(**p);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0 || !strchr(WHITESPACE, **p))
-                        break;
+                എങ്കിൽ (*l == 0 || !strchr(WHITESPACE, **p))
+                        നിർത്തുക;
 
                 /* Skip following whitespace */
         }
 
-        return r;
+        തിരികെ r;
 }
 
-int unhexmem_full(
-                const char *p,
+പൂർണ്ണസംഖ്യ unhexmem_full(
+                സ്ഥിരം അക്ഷരം *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
+                ശൂന്യം **ret_data,
                 size_t *ret_size) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
+        _cleanup_free_ uint8_t *buf = ശൂന്യ;
         size_t buf_size;
-        const char *x;
+        സ്ഥിരം അക്ഷരം *x;
         uint8_t *z;
 
-        assert(p || l == 0);
+        പ്രതിജ്ഞാ(p || l == 0);
 
-        if (l == SIZE_MAX)
+        എങ്കിൽ (l == SIZE_MAX)
                 l = strlen(p);
 
         /* Note that the calculation of memory size is an upper boundary, as we ignore whitespace while decoding */
         buf_size = (l + 1) / 2 + 1;
         buf = malloc(buf_size);
-        if (!buf)
-                return -ENOMEM;
+        എങ്കിൽ (!buf)
+                തിരികെ -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, buf_size);
+        CLEANUP_ERASE_PTR(secure ? &buf : ശൂന്യ, buf_size);
 
-        for (x = p, z = buf;;) {
-                int a, b;
+        വേണ്ടി (x = p, z = buf;;) {
+                പൂർണ്ണസംഖ്യ a, b;
 
                 a = unhex_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
+                എങ്കിൽ (a == -EPIPE) /* End of string */
+                        നിർത്തുക;
+                എങ്കിൽ (a < 0)
+                        തിരികെ a;
 
                 b = unhex_next(&x, &l);
-                if (b < 0)
-                        return b;
+                എങ്കിൽ (b < 0)
+                        തിരികെ b;
 
                 *(z++) = (uint8_t) a << 4 | (uint8_t) b;
         }
 
         *z = 0;
 
-        if (ret_size)
+        എങ്കിൽ (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        എങ്കിൽ (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        തിരികെ 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-6
@@ -163,60 +163,60 @@ int unhexmem_full(
  * order of the underlying data when compared as bytestrings, this is
  * useful when representing NSEC3 hashes, as one can then verify the
  * order of hashes directly from their representation. */
-char base32hexchar(int x) {
-        const char *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
-        return table[x & 31];
+അക്ഷരം base32hexchar(പൂർണ്ണസംഖ്യ x) {
+        സ്ഥിരം അക്ഷരം *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
+        തിരികെ table[x & 31];
 }
 
-int unbase32hexchar(char c) {
+പൂർണ്ണസംഖ്യ unbase32hexchar(അക്ഷരം c) {
         unsigned offset;
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        എങ്കിൽ (c >= '0' && c <= '9')
+                തിരികെ c - '0';
 
         offset = '9' - '0' + 1;
 
-        if (c >= 'A' && c <= 'V')
-                return c - 'A' + offset;
+        എങ്കിൽ (c >= 'A' && c <= 'V')
+                തിരികെ c - 'A' + offset;
 
-        return -EINVAL;
+        തിരികെ -EINVAL;
 }
 
-char* base32hexmem(const void *p, size_t l, bool padding) {
-        char *r, *z;
-        const uint8_t *x;
+അക്ഷരം* base32hexmem(സ്ഥിരം ശൂന്യം *p, size_t l, bool padding) {
+        അക്ഷരം *r, *z;
+        സ്ഥിരം uint8_t *x;
         size_t len;
 
-        assert(p || l == 0);
+        പ്രതിജ്ഞാ(p || l == 0);
 
-        if (padding)
+        എങ്കിൽ (padding)
                 /* five input bytes makes eight output bytes, padding is added so we must round up */
                 len = 8 * (l + 4) / 5;
-        else {
+        അല്ലെങ്കിൽ {
                 /* same, but round down as there is no padding */
                 len = 8 * l / 5;
 
-                switch (l % 5) {
-                case 4:
+                തിരഞ്ഞെടുപ്പ് (l % 5) {
+                അവസ്ഥ 4:
                         len += 7;
-                        break;
-                case 3:
+                        നിർത്തുക;
+                അവസ്ഥ 3:
                         len += 5;
-                        break;
-                case 2:
+                        നിർത്തുക;
+                അവസ്ഥ 2:
                         len += 4;
-                        break;
-                case 1:
+                        നിർത്തുക;
+                അവസ്ഥ 1:
                         len += 2;
-                        break;
+                        നിർത്തുക;
                 }
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return NULL;
+        എങ്കിൽ (!r)
+                തിരികെ ശൂന്യ;
 
-        for (x = p; x < (const uint8_t*) p + (l / 5) * 5; x += 5) {
+        വേണ്ടി (x = p; x < (സ്ഥിരം uint8_t*) p + (l / 5) * 5; x += 5) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ
                  * x[3] == QQQQQQQQ; x[4] == WWWWWWWW */
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
@@ -229,8 +229,8 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[4] & 31));                  /* 000WWWWW */
         }
 
-        switch (l % 5) {
-        case 4:
+        തിരഞ്ഞെടുപ്പ് (l % 5) {
+        അവസ്ഥ 4:
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6);  /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);             /* 000YYYYY */
@@ -238,43 +238,43 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[2] & 15) << 1 | x[3] >> 7); /* 000ZZZZQ */
                 *(z++) = base32hexchar((x[3] & 127) >> 2);            /* 000QQQQQ */
                 *(z++) = base32hexchar((x[3] & 3) << 3);              /* 000QQ000 */
-                if (padding)
+                എങ്കിൽ (padding)
                         *(z++) = '=';
 
-                break;
+                നിർത്തുക;
 
-        case 3:
+        അവസ്ഥ 3:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4 | x[2] >> 4); /* 000YZZZZ */
                 *(z++) = base32hexchar((x[2] & 15) << 1);            /* 000ZZZZ0 */
-                if (padding) {
+                എങ്കിൽ (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                നിർത്തുക;
 
-        case 2:
+        അവസ്ഥ 2:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4);             /* 000Y0000 */
-                if (padding) {
+                എങ്കിൽ (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                നിർത്തുക;
 
-        case 1:
+        അവസ്ഥ 1:
                 *(z++) = base32hexchar(x[0] >> 3);       /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2); /* 000XXX00 */
-                if (padding) {
+                എങ്കിൽ (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
@@ -283,35 +283,35 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                         *(z++) = '=';
                 }
 
-                break;
+                നിർത്തുക;
         }
 
         *z = 0;
-        return r;
+        തിരികെ r;
 }
 
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_len) {
-        _cleanup_free_ uint8_t *r = NULL;
-        int a, b, c, d, e, f, g, h;
+പൂർണ്ണസംഖ്യ unbase32hexmem(സ്ഥിരം അക്ഷരം *p, size_t l, bool padding, ശൂന്യം **mem, size_t *_len) {
+        _cleanup_free_ uint8_t *r = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ a, b, c, d, e, f, g, h;
         uint8_t *z;
-        const char *x;
+        സ്ഥിരം അക്ഷരം *x;
         size_t len;
         unsigned pad = 0;
 
-        assert(p || l == 0);
-        assert(mem);
-        assert(_len);
+        പ്രതിജ്ഞാ(p || l == 0);
+        പ്രതിജ്ഞാ(mem);
+        പ്രതിജ്ഞാ(_len);
 
-        if (l == SIZE_MAX)
+        എങ്കിൽ (l == SIZE_MAX)
                 l = strlen(p);
 
         /* padding ensures any base32hex input has input divisible by 8 */
-        if (padding && l % 8 != 0)
-                return -EINVAL;
+        എങ്കിൽ (padding && l % 8 != 0)
+                തിരികെ -EINVAL;
 
-        if (padding) {
+        എങ്കിൽ (padding) {
                 /* strip the padding */
-                while (l > 0 && p[l - 1] == '=' && pad < 7) {
+                ആകുമ്പോൾ (l > 0 && p[l - 1] == '=' && pad < 7) {
                         pad++;
                         l--;
                 }
@@ -321,63 +321,63 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
          * padding we need to add some extra bytes */
         len = (l / 8) * 5;
 
-        switch (l % 8) {
-        case 7:
+        തിരഞ്ഞെടുപ്പ് (l % 8) {
+        അവസ്ഥ 7:
                 len += 4;
-                break;
-        case 5:
+                നിർത്തുക;
+        അവസ്ഥ 5:
                 len += 3;
-                break;
-        case 4:
+                നിർത്തുക;
+        അവസ്ഥ 4:
                 len += 2;
-                break;
-        case 2:
+                നിർത്തുക;
+        അവസ്ഥ 2:
                 len += 1;
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                നിർത്തുക;
+        അവസ്ഥ 0:
+                നിർത്തുക;
+        സ്ഥിരസ്ഥിതി:
+                തിരികെ -EINVAL;
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return -ENOMEM;
+        എങ്കിൽ (!r)
+                തിരികെ -ENOMEM;
 
-        for (x = p; x < p + (l / 8) * 8; x += 8) {
+        വേണ്ടി (x = p; x < p + (l / 8) * 8; x += 8) {
                 /* a == 000XXXXX; b == 000YYYYY; c == 000ZZZZZ; d == 000WWWWW
                  * e == 000SSSSS; f == 000QQQQQ; g == 000VVVVV; h == 000RRRRR */
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                എങ്കിൽ (a < 0)
+                        തിരികെ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                എങ്കിൽ (c < 0)
+                        തിരികെ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                എങ്കിൽ (d < 0)
+                        തിരികെ -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                എങ്കിൽ (e < 0)
+                        തിരികെ -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                എങ്കിൽ (f < 0)
+                        തിരികെ -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                എങ്കിൽ (g < 0)
+                        തിരികെ -EINVAL;
 
                 h = unbase32hexchar(x[7]);
-                if (h < 0)
-                        return -EINVAL;
+                എങ്കിൽ (h < 0)
+                        തിരികെ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -386,121 +386,121 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
                 *(z++) = (uint8_t) g << 5 | (uint8_t) h;                         /* VVVRRRRR */
         }
 
-        switch (l % 8) {
-        case 7:
+        തിരഞ്ഞെടുപ്പ് (l % 8) {
+        അവസ്ഥ 7:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                എങ്കിൽ (a < 0)
+                        തിരികെ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                എങ്കിൽ (c < 0)
+                        തിരികെ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                എങ്കിൽ (d < 0)
+                        തിരികെ -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                എങ്കിൽ (e < 0)
+                        തിരികെ -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                എങ്കിൽ (f < 0)
+                        തിരികെ -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                എങ്കിൽ (g < 0)
+                        തിരികെ -EINVAL;
 
                 /* g == 000VV000 */
-                if (g & 7)
-                        return -EINVAL;
+                എങ്കിൽ (g & 7)
+                        തിരികെ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
                 *(z++) = (uint8_t) e << 7 | (uint8_t) f << 2 | (uint8_t) g >> 3; /* SQQQQQVV */
 
-                break;
-        case 5:
+                നിർത്തുക;
+        അവസ്ഥ 5:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                എങ്കിൽ (a < 0)
+                        തിരികെ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                എങ്കിൽ (c < 0)
+                        തിരികെ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                എങ്കിൽ (d < 0)
+                        തിരികെ -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                എങ്കിൽ (e < 0)
+                        തിരികെ -EINVAL;
 
                 /* e == 000SSSS0 */
-                if (e & 1)
-                        return -EINVAL;
+                എങ്കിൽ (e & 1)
+                        തിരികെ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
 
-                break;
-        case 4:
+                നിർത്തുക;
+        അവസ്ഥ 4:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                എങ്കിൽ (a < 0)
+                        തിരികെ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                എങ്കിൽ (c < 0)
+                        തിരികെ -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                എങ്കിൽ (d < 0)
+                        തിരികെ -EINVAL;
 
                 /* d == 000W0000 */
-                if (d & 15)
-                        return -EINVAL;
+                എങ്കിൽ (d & 15)
+                        തിരികെ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
 
-                break;
-        case 2:
+                നിർത്തുക;
+        അവസ്ഥ 2:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                എങ്കിൽ (a < 0)
+                        തിരികെ -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ -EINVAL;
 
                 /* b == 000YYY00 */
-                if (b & 3)
-                        return -EINVAL;
+                എങ്കിൽ (b & 3)
+                        തിരികെ -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2; /* XXXXXYYY */
 
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                നിർത്തുക;
+        അവസ്ഥ 0:
+                നിർത്തുക;
+        സ്ഥിരസ്ഥിതി:
+                തിരികെ -EINVAL;
         }
 
         *z = 0;
@@ -508,265 +508,265 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         *mem = TAKE_PTR(r);
         *_len = len;
 
-        return 0;
+        തിരികെ 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-4 */
-char base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
-        return table[x & 63];
+അക്ഷരം base64char(പൂർണ്ണസംഖ്യ x) {
+        സ്ഥിരം അക്ഷരം *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
+        തിരികെ table[x & 63];
 }
 
 /* This is almost base64char(), but not entirely, as it uses the "url and filename safe" alphabet,
  * since we don't want "/" appear in interface names (since interfaces appear in sysfs as filenames).
  * See section #5 of RFC 4648. */
-char urlsafe_base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
-        return table[x & 63];
+അക്ഷരം urlsafe_base64char(പൂർണ്ണസംഖ്യ x) {
+        സ്ഥിരം അക്ഷരം *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
+        തിരികെ table[x & 63];
 }
 
-int unbase64char(char c) {
+പൂർണ്ണസംഖ്യ unbase64char(അക്ഷരം c) {
         unsigned offset;
 
-        if (c >= 'A' && c <= 'Z')
-                return c - 'A';
+        എങ്കിൽ (c >= 'A' && c <= 'Z')
+                തിരികെ c - 'A';
 
         offset = 'Z' - 'A' + 1;
 
-        if (c >= 'a' && c <= 'z')
-                return c - 'a' + offset;
+        എങ്കിൽ (c >= 'a' && c <= 'z')
+                തിരികെ c - 'a' + offset;
 
         offset += 'z' - 'a' + 1;
 
-        if (c >= '0' && c <= '9')
-                return c - '0' + offset;
+        എങ്കിൽ (c >= '0' && c <= '9')
+                തിരികെ c - '0' + offset;
 
         offset += '9' - '0' + 1;
 
-        if (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
-                return offset;
+        എങ്കിൽ (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
+                തിരികെ offset;
 
         offset++;
 
-        if (IN_SET(c, '/', '_')) /* ditto */
-                return offset;
+        എങ്കിൽ (IN_SET(c, '/', '_')) /* ditto */
+                തിരികെ offset;
 
-        return -EINVAL;
+        തിരികെ -EINVAL;
 }
 
-static void maybe_line_break(char **x, char *start, size_t line_break) {
+സ്ഥിതം ശൂന്യം maybe_വരി_break(അക്ഷരം **x, അക്ഷരം *start, size_t വരി_break) {
         size_t n;
 
-        assert(x);
-        assert(*x);
-        assert(start);
-        assert(*x >= start);
+        പ്രതിജ്ഞാ(x);
+        പ്രതിജ്ഞാ(*x);
+        പ്രതിജ്ഞാ(start);
+        പ്രതിജ്ഞാ(*x >= start);
 
-        if (line_break == SIZE_MAX)
-                return;
+        എങ്കിൽ (വരി_break == SIZE_MAX)
+                തിരികെ;
 
         n = *x - start;
 
-        if (n % (line_break + 1) == line_break)
+        എങ്കിൽ (n % (വരി_break + 1) == വരി_break)
                 *((*x)++) = '\n';
 }
 
 ssize_t base64mem_full(
-                const void *p,
+                സ്ഥിരം ശൂന്യം *p,
                 size_t l,
-                size_t line_break,
-                char **ret) {
+                size_t വരി_break,
+                അക്ഷരം **ret) {
 
-        const uint8_t *x;
-        char *b, *z;
+        സ്ഥിരം uint8_t *x;
+        അക്ഷരം *b, *z;
         size_t m;
 
-        assert(p || l == 0);
-        assert(line_break > 0);
-        assert(ret);
+        പ്രതിജ്ഞാ(p || l == 0);
+        പ്രതിജ്ഞാ(വരി_break > 0);
+        പ്രതിജ്ഞാ(ret);
 
         /* three input bytes makes four output bytes, padding is added so we must round up */
         m = 4 * (l + 2) / 3 + 1;
-        if (line_break != SIZE_MAX)
-                m += m / line_break;
+        എങ്കിൽ (വരി_break != SIZE_MAX)
+                m += m / വരി_break;
 
         z = b = malloc(m);
-        if (!b)
-                return -ENOMEM;
+        എങ്കിൽ (!b)
+                തിരികെ -ENOMEM;
 
-        for (x = p; x && x < (const uint8_t*) p + (l / 3) * 3; x += 3) {
+        വേണ്ടി (x = p; x && x < (സ്ഥിരം uint8_t*) p + (l / 3) * 3; x += 3) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char(x[0] >> 2);                    /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4);  /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char((x[1] & 15) << 2 | x[2] >> 6); /* 00YYYYZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char(x[2] & 63);                    /* 00ZZZZZZ */
         }
 
-        switch (l % 3) {
-        case 2:
-                maybe_line_break(&z, b, line_break);
+        തിരഞ്ഞെടുപ്പ് (l % 3) {
+        അവസ്ഥ 2:
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char(x[0] >> 2);                   /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4); /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char((x[1] & 15) << 2);            /* 00YYYY00 */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = '=';
-                break;
+                നിർത്തുക;
 
-        case 1:
-                maybe_line_break(&z, b, line_break);
+        അവസ്ഥ 1:
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char(x[0] >> 2);        /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = base64char((x[0] & 3) << 4);  /* 00XX0000 */
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = '=';
-                maybe_line_break(&z, b, line_break);
+                maybe_വരി_break(&z, b, വരി_break);
                 *(z++) = '=';
-                break;
+                നിർത്തുക;
         }
 
         *z = 0;
         *ret = b;
 
-        assert(z >= b); /* Let static analyzers know that the answer is non-negative. */
-        return z - b;
+        പ്രതിജ്ഞാ(z >= b); /* Let static analyzers know that the answer is non-negative. */
+        തിരികെ z - b;
 }
 
-static ssize_t base64_append_width(
-                char **prefix,
+സ്ഥിതം ssize_t base64_append_width(
+                അക്ഷരം **prefix,
                 size_t plen,
-                char sep,
+                അക്ഷരം sep,
                 size_t indent,
-                const void *p,
+                സ്ഥിരം ശൂന്യം *p,
                 size_t l,
                 size_t width) {
 
-        _cleanup_free_ char *x = NULL;
-        char *t, *s;
-        size_t lines;
+        _cleanup_free_ അക്ഷരം *x = ശൂന്യ;
+        അക്ഷരം *t, *s;
+        size_t വരികൾ;
         ssize_t len;
 
-        assert(prefix);
-        assert(*prefix || plen == 0);
-        assert(p || l == 0);
+        പ്രതിജ്ഞാ(prefix);
+        പ്രതിജ്ഞാ(*prefix || plen == 0);
+        പ്രതിജ്ഞാ(p || l == 0);
 
         len = base64mem(p, l, &x);
-        if (len < 0)
-                return len;
-        if (len == 0)
-                return plen;
+        എങ്കിൽ (len < 0)
+                തിരികെ len;
+        എങ്കിൽ (len == 0)
+                തിരികെ plen;
 
-        lines = DIV_ROUND_UP(len, width);
+        വരികൾ = DIV_ROUND_UP(len, width);
 
-        if (plen >= SSIZE_MAX - 1 - 1 ||
-            lines > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
-                return -ENOMEM;
+        എങ്കിൽ (plen >= SSIZE_MAX - 1 - 1 ||
+            വരികൾ > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
+                തിരികെ -ENOMEM;
 
-        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * lines);
-        if (!t)
-                return -ENOMEM;
+        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * വരികൾ);
+        എങ്കിൽ (!t)
+                തിരികെ -ENOMEM;
 
         s = t + plen;
-        for (size_t line = 0; line < lines; line++) {
+        വേണ്ടി (size_t വരി = 0; വരി < വരികൾ; വരി++) {
                 size_t act = MIN(width, (size_t) len);
 
-                if (line > 0)
+                എങ്കിൽ (വരി > 0)
                         sep = '\n';
 
-                if (s > t) {
+                എങ്കിൽ (s > t) {
                         *s++ = sep;
-                        if (sep == '\n')
+                        എങ്കിൽ (sep == '\n')
                                 s = mempset(s, ' ', indent);
                 }
 
-                s = mempcpy(s, x + width * line, act);
+                s = mempcpy(s, x + width * വരി, act);
                 len -= act;
         }
-        assert(len == 0);
+        പ്രതിജ്ഞാ(len == 0);
 
         *s = '\0';
         *prefix = t;
-        return s - t;
+        തിരികെ s - t;
 }
 
 ssize_t base64_append(
-                char **prefix,
+                അക്ഷരം **prefix,
                 size_t plen,
-                const void *p,
+                സ്ഥിരം ശൂന്യം *p,
                 size_t l,
                 size_t indent,
                 size_t width) {
 
-        if (plen > width / 2 || plen + indent > width)
+        എങ്കിൽ (plen > width / 2 || plen + indent > width)
                 /* leave indent on the left, keep last column free */
-                return base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
-        else
+                തിരികെ base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
+        അല്ലെങ്കിൽ
                 /* leave plen on the left, keep last column free */
-                return base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
+                തിരികെ base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
 }
 
-static int unbase64_next(const char **p, size_t *l) {
-        int ret;
+സ്ഥിതം പൂർണ്ണസംഖ്യ unbase64_next(സ്ഥിരം അക്ഷരം **p, size_t *l) {
+        പൂർണ്ണസംഖ്യ ret;
 
-        assert(p);
-        assert(l);
+        പ്രതിജ്ഞാ(p);
+        പ്രതിജ്ഞാ(l);
 
         /* Find the next non-whitespace character, and decode it. If we find padding, we return it as INT_MAX. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        വേണ്ടി (;;) {
+                എങ്കിൽ (*l == 0)
+                        തിരികെ -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                എങ്കിൽ (!strchr(WHITESPACE, **p))
+                        നിർത്തുക;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
-        if (**p == '=')
+        എങ്കിൽ (**p == '=')
                 ret = INT_MAX; /* return padding as INT_MAX */
-        else {
+        അല്ലെങ്കിൽ {
                 ret = unbase64char(**p);
-                if (ret < 0)
-                        return ret;
+                എങ്കിൽ (ret < 0)
+                        തിരികെ ret;
         }
 
-        for (;;) {
+        വേണ്ടി (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0)
-                        break;
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                എങ്കിൽ (*l == 0)
+                        നിർത്തുക;
+                എങ്കിൽ (!strchr(WHITESPACE, **p))
+                        നിർത്തുക;
 
                 /* Skip following whitespace */
         }
 
-        return ret;
+        തിരികെ ret;
 }
 
-int unbase64mem_full(
-                const char *p,
+പൂർണ്ണസംഖ്യ unbase64mem_full(
+                സ്ഥിരം അക്ഷരം *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
+                ശൂന്യം **ret_data,
                 size_t *ret_size) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
-        const char *x;
+        _cleanup_free_ uint8_t *buf = ശൂന്യ;
+        സ്ഥിരം അക്ഷരം *x;
         uint8_t *z;
         size_t len;
 
-        assert(p || l == 0);
+        പ്രതിജ്ഞാ(p || l == 0);
 
-        if (l == SIZE_MAX)
+        എങ്കിൽ (l == SIZE_MAX)
                 l = strlen(p);
 
         /* A group of four input bytes needs three output bytes, in case of padding we need to add two or three extra
@@ -774,63 +774,63 @@ int unbase64mem_full(
         len = (l / 4) * 3 + (l % 4 != 0 ? (l % 4) - 1 : 0);
 
         buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        എങ്കിൽ (!buf)
+                തിരികെ -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, len);
+        CLEANUP_ERASE_PTR(secure ? &buf : ശൂന്യ, len);
 
-        for (x = p, z = buf;;) {
-                int a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
+        വേണ്ടി (x = p, z = buf;;) {
+                പൂർണ്ണസംഖ്യ a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
 
                 a = unbase64_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
-                if (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
-                        return -EINVAL;
+                എങ്കിൽ (a == -EPIPE) /* End of string */
+                        നിർത്തുക;
+                എങ്കിൽ (a < 0)
+                        തിരികെ a;
+                എങ്കിൽ (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
+                        തിരികെ -EINVAL;
 
                 b = unbase64_next(&x, &l);
-                if (b < 0)
-                        return b;
-                if (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
-                        return -EINVAL;
+                എങ്കിൽ (b < 0)
+                        തിരികെ b;
+                എങ്കിൽ (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
+                        തിരികെ -EINVAL;
 
                 c = unbase64_next(&x, &l);
-                if (c < 0)
-                        return c;
+                എങ്കിൽ (c < 0)
+                        തിരികെ c;
 
                 d = unbase64_next(&x, &l);
-                if (d < 0)
-                        return d;
+                എങ്കിൽ (d < 0)
+                        തിരികെ d;
 
-                if (c == INT_MAX) { /* Padding at the third character */
+                എങ്കിൽ (c == INT_MAX) { /* Padding at the third character */
 
-                        if (d != INT_MAX) /* If the third character is padding, the fourth must be too */
-                                return -EINVAL;
+                        എങ്കിൽ (d != INT_MAX) /* If the third character is padding, the fourth must be too */
+                                തിരികെ -EINVAL;
 
                         /* b == 00YY0000 */
-                        if (b & 15)
-                                return -EINVAL;
+                        എങ്കിൽ (b & 15)
+                                തിരികെ -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        എങ്കിൽ (l > 0) /* Trailing rubbish? */
+                                തിരികെ -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) (b >> 4); /* XXXXXXYY */
-                        break;
+                        നിർത്തുക;
                 }
 
-                if (d == INT_MAX) {
+                എങ്കിൽ (d == INT_MAX) {
                         /* c == 00ZZZZ00 */
-                        if (c & 3)
-                                return -EINVAL;
+                        എങ്കിൽ (c & 3)
+                                തിരികെ -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        എങ്കിൽ (l > 0) /* Trailing rubbish? */
+                                തിരികെ -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
                         *(z++) = (uint8_t) b << 4 | (uint8_t) c >> 2; /* YYYYZZZZ */
-                        break;
+                        നിർത്തുക;
                 }
 
                 *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
@@ -840,58 +840,58 @@ int unbase64mem_full(
 
         *z = 0;
 
-        assert((size_t) (z - buf) <= len);
+        പ്രതിജ്ഞാ((size_t) (z - buf) <= len);
 
-        if (ret_size)
+        എങ്കിൽ (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        എങ്കിൽ (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        തിരികെ 0;
 }
 
-void hexdump(FILE *f, const void *p, size_t s) {
-        const uint8_t *b = p;
+ശൂന്യം hexdump(FILE *f, സ്ഥിരം ശൂന്യം *p, size_t s) {
+        സ്ഥിരം uint8_t *b = p;
         unsigned n = 0;
 
-        assert(b || s == 0);
+        പ്രതിജ്ഞാ(b || s == 0);
 
-        if (s == SIZE_MAX)
+        എങ്കിൽ (s == SIZE_MAX)
                 s = strlen(p);
 
-        if (!f)
+        എങ്കിൽ (!f)
                 f = stdout;
 
-        while (s > 0) {
+        ആകുമ്പോൾ (s > 0) {
                 size_t i;
 
                 fprintf(f, "%04x  ", n);
 
-                for (i = 0; i < 16; i++) {
+                വേണ്ടി (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        എങ്കിൽ (i >= s)
                                 fputs("   ", f);
-                        else
+                        അല്ലെങ്കിൽ
                                 fprintf(f, "%02x ", b[i]);
 
-                        if (i == 7)
+                        എങ്കിൽ (i == 7)
                                 fputc(' ', f);
                 }
 
                 fputc(' ', f);
 
-                for (i = 0; i < 16; i++) {
+                വേണ്ടി (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        എങ്കിൽ (i >= s)
                                 fputc(' ', f);
-                        else
-                                fputc(isprint(b[i]) ? (char) b[i] : '.', f);
+                        അല്ലെങ്കിൽ
+                                fputc(isprint(b[i]) ? (അക്ഷരം) b[i] : '.', f);
                 }
 
                 fputc('\n', f);
 
-                if (s < 16)
-                        break;
+                എങ്കിൽ (s < 16)
+                        നിർത്തുക;
 
                 n += 16;
                 b += 16;

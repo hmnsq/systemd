@@ -1,113 +1,113 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <threads.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "errno-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "signal-util.h"
+#അന്തര്ഭാവ "stdio-util.h"
+#അന്തര്ഭാവ "string-table.h"
+#അന്തര്ഭാവ "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+പൂർണ്ണസംഖ്യ reset_all_signal_handlers(ശൂന്യം) {
+        പൂർണ്ണസംഖ്യ ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        വേണ്ടി (പൂർണ്ണസംഖ്യ sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
-                        continue;
+                എങ്കിൽ (IN_SET(sig, SIGKILL, SIGSTOP))
+                        തുടരുക;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
-                r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                r = RET_NERRNO(sigaction(sig, &sigaction_default, ശൂന്യ));
+                എങ്കിൽ (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        തിരികെ ret;
 }
 
-int reset_signal_mask(void) {
+പൂർണ്ണസംഖ്യ reset_signal_mask(ശൂന്യം) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        എങ്കിൽ (sigemptyset(&ss) < 0)
+                തിരികെ -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        തിരികെ RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, ശൂന്യ));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+പൂർണ്ണസംഖ്യ sigaction_many_internal(സ്ഥിരം ഘടന sigaction *sa, ...) {
+        പൂർണ്ണസംഖ്യ sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ആകുമ്പോൾ ((sig = va_arg(ap, പൂർണ്ണസംഖ്യ)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                എങ്കിൽ (sig == 0)
+                        തുടരുക;
 
-                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
+                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, ശൂന്യ)));
         }
 
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+സ്ഥിതം പൂർണ്ണസംഖ്യ sigset_add_many_ap(sigset_t *ss, va_list ap) {
+        പൂർണ്ണസംഖ്യ sig, r = 0;
 
-        assert(ss);
+        പ്രതിജ്ഞാ(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ആകുമ്പോൾ ((sig = va_arg(ap, പൂർണ്ണസംഖ്യ)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                എങ്കിൽ (sig == 0)
+                        തുടരുക;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                എങ്കിൽ (sigaddset(ss, sig) < 0) {
+                        എങ്കിൽ (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        തിരികെ r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+പൂർണ്ണസംഖ്യ sigset_add_many_internal(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         va_start(ap, ss);
         r = sigset_add_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+പൂർണ്ണസംഖ്യ sigprocmask_many_internal(പൂർണ്ണസംഖ്യ how, sigset_t *ret_old_mask, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        എങ്കിൽ (sigemptyset(&ss) < 0)
+                തിരികെ -errno;
 
         va_start(ap, ret_old_mask);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        തിരികെ RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
 }
 
-static const char *const static_signal_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം static_signal_table[] = {
         [SIGHUP]    = "HUP",
         [SIGINT]    = "INT",
         [SIGQUIT]   = "QUIT",
@@ -143,87 +143,87 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, പൂർണ്ണസംഖ്യ);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
-        const char *name;
+സ്ഥിരം അക്ഷരം* signal_to_string(പൂർണ്ണസംഖ്യ signo) {
+        സ്ഥിതം thread_local അക്ഷരം buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(പൂർണ്ണസംഖ്യ)];
+        സ്ഥിരം അക്ഷരം *name;
 
         name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        എങ്കിൽ (name)
+                തിരികെ name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        എങ്കിൽ (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        അല്ലെങ്കിൽ
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        തിരികെ buf;
 }
 
-int signal_from_string(const char *s) {
-        const char *p;
-        int signo, r;
+പൂർണ്ണസംഖ്യ signal_from_string(സ്ഥിരം അക്ഷരം *s) {
+        സ്ഥിരം അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        എങ്കിൽ (safe_atoi(s, &signo) >= 0) {
+                എങ്കിൽ (SIGNAL_VALID(signo))
+                        തിരികെ signo;
+                അല്ലെങ്കിൽ
+                        തിരികെ -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        എങ്കിൽ (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        എങ്കിൽ (signo > 0)
+                തിരികെ signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        എങ്കിൽ (p) {
+                എങ്കിൽ (*p == '\0')
+                        തിരികെ SIGRTMIN;
+                എങ്കിൽ (*p != '+')
+                        തിരികെ -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                എങ്കിൽ (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        തിരികെ -ERANGE;
 
-                return signo + SIGRTMIN;
+                തിരികെ signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        എങ്കിൽ (p) {
+                എങ്കിൽ (*p == '\0')
+                        തിരികെ SIGRTMAX;
+                എങ്കിൽ (*p != '-')
+                        തിരികെ -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                എങ്കിൽ (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        തിരികെ -ERANGE;
 
-                return signo + SIGRTMAX;
+                തിരികെ signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        തിരികെ -EINVAL;
 }
 
-static const char *const sigill_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigill_code_table[] = {
         [ILL_ILLOPC]   = "ILL_ILLOPC",
         [ILL_ILLOPN]   = "ILL_ILLOPN",
         [ILL_ILLADR]   = "ILL_ILLADR",
@@ -235,9 +235,9 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, പൂർണ്ണസംഖ്യ);
 
-static const char *const sigfpe_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigfpe_code_table[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
         [FPE_INTOVF]   = "FPE_INTOVF",
         [FPE_FLTDIV]   = "FPE_FLTDIV",
@@ -250,9 +250,9 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, പൂർണ്ണസംഖ്യ);
 
-static const char *const sigsegv_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigsegv_code_table[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
         [SEGV_ACCERR]  = "SEGV_ACCERR",
         [SEGV_BNDERR]  = "SEGV_BNDERR",
@@ -265,9 +265,9 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, പൂർണ്ണസംഖ്യ);
 
-static const char *const sigbus_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigbus_code_table[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
         [BUS_ADRERR]    = "BUS_ADRERR",
         [BUS_OBJERR]    = "BUS_OBJERR",
@@ -275,9 +275,9 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, പൂർണ്ണസംഖ്യ);
 
-static const char *const sigtrap_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigtrap_code_table[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
         [TRAP_TRACE]  = "TRAP_TRACE",
         [TRAP_BRANCH] = "TRAP_BRANCH",
@@ -286,19 +286,19 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, പൂർണ്ണസംഖ്യ);
 
-static const char *const sigsys_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigsys_code_table[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, പൂർണ്ണസംഖ്യ);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
  * all other values decoded here, provide an uppercase variant. */
-static const char *const sigchld_uppercase_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigchld_uppercase_code_table[] = {
         [CLD_EXITED]    = "CLD_EXITED",
         [CLD_KILLED]    = "CLD_KILLED",
         [CLD_DUMPED]    = "CLD_DUMPED",
@@ -307,9 +307,9 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, പൂർണ്ണസംഖ്യ);
 
-static const char *const sigpoll_code_table[] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം *സ്ഥിരം sigpoll_code_table[] = {
         [POLL_IN]  = "POLL_IN",
         [POLL_OUT] = "POLL_OUT",
         [POLL_MSG] = "POLL_MSG",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, പൂർണ്ണസംഖ്യ);
 
-const char* signal_code_to_string(int signo, int code) {
-        switch (code) {
+സ്ഥിരം അക്ഷരം* signal_code_to_string(പൂർണ്ണസംഖ്യ signo, പൂർണ്ണസംഖ്യ code) {
+        തിരഞ്ഞെടുപ്പ് (code) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
-        case SI_KERNEL:
-                return "SI_KERNEL";
-        case SI_USER:
-                return "SI_USER";
+        അവസ്ഥ SI_KERNEL:
+                തിരികെ "SI_KERNEL";
+        അവസ്ഥ SI_USER:
+                തിരികെ "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
-        case SI_ASYNCNL:
-                return "SI_ASYNCNL";
-        case SI_DETHREAD:
-                return "SI_DETHREAD";
-        case SI_TKILL:
-                return "SI_TKILL";
-        case SI_SIGIO:
-                return "SI_SIGIO";
-        case SI_ASYNCIO:
-                return "SI_ASYNCIO";
-        case SI_MESGQ:
-                return "SI_MESGQ";
-        case SI_TIMER:
-                return "SI_TIMER";
-        case SI_QUEUE:
-                return "SI_QUEUE";
+        അവസ്ഥ SI_ASYNCNL:
+                തിരികെ "SI_ASYNCNL";
+        അവസ്ഥ SI_DETHREAD:
+                തിരികെ "SI_DETHREAD";
+        അവസ്ഥ SI_TKILL:
+                തിരികെ "SI_TKILL";
+        അവസ്ഥ SI_SIGIO:
+                തിരികെ "SI_SIGIO";
+        അവസ്ഥ SI_ASYNCIO:
+                തിരികെ "SI_ASYNCIO";
+        അവസ്ഥ SI_MESGQ:
+                തിരികെ "SI_MESGQ";
+        അവസ്ഥ SI_TIMER:
+                തിരികെ "SI_TIMER";
+        അവസ്ഥ SI_QUEUE:
+                തിരികെ "SI_QUEUE";
         }
 
-        switch (signo) {
-        case SIGILL:
-                return sigill_code_to_string(code);
-        case SIGFPE:
-                return sigfpe_code_to_string(code);
-        case SIGSEGV:
-                return sigsegv_code_to_string(code);
-        case SIGBUS:
-                return sigbus_code_to_string(code);
-        case SIGTRAP:
-                return sigtrap_code_to_string(code);
-        case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
-        case SIGPOLL:
-                return sigpoll_code_to_string(code);
-        case SIGSYS:
-                return sigsys_code_to_string(code);
-        default:
-                return NULL;
+        തിരഞ്ഞെടുപ്പ് (signo) {
+        അവസ്ഥ SIGILL:
+                തിരികെ sigill_code_to_string(code);
+        അവസ്ഥ SIGFPE:
+                തിരികെ sigfpe_code_to_string(code);
+        അവസ്ഥ SIGSEGV:
+                തിരികെ sigsegv_code_to_string(code);
+        അവസ്ഥ SIGBUS:
+                തിരികെ sigbus_code_to_string(code);
+        അവസ്ഥ SIGTRAP:
+                തിരികെ sigtrap_code_to_string(code);
+        അവസ്ഥ SIGCHLD:
+                തിരികെ sigchld_uppercase_code_to_string(code);
+        അവസ്ഥ SIGPOLL:
+                തിരികെ sigpoll_code_to_string(code);
+        അവസ്ഥ SIGSYS:
+                തിരികെ sigsys_code_to_string(code);
+        സ്ഥിരസ്ഥിതി:
+                തിരികെ ശൂന്യ;
         }
 }
 
-void nop_signal_handler(int sig) {
+ശൂന്യം nop_signal_handler(പൂർണ്ണസംഖ്യ sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+പൂർണ്ണസംഖ്യ signal_is_blocked(പൂർണ്ണസംഖ്യ sig) {
         sigset_t ss;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        r = pthread_sigmask(SIG_SETMASK, ശൂന്യ, &ss);
+        എങ്കിൽ (r != 0)
+                തിരികെ -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        തിരികെ RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
-        struct sigaction sa;
+പൂർണ്ണസംഖ്യ autoreaping_enabled(ശൂന്യം) {
+        ഘടന sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        എങ്കിൽ (sigaction(SIGCHLD, /* act= */ ശൂന്യ, &sa) < 0)
+                തിരികെ -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        തിരികെ sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+പൂർണ്ണസംഖ്യ എടുക്കുക_pending_signal_internal(പൂർണ്ണസംഖ്യ sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        എങ്കിൽ (sig < 0) /* Empty list? */
+                തിരികെ -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        എങ്കിൽ (sigemptyset(&ss) < 0)
+                തിരികെ -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        എങ്കിൽ (sig > 0 && sigaddset(&ss, sig) < 0)
+                തിരികെ -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        r = sigtimedwait(&ss, ശൂന്യ, &(സ്ഥിരം ഘടന timespec) {});
+        എങ്കിൽ (r < 0) {
+                എങ്കിൽ (errno == EAGAIN)
+                        തിരികെ 0;
 
-                return -errno;
+                തിരികെ -errno;
         }
 
-        return r; /* Returns the signal popped */
+        തിരികെ r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+ശൂന്യം propagate_signal(പൂർണ്ണസംഖ്യ sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,49 +443,49 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        എങ്കിൽ (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
-const struct sigaction sigaction_ignore = {
+സ്ഥിരം ഘടന sigaction sigaction_ignore = {
         .sa_handler = SIG_IGN,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_default = {
+സ്ഥിരം ഘടന sigaction sigaction_default = {
         .sa_handler = SIG_DFL,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_nop_nocldstop = {
+സ്ഥിരം ഘടന sigaction sigaction_nop_nocldstop = {
         .sa_handler = nop_signal_handler,
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+പൂർണ്ണസംഖ്യ parse_signo(സ്ഥിരം അക്ഷരം *s, പൂർണ്ണസംഖ്യ *ret) {
+        പൂർണ്ണസംഖ്യ sig, r;
 
         r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        എങ്കിൽ (!SIGNAL_VALID(sig))
+                തിരികെ -EINVAL;
 
-        if (ret)
+        എങ്കിൽ (ret)
                 *ret = sig;
 
-        return 0;
+        തിരികെ 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
-        assert(signal == SIGTERM);
-        assert(info);
+ശൂന്യം sigterm_process_group_handler(പൂർണ്ണസംഖ്യ സൂചന, siginfo_t *info, ശൂന്യം *ucontext) {
+        പ്രതിജ്ഞാ(സൂചന == SIGTERM);
+        പ്രതിജ്ഞാ(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        എങ്കിൽ (si_code_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
-                (void) kill(0, signal);
+                (ശൂന്യം) kill(0, സൂചന);
 }

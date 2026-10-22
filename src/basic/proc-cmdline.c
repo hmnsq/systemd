@@ -1,28 +1,28 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#അന്തര്ഭാവ <stdlib.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "initrd-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "virt.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "initrd-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "proc-cmdline.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "virt.h"
 
-typedef enum ArgType {
+തരനിർവചനം എണ്ണൽ ArgType {
         no_argument,
         required_argument,
         optional_argument,
 } ArgType;
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
-        const struct {
-                const char *name;
+പൂർണ്ണസംഖ്യ proc_cmdline_filter_pid1_args(അക്ഷരം **argv, അക്ഷരം ***ret) {
+        സ്ഥിരം ഘടന {
+                സ്ഥിരം അക്ഷരം *name;
                 ArgType has_arg;
         } options[] = {
                 { "log-level",                required_argument },
@@ -58,280 +58,280 @@ int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
                 { "exit-code",                required_argument },
                 { "timeout",                  required_argument },
         };
-        const char *short_options = "hDbsz:";
+        സ്ഥിരം അക്ഷരം *short_options = "hDbsz:";
 
-        _cleanup_strv_free_ char **filtered = NULL;
-        int state, r;
+        _cleanup_strv_free_ അക്ഷരം **filtered = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ state, r;
 
-        assert(argv);
-        assert(ret);
+        പ്രതിജ്ഞാ(argv);
+        പ്രതിജ്ഞാ(ret);
 
         /* Currently, we do not support '-', '+', and ':' at the beginning. */
-        assert(!IN_SET(short_options[0], '-', '+', ':'));
+        പ്രതിജ്ഞാ(!IN_SET(short_options[0], '-', '+', ':'));
 
         /* Filter out all known options. */
         state = no_argument;
         STRV_FOREACH(p, strv_skip(argv, 1)) {
-                int prev_state = state;
-                const char *a = *p;
+                പൂർണ്ണസംഖ്യ prev_state = state;
+                സ്ഥിരം അക്ഷരം *a = *p;
 
                 /* Reset the state for the next step. */
                 state = no_argument;
 
-                if (prev_state == required_argument ||
+                എങ്കിൽ (prev_state == required_argument ||
                     (prev_state == optional_argument && a[0] != '-'))
                         /* Handled as an argument of the previous option, filtering out the string. */
-                        continue;
+                        തുടരുക;
 
-                if (a[0] != '-') {
+                എങ്കിൽ (a[0] != '-') {
                         /* Not an option, accepting the string. */
                         r = strv_extend(&filtered, a);
-                        if (r < 0)
-                                return r;
-                        continue;
+                        എങ്കിൽ (r < 0)
+                                തിരികെ r;
+                        തുടരുക;
                 }
 
-                if (a[1] == '-') {
-                        if (a[2] == '\0') {
+                എങ്കിൽ (a[1] == '-') {
+                        എങ്കിൽ (a[2] == '\0') {
                                 /* "--" is specified, accepting remaining strings. */
                                 r = strv_extend_strv(&filtered, strv_skip(p, 1), /* filter_duplicates= */ false);
-                                if (r < 0)
-                                        return r;
-                                break;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
+                                നിർത്തുക;
                         }
 
                         /* long option, e.g. --foo */
                         FOREACH_ELEMENT(option, options) {
-                                const char *q = startswith(a + 2, option->name);
-                                if (!q || !IN_SET(q[0], '=', '\0'))
-                                        continue;
+                                സ്ഥിരം അക്ഷരം *q = startswith(a + 2, option->name);
+                                എങ്കിൽ (!q || !IN_SET(q[0], '=', '\0'))
+                                        തുടരുക;
 
                                 /* Found matching option, updating the state if necessary. */
-                                if (q[0] == '\0' && option->has_arg == required_argument)
+                                എങ്കിൽ (q[0] == '\0' && option->has_arg == required_argument)
                                         state = required_argument;
 
-                                break;
+                                നിർത്തുക;
                         }
-                        continue;
+                        തുടരുക;
                 }
 
                 /* short option(s), e.g. -x or -xyz */
-                while (a && *++a != '\0')
-                        for (const char *q = short_options; *q != '\0'; q++) {
-                                if (*q != *a)
-                                        continue;
+                ആകുമ്പോൾ (a && *++a != '\0')
+                        വേണ്ടി (സ്ഥിരം അക്ഷരം *q = short_options; *q != '\0'; q++) {
+                                എങ്കിൽ (*q != *a)
+                                        തുടരുക;
 
                                 /* Found matching short option. */
 
-                                if (q[1] == ':') {
+                                എങ്കിൽ (q[1] == ':') {
                                         /* An argument is required or optional, and remaining part
                                          * is handled as argument if exists. */
                                         state = a[1] != '\0' ? no_argument :
                                                 q[2] == ':' ? optional_argument : required_argument;
 
-                                        a = NULL; /* Not necessary to parse remaining part. */
+                                        a = ശൂന്യ; /* Not necessary to parse remaining part. */
                                 }
-                                break;
+                                നിർത്തുക;
                         }
         }
 
         *ret = TAKE_PTR(filtered);
-        return 0;
+        തിരികെ 0;
 }
 
-int proc_cmdline(char **ret) {
-        assert(ret);
+പൂർണ്ണസംഖ്യ proc_cmdline(അക്ഷരം **ret) {
+        പ്രതിജ്ഞാ(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strdup_to(ret, e);
+        സ്ഥിരം അക്ഷരം *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        എങ്കിൽ (e)
+                തിരികെ strdup_to(ret, e);
 
-        if (detect_container() > 0)
-                return pid_get_cmdline(1, SIZE_MAX, 0, ret);
+        എങ്കിൽ (detect_container() > 0)
+                തിരികെ pid_get_cmdline(1, SIZE_MAX, 0, ret);
 
-        return read_full_file("/proc/cmdline", ret, /* ret_size= */  NULL);
+        തിരികെ read_full_file("/proc/cmdline", ret, /* ret_size= */  ശൂന്യ);
 }
 
-static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ proc_cmdline_strv_internal(അക്ഷരം ***ret, bool filter_pid1_args) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strv_split_full(ret, e, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+        സ്ഥിരം അക്ഷരം *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        എങ്കിൽ (e)
+                തിരികെ strv_split_full(ret, e, ശൂന്യ, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
 
-        if (detect_container() > 0) {
-                _cleanup_strv_free_ char **args = NULL;
+        എങ്കിൽ (detect_container() > 0) {
+                _cleanup_strv_free_ അക്ഷരം **args = ശൂന്യ;
 
                 r = pid_get_cmdline_strv(1, /* flags= */ 0, &args);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                if (filter_pid1_args)
-                        return proc_cmdline_filter_pid1_args(args, ret);
+                എങ്കിൽ (filter_pid1_args)
+                        തിരികെ proc_cmdline_filter_pid1_args(args, ret);
 
                 *ret = TAKE_PTR(args);
-                return 0;
+                തിരികെ 0;
 
-        } else {
-                _cleanup_free_ char *s = NULL;
+        } അല്ലെങ്കിൽ {
+                _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
 
-                r = read_full_file("/proc/cmdline", &s, NULL);
-                if (r < 0)
-                        return r;
+                r = read_full_file("/proc/cmdline", &s, ശൂന്യ);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                return strv_split_full(ret, s, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+                തിരികെ strv_split_full(ret, s, ശൂന്യ, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
         }
 }
 
-int proc_cmdline_strv(char ***ret) {
-        return proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
+പൂർണ്ണസംഖ്യ proc_cmdline_strv(അക്ഷരം ***ret) {
+        തിരികെ proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
 }
 
-static char *mangle_word(const char *word, ProcCmdlineFlags flags) {
-        char *c = (char*) startswith(word, "rd.");
-        if (c) {
+സ്ഥിതം അക്ഷരം *mangle_word(സ്ഥിരം അക്ഷരം *word, ProcCmdlineFlags flags) {
+        അക്ഷരം *c = (അക്ഷരം*) startswith(word, "rd.");
+        എങ്കിൽ (c) {
                 /* Filter out arguments that are intended only for the initrd */
 
-                if (!in_initrd())
-                        return NULL;
+                എങ്കിൽ (!in_initrd())
+                        തിരികെ ശൂന്യ;
 
-                if (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
-                        return c;
+                എങ്കിൽ (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
+                        തിരികെ c;
 
-        } else if (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
+        } അല്ലെങ്കിൽ എങ്കിൽ (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
                 /* And optionally filter out arguments that are intended only for the host */
-                return NULL;
+                തിരികെ ശൂന്യ;
 
-        return (char*) word;
+        തിരികെ (അക്ഷരം*) word;
 }
 
 #define mangle_word(word, flags) const_generic(word, mangle_word(word, flags))
 
-static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ proc_cmdline_parse_strv(അക്ഷരം **args, proc_cmdline_parse_t parse_item, ശൂന്യം *data, ProcCmdlineFlags flags) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(parse_item);
+        പ്രതിജ്ഞാ(parse_item);
 
         STRV_FOREACH(word, args) {
-                char *key, *value;
+                അക്ഷരം *താക്കോൽ, *മൂല്യം;
 
-                key = mangle_word(*word, flags);
-                if (!key)
-                        continue;
+                താക്കോൽ = mangle_word(*word, flags);
+                എങ്കിൽ (!താക്കോൽ)
+                        തുടരുക;
 
-                value = strchr(key, '=');
-                if (value)
-                        *(value++) = '\0';
+                മൂല്യം = strchr(താക്കോൽ, '=');
+                എങ്കിൽ (മൂല്യം)
+                        *(മൂല്യം++) = '\0';
 
-                r = parse_item(key, value, data);
-                if (r < 0)
-                        return r;
+                r = parse_item(താക്കോൽ, മൂല്യം, data);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ proc_cmdline_parse(proc_cmdline_parse_t parse_item, ശൂന്യം *data, ProcCmdlineFlags flags) {
+        _cleanup_strv_free_ അക്ഷരം **args = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(parse_item);
+        പ്രതിജ്ഞാ(parse_item);
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_parse(), let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        പ്രതിജ്ഞാ(!(flags & (PROC_CMDLINE_മൂല്യം_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return proc_cmdline_parse_strv(args, parse_item, data, flags);
+        തിരികെ proc_cmdline_parse_strv(args, parse_item, data, flags);
 }
 
-static bool relaxed_equal_char(char a, char b) {
-        return a == b ||
+സ്ഥിതം bool relaxed_equal_char(അക്ഷരം a, അക്ഷരം b) {
+        തിരികെ a == b ||
                 (a == '_' && b == '-') ||
                 (a == '-' && b == '_');
 }
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
-        assert(s);
-        assert(prefix);
+അക്ഷരം* proc_cmdline_താക്കോൽ_startswith(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *prefix) {
+        പ്രതിജ്ഞാ(s);
+        പ്രതിജ്ഞാ(prefix);
 
         /* Much like startswith(), but considers "-" and "_" the same */
 
-        for (; *prefix != 0; s++, prefix++)
-                if (!relaxed_equal_char(*s, *prefix))
-                        return NULL;
+        വേണ്ടി (; *prefix != 0; s++, prefix++)
+                എങ്കിൽ (!relaxed_equal_char(*s, *prefix))
+                        തിരികെ ശൂന്യ;
 
-        return (char*) s;
+        തിരികെ (അക്ഷരം*) s;
 }
 
-bool proc_cmdline_key_streq(const char *x, const char *y) {
-        assert(x);
-        assert(y);
+bool proc_cmdline_താക്കോൽ_streq(സ്ഥിരം അക്ഷരം *x, സ്ഥിരം അക്ഷരം *y) {
+        പ്രതിജ്ഞാ(x);
+        പ്രതിജ്ഞാ(y);
 
         /* Much like streq(), but considers "-" and "_" the same */
 
-        for (; *x != 0 || *y != 0; x++, y++)
-                if (!relaxed_equal_char(*x, *y))
-                        return false;
+        വേണ്ടി (; *x != 0 || *y != 0; x++, y++)
+                എങ്കിൽ (!relaxed_equal_char(*x, *y))
+                        തിരികെ false;
 
-        return true;
+        തിരികെ true;
 }
 
-static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_free_ char *v = NULL;
+സ്ഥിതം പൂർണ്ണസംഖ്യ cmdline_get_താക്കോൽ(അക്ഷരം **args, സ്ഥിരം അക്ഷരം *താക്കോൽ, ProcCmdlineFlags flags, അക്ഷരം **ret_മൂല്യം) {
+        _cleanup_free_ അക്ഷരം *v = ശൂന്യ;
         bool found = false;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(key);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
         STRV_FOREACH(p, args) {
-                const char *word;
+                സ്ഥിരം അക്ഷരം *word;
 
                 word = mangle_word(*p, flags);
-                if (!word)
-                        continue;
+                എങ്കിൽ (!word)
+                        തുടരുക;
 
-                if (ret_value) {
-                        const char *e;
+                എങ്കിൽ (ret_മൂല്യം) {
+                        സ്ഥിരം അക്ഷരം *e;
 
-                        e = proc_cmdline_key_startswith(word, key);
-                        if (!e)
-                                continue;
+                        e = proc_cmdline_താക്കോൽ_startswith(word, താക്കോൽ);
+                        എങ്കിൽ (!e)
+                                തുടരുക;
 
-                        if (*e == '=') {
+                        എങ്കിൽ (*e == '=') {
                                 r = free_and_strdup(&v, e+1);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
                                 found = true;
 
-                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL))
+                        } അല്ലെങ്കിൽ എങ്കിൽ (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_മൂല്യം_OPTIONAL))
                                 found = true;
 
-                } else {
-                        if (proc_cmdline_key_streq(word, key)) {
+                } അല്ലെങ്കിൽ {
+                        എങ്കിൽ (proc_cmdline_താക്കോൽ_streq(word, താക്കോൽ)) {
                                 found = true;
-                                break; /* we found what we were looking for */
+                                നിർത്തുക; /* we found what we were looking for */
                         }
                 }
         }
 
-        if (ret_value)
-                *ret_value = TAKE_PTR(v);
+        എങ്കിൽ (ret_മൂല്യം)
+                *ret_മൂല്യം = TAKE_PTR(v);
 
-        return found;
+        തിരികെ found;
 }
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ proc_cmdline_get_താക്കോൽ(സ്ഥിരം അക്ഷരം *താക്കോൽ, ProcCmdlineFlags flags, അക്ഷരം **ret_മൂല്യം) {
+        _cleanup_strv_free_ അക്ഷരം **args = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
         /* Looks for a specific key on the kernel command line. Supports three modes:
          *
@@ -347,109 +347,109 @@ int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_val
          * In all three cases, > 0 is returned if the key is found, 0 if not. */
 
         /* PROC_CMDLINE_TRUE_WHEN_MISSING doesn't really make sense for proc_cmdline_get_key(). */
-        assert(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
+        പ്രതിജ്ഞാ(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
 
-        if (isempty(key))
-                return -EINVAL;
+        എങ്കിൽ (isempty(താക്കോൽ))
+                തിരികെ -EINVAL;
 
-        if (FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL) && !ret_value)
-                return -EINVAL;
+        എങ്കിൽ (FLAGS_SET(flags, PROC_CMDLINE_മൂല്യം_OPTIONAL) && !ret_മൂല്യം)
+                തിരികെ -EINVAL;
 
         r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return cmdline_get_key(args, key, flags, ret_value);
+        തിരികെ cmdline_get_താക്കോൽ(args, താക്കോൽ, flags, ret_മൂല്യം);
 }
 
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ proc_cmdline_get_bool(സ്ഥിരം അക്ഷരം *താക്കോൽ, ProcCmdlineFlags flags, bool *ret) {
+        _cleanup_free_ അക്ഷരം *v = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(ret);
+        പ്രതിജ്ഞാ(ret);
 
-        r = proc_cmdline_get_key(key, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_VALUE_OPTIONAL, &v);
-        if (r < 0)
-                return r;
-        if (r == 0) { /* key not specified at all */
+        r = proc_cmdline_get_താക്കോൽ(താക്കോൽ, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_മൂല്യം_OPTIONAL, &v);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
+        എങ്കിൽ (r == 0) { /* key not specified at all */
                 *ret = FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
-                return 0;
+                തിരികെ 0;
         }
 
-        if (v) { /* key with parameter passed */
+        എങ്കിൽ (v) { /* key with parameter passed */
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
                 *ret = r;
-        } else /* key without parameter passed */
+        } അല്ലെങ്കിൽ /* key without parameter passed */
                 *ret = true;
 
-        return 1;
+        തിരികെ 1;
 }
 
-static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list ap) {
-        int r, ret = 0;
+സ്ഥിതം പൂർണ്ണസംഖ്യ cmdline_get_താക്കോൽ_ap(ProcCmdlineFlags flags, അക്ഷരം* സ്ഥിരം* args, va_list ap) {
+        പൂർണ്ണസംഖ്യ r, ret = 0;
 
-        for (;;) {
-                char **v;
-                const char *k, *e;
+        വേണ്ടി (;;) {
+                അക്ഷരം **v;
+                സ്ഥിരം അക്ഷരം *k, *e;
 
-                k = va_arg(ap, const char*);
-                if (!k)
-                        break;
+                k = va_arg(ap, സ്ഥിരം അക്ഷരം*);
+                എങ്കിൽ (!k)
+                        നിർത്തുക;
 
-                assert_se(v = va_arg(ap, char**));
+                assert_se(v = va_arg(ap, അക്ഷരം**));
 
                 STRV_FOREACH(p, args) {
-                        const char *word;
+                        സ്ഥിരം അക്ഷരം *word;
 
                         word = mangle_word(*p, flags);
-                        if (!word)
-                                continue;
+                        എങ്കിൽ (!word)
+                                തുടരുക;
 
-                        e = proc_cmdline_key_startswith(word, k);
-                        if (e && *e == '=') {
+                        e = proc_cmdline_താക്കോൽ_startswith(word, k);
+                        എങ്കിൽ (e && *e == '=') {
                                 r = free_and_strdup(v, e + 1);
-                                if (r < 0)
-                                        return r;
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
                                 ret++;
                         }
                 }
         }
 
-        return ret;
+        തിരികെ ret;
 }
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ proc_cmdline_get_താക്കോൽ_many_internal(ProcCmdlineFlags flags, ...) {
+        _cleanup_strv_free_ അക്ഷരം **args = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
         va_list ap;
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_get_key_many, let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        പ്രതിജ്ഞാ(!(flags & (PROC_CMDLINE_മൂല്യം_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         /* This call may clobber arguments on failure! */
 
         r = proc_cmdline_strv(&args);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         va_start(ap, flags);
-        r = cmdline_get_key_ap(flags, args, ap);
+        r = cmdline_get_താക്കോൽ_ap(flags, args, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-bool proc_cmdline_value_missing(const char *key, const char *value) {
-        assert(key);
+bool proc_cmdline_മൂല്യം_missing(സ്ഥിരം അക്ഷരം *താക്കോൽ, സ്ഥിരം അക്ഷരം *മൂല്യം) {
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        if (!value) {
-                log_warning("Missing argument for %s= kernel command line switch, ignoring.", key);
-                return true;
+        എങ്കിൽ (!മൂല്യം) {
+                log_warning("Missing argument for %s= kernel command line switch, ignoring.", താക്കോൽ);
+                തിരികെ true;
         }
 
-        return false;
+        തിരികെ false;
 }

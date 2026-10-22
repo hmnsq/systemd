@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#അന്തര്ഭാവ <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "sort-util.h"
+#അന്തര്ഭാവ "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+ഘടന strbuf* strbuf_new(ശൂന്യം) {
+        _cleanup_(strbuf_freep) ഘടന strbuf *str = ശൂന്യ;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(ഘടന strbuf, 1);
+        എങ്കിൽ (!str)
+                തിരികെ ശൂന്യ;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (ഘടന strbuf) {
+                .buf = new0(അക്ഷരം, 1),
+                .വേര് = new0(ഘടന strbuf_കണ്ണി, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_എണ്ണം = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        എങ്കിൽ (!str->buf || !str->വേര്)
+                തിരികെ ശൂന്യ;
 
-        return TAKE_PTR(str);
+        തിരികെ TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+സ്ഥിതം ഘടന strbuf_കണ്ണി* strbuf_കണ്ണി_cleanup(ഘടന strbuf_കണ്ണി *കണ്ണി) {
+        പ്രതിജ്ഞാ(കണ്ണി);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(child, കണ്ണി->children, കണ്ണി->children_എണ്ണം)
+                strbuf_കണ്ണി_cleanup(child->child);
 
-        free(node->children);
-        return mfree(node);
+        സ്വതന്ത്രം(കണ്ണി->children);
+        തിരികെ mfree(കണ്ണി);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+ശൂന്യം strbuf_complete(ഘടന strbuf *str) {
+        എങ്കിൽ (!str || !str->വേര്)
+                തിരികെ;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->വേര് = strbuf_കണ്ണി_cleanup(str->വേര്);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+ഘടന strbuf* strbuf_free(ഘടന strbuf *str) {
+        എങ്കിൽ (!str)
+                തിരികെ ശൂന്യ;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        സ്വതന്ത്രം(str->buf);
+        തിരികെ mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+സ്ഥിതം പൂർണ്ണസംഖ്യ strbuf_children_cmp(സ്ഥിരം ഘടന strbuf_child_entry *n1, സ്ഥിരം ഘടന strbuf_child_entry *n2) {
+        പ്രതിജ്ഞാ(n1);
+        പ്രതിജ്ഞാ(n2);
 
-        return CMP(n1->c, n2->c);
+        തിരികെ CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+സ്ഥിതം ശൂന്യം bubbleinsert(ഘടന strbuf_കണ്ണി *കണ്ണി,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         ഘടന strbuf_കണ്ണി *കണ്ണി_child) {
 
-        struct strbuf_child_entry new = {
+        ഘടന strbuf_child_entry new = {
                 .c = c,
-                .child = node_child,
+                .child = കണ്ണി_child,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        പൂർണ്ണസംഖ്യ ഇടത് = 0, വലത് = ASSERT_PTR(കണ്ണി)->children_എണ്ണം;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
-                else
-                        right = middle;
+        ആകുമ്പോൾ (വലത് > ഇടത്) {
+                പൂർണ്ണസംഖ്യ നടുവ് = (വലത് + ഇടത്) / 2 ;
+                എങ്കിൽ (strbuf_children_cmp(&കണ്ണി->children[നടുവ്], &new) <= 0)
+                        ഇടത് = നടുവ് + 1;
+                അല്ലെങ്കിൽ
+                        വലത് = നടുവ്;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(കണ്ണി->children + ഇടത് + 1, കണ്ണി->children + ഇടത്,
+                വലുപ്പം(ഘടന strbuf_child_entry) * (കണ്ണി->children_എണ്ണം - ഇടത്));
+        കണ്ണി->children[ഇടത്] = new;
 
-        node->children_count++;
+        കണ്ണി->children_എണ്ണം++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_add_string_full(ഘടന strbuf *str, സ്ഥിരം അക്ഷരം *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        പ്രതിജ്ഞാ(str);
+        പ്രതിജ്ഞാ(s || len == 0);
 
-        if (len == SIZE_MAX)
+        എങ്കിൽ (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (!str->root)
-                return -EINVAL;
+        എങ്കിൽ (!str->വേര്)
+                തിരികെ -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
-        if (len == 0) {
-                str->dedup_count++;
-                return 0;
+        str->in_എണ്ണം++;
+        എങ്കിൽ (len == 0) {
+                str->dedup_എണ്ണം++;
+                തിരികെ 0;
         }
         str->in_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        ഘടന strbuf_കണ്ണി *കണ്ണി = str->വേര്;
+        വേണ്ടി (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = കണ്ണി->മൂല്യം_off + കണ്ണി->മൂല്യം_len - len;
+                എങ്കിൽ (depth == len || (കണ്ണി->മൂല്യം_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
-                        return off;
+                        str->dedup_എണ്ണം++;
+                        തിരികെ off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
-                node = child->child;
+                ഘടന strbuf_child_entry *child, തിരയൽ = { .c = c };
+                child = typesafe_bsearch(&തിരയൽ, കണ്ണി->children, കണ്ണി->children_എണ്ണം, strbuf_children_cmp);
+                എങ്കിൽ (!child)
+                        നിർത്തുക;
+                കണ്ണി = child->child;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        എങ്കിൽ (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                തിരികെ -ENOMEM;
         off = str->len;
         memcpy(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ ഘടന strbuf_കണ്ണി *കണ്ണി_child = ശൂന്യ;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        കണ്ണി_child = new(ഘടന strbuf_കണ്ണി, 1);
+        എങ്കിൽ (!കണ്ണി_child)
+                തിരികെ -ENOMEM;
+        *കണ്ണി_child = (ഘടന strbuf_കണ്ണി) {
+                .മൂല്യം_off = off,
+                .മൂല്യം_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        എങ്കിൽ (!GREEDY_REALLOC(കണ്ണി->children, കണ്ണി->children_എണ്ണം + 1))
+                തിരികെ -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_എണ്ണം++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(കണ്ണി, c, TAKE_PTR(കണ്ണി_child));
 
-        return off;
+        തിരികെ off;
 }

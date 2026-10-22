@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <stdlib.h>
 
-#include "format-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "mempool.h"
+#അന്തര്ഭാവ "format-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "memory-util.h"
+#അന്തര്ഭാവ "mempool.h"
 
-struct pool {
-        struct pool *next;
+ഘടന pool {
+        ഘടന pool *next;
         size_t n_tiles;
         size_t n_used;
 };
 
-static void* pool_ptr(struct pool *p) {
-        return ((uint8_t*) ASSERT_PTR(p)) + ALIGN(sizeof(struct pool));
+സ്ഥിതം ശൂന്യം* pool_ptr(ഘടന pool *p) {
+        തിരികെ ((uint8_t*) ASSERT_PTR(p)) + ALIGN(വലുപ്പം(ഘടന pool));
 }
 
-void* mempool_alloc_tile(struct mempool *mp) {
+ശൂന്യം* mempool_alloc_tile(ഘടന mempool *mp) {
         size_t i;
 
         /* When a tile is released we add it to the list and simply
          * place the next pointer at its offset 0. */
 
-        assert(mp);
-        assert(mp->tile_size >= sizeof(void*));
-        assert(mp->at_least > 0);
+        പ്രതിജ്ഞാ(mp);
+        പ്രതിജ്ഞാ(mp->tile_size >= വലുപ്പം(ശൂന്യം*));
+        പ്രതിജ്ഞാ(mp->at_least > 0);
 
-        if (mp->freelist) {
-                void *t;
+        എങ്കിൽ (mp->freelist) {
+                ശൂന്യം *t;
 
                 t = mp->freelist;
-                mp->freelist = *(void**) mp->freelist;
-                return t;
+                mp->freelist = *(ശൂന്യം**) mp->freelist;
+                തിരികെ t;
         }
 
-        if (_unlikely_(!mp->first_pool) ||
+        എങ്കിൽ (_unlikely_(!mp->first_pool) ||
             _unlikely_(mp->first_pool->n_used >= mp->first_pool->n_tiles)) {
                 size_t size, n;
-                struct pool *p;
+                ഘടന pool *p;
 
                 n = mp->first_pool ? mp->first_pool->n_tiles : 0;
                 n = MAX(mp->at_least, n * 2);
-                size = PAGE_ALIGN(ALIGN(sizeof(struct pool)) + n*mp->tile_size);
-                n = (size - ALIGN(sizeof(struct pool))) / mp->tile_size;
+                size = PAGE_ALIGN(ALIGN(വലുപ്പം(ഘടന pool)) + n*mp->tile_size);
+                n = (size - ALIGN(വലുപ്പം(ഘടന pool))) / mp->tile_size;
 
                 p = malloc(size);
-                if (!p)
-                        return NULL;
+                എങ്കിൽ (!p)
+                        തിരികെ ശൂന്യ;
 
                 p->next = mp->first_pool;
                 p->n_tiles = n;
@@ -59,119 +59,119 @@ void* mempool_alloc_tile(struct mempool *mp) {
 
         i = mp->first_pool->n_used++;
 
-        return (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_size;
+        തിരികെ (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_size;
 }
 
-void* mempool_alloc0_tile(struct mempool *mp) {
-        void *p;
+ശൂന്യം* mempool_alloc0_tile(ഘടന mempool *mp) {
+        ശൂന്യം *p;
 
-        assert(mp);
+        പ്രതിജ്ഞാ(mp);
 
         p = mempool_alloc_tile(mp);
-        if (p)
+        എങ്കിൽ (p)
                 memzero(p, mp->tile_size);
-        return p;
+        തിരികെ p;
 }
 
-void* mempool_free_tile(struct mempool *mp, void *p) {
-        assert(mp);
+ശൂന്യം* mempool_free_tile(ഘടന mempool *mp, ശൂന്യം *p) {
+        പ്രതിജ്ഞാ(mp);
 
-        if (!p)
-                return NULL;
+        എങ്കിൽ (!p)
+                തിരികെ ശൂന്യ;
 
-        *(void**) p = mp->freelist;
+        *(ശൂന്യം**) p = mp->freelist;
         mp->freelist = p;
 
-        return NULL;
+        തിരികെ ശൂന്യ;
 }
 
-static bool pool_contains(struct mempool *mp, struct pool *p, void *ptr) {
+സ്ഥിതം bool pool_contains(ഘടന mempool *mp, ഘടന pool *p, ശൂന്യം *ptr) {
         size_t off;
-        void *a;
+        ശൂന്യം *a;
 
-        assert(mp);
-        assert(p);
+        പ്രതിജ്ഞാ(mp);
+        പ്രതിജ്ഞാ(p);
 
-        if (!ptr)
-                return false;
+        എങ്കിൽ (!ptr)
+                തിരികെ false;
 
         a = pool_ptr(p);
-        if ((uint8_t*) ptr < (uint8_t*) a)
-                return false;
+        എങ്കിൽ ((uint8_t*) ptr < (uint8_t*) a)
+                തിരികെ false;
 
         off = (uint8_t*) ptr - (uint8_t*) a;
-        if (off >= mp->tile_size * p->n_tiles)
-                return false;
+        എങ്കിൽ (off >= mp->tile_size * p->n_tiles)
+                തിരികെ false;
 
-        assert(off % mp->tile_size == 0);
-        return true;
+        പ്രതിജ്ഞാ(off % mp->tile_size == 0);
+        തിരികെ true;
 }
 
-static bool pool_is_unused(struct mempool *mp, struct pool *p) {
-        assert(mp);
-        assert(p);
+സ്ഥിതം bool pool_is_unused(ഘടന mempool *mp, ഘടന pool *p) {
+        പ്രതിജ്ഞാ(mp);
+        പ്രതിജ്ഞാ(p);
 
-        if (p->n_used == 0)
-                return true;
+        എങ്കിൽ (p->n_used == 0)
+                തിരികെ true;
 
         /* Check if all tiles in this specific pool are in the freelist. */
         size_t n = 0;
-        void *i = mp->freelist;
-        while (i) {
-                if (pool_contains(mp, p, i))
+        ശൂന്യം *i = mp->freelist;
+        ആകുമ്പോൾ (i) {
+                എങ്കിൽ (pool_contains(mp, p, i))
                         n++;
 
-                i = *(void**) i;
+                i = *(ശൂന്യം**) i;
         }
 
-        assert(n <= p->n_used);
+        പ്രതിജ്ഞാ(n <= p->n_used);
 
-        return n == p->n_used;
+        തിരികെ n == p->n_used;
 }
 
-static void pool_unlink(struct mempool *mp, struct pool *p) {
+സ്ഥിതം ശൂന്യം pool_unlink(ഘടന mempool *mp, ഘടന pool *p) {
         size_t m = 0;
 
-        assert(mp);
-        assert(p);
+        പ്രതിജ്ഞാ(mp);
+        പ്രതിജ്ഞാ(p);
 
-        if (p->n_used == 0)
-                return;
+        എങ്കിൽ (p->n_used == 0)
+                തിരികെ;
 
-        void **i = &mp->freelist;
-        while (*i) {
-                void *d = *i;
+        ശൂന്യം **i = &mp->freelist;
+        ആകുമ്പോൾ (*i) {
+                ശൂന്യം *d = *i;
 
-                if (pool_contains(mp, p, d)) {
-                        *i = *(void**) d;
+                എങ്കിൽ (pool_contains(mp, p, d)) {
+                        *i = *(ശൂന്യം**) d;
                         m++;
 
-                        if (m == p->n_used)
-                                break;
-                } else
-                        i = (void**) d;
+                        എങ്കിൽ (m == p->n_used)
+                                നിർത്തുക;
+                } അല്ലെങ്കിൽ
+                        i = (ശൂന്യം**) d;
         }
 }
 
-void mempool_trim(struct mempool *mp) {
-        size_t trimmed = 0, left = 0;
+ശൂന്യം mempool_trim(ഘടന mempool *mp) {
+        size_t trimmed = 0, ഇടത് = 0;
 
-        assert(mp);
+        പ്രതിജ്ഞാ(mp);
 
-        struct pool **p = &mp->first_pool;
-        while (*p) {
-                struct pool *d = *p;
+        ഘടന pool **p = &mp->first_pool;
+        ആകുമ്പോൾ (*p) {
+                ഘടന pool *d = *p;
 
-                if (pool_is_unused(mp, d)) {
+                എങ്കിൽ (pool_is_unused(mp, d)) {
                         trimmed += d->n_tiles * mp->tile_size;
                         pool_unlink(mp, d);
                         *p = d->next;
-                        free(d);
-                } else {
-                        left += d->n_tiles * mp->tile_size;
+                        സ്വതന്ത്രം(d);
+                } അല്ലെങ്കിൽ {
+                        ഇടത് += d->n_tiles * mp->tile_size;
                         p = &d->next;
                 }
         }
 
-        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(left));
+        log_debug("Trimmed %s from memory pool %p. (%s left)", FORMAT_BYTES(trimmed), mp, FORMAT_BYTES(ഇടത്));
 }

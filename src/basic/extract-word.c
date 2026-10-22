@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "log.h"
-#include "string-util.h"
-#include "utf8.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "escape.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "utf8.h"
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
-        _cleanup_free_ char *s = NULL;
+പൂർണ്ണസംഖ്യ extract_first_word(സ്ഥിരം അക്ഷരം **p, അക്ഷരം **ret, സ്ഥിരം അക്ഷരം *separators, ExtractFlags flags) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
         size_t sz = 0;
-        char quote = 0;                 /* 0 or ' or " */
+        അക്ഷരം quote = 0;                 /* 0 or ' or " */
         bool backslash = false;         /* whether we've just seen a backslash */
-        char c;
-        int r;
+        അക്ഷരം c;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(p);
-        assert(ret);
-        assert(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
+        പ്രതിജ്ഞാ(p);
+        പ്രതിജ്ഞാ(ret);
+        പ്രതിജ്ഞാ(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
 
         /* Bail early if called after last value or with no input */
-        if (!*p)
-                goto finish;
+        എങ്കിൽ (!*p)
+                പോകുക finish;
         c = **p;
 
-        if (!separators)
+        എങ്കിൽ (!separators)
                 separators = WHITESPACE;
 
         /* Parses the first word of a string, and returns it in
@@ -32,36 +32,36 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
          * (because of an uneven number of quotes or similar), leaves
          * the pointer *p at the first invalid character. */
 
-        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
-                if (!GREEDY_REALLOC(s, sz+1))
-                        return -ENOMEM;
+        എങ്കിൽ (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
+                എങ്കിൽ (!GREEDY_REALLOC(s, sz+1))
+                        തിരികെ -ENOMEM;
 
-        for (;; (*p)++, c = **p) {
-                if (c == 0)
-                        goto finish_force_terminate;
-                else if (strchr(separators, c)) {
-                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+        വേണ്ടി (;; (*p)++, c = **p) {
+                എങ്കിൽ (c == 0)
+                        പോകുക finish_force_terminate;
+                അല്ലെങ്കിൽ എങ്കിൽ (strchr(separators, c)) {
+                        എങ്കിൽ (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                എങ്കിൽ (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                         (*p)++;
-                                goto finish_force_next;
+                                പോകുക finish_force_next;
                         }
-                } else {
+                } അല്ലെങ്കിൽ {
                         /* We found a non-blank character, so we will always
                          * want to return a string (even if it is empty),
                          * allocate it here. */
-                        if (!GREEDY_REALLOC(s, sz+1))
-                                return -ENOMEM;
-                        break;
+                        എങ്കിൽ (!GREEDY_REALLOC(s, sz+1))
+                                തിരികെ -ENOMEM;
+                        നിർത്തുക;
                 }
         }
 
-        for (;; (*p)++, c = **p) {
-                if (backslash) {
-                        if (!GREEDY_REALLOC(s, sz+7))
-                                return -ENOMEM;
+        വേണ്ടി (;; (*p)++, c = **p) {
+                എങ്കിൽ (backslash) {
+                        എങ്കിൽ (!GREEDY_REALLOC(s, sz+7))
+                                തിരികെ -ENOMEM;
 
-                        if (c == 0) {
-                                if ((flags & EXTRACT_UNESCAPE_RELAX) &&
+                        എങ്കിൽ (c == 0) {
+                                എങ്കിൽ ((flags & EXTRACT_UNESCAPE_RELAX) &&
                                     (quote == 0 || flags & EXTRACT_RELAX)) {
                                         /* If we find an unquoted trailing backslash and we're in
                                          * EXTRACT_UNESCAPE_RELAX mode, keep it verbatim in the
@@ -71,211 +71,211 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
                                          * mode, EXTRACT_UNESCAPE_RELAX mode does not allow them.
                                          */
                                         s[sz++] = '\\';
-                                        goto finish_force_terminate;
+                                        പോകുക finish_force_terminate;
                                 }
-                                if (flags & EXTRACT_RELAX)
-                                        goto finish_force_terminate;
-                                return -EINVAL;
+                                എങ്കിൽ (flags & EXTRACT_RELAX)
+                                        പോകുക finish_force_terminate;
+                                തിരികെ -EINVAL;
                         }
 
-                        if (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
+                        എങ്കിൽ (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
                                 bool eight_bit = false;
                                 char32_t u;
 
-                                if ((flags & EXTRACT_CUNESCAPE) &&
+                                എങ്കിൽ ((flags & EXTRACT_CUNESCAPE) &&
                                     (r = cunescape_one(*p, SIZE_MAX, &u, &eight_bit, false)) >= 0) {
                                         /* A valid escaped sequence */
-                                        assert(r >= 1);
+                                        പ്രതിജ്ഞാ(r >= 1);
 
                                         (*p) += r - 1;
 
-                                        if (eight_bit)
+                                        എങ്കിൽ (eight_bit)
                                                 s[sz++] = u;
-                                        else
+                                        അല്ലെങ്കിൽ
                                                 sz += utf8_encode_unichar(s + sz, u);
-                                } else if ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
+                                } അല്ലെങ്കിൽ എങ്കിൽ ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
                                            (strchr(separators, **p) || **p == '\\'))
                                         /* An escaped separator char or the escape char itself */
                                         s[sz++] = c;
-                                else if (flags & EXTRACT_UNESCAPE_RELAX) {
+                                അല്ലെങ്കിൽ എങ്കിൽ (flags & EXTRACT_UNESCAPE_RELAX) {
                                         s[sz++] = '\\';
                                         s[sz++] = c;
-                                } else
-                                        return -EINVAL;
-                        } else
+                                } അല്ലെങ്കിൽ
+                                        തിരികെ -EINVAL;
+                        } അല്ലെങ്കിൽ
                                 s[sz++] = c;
 
                         backslash = false;
 
-                } else if (quote != 0) {     /* inside either single or double quotes */
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0) {
-                                        if (flags & EXTRACT_RELAX)
-                                                goto finish_force_terminate;
-                                        return -EINVAL;
-                                } else if (c == quote) {        /* found the end quote */
+                } അല്ലെങ്കിൽ എങ്കിൽ (quote != 0) {     /* inside either single or double quotes */
+                        വേണ്ടി (;; (*p)++, c = **p) {
+                                എങ്കിൽ (c == 0) {
+                                        എങ്കിൽ (flags & EXTRACT_RELAX)
+                                                പോകുക finish_force_terminate;
+                                        തിരികെ -EINVAL;
+                                } അല്ലെങ്കിൽ എങ്കിൽ (c == quote) {        /* found the end quote */
                                         quote = 0;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        എങ്കിൽ (flags & EXTRACT_UNQUOTE)
+                                                നിർത്തുക;
+                                } അല്ലെങ്കിൽ എങ്കിൽ (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
+                                        നിർത്തുക;
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!GREEDY_REALLOC(s, sz+2))
+                                        തിരികെ -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote == 0)
-                                        break;
+                                എങ്കിൽ (quote == 0)
+                                        നിർത്തുക;
                         }
 
-                } else {
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0)
-                                        goto finish_force_terminate;
-                                else if (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
+                } അല്ലെങ്കിൽ {
+                        വേണ്ടി (;; (*p)++, c = **p) {
+                                എങ്കിൽ (c == 0)
+                                        പോകുക finish_force_terminate;
+                                അല്ലെങ്കിൽ എങ്കിൽ (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
                                         quote = c;
-                                        if (flags & EXTRACT_UNQUOTE)
-                                                break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                        എങ്കിൽ (flags & EXTRACT_UNQUOTE)
+                                                നിർത്തുക;
+                                } അല്ലെങ്കിൽ എങ്കിൽ (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
-                                        break;
-                                } else if (strchr(separators, c)) {
-                                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        നിർത്തുക;
+                                } അല്ലെങ്കിൽ എങ്കിൽ (strchr(separators, c)) {
+                                        എങ്കിൽ (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                                എങ്കിൽ (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                         (*p)++;
-                                                goto finish_force_next;
+                                                പോകുക finish_force_next;
                                         }
-                                        if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        എങ്കിൽ (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                 /* Skip additional coalesced separators. */
-                                                for (;; (*p)++, c = **p) {
-                                                        if (c == 0)
-                                                                goto finish_force_terminate;
-                                                        if (!strchr(separators, c))
-                                                                break;
+                                                വേണ്ടി (;; (*p)++, c = **p) {
+                                                        എങ്കിൽ (c == 0)
+                                                                പോകുക finish_force_terminate;
+                                                        എങ്കിൽ (!strchr(separators, c))
+                                                                നിർത്തുക;
                                                 }
-                                        goto finish;
+                                        പോകുക finish;
 
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!GREEDY_REALLOC(s, sz+2))
+                                        തിരികെ -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote != 0)
-                                        break;
+                                എങ്കിൽ (quote != 0)
+                                        നിർത്തുക;
                         }
                 }
         }
 
 finish_force_terminate:
-        *p = NULL;
+        *p = ശൂന്യ;
 finish:
-        if (!s) {
-                *p = NULL;
-                *ret = NULL;
-                return 0;
+        എങ്കിൽ (!s) {
+                *p = ശൂന്യ;
+                *ret = ശൂന്യ;
+                തിരികെ 0;
         }
 
 finish_force_next:
         s[sz] = 0;
         *ret = TAKE_PTR(s);
 
-        return 1;
+        തിരികെ 1;
 }
 
-int extract_first_word_and_warn(
-                const char **p,
-                char **ret,
-                const char *separators,
+പൂർണ്ണസംഖ്യ extract_first_word_and_warn(
+                സ്ഥിരം അക്ഷരം **p,
+                അക്ഷരം **ret,
+                സ്ഥിരം അക്ഷരം *separators,
                 ExtractFlags flags,
-                const char *unit,
-                const char *filename,
-                unsigned line,
-                const char *rvalue) {
+                സ്ഥിരം അക്ഷരം *unit,
+                സ്ഥിരം അക്ഷരം *filename,
+                unsigned വരി,
+                സ്ഥിരം അക്ഷരം *rvalue) {
 
         /* Try to unquote it, if it fails, warn about it and try again
          * but this time using EXTRACT_UNESCAPE_RELAX to keep the
          * backslashes verbatim in invalid escape sequences. */
 
-        const char *save;
-        int r;
+        സ്ഥിരം അക്ഷരം *save;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(p);
-        assert(ret);
+        പ്രതിജ്ഞാ(p);
+        പ്രതിജ്ഞാ(ret);
 
         save = *p;
         r = extract_first_word(p, ret, separators, flags);
-        if (r >= 0)
-                return r;
+        എങ്കിൽ (r >= 0)
+                തിരികെ r;
 
-        if (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
+        എങ്കിൽ (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
 
                 /* Retry it with EXTRACT_UNESCAPE_RELAX. */
                 *p = save;
                 r = extract_first_word(p, ret, separators, flags|EXTRACT_UNESCAPE_RELAX);
-                if (r >= 0) {
+                എങ്കിൽ (r >= 0) {
                         /* It worked this time, hence it must have been an invalid escape sequence. */
-                        log_syntax(unit, LOG_WARNING, filename, line, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
-                        return r;
+                        log_syntax(unit, LOG_WARNING, filename, വരി, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
+                        തിരികെ r;
                 }
 
                 /* If it's still EINVAL; then it must be unbalanced quoting, report this. */
-                if (r == -EINVAL)
-                        return log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
+                എങ്കിൽ (r == -EINVAL)
+                        തിരികെ log_syntax(unit, LOG_ERR, filename, വരി, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
         }
 
         /* Can be any error, report it */
-        return log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
+        തിരികെ log_syntax(unit, LOG_ERR, filename, വരി, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
 }
 
 /* We pass ExtractFlags as unsigned int (to avoid undefined behaviour when passing
  * an object that undergoes default argument promotion as an argument to va_start).
  * Let's make sure that ExtractFlags fits into an unsigned int. */
-assert_cc(sizeof(enum ExtractFlags) <= sizeof(unsigned));
+assert_cc(വലുപ്പം(എണ്ണൽ ExtractFlags) <= വലുപ്പം(unsigned));
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
+പൂർണ്ണസംഖ്യ extract_many_വാക്കുകൾ_internal(സ്ഥിരം അക്ഷരം **p, സ്ഥിരം അക്ഷരം *separators, unsigned flags, ...) {
         va_list ap;
         unsigned n = 0;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         /* Parses a number of words from a string, stripping any quotes if necessary. */
 
-        assert(p);
+        പ്രതിജ്ഞാ(p);
 
         /* Count how many words are expected */
         va_start(ap, flags);
-        while (va_arg(ap, char**))
+        ആകുമ്പോൾ (va_arg(ap, അക്ഷരം**))
                 n++;
         va_end(ap);
 
-        if (n == 0)
-                return 0;
+        എങ്കിൽ (n == 0)
+                തിരികെ 0;
 
         /* Read all words into a temporary array */
-        char **l = newa0(char*, n);
+        അക്ഷരം **l = newa0(അക്ഷരം*, n);
         unsigned c;
 
-        for (c = 0; c < n; c++) {
+        വേണ്ടി (c = 0; c < n; c++) {
                 r = extract_first_word(p, &l[c], separators, flags);
-                if (r < 0) {
+                എങ്കിൽ (r < 0) {
                         free_many_charp(l, c);
-                        return r;
+                        തിരികെ r;
                 }
-                if (r == 0)
-                        break;
+                എങ്കിൽ (r == 0)
+                        നിർത്തുക;
         }
 
         /* If we managed to parse all words, return them in the passed in parameters */
         va_start(ap, flags);
         FOREACH_ARRAY(i, l, n) {
-                char **v = ASSERT_PTR(va_arg(ap, char**));
+                അക്ഷരം **v = ASSERT_PTR(va_arg(ap, അക്ഷരം**));
                 *v = *i;
         }
         va_end(ap);
 
-        return c;
+        തിരികെ c;
 }

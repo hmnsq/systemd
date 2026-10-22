@@ -1,660 +1,660 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "env-file.h"
+#അന്തര്ഭാവ "env-util.h"
+#അന്തര്ഭാവ "escape.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "fs-util.h"
+#അന്തര്ഭാവ "label-util.h"
+#അന്തര്ഭാവ "log.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
+#അന്തര്ഭാവ "tmpfile-util.h"
+#അന്തര്ഭാവ "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*തള്ളുക_env_func_t)(
+                സ്ഥിരം അക്ഷരം *filename,
+                unsigned വരി,
+                സ്ഥിരം അക്ഷരം *താക്കോൽ,
+                അക്ഷരം *മൂല്യം,
+                ശൂന്യം *userdata);
 
-static int parse_env_file_internal(
+സ്ഥിതം പൂർണ്ണസംഖ്യ parse_env_file_internal(
                 FILE *f,
-                const char *fname,
-                push_env_func_t push,
-                void *userdata) {
+                സ്ഥിരം അക്ഷരം *fname,
+                തള്ളുക_env_func_t തള്ളുക,
+                ശൂന്യം *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
-        int r;
+        size_t n_താക്കോൽ = 0, n_മൂല്യം = 0, last_മൂല്യം_whitespace = SIZE_MAX, last_താക്കോൽ_whitespace = SIZE_MAX;
+        _cleanup_free_ അക്ഷരം *contents = ശൂന്യ, *താക്കോൽ = ശൂന്യ, *മൂല്യം = ശൂന്യ;
+        unsigned വരി = 1;
+        പൂർണ്ണസംഖ്യ r;
 
-        enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+        എണ്ണൽ {
+                PRE_താക്കോൽ,
+                താക്കോൽ_2,
+                PRE_മൂല്യം,
+                മൂല്യം_2,
+                മൂല്യം_ESCAPE,
+                SINGLE_QUOTE_മൂല്യം,
+                DOUBLE_QUOTE_മൂല്യം,
+                DOUBLE_QUOTE_മൂല്യം_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_താക്കോൽ;
 
-        assert(f || fname);
-        assert(push);
+        പ്രതിജ്ഞാ(f || fname);
+        പ്രതിജ്ഞാ(തള്ളുക);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (f)
+                r = read_full_stream(f, &contents, ശൂന്യ);
+        അല്ലെങ്കിൽ
+                r = read_full_file(fname, &contents, ശൂന്യ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        വേണ്ടി (അക്ഷരം *p = contents; *p; p++) {
+                അക്ഷരം c = *p;
 
-                switch (state) {
+                തിരഞ്ഞെടുപ്പ് (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                അവസ്ഥ PRE_താക്കോൽ:
+                        എങ്കിൽ (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                        അല്ലെങ്കിൽ എങ്കിൽ (!strchr(WHITESPACE, c)) {
+                                state = താക്കോൽ_2;
+                                last_താക്കോൽ_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!GREEDY_REALLOC(താക്കോൽ, n_താക്കോൽ+2))
+                                        തിരികെ -ENOMEM;
 
-                                key[n_key++] = c;
+                                താക്കോൽ[n_താക്കോൽ++] = c;
                         }
-                        break;
+                        നിർത്തുക;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
-                        } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                അവസ്ഥ താക്കോൽ_2:
+                        എങ്കിൽ (strchr(NEWLINE, c)) {
+                                state = PRE_താക്കോൽ;
+                                വരി++;
+                                n_താക്കോൽ = 0;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (c == '=') {
+                                state = PRE_മൂല്യം;
+                                last_മൂല്യം_whitespace = SIZE_MAX;
+                        } അല്ലെങ്കിൽ {
+                                എങ്കിൽ (!strchr(WHITESPACE, c))
+                                        last_താക്കോൽ_whitespace = SIZE_MAX;
+                                അല്ലെങ്കിൽ എങ്കിൽ (last_താക്കോൽ_whitespace == SIZE_MAX)
+                                         last_താക്കോൽ_whitespace = n_താക്കോൽ;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!GREEDY_REALLOC(താക്കോൽ, n_താക്കോൽ+2))
+                                        തിരികെ -ENOMEM;
 
-                                key[n_key++] = c;
+                                താക്കോൽ[n_താക്കോൽ++] = c;
                         }
 
-                        break;
+                        നിർത്തുക;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                അവസ്ഥ PRE_മൂല്യം:
+                        എങ്കിൽ (strchr(NEWLINE, c)) {
+                                state = PRE_താക്കോൽ;
+                                വരി++;
+                                താക്കോൽ[n_താക്കോൽ] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                എങ്കിൽ (മൂല്യം)
+                                        മൂല്യം[n_മൂല്യം] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                എങ്കിൽ (last_താക്കോൽ_whitespace != SIZE_MAX)
+                                        താക്കോൽ[last_താക്കോൽ_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = തള്ളുക(fname, വരി, താക്കോൽ, മൂല്യം, userdata);
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_താക്കോൽ = 0;
+                                മൂല്യം = ശൂന്യ;
+                                n_മൂല്യം = 0;
 
-                        } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
-                                state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (c == '\'')
+                                state = SINGLE_QUOTE_മൂല്യം;
+                        അല്ലെങ്കിൽ എങ്കിൽ (c == '"')
+                                state = DOUBLE_QUOTE_മൂല്യം;
+                        അല്ലെങ്കിൽ എങ്കിൽ (c == '\\')
+                                state = മൂല്യം_ESCAPE;
+                        അല്ലെങ്കിൽ എങ്കിൽ (!strchr(WHITESPACE, c)) {
+                                state = മൂല്യം_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!GREEDY_REALLOC(മൂല്യം, n_മൂല്യം+2))
+                                        തിരികെ -ENOMEM;
 
-                                value[n_value++] = c;
+                                മൂല്യം[n_മൂല്യം++] = c;
                         }
 
-                        break;
+                        നിർത്തുക;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                അവസ്ഥ മൂല്യം_2:
+                        എങ്കിൽ (strchr(NEWLINE, c)) {
+                                state = PRE_താക്കോൽ;
+                                വരി++;
 
-                                key[n_key] = 0;
+                                താക്കോൽ[n_താക്കോൽ] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                എങ്കിൽ (മൂല്യം)
+                                        മൂല്യം[n_മൂല്യം] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                എങ്കിൽ (last_മൂല്യം_whitespace != SIZE_MAX)
+                                        മൂല്യം[last_മൂല്യം_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                എങ്കിൽ (last_താക്കോൽ_whitespace != SIZE_MAX)
+                                        താക്കോൽ[last_താക്കോൽ_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = തള്ളുക(fname, വരി, താക്കോൽ, മൂല്യം, userdata);
+                                എങ്കിൽ (r < 0)
+                                        തിരികെ r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_താക്കോൽ = 0;
+                                മൂല്യം = ശൂന്യ;
+                                n_മൂല്യം = 0;
 
-                        } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (c == '\\') {
+                                state = മൂല്യം_ESCAPE;
+                                last_മൂല്യം_whitespace = SIZE_MAX;
+                        } അല്ലെങ്കിൽ {
+                                എങ്കിൽ (!strchr(WHITESPACE, c))
+                                        last_മൂല്യം_whitespace = SIZE_MAX;
+                                അല്ലെങ്കിൽ എങ്കിൽ (last_മൂല്യം_whitespace == SIZE_MAX)
+                                        last_മൂല്യം_whitespace = n_മൂല്യം;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!GREEDY_REALLOC(മൂല്യം, n_മൂല്യം+2))
+                                        തിരികെ -ENOMEM;
 
-                                value[n_value++] = c;
+                                മൂല്യം[n_മൂല്യം++] = c;
                         }
 
-                        break;
+                        നിർത്തുക;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                അവസ്ഥ മൂല്യം_ESCAPE:
+                        state = മൂല്യം_2;
 
-                        if (!strchr(NEWLINE, c)) {
+                        എങ്കിൽ (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                എങ്കിൽ (!GREEDY_REALLOC(മൂല്യം, n_മൂല്യം+2))
+                                        തിരികെ -ENOMEM;
 
-                                value[n_value++] = c;
+                                മൂല്യം[n_മൂല്യം++] = c;
                         }
-                        break;
+                        നിർത്തുക;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
-                                state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                അവസ്ഥ SINGLE_QUOTE_മൂല്യം:
+                        എങ്കിൽ (c == '\'')
+                                state = PRE_മൂല്യം;
+                        അല്ലെങ്കിൽ {
+                                എങ്കിൽ (!GREEDY_REALLOC(മൂല്യം, n_മൂല്യം+2))
+                                        തിരികെ -ENOMEM;
 
-                                value[n_value++] = c;
-                        }
-
-                        break;
-
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
-                                state = PRE_VALUE;
-                        else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-
-                                value[n_value++] = c;
+                                മൂല്യം[n_മൂല്യം++] = c;
                         }
 
-                        break;
+                        നിർത്തുക;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                അവസ്ഥ DOUBLE_QUOTE_മൂല്യം:
+                        എങ്കിൽ (c == '"')
+                                state = PRE_മൂല്യം;
+                        അല്ലെങ്കിൽ എങ്കിൽ (c == '\\')
+                                state = DOUBLE_QUOTE_മൂല്യം_ESCAPE;
+                        അല്ലെങ്കിൽ {
+                                എങ്കിൽ (!GREEDY_REALLOC(മൂല്യം, n_മൂല്യം+2))
+                                        തിരികെ -ENOMEM;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                                മൂല്യം[n_മൂല്യം++] = c;
+                        }
+
+                        നിർത്തുക;
+
+                അവസ്ഥ DOUBLE_QUOTE_മൂല്യം_ESCAPE:
+                        state = DOUBLE_QUOTE_മൂല്യം;
+
+                        എങ്കിൽ (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-                                value[n_value++] = c;
-                        } else if (c != '\n') {
+                                എങ്കിൽ (!GREEDY_REALLOC(മൂല്യം, n_മൂല്യം+2))
+                                        തിരികെ -ENOMEM;
+                                മൂല്യം[n_മൂല്യം++] = c;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                എങ്കിൽ (!GREEDY_REALLOC(മൂല്യം, n_മൂല്യം+3))
+                                        തിരികെ -ENOMEM;
+                                മൂല്യം[n_മൂല്യം++] = '\\';
+                                മൂല്യം[n_മൂല്യം++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        നിർത്തുക;
 
-                case COMMENT:
-                        if (c == '\\')
+                അവസ്ഥ COMMENT:
+                        എങ്കിൽ (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                        അല്ലെങ്കിൽ എങ്കിൽ (strchr(NEWLINE, c)) {
+                                state = PRE_താക്കോൽ;
+                                വരി++;
                         }
-                        break;
+                        നിർത്തുക;
 
-                case COMMENT_ESCAPE:
+                അവസ്ഥ COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                        } else
+                        എങ്കിൽ (strchr(NEWLINE, c)) {
+                                state = PRE_താക്കോൽ;
+                                വരി++;
+                        } അല്ലെങ്കിൽ
                                 state = COMMENT;
-                        break;
+                        നിർത്തുക;
                 }
         }
 
-        if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+        എങ്കിൽ (IN_SET(state,
+                   PRE_മൂല്യം,
+                   മൂല്യം_2,
+                   മൂല്യം_ESCAPE,
+                   SINGLE_QUOTE_മൂല്യം,
+                   DOUBLE_QUOTE_മൂല്യം,
+                   DOUBLE_QUOTE_മൂല്യം_ESCAPE)) {
 
-                key[n_key] = 0;
+                താക്കോൽ[n_താക്കോൽ] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                എങ്കിൽ (മൂല്യം)
+                        മൂല്യം[n_മൂല്യം] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                എങ്കിൽ (state == മൂല്യം_2)
+                        എങ്കിൽ (last_മൂല്യം_whitespace != SIZE_MAX)
+                                മൂല്യം[last_മൂല്യം_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                എങ്കിൽ (last_താക്കോൽ_whitespace != SIZE_MAX)
+                        താക്കോൽ[last_താക്കോൽ_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                r = തള്ളുക(fname, വരി, താക്കോൽ, മൂല്യം, userdata);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
 
-                value = NULL;
+                മൂല്യം = ശൂന്യ;
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ check_utf8ness_and_warn(
+                സ്ഥിരം അക്ഷരം *filename, unsigned വരി,
+                സ്ഥിരം അക്ഷരം *താക്കോൽ, അക്ഷരം *മൂല്യം) {
 
-        assert(key);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        എങ്കിൽ (!utf8_is_valid(താക്കോൽ)) {
+                _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
 
-                p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(താക്കോൽ);
+                തിരികെ log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), വരി, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        എങ്കിൽ (മൂല്യം && !utf8_is_valid(മൂല്യം)) {
+                _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
 
-                p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(മൂല്യം);
+                തിരികെ log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), വരി, താക്കോൽ, p);
         }
 
-        return 0;
+        തിരികെ 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ parse_env_file_തള്ളുക(
+                സ്ഥിരം അക്ഷരം *filename, unsigned വരി,
+                സ്ഥിരം അക്ഷരം *താക്കോൽ, അക്ഷരം *മൂല്യം,
+                ശൂന്യം *userdata) {
 
-        const char *k;
+        സ്ഥിരം അക്ഷരം *k;
         va_list aq, *ap = userdata;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(key);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, വരി, താക്കോൽ, മൂല്യം);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        ആകുമ്പോൾ ((k = va_arg(aq, സ്ഥിരം അക്ഷരം *))) {
+                അക്ഷരം **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, അക്ഷരം **);
 
-                if (streq(key, k)) {
+                എങ്കിൽ (streq(താക്കോൽ, k)) {
                         va_end(aq);
-                        free_and_replace(*v, value);
+                        free_and_replace(*v, മൂല്യം);
 
-                        return 1;
+                        തിരികെ 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        സ്വതന്ത്രം(മൂല്യം);
 
-        return 0;
+        തിരികെ 0;
 }
 
-int parse_env_filev(
+പൂർണ്ണസംഖ്യ parse_env_filev(
                 FILE *f,
-                const char *fname,
+                സ്ഥിരം അക്ഷരം *fname,
                 va_list ap) {
 
-        int r;
+        പൂർണ്ണസംഖ്യ r;
         va_list aq;
 
-        assert(f || fname);
+        പ്രതിജ്ഞാ(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_തള്ളുക, &aq);
         va_end(aq);
-        return r;
+        തിരികെ r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
+പൂർണ്ണസംഖ്യ parse_env_file_fdv(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *fname, va_list ap) {
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
         va_list aq;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_internal(f, fname, parse_env_file_തള്ളുക, &aq);
         va_end(aq);
-        return r;
+        തിരികെ r;
 }
 
-int parse_env_file_sentinel(
+പൂർണ്ണസംഖ്യ parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                സ്ഥിരം അക്ഷരം *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f || fname);
+        പ്രതിജ്ഞാ(f || fname);
 
         va_start(ap, fname);
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+പൂർണ്ണസംഖ്യ parse_env_file_fd_sentinel(
+                പൂർണ്ണസംഖ്യ fd,
+                സ്ഥിരം അക്ഷരം *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         va_start(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-int parse_env_datav(
-                const char *data,
+പൂർണ്ണസംഖ്യ parse_env_datav(
+                സ്ഥിരം അക്ഷരം *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                സ്ഥിരം അക്ഷരം *fname, /* only used for logging */
                 va_list ap) {
 
-        assert(data);
+        പ്രതിജ്ഞാ(data);
 
-        if (size == SIZE_MAX)
+        എങ്കിൽ (size == SIZE_MAX)
                 size = strlen_ptr(data);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ FILE *f = fmemopen_unlocked((ശൂന്യം*) data, size, "r");
+        എങ്കിൽ (!f)
+                തിരികെ -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        തിരികെ parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
+പൂർണ്ണസംഖ്യ parse_env_data_sentinel(
+                സ്ഥിരം അക്ഷരം *data,
                 size_t size,
-                const char *fname, /* only used for logging */
+                സ്ഥിരം അക്ഷരം *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        പൂർണ്ണസംഖ്യ r;
 
         va_start(ap, fname);
         r = parse_env_datav(data, size, fname, ap);
         va_end(ap);
 
-        return r;
+        തിരികെ r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ load_env_file_തള്ളുക(
+                സ്ഥിരം അക്ഷരം *filename, unsigned വരി,
+                സ്ഥിരം അക്ഷരം *താക്കോൽ, അക്ഷരം *മൂല്യം,
+                ശൂന്യം *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        അക്ഷരം ***m = userdata;
+        അക്ഷരം *p;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(key);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, വരി, താക്കോൽ, മൂല്യം);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        p = strjoin(താക്കോൽ, "=", മൂല്യം);
+        എങ്കിൽ (!p)
+                തിരികെ -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        free(value);
-        return 0;
+        സ്വതന്ത്രം(മൂല്യം);
+        തിരികെ 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ load_env_file(FILE *f, സ്ഥിരം അക്ഷരം *fname, അക്ഷരം ***ret) {
+        _cleanup_strv_free_ അക്ഷരം **m = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f || fname);
-        assert(ret);
+        പ്രതിജ്ഞാ(f || fname);
+        പ്രതിജ്ഞാ(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_തള്ളുക, &m);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        തിരികെ 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ load_env_file_തള്ളുക_pairs(
+                സ്ഥിരം അക്ഷരം *filename, unsigned വരി,
+                സ്ഥിരം അക്ഷരം *താക്കോൽ, അക്ഷരം *മൂല്യം,
+                ശൂന്യം *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        അക്ഷരം ***m = ASSERT_PTR(userdata);
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(key);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, വരി, താക്കോൽ, മൂല്യം);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        വേണ്ടി (അക്ഷരം **t = *m; t && *t; t += 2)
+                എങ്കിൽ (streq(t[0], താക്കോൽ)) {
+                        എങ്കിൽ (മൂല്യം)
+                                തിരികെ free_and_replace(t[1], മൂല്യം);
+                        അല്ലെങ്കിൽ
+                                തിരികെ free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        r = strv_extend(m, താക്കോൽ);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        എങ്കിൽ (മൂല്യം)
+                തിരികെ strv_തള്ളുക(m, മൂല്യം);
+        അല്ലെങ്കിൽ
+                തിരികെ strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ load_env_file_pairs(FILE *f, സ്ഥിരം അക്ഷരം *fname, അക്ഷരം ***ret) {
+        _cleanup_strv_free_ അക്ഷരം **m = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(f || fname);
-        assert(ret);
+        പ്രതിജ്ഞാ(f || fname);
+        പ്രതിജ്ഞാ(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_internal(f, fname, load_env_file_തള്ളുക_pairs, &m);
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        തിരികെ 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ load_env_file_pairs_fd(പൂർണ്ണസംഖ്യ fd, സ്ഥിരം അക്ഷരം *fname, അക്ഷരം ***ret) {
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(fd >= 0);
+        പ്രതിജ്ഞാ(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        return load_env_file_pairs(f, fname, ret);
+        തിരികെ load_env_file_pairs(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ merge_env_file_തള്ളുക(
+                സ്ഥിരം അക്ഷരം *filename, unsigned വരി,
+                സ്ഥിരം അക്ഷരം *താക്കോൽ, അക്ഷരം *മൂല്യം,
+                ശൂന്യം *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        അക്ഷരം ***env = ASSERT_PTR(userdata);
+        അക്ഷരം *expanded_മൂല്യം;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(key);
+        പ്രതിജ്ഞാ(താക്കോൽ);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+        എങ്കിൽ (!മൂല്യം) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), വരി, താക്കോൽ);
+                തിരികെ 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+        എങ്കിൽ (!env_name_is_valid(താക്കോൽ)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), വരി, താക്കോൽ);
+                സ്വതന്ത്രം(മൂല്യം);
+                തിരികെ 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(മൂല്യം,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                        &expanded_മൂല്യം);
+        എങ്കിൽ (r < 0)
+                തിരികെ log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), വരി, മൂല്യം);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(മൂല്യം, expanded_മൂല്യം);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, വരി, താക്കോൽ, മൂല്യം);
 
-        return load_env_file_push(filename, line, key, value, env);
+        തിരികെ load_env_file_തള്ളുക(filename, വരി, താക്കോൽ, മൂല്യം, env);
 }
 
-int merge_env_file(
-                char ***env,
+പൂർണ്ണസംഖ്യ merge_env_file(
+                അക്ഷരം ***env,
                 FILE *f,
-                const char *fname) {
+                സ്ഥിരം അക്ഷരം *fname) {
 
-        assert(env);
-        assert(f || fname);
+        പ്രതിജ്ഞാ(env);
+        പ്രതിജ്ഞാ(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        തിരികെ parse_env_file_internal(f, fname, merge_env_file_തള്ളുക, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+സ്ഥിതം ശൂന്യം env_file_fputs_escaped(FILE *f, സ്ഥിരം അക്ഷരം *p) {
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        എങ്കിൽ (string_has_cc(p, ശൂന്യ) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                വേണ്ടി (; *p; p++) {
+                        എങ്കിൽ (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } അല്ലെങ്കിൽ
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+ശൂന്യം env_file_fputs_assignment(FILE *f, സ്ഥിരം അക്ഷരം *k, സ്ഥിരം അക്ഷരം *v) {
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(k);
 
-        if (!v)
-                return;
+        എങ്കിൽ (!v)
+                തിരികെ;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+സ്ഥിതം ശൂന്യം write_env_var(FILE *f, സ്ഥിരം അക്ഷരം *v) {
+        സ്ഥിരം അക്ഷരം *p;
 
-        assert(f);
-        assert(v);
+        പ്രതിജ്ഞാ(f);
+        പ്രതിജ്ഞാ(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        എങ്കിൽ (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                തിരികെ;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+പൂർണ്ണസംഖ്യ write_env_file_label(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fname, അക്ഷരം **headers, അക്ഷരം **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        പ്രതിജ്ഞാ(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        പ്രതിജ്ഞാ(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        എങ്കിൽ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
+        _cleanup_free_ അക്ഷരം *p = ശൂന്യ;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        എങ്കിൽ (r < 0) {
+                എങ്കിൽ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
+                        (ശൂന്യം) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                തിരികെ r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        എങ്കിൽ (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ ശൂന്യ, /* created= */ true, label_context);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+                പ്രതിജ്ഞാ(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        തിരികെ 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+പൂർണ്ണസംഖ്യ write_vconsole_conf(പൂർണ്ണസംഖ്യ dir_fd, സ്ഥിരം അക്ഷരം *fname, അക്ഷരം **l) {
+        അക്ഷരം **headers = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        തിരികെ write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ ശൂന്യ);
 }

@@ -1,106 +1,106 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <threads.h>
+#അന്തര്ഭാവ <stdio.h>
+#അന്തര്ഭാവ <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "psi-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "errno-util.h"
+#അന്തര്ഭാവ "extract-word.h"
+#അന്തര്ഭാവ "fd-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "psi-util.h"
+#അന്തര്ഭാവ "string-table.h"
+#അന്തര്ഭാവ "string-util.h"
+#അന്തര്ഭാവ "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
+പൂർണ്ണസംഖ്യ read_resource_pressure(സ്ഥിരം അക്ഷരം *path, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ അക്ഷരം *വരി = ശൂന്യ;
+        _cleanup_fclose_ FILE *f = ശൂന്യ;
         unsigned field_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        സ്ഥിരം അക്ഷരം *cline;
+        അക്ഷരം *word;
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(path);
-        assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
-        assert(ret);
+        പ്രതിജ്ഞാ(path);
+        പ്രതിജ്ഞാ(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
+        പ്രതിജ്ഞാ(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        സ്ഥിരം അക്ഷരം *t = ASSERT_PTR(pressure_type_to_string(type));
 
         r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        വേണ്ടി (;;) {
+                _cleanup_free_ അക്ഷരം *l = ശൂന്യ;
+                അക്ഷരം *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_വരി(f, LONG_വരി_MAX, &l);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
+                എങ്കിൽ (r == 0)
+                        നിർത്തുക;
 
                 w = first_word(l, t);
-                if (w) {
-                        line = TAKE_PTR(l);
+                എങ്കിൽ (w) {
+                        വരി = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        നിർത്തുക;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        എങ്കിൽ (!വരി)
+                തിരികെ -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        ആകുമ്പോൾ ((r = extract_first_word(&cline, &word, ശൂന്യ, 0)) > 0) {
+                _cleanup_free_ അക്ഷരം *w = word;
+                സ്ഥിരം അക്ഷരം *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                എങ്കിൽ ((v = startswith(w, "avg10="))) {
+                        എങ്കിൽ (field_filled & (1U << 0))
+                                തിരികെ -EINVAL;
 
                         field_filled |= 1U << 0;
                         r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                } അല്ലെങ്കിൽ എങ്കിൽ ((v = startswith(w, "avg60="))) {
+                        എങ്കിൽ (field_filled & (1U << 1))
+                                തിരികെ -EINVAL;
 
                         field_filled |= 1U << 1;
                         r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                } അല്ലെങ്കിൽ എങ്കിൽ ((v = startswith(w, "avg300="))) {
+                        എങ്കിൽ (field_filled & (1U << 2))
+                                തിരികെ -EINVAL;
 
                         field_filled |= 1U << 2;
                         r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                } അല്ലെങ്കിൽ എങ്കിൽ ((v = startswith(w, "total="))) {
+                        എങ്കിൽ (field_filled & (1U << 3))
+                                തിരികെ -EINVAL;
 
                         field_filled |= 1U << 3;
                         r = safe_atou64(v, &rp.total);
-                } else
-                        continue;
+                } അല്ലെങ്കിൽ
+                        തുടരുക;
 
-                if (r < 0)
-                        return r;
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        എങ്കിൽ (field_filled != 15U)
+                തിരികെ -EINVAL;
 
         *ret = rp;
-        return 0;
+        തിരികെ 0;
 }
 
-const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
+സ്ഥിരം PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         [PRESSURE_MEMORY] = {
                 .name      = "memory",
                 .env_watch = "MEMORY_PRESSURE_WATCH",
@@ -118,7 +118,7 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം* സ്ഥിരം pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
         [PRESSURE_MEMORY] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
@@ -126,30 +126,30 @@ static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+സ്ഥിതം സ്ഥിരം അക്ഷരം* സ്ഥിരം pressure_type_table[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
         [PRESSURE_TYPE_FULL] = "full",
 };
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+പൂർണ്ണസംഖ്യ is_pressure_supported(ശൂന്യം) {
+        സ്ഥിതം thread_local പൂർണ്ണസംഖ്യ cached = -1;
+        പൂർണ്ണസംഖ്യ r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        എങ്കിൽ (cached >= 0)
+                തിരികെ cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
-                r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                r = read_virtual_file(p, 0, ശൂന്യ, ശൂന്യ);
+                എങ്കിൽ (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        തിരികെ (cached = false);
+                എങ്കിൽ (r < 0)
+                        തിരികെ r;
         }
 
-        return (cached = true);
+        തിരികെ (cached = true);
 }

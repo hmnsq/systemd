@@ -1,67 +1,67 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/socket.h>
+#അന്തര്ഭാവ <string.h>
+#അന്തര്ഭാവ <sys/socket.h>
 
-#include "af-list.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "af-list.h"
+#അന്തര്ഭാവ "string-util.h"
 
-static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
+സ്ഥിതം സ്ഥിരം ഘടന af_name* lookup_af(രജിസ്റ്റർ സ്ഥിരം അക്ഷരം *str, രജിസ്റ്റർ GPERF_LEN_TYPE len);
 
-#include "af-from-name.inc"
-#include "af-to-name.inc"
+#അന്തര്ഭാവ "af-from-name.inc"
+#അന്തര്ഭാവ "af-to-name.inc"
 
-const char* af_to_name(int id) {
+സ്ഥിരം അക്ഷരം* af_to_name(പൂർണ്ണസംഖ്യ id) {
 
-        if (id <= 0)
-                return NULL;
+        എങ്കിൽ (id <= 0)
+                തിരികെ ശൂന്യ;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        എങ്കിൽ ((size_t) id >= ELEMENTSOF(af_names))
+                തിരികെ ശൂന്യ;
 
-        return af_names[id];
+        തിരികെ af_names[id];
 }
 
-const char* af_to_name_short(int id) {
-        const char *f;
+സ്ഥിരം അക്ഷരം* af_to_name_short(പൂർണ്ണസംഖ്യ id) {
+        സ്ഥിരം അക്ഷരം *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        എങ്കിൽ (id == AF_UNSPEC)
+                തിരികെ "*";
 
         f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        എങ്കിൽ (!f)
+                തിരികെ "unknown";
 
-        assert(startswith(f, "AF_"));
-        return f + 3;
+        പ്രതിജ്ഞാ(startswith(f, "AF_"));
+        തിരികെ f + 3;
 }
 
-int af_from_name(const char *name) {
+പൂർണ്ണസംഖ്യ af_from_name(സ്ഥിരം അക്ഷരം *name) {
         size_t len = strlen(ASSERT_PTR(name));
 
-        const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
-                const char *t = strjoina("AF_", name);
+        സ്ഥിരം ഘടന af_name *sc = lookup_af(name, len);
+        എങ്കിൽ (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
+                സ്ഥിരം അക്ഷരം *t = strjoina("AF_", name);
                 sc = lookup_af(t, strlen("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        എങ്കിൽ (!sc)
+                തിരികെ -EINVAL;
 
-        return sc->id;
+        തിരികെ sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+പൂർണ്ണസംഖ്യ af_max(ശൂന്യം) {
+        തിരികെ ELEMENTSOF(af_names);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+സ്ഥിരം അക്ഷരം* af_to_ipv4_ipv6(പൂർണ്ണസംഖ്യ id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
-                id == AF_INET6 ? "ipv6" : NULL;
+        തിരികെ id == AF_INET ? "ipv4" :
+                id == AF_INET6 ? "ipv6" : ശൂന്യ;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+പൂർണ്ണസംഖ്യ af_from_ipv4_ipv6(സ്ഥിരം അക്ഷരം *af) {
+        തിരികെ streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

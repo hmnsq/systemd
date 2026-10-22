@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#അന്തര്ഭാവ "forward.h"
 
 /* What characters are special in the shell? */
 /* must be escaped outside and inside double-quotes */
@@ -21,12 +21,12 @@
  */
 #define SHELL_NEED_ESCAPE_POSIX "\\\'"
 
-typedef enum UnescapeFlags {
+തരനിർവചനം എണ്ണൽ UnescapeFlags {
         UNESCAPE_RELAX      = 1 << 0,
         UNESCAPE_ACCEPT_NUL = 1 << 1,
 } UnescapeFlags;
 
-typedef enum ShellEscapeFlags {
+തരനിർവചനം എണ്ണൽ ShellEscapeFlags {
         /* The default is to add shell quotes ("") so the shell will consider this a single argument.
          * Tabs and newlines are escaped. */
 
@@ -34,38 +34,38 @@ typedef enum ShellEscapeFlags {
         SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
-char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
-static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+പൂർണ്ണസംഖ്യ cescape_char(അക്ഷരം c, അക്ഷരം *buf);
+അക്ഷരം* cescape_length(സ്ഥിരം അക്ഷരം *s, size_t n) _nonnull_if_nonzero_(1, 2);
+സ്ഥിതം വരിയിൽ അക്ഷരം* cescape(സ്ഥിരം അക്ഷരം *s) {
+        തിരികെ cescape_length(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+പൂർണ്ണസംഖ്യ cunescape_one(സ്ഥിരം അക്ഷരം *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
-static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+ssize_t cunescape_length_with_prefix(സ്ഥിരം അക്ഷരം *s, size_t length, സ്ഥിരം അക്ഷരം *prefix, UnescapeFlags flags, അക്ഷരം **ret);
+സ്ഥിതം വരിയിൽ ssize_t cunescape_length(സ്ഥിരം അക്ഷരം *s, size_t length, UnescapeFlags flags, അക്ഷരം **ret) {
+        തിരികെ cunescape_length_with_prefix(s, length, ശൂന്യ, flags, ret);
 }
-static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+സ്ഥിതം വരിയിൽ ssize_t cunescape(സ്ഥിരം അക്ഷരം *s, UnescapeFlags flags, അക്ഷരം **ret) {
+        തിരികെ cunescape_length(s, SIZE_MAX, flags, ret);
 }
 
-typedef enum XEscapeFlags {
+തരനിർവചനം എണ്ണൽ XEscapeFlags {
         XESCAPE_8_BIT          = 1 << 0,
         XESCAPE_FORCE_ELLIPSIS = 1 << 1,
 } XEscapeFlags;
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
-static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+അക്ഷരം* xescape_full(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *bad, size_t console_width, XEscapeFlags flags);
+സ്ഥിതം വരിയിൽ അക്ഷരം* xescape(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *bad) {
+        തിരികെ xescape_full(s, bad, SIZE_MAX, 0);
 }
-char* octescape_full(const char *s, size_t len, const char *bad);
-static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+അക്ഷരം* octescape_full(സ്ഥിരം അക്ഷരം *s, size_t len, സ്ഥിരം അക്ഷരം *bad);
+സ്ഥിതം വരിയിൽ അക്ഷരം* octescape(സ്ഥിരം അക്ഷരം *s, size_t len) {
+        തിരികെ octescape_full(s, len, ശൂന്യ);
 }
-char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);
+അക്ഷരം* decescape(സ്ഥിരം അക്ഷരം *s, size_t len, സ്ഥിരം അക്ഷരം *bad) _nonnull_if_nonzero_(1, 2);
+അക്ഷരം* escape_non_printable_full(സ്ഥിരം അക്ഷരം *str, size_t console_width, XEscapeFlags flags);
 
-char* shell_escape(const char *s, const char *bad);
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags);
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags);
+അക്ഷരം* shell_escape(സ്ഥിരം അക്ഷരം *s, സ്ഥിരം അക്ഷരം *bad);
+അക്ഷരം* shell_maybe_quote(സ്ഥിരം അക്ഷരം *s, ShellEscapeFlags flags);
+അക്ഷരം* quote_command_വരി(അക്ഷരം * സ്ഥിരം *argv, ShellEscapeFlags flags);

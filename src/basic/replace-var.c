@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "replace-var.h"
+#അന്തര്ഭാവ "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+സ്ഥിതം പൂർണ്ണസംഖ്യ get_variable(സ്ഥിരം അക്ഷരം *b, അക്ഷരം **r) {
         size_t k;
-        char *t;
+        അക്ഷരം *t;
 
-        assert(b);
-        assert(r);
+        പ്രതിജ്ഞാ(b);
+        പ്രതിജ്ഞാ(r);
 
-        if (*b != '@')
-                return 0;
+        എങ്കിൽ (*b != '@')
+                തിരികെ 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        എങ്കിൽ (k <= 0 || b[k+1] != '@')
+                തിരികെ 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        എങ്കിൽ (!t)
+                തിരികെ -ENOMEM;
 
         *r = t;
-        return 1;
+        തിരികെ 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
+അക്ഷരം* replace_var(സ്ഥിരം അക്ഷരം *text, അക്ഷരം *(*lookup)(സ്ഥിരം അക്ഷരം *variable, ശൂന്യം *userdata), ശൂന്യം *userdata) {
+        അക്ഷരം *r, *t;
+        സ്ഥിരം അക്ഷരം *f;
         size_t l;
 
-        assert(text);
-        assert(lookup);
+        പ്രതിജ്ഞാ(text);
+        പ്രതിജ്ഞാ(lookup);
 
         l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        r = new(അക്ഷരം, l+1);
+        എങ്കിൽ (!r)
+                തിരികെ ശൂന്യ;
 
         f = text;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
+        ആകുമ്പോൾ (*f) {
+                _cleanup_free_ അക്ഷരം *v = ശൂന്യ, *n = ശൂന്യ;
+                അക്ഷരം *a;
+                പൂർണ്ണസംഖ്യ k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                എങ്കിൽ (k < 0)
+                        പോകുക oom;
+                എങ്കിൽ (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        തുടരുക;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                എങ്കിൽ (!n)
+                        പോകുക oom;
 
                 skip = strlen(v) + 2;
 
                 d = t - r;
                 nl = l - skip + strlen(n);
                 a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                എങ്കിൽ (!a)
+                        പോകുക oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        തിരികെ r;
 
 oom:
-        return mfree(r);
+        തിരികെ mfree(r);
 }

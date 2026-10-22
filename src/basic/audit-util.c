@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#അന്തര്ഭാവ "alloc-util.h"
+#അന്തര്ഭാവ "audit-util.h"
+#അന്തര്ഭാവ "fileio.h"
+#അന്തര്ഭാവ "parse-util.h"
+#അന്തര്ഭാവ "pidref.h"
+#അന്തര്ഭാവ "process-util.h"
+#അന്തര്ഭാവ "stat-util.h"
+#അന്തര്ഭാവ "user-util.h"
+#അന്തര്ഭാവ "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+സ്ഥിതം പൂർണ്ണസംഖ്യ audit_read_field(സ്ഥിരം PidRef *pid, സ്ഥിരം അക്ഷരം *field, അക്ഷരം **ret) {
+        പൂർണ്ണസംഖ്യ r;
 
-        assert(field);
-        assert(ret);
+        പ്രതിജ്ഞാ(field);
+        പ്രതിജ്ഞാ(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        എങ്കിൽ (!pidref_is_set(pid))
+                തിരികെ -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        എങ്കിൽ (detect_container() > 0)
+                തിരികെ -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        സ്ഥിരം അക്ഷരം *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_full_virtual_file(p, &s, /* ret_size= */ ശൂന്യ);
+        എങ്കിൽ (r == -ENOENT) {
+                എങ്കിൽ (proc_mounted() == 0)
+                        തിരികെ -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } അല്ലെങ്കിൽ എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        എങ്കിൽ (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                തിരികെ -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        തിരികെ 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ audit_session_from_pid(സ്ഥിരം PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        എങ്കിൽ (!audit_session_is_valid(u))
+                തിരികെ -ENODATA;
 
-        if (ret_id)
+        എങ്കിൽ (ret_id)
                 *ret_id = u;
 
-        return 0;
+        തിരികെ 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+പൂർണ്ണസംഖ്യ audit_loginuid_from_pid(സ്ഥിരം PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ അക്ഷരം *s = ശൂന്യ;
+        പൂർണ്ണസംഖ്യ r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        എങ്കിൽ (r < 0)
+                തിരികെ r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        എങ്കിൽ (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                തിരികെ -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        തിരികെ parse_uid(s, ret_uid);
 }
