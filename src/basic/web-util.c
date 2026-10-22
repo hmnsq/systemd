@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
-#include "web-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "utf8.h"
+#అన్తర్భావ "web-util.h"
 
-bool http_url_is_valid(const char *url) {
-        const char *p;
+bool http_url_is_valid(స్థిరరాశి అక్షరం *url) {
+        స్థిరరాశి అక్షరం *p;
 
-        if (isempty(url))
-                return false;
+        ఒకవేళ (isempty(url))
+                తిరిగి false;
 
-        p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        p = STARTSWITH_సమితి(url, "http://", "https://");
+        ఒకవేళ (!p)
+                తిరిగి false;
 
-        if (isempty(p))
-                return false;
+        ఒకవేళ (isempty(p))
+                తిరిగి false;
 
-        return ascii_is_valid(p);
+        తిరిగి ascii_is_valid(p);
 }
 
-bool file_url_is_valid(const char *url) {
-        const char *p;
+bool file_url_is_valid(స్థిరరాశి అక్షరం *url) {
+        స్థిరరాశి అక్షరం *p;
 
-        if (isempty(url))
-                return false;
+        ఒకవేళ (isempty(url))
+                తిరిగి false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        ఒకవేళ (isempty(p))
+                తిరిగి false;
 
-        return ascii_is_valid(p);
+        తిరిగి ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
-        const char *p, *e;
-        int r;
+పూర్ణాంకం provider_url_parse(స్థిరరాశి అక్షరం *url, అక్షరం **ret_socket, అక్షరం **ret_resource) {
+        స్థిరరాశి అక్షరం *p, *e;
+        పూర్ణాంకం r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        ఒకవేళ (isempty(url))
+                తిరిగి -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        ఒకవేళ (!p)
+                తిరిగి -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        ఒకవేళ (!e || e == p)
+                తిరిగి -EINVAL;
+        ఒకవేళ (e[1] != '/')
+                తిరిగి -EINVAL;
 
-        _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ అక్షరం *s = strndup(p, e - p);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        ఒకవేళ (!మార్గం_is_absolute(s) || !మార్గం_is_normalized(s))
+                తిరిగి -EINVAL;
 
-        const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        స్థిరరాశి అక్షరం *resource = e + 2;
+        ఒకవేళ (isempty(resource))
+                తిరిగి -EINVAL;
+        ఒకవేళ (మార్గం_is_absolute(resource) || !మార్గం_is_normalized(resource))
+                తిరిగి -EINVAL;
+        ఒకవేళ (string_has_cc(resource, /* ok= */ ఖాళీ) || strpbrk(resource, "?#"))
+                తిరిగి -EINVAL;
 
-        r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        r = strdup_గమ్యం_నిండిన(ret_resource, resource);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_socket)
+        ఒకవేళ (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        తిరిగి 0;
 }
 
-bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+bool provider_url_is_valid(స్థిరరాశి అక్షరం *url) {
+        తిరిగి provider_url_parse(url, /* ret_socket= */ ఖాళీ, /* ret_resource= */ ఖాళీ) >= 0;
 }
 
-bool documentation_url_is_valid(const char *url) {
-        const char *p;
+bool documentation_url_is_valid(స్థిరరాశి అక్షరం *url) {
+        స్థిరరాశి అక్షరం *p;
 
-        if (isempty(url))
-                return false;
+        ఒకవేళ (isempty(url))
+                తిరిగి false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        ఒకవేళ (http_url_is_valid(url) || file_url_is_valid(url))
+                తిరిగి true;
 
-        p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        p = STARTSWITH_సమితి(url, "info:", "man:");
+        ఒకవేళ (isempty(p))
+                తిరిగి false;
 
-        return ascii_is_valid(p);
+        తిరిగి ascii_is_valid(p);
 }
 
-bool http_header_valid(const char *header) {
-        return header &&
-                ascii_is_valid(header) &&
-                !string_has_cc(header, /* ok= */ NULL) &&
-                strchr(header, ':');
+bool http_శీర్షిక_valid(స్థిరరాశి అక్షరం *శీర్షిక) {
+        తిరిగి శీర్షిక &&
+                ascii_is_valid(శీర్షిక) &&
+                !string_has_cc(శీర్షిక, /* ok= */ ఖాళీ) &&
+                strchr(శీర్షిక, ':');
 }
 
-bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+bool http_etag_is_valid(స్థిరరాశి అక్షరం *etag) {
+        ఒకవేళ (isempty(etag))
+                తిరిగి false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        ఒకవేళ (!endswith(etag, "\""))
+                తిరిగి false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        ఒకవేళ (!STARTSWITH_సమితి(etag, "\"", "W/\""))
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }

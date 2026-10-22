@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef struct RateLimit {
+రకనిర్వచనం నిర్మాణం రేటు_హద్దు {
         usec_t interval; /* Keep those two fields first so they can be initialized easily: */
-        unsigned burst;  /* RateLimit rl = { INTERVAL, BURST }; */
-        unsigned num;
+        గుర్తులేని వ్యవధి;  /* RateLimit rl = { INTERVAL, BURST }; */
+        గుర్తులేని అంకె;
         usec_t begin;
-} RateLimit;
+} రేటు_హద్దు;
 
-#define RATELIMIT_OFF (const RateLimit) { .interval = USEC_INFINITY, .burst = UINT_MAX }
+#నిర్వచించు RATELIMIT_OFF (స్థిరరాశి రేటు_హద్దు) { .interval = USEC_INFINITY, .వ్యవధి = UINT_MAX }
 
-static inline void ratelimit_reset(RateLimit *rl) {
-        rl->num = rl->begin = 0;
+స్థిర అంతఃవరుస శూన్య ratelimit_reset(రేటు_హద్దు *rl) {
+        rl->అంకె = rl->begin = 0;
 }
 
-static inline bool ratelimit_configured(const RateLimit *rl) {
-        return rl->interval > 0 && rl->burst > 0;
+స్థిర అంతఃవరుస bool ratelimit_configured(స్థిరరాశి రేటు_హద్దు *rl) {
+        తిరిగి rl->interval > 0 && rl->వ్యవధి > 0;
 }
 
-bool ratelimit_below(RateLimit *rl);
+bool ratelimit_క్రింద(రేటు_హద్దు *rl);
 /* Like ratelimit_below(), but takes the current CLOCK_BOOTTIME timestamp from the caller, for callers
  * that check many rate limits in a row and should not read the clock for each of them. The timestamps
  * passed for a given RateLimit must not go backwards: a ts before the one that opened the current
  * window makes usec_sub_unsigned() return 0, i.e. the window looks like it just started. */
-bool ratelimit_below_at(RateLimit *rl, usec_t ts);
+bool ratelimit_క్రింద_at(రేటు_హద్దు *rl, usec_t ts);
 
-unsigned ratelimit_num_dropped(const RateLimit *rl);
+గుర్తులేని ratelimit_అంకె_dropped(స్థిరరాశి రేటు_హద్దు *rl);
 
-usec_t ratelimit_end(const RateLimit *rl);
-usec_t ratelimit_left(const RateLimit *rl);
+usec_t ratelimit_చివర(స్థిరరాశి రేటు_హద్దు *rl);
+usec_t ratelimit_ఎడమ(స్థిరరాశి రేటు_హద్దు *rl);

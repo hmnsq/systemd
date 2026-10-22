@@ -1,77 +1,77 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-#define ENVIRONMENT_ASSIGNMENTS_MAX 16384U
+#నిర్వచించు ENVIRONMENT_ASSIGNMENTS_MAX 16384U
 
-size_t sc_arg_max(void);
+size_t sc_arg_max(శూన్య);
 
-bool env_name_is_valid(const char *e);
-bool env_value_is_valid(const char *e);
-bool env_assignment_is_valid(const char *e);
+bool env_name_is_valid(స్థిరరాశి అక్షరం *e);
+bool env_విలువ_is_valid(స్థిరరాశి అక్షరం *e);
+bool env_assignment_is_valid(స్థిరరాశి అక్షరం *e);
 
-typedef enum ReplaceEnvFlags {
+రకనిర్వచనం గణన ReplaceEnvFlags {
         REPLACE_ENV_USE_ENVIRONMENT = 1 << 0,
         REPLACE_ENV_ALLOW_BRACELESS = 1 << 1,
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+పూర్ణాంకం replace_env_నిండిన(స్థిరరాశి అక్షరం *format, size_t length, అక్షరం **env, ReplaceEnvFlags flags, అక్షరం **ret, అక్షరం ***ret_unset_variables, అక్షరం ***ret_bad_variables);
+స్థిర అంతఃవరుస పూర్ణాంకం replace_env(స్థిరరాశి అక్షరం *format, అక్షరం **env, ReplaceEnvFlags flags, అక్షరం **ret) {
+        తిరిగి replace_env_నిండిన(format, SIZE_MAX, env, flags, ret, ఖాళీ, ఖాళీ);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+పూర్ణాంకం replace_env_argv(అక్షరం **argv, అక్షరం **env, అక్షరం ***ret, అక్షరం ***ret_unset_variables, అక్షరం ***ret_bad_variables);
 
-bool strv_env_is_valid(char * const *e);
-bool strv_env_name_is_valid(char * const *l);
-bool strv_env_name_or_assignment_is_valid(char * const *l);
+bool strv_env_is_valid(అక్షరం * స్థిరరాశి *e);
+bool strv_env_name_is_valid(అక్షరం * స్థిరరాశి *l);
+bool strv_env_name_or_assignment_is_valid(అక్షరం * స్థిరరాశి *l);
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata);
-#define strv_env_clean(l) strv_env_clean_with_callback(l, NULL, NULL)
+అక్షరం** strv_env_clean_with_callback(అక్షరం **l, శూన్య (*invalid_callback)(స్థిరరాశి అక్షరం *p, శూన్య *userdata), శూన్య *userdata);
+#నిర్వచించు strv_env_clean(l) strv_env_clean_with_callback(l, ఖాళీ, ఖాళీ)
 
-char** _strv_env_merge(char **first, ...);
-#define strv_env_merge(first, ...) _strv_env_merge(first, __VA_ARGS__, POINTER_MAX)
-char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
+అక్షరం** strv_env_విలీనం(అక్షరం **మొదటి, ...);
+#నిర్వచించు strv_env_విలీనం_2(మొదటి, ...) strv_env_విలీనం(మొదటి, __VA_ARGS__, సూచిక_MAX)
+అక్షరం** strv_env_delete(అక్షరం **x, size_t n_lists, ...); /* New copy */
 
-char** strv_env_unset(char **l, const char *p); /* In place ... */
-char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
-#define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
-#define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
+అక్షరం** strv_env_unset(అక్షరం **l, స్థిరరాశి అక్షరం *p); /* In place ... */
+అక్షరం** strv_env_unset_many_అంతర్గత(అక్షరం **l, ...) _sentinel_;
+#నిర్వచించు strv_env_unset_many(l, ...) strv_env_unset_many_అంతర్గత(l, __VA_ARGS__, ఖాళీ)
+పూర్ణాంకం strv_env_replace_consume(అక్షరం ***l, అక్షరం *p); /* In place ... */
+పూర్ణాంకం strv_env_replace_strdup(అక్షరం ***l, స్థిరరాశి అక్షరం *assignment);
+పూర్ణాంకం strv_env_replace_strdup_passthrough(అక్షరం ***l, స్థిరరాశి అక్షరం *assignment);
+పూర్ణాంకం strv_env_కేటాయించు(అక్షరం ***l, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ);
+పూర్ణాంకం strv_env_assignf(అక్షరం ***l, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *valuef, ...) _printf_(3, 4);
+పూర్ణాంకం strv_env_కేటాయించు_many(అక్షరం ***l, ...) _sentinel_;
+#నిర్వచించు strv_env_కేటాయించు_many_2(l, ...) strv_env_కేటాయించు_many(l, __VA_ARGS__, ఖాళీ)
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
-static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+అక్షరం* strv_env_get_n(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name, size_t k, ReplaceEnvFlags flags);
+స్థిర అంతఃవరుస అక్షరం* strv_env_get(అక్షరం * స్థిరరాశి *x, స్థిరరాశి అక్షరం *n) {
+        తిరిగి strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
-char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+అక్షరం* strv_env_జతలు_get(అక్షరం **l, స్థిరరాశి అక్షరం *name) శుద్ధ;
+పూర్ణాంకం strv_env_get_merged(అక్షరం **l, అక్షరం ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+పూర్ణాంకం getenv_bool(స్థిరరాశి అక్షరం *p);
+పూర్ణాంకం secure_getenv_bool(స్థిరరాశి అక్షరం *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+పూర్ణాంకం secure_getenv_uint64(స్థిరరాశి అక్షరం *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+పూర్ణాంకం సమితి_unset_env(స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *విలువ, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+పూర్ణాంకం putenv_dup(స్థిరరాశి అక్షరం *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+పూర్ణాంకం setenv_systemd_exec_pid(bool update_only);
+పూర్ణాంకం setenv_systemd_log_level(శూన్య);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+పూర్ణాంకం getenv_మార్గం_list(స్థిరరాశి అక్షరం *name, అక్షరం ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+పూర్ణాంకం getenv_steal_erase(స్థిరరాశి అక్షరం *name, అక్షరం **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+పూర్ణాంకం setenvf(స్థిరరాశి అక్షరం *name, bool overwrite, స్థిరరాశి అక్షరం *valuef, ...) _printf_(3,4);

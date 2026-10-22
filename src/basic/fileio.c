@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio_ext.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <stdio_ext.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "hexdecoct.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "mkdir.h"
-#include "nulstr-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "sync-util.h"
-#include "terminal-util.h"
-#include "time-util.h"
-#include "tmpfile-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "chase.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "hexdecoct.h"
+#అన్తర్భావ "io-util.h"
+#అన్తర్భావ "iovec-util.h"
+#అన్తర్భావ "label-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "mkdir.h"
+#అన్తర్భావ "nulstr-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "socket-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "stdio-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "sync-util.h"
+#అన్తర్భావ "terminal-util.h"
+#అన్తర్భావ "time-util.h"
+#అన్తర్భావ "tmpfile-util.h"
 
 /* The maximum size of the file we'll read in one go in read_full_file() (64M). */
-#define READ_FULL_BYTES_MAX (64U * U64_MB - UINT64_C(1))
+#నిర్వచించు READ_నిండిన_బైట్లు_MAX (64U * U64_MB - UINT64_C(1))
 /* Used when a size is specified for read_full_file() with READ_FULL_FILE_UNBASE64 or _UNHEX */
-#define READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY 3
+#నిర్వచించు READ_నిండిన_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY 3
 
 /* The maximum size of virtual files (i.e. procfs, sysfs, and other virtual "API" files) we'll read in one go
  * in read_virtual_file(). Note that this limit is different (and much lower) than the READ_FULL_BYTES_MAX
@@ -46,162 +46,162 @@
  * exponentially in a loop. We use a size limit of 4M-2 because 4M-1 is the maximum buffer that /proc/sys/
  * allows us to read() (larger reads will fail with ENOMEM), and we want to read one extra byte so that we
  * can detect EOFs. */
-#define READ_VIRTUAL_BYTES_MAX (4U * U64_MB - UINT64_C(2))
+#నిర్వచించు READ_VIRTUAL_బైట్లు_MAX (4U * U64_MB - UINT64_C(2))
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret) {
-        assert(ret);
+పూర్ణాంకం fdopen_unlocked(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *options, FILE **ret) {
+        ప్రతిజ్ఞా(ret);
 
         FILE *f = fdopen(fd, options);
-        if (!f)
-                return -errno;
+        ఒకవేళ (!f)
+                తిరిగి -errno;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (శూన్య) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        తిరిగి 0;
 }
 
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret) {
-        int r;
+పూర్ణాంకం take_fdopen_unlocked(పూర్ణాంకం *fd, స్థిరరాశి అక్షరం *options, FILE **ret) {
+        పూర్ణాంకం r;
 
-        assert(fd);
+        ప్రతిజ్ఞా(fd);
 
         r = fdopen_unlocked(*fd, options, ret);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *fd = -EBADF;
 
-        return 0;
+        తిరిగి 0;
 }
 
-FILE* take_fdopen(int *fd, const char *options) {
-        assert(fd);
+FILE* take_fdopen(పూర్ణాంకం *fd, స్థిరరాశి అక్షరం *options) {
+        ప్రతిజ్ఞా(fd);
 
         FILE *f = fdopen(*fd, options);
-        if (!f)
-                return NULL;
+        ఒకవేళ (!f)
+                తిరిగి ఖాళీ;
 
         *fd = -EBADF;
 
-        return f;
+        తిరిగి f;
 }
 
-DIR* take_fdopendir(int *dfd) {
-        assert(dfd);
+DIR* take_fdopendir(పూర్ణాంకం *dfd) {
+        ప్రతిజ్ఞా(dfd);
 
         DIR *d = fdopendir(*dfd);
-        if (!d)
-                return NULL;
+        ఒకవేళ (!d)
+                తిరిగి ఖాళీ;
 
         *dfd = -EBADF;
 
-        return d;
+        తిరిగి d;
 }
 
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc) {
+FILE* open_memstream_unlocked(అక్షరం **ptr, size_t *sizeloc) {
         FILE *f = open_memstream(ptr, sizeloc);
-        if (!f)
-                return NULL;
+        ఒకవేళ (!f)
+                తిరిగి ఖాళీ;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (శూన్య) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        తిరిగి f;
 }
 
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
-        FILE *f = fmemopen(buf, size, mode);
-        if (!f)
-                return NULL;
+FILE* fmemopen_unlocked(శూన్య *buf, size_t కొలత, స్థిరరాశి అక్షరం *బహుళకం) {
+        FILE *f = fmemopen(buf, కొలత, బహుళకం);
+        ఒకవేళ (!f)
+                తిరిగి ఖాళీ;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        (శూన్య) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        తిరిగి f;
 }
 
-int write_string_stream_full(
+పూర్ణాంకం write_string_ప్రవాహం_నిండిన(
                 FILE *f,
-                const char *line,
+                స్థిరరాశి అక్షరం *పంక్తి,
                 WriteStringFileFlags flags,
-                const struct timespec *ts) {
+                స్థిరరాశి నిర్మాణం timespec *ts) {
 
         bool needs_nl;
-        int r, fd = -EBADF;
+        పూర్ణాంకం r, fd = -EBADF;
 
-        assert(f);
-        assert(line);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(పంక్తి);
 
-        if (ferror(f))
-                return -EIO;
+        ఒకవేళ (ferror(f))
+                తిరిగి -EIO;
 
-        if (ts) {
+        ఒకవేళ (ts) {
                 /* If we shall set the timestamp we need the fd. But fmemopen() streams generally don't have
                  * an fd. Let's fail early in that case. */
                 fd = fileno(f);
-                if (fd < 0)
-                        return -EBADF;
+                ఒకవేళ (fd < 0)
+                        తిరిగి -EBADF;
         }
 
-        if (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
-                _cleanup_free_ char *t = NULL;
+        ఒకవేళ (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
+                _cleanup_free_ అక్షరం *t = ఖాళీ;
 
                 /* If value to be written is same as that of the existing value, then suppress the write. */
 
-                if (fd < 0) {
+                ఒకవేళ (fd < 0) {
                         fd = fileno(f);
-                        if (fd < 0)
-                                return -EBADF;
+                        ఒకవేళ (fd < 0)
+                                తిరిగి -EBADF;
                 }
 
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
-                    streq_skip_trailing_chars(line, t, NEWLINE)) {
-                        log_debug("No change in value '%s', suppressing write", line);
-                        return 0;
+                ఒకవేళ (read_virtual_file_fd(fd, అక్షరశ్రేణి_పొడవు(పంక్తి)+1, &t, ఖాళీ) > 0 &&
+                    streq_skip_trailing_chars(పంక్తి, t, NEWLINE)) {
+                        log_debug("No change in value '%s', suppressing write", పంక్తి);
+                        తిరిగి 0;
                 }
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                ఒకవేళ (lseek(fd, 0, SEEK_SET) < 0)
+                        తిరిగి -errno;
         }
 
-        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
+        needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(పంక్తి, "\n");
 
-        if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
+        ఒకవేళ (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_బఫరు)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
-                line = strjoina(line, "\n");
+                పంక్తి = strjoina(పంక్తి, "\n");
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
-                return -errno;
+        ఒకవేళ (fputs(పంక్తి, f) == EOF)
+                తిరిగి -errno;
 
-        if (needs_nl)
-                if (fputc('\n', f) == EOF)
-                        return -errno;
+        ఒకవేళ (needs_nl)
+                ఒకవేళ (fputc('\n', f) == EOF)
+                        తిరిగి -errno;
 
-        if (flags & WRITE_STRING_FILE_SYNC)
+        ఒకవేళ (flags & WRITE_STRING_FILE_SYNC)
                 r = fflush_sync_and_check(f);
-        else
+        లేకపోతే
                 r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ts) {
-                const struct timespec twice[2] = {*ts, *ts};
+        ఒకవేళ (ts) {
+                స్థిరరాశి నిర్మాణం timespec twice[2] = {*ts, *ts};
 
-                assert(fd >= 0);
-                if (futimens(fd, twice) < 0)
-                        return -errno;
+                ప్రతిజ్ఞా(fd >= 0);
+                ఒకవేళ (futimens(fd, twice) < 0)
+                        తిరిగి -errno;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
+స్థిర mode_t write_string_file_flags_గమ్యం_బహుళకం(WriteStringFileFlags flags) {
 
         /* We support three different modes, that are the ones that really make sense for text files like this:
          *
@@ -210,310 +210,310 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
          *     → 0644 (i.e. writable for root, readable for everyone else)
          */
 
-        return FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
-                FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0444) ? 0444 : 0644;
+        తిరిగి FLAGS_సమితి(flags, WRITE_STRING_FILE_బహుళకం_0600) ? 0600 :
+                FLAGS_సమితి(flags, WRITE_STRING_FILE_బహుళకం_0444) ? 0444 : 0644;
 }
 
-static int write_string_file_atomic_at(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+స్థిర పూర్ణాంకం write_string_file_atomic_at(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *fn,
+                స్థిరరాశి అక్షరం *పంక్తి,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
+                స్థిరరాశి నిర్మాణం timespec *ts,
                 LabelContext *label_context) {
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(fn);
-        assert(line);
+        ప్రతిజ్ఞా(fn);
+        ప్రతిజ్ఞా(పంక్తి);
 
         /* Note that we'd really like to use O_TMPFILE here, but can't really, since we want replacement
          * semantics here, and O_TMPFILE can't offer that. i.e. rename() replaces but linkat() doesn't. */
 
-        mode_t mode = write_string_file_flags_to_mode(flags);
+        mode_t బహుళకం = write_string_file_flags_గమ్యం_బహుళకం(flags);
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
-                r = label_ops_pre(dir_fd, fn, mode, label_context);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (FLAGS_సమితి(flags, WRITE_STRING_FILE_LABEL)) {
+                r = label_ops_pre(dir_fd, fn, బహుళకం, label_context);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 call_label_ops_post = true;
         }
 
         r = fopen_temporary_at(dir_fd, fn, &f, &p);
-        int k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
+        పూర్ణాంకం k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? ఖాళీ : fn, /* created= */ !!f, label_context) : 0;
         /* If fopen_temporary_at() failed in the above, propagate the error code, and ignore failures in
          * label_ops_post(). */
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
         CLEANUP_TMPFILE_AT(dir_fd, p);
-        if (k < 0)
-                return k;
+        ఒకవేళ (k < 0)
+                తిరిగి k;
 
-        r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                return r;
+        r = write_string_ప్రవాహం_నిండిన(f, పంక్తి, flags, ts);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = fchmod_umask(fileno(f), mode);
-        if (r < 0)
-                return r;
+        r = fchmod_umask(fileno(f), బహుళకం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = RET_NERRNO(renameat(dir_fd, p, dir_fd, fn));
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
+        ఒకవేళ (FLAGS_సమితి(flags, WRITE_STRING_FILE_SYNC)) {
                 /* Sync the rename, too */
-                r = fsync_directory_of_file(fileno(f));
-                if (r < 0)
-                        return r;
+                r = fsync_directory_యొక్క_file(fileno(f));
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int write_string_file_full_label(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+పూర్ణాంకం write_string_file_నిండిన_label(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *fn,
+                స్థిరరాశి అక్షరం *పంక్తి,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
-                const char *label_fn,
+                స్థిరరాశి నిర్మాణం timespec *ts,
+                స్థిరరాశి అక్షరం *label_fn,
                 LabelContext *label_context) {
 
         bool made_file = false;
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(dir_fd == AT_FDCWD || dir_fd >= 0);
-        assert(line);
+        ప్రతిజ్ఞా(dir_fd == AT_FDCWD || dir_fd >= 0);
+        ప్రతిజ్ఞా(పంక్తి);
 
         /* We don't know how to verify whether the file contents was already on-disk. */
-        assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
+        ప్రతిజ్ఞా(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
 
-        if (flags & WRITE_STRING_FILE_MKDIR_0755) {
-                assert(fn);
+        ఒకవేళ (flags & WRITE_STRING_FILE_MKDIR_0755) {
+                ప్రతిజ్ఞా(fn);
 
                 r = mkdirat_parents(dir_fd, fn, 0755);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        if (flags & WRITE_STRING_FILE_ATOMIC) {
-                assert(fn);
-                assert(flags & WRITE_STRING_FILE_CREATE);
+        ఒకవేళ (flags & WRITE_STRING_FILE_ATOMIC) {
+                ప్రతిజ్ఞా(fn);
+                ప్రతిజ్ఞా(flags & WRITE_STRING_FILE_CREATE);
 
-                r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
-                if (r < 0)
-                        goto fail;
+                r = write_string_file_atomic_at(dir_fd, fn, పంక్తి, flags, ts, label_context);
+                ఒకవేళ (r < 0)
+                        వెళ్ళు fail;
 
-                return r;
+                తిరిగి r;
         }
 
         /* We manually build our own version of fopen(..., "we") that works without O_CREAT and with O_NOFOLLOW if needed. */
-        if (isempty(fn))
+        ఒకవేళ (isempty(fn))
                 r = fd = fd_reopen(
                                 ASSERT_FD(dir_fd), O_CLOEXEC | O_NOCTTY |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
-        else {
-                mode_t mode = write_string_file_flags_to_mode(flags);
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
+        లేకపోతే {
+                mode_t బహుళకం = write_string_file_flags_గమ్యం_బహుళకం(flags);
                 bool call_label_ops_post = false;
 
-                if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
-                        r = label_ops_pre(dir_fd, label_fn ?: fn, mode, label_context);
-                        if (r < 0)
-                                goto fail;
+                ఒకవేళ (FLAGS_సమితి(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
+                        r = label_ops_pre(dir_fd, label_fn ?: fn, బహుళకం, label_context);
+                        ఒకవేళ (r < 0)
+                                వెళ్ళు fail;
 
                         call_label_ops_post = true;
                 }
 
                 r = fd = openat_report_new(
                                 dir_fd, fn, O_CLOEXEC | O_NOCTTY |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_NOFOLLOW) ? O_NOFOLLOW : 0) |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_CREATE) ? O_CREAT : 0) |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
-                                (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
-                                mode,
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_NOFOLLOW) ? O_NOFOLLOW : 0) |
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_CREATE) ? O_CREAT : 0) |
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
+                                (FLAGS_సమితి(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
+                                బహుళకం,
                                 &made_file);
-                if (call_label_ops_post)
+                ఒకవేళ (call_label_ops_post)
                         /* If openat_report_new() failed in the above, propagate the error code, and ignore
                          * failures in label_ops_post(). */
-                        RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : fn, made_file, label_context));
+                        RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? ఖాళీ : fn, made_file, label_context));
         }
-        if (r < 0)
-                goto fail;
+        ఒకవేళ (r < 0)
+                వెళ్ళు fail;
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0)
-                goto fail;
+        ఒకవేళ (r < 0)
+                వెళ్ళు fail;
 
-        if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
-                setvbuf(f, NULL, _IONBF, 0);
+        ఒకవేళ (flags & WRITE_STRING_FILE_DISABLE_బఫరు)
+                setvbuf(f, ఖాళీ, _IONBF, 0);
 
-        r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                goto fail;
+        r = write_string_ప్రవాహం_నిండిన(f, పంక్తి, flags, ts);
+        ఒకవేళ (r < 0)
+                వెళ్ళు fail;
 
-        return 0;
+        తిరిగి 0;
 
 fail:
-        if (made_file)
-                (void) unlinkat(dir_fd, fn, 0);
+        ఒకవేళ (made_file)
+                (శూన్య) unlinkat(dir_fd, fn, 0);
 
-        if (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
-                return r;
+        ఒకవేళ (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
+                తిరిగి r;
 
-        f = safe_fclose(f);
-        fd = safe_close(fd);
+        f = సురక్షిత_fclose(f);
+        fd = సురక్షిత_close(fd);
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
-                return 0;
+        ఒకవేళ (verify_file_at(dir_fd, fn, పంక్తి, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+                తిరిగి 0;
 
-        return r;
+        తిరిగి r;
 }
 
-int write_string_filef(
-                const char *fn,
+పూర్ణాంకం write_string_filef(
+                స్థిరరాశి అక్షరం *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                స్థిరరాశి అక్షరం *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి -ENOMEM;
 
-        return write_string_file(fn, p, flags);
+        తిరిగి write_string_file(fn, p, flags);
 }
 
-int write_string_filef_at(
-                int dir_fd,
-                const char *fn,
+పూర్ణాంకం write_string_filef_at(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                స్థిరరాశి అక్షరం *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి -ENOMEM;
 
-        return write_string_file_at(dir_fd, fn, p, flags);
+        తిరిగి write_string_file_at(dir_fd, fn, p, flags);
 }
 
-int write_base64_file_at(
-                int dir_fd,
-                const char *fn,
-                const struct iovec *data,
+పూర్ణాంకం write_base64_file_at(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *fn,
+                స్థిరరాశి నిర్మాణం iovec *దత్తాంశం,
                 WriteStringFileFlags flags) {
 
-        _cleanup_free_ char *encoded = NULL;
+        _cleanup_free_ అక్షరం *encoded = ఖాళీ;
         ssize_t n;
 
-        n = base64mem_full(data ? data->iov_base : NULL, data ? data->iov_len : 0, 79, &encoded);
-        if (n < 0)
-                return n;
+        n = base64mem_నిండిన(దత్తాంశం ? దత్తాంశం->iov_base : ఖాళీ, దత్తాంశం ? దత్తాంశం->iov_len : 0, 79, &encoded);
+        ఒకవేళ (n < 0)
+                తిరిగి n;
 
-        return write_string_file_at(dir_fd, fn, encoded, flags);
+        తిరిగి write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+పూర్ణాంకం read_one_పంక్తి_file_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *filename, అక్షరం **ret) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(filename);
-        assert(ret);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(filename);
+        ప్రతిజ్ఞా(ret);
 
         r = fopen_unlocked_at(dir_fd, filename, "re", /* open_flags= */ 0, &f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        తిరిగి read_పంక్తి(f, LONG_పంక్తి_MAX, ret);
 }
 
-int read_boolean_file_at(int dir_fd, const char *filename) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+పూర్ణాంకం read_boolean_file_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *filename) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(filename);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(filename);
 
-        r = read_one_line_file_at(dir_fd, filename, &s);
-        if (r < 0)
-                return r;
+        r = read_one_పంక్తి_file_at(dir_fd, filename, &s);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return parse_boolean(s);
+        తిరిగి parse_boolean(s);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *buf = NULL;
+పూర్ణాంకం verify_file_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *fn, స్థిరరాశి అక్షరం *blob, bool accept_extra_nl) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        _cleanup_free_ అక్షరం *buf = ఖాళీ;
         size_t l, k;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(blob);
+        ప్రతిజ్ఞా(blob);
 
-        l = strlen(blob);
+        l = అక్షరశ్రేణి_పొడవు(blob);
 
-        if (accept_extra_nl && endswith(blob, "\n"))
+        ఒకవేళ (accept_extra_nl && endswith(blob, "\n"))
                 accept_extra_nl = false;
 
-        buf = malloc(l + accept_extra_nl + 1);
-        if (!buf)
-                return -ENOMEM;
+        buf = జ్ఞాపకం_ఇవ్వు(l + accept_extra_nl + 1);
+        ఒకవేళ (!buf)
+                తిరిగి -ENOMEM;
 
         r = fopen_unlocked_at(dir_fd, strempty(fn), "re", 0, &f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* We try to read one byte more than we need, so that we know whether we hit eof */
         errno = 0;
         k = fread(buf, 1, l + accept_extra_nl + 1, f);
-        if (ferror(f))
-                return errno_or_else(EIO);
+        ఒకవేళ (ferror(f))
+                తిరిగి errno_or_else(EIO);
 
-        if (k != l && k != l + accept_extra_nl)
-                return 0;
-        if (memcmp(buf, blob, l) != 0)
-                return 0;
-        if (k > l && buf[l] != '\n')
-                return 0;
+        ఒకవేళ (k != l && k != l + accept_extra_nl)
+                తిరిగి 0;
+        ఒకవేళ (memcmp(buf, blob, l) != 0)
+                తిరిగి 0;
+        ఒకవేళ (k > l && buf[l] != '\n')
+                తిరిగి 0;
 
-        return 1;
+        తిరిగి 1;
 }
 
-int read_virtual_file_at(
-                int dir_fd,
-                const char *filename,
-                size_t max_size,
-                char **ret_contents,
-                size_t *ret_size) {
+పూర్ణాంకం read_virtual_file_at(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *filename,
+                size_t max_కొలత,
+                అక్షరం **ret_contents,
+                size_t *ret_కొలత) {
 
-        _cleanup_free_ char *buf = NULL;
-        size_t n, size;
-        int n_retries;
+        _cleanup_free_ అక్షరం *buf = ఖాళీ;
+        size_t n, కొలత;
+        పూర్ణాంకం n_retries;
         bool truncated = false;
 
         /* Virtual filesystems such as sysfs or procfs use kernfs, and kernfs can work with two sorts of
@@ -533,127 +533,127 @@ int read_virtual_file_at(
          *       for kernfs files using "raw" → use read_virtual_file_at()
          */
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
+        ప్రతిజ్ఞా(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ప్రతిజ్ఞా(max_కొలత <= READ_VIRTUAL_బైట్లు_MAX || max_కొలత == SIZE_MAX);
 
-        _cleanup_close_ int fd = -EBADF;
-        if (isempty(filename))
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        ఒకవేళ (isempty(filename))
                 fd = fd_reopen(ASSERT_FD(dir_fd), O_RDONLY | O_NOCTTY | O_CLOEXEC);
-        else
+        లేకపోతే
                 fd = RET_NERRNO(openat(dir_fd, filename, O_RDONLY | O_NOCTTY | O_CLOEXEC));
-        if (fd < 0)
-                return fd;
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
         /* Limit the number of attempts to read the number of bytes returned by fstat(). */
         n_retries = 3;
 
-        for (;;) {
-                struct stat st;
+        కొరకు (;;) {
+                నిర్మాణం stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                ఒకవేళ (fstat(fd, &st) < 0)
+                        తిరిగి -errno;
 
-                if (!S_ISREG(st.st_mode))
-                        return -EBADF;
+                ఒకవేళ (!S_ISREG(st.st_mode))
+                        తిరిగి -EBADF;
 
                 /* Be prepared for files from /proc which generally report a file size of 0. */
-                assert_cc(READ_VIRTUAL_BYTES_MAX < SSIZE_MAX);
-                if (st.st_size > 0 && n_retries > 1) {
+                assert_cc(READ_VIRTUAL_బైట్లు_MAX < SSIZE_MAX);
+                ఒకవేళ (st.st_size > 0 && n_retries > 1) {
                         /* Let's use the file size if we have more than 1 attempt left. On the last attempt
                          * we'll ignore the file size */
 
-                        if (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
+                        ఒకవేళ (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
 
-                                if (max_size == SIZE_MAX)
-                                        return -EFBIG;
+                                ఒకవేళ (max_కొలత == SIZE_MAX)
+                                        తిరిగి -EFBIG;
 
-                                size = max_size;
-                        } else {
-                                size = MIN((size_t) st.st_size, max_size);
+                                కొలత = max_కొలత;
+                        } లేకపోతే {
+                                కొలత = MIN((size_t) st.st_size, max_కొలత);
 
-                                if (size > READ_VIRTUAL_BYTES_MAX)
-                                        return -EFBIG;
+                                ఒకవేళ (కొలత > READ_VIRTUAL_బైట్లు_MAX)
+                                        తిరిగి -EFBIG;
                         }
 
                         n_retries--;
-                } else if (n_retries > 1) {
+                } లేకపోతే ఒకవేళ (n_retries > 1) {
                         /* Files in /proc are generally smaller than the page size so let's start with
                          * a page size buffer from malloc and only use the max buffer on the final try. */
-                        size = MIN3(page_size() - 1, READ_VIRTUAL_BYTES_MAX, max_size);
+                        కొలత = MIN3(పుట_కొలత() - 1, READ_VIRTUAL_బైట్లు_MAX, max_కొలత);
                         n_retries = 1;
-                } else {
-                        size = MIN(READ_VIRTUAL_BYTES_MAX, max_size);
+                } లేకపోతే {
+                        కొలత = MIN(READ_VIRTUAL_బైట్లు_MAX, max_కొలత);
                         n_retries = 0;
                 }
 
-                buf = malloc(size + 1);
-                if (!buf)
-                        return -ENOMEM;
+                buf = జ్ఞాపకం_ఇవ్వు(కొలత + 1);
+                ఒకవేళ (!buf)
+                        తిరిగి -ENOMEM;
 
                 /* Use a bigger allocation if we got it anyway, but not more than the limit. */
-                size = MIN3(MALLOC_SIZEOF_SAFE(buf) - 1, max_size, READ_VIRTUAL_BYTES_MAX);
+                కొలత = MIN3(MALLOC_SIZEOF_సురక్షిత(buf) - 1, max_కొలత, READ_VIRTUAL_బైట్లు_MAX);
 
-                for (;;) {
+                కొరకు (;;) {
                         ssize_t k;
 
                         /* Read one more byte so we can detect whether the content of the
                          * file has already changed or the guessed size for files from /proc
                          * wasn't large enough . */
-                        k = read(fd, buf, size + 1);
-                        if (k >= 0) {
+                        k = పఠ(fd, buf, కొలత + 1);
+                        ఒకవేళ (k >= 0) {
                                 n = k;
-                                break;
+                                ఆపు;
                         }
 
-                        if (errno != EINTR)
-                                return -errno;
+                        ఒకవేళ (errno != EINTR)
+                                తిరిగి -errno;
                 }
 
                 /* Consider a short read as EOF */
-                if (n <= size)
-                        break;
+                ఒకవేళ (n <= కొలత)
+                        ఆపు;
 
                 /* If a maximum size is specified and we already read more we know the file is larger, and
                  * can handle this as truncation case. Note that if the size of what we read equals the
                  * maximum size then this doesn't mean truncation, the file might or might not end on that
                  * byte. We need to rerun the loop in that case, with a larger buffer size, so that we read
                  * at least one more byte to be able to distinguish EOF from truncation. */
-                if (max_size != SIZE_MAX && n > max_size) {
-                        n = size; /* Make sure we never use more than what we sized the buffer for (so that
+                ఒకవేళ (max_కొలత != SIZE_MAX && n > max_కొలత) {
+                        n = కొలత; /* Make sure we never use more than what we sized the buffer for (so that
                                    * we have one free byte in it for the trailing NUL we add below). */
                         truncated = true;
-                        break;
+                        ఆపు;
                 }
 
                 /* We have no further attempts left? Then the file is apparently larger than our limits. Give up. */
-                if (n_retries <= 0)
-                        return -EFBIG;
+                ఒకవేళ (n_retries <= 0)
+                        తిరిగి -EFBIG;
 
                 /* Hmm... either we read too few bytes from /proc or less likely the content of the file
                  * might have been changed (and is now bigger) while we were processing, let's try again
                  * either with the new file size. */
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                ఒకవేళ (lseek(fd, 0, SEEK_SET) < 0)
+                        తిరిగి -errno;
 
                 buf = mfree(buf);
         }
 
-        if (ret_contents) {
+        ఒకవేళ (ret_contents) {
 
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
-                if (!ret_size && memchr(buf, 0, n))
-                        return -EBADMSG;
+                ఒకవేళ (!ret_కొలత && memchr(buf, 0, n))
+                        తిరిగి -EBADMSG;
 
-                if (n < size) {
-                        char *p;
+                ఒకవేళ (n < కొలత) {
+                        అక్షరం *p;
 
                         /* Return rest of the buffer to libc */
                         p = realloc(buf, n + 1);
-                        if (!p)
-                                return -ENOMEM;
+                        ఒకవేళ (!p)
+                                తిరిగి -ENOMEM;
                         buf = p;
                 }
 
@@ -661,55 +661,55 @@ int read_virtual_file_at(
                 *ret_contents = TAKE_PTR(buf);
         }
 
-        if (ret_size)
-                *ret_size = n;
+        ఒకవేళ (ret_కొలత)
+                *ret_కొలత = n;
 
-        return !truncated;
+        తిరిగి !truncated;
 }
 
-int read_full_stream_full(
+పూర్ణాంకం read_నిండిన_ప్రవాహం_నిండిన(
                 FILE *f,
-                const char *filename,
-                uint64_t offset,
-                size_t size,
-                ReadFullFileFlags flags,
-                char **ret_contents,
-                size_t *ret_size) {
+                స్థిరరాశి అక్షరం *filename,
+                uint64_t స్థానభ్రంశం,
+                size_t కొలత,
+                Read_నిండిన_File_Flags flags,
+                అక్షరం **ret_contents,
+                size_t *ret_కొలత) {
 
-        _cleanup_free_ char *buf = NULL;
-        size_t n, n_next = 0, l, expected_decoded_size = size;
-        int fd, r;
+        _cleanup_free_ అక్షరం *buf = ఖాళీ;
+        size_t n, n_తదుపరి = 0, l, expected_decoded_కొలత = కొలత;
+        పూర్ణాంకం fd, r;
 
-        assert(f);
-        assert(ret_contents);
-        assert(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
-        assert(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(ret_contents);
+        ప్రతిజ్ఞా(!FLAGS_సమితి(flags, READ_నిండిన_FILE_UNBASE64 | READ_నిండిన_FILE_UNHEX));
+        ప్రతిజ్ఞా(కొలత != SIZE_MAX || !FLAGS_సమితి(flags, READ_నిండిన_FILE_FAIL_WHEN_LARGER));
 
-        if (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
-                return -ERANGE;
+        ఒకవేళ (స్థానభ్రంశం != UINT64_MAX && స్థానభ్రంశం > LONG_MAX) /* fseek() can only deal with "long" offsets */
+                తిరిగి -ERANGE;
 
-        if ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
-                if (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
-                        size *= READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
-                else
-                        size = SIZE_MAX;
+        ఒకవేళ ((flags & (READ_నిండిన_FILE_UNBASE64 | READ_నిండిన_FILE_UNHEX)) != 0) {
+                ఒకవేళ (కొలత <= SIZE_MAX / READ_నిండిన_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
+                        కొలత *= READ_నిండిన_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
+                లేకపోతే
+                        కొలత = SIZE_MAX;
         }
 
         fd = fileno(f);
-        if (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
+        ఒకవేళ (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
                         * fmemopen()), let's optimize our buffering */
-                struct stat st;
+                నిర్మాణం stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                ఒకవేళ (fstat(fd, &st) < 0)
+                        తిరిగి -errno;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
+                ఒకవేళ (FLAGS_సమితి(flags, READ_నిండిన_FILE_VERIFY_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return r;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                if (S_ISREG(st.st_mode)) {
+                ఒకవేళ (S_ISREG(st.st_mode)) {
 
                         /* Try to start with the right file size if we shall read the file in full. Note
                          * that we increase the size to read here by one, so that the first read attempt
@@ -717,801 +717,801 @@ int read_full_stream_full(
                          * avoid this logic however, since quite likely it might be a virtual file in procfs
                          * that all report a zero file size. */
 
-                        if (st.st_size > 0 &&
-                            (size == SIZE_MAX || FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER))) {
+                        ఒకవేళ (st.st_size > 0 &&
+                            (కొలత == SIZE_MAX || FLAGS_సమితి(flags, READ_నిండిన_FILE_FAIL_WHEN_LARGER))) {
 
                                 uint64_t rsize =
-                                        LESS_BY((uint64_t) st.st_size, offset == UINT64_MAX ? 0 : offset);
+                                        LESS_BY((uint64_t) st.st_size, స్థానభ్రంశం == UINT64_MAX ? 0 : స్థానభ్రంశం);
 
-                                if (rsize < SIZE_MAX) /* overflow check */
-                                        n_next = rsize + 1;
+                                ఒకవేళ (rsize < SIZE_MAX) /* overflow check */
+                                        n_తదుపరి = rsize + 1;
                         }
 
-                        if (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
-                                (void) warn_file_is_world_accessible(filename, &st, NULL, 0);
+                        ఒకవేళ (flags & READ_నిండిన_FILE_WARN_WORLD_READABLE)
+                                (శూన్య) warn_file_is_world_accessible(filename, &st, ఖాళీ, 0);
                 }
-        } else if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
-                return -EBADFD;
+        } లేకపోతే ఒకవేళ (FLAGS_సమితి(flags, READ_నిండిన_FILE_VERIFY_REGULAR))
+                తిరిగి -EBADFD;
 
         /* If we don't know how much to read, figure it out now. If we shall read a part of the file, then
          * allocate the requested size. If we shall load the full file start with LINE_MAX. Note that if
          * READ_FULL_FILE_FAIL_WHEN_LARGER we consider the specified size a safety limit, and thus also start
          * with LINE_MAX, under assumption the file is most likely much shorter. */
-        if (n_next == 0)
-                n_next = size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) ? size : LINE_MAX;
+        ఒకవేళ (n_తదుపరి == 0)
+                n_తదుపరి = కొలత != SIZE_MAX && !FLAGS_సమితి(flags, READ_నిండిన_FILE_FAIL_WHEN_LARGER) ? కొలత : LINE_MAX;
 
         /* Never read more than we need to determine that our own limit is hit */
-        if (n_next > READ_FULL_BYTES_MAX)
-                n_next = READ_FULL_BYTES_MAX + 1;
+        ఒకవేళ (n_తదుపరి > READ_నిండిన_బైట్లు_MAX)
+                n_తదుపరి = READ_నిండిన_బైట్లు_MAX + 1;
 
-        if (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
-                return -errno;
+        ఒకవేళ (స్థానభ్రంశం != UINT64_MAX && fseek(f, స్థానభ్రంశం, SEEK_SET) < 0)
+                తిరిగి -errno;
 
         n = l = 0;
-        for (;;) {
-                char *t;
+        కొరకు (;;) {
+                అక్షరం *t;
                 size_t k;
 
                 /* If we shall fail when reading overly large data, then read exactly one byte more than the
                  * specified size at max, since that'll tell us if there's anymore data beyond the limit. */
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
-                        n_next = size + 1;
+                ఒకవేళ (FLAGS_సమితి(flags, READ_నిండిన_FILE_FAIL_WHEN_LARGER) && n_తదుపరి > కొలత)
+                        n_తదుపరి = కొలత + 1;
 
-                if (flags & READ_FULL_FILE_SECURE) {
-                        t = malloc(n_next + 1);
-                        if (!t) {
+                ఒకవేళ (flags & READ_నిండిన_FILE_SECURE) {
+                        t = జ్ఞాపకం_ఇవ్వు(n_తదుపరి + 1);
+                        ఒకవేళ (!t) {
                                 r = -ENOMEM;
-                                goto finalize;
+                                వెళ్ళు finalize;
                         }
-                        memcpy_safe(t, buf, n);
-                        explicit_bzero_safe(buf, n);
-                        free(buf);
-                } else {
-                        t = realloc(buf, n_next + 1);
-                        if (!t)
-                                return -ENOMEM;
+                        memcpy_సురక్షిత(t, buf, n);
+                        explicit_bzero_సురక్షిత(buf, n);
+                        విడుదల(buf);
+                } లేకపోతే {
+                        t = realloc(buf, n_తదుపరి + 1);
+                        ఒకవేళ (!t)
+                                తిరిగి -ENOMEM;
                 }
 
                 buf = t;
                 /* Unless a size has been explicitly specified, try to read as much as fits into the memory
                  * we allocated (minus 1, to leave one byte for the safety NUL byte) */
-                n = size == SIZE_MAX ? MALLOC_SIZEOF_SAFE(buf) - 1 : n_next;
+                n = కొలత == SIZE_MAX ? MALLOC_SIZEOF_సురక్షిత(buf) - 1 : n_తదుపరి;
 
                 errno = 0;
                 k = fread(buf + l, 1, n - l, f);
 
-                assert(k <= n - l);
+                ప్రతిజ్ఞా(k <= n - l);
                 l += k;
 
-                if (ferror(f)) {
+                ఒకవేళ (ferror(f)) {
                         r = errno_or_else(EIO);
-                        goto finalize;
+                        వెళ్ళు finalize;
                 }
-                if (feof(f))
-                        break;
+                ఒకవేళ (feof(f))
+                        ఆపు;
 
-                if (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
+                ఒకవేళ (కొలత != SIZE_MAX && !FLAGS_సమితి(flags, READ_నిండిన_FILE_FAIL_WHEN_LARGER)) {
                         /* If we got asked to read some specific size, we already sized the buffer right,
                          * hence leave. */
-                        assert(l == size);
-                        break;
+                        ప్రతిజ్ఞా(l == కొలత);
+                        ఆపు;
                 }
 
-                assert(k > 0); /* we can't have read zero bytes because that would have been EOF */
+                ప్రతిజ్ఞా(k > 0); /* we can't have read zero bytes because that would have been EOF */
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
+                ఒకవేళ (FLAGS_సమితి(flags, READ_నిండిన_FILE_FAIL_WHEN_LARGER) && l > కొలత) {
                         r = -E2BIG;
-                        goto finalize;
+                        వెళ్ళు finalize;
                 }
 
-                if (n >= READ_FULL_BYTES_MAX) {
+                ఒకవేళ (n >= READ_నిండిన_బైట్లు_MAX) {
                         r = -E2BIG;
-                        goto finalize;
+                        వెళ్ళు finalize;
                 }
 
-                n_next = MIN(n * 2, READ_FULL_BYTES_MAX);
+                n_తదుపరి = MIN(n * 2, READ_నిండిన_బైట్లు_MAX);
         }
 
-        if (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
-                _cleanup_free_ void *decoded = NULL;
-                size_t decoded_size;
+        ఒకవేళ (flags & (READ_నిండిన_FILE_UNBASE64 | READ_నిండిన_FILE_UNHEX)) {
+                _cleanup_free_ శూన్య *decoded = ఖాళీ;
+                size_t decoded_కొలత;
 
                 buf[l++] = 0;
-                if (flags & READ_FULL_FILE_UNBASE64)
-                        r = unbase64mem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                else
-                        r = unhexmem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                if (r < 0)
-                        goto finalize;
+                ఒకవేళ (flags & READ_నిండిన_FILE_UNBASE64)
+                        r = unbase64mem_నిండిన(buf, l, flags & READ_నిండిన_FILE_SECURE, &decoded, &decoded_కొలత);
+                లేకపోతే
+                        r = unhexmem_నిండిన(buf, l, flags & READ_నిండిన_FILE_SECURE, &decoded, &decoded_కొలత);
+                ఒకవేళ (r < 0)
+                        వెళ్ళు finalize;
 
-                if (flags & READ_FULL_FILE_SECURE)
-                        explicit_bzero_safe(buf, n);
+                ఒకవేళ (flags & READ_నిండిన_FILE_SECURE)
+                        explicit_bzero_సురక్షిత(buf, n);
                 free_and_replace(buf, decoded);
-                n = l = decoded_size;
+                n = l = decoded_కొలత;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
+                ఒకవేళ (FLAGS_సమితి(flags, READ_నిండిన_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_కొలత) {
                         r = -E2BIG;
-                        goto finalize;
+                        వెళ్ళు finalize;
                 }
         }
 
-        if (!ret_size) {
+        ఒకవేళ (!ret_కొలత) {
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
 
-                if (memchr(buf, 0, l)) {
+                ఒకవేళ (memchr(buf, 0, l)) {
                         r = -EBADMSG;
-                        goto finalize;
+                        వెళ్ళు finalize;
                 }
         }
 
         buf[l] = 0;
         *ret_contents = TAKE_PTR(buf);
 
-        if (ret_size)
-                *ret_size = l;
+        ఒకవేళ (ret_కొలత)
+                *ret_కొలత = l;
 
-        return 0;
+        తిరిగి 0;
 
 finalize:
-        if (flags & READ_FULL_FILE_SECURE)
-                explicit_bzero_safe(buf, n);
+        ఒకవేళ (flags & READ_నిండిన_FILE_SECURE)
+                explicit_bzero_సురక్షిత(buf, n);
 
-        return r;
+        తిరిగి r;
 }
 
-int read_full_file_full(
-                int dir_fd,
-                const char *filename,
-                uint64_t offset,
-                size_t size,
-                ReadFullFileFlags flags,
-                const char *bind_name,
-                char **ret_contents,
-                size_t *ret_size) {
+పూర్ణాంకం read_నిండిన_file_నిండిన(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *filename,
+                uint64_t స్థానభ్రంశం,
+                size_t కొలత,
+                Read_నిండిన_File_Flags flags,
+                స్థిరరాశి అక్షరం *bind_name,
+                అక్షరం **ret_contents,
+                size_t *ret_కొలత) {
 
-        _cleanup_fclose_ FILE *f = NULL;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
         XfopenFlags xflags = XFOPEN_UNLOCKED;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret_contents);
+        ప్రతిజ్ఞా(ret_contents);
 
-        if (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
-            offset == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
+        ఒకవేళ (FLAGS_సమితి(flags, READ_నిండిన_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
+            స్థానభ్రంశం == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
                 xflags |= XFOPEN_SOCKET;
 
-        r = xfopenat_full(dir_fd, filename, "re", 0, xflags, bind_name, &f);
-        if (r < 0)
-                return r;
+        r = xfopenat_నిండిన(dir_fd, filename, "re", 0, xflags, bind_name, &f);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
+        తిరిగి read_నిండిన_ప్రవాహం_నిండిన(f, filename, స్థానభ్రంశం, కొలత, flags, ret_contents, ret_కొలత);
 }
 
-int script_get_shebang_interpreter(const char *path, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+పూర్ణాంకం script_get_shebang_interpreter(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        f = fopen(path, "re");
-        if (!f)
-                return -errno;
+        f = fopen(మార్గం, "re");
+        ఒకవేళ (!f)
+                తిరిగి -errno;
 
-        char c;
-        r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '#')
-                return -EMEDIUMTYPE;
-        r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '!')
-                return -EMEDIUMTYPE;
+        అక్షరం c;
+        r = సురక్షిత_fgetc(f, &c);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0)
+                తిరిగి -EBADMSG;
+        ఒకవేళ (c != '#')
+                తిరిగి -EMEDIUMTYPE;
+        r = సురక్షిత_fgetc(f, &c);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0)
+                తిరిగి -EBADMSG;
+        ఒకవేళ (c != '!')
+                తిరిగి -EMEDIUMTYPE;
 
-        _cleanup_free_ char *line = NULL;
-        r = read_line(f, LONG_LINE_MAX, &line);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *పంక్తి = ఖాళీ;
+        r = read_పంక్తి(f, LONG_పంక్తి_MAX, &పంక్తి);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        _cleanup_free_ char *p = NULL;
-        const char *s = line;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        స్థిరరాశి అక్షరం *s = పంక్తి;
 
-        r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENOEXEC;
+        r = వెలికితీయి_మొదటి_మాట(&s, &p, /* separators= */ ఖాళీ, /* flags= */ 0);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0)
+                తిరిగి -ENOEXEC;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(p);
-        return 0;
+        తిరిగి 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+పూర్ణాంకం get_proc_క్షేత్రం(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *కీలకం, అక్షరం **ret) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        పూర్ణాంకం r;
 
         /* Retrieve one field from a file like /proc/self/status. "key" matches the beginning of the line
          * and should not include whitespace or the delimiter (':').
          * Whitespaces after the ':' will be skipped. Only the first element is returned
          * (i.e. for /proc/meminfo line "MemTotal: 1024 kB" -> return "1024"). */
 
-        assert(path);
-        assert(key);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(కీలకం);
 
-        r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT && proc_mounted() == 0)
-                return -ENOSYS;
-        if (r < 0)
-                return r;
+        r = fopen_unlocked(మార్గం, "re", &f);
+        ఒకవేళ (r == -ENOENT && proc_mounted() == 0)
+                తిరిగి -ENOSYS;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        for (;;) {
-                 _cleanup_free_ char *line = NULL;
+        కొరకు (;;) {
+                 _cleanup_free_ అక్షరం *పంక్తి = ఖాళీ;
 
-                 r = read_line(f, LONG_LINE_MAX, &line);
-                 if (r < 0)
-                         return r;
-                 if (r == 0)
-                         return -ENODATA;
+                 r = read_పంక్తి(f, LONG_పంక్తి_MAX, &పంక్తి);
+                 ఒకవేళ (r < 0)
+                         తిరిగి r;
+                 ఒకవేళ (r == 0)
+                         తిరిగి -ENODATA;
 
-                 char *l = startswith(line, key);
-                 if (l && *l == ':') {
-                         if (ret) {
-                                 char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
-                                 if (!s)
-                                         return -ENOMEM;
+                 అక్షరం *l = startswith(పంక్తి, కీలకం);
+                 ఒకవేళ (l && *l == ':') {
+                         ఒకవేళ (ret) {
+                                 అక్షరం *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
+                                 ఒకవేళ (!s)
+                                         తిరిగి -ENOMEM;
 
                                  *ret = s;
                          }
 
-                         return 0;
+                         తిరిగి 0;
                  }
         }
 }
 
-DIR* xopendirat(int dir_fd, const char *path, int flags) {
-        _cleanup_close_ int fd = -EBADF;
+DIR* xopendirat(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం flags) {
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(!(flags & (O_CREAT|O_TMPFILE)));
+        ప్రతిజ్ఞా(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ప్రతిజ్ఞా(!(flags & (O_CREAT|O_TMPFILE)));
 
-        if ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
+        ఒకవేళ ((dir_fd == AT_FDCWD || మార్గం_is_absolute(మార్గం)) &&
             (flags &~ O_DIRECTORY) == 0)
-                return opendir(path);
+                తిరిగి opendir(మార్గం);
 
-        if (isempty(path)) {
-                path = ".";
+        ఒకవేళ (isempty(మార్గం)) {
+                మార్గం = ".";
                 flags |= O_NOFOLLOW;
         }
 
-        fd = openat(dir_fd, path, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
-        if (fd < 0)
-                return NULL;
+        fd = openat(dir_fd, మార్గం, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
+        ఒకవేళ (fd < 0)
+                తిరిగి ఖాళీ;
 
-        return take_fdopendir(&fd);
+        తిరిగి take_fdopendir(&fd);
 }
 
-int fopen_mode_to_flags(const char *mode) {
-        const char *p;
-        int flags;
+పూర్ణాంకం fopen_బహుళకం_గమ్యం_flags(స్థిరరాశి అక్షరం *బహుళకం) {
+        స్థిరరాశి అక్షరం *p;
+        పూర్ణాంకం flags;
 
-        assert(mode);
+        ప్రతిజ్ఞా(బహుళకం);
 
-        if ((p = startswith(mode, "r+")))
+        ఒకవేళ ((p = startswith(బహుళకం, "r+")))
                 flags = O_RDWR;
-        else if ((p = startswith(mode, "r")))
+        లేకపోతే ఒకవేళ ((p = startswith(బహుళకం, "r")))
                 flags = O_RDONLY;
-        else if ((p = startswith(mode, "w+")))
+        లేకపోతే ఒకవేళ ((p = startswith(బహుళకం, "w+")))
                 flags = O_RDWR|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "w")))
+        లేకపోతే ఒకవేళ ((p = startswith(బహుళకం, "w")))
                 flags = O_WRONLY|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "a+")))
+        లేకపోతే ఒకవేళ ((p = startswith(బహుళకం, "a+")))
                 flags = O_RDWR|O_CREAT|O_APPEND;
-        else if ((p = startswith(mode, "a")))
+        లేకపోతే ఒకవేళ ((p = startswith(బహుళకం, "a")))
                 flags = O_WRONLY|O_CREAT|O_APPEND;
-        else
-                return -EINVAL;
+        లేకపోతే
+                తిరిగి -EINVAL;
 
-        for (; *p != 0; p++) {
+        కొరకు (; *p != 0; p++) {
 
-                switch (*p) {
+                ఎంపిక (*p) {
 
-                case 'e':
+                స్థితి 'e':
                         flags |= O_CLOEXEC;
-                        break;
+                        ఆపు;
 
-                case 'x':
+                స్థితి 'x':
                         flags |= O_EXCL;
-                        break;
+                        ఆపు;
 
-                case 'm':
+                స్థితి 'm':
                         /* ignore this here, fdopen() might care later though */
-                        break;
+                        ఆపు;
 
-                case 'c': /* not sure what to do about this one */
-                default:
-                        return -EINVAL;
+                స్థితి 'c': /* not sure what to do about this one */
+                అప్రమేయ:
+                        తిరిగి -EINVAL;
                 }
         }
 
-        return flags;
+        తిరిగి flags;
 }
 
-static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
+స్థిర పూర్ణాంకం xfopenat_regular(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *బహుళకం, పూర్ణాంకం open_flags, FILE **ret) {
         FILE *f;
 
         /* A combination of fopen() with openat() */
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(mode);
-        assert(ret);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(బహుళకం);
+        ప్రతిజ్ఞా(ret);
 
-        if (dir_fd == AT_FDCWD && path && open_flags == 0)
-                f = fopen(path, mode);
-        else if (dir_fd == XAT_FDROOT && path && open_flags == 0) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        ఒకవేళ (dir_fd == AT_FDCWD && మార్గం && open_flags == 0)
+                f = fopen(మార్గం, బహుళకం);
+        లేకపోతే ఒకవేళ (dir_fd == XAT_FDROOT && మార్గం && open_flags == 0) {
+                _cleanup_free_ అక్షరం *j = strjoin("/", మార్గం);
+                ఒకవేళ (!j)
+                        తిరిగి -ENOMEM;
 
-                f = fopen(j, mode);
-        } else {
-                _cleanup_close_ int fd = -EBADF;
-                int mode_flags;
+                f = fopen(j, బహుళకం);
+        } లేకపోతే {
+                _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+                పూర్ణాంకం బహుళకం_flags;
 
-                mode_flags = fopen_mode_to_flags(mode);
-                if (mode_flags < 0)
-                        return mode_flags;
+                బహుళకం_flags = fopen_బహుళకం_గమ్యం_flags(బహుళకం);
+                ఒకవేళ (బహుళకం_flags < 0)
+                        తిరిగి బహుళకం_flags;
 
-                if (path) {
-                        fd = openat(dir_fd, path, mode_flags | open_flags);
-                        if (fd < 0)
-                                return -errno;
-                } else {
-                        if (dir_fd == AT_FDCWD)
-                                return -EBADF;
+                ఒకవేళ (మార్గం) {
+                        fd = openat(dir_fd, మార్గం, బహుళకం_flags | open_flags);
+                        ఒకవేళ (fd < 0)
+                                తిరిగి -errno;
+                } లేకపోతే {
+                        ఒకవేళ (dir_fd == AT_FDCWD)
+                                తిరిగి -EBADF;
 
-                        fd = fd_reopen(dir_fd, (mode_flags | open_flags) & ~O_NOFOLLOW);
-                        if (fd < 0)
-                                return fd;
+                        fd = fd_reopen(dir_fd, (బహుళకం_flags | open_flags) & ~O_NOFOLLOW);
+                        ఒకవేళ (fd < 0)
+                                తిరిగి fd;
                 }
 
-                f = take_fdopen(&fd, mode);
+                f = take_fdopen(&fd, బహుళకం);
         }
-        if (!f)
-                return -errno;
+        ఒకవేళ (!f)
+                తిరిగి -errno;
 
         *ret = f;
-        return 0;
+        తిరిగి 0;
 }
 
-static int xfopenat_unix_socket(int dir_fd, const char *path, const char *bind_name, FILE **ret) {
-        _cleanup_close_ int sk = -EBADF;
+స్థిర పూర్ణాంకం xfopenat_unix_socket(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *bind_name, FILE **ret) {
+        _cleanup_close_ పూర్ణాంకం sk = -EBADF;
         FILE *f;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(ret);
 
         sk = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-        if (sk < 0)
-                return -errno;
+        ఒకవేళ (sk < 0)
+                తిరిగి -errno;
 
-        if (bind_name) {
+        ఒకవేళ (bind_name) {
                 /* If the caller specified a socket name to bind to, do so before connecting. This is
                  * useful to communicate some minor, short meta-information token from the client to
                  * the server. */
-                union sockaddr_union bsa;
+                సంఘం sockaddr_union bsa;
 
-                r = sockaddr_un_set_path(&bsa.un, bind_name);
-                if (r < 0)
-                        return r;
+                r = sockaddr_un_సమితి_మార్గం(&bsa.un, bind_name);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (bind(sk, &bsa.sa, r) < 0)
-                        return -errno;
+                ఒకవేళ (bind(sk, &bsa.sa, r) < 0)
+                        తిరిగి -errno;
         }
 
-        r = connect_unix_path(sk, dir_fd, path);
-        if (r < 0)
-                return r;
+        r = connect_unix_మార్గం(sk, dir_fd, మార్గం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (shutdown(sk, SHUT_WR) < 0)
-                return -errno;
+        ఒకవేళ (shutdown(sk, SHUT_WR) < 0)
+                తిరిగి -errno;
 
         f = take_fdopen(&sk, "r");
-        if (!f)
-                return -errno;
+        ఒకవేళ (!f)
+                తిరిగి -errno;
 
         *ret = f;
-        return 0;
+        తిరిగి 0;
 }
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+పూర్ణాంకం xfopenat_నిండిన(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *బహుళకం,
+                పూర్ణాంకం open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
+                స్థిరరాశి అక్షరం *bind_name,
                 FILE **ret) {
 
-        FILE *f = NULL;  /* avoid false maybe-uninitialized warning */
-        int r;
+        FILE *f = ఖాళీ;  /* avoid false maybe-uninitialized warning */
+        పూర్ణాంకం r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(mode);
-        assert(ret);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(బహుళకం);
+        ప్రతిజ్ఞా(ret);
 
-        r = xfopenat_regular(dir_fd, path, mode, open_flags, &f);
-        if (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
+        r = xfopenat_regular(dir_fd, మార్గం, బహుళకం, open_flags, &f);
+        ఒకవేళ (r == -ENXIO && FLAGS_సమితి(flags, XFOPEN_SOCKET)) {
                 /* ENXIO is what Linux returns if we open a node that is an AF_UNIX socket */
-                r = xfopenat_unix_socket(dir_fd, path, bind_name, &f);
-                if (IN_SET(r, -ENOTSOCK, -EINVAL))
-                        return -ENXIO; /* propagate original error if this is not a socket after all */
+                r = xfopenat_unix_socket(dir_fd, మార్గం, bind_name, &f);
+                ఒకవేళ (లోపల_సమితి(r, -ENOTSOCK, -EINVAL))
+                        తిరిగి -ENXIO; /* propagate original error if this is not a socket after all */
         }
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (FLAGS_SET(flags, XFOPEN_UNLOCKED))
-                (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
+        ఒకవేళ (FLAGS_సమితి(flags, XFOPEN_UNLOCKED))
+                (శూన్య) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        తిరిగి 0;
 }
 
-int fdopen_independent(int fd, const char *mode, FILE **ret) {
-        _cleanup_close_ int copy_fd = -EBADF;
-        _cleanup_fclose_ FILE *f = NULL;
-        int mode_flags;
+పూర్ణాంకం fdopen_independent(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *బహుళకం, FILE **ret) {
+        _cleanup_close_ పూర్ణాంకం copy_fd = -EBADF;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        పూర్ణాంకం బహుళకం_flags;
 
-        assert(fd >= 0);
-        assert(mode);
-        assert(ret);
+        ప్రతిజ్ఞా(fd >= 0);
+        ప్రతిజ్ఞా(బహుళకం);
+        ప్రతిజ్ఞా(ret);
 
         /* A combination of fdopen() + fd_reopen(). i.e. reopens the inode the specified fd points to and
          * returns a FILE* for it */
 
-        mode_flags = fopen_mode_to_flags(mode);
-        if (mode_flags < 0)
-                return mode_flags;
+        బహుళకం_flags = fopen_బహుళకం_గమ్యం_flags(బహుళకం);
+        ఒకవేళ (బహుళకం_flags < 0)
+                తిరిగి బహుళకం_flags;
 
         /* Flags returned by fopen_mode_to_flags might contain O_CREAT, but it doesn't make sense for fd_reopen
          * since we're working on an existing fd anyway. Let's drop it here to avoid triggering assertion. */
-        copy_fd = fd_reopen(fd, mode_flags & ~O_CREAT);
-        if (copy_fd < 0)
-                return copy_fd;
+        copy_fd = fd_reopen(fd, బహుళకం_flags & ~O_CREAT);
+        ఒకవేళ (copy_fd < 0)
+                తిరిగి copy_fd;
 
-        f = take_fdopen(&copy_fd, mode);
-        if (!f)
-                return -errno;
+        f = take_fdopen(&copy_fd, బహుళకం);
+        ఒకవేళ (!f)
+                తిరిగి -errno;
 
         *ret = TAKE_PTR(f);
-        return 0;
+        తిరిగి 0;
 }
 
-static int search_and_open_internal(
-                const char *path,
-                int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+స్థిర పూర్ణాంకం శోధన_and_open_అంతర్గత(
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం బహుళకం,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
+                స్థిరరాశి అక్షరం *మూలం,
+                అక్షరం **శోధన,
+                పూర్ణాంకం *ret_fd,
+                అక్షరం **ret_మార్గం) {
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
-        assert(path);
+        ప్రతిజ్ఞా(!ret_fd || !FLAGS_సమితి(బహుళకం, O_CREAT)); /* We don't support O_CREAT for this */
+        ప్రతిజ్ఞా(మార్గం);
 
-        if (path_is_absolute(path)) {
-                _cleanup_close_ int fd = -EBADF;
+        ఒకవేళ (మార్గం_is_absolute(మార్గం)) {
+                _cleanup_close_ పూర్ణాంకం fd = -EBADF;
 
-                if (ret_fd)
+                ఒకవేళ (ret_fd)
                         /* We only specify 0777 here to appease static analyzers, it's never used since we
                          * don't support O_CREAT here */
-                        r = fd = RET_NERRNO(open(path, mode, 0777));
-                else
-                        r = RET_NERRNO(access(path, mode));
-                if (r < 0)
-                        return r;
+                        r = fd = RET_NERRNO(open(మార్గం, బహుళకం, 0777));
+                లేకపోతే
+                        r = RET_NERRNO(access(మార్గం, బహుళకం));
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (ret_path) {
-                        r = path_simplify_alloc(path, ret_path);
-                        if (r < 0)
-                                return r;
+                ఒకవేళ (ret_మార్గం) {
+                        r = మార్గం_simplify_alloc(మార్గం, ret_మార్గం);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                if (ret_fd)
+                ఒకవేళ (ret_fd)
                         *ret_fd = TAKE_FD(fd);
 
-                return 0;
+                తిరిగి 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
-                return -ENOMEM;
+        ఒకవేళ (!మార్గం_strv_resolve_uniq(శోధన, మూలం))
+                తిరిగి -ENOMEM;
 
-        STRV_FOREACH(i, search) {
-                _cleanup_close_ int fd = -EBADF;
-                _cleanup_free_ char *p = NULL;
+        STRV_FOREACH(i, శోధన) {
+                _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+                _cleanup_free_ అక్షరం *p = ఖాళీ;
 
-                p = path_join(root, *i, path);
-                if (!p)
-                        return -ENOMEM;
+                p = మార్గం_join(మూలం, *i, మార్గం);
+                ఒకవేళ (!p)
+                        తిరిగి -ENOMEM;
 
-                if (ret_fd)
+                ఒకవేళ (ret_fd)
                         /* as above, 0777 is static analyzer appeasement */
-                        r = fd = RET_NERRNO(open(p, mode, 0777));
-                else
+                        r = fd = RET_NERRNO(open(p, బహుళకం, 0777));
+                లేకపోతే
                         r = RET_NERRNO(access(p, F_OK));
-                if (r >= 0) {
-                        if (ret_path)
-                                *ret_path = path_simplify(TAKE_PTR(p));
+                ఒకవేళ (r >= 0) {
+                        ఒకవేళ (ret_మార్గం)
+                                *ret_మార్గం = మార్గం_simplify(TAKE_PTR(p));
 
-                        if (ret_fd)
+                        ఒకవేళ (ret_fd)
                                 *ret_fd = TAKE_FD(fd);
 
-                        return 0;
+                        తిరిగి 0;
                 }
-                if (r != -ENOENT)
-                        return r;
+                ఒకవేళ (r != -ENOENT)
+                        తిరిగి r;
         }
 
-        return -ENOENT;
+        తిరిగి -ENOENT;
 }
 
-int search_and_open(
-                const char *path,
-                int mode,
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+పూర్ణాంకం శోధన_and_open(
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం బహుళకం,
+                స్థిరరాశి అక్షరం *మూలం,
+                అక్షరం **శోధన,
+                పూర్ణాంకం *ret_fd,
+                అక్షరం **ret_మార్గం) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ అక్షరం **copy = ఖాళీ;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        copy = strv_copy(search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy(శోధన);
+        ఒకవేళ (!copy)
+                తిరిగి -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        తిరిగి శోధన_and_open_అంతర్గత(మార్గం, బహుళకం, మూలం, copy, ret_fd, ret_మార్గం);
 }
 
-static int search_and_fopen_internal(
-                const char *path,
-                const char *mode,
-                const char *root,
-                char **search,
+స్థిర పూర్ణాంకం శోధన_and_fopen_అంతర్గత(
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *బహుళకం,
+                స్థిరరాశి అక్షరం *మూలం,
+                అక్షరం **శోధన,
                 FILE **ret_file,
-                char **ret_path) {
+                అక్షరం **ret_మార్గం) {
 
-        _cleanup_free_ char *found_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_free_ అక్షరం *దొరికింది_మార్గం = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(mode || !ret_file);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(బహుళకం || !ret_file);
 
-        r = search_and_open_internal(
-                        path,
-                        mode ? fopen_mode_to_flags(mode) : 0,
-                        root,
-                        search,
-                        ret_file ? &fd : NULL,
-                        ret_path ? &found_path : NULL);
-        if (r < 0)
-                return r;
+        r = శోధన_and_open_అంతర్గత(
+                        మార్గం,
+                        బహుళకం ? fopen_బహుళకం_గమ్యం_flags(బహుళకం) : 0,
+                        మూలం,
+                        శోధన,
+                        ret_file ? &fd : ఖాళీ,
+                        ret_మార్గం ? &దొరికింది_మార్గం : ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_file) {
-                FILE *f = take_fdopen(&fd, mode);
-                if (!f)
-                        return -errno;
+        ఒకవేళ (ret_file) {
+                FILE *f = take_fdopen(&fd, బహుళకం);
+                ఒకవేళ (!f)
+                        తిరిగి -errno;
 
                 *ret_file = f;
         }
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(found_path);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(దొరికింది_మార్గం);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int search_and_fopen(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char **search,
+పూర్ణాంకం శోధన_and_fopen(
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *బహుళకం,
+                స్థిరరాశి అక్షరం *మూలం,
+                స్థిరరాశి అక్షరం **శోధన,
                 FILE **ret_file,
-                char **ret_path) {
+                అక్షరం **ret_మార్గం) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ అక్షరం **copy = ఖాళీ;
 
-        assert(path);
-        assert(mode || !ret_file);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(బహుళకం || !ret_file);
 
-        copy = strv_copy((char**) search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy((అక్షరం**) శోధన);
+        ఒకవేళ (!copy)
+                తిరిగి -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        తిరిగి శోధన_and_fopen_అంతర్గత(మార్గం, బహుళకం, మూలం, copy, ret_file, ret_మార్గం);
 }
 
-int search_and_fopen_nulstr(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char *search,
+పూర్ణాంకం శోధన_and_fopen_nulstr(
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *బహుళకం,
+                స్థిరరాశి అక్షరం *మూలం,
+                స్థిరరాశి అక్షరం *శోధన,
                 FILE **ret_file,
-                char **ret_path) {
+                అక్షరం **ret_మార్గం) {
 
-        _cleanup_strv_free_ char **l = NULL;
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
 
-        assert(path);
-        assert(mode || !ret_file);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(బహుళకం || !ret_file);
 
-        l = strv_split_nulstr(search);
-        if (!l)
-                return -ENOMEM;
+        l = strv_విభజించు_nulstr(శోధన);
+        ఒకవేళ (!l)
+                తిరిగి -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        తిరిగి శోధన_and_fopen_అంతర్గత(మార్గం, బహుళకం, మూలం, l, ret_file, ret_మార్గం);
 }
 
-int fflush_and_check(FILE *f) {
-        assert(f);
+పూర్ణాంకం fflush_and_check(FILE *f) {
+        ప్రతిజ్ఞా(f);
 
         errno = 0;
         fflush(f);
 
-        if (ferror(f))
-                return errno_or_else(EIO);
+        ఒకవేళ (ferror(f))
+                తిరిగి errno_or_else(EIO);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fflush_sync_and_check(FILE *f) {
-        int r, fd;
+పూర్ణాంకం fflush_sync_and_check(FILE *f) {
+        పూర్ణాంకం r, fd;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* Not all file streams have an fd associated (think: fmemopen()), let's handle this gracefully and
          * assume that in that case we need no explicit syncing */
         fd = fileno(f);
-        if (fd < 0)
-                return 0;
+        ఒకవేళ (fd < 0)
+                తిరిగి 0;
 
-        r = fsync_full(fd);
-        if (r < 0)
-                return r;
+        r = fsync_నిండిన(fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int write_timestamp_file_atomic(const char *fn, usec_t n) {
-        char ln[DECIMAL_STR_MAX(n)+2];
+పూర్ణాంకం write_timestamp_file_atomic(స్థిరరాశి అక్షరం *fn, usec_t n) {
+        అక్షరం ln[DECIMAL_STR_MAX(n)+2];
 
         /* Creates a "timestamp" file, that contains nothing but a
          * usec_t timestamp, formatted in ASCII. */
 
-        if (!timestamp_is_set(n))
-                return -ERANGE;
+        ఒకవేళ (!timestamp_is_సమితి(n))
+                తిరిగి -ERANGE;
 
         xsprintf(ln, USEC_FMT "\n", n);
 
-        return write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
+        తిరిగి write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
 }
 
-int read_timestamp_file(const char *fn, usec_t *ret) {
-        _cleanup_free_ char *ln = NULL;
+పూర్ణాంకం read_timestamp_file(స్థిరరాశి అక్షరం *fn, usec_t *ret) {
+        _cleanup_free_ అక్షరం *ln = ఖాళీ;
         uint64_t t;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        r = read_one_line_file(fn, &ln);
-        if (r < 0)
-                return r;
+        r = read_one_పంక్తి_file(fn, &ln);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = safe_atou64(ln, &t);
-        if (r < 0)
-                return r;
+        r = సురక్షిత_atou64(ln, &t);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!timestamp_is_set(t))
-                return -ERANGE;
+        ఒకవేళ (!timestamp_is_సమితి(t))
+                తిరిగి -ERANGE;
 
         *ret = (usec_t) t;
-        return 0;
+        తిరిగి 0;
 }
 
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
-        assert(s);
-        assert(space);
+పూర్ణాంకం fputs_with_separator(FILE *f, స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *separator, bool *space) {
+        ప్రతిజ్ఞా(s);
+        ప్రతిజ్ఞా(space);
 
         /* Outputs the specified string with fputs(), but optionally prefixes it with a separator.
          * The *space parameter when specified shall initially point to a boolean variable initialized
          * to false. It is set to true after the first invocation. This call is supposed to be use in loops,
          * where a separator shall be inserted between each element, but not before the first one. */
 
-        if (!f)
+        ఒకవేళ (!f)
                 f = stdout;
 
-        if (!separator)
+        ఒకవేళ (!separator)
                 separator = " ";
 
-        if (*space)
-                if (fputs(separator, f) < 0)
-                        return -EIO;
+        ఒకవేళ (*space)
+                ఒకవేళ (fputs(separator, f) < 0)
+                        తిరిగి -EIO;
 
         *space = true;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        ఒకవేళ (fputs(s, f) < 0)
+                తిరిగి -EIO;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fputs_with_newline(FILE *f, const char *s) {
+పూర్ణాంకం fputs_with_newline(FILE *f, స్థిరరాశి అక్షరం *s) {
 
         /* This is like fputs() but outputs a trailing newline char, but only if the string isn't empty
          * and doesn't end in a newline already. Returns 0 in case we didn't append a newline, > 0 otherwise. */
 
-        if (isempty(s))
-                return 0;
+        ఒకవేళ (isempty(s))
+                తిరిగి 0;
 
-        if (!f)
+        ఒకవేళ (!f)
                 f = stdout;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        ఒకవేళ (fputs(s, f) < 0)
+                తిరిగి -EIO;
 
-        if (endswith(s, "\n"))
-                return 0;
+        ఒకవేళ (endswith(s, "\n"))
+                తిరిగి 0;
 
-        if (fputc('\n', f) < 0)
-                return -EIO;
+        ఒకవేళ (fputc('\n', f) < 0)
+                తిరిగి -EIO;
 
-        return 1;
+        తిరిగి 1;
 }
 
 /* A bitmask of the EOL markers we know */
-typedef enum EndOfLineMarker {
+రకనిర్వచనం గణన చివర_యొక్క_పంక్తి_Marker {
         EOL_NONE     = 0,
         EOL_ZERO     = 1 << 0,  /* \0 (aka NUL) */
         EOL_TEN      = 1 << 1,  /* \n (aka NL, aka LF)  */
         EOL_THIRTEEN = 1 << 2,  /* \r (aka CR)  */
-} EndOfLineMarker;
+} చివర_యొక్క_పంక్తి_Marker;
 
-static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
+స్థిర చివర_యొక్క_పంక్తి_Marker categorize_eol(అక్షరం c, Read_పంక్తి_Flags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
-                if (c == '\n')
-                        return EOL_TEN;
-                if (c == '\r')
-                        return EOL_THIRTEEN;
+        ఒకవేళ (!FLAGS_సమితి(flags, READ_పంక్తి_ONLY_NUL)) {
+                ఒకవేళ (c == '\n')
+                        తిరిగి EOL_TEN;
+                ఒకవేళ (c == '\r')
+                        తిరిగి EOL_THIRTEEN;
         }
 
-        if (c == '\0')
-                return EOL_ZERO;
+        ఒకవేళ (c == '\0')
+                తిరిగి EOL_ZERO;
 
-        return EOL_NONE;
+        తిరిగి EOL_NONE;
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_నిండిన(FILE*, funlockfile, ఖాళీ);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
-        _cleanup_free_ char *buffer = NULL;
-        size_t n = 0, count = 0;
-        int r;
+పూర్ణాంకం read_పంక్తి_నిండిన(FILE *f, size_t limit, Read_పంక్తి_Flags flags, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *బఫరు = ఖాళీ;
+        size_t n = 0, లెక్క = 0;
+        పూర్ణాంకం r;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
         /* Something like a bounded version of getline().
          *
@@ -1537,37 +1537,37 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
          *
          * If a line shall be skipped ret may be initialized as NULL. */
 
-        if (ret) {
-                if (!GREEDY_REALLOC(buffer, 1))
-                        return -ENOMEM;
+        ఒకవేళ (ret) {
+                ఒకవేళ (!GREEDY_REALLOC(బఫరు, 1))
+                        తిరిగి -ENOMEM;
         }
 
         {
-                _unused_ _cleanup_(funlockfilep) FILE *flocked = f;
-                EndOfLineMarker previous_eol = EOL_NONE;
+                వాడని _cleanup_(funlockfilep) FILE *flocked = f;
+                చివర_యొక్క_పంక్తి_Marker మునుపటి_eol = EOL_NONE;
                 flockfile(f);
 
-                for (;;) {
-                        EndOfLineMarker eol;
-                        char c;
+                కొరకు (;;) {
+                        చివర_యొక్క_పంక్తి_Marker eol;
+                        అక్షరం c;
 
-                        if (n >= limit)
-                                return -ENOBUFS;
+                        ఒకవేళ (n >= limit)
+                                తిరిగి -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
-                                return -ENOBUFS;
+                        ఒకవేళ (లెక్క >= గరిష్ఠ_పూర్ణాంకం) /* We couldn't return the counter anymore as "int", hence refuse this */
+                                తిరిగి -ENOBUFS;
 
-                        r = safe_fgetc(f, &c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) /* EOF is definitely EOL */
-                                break;
+                        r = సురక్షిత_fgetc(f, &c);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (r == 0) /* EOF is definitely EOL */
+                                ఆపు;
 
                         eol = categorize_eol(c, flags);
 
-                        if (FLAGS_SET(previous_eol, EOL_ZERO) ||
-                            (eol == EOL_NONE && previous_eol != EOL_NONE) ||
-                            (eol != EOL_NONE && (previous_eol & eol) != 0)) {
+                        ఒకవేళ (FLAGS_సమితి(మునుపటి_eol, EOL_ZERO) ||
+                            (eol == EOL_NONE && మునుపటి_eol != EOL_NONE) ||
+                            (eol != EOL_NONE && (మునుపటి_eol & eol) != 0)) {
                                 /* Previous char was a NUL? This is not an EOL, but the previous char was? This type of
                                  * EOL marker has been seen right before?  In either of these three cases we are
                                  * done. But first, let's put this character back in the queue. (Note that we have to
@@ -1577,86 +1577,86 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                                  * actually happy with most negative characters and implicitly casts them back to
                                  * positive ones as needed, except for \xff (aka -1, aka EOF), which it refuses. What a
                                  * godawful API!) */
-                                assert_se(ungetc((unsigned char) c, f) != EOF);
-                                break;
+                                assert_se(ungetc((గుర్తులేని అక్షరం) c, f) != EOF);
+                                ఆపు;
                         }
 
-                        count++;
+                        లెక్క++;
 
-                        if (eol != EOL_NONE) {
+                        ఒకవేళ (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
                                  * generally means waiting for the user, interactively. In the case of a TTY
                                  * we expect only \n as the single EOL marker, so we are in the lucky
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
-                                        int fd;
+                                ఒకవేళ ((flags & (READ_పంక్తి_IS_A_TTY|READ_పంక్తి_NOT_A_TTY)) == 0) {
+                                        పూర్ణాంకం fd;
 
                                         fd = fileno(f);
-                                        if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
+                                        ఒకవేళ (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
-                                                flags |= READ_LINE_NOT_A_TTY;
-                                        else
-                                                flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
+                                                flags |= READ_పంక్తి_NOT_A_TTY;
+                                        లేకపోతే
+                                                flags |= isatty_సురక్షిత(fd) ? READ_పంక్తి_IS_A_TTY : READ_పంక్తి_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
-                                        break;
+                                ఒకవేళ (FLAGS_సమితి(flags, READ_పంక్తి_IS_A_TTY))
+                                        ఆపు;
                         }
 
-                        if (eol != EOL_NONE) {
-                                previous_eol |= eol;
-                                continue;
+                        ఒకవేళ (eol != EOL_NONE) {
+                                మునుపటి_eol |= eol;
+                                కొనసాగు;
                         }
 
-                        if (ret) {
-                                if (!GREEDY_REALLOC(buffer, n + 2))
-                                        return -ENOMEM;
+                        ఒకవేళ (ret) {
+                                ఒకవేళ (!GREEDY_REALLOC(బఫరు, n + 2))
+                                        తిరిగి -ENOMEM;
 
-                                buffer[n] = c;
+                                బఫరు[n] = c;
                         }
 
                         n++;
                 }
         }
 
-        if (ret) {
-                buffer[n] = 0;
+        ఒకవేళ (ret) {
+                బఫరు[n] = 0;
 
-                *ret = TAKE_PTR(buffer);
+                *ret = TAKE_PTR(బఫరు);
         }
 
-        return (int) count;
+        తిరిగి (పూర్ణాంకం) లెక్క;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r, k;
+పూర్ణాంకం read_stripped_పంక్తి(FILE *f, size_t limit, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r, k;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
-        r = read_line(f, limit, ret ? &s : NULL);
-        if (r < 0)
-                return r;
+        r = read_పంక్తి(f, limit, ret ? &s : ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret) {
-                const char *p = strstrip(s);
-                if (p == s)
+        ఒకవేళ (ret) {
+                స్థిరరాశి అక్షరం *p = strstrip(s);
+                ఒకవేళ (p == s)
                         *ret = TAKE_PTR(s);
-                else {
-                        k = strdup_to(ret, p);
-                        if (k < 0)
-                                return k;
+                లేకపోతే {
+                        k = strdup_గమ్యం(ret, p);
+                        ఒకవేళ (k < 0)
+                                తిరిగి k;
                 }
         }
 
-        return r > 0;          /* Return 1 if something was read. */
+        తిరిగి r > 0;          /* Return 1 if something was read. */
 }
 
-int safe_fgetc(FILE *f, char *ret) {
-        int k;
+పూర్ణాంకం సురక్షిత_fgetc(FILE *f, అక్షరం *ret) {
+        పూర్ణాంకం k;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
         /* A safer version of plain fgetc(): let's propagate the error that happened while reading as such, and
          * separate the EOF condition from the byte read, to avoid those confusion signed/unsigned issues fgetc()
@@ -1664,103 +1664,103 @@ int safe_fgetc(FILE *f, char *ret) {
 
         errno = 0;
         k = fgetc(f);
-        if (k == EOF) {
-                if (ferror(f))
-                        return errno_or_else(EIO);
+        ఒకవేళ (k == EOF) {
+                ఒకవేళ (ferror(f))
+                        తిరిగి errno_or_else(EIO);
 
-                if (ret)
+                ఒకవేళ (ret)
                         *ret = 0;
 
-                return 0;
+                తిరిగి 0;
         }
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = k;
 
-        return 1;
+        తిరిగి 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
-        struct stat _st;
+పూర్ణాంకం warn_file_is_world_accessible(స్థిరరాశి అక్షరం *filename, నిర్మాణం stat *st, స్థిరరాశి అక్షరం *unit, గుర్తులేని పంక్తి) {
+        నిర్మాణం stat _st;
 
-        if (!filename)
-                return 0;
+        ఒకవేళ (!filename)
+                తిరిగి 0;
 
-        if (!st) {
-                if (stat(filename, &_st) < 0)
-                        return -errno;
+        ఒకవేళ (!st) {
+                ఒకవేళ (stat(filename, &_st) < 0)
+                        తిరిగి -errno;
                 st = &_st;
         }
 
-        if ((st->st_mode & S_IRWXO) == 0)
-                return 0;
+        ఒకవేళ ((st->st_mode & S_IRWXO) == 0)
+                తిరిగి 0;
 
-        if (unit)
-                log_syntax(unit, LOG_WARNING, filename, line, 0,
+        ఒకవేళ (unit)
+                log_syntax(unit, LOG_WARNING, filename, పంక్తి, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
-        else
+        లేకపోతే
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                             filename, st->st_mode & 07777);
-        return 0;
+        తిరిగి 0;
 }
 
-int write_data_file_atomic_at(
-                int dir_fd,
-                const char *path,
-                const struct iovec *iovec,
-                WriteDataFileFlags flags) {
+పూర్ణాంకం write_దత్తాంశం_file_atomic_at(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి నిర్మాణం iovec *iovec,
+                Write_దత్తాంశం_File_Flags flags) {
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
 
         /* This is a cousin of write_string_file_atomic(), but operates with arbitrary struct iovec binary
          * data (rather than strings), works without FILE* streams, and does direct syscalls instead. */
 
-        _cleanup_free_ char *dn = NULL, *fn = NULL;
-        r = path_split_prefix_filename(path, &dn, &fn);
-        if (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
-                return -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *dn = ఖాళీ, *fn = ఖాళీ;
+        r = మార్గం_విభజించు_ఉపసర్గ_filename(మార్గం, &dn, &fn);
+        ఒకవేళ (లోపల_సమితి(r, -EADDRNOTAVAIL, O_DIRECTORY))
+                తిరిగి -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        _cleanup_close_ int mfd = -EBADF;
-        if (dn) {
+        _cleanup_close_ పూర్ణాంకం mfd = -EBADF;
+        ఒకవేళ (dn) {
                 /* If there's a directory component, readjust our position */
                 r = chaseat(XAT_FDROOT,
                             dir_fd,
                             dn,
-                            FLAGS_SET(flags, WRITE_DATA_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
-                            /* ret_path= */ NULL,
+                            FLAGS_సమితి(flags, WRITE_దత్తాంశం_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
+                            /* ret_path= */ ఖాళీ,
                             &mfd);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 dir_fd = mfd;
         }
 
-        _cleanup_free_ char *t = NULL;
-        _cleanup_close_ int fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
-        if (fd < 0)
-                return fd;
+        _cleanup_free_ అక్షరం *t = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
         CLEANUP_TMPFILE_AT(dir_fd, t);
 
-        if (iovec_is_set(iovec)) {
+        ఒకవేళ (iovec_is_సమితి(iovec)) {
                 r = loop_write(fd, iovec->iov_base, iovec->iov_len);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        r = fchmod_umask(fd, FLAGS_SET(flags, WRITE_DATA_FILE_MODE_0400) ? 0400 : 0644);
-        if (r < 0)
-                return r;
+        r = fchmod_umask(fd, FLAGS_సమితి(flags, WRITE_దత్తాంశం_FILE_బహుళకం_0400) ? 0400 : 0644);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = link_tmpfile_at(fd, dir_fd, t, fn, LINK_TMPFILE_REPLACE);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         t = mfree(t); /* disarm CLEANUP_TMPFILE_AT */
-        return 0;
+        తిరిగి 0;
 }

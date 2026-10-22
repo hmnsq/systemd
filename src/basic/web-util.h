@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-bool http_url_is_valid(const char *url) _pure_;
-bool file_url_is_valid(const char *url) _pure_;
-bool documentation_url_is_valid(const char *url) _pure_;
+bool http_url_is_valid(స్థిరరాశి అక్షరం *url) శుద్ధ;
+bool file_url_is_valid(స్థిరరాశి అక్షరం *url) శుద్ధ;
+bool documentation_url_is_valid(స్థిరరాశి అక్షరం *url) శుద్ధ;
 
 /* Our own "provider:[/path/to/socket]/resource" URL scheme, for acquiring resources from local Varlink services */
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource);
-bool provider_url_is_valid(const char *url);
-bool http_header_valid(const char *header) _pure_;
-bool http_etag_is_valid(const char *etag) _pure_;
+పూర్ణాంకం provider_url_parse(స్థిరరాశి అక్షరం *url, అక్షరం **ret_socket, అక్షరం **ret_resource);
+bool provider_url_is_valid(స్థిరరాశి అక్షరం *url);
+bool http_శీర్షిక_valid(స్థిరరాశి అక్షరం *శీర్షిక) శుద్ధ;
+bool http_etag_is_valid(స్థిరరాశి అక్షరం *etag) శుద్ధ;

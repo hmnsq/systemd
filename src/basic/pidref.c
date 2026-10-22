@@ -1,115 +1,115 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <poll.h>
-#include <sys/wait.h>
-#include <unistd.h>
+#అన్తర్భావ <poll.h>
+#అన్తర్భావ <sys/wait.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fiber-ops.h"
-#include "format-util.h"
-#include "hash-funcs.h"
-#include "io-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "pidfd-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "siphash24.h"
-#include "time-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fiber-ops.h"
+#అన్తర్భావ "format-util.h"
+#అన్తర్భావ "hash-funcs.h"
+#అన్తర్భావ "io-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "pidfd-util.h"
+#అన్తర్భావ "pidref.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "siphash24.h"
+#అన్తర్భావ "time-util.h"
 
-int pidref_acquire_pidfd_id(PidRef *pidref) {
-        int r;
+పూర్ణాంకం pidref_acquire_pidfd_id(PidRef *pidref) {
+        పూర్ణాంకం r;
 
-        assert(pidref);
+        ప్రతిజ్ఞా(pidref);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        if (pidref->fd < 0)
-                return -ENOMEDIUM;
+        ఒకవేళ (pidref->fd < 0)
+                తిరిగి -ENOMEDIUM;
 
-        if (pidref->fd_id > 0)
-                return 0;
+        ఒకవేళ (pidref->fd_id > 0)
+                తిరిగి 0;
 
         r = pidfd_get_inode_id(pidref->fd, &pidref->fd_id);
-        if (r < 0) {
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
+        ఒకవేళ (r < 0) {
+                ఒకవేళ (!ERRNO_IS_NEG_NOT_SUPPORTED(r))
                         log_debug_errno(r, "Failed to get inode number of pidfd for pid " PID_FMT ": %m",
                                         pidref->pid);
-                return r;
+                తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
 bool pidref_equal(PidRef *a, PidRef *b) {
 
         /* If this is the very same structure, it definitely refers to the same process */
-        if (a == b)
-                return true;
+        ఒకవేళ (a == b)
+                తిరిగి true;
 
-        if (!pidref_is_set(a))
-                return !pidref_is_set(b);
+        ఒకవేళ (!pidref_is_సమితి(a))
+                తిరిగి !pidref_is_సమితి(b);
 
-        if (!pidref_is_set(b))
-                return false;
+        ఒకవేళ (!pidref_is_సమితి(b))
+                తిరిగి false;
 
-        if (a->pid != b->pid)
-                return false;
+        ఒకవేళ (a->pid != b->pid)
+                తిరిగి false;
 
-        if (pidref_is_remote(a)) {
+        ఒకవేళ (pidref_is_remote(a)) {
                 /* If one is remote and the other isn't, they are not the same */
-                if (!pidref_is_remote(b))
-                        return false;
+                ఒకవేళ (!pidref_is_remote(b))
+                        తిరిగి false;
 
                 /* If both are remote, compare fd IDs if we have both, otherwise don't bother, and cut things short */
-                if (a->fd_id == 0 || b->fd_id == 0)
-                        return true;
-        } else {
+                ఒకవేళ (a->fd_id == 0 || b->fd_id == 0)
+                        తిరిగి true;
+        } లేకపోతే {
                 /* If the other side is remote, then this is not the same */
-                if (pidref_is_remote(b))
-                        return false;
+                ఒకవేళ (pidref_is_remote(b))
+                        తిరిగి false;
 
                 /* PID1 cannot exit, hence it cannot change pidfs ids, hence no point in comparing them, we
                  * can shortcut things */
-                if (a->pid == 1)
-                        return true;
+                ఒకవేళ (a->pid == 1)
+                        తిరిగి true;
 
                 /* Try to compare pidfds using their inode numbers. This way we can ensure that we
                  * don't spuriously consider two PidRefs equal if the pid has been reused once. Note
                  * that we ignore all errors here, not only EOPNOTSUPP, as fstat() might fail due to
                  * many reasons. */
-                if (pidref_acquire_pidfd_id(a) < 0 || pidref_acquire_pidfd_id(b) < 0)
-                        return true;
+                ఒకవేళ (pidref_acquire_pidfd_id(a) < 0 || pidref_acquire_pidfd_id(b) < 0)
+                        తిరిగి true;
         }
 
-        return a->fd_id == b->fd_id;
+        తిరిగి a->fd_id == b->fd_id;
 }
 
-int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags) {
+పూర్ణాంకం pidref_సమితి_pid_నిండిన(PidRef *pidref, pid_t pid, గుర్తులేని flags) {
         uint64_t pidfdid = 0;
-        int fd;
+        పూర్ణాంకం fd;
 
-        assert(pidref);
+        ప్రతిజ్ఞా(pidref);
 
-        if (pid < 0)
-                return -ESRCH;
-        if (pid == 0) {
+        ఒకవేళ (pid < 0)
+                తిరిగి -ESRCH;
+        ఒకవేళ (pid == 0) {
                 pid = getpid_cached();
-                (void) pidfd_get_inode_id_self_cached(&pidfdid);
+                (శూన్య) pidfd_get_inode_id_self_cached(&pidfdid);
         }
 
         fd = pidfd_open(pid, flags);
-        if (fd < 0) {
+        ఒకవేళ (fd < 0) {
                 /* Graceful fallback in case the kernel is out of fds.
                  * The PIDFD_THREAD flag is supported since kernel v6.9 (64bef697d33b75fc06c5789b3f8108680271529f). */
-                if (!(ERRNO_IS_RESOURCE(errno) || (errno == EINVAL && FLAGS_SET(flags, PIDFD_THREAD))))
-                        return log_debug_errno(errno, "Failed to open pidfd for pid " PID_FMT ": %m", pid);
+                ఒకవేళ (!(ERRNO_IS_RESOURCE(errno) || (errno == EINVAL && FLAGS_సమితి(flags, PIDFD_THREAD))))
+                        తిరిగి log_debug_errno(errno, "Failed to open pidfd for pid " PID_FMT ": %m", pid);
 
                 fd = -EBADF;
         }
@@ -120,172 +120,172 @@ int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags) {
                 .fd_id = pidfdid,
         };
 
-        return 0;
+        తిరిగి 0;
 }
 
-int pidref_set_pid_and_pidfd_id(
+పూర్ణాంకం pidref_సమితి_pid_and_pidfd_id(
                 PidRef *pidref,
                 pid_t pid,
                 uint64_t pidfd_id) {
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(pidref);
+        ప్రతిజ్ఞా(pidref);
 
-        _cleanup_(pidref_done) PidRef n = PIDREF_NULL;
-        r = pidref_set_pid(&n, pid);
-        if (r < 0)
-                return r;
+        _cleanup_(pidref_పూర్తి) PidRef n = PIDREF_NULL;
+        r = pidref_సమితి_pid(&n, pid);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (pidfd_id > 0) {
+        ఒకవేళ (pidfd_id > 0) {
                 r = pidref_acquire_pidfd_id(&n);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (n.fd_id != pidfd_id)
-                        return -ESRCH;
+                ఒకవేళ (n.fd_id != pidfd_id)
+                        తిరిగి -ESRCH;
         }
 
         *pidref = TAKE_PIDREF(n);
-        return 0;
+        తిరిగి 0;
 }
 
-int pidref_set_pidstr_full(PidRef *pidref, const char *pid, unsigned flags) {
+పూర్ణాంకం pidref_సమితి_pidstr_నిండిన(PidRef *pidref, స్థిరరాశి అక్షరం *pid, గుర్తులేని flags) {
         pid_t nr;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(pidref);
+        ప్రతిజ్ఞా(pidref);
 
         r = parse_pid(pid, &nr);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return pidref_set_pid_full(pidref, nr, flags);
+        తిరిగి pidref_సమితి_pid_నిండిన(pidref, nr, flags);
 }
 
-int pidref_set_pidfd(PidRef *pidref, int fd) {
-        int r;
+పూర్ణాంకం pidref_సమితి_pidfd(PidRef *pidref, పూర్ణాంకం fd) {
+        పూర్ణాంకం r;
 
-        assert(pidref);
+        ప్రతిజ్ఞా(pidref);
 
-        if (fd < 0)
-                return -EBADF;
+        ఒకవేళ (fd < 0)
+                తిరిగి -EBADF;
 
-        int fd_copy = fcntl(fd, F_DUPFD_CLOEXEC, 3);
-        if (fd_copy < 0) {
+        పూర్ణాంకం fd_copy = fcntl(fd, F_DUPFD_CLOEXEC, 3);
+        ఒకవేళ (fd_copy < 0) {
                 pid_t pid;
 
-                if (!ERRNO_IS_RESOURCE(errno))
-                        return -errno;
+                ఒకవేళ (!ERRNO_IS_RESOURCE(errno))
+                        తిరిగి -errno;
 
                 /* Graceful fallback if we are out of fds */
                 r = pidfd_get_pid(fd, &pid);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 *pidref = PIDREF_MAKE_FROM_PID(pid);
-                return 0;
+                తిరిగి 0;
         }
 
-        return pidref_set_pidfd_consume(pidref, fd_copy);
+        తిరిగి pidref_సమితి_pidfd_consume(pidref, fd_copy);
 }
 
-int pidref_set_pidfd_take(PidRef *pidref, int fd) {
+పూర్ణాంకం pidref_సమితి_pidfd_take(PidRef *pidref, పూర్ణాంకం fd) {
         pid_t pid;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(pidref);
+        ప్రతిజ్ఞా(pidref);
 
-        if (fd < 0)
-                return -EBADF;
+        ఒకవేళ (fd < 0)
+                తిరిగి -EBADF;
 
         r = pidfd_get_pid(fd, &pid);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *pidref = (PidRef) {
                 .fd = fd,
                 .pid = pid,
         };
 
-        return 0;
+        తిరిగి 0;
 }
 
-int pidref_set_pidfd_consume(PidRef *pidref, int fd) {
-        int r;
+పూర్ణాంకం pidref_సమితి_pidfd_consume(PidRef *pidref, పూర్ణాంకం fd) {
+        పూర్ణాంకం r;
 
-        r = pidref_set_pidfd_take(pidref, fd);
-        if (r < 0)
-                safe_close(fd);
+        r = pidref_సమితి_pidfd_take(pidref, fd);
+        ఒకవేళ (r < 0)
+                సురక్షిత_close(fd);
 
-        return r;
+        తిరిగి r;
 }
 
-int pidref_set_parent(PidRef *ret) {
-        _cleanup_(pidref_done) PidRef parent = PIDREF_NULL;
+పూర్ణాంకం pidref_సమితి_మాతృ(PidRef *ret) {
+        _cleanup_(pidref_పూర్తి) PidRef మాతృ = PIDREF_NULL;
         pid_t ppid;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* Acquires a pidref to our parent process. Deals with the fact that parent processes might exit, and
          * we get reparented to other processes, with our old parent's PID already being recycled. */
 
         ppid = getppid();
-        for (;;) {
-                r = pidref_set_pid(&parent, ppid);
-                if (r < 0)
-                        return r;
+        కొరకు (;;) {
+                r = pidref_సమితి_pid(&మాతృ, ppid);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (parent.fd < 0) /* If pidfds are not available, then we are done */
-                        break;
+                ఒకవేళ (మాతృ.fd < 0) /* If pidfds are not available, then we are done */
+                        ఆపు;
 
                 pid_t now_ppid = getppid();
-                if (now_ppid == ppid) /* If our ppid is still the same, then we are done */
-                        break;
+                ఒకవేళ (now_ppid == ppid) /* If our ppid is still the same, then we are done */
+                        ఆపు;
 
                 /* Otherwise let's try again with the new ppid */
                 ppid = now_ppid;
-                pidref_done(&parent);
+                pidref_పూర్తి(&మాతృ);
         }
 
-        *ret = TAKE_PIDREF(parent);
-        return 0;
+        *ret = TAKE_PIDREF(మాతృ);
+        తిరిగి 0;
 }
 
-void pidref_done(PidRef *pidref) {
-        assert(pidref);
+శూన్య pidref_పూర్తి(PidRef *pidref) {
+        ప్రతిజ్ఞా(pidref);
 
         *pidref = (PidRef) {
-                .fd = safe_close(pidref->fd),
+                .fd = సురక్షిత_close(pidref->fd),
         };
 }
 
 PidRef* pidref_free(PidRef *pidref) {
         /* Regularly, this is an embedded structure. But sometimes we want it on the heap too */
-        if (!pidref)
-                return NULL;
+        ఒకవేళ (!pidref)
+                తిరిగి ఖాళీ;
 
-        pidref_done(pidref);
-        return mfree(pidref);
+        pidref_పూర్తి(pidref);
+        తిరిగి mfree(pidref);
 }
 
-int pidref_copy(const PidRef *pidref, PidRef *ret) {
-        _cleanup_(pidref_done) PidRef copy = PIDREF_NULL;
+పూర్ణాంకం pidref_copy(స్థిరరాశి PidRef *pidref, PidRef *ret) {
+        _cleanup_(pidref_పూర్తి) PidRef copy = PIDREF_NULL;
 
         /* If NULL is passed we'll generate a PidRef that refers to no process. This makes it easy to
          * copy pidref fields that might or might not reference a process yet. */
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (pidref) {
-                if (pidref_is_remote(pidref)) /* Propagate remote flag */
+        ఒకవేళ (pidref) {
+                ఒకవేళ (pidref_is_remote(pidref)) /* Propagate remote flag */
                         copy.fd = -EREMOTE;
-                else if (pidref->fd >= 0) {
+                లేకపోతే ఒకవేళ (pidref->fd >= 0) {
                         copy.fd = fcntl(pidref->fd, F_DUPFD_CLOEXEC, 3);
-                        if (copy.fd < 0) {
-                                if (!ERRNO_IS_RESOURCE(errno))
-                                        return -errno;
+                        ఒకవేళ (copy.fd < 0) {
+                                ఒకవేళ (!ERRNO_IS_RESOURCE(errno))
+                                        తిరిగి -errno;
 
                                 copy.fd = -EBADF;
                         }
@@ -296,92 +296,92 @@ int pidref_copy(const PidRef *pidref, PidRef *ret) {
         }
 
         *ret = TAKE_PIDREF(copy);
-        return 0;
+        తిరిగి 0;
 }
 
-int pidref_dup(const PidRef *pidref, PidRef **ret) {
-        _cleanup_(pidref_freep) PidRef *dup_pidref = NULL;
-        int r;
+పూర్ణాంకం pidref_dup(స్థిరరాశి PidRef *pidref, PidRef **ret) {
+        _cleanup_(pidref_freep) PidRef *dup_pidref = ఖాళీ;
+        పూర్ణాంకం r;
 
         /* Allocates a new PidRef on the heap, making it a copy of the specified pidref. This does not try to
          * acquire a pidfd if we don't have one yet! */
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         dup_pidref = newdup(PidRef, &PIDREF_NULL, 1);
-        if (!dup_pidref)
-                return -ENOMEM;
+        ఒకవేళ (!dup_pidref)
+                తిరిగి -ENOMEM;
 
         r = pidref_copy(pidref, dup_pidref);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = TAKE_PTR(dup_pidref);
-        return 0;
+        తిరిగి 0;
 }
 
-int pidref_new_from_pid(pid_t pid, PidRef **ret) {
-        _cleanup_(pidref_freep) PidRef *n = NULL;
-        int r;
+పూర్ణాంకం pidref_new_from_pid(pid_t pid, PidRef **ret) {
+        _cleanup_(pidref_freep) PidRef *n = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (pid < 0)
-                return -ESRCH;
+        ఒకవేళ (pid < 0)
+                తిరిగి -ESRCH;
 
         n = new(PidRef, 1);
-        if (!n)
-                return -ENOMEM;
+        ఒకవేళ (!n)
+                తిరిగి -ENOMEM;
 
         *n = PIDREF_NULL;
 
-        r = pidref_set_pid(n, pid);
-        if (r < 0)
-                return r;
+        r = pidref_సమితి_pid(n, pid);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        తిరిగి 0;
 }
 
-int pidref_kill(const PidRef *pidref, int sig) {
+పూర్ణాంకం pidref_kill(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig) {
 
-        if (!pidref)
-                return -ESRCH;
+        ఒకవేళ (!pidref)
+                తిరిగి -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        if (pidref->fd >= 0)
-                return RET_NERRNO(pidfd_send_signal(pidref->fd, sig, NULL, 0));
+        ఒకవేళ (pidref->fd >= 0)
+                తిరిగి RET_NERRNO(pidfd_send_signal(pidref->fd, sig, ఖాళీ, 0));
 
-        if (pidref->pid > 0)
-                return RET_NERRNO(kill(pidref->pid, sig));
+        ఒకవేళ (pidref->pid > 0)
+                తిరిగి RET_NERRNO(kill(pidref->pid, sig));
 
-        return -ESRCH;
+        తిరిగి -ESRCH;
 }
 
-int pidref_kill_and_sigcont(const PidRef *pidref, int sig) {
-        int r;
+పూర్ణాంకం pidref_kill_and_sigcont(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig) {
+        పూర్ణాంకం r;
 
         r = pidref_kill(pidref, sig);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!IN_SET(sig, SIGCONT, SIGKILL))
-                (void) pidref_kill(pidref, SIGCONT);
+        ఒకవేళ (!లోపల_సమితి(sig, SIGCONT, SIGKILL))
+                (శూన్య) pidref_kill(pidref, SIGCONT);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int pidref_sigqueue(const PidRef *pidref, int sig, int value) {
+పూర్ణాంకం pidref_sigqueue(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig, పూర్ణాంకం విలువ) {
 
-        if (!pidref)
-                return -ESRCH;
+        ఒకవేళ (!pidref)
+                తిరిగి -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        if (pidref->fd >= 0) {
+        ఒకవేళ (pidref->fd >= 0) {
                 siginfo_t si;
 
                 /* We can't use structured initialization here, since the structure contains various unions
@@ -392,170 +392,170 @@ int pidref_sigqueue(const PidRef *pidref, int sig, int value) {
                 si.si_code = SI_QUEUE;
                 si.si_pid = getpid_cached();
                 si.si_uid = getuid();
-                si.si_value.sival_int = value;
+                si.si_value.sival_int = విలువ;
 
-                return RET_NERRNO(pidfd_send_signal(pidref->fd, sig, &si, 0));
+                తిరిగి RET_NERRNO(pidfd_send_signal(pidref->fd, sig, &si, 0));
         }
 
-        if (pidref->pid > 0)
-                return RET_NERRNO(sigqueue(pidref->pid, sig, (const union sigval) { .sival_int = value }));
+        ఒకవేళ (pidref->pid > 0)
+                తిరిగి RET_NERRNO(sigqueue(pidref->pid, sig, (స్థిరరాశి సంఘం sigval) { .sival_int = విలువ }));
 
-        return -ESRCH;
+        తిరిగి -ESRCH;
 }
 
-int pidref_verify(const PidRef *pidref) {
-        int r;
+పూర్ణాంకం pidref_verify(స్థిరరాశి PidRef *pidref) {
+        పూర్ణాంకం r;
 
         /* This is a helper that is supposed to be called after reading information from procfs via a
          * PidRef. It ensures that the PID we track still matches the PIDFD we pin. If this value differs
          * after a procfs read, we might have read the data from a recycled PID. */
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        if (pidref->pid == 1)
-                return 1; /* PID 1 can never go away, hence never be recycled to a different process → return 1 */
+        ఒకవేళ (pidref->pid == 1)
+                తిరిగి 1; /* PID 1 can never go away, hence never be recycled to a different process → return 1 */
 
-        if (pidref->fd < 0)
-                return 0; /* If we don't have a pidfd we cannot validate it, hence we assume it's all OK → return 0 */
+        ఒకవేళ (pidref->fd < 0)
+                తిరిగి 0; /* If we don't have a pidfd we cannot validate it, hence we assume it's all OK → return 0 */
 
         r = pidfd_verify_pid(pidref->fd, pidref->pid);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return 1; /* We have a pidfd and it still points to the PID we have, hence all is *really* OK → return 1 */
+        తిరిగి 1; /* We have a pidfd and it still points to the PID we have, hence all is *really* OK → return 1 */
 }
 
 bool pidref_is_self(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return false;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి false;
 
-        if (pidref_is_remote(pidref))
-                return false;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి false;
 
-        if (pidref->pid != getpid_cached())
-                return false;
+        ఒకవేళ (pidref->pid != getpid_cached())
+                తిరిగి false;
 
         /* PID1 cannot exit, hence no point in comparing pidfd IDs, they can never change */
-        if (pidref->pid == 1)
-                return true;
+        ఒకవేళ (pidref->pid == 1)
+                తిరిగి true;
 
         /* Also compare pidfd ID if we can get it */
-        if (pidref_acquire_pidfd_id(pidref) < 0)
-                return true;
+        ఒకవేళ (pidref_acquire_pidfd_id(pidref) < 0)
+                తిరిగి true;
 
         uint64_t self_id;
-        if (pidfd_get_inode_id_self_cached(&self_id) < 0)
-                return true;
+        ఒకవేళ (pidfd_get_inode_id_self_cached(&self_id) < 0)
+                తిరిగి true;
 
-        return pidref->fd_id == self_id;
+        తిరిగి pidref->fd_id == self_id;
 }
 
-int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si) {
-        int r;
+పూర్ణాంకం pidref_wait_for_terminate_నిండిన(PidRef *pidref, usec_t timeout, siginfo_t *ret_si) {
+        పూర్ణాంకం r;
 
-        assert(timeout > 0);
+        ప్రతిజ్ఞా(timeout > 0);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
 
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        if (pidref->pid == 1 || pidref_is_self(pidref))
-                return -ECHILD;
+        ఒకవేళ (pidref->pid == 1 || pidref_is_self(pidref))
+                తిరిగి -ECHILD;
 
-        if (pidref->fd < 0 && (timeout != USEC_INFINITY || fiber_ops_is_set()))
-                return -ENOMEDIUM;
+        ఒకవేళ (pidref->fd < 0 && (timeout != USEC_INFINITY || fiber_ops_is_సమితి()))
+                తిరిగి -ENOMEDIUM;
 
-        usec_t ts = timeout == USEC_INFINITY ? USEC_INFINITY : usec_add(now(CLOCK_MONOTONIC), timeout);
+        usec_t ts = timeout == USEC_INFINITY ? USEC_INFINITY : usec_కూడు(now(CLOCK_MONOTONIC), timeout);
 
         /* Poll the pidfd before waitid() if either there's a finite timeout (so we can honor it) or
          * we're on a fiber (so fd_wait_for_event() can suspend us instead of blocking the event loop
          * inside waitid()). Otherwise let waitid() block directly. The precondition above guarantees
          * pidref->fd >= 0 in both cases. */
-        bool poll_first = ts != USEC_INFINITY || fiber_ops_is_set();
+        bool poll_మొదటి = ts != USEC_INFINITY || fiber_ops_is_సమితి();
 
-        for (;;) {
-                if (poll_first) {
-                        usec_t left;
+        కొరకు (;;) {
+                ఒకవేళ (poll_మొదటి) {
+                        usec_t ఎడమ;
 
-                        if (ts == USEC_INFINITY)
-                                left = USEC_INFINITY;
-                        else {
-                                left = usec_sub_unsigned(ts, now(CLOCK_MONOTONIC));
-                                if (left == 0)
-                                        return -ETIMEDOUT;
+                        ఒకవేళ (ts == USEC_INFINITY)
+                                ఎడమ = USEC_INFINITY;
+                        లేకపోతే {
+                                ఎడమ = usec_sub_unsigned(ts, now(CLOCK_MONOTONIC));
+                                ఒకవేళ (ఎడమ == 0)
+                                        తిరిగి -ETIMEDOUT;
                         }
 
-                        r = fd_wait_for_event(pidref->fd, POLLIN, left);
-                        if (r == 0)
-                                return -ETIMEDOUT;
-                        if (r == -EINTR)
-                                continue;
-                        if (r < 0)
-                                return r;
+                        r = fd_wait_for_event(pidref->fd, POLLIN, ఎడమ);
+                        ఒకవేళ (r == 0)
+                                తిరిగి -ETIMEDOUT;
+                        ఒకవేళ (r == -EINTR)
+                                కొనసాగు;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
                 siginfo_t si = {};
 
-                if (pidref->fd >= 0)
+                ఒకవేళ (pidref->fd >= 0)
                         r = RET_NERRNO(waitid(P_PIDFD, pidref->fd, &si, WEXITED));
-                else
+                లేకపోతే
                         r = RET_NERRNO(waitid(P_PID, pidref->pid, &si, WEXITED));
-                if (r >= 0) {
-                        if (ret_si)
+                ఒకవేళ (r >= 0) {
+                        ఒకవేళ (ret_si)
                                 *ret_si = si;
-                        return 0;
+                        తిరిగి 0;
                 }
-                if (r != -EINTR)
-                        return r;
+                ఒకవేళ (r != -EINTR)
+                        తిరిగి r;
         }
 }
 
-bool pidref_is_automatic(const PidRef *pidref) {
-        return pidref && pid_is_automatic(pidref->pid);
+bool pidref_is_automatic(స్థిరరాశి PidRef *pidref) {
+        తిరిగి pidref && pid_is_automatic(pidref->pid);
 }
 
-void pidref_hash_func(const PidRef *pidref, struct siphash *state) {
-        assert(pidref);
+శూన్య pidref_hash_func(స్థిరరాశి PidRef *pidref, నిర్మాణం siphash *state) {
+        ప్రతిజ్ఞా(pidref);
 
         siphash24_compress_typesafe(pidref->pid, state);
 }
 
-int pidref_compare_func(const PidRef *a, const PidRef *b) {
-        int r;
+పూర్ణాంకం pidref_compare_func(స్థిరరాశి PidRef *a, స్థిరరాశి PidRef *b) {
+        పూర్ణాంకం r;
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        r = CMP(pidref_is_set(a), pidref_is_set(b));
-        if (r != 0)
-                return r;
+        r = CMP(pidref_is_సమితి(a), pidref_is_సమితి(b));
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         r = CMP(pidref_is_automatic(a), pidref_is_automatic(b));
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         r = CMP(pidref_is_remote(a), pidref_is_remote(b));
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         r = CMP(a->pid, b->pid);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
-        if (a->fd_id != 0 && b->fd_id != 0)
-                return CMP(a->fd_id, b->fd_id);
+        ఒకవేళ (a->fd_id != 0 && b->fd_id != 0)
+                తిరిగి CMP(a->fd_id, b->fd_id);
 
-        return 0;
+        తిరిగి 0;
 }
 
 DEFINE_HASH_OPS(pidref_hash_ops, PidRef, pidref_hash_func, pidref_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(pidref_hash_ops_free,
+DEFINE_HASH_OPS_WITH_కీలకం_DESTRUCTOR(pidref_hash_ops_free,
                                     PidRef, pidref_hash_func, pidref_compare_func,
                                     pidref_free);

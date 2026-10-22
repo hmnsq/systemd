@@ -1,217 +1,217 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
+#అన్తర్భావ <fnmatch.h>
+#అన్తర్భావ <stdio.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "gunicode.h"
-#include "hashmap.h"
-#include "log.h"
-#include "memory-util.h"
-#include "sort-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "env-util.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "gunicode.h"
+#అన్తర్భావ "hashmap.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "memory-util.h"
+#అన్తర్భావ "sort-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "utf8.h"
 
-char* strv_find(char * const *l, const char *name) {
-        assert(name);
-
-        STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
-
-        return NULL;
-}
-
-char* strv_find_case(char * const *l, const char *name) {
-        assert(name);
+అక్షరం* strv_కనుగొను(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name) {
+        ప్రతిజ్ఞా(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                ఒకవేళ (streq(*i, name))
+                        తిరిగి *i;
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-char* strv_find_prefix(char * const *l, const char *name) {
-        assert(name);
+అక్షరం* strv_కనుగొను_case(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name) {
+        ప్రతిజ్ఞా(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                ఒకవేళ (strcaseeq(*i, name))
+                        తిరిగి *i;
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-char* strv_find_startswith(char * const *l, const char *name) {
-        assert(name);
+అక్షరం* strv_కనుగొను_ఉపసర్గ(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name) {
+        ప్రతిజ్ఞా(name);
+
+        STRV_FOREACH(i, l)
+                ఒకవేళ (startswith(*i, name))
+                        తిరిగి *i;
+
+        తిరిగి ఖాళీ;
+}
+
+అక్షరం* strv_కనుగొను_startswith(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name) {
+        ప్రతిజ్ఞా(name);
 
         /* Like strv_find_prefix, but actually returns only the
          * suffix, not the whole item */
 
         STRV_FOREACH(i, l) {
-                char *e;
+                అక్షరం *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                ఒకవేళ (e)
+                        తిరిగి e;
         }
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-static char* strv_find_closest_prefix(char * const *l, const char *name) {
-        size_t best_distance = SIZE_MAX;
-        char *best = NULL;
+స్థిర అక్షరం* strv_కనుగొను_closest_ఉపసర్గ(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name) {
+        size_t ఉత్తమ_దూరం = SIZE_MAX;
+        అక్షరం *ఉత్తమ = ఖాళీ;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
         STRV_FOREACH(s, l) {
-                char *e = startswith(*s, name);
-                if (!e)
-                        continue;
+                అక్షరం *e = startswith(*s, name);
+                ఒకవేళ (!e)
+                        కొనసాగు;
 
-                size_t n = strlen(e);
-                if (n < best_distance) {
-                        best_distance = n;
-                        best = *s;
+                size_t n = అక్షరశ్రేణి_పొడవు(e);
+                ఒకవేళ (n < ఉత్తమ_దూరం) {
+                        ఉత్తమ_దూరం = n;
+                        ఉత్తమ = *s;
                 }
         }
 
-        return best;
+        తిరిగి ఉత్తమ;
 }
 
-static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
-        ssize_t best_distance = SSIZE_MAX;
-        char *best = NULL;
+స్థిర అక్షరం* strv_కనుగొను_closest_by_levenshtein(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name) {
+        ssize_t ఉత్తమ_దూరం = SSIZE_MAX;
+        అక్షరం *ఉత్తమ = ఖాళీ;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
         STRV_FOREACH(i, l) {
-                ssize_t distance;
+                ssize_t దూరం;
 
-                distance = strlevenshtein(*i, name);
-                if (distance < 0) {
-                        log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                దూరం = strlevenshtein(*i, name);
+                ఒకవేళ (దూరం < 0) {
+                        log_debug_errno(దూరం, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
+                        తిరిగి ఖాళీ;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
-                        continue;
+                ఒకవేళ (దూరం > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                        కొనసాగు;
 
-                if (distance < best_distance) {
-                        best_distance = distance;
-                        best = *i;
+                ఒకవేళ (దూరం < ఉత్తమ_దూరం) {
+                        ఉత్తమ_దూరం = దూరం;
+                        ఉత్తమ = *i;
                 }
         }
 
-        return best;
+        తిరిగి ఉత్తమ;
 }
 
-char* strv_find_closest(char * const *l, const char *name) {
-        assert(name);
+అక్షరం* strv_కనుగొను_closest(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name) {
+        ప్రతిజ్ఞా(name);
 
         /* Be more helpful to the user, and give a hint what the user might have wanted to type. We search
          * with two mechanisms: a simple prefix match and – if that didn't yield results –, a Levenshtein
          * word distance based match. */
 
-        char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        అక్షరం *దొరికింది = strv_కనుగొను_closest_ఉపసర్గ(l, name);
+        ఒకవేళ (దొరికింది)
+                తిరిగి దొరికింది;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        తిరిగి strv_కనుగొను_closest_by_levenshtein(l, name);
 }
 
-char* strv_find_first_field(char * const *needles, char * const *haystack) {
+అక్షరం* strv_కనుగొను_మొదటి_క్షేత్రం(అక్షరం * స్థిరరాశి *needles, అక్షరం * స్థిరరాశి *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                అక్షరం *విలువ = strv_env_జతలు_get((అక్షరం **)haystack, *k);
+                ఒకవేళ (విలువ)
+                        తిరిగి విలువ;
         }
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-char** strv_free(char **l) {
+అక్షరం** strv_free(అక్షరం **l) {
         STRV_FOREACH(k, l)
-                free(*k);
+                విడుదల(*k);
 
-        return mfree(l);
+        తిరిగి mfree(l);
 }
 
-char** strv_free_erase(char **l) {
+అక్షరం** strv_free_erase(అక్షరం **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        తిరిగి mfree(l);
 }
 
-void strv_free_many(char ***strvs, size_t n) {
-        assert(strvs || n == 0);
+శూన్య strv_free_many(అక్షరం ***strvs, size_t n) {
+        ప్రతిజ్ఞా(strvs || n == 0);
 
         FOREACH_ARRAY (i, strvs, n)
                 strv_free(*i);
 
-        free(strvs);
+        విడుదల(strvs);
 }
 
-char** strv_copy_n(char * const *l, size_t n) {
-        _cleanup_strv_free_ char **result = NULL;
-        char **k;
+అక్షరం** strv_copy_n(అక్షరం * స్థిరరాశి *l, size_t n) {
+        _cleanup_strv_free_ అక్షరం **ఫలితం = ఖాళీ;
+        అక్షరం **k;
 
-        result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        ఫలితం = new(అక్షరం*, MIN(strv_నిడివి(l), n) + 1);
+        ఒకవేళ (!ఫలితం)
+                తిరిగి ఖాళీ;
 
-        k = result;
+        k = ఫలితం;
         STRV_FOREACH(i, l) {
-                if (n == 0)
-                        break;
+                ఒకవేళ (n == 0)
+                        ఆపు;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                ఒకవేళ (!*k)
+                        తిరిగి ఖాళీ;
                 k++;
 
-                if (n != SIZE_MAX)
+                ఒకవేళ (n != SIZE_MAX)
                         n--;
         }
 
-        *k = NULL;
-        return TAKE_PTR(result);
+        *k = ఖాళీ;
+        తిరిగి TAKE_PTR(ఫలితం);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
-        assert(ret);
+పూర్ణాంకం strv_copy_unless_ఖాళీలు(అక్షరం * స్థిరరాశి *l, అక్షరం ***ret) {
+        ప్రతిజ్ఞా(ret);
 
-        if (strv_isempty(l)) {
-                *ret = NULL;
-                return 0;
+        ఒకవేళ (strv_isempty(l)) {
+                *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        అక్షరం **copy = strv_copy(l);
+        ఒకవేళ (!copy)
+                తిరిగి -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        తిరిగి 1;
 }
 
-size_t strv_length(char * const *l) {
+size_t strv_నిడివి(అక్షరం * స్థిరరాశి *l) {
         size_t n = 0;
 
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        తిరిగి n;
 }
 
-char** strv_new_ap(const char *x, va_list ap) {
-        _cleanup_strv_free_ char **a = NULL;
+అక్షరం** strv_new_ap(స్థిరరాశి అక్షరం *x, va_list ap) {
+        _cleanup_strv_free_ అక్షరం **a = ఖాళీ;
         size_t n = 0, i = 0;
         va_list aq;
 
@@ -221,1027 +221,1027 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        కొరకు (స్థిరరాశి అక్షరం *s = x; s; s = va_arg(aq, స్థిరరాశి అక్షరం*)) {
+                ఒకవేళ (s == STRV_IGNORE)
+                        కొనసాగు;
 
                 n++;
         }
         va_end(aq);
 
-        a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        a = new(అక్షరం*, n+1);
+        ఒకవేళ (!a)
+                తిరిగి ఖాళీ;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        కొరకు (స్థిరరాశి అక్షరం *s = x; s; s = va_arg(ap, స్థిరరాశి అక్షరం*)) {
+                ఒకవేళ (s == STRV_IGNORE)
+                        కొనసాగు;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                ఒకవేళ (!a[i])
+                        తిరిగి ఖాళీ;
 
                 i++;
         }
 
-        a[i] = NULL;
+        a[i] = ఖాళీ;
 
-        return TAKE_PTR(a);
+        తిరిగి TAKE_PTR(a);
 }
 
-char** strv_new_internal(const char *x, ...) {
-        char **r;
+అక్షరం** strv_new_అంతర్గత(స్థిరరాశి అక్షరం *x, ...) {
+        అక్షరం **r;
         va_list ap;
 
         va_start(ap, x);
         r = strv_new_ap(x, ap);
         va_end(ap);
 
-        return r;
+        తిరిగి r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
+పూర్ణాంకం strv_extend_strv(అక్షరం ***a, అక్షరం * స్థిరరాశి *b, bool filter_duplicates) {
         size_t p, q, i = 0;
 
-        assert(a);
+        ప్రతిజ్ఞా(a);
 
-        q = strv_length(b);
-        if (q == 0)
-                return 0;
+        q = strv_నిడివి(b);
+        ఒకవేళ (q == 0)
+                తిరిగి 0;
 
-        p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        p = strv_నిడివి(*a);
+        ఒకవేళ (p >= SIZE_MAX - q)
+                తిరిగి -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        అక్షరం **t = reallocarray(*a, GREEDY_ALLOC_విడత_పైకి(p + q + 1), పరిమాణం(అక్షరం *));
+        ఒకవేళ (!t)
+                తిరిగి -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ఖాళీ;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
-                        continue;
+                ఒకవేళ (filter_duplicates && strv_కలిగియుంది(t, *s))
+                        కొనసాగు;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
-                        goto rollback;
+                ఒకవేళ (!t[p+i])
+                        వెళ్ళు rollback;
 
                 i++;
-                t[p+i] = NULL;
+                t[p+i] = ఖాళీ;
         }
 
-        assert(i <= q);
+        ప్రతిజ్ఞా(i <= q);
 
-        return (int) i;
+        తిరిగి (పూర్ణాంకం) i;
 
 rollback:
         free_many_charp(t + p, i);
-        t[p] = NULL;
-        return -ENOMEM;
+        t[p] = ఖాళీ;
+        తిరిగి -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
-        _cleanup_strv_free_ char **b_consume = b;
+పూర్ణాంకం strv_extend_strv_consume(అక్షరం ***a, అక్షరం **b, bool filter_duplicates) {
+        _cleanup_strv_free_ అక్షరం **b_consume = b;
         size_t p, q, i;
 
-        assert(a);
+        ప్రతిజ్ఞా(a);
 
-        q = strv_length(b);
-        if (q == 0)
-                return 0;
+        q = strv_నిడివి(b);
+        ఒకవేళ (q == 0)
+                తిరిగి 0;
 
-        p = strv_length(*a);
-        if (p == 0) {
+        p = strv_నిడివి(*a);
+        ఒకవేళ (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                ఒకవేళ (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                తిరిగి strv_నిడివి(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        ఒకవేళ (p >= SIZE_MAX - q)
+                తిరిగి -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        అక్షరం **t = reallocarray(*a, GREEDY_ALLOC_విడత_పైకి(p + q + 1), పరిమాణం(అక్షరం *));
+        ఒకవేళ (!t)
+                తిరిగి -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ఖాళీ;
         *a = t;
 
-        if (!filter_duplicates) {
-                *mempcpy_typesafe(t + p, b, q) = NULL;
+        ఒకవేళ (!filter_duplicates) {
+                *mempcpy_typesafe(t + p, b, q) = ఖాళీ;
                 i = q;
-        } else {
+        } లేకపోతే {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
-                                free(*s);
-                                continue;
+                        ఒకవేళ (strv_కలిగియుంది(t, *s)) {
+                                విడుదల(*s);
+                                కొనసాగు;
                         }
 
                         t[p+i] = *s;
 
                         i++;
-                        t[p+i] = NULL;
+                        t[p+i] = ఖాళీ;
                 }
         }
 
-        assert(i <= q);
+        ప్రతిజ్ఞా(i <= q);
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        తిరిగి (పూర్ణాంకం) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+పూర్ణాంకం strv_extend_strv_biconcat(అక్షరం ***a, స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం* స్థిరరాశి *b, స్థిరరాశి అక్షరం *suffix) {
+        పూర్ణాంకం r;
 
-        assert(a);
+        ప్రతిజ్ఞా(a);
 
         STRV_FOREACH(s, b) {
-                char *v;
+                అక్షరం *v;
 
-                v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                v = strjoin(strempty(ఉపసర్గ), *s, suffix);
+                ఒకవేళ (!v)
+                        తిరిగి -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+పూర్ణాంకం strv_విభజించు_newlines_నిండిన(అక్షరం ***ret, స్థిరరాశి అక్షరం *s, వెలికితీయి_Flags flags) {
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
         size_t n;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
-        assert(s);
+        ప్రతిజ్ఞా(ret);
+        ప్రతిజ్ఞా(s);
 
         /* Special version of strv_split_full() that splits on newlines and
          * suppresses an empty string at the end. */
 
-        r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        r = strv_విభజించు_నిండిన(&l, s, NEWLINE, flags);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        n = strv_నిడివి(l);
+        ఒకవేళ (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        తిరిగి n;
 }
 
-char** strv_split_newlines(const char *s) {
-        char **ret;
+అక్షరం** strv_విభజించు_newlines(స్థిరరాశి అక్షరం *s) {
+        అక్షరం **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        ఒకవేళ (strv_విభజించు_newlines_నిండిన(&ret, s, 0) < 0)
+                తిరిగి ఖాళీ;
 
-        return ret;
+        తిరిగి ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+పూర్ణాంకం strv_విభజించు_నిండిన(అక్షరం ***t, స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *separators, వెలికితీయి_Flags flags) {
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
         size_t n = 0;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(t);
-        assert(s);
+        ప్రతిజ్ఞా(t);
+        ప్రతిజ్ఞా(s);
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
+        కొరకు (;;) {
+                _cleanup_free_ అక్షరం *మాట = ఖాళీ;
 
-                r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = వెలికితీయి_మొదటి_మాట(&s, &మాట, separators, flags);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                ఒకవేళ (!GREEDY_REALLOC(l, n + 2))
+                        తిరిగి -ENOMEM;
 
-                l[n++] = TAKE_PTR(word);
-                l[n] = NULL;
+                l[n++] = TAKE_PTR(మాట);
+                l[n] = ఖాళీ;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        ఒకవేళ (!l) {
+                l = new0(అక్షరం*, 1);
+                ఒకవేళ (!l)
+                        తిరిగి -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        తిరిగి (పూర్ణాంకం) n;
 }
 
-char** strv_split(const char *s, const char *separators) {
-        char **ret;
+అక్షరం** strv_విభజించు(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *separators) {
+        అక్షరం **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        ఒకవేళ (strv_విభజించు_నిండిన(&ret, s, separators, వెలికితీయి_RETAIN_ESCAPE) < 0)
+                తిరిగి ఖాళీ;
 
-        return ret;
+        తిరిగి ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
-        char **l;
-        int r;
+పూర్ణాంకం strv_విభజించు_and_extend_నిండిన(అక్షరం ***t, స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *separators, bool filter_duplicates, వెలికితీయి_Flags flags) {
+        అక్షరం **l;
+        పూర్ణాంకం r;
 
-        assert(t);
-        assert(s);
+        ప్రతిజ్ఞా(t);
+        ప్రతిజ్ఞా(s);
 
-        r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        r = strv_విభజించు_నిండిన(&l, s, separators, flags);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return (int) strv_length(*t);
+        తిరిగి (పూర్ణాంకం) strv_నిడివి(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+పూర్ణాంకం strv_విభజించు_and_extend(అక్షరం ***t, స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *separators, bool filter_duplicates) {
+        తిరిగి strv_విభజించు_and_extend_నిండిన(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+పూర్ణాంకం strv_విభజించు_colon_జతలు(అక్షరం ***t, స్థిరరాశి అక్షరం *s) {
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
         size_t n = 0;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(t);
-        assert(s);
+        ప్రతిజ్ఞా(t);
+        ప్రతిజ్ఞా(s);
 
-        for (;;) {
-                _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
+        కొరకు (;;) {
+                _cleanup_free_ అక్షరం *మొదటి = ఖాళీ, *రెండవ = ఖాళీ, *tuple = ఖాళీ, *రెండవ_or_ఖాళీలు = ఖాళీ;
 
-                r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = వెలికితీయి_మొదటి_మాట(&s, &tuple, ఖాళీ, వెలికితీయి_UNQUOTE|వెలికితీయి_RETAIN_ESCAPE);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                const char *p = tuple;
-                r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
-                                       &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        continue;
+                స్థిరరాశి అక్షరం *p = tuple;
+                r = వెలికితీయి_many_పదాలు(&p, ":", వెలికితీయి_CUNESCAPE|వెలికితీయి_UNESCAPE_SEPARATORS,
+                                       &మొదటి, &రెండవ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        కొనసాగు;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                ఒకవేళ (!isempty(p))
+                        తిరిగి -EINVAL;
 
-                second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                రెండవ_or_ఖాళీలు = strdup(strempty(రెండవ));
+                ఒకవేళ (!రెండవ_or_ఖాళీలు)
+                        తిరిగి -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                ఒకవేళ (!GREEDY_REALLOC(l, n + 3))
+                        తిరిగి -ENOMEM;
 
-                l[n++] = TAKE_PTR(first);
-                l[n++] = TAKE_PTR(second_or_empty);
+                l[n++] = TAKE_PTR(మొదటి);
+                l[n++] = TAKE_PTR(రెండవ_or_ఖాళీలు);
 
-                l[n] = NULL;
+                l[n] = ఖాళీ;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        ఒకవేళ (!l) {
+                l = new0(అక్షరం*, 1);
+                ఒకవేళ (!l)
+                        తిరిగి -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        తిరిగి (పూర్ణాంకం) n;
 }
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
-        char *r, *e;
+అక్షరం* strv_join_నిండిన(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *separator, స్థిరరాశి అక్షరం *ఉపసర్గ) {
+        అక్షరం *r, *e;
         size_t n, k, m;
 
-        if (!separator)
+        ఒకవేళ (!separator)
                 separator = " ";
 
-        k = strlen(separator);
-        m = strlen_ptr(prefix);
+        k = అక్షరశ్రేణి_పొడవు(separator);
+        m = strlen_ptr(ఉపసర్గ);
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                ఒకవేళ (s != l)
                         n += k;
 
-                n += m + strlen(*s);
+                n += m + అక్షరశ్రేణి_పొడవు(*s);
         }
 
-        r = new(char, n+1);
-        if (!r)
-                return NULL;
+        r = new(అక్షరం, n+1);
+        ఒకవేళ (!r)
+                తిరిగి ఖాళీ;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                ఒకవేళ (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
-                        e = stpcpy(e, prefix);
+                ఒకవేళ (ఉపసర్గ)
+                        e = stpcpy(e, ఉపసర్గ);
 
                 e = stpcpy(e, *s);
         }
 
         *e = 0;
 
-        return r;
+        తిరిగి r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+పూర్ణాంకం strv_నెట్టు_with_కొలత(అక్షరం ***l, size_t *n, అక్షరం *విలువ) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
          * If value is empty, no action is taken and *n is not set. */
 
-        assert(l);
-        POINTER_MAY_BE_NULL(n);
+        ప్రతిజ్ఞా(l);
+        సూచిక_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        ఒకవేళ (!విలువ)
+                తిరిగి 0;
 
-        size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
-                size = strv_length(*l);
+        size_t కొలత = n ? *n : SIZE_MAX;
+        ఒకవేళ (కొలత == SIZE_MAX)
+                కొలత = strv_నిడివి(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        ఒకవేళ (కొలత > SIZE_MAX-2)
+                తిరిగి -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        అక్షరం **c = reallocarray(*l, GREEDY_ALLOC_విడత_పైకి(కొలత + 2), పరిమాణం(అక్షరం*));
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
-        c[size] = value;
-        c[size+1] = NULL;
+        c[కొలత] = విలువ;
+        c[కొలత+1] = ఖాళీ;
 
         *l = c;
-        if (n)
-                *n = size + 1;
-        return 0;
+        ఒకవేళ (n)
+                *n = కొలత + 1;
+        తిరిగి 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
-        char **c;
+పూర్ణాంకం strv_నెట్టు_pair(అక్షరం ***l, అక్షరం *a, అక్షరం *b) {
+        అక్షరం **c;
         size_t n;
 
-        assert(l);
+        ప్రతిజ్ఞా(l);
 
-        if (!a && !b)
-                return 0;
+        ఒకవేళ (!a && !b)
+                తిరిగి 0;
 
-        n = strv_length(*l);
+        n = strv_నిడివి(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        ఒకవేళ (n > SIZE_MAX-3)
+                తిరిగి -ENOMEM;
 
         /* increase and check for overflow */
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_విడత_పైకి(n + !!a + !!b + 1), పరిమాణం(అక్షరం*));
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
-        if (a)
+        ఒకవేళ (a)
                 c[n++] = a;
-        if (b)
+        ఒకవేళ (b)
                 c[n++] = b;
-        c[n] = NULL;
+        c[n] = ఖాళీ;
 
         *l = c;
-        return 0;
+        తిరిగి 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
-        char **c;
+పూర్ణాంకం strv_చొప్పించు(అక్షరం ***l, size_t position, అక్షరం *విలువ) {
+        అక్షరం **c;
         size_t n, m;
 
-        assert(l);
+        ప్రతిజ్ఞా(l);
 
-        if (!value)
-                return 0;
+        ఒకవేళ (!విలువ)
+                తిరిగి 0;
 
-        n = strv_length(*l);
+        n = strv_నిడివి(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        ఒకవేళ (n > SIZE_MAX - 2)
+                తిరిగి -ENOMEM;
         m = n + 2;
 
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_విడత_పైకి(m), పరిమాణం(అక్షరం*));
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
-        if (n > position)
-                memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
+        ఒకవేళ (n > position)
+                memmove(c + position + 1, c + position, (n - position) * పరిమాణం(అక్షరం*));
 
-        c[position] = value;
-        c[n + 1] = NULL;
+        c[position] = విలువ;
+        c[n + 1] = ఖాళీ;
 
         *l = c;
-        return 0;
+        తిరిగి 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+పూర్ణాంకం strv_consume_with_కొలత(అక్షరం ***l, size_t *n, అక్షరం *విలువ) {
+        పూర్ణాంకం r;
 
-        r = strv_push_with_size(l, n, value);
-        if (r < 0)
-                free(value);
+        r = strv_నెట్టు_with_కొలత(l, n, విలువ);
+        ఒకవేళ (r < 0)
+                విడుదల(విలువ);
 
-        return r;
+        తిరిగి r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+పూర్ణాంకం strv_consume_pair(అక్షరం ***l, అక్షరం *a, అక్షరం *b) {
+        పూర్ణాంకం r;
 
-        r = strv_push_pair(l, a, b);
-        if (r < 0) {
-                free(a);
-                free(b);
+        r = strv_నెట్టు_pair(l, a, b);
+        ఒకవేళ (r < 0) {
+                విడుదల(a);
+                విడుదల(b);
         }
 
-        return r;
+        తిరిగి r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+పూర్ణాంకం strv_consume_prepend(అక్షరం ***l, అక్షరం *విలువ) {
+        పూర్ణాంకం r;
 
-        r = strv_push_prepend(l, value);
-        if (r < 0)
-                free(value);
+        r = strv_నెట్టు_prepend(l, విలువ);
+        ఒకవేళ (r < 0)
+                విడుదల(విలువ);
 
-        return r;
+        తిరిగి r;
 }
 
-int strv_prepend(char ***l, const char *value) {
-        char *v;
+పూర్ణాంకం strv_prepend(అక్షరం ***l, స్థిరరాశి అక్షరం *విలువ) {
+        అక్షరం *v;
 
-        if (!value)
-                return 0;
+        ఒకవేళ (!విలువ)
+                తిరిగి 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(విలువ);
+        ఒకవేళ (!v)
+                తిరిగి -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        తిరిగి strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
-        char *v;
+పూర్ణాంకం strv_extend_with_కొలత(అక్షరం ***l, size_t *n, స్థిరరాశి అక్షరం *విలువ) {
+        అక్షరం *v;
 
-        if (!value)
-                return 0;
+        ఒకవేళ (!విలువ)
+                తిరిగి 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(విలువ);
+        ఒకవేళ (!v)
+                తిరిగి -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        తిరిగి strv_consume_with_కొలత(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+పూర్ణాంకం strv_extend_many_అంతర్గత(అక్షరం ***l, స్థిరరాశి అక్షరం *విలువ, ...) {
         va_list ap;
         size_t n, m;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(l);
+        ప్రతిజ్ఞా(l);
 
-        m = n = strv_length(*l);
+        m = n = strv_నిడివి(*l);
 
         r = 0;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, విలువ);
+        కొరకు (స్థిరరాశి అక్షరం *s = విలువ; s != సూచిక_MAX; s = va_arg(ap, స్థిరరాశి అక్షరం*)) {
+                ఒకవేళ (!s)
+                        కొనసాగు;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                ఒకవేళ (m > SIZE_MAX-1) { /*అధికప్రవాహం*/
                         r = -ENOMEM;
-                        break;
+                        ఆపు;
                 }
                 m++;
         }
         va_end(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (m > SIZE_MAX-1)
+                తిరిగి -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        అక్షరం **c = reallocarray(*l, GREEDY_ALLOC_విడత_పైకి(m+1), పరిమాణం(అక్షరం*));
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
         *l = c;
 
         r = 0;
         size_t i = n;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, విలువ);
+        కొరకు (స్థిరరాశి అక్షరం *s = విలువ; s != సూచిక_MAX; s = va_arg(ap, స్థిరరాశి అక్షరం*)) {
+                ఒకవేళ (!s)
+                        కొనసాగు;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                ఒకవేళ (!c[i]) {
                         r = -ENOMEM;
-                        break;
+                        ఆపు;
                 }
                 i++;
         }
         va_end(ap);
 
-        if (r < 0) {
+        ఒకవేళ (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                కొరకు (size_t j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                తిరిగి r;
         }
 
-        c[i] = NULL;
-        return 0;
+        c[i] = ఖాళీ;
+        తిరిగి 0;
 }
 
-char** strv_uniq(char **l) {
+అక్షరం** strv_uniq(అక్షరం **l) {
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        తిరిగి l;
 }
 
-bool strv_is_uniq(char * const *l) {
+bool strv_is_uniq(అక్షరం * స్థిరరాశి *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                ఒకవేళ (strv_కలిగియుంది(i+1, *i))
+                        తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+అక్షరం** strv_remove(అక్షరం **l, స్థిరరాశి అక్షరం *s) {
+        ఒకవేళ (!l)
+                తిరిగి ఖాళీ;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
-                        free(*f);
-                else
+        అక్షరం **f, **t;
+        కొరకు (f = t = l; *f; f++)
+                ఒకవేళ (streq(*f, s))
+                        విడుదల(*f);
+                లేకపోతే
                         *(t++) = *f;
 
-        *t = NULL;
-        return l;
+        *t = ఖాళీ;
+        తిరిగి l;
 }
 
-char** strv_remove_strv(char **l, char *const*ll) {
+అక్షరం** strv_remove_strv(అక్షరం **l, అక్షరం *స్థిరరాశి*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        ఒకవేళ (strv_isempty(l))
+                తిరిగి l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        తిరిగి l;
 }
 
-bool strv_overlap(char * const *a, char * const *b) {
-        POINTER_MAY_BE_NULL(a);
-        POINTER_MAY_BE_NULL(b);
+bool strv_overlap(అక్షరం * స్థిరరాశి *a, అక్షరం * స్థిరరాశి *b) {
+        సూచిక_MAY_BE_NULL(a);
+        సూచిక_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                ఒకవేళ (strv_కలిగియుంది(b, *i))
+                        తిరిగి true;
 
-        return false;
+        తిరిగి false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+స్థిర పూర్ణాంకం str_compare(అక్షరం * స్థిరరాశి *a, అక్షరం * స్థిరరాశి *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
-        POINTER_MAY_BE_NULL(a);
-        POINTER_MAY_BE_NULL(b);
+        సూచిక_MAY_BE_NULL(a);
+        సూచిక_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        తిరిగి strcmp(*a, *b);
 }
 
-char** strv_sort(char **l) {
-        typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+అక్షరం** strv_క్రమీకరించు(అక్షరం **l) {
+        typesafe_qsort(l, strv_నిడివి(l), str_compare);
+        తిరిగి l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
-        assert(compare);
+అక్షరం** strv_క్రమీకరించు_uniq_నిండిన(అక్షరం **l, పూర్ణాంకం (*compare)(అక్షరం * స్థిరరాశి *a, అక్షరం * స్థిరరాశి *b)) {
+        ప్రతిజ్ఞా(compare);
 
-        if (strv_isempty(l))
-                return l;
+        ఒకవేళ (strv_isempty(l))
+                తిరిగి l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
 
-        typesafe_qsort(l, strv_length(l), compare);
+        typesafe_qsort(l, strv_నిడివి(l), compare);
 
-        char **tail = l + 1;
+        అక్షరం **తోక_2 = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
-                        free(*i);
-                else
-                        *(tail++) = *i;
+                ఒకవేళ (compare(i, తోక_2 - 1) == 0)
+                        విడుదల(*i);
+                లేకపోతే
+                        *(తోక_2++) = *i;
 
-        *tail = NULL;
-        return l;
+        *తోక_2 = ఖాళీ;
+        తిరిగి l;
 }
 
-char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+అక్షరం** strv_క్రమీకరించు_uniq(అక్షరం **l) {
+        తిరిగి strv_క్రమీకరించు_uniq_నిండిన(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+పూర్ణాంకం strv_compare(అక్షరం * స్థిరరాశి *a, అక్షరం * స్థిరరాశి *b) {
+        పూర్ణాంకం r;
 
-        POINTER_MAY_BE_NULL(a);
-        POINTER_MAY_BE_NULL(b);
+        సూచిక_MAY_BE_NULL(a);
+        సూచిక_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        ఒకవేళ (strv_isempty(a)) {
+                ఒకవేళ (strv_isempty(b))
+                        తిరిగి 0;
+                లేకపోతే
+                        తిరిగి -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        ఒకవేళ (strv_isempty(b))
+                తిరిగి 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        కొరకు ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                ఒకవేళ (r != 0)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) {
+bool strv_equal_ignore_క్రమం(అక్షరం * స్థిరరాశి *a, అక్షరం * స్థిరరాశి *b) {
 
         /* Just like strv_equal(), but doesn't care about the order of elements or about redundant entries
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        ఒకవేళ (a == b)
+                తిరిగి true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                ఒకవేళ (!strv_కలిగియుంది(b, *i))
+                        తిరిగి false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                ఒకవేళ (!strv_కలిగియుంది(a, *i))
+                        తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+శూన్య strv_print_నిండిన(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *ఉపసర్గ) {
         STRV_FOREACH(s, l)
-                printf("%s%s\n", strempty(prefix), *s);
+                రాయి("%s%s\n", strempty(ఉపసర్గ), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
+పూర్ణాంకం strv_extendf_with_కొలత(అక్షరం ***l, size_t *n, స్థిరరాశి అక్షరం *format, ...) {
         va_list ap;
-        char *x;
-        int r;
+        అక్షరం *x;
+        పూర్ణాంకం r;
 
         va_start(ap, format);
         r = vasprintf(&x, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        తిరిగి strv_consume_with_కొలత(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
+పూర్ణాంకం strv_extend_joined_with_కొలత_sentinel(అక్షరం ***l, size_t *n, ...) {
         va_list ap;
 
         va_start(ap, n);
-        char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
+        అక్షరం *x = strextendv_with_separator(/* x= */ ఖాళీ, /* separator= */ ఖాళీ, ap);
         va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        ఒకవేళ (!x)
+                తిరిగి -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        తిరిగి strv_consume_with_కొలత(l, n, x);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l) {
+అక్షరం* startswith_strv_అంతర్గత(స్థిరరాశి అక్షరం *s, అక్షరం * స్థిరరాశి *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                అక్షరం *దొరికింది = (అక్షరం*) startswith(s, *i);
+                ఒకవేళ (దొరికింది)
+                        తిరిగి దొరికింది;
         }
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-char* endswith_strv_internal(const char *s, char * const *l) {
+అక్షరం* endswith_strv_అంతర్గత(స్థిరరాశి అక్షరం *s, అక్షరం * స్థిరరాశి *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                అక్షరం *దొరికింది = (అక్షరం*) endswith(s, *i);
+                ఒకవేళ (దొరికింది)
+                        తిరిగి దొరికింది;
         }
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-char** strv_reverse(char **l) {
+అక్షరం** strv_తిరగేయి(అక్షరం **l) {
         size_t n;
 
-        n = strv_length(l);
-        if (n <= 1)
-                return l;
+        n = strv_నిడివి(l);
+        ఒకవేళ (n <= 1)
+                తిరిగి l;
 
-        for (size_t i = 0; i < n / 2; i++)
-                SWAP_TWO(l[i], l[n-1-i]);
+        కొరకు (size_t i = 0; i < n / 2; i++)
+                మార్పిడి_TWO(l[i], l[n-1-i]);
 
-        return l;
+        తిరిగి l;
 }
 
-char** strv_shell_escape(char **l, const char *bad) {
+అక్షరం** strv_shell_escape(అక్షరం **l, స్థిరరాశి అక్షరం *bad) {
         /* Escapes every character in every string in l that is in bad,
          * edits in-place, does not roll-back on error. */
 
         STRV_FOREACH(s, l) {
-                char *v;
+                అక్షరం *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                ఒకవేళ (!v)
+                        తిరిగి ఖాళీ;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        తిరిగి l;
 }
 
-bool strv_fnmatch_full(
-                char* const* patterns,
-                const char *s,
-                int flags,
+bool strv_fnmatch_నిండిన(
+                అక్షరం* స్థిరరాశి* patterns,
+                స్థిరరాశి అక్షరం *s,
+                పూర్ణాంకం flags,
                 size_t *ret_matched_pos) {
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        ఒకవేళ (patterns)
+                కొరకు (size_t i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        ఒకవేళ (fnmatch(patterns[i], s, flags) == 0) {
+                                ఒకవేళ (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                తిరిగి true;
                         }
 
-        if (ret_matched_pos)
+        ఒకవేళ (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        తిరిగి false;
 }
 
-char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+అక్షరం** strv_skip(అక్షరం **l, size_t n) {
+        అయితే (n > 0) {
+                ఒకవేళ (strv_isempty(l))
+                        తిరిగి ఖాళీ;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        ఒకవేళ (strv_isempty(l))
+                తిరిగి ఖాళీ;
+        తిరిగి l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+పూర్ణాంకం strv_extend_n(అక్షరం ***l, స్థిరరాశి అక్షరం *విలువ, size_t n) {
         size_t i, k;
-        char **nl;
+        అక్షరం **nl;
 
-        assert(l);
+        ప్రతిజ్ఞా(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        ఒకవేళ (!విలువ)
+                తిరిగి 0;
+        ఒకవేళ (n == 0)
+                తిరిగి 0;
 
         /* Adds the value n times to l */
 
-        k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        k = strv_నిడివి(*l);
+        ఒకవేళ (n >= SIZE_MAX - k)
+                తిరిగి -ENOMEM;
 
-        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        nl = reallocarray(*l, GREEDY_ALLOC_విడత_పైకి(k + n + 1), పరిమాణం(అక్షరం *));
+        ఒకవేళ (!nl)
+                తిరిగి -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
-                nl[i] = strdup(value);
-                if (!nl[i])
-                        goto rollback;
+        కొరకు (i = k; i < k + n; i++) {
+                nl[i] = strdup(విలువ);
+                ఒకవేళ (!nl[i])
+                        వెళ్ళు rollback;
         }
-        nl[i] = NULL;
+        nl[i] = ఖాళీ;
 
-        return 0;
+        తిరిగి 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
-                free(nl[j]);
-        nl[k] = NULL;
+        కొరకు (size_t j = k; j < i; j++)
+                విడుదల(nl[j]);
+        nl[k] = ఖాళీ;
 
-        return -ENOMEM;
+        తిరిగి -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
-        char *j;
+పూర్ణాంకం strv_extend_assignment(అక్షరం ***l, స్థిరరాశి అక్షరం *lhs, స్థిరరాశి అక్షరం *rhs) {
+        అక్షరం *j;
 
-        assert(l);
-        assert(lhs);
+        ప్రతిజ్ఞా(l);
+        ప్రతిజ్ఞా(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        ఒకవేళ (!rhs) /* value is optional, in which case we suppress the field */
+                తిరిగి 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        ఒకవేళ (!j)
+                తిరిగి -ENOMEM;
 
-        return strv_consume(l, j);
+        తిరిగి strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+పూర్ణాంకం fputstrv(FILE *f, అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *separator, bool *space) {
         bool b = false;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        ఒకవేళ (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+శూన్య string_strv_hashmap_remove(Hashmap *h, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        ప్రతిజ్ఞా(కీలకం);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+        ఒకవేళ (విలువ) {
+                అక్షరం **l = hashmap_get(h, కీలకం);
+                ఒకవేళ (!l)
+                        తిరిగి;
 
-                strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                strv_remove(l, విలువ);
+                ఒకవేళ (!strv_isempty(l))
+                        తిరిగి;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        వాడని _cleanup_free_ అక్షరం *కీలకం_free = ఖాళీ;
+        strv_free(hashmap_remove2(h, కీలకం, (శూన్య**) &కీలకం_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
-        string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
+శూన్య string_strv_ordered_hashmap_remove(OrderedHashmap *h, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        string_strv_hashmap_remove(PLAIN_HASHMAP(h), కీలకం, విలువ);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
-        char **l;
-        int r;
+స్థిర పూర్ణాంకం string_strv_hashmap_put_అంతర్గత(Hashmap *h, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        అక్షరం **l;
+        పూర్ణాంకం r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        ప్రతిజ్ఞా(h);
+        ప్రతిజ్ఞా(కీలకం);
+        ప్రతిజ్ఞా(విలువ);
 
-        l = hashmap_get(h, key);
-        if (l) {
+        l = hashmap_get(h, కీలకం);
+        ఒకవేళ (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                ఒకవేళ (strv_కలిగియుంది(l, విలువ))
+                        తిరిగి 0;
 
-                r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l, విలువ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+                assert_se(hashmap_update(h, కీలకం, l) >= 0);
+        } లేకపోతే {
                 /* No list for this key exists yet, create one */
-                _cleanup_strv_free_ char **l2 = NULL;
-                _cleanup_free_ char *t = NULL;
+                _cleanup_strv_free_ అక్షరం **l2 = ఖాళీ;
+                _cleanup_free_ అక్షరం *t = ఖాళీ;
 
-                t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                t = strdup(కీలకం);
+                ఒకవేళ (!t)
+                        తిరిగి -ENOMEM;
 
-                r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l2, విలువ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        తిరిగి 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+పూర్ణాంకం string_strv_hashmap_put(Hashmap **h, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        పూర్ణాంకం r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        ప్రతిజ్ఞా(h);
+        ప్రతిజ్ఞా(కీలకం);
+        ప్రతిజ్ఞా(విలువ);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        తిరిగి string_strv_hashmap_put_అంతర్గత(*h, కీలకం, విలువ);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+పూర్ణాంకం string_strv_ordered_hashmap_put(OrderedHashmap **h, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        పూర్ణాంకం r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        ప్రతిజ్ఞా(h);
+        ప్రతిజ్ఞా(కీలకం);
+        ప్రతిజ్ఞా(విలువ);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        తిరిగి string_strv_hashmap_put_అంతర్గత(PLAIN_HASHMAP(*h), కీలకం, విలువ);
 }
 
-static int rebreak_flush_line(
-                char ***broken,
-                const char *start,
-                const char *end,
-                bool in_prefix,
-                const char *whitespace_begin,
-                const char *whitespace_end) {
+స్థిర పూర్ణాంకం rebreak_flush_పంక్తి(
+                అక్షరం ***broken,
+                స్థిరరాశి అక్షరం *ప్రారంభం,
+                స్థిరరాశి అక్షరం *చివర,
+                bool లోపల_ఉపసర్గ,
+                స్థిరరాశి అక్షరం *whitespace_begin,
+                స్థిరరాశి అక్షరం *whitespace_చివర) {
 
-        assert(broken);
-        assert(start);
-        assert(end >= start);
+        ప్రతిజ్ఞా(broken);
+        ప్రతిజ్ఞా(ప్రారంభం);
+        ప్రతిజ్ఞా(చివర >= ప్రారంభం);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        ఒకవేళ (లోపల_ఉపసర్గ) /* Never seen anything non-whitespace? Generate empty line! */
+                తిరిగి strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
-                end = whitespace_begin;
+        ఒకవేళ (whitespace_begin && !whitespace_చివర) /* Ends in whitespace? Chop it off! */
+                చివర = whitespace_begin;
 
-        _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        _cleanup_free_ అక్షరం *truncated = strndup(ప్రారంభం, చివర - ప్రారంభం);
+        ఒకవేళ (!truncated)
+                తిరిగి -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        తిరిగి strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
-        _cleanup_strv_free_ char **broken = NULL;
-        int r;
+పూర్ణాంకం strv_rebreak_పంక్తులు(అక్షరం **l, size_t width, అక్షరం ***ret) {
+        _cleanup_strv_free_ అక్షరం **broken = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* Implements a simple UTF-8 line breaking algorithm
          *
@@ -1250,47 +1250,47 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        ఒకవేళ (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                ఒకవేళ (!broken)
+                        తిరిగి -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                తిరిగి 0;
         }
 
         STRV_FOREACH(i, l) {
-                const char *start = *i, *whitespace_begin = NULL, *whitespace_end = NULL;
-                bool in_prefix = true; /* still in the whitespace in the beginning of the line? */
+                స్థిరరాశి అక్షరం *ప్రారంభం = *i, *whitespace_begin = ఖాళీ, *whitespace_చివర = ఖాళీ;
+                bool లోపల_ఉపసర్గ = true; /* still in the whitespace in the beginning of the line? */
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
                 size_t w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                కొరకు (స్థిరరాశి అక్షరం *p = ప్రారంభం; *p != 0; ) {
+                        ఒకవేళ (strchr(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
-                                r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                r = rebreak_flush_పంక్తి(&broken, ప్రారంభం, p, లోపల_ఉపసర్గ, whitespace_begin, whitespace_చివర);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
-                                start = p;
-                                in_prefix = true;
+                                ప్రారంభం = p;
+                                లోపల_ఉపసర్గ = true;
                                 after_newline = true;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_చివర = ఖాళీ;
                                 w = 0;
-                                continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                                కొనసాగు;
+                        } లేకపోతే ఒకవేళ (strchr(WHITESPACE, *p)) {
+                                ఒకవేళ (!లోపల_ఉపసర్గ && (!whitespace_begin || whitespace_చివర)) {
                                         whitespace_begin = p;
-                                        whitespace_end = NULL;
+                                        whitespace_చివర = ఖాళీ;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
-                                        whitespace_end = p;
+                        } లేకపోతే {
+                                ఒకవేళ (whitespace_begin && !whitespace_చివర)
+                                        whitespace_చివర = p;
 
-                                in_prefix = false;
+                                లోపల_ఉపసర్గ = false;
                         }
 
                         /* Measure with the same helper utf8_console_width() uses. Our callers mix the
@@ -1298,71 +1298,71 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        పూర్ణాంకం cw = utf8_char_console_వెడల్పు(p);
+                        ఒకవేళ (cw < 0)
+                                తిరిగి log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
-                                _cleanup_free_ char *truncated = NULL;
+                        ఒకవేళ (w > width && whitespace_begin && whitespace_చివర) {
+                                _cleanup_free_ అక్షరం *truncated = ఖాళీ;
 
-                                truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                truncated = strndup(ప్రారంభం, whitespace_begin - ప్రారంభం);
+                                ఒకవేళ (!truncated)
+                                        తిరిగి -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
                                  * the new line yet, hence reset the width and reprocess it. */
-                                p = start = whitespace_end;
+                                p = ప్రారంభం = whitespace_చివర;
                                 after_newline = false;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_చివర = ఖాళీ;
                                 w = 0;
-                                continue;
+                                కొనసాగు;
                         }
 
-                        p = utf8_next_char(p);
+                        p = utf8_తదుపరి_char(p);
                 }
 
                 /* Process rest of the line, except if all that's left after the last newline we already
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
-                assert(start);
-                if (after_newline && in_prefix)
-                        continue;
+                ప్రతిజ్ఞా(ప్రారంభం);
+                ఒకవేళ (after_newline && లోపల_ఉపసర్గ)
+                        కొనసాగు;
 
-                r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                r = rebreak_flush_పంక్తి(&broken, ప్రారంభం, ప్రారంభం + అక్షరశ్రేణి_పొడవు(ప్రారంభం), లోపల_ఉపసర్గ, whitespace_begin, whitespace_చివర);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        తిరిగి 0;
 }
 
-char** strv_filter_prefix(char * const *l, const char *prefix) {
+అక్షరం** strv_filter_ఉపసర్గ(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *ఉపసర్గ) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        ఒకవేళ (isempty(ఉపసర్గ))
+                తిరిగి strv_copy(l);
 
-        _cleanup_strv_free_ char **f = NULL;
+        _cleanup_strv_free_ అక్షరం **f = ఖాళీ;
         size_t sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
-                        continue;
+                ఒకవేళ (!startswith(*i, ఉపసర్గ))
+                        కొనసాగు;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                ఒకవేళ (strv_extend_with_కొలత(&f, &sz, *i) < 0)
+                        తిరిగి ఖాళీ;
         }
 
-        return TAKE_PTR(f);
+        తిరిగి TAKE_PTR(f);
 }
 
-const char* const strv_empty[] = { NULL };
+స్థిరరాశి అక్షరం* స్థిరరాశి strv_ఖాళీలు[] = { ఖాళీ };

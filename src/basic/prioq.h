@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef struct Prioq Prioq;
+రకనిర్వచనం నిర్మాణం Prioq Prioq;
 
-#define PRIOQ_IDX_NULL (UINT_MAX)
+#నిర్వచించు PRIOQ_IDX_NULL (UINT_MAX)
 
 Prioq* prioq_new(compare_func_t compare);
 Prioq* prioq_free(Prioq *q);
 DEFINE_TRIVIAL_CLEANUP_FUNC(Prioq*, prioq_free);
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
+పూర్ణాంకం prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
 
-int prioq_put(Prioq *q, void *data, unsigned *idx);
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx);
-#define prioq_ensure_put(q, compare_func, data, idx)                    \
+పూర్ణాంకం prioq_put(Prioq *q, శూన్య *దత్తాంశం, గుర్తులేని *idx);
+పూర్ణాంకం _prioq_ensure_put(Prioq **q, compare_func_t compare_func, శూన్య *దత్తాంశం, గుర్తులేని *idx);
+#నిర్వచించు prioq_ensure_put(q, compare_func, దత్తాంశం, idx)                    \
         ({                                                              \
-                int (*_func_)(const typeof((data)[0])*, const typeof((data)[0])*) = compare_func; \
-                _prioq_ensure_put(q, (compare_func_t) _func_, data, idx); \
+                పూర్ణాంకం (*_func_)(స్థిరరాశి typeof((దత్తాంశం)[0])*, స్థిరరాశి typeof((దత్తాంశం)[0])*) = compare_func; \
+                _prioq_ensure_put(q, (compare_func_t) _func_, దత్తాంశం, idx); \
         })
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx);
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx);
+పూర్ణాంకం prioq_remove(Prioq *q, శూన్య *దత్తాంశం, గుర్తులేని *idx);
+శూన్య prioq_reshuffle(Prioq *q, శూన్య *దత్తాంశం, గుర్తులేని *idx);
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) _pure_;
-static inline void *prioq_peek(Prioq *q) {
-        return prioq_peek_by_index(q, 0);
+శూన్య* prioq_peek_by_సూచీ(Prioq *q, గుర్తులేని idx) శుద్ధ;
+స్థిర అంతఃవరుస శూన్య *prioq_peek(Prioq *q) {
+        తిరిగి prioq_peek_by_సూచీ(q, 0);
 }
-void* prioq_pop(Prioq *q);
+శూన్య* prioq_తీయి(Prioq *q);
 
-#define PRIOQ_FOREACH_ITEM(q, p)                                \
-        for (unsigned _i = 0; (p = prioq_peek_by_index(q, _i)); _i++)
+#నిర్వచించు PRIOQ_FOREACH_అంశం(q, p)                                \
+        కొరకు (గుర్తులేని _i = 0; (p = prioq_peek_by_సూచీ(q, _i)); _i++)
 
-unsigned prioq_size(Prioq *q) _pure_;
-bool prioq_isempty(Prioq *q) _pure_;
+గుర్తులేని prioq_కొలత(Prioq *q) శుద్ధ;
+bool prioq_isempty(Prioq *q) శుద్ధ;

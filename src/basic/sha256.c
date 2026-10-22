@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "sha256.h"
-#include "string-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "hexdecoct.h"
+#అన్తర్భావ "sha256.h"
+#అన్తర్భావ "string-util.h"
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        struct sha256_ctx ctx;
-        uint64_t total_size = 0;
+పూర్ణాంకం sha256_fd(పూర్ణాంకం fd, uint64_t max_కొలత, uint8_t ret[స్థిర SHA256_DIGEST_కొలత]) {
+        నిర్మాణం sha256_ctx ctx;
+        uint64_t మొత్తం_కొలత = 0;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         sha256_init_ctx(&ctx);
 
-        for (;;) {
-                uint8_t buffer[64 * 1024];
+        కొరకు (;;) {
+                uint8_t బఫరు[64 * 1024];
                 ssize_t n;
 
-                n = read(fd, buffer, sizeof(buffer));
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = పఠ(fd, బఫరు, పరిమాణం(బఫరు));
+                ఒకవేళ (n < 0)
+                        తిరిగి -errno;
+                ఒకవేళ (n == 0)
+                        ఆపు;
 
-                if (!INC_SAFE(&total_size, n) || total_size > max_size)
-                        return -EFBIG;
+                ఒకవేళ (!INC_సురక్షిత(&మొత్తం_కొలత, n) || మొత్తం_కొలత > max_కొలత)
+                        తిరిగి -EFBIG;
 
-                sha256_process_bytes(buffer, n, &ctx);
+                sha256_process_బైట్లు(బఫరు, n, &ctx);
         }
 
-        sha256_finish_ctx(&ctx, ret);
-        return 0;
+        sha256_ముగింపు_ctx(&ctx, ret);
+        తిరిగి 0;
 }
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        _cleanup_free_ uint8_t *data = NULL;
-        size_t size = 0;
-        int r;
+పూర్ణాంకం parse_sha256(స్థిరరాశి అక్షరం *s, uint8_t ret[స్థిర SHA256_DIGEST_కొలత]) {
+        _cleanup_free_ uint8_t *దత్తాంశం = ఖాళీ;
+        size_t కొలత = 0;
+        పూర్ణాంకం r;
 
-        if (!sha256_is_valid(s))
-                return -EINVAL;
+        ఒకవేళ (!sha256_is_valid(s))
+                తిరిగి -EINVAL;
 
-        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (void**) &data, &size);
-        if (r < 0)
-                return r;
-        assert(size == SHA256_DIGEST_SIZE);
+        r = unhexmem_నిండిన(s, SHA256_DIGEST_కొలత * 2, false, (శూన్య**) &దత్తాంశం, &కొలత);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(కొలత == SHA256_DIGEST_కొలత);
 
-        memcpy(ret, data, size);
-        return 0;
+        జ్ఞాపకం_నకలు(ret, దత్తాంశం, కొలత);
+        తిరిగి 0;
 }
 
-bool sha256_is_valid(const char *s) {
-        return s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
+bool sha256_is_valid(స్థిరరాశి అక్షరం *s) {
+        తిరిగి s && లోపల_charset(s, HEXDIGITS) && (అక్షరశ్రేణి_పొడవు(s) == SHA256_DIGEST_కొలత * 2);
 }
 
-char* sha256_direct_hex(const void *buffer, size_t sz) {
-        assert(buffer || sz == 0);
+అక్షరం* sha256_ప్రత్యక్ష_hex(స్థిరరాశి శూన్య *బఫరు, size_t sz) {
+        ప్రతిజ్ఞా(బఫరు || sz == 0);
 
-        if (sz == SIZE_MAX)
-                sz = strlen(buffer);
+        ఒకవేళ (sz == SIZE_MAX)
+                sz = అక్షరశ్రేణి_పొడవు(బఫరు);
 
-        return hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
+        తిరిగి hexmem(SHA256_ప్రత్యక్ష(బఫరు, sz), SHA256_DIGEST_కొలత);
 }

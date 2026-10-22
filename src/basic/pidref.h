@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <signal.h>
+#అన్తర్భావ <signal.h>
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
 /* An embeddable structure carrying a reference to a process. Supposed to be used when tracking processes
  * continuously. This combines a PID, a modern Linux pidfd and the 64bit inode number of the pidfd into one
@@ -28,118 +28,118 @@
  *    process. Moreover, most operations will fail with -EREMOTE. Only PidRef structures that are not marked
  *    *unset* can be marked *remote*.
  */
-typedef struct PidRef {
+రకనిర్వచనం నిర్మాణం PidRef {
         pid_t pid;      /* > 0 if the PidRef is set, otherwise set to INT_MIN (PID_AUTOMATIC) if automatic
                          * mode is desired, or 0 otherwise. */
-        int fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
+        పూర్ణాంకం fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
                          * know that the PID is not from the local machine we set this to -EREMOTE, otherwise
                          * we use -EBADF as indicator the fd is invalid. */
         uint64_t fd_id; /* the inode number of pidfd. only useful in kernel 6.9+ where pidfds live in
                            their own pidfs and each process comes with a unique inode number */
 } PidRef;
 
-#define PIDREF_NULL (PidRef) { .fd = -EBADF }
+#నిర్వచించు PIDREF_NULL (PidRef) { .fd = -EBADF }
 
 /* A special pidref value that we are using when a PID shall be automatically acquired from some surrounding
  * context, for example connection peer. Much like PIDREF_NULL it will be considered unset by
  * pidref_is_set(). */
-#define PIDREF_AUTOMATIC (const PidRef) { .pid = (pid_t) INT_MIN, .fd = -EBADF }
+#నిర్వచించు PIDREF_AUTOMATIC (స్థిరరాశి PidRef) { .pid = (pid_t) INT_MIN, .fd = -EBADF }
 
 /* Turns a pid_t into a PidRef structure on-the-fly *without* acquiring a pidfd for it. (As opposed to
  * pidref_set_pid() which does so *with* acquiring one, see below) */
-#define PIDREF_MAKE_FROM_PID(x) (PidRef) { .pid = (x), .fd = -EBADF }
+#నిర్వచించు PIDREF_MAKE_FROM_PID(x) (PidRef) { .pid = (x), .fd = -EBADF }
 
-static inline bool pidref_is_set(const PidRef *pidref) {
-        return pidref && pidref->pid > 0;
+స్థిర అంతఃవరుస bool pidref_is_సమితి(స్థిరరాశి PidRef *pidref) {
+        తిరిగి pidref && pidref->pid > 0;
 }
 
-bool pidref_is_automatic(const PidRef *pidref);
+bool pidref_is_automatic(స్థిరరాశి PidRef *pidref);
 
-static inline bool pidref_is_set_or_automatic(const PidRef *pidref) {
-        return pidref_is_set(pidref) || pidref_is_automatic(pidref);
+స్థిర అంతఃవరుస bool pidref_is_సమితి_or_automatic(స్థిరరాశి PidRef *pidref) {
+        తిరిగి pidref_is_సమితి(pidref) || pidref_is_automatic(pidref);
 }
 
-static inline bool pidref_is_remote(const PidRef *pidref) {
+స్థిర అంతఃవరుస bool pidref_is_remote(స్థిరరాశి PidRef *pidref) {
         /* If the fd is set to -EREMOTE we assume PidRef does not refer to a local PID, but on another
          * machine (and we just got the PidRef initialized due to deserialization of some RPC message) */
-        return pidref_is_set(pidref) && pidref->fd == -EREMOTE;
+        తిరిగి pidref_is_సమితి(pidref) && pidref->fd == -EREMOTE;
 }
 
-int pidref_acquire_pidfd_id(PidRef *pidref);
+పూర్ణాంకం pidref_acquire_pidfd_id(PidRef *pidref);
 bool pidref_equal(PidRef *a, PidRef *b);
 
 /* This turns a pid_t into a PidRef structure, and acquires a pidfd for it, if possible. (As opposed to
  * PIDREF_MAKE_FROM_PID() above, which does not acquire a pidfd.) */
-int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags);
-static inline int pidref_set_pid(PidRef *pidref, pid_t pid) {
-        return pidref_set_pid_full(pidref, pid, /* flags= */ 0);
+పూర్ణాంకం pidref_సమితి_pid_నిండిన(PidRef *pidref, pid_t pid, గుర్తులేని flags);
+స్థిర అంతఃవరుస పూర్ణాంకం pidref_సమితి_pid(PidRef *pidref, pid_t pid) {
+        తిరిగి pidref_సమితి_pid_నిండిన(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pidstr_full(PidRef *pidref, const char *pid, unsigned flags);
-static inline int pidref_set_pidstr(PidRef *pidref, const char *pid) {
-        return pidref_set_pidstr_full(pidref, pid, /* flags= */ 0);
+పూర్ణాంకం pidref_సమితి_pidstr_నిండిన(PidRef *pidref, స్థిరరాశి అక్షరం *pid, గుర్తులేని flags);
+స్థిర అంతఃవరుస పూర్ణాంకం pidref_సమితి_pidstr(PidRef *pidref, స్థిరరాశి అక్షరం *pid) {
+        తిరిగి pidref_సమితి_pidstr_నిండిన(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
-int pidref_set_pidfd(PidRef *pidref, int fd);
-int pidref_set_pidfd_take(PidRef *pidref, int fd); /* takes ownership of the passed pidfd on success */
-int pidref_set_pidfd_consume(PidRef *pidref, int fd); /* takes ownership of the passed pidfd in both success and failure */
-int pidref_set_parent(PidRef *ret);
-static inline int pidref_set_self(PidRef *pidref) {
-        return pidref_set_pid(pidref, 0);
+పూర్ణాంకం pidref_సమితి_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
+పూర్ణాంకం pidref_సమితి_pidfd(PidRef *pidref, పూర్ణాంకం fd);
+పూర్ణాంకం pidref_సమితి_pidfd_take(PidRef *pidref, పూర్ణాంకం fd); /* takes ownership of the passed pidfd on success */
+పూర్ణాంకం pidref_సమితి_pidfd_consume(PidRef *pidref, పూర్ణాంకం fd); /* takes ownership of the passed pidfd in both success and failure */
+పూర్ణాంకం pidref_సమితి_మాతృ(PidRef *ret);
+స్థిర అంతఃవరుస పూర్ణాంకం pidref_సమితి_self(PidRef *pidref) {
+        తిరిగి pidref_సమితి_pid(pidref, 0);
 }
 
 bool pidref_is_self(PidRef *pidref);
 
-void pidref_done(PidRef *pidref);
+శూన్య pidref_పూర్తి(PidRef *pidref);
 PidRef* pidref_free(PidRef *pidref);
 DEFINE_TRIVIAL_CLEANUP_FUNC(PidRef*, pidref_free);
 
-int pidref_copy(const PidRef *pidref, PidRef *ret);
-int pidref_dup(const PidRef *pidref, PidRef **ret);
+పూర్ణాంకం pidref_copy(స్థిరరాశి PidRef *pidref, PidRef *ret);
+పూర్ణాంకం pidref_dup(స్థిరరాశి PidRef *pidref, PidRef **ret);
 
-int pidref_new_from_pid(pid_t pid, PidRef **ret);
+పూర్ణాంకం pidref_new_from_pid(pid_t pid, PidRef **ret);
 
-int pidref_kill(const PidRef *pidref, int sig);
-int pidref_kill_and_sigcont(const PidRef *pidref, int sig);
-int pidref_sigqueue(const PidRef *pidref, int sig, int value);
+పూర్ణాంకం pidref_kill(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig);
+పూర్ణాంకం pidref_kill_and_sigcont(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig);
+పూర్ణాంకం pidref_sigqueue(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig, పూర్ణాంకం విలువ);
 
-int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
-static inline int pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
-        return pidref_wait_for_terminate_full(pidref, USEC_INFINITY, ret_si);
+పూర్ణాంకం pidref_wait_for_terminate_నిండిన(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
+స్థిర అంతఃవరుస పూర్ణాంకం pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
+        తిరిగి pidref_wait_for_terminate_నిండిన(pidref, USEC_INFINITY, ret_si);
 }
 
-static inline void pidref_done_sigterm_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+స్థిర అంతఃవరుస శూన్య pidref_పూర్తి_sigterm_wait(PidRef *pidref) {
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి;
 
-        (void) pidref_kill(pidref, SIGTERM);
-        (void) pidref_wait_for_terminate(pidref, NULL);
-        pidref_done(pidref);
+        (శూన్య) pidref_kill(pidref, SIGTERM);
+        (శూన్య) pidref_wait_for_terminate(pidref, ఖాళీ);
+        pidref_పూర్తి(pidref);
 }
 
-static inline void pidref_done_sigkill_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+స్థిర అంతఃవరుస శూన్య pidref_పూర్తి_sigkill_wait(PidRef *pidref) {
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి;
 
-        (void) pidref_kill(pidref, SIGKILL);
-        (void) pidref_wait_for_terminate(pidref, NULL);
-        pidref_done(pidref);
+        (శూన్య) pidref_kill(pidref, SIGKILL);
+        (శూన్య) pidref_wait_for_terminate(pidref, ఖాళీ);
+        pidref_పూర్తి(pidref);
 }
 
-static inline void pidref_done_sigkill_nowait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+స్థిర అంతఃవరుస శూన్య pidref_పూర్తి_sigkill_nowait(PidRef *pidref) {
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి;
 
-        (void) pidref_kill(pidref, SIGKILL);
-        pidref_done(pidref);
+        (శూన్య) pidref_kill(pidref, SIGKILL);
+        pidref_పూర్తి(pidref);
 }
 
-int pidref_verify(const PidRef *pidref);
+పూర్ణాంకం pidref_verify(స్థిరరాశి PidRef *pidref);
 
-#define TAKE_PIDREF(p) TAKE_GENERIC((p), PidRef, PIDREF_NULL)
+#నిర్వచించు TAKE_PIDREF(p) TAKE_GENERIC((p), PidRef, PIDREF_NULL)
 
-struct siphash;
-void pidref_hash_func(const PidRef *pidref, struct siphash *state);
-int pidref_compare_func(const PidRef *a, const PidRef *b);
+నిర్మాణం siphash;
+శూన్య pidref_hash_func(స్థిరరాశి PidRef *pidref, నిర్మాణం siphash *state);
+పూర్ణాంకం pidref_compare_func(స్థిరరాశి PidRef *a, స్థిరరాశి PidRef *b);
 
-extern const struct hash_ops pidref_hash_ops;
-extern const struct hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops pidref_hash_ops;
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */

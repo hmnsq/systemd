@@ -1,91 +1,91 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sys/stat.h>
 
-#include "device-nodes.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "utf8.h"
+#అన్తర్భావ "device-nodes.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "stdio-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+పూర్ణాంకం allow_listed_char_for_devnode(అక్షరం c, స్థిరరాశి అక్షరం *additional) {
+        తిరిగి
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
                 strchr("#+-.:=@_", c) ||
                 (additional && strchr(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
+పూర్ణాంకం encode_devnode_name(స్థిరరాశి అక్షరం *str, అక్షరం *str_enc, size_t len) {
         size_t i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        ఒకవేళ (!str || !str_enc)
+                తిరిగి -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        కొరకు (i = 0, j = 0; str[i] != '\0'; i++) {
+                పూర్ణాంకం seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                ఒకవేళ (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        ఒకవేళ (len-j < (size_t) seqlen)
+                                తిరిగి -EINVAL;
 
-                        memcpy(&str_enc[j], &str[i], seqlen);
+                        జ్ఞాపకం_నకలు(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } లేకపోతే ఒకవేళ (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], ఖాళీ)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        ఒకవేళ (len-j < 5)
+                                తిరిగి -EINVAL;
 
-                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
+                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (గుర్తులేని అక్షరం) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } లేకపోతే {
+                        ఒకవేళ (len-j < 1)
+                                తిరిగి -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        ఒకవేళ (len-j < 1)
+                తిరిగి -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        తిరిగి 0;
 }
 
-int devnode_same(const char *a, const char *b) {
-        struct stat sa, sb;
-        int r;
+పూర్ణాంకం devnode_same(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b) {
+        నిర్మాణం stat sa, sb;
+        పూర్ణాంకం r;
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        ఒకవేళ (!valid_device_కణుపు_మార్గం(a) || !valid_device_కణుపు_మార్గం(b))
+                తిరిగి -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        ఒకవేళ (stat(a, &sa) < 0)
+                తిరిగి -errno;
+        r = stat_verify_device_కణుపు(&sa);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
-        r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        ఒకవేళ (stat(b, &sb) < 0)
+                తిరిగి -errno;
+        r = stat_verify_device_కణుపు(&sb);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        ఒకవేళ (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                తిరిగి false;
 
-        return sa.st_rdev == sb.st_rdev;
+        తిరిగి sa.st_rdev == sb.st_rdev;
 }

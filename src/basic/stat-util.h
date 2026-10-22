@@ -1,169 +1,169 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <sys/stat.h>           /* IWYU pragma: export */
-#include <sys/statfs.h>         /* IWYU pragma: export */
+#అన్తర్భావ <sys/stat.h>           /* IWYU pragma: export */
+#అన్తర్భావ <sys/statfs.h>         /* IWYU pragma: export */
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-int stat_verify_regular(const struct stat *st);
-int statx_verify_regular(const struct statx *stx);
-int verify_regular_at(int fd, const char *path, bool follow);
-int fd_verify_regular(int fd);
+పూర్ణాంకం stat_verify_regular(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం statx_verify_regular(స్థిరరాశి నిర్మాణం statx *stx);
+పూర్ణాంకం verify_regular_at(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, bool follow);
+పూర్ణాంకం fd_verify_regular(పూర్ణాంకం fd);
 
-int stat_verify_directory(const struct stat *st);
-int statx_verify_directory(const struct statx *stx);
-int fd_verify_directory(int fd);
-int is_dir_at(int fd, const char *path, bool follow);
-int is_dir(const char *path, bool follow);
+పూర్ణాంకం stat_verify_directory(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం statx_verify_directory(స్థిరరాశి నిర్మాణం statx *stx);
+పూర్ణాంకం fd_verify_directory(పూర్ణాంకం fd);
+పూర్ణాంకం is_dir_at(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, bool follow);
+పూర్ణాంకం is_dir(స్థిరరాశి అక్షరం *మార్గం, bool follow);
 
-int stat_verify_symlink(const struct stat *st);
-int fd_verify_symlink(int fd);
-int is_symlink(const char *path);
+పూర్ణాంకం stat_verify_symlink(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం fd_verify_symlink(పూర్ణాంకం fd);
+పూర్ణాంకం is_symlink(స్థిరరాశి అక్షరం *మార్గం);
 
-int stat_verify_socket(const struct stat *st);
-int statx_verify_socket(const struct statx *stx);
-int fd_verify_socket(int fd);
-int is_socket(const char *path);
+పూర్ణాంకం stat_verify_socket(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం statx_verify_socket(స్థిరరాశి నిర్మాణం statx *stx);
+పూర్ణాంకం fd_verify_socket(పూర్ణాంకం fd);
+పూర్ణాంకం is_socket(స్థిరరాశి అక్షరం *మార్గం);
 
-int stat_verify_linked(const struct stat *st);
-int fd_verify_linked(int fd);
+పూర్ణాంకం stat_verify_linked(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం fd_verify_linked(పూర్ణాంకం fd);
 
-int stat_verify_block(const struct stat *st);
-int fd_verify_block(int fd);
+పూర్ణాంకం stat_verify_ఖండం(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం fd_verify_ఖండం(పూర్ణాంకం fd);
 
-int stat_verify_char(const struct stat *st);
+పూర్ణాంకం stat_verify_char(స్థిరరాశి నిర్మాణం stat *st);
 
-int stat_verify_device_node(const struct stat *st);
-int is_device_node(const char *path);
+పూర్ణాంకం stat_verify_device_కణుపు(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం is_device_కణుపు(స్థిరరాశి అక్షరం *మార్గం);
 
-int stat_verify_regular_or_block(const struct stat *st);
-int fd_verify_regular_or_block(int fd);
+పూర్ణాంకం stat_verify_regular_or_ఖండం(స్థిరరాశి నిర్మాణం stat *st);
+పూర్ణాంకం fd_verify_regular_or_ఖండం(పూర్ణాంకం fd);
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup);
-static inline int dir_is_empty(const char *path, bool ignore_hidden_or_backup) {
-        return dir_is_empty_at(AT_FDCWD, path, ignore_hidden_or_backup);
+పూర్ణాంకం dir_is_ఖాళీలు_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, bool ignore_hidden_or_backup);
+స్థిర అంతఃవరుస పూర్ణాంకం dir_is_ఖాళీలు(స్థిరరాశి అక్షరం *మార్గం, bool ignore_hidden_or_backup) {
+        తిరిగి dir_is_ఖాళీలు_at(AT_FDCWD, మార్గం, ignore_hidden_or_backup);
 }
 
-bool stat_may_be_dev_null(struct stat *st) _pure_;
-bool stat_is_empty(struct stat *st) _pure_;
-static inline bool null_or_empty(struct stat *st) {
-        return stat_may_be_dev_null(st) || stat_is_empty(st);
+bool stat_may_be_dev_null(నిర్మాణం stat *st) శుద్ధ;
+bool stat_is_ఖాళీలు(నిర్మాణం stat *st) శుద్ధ;
+స్థిర అంతఃవరుస bool null_or_ఖాళీలు(నిర్మాణం stat *st) {
+        తిరిగి stat_may_be_dev_null(st) || stat_is_ఖాళీలు(st);
 }
-int null_or_empty_path_with_root(const char *fn, const char *root);
+పూర్ణాంకం null_or_ఖాళీలు_మార్గం_with_మూలం(స్థిరరాశి అక్షరం *fn, స్థిరరాశి అక్షరం *మూలం);
 
-static inline int null_or_empty_path(const char *fn) {
-        return null_or_empty_path_with_root(fn, NULL);
+స్థిర అంతఃవరుస పూర్ణాంకం null_or_ఖాళీలు_మార్గం(స్థిరరాశి అక్షరం *fn) {
+        తిరిగి null_or_ఖాళీలు_మార్గం_with_మూలం(fn, ఖాళీ);
 }
 
-typedef enum XStatXFlags {
-        XSTATX_MNT_ID_BEST = 1 << 0, /* Like STATX_MNT_ID_UNIQUE if available, STATX_MNT_ID otherwise */
+రకనిర్వచనం గణన XStatXFlags {
+        XSTATX_MNT_ID_ఉత్తమ = 1 << 0, /* Like STATX_MNT_ID_UNIQUE if available, STATX_MNT_ID otherwise */
 } XStatXFlags;
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+పూర్ణాంకం xstatx_నిండిన(పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం statx_flags,
                 XStatXFlags xstatx_flags,
-                unsigned mandatory_mask,
-                unsigned optional_mask,
-                uint64_t mandatory_attributes,
-                struct statx *ret);
+                గుర్తులేని mandatory_ముసుగు,
+                గుర్తులేని optional_ముసుగు,
+                uint64_t mandatory_లక్షణాలు,
+                నిర్మాణం statx *ret);
 
-static inline int xstatx(
-                int fd,
-                const char *path,
-                int statx_flags,
-                unsigned mandatory_mask,
-                struct statx *ret) {
+స్థిర అంతఃవరుస పూర్ణాంకం xstatx(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం statx_flags,
+                గుర్తులేని mandatory_ముసుగు,
+                నిర్మాణం statx *ret) {
 
-        return xstatx_full(fd, path, statx_flags, 0, mandatory_mask, 0, 0, ret);
+        తిరిగి xstatx_నిండిన(fd, మార్గం, statx_flags, 0, mandatory_ముసుగు, 0, 0, ret);
 }
 
-int fd_is_read_only_fs(int fd);
-int path_is_read_only_fs(const char *path);
+పూర్ణాంకం fd_is_read_only_fs(పూర్ణాంకం fd);
+పూర్ణాంకం మార్గం_is_read_only_fs(స్థిరరాశి అక్షరం *మార్గం);
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags);
-static inline int inode_same(const char *filea, const char *fileb, int flags) {
-        return inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
+పూర్ణాంకం inode_same_at(పూర్ణాంకం fda, స్థిరరాశి అక్షరం *filea, పూర్ణాంకం fdb, స్థిరరాశి అక్షరం *fileb, పూర్ణాంకం flags);
+స్థిర అంతఃవరుస పూర్ణాంకం inode_same(స్థిరరాశి అక్షరం *filea, స్థిరరాశి అక్షరం *fileb, పూర్ణాంకం flags) {
+        తిరిగి inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
 }
-static inline int fd_inode_same(int fda, int fdb) {
-        return inode_same_at(fda, NULL, fdb, NULL, AT_EMPTY_PATH);
+స్థిర అంతఃవరుస పూర్ణాంకం fd_inode_same(పూర్ణాంకం fda, పూర్ణాంకం fdb) {
+        తిరిగి inode_same_at(fda, ఖాళీ, fdb, ఖాళీ, AT_ఖాళీలు_మార్గం);
 }
 
 /* The .f_type field of struct statfs is really weird defined on
  * different archs. Let's give its type a name. */
-typedef typeof_field(struct statfs, f_type) statfs_f_type_t;
+రకనిర్వచనం typeof_క్షేత్రం(నిర్మాణం statfs, f_type) statfs_f_type_t;
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) _pure_;
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value);
-static inline int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
-        return is_fs_type_at(fd, NULL, magic_value);
+bool is_fs_type(స్థిరరాశి నిర్మాణం statfs *s, statfs_f_type_t magic_విలువ) శుద్ధ;
+పూర్ణాంకం is_fs_type_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, statfs_f_type_t magic_విలువ);
+స్థిర అంతఃవరుస పూర్ణాంకం fd_is_fs_type(పూర్ణాంకం fd, statfs_f_type_t magic_విలువ) {
+        తిరిగి is_fs_type_at(fd, ఖాళీ, magic_విలువ);
 }
-static inline int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
-        return is_fs_type_at(AT_FDCWD, path, magic_value);
+స్థిర అంతఃవరుస పూర్ణాంకం మార్గం_is_fs_type(స్థిరరాశి అక్షరం *మార్గం, statfs_f_type_t magic_విలువ) {
+        తిరిగి is_fs_type_at(AT_FDCWD, మార్గం, magic_విలువ);
 }
 
-bool is_temporary_fs(const struct statfs *s) _pure_;
-bool is_network_fs(const struct statfs *s) _pure_;
+bool is_temporary_fs(స్థిరరాశి నిర్మాణం statfs *s) శుద్ధ;
+bool is_జాలం_fs(స్థిరరాశి నిర్మాణం statfs *s) శుద్ధ;
 
-int fd_is_temporary_fs(int fd);
-int fd_is_network_fs(int fd);
+పూర్ణాంకం fd_is_temporary_fs(పూర్ణాంకం fd);
+పూర్ణాంకం fd_is_జాలం_fs(పూర్ణాంకం fd);
 
-int path_is_temporary_fs(const char *path);
-int path_is_network_fs(const char *path);
+పూర్ణాంకం మార్గం_is_temporary_fs(స్థిరరాశి అక్షరం *మార్గం);
+పూర్ణాంకం మార్గం_is_జాలం_fs(స్థిరరాశి అక్షరం *మార్గం);
 
 /* Because statfs.t_type can be int on some architectures, we have to cast
  * the const magic to the type, otherwise the compiler warns about
  * signed/unsigned comparison, because the magic can be 32 bit unsigned.
  */
-#define F_TYPE_EQUAL(a, b) (a == (typeof(a)) b)
+#నిర్వచించు F_TYPE_EQUAL(a, b) (a == (typeof(a)) b)
 
-int proc_mounted(void);
+పూర్ణాంకం proc_mounted(శూన్య);
 
-bool stat_inode_same(const struct stat *a, const struct stat *b);
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b);
+bool stat_inode_same(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b);
+bool stat_inode_unmodified(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b);
 
-bool statx_inode_same(const struct statx *a, const struct statx *b);
-int statx_mount_same(const struct statx *a, const struct statx *b);
+bool statx_inode_same(స్థిరరాశి నిర్మాణం statx *a, స్థిరరాశి నిర్మాణం statx *b);
+పూర్ణాంకం statx_mount_same(స్థిరరాశి నిర్మాణం statx *a, స్థిరరాశి నిర్మాణం statx *b);
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret);
+పూర్ణాంకం xstatfsat(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, నిర్మాణం statfs *ret);
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) _pure_;
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) _pure_;
+usec_t statx_timestamp_ఎక్కించు(స్థిరరాశి నిర్మాణం statx_timestamp *ts) శుద్ధ;
+nsec_t statx_timestamp_ఎక్కించు_nsec(స్థిరరాశి నిర్మాణం statx_timestamp *ts) శుద్ధ;
 
 /* This compares inode number, backing device and inode type, but not modification info */
-void inode_hash_func(const struct stat *q, struct siphash *state);
-int inode_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_hash_ops;
+శూన్య inode_hash_func(స్థిరరాశి నిర్మాణం stat *q, నిర్మాణం siphash *state);
+పూర్ణాంకం inode_compare_func(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b);
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops inode_hash_ops;
 
 /* This is a more thorough version of the above, and also checks the mtimes, the size, and the rdev. It does
  * not check "external" attributes such as access mode or ownership. */
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state);
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_unmodified_hash_ops;
+శూన్య inode_unmodified_hash_func(స్థిరరాశి నిర్మాణం stat *q, నిర్మాణం siphash *state);
+పూర్ణాంకం inode_unmodified_compare_func(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b);
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops inode_unmodified_hash_ops;
 
-DECLARE_STRING_TABLE_LOOKUP(inode_type, mode_t);
+DECLARE_STRING_పట్టిక_LOOKUP(inode_type, mode_t);
 
 /* Macros that check whether the stat/statx structures have been initialized already. For "struct stat" we
  * use a check for .st_dev being non-zero, since the kernel unconditionally fills that in, mapping the file
  * to its originating superblock, regardless if the fs is block based or virtual (we also check for .st_mode
  * being MODE_INVALID, since we use that as an invalid marker for separate mode_t fields). For "struct statx"
  * we use the .stx_mask field, which must be non-zero if any of the fields have already been initialized. */
-static inline bool stat_is_set(const struct stat *st) {
-        return st && st->st_dev != 0 && st->st_mode != MODE_INVALID;
+స్థిర అంతఃవరుస bool stat_is_సమితి(స్థిరరాశి నిర్మాణం stat *st) {
+        తిరిగి st && st->st_dev != 0 && st->st_mode != బహుళకం_INVALID;
 }
-static inline bool statx_is_set(const struct statx *sx) {
-        return sx && sx->stx_mask != 0;
+స్థిర అంతఃవరుస bool statx_is_సమితి(స్థిరరాశి నిర్మాణం statx *sx) {
+        తిరిగి sx && sx->stx_ముసుగు != 0;
 }
-static inline bool statfs_is_set(const struct statfs *sfs) {
-        return sfs && sfs->f_type != 0;
+స్థిర అంతఃవరుస bool statfs_is_సమితి(స్థిరరాశి నిర్మాణం statfs *sfs) {
+        తిరిగి sfs && sfs->f_type != 0;
 }
 
-static inline bool inode_type_can_hardlink(mode_t m) {
+స్థిర అంతఃవరుస bool inode_type_can_hardlink(mode_t m) {
         /* returns true for all inode types that support hardlinks on linux. Note this is effectively all
          * inode types except for directories (and those weird misc fds such as eventfds() that have no inode
          * type). */
-        return IN_SET(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
+        తిరిగి లోపల_సమితి(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret);
+పూర్ణాంకం vfs_free_బైట్లు(పూర్ణాంకం fd, uint64_t *ret);

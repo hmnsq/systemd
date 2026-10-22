@@ -1,55 +1,55 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#అన్తర్భావ <stdlib.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "hashmap.h"
-#include "hostname-util.h"
-#include "log.h"
-#include "os-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "user-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "env-file.h"
+#అన్తర్భావ "hashmap.h"
+#అన్తర్భావ "hostname-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "os-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "user-util.h"
 
-char* get_default_hostname_raw(void) {
-        int r;
+అక్షరం* get_default_hostname_raw(శూన్య) {
+        పూర్ణాంకం r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
-        const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        స్థిరరాశి అక్షరం *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
+        ఒకవేళ (e) {
+                ఒకవేళ (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_మాట_TOKEN))
+                        తిరిగి strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
-        _cleanup_free_ char *f = NULL;
-        r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        _cleanup_free_ అక్షరం *f = ఖాళీ;
+        r = parse_os_release(ఖాళీ, "DEFAULT_HOSTNAME", &f);
+        ఒకవేళ (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        లేకపోతే ఒకవేళ (f) {
+                ఒకవేళ (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_మాట_TOKEN))
+                        తిరిగి TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        తిరిగి strdup(FALLBACK_HOSTNAME);
 }
 
-bool valid_ldh_char(char c) {
+bool valid_ldh_char(అక్షరం c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        తిరిగి ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
-        unsigned n_dots = 0;
-        const char *p;
+bool hostname_is_valid(స్థిరరాశి అక్షరం *s, ValidHostnameFlags flags) {
+        గుర్తులేని n_dots = 0;
+        స్థిరరాశి అక్షరం *p;
         bool dot, hyphen;
 
         /* Check if s looks like a valid hostname or FQDN. This does not do full DNS validation, but only
@@ -60,95 +60,95 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        ఒకవేళ (isempty(s))
+                తిరిగి false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        ఒకవేళ (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                తిరిగి FLAGS_సమితి(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        కొరకు (p = s, dot = hyphen = true; *p; p++)
+                ఒకవేళ (*p == '.') {
+                        ఒకవేళ (dot || hyphen)
+                                తిరిగి false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } లేకపోతే ఒకవేళ (*p == '-') {
+                        ఒకవేళ (dot)
+                                తిరిగి false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
-                            (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
-                            (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                } లేకపోతే {
+                        ఒకవేళ (!valid_ldh_char(*p) &&
+                            (*p != '?' || !FLAGS_సమితి(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
+                            (*p != '$' || !FLAGS_సమితి(flags, VALID_HOSTNAME_మాట_TOKEN)))
+                                తిరిగి false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        ఒకవేళ (dot && (n_dots < 2 || !FLAGS_సమితి(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                తిరిగి false;
+        ఒకవేళ (hyphen)
+                తిరిగి false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        ఒకవేళ (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-char* hostname_cleanup(char *s) {
-        char *p, *d;
+అక్షరం* hostname_cleanup(అక్షరం *s) {
+        అక్షరం *p, *d;
         bool dot, hyphen;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                continue;
+        కొరకు (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                ఒకవేళ (*p == '.') {
+                        ఒకవేళ (dot || hyphen)
+                                కొనసాగు;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                continue;
+                } లేకపోతే ఒకవేళ (*p == '-') {
+                        ఒకవేళ (dot)
+                                కొనసాగు;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } లేకపోతే ఒకవేళ (valid_ldh_char(*p) || లోపల_సమితి(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        అయితే (d > s && లోపల_సమితి(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        తిరిగి s;
 }
 
-bool is_localhost(const char *hostname) {
-        assert(hostname);
+bool is_localhost(స్థిరరాశి అక్షరం *hostname) {
+        ప్రతిజ్ఞా(hostname);
 
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        తిరిగి STRCASE_లోపల_సమితి(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -160,164 +160,164 @@ bool is_localhost(const char *hostname) {
                 endswith_no_case(hostname, ".localhost.localdomain.");
 }
 
-const char* etc_hostname(void) {
-        static const char *cached = NULL;
+స్థిరరాశి అక్షరం* etc_hostname(శూన్య) {
+        స్థిర స్థిరరాశి అక్షరం *cached = ఖాళీ;
 
-        if (!cached)
+        ఒకవేళ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        తిరిగి cached;
 }
 
-const char* etc_machine_info(void) {
-        static const char *cached = NULL;
+స్థిరరాశి అక్షరం* etc_machine_info(శూన్య) {
+        స్థిర స్థిరరాశి అక్షరం *cached = ఖాళీ;
 
-        if (!cached)
+        ఒకవేళ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        తిరిగి cached;
 }
 
-int get_pretty_hostname(char **ret) {
-        _cleanup_free_ char *n = NULL;
-        int r;
+పూర్ణాంకం get_pretty_hostname(అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *n = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        r = parse_env_file(ఖాళీ, etc_machine_info(), "PRETTY_HOSTNAME", &n);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (isempty(n))
-                return -ENXIO;
+        ఒకవేళ (isempty(n))
+                తిరిగి -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        తిరిగి 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
+పూర్ణాంకం విభజించు_user_at_host(స్థిరరాశి అక్షరం *s, అక్షరం **ret_user, అక్షరం **ret_host) {
+        _cleanup_free_ అక్షరం *u = ఖాళీ, *h = ఖాళీ;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
          * each of the two return parameters if that part was left empty. */
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
-        const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        స్థిరరాశి అక్షరం *rhs = strchr(s, '@');
+        ఒకవేళ (rhs) {
+                ఒకవేళ (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        ఒకవేళ (!u)
+                                తిరిగి -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                ఒకవేళ (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        ఒకవేళ (!h)
+                                తిరిగి -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } లేకపోతే {
+                ఒకవేళ (isempty(s))
+                        తిరిగి -EINVAL;
 
-                if (ret_host) {
+                ఒకవేళ (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        ఒకవేళ (!h)
+                                తిరిగి -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        ఒకవేళ (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        ఒకవేళ (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        తిరిగి !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+పూర్ణాంకం machine_spec_valid(స్థిరరాశి అక్షరం *s) {
+        _cleanup_free_ అక్షరం *u = ఖాళీ, *h = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
-        r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        r = విభజించు_user_at_host(s, &u, &h);
+        ఒకవేళ (r == -EINVAL)
+                తిరిగి false;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        ఒకవేళ (u && !valid_user_సమూహం_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                తిరిగి false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        ఒకవేళ (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-bool machine_tag_is_valid(const char *s) {
+bool machine_ట్యాగ్_is_valid(స్థిరరాశి అక్షరం *s) {
         size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+        ఒకవేళ (n <= 0 || n >= 256)
+                తిరిగి false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        ఒకవేళ (strchr("-.=", s[0]))
+                తిరిగి false;
 
         /* We allow parameterization of tags, with a "=" as separator */
-        const char *eq = strchr(s, '=');
-        if (eq) {
-                assert(eq > s);
+        స్థిరరాశి అక్షరం *eq = strchr(s, '=');
+        ఒకవేళ (eq) {
+                ప్రతిజ్ఞా(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                ఒకవేళ (strchr("-.", eq[-1]))
+                        తిరిగి false;
+        } లేకపోతే {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                ఒకవేళ (strchr("-.", s[n-1]))
+                        తిరిగి false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        తిరిగి లోపల_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+పూర్ణాంకం machine_ట్యాగ్_list_is_valid(అక్షరం **l) {
+        పూర్ణాంకం r;
 
-        r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
-        switch (r) {
-        case -EINVAL:
-        case -E2BIG:
-                return false;
-        case 0:
-                return true;
-        default:
-                return r;
+        r = machine_ట్యాగులు_from_strv(l, /* graceful= */ false, /* ret= */ ఖాళీ);
+        ఎంపిక (r) {
+        స్థితి -EINVAL:
+        స్థితి -E2BIG:
+                తిరిగి false;
+        స్థితి 0:
+                తిరిగి true;
+        అప్రమేయ:
+                తిరిగి r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
-        assert(ret);
+పూర్ణాంకం machine_ట్యాగులు_from_string(స్థిరరాశి అక్షరం *s, bool graceful, అక్షరం ***ret) {
+        ప్రతిజ్ఞా(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
-                *ret = NULL;
-                return 0;
+        ఒకవేళ (isempty(s)) {
+                *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ అక్షరం **l = strv_విభజించు(s, ":");
+        ఒకవేళ (!l)
+                తిరిగి -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        తిరిగి machine_ట్యాగులు_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+పూర్ణాంకం machine_ట్యాగులు_from_strv(అక్షరం **l, bool graceful, అక్షరం ***ret) {
+        పూర్ణాంకం r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -328,51 +328,51 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
         /* Maps the key of each tag, i.e. everything up to and including the first '=', or the whole tag if
          * it has no '=', to the tag itself (borrowed from 'l'). A bare tag and an assignment of the same
          * name hence get distinct keys and may coexist. */
-        _cleanup_hashmap_free_ Hashmap *h = NULL;
+        _cleanup_hashmap_free_ Hashmap *h = ఖాళీ;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
-                                continue;
+                ఒకవేళ (!machine_ట్యాగ్_is_valid(*i)) {
+                        ఒకవేళ (graceful)
+                                కొనసాగు;
 
-                        return -EINVAL;
+                        తిరిగి -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                ఒకవేళ (hashmap_కొలత_2(h) >= MACHINE_ట్యాగులు_MAX)
+                        తిరిగి -E2BIG;
 
-                const char *eq = strchrnul(*i, '=');
-                _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                స్థిరరాశి అక్షరం *eq = strchrnul(*i, '=');
+                _cleanup_free_ అక్షరం *k = strndup(*i, (eq - *i) + (*eq == '='));
+                ఒకవేళ (!k)
+                        తిరిగి -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
-                                continue;
-                        if (!graceful)
-                                return -EINVAL;
+                ఒకవేళ (r == -EEXIST) {
+                        ఒకవేళ (streq(hashmap_get(h, k), *i))
+                                కొనసాగు;
+                        ఒకవేళ (!graceful)
+                                తిరిగి -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } లేకపోతే ఒకవేళ (r < 0)
+                        తిరిగి r;
+                లేకపోతే ఒకవేళ (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
-                _cleanup_strv_free_ char **cleaned = NULL;
+        ఒకవేళ (ret) {
+                _cleanup_strv_free_ అక్షరం **cleaned = ఖాళీ;
                 size_t n = 0;
-                char *v;
+                అక్షరం *v;
                 HASHMAP_FOREACH(v, h) {
-                        r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        r = strv_extend_with_కొలత(&cleaned, &n, v);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                strv_sort(cleaned);
+                strv_క్రమీకరించు(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        తిరిగి 0;
 }

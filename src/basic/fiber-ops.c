@@ -1,51 +1,51 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#include <poll.h>
-#include <threads.h>
-#include <unistd.h>
+#అన్తర్భావ <poll.h>
+#అన్తర్భావ <threads.h>
+#అన్తర్భావ <unistd.h>
 
-#include "errno-util.h"
-#include "fiber-ops.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fiber-ops.h"
 
-static thread_local const FiberOps *fiber_ops = NULL;
+స్థిర thread_local స్థిరరాశి FiberOps *fiber_ops = ఖాళీ;
 
-bool fiber_ops_is_set(void) {
-        return fiber_ops != NULL;
+bool fiber_ops_is_సమితి(శూన్య) {
+        తిరిగి fiber_ops != ఖాళీ;
 }
 
-void fiber_ops_set(const FiberOps *ops) {
+శూన్య fiber_ops_సమితి(స్థిరరాశి FiberOps *ops) {
         fiber_ops = ops;
 }
 
-int fiber_ops_ppoll(struct pollfd *fds, size_t n_fds, const struct timespec *timeout, const sigset_t *sigmask) {
-        if (fiber_ops)
-                return fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
+పూర్ణాంకం fiber_ops_ppoll(నిర్మాణం pollfd *fds, size_t n_fds, స్థిరరాశి నిర్మాణం timespec *timeout, స్థిరరాశి sigset_t *sigmask) {
+        ఒకవేళ (fiber_ops)
+                తిరిగి fiber_ops->ppoll(fds, n_fds, timeout, sigmask);
 
-        return RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
+        తిరిగి RET_NERRNO(ppoll(fds, n_fds, timeout, sigmask));
 }
 
-ssize_t fiber_ops_read(int fd, void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->read(fd, buf, count);
+ssize_t fiber_ops_read(పూర్ణాంకం fd, శూన్య *buf, size_t లెక్క) {
+        ఒకవేళ (fiber_ops)
+                తిరిగి fiber_ops->పఠ(fd, buf, లెక్క);
 
-        ssize_t n = read(fd, buf, count);
-        return n < 0 ? -errno : n;
+        ssize_t n = పఠ(fd, buf, లెక్క);
+        తిరిగి n < 0 ? -errno : n;
 }
 
-ssize_t fiber_ops_write(int fd, const void *buf, size_t count) {
-        if (fiber_ops)
-                return fiber_ops->write(fd, buf, count);
+ssize_t fiber_ops_write(పూర్ణాంకం fd, స్థిరరాశి శూన్య *buf, size_t లెక్క) {
+        ఒకవేళ (fiber_ops)
+                తిరిగి fiber_ops->లిఖ(fd, buf, లెక్క);
 
-        return RET_NERRNO(write(fd, buf, count));
+        తిరిగి RET_NERRNO(లిఖ(fd, buf, లెక్క));
 }
 
 sd_future* fiber_ops_timeout(uint64_t timeout) {
-        assert(fiber_ops);
+        ప్రతిజ్ఞా(fiber_ops);
 
-        return fiber_ops->timeout(timeout);
+        తిరిగి fiber_ops->timeout(timeout);
 }
 
 sd_future* fiber_ops_timeout_unref(sd_future *timer) {
-        assert(fiber_ops);
+        ప్రతిజ్ఞా(fiber_ops);
 
-        return fiber_ops->timeout_unref(timer);
+        తిరిగి fiber_ops->timeout_unref(timer);
 }

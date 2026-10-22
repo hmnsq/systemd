@@ -1,116 +1,116 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <string.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <string.h>
 
-#include "errno-util.h"
-#include "fanotify-util.h"
-#include "fd-util.h"
-#include "stat-util.h"
-#include "unaligned.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fanotify-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "unaligned.h"
 
-bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotify_event_metadata **ret) {
-        assert(i);
-        assert(ret);
+bool fanotify_event_iterator_తదుపరి(FanotifyEventIterator *i, స్థిరరాశి నిర్మాణం fanotify_event_metadata **ret) {
+        ప్రతిజ్ఞా(i);
+        ప్రతిజ్ఞా(ret);
 
-        if (i->left < sizeof(struct fanotify_event_metadata))
-                return false;
+        ఒకవేళ (i->ఎడమ < పరిమాణం(నిర్మాణం fanotify_event_metadata))
+                తిరిగి false;
 
         /* Read event_len without going through struct fanotify_event_metadata: the struct requires 64-bit
          * alignment (due to the __aligned_u64 mask field), but 'ptr' may only be 4-byte aligned, as the
          * kernel pads events to FANOTIFY_EVENT_ALIGN (4). */
         uint32_t event_len = unaligned_read_ne32(i->ptr);
 
-        if (event_len < sizeof(struct fanotify_event_metadata) ||
-            event_len > i->left ||
-            event_len > sizeof(i->aligned.raw))
-                return false;
+        ఒకవేళ (event_len < పరిమాణం(నిర్మాణం fanotify_event_metadata) ||
+            event_len > i->ఎడమ ||
+            event_len > పరిమాణం(i->aligned.raw))
+                తిరిగి false;
 
         /* Copy the whole event (metadata + info records) into an 8-byte aligned buffer, so the metadata and
          * the trailing records can be dereferenced safely. */
-        memcpy(&i->aligned, i->ptr, event_len);
+        జ్ఞాపకం_నకలు(&i->aligned, i->ptr, event_len);
 
         i->ptr += event_len;
-        i->left -= event_len;
+        i->ఎడమ -= event_len;
 
         *ret = &i->aligned.em;
-        return true;
+        తిరిగి true;
 }
 
-static const struct fanotify_event_info_header* fanotify_event_info_header_first(const struct fanotify_event_metadata *e) {
-        assert(e);
+స్థిర స్థిరరాశి నిర్మాణం fanotify_event_info_header* fanotify_event_info_శీర్షిక_మొదటి(స్థిరరాశి నిర్మాణం fanotify_event_metadata *e) {
+        ప్రతిజ్ఞా(e);
 
-        return (const struct fanotify_event_info_header*) ((const uint8_t*) e + e->metadata_len);
+        తిరిగి (స్థిరరాశి నిర్మాణం fanotify_event_info_header*) ((స్థిరరాశి uint8_t*) e + e->metadata_len);
 }
 
-static bool fanotify_event_info_header_is_valid(
-                const struct fanotify_event_info_header *h,
-                const struct fanotify_event_metadata *e) {
+స్థిర bool fanotify_event_info_శీర్షిక_is_valid(
+                స్థిరరాశి నిర్మాణం fanotify_event_info_header *h,
+                స్థిరరాశి నిర్మాణం fanotify_event_metadata *e) {
 
-        assert(h);
-        assert(e);
+        ప్రతిజ్ఞా(h);
+        ప్రతిజ్ఞా(e);
 
-        return (const uint8_t*) h + sizeof(*h) <= (const uint8_t*) e + e->event_len &&
-                h->len >= sizeof(*h) &&
-                (const uint8_t*) h + h->len <= (const uint8_t*) e + e->event_len;
+        తిరిగి (స్థిరరాశి uint8_t*) h + పరిమాణం(*h) <= (స్థిరరాశి uint8_t*) e + e->event_len &&
+                h->len >= పరిమాణం(*h) &&
+                (స్థిరరాశి uint8_t*) h + h->len <= (స్థిరరాశి uint8_t*) e + e->event_len;
 }
 
-static const struct fanotify_event_info_header* fanotify_event_info_header_next(const struct fanotify_event_info_header *h) {
-        assert(h);
+స్థిర స్థిరరాశి నిర్మాణం fanotify_event_info_header* fanotify_event_info_శీర్షిక_తదుపరి(స్థిరరాశి నిర్మాణం fanotify_event_info_header *h) {
+        ప్రతిజ్ఞా(h);
 
-        return (const struct fanotify_event_info_header*) ((const uint8_t*) h + h->len);
+        తిరిగి (స్థిరరాశి నిర్మాణం fanotify_event_info_header*) ((స్థిరరాశి uint8_t*) h + h->len);
 }
 
 /* This evaluates arguments multiple times */
-#define FOREACH_FANOTIFY_EVENT_INFO(h, e)                               \
-        for (const struct fanotify_event_info_header *h = fanotify_event_info_header_first(e); \
-             fanotify_event_info_header_is_valid(h, e);                 \
-             h = fanotify_event_info_header_next(h))
+#నిర్వచించు FOREACH_FANOTIFY_EVENT_INFO(h, e)                               \
+        కొరకు (స్థిరరాశి నిర్మాణం fanotify_event_info_header *h = fanotify_event_info_శీర్షిక_మొదటి(e); \
+             fanotify_event_info_శీర్షిక_is_valid(h, e);                 \
+             h = fanotify_event_info_శీర్షిక_తదుపరి(h))
 
-#define FID_MIN_SIZE (offsetof(struct fanotify_event_info_fid, handle) + offsetof(struct file_handle, f_handle))
+#నిర్వచించు FID_MIN_కొలత (offsetof(నిర్మాణం fanotify_event_info_fid, handle) + offsetof(నిర్మాణం file_handle, f_handle))
 
-int fanotify_event_pin_fd(
-                const struct fanotify_event_metadata *e,
-                int mount_fd,
-                const struct statfs *sfs) {
+పూర్ణాంకం fanotify_event_pin_fd(
+                స్థిరరాశి నిర్మాణం fanotify_event_metadata *e,
+                పూర్ణాంకం mount_fd,
+                స్థిరరాశి నిర్మాణం statfs *sfs) {
 
-        assert(e);
-        assert(mount_fd >= 0);
+        ప్రతిజ్ఞా(e);
+        ప్రతిజ్ఞా(mount_fd >= 0);
 
         FOREACH_FANOTIFY_EVENT_INFO(h, e) {
-                if (h->info_type != FAN_EVENT_INFO_TYPE_FID)
-                        continue;
+                ఒకవేళ (h->info_type != FAN_EVENT_INFO_TYPE_FID)
+                        కొనసాగు;
 
-                if (h->len < FID_MIN_SIZE)
-                        return -EBADMSG;
+                ఒకవేళ (h->len < FID_MIN_కొలత)
+                        తిరిగి -EBADMSG;
 
-                const struct fanotify_event_info_fid *fid = (const struct fanotify_event_info_fid*) h;
-                struct file_handle *fh = (struct file_handle*) fid->handle;
+                స్థిరరాశి నిర్మాణం fanotify_event_info_fid *fid = (స్థిరరాశి నిర్మాణం fanotify_event_info_fid*) h;
+                నిర్మాణం file_handle *fh = (నిర్మాణం file_handle*) fid->handle;
 
-                if (h->len < FID_MIN_SIZE + fh->handle_bytes)
-                        return -EBADMSG;
+                ఒకవేళ (h->len < FID_MIN_కొలత + fh->handle_బైట్లు)
+                        తిరిగి -EBADMSG;
 
-                struct statfs our_sfs;
-                if (!statfs_is_set(sfs)) {
-                        if (fstatfs(mount_fd, &our_sfs) < 0)
-                                return -errno;
+                నిర్మాణం statfs our_sfs;
+                ఒకవేళ (!statfs_is_సమితి(sfs)) {
+                        ఒకవేళ (fstatfs(mount_fd, &our_sfs) < 0)
+                                తిరిగి -errno;
 
                         sfs = &our_sfs;
                 }
 
-                if (memcmp(&fid->fsid, &sfs->f_fsid, sizeof(fid->fsid)) != 0)
-                        return -ESTALE;
+                ఒకవేళ (memcmp(&fid->fsid, &sfs->f_fsid, పరిమాణం(fid->fsid)) != 0)
+                        తిరిగి -ESTALE;
 
-                return RET_NERRNO(open_by_handle_at(mount_fd, fh, O_CLOEXEC | O_PATH));
+                తిరిగి RET_NERRNO(open_by_handle_at(mount_fd, fh, O_CLOEXEC | O_మార్గం));
         }
 
-        return -ENODATA;
+        తిరిగి -ENODATA;
 }
 
-int fanotify_mark_fd(int fanotify_fd, unsigned flags, uint64_t mask, int fd) {
-        assert(fanotify_fd >= 0);
-        assert(fd >= 0);
+పూర్ణాంకం fanotify_mark_fd(పూర్ణాంకం fanotify_fd, గుర్తులేని flags, uint64_t ముసుగు_3, పూర్ణాంకం fd) {
+        ప్రతిజ్ఞా(fanotify_fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         /* This also works for O_PATH fds, which fanotify_mark() rejects as dirfd. */
-        return RET_NERRNO(fanotify_mark(fanotify_fd, flags, mask, AT_FDCWD, FORMAT_PROC_FD_PATH(fd)));
+        తిరిగి RET_NERRNO(fanotify_mark(fanotify_fd, flags, ముసుగు_3, AT_FDCWD, FORMAT_PROC_FD_మార్గం(fd)));
 }

@@ -1,24 +1,24 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sched.h>
-#include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/prctl.h> /* IWYU pragma: keep */
+#అన్తర్భావ <sched.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <sys/mman.h>
+#అన్తర్భావ <sys/prctl.h> /* IWYU pragma: keep */
 
-#include "argv-util.h"
-#include "capability-util.h"
-#include "errno-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
+#అన్తర్భావ "argv-util.h"
+#అన్తర్భావ "capability-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "memory-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "string-util.h"
 
-int saved_argc = 0;
-char **saved_argv = NULL;
+పూర్ణాంకం saved_argc = 0;
+అక్షరం **saved_argv = ఖాళీ;
 
-void save_argc_argv(int argc, char **argv) {
+శూన్య save_argc_argv(పూర్ణాంకం argc, అక్షరం **argv) {
         /* Protect against CVE-2021-4034 style attacks */
         assert_se(argc > 0);
         assert_se(argv);
@@ -28,89 +28,89 @@ void save_argc_argv(int argc, char **argv) {
         saved_argv = argv;
 }
 
-bool invoked_as(char *argv[], const char *token) {
-        const char *progname = empty_to_null(secure_getenv("SYSTEMD_INVOKED_AS"));
+bool invoked_as(అక్షరం *argv[], స్థిరరాశి అక్షరం *token) {
+        స్థిరరాశి అక్షరం *progname = ఖాళీలు_గమ్యం_null(secure_getenv("SYSTEMD_INVOKED_AS"));
 
-        if (!progname && argv)
+        ఒకవేళ (!progname && argv)
                 progname = argv[0];
 
-        if (isempty(progname) || isempty(token))
-                return false;
+        ఒకవేళ (isempty(progname) || isempty(token))
+                తిరిగి false;
 
-        return strstr(last_path_component(progname), token);
+        తిరిగి అక్షరశ్రేణి_శోధన(చివరి_మార్గం_component(progname), token);
 }
 
-bool invoked_by_systemd(void) {
-        static int cached = -1;
-        int r;
+bool invoked_by_systemd(శూన్య) {
+        స్థిర పూర్ణాంకం cached = -1;
+        పూర్ణాంకం r;
 
-        if (cached >= 0)
-                return cached;
+        ఒకవేళ (cached >= 0)
+                తిరిగి cached;
 
         /* If the process is directly executed by PID1 (e.g. ExecStart= or generator), systemd-importd,
          * or systemd-homed, then $SYSTEMD_EXEC_PID= is set, and read the command line. */
-        const char *e = getenv("SYSTEMD_EXEC_PID");
-        if (!e)
-                return (cached = false);
+        స్థిరరాశి అక్షరం *e = getenv("SYSTEMD_EXEC_PID");
+        ఒకవేళ (!e)
+                తిరిగి (cached = false);
 
-        if (streq(e, "*"))
+        ఒకవేళ (streq(e, "*"))
                 /* For testing. */
-                return (cached = true);
+                తిరిగి (cached = true);
 
         pid_t p;
         r = parse_pid(e, &p);
-        if (r < 0) {
+        ఒకవేళ (r < 0) {
                 /* We know that systemd sets the variable correctly. Something else must have set it. */
                 log_debug_errno(r, "Failed to parse \"SYSTEMD_EXEC_PID=%s\", ignoring: %m", e);
-                return (cached = false);
+                తిరిగి (cached = false);
         }
 
         cached = getpid_cached() == p;
-        return cached;
+        తిరిగి cached;
 }
 
-static int update_argv(const char name[], size_t l) {
-        static int can_do = -1;
-        int r;
+స్థిర పూర్ణాంకం update_argv(స్థిరరాశి అక్షరం name[], size_t l) {
+        స్థిర పూర్ణాంకం can_do = -1;
+        పూర్ణాంకం r;
 
-        assert(name);
-        assert(l < SIZE_MAX);
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా(l < SIZE_MAX);
 
-        if (can_do == 0)
-                return 0;
+        ఒకవేళ (can_do == 0)
+                తిరిగి 0;
         can_do = false; /* We'll set it to true only if the whole process works */
 
         /* Calling prctl() with PR_SET_MM_ARG_{START,END} requires CAP_SYS_RESOURCE so let's use this as quick bypass
          * check, to avoid calling mmap() should PR_SET_MM_ARG_{START,END} fail with EPERM later on anyway. */
         r = have_effective_cap(CAP_SYS_RESOURCE);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to check if we have enough privileges: %m");
-        if (r == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(EPERM),
+        ఒకవేళ (r < 0)
+                తిరిగి log_debug_errno(r, "Failed to check if we have enough privileges: %m");
+        ఒకవేళ (r == 0)
+                తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EPERM),
                                        "Skipping PR_SET_MM, as we don't have privileges.");
 
-        static size_t mm_size = 0;
-        static char *mm = NULL;
+        స్థిర size_t mm_కొలత = 0;
+        స్థిర అక్షరం *mm = ఖాళీ;
 
-        if (mm_size < l+1) {
-                size_t nn_size;
-                char *nn;
+        ఒకవేళ (mm_కొలత < l+1) {
+                size_t nn_కొలత;
+                అక్షరం *nn;
 
-                nn_size = PAGE_ALIGN(l+1);
-                if (nn_size >= SIZE_MAX)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The requested argument is too long.");
+                nn_కొలత = పుట_ALIGN(l+1);
+                ఒకవేళ (nn_కొలత >= SIZE_MAX)
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EINVAL), "The requested argument is too long.");
 
-                nn = mmap(NULL, nn_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-                if (nn == MAP_FAILED)
-                        return log_debug_errno(errno, "mmap() failed: %m");
+                nn = mmap(ఖాళీ, nn_కొలత, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+                ఒకవేళ (nn == MAP_FAILED)
+                        తిరిగి log_debug_errno(errno, "mmap() failed: %m");
 
-                strncpy(nn, name, nn_size);
+                strncpy(nn, name, nn_కొలత);
 
                 /* Now, let's tell the kernel about this new memory */
-                r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_START, (unsigned long) nn, 0, 0);
-                if (ERRNO_IS_NEG_PRIVILEGE(r))
-                        return log_debug_errno(r, "PR_SET_MM_ARG_START failed: %m");
-                if (r < 0) {
+                r = prctl_సురక్షిత(PR_SET_MM, PR_SET_MM_ARG_START, (గుర్తులేని దీర్ఘ) nn, 0, 0);
+                ఒకవేళ (ERRNO_IS_NEG_PRIVILEGE(r))
+                        తిరిగి log_debug_errno(r, "PR_SET_MM_ARG_START failed: %m");
+                ఒకవేళ (r < 0) {
                         /* HACK: prctl() API is kind of dumb on this point.  The existing end address may already be
                          * below the desired start address, in which case the kernel may have kicked this back due
                          * to a range-check failure (see linux/kernel/sys.c:validate_prctl_map() to see this in
@@ -121,45 +121,45 @@ static int update_argv(const char name[], size_t l) {
                          * resizing it to what we want. */
                         log_debug_errno(r, "PR_SET_MM_ARG_START failed, attempting PR_SET_MM_ARG_END hack: %m");
 
-                        r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_END, (unsigned long) nn + l + 1, 0, 0);
-                        if (r < 0) {
+                        r = prctl_సురక్షిత(PR_SET_MM, PR_SET_MM_ARG_END, (గుర్తులేని దీర్ఘ) nn + l + 1, 0, 0);
+                        ఒకవేళ (r < 0) {
                                 log_debug_errno(r, "PR_SET_MM_ARG_END hack failed, proceeding without: %m");
-                                munmap_safe(nn, nn_size);
-                                return r;
+                                munmap_సురక్షిత(nn, nn_కొలత);
+                                తిరిగి r;
                         }
 
-                        r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_START, (unsigned long) nn, 0, 0);
-                        if (r < 0)
-                                return log_debug_errno(r, "PR_SET_MM_ARG_START still failed, proceeding without: %m");
-                } else {
+                        r = prctl_సురక్షిత(PR_SET_MM, PR_SET_MM_ARG_START, (గుర్తులేని దీర్ఘ) nn, 0, 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి log_debug_errno(r, "PR_SET_MM_ARG_START still failed, proceeding without: %m");
+                } లేకపోతే {
                         /* And update the end pointer to the new end, too. If this fails, we don't really know what
                          * to do, it's pretty unlikely that we can rollback, hence we'll just accept the failure,
                          * and continue. */
-                        r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_END, (unsigned long) nn + l + 1, 0, 0);
-                        if (r < 0)
+                        r = prctl_సురక్షిత(PR_SET_MM, PR_SET_MM_ARG_END, (గుర్తులేని దీర్ఘ) nn + l + 1, 0, 0);
+                        ఒకవేళ (r < 0)
                                 log_debug_errno(r, "PR_SET_MM_ARG_END failed, proceeding without: %m");
                 }
 
-                munmap_safe(mm, mm_size);
+                munmap_సురక్షిత(mm, mm_కొలత);
 
                 mm = nn;
-                mm_size = nn_size;
-        } else {
-                strncpy(mm, name, mm_size);
+                mm_కొలత = nn_కొలత;
+        } లేకపోతే {
+                strncpy(mm, name, mm_కొలత);
 
                 /* Update the end pointer, continuing regardless of any failure. */
-                r = prctl_safe(PR_SET_MM, PR_SET_MM_ARG_END, (unsigned long) mm + l + 1, 0, 0);
-                if (r < 0)
+                r = prctl_సురక్షిత(PR_SET_MM, PR_SET_MM_ARG_END, (గుర్తులేని దీర్ఘ) mm + l + 1, 0, 0);
+                ఒకవేళ (r < 0)
                         log_debug_errno(r, "PR_SET_MM_ARG_END failed, proceeding without: %m");
         }
 
         can_do = true;
-        return 0;
+        తిరిగి 0;
 }
 
-int rename_process_full(const char *comm, const char *invocation) {
+పూర్ణాంకం rename_process_నిండిన(స్థిరరాశి అక్షరం *comm, స్థిరరాశి అక్షరం *invocation) {
         bool truncated = false;
-        int r;
+        పూర్ణాంకం r;
 
         /* This is a like a poor man's setproctitle(). It changes the comm field by the name specified by
          * 'comm', and changes argv[0] and the glibc's internally used names of the process
@@ -170,68 +170,68 @@ int rename_process_full(const char *comm, const char *invocation) {
          *
          * Returns 0 if a name was set but truncated, > 0 if it was set but not truncated. */
 
-        if (isempty(comm))
-                return -EINVAL; /* let's not confuse users unnecessarily with an empty name */
+        ఒకవేళ (isempty(comm))
+                తిరిగి -EINVAL; /* let's not confuse users unnecessarily with an empty name */
 
-        if (!is_main_thread())
-                return -EPERM; /* Let's not allow setting the process name from other threads than the main one, as we
+        ఒకవేళ (!is_main_thread())
+                తిరిగి -EPERM; /* Let's not allow setting the process name from other threads than the main one, as we
                                 * cache things without locking, and we make assumptions that PR_SET_NAME sets the
                                 * process name that isn't correct on any other threads */
 
-        size_t l = strlen(comm);
+        size_t l = అక్షరశ్రేణి_పొడవు(comm);
 
         /* First step, change the comm field. The main thread's comm is identical to the process comm. This means we
          * can use PR_SET_NAME, which sets the thread name for the calling thread. */
-        r = proc_set_comm(comm);
-        if (r < 0)
+        r = proc_సమితి_comm(comm);
+        ఒకవేళ (r < 0)
                 log_debug_errno(r, "PR_SET_NAME failed: %m");
-        if (l >= TASK_COMM_LEN) /* Linux userspace process names can be 15 chars at max */
+        ఒకవేళ (l >= TASK_COMM_LEN) /* Linux userspace process names can be 15 chars at max */
                 truncated = true;
 
         /* If nothing specified, fall back to comm. */
-        if (isempty(invocation))
+        ఒకవేళ (isempty(invocation))
                 invocation = comm;
 
-        l = strlen(invocation);
+        l = అక్షరశ్రేణి_పొడవు(invocation);
 
         /* Second step, change glibc's ID of the process name. */
-        if (program_invocation_name) {
+        ఒకవేళ (కార్యక్రమం_invocation_name) {
                 size_t k;
 
-                k = strlen(program_invocation_name);
-                strncpy(program_invocation_name, invocation, k);
-                if (l > k)
+                k = అక్షరశ్రేణి_పొడవు(కార్యక్రమం_invocation_name);
+                strncpy(కార్యక్రమం_invocation_name, invocation, k);
+                ఒకవేళ (l > k)
                         truncated = true;
 
                 /* Also update the short name. */
-                char *p = strrchr(program_invocation_name, '/');
-                program_invocation_short_name = p ? p + 1 : program_invocation_name;
+                అక్షరం *p = strrchr(కార్యక్రమం_invocation_name, '/');
+                కార్యక్రమం_invocation_short_name = p ? p + 1 : కార్యక్రమం_invocation_name;
         }
 
         /* Third step, completely replace the argv[] array the kernel maintains for us. This requires privileges, but
          * has the advantage that the argv[] array is exactly what we want it to be, and not filled up with zeros at
          * the end. This is the best option for changing /proc/self/cmdline. */
-        (void) update_argv(invocation, l);
+        (శూన్య) update_argv(invocation, l);
 
         /* Fourth step: in all cases we'll also update the original argv[], so that our own code gets it right too if
          * it still looks here */
-        if (saved_argc > 0) {
-                if (saved_argv[0]) {
+        ఒకవేళ (saved_argc > 0) {
+                ఒకవేళ (saved_argv[0]) {
                         size_t k;
 
-                        k = strlen(saved_argv[0]);
+                        k = అక్షరశ్రేణి_పొడవు(saved_argv[0]);
                         strncpy(saved_argv[0], invocation, k);
-                        if (l > k)
+                        ఒకవేళ (l > k)
                                 truncated = true;
                 }
 
-                for (int i = 1; i < saved_argc; i++) {
-                        if (!saved_argv[i])
-                                break;
+                కొరకు (పూర్ణాంకం i = 1; i < saved_argc; i++) {
+                        ఒకవేళ (!saved_argv[i])
+                                ఆపు;
 
-                        memzero(saved_argv[i], strlen(saved_argv[i]));
+                        memzero(saved_argv[i], అక్షరశ్రేణి_పొడవు(saved_argv[i]));
                 }
         }
 
-        return !truncated;
+        తిరిగి !truncated;
 }

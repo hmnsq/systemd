@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-int get_build_exec_dir(char **ret);
+పూర్ణాంకం get_build_exec_dir(అక్షరం **ret);
 
-int invoke_callout_binary(const char *path, char *const argv[]);
+పూర్ణాంకం invoke_callout_ద్విమాన(స్థిరరాశి అక్షరం *మార్గం, అక్షరం *స్థిరరాశి argv[]);
 
-int pin_callout_binary(const char *path, char **ret_path);
+పూర్ణాంకం pin_callout_ద్విమాన(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret_మార్గం);

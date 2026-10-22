@@ -1,122 +1,122 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/xattr.h>
-#include <threads.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <sys/xattr.h>
+#అన్తర్భావ <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "nulstr-util.h"
-#include "parse-util.h"
-#include "sparse-endian.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
-#include "xattr-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "nulstr-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "sparse-endian.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "time-util.h"
+#అన్తర్భావ "xattr-util.h"
 
 /* Use a single cache for all of *xattrat syscalls (added in kernel 6.13) */
-static thread_local bool have_xattrat = true;
+స్థిర thread_local bool have_xattrat = true;
 
-static int normalize_and_maybe_pin_inode(
-                int *fd,
-                const char **path,
-                int *at_flags,
-                int *ret_tfd,
+స్థిర పూర్ణాంకం normalize_and_maybe_pin_inode(
+                పూర్ణాంకం *fd,
+                స్థిరరాశి అక్షరం **మార్గం,
+                పూర్ణాంకం *at_flags,
+                పూర్ణాంకం *ret_tfd,
                 bool *ret_opath) {
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(fd);
-        assert(*fd >= 0 || *fd == AT_FDCWD);
-        assert(path);
-        assert(at_flags);
-        assert(ret_tfd);
-        assert(ret_opath);
+        ప్రతిజ్ఞా(fd);
+        ప్రతిజ్ఞా(*fd >= 0 || *fd == AT_FDCWD);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(at_flags);
+        ప్రతిజ్ఞా(ret_tfd);
+        ప్రతిజ్ఞా(ret_opath);
 
-        *path = empty_to_null(*path); /* Normalize "" to NULL */
+        *మార్గం = ఖాళీలు_గమ్యం_null(*మార్గం); /* Normalize "" to NULL */
 
-        if (*fd == AT_FDCWD) {
-                if (!*path) /* Both unspecified? Then operate on current working directory */
-                        *path = ".";
+        ఒకవేళ (*fd == AT_FDCWD) {
+                ఒకవేళ (!*మార్గం) /* Both unspecified? Then operate on current working directory */
+                        *మార్గం = ".";
 
                 *ret_tfd = -EBADF;
                 *ret_opath = false;
-                return 0;
+                తిరిగి 0;
         }
 
-        *at_flags |= AT_EMPTY_PATH;
+        *at_flags |= AT_ఖాళీలు_మార్గం;
 
-        if (!*path) {
+        ఒకవేళ (!*మార్గం) {
                 r = fd_is_opath(*fd);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
                 *ret_opath = r;
                 *ret_tfd = -EBADF;
-                return 0;
+                తిరిగి 0;
         }
 
         /* If both have been specified, then we go via O_PATH */
 
-        int tfd = openat(*fd, *path, O_PATH|O_CLOEXEC|(FLAGS_SET(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
-        if (tfd < 0)
-                return -errno;
+        పూర్ణాంకం tfd = openat(*fd, *మార్గం, O_మార్గం|O_CLOEXEC|(FLAGS_సమితి(*at_flags, AT_SYMLINK_FOLLOW) ? 0 : O_NOFOLLOW));
+        ఒకవేళ (tfd < 0)
+                తిరిగి -errno;
 
         *fd = *ret_tfd = tfd;
-        *path = NULL;
+        *మార్గం = ఖాళీ;
         *ret_opath = true;
 
-        return 0;
+        తిరిగి 0;
 }
 
-static ssize_t getxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+స్థిర ssize_t getxattr_pinned_అంతర్గత(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం at_flags,
                 bool by_procfs,
-                const char *name,
-                char *buf,
-                size_t size) {
+                స్థిరరాశి అక్షరం *name,
+                అక్షరం *buf,
+                size_t కొలత) {
 
         ssize_t n;
 
-        assert(!path || !isempty(path));
-        assert((fd >= 0) == !path);
-        assert(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
-        assert(name);
-        assert(buf || size == 0);
+        ప్రతిజ్ఞా(!మార్గం || !isempty(మార్గం));
+        ప్రతిజ్ఞా((fd >= 0) == !మార్గం);
+        ప్రతిజ్ఞా(మార్గం || FLAGS_సమితి(at_flags, AT_ఖాళీలు_మార్గం));
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా(buf || కొలత == 0);
 
-        if (path)
-                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? getxattr(path, name, buf, size)
-                                                           : lgetxattr(path, name, buf, size);
-        else
-                n = by_procfs ? getxattr(FORMAT_PROC_FD_PATH(fd), name, buf, size)
-                              : fgetxattr(fd, name, buf, size);
-        if (n < 0)
-                return -errno;
+        ఒకవేళ (మార్గం)
+                n = FLAGS_సమితి(at_flags, AT_SYMLINK_FOLLOW) ? getxattr(మార్గం, name, buf, కొలత)
+                                                           : lgetxattr(మార్గం, name, buf, కొలత);
+        లేకపోతే
+                n = by_procfs ? getxattr(FORMAT_PROC_FD_మార్గం(fd), name, buf, కొలత)
+                              : fgetxattr(fd, name, buf, కొలత);
+        ఒకవేళ (n < 0)
+                తిరిగి -errno;
 
-        assert(size == 0 || (size_t) n <= size);
-        return n;
+        ప్రతిజ్ఞా(కొలత == 0 || (size_t) n <= కొలత);
+        తిరిగి n;
 }
 
-int getxattr_at_malloc(
-                int fd,
-                const char *path,
-                const char *name,
-                int at_flags,
-                char **ret,
-                size_t *ret_size) {
+పూర్ణాంకం getxattr_at_malloc(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *name,
+                పూర్ణాంకం at_flags,
+                అక్షరం **ret,
+                size_t *ret_కొలత) {
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ పూర్ణాంకం opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert(name);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(ret);
+        ప్రతిజ్ఞా(fd >= 0 || fd == AT_FDCWD);
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా((at_flags & ~(AT_SYMLINK_FOLLOW|AT_ఖాళీలు_మార్గం)) == 0);
+        ప్రతిజ్ఞా(ret);
 
         /* So, this is single function that does what getxattr()/lgetxattr()/fgetxattr() does, but in one go,
          * and with additional bells and whistles. Specifically:
@@ -127,308 +127,308 @@ int getxattr_at_malloc(
          * 4. NUL-terminates the returned buffer (for safety)
          */
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &మార్గం, &at_flags, &opened_fd, &by_procfs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        కొరకు (గుర్తులేని n_attempts = 7;;) {
+                _cleanup_free_ అక్షరం *v = ఖాళీ;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                ఒకవేళ (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        తిరిగి -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(అక్షరం, l+1);
+                ఒకవేళ (!v)
+                        తిరిగి -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
                 ssize_t n;
-                n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, v, l);
-                if (n >= 0) {
+                n = getxattr_pinned_అంతర్గత(fd, మార్గం, at_flags, by_procfs, name, v, l);
+                ఒకవేళ (n >= 0) {
                         /* Refuse extended attributes with embedded NUL bytes if the caller isn't interested
                          * in the size. After all this must mean the caller assumes we return a NUL
                          * terminated strings, but if there's a NUL byte embedded they are definitely not
                          * regular strings */
-                        if (!ret_size && n > 1 && memchr(v, 0, n - 1))
-                                return -EBADMSG;
+                        ఒకవేళ (!ret_కొలత && n > 1 && memchr(v, 0, n - 1))
+                                తిరిగి -EBADMSG;
 
                         v[n] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        if (ret_size)
-                                *ret_size = (size_t) n;
+                        ఒకవేళ (ret_కొలత)
+                                *ret_కొలత = (size_t) n;
 
-                        return 0;
+                        తిరిగి 0;
                 }
-                if (n != -ERANGE)
-                        return (int) n;
+                ఒకవేళ (n != -ERANGE)
+                        తిరిగి (పూర్ణాంకం) n;
 
-                n = getxattr_pinned_internal(fd, path, at_flags, by_procfs, name, NULL, 0);
-                if (n < 0)
-                        return (int) n;
+                n = getxattr_pinned_అంతర్గత(fd, మార్గం, at_flags, by_procfs, name, ఖాళీ, 0);
+                ఒకవేళ (n < 0)
+                        తిరిగి (పూర్ణాంకం) n;
 
                 l = (size_t) n;
         }
 }
 
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+పూర్ణాంకం getxattr_at_bool(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *name, పూర్ణాంకం at_flags) {
+        _cleanup_free_ అక్షరం *v = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = getxattr_at_malloc(fd, path, name, at_flags, &v, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        r = getxattr_at_malloc(fd, మార్గం, name, at_flags, &v, /* ret_size= */ ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return parse_boolean(v);
+        తిరిగి parse_boolean(v);
 }
 
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv) {
-        _cleanup_free_ char *nulstr = NULL;
-        size_t nulstr_size;
-        int r;
+పూర్ణాంకం getxattr_at_strv(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *name, పూర్ణాంకం at_flags, అక్షరం ***ret_strv) {
+        _cleanup_free_ అక్షరం *nulstr = ఖాళీ;
+        size_t nulstr_కొలత;
+        పూర్ణాంకం r;
 
-        assert(ret_strv);
+        ప్రతిజ్ఞా(ret_strv);
 
-        r = getxattr_at_malloc(fd, path, name, at_flags, &nulstr, &nulstr_size);
-        if (r < 0)
-                return r;
+        r = getxattr_at_malloc(fd, మార్గం, name, at_flags, &nulstr, &nulstr_కొలత);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        _cleanup_strv_free_ char **l = strv_parse_nulstr(nulstr, nulstr_size);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ అక్షరం **l = strv_parse_nulstr(nulstr, nulstr_కొలత);
+        ఒకవేళ (!l)
+                తిరిగి -ENOMEM;
 
         *ret_strv = TAKE_PTR(l);
-        return 0;
+        తిరిగి 0;
 }
 
-static int listxattr_pinned_internal(
-                int fd,
-                const char *path,
-                int at_flags,
+స్థిర పూర్ణాంకం listxattr_pinned_అంతర్గత(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం at_flags,
                 bool by_procfs,
-                char *buf,
-                size_t size) {
+                అక్షరం *buf,
+                size_t కొలత) {
 
         ssize_t n;
 
-        assert(!path || !isempty(path));
-        assert((fd >= 0) == !path);
-        assert(path || FLAGS_SET(at_flags, AT_EMPTY_PATH));
-        assert(buf || size == 0);
+        ప్రతిజ్ఞా(!మార్గం || !isempty(మార్గం));
+        ప్రతిజ్ఞా((fd >= 0) == !మార్గం);
+        ప్రతిజ్ఞా(మార్గం || FLAGS_సమితి(at_flags, AT_ఖాళీలు_మార్గం));
+        ప్రతిజ్ఞా(buf || కొలత == 0);
 
-        if (path)
-                n = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? listxattr(path, buf, size)
-                                                           : llistxattr(path, buf, size);
-        else
-                n = by_procfs ? listxattr(FORMAT_PROC_FD_PATH(fd), buf, size)
-                              : flistxattr(fd, buf, size);
-        if (n < 0)
-                return -errno;
+        ఒకవేళ (మార్గం)
+                n = FLAGS_సమితి(at_flags, AT_SYMLINK_FOLLOW) ? listxattr(మార్గం, buf, కొలత)
+                                                           : llistxattr(మార్గం, buf, కొలత);
+        లేకపోతే
+                n = by_procfs ? listxattr(FORMAT_PROC_FD_మార్గం(fd), buf, కొలత)
+                              : flistxattr(fd, buf, కొలత);
+        ఒకవేళ (n < 0)
+                తిరిగి -errno;
 
-        assert(size == 0 || (size_t) n <= size);
+        ప్రతిజ్ఞా(కొలత == 0 || (size_t) n <= కొలత);
 
-        if (n > INT_MAX) /* We couldn't return this as 'int' anymore */
-                return -E2BIG;
+        ఒకవేళ (n > గరిష్ఠ_పూర్ణాంకం) /* We couldn't return this as 'int' anymore */
+                తిరిగి -E2BIG;
 
-        return (int) n;
+        తిరిగి (పూర్ణాంకం) n;
 }
 
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret) {
-        _cleanup_close_ int opened_fd = -EBADF;
+పూర్ణాంకం listxattr_at_malloc(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం at_flags, అక్షరం **ret) {
+        _cleanup_close_ పూర్ణాంకం opened_fd = -EBADF;
         bool by_procfs;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(ret);
+        ప్రతిజ్ఞా(fd >= 0 || fd == AT_FDCWD);
+        ప్రతిజ్ఞా((at_flags & ~(AT_SYMLINK_FOLLOW|AT_ఖాళీలు_మార్గం)) == 0);
+        ప్రతిజ్ఞా(ret);
 
         /* This is to listxattr()/llistattr()/flistattr() what getxattr_at_malloc() is to getxattr()/… */
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &మార్గం, &at_flags, &opened_fd, &by_procfs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         size_t l = 100;
-        for (unsigned n_attempts = 7;;) {
-                _cleanup_free_ char *v = NULL;
+        కొరకు (గుర్తులేని n_attempts = 7;;) {
+                _cleanup_free_ అక్షరం *v = ఖాళీ;
 
-                if (n_attempts == 0) /* If someone is racing against us, give up eventually */
-                        return -EBUSY;
+                ఒకవేళ (n_attempts == 0) /* If someone is racing against us, give up eventually */
+                        తిరిగి -EBUSY;
                 n_attempts--;
 
-                v = new(char, l+1);
-                if (!v)
-                        return -ENOMEM;
+                v = new(అక్షరం, l+1);
+                ఒకవేళ (!v)
+                        తిరిగి -ENOMEM;
 
                 l = MALLOC_ELEMENTSOF(v) - 1;
 
-                r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, v, l);
-                if (r >= 0) {
+                r = listxattr_pinned_అంతర్గత(fd, మార్గం, at_flags, by_procfs, v, l);
+                ఒకవేళ (r >= 0) {
                         v[r] = 0; /* NUL terminate */
                         *ret = TAKE_PTR(v);
-                        return r;
+                        తిరిగి r;
                 }
-                if (r != -ERANGE)
-                        return r;
+                ఒకవేళ (r != -ERANGE)
+                        తిరిగి r;
 
-                r = listxattr_pinned_internal(fd, path, at_flags, by_procfs, NULL, 0);
-                if (r < 0)
-                        return r;
+                r = listxattr_pinned_అంతర్గత(fd, మార్గం, at_flags, by_procfs, ఖాళీ, 0);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 l = (size_t) r;
         }
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
-                size_t size,
-                int xattr_flags) {
+పూర్ణాంకం xsetxattr_నిండిన(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం at_flags,
+                స్థిరరాశి అక్షరం *name,
+                స్థిరరాశి అక్షరం *విలువ,
+                size_t కొలత,
+                పూర్ణాంకం xattr_flags) {
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(name);
-        assert(value || size == 0);
+        ప్రతిజ్ఞా(fd >= 0 || fd == AT_FDCWD);
+        ప్రతిజ్ఞా((at_flags & ~(AT_SYMLINK_FOLLOW|AT_ఖాళీలు_మార్గం)) == 0);
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా(విలువ || కొలత == 0);
 
-        if (size == SIZE_MAX)
-                size = strlen(value);
+        ఒకవేళ (కొలత == SIZE_MAX)
+                కొలత = అక్షరశ్రేణి_పొడవు(విలువ);
 
         /* Skip the write if the xattr already has the correct value, to avoid
          * unnecessary timestamp changes on the file. Only do this for plain
          * replace mode (xattr_flags == 0) — XATTR_CREATE callers expect
          * -EEXIST when the xattr already exists. */
-        _cleanup_free_ char *old_value = NULL;
-        size_t old_size;
+        _cleanup_free_ అక్షరం *old_విలువ = ఖాళీ;
+        size_t old_కొలత;
 
-        if (xattr_flags == 0 &&
-            getxattr_at_malloc(fd, path, name, at_flags, &old_value, &old_size) >= 0 &&
-            memcmp_nn(old_value, old_size, value, size) == 0)
-                return 0;
+        ఒకవేళ (xattr_flags == 0 &&
+            getxattr_at_malloc(fd, మార్గం, name, at_flags, &old_విలువ, &old_కొలత) >= 0 &&
+            memcmp_nn(old_విలువ, old_కొలత, విలువ, కొలత) == 0)
+                తిరిగి 0;
 
-        if (have_xattrat && !isempty(path)) {
-                struct xattr_args args = {
-                        .value = PTR_TO_UINT64(value),
-                        .size = size,
+        ఒకవేళ (have_xattrat && !isempty(మార్గం)) {
+                నిర్మాణం xattr_వాదనలు వాదనలు = {
+                        .విలువ = PTR_గమ్యం_UINT64(విలువ),
+                        .కొలత = కొలత,
                         .flags = xattr_flags,
                 };
 
-                r = RET_NERRNO(setxattrat(fd, path,
+                r = RET_NERRNO(setxattrat(fd, మార్గం,
                                           at_flags_normalize_nofollow(at_flags),
                                           name,
-                                          &args, sizeof(args)));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                                          &వాదనలు, పరిమాణం(వాదనలు)));
+                ఒకవేళ (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        తిరిగి r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int opened_fd = -EBADF;
+        _cleanup_close_ పూర్ణాంకం opened_fd = -EBADF;
         bool by_procfs;
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &opened_fd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &మార్గం, &at_flags, &opened_fd, &by_procfs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (path)
-                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(path, name, value, size, xattr_flags)
-                                                           : lsetxattr(path, name, value, size, xattr_flags);
-        else
-                r = by_procfs ? setxattr(FORMAT_PROC_FD_PATH(fd), name, value, size, xattr_flags)
-                              : fsetxattr(fd, name, value, size, xattr_flags);
-        if (r < 0)
-                return -errno;
+        ఒకవేళ (మార్గం)
+                r = FLAGS_సమితి(at_flags, AT_SYMLINK_FOLLOW) ? setxattr(మార్గం, name, విలువ, కొలత, xattr_flags)
+                                                           : lsetxattr(మార్గం, name, విలువ, కొలత, xattr_flags);
+        లేకపోతే
+                r = by_procfs ? setxattr(FORMAT_PROC_FD_మార్గం(fd), name, విలువ, కొలత, xattr_flags)
+                              : fsetxattr(fd, name, విలువ, కొలత, xattr_flags);
+        ఒకవేళ (r < 0)
+                తిరిగి -errno;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l) {
-        _cleanup_free_ char *nulstr = NULL;
-        size_t size;
-        int r;
+పూర్ణాంకం xsetxattr_strv(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం at_flags, స్థిరరాశి అక్షరం *name, అక్షరం * స్థిరరాశి *l) {
+        _cleanup_free_ అక్షరం *nulstr = ఖాళీ;
+        size_t కొలత;
+        పూర్ణాంకం r;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
-        r = strv_make_nulstr(l, &nulstr, &size);
-        if (r < 0)
-                return r;
+        r = strv_make_nulstr(l, &nulstr, &కొలత);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return xsetxattr_full(fd, path, at_flags, name, nulstr, size, /* xattr_flags= */ 0);
+        తిరిగి xsetxattr_నిండిన(fd, మార్గం, at_flags, name, nulstr, కొలత, /* xattr_flags= */ 0);
 }
 
-int xremovexattr(int fd, const char *path, int at_flags, const char *name) {
-        int r;
+పూర్ణాంకం xremovexattr(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం at_flags, స్థిరరాశి అక్షరం *name) {
+        పూర్ణాంకం r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
-        assert(name);
+        ప్రతిజ్ఞా(fd >= 0 || fd == AT_FDCWD);
+        ప్రతిజ్ఞా((at_flags & ~(AT_SYMLINK_FOLLOW|AT_ఖాళీలు_మార్గం)) == 0);
+        ప్రతిజ్ఞా(name);
 
-        if (have_xattrat && !isempty(path)) {
-                r = RET_NERRNO(removexattrat(fd, path,
+        ఒకవేళ (have_xattrat && !isempty(మార్గం)) {
+                r = RET_NERRNO(removexattrat(fd, మార్గం,
                                              at_flags_normalize_nofollow(at_flags),
                                              name));
-                if (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
+                ఒకవేళ (r != -ENOSYS) /* No ERRNO_IS_NOT_SUPPORTED here, as EOPNOTSUPP denotes the fs doesn't
                                      support xattr */
-                        return r;
+                        తిరిగి r;
 
                 have_xattrat = false;
         }
 
-        _cleanup_close_ int tfd = -EBADF;
+        _cleanup_close_ పూర్ణాంకం tfd = -EBADF;
         bool by_procfs;
 
-        r = normalize_and_maybe_pin_inode(&fd, &path, &at_flags, &tfd, &by_procfs);
-        if (r < 0)
-                return r;
+        r = normalize_and_maybe_pin_inode(&fd, &మార్గం, &at_flags, &tfd, &by_procfs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (path)
-                r = FLAGS_SET(at_flags, AT_SYMLINK_FOLLOW) ? removexattr(path, name)
-                                                           : lremovexattr(path, name);
-        else
-                r = by_procfs ? removexattr(FORMAT_PROC_FD_PATH(fd), name)
+        ఒకవేళ (మార్గం)
+                r = FLAGS_సమితి(at_flags, AT_SYMLINK_FOLLOW) ? removexattr(మార్గం, name)
+                                                           : lremovexattr(మార్గం, name);
+        లేకపోతే
+                r = by_procfs ? removexattr(FORMAT_PROC_FD_మార్గం(fd), name)
                               : fremovexattr(fd, name);
-        if (r < 0)
-                return -errno;
+        ఒకవేళ (r < 0)
+                తిరిగి -errno;
 
-        return 0;
+        తిరిగి 0;
 }
 
-static int parse_crtime(le64_t le, usec_t *ret) {
+స్థిర పూర్ణాంకం parse_crtime(le64_t le, usec_t *ret) {
         usec_t u;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        assert_cc(sizeof(usec_t) == sizeof(uint64_t));
+        assert_cc(పరిమాణం(usec_t) == పరిమాణం(uint64_t));
         assert_cc((usec_t) UINT64_MAX == USEC_INFINITY);
 
         u = (usec_t) le64toh(le);
-        if (!timestamp_is_set(u))
-                return -EIO;
+        ఒకవేళ (!timestamp_is_సమితి(u))
+                తిరిగి -EIO;
 
         *ret = u;
-        return 0;
+        తిరిగి 0;
 }
 
-int getcrtime_at(
-                int fd,
-                const char *path,
-                int at_flags,
+పూర్ణాంకం getcrtime_at(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం at_flags,
                 usec_t *ret) {
 
-        _cleanup_free_ le64_t *le = NULL;
-        struct statx sx;
+        _cleanup_free_ le64_t *le = ఖాళీ;
+        నిర్మాణం statx sx;
         usec_t a, b;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
-        assert((at_flags & ~(AT_SYMLINK_FOLLOW|AT_EMPTY_PATH)) == 0);
+        ప్రతిజ్ఞా(fd >= 0 || fd == AT_FDCWD);
+        ప్రతిజ్ఞా((at_flags & ~(AT_SYMLINK_FOLLOW|AT_ఖాళీలు_మార్గం)) == 0);
 
         /* So here's the deal: the creation/birth time (crtime/btime) of a file is a relatively newly supported concept
          * on Linux (or more strictly speaking: a concept that only recently got supported in the API, it was
@@ -440,63 +440,63 @@ int getcrtime_at(
          * concept is useful for determining how "old" a file really is, and hence using the older of the two makes
          * most sense. */
 
-        r = xstatx_full(fd,
-                        path,
+        r = xstatx_నిండిన(fd,
+                        మార్గం,
                         at_flags_normalize_nofollow(at_flags)|AT_STATX_DONT_SYNC,
                         /* xstatx_flags= */ 0,
                         /* mandatory_mask= */ 0,
                         STATX_BTIME,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
-                a = statx_timestamp_load(&sx.stx_btime);
-        else
+        ఒకవేళ (r > 0 && sx.stx_btime.tv_sec != 0) /* > 0: all optional masks are supported */
+                a = statx_timestamp_ఎక్కించు(&sx.stx_btime);
+        లేకపోతే
                 a = USEC_INFINITY;
 
-        size_t le_size;
-        r = getxattr_at_malloc(fd, path, "user.crtime_usec", at_flags, (char**) &le, &le_size);
-        if (r >= 0) {
-                if (le_size != sizeof(*le))
+        size_t le_కొలత;
+        r = getxattr_at_malloc(fd, మార్గం, "user.crtime_usec", at_flags, (అక్షరం**) &le, &le_కొలత);
+        ఒకవేళ (r >= 0) {
+                ఒకవేళ (le_కొలత != పరిమాణం(*le))
                         r = -EIO;
-                else
+                లేకపోతే
                         r = parse_crtime(*le, &b);
         }
-        if (r < 0) {
-                if (a != USEC_INFINITY) {
-                        if (ret)
+        ఒకవేళ (r < 0) {
+                ఒకవేళ (a != USEC_INFINITY) {
+                        ఒకవేళ (ret)
                                 *ret = a;
-                        return 0;
+                        తిరిగి 0;
                 }
 
-                return r;
+                తిరిగి r;
         }
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = MIN(a, b);
-        return 0;
+        తిరిగి 0;
 }
 
-int fd_setcrtime(int fd, usec_t usec) {
+పూర్ణాంకం fd_setcrtime(పూర్ణాంకం fd, usec_t usec) {
         le64_t le;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
-        if (!timestamp_is_set(usec))
+        ఒకవేళ (!timestamp_is_సమితి(usec))
                 usec = now(CLOCK_REALTIME);
 
         le = htole64((uint64_t) usec);
-        return xsetxattr_full(fd, /* path= */ NULL, AT_EMPTY_PATH,
-                              "user.crtime_usec", (const char*) &le, sizeof(le),
+        తిరిగి xsetxattr_నిండిన(fd, /* path= */ ఖాళీ, AT_ఖాళీలు_మార్గం,
+                              "user.crtime_usec", (స్థిరరాశి అక్షరం*) &le, పరిమాణం(le),
                               /* xattr_flags= */ 0);
 }
 
-bool xattr_is_acl(const char *name) {
-        return STR_IN_SET(
+bool xattr_is_acl(స్థిరరాశి అక్షరం *name) {
+        తిరిగి STR_లోపల_సమితి(
                         ASSERT_PTR(name),
                         "system.posix_acl_access",
                         "system.posix_acl_default");
 }
 
-bool xattr_is_selinux(const char *name) {
-        return streq(ASSERT_PTR(name), "security.selinux");
+bool xattr_is_selinux(స్థిరరాశి అక్షరం *name) {
+        తిరిగి streq(ASSERT_PTR(name), "security.selinux");
 }

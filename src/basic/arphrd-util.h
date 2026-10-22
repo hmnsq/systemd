@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-const char* arphrd_to_name(int id) _const_;
-int arphrd_from_name(const char *name) _pure_;
+స్థిరరాశి అక్షరం* arphrd_గమ్యం_name(పూర్ణాంకం id) _const_;
+పూర్ణాంకం arphrd_from_name(స్థిరరాశి అక్షరం *name) శుద్ధ;
 
-size_t arphrd_to_hw_addr_len(uint16_t arphrd) _const_;
+size_t arphrd_గమ్యం_hw_addr_len(uint16_t arphrd) _const_;

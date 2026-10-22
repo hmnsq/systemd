@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef struct LabelOps {
-        int (*pre)(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-        int (*post)(int dir_fd, const char *path, bool created, LabelContext *label_context);
+రకనిర్వచనం నిర్మాణం LabelOps {
+        పూర్ణాంకం (*pre)(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, LabelContext *label_context);
+        పూర్ణాంకం (*post)(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, bool created, LabelContext *label_context);
 } LabelOps;
 
-int label_ops_set(const LabelOps *label_ops);
-void label_ops_reset(void);
+పూర్ణాంకం label_ops_సమితి(స్థిరరాశి LabelOps *label_ops);
+శూన్య label_ops_reset(శూన్య);
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context);
+పూర్ణాంకం label_ops_pre(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, LabelContext *label_context);
+పూర్ణాంకం label_ops_post(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, bool created, LabelContext *label_context);

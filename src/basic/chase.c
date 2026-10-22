@@ -1,21 +1,21 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/magic.h>
-#include <unistd.h>
+#అన్తర్భావ <linux/magic.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "glyph-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "user-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "chase.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "glyph-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "user-util.h"
 
 /* Flags that prevent us from taking any of the early shortcuts: either they change the path resolution
  * semantics (e.g. CHASE_NONEXISTENT, CHASE_PARENT, CHASE_STEP) or ask for per-component validation that a
@@ -27,30 +27,30 @@
  *   - CHASE_MUST_BE_{DIRECTORY,REGULAR,SOCKET}: xopenat_full() can enforce these via O_DIRECTORY,
  *     XO_REGULAR and XO_SOCKET. Shortcut callers that don't go through xopenat_full() (stat/access
  *     paths) must include CHASE_MUST_BE_ANY in their local mask to still bail on these. */
-#define CHASE_NO_SHORTCUT_MASK                          \
+#నిర్వచించు CHASE_NO_SHORTCUT_ముసుగు                          \
         (CHASE_NONEXISTENT |                            \
          CHASE_NO_AUTOFS |                              \
-         CHASE_SAFE |                                   \
-         CHASE_STEP |                                   \
+         CHASE_సురక్షిత |                                   \
+         CHASE_అడుగు |                                   \
          CHASE_PROHIBIT_SYMLINKS |                      \
-         CHASE_PARENT |                                 \
+         CHASE_మాతృ |                                 \
          CHASE_MKDIR_0755)
 
-#define CHASE_MUST_BE_ANY \
+#నిర్వచించు CHASE_MUST_BE_ANY \
         (CHASE_MUST_BE_DIRECTORY|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)
 
-static int chase_statx(int fd, struct statx *ret) {
-        return xstatx_full(fd,
-                        /* path= */ NULL,
+స్థిర పూర్ణాంకం chase_statx(పూర్ణాంకం fd, నిర్మాణం statx *ret) {
+        తిరిగి xstatx_నిండిన(fd,
+                        /* path= */ ఖాళీ,
                         /* statx_flags= */ 0,
-                        XSTATX_MNT_ID_BEST,
+                        XSTATX_MNT_ID_ఉత్తమ,
                         STATX_TYPE|STATX_UID|STATX_INO,
                         /* optional_mask= */ 0,
                         /* mandatory_attributes= */ 0,
                         ret);
 }
 
-static int chase_openat2(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags) {
+స్థిర పూర్ణాంకం chase_openat2(పూర్ణాంకం మూలం_fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags chase_flags) {
         /* Open the target of a chase operation via openat2(), translating the relevant ChaseFlags into
          * RESOLVE_* and O_* flags and verifying MUST_BE_REGULAR/SOCKET via fstat after the open. Returns
          * -EOPNOTSUPP when openat2() is unavailable (older kernels) or blocked by a seccomp filter
@@ -58,52 +58,52 @@ static int chase_openat2(int root_fd, int dir_fd, const char *path, ChaseFlags c
          * fallback path) — the verdict is cached so subsequent calls in the same process skip the syscall
          * entirely. */
 
-        static bool can_openat2 = true;
-        int r;
+        స్థిర bool can_openat2 = true;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
 
-        if (!can_openat2)
-                return -EOPNOTSUPP;
+        ఒకవేళ (!can_openat2)
+                తిరిగి -EOPNOTSUPP;
 
         /* openat2() can handle everything the regular shortcut handles, plus a real root boundary (via
          * RESOLVE_IN_ROOT) and CHASE_PROHIBIT_SYMLINKS (via RESOLVE_NO_SYMLINKS). It cannot model the other
          * CHASE_NO_SHORTCUT flags, cannot trigger automounts on O_PATH fds, and RESOLVE_IN_ROOT requires
          * the dirfd to be the root. Bail out so the caller falls back to the regular chase loop. */
-        if ((chase_flags & (CHASE_NO_SHORTCUT_MASK & ~CHASE_PROHIBIT_SYMLINKS)) != 0)
-                return -EOPNOTSUPP;
-        if (FLAGS_SET(chase_flags, CHASE_TRIGGER_AUTOFS))
-                return -EOPNOTSUPP;
-        if (root_fd != XAT_FDROOT && root_fd != dir_fd)
-                return -EOPNOTSUPP;
+        ఒకవేళ ((chase_flags & (CHASE_NO_SHORTCUT_ముసుగు & ~CHASE_PROHIBIT_SYMLINKS)) != 0)
+                తిరిగి -EOPNOTSUPP;
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_TRIGGER_AUTOFS))
+                తిరిగి -EOPNOTSUPP;
+        ఒకవేళ (మూలం_fd != XAT_FDROOT && మూలం_fd != dir_fd)
+                తిరిగి -EOPNOTSUPP;
 
-        _cleanup_close_ int dir_fd_local = -EBADF;
-        if (dir_fd == XAT_FDROOT) {
-                if (path_is_absolute(path))
+        _cleanup_close_ పూర్ణాంకం dir_fd_local = -EBADF;
+        ఒకవేళ (dir_fd == XAT_FDROOT) {
+                ఒకవేళ (మార్గం_is_absolute(మార్గం))
                         dir_fd = AT_FDCWD;
-                else {
-                        dir_fd_local = open("/", O_CLOEXEC|O_DIRECTORY|O_PATH);
-                        if (dir_fd_local < 0)
-                                return -errno;
+                లేకపోతే {
+                        dir_fd_local = open("/", O_CLOEXEC|O_DIRECTORY|O_మార్గం);
+                        ఒకవేళ (dir_fd_local < 0)
+                                తిరిగి -errno;
                         dir_fd = dir_fd_local;
                 }
         }
 
-        struct open_how how = {
-                .flags = O_PATH|O_CLOEXEC,
+        నిర్మాణం open_how how = {
+                .flags = O_మార్గం|O_CLOEXEC,
         };
-        if (FLAGS_SET(chase_flags, CHASE_NOFOLLOW))
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_NOFOLLOW))
                 how.flags |= O_NOFOLLOW;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_DIRECTORY))
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_MUST_BE_DIRECTORY))
                 how.flags |= O_DIRECTORY;
-        if (root_fd != XAT_FDROOT)
-                how.resolve |= RESOLVE_IN_ROOT;
-        if (FLAGS_SET(chase_flags, CHASE_PROHIBIT_SYMLINKS))
+        ఒకవేళ (మూలం_fd != XAT_FDROOT)
+                how.resolve |= RESOLVE_లోపల_మూలం;
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_PROHIBIT_SYMLINKS))
                 how.resolve |= RESOLVE_NO_SYMLINKS;
 
-        _cleanup_close_ int fd = openat2(dir_fd, path, &how, sizeof(how));
-        if (fd < 0) {
+        _cleanup_close_ పూర్ణాంకం fd = openat2(dir_fd, మార్గం, &how, పరిమాణం(how));
+        ఒకవేళ (fd < 0) {
                 /* ENOSYS: kernel too old or seccomp filter (systemd's filter returns ENOSYS).
                  * EPERM: Some seccomp profiles of container runtimes use EPERM rather than ENOSYS.
                  * But EPERM might also be returned because we can't access some component of the path. So
@@ -116,139 +116,139 @@ static int chase_openat2(int root_fd, int dir_fd, const char *path, ChaseFlags c
                  * fires reliably while we're still setting up a mount tree. Fall back to the
                  * regular chase loop, which handles root boundaries without openat2(). Don't
                  * cache this — the condition is per-call, not a kernel/sandbox capability. */
-                if (errno == ENOSYS)
+                ఒకవేళ (errno == ENOSYS)
                         can_openat2 = false;
-                if (IN_SET(errno, ENOSYS, EPERM, EAGAIN))
-                        return -EOPNOTSUPP;
-                return -errno;
+                ఒకవేళ (లోపల_సమితి(errno, ENOSYS, EPERM, EAGAIN))
+                        తిరిగి -EOPNOTSUPP;
+                తిరిగి -errno;
         }
 
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_REGULAR)) {
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_MUST_BE_REGULAR)) {
                 r = fd_verify_regular(fd);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_SOCKET)) {
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_MUST_BE_SOCKET)) {
                 r = fd_verify_socket(fd);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return TAKE_FD(fd);
+        తిరిగి TAKE_FD(fd);
 }
 
-static int chase_xopenat(int dir_fd, const char *path, ChaseFlags chase_flags, int open_flags, XOpenFlags xopen_flags) {
+స్థిర పూర్ణాంకం chase_xopenat(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags chase_flags, పూర్ణాంకం open_flags, XOpenFlags xopen_flags) {
         /* Wrapper around xopenat_full() that translates CHASE_NOFOLLOW, CHASE_MUST_BE_* and
          * CHASE_TRIGGER_AUTOFS into their xopenat_full() counterparts. Used by shortcuts that want to open
          * the final target of a chase operation: they all want O_NOFOLLOW honoured, MUST_BE_* verified on
          * the opened inode, and automounts triggered if requested. */
 
-        if (FLAGS_SET(chase_flags, CHASE_NOFOLLOW))
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_NOFOLLOW))
                 open_flags |= O_NOFOLLOW;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_DIRECTORY))
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_MUST_BE_DIRECTORY))
                 open_flags |= O_DIRECTORY;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_REGULAR))
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_MUST_BE_REGULAR))
                 xopen_flags |= XO_REGULAR;
-        if (FLAGS_SET(chase_flags, CHASE_MUST_BE_SOCKET))
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_MUST_BE_SOCKET))
                 xopen_flags |= XO_SOCKET;
         /* Only needed for O_PATH since plain open() already triggers automounts */
-        if (FLAGS_SET(chase_flags, CHASE_TRIGGER_AUTOFS) && FLAGS_SET(open_flags, O_PATH))
+        ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_TRIGGER_AUTOFS) && FLAGS_సమితి(open_flags, O_మార్గం))
                 xopen_flags |= XO_TRIGGER_AUTOMOUNT;
 
-        return xopenat_full(dir_fd, path, open_flags, xopen_flags, MODE_INVALID);
+        తిరిగి xopenat_నిండిన(dir_fd, మార్గం, open_flags, xopen_flags, బహుళకం_INVALID);
 }
 
-static bool uid_unsafe_transition(uid_t a, uid_t b) {
+స్థిర bool uid_unsafe_transition(uid_t a, uid_t b) {
         /* Returns true if the transition from a to b is safe, i.e. that we never transition from
          * unprivileged to privileged files or directories. Why bother? So that unprivileged code can't
          * symlink to privileged files making us believe we read something safe even though it isn't safe in
          * the specific context we open it in. */
 
-        if (a == 0) /* Transitioning from privileged to unprivileged is always fine */
-                return false;
+        ఒకవేళ (a == 0) /* Transitioning from privileged to unprivileged is always fine */
+                తిరిగి false;
 
-        return a != b; /* Otherwise we need to stay within the same UID */
+        తిరిగి a != b; /* Otherwise we need to stay within the same UID */
 }
 
-int statx_unsafe_transition(const struct statx *a, const struct statx *b) {
-        assert(a);
-        assert(b);
+పూర్ణాంకం statx_unsafe_transition(స్థిరరాశి నిర్మాణం statx *a, స్థిరరాశి నిర్మాణం statx *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        if (!FLAGS_SET(a->stx_mask, STATX_UID) || !FLAGS_SET(b->stx_mask, STATX_UID))
-                return -ENODATA;
+        ఒకవేళ (!FLAGS_సమితి(a->stx_ముసుగు, STATX_UID) || !FLAGS_సమితి(b->stx_ముసుగు, STATX_UID))
+                తిరిగి -ENODATA;
 
-        return uid_unsafe_transition(a->stx_uid, b->stx_uid);
+        తిరిగి uid_unsafe_transition(a->stx_uid, b->stx_uid);
 }
 
-bool stat_unsafe_transition(const struct stat *a, const struct stat *b) {
-        assert(a);
-        assert(b);
+bool stat_unsafe_transition(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        return uid_unsafe_transition(a->st_uid, b->st_uid);
+        తిరిగి uid_unsafe_transition(a->st_uid, b->st_uid);
 }
 
-static int log_unsafe_transition(int a, int b, const char *path, ChaseFlags flags) {
-        _cleanup_free_ char *n1 = NULL, *n2 = NULL, *user_a = NULL, *user_b = NULL;
-        struct stat st;
+స్థిర పూర్ణాంకం log_unsafe_transition(పూర్ణాంకం a, పూర్ణాంకం b, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags flags) {
+        _cleanup_free_ అక్షరం *n1 = ఖాళీ, *n2 = ఖాళీ, *user_a = ఖాళీ, *user_b = ఖాళీ;
+        నిర్మాణం stat st;
 
-        if (!FLAGS_SET(flags, CHASE_WARN))
-                return -ENOLINK;
+        ఒకవేళ (!FLAGS_సమితి(flags, CHASE_WARN))
+                తిరిగి -ENOLINK;
 
-        (void) fd_get_path(a, &n1);
-        (void) fd_get_path(b, &n2);
+        (శూన్య) fd_get_మార్గం(a, &n1);
+        (శూన్య) fd_get_మార్గం(b, &n2);
 
-        if (fstat(a, &st) == 0)
-                user_a = uid_to_name(st.st_uid);
-        if (fstat(b, &st) == 0)
-                user_b = uid_to_name(st.st_uid);
+        ఒకవేళ (fstat(a, &st) == 0)
+                user_a = uid_గమ్యం_name(st.st_uid);
+        ఒకవేళ (fstat(b, &st) == 0)
+                user_b = uid_గమ్యం_name(st.st_uid);
 
-        return log_warning_errno(SYNTHETIC_ERRNO(ENOLINK),
+        తిరిగి log_warning_errno(SYNTHETIC_ERRNO(ENOLINK),
                                  "Detected unsafe path transition %s (owned by %s) %s %s (owned by %s) during canonicalization of %s.",
-                                 strna(n1), strna(user_a), glyph(GLYPH_ARROW_RIGHT), strna(n2), strna(user_b), path);
+                                 strna(n1), strna(user_a), glyph(GLYPH_ARROW_కుడి), strna(n2), strna(user_b), మార్గం);
 }
 
-static int log_autofs_mount_point(int fd, const char *path, ChaseFlags flags) {
-        _cleanup_free_ char *n1 = NULL;
+స్థిర పూర్ణాంకం log_autofs_mount_బిందువు(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags flags) {
+        _cleanup_free_ అక్షరం *n1 = ఖాళీ;
 
-        if (!FLAGS_SET(flags, CHASE_WARN))
-                return -EREMOTE;
+        ఒకవేళ (!FLAGS_సమితి(flags, CHASE_WARN))
+                తిరిగి -EREMOTE;
 
-        (void) fd_get_path(fd, &n1);
+        (శూన్య) fd_get_మార్గం(fd, &n1);
 
-        return log_warning_errno(SYNTHETIC_ERRNO(EREMOTE),
+        తిరిగి log_warning_errno(SYNTHETIC_ERRNO(EREMOTE),
                                  "Detected autofs mount point '%s' during canonicalization of '%s'.",
-                                 strna(n1), path);
+                                 strna(n1), మార్గం);
 }
 
-static int log_prohibited_symlink(int fd, ChaseFlags flags) {
-        _cleanup_free_ char *n1 = NULL;
+స్థిర పూర్ణాంకం log_prohibited_symlink(పూర్ణాంకం fd, ChaseFlags flags) {
+        _cleanup_free_ అక్షరం *n1 = ఖాళీ;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
-        if (!FLAGS_SET(flags, CHASE_WARN))
-                return -ELOOP;
+        ఒకవేళ (!FLAGS_సమితి(flags, CHASE_WARN))
+                తిరిగి -ELOOP;
 
-        (void) fd_get_path(fd, &n1);
+        (శూన్య) fd_get_మార్గం(fd, &n1);
 
-        return log_warning_errno(SYNTHETIC_ERRNO(ELOOP),
+        తిరిగి log_warning_errno(SYNTHETIC_ERRNO(ELOOP),
                                  "Detected symlink where no symlink is allowed at '%s', refusing.",
                                  strna(n1));
 }
 
-int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **ret_path, int *ret_fd) {
-        int r;
+పూర్ణాంకం chaseat(పూర్ణాంకం మూలం_fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags flags, అక్షరం **ret_మార్గం, పూర్ణాంకం *ret_fd) {
+        పూర్ణాంకం r;
 
-        assert(!FLAGS_SET(flags, CHASE_PREFIX_ROOT));
-        assert(!FLAGS_SET(flags, CHASE_STEP|CHASE_EXTRACT_FILENAME));
-        assert(!FLAGS_SET(flags, CHASE_NO_AUTOFS|CHASE_TRIGGER_AUTOFS));
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(wildcard_fd_is_valid(root_fd));
+        ప్రతిజ్ఞా(!FLAGS_సమితి(flags, CHASE_ఉపసర్గ_మూలం));
+        ప్రతిజ్ఞా(!FLAGS_సమితి(flags, CHASE_అడుగు|CHASE_వెలికితీయి_FILENAME));
+        ప్రతిజ్ఞా(!FLAGS_సమితి(flags, CHASE_NO_AUTOFS|CHASE_TRIGGER_AUTOFS));
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(మూలం_fd));
         /* AT_FDCWD for dir_fd is only allowed when there is no chroot boundary: otherwise the current
          * working directory might live outside root_fd's subtree. */
-        assert(dir_fd != AT_FDCWD || IN_SET(root_fd, AT_FDCWD, XAT_FDROOT));
+        ప్రతిజ్ఞా(dir_fd != AT_FDCWD || లోపల_సమితి(మూలం_fd, AT_FDCWD, XAT_FDROOT));
 
-        if (FLAGS_SET(flags, CHASE_STEP))
-                assert(!ret_fd);
+        ఒకవేళ (FLAGS_సమితి(flags, CHASE_అడుగు))
+                ప్రతిజ్ఞా(!ret_fd);
 
         /* This function resolves symlinks of the path relative to the given directory file descriptor.
          * The root directory file descriptor sets the chroot boundary: symlinks may not escape it, and
@@ -308,76 +308,76 @@ int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **
 
         /* We treat AT_FDCWD as XAT_FDROOT for a more seamless migration for all callers of chaseat() before
          * it was reworked to support separate root_fd and dir_fd arguments. */
-        if (root_fd == AT_FDCWD)
-                root_fd = XAT_FDROOT;
-        else {
-                r = dir_fd_is_root(root_fd);
-                if (r < 0)
-                        return r;
-                if (r > 0)
-                        root_fd = XAT_FDROOT;
+        ఒకవేళ (మూలం_fd == AT_FDCWD)
+                మూలం_fd = XAT_FDROOT;
+        లేకపోతే {
+                r = dir_fd_is_మూలం(మూలం_fd);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r > 0)
+                        మూలం_fd = XAT_FDROOT;
         }
 
         /* If dir_fd points to the host's root directory and there is no chroot boundary, normalize it
          * to XAT_FDROOT so the shortcut path can kick in. */
-        r = dir_fd_is_root(dir_fd);
-        if (r < 0)
-                return r;
-        if (r > 0 && root_fd == XAT_FDROOT)
+        r = dir_fd_is_మూలం(dir_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r > 0 && మూలం_fd == XAT_FDROOT)
                 dir_fd = XAT_FDROOT;
 
         /* dir_fd == XAT_FDROOT means "start at root_fd". An absolute path is always resolved relative to
          * root_fd, regardless of what dir_fd points to. */
-        if (dir_fd == XAT_FDROOT || path_is_absolute(path))
-                dir_fd = root_fd;
+        ఒకవేళ (dir_fd == XAT_FDROOT || మార్గం_is_absolute(మార్గం))
+                dir_fd = మూలం_fd;
 
-        if (isempty(path))
-                path = ".";
+        ఒకవేళ (isempty(మార్గం))
+                మార్గం = ".";
 
         bool append_trail_slash = false;
-        if (ENDSWITH_SET(path, "/", "/.")) {
+        ఒకవేళ (ENDSWITH_సమితి(మార్గం, "/", "/.")) {
                 flags |= CHASE_MUST_BE_DIRECTORY;
-                if (FLAGS_SET(flags, CHASE_TRAIL_SLASH))
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_TRAIL_SLASH))
                         append_trail_slash = true;
-        } else if (dot_or_dot_dot(path) || endswith(path, "/.."))
+        } లేకపోతే ఒకవేళ (dot_or_dot_dot(మార్గం) || endswith(మార్గం, "/.."))
                 flags |= CHASE_MUST_BE_DIRECTORY;
 
-        if (FLAGS_SET(flags, CHASE_PARENT))
+        ఒకవేళ (FLAGS_సమితి(flags, CHASE_మాతృ))
                 flags |= CHASE_MUST_BE_DIRECTORY;
 
         /* If multiple flags are set now, fail immediately */
-        if (FLAGS_SET(flags, CHASE_MUST_BE_DIRECTORY) + FLAGS_SET(flags, CHASE_MUST_BE_REGULAR) + FLAGS_SET(flags, CHASE_MUST_BE_SOCKET) > 1)
-                return -EBADSLT;
+        ఒకవేళ (FLAGS_సమితి(flags, CHASE_MUST_BE_DIRECTORY) + FLAGS_సమితి(flags, CHASE_MUST_BE_REGULAR) + FLAGS_సమితి(flags, CHASE_MUST_BE_SOCKET) > 1)
+                తిరిగి -EBADSLT;
 
-        if (!ret_path) {
-                r = chase_openat2(root_fd, dir_fd, path, flags);
-                if (r >= 0) {
-                        if (ret_fd)
+        ఒకవేళ (!ret_మార్గం) {
+                r = chase_openat2(మూలం_fd, dir_fd, మార్గం, flags);
+                ఒకవేళ (r >= 0) {
+                        ఒకవేళ (ret_fd)
                                 *ret_fd = r;
-                        else
-                                safe_close(r);
+                        లేకపోతే
+                                సురక్షిత_close(r);
 
-                        return 1;
+                        తిరిగి 1;
                 }
-                if (r != -EOPNOTSUPP)
-                        return r;
+                ఒకవేళ (r != -EOPNOTSUPP)
+                        తిరిగి r;
         }
 
-        if (root_fd == XAT_FDROOT && !ret_path && (flags & CHASE_NO_SHORTCUT_MASK) == 0) {
+        ఒకవేళ (మూలం_fd == XAT_FDROOT && !ret_మార్గం && (flags & CHASE_NO_SHORTCUT_ముసుగు) == 0) {
                 /* Shortcut the common case where we don't have a real root boundary and no fancy features
                  * are requested: open the target directly via xopenat_full() which applies any MUST_BE_*
                  * verification and automount triggering for us. */
 
-                r = chase_xopenat(dir_fd, path, flags, O_PATH|O_CLOEXEC, /* xopen_flags= */ 0);
-                if (r < 0)
-                        return r;
+                r = chase_xopenat(dir_fd, మార్గం, flags, O_మార్గం|O_CLOEXEC, /* xopen_flags= */ 0);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (ret_fd)
+                ఒకవేళ (ret_fd)
                         *ret_fd = r;
-                else
-                        safe_close(r);
+                లేకపోతే
+                        సురక్షిత_close(r);
 
-                return 1;
+                తిరిగి 1;
         }
 
         /* Decide whether to return an absolute or relative path.
@@ -392,70 +392,70 @@ int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **
          * dir_fd, the loop below rebases onto root_fd and switches to an absolute result at that
          * point — it is not handled here.
          */
-        bool need_absolute = (root_fd == XAT_FDROOT || dir_fd != root_fd) && (dir_fd == XAT_FDROOT || path_is_absolute(path));
+        bool need_absolute = (మూలం_fd == XAT_FDROOT || dir_fd != మూలం_fd) && (dir_fd == XAT_FDROOT || మార్గం_is_absolute(మార్గం));
 
-        _cleanup_free_ char *done = NULL;
-        if (need_absolute) {
-                done = strdup("/");
-                if (!done)
-                        return -ENOMEM;
+        _cleanup_free_ అక్షరం *పూర్తి = ఖాళీ;
+        ఒకవేళ (need_absolute) {
+                పూర్తి = strdup("/");
+                ఒకవేళ (!పూర్తి)
+                        తిరిగి -ENOMEM;
         }
 
-        _cleanup_close_ int fd = xopenat(dir_fd, NULL, O_CLOEXEC|O_DIRECTORY|O_PATH);
-        if (fd < 0)
-                return fd;
+        _cleanup_close_ పూర్ణాంకం fd = xopenat(dir_fd, ఖాళీ, O_CLOEXEC|O_DIRECTORY|O_మార్గం);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
-        struct statx stx;
+        నిర్మాణం statx stx;
         r = chase_statx(fd, &stx);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* Remember stat data of the root, so that we can recognize it later during .. handling. Only
          * needed when there is an actual chroot boundary — with root_fd == XAT_FDROOT the boundary
          * check in the .. loop below is skipped and root_stx is never consulted. */
-        struct statx root_stx;
-        if (root_fd != XAT_FDROOT) {
-                if (root_fd == dir_fd)
-                        root_stx = stx;
-                else {
-                        r = chase_statx(root_fd, &root_stx);
-                        if (r < 0)
-                                return r;
+        నిర్మాణం statx మూలం_stx;
+        ఒకవేళ (మూలం_fd != XAT_FDROOT) {
+                ఒకవేళ (మూలం_fd == dir_fd)
+                        మూలం_stx = stx;
+                లేకపోతే {
+                        r = chase_statx(మూలం_fd, &మూలం_stx);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
         }
 
-        _cleanup_free_ char *buffer = strdup(path);
-        if (!buffer)
-                return -ENOMEM;
+        _cleanup_free_ అక్షరం *బఫరు = strdup(మార్గం);
+        ఒకవేళ (!బఫరు)
+                తిరిగి -ENOMEM;
 
-        const char *todo = buffer;
+        స్థిరరాశి అక్షరం *todo = బఫరు;
         bool exists = true;
-        for (unsigned n_steps = 0;; n_steps++) {
-                _cleanup_free_ char *first = NULL;
-                _cleanup_close_ int child = -EBADF;
-                struct statx stx_child;
-                const char *e;
+        కొరకు (గుర్తులేని n_అడుగులు = 0;; n_అడుగులు++) {
+                _cleanup_free_ అక్షరం *మొదటి = ఖాళీ;
+                _cleanup_close_ పూర్ణాంకం బిడ్డ = -EBADF;
+                నిర్మాణం statx stx_బిడ్డ;
+                స్థిరరాశి అక్షరం *e;
 
                 /* If people change our tree behind our back, they might send us in circles. Put a limit on
                  * things */
-                if (n_steps > CHASE_MAX)
-                        return -ELOOP;
+                ఒకవేళ (n_అడుగులు > CHASE_MAX)
+                        తిరిగి -ELOOP;
 
-                r = path_find_first_component(&todo, /* accept_dot_dot= */ true, &e);
-                if (r < 0)
-                        return r;
-                if (r == 0) /* We reached the end. */
-                        break;
+                r = మార్గం_కనుగొను_మొదటి_component(&todo, /* accept_dot_dot= */ true, &e);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0) /* We reached the end. */
+                        ఆపు;
 
-                first = strndup(e, r);
-                if (!first)
-                        return -ENOMEM;
+                మొదటి = strndup(e, r);
+                ఒకవేళ (!మొదటి)
+                        తిరిగి -ENOMEM;
 
                 /* Two dots? Then chop off the last bit of what we already found out. */
-                if (streq(first, "..")) {
-                        _cleanup_free_ char *parent = NULL;
-                        _cleanup_close_ int fd_parent = -EBADF;
-                        struct statx stx_parent;
+                ఒకవేళ (streq(మొదటి, "..")) {
+                        _cleanup_free_ అక్షరం *మాతృ = ఖాళీ;
+                        _cleanup_close_ పూర్ణాంకం fd_మాతృ = -EBADF;
+                        నిర్మాణం statx stx_మాతృ;
 
                         /* If we already are at the top, then going up will not change anything. This is
                          * in-line with how the kernel handles this. We check this both by path and by
@@ -467,388 +467,388 @@ int chaseat(int root_fd, int dir_fd, const char *path, ChaseFlags flags, char **
                          * The path-based fast path is only valid when the caller started at the root fd:
                          * otherwise 'done' being empty just means we haven't descended past the starting
                          * dir_fd, not that we're at the chroot boundary. */
-                        if (root_fd != XAT_FDROOT) {
-                                bool is_root = root_fd == dir_fd && empty_or_root(done);
-                                if (!is_root && statx_inode_same(&stx, &root_stx)) {
-                                        r = statx_mount_same(&stx, &root_stx);
-                                        if (r < 0)
-                                                return r;
+                        ఒకవేళ (మూలం_fd != XAT_FDROOT) {
+                                bool is_మూలం = మూలం_fd == dir_fd && ఖాళీలు_or_మూలం(పూర్తి);
+                                ఒకవేళ (!is_మూలం && statx_inode_same(&stx, &మూలం_stx)) {
+                                        r = statx_mount_same(&stx, &మూలం_stx);
+                                        ఒకవేళ (r < 0)
+                                                తిరిగి r;
 
-                                        is_root = r > 0;
+                                        is_మూలం = r > 0;
                                 }
-                                if (is_root) {
-                                        if (FLAGS_SET(flags, CHASE_STEP))
-                                                goto chased_one;
-                                        continue;
+                                ఒకవేళ (is_మూలం) {
+                                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_అడుగు))
+                                                వెళ్ళు chased_one;
+                                        కొనసాగు;
                                 }
                         }
 
-                        fd_parent = openat(fd, "..", O_CLOEXEC|O_NOFOLLOW|O_PATH|O_DIRECTORY);
-                        if (fd_parent < 0)
-                                return -errno;
+                        fd_మాతృ = openat(fd, "..", O_CLOEXEC|O_NOFOLLOW|O_మార్గం|O_DIRECTORY);
+                        ఒకవేళ (fd_మాతృ < 0)
+                                తిరిగి -errno;
 
-                        r = chase_statx(fd_parent, &stx_parent);
-                        if (r < 0)
-                                return r;
+                        r = chase_statx(fd_మాతృ, &stx_మాతృ);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
                         /* If we opened the same directory, that _may_ indicate that we're at the host root
                          * directory. Let's confirm that in more detail with dir_fd_is_root(). And if so,
                          * going up won't change anything. */
-                        if (statx_inode_same(&stx_parent, &stx)) {
-                                r = dir_fd_is_root(fd);
-                                if (r < 0)
-                                        return r;
-                                if (r > 0) {
-                                        if (FLAGS_SET(flags, CHASE_STEP))
-                                                goto chased_one;
-                                        continue;
+                        ఒకవేళ (statx_inode_same(&stx_మాతృ, &stx)) {
+                                r = dir_fd_is_మూలం(fd);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
+                                ఒకవేళ (r > 0) {
+                                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_అడుగు))
+                                                వెళ్ళు chased_one;
+                                        కొనసాగు;
                                 }
                         }
 
-                        r = path_extract_directory(done, &parent);
-                        if (r >= 0) {
-                                assert(!need_absolute || path_is_absolute(parent));
-                                free_and_replace(done, parent);
-                        } else if (r == -EDESTADDRREQ) {
+                        r = మార్గం_వెలికితీయి_directory(పూర్తి, &మాతృ);
+                        ఒకవేళ (r >= 0) {
+                                ప్రతిజ్ఞా(!need_absolute || మార్గం_is_absolute(మాతృ));
+                                free_and_replace(పూర్తి, మాతృ);
+                        } లేకపోతే ఒకవేళ (r == -EDESTADDRREQ) {
                                 /* 'done' contains filename only (i.e. no slash). */
-                                assert(!need_absolute);
-                                done = mfree(done);
-                        } else if (r == -EADDRNOTAVAIL) {
+                                ప్రతిజ్ఞా(!need_absolute);
+                                పూర్తి = mfree(పూర్తి);
+                        } లేకపోతే ఒకవేళ (r == -EADDRNOTAVAIL) {
                                 /* 'done' is "/". This branch should already be handled above via the
                                  * is_root check. */
                                 assert_not_reached();
-                        } else if (r == -EINVAL) {
+                        } లేకపోతే ఒకవేళ (r == -EINVAL) {
                                 /* 'done' is empty (we haven't descended past the starting dir_fd yet), or
                                  * ends with '..'. In both cases we're traversing above the starting point
                                  * (valid when root_fd is XAT_FDROOT, or when dir_fd was below root_fd to
                                  * start with), so record another '..' in 'done'. */
-                                assert(!need_absolute);
+                                ప్రతిజ్ఞా(!need_absolute);
 
-                                if (!isempty(done) && !path_is_valid(done))
-                                        return -EINVAL;
+                                ఒకవేళ (!isempty(పూర్తి) && !మార్గం_is_valid(పూర్తి))
+                                        తిరిగి -EINVAL;
 
-                                if (!path_extend(&done, ".."))
-                                        return -ENOMEM;
-                        } else
-                                return r;
+                                ఒకవేళ (!మార్గం_extend(&పూర్తి, ".."))
+                                        తిరిగి -ENOMEM;
+                        } లేకపోతే
+                                తిరిగి r;
 
-                        if (FLAGS_SET(flags, CHASE_STEP))
-                                goto chased_one;
+                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_అడుగు))
+                                వెళ్ళు chased_one;
 
-                        if (FLAGS_SET(flags, CHASE_SAFE)) {
-                                r = statx_unsafe_transition(&stx, &stx_parent);
-                                if (r < 0)
-                                        return r;
-                                if (r > 0)
-                                        return log_unsafe_transition(fd, fd_parent, path, flags);
+                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_సురక్షిత)) {
+                                r = statx_unsafe_transition(&stx, &stx_మాతృ);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
+                                ఒకవేళ (r > 0)
+                                        తిరిగి log_unsafe_transition(fd, fd_మాతృ, మార్గం, flags);
                         }
 
                         /* If the path ends on a "..", and CHASE_PARENT is specified then our current 'fd' is
                          * the child of the returned normalized path, not the parent as requested. To correct
                          * this we have to go *two* levels up. */
-                        if (FLAGS_SET(flags, CHASE_PARENT) && isempty(todo)) {
-                                _cleanup_close_ int fd_grandparent = -EBADF;
-                                struct statx stx_grandparent;
+                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_మాతృ) && isempty(todo)) {
+                                _cleanup_close_ పూర్ణాంకం fd_grandparent = -EBADF;
+                                నిర్మాణం statx stx_grandparent;
 
-                                fd_grandparent = openat(fd_parent, "..", O_CLOEXEC|O_NOFOLLOW|O_PATH|O_DIRECTORY);
-                                if (fd_grandparent < 0)
-                                        return -errno;
+                                fd_grandparent = openat(fd_మాతృ, "..", O_CLOEXEC|O_NOFOLLOW|O_మార్గం|O_DIRECTORY);
+                                ఒకవేళ (fd_grandparent < 0)
+                                        తిరిగి -errno;
 
                                 r = chase_statx(fd_grandparent, &stx_grandparent);
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                if (FLAGS_SET(flags, CHASE_SAFE)) {
-                                        r = statx_unsafe_transition(&stx_parent, &stx_grandparent);
-                                        if (r < 0)
-                                                return r;
-                                        if (r > 0)
-                                                return log_unsafe_transition(fd_parent, fd_grandparent, path, flags);
+                                ఒకవేళ (FLAGS_సమితి(flags, CHASE_సురక్షిత)) {
+                                        r = statx_unsafe_transition(&stx_మాతృ, &stx_grandparent);
+                                        ఒకవేళ (r < 0)
+                                                తిరిగి r;
+                                        ఒకవేళ (r > 0)
+                                                తిరిగి log_unsafe_transition(fd_మాతృ, fd_grandparent, మార్గం, flags);
                                 }
 
                                 stx = stx_grandparent;
                                 close_and_replace(fd, fd_grandparent);
-                                break;
+                                ఆపు;
                         }
 
                         /* update fd and stat */
-                        stx = stx_parent;
-                        close_and_replace(fd, fd_parent);
-                        continue;
+                        stx = stx_మాతృ;
+                        close_and_replace(fd, fd_మాతృ);
+                        కొనసాగు;
                 }
 
                 /* Otherwise let's pin it by file descriptor, via O_PATH. */
-                child = r = xopenat_full(fd, first,
-                                         O_PATH|O_NOFOLLOW|O_CLOEXEC,
-                                         FLAGS_SET(flags, CHASE_TRIGGER_AUTOFS) ? XO_TRIGGER_AUTOMOUNT : 0,
-                                         MODE_INVALID);
-                if (r < 0) {
-                        if (r != -ENOENT)
-                                return r;
+                బిడ్డ = r = xopenat_నిండిన(fd, మొదటి,
+                                         O_మార్గం|O_NOFOLLOW|O_CLOEXEC,
+                                         FLAGS_సమితి(flags, CHASE_TRIGGER_AUTOFS) ? XO_TRIGGER_AUTOMOUNT : 0,
+                                         బహుళకం_INVALID);
+                ఒకవేళ (r < 0) {
+                        ఒకవేళ (r != -ENOENT)
+                                తిరిగి r;
 
-                        if (!isempty(todo) && !path_is_safe(todo)) /* Refuse parent/mkdir handling if suffix contains ".." or something weird */
-                                return r;
+                        ఒకవేళ (!isempty(todo) && !మార్గం_is_సురక్షిత(todo)) /* Refuse parent/mkdir handling if suffix contains ".." or something weird */
+                                తిరిగి r;
 
-                        if (FLAGS_SET(flags, CHASE_MKDIR_0755) && (!isempty(todo) || !(flags & (CHASE_PARENT|CHASE_NONEXISTENT)))) {
-                                child = xopenat(fd,
-                                                first,
-                                                O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_PATH|O_CLOEXEC);
-                                if (child < 0)
-                                        return child;
-                        } else if (FLAGS_SET(flags, CHASE_PARENT) && isempty(todo)) {
-                                if (!path_extend(&done, first))
-                                        return -ENOMEM;
+                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_MKDIR_0755) && (!isempty(todo) || !(flags & (CHASE_మాతృ|CHASE_NONEXISTENT)))) {
+                                బిడ్డ = xopenat(fd,
+                                                మొదటి,
+                                                O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_మార్గం|O_CLOEXEC);
+                                ఒకవేళ (బిడ్డ < 0)
+                                        తిరిగి బిడ్డ;
+                        } లేకపోతే ఒకవేళ (FLAGS_సమితి(flags, CHASE_మాతృ) && isempty(todo)) {
+                                ఒకవేళ (!మార్గం_extend(&పూర్తి, మొదటి))
+                                        తిరిగి -ENOMEM;
 
-                                break;
-                        } else if (FLAGS_SET(flags, CHASE_NONEXISTENT)) {
-                                if (!path_extend(&done, first, todo))
-                                        return -ENOMEM;
+                                ఆపు;
+                        } లేకపోతే ఒకవేళ (FLAGS_సమితి(flags, CHASE_NONEXISTENT)) {
+                                ఒకవేళ (!మార్గం_extend(&పూర్తి, మొదటి, todo))
+                                        తిరిగి -ENOMEM;
 
                                 exists = false;
-                                break;
-                        } else
-                                return r;
+                                ఆపు;
+                        } లేకపోతే
+                                తిరిగి r;
                 }
 
-                r = chase_statx(child, &stx_child);
-                if (r < 0)
-                        return r;
+                r = chase_statx(బిడ్డ, &stx_బిడ్డ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (FLAGS_SET(flags, CHASE_SAFE)) {
-                        r = statx_unsafe_transition(&stx, &stx_child);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return log_unsafe_transition(fd, child, path, flags);
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_సురక్షిత)) {
+                        r = statx_unsafe_transition(&stx, &stx_బిడ్డ);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (r > 0)
+                                తిరిగి log_unsafe_transition(fd, బిడ్డ, మార్గం, flags);
                 }
 
-                if (FLAGS_SET(flags, CHASE_NO_AUTOFS) &&
-                    fd_is_fs_type(child, AUTOFS_SUPER_MAGIC) > 0)
-                        return log_autofs_mount_point(child, path, flags);
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_NO_AUTOFS) &&
+                    fd_is_fs_type(బిడ్డ, AUTOFS_SUPER_MAGIC) > 0)
+                        తిరిగి log_autofs_mount_బిందువు(బిడ్డ, మార్గం, flags);
 
-                if (S_ISLNK(stx_child.stx_mode) && !(FLAGS_SET(flags, CHASE_NOFOLLOW) && isempty(todo))) {
-                        _cleanup_free_ char *destination = NULL;
+                ఒకవేళ (S_ISLNK(stx_బిడ్డ.stx_బహుళకం) && !(FLAGS_సమితి(flags, CHASE_NOFOLLOW) && isempty(todo))) {
+                        _cleanup_free_ అక్షరం *destination = ఖాళీ;
 
-                        if (FLAGS_SET(flags, CHASE_PROHIBIT_SYMLINKS))
-                                return log_prohibited_symlink(child, flags);
+                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_PROHIBIT_SYMLINKS))
+                                తిరిగి log_prohibited_symlink(బిడ్డ, flags);
 
-                        r = readlinkat_malloc(fd, first, &destination);
-                        if (r < 0)
-                                return r;
-                        if (isempty(destination))
-                                return -EINVAL;
+                        r = readlinkat_malloc(fd, మొదటి, &destination);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (isempty(destination))
+                                తిరిగి -EINVAL;
 
-                        if (path_is_absolute(destination)) {
+                        ఒకవేళ (మార్గం_is_absolute(destination)) {
 
                                 /* An absolute destination. Start the loop from the beginning, but use the
                                  * root file descriptor as base. */
 
-                                safe_close(fd);
-                                fd = fd_reopen(root_fd, O_CLOEXEC|O_PATH|O_DIRECTORY);
-                                if (fd < 0)
-                                        return fd;
+                                సురక్షిత_close(fd);
+                                fd = fd_reopen(మూలం_fd, O_CLOEXEC|O_మార్గం|O_DIRECTORY);
+                                ఒకవేళ (fd < 0)
+                                        తిరిగి fd;
 
                                 r = chase_statx(fd, &stx);
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                if (FLAGS_SET(flags, CHASE_SAFE)) {
-                                        r = statx_unsafe_transition(&stx_child, &stx);
-                                        if (r < 0)
-                                                return r;
-                                        if (r > 0)
-                                                return log_unsafe_transition(child, fd, path, flags);
+                                ఒకవేళ (FLAGS_సమితి(flags, CHASE_సురక్షిత)) {
+                                        r = statx_unsafe_transition(&stx_బిడ్డ, &stx);
+                                        ఒకవేళ (r < 0)
+                                                తిరిగి r;
+                                        ఒకవేళ (r > 0)
+                                                తిరిగి log_unsafe_transition(బిడ్డ, fd, మార్గం, flags);
                                 }
 
-                                if (dir_fd != root_fd)
+                                ఒకవేళ (dir_fd != మూలం_fd)
                                         need_absolute = true;
 
-                                r = free_and_strdup(&done, need_absolute ? "/" : NULL);
-                                if (r < 0)
-                                        return r;
+                                r = free_and_strdup(&పూర్తి, need_absolute ? "/" : ఖాళీ);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
                         }
 
                         /* Prefix what's left to do with what we just read, and start the loop again, but
                          * remain in the current directory. */
-                        if (!path_extend(&destination, todo))
-                                return -ENOMEM;
+                        ఒకవేళ (!మార్గం_extend(&destination, todo))
+                                తిరిగి -ENOMEM;
 
-                        free_and_replace(buffer, destination);
-                        todo = buffer;
+                        free_and_replace(బఫరు, destination);
+                        todo = బఫరు;
 
-                        if (FLAGS_SET(flags, CHASE_STEP))
-                                goto chased_one;
+                        ఒకవేళ (FLAGS_సమితి(flags, CHASE_అడుగు))
+                                వెళ్ళు chased_one;
 
-                        continue;
+                        కొనసాగు;
                 }
 
                 /* If this is not a symlink, then let's just add the name we read to what we already verified. */
-                if (!path_extend(&done, first))
-                        return -ENOMEM;
+                ఒకవేళ (!మార్గం_extend(&పూర్తి, మొదటి))
+                        తిరిగి -ENOMEM;
 
-                if (FLAGS_SET(flags, CHASE_PARENT) && isempty(todo))
-                        break;
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_మాతృ) && isempty(todo))
+                        ఆపు;
 
                 /* And iterate again, but go one directory further down. */
-                stx = stx_child;
-                close_and_replace(fd, child);
+                stx = stx_బిడ్డ;
+                close_and_replace(fd, బిడ్డ);
         }
 
-        if (exists) {
-                if (FLAGS_SET(flags, CHASE_MUST_BE_DIRECTORY)) {
+        ఒకవేళ (exists) {
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_MUST_BE_DIRECTORY)) {
                         r = statx_verify_directory(&stx);
-                        if (r < 0)
-                                return r;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                if (FLAGS_SET(flags, CHASE_MUST_BE_REGULAR)) {
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_MUST_BE_REGULAR)) {
                         r = statx_verify_regular(&stx);
-                        if (r < 0)
-                                return r;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                if (FLAGS_SET(flags, CHASE_MUST_BE_SOCKET)) {
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_MUST_BE_SOCKET)) {
                         r = statx_verify_socket(&stx);
-                        if (r < 0)
-                                return r;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
         }
 
-        if (ret_path) {
-                if (FLAGS_SET(flags, CHASE_EXTRACT_FILENAME) && done) {
-                        _cleanup_free_ char *f = NULL;
+        ఒకవేళ (ret_మార్గం) {
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_వెలికితీయి_FILENAME) && పూర్తి) {
+                        _cleanup_free_ అక్షరం *f = ఖాళీ;
 
-                        r = path_extract_filename(done, &f);
-                        if (r < 0 && r != -EADDRNOTAVAIL)
-                                return r;
+                        r = మార్గం_వెలికితీయి_filename(పూర్తి, &f);
+                        ఒకవేళ (r < 0 && r != -EADDRNOTAVAIL)
+                                తిరిగి r;
 
                         /* If we get EADDRNOTAVAIL we clear done and it will get reinitialized by the next block. */
-                        free_and_replace(done, f);
+                        free_and_replace(పూర్తి, f);
                 }
 
-                if (!done) {
-                        assert(!need_absolute || FLAGS_SET(flags, CHASE_EXTRACT_FILENAME));
-                        done = strdup(".");
-                        if (!done)
-                                return -ENOMEM;
+                ఒకవేళ (!పూర్తి) {
+                        ప్రతిజ్ఞా(!need_absolute || FLAGS_సమితి(flags, CHASE_వెలికితీయి_FILENAME));
+                        పూర్తి = strdup(".");
+                        ఒకవేళ (!పూర్తి)
+                                తిరిగి -ENOMEM;
                 }
 
-                if (append_trail_slash)
-                        if (!strextend(&done, "/"))
-                                return -ENOMEM;
+                ఒకవేళ (append_trail_slash)
+                        ఒకవేళ (!strextend(&పూర్తి, "/"))
+                                తిరిగి -ENOMEM;
 
-                *ret_path = TAKE_PTR(done);
+                *ret_మార్గం = TAKE_PTR(పూర్తి);
         }
 
-        if (ret_fd) {
-                if (exists) {
+        ఒకవేళ (ret_fd) {
+                ఒకవేళ (exists) {
                         /* Return the O_PATH fd we currently are looking to the caller. It can translate it
                          * to a proper fd by opening /proc/self/fd/xyz. */
-                        assert(fd >= 0);
+                        ప్రతిజ్ఞా(fd >= 0);
                         *ret_fd = TAKE_FD(fd);
-                } else
+                } లేకపోతే
                         *ret_fd = -EBADF;
         }
 
-        if (FLAGS_SET(flags, CHASE_STEP))
-                return 1;
+        ఒకవేళ (FLAGS_సమితి(flags, CHASE_అడుగు))
+                తిరిగి 1;
 
-        return exists;
+        తిరిగి exists;
 
 chased_one:
-        if (ret_path) {
-                const char *e;
+        ఒకవేళ (ret_మార్గం) {
+                స్థిరరాశి అక్షరం *e;
 
-                if (!done) {
-                        assert(!need_absolute);
-                        done = strdup(append_trail_slash ? "./" : ".");
-                        if (!done)
-                                return -ENOMEM;
+                ఒకవేళ (!పూర్తి) {
+                        ప్రతిజ్ఞా(!need_absolute);
+                        పూర్తి = strdup(append_trail_slash ? "./" : ".");
+                        ఒకవేళ (!పూర్తి)
+                                తిరిగి -ENOMEM;
                 }
 
                 /* todo may contain slashes at the beginning. */
-                r = path_find_first_component(&todo, /* accept_dot_dot= */ true, &e);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        *ret_path = TAKE_PTR(done);
-                else {
-                        char *c;
+                r = మార్గం_కనుగొను_మొదటి_component(&todo, /* accept_dot_dot= */ true, &e);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        *ret_మార్గం = TAKE_PTR(పూర్తి);
+                లేకపోతే {
+                        అక్షరం *c;
 
-                        c = path_join(done, e);
-                        if (!c)
-                                return -ENOMEM;
+                        c = మార్గం_join(పూర్తి, e);
+                        ఒకవేళ (!c)
+                                తిరిగి -ENOMEM;
 
-                        *ret_path = c;
+                        *ret_మార్గం = c;
                 }
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase(const char *path, const char *root, ChaseFlags flags, char **ret_path, int *ret_fd) {
-        _cleanup_free_ char *root_abs = NULL, *absolute = NULL, *p = NULL;
-        _cleanup_close_ int fd = -EBADF, pfd = -EBADF;
-        int r;
+పూర్ణాంకం chase(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, ChaseFlags flags, అక్షరం **ret_మార్గం, పూర్ణాంకం *ret_fd) {
+        _cleanup_free_ అక్షరం *మూలం_abs = ఖాళీ, *absolute = ఖాళీ, *p = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF, pfd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        if (isempty(path))
-                return -EINVAL;
+        ఒకవేళ (isempty(మార్గం))
+                తిరిగి -EINVAL;
 
-        r = empty_or_root_harder_to_null(&root);
-        if (r < 0)
-                return r;
+        r = ఖాళీలు_or_మూలం_harder_గమ్యం_null(&మూలం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* A root directory of "/" or "" is identical to "/". */
-        if (empty_or_root(root))
-                root = "/";
-        else {
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం))
+                మూలం = "/";
+        లేకపోతే {
+                r = మార్గం_make_absolute_cwd(మూలం, &మూలం_abs);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 /* Simplify the root directory, so that it has no duplicate slashes and nothing at the
                  * end. While we won't resolve the root path we still simplify it. */
-                root = path_simplify(root_abs);
+                మూలం = మార్గం_simplify(మూలం_abs);
 
-                assert(path_is_absolute(root));
-                assert(!empty_or_root(root));
+                ప్రతిజ్ఞా(మార్గం_is_absolute(మూలం));
+                ప్రతిజ్ఞా(!ఖాళీలు_or_మూలం(మూలం));
 
-                if (FLAGS_SET(flags, CHASE_PREFIX_ROOT)) {
-                        absolute = path_join(root, path);
-                        if (!absolute)
-                                return -ENOMEM;
+                ఒకవేళ (FLAGS_సమితి(flags, CHASE_ఉపసర్గ_మూలం)) {
+                        absolute = మార్గం_join(మూలం, మార్గం);
+                        ఒకవేళ (!absolute)
+                                తిరిగి -ENOMEM;
                 }
         }
 
-        if (!absolute) {
-                r = path_make_absolute_cwd(path, &absolute);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (!absolute) {
+                r = మార్గం_make_absolute_cwd(మార్గం, &absolute);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        path = path_startswith(absolute, root);
-        if (!path)
-                return log_full_errno(FLAGS_SET(flags, CHASE_WARN) ? LOG_WARNING : LOG_DEBUG,
+        మార్గం = మార్గం_startswith(absolute, మూలం);
+        ఒకవేళ (!మార్గం)
+                తిరిగి log_నిండిన_errno(FLAGS_సమితి(flags, CHASE_WARN) ? LOG_WARNING : LOG_DEBUG,
                                       SYNTHETIC_ERRNO(ECHRNG),
                                       "Specified path '%s' is outside of specified root directory '%s', refusing to resolve.",
-                                      absolute, root);
+                                      absolute, మూలం);
 
-        if (empty_or_root(root))
+        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం))
                 fd = XAT_FDROOT;
-        else {
-                fd = open(root, O_CLOEXEC|O_DIRECTORY|O_PATH);
-                if (fd < 0)
-                        return -errno;
+        లేకపోతే {
+                fd = open(మూలం, O_CLOEXEC|O_DIRECTORY|O_మార్గం);
+                ఒకవేళ (fd < 0)
+                        తిరిగి -errno;
         }
 
-        r = chaseat(fd, fd, path, flags & ~CHASE_PREFIX_ROOT, ret_path ? &p : NULL, ret_fd ? &pfd : NULL);
-        if (r < 0)
-                return r;
+        r = chaseat(fd, fd, మార్గం, flags & ~CHASE_ఉపసర్గ_మూలం, ret_మార్గం ? &p : ఖాళీ, ret_fd ? &pfd : ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path) {
-                if (!FLAGS_SET(flags, CHASE_EXTRACT_FILENAME)) {
+        ఒకవేళ (ret_మార్గం) {
+                ఒకవేళ (!FLAGS_సమితి(flags, CHASE_వెలికితీయి_FILENAME)) {
 
                         /* When "root" points to the root directory, the result of chaseat() is always
                          * absolute, hence it is not necessary to prefix with the root. When "root" points to
@@ -857,525 +857,525 @@ int chase(const char *path, const char *root, ChaseFlags flags, char **ret_path,
                          * As a special case, chaseat() may return "." or "./", which are normalized too,
                          * but we need to drop "." before merging with root. */
 
-                        if (empty_or_root(root))
-                                assert(path_is_absolute(p));
-                        else {
-                                char *q;
+                        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం))
+                                ప్రతిజ్ఞా(మార్గం_is_absolute(p));
+                        లేకపోతే {
+                                అక్షరం *q;
 
-                                assert(!path_is_absolute(p));
+                                ప్రతిజ్ఞా(!మార్గం_is_absolute(p));
 
-                                q = path_join(root, p + STR_IN_SET(p, ".", "./"));
-                                if (!q)
-                                        return -ENOMEM;
+                                q = మార్గం_join(మూలం, p + STR_లోపల_సమితి(p, ".", "./"));
+                                ఒకవేళ (!q)
+                                        తిరిగి -ENOMEM;
 
                                 free_and_replace(p, q);
                         }
                 }
 
-                *ret_path = TAKE_PTR(p);
+                *ret_మార్గం = TAKE_PTR(p);
         }
 
-        if (ret_fd)
+        ఒకవేళ (ret_fd)
                 *ret_fd = TAKE_FD(pfd);
 
-        return r;
+        తిరిగి r;
 }
 
-int chaseat_prefix_root(const char *path, const char *root, char **ret) {
-        char *q;
-        int r;
+పూర్ణాంకం chaseat_ఉపసర్గ_మూలం(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, అక్షరం **ret) {
+        అక్షరం *q;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(ret);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(ret);
 
         /* This is mostly for prefixing the result of chaseat(). */
 
-        if (!path_is_absolute(path)) {
-                _cleanup_free_ char *root_abs = NULL;
+        ఒకవేళ (!మార్గం_is_absolute(మార్గం)) {
+                _cleanup_free_ అక్షరం *మూలం_abs = ఖాళీ;
 
-                r = empty_or_root_harder_to_null(&root);
-                if (r < 0 && r != -ENOENT)
-                        return r;
+                r = ఖాళీలు_or_మూలం_harder_గమ్యం_null(&మూలం);
+                ఒకవేళ (r < 0 && r != -ENOENT)
+                        తిరిగి r;
 
                 /* If the dir_fd points to the root directory, chaseat() always returns an absolute path. */
-                if (empty_or_root(root))
-                        return -EINVAL;
+                ఒకవేళ (ఖాళీలు_or_మూలం(మూలం))
+                        తిరిగి -EINVAL;
 
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return r;
+                r = మార్గం_make_absolute_cwd(మూలం, &మూలం_abs);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                root = path_simplify(root_abs);
+                మూలం = మార్గం_simplify(మూలం_abs);
 
-                q = path_join(root, path + (path[0] == '.' && IN_SET(path[1], '/', '\0')));
-        } else
-                q = strdup(path);
-        if (!q)
-                return -ENOMEM;
+                q = మార్గం_join(మూలం, మార్గం + (మార్గం[0] == '.' && లోపల_సమితి(మార్గం[1], '/', '\0')));
+        } లేకపోతే
+                q = strdup(మార్గం);
+        ఒకవేళ (!q)
+                తిరిగి -ENOMEM;
 
         *ret = q;
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_extract_filename(const char *path, const char *root, char **ret) {
-        int r;
+పూర్ణాంకం chase_వెలికితీయి_filename(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, అక్షరం **ret) {
+        పూర్ణాంకం r;
 
         /* This is similar to path_extract_filename(), but takes root directory.
          * The result should be consistent with chase() with CHASE_EXTRACT_FILENAME. */
 
-        assert(path);
-        assert(ret);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(ret);
 
-        if (isempty(path))
-                return -EINVAL;
+        ఒకవేళ (isempty(మార్గం))
+                తిరిగి -EINVAL;
 
-        if (!path_is_absolute(path))
-                return -EINVAL;
+        ఒకవేళ (!మార్గం_is_absolute(మార్గం))
+                తిరిగి -EINVAL;
 
-        r = empty_or_root_harder_to_null(&root);
-        if (r < 0 && r != -ENOENT)
-                return r;
+        r = ఖాళీలు_or_మూలం_harder_గమ్యం_null(&మూలం);
+        ఒకవేళ (r < 0 && r != -ENOENT)
+                తిరిగి r;
 
-        if (!empty_or_root(root)) {
-                _cleanup_free_ char *root_abs = NULL;
+        ఒకవేళ (!ఖాళీలు_or_మూలం(మూలం)) {
+                _cleanup_free_ అక్షరం *మూలం_abs = ఖాళీ;
 
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return r;
+                r = మార్గం_make_absolute_cwd(మూలం, &మూలం_abs);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                path = path_startswith(path, root_abs);
-                if (!path)
-                        return -EINVAL;
+                మార్గం = మార్గం_startswith(మార్గం, మూలం_abs);
+                ఒకవేళ (!మార్గం)
+                        తిరిగి -EINVAL;
         }
 
-        if (!isempty(path)) {
-                r = path_extract_filename(path, ret);
-                if (r != -EADDRNOTAVAIL)
-                        return r;
+        ఒకవేళ (!isempty(మార్గం)) {
+                r = మార్గం_వెలికితీయి_filename(మార్గం, ret);
+                ఒకవేళ (r != -EADDRNOTAVAIL)
+                        తిరిగి r;
         }
 
-        return strdup_to(ret, ".");
+        తిరిగి strdup_గమ్యం(ret, ".");
 }
 
-int chase_and_open(
-                const char *path,
-                const char *root,
+పూర్ణాంకం chase_and_open(
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *మూలం,
                 ChaseFlags chase_flags,
-                int open_flags,
-                char **ret_path) {
+                పూర్ణాంకం open_flags,
+                అక్షరం **ret_మార్గం) {
 
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        const char *open_name = NULL;
-        int r;
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *fname = ఖాళీ;
+        స్థిరరాశి అక్షరం *open_name = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు)));
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0)
+        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం) && !ret_మార్గం && (chase_flags & CHASE_NO_SHORTCUT_ముసుగు) == 0)
                 /* Shortcut this call if none of the special features of this call are requested */
-                return chase_xopenat(AT_FDCWD, path, chase_flags, open_flags, /* xopen_flags= */ 0);
+                తిరిగి chase_xopenat(AT_FDCWD, మార్గం, chase_flags, open_flags, /* xopen_flags= */ 0);
 
-        r = chase(path, root, (CHASE_PARENT|chase_flags)&~CHASE_MUST_BE_REGULAR, &p, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(మార్గం, మూలం, (CHASE_మాతృ|chase_flags)&~CHASE_MUST_BE_REGULAR, &p, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(మార్గం_fd >= 0);
 
-        if (!FLAGS_SET(chase_flags, CHASE_PARENT)) {
-                if (FLAGS_SET(chase_flags, CHASE_EXTRACT_FILENAME))
+        ఒకవేళ (!FLAGS_సమితి(chase_flags, CHASE_మాతృ)) {
+                ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_వెలికితీయి_FILENAME))
                         /* chase() with CHASE_EXTRACT_FILENAME already returns just the filename in
                          * p — use it directly without redundant extraction. */
                         open_name = p;
-                else {
-                        r = chase_extract_filename(p, root, &fname);
-                        if (r < 0)
-                                return r;
+                లేకపోతే {
+                        r = chase_వెలికితీయి_filename(p, మూలం, &fname);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                         open_name = fname;
                 }
         }
 
-        r = chase_xopenat(path_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
-        if (r < 0)
-                return r;
+        r = chase_xopenat(మార్గం_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return r;
+        తిరిగి r;
 }
 
-int chase_and_opendir(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
+పూర్ణాంకం chase_and_opendir(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, ChaseFlags chase_flags, అక్షరం **ret_మార్గం, DIR **ret_dir) {
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
         DIR *d;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
-        assert(ret_dir);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
+        ప్రతిజ్ఞా(ret_dir);
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0) {
+        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం) && !ret_మార్గం && (chase_flags & CHASE_NO_SHORTCUT_ముసుగు) == 0) {
                 /* Shortcut this call if none of the special features of this call are requested */
-                d = opendir(path);
-                if (!d)
-                        return -errno;
+                d = opendir(మార్గం);
+                ఒకవేళ (!d)
+                        తిరిగి -errno;
 
                 *ret_dir = d;
-                return 0;
+                తిరిగి 0;
         }
 
-        r = chase(path, root, chase_flags|CHASE_MUST_BE_DIRECTORY, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(మార్గం, మూలం, chase_flags|CHASE_MUST_BE_DIRECTORY, ret_మార్గం ? &p : ఖాళీ, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(మార్గం_fd >= 0);
 
-        d = xopendirat(path_fd, /* path= */ NULL, /* flags= */ 0);
-        if (!d)
-                return -errno;
+        d = xopendirat(మార్గం_fd, /* path= */ ఖాళీ, /* flags= */ 0);
+        ఒకవేళ (!d)
+                తిరిగి -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
         *ret_dir = d;
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_stat(const char *path, const char *root, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+పూర్ణాంకం chase_and_stat(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, ChaseFlags chase_flags, అక్షరం **ret_మార్గం, నిర్మాణం stat *ret_stat) {
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
-        assert(ret_stat);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు)));
+        ప్రతిజ్ఞా(ret_stat);
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం) && !ret_మార్గం && (chase_flags & (CHASE_NO_SHORTCUT_ముసుగు|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. We can't
                  * take the shortcut if CHASE_MUST_BE_* is set because fstatat() alone does not verify the
                  * inode type. */
-                return RET_NERRNO(fstatat(AT_FDCWD, path, ret_stat,
-                                          FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                తిరిగి RET_NERRNO(fstatat(AT_FDCWD, మార్గం, ret_stat,
+                                          FLAGS_సమితి(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chase(path, root, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(మార్గం, మూలం, chase_flags, ret_మార్గం ? &p : ఖాళీ, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(మార్గం_fd >= 0);
 
-        if (fstat(path_fd, ret_stat) < 0)
-                return -errno;
+        ఒకవేళ (fstat(మార్గం_fd, ret_stat) < 0)
+                తిరిగి -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_access(const char *path, const char *root, ChaseFlags chase_flags, int access_mode, char **ret_path) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+పూర్ణాంకం chase_and_access(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, ChaseFlags chase_flags, పూర్ణాంకం access_బహుళకం, అక్షరం **ret_మార్గం) {
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు)));
 
-        if (empty_or_root(root) && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం) && !ret_మార్గం && (chase_flags & (CHASE_NO_SHORTCUT_ముసుగు|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. */
-                return RET_NERRNO(faccessat(AT_FDCWD, path, access_mode,
-                                            FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                తిరిగి RET_NERRNO(faccessat(AT_FDCWD, మార్గం, access_బహుళకం,
+                                            FLAGS_సమితి(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chase(path, root, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chase(మార్గం, మూలం, chase_flags, ret_మార్గం ? &p : ఖాళీ, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(మార్గం_fd >= 0);
 
-        r = access_fd(path_fd, access_mode);
-        if (r < 0)
-                return r;
+        r = access_fd(మార్గం_fd, access_బహుళకం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_fopen_unlocked(
-                const char *path,
-                const char *root,
+పూర్ణాంకం chase_and_fopen_unlocked(
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *మూలం,
                 ChaseFlags chase_flags,
-                const char *open_flags,
-                char **ret_path,
+                స్థిరరాశి అక్షరం *open_flags,
+                అక్షరం **ret_మార్గం,
                 FILE **ret_file) {
 
-        _cleanup_free_ char *final_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int mode_flags, r;
+        _cleanup_free_ అక్షరం *final_మార్గం = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం బహుళకం_flags, r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT|CHASE_MUST_BE_DIRECTORY|CHASE_MUST_BE_SOCKET)));
-        assert(open_flags);
-        assert(ret_file);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు|CHASE_మాతృ|CHASE_MUST_BE_DIRECTORY|CHASE_MUST_BE_SOCKET)));
+        ప్రతిజ్ఞా(open_flags);
+        ప్రతిజ్ఞా(ret_file);
 
-        mode_flags = fopen_mode_to_flags(open_flags);
-        if (mode_flags < 0)
-                return mode_flags;
+        బహుళకం_flags = fopen_బహుళకం_గమ్యం_flags(open_flags);
+        ఒకవేళ (బహుళకం_flags < 0)
+                తిరిగి బహుళకం_flags;
 
-        fd = chase_and_open(path, root, chase_flags, mode_flags, ret_path ? &final_path : NULL);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_open(మార్గం, మూలం, chase_flags, బహుళకం_flags, ret_మార్గం ? &final_మార్గం : ఖాళీ);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
         r = take_fdopen_unlocked(&fd, open_flags, ret_file);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(final_path);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(final_మార్గం);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_unlink(const char *path, const char *root, ChaseFlags chase_flags, int unlink_flags, char **ret_path) {
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+పూర్ణాంకం chase_and_unlink(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, ChaseFlags chase_flags, పూర్ణాంకం unlink_flags, అక్షరం **ret_మార్గం) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *fname = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_EXTRACT_FILENAME|CHASE_MKDIR_0755)));
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు|CHASE_మాతృ|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_వెలికితీయి_FILENAME|CHASE_MKDIR_0755)));
 
-        fd = chase_and_open(path, root, chase_flags|CHASE_PARENT|CHASE_NOFOLLOW, O_PATH|O_DIRECTORY|O_CLOEXEC, &p);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_open(మార్గం, మూలం, chase_flags|CHASE_మాతృ|CHASE_NOFOLLOW, O_మార్గం|O_DIRECTORY|O_CLOEXEC, &p);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
-        r = path_extract_filename(p, &fname);
-        if (r < 0)
-                return r;
+        r = మార్గం_వెలికితీయి_filename(p, &fname);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (unlinkat(fd, fname, unlink_flags) < 0)
-                return -errno;
+        ఒకవేళ (unlinkat(fd, fname, unlink_flags) < 0)
+                తిరిగి -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_open_parent(const char *path, const char *root, ChaseFlags chase_flags, char **ret_filename) {
-        int pfd, r;
+పూర్ణాంకం chase_and_open_మాతృ(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *మూలం, ChaseFlags chase_flags, అక్షరం **ret_filename) {
+        పూర్ణాంకం pfd, r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు)));
 
-        r = chase(path, root, CHASE_PARENT|CHASE_EXTRACT_FILENAME|chase_flags, ret_filename, &pfd);
-        if (r < 0)
-                return r;
+        r = chase(మార్గం, మూలం, CHASE_మాతృ|CHASE_వెలికితీయి_FILENAME|chase_flags, ret_filename, &pfd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return pfd;
+        తిరిగి pfd;
 }
 
-int chase_and_openat(
-                int root_fd,
-                int dir_fd,
-                const char *path,
+పూర్ణాంకం chase_and_openat(
+                పూర్ణాంకం మూలం_fd,
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *మార్గం,
                 ChaseFlags chase_flags,
-                int open_flags,
-                char **ret_path) {
+                పూర్ణాంకం open_flags,
+                అక్షరం **ret_మార్గం) {
 
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        const char *open_name = NULL;
-        int r;
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *fname = ఖాళీ;
+        స్థిరరాశి అక్షరం *open_name = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_MUST_BE_SOCKET)));
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు|CHASE_MUST_BE_SOCKET)));
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0)
+        ఒకవేళ (మూలం_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_మార్గం && (chase_flags & CHASE_NO_SHORTCUT_ముసుగు) == 0)
                 /* Shortcut this call if none of the special features of this call are requested */
-                return chase_xopenat(dir_fd, path, chase_flags, open_flags, /* xopen_flags= */ 0);
+                తిరిగి chase_xopenat(dir_fd, మార్గం, chase_flags, open_flags, /* xopen_flags= */ 0);
 
-        r = chaseat(root_fd, dir_fd, path, (chase_flags|CHASE_PARENT)&~CHASE_MUST_BE_REGULAR, &p, &path_fd);
-        if (r < 0)
-                return r;
+        r = chaseat(మూలం_fd, dir_fd, మార్గం, (chase_flags|CHASE_మాతృ)&~CHASE_MUST_BE_REGULAR, &p, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!FLAGS_SET(chase_flags, CHASE_PARENT)) {
-                if (FLAGS_SET(chase_flags, CHASE_EXTRACT_FILENAME))
+        ఒకవేళ (!FLAGS_సమితి(chase_flags, CHASE_మాతృ)) {
+                ఒకవేళ (FLAGS_సమితి(chase_flags, CHASE_వెలికితీయి_FILENAME))
                         /* chaseat() with CHASE_EXTRACT_FILENAME already returns just the filename in
                          * p — use it directly without redundant extraction. */
                         open_name = p;
-                else {
-                        r = path_extract_filename(p, &fname);
-                        if (r < 0 && r != -EADDRNOTAVAIL)
-                                return r;
+                లేకపోతే {
+                        r = మార్గం_వెలికితీయి_filename(p, &fname);
+                        ఒకవేళ (r < 0 && r != -EADDRNOTAVAIL)
+                                తిరిగి r;
                         open_name = fname;
                 }
         }
 
-        r = chase_xopenat(path_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
-        if (r < 0)
-                return r;
+        r = chase_xopenat(మార్గం_fd, strempty(open_name), chase_flags, open_flags|O_NOFOLLOW, /* xopen_flags= */ 0);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return r;
+        తిరిగి r;
 }
 
-int chase_and_opendirat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, DIR **ret_dir) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
+పూర్ణాంకం chase_and_opendirat(పూర్ణాంకం మూలం_fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags chase_flags, అక్షరం **ret_మార్గం, DIR **ret_dir) {
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
         DIR *d;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
-        assert(ret_dir);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_SOCKET)));
+        ప్రతిజ్ఞా(ret_dir);
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & CHASE_NO_SHORTCUT_MASK) == 0) {
+        ఒకవేళ (మూలం_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_మార్గం && (chase_flags & CHASE_NO_SHORTCUT_ముసుగు) == 0) {
                 /* Shortcut this call if none of the special features of this call are requested */
-                d = opendir(path);
-                if (!d)
-                        return -errno;
+                d = opendir(మార్గం);
+                ఒకవేళ (!d)
+                        తిరిగి -errno;
 
                 *ret_dir = d;
-                return 0;
+                తిరిగి 0;
         }
 
-        r = chaseat(root_fd, dir_fd, path, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chaseat(మూలం_fd, dir_fd, మార్గం, chase_flags, ret_మార్గం ? &p : ఖాళీ, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(మార్గం_fd >= 0);
 
-        d = xopendirat(path_fd, /* path= */ NULL, /* flags= */ 0);
-        if (!d)
-                return -errno;
+        d = xopendirat(మార్గం_fd, /* path= */ ఖాళీ, /* flags= */ 0);
+        ఒకవేళ (!d)
+                తిరిగి -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
         *ret_dir = d;
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_statat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_path, struct stat *ret_stat) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+పూర్ణాంకం chase_and_statat(పూర్ణాంకం మూలం_fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags chase_flags, అక్షరం **ret_మార్గం, నిర్మాణం stat *ret_stat) {
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
-        assert(ret_stat);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు)));
+        ప్రతిజ్ఞా(ret_stat);
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ఒకవేళ (మూలం_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_మార్గం && (chase_flags & (CHASE_NO_SHORTCUT_ముసుగు|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. We can't
                  * take the shortcut if CHASE_MUST_BE_* is set because fstatat() alone does not verify the
                  * inode type. */
-                return RET_NERRNO(fstatat(AT_FDCWD, path, ret_stat,
-                                          FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                తిరిగి RET_NERRNO(fstatat(AT_FDCWD, మార్గం, ret_stat,
+                                          FLAGS_సమితి(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chaseat(root_fd, dir_fd, path, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chaseat(మూలం_fd, dir_fd, మార్గం, chase_flags, ret_మార్గం ? &p : ఖాళీ, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(మార్గం_fd >= 0);
 
-        if (fstat(path_fd, ret_stat) < 0)
-                return -errno;
+        ఒకవేళ (fstat(మార్గం_fd, ret_stat) < 0)
+                తిరిగి -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_accessat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int access_mode, char **ret_path) {
-        _cleanup_close_ int path_fd = -EBADF;
-        _cleanup_free_ char *p = NULL;
-        int r;
+పూర్ణాంకం chase_and_accessat(పూర్ణాంకం మూలం_fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags chase_flags, పూర్ణాంకం access_బహుళకం, అక్షరం **ret_మార్గం) {
+        _cleanup_close_ పూర్ణాంకం మార్గం_fd = -EBADF;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు)));
 
-        if (root_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_path && (chase_flags & (CHASE_NO_SHORTCUT_MASK|CHASE_MUST_BE_ANY)) == 0)
+        ఒకవేళ (మూలం_fd == XAT_FDROOT && dir_fd == AT_FDCWD && !ret_మార్గం && (chase_flags & (CHASE_NO_SHORTCUT_ముసుగు|CHASE_MUST_BE_ANY)) == 0)
                 /* Shortcut this call if none of the special features of this call are requested. */
-                return RET_NERRNO(faccessat(AT_FDCWD, path, access_mode,
-                                            FLAGS_SET(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
+                తిరిగి RET_NERRNO(faccessat(AT_FDCWD, మార్గం, access_బహుళకం,
+                                            FLAGS_సమితి(chase_flags, CHASE_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0));
 
-        r = chaseat(root_fd, dir_fd, path, chase_flags, ret_path ? &p : NULL, &path_fd);
-        if (r < 0)
-                return r;
-        assert(path_fd >= 0);
+        r = chaseat(మూలం_fd, dir_fd, మార్గం, chase_flags, ret_మార్గం ? &p : ఖాళీ, &మార్గం_fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ప్రతిజ్ఞా(మార్గం_fd >= 0);
 
-        r = access_fd(path_fd, access_mode);
-        if (r < 0)
-                return r;
+        r = access_fd(మార్గం_fd, access_బహుళకం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_fopenat_unlocked(
-                int root_fd,
-                int dir_fd,
-                const char *path,
+పూర్ణాంకం chase_and_fopenat_unlocked(
+                పూర్ణాంకం మూలం_fd,
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *మార్గం,
                 ChaseFlags chase_flags,
-                const char *open_flags,
-                char **ret_path,
+                స్థిరరాశి అక్షరం *open_flags,
+                అక్షరం **ret_మార్గం,
                 FILE **ret_file) {
 
-        _cleanup_free_ char *final_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int mode_flags, r;
+        _cleanup_free_ అక్షరం *final_మార్గం = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం బహుళకం_flags, r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT)));
-        assert(open_flags);
-        assert(ret_file);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు|CHASE_మాతృ)));
+        ప్రతిజ్ఞా(open_flags);
+        ప్రతిజ్ఞా(ret_file);
 
-        mode_flags = fopen_mode_to_flags(open_flags);
-        if (mode_flags < 0)
-                return mode_flags;
+        బహుళకం_flags = fopen_బహుళకం_గమ్యం_flags(open_flags);
+        ఒకవేళ (బహుళకం_flags < 0)
+                తిరిగి బహుళకం_flags;
 
-        fd = chase_and_openat(root_fd, dir_fd, path, chase_flags, mode_flags, ret_path ? &final_path : NULL);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_openat(మూలం_fd, dir_fd, మార్గం, chase_flags, బహుళకం_flags, ret_మార్గం ? &final_మార్గం : ఖాళీ);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
         r = take_fdopen_unlocked(&fd, open_flags, ret_file);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(final_path);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(final_మార్గం);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_unlinkat(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, int unlink_flags, char **ret_path) {
-        _cleanup_free_ char *p = NULL, *fname = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+పూర్ణాంకం chase_and_unlinkat(పూర్ణాంకం మూలం_fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags chase_flags, పూర్ణాంకం unlink_flags, అక్షరం **ret_మార్గం) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *fname = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP|CHASE_PARENT|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_EXTRACT_FILENAME|CHASE_MKDIR_0755)));
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు|CHASE_మాతృ|CHASE_MUST_BE_SOCKET|CHASE_MUST_BE_REGULAR|CHASE_MUST_BE_DIRECTORY|CHASE_వెలికితీయి_FILENAME|CHASE_MKDIR_0755)));
 
-        fd = chase_and_openat(root_fd, dir_fd, path, chase_flags|CHASE_PARENT|CHASE_NOFOLLOW, O_PATH|O_DIRECTORY|O_CLOEXEC, &p);
-        if (fd < 0)
-                return fd;
+        fd = chase_and_openat(మూలం_fd, dir_fd, మార్గం, chase_flags|CHASE_మాతృ|CHASE_NOFOLLOW, O_మార్గం|O_DIRECTORY|O_CLOEXEC, &p);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
-        r = path_extract_filename(p, &fname);
-        if (r < 0)
-                return r;
+        r = మార్గం_వెలికితీయి_filename(p, &fname);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (unlinkat(fd, fname, unlink_flags) < 0)
-                return -errno;
+        ఒకవేళ (unlinkat(fd, fname, unlink_flags) < 0)
+                తిరిగి -errno;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(p);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(p);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int chase_and_open_parent_at(int root_fd, int dir_fd, const char *path, ChaseFlags chase_flags, char **ret_filename) {
-        int pfd, r;
+పూర్ణాంకం chase_and_open_మాతృ_at(పూర్ణాంకం మూలం_fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, ChaseFlags chase_flags, అక్షరం **ret_filename) {
+        పూర్ణాంకం pfd, r;
 
-        assert(!(chase_flags & (CHASE_NONEXISTENT|CHASE_STEP)));
+        ప్రతిజ్ఞా(!(chase_flags & (CHASE_NONEXISTENT|CHASE_అడుగు)));
 
-        r = chaseat(root_fd, dir_fd, path, CHASE_PARENT|CHASE_EXTRACT_FILENAME|chase_flags, ret_filename, &pfd);
-        if (r < 0)
-                return r;
+        r = chaseat(మూలం_fd, dir_fd, మార్గం, CHASE_మాతృ|CHASE_వెలికితీయి_FILENAME|chase_flags, ret_filename, &pfd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return pfd;
+        తిరిగి pfd;
 }

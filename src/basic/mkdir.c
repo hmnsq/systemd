@@ -1,274 +1,274 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "format-util.h"
-#include "fs-util.h"
-#include "hashmap.h"
-#include "log.h"
-#include "mkdir.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
-#include "user-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "btrfs-util.h"
+#అన్తర్భావ "chase.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "format-util.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "hashmap.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "mkdir.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "time-util.h"
+#అన్తర్భావ "user-util.h"
 
-int mkdirat_safe_internal(
-                int dir_fd,
-                const char *path,
-                mode_t mode,
+పూర్ణాంకం mkdirat_సురక్షిత_అంతర్గత(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                mode_t బహుళకం,
                 uid_t uid,
                 gid_t gid,
                 MkdirFlags flags,
                 mkdirat_func_t _mkdirat,
                 LabelContext *label_context) {
 
-        struct stat st;
-        int r;
+        నిర్మాణం stat st;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(mode != MODE_INVALID);
-        assert(_mkdirat);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(బహుళకం != బహుళకం_INVALID);
+        ప్రతిజ్ఞా(_mkdirat);
 
-        r = _mkdirat(dir_fd, path, mode, label_context);
-        if (r >= 0)
-                return chmod_and_chown_at(dir_fd, path, mode, uid, gid);
-        if (r != -EEXIST)
-                return r;
+        r = _mkdirat(dir_fd, మార్గం, బహుళకం, label_context);
+        ఒకవేళ (r >= 0)
+                తిరిగి chmod_and_chown_at(dir_fd, మార్గం, బహుళకం, uid, gid);
+        ఒకవేళ (r != -EEXIST)
+                తిరిగి r;
 
-        if (fstatat(dir_fd, path, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                return -errno;
+        ఒకవేళ (fstatat(dir_fd, మార్గం, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                తిరిగి -errno;
 
-        if ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
-                _cleanup_free_ char *p = NULL;
+        ఒకవేళ ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
+                _cleanup_free_ అక్షరం *p = ఖాళీ;
 
-                r = chaseat(XAT_FDROOT, dir_fd, path, CHASE_NONEXISTENT, &p, NULL);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return mkdirat_safe_internal(dir_fd, p, mode, uid, gid,
+                r = chaseat(XAT_FDROOT, dir_fd, మార్గం, CHASE_NONEXISTENT, &p, ఖాళీ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        తిరిగి mkdirat_సురక్షిత_అంతర్గత(dir_fd, p, బహుళకం, uid, gid,
                                                      flags & ~MKDIR_FOLLOW_SYMLINK,
                                                      _mkdirat, label_context);
 
-                if (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                        return -errno;
+                ఒకవేళ (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                        తిరిగి -errno;
         }
 
-        if (flags & MKDIR_IGNORE_EXISTING)
-                return 0;
+        ఒకవేళ (flags & MKDIR_IGNORE_EXISTING)
+                తిరిగి 0;
 
-        if (!S_ISDIR(st.st_mode))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
-                                      "Path \"%s\" already exists and is not a directory, refusing.", path);
+        ఒకవేళ (!S_ISDIR(st.st_mode))
+                తిరిగి log_నిండిన_errno(flags & MKDIR_WARN_బహుళకం ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
+                                      "Path \"%s\" already exists and is not a directory, refusing.", మార్గం);
 
-        if ((st.st_mode & ~mode & 0777) != 0)
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+        ఒకవేళ ((st.st_mode & ~బహుళకం & 0777) != 0)
+                తిరిగి log_నిండిన_errno(flags & MKDIR_WARN_బహుళకం ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but has mode %04o that is too permissive (%04o was requested), refusing.",
-                                      path, st.st_mode & 0777, mode);
+                                      మార్గం, st.st_mode & 0777, బహుళకం);
 
-        if ((uid != UID_INVALID && st.st_uid != uid) ||
+        ఒకవేళ ((uid != UID_INVALID && st.st_uid != uid) ||
             (gid != GID_INVALID && st.st_gid != gid))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+                తిరిగి log_నిండిన_errno(flags & MKDIR_WARN_బహుళకం ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but is owned by "UID_FMT":"GID_FMT" (%s:%s was requested), refusing.",
-                                      path, st.st_uid, st.st_gid, uid != UID_INVALID ? FORMAT_UID(uid) : "-",
+                                      మార్గం, st.st_uid, st.st_gid, uid != UID_INVALID ? FORMAT_UID(uid) : "-",
                                       gid != UID_INVALID ? FORMAT_GID(gid) : "-");
 
-        return 0;
+        తిరిగి 0;
 }
 
-int mkdirat_errno_wrapper(int dirfd, const char *pathname, mode_t mode, LabelContext *label_context) {
-        return RET_NERRNO(mkdirat(dirfd, pathname, mode));
+పూర్ణాంకం mkdirat_errno_wrapper(పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *pathname, mode_t బహుళకం, LabelContext *label_context) {
+        తిరిగి RET_NERRNO(mkdirat(dirfd, pathname, బహుళకం));
 }
 
-int mkdirat_safe(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+పూర్ణాంకం mkdirat_సురక్షిత(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags) {
+        తిరిగి mkdirat_సురక్షిత_అంతర్గత(dir_fd, మార్గం, బహుళకం, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ ఖాళీ);
 }
 
-int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        const char *e = NULL;
-        int r;
+పూర్ణాంకం mkdirat_parents_అంతర్గత(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        స్థిరరాశి అక్షరం *e = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(_mkdirat);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(_mkdirat);
 
-        if (isempty(path))
-                return 0;
+        ఒకవేళ (isempty(మార్గం))
+                తిరిగి 0;
 
-        if (!path_is_safe(path))
-                return -ENOTDIR;
+        ఒకవేళ (!మార్గం_is_సురక్షిత(మార్గం))
+                తిరిగి -ENOTDIR;
 
         /* return immediately if directory exists */
-        r = path_find_last_component(path, /* accept_dot_dot= */ false, &e, NULL);
-        if (r <= 0) /* r == 0 means path is equivalent to prefix. */
-                return r;
-        if (e == path)
-                return 0;
+        r = మార్గం_కనుగొను_చివరి_component(మార్గం, /* accept_dot_dot= */ false, &e, ఖాళీ);
+        ఒకవేళ (r <= 0) /* r == 0 means path is equivalent to prefix. */
+                తిరిగి r;
+        ఒకవేళ (e == మార్గం)
+                తిరిగి 0;
 
-        assert(e > path);
-        assert(*e == '/');
+        ప్రతిజ్ఞా(e > మార్గం);
+        ప్రతిజ్ఞా(*e == '/');
 
         /* drop the last component */
-        path = strndupa_safe(path, e - path);
-        r = is_dir_at(dir_fd, path, /* follow= */ true);
-        if (r > 0)
-                return 0;
-        if (r == 0)
-                return -ENOTDIR;
+        మార్గం = strndupa_సురక్షిత(మార్గం, e - మార్గం);
+        r = is_dir_at(dir_fd, మార్గం, /* follow= */ true);
+        ఒకవేళ (r > 0)
+                తిరిగి 0;
+        ఒకవేళ (r == 0)
+                తిరిగి -ENOTDIR;
 
         /* create every parent directory in the path, except the last component */
-        for (const char *p = path;;) {
-                char *s;
-                int n;
+        కొరకు (స్థిరరాశి అక్షరం *p = మార్గం;;) {
+                అక్షరం *s;
+                పూర్ణాంకం n;
 
-                n = path_find_first_component(&p, /* accept_dot_dot= */ false, (const char **) &s);
-                if (n <= 0)
-                        return n;
+                n = మార్గం_కనుగొను_మొదటి_component(&p, /* accept_dot_dot= */ false, (స్థిరరాశి అక్షరం **) &s);
+                ఒకవేళ (n <= 0)
+                        తిరిగి n;
 
-                assert(p);
-                assert(s >= path);
-                assert(IN_SET(s[n], '/', '\0'));
+                ప్రతిజ్ఞా(p);
+                ప్రతిజ్ఞా(s >= మార్గం);
+                ప్రతిజ్ఞా(లోపల_సమితి(s[n], '/', '\0'));
 
                 s[n] = '\0';
 
-                r = mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags | MKDIR_IGNORE_EXISTING, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+                r = mkdirat_సురక్షిత_అంతర్గత(dir_fd, మార్గం, బహుళకం, uid, gid, flags | MKDIR_IGNORE_EXISTING, _mkdirat, label_context);
+                ఒకవేళ (r < 0 && r != -EEXIST)
+                        తిరిగి r;
 
                 s[n] = *p == '\0' ? '\0' : '/';
         }
 }
 
-int mkdir_parents_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        _cleanup_close_ int fd = AT_FDCWD;
-        const char *p;
+పూర్ణాంకం mkdir_parents_అంతర్గత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        _cleanup_close_ పూర్ణాంకం fd = AT_FDCWD;
+        స్థిరరాశి అక్షరం *p;
 
-        assert(path);
-        assert(_mkdirat);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(_mkdirat);
 
-        if (prefix) {
-                p = path_startswith_full(path, prefix, PATH_STARTSWITH_REFUSE_DOT_DOT);
-                if (!p)
-                        return -EINVAL;
+        ఒకవేళ (ఉపసర్గ) {
+                p = మార్గం_startswith_నిండిన(మార్గం, ఉపసర్గ, మార్గం_STARTSWITH_REFUSE_DOT_DOT);
+                ఒకవేళ (!p)
+                        తిరిగి -EINVAL;
 
-                fd = open(prefix, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
-        } else
-                p = path;
+                fd = open(ఉపసర్గ, O_మార్గం|O_DIRECTORY|O_CLOEXEC);
+                ఒకవేళ (fd < 0)
+                        తిరిగి -errno;
+        } లేకపోతే
+                p = మార్గం;
 
-        return mkdirat_parents_internal(fd, p, mode, uid, gid, flags, _mkdirat, label_context);
+        తిరిగి mkdirat_parents_అంతర్గత(fd, p, బహుళకం, uid, gid, flags, _mkdirat, label_context);
 }
 
-int mkdirat_parents(int dir_fd, const char *path, mode_t mode) {
-        return mkdirat_parents_internal(dir_fd, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+పూర్ణాంకం mkdirat_parents(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం) {
+        తిరిగి mkdirat_parents_అంతర్గత(dir_fd, మార్గం, బహుళకం, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ ఖాళీ);
 }
 
-int mkdir_parents_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_parents_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+పూర్ణాంకం mkdir_parents_సురక్షిత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags) {
+        తిరిగి mkdir_parents_అంతర్గత(ఉపసర్గ, మార్గం, బహుళకం, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ ఖాళీ);
 }
 
-int mkdir_p_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        int r;
+పూర్ణాంకం mkdir_p_అంతర్గత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        పూర్ణాంకం r;
 
         /* Like mkdir -p */
 
-        assert(_mkdirat);
+        ప్రతిజ్ఞా(_mkdirat);
 
-        r = mkdir_parents_internal(prefix, path, mode, uid, gid, flags | MKDIR_FOLLOW_SYMLINK, _mkdirat, label_context);
-        if (r < 0)
-                return r;
+        r = mkdir_parents_అంతర్గత(ఉపసర్గ, మార్గం, బహుళకం, uid, gid, flags | MKDIR_FOLLOW_SYMLINK, _mkdirat, label_context);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
-                r = _mkdirat(AT_FDCWD, path, mode, label_context);
-                if (r < 0 && (r != -EEXIST || is_dir(path, true) <= 0))
-                        return r;
-        } else {
-                r = mkdir_safe_internal(path, mode, uid, gid, flags, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+        ఒకవేళ (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
+                r = _mkdirat(AT_FDCWD, మార్గం, బహుళకం, label_context);
+                ఒకవేళ (r < 0 && (r != -EEXIST || is_dir(మార్గం, true) <= 0))
+                        తిరిగి r;
+        } లేకపోతే {
+                r = mkdir_సురక్షిత_అంతర్గత(మార్గం, బహుళకం, uid, gid, flags, _mkdirat, label_context);
+                ఒకవేళ (r < 0 && r != -EEXIST)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int mkdir_p(const char *path, mode_t mode) {
-        return mkdir_p_internal(/* prefix= */ NULL, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+పూర్ణాంకం mkdir_p(స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం) {
+        తిరిగి mkdir_p_అంతర్గత(/* prefix= */ ఖాళీ, మార్గం, బహుళకం, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ ఖాళీ);
 }
 
-int mkdir_p_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_p_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+పూర్ణాంకం mkdir_p_సురక్షిత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags) {
+        తిరిగి mkdir_p_అంతర్గత(ఉపసర్గ, మార్గం, బహుళకం, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ ఖాళీ);
 }
 
-int mkdir_p_root_full(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
-        _cleanup_free_ char *pp = NULL, *bn = NULL;
-        _cleanup_close_ int dfd = -EBADF;
-        int r;
+పూర్ణాంకం mkdir_p_మూలం_నిండిన(స్థిరరాశి అక్షరం *మూలం, స్థిరరాశి అక్షరం *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
+        _cleanup_free_ అక్షరం *pp = ఖాళీ, *bn = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం dfd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
-        r = path_extract_directory(p, &pp);
-        if (r == -EDESTADDRREQ) {
+        r = మార్గం_వెలికితీయి_directory(p, &pp);
+        ఒకవేళ (r == -EDESTADDRREQ) {
                 /* only fname is passed, no prefix to operate on */
                 dfd = open(".", O_RDONLY|O_CLOEXEC|O_DIRECTORY);
-                if (dfd < 0)
-                        return -errno;
-        } else if (r == -EADDRNOTAVAIL)
+                ఒకవేళ (dfd < 0)
+                        తిరిగి -errno;
+        } లేకపోతే ఒకవేళ (r == -EADDRNOTAVAIL)
                 /* only root dir or "." was passed, i.e. there is no parent to extract, in that case there's nothing to do. */
-                return 0;
-        else if (r < 0)
-                return r;
-        else {
+                తిరిగి 0;
+        లేకపోతే ఒకవేళ (r < 0)
+                తిరిగి r;
+        లేకపోతే {
                 /* Extracting the parent dir worked, hence we aren't top-level? Recurse up first. */
-                r = mkdir_p_root_full(root, pp, uid, gid, m, ts, subvolumes);
-                if (r < 0)
-                        return r;
+                r = mkdir_p_మూలం_నిండిన(మూలం, pp, uid, gid, m, ts, subvolumes);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                dfd = chase_and_open(pp, root, CHASE_PREFIX_ROOT, O_CLOEXEC|O_DIRECTORY, NULL);
-                if (dfd < 0)
-                        return dfd;
+                dfd = chase_and_open(pp, మూలం, CHASE_ఉపసర్గ_మూలం, O_CLOEXEC|O_DIRECTORY, ఖాళీ);
+                ఒకవేళ (dfd < 0)
+                        తిరిగి dfd;
         }
 
-        r = path_extract_filename(p, &bn);
-        if (r == -EADDRNOTAVAIL) /* Already top-level */
-                return 0;
-        if (r < 0)
-                return r;
+        r = మార్గం_వెలికితీయి_filename(p, &bn);
+        ఒకవేళ (r == -EADDRNOTAVAIL) /* Already top-level */
+                తిరిగి 0;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         XOpenFlags flags = 0;
-        if (hashmap_contains(subvolumes, p)) {
+        ఒకవేళ (hashmap_కలిగియుంది(subvolumes, p)) {
                 flags = XO_SUBVOLUME;
-                if ((PTR_TO_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
+                ఒకవేళ ((PTR_గమ్యం_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
                         flags |= XO_NOCOW;
         }
 
-        _cleanup_close_ int nfd = xopenat_full(
+        _cleanup_close_ పూర్ణాంకం nfd = xopenat_నిండిన(
                                 dfd, bn,
                                 O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,
                                 flags,
                                 m);
-        if (nfd == -EEXIST)
-                return 0;
-        if (nfd < 0)
-                return nfd;
+        ఒకవేళ (nfd == -EEXIST)
+                తిరిగి 0;
+        ఒకవేళ (nfd < 0)
+                తిరిగి nfd;
 
-        if ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
-                return -errno;
+        ఒకవేళ ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
+                తిరిగి -errno;
 
-        if (ts != USEC_INFINITY) {
-                struct timespec tspec;
+        ఒకవేళ (ts != USEC_INFINITY) {
+                నిర్మాణం timespec tspec;
                 timespec_store(&tspec, ts);
 
-                if (futimens(dfd, (const struct timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
-                        return -errno;
+                ఒకవేళ (futimens(dfd, (స్థిరరాశి నిర్మాణం timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
+                        తిరిగి -errno;
 
-                if (futimens(nfd, (const struct timespec[2]) { tspec, tspec }) < 0)
-                        return -errno;
+                ఒకవేళ (futimens(nfd, (స్థిరరాశి నిర్మాణం timespec[2]) { tspec, tspec }) < 0)
+                        తిరిగి -errno;
         }
 
-        return 1;
+        తిరిగి 1;
 }

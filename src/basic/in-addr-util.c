@@ -1,965 +1,965 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <arpa/inet.h>
-#include <endian.h>
-#include <stdio.h>
+#అన్తర్భావ <arpa/inet.h>
+#అన్తర్భావ <endian.h>
+#అన్తర్భావ <stdio.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "hash-funcs.h"
-#include "in-addr-util.h"
-#include "logarithm.h"
-#include "memory-util.h"
-#include "parse-util.h"
-#include "random-util.h"
-#include "siphash24.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "hash-funcs.h"
+#అన్తర్భావ "in-addr-util.h"
+#అన్తర్భావ "logarithm.h"
+#అన్తర్భావ "memory-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "random-util.h"
+#అన్తర్భావ "siphash24.h"
+#అన్తర్భావ "stdio-util.h"
+#అన్తర్భావ "string-util.h"
 
-bool in4_addr_is_null(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_null(స్థిరరాశి నిర్మాణం in_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return a->s_addr == 0;
+        తిరిగి a->s_addr == 0;
 }
 
-bool in6_addr_is_null(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_null(స్థిరరాశి నిర్మాణం in6_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return eqzero(a->s6_addr32);
+        తిరిగి eqzero(a->s6_addr32);
 }
 
-int in_addr_is_null(int family, const union in_addr_union *u) {
-        assert(u);
+పూర్ణాంకం లోపల_addr_is_null(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *u) {
+        ప్రతిజ్ఞా(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_null(&u->in);
+        ఒకవేళ (family == AF_INET)
+                తిరిగి in4_addr_is_null(&u->లోపల);
 
-        if (family == AF_INET6)
-                return in6_addr_is_null(&u->in6);
+        ఒకవేళ (family == AF_INET6)
+                తిరిగి in6_addr_is_null(&u->in6);
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-bool in4_addr_is_link_local(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_link_local(స్థిరరాశి నిర్మాణం in_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return (be32toh(a->s_addr) & UINT32_C(0xFFFF0000)) == (UINT32_C(169) << 24 | UINT32_C(254) << 16);
+        తిరిగి (be32toh(a->s_addr) & UINT32_C(0xFFFF0000)) == (UINT32_C(169) << 24 | UINT32_C(254) << 16);
 }
 
-bool in4_addr_is_link_local_dynamic(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_link_local_dynamic(స్థిరరాశి నిర్మాణం in_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        if (!in4_addr_is_link_local(a))
-                return false;
+        ఒకవేళ (!in4_addr_is_link_local(a))
+                తిరిగి false;
 
         /* 169.254.0.0/24 and 169.254.255.0/24 must not be used for the dynamic IPv4LL assignment.
          * See RFC 3927 Section 2.1:
          * The IPv4 prefix 169.254/16 is registered with the IANA for this purpose. The first 256 and last
          * 256 addresses in the 169.254/16 prefix are reserved for future use and MUST NOT be selected by a
          * host using this dynamic configuration mechanism. */
-        return !IN_SET(be32toh(a->s_addr) & 0x0000FF00U, 0x0000U, 0xFF00U);
+        తిరిగి !లోపల_సమితి(be32toh(a->s_addr) & 0x0000FF00U, 0x0000U, 0xFF00U);
 }
 
-bool in6_addr_is_link_local(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_link_local(స్థిరరాశి నిర్మాణం in6_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return (a->s6_addr32[0] & htobe32(0xffc00000)) == htobe32(0xfe800000);
+        తిరిగి (a->s6_addr32[0] & htobe32(0xffc00000)) == htobe32(0xfe800000);
 }
 
-int in_addr_is_link_local(int family, const union in_addr_union *u) {
-        assert(u);
+పూర్ణాంకం లోపల_addr_is_link_local(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *u) {
+        ప్రతిజ్ఞా(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_link_local(&u->in);
+        ఒకవేళ (family == AF_INET)
+                తిరిగి in4_addr_is_link_local(&u->లోపల);
 
-        if (family == AF_INET6)
-                return in6_addr_is_link_local(&u->in6);
+        ఒకవేళ (family == AF_INET6)
+                తిరిగి in6_addr_is_link_local(&u->in6);
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-bool in6_addr_is_link_local_all_nodes(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_link_local_all_nodes(స్థిరరాశి నిర్మాణం in6_addr *a) {
+        ప్రతిజ్ఞా(a);
 
         /* ff02::1 */
-        return be32toh(a->s6_addr32[0]) == UINT32_C(0xff020000) &&
+        తిరిగి be32toh(a->s6_addr32[0]) == UINT32_C(0xff020000) &&
                 a->s6_addr32[1] == 0 &&
                 a->s6_addr32[2] == 0 &&
                 be32toh(a->s6_addr32[3]) == UINT32_C(0x00000001);
 }
 
-bool in4_addr_is_multicast(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_multicast(స్థిరరాశి నిర్మాణం in_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return IN_MULTICAST(be32toh(a->s_addr));
+        తిరిగి IN_MULTICAST(be32toh(a->s_addr));
 }
 
-bool in6_addr_is_multicast(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_multicast(స్థిరరాశి నిర్మాణం in6_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return a->s6_addr[0] == 0xff;
+        తిరిగి a->s6_addr[0] == 0xff;
 }
 
-int in_addr_is_multicast(int family, const union in_addr_union *u) {
-        assert(u);
+పూర్ణాంకం లోపల_addr_is_multicast(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *u) {
+        ప్రతిజ్ఞా(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_multicast(&u->in);
+        ఒకవేళ (family == AF_INET)
+                తిరిగి in4_addr_is_multicast(&u->లోపల);
 
-        if (family == AF_INET6)
-                return in6_addr_is_multicast(&u->in6);
+        ఒకవేళ (family == AF_INET6)
+                తిరిగి in6_addr_is_multicast(&u->in6);
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-bool in4_addr_is_local_multicast(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_local_multicast(స్థిరరాశి నిర్మాణం in_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return (be32toh(a->s_addr) & UINT32_C(0xffffff00)) == UINT32_C(0xe0000000);
+        తిరిగి (be32toh(a->s_addr) & UINT32_C(0xffffff00)) == UINT32_C(0xe0000000);
 }
 
-bool in4_addr_is_localhost(const struct in_addr *a) {
-        assert(a);
+bool in4_addr_is_localhost(స్థిరరాశి నిర్మాణం in_addr *a) {
+        ప్రతిజ్ఞా(a);
 
         /* All of 127.x.x.x is localhost. */
-        return (be32toh(a->s_addr) & UINT32_C(0xFF000000)) == UINT32_C(127) << 24;
+        తిరిగి (be32toh(a->s_addr) & UINT32_C(0xFF000000)) == UINT32_C(127) << 24;
 }
 
-bool in4_addr_is_non_local(const struct in_addr *a) {
+bool in4_addr_is_non_local(స్థిరరాశి నిర్మాణం in_addr *a) {
         /* Whether the address is not null and not localhost.
          *
          * As such, it is suitable to configure as DNS/NTP server from DHCP. */
-        return !in4_addr_is_null(a) &&
+        తిరిగి !in4_addr_is_null(a) &&
                !in4_addr_is_localhost(a);
 }
 
-static bool in6_addr_is_loopback(const struct in6_addr *a) {
-        return memcmp(a, &(struct in6_addr) IN6ADDR_LOOPBACK_INIT, sizeof(struct in6_addr)) == 0;
+స్థిర bool in6_addr_is_loopback(స్థిరరాశి నిర్మాణం in6_addr *a) {
+        తిరిగి memcmp(a, &(నిర్మాణం in6_addr) IN6ADDR_LOOPBACK_INIT, పరిమాణం(నిర్మాణం in6_addr)) == 0;
 }
 
-int in_addr_is_localhost(int family, const union in_addr_union *u) {
-        assert(u);
+పూర్ణాంకం లోపల_addr_is_localhost(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *u) {
+        ప్రతిజ్ఞా(u);
 
-        if (family == AF_INET)
-                return in4_addr_is_localhost(&u->in);
+        ఒకవేళ (family == AF_INET)
+                తిరిగి in4_addr_is_localhost(&u->లోపల);
 
-        if (family == AF_INET6)
-                return in6_addr_is_loopback(&u->in6);
+        ఒకవేళ (family == AF_INET6)
+                తిరిగి in6_addr_is_loopback(&u->in6);
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-int in_addr_is_localhost_one(int family, const union in_addr_union *u) {
-        assert(u);
+పూర్ణాంకం లోపల_addr_is_localhost_one(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *u) {
+        ప్రతిజ్ఞా(u);
 
-        if (family == AF_INET)
+        ఒకవేళ (family == AF_INET)
                 /* 127.0.0.1 */
-                return be32toh(u->in.s_addr) == UINT32_C(0x7F000001);
+                తిరిగి be32toh(u->లోపల.s_addr) == UINT32_C(0x7F000001);
 
-        if (family == AF_INET6)
-                return in6_addr_is_loopback(&u->in6);
+        ఒకవేళ (family == AF_INET6)
+                తిరిగి in6_addr_is_loopback(&u->in6);
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-bool in6_addr_is_ipv4_mapped_address(const struct in6_addr *a) {
-        assert(a);
+bool in6_addr_is_ipv4_mapped_చిరునామా(స్థిరరాశి నిర్మాణం in6_addr *a) {
+        ప్రతిజ్ఞా(a);
 
-        return a->s6_addr32[0] == 0 &&
+        తిరిగి a->s6_addr32[0] == 0 &&
                 a->s6_addr32[1] == 0 &&
                 a->s6_addr32[2] == htobe32(UINT32_C(0x0000ffff));
 }
 
-bool in4_addr_equal(const struct in_addr *a, const struct in_addr *b) {
-        assert(a);
-        assert(b);
+bool in4_addr_equal(స్థిరరాశి నిర్మాణం in_addr *a, స్థిరరాశి నిర్మాణం in_addr *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        return a->s_addr == b->s_addr;
+        తిరిగి a->s_addr == b->s_addr;
 }
 
-bool in6_addr_equal(const struct in6_addr *a, const struct in6_addr *b) {
-        assert(a);
-        assert(b);
+bool in6_addr_equal(స్థిరరాశి నిర్మాణం in6_addr *a, స్థిరరాశి నిర్మాణం in6_addr *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        return memcmp(a, b, sizeof(struct in6_addr)) == 0;
+        తిరిగి memcmp(a, b, పరిమాణం(నిర్మాణం in6_addr)) == 0;
 }
 
-int in_addr_equal(int family, const union in_addr_union *a, const union in_addr_union *b) {
-        assert(a);
-        assert(b);
+పూర్ణాంకం లోపల_addr_equal(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *a, స్థిరరాశి సంఘం లోపల_addr_union *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        if (family == AF_INET)
-                return in4_addr_equal(&a->in, &b->in);
+        ఒకవేళ (family == AF_INET)
+                తిరిగి in4_addr_equal(&a->లోపల, &b->లోపల);
 
-        if (family == AF_INET6)
-                return in6_addr_equal(&a->in6, &b->in6);
+        ఒకవేళ (family == AF_INET6)
+                తిరిగి in6_addr_equal(&a->in6, &b->in6);
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-bool in4_addr_prefix_intersect(
-                const struct in_addr *a,
-                unsigned aprefixlen,
-                const struct in_addr *b,
-                unsigned bprefixlen) {
+bool in4_addr_ఉపసర్గ_intersect(
+                స్థిరరాశి నిర్మాణం in_addr *a,
+                గుర్తులేని aprefixlen,
+                స్థిరరాశి నిర్మాణం in_addr *b,
+                గుర్తులేని bprefixlen) {
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        unsigned m = MIN3(aprefixlen, bprefixlen, (unsigned) (sizeof(struct in_addr) * 8));
-        if (m == 0)
-                return true; /* Let's return earlier, to avoid shift by 32. */
+        గుర్తులేని m = MIN3(aprefixlen, bprefixlen, (గుర్తులేని) (పరిమాణం(నిర్మాణం in_addr) * 8));
+        ఒకవేళ (m == 0)
+                తిరిగి true; /* Let's return earlier, to avoid shift by 32. */
 
         uint32_t x = be32toh(a->s_addr ^ b->s_addr);
         uint32_t n = 0xFFFFFFFFUL << (32 - m);
-        return (x & n) == 0;
+        తిరిగి (x & n) == 0;
 }
 
-bool in6_addr_prefix_intersect(
-                const struct in6_addr *a,
-                unsigned aprefixlen,
-                const struct in6_addr *b,
-                unsigned bprefixlen) {
+bool in6_addr_ఉపసర్గ_intersect(
+                స్థిరరాశి నిర్మాణం in6_addr *a,
+                గుర్తులేని aprefixlen,
+                స్థిరరాశి నిర్మాణం in6_addr *b,
+                గుర్తులేని bprefixlen) {
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        unsigned m = MIN3(aprefixlen, bprefixlen, (unsigned) (sizeof(struct in6_addr) * 8));
-        if (m == 0)
-                return true;
+        గుర్తులేని m = MIN3(aprefixlen, bprefixlen, (గుర్తులేని) (పరిమాణం(నిర్మాణం in6_addr) * 8));
+        ఒకవేళ (m == 0)
+                తిరిగి true;
 
-        for (size_t i = 0; i < sizeof(struct in6_addr); i++) {
+        కొరకు (size_t i = 0; i < పరిమాణం(నిర్మాణం in6_addr); i++) {
                 uint8_t x = a->s6_addr[i] ^ b->s6_addr[i];
                 uint8_t n = m < 8 ? (0xFF << (8 - m)) : 0xFF;
-                if ((x & n) != 0)
-                        return false;
+                ఒకవేళ ((x & n) != 0)
+                        తిరిగి false;
 
-                if (m <= 8)
-                        break;
+                ఒకవేళ (m <= 8)
+                        ఆపు;
 
                 m -= 8;
         }
 
-        return true;
+        తిరిగి true;
 }
 
-int in_addr_prefix_intersect(
-                int family,
-                const union in_addr_union *a,
-                unsigned aprefixlen,
-                const union in_addr_union *b,
-                unsigned bprefixlen) {
+పూర్ణాంకం లోపల_addr_ఉపసర్గ_intersect(
+                పూర్ణాంకం family,
+                స్థిరరాశి సంఘం లోపల_addr_union *a,
+                గుర్తులేని aprefixlen,
+                స్థిరరాశి సంఘం లోపల_addr_union *b,
+                గుర్తులేని bprefixlen) {
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
         /* Checks whether there are any addresses that are in both networks. */
 
-        if (family == AF_INET)
-                return in4_addr_prefix_intersect(&a->in, aprefixlen, &b->in, bprefixlen);
+        ఒకవేళ (family == AF_INET)
+                తిరిగి in4_addr_ఉపసర్గ_intersect(&a->లోపల, aprefixlen, &b->లోపల, bprefixlen);
 
-        if (family == AF_INET6)
-                return in6_addr_prefix_intersect(&a->in6, aprefixlen, &b->in6, bprefixlen);
+        ఒకవేళ (family == AF_INET6)
+                తిరిగి in6_addr_ఉపసర్గ_intersect(&a->in6, aprefixlen, &b->in6, bprefixlen);
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-int in_addr_random_prefix(
-                int family,
-                union in_addr_union *u,
-                unsigned prefixlen_fixed_part,
-                unsigned prefixlen) {
+పూర్ణాంకం లోపల_addr_random_ఉపసర్గ(
+                పూర్ణాంకం family,
+                సంఘం లోపల_addr_union *u,
+                గుర్తులేని prefixlen_fixed_part,
+                గుర్తులేని prefixlen) {
 
-        assert(u);
+        ప్రతిజ్ఞా(u);
 
         /* Random network part of an address by one. */
 
-        if (prefixlen <= 0)
-                return 0;
+        ఒకవేళ (prefixlen <= 0)
+                తిరిగి 0;
 
-        if (family == AF_INET) {
+        ఒకవేళ (family == AF_INET) {
                 uint32_t c, n;
 
-                if (prefixlen_fixed_part > 32)
+                ఒకవేళ (prefixlen_fixed_part > 32)
                         prefixlen_fixed_part = 32;
-                if (prefixlen > 32)
+                ఒకవేళ (prefixlen > 32)
                         prefixlen = 32;
-                if (prefixlen_fixed_part >= prefixlen)
-                        return -EINVAL;
+                ఒకవేళ (prefixlen_fixed_part >= prefixlen)
+                        తిరిగి -EINVAL;
 
-                c = be32toh(u->in.s_addr);
+                c = be32toh(u->లోపల.s_addr);
                 c &= ((UINT32_C(1) << prefixlen_fixed_part) - 1) << (32 - prefixlen_fixed_part);
 
-                random_bytes(&n, sizeof(n));
+                random_బైట్లు(&n, పరిమాణం(n));
                 n &= ((UINT32_C(1) << (prefixlen - prefixlen_fixed_part)) - 1) << (32 - prefixlen);
 
-                u->in.s_addr = htobe32(n | c);
-                return 1;
+                u->లోపల.s_addr = htobe32(n | c);
+                తిరిగి 1;
         }
 
-        if (family == AF_INET6) {
-                struct in6_addr n;
-                unsigned i, j;
+        ఒకవేళ (family == AF_INET6) {
+                నిర్మాణం in6_addr n;
+                గుర్తులేని i, j;
 
-                if (prefixlen_fixed_part > 128)
+                ఒకవేళ (prefixlen_fixed_part > 128)
                         prefixlen_fixed_part = 128;
-                if (prefixlen > 128)
+                ఒకవేళ (prefixlen > 128)
                         prefixlen = 128;
-                if (prefixlen_fixed_part >= prefixlen)
-                        return -EINVAL;
+                ఒకవేళ (prefixlen_fixed_part >= prefixlen)
+                        తిరిగి -EINVAL;
 
-                random_bytes(&n, sizeof(n));
+                random_బైట్లు(&n, పరిమాణం(n));
 
-                for (i = 0; i < 16; i++) {
-                        uint8_t mask_fixed_part = 0, mask = 0;
+                కొరకు (i = 0; i < 16; i++) {
+                        uint8_t ముసుగు_fixed_part = 0, ముసుగు_3 = 0;
 
-                        if (i < (prefixlen_fixed_part + 7) / 8) {
-                                if (i < prefixlen_fixed_part / 8)
-                                        mask_fixed_part = 0xffu;
-                                else {
+                        ఒకవేళ (i < (prefixlen_fixed_part + 7) / 8) {
+                                ఒకవేళ (i < prefixlen_fixed_part / 8)
+                                        ముసుగు_fixed_part = 0xffu;
+                                లేకపోతే {
                                         j = prefixlen_fixed_part % 8;
-                                        mask_fixed_part = ((UINT8_C(1) << (j + 1)) - 1) << (8 - j);
+                                        ముసుగు_fixed_part = ((UINT8_C(1) << (j + 1)) - 1) << (8 - j);
                                 }
                         }
 
-                        if (i < (prefixlen + 7) / 8) {
-                                if (i < prefixlen / 8)
-                                        mask = 0xffu ^ mask_fixed_part;
-                                else {
+                        ఒకవేళ (i < (prefixlen + 7) / 8) {
+                                ఒకవేళ (i < prefixlen / 8)
+                                        ముసుగు_3 = 0xffu ^ ముసుగు_fixed_part;
+                                లేకపోతే {
                                         j = prefixlen % 8;
-                                        mask = (((UINT8_C(1) << (j + 1)) - 1) << (8 - j)) ^ mask_fixed_part;
+                                        ముసుగు_3 = (((UINT8_C(1) << (j + 1)) - 1) << (8 - j)) ^ ముసుగు_fixed_part;
                                 }
                         }
 
-                        u->in6.s6_addr[i] &= mask_fixed_part;
-                        u->in6.s6_addr[i] |= n.s6_addr[i] & mask;
+                        u->in6.s6_addr[i] &= ముసుగు_fixed_part;
+                        u->in6.s6_addr[i] |= n.s6_addr[i] & ముసుగు_3;
                 }
 
-                return 1;
+                తిరిగి 1;
         }
 
-        return -EAFNOSUPPORT;
+        తిరిగి -EAFNOSUPPORT;
 }
 
-int in_addr_prefix_range(
-                int family,
-                const union in_addr_union *in,
-                unsigned prefixlen,
-                union in_addr_union *ret_start,
-                union in_addr_union *ret_end) {
+పూర్ణాంకం లోపల_addr_ఉపసర్గ_range(
+                పూర్ణాంకం family,
+                స్థిరరాశి సంఘం లోపల_addr_union *లోపల,
+                గుర్తులేని prefixlen,
+                సంఘం లోపల_addr_union *ret_ప్రారంభం,
+                సంఘం లోపల_addr_union *ret_చివర) {
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(in);
+        ప్రతిజ్ఞా(లోపల);
 
         /* Note, on overflow, e.g. input is 255.255.255.255, then ret_end will be a null address. */
 
-        switch (family) {
-        case AF_INET:
-                if (prefixlen > 32)
-                        return -EINVAL;
-                break;
-        case AF_INET6:
-                if (prefixlen > 128)
-                        return -EINVAL;
-                break;
-        default:
-                return -EAFNOSUPPORT;
+        ఎంపిక (family) {
+        స్థితి AF_INET:
+                ఒకవేళ (prefixlen > 32)
+                        తిరిగి -EINVAL;
+                ఆపు;
+        స్థితి AF_INET6:
+                ఒకవేళ (prefixlen > 128)
+                        తిరిగి -EINVAL;
+                ఆపు;
+        అప్రమేయ:
+                తిరిగి -EAFNOSUPPORT;
         }
 
-        if (prefixlen == 0) {
+        ఒకవేళ (prefixlen == 0) {
                 /* shortcut for trivial case */
-                if (ret_start)
-                        *ret_start = IN_ADDR_NULL;
-                if (ret_end)
-                        *ret_end = IN_ADDR_NULL;
-                return 0;
+                ఒకవేళ (ret_ప్రారంభం)
+                        *ret_ప్రారంభం = లోపల_ADDR_NULL;
+                ఒకవేళ (ret_చివర)
+                        *ret_చివర = లోపల_ADDR_NULL;
+                తిరిగి 0;
         }
 
-        union in_addr_union start = *in;
-        r = in_addr_mask(family, &start, prefixlen);
-        if (r < 0)
-                return r;
+        సంఘం లోపల_addr_union ప్రారంభం = *లోపల;
+        r = లోపల_addr_ముసుగు(family, &ప్రారంభం, prefixlen);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        union in_addr_union end = start;
-        uint8_t add = UINT8_C(1) << ((FAMILY_ADDRESS_SIZE(family) * 8 - prefixlen) % 8);
-        for (unsigned i = DIV_ROUND_UP(prefixlen, 8); i-- > 0;)
-                if (add > UINT8_MAX - end.bytes[i]) {
-                        end.bytes[i] = 0;
-                        add = 1;
-                } else {
-                        end.bytes[i] += add;
-                        break;
+        సంఘం లోపల_addr_union చివర = ప్రారంభం;
+        uint8_t కూడు = UINT8_C(1) << ((FAMILY_చిరునామా_కొలత(family) * 8 - prefixlen) % 8);
+        కొరకు (గుర్తులేని i = DIV_విడత_పైకి(prefixlen, 8); i-- > 0;)
+                ఒకవేళ (కూడు > UINT8_MAX - చివర.బైట్లు[i]) {
+                        చివర.బైట్లు[i] = 0;
+                        కూడు = 1;
+                } లేకపోతే {
+                        చివర.బైట్లు[i] += కూడు;
+                        ఆపు;
                 }
 
-        if (ret_start)
-                *ret_start = start;
-        if (ret_end)
-                *ret_end = end;
+        ఒకవేళ (ret_ప్రారంభం)
+                *ret_ప్రారంభం = ప్రారంభం;
+        ఒకవేళ (ret_చివర)
+                *ret_చివర = చివర;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int in_addr_to_string(int family, const union in_addr_union *u, char **ret) {
-        _cleanup_free_ char *x = NULL;
+పూర్ణాంకం లోపల_addr_గమ్యం_string(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *u, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *x = ఖాళీ;
         size_t l;
 
-        assert(u);
-        assert(ret);
+        ప్రతిజ్ఞా(u);
+        ప్రతిజ్ఞా(ret);
 
-        if (family == AF_INET)
+        ఒకవేళ (family == AF_INET)
                 l = INET_ADDRSTRLEN;
-        else if (family == AF_INET6)
+        లేకపోతే ఒకవేళ (family == AF_INET6)
                 l = INET6_ADDRSTRLEN;
-        else
-                return -EAFNOSUPPORT;
+        లేకపోతే
+                తిరిగి -EAFNOSUPPORT;
 
-        x = new(char, l);
-        if (!x)
-                return -ENOMEM;
+        x = new(అక్షరం, l);
+        ఒకవేళ (!x)
+                తిరిగి -ENOMEM;
 
         errno = 0;
-        if (!typesafe_inet_ntop(family, u, x, l))
-                return errno_or_else(EINVAL);
+        ఒకవేళ (!typesafe_inet_ntop(family, u, x, l))
+                తిరిగి errno_or_else(EINVAL);
 
         *ret = TAKE_PTR(x);
-        return 0;
+        తిరిగి 0;
 }
 
-const char* typesafe_inet_ntop(int family, const union in_addr_union *a, char *buf, size_t len) {
-        return inet_ntop(family, a, buf, len);
+స్థిరరాశి అక్షరం* typesafe_inet_ntop(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *a, అక్షరం *buf, size_t len) {
+        తిరిగి inet_ntop(family, a, buf, len);
 }
 
-const char* typesafe_inet_ntop4(const struct in_addr *a, char *buf, size_t len) {
-        return inet_ntop(AF_INET, a, buf, len);
+స్థిరరాశి అక్షరం* typesafe_inet_ntop4(స్థిరరాశి నిర్మాణం in_addr *a, అక్షరం *buf, size_t len) {
+        తిరిగి inet_ntop(AF_INET, a, buf, len);
 }
 
-const char* typesafe_inet_ntop6(const struct in6_addr *a, char *buf, size_t len) {
-        return inet_ntop(AF_INET6, a, buf, len);
+స్థిరరాశి అక్షరం* typesafe_inet_ntop6(స్థిరరాశి నిర్మాణం in6_addr *a, అక్షరం *buf, size_t len) {
+        తిరిగి inet_ntop(AF_INET6, a, buf, len);
 }
 
-int in_addr_prefix_to_string(
-                int family,
-                const union in_addr_union *u,
-                unsigned prefixlen,
-                char *buf,
+పూర్ణాంకం లోపల_addr_ఉపసర్గ_గమ్యం_string(
+                పూర్ణాంకం family,
+                స్థిరరాశి సంఘం లోపల_addr_union *u,
+                గుర్తులేని prefixlen,
+                అక్షరం *buf,
                 size_t buf_len) {
 
-        assert(u);
-        assert(buf);
+        ప్రతిజ్ఞా(u);
+        ప్రతిజ్ఞా(buf);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        ఒకవేళ (!లోపల_సమితి(family, AF_INET, AF_INET6))
+                తిరిగి -EAFNOSUPPORT;
 
         errno = 0;
-        if (!typesafe_inet_ntop(family, u, buf, buf_len))
-                return errno_or_else(ENOSPC);
+        ఒకవేళ (!typesafe_inet_ntop(family, u, buf, buf_len))
+                తిరిగి errno_or_else(ENOSPC);
 
-        size_t l = strlen(buf);
-        if (!snprintf_ok(buf + l, buf_len - l, "/%u", prefixlen))
-                return -ENOSPC;
-        return 0;
+        size_t l = అక్షరశ్రేణి_పొడవు(buf);
+        ఒకవేళ (!snprintf_ok(buf + l, buf_len - l, "/%u", prefixlen))
+                తిరిగి -ENOSPC;
+        తిరిగి 0;
 }
 
-int in_addr_port_ifindex_name_to_string(int family, const union in_addr_union *u, uint16_t port, int ifindex, const char *server_name, char **ret) {
-        _cleanup_free_ char *ip_str = NULL, *x = NULL;
-        int r;
+పూర్ణాంకం లోపల_addr_పోర్టు_ifindex_name_గమ్యం_string(పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *u, uint16_t port, పూర్ణాంకం ifindex, స్థిరరాశి అక్షరం *server_name, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *ip_str = ఖాళీ, *x = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(IN_SET(family, AF_INET, AF_INET6));
-        assert(u);
-        assert(ret);
+        ప్రతిజ్ఞా(లోపల_సమితి(family, AF_INET, AF_INET6));
+        ప్రతిజ్ఞా(u);
+        ప్రతిజ్ఞా(ret);
 
         /* Much like in_addr_to_string(), but optionally appends the zone interface index to the address, to properly
          * handle IPv6 link-local addresses. */
 
-        r = in_addr_to_string(family, u, &ip_str);
-        if (r < 0)
-                return r;
+        r = లోపల_addr_గమ్యం_string(family, u, &ip_str);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (family == AF_INET6) {
-                r = in_addr_is_link_local(family, u);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+        ఒకవేళ (family == AF_INET6) {
+                r = లోపల_addr_is_link_local(family, u);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
                         ifindex = 0;
-        } else
+        } లేకపోతే
                 ifindex = 0; /* For IPv4 address, ifindex is always ignored. */
 
-        if (port == 0 && ifindex == 0 && isempty(server_name)) {
+        ఒకవేళ (port == 0 && ifindex == 0 && isempty(server_name)) {
                 *ret = TAKE_PTR(ip_str);
-                return 0;
+                తిరిగి 0;
         }
 
-        const char *separator = isempty(server_name) ? "" : "#";
+        స్థిరరాశి అక్షరం *separator = isempty(server_name) ? "" : "#";
         server_name = strempty(server_name);
 
-        if (port > 0) {
-                if (family == AF_INET6) {
-                        if (ifindex > 0)
-                                x = asprintf_safe("[%s]:%"PRIu16"%%%i%s%s", ip_str, port, ifindex, separator, server_name);
-                        else
-                                x = asprintf_safe("[%s]:%"PRIu16"%s%s", ip_str, port, separator, server_name);
-                } else
-                        x = asprintf_safe("%s:%"PRIu16"%s%s", ip_str, port, separator, server_name);
-        } else {
-                if (ifindex > 0)
-                        x = asprintf_safe("%s%%%i%s%s", ip_str, ifindex, separator, server_name);
-                else
+        ఒకవేళ (port > 0) {
+                ఒకవేళ (family == AF_INET6) {
+                        ఒకవేళ (ifindex > 0)
+                                x = asprintf_సురక్షిత("[%s]:%"PRIu16"%%%i%s%s", ip_str, port, ifindex, separator, server_name);
+                        లేకపోతే
+                                x = asprintf_సురక్షిత("[%s]:%"PRIu16"%s%s", ip_str, port, separator, server_name);
+                } లేకపోతే
+                        x = asprintf_సురక్షిత("%s:%"PRIu16"%s%s", ip_str, port, separator, server_name);
+        } లేకపోతే {
+                ఒకవేళ (ifindex > 0)
+                        x = asprintf_సురక్షిత("%s%%%i%s%s", ip_str, ifindex, separator, server_name);
+                లేకపోతే
                         x = strjoin(ip_str, separator, server_name);
         }
-        if (!x)
-                return -ENOMEM;
+        ఒకవేళ (!x)
+                తిరిగి -ENOMEM;
 
         *ret = TAKE_PTR(x);
-        return 0;
+        తిరిగి 0;
 }
 
-int in_addr_from_string(int family, const char *s, union in_addr_union *ret) {
-        union in_addr_union buffer;
-        assert(s);
+పూర్ణాంకం లోపల_addr_from_string(పూర్ణాంకం family, స్థిరరాశి అక్షరం *s, సంఘం లోపల_addr_union *ret) {
+        సంఘం లోపల_addr_union బఫరు;
+        ప్రతిజ్ఞా(s);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        ఒకవేళ (!లోపల_సమితి(family, AF_INET, AF_INET6))
+                తిరిగి -EAFNOSUPPORT;
 
         errno = 0;
-        if (inet_pton(family, s, ret ?: &buffer) <= 0)
-                return errno_or_else(EINVAL);
+        ఒకవేళ (inet_pton(family, s, ret ?: &బఫరు) <= 0)
+                తిరిగి errno_or_else(EINVAL);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int in_addr_from_string_auto(const char *s, int *ret_family, union in_addr_union *ret) {
-        int r;
+పూర్ణాంకం లోపల_addr_from_string_auto(స్థిరరాశి అక్షరం *s, పూర్ణాంకం *ret_family, సంఘం లోపల_addr_union *ret) {
+        పూర్ణాంకం r;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
-        r = in_addr_from_string(AF_INET, s, ret);
-        if (r >= 0) {
-                if (ret_family)
+        r = లోపల_addr_from_string(AF_INET, s, ret);
+        ఒకవేళ (r >= 0) {
+                ఒకవేళ (ret_family)
                         *ret_family = AF_INET;
-                return 0;
+                తిరిగి 0;
         }
 
-        r = in_addr_from_string(AF_INET6, s, ret);
-        if (r >= 0) {
-                if (ret_family)
+        r = లోపల_addr_from_string(AF_INET6, s, ret);
+        ఒకవేళ (r >= 0) {
+                ఒకవేళ (ret_family)
                         *ret_family = AF_INET6;
-                return 0;
+                తిరిగి 0;
         }
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-unsigned char in4_addr_netmask_to_prefixlen(const struct in_addr *addr) {
-        assert(addr);
+గుర్తులేని అక్షరం in4_addr_netmask_గమ్యం_prefixlen(స్థిరరాశి నిర్మాణం in_addr *addr) {
+        ప్రతిజ్ఞా(addr);
 
-        return 32U - u32ctz(be32toh(addr->s_addr));
+        తిరిగి 32U - u32ctz(be32toh(addr->s_addr));
 }
 
 /* Calculate an IPv4 netmask from prefix length, for example /8 -> 255.0.0.0. */
-struct in_addr* in4_addr_prefixlen_to_netmask(struct in_addr *addr, unsigned char prefixlen) {
-        assert(addr);
-        assert(prefixlen <= 32);
+నిర్మాణం in_addr* in4_addr_prefixlen_గమ్యం_netmask(నిర్మాణం in_addr *addr, గుర్తులేని అక్షరం prefixlen) {
+        ప్రతిజ్ఞా(addr);
+        ప్రతిజ్ఞా(prefixlen <= 32);
 
         /* Shifting beyond 32 is not defined, handle this specially. */
-        if (prefixlen == 0)
+        ఒకవేళ (prefixlen == 0)
                 addr->s_addr = 0;
-        else
+        లేకపోతే
                 addr->s_addr = htobe32((0xffffffff << (32 - prefixlen)) & 0xffffffff);
 
-        return addr;
+        తిరిగి addr;
 }
 
 /* Calculate an IPv6 netmask from prefix length, for example /16 -> ffff::. */
-struct in6_addr* in6_addr_prefixlen_to_netmask(struct in6_addr *addr, unsigned char prefixlen) {
-        assert(addr);
-        assert(prefixlen <= 128);
+నిర్మాణం in6_addr* in6_addr_prefixlen_గమ్యం_netmask(నిర్మాణం in6_addr *addr, గుర్తులేని అక్షరం prefixlen) {
+        ప్రతిజ్ఞా(addr);
+        ప్రతిజ్ఞా(prefixlen <= 128);
 
-        for (unsigned i = 0; i < 16; i++) {
-                uint8_t mask;
+        కొరకు (గుర్తులేని i = 0; i < 16; i++) {
+                uint8_t ముసుగు_3;
 
-                if (prefixlen >= 8) {
-                        mask = 0xFF;
+                ఒకవేళ (prefixlen >= 8) {
+                        ముసుగు_3 = 0xFF;
                         prefixlen -= 8;
-                } else if (prefixlen > 0) {
-                        mask = 0xFF << (8 - prefixlen);
+                } లేకపోతే ఒకవేళ (prefixlen > 0) {
+                        ముసుగు_3 = 0xFF << (8 - prefixlen);
                         prefixlen = 0;
-                } else {
-                        assert(prefixlen == 0);
-                        mask = 0;
+                } లేకపోతే {
+                        ప్రతిజ్ఞా(prefixlen == 0);
+                        ముసుగు_3 = 0;
                 }
 
-                addr->s6_addr[i] = mask;
+                addr->s6_addr[i] = ముసుగు_3;
         }
 
-        return addr;
+        తిరిగి addr;
 }
 
 /* Calculate an IPv4 or IPv6 netmask from prefix length, for example /8 -> 255.0.0.0 or /16 -> ffff::. */
-int in_addr_prefixlen_to_netmask(int family, union in_addr_union *addr, unsigned char prefixlen) {
-        assert(addr);
+పూర్ణాంకం లోపల_addr_prefixlen_గమ్యం_netmask(పూర్ణాంకం family, సంఘం లోపల_addr_union *addr, గుర్తులేని అక్షరం prefixlen) {
+        ప్రతిజ్ఞా(addr);
 
-        switch (family) {
-        case AF_INET:
-                in4_addr_prefixlen_to_netmask(&addr->in, prefixlen);
-                return 0;
-        case AF_INET6:
-                in6_addr_prefixlen_to_netmask(&addr->in6, prefixlen);
-                return 0;
-        default:
-                return -EAFNOSUPPORT;
+        ఎంపిక (family) {
+        స్థితి AF_INET:
+                in4_addr_prefixlen_గమ్యం_netmask(&addr->లోపల, prefixlen);
+                తిరిగి 0;
+        స్థితి AF_INET6:
+                in6_addr_prefixlen_గమ్యం_netmask(&addr->in6, prefixlen);
+                తిరిగి 0;
+        అప్రమేయ:
+                తిరిగి -EAFNOSUPPORT;
         }
 }
 
-int in4_addr_default_prefixlen(const struct in_addr *addr, unsigned char *prefixlen) {
+పూర్ణాంకం in4_addr_default_prefixlen(స్థిరరాశి నిర్మాణం in_addr *addr, గుర్తులేని అక్షరం *prefixlen) {
         uint8_t msb_octet = *(uint8_t*) addr;
 
         /* addr may not be aligned, so make sure we only access it byte-wise */
 
-        assert(addr);
-        assert(prefixlen);
+        ప్రతిజ్ఞా(addr);
+        ప్రతిజ్ఞా(prefixlen);
 
-        if (msb_octet < 128)
+        ఒకవేళ (msb_octet < 128)
                 /* class A, leading bits: 0 */
                 *prefixlen = 8;
-        else if (msb_octet < 192)
+        లేకపోతే ఒకవేళ (msb_octet < 192)
                 /* class B, leading bits 10 */
                 *prefixlen = 16;
-        else if (msb_octet < 224)
+        లేకపోతే ఒకవేళ (msb_octet < 224)
                 /* class C, leading bits 110 */
                 *prefixlen = 24;
-        else
+        లేకపోతే
                 /* class D or E, no default prefixlen */
-                return -ERANGE;
+                తిరిగి -ERANGE;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int in4_addr_default_subnet_mask(const struct in_addr *addr, struct in_addr *mask) {
-        unsigned char prefixlen;
-        int r;
+పూర్ణాంకం in4_addr_default_subnet_ముసుగు(స్థిరరాశి నిర్మాణం in_addr *addr, నిర్మాణం in_addr *ముసుగు_3) {
+        గుర్తులేని అక్షరం prefixlen;
+        పూర్ణాంకం r;
 
-        assert(addr);
-        assert(mask);
+        ప్రతిజ్ఞా(addr);
+        ప్రతిజ్ఞా(ముసుగు_3);
 
         r = in4_addr_default_prefixlen(addr, &prefixlen);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        in4_addr_prefixlen_to_netmask(mask, prefixlen);
-        return 0;
+        in4_addr_prefixlen_గమ్యం_netmask(ముసుగు_3, prefixlen);
+        తిరిగి 0;
 }
 
-int in4_addr_mask(struct in_addr *addr, unsigned char prefixlen) {
-        struct in_addr mask;
+పూర్ణాంకం in4_addr_ముసుగు(నిర్మాణం in_addr *addr, గుర్తులేని అక్షరం prefixlen) {
+        నిర్మాణం in_addr ముసుగు_3;
 
-        assert(addr);
+        ప్రతిజ్ఞా(addr);
 
-        if (!in4_addr_prefixlen_to_netmask(&mask, prefixlen))
-                return -EINVAL;
+        ఒకవేళ (!in4_addr_prefixlen_గమ్యం_netmask(&ముసుగు_3, prefixlen))
+                తిరిగి -EINVAL;
 
-        addr->s_addr &= mask.s_addr;
-        return 0;
+        addr->s_addr &= ముసుగు_3.s_addr;
+        తిరిగి 0;
 }
 
-int in6_addr_mask(struct in6_addr *addr, unsigned char prefixlen) {
-        unsigned i;
+పూర్ణాంకం in6_addr_ముసుగు(నిర్మాణం in6_addr *addr, గుర్తులేని అక్షరం prefixlen) {
+        గుర్తులేని i;
 
-        assert(addr);
+        ప్రతిజ్ఞా(addr);
 
-        for (i = 0; i < 16; i++) {
-                uint8_t mask;
+        కొరకు (i = 0; i < 16; i++) {
+                uint8_t ముసుగు_3;
 
-                if (prefixlen >= 8) {
-                        mask = 0xFF;
+                ఒకవేళ (prefixlen >= 8) {
+                        ముసుగు_3 = 0xFF;
                         prefixlen -= 8;
-                } else if (prefixlen > 0) {
-                        mask = 0xFF << (8 - prefixlen);
+                } లేకపోతే ఒకవేళ (prefixlen > 0) {
+                        ముసుగు_3 = 0xFF << (8 - prefixlen);
                         prefixlen = 0;
-                } else {
-                        assert(prefixlen == 0);
-                        mask = 0;
+                } లేకపోతే {
+                        ప్రతిజ్ఞా(prefixlen == 0);
+                        ముసుగు_3 = 0;
                 }
 
-                addr->s6_addr[i] &= mask;
+                addr->s6_addr[i] &= ముసుగు_3;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int in_addr_mask(int family, union in_addr_union *addr, unsigned char prefixlen) {
-        assert(addr);
+పూర్ణాంకం లోపల_addr_ముసుగు(పూర్ణాంకం family, సంఘం లోపల_addr_union *addr, గుర్తులేని అక్షరం prefixlen) {
+        ప్రతిజ్ఞా(addr);
 
-        switch (family) {
-        case AF_INET:
-                return in4_addr_mask(&addr->in, prefixlen);
-        case AF_INET6:
-                return in6_addr_mask(&addr->in6, prefixlen);
-        default:
-                return -EAFNOSUPPORT;
-        }
-}
-
-int in4_addr_prefix_covers_full(
-                const struct in_addr *prefix,
-                unsigned char prefixlen,
-                const struct in_addr *address,
-                unsigned char address_prefixlen) {
-
-        struct in_addr masked_prefix, masked_address;
-        int r;
-
-        assert(prefix);
-        assert(address);
-
-        if (prefixlen > address_prefixlen)
-                return false;
-
-        masked_prefix = *prefix;
-        r = in4_addr_mask(&masked_prefix, prefixlen);
-        if (r < 0)
-                return r;
-
-        masked_address = *address;
-        r = in4_addr_mask(&masked_address, prefixlen);
-        if (r < 0)
-                return r;
-
-        return in4_addr_equal(&masked_prefix, &masked_address);
-}
-
-int in6_addr_prefix_covers_full(
-                const struct in6_addr *prefix,
-                unsigned char prefixlen,
-                const struct in6_addr *address,
-                unsigned char address_prefixlen) {
-
-        struct in6_addr masked_prefix, masked_address;
-        int r;
-
-        assert(prefix);
-        assert(address);
-
-        if (prefixlen > address_prefixlen)
-                return false;
-
-        masked_prefix = *prefix;
-        r = in6_addr_mask(&masked_prefix, prefixlen);
-        if (r < 0)
-                return r;
-
-        masked_address = *address;
-        r = in6_addr_mask(&masked_address, prefixlen);
-        if (r < 0)
-                return r;
-
-        return in6_addr_equal(&masked_prefix, &masked_address);
-}
-
-int in_addr_prefix_covers_full(
-                int family,
-                const union in_addr_union *prefix,
-                unsigned char prefixlen,
-                const union in_addr_union *address,
-                unsigned char address_prefixlen) {
-
-        assert(prefix);
-        assert(address);
-
-        switch (family) {
-        case AF_INET:
-                return in4_addr_prefix_covers_full(&prefix->in, prefixlen, &address->in, address_prefixlen);
-        case AF_INET6:
-                return in6_addr_prefix_covers_full(&prefix->in6, prefixlen, &address->in6, address_prefixlen);
-        default:
-                return -EAFNOSUPPORT;
+        ఎంపిక (family) {
+        స్థితి AF_INET:
+                తిరిగి in4_addr_ముసుగు(&addr->లోపల, prefixlen);
+        స్థితి AF_INET6:
+                తిరిగి in6_addr_ముసుగు(&addr->in6, prefixlen);
+        అప్రమేయ:
+                తిరిగి -EAFNOSUPPORT;
         }
 }
 
-int in_addr_parse_prefixlen(int family, const char *p, unsigned char *ret) {
+పూర్ణాంకం in4_addr_ఉపసర్గ_covers_నిండిన(
+                స్థిరరాశి నిర్మాణం in_addr *ఉపసర్గ,
+                గుర్తులేని అక్షరం prefixlen,
+                స్థిరరాశి నిర్మాణం in_addr *చిరునామా,
+                గుర్తులేని అక్షరం చిరునామా_prefixlen) {
+
+        నిర్మాణం in_addr masked_ఉపసర్గ, masked_చిరునామా;
+        పూర్ణాంకం r;
+
+        ప్రతిజ్ఞా(ఉపసర్గ);
+        ప్రతిజ్ఞా(చిరునామా);
+
+        ఒకవేళ (prefixlen > చిరునామా_prefixlen)
+                తిరిగి false;
+
+        masked_ఉపసర్గ = *ఉపసర్గ;
+        r = in4_addr_ముసుగు(&masked_ఉపసర్గ, prefixlen);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+
+        masked_చిరునామా = *చిరునామా;
+        r = in4_addr_ముసుగు(&masked_చిరునామా, prefixlen);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+
+        తిరిగి in4_addr_equal(&masked_ఉపసర్గ, &masked_చిరునామా);
+}
+
+పూర్ణాంకం in6_addr_ఉపసర్గ_covers_నిండిన(
+                స్థిరరాశి నిర్మాణం in6_addr *ఉపసర్గ,
+                గుర్తులేని అక్షరం prefixlen,
+                స్థిరరాశి నిర్మాణం in6_addr *చిరునామా,
+                గుర్తులేని అక్షరం చిరునామా_prefixlen) {
+
+        నిర్మాణం in6_addr masked_ఉపసర్గ, masked_చిరునామా;
+        పూర్ణాంకం r;
+
+        ప్రతిజ్ఞా(ఉపసర్గ);
+        ప్రతిజ్ఞా(చిరునామా);
+
+        ఒకవేళ (prefixlen > చిరునామా_prefixlen)
+                తిరిగి false;
+
+        masked_ఉపసర్గ = *ఉపసర్గ;
+        r = in6_addr_ముసుగు(&masked_ఉపసర్గ, prefixlen);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+
+        masked_చిరునామా = *చిరునామా;
+        r = in6_addr_ముసుగు(&masked_చిరునామా, prefixlen);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+
+        తిరిగి in6_addr_equal(&masked_ఉపసర్గ, &masked_చిరునామా);
+}
+
+పూర్ణాంకం లోపల_addr_ఉపసర్గ_covers_నిండిన(
+                పూర్ణాంకం family,
+                స్థిరరాశి సంఘం లోపల_addr_union *ఉపసర్గ,
+                గుర్తులేని అక్షరం prefixlen,
+                స్థిరరాశి సంఘం లోపల_addr_union *చిరునామా,
+                గుర్తులేని అక్షరం చిరునామా_prefixlen) {
+
+        ప్రతిజ్ఞా(ఉపసర్గ);
+        ప్రతిజ్ఞా(చిరునామా);
+
+        ఎంపిక (family) {
+        స్థితి AF_INET:
+                తిరిగి in4_addr_ఉపసర్గ_covers_నిండిన(&ఉపసర్గ->లోపల, prefixlen, &చిరునామా->లోపల, చిరునామా_prefixlen);
+        స్థితి AF_INET6:
+                తిరిగి in6_addr_ఉపసర్గ_covers_నిండిన(&ఉపసర్గ->in6, prefixlen, &చిరునామా->in6, చిరునామా_prefixlen);
+        అప్రమేయ:
+                తిరిగి -EAFNOSUPPORT;
+        }
+}
+
+పూర్ణాంకం లోపల_addr_parse_prefixlen(పూర్ణాంకం family, స్థిరరాశి అక్షరం *p, గుర్తులేని అక్షరం *ret) {
         uint8_t u;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        ఒకవేళ (!లోపల_సమితి(family, AF_INET, AF_INET6))
+                తిరిగి -EAFNOSUPPORT;
 
-        r = safe_atou8(p, &u);
-        if (r < 0)
-                return r;
+        r = సురక్షిత_atou8(p, &u);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (u > FAMILY_ADDRESS_SIZE(family) * 8)
-                return -ERANGE;
+        ఒకవేళ (u > FAMILY_చిరునామా_కొలత(family) * 8)
+                తిరిగి -ERANGE;
 
         *ret = u;
-        return 0;
+        తిరిగి 0;
 }
 
-int in_addr_prefix_from_string(
-                const char *p,
-                int family,
-                union in_addr_union *ret_prefix,
-                unsigned char *ret_prefixlen) {
+పూర్ణాంకం లోపల_addr_ఉపసర్గ_from_string(
+                స్థిరరాశి అక్షరం *p,
+                పూర్ణాంకం family,
+                సంఘం లోపల_addr_union *ret_ఉపసర్గ,
+                గుర్తులేని అక్షరం *ret_prefixlen) {
 
-        _cleanup_free_ char *str = NULL;
-        union in_addr_union buffer;
-        const char *e, *l;
-        unsigned char k;
-        int r;
+        _cleanup_free_ అక్షరం *str = ఖాళీ;
+        సంఘం లోపల_addr_union బఫరు;
+        స్థిరరాశి అక్షరం *e, *l;
+        గుర్తులేని అక్షరం k;
+        పూర్ణాంకం r;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
-        if (!IN_SET(family, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        ఒకవేళ (!లోపల_సమితి(family, AF_INET, AF_INET6))
+                తిరిగి -EAFNOSUPPORT;
 
         e = strchr(p, '/');
-        if (e) {
+        ఒకవేళ (e) {
                 str = strndup(p, e - p);
-                if (!str)
-                        return -ENOMEM;
+                ఒకవేళ (!str)
+                        తిరిగి -ENOMEM;
 
                 l = str;
-        } else
+        } లేకపోతే
                 l = p;
 
-        r = in_addr_from_string(family, l, &buffer);
-        if (r < 0)
-                return r;
+        r = లోపల_addr_from_string(family, l, &బఫరు);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (e) {
-                r = in_addr_parse_prefixlen(family, e+1, &k);
-                if (r < 0)
-                        return r;
-        } else
-                k = FAMILY_ADDRESS_SIZE(family) * 8;
+        ఒకవేళ (e) {
+                r = లోపల_addr_parse_prefixlen(family, e+1, &k);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+        } లేకపోతే
+                k = FAMILY_చిరునామా_కొలత(family) * 8;
 
-        if (ret_prefix)
-                *ret_prefix = buffer;
-        if (ret_prefixlen)
+        ఒకవేళ (ret_ఉపసర్గ)
+                *ret_ఉపసర్గ = బఫరు;
+        ఒకవేళ (ret_prefixlen)
                 *ret_prefixlen = k;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int in_addr_prefix_from_string_auto_full(
-                const char *p,
-                InAddrPrefixLenMode mode,
-                int *ret_family,
-                union in_addr_union *ret_prefix,
-                unsigned char *ret_prefixlen) {
+పూర్ణాంకం లోపల_addr_ఉపసర్గ_from_string_auto_నిండిన(
+                స్థిరరాశి అక్షరం *p,
+                లోపల_Addr_ఉపసర్గ_Len_బహుళకం బహుళకం,
+                పూర్ణాంకం *ret_family,
+                సంఘం లోపల_addr_union *ret_ఉపసర్గ,
+                గుర్తులేని అక్షరం *ret_prefixlen) {
 
-        _cleanup_free_ char *str = NULL;
-        union in_addr_union buffer;
-        const char *e, *l;
-        unsigned char k;
-        int family, r;
+        _cleanup_free_ అక్షరం *str = ఖాళీ;
+        సంఘం లోపల_addr_union బఫరు;
+        స్థిరరాశి అక్షరం *e, *l;
+        గుర్తులేని అక్షరం k;
+        పూర్ణాంకం family, r;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
         e = strchr(p, '/');
-        if (e) {
+        ఒకవేళ (e) {
                 str = strndup(p, e - p);
-                if (!str)
-                        return -ENOMEM;
+                ఒకవేళ (!str)
+                        తిరిగి -ENOMEM;
 
                 l = str;
-        } else
+        } లేకపోతే
                 l = p;
 
-        r = in_addr_from_string_auto(l, &family, &buffer);
-        if (r < 0)
-                return r;
+        r = లోపల_addr_from_string_auto(l, &family, &బఫరు);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (e) {
-                r = in_addr_parse_prefixlen(family, e+1, &k);
-                if (r < 0)
-                        return r;
-        } else
-                switch (mode) {
-                case PREFIXLEN_FULL:
-                        k = FAMILY_ADDRESS_SIZE(family) * 8;
-                        break;
-                case PREFIXLEN_REFUSE:
-                        return -ENOANO; /* To distinguish this error from others. */
-                default:
+        ఒకవేళ (e) {
+                r = లోపల_addr_parse_prefixlen(family, e+1, &k);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+        } లేకపోతే
+                ఎంపిక (బహుళకం) {
+                స్థితి PREFIXLEN_నిండిన:
+                        k = FAMILY_చిరునామా_కొలత(family) * 8;
+                        ఆపు;
+                స్థితి PREFIXLEN_REFUSE:
+                        తిరిగి -ENOANO; /* To distinguish this error from others. */
+                అప్రమేయ:
                         assert_not_reached();
                 }
 
-        if (ret_family)
+        ఒకవేళ (ret_family)
                 *ret_family = family;
-        if (ret_prefix)
-                *ret_prefix = buffer;
-        if (ret_prefixlen)
+        ఒకవేళ (ret_ఉపసర్గ)
+                *ret_ఉపసర్గ = బఫరు;
+        ఒకవేళ (ret_prefixlen)
                 *ret_prefixlen = k;
 
-        return 0;
+        తిరిగి 0;
 }
 
-void in_addr_hash_func(const union in_addr_union *u, int family, struct siphash *state) {
-        assert(u);
-        assert(state);
+శూన్య లోపల_addr_hash_func(స్థిరరాశి సంఘం లోపల_addr_union *u, పూర్ణాంకం family, నిర్మాణం siphash *state) {
+        ప్రతిజ్ఞా(u);
+        ప్రతిజ్ఞా(state);
 
-        siphash24_compress(u->bytes, FAMILY_ADDRESS_SIZE(family), state);
+        siphash24_compress(u->బైట్లు, FAMILY_చిరునామా_కొలత(family), state);
 }
 
-void in_addr_data_hash_func(const struct in_addr_data *a, struct siphash *state) {
-        assert(a);
-        assert(state);
+శూన్య లోపల_addr_దత్తాంశం_hash_func(స్థిరరాశి నిర్మాణం లోపల_addr_దత్తాంశం *a, నిర్మాణం siphash *state) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(state);
 
         siphash24_compress_typesafe(a->family, state);
-        in_addr_hash_func(&a->address, a->family, state);
+        లోపల_addr_hash_func(&a->చిరునామా, a->family, state);
 }
 
-int in_addr_data_compare_func(const struct in_addr_data *x, const struct in_addr_data *y) {
-        int r;
+పూర్ణాంకం లోపల_addr_దత్తాంశం_compare_func(స్థిరరాశి నిర్మాణం లోపల_addr_దత్తాంశం *x, స్థిరరాశి నిర్మాణం లోపల_addr_దత్తాంశం *y) {
+        పూర్ణాంకం r;
 
-        assert(x);
-        assert(y);
+        ప్రతిజ్ఞా(x);
+        ప్రతిజ్ఞా(y);
 
         r = CMP(x->family, y->family);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
-        return memcmp(&x->address, &y->address, FAMILY_ADDRESS_SIZE(x->family));
+        తిరిగి memcmp(&x->చిరునామా, &y->చిరునామా, FAMILY_చిరునామా_కొలత(x->family));
 }
 
 DEFINE_HASH_OPS(
-        in_addr_data_hash_ops,
-        struct in_addr_data,
-        in_addr_data_hash_func,
-        in_addr_data_compare_func);
+        లోపల_addr_దత్తాంశం_hash_ops,
+        నిర్మాణం లోపల_addr_దత్తాంశం,
+        లోపల_addr_దత్తాంశం_hash_func,
+        లోపల_addr_దత్తాంశం_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
-        in_addr_data_hash_ops_free,
-        struct in_addr_data,
-        in_addr_data_hash_func,
-        in_addr_data_compare_func,
-        free);
+DEFINE_HASH_OPS_WITH_కీలకం_DESTRUCTOR(
+        లోపల_addr_దత్తాంశం_hash_ops_free,
+        నిర్మాణం లోపల_addr_దత్తాంశం,
+        లోపల_addr_దత్తాంశం_hash_func,
+        లోపల_addr_దత్తాంశం_compare_func,
+        విడుదల);
 
-void in6_addr_hash_func(const struct in6_addr *addr, struct siphash *state) {
-        assert(addr);
-        assert(state);
+శూన్య in6_addr_hash_func(స్థిరరాశి నిర్మాణం in6_addr *addr, నిర్మాణం siphash *state) {
+        ప్రతిజ్ఞా(addr);
+        ప్రతిజ్ఞా(state);
 
         siphash24_compress_typesafe(*addr, state);
 }
 
-int in6_addr_compare_func(const struct in6_addr *a, const struct in6_addr *b) {
-        assert(a);
-        assert(b);
+పూర్ణాంకం in6_addr_compare_func(స్థిరరాశి నిర్మాణం in6_addr *a, స్థిరరాశి నిర్మాణం in6_addr *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        return memcmp(a, b, sizeof(*a));
+        తిరిగి memcmp(a, b, పరిమాణం(*a));
 }
 
 DEFINE_HASH_OPS(
         in6_addr_hash_ops,
-        struct in6_addr,
+        నిర్మాణం in6_addr,
         in6_addr_hash_func,
         in6_addr_compare_func);
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(
+DEFINE_HASH_OPS_WITH_కీలకం_DESTRUCTOR(
         in6_addr_hash_ops_free,
-        struct in6_addr,
+        నిర్మాణం in6_addr,
         in6_addr_hash_func,
         in6_addr_compare_func,
-        free);
+        విడుదల);

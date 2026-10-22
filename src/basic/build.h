@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-extern const char* const systemd_features;
+బాహ్య స్థిరరాశి అక్షరం* స్థిరరాశి systemd_features;
 
-int version(void);
-int version_only(void);
+పూర్ణాంకం సంస్కరణ(శూన్య);
+పూర్ణాంకం సంస్కరణ_only(శూన్య);
 
-#define EXPERIMENTAL_DISABLED 0
-#define EXPERIMENTAL_ENVVAR 1
-#define EXPERIMENTAL_ENABLED 2
+#నిర్వచించు EXPERIMENTAL_DISABLED 0
+#నిర్వచించు EXPERIMENTAL_ENVVAR 1
+#నిర్వచించు EXPERIMENTAL_ENABLED 2
 
-bool experimental_enabled(void);
+bool experimental_enabled(శూన్య);

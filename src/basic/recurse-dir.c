@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "dirent-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "path-util.h"
-#include "recurse-dir.h"
-#include "sort-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "dirent-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "mountpoint-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "recurse-dir.h"
+#అన్తర్భావ "sort-util.h"
 
-#define DEFAULT_RECURSION_MAX 100
+#నిర్వచించు DEFAULT_RECURSION_MAX 100
 
-static int sort_func(struct dirent * const *a, struct dirent * const *b) {
-        assert(a);
-        assert(b);
+స్థిర పూర్ణాంకం క్రమీకరించు_func(నిర్మాణం dirent * స్థిరరాశి *a, నిర్మాణం dirent * స్థిరరాశి *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        return strcmp((*a)->d_name, (*b)->d_name);
+        తిరిగి strcmp((*a)->d_name, (*b)->d_name);
 }
 
-static bool ignore_dirent(const struct dirent *de, RecurseDirFlags flags) {
-        assert(de);
+స్థిర bool ignore_dirent(స్థిరరాశి నిర్మాణం dirent *de, RecurseDirFlags flags) {
+        ప్రతిజ్ఞా(de);
 
         /* Depending on flag either ignore everything starting with ".", or just "." itself and ".." */
 
-        if ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) {
+        ఒకవేళ ((flags & RECURSE_DIR_MUST_BE_ముసుగు) != 0) {
                 RecurseDirFlags f;
 
-                switch (de->d_type) {
+                ఎంపిక (de->d_type) {
 
-                case DT_DIR:
+                స్థితి DT_DIR:
                         f = RECURSE_DIR_MUST_BE_DIRECTORY;
-                        break;
+                        ఆపు;
 
-                case DT_REG:
+                స్థితి DT_REG:
                         f = RECURSE_DIR_MUST_BE_REGULAR;
-                        break;
+                        ఆపు;
 
-                case DT_LNK:
+                స్థితి DT_LNK:
                         f = RECURSE_DIR_MUST_BE_SYMLINK;
-                        break;
+                        ఆపు;
 
-                case DT_SOCK:
+                స్థితి DT_SOCK:
                         f = RECURSE_DIR_MUST_BE_SOCKET;
-                        break;
+                        ఆపు;
 
-                default:
-                        return true;
+                అప్రమేయ:
+                        తిరిగి true;
                 }
 
-                if (!FLAGS_SET(flags, f))
-                        return true;
+                ఒకవేళ (!FLAGS_సమితి(flags, f))
+                        తిరిగి true;
         }
 
-        return FLAGS_SET(flags, RECURSE_DIR_IGNORE_DOT) ?
+        తిరిగి FLAGS_సమితి(flags, RECURSE_DIR_IGNORE_DOT) ?
                 de->d_name[0] == '.' :
                 dot_or_dot_dot(de->d_name);
 }
 
-int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
-        _cleanup_free_ DirectoryEntries *de = NULL;
+పూర్ణాంకం readdir_all(పూర్ణాంకం dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
+        _cleanup_free_ DirectoryEntries *de = ఖాళీ;
         DirectoryEntries *nde;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(dir_fd >= 0);
+        ప్రతిజ్ఞా(dir_fd >= 0);
 
-        if ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) /* We need the type to validate it */
+        ఒకవేళ ((flags & RECURSE_DIR_MUST_BE_ముసుగు) != 0) /* We need the type to validate it */
                 flags |= RECURSE_DIR_ENSURE_TYPE;
 
         /* Returns an array with pointers to "struct dirent" directory entries, optionally sorted.
@@ -77,169 +77,169 @@ int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
          * 8 will cover most cases comprehensively. (Note that most likely a lot more entries will actually
          * fit in the buffer, given we calculate maximum file name length here.) */
         /* Silence static analyzers */
-        assert_cc(offsetof(DirectoryEntries, buffer) <= SIZE_MAX - DIRENT_SIZE_MAX * 8);
-        de = malloc(offsetof(DirectoryEntries, buffer) + DIRENT_SIZE_MAX * 8);
-        if (!de)
-                return -ENOMEM;
+        assert_cc(offsetof(DirectoryEntries, బఫరు) <= SIZE_MAX - DIRENT_కొలత_MAX * 8);
+        de = జ్ఞాపకం_ఇవ్వు(offsetof(DirectoryEntries, బఫరు) + DIRENT_కొలత_MAX * 8);
+        ఒకవేళ (!de)
+                తిరిగి -ENOMEM;
 
-        de->buffer_size = 0;
-        for (;;) {
+        de->బఫరు_కొలత = 0;
+        కొరకు (;;) {
                 size_t bs;
                 ssize_t n;
 
                 /* Silence static analyzers, MALLOC_SIZEOF_SAFE is at least as large as the allocation */
-                assert(MALLOC_SIZEOF_SAFE(de) >= offsetof(DirectoryEntries, buffer));
-                bs = MIN(MALLOC_SIZEOF_SAFE(de) - offsetof(DirectoryEntries, buffer), (size_t) SSIZE_MAX);
-                assert(bs > de->buffer_size);
+                ప్రతిజ్ఞా(MALLOC_SIZEOF_సురక్షిత(de) >= offsetof(DirectoryEntries, బఫరు));
+                bs = MIN(MALLOC_SIZEOF_సురక్షిత(de) - offsetof(DirectoryEntries, బఫరు), (size_t) SSIZE_MAX);
+                ప్రతిజ్ఞా(bs > de->బఫరు_కొలత);
 
-                n = getdents64(dir_fd, (struct dirent*) ((uint8_t*) de->buffer + de->buffer_size), bs - de->buffer_size);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = getdents64(dir_fd, (నిర్మాణం dirent*) ((uint8_t*) de->బఫరు + de->బఫరు_కొలత), bs - de->బఫరు_కొలత);
+                ఒకవేళ (n < 0)
+                        తిరిగి -errno;
+                ఒకవేళ (n == 0)
+                        ఆపు;
 
-                msan_unpoison((uint8_t*) de->buffer + de->buffer_size, n);
+                msan_unpoison((uint8_t*) de->బఫరు + de->బఫరు_కొలత, n);
 
-                de->buffer_size += n;
+                de->బఫరు_కొలత += n;
 
-                if (de->buffer_size < bs - DIRENT_SIZE_MAX) /* Still room for one more entry, then try to
+                ఒకవేళ (de->బఫరు_కొలత < bs - DIRENT_కొలత_MAX) /* Still room for one more entry, then try to
                                                              * fill it up without growing the structure. */
-                        continue;
+                        కొనసాగు;
 
-                if (bs >= SSIZE_MAX - offsetof(DirectoryEntries, buffer))
-                        return -EFBIG;
-                bs = bs >= (SSIZE_MAX - offsetof(DirectoryEntries, buffer))/2 ? SSIZE_MAX - offsetof(DirectoryEntries, buffer) : bs * 2;
+                ఒకవేళ (bs >= SSIZE_MAX - offsetof(DirectoryEntries, బఫరు))
+                        తిరిగి -EFBIG;
+                bs = bs >= (SSIZE_MAX - offsetof(DirectoryEntries, బఫరు))/2 ? SSIZE_MAX - offsetof(DirectoryEntries, బఫరు) : bs * 2;
 
                 nde = realloc(de, bs);
-                if (!nde)
-                        return -ENOMEM;
+                ఒకవేళ (!nde)
+                        తిరిగి -ENOMEM;
                 de = nde;
         }
 
         de->n_entries = 0;
-        struct dirent *entry;
-        FOREACH_DIRENT_IN_BUFFER(entry, de->buffer, de->buffer_size) {
-                if (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE)) {
-                        r = dirent_ensure_type(dir_fd, entry);
-                        if (r == -ENOENT)
+        నిర్మాణం dirent *నమోదు_2;
+        FOREACH_DIRENT_లోపల_బఫరు(నమోదు_2, de->బఫరు, de->బఫరు_కొలత) {
+                ఒకవేళ (FLAGS_సమితి(flags, RECURSE_DIR_ENSURE_TYPE)) {
+                        r = dirent_ensure_type(dir_fd, నమోదు_2);
+                        ఒకవేళ (r == -ENOENT)
                                 /* dentry gone by now? no problem, let's just suppress it */
-                                continue;
-                        if (r < 0)
-                                return r;
+                                కొనసాగు;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                if (ignore_dirent(entry, flags))
-                        continue;
+                ఒకవేళ (ignore_dirent(నమోదు_2, flags))
+                        కొనసాగు;
 
                 de->n_entries++;
         }
 
         size_t sz, j;
 
-        sz = ALIGN(offsetof(DirectoryEntries, buffer) + de->buffer_size);
-        if (!INC_SAFE(&sz, sizeof(struct dirent*) * de->n_entries))
-                return -ENOMEM;
+        sz = ALIGN(offsetof(DirectoryEntries, బఫరు) + de->బఫరు_కొలత);
+        ఒకవేళ (!INC_సురక్షిత(&sz, పరిమాణం(నిర్మాణం dirent*) * de->n_entries))
+                తిరిగి -ENOMEM;
 
         nde = realloc(de, sz);
-        if (!nde)
-                return -ENOMEM;
+        ఒకవేళ (!nde)
+                తిరిగి -ENOMEM;
         de = nde;
 
-        de->entries = (struct dirent**) ((uint8_t*) de + ALIGN(offsetof(DirectoryEntries, buffer) + de->buffer_size));
+        de->entries = (నిర్మాణం dirent**) ((uint8_t*) de + ALIGN(offsetof(DirectoryEntries, బఫరు) + de->బఫరు_కొలత));
 
         j = 0;
-        FOREACH_DIRENT_IN_BUFFER(entry, de->buffer, de->buffer_size) {
+        FOREACH_DIRENT_లోపల_బఫరు(నమోదు_2, de->బఫరు, de->బఫరు_కొలత) {
                 /* If d_type == DT_UNKNOWN that means we failed to ensure the type in the earlier loop and
                  * didn't include the dentry in de->n_entries and as such should skip it here as well. */
-                if (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE) && entry->d_type == DT_UNKNOWN)
-                        continue;
+                ఒకవేళ (FLAGS_సమితి(flags, RECURSE_DIR_ENSURE_TYPE) && నమోదు_2->d_type == DT_UNKNOWN)
+                        కొనసాగు;
 
-                if (ignore_dirent(entry, flags))
-                        continue;
+                ఒకవేళ (ignore_dirent(నమోదు_2, flags))
+                        కొనసాగు;
 
-                de->entries[j++] = entry;
+                de->entries[j++] = నమోదు_2;
         }
-        assert(j == de->n_entries);
+        ప్రతిజ్ఞా(j == de->n_entries);
 
-        if (FLAGS_SET(flags, RECURSE_DIR_SORT))
-                typesafe_qsort(de->entries, de->n_entries, sort_func);
+        ఒకవేళ (FLAGS_సమితి(flags, RECURSE_DIR_క్రమీకరించు))
+                typesafe_qsort(de->entries, de->n_entries, క్రమీకరించు_func);
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(de);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int readdir_all_at(int fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret) {
-        _cleanup_close_ int dir_fd = -EBADF;
+పూర్ణాంకం readdir_all_at(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, RecurseDirFlags flags, DirectoryEntries **ret) {
+        _cleanup_close_ పూర్ణాంకం dir_fd = -EBADF;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
+        ప్రతిజ్ఞా(fd >= 0 || fd == AT_FDCWD);
 
-        dir_fd = xopenat(fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (dir_fd < 0)
-                return dir_fd;
+        dir_fd = xopenat(fd, మార్గం, O_DIRECTORY|O_CLOEXEC);
+        ఒకవేళ (dir_fd < 0)
+                తిరిగి dir_fd;
 
-        return readdir_all(dir_fd, flags, ret);
+        తిరిగి readdir_all(dir_fd, flags, ret);
 }
 
-int recurse_dir(
-                int dir_fd,
-                const char *path,
-                unsigned statx_mask,
-                unsigned n_depth_max,
+పూర్ణాంకం recurse_dir(
+                పూర్ణాంకం dir_fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                గుర్తులేని statx_ముసుగు,
+                గుర్తులేని n_లోతు_max,
                 RecurseDirFlags flags,
                 recurse_dir_func_t func,
-                void *userdata) {
+                శూన్య *userdata) {
 
-        _cleanup_free_ DirectoryEntries *de = NULL;
-        struct statx root_sx;
-        int r;
+        _cleanup_free_ DirectoryEntries *de = ఖాళీ;
+        నిర్మాణం statx మూలం_sx;
+        పూర్ణాంకం r;
 
-        assert(dir_fd >= 0);
-        assert(func);
+        ప్రతిజ్ఞా(dir_fd >= 0);
+        ప్రతిజ్ఞా(func);
 
         /* We cannot descend into dirs if we are supposed to ignore them */
-        assert((flags & _RECURSE_DIR_MUST_BE_MASK) == 0 || FLAGS_SET(flags, RECURSE_DIR_MUST_BE_DIRECTORY));
+        ప్రతిజ్ఞా((flags & RECURSE_DIR_MUST_BE_ముసుగు) == 0 || FLAGS_సమితి(flags, RECURSE_DIR_MUST_BE_DIRECTORY));
 
         /* This is a lot like ftw()/nftw(), but a lot more modern, i.e. built around openat()/statx()/O_PATH,
          * and under the assumption that fds are not as 'expensive' as they used to be. */
 
-        if (n_depth_max == 0)
-                return -EOVERFLOW;
-        if (n_depth_max == UINT_MAX) /* special marker for "default" */
-                n_depth_max = DEFAULT_RECURSION_MAX;
+        ఒకవేళ (n_లోతు_max == 0)
+                తిరిగి -EOVERFLOW;
+        ఒకవేళ (n_లోతు_max == UINT_MAX) /* special marker for "default" */
+                n_లోతు_max = DEFAULT_RECURSION_MAX;
 
-        if (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
-                if (statx_mask != 0) {
-                        if (statx(dir_fd, "", AT_EMPTY_PATH, statx_mask, &root_sx) < 0)
-                                return -errno;
+        ఒకవేళ (FLAGS_సమితి(flags, RECURSE_DIR_TOPLEVEL)) {
+                ఒకవేళ (statx_ముసుగు != 0) {
+                        ఒకవేళ (statx(dir_fd, "", AT_ఖాళీలు_మార్గం, statx_ముసుగు, &మూలం_sx) < 0)
+                                తిరిగి -errno;
                 }
 
                 r = func(RECURSE_DIR_ENTER,
-                         path,
+                         మార్గం,
                          -EBADF, /* we have no parent fd */
                          dir_fd,
-                         NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         ఖాళీ, /* we have no dirent */
+                         statx_ముసుగు != 0 ? &మూలం_sx : ఖాళీ,
                          userdata);
-                if (IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY))
-                        return 0;
-                if (r != RECURSE_DIR_CONTINUE)
-                        return r;
+                ఒకవేళ (లోపల_సమితి(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_నమోదు))
+                        తిరిగి 0;
+                ఒకవేళ (r != RECURSE_DIR_CONTINUE)
+                        తిరిగి r;
         }
 
         /* Mask out RECURSE_DIR_ENSURE_TYPE so we can do it ourselves and avoid an extra statx() call. */
         r = readdir_all(dir_fd, flags & ~RECURSE_DIR_ENSURE_TYPE, &de);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        FOREACH_ARRAY(entry, de->entries, de->n_entries) {
-                struct dirent *i = *entry;
-                _cleanup_close_ int inode_fd = -EBADF, subdir_fd = -EBADF;
-                _cleanup_free_ char *joined = NULL;
-                struct statx sx;
+        FOREACH_ARRAY(నమోదు_2, de->entries, de->n_entries) {
+                నిర్మాణం dirent *i = *నమోదు_2;
+                _cleanup_close_ పూర్ణాంకం inode_fd = -EBADF, subdir_fd = -EBADF;
+                _cleanup_free_ అక్షరం *joined = ఖాళీ;
+                నిర్మాణం statx sx;
                 bool sx_valid = false;
-                const char *p;
+                స్థిరరాశి అక్షరం *p;
 
                 /* For each directory entry we'll do one of the following:
                  *
@@ -248,138 +248,138 @@ int recurse_dir(
                  * 3) Otherwise, we'll statx() the directory entry via the directory fd we are currently looking at (if requested)
                  */
 
-                if (path) {
-                        joined = path_join(path, i->d_name);
-                        if (!joined)
-                                return -ENOMEM;
+                ఒకవేళ (మార్గం) {
+                        joined = మార్గం_join(మార్గం, i->d_name);
+                        ఒకవేళ (!joined)
+                                తిరిగి -ENOMEM;
 
                         p = joined;
-                } else
+                } లేకపోతే
                         p = i->d_name;
 
-                if (IN_SET(i->d_type, DT_UNKNOWN, DT_DIR)) {
+                ఒకవేళ (లోపల_సమితి(i->d_type, DT_UNKNOWN, DT_DIR)) {
                         subdir_fd = openat(dir_fd, i->d_name, O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);
-                        if (subdir_fd < 0) {
-                                if (errno == ENOENT) /* Vanished by now, go for next file immediately */
-                                        continue;
+                        ఒకవేళ (subdir_fd < 0) {
+                                ఒకవేళ (errno == ENOENT) /* Vanished by now, go for next file immediately */
+                                        కొనసాగు;
 
                                 /* If it is a subdir but we failed to open it, then fail */
-                                if (!IN_SET(errno, ENOTDIR, ELOOP)) {
+                                ఒకవేళ (!లోపల_సమితి(errno, ENOTDIR, ELOOP)) {
                                         log_debug_errno(errno, "Failed to open directory '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_OPEN_DIR_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE);
+                                        ప్రతిజ్ఞా(errno <= RECURSE_DIR_SKIP_OPEN_DIR_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_DIR_ERROR_పునాది);
 
-                                        r = func(RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_OPEN_DIR_ERROR_పునాది + errno,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ ఖాళీ,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        ఒకవేళ (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                ఆపు;
+                                        ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_నమోదు))
+                                                తిరిగి r;
 
-                                        continue;
+                                        కొనసాగు;
                                 }
 
                                 /* If it's not a subdir, then let's handle it like a regular inode below */
 
-                        } else {
+                        } లేకపోతే {
                                 /* If we managed to get a DIR* off the inode, it's definitely a directory. */
                                 i->d_type = DT_DIR;
 
-                                if (statx_mask != 0 || (flags & RECURSE_DIR_SAME_MOUNT)) {
-                                        if (statx(subdir_fd, "", AT_EMPTY_PATH, statx_mask, &sx) < 0)
-                                                return -errno;
+                                ఒకవేళ (statx_ముసుగు != 0 || (flags & RECURSE_DIR_SAME_MOUNT)) {
+                                        ఒకవేళ (statx(subdir_fd, "", AT_ఖాళీలు_మార్గం, statx_ముసుగు, &sx) < 0)
+                                                తిరిగి -errno;
 
                                         sx_valid = true;
                                 }
                         }
                 }
 
-                if (subdir_fd < 0) {
+                ఒకవేళ (subdir_fd < 0) {
                         /* It's not a subdirectory. */
 
-                        if (flags & RECURSE_DIR_INODE_FD) {
+                        ఒకవేళ (flags & RECURSE_DIR_INODE_FD) {
 
-                                inode_fd = openat(dir_fd, i->d_name, O_PATH|O_NOFOLLOW|O_CLOEXEC);
-                                if (inode_fd < 0) {
-                                        if (errno == ENOENT) /* Vanished by now, go for next file immediately */
-                                                continue;
+                                inode_fd = openat(dir_fd, i->d_name, O_మార్గం|O_NOFOLLOW|O_CLOEXEC);
+                                ఒకవేళ (inode_fd < 0) {
+                                        ఒకవేళ (errno == ENOENT) /* Vanished by now, go for next file immediately */
+                                                కొనసాగు;
 
                                         log_debug_errno(errno, "Failed to open directory entry '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_OPEN_INODE_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE);
+                                        ప్రతిజ్ఞా(errno <= RECURSE_DIR_SKIP_OPEN_INODE_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_INODE_ERROR_పునాది);
 
-                                        r = func(RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_OPEN_INODE_ERROR_పునాది + errno,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ ఖాళీ,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        ఒకవేళ (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                ఆపు;
+                                        ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_నమోదు))
+                                                తిరిగి r;
 
-                                        continue;
+                                        కొనసాగు;
                                 }
 
                                 /* If we open the inode, then verify it's actually a non-directory, like we
                                  * assume. Let's guarantee that we never pass statx data of a directory where
                                  * caller expects a non-directory */
 
-                                if (statx(inode_fd, "", AT_EMPTY_PATH, statx_mask | STATX_TYPE, &sx) < 0)
-                                        return -errno;
+                                ఒకవేళ (statx(inode_fd, "", AT_ఖాళీలు_మార్గం, statx_ముసుగు | STATX_TYPE, &sx) < 0)
+                                        తిరిగి -errno;
 
-                                assert(sx.stx_mask & STATX_TYPE);
+                                ప్రతిజ్ఞా(sx.stx_ముసుగు & STATX_TYPE);
                                 sx_valid = true;
 
-                                if (S_ISDIR(sx.stx_mode)) {
+                                ఒకవేళ (S_ISDIR(sx.stx_బహుళకం)) {
                                         /* What? It's a directory now? Then someone must have quickly
                                          * replaced it. Let's handle that gracefully: convert it to a
                                          * directory fd — which should be riskless now that we pinned the
                                          * inode. */
 
                                         subdir_fd = fd_reopen(inode_fd, O_DIRECTORY|O_CLOEXEC);
-                                        if (subdir_fd < 0)
-                                                return subdir_fd;
+                                        ఒకవేళ (subdir_fd < 0)
+                                                తిరిగి subdir_fd;
 
-                                        inode_fd = safe_close(inode_fd);
+                                        inode_fd = సురక్షిత_close(inode_fd);
                                 }
 
-                        } else if (statx_mask != 0 || (i->d_type == DT_UNKNOWN && (flags & RECURSE_DIR_ENSURE_TYPE))) {
+                        } లేకపోతే ఒకవేళ (statx_ముసుగు != 0 || (i->d_type == DT_UNKNOWN && (flags & RECURSE_DIR_ENSURE_TYPE))) {
 
-                                if (statx(dir_fd, i->d_name, AT_SYMLINK_NOFOLLOW, statx_mask | STATX_TYPE, &sx) < 0) {
-                                        if (errno == ENOENT) /* Vanished by now? Go for next file immediately */
-                                                continue;
+                                ఒకవేళ (statx(dir_fd, i->d_name, AT_SYMLINK_NOFOLLOW, statx_ముసుగు | STATX_TYPE, &sx) < 0) {
+                                        ఒకవేళ (errno == ENOENT) /* Vanished by now? Go for next file immediately */
+                                                కొనసాగు;
 
                                         log_debug_errno(errno, "Failed to stat directory entry '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_STAT_INODE_ERROR_MAX - RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE);
+                                        ప్రతిజ్ఞా(errno <= RECURSE_DIR_SKIP_STAT_INODE_ERROR_MAX - RECURSE_DIR_SKIP_STAT_INODE_ERROR_పునాది);
 
-                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_పునాది + errno,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ ఖాళీ,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        ఒకవేళ (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                ఆపు;
+                                        ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_నమోదు))
+                                                తిరిగి r;
 
-                                        continue;
+                                        కొనసాగు;
                                 }
 
-                                assert(sx.stx_mask & STATX_TYPE);
+                                ప్రతిజ్ఞా(sx.stx_ముసుగు & STATX_TYPE);
                                 sx_valid = true;
 
-                                if (S_ISDIR(sx.stx_mode)) {
+                                ఒకవేళ (S_ISDIR(sx.stx_బహుళకం)) {
                                         /* So it suddenly is a directory, but we couldn't open it as such
                                          * earlier?  That is weird, and probably means somebody is racing
                                          * against us. We could of course retry and open it as a directory
@@ -391,81 +391,81 @@ int recurse_dir(
 
                                         log_debug("Non-directory entry '%s' suddenly became a directory.", p);
 
-                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE + EISDIR,
+                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_పునాది + EISDIR,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ ఖాళీ,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        ఒకవేళ (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                ఆపు;
+                                        ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_నమోదు))
+                                                తిరిగి r;
 
-                                        continue;
+                                        కొనసాగు;
                                 }
                         }
                 }
 
-                if (sx_valid) {
+                ఒకవేళ (sx_valid) {
                         /* Copy over the data we acquired through statx() if we acquired any */
-                        if (sx.stx_mask & STATX_TYPE) {
-                                assert((subdir_fd < 0) == !S_ISDIR(sx.stx_mode));
-                                i->d_type = IFTODT(sx.stx_mode);
+                        ఒకవేళ (sx.stx_ముసుగు & STATX_TYPE) {
+                                ప్రతిజ్ఞా((subdir_fd < 0) == !S_ISDIR(sx.stx_బహుళకం));
+                                i->d_type = IFTODT(sx.stx_బహుళకం);
                         }
 
-                        if (sx.stx_mask & STATX_INO)
+                        ఒకవేళ (sx.stx_ముసుగు & STATX_INO)
                                 i->d_ino = sx.stx_ino;
                 }
 
-                if (subdir_fd >= 0) {
-                        if (FLAGS_SET(flags, RECURSE_DIR_SAME_MOUNT)) {
+                ఒకవేళ (subdir_fd >= 0) {
+                        ఒకవేళ (FLAGS_సమితి(flags, RECURSE_DIR_SAME_MOUNT)) {
                                 bool is_mount;
 
-                                if (sx_valid && FLAGS_SET(sx.stx_attributes_mask, STATX_ATTR_MOUNT_ROOT))
-                                        is_mount = FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_ROOT);
-                                else {
-                                        r = is_mount_point_at(dir_fd, i->d_name, /* flags= */ 0);
-                                        if (r < 0)
+                                ఒకవేళ (sx_valid && FLAGS_సమితి(sx.stx_లక్షణాలు_ముసుగు, STATX_ATTR_MOUNT_మూలం))
+                                        is_mount = FLAGS_సమితి(sx.stx_లక్షణాలు, STATX_ATTR_MOUNT_మూలం);
+                                లేకపోతే {
+                                        r = is_mount_బిందువు_at(dir_fd, i->d_name, /* flags= */ 0);
+                                        ఒకవేళ (r < 0)
                                                 log_debug_errno(r, "Failed to determine whether %s is a submount, assuming not: %m", p);
 
                                         is_mount = r > 0;
                                 }
 
-                                if (is_mount) {
+                                ఒకవేళ (is_mount) {
                                         r = func(RECURSE_DIR_SKIP_MOUNT,
                                                  p,
                                                  dir_fd,
                                                  subdir_fd,
                                                  i,
-                                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                                 statx_ముసుగు != 0 ? &sx : ఖాళీ, /* only pass sx if user asked for it */
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        ఒకవేళ (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                ఆపు;
+                                        ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_నమోదు))
+                                                తిరిగి r;
 
-                                        continue;
+                                        కొనసాగు;
                                 }
                         }
 
-                        if (n_depth_max <= 1) {
+                        ఒకవేళ (n_లోతు_max <= 1) {
                                 /* When we reached max depth, generate a special event */
 
-                                r = func(RECURSE_DIR_SKIP_DEPTH,
+                                r = func(RECURSE_DIR_SKIP_లోతు,
                                          p,
                                          dir_fd,
                                          subdir_fd,
                                          i,
-                                         statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                         statx_ముసుగు != 0 ? &sx : ఖాళీ, /* only pass sx if user asked for it */
                                          userdata);
-                                if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                        break;
-                                if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                        return r;
+                                ఒకవేళ (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                        ఆపు;
+                                ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_నమోదు))
+                                        తిరిగి r;
 
-                                continue;
+                                కొనసాగు;
                         }
 
                         r = func(RECURSE_DIR_ENTER,
@@ -473,90 +473,90 @@ int recurse_dir(
                                  dir_fd,
                                  subdir_fd,
                                  i,
-                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                 statx_ముసుగు != 0 ? &sx : ఖాళీ, /* only pass sx if user asked for it */
                                  userdata);
-                        if (r == RECURSE_DIR_CONTINUE) {
+                        ఒకవేళ (r == RECURSE_DIR_CONTINUE) {
                                 r = recurse_dir(subdir_fd,
                                                 p,
-                                                statx_mask,
-                                                n_depth_max - 1,
+                                                statx_ముసుగు,
+                                                n_లోతు_max - 1,
                                                 flags & ~RECURSE_DIR_TOPLEVEL, /* we already called the callback for this entry */
                                                 func,
                                                 userdata);
-                                if (r != 0)
-                                        return r;
+                                ఒకవేళ (r != 0)
+                                        తిరిగి r;
 
                                 r = func(RECURSE_DIR_LEAVE,
                                          p,
                                          dir_fd,
                                          subdir_fd,
                                          i,
-                                         statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                         statx_ముసుగు != 0 ? &sx : ఖాళీ, /* only pass sx if user asked for it */
                                          userdata);
                         }
-                } else
+                } లేకపోతే
                         /* Non-directory inode */
-                        r = func(RECURSE_DIR_ENTRY,
+                        r = func(RECURSE_DIR_నమోదు,
                                  p,
                                  dir_fd,
                                  inode_fd,
                                  i,
-                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                 statx_ముసుగు != 0 ? &sx : ఖాళీ, /* only pass sx if user asked for it */
                                  userdata);
 
-                if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                        break;
+                ఒకవేళ (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                        ఆపు;
 
-                if (IN_SET(r, RECURSE_DIR_UNLINK, RECURSE_DIR_UNLINK_GRACEFUL)) {
-                        int f = subdir_fd >= 0 ? AT_REMOVEDIR : 0;
+                ఒకవేళ (లోపల_సమితి(r, RECURSE_DIR_UNLINK, RECURSE_DIR_UNLINK_GRACEFUL)) {
+                        పూర్ణాంకం f = subdir_fd >= 0 ? AT_REMOVEDIR : 0;
 
                         /* Close inodes before we try to delete them */
-                        subdir_fd = safe_close(subdir_fd);
-                        inode_fd = safe_close(inode_fd);
+                        subdir_fd = సురక్షిత_close(subdir_fd);
+                        inode_fd = సురక్షిత_close(inode_fd);
 
-                        if (unlinkat(dir_fd, i->d_name, f) < 0) {
-                                if (r != RECURSE_DIR_UNLINK_GRACEFUL)
-                                        return -errno;
+                        ఒకవేళ (unlinkat(dir_fd, i->d_name, f) < 0) {
+                                ఒకవేళ (r != RECURSE_DIR_UNLINK_GRACEFUL)
+                                        తిరిగి -errno;
 
                                 log_debug_errno(errno, "Unable to remove '%s', ignoring: %m", p);
                         }
-                } else if (!IN_SET(r, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
-                        return r;
+                } లేకపోతే ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_SKIP_నమోదు, RECURSE_DIR_CONTINUE))
+                        తిరిగి r;
         }
 
-        if (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
+        ఒకవేళ (FLAGS_సమితి(flags, RECURSE_DIR_TOPLEVEL)) {
 
                 r = func(RECURSE_DIR_LEAVE,
-                         path,
+                         మార్గం,
                          -EBADF, /* we have no parent fd */
                          dir_fd,
-                         NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         ఖాళీ, /* we have no dirent */
+                         statx_ముసుగు != 0 ? &మూలం_sx : ఖాళీ,
                          userdata);
-                if (!IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
-                        return r;
+                ఒకవేళ (!లోపల_సమితి(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_నమోదు, RECURSE_DIR_CONTINUE))
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int recurse_dir_at(
-                int atfd,
-                const char *path,
-                unsigned statx_mask,
-                unsigned n_depth_max,
+పూర్ణాంకం recurse_dir_at(
+                పూర్ణాంకం atfd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                గుర్తులేని statx_ముసుగు,
+                గుర్తులేని n_లోతు_max,
                 RecurseDirFlags flags,
                 recurse_dir_func_t func,
-                void *userdata) {
+                శూన్య *userdata) {
 
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
 
-        assert(atfd >= 0 || atfd == AT_FDCWD);
-        assert(func);
+        ప్రతిజ్ఞా(atfd >= 0 || atfd == AT_FDCWD);
+        ప్రతిజ్ఞా(func);
 
-        fd = openat(atfd, path ?: ".", O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        fd = openat(atfd, మార్గం ?: ".", O_DIRECTORY|O_CLOEXEC);
+        ఒకవేళ (fd < 0)
+                తిరిగి -errno;
 
-        return recurse_dir(fd, path, statx_mask, n_depth_max, flags, func, userdata);
+        తిరిగి recurse_dir(fd, మార్గం, statx_ముసుగు, n_లోతు_max, flags, func, userdata);
 }

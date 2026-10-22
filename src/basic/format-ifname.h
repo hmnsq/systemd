@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <net/if.h>
+#అన్తర్భావ <net/if.h>
 
-typedef enum {
+రకనిర్వచనం గణన {
         FORMAT_IFNAME_IFINDEX              = 1 << 0,
         FORMAT_IFNAME_IFINDEX_WITH_PERCENT = (1 << 1) | FORMAT_IFNAME_IFINDEX,
 } FormatIfnameFlag;
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]);
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret);
+పూర్ణాంకం format_ifname_నిండిన(పూర్ణాంకం ifindex, FormatIfnameFlag flag, అక్షరం buf[స్థిర IF_NAMESIZE]);
+పూర్ణాంకం format_ifname_నిండిన_alloc(పూర్ణాంకం ifindex, FormatIfnameFlag flag, అక్షరం **ret);
 
-static inline int format_ifname(int ifindex, char buf[static IF_NAMESIZE]) {
-        return format_ifname_full(ifindex, 0, buf);
+స్థిర అంతఃవరుస పూర్ణాంకం format_ifname(పూర్ణాంకం ifindex, అక్షరం buf[స్థిర IF_NAMESIZE]) {
+        తిరిగి format_ifname_నిండిన(ifindex, 0, buf);
 }
-static inline int format_ifname_alloc(int ifindex, char **ret) {
-        return format_ifname_full_alloc(ifindex, 0, ret);
-}
-
-static inline char* _format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        (void) format_ifname_full(ifindex, flag, buf);
-        return buf;
+స్థిర అంతఃవరుస పూర్ణాంకం format_ifname_alloc(పూర్ణాంకం ifindex, అక్షరం **ret) {
+        తిరిగి format_ifname_నిండిన_alloc(ifindex, 0, ret);
 }
 
-#define FORMAT_IFNAME_FULL(index, flag) _format_ifname_full(index, flag, (char[IF_NAMESIZE]){})
-#define FORMAT_IFNAME(index) _format_ifname_full(index, 0, (char[IF_NAMESIZE]){})
+స్థిర అంతఃవరుస అక్షరం* format_ifname_నిండిన_2(పూర్ణాంకం ifindex, FormatIfnameFlag flag, అక్షరం buf[స్థిర IF_NAMESIZE]) {
+        (శూన్య) format_ifname_నిండిన(ifindex, flag, buf);
+        తిరిగి buf;
+}
+
+#నిర్వచించు FORMAT_IFNAME_నిండిన(index, flag) format_ifname_నిండిన_2(index, flag, (అక్షరం[IF_NAMESIZE]){})
+#నిర్వచించు FORMAT_IFNAME(index) format_ifname_నిండిన_2(index, 0, (అక్షరం[IF_NAMESIZE]){})

@@ -4,13 +4,13 @@
   Copyright © 2016 Michael Karcher
 ***/
 
-#include <errno.h>                      /* IWYU pragma: keep */
-#include <sched.h>
-#include <sys/syscall.h>                /* IWYU pragma: keep */
-#include <unistd.h>
+#అన్తర్భావ <errno.h>                      /* IWYU pragma: keep */
+#అన్తర్భావ <sched.h>
+#అన్తర్భావ <sys/syscall.h>                /* IWYU pragma: keep */
+#అన్తర్భావ <unistd.h>
 
-#include "process-util.h"
-#include "raw-clone.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "raw-clone.h"
 
 /**
  * raw_clone() - uses clone to create a new process with clone flags
@@ -34,15 +34,15 @@
  *
  * Returns: 0 in the child process and the child process id in the parent.
  */
-pid_t raw_clone(unsigned long flags) {
+pid_t raw_clone(గుర్తులేని దీర్ఘ flags) {
         pid_t ret;
 
-        assert((flags & (CLONE_VM|CLONE_PARENT_SETTID|CLONE_CHILD_SETTID|CLONE_CHILD_CLEARTID|CLONE_SETTLS|CLONE_PIDFD)) == 0);
-#if defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
+        ప్రతిజ్ఞా((flags & (CLONE_VM|CLONE_మాతృ_SETTID|CLONE_బిడ్డ_SETTID|CLONE_బిడ్డ_CLEARTID|CLONE_SETTLS|CLONE_PIDFD)) == 0);
+#ఒకవేళ defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
         /* On s390/s390x and cris the order of the first and second arguments
          * of the raw clone() system call is reversed. */
-        ret = (pid_t) syscall(__NR_clone, NULL, flags);
-#elif defined(__sparc__)
+        ret = (pid_t) syscall(__NR_clone, ఖాళీ, flags);
+#లేదావేళ defined(__sparc__)
         {
                 /**
                  * sparc always returns the other process id in %o0, and
@@ -50,35 +50,35 @@ pid_t raw_clone(unsigned long flags) {
                  * %o1. Inline assembly is needed to get the flag returned
                  * in %o1.
                  */
-                int in_child, child_pid, error;
+                పూర్ణాంకం లోపల_బిడ్డ, బిడ్డ_pid, error;
 
-                asm volatile("mov %3, %%g1\n\t"
+                asm అస్థిర("mov %3, %%g1\n\t"
                              "mov %4, %%o0\n\t"
                              "mov 0 , %%o1\n\t"
-#if defined(__arch64__)
+#ఒకవేళ defined(__arch64__)
                              "t 0x6d\n\t"
-#else
+#లేకపోతే
                              "t 0x10\n\t"
-#endif
+#అయితే_ముగింపు
                              "addx %%g0, 0, %2\n\t"
                              "mov %%o1, %0\n\t"
                              "mov %%o0, %1" :
-                             "=r"(in_child), "=r"(child_pid), "=r"(error) :
+                             "=r"(లోపల_బిడ్డ), "=r"(బిడ్డ_pid), "=r"(error) :
                              "i"(__NR_clone), "r"(flags) :
                              "%o1", "%o0", "%g1", "cc" );
 
-                if (error) {
-                        errno = child_pid;
+                ఒకవేళ (error) {
+                        errno = బిడ్డ_pid;
                         ret = -1;
-                } else
-                        ret = in_child ? 0 : child_pid;
+                } లేకపోతే
+                        ret = లోపల_బిడ్డ ? 0 : బిడ్డ_pid;
         }
-#else
-        ret = (pid_t) syscall(__NR_clone, flags, NULL);
-#endif
+#లేకపోతే
+        ret = (pid_t) syscall(__NR_clone, flags, ఖాళీ);
+#అయితే_ముగింపు
 
-        if (ret == 0)
+        ఒకవేళ (ret == 0)
                 reset_cached_pid();
 
-        return ret;
+        తిరిగి ret;
 }

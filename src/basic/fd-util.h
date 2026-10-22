@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <dirent.h>
-#include <fcntl.h>
-#include <stdio.h>
+#అన్తర్భావ <dirent.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <stdio.h>
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
 /* maximum length of fdname */
-#define FDNAME_MAX 255
+#నిర్వచించు FDNAME_MAX 255
 
 /* Make sure we can distinguish fd 0 and NULL */
-#define FD_TO_PTR(fd) INT_TO_PTR((fd)+1)
-#define PTR_TO_FD(p) (PTR_TO_INT(p)-1)
+#నిర్వచించు FD_గమ్యం_PTR(fd) INT_గమ్యం_PTR((fd)+1)
+#నిర్వచించు PTR_గమ్యం_FD(p) (PTR_గమ్యం_INT(p)-1)
 
 /* Useful helpers for initializing pipe(), socketpair() or stdio fd arrays */
-#define EBADF_PAIR { -EBADF, -EBADF }
-#define EBADF_TRIPLET { -EBADF, -EBADF, -EBADF }
+#నిర్వచించు EBADF_PAIR { -EBADF, -EBADF }
+#నిర్వచించు EBADF_TRIPLET { -EBADF, -EBADF, -EBADF }
 
 /* So O_LARGEFILE is generally implied by glibc, and defined to zero hence, because we only build in LFS
  * mode. However, when invoking fcntl(F_GETFL) the flag is ORed into the result anyway — glibc does not mask
@@ -26,10 +26,10 @@
  * are hexa and others are octal; duplicated as-is from the kernel definitions):
  * - alpha, arm, arm64, m68k, mips, parisc, powerpc, sparc: each has a specific value;
  * - others: they use the "generic" value (defined in include/uapi/asm-generic/fcntl.h) */
-#if O_LARGEFILE != 0
+#ఒకవేళ O_LARGEFILE != 0
 #  define RAW_O_LARGEFILE O_LARGEFILE
-#else
-#  if defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
+#లేకపోతే
+#  ఒకవేళ defined(__alpha__) || defined(__arm__) || defined(__aarch64__) || defined(__m68k__)
 #    define RAW_O_LARGEFILE 0400000
 #  elif defined(__mips__)
 #    define RAW_O_LARGEFILE 0x2000
@@ -39,185 +39,185 @@
 #    define RAW_O_LARGEFILE 0200000
 #  elif defined(__sparc__)
 #    define RAW_O_LARGEFILE 0x40000
-#  else
+#  లేకపోతే
 #    define RAW_O_LARGEFILE 00100000
 #  endif
-#endif
+#అయితే_ముగింపు
 
 /* On musl, O_ACCMODE is defined as (03|O_SEARCH), unlike glibc which defines it as
  * (O_RDONLY|O_WRONLY|O_RDWR). Additionally, O_SEARCH is simply defined as O_PATH. This changes the behaviour
  * of O_ACCMODE in certain situations, which we don't want. This definition is copied from glibc and works
  * around the problems with musl's definition. */
-#define O_ACCMODE_STRICT (O_RDONLY|O_WRONLY|O_RDWR)
+#నిర్వచించు O_ACCMODE_STRICT (O_RDONLY|O_WRONLY|O_RDWR)
 
 /* The default, minimum, and maximum values of /proc/sys/fs/nr_open. See kernel's fs/file.c.
  * These values have been unchanged since kernel-2.6.26:
  * https://github.com/torvalds/linux/commit/eceea0b3df05ed262ae32e0c6340cc7a3626632d */
-#define NR_OPEN_DEFAULT ((unsigned) (1024 * 1024))
-#define NR_OPEN_MINIMUM ((unsigned) (sizeof(long) * 8))
-#define NR_OPEN_MAXIMUM ((unsigned) (CONST_MIN((size_t) INT_MAX, SIZE_MAX / __SIZEOF_POINTER__) & ~(sizeof(long) * 8 - 1)))
+#నిర్వచించు NR_OPEN_DEFAULT ((గుర్తులేని) (1024 * 1024))
+#నిర్వచించు NR_OPEN_MINIMUM ((గుర్తులేని) (పరిమాణం(దీర్ఘ) * 8))
+#నిర్వచించు NR_OPEN_గరిష్ఠ ((గుర్తులేని) (CONST_MIN((size_t) గరిష్ఠ_పూర్ణాంకం, SIZE_MAX / __SIZEOF_POINTER__) & ~(పరిమాణం(దీర్ఘ) * 8 - 1)))
 
 /* A special fd that can be passed in various helpers instead of an fd indicating the root dir. Inspired by,
  * and an alternative to AT_FDCWD. We use specific negative value that is outside of the negative errno
  * range, to avoid any potential ambiguities. */
-#define XAT_FDROOT -8192
+#నిర్వచించు XAT_FDROOT -8192
 assert_cc(XAT_FDROOT != AT_FDCWD);
 assert_cc(XAT_FDROOT < -ERRNO_MAX);
 
 /* Checks whether the specified fd is acceptable as a *at() directory fd that supports the two "wildcard"
  * values: it's either a regular, valid fd (i.e. >= 0), or one of the special AT_FDCWD/XAT_FDROOT values. */
-static inline bool wildcard_fd_is_valid(int fd) {
-        return fd >= 0 || IN_SET(fd, AT_FDCWD, XAT_FDROOT);
+స్థిర అంతఃవరుస bool wildcard_fd_is_valid(పూర్ణాంకం fd) {
+        తిరిగి fd >= 0 || లోపల_సమితి(fd, AT_FDCWD, XAT_FDROOT);
 }
 
-int close_nointr(int fd);
-int safe_close(int fd);
-void safe_close_pair(int p[static 2]);
+పూర్ణాంకం close_nointr(పూర్ణాంకం fd);
+పూర్ణాంకం సురక్షిత_close(పూర్ణాంకం fd);
+శూన్య సురక్షిత_close_pair(పూర్ణాంకం p[స్థిర 2]);
 
-static inline int safe_close_above_stdio(int fd) {
-        if (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
-                return -EBADF;
+స్థిర అంతఃవరుస పూర్ణాంకం సురక్షిత_close_above_stdio(పూర్ణాంకం fd) {
+        ఒకవేళ (fd < 3) /* Don't close stdin/stdout/stderr, but still invalidate the fd by returning -EBADF. */
+                తిరిగి -EBADF;
 
-        return safe_close(fd);
+        తిరిగి సురక్షిత_close(fd);
 }
 
-static inline void* close_fd_ptr(void *p) {
-        safe_close(PTR_TO_FD(p));
-        return NULL;
+స్థిర అంతఃవరుస శూన్య* close_fd_ptr(శూన్య *p) {
+        సురక్షిత_close(PTR_గమ్యం_FD(p));
+        తిరిగి ఖాళీ;
 }
 
-void close_many(const int fds[], size_t n_fds);
-void close_many_unset(int fds[], size_t n_fds);
-void close_many_and_free(int *fds, size_t n_fds);
+శూన్య close_many(స్థిరరాశి పూర్ణాంకం fds[], size_t n_fds);
+శూన్య close_many_unset(పూర్ణాంకం fds[], size_t n_fds);
+శూన్య close_many_and_free(పూర్ణాంకం *fds, size_t n_fds);
 
-int fclose_nointr(FILE *f);
-FILE* safe_fclose(FILE *f);
-DIR* safe_closedir(DIR *d);
+పూర్ణాంకం fclose_nointr(FILE *f);
+FILE* సురక్షిత_fclose(FILE *f);
+DIR* సురక్షిత_closedir(DIR *d);
 
-static inline void closep(int *fd) {
-        safe_close(*fd);
+స్థిర అంతఃవరుస శూన్య closep(పూర్ణాంకం *fd) {
+        సురక్షిత_close(*fd);
 }
 
-static inline void close_pairp(int (*p)[2]) {
-        safe_close_pair(*p);
+స్థిర అంతఃవరుస శూన్య close_pairp(పూర్ణాంకం (*p)[2]) {
+        సురక్షిత_close_pair(*p);
 }
 
-static inline void fclosep(FILE **f) {
-        safe_fclose(*f);
+స్థిర అంతఃవరుస శూన్య fclosep(FILE **f) {
+        సురక్షిత_fclose(*f);
 }
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, pclose, NULL);
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(DIR*, closedir, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_నిండిన(FILE*, pclose, ఖాళీ);
+DEFINE_TRIVIAL_CLEANUP_FUNC_నిండిన(DIR*, closedir, ఖాళీ);
 
-#define _cleanup_close_ _cleanup_(closep)
-#define _cleanup_fclose_ _cleanup_(fclosep)
-#define _cleanup_pclose_ _cleanup_(pclosep)
-#define _cleanup_closedir_ _cleanup_(closedirp)
-#define _cleanup_close_pair_ _cleanup_(close_pairp)
+#నిర్వచించు _cleanup_close_ _cleanup_(closep)
+#నిర్వచించు _cleanup_fclose_ _cleanup_(fclosep)
+#నిర్వచించు _cleanup_pclose_ _cleanup_(pclosep)
+#నిర్వచించు _cleanup_closedir_ _cleanup_(closedirp)
+#నిర్వచించు _cleanup_close_pair_ _cleanup_(close_pairp)
 
-int fd_nonblock(int fd, bool nonblock);
-int stdio_disable_nonblock(void);
+పూర్ణాంకం fd_nonblock(పూర్ణాంకం fd, bool nonblock);
+పూర్ణాంకం stdio_disable_nonblock(శూన్య);
 
-void nonblock_resetp(int *fd);
+శూన్య nonblock_resetp(పూర్ణాంకం *fd);
 
-int fd_cloexec(int fd, bool cloexec);
-int fd_cloexec_many(const int fds[], size_t n_fds, bool cloexec);
+పూర్ణాంకం fd_cloexec(పూర్ణాంకం fd, bool cloexec);
+పూర్ణాంకం fd_cloexec_many(స్థిరరాశి పూర్ణాంకం fds[], size_t n_fds, bool cloexec);
 
-int get_max_fd(void);
+పూర్ణాంకం get_max_fd(శూన్య);
 
-int close_all_fds(const int except[], size_t n_except);
-int close_all_fds_without_malloc(const int except[], size_t n_except);
-int close_all_fds_frugal(const int except[], size_t n_except);
+పూర్ణాంకం close_all_fds(స్థిరరాశి పూర్ణాంకం except[], size_t n_except);
+పూర్ణాంకం close_all_fds_without_malloc(స్థిరరాశి పూర్ణాంకం except[], size_t n_except);
+పూర్ణాంకం close_all_fds_frugal(స్థిరరాశి పూర్ణాంకం except[], size_t n_except);
 
-int pack_fds(int fds[], size_t n);
+పూర్ణాంకం pack_fds(పూర్ణాంకం fds[], size_t n);
 
-int fd_validate(int fd);
-int same_fd(int a, int b);
+పూర్ణాంకం fd_validate(పూర్ణాంకం fd);
+పూర్ణాంకం same_fd(పూర్ణాంకం a, పూర్ణాంకం b);
 
-bool fdname_is_valid(const char *s);
+bool fdname_is_valid(స్థిరరాశి అక్షరం *s);
 
-int fd_get_path(int fd, char **ret);
+పూర్ణాంకం fd_get_మార్గం(పూర్ణాంకం fd, అక్షరం **ret);
 
-int move_fd(int from, int to, int cloexec);
+పూర్ణాంకం move_fd(పూర్ణాంకం from, పూర్ణాంకం to, పూర్ణాంకం cloexec);
 
-int fd_move_above_stdio(int fd);
+పూర్ణాంకం fd_move_above_stdio(పూర్ణాంకం fd);
 
-int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);
+పూర్ణాంకం rearrange_stdio(పూర్ణాంకం original_ఆదానం_fd, పూర్ణాంకం original_output_fd, పూర్ణాంకం original_error_fd);
 
-static inline int make_null_stdio(void) {
-        return rearrange_stdio(-EBADF, -EBADF, -EBADF);
+స్థిర అంతఃవరుస పూర్ణాంకం make_null_stdio(శూన్య) {
+        తిరిగి rearrange_stdio(-EBADF, -EBADF, -EBADF);
 }
 
 /* Like TAKE_PTR() but for file descriptors, resetting them to -EBADF */
-#define TAKE_FD(fd) TAKE_GENERIC(fd, int, -EBADF)
+#నిర్వచించు TAKE_FD(fd) TAKE_GENERIC(fd, పూర్ణాంకం, -EBADF)
 
 /* Like free_and_replace(), but for file descriptors */
-#define close_and_replace(a, b)                 \
+#నిర్వచించు close_and_replace(a, b)                 \
         ({                                      \
-                int *_fdp_ = &(a);              \
-                safe_close(*_fdp_);             \
+                పూర్ణాంకం *_fdp_ = &(a);              \
+                సురక్షిత_close(*_fdp_);             \
                 *_fdp_ = TAKE_FD(b);            \
                 0;                              \
         })
 
-int fd_reopen(int fd, int flags);
-int fd_reopen_propagate_append_and_position(int fd, int flags);
-int fd_reopen_condition(int fd, int flags, int mask, int *ret_new_fd);
+పూర్ణాంకం fd_reopen(పూర్ణాంకం fd, పూర్ణాంకం flags);
+పూర్ణాంకం fd_reopen_propagate_append_and_position(పూర్ణాంకం fd, పూర్ణాంకం flags);
+పూర్ణాంకం fd_reopen_condition(పూర్ణాంకం fd, పూర్ణాంకం flags, పూర్ణాంకం ముసుగు_3, పూర్ణాంకం *ret_new_fd);
 
-int fd_is_opath(int fd);
-int fd_vet_accmode(int fd, int mode);
-int fd_is_writable(int fd);
+పూర్ణాంకం fd_is_opath(పూర్ణాంకం fd);
+పూర్ణాంకం fd_vet_accmode(పూర్ణాంకం fd, పూర్ణాంకం బహుళకం);
+పూర్ణాంకం fd_is_writable(పూర్ణాంకం fd);
 
-int fd_verify_safe_flags_full(int fd, int extra_flags);
-static inline int fd_verify_safe_flags(int fd) {
-        return fd_verify_safe_flags_full(fd, 0);
+పూర్ణాంకం fd_verify_సురక్షిత_flags_నిండిన(పూర్ణాంకం fd, పూర్ణాంకం extra_flags);
+స్థిర అంతఃవరుస పూర్ణాంకం fd_verify_సురక్షిత_flags(పూర్ణాంకం fd) {
+        తిరిగి fd_verify_సురక్షిత_flags_నిండిన(fd, 0);
 }
 
-unsigned read_nr_open(void);
-int fd_get_diskseq(int fd, uint64_t *ret);
+గుర్తులేని read_nr_open(శూన్య);
+పూర్ణాంకం fd_get_diskseq(పూర్ణాంకం fd, uint64_t *ret);
 
-int path_is_root_at(int dir_fd, const char *path);
-static inline int path_is_root(const char *path) {
-        return path_is_root_at(AT_FDCWD, path);
+పూర్ణాంకం మార్గం_is_మూలం_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం);
+స్థిర అంతఃవరుస పూర్ణాంకం మార్గం_is_మూలం(స్థిరరాశి అక్షరం *మార్గం) {
+        తిరిగి మార్గం_is_మూలం_at(AT_FDCWD, మార్గం);
 }
-static inline int dir_fd_is_root(int dir_fd) {
-        return dir_fd == XAT_FDROOT ? true : path_is_root_at(dir_fd, NULL);
+స్థిర అంతఃవరుస పూర్ణాంకం dir_fd_is_మూలం(పూర్ణాంకం dir_fd) {
+        తిరిగి dir_fd == XAT_FDROOT ? true : మార్గం_is_మూలం_at(dir_fd, ఖాళీ);
 }
-static inline int dir_fd_is_root_or_cwd(int dir_fd) {
-        return IN_SET(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : path_is_root_at(dir_fd, NULL);
+స్థిర అంతఃవరుస పూర్ణాంకం dir_fd_is_మూలం_or_cwd(పూర్ణాంకం dir_fd) {
+        తిరిగి లోపల_సమితి(dir_fd, AT_FDCWD, XAT_FDROOT) ? true : మార్గం_is_మూలం_at(dir_fd, ఖాళీ);
 }
 
-int fds_inode_and_mount_same(int fd1, int fd2);
+పూర్ణాంకం fds_inode_and_mount_same(పూర్ణాంకం fd1, పూర్ణాంకం fd2);
 
-int resolve_xat_fdroot(int *fd, const char **path, char **ret_buffer);
+పూర్ణాంకం resolve_xat_fdroot(పూర్ణాంకం *fd, స్థిరరాశి అక్షరం **మార్గం, అక్షరం **ret_బఫరు);
 
 /* The maximum length a buffer for a /proc/self/fd/<fd> path needs */
-#define PROC_FD_PATH_MAX \
-        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(int))
+#నిర్వచించు PROC_FD_మార్గం_MAX \
+        (STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(పూర్ణాంకం))
 
-char* format_proc_fd_path(char buf[static PROC_FD_PATH_MAX], int fd);
+అక్షరం* format_proc_fd_మార్గం(అక్షరం buf[స్థిర PROC_FD_మార్గం_MAX], పూర్ణాంకం fd);
 
-#define FORMAT_PROC_FD_PATH(fd) \
-        format_proc_fd_path((char[PROC_FD_PATH_MAX]) {}, (fd))
+#నిర్వచించు FORMAT_PROC_FD_మార్గం(fd) \
+        format_proc_fd_మార్గం((అక్షరం[PROC_FD_మార్గం_MAX]) {}, (fd))
 
 /* The maximum length a buffer for a /proc/<pid>/fd/<fd> path needs */
-#define PROC_PID_FD_PATH_MAX \
-        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(int))
+#నిర్వచించు PROC_PID_FD_మార్గం_MAX \
+        (STRLEN("/proc//fd/") + DECIMAL_STR_MAX(pid_t) + DECIMAL_STR_MAX(పూర్ణాంకం))
 
-char* format_proc_pid_fd_path(char buf[static PROC_PID_FD_PATH_MAX], pid_t pid, int fd);
+అక్షరం* format_proc_pid_fd_మార్గం(అక్షరం buf[స్థిర PROC_PID_FD_మార్గం_MAX], pid_t pid, పూర్ణాంకం fd);
 
 /* Kinda the same as FORMAT_PROC_FD_PATH(), but goes by PID rather than "self" symlink */
-#define FORMAT_PROC_PID_FD_PATH(pid, fd)                                \
-        format_proc_pid_fd_path((char[PROC_PID_FD_PATH_MAX]) {}, (pid), (fd))
+#నిర్వచించు FORMAT_PROC_PID_FD_మార్గం(pid, fd)                                \
+        format_proc_pid_fd_మార్గం((అక్షరం[PROC_PID_FD_మార్గం_MAX]) {}, (pid), (fd))
 
-int proc_fd_enoent_errno(void);
+పూర్ణాంకం proc_fd_enoent_errno(శూన్య);
 
-const char* accmode_to_string(int flags);
+స్థిరరాశి అక్షరం* accmode_గమ్యం_string(పూర్ణాంకం flags);
 
 /* Like ASSERT_PTR, but for fds */
-#define ASSERT_FD(fd)                           \
+#నిర్వచించు ASSERT_FD(fd)                           \
         ({                                      \
-                int _fd_ = (fd);                \
-                assert(_fd_ >= 0);              \
+                పూర్ణాంకం _fd_ = (fd);                \
+                ప్రతిజ్ఞా(_fd_ >= 0);              \
                 _fd_;                           \
         })

@@ -1,97 +1,97 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
+#అన్తర్భావ <threads.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "iovec-util.h"
-#include "log.h"
-#include "log-context.h"
-#include "string-util.h"
-#include "strv.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "env-util.h"
+#అన్తర్భావ "iovec-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "log-context.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
 
-static int saved_log_context_enabled = -1;
-static thread_local LIST_HEAD(LogContext, _log_context) = NULL;
-static thread_local size_t _log_context_num_fields = 0;
+స్థిర పూర్ణాంకం saved_log_context_enabled = -1;
+స్థిర thread_local LIST_తల(LogContext, _log_context) = ఖాళీ;
+స్థిర thread_local size_t log_context_అంకె_fields = 0;
 
-bool log_context_enabled(void) {
-        int r;
+bool log_context_enabled(శూన్య) {
+        పూర్ణాంకం r;
 
-        if (log_get_max_level() == LOG_DEBUG)
-                return true;
+        ఒకవేళ (log_get_max_level() == LOG_DEBUG)
+                తిరిగి true;
 
-        if (saved_log_context_enabled >= 0)
-                return saved_log_context_enabled;
+        ఒకవేళ (saved_log_context_enabled >= 0)
+                తిరిగి saved_log_context_enabled;
 
         r = secure_getenv_bool("SYSTEMD_ENABLE_LOG_CONTEXT");
-        if (r < 0 && r != -ENXIO)
+        ఒకవేళ (r < 0 && r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_ENABLE_LOG_CONTEXT, ignoring: %m");
 
         saved_log_context_enabled = r > 0;
 
-        return saved_log_context_enabled;
+        తిరిగి saved_log_context_enabled;
 }
 
-static LogContext* log_context_attach(LogContext *c) {
-        assert(c);
+స్థిర LogContext* log_context_attach(LogContext *c) {
+        ప్రతిజ్ఞా(c);
 
-        _log_context_num_fields += strv_length(c->fields);
-        _log_context_num_fields += c->n_input_iovec;
-        _log_context_num_fields += !!c->key;
+        log_context_అంకె_fields += strv_నిడివి(c->fields);
+        log_context_అంకె_fields += c->n_ఆదానం_iovec;
+        log_context_అంకె_fields += !!c->కీలకం;
 
-        return LIST_PREPEND(ll, _log_context, c);
+        తిరిగి LIST_PREPEND(ll, _log_context, c);
 }
 
-static LogContext* log_context_detach(LogContext *c) {
-        if (!c)
-                return NULL;
+స్థిర LogContext* log_context_detach(LogContext *c) {
+        ఒకవేళ (!c)
+                తిరిగి ఖాళీ;
 
-        assert(_log_context_num_fields >= strv_length(c->fields) + c->n_input_iovec +!!c->key);
-        _log_context_num_fields -= strv_length(c->fields);
-        _log_context_num_fields -= c->n_input_iovec;
-        _log_context_num_fields -= !!c->key;
+        ప్రతిజ్ఞా(log_context_అంకె_fields >= strv_నిడివి(c->fields) + c->n_ఆదానం_iovec +!!c->కీలకం);
+        log_context_అంకె_fields -= strv_నిడివి(c->fields);
+        log_context_అంకె_fields -= c->n_ఆదానం_iovec;
+        log_context_అంకె_fields -= !!c->కీలకం;
 
         LIST_REMOVE(ll, _log_context, c);
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-LogContext* log_context_new(const char *key, const char *value) {
-        assert(key);
-        assert(endswith(key, "="));
+LogContext* log_context_new(స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        ప్రతిజ్ఞా(కీలకం);
+        ప్రతిజ్ఞా(endswith(కీలకం, "="));
 
-        if (!value)
-                return NULL;
+        ఒకవేళ (!విలువ)
+                తిరిగి ఖాళీ;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->key == key && i->value == value)
-                        return log_context_ref(i);
+                ఒకవేళ (i->కీలకం == కీలకం && i->విలువ == విలువ)
+                        తిరిగి log_context_ref(i);
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        ఒకవేళ (!c)
+                తిరిగి ఖాళీ;
 
         *c = (LogContext) {
                 .n_ref = 1,
-                .key = (char *) key,
-                .value = (char *) value,
+                .కీలకం = (అక్షరం *) కీలకం,
+                .విలువ = (అక్షరం *) విలువ,
         };
 
-        return log_context_attach(c);
+        తిరిగి log_context_attach(c);
 }
 
-LogContext* log_context_new_strv(char **fields, bool owned) {
-        if (!fields)
-                return NULL;
+LogContext* log_context_new_strv(అక్షరం **fields, bool owned) {
+        ఒకవేళ (!fields)
+                తిరిగి ఖాళీ;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->fields == fields) {
-                        assert(!owned);
-                        return log_context_ref(i);
+                ఒకవేళ (i->fields == fields) {
+                        ప్రతిజ్ఞా(!owned);
+                        తిరిగి log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        ఒకవేళ (!c)
+                తిరిగి ఖాళీ;
 
         *c = (LogContext) {
                 .n_ref = 1,
@@ -99,94 +99,94 @@ LogContext* log_context_new_strv(char **fields, bool owned) {
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        తిరిగి log_context_attach(c);
 }
 
-LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned) {
-        if (!input_iovec || n_input_iovec == 0)
-                return NULL;
+LogContext* log_context_new_iov(నిర్మాణం iovec *ఆదానం_iovec, size_t n_ఆదానం_iovec, bool owned) {
+        ఒకవేళ (!ఆదానం_iovec || n_ఆదానం_iovec == 0)
+                తిరిగి ఖాళీ;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->input_iovec == input_iovec && i->n_input_iovec == n_input_iovec) {
-                        assert(!owned);
-                        return log_context_ref(i);
+                ఒకవేళ (i->ఆదానం_iovec == ఆదానం_iovec && i->n_ఆదానం_iovec == n_ఆదానం_iovec) {
+                        ప్రతిజ్ఞా(!owned);
+                        తిరిగి log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        ఒకవేళ (!c)
+                తిరిగి ఖాళీ;
 
         *c = (LogContext) {
                 .n_ref = 1,
-                .input_iovec = input_iovec,
-                .n_input_iovec = n_input_iovec,
+                .ఆదానం_iovec = ఆదానం_iovec,
+                .n_ఆదానం_iovec = n_ఆదానం_iovec,
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        తిరిగి log_context_attach(c);
 }
 
-static LogContext* log_context_free(LogContext *c) {
-        if (!c)
-                return NULL;
+స్థిర LogContext* log_context_free(LogContext *c) {
+        ఒకవేళ (!c)
+                తిరిగి ఖాళీ;
 
         log_context_detach(c);
 
-        if (c->owned) {
+        ఒకవేళ (c->owned) {
                 strv_free(c->fields);
-                iovec_array_free(c->input_iovec, c->n_input_iovec);
-                free(c->key);
-                free(c->value);
+                iovec_array_free(c->ఆదానం_iovec, c->n_ఆదానం_iovec);
+                విడుదల(c->కీలకం);
+                విడుదల(c->విలువ);
         }
 
-        return mfree(c);
+        తిరిగి mfree(c);
 }
 
 DEFINE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context, log_context_free);
 
-LogContext* log_context_new_strv_consume(char **fields) {
+LogContext* log_context_new_strv_consume(అక్షరం **fields) {
         LogContext *c = log_context_new_strv(fields, /* owned= */ true);
-        if (!c)
+        ఒకవేళ (!c)
                 strv_free(fields);
 
-        return c;
+        తిరిగి c;
 }
 
-LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec) {
-        LogContext *c = log_context_new_iov(input_iovec, n_input_iovec, /* owned= */ true);
-        if (!c)
-                iovec_array_free(input_iovec, n_input_iovec);
+LogContext* log_context_new_iov_consume(నిర్మాణం iovec *ఆదానం_iovec, size_t n_ఆదానం_iovec) {
+        LogContext *c = log_context_new_iov(ఆదానం_iovec, n_ఆదానం_iovec, /* owned= */ true);
+        ఒకవేళ (!c)
+                iovec_array_free(ఆదానం_iovec, n_ఆదానం_iovec);
 
-        return c;
+        తిరిగి c;
 }
 
-LogContext* log_context_head(void) {
-        return _log_context;
+LogContext* log_context_తల(శూన్య) {
+        తిరిగి _log_context;
 }
 
-size_t log_context_num_contexts(void) {
+size_t log_context_అంకె_contexts(శూన్య) {
         size_t n = 0;
 
         LIST_FOREACH(ll, c, _log_context)
                 n++;
 
-        return n;
+        తిరిగి n;
 }
 
-size_t log_context_num_fields(void) {
-        return _log_context_num_fields;
+size_t log_context_అంకె_fields_2(శూన్య) {
+        తిరిగి log_context_అంకె_fields;
 }
 
-void log_context_swap(LogContext **log_context, size_t *num_fields) {
-        assert(log_context);
-        assert(num_fields);
+శూన్య log_context_మార్పిడి(LogContext **log_context, size_t *అంకె_fields) {
+        ప్రతిజ్ఞా(log_context);
+        ప్రతిజ్ఞా(అంకె_fields);
 
-        SWAP_TWO(_log_context, *log_context);
-        SWAP_TWO(_log_context_num_fields, *num_fields);
+        మార్పిడి_TWO(_log_context, *log_context);
+        మార్పిడి_TWO(log_context_అంకె_fields, *అంకె_fields);
 }
 
-void _reset_log_level(int *saved_log_level) {
-        assert(saved_log_level);
+శూన్య _reset_log_level(పూర్ణాంకం *saved_log_level) {
+        ప్రతిజ్ఞా(saved_log_level);
 
-        log_set_max_level(*saved_log_level);
+        log_సమితి_max_level(*saved_log_level);
 }

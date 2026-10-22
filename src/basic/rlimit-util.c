@@ -1,177 +1,177 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "rlimit-util.h"
-#include "string-table.h"
-#include "strv.h"
-#include "time-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "format-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "rlimit-util.h"
+#అన్తర్భావ "string-table.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "time-util.h"
 
-int setrlimit_closest(int resource, const struct rlimit *rlim) {
-        struct rlimit highest, fixed;
+పూర్ణాంకం setrlimit_closest(పూర్ణాంకం resource, స్థిరరాశి నిర్మాణం rlimit *rlim) {
+        నిర్మాణం rlimit highest, fixed;
 
-        assert(rlim);
+        ప్రతిజ్ఞా(rlim);
 
-        if (setrlimit(resource, rlim) >= 0)
-                return 0;
+        ఒకవేళ (setrlimit(resource, rlim) >= 0)
+                తిరిగి 0;
 
-        if (errno != EPERM)
-                return -errno;
+        ఒకవేళ (errno != EPERM)
+                తిరిగి -errno;
 
         /* So we failed to set the desired setrlimit, then let's try
          * to get as close as we can */
-        if (getrlimit(resource, &highest) < 0)
-                return -errno;
+        ఒకవేళ (getrlimit(resource, &highest) < 0)
+                తిరిగి -errno;
 
         /* If the hard limit is unbounded anyway, then the EPERM had other reasons, let's propagate the original EPERM
          * then */
-        if (highest.rlim_max == RLIM_INFINITY)
-                return -EPERM;
+        ఒకవేళ (highest.rlim_max == RLIM_INFINITY)
+                తిరిగి -EPERM;
 
-        fixed = (struct rlimit) {
+        fixed = (నిర్మాణం rlimit) {
                 .rlim_cur = MIN(rlim->rlim_cur, highest.rlim_max),
                 .rlim_max = MIN(rlim->rlim_max, highest.rlim_max),
         };
 
         /* Shortcut things if we wouldn't change anything. */
-        if (fixed.rlim_cur == highest.rlim_cur &&
+        ఒకవేళ (fixed.rlim_cur == highest.rlim_cur &&
             fixed.rlim_max == highest.rlim_max)
-                return 0;
+                తిరిగి 0;
 
-        log_debug("Failed at setting rlimit " RLIM_FMT " for resource RLIMIT_%s. Will attempt setting value " RLIM_FMT " instead.", rlim->rlim_max, rlimit_to_string(resource), fixed.rlim_max);
+        log_debug("Failed at setting rlimit " RLIM_FMT " for resource RLIMIT_%s. Will attempt setting value " RLIM_FMT " instead.", rlim->rlim_max, rlimit_గమ్యం_string(resource), fixed.rlim_max);
 
-        return RET_NERRNO(setrlimit(resource, &fixed));
+        తిరిగి RET_NERRNO(setrlimit(resource, &fixed));
 }
 
-int setrlimit_closest_all(const struct rlimit *const *rlim, int *which_failed) {
-        int r;
+పూర్ణాంకం setrlimit_closest_all(స్థిరరాశి నిర్మాణం rlimit *స్థిరరాశి *rlim, పూర్ణాంకం *which_failed) {
+        పూర్ణాంకం r;
 
-        assert(rlim);
+        ప్రతిజ్ఞా(rlim);
 
         /* On failure returns the limit's index that failed in *which_failed, but only if non-NULL */
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!rlim[i])
-                        continue;
+        కొరకు (పూర్ణాంకం i = 0; i < _RLIMIT_MAX; i++) {
+                ఒకవేళ (!rlim[i])
+                        కొనసాగు;
 
                 r = setrlimit_closest(i, rlim[i]);
-                if (r < 0) {
-                        if (which_failed)
+                ఒకవేళ (r < 0) {
+                        ఒకవేళ (which_failed)
                                 *which_failed = i;
 
-                        return r;
+                        తిరిగి r;
                 }
         }
 
-        if (which_failed)
+        ఒకవేళ (which_failed)
                 *which_failed = -1;
 
-        return 0;
+        తిరిగి 0;
 }
 
-static int rlimit_parse_u64(const char *val, rlim_t *ret) {
+స్థిర పూర్ణాంకం rlimit_parse_u64(స్థిరరాశి అక్షరం *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(val);
-        assert(ret);
+        ప్రతిజ్ఞా(val);
+        ప్రతిజ్ఞా(ret);
 
-        if (streq(val, "infinity")) {
+        ఒకవేళ (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                తిరిగి 0;
         }
 
         /* setrlimit(2) suggests rlim_t is always 64-bit on Linux. */
-        assert_cc(sizeof(rlim_t) == sizeof(uint64_t));
+        assert_cc(పరిమాణం(rlim_t) == పరిమాణం(uint64_t));
 
-        r = safe_atou64(val, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        r = సురక్షిత_atou64(val, &u);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (u >= (uint64_t) RLIM_INFINITY)
+                తిరిగి -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        తిరిగి 0;
 }
 
-static int rlimit_parse_size(const char *val, rlim_t *ret) {
+స్థిర పూర్ణాంకం rlimit_parse_కొలత(స్థిరరాశి అక్షరం *val, rlim_t *ret) {
         uint64_t u;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(val);
-        assert(ret);
+        ప్రతిజ్ఞా(val);
+        ప్రతిజ్ఞా(ret);
 
-        if (streq(val, "infinity")) {
+        ఒకవేళ (streq(val, "infinity")) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                తిరిగి 0;
         }
 
-        r = parse_size(val, 1024, &u);
-        if (r < 0)
-                return r;
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        r = parse_కొలత(val, 1024, &u);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (u >= (uint64_t) RLIM_INFINITY)
+                తిరిగి -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        తిరిగి 0;
 }
 
-static int rlimit_parse_sec(const char *val, rlim_t *ret) {
+స్థిర పూర్ణాంకం rlimit_parse_sec(స్థిరరాశి అక్షరం *val, rlim_t *ret) {
         uint64_t u;
         usec_t t;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(val);
-        assert(ret);
+        ప్రతిజ్ఞా(val);
+        ప్రతిజ్ఞా(ret);
 
         r = parse_sec(val, &t);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                తిరిగి 0;
         }
 
-        u = (uint64_t) DIV_ROUND_UP(t, USEC_PER_SEC);
-        if (u >= (uint64_t) RLIM_INFINITY)
-                return -ERANGE;
+        u = (uint64_t) DIV_విడత_పైకి(t, USEC_చొప్పున_SEC);
+        ఒకవేళ (u >= (uint64_t) RLIM_INFINITY)
+                తిరిగి -ERANGE;
 
         *ret = (rlim_t) u;
-        return 0;
+        తిరిగి 0;
 }
 
-static int rlimit_parse_usec(const char *val, rlim_t *ret) {
+స్థిర పూర్ణాంకం rlimit_parse_usec(స్థిరరాశి అక్షరం *val, rlim_t *ret) {
         usec_t t;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(val);
-        assert(ret);
+        ప్రతిజ్ఞా(val);
+        ప్రతిజ్ఞా(ret);
 
-        r = parse_time(val, &t, 1);
-        if (r < 0)
-                return r;
-        if (t == USEC_INFINITY) {
+        r = parse_సమయం(val, &t, 1);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (t == USEC_INFINITY) {
                 *ret = RLIM_INFINITY;
-                return 0;
+                తిరిగి 0;
         }
 
         *ret = (rlim_t) t;
-        return 0;
+        తిరిగి 0;
 }
 
-static int rlimit_parse_nice(const char *val, rlim_t *ret) {
+స్థిర పూర్ణాంకం rlimit_parse_nice(స్థిరరాశి అక్షరం *val, rlim_t *ret) {
         uint64_t rl;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(val);
-        assert(ret);
+        ప్రతిజ్ఞా(val);
+        ప్రతిజ్ఞా(ret);
 
         /* So, Linux is weird. The range for RLIMIT_NICE is 40..1, mapping to the nice levels -20..19. However, the
          * RLIMIT_NICE limit defaults to 0 by the kernel, i.e. a value that maps to nice level 20, which of course is
@@ -181,140 +181,140 @@ static int rlimit_parse_nice(const char *val, rlim_t *ret) {
          *
          * Yeah, Linux is quality engineering sometimes... */
 
-        if (val[0] == '+') {
+        ఒకవేళ (val[0] == '+') {
 
                 /* Prefixed with "+": Parse as positive user-friendly nice value */
-                r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                r = సురక్షిత_atou64(val + 1, &rl);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (rl >= PRIO_MAX)
-                        return -ERANGE;
+                ఒకవేళ (rl >= PRIO_MAX)
+                        తిరిగి -ERANGE;
 
                 rl = 20 - rl;
 
-        } else if (val[0] == '-') {
+        } లేకపోతే ఒకవేళ (val[0] == '-') {
 
                 /* Prefixed with "-": Parse as negative user-friendly nice value */
-                r = safe_atou64(val + 1, &rl);
-                if (r < 0)
-                        return r;
+                r = సురక్షిత_atou64(val + 1, &rl);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (rl > (uint64_t) (-PRIO_MIN))
-                        return -ERANGE;
+                ఒకవేళ (rl > (uint64_t) (-PRIO_MIN))
+                        తిరిగి -ERANGE;
 
                 rl = 20 + rl;
-        } else {
+        } లేకపోతే {
 
                 /* Not prefixed: parse as raw resource limit value */
-                r = safe_atou64(val, &rl);
-                if (r < 0)
-                        return r;
+                r = సురక్షిత_atou64(val, &rl);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (rl > (uint64_t) (20 - PRIO_MIN))
-                        return -ERANGE;
+                ఒకవేళ (rl > (uint64_t) (20 - PRIO_MIN))
+                        తిరిగి -ERANGE;
         }
 
         *ret = (rlim_t) rl;
-        return 0;
+        తిరిగి 0;
 }
 
-static int (*const rlimit_parse_table[_RLIMIT_MAX])(const char *val, rlim_t *ret) = {
+స్థిర పూర్ణాంకం (*స్థిరరాశి rlimit_parse_పట్టిక[_RLIMIT_MAX])(స్థిరరాశి అక్షరం *val, rlim_t *ret) = {
         [RLIMIT_CPU]        = rlimit_parse_sec,
-        [RLIMIT_FSIZE]      = rlimit_parse_size,
-        [RLIMIT_DATA]       = rlimit_parse_size,
-        [RLIMIT_STACK]      = rlimit_parse_size,
-        [RLIMIT_CORE]       = rlimit_parse_size,
-        [RLIMIT_RSS]        = rlimit_parse_size,
+        [RLIMIT_FSIZE]      = rlimit_parse_కొలత,
+        [RLIMIT_DATA]       = rlimit_parse_కొలత,
+        [RLIMIT_STACK]      = rlimit_parse_కొలత,
+        [RLIMIT_CORE]       = rlimit_parse_కొలత,
+        [RLIMIT_RSS]        = rlimit_parse_కొలత,
         [RLIMIT_NOFILE]     = rlimit_parse_u64,
-        [RLIMIT_AS]         = rlimit_parse_size,
+        [RLIMIT_AS]         = rlimit_parse_కొలత,
         [RLIMIT_NPROC]      = rlimit_parse_u64,
-        [RLIMIT_MEMLOCK]    = rlimit_parse_size,
+        [RLIMIT_MEMLOCK]    = rlimit_parse_కొలత,
         [RLIMIT_LOCKS]      = rlimit_parse_u64,
         [RLIMIT_SIGPENDING] = rlimit_parse_u64,
-        [RLIMIT_MSGQUEUE]   = rlimit_parse_size,
+        [RLIMIT_MSGQUEUE]   = rlimit_parse_కొలత,
         [RLIMIT_NICE]       = rlimit_parse_nice,
         [RLIMIT_RTPRIO]     = rlimit_parse_u64,
         [RLIMIT_RTTIME]     = rlimit_parse_usec,
 };
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret) {
-        assert(val);
-        assert(ret);
+పూర్ణాంకం rlimit_parse_one(పూర్ణాంకం resource, స్థిరరాశి అక్షరం *val, rlim_t *ret) {
+        ప్రతిజ్ఞా(val);
+        ప్రతిజ్ఞా(ret);
 
-        if (resource < 0)
-                return -EINVAL;
-        if (resource >= _RLIMIT_MAX)
-                return -EINVAL;
+        ఒకవేళ (resource < 0)
+                తిరిగి -EINVAL;
+        ఒకవేళ (resource >= _RLIMIT_MAX)
+                తిరిగి -EINVAL;
 
-        return rlimit_parse_table[resource](val, ret);
+        తిరిగి rlimit_parse_పట్టిక[resource](val, ret);
 }
 
-int rlimit_parse(int resource, const char *val, struct rlimit *ret) {
-        _cleanup_free_ char *hard = NULL, *soft = NULL;
+పూర్ణాంకం rlimit_parse(పూర్ణాంకం resource, స్థిరరాశి అక్షరం *val, నిర్మాణం rlimit *ret) {
+        _cleanup_free_ అక్షరం *hard = ఖాళీ, *soft = ఖాళీ;
         rlim_t hl, sl;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(val);
-        assert(ret);
+        ప్రతిజ్ఞా(val);
+        ప్రతిజ్ఞా(ret);
 
-        r = extract_first_word(&val, &soft, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        r = వెలికితీయి_మొదటి_మాట(&val, &soft, ":", వెలికితీయి_DONT_COALESCE_SEPARATORS);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0)
+                తిరిగి -EINVAL;
 
         r = rlimit_parse_one(resource, soft, &sl);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = extract_first_word(&val, &hard, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (!isempty(val))
-                return -EINVAL;
-        if (r == 0)
+        r = వెలికితీయి_మొదటి_మాట(&val, &hard, ":", వెలికితీయి_DONT_COALESCE_SEPARATORS);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (!isempty(val))
+                తిరిగి -EINVAL;
+        ఒకవేళ (r == 0)
                 hl = sl;
-        else {
+        లేకపోతే {
                 r = rlimit_parse_one(resource, hard, &hl);
-                if (r < 0)
-                        return r;
-                if (sl > hl)
-                        return -EILSEQ;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (sl > hl)
+                        తిరిగి -EILSEQ;
         }
 
-        *ret = (struct rlimit) {
+        *ret = (నిర్మాణం rlimit) {
                 .rlim_cur = sl,
                 .rlim_max = hl,
         };
 
-        return 0;
+        తిరిగి 0;
 }
 
-int rlimit_format(const struct rlimit *rl, char **ret) {
-        char *s;
+పూర్ణాంకం rlimit_format(స్థిరరాశి నిర్మాణం rlimit *rl, అక్షరం **ret) {
+        అక్షరం *s;
 
-        assert(rl);
-        assert(ret);
+        ప్రతిజ్ఞా(rl);
+        ప్రతిజ్ఞా(ret);
 
-        if (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
+        ఒకవేళ (rl->rlim_cur >= RLIM_INFINITY && rl->rlim_max >= RLIM_INFINITY)
                 s = strdup("infinity");
-        else if (rl->rlim_cur >= RLIM_INFINITY)
-                s = asprintf_safe("infinity:" RLIM_FMT, rl->rlim_max);
-        else if (rl->rlim_max >= RLIM_INFINITY)
-                s = asprintf_safe(RLIM_FMT ":infinity", rl->rlim_cur);
-        else if (rl->rlim_cur == rl->rlim_max)
-                s = asprintf_safe(RLIM_FMT, rl->rlim_cur);
-        else
-                s = asprintf_safe(RLIM_FMT ":" RLIM_FMT, rl->rlim_cur, rl->rlim_max);
-        if (!s)
-                return -ENOMEM;
+        లేకపోతే ఒకవేళ (rl->rlim_cur >= RLIM_INFINITY)
+                s = asprintf_సురక్షిత("infinity:" RLIM_FMT, rl->rlim_max);
+        లేకపోతే ఒకవేళ (rl->rlim_max >= RLIM_INFINITY)
+                s = asprintf_సురక్షిత(RLIM_FMT ":infinity", rl->rlim_cur);
+        లేకపోతే ఒకవేళ (rl->rlim_cur == rl->rlim_max)
+                s = asprintf_సురక్షిత(RLIM_FMT, rl->rlim_cur);
+        లేకపోతే
+                s = asprintf_సురక్షిత(RLIM_FMT ":" RLIM_FMT, rl->rlim_cur, rl->rlim_max);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         *ret = s;
-        return 0;
+        తిరిగి 0;
 }
 
-static const char* const rlimit_table[_RLIMIT_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి rlimit_పట్టిక[_RLIMIT_MAX] = {
         [RLIMIT_AS]         = "AS",
         [RLIMIT_CORE]       = "CORE",
         [RLIMIT_CPU]        = "CPU",
@@ -333,101 +333,101 @@ static const char* const rlimit_table[_RLIMIT_MAX] = {
         [RLIMIT_STACK]      = "STACK",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(rlimit, int);
+DEFINE_STRING_పట్టిక_LOOKUP(rlimit, పూర్ణాంకం);
 
-void rlimits_list(const char *prefix) {
-        FOREACH_ELEMENT(field, rlimit_table)
-                printf("%s%s\n", strempty(prefix), *field);
+శూన్య rlimits_list(స్థిరరాశి అక్షరం *ఉపసర్గ) {
+        FOREACH_ELEMENT(క్షేత్రం, rlimit_పట్టిక)
+                రాయి("%s%s\n", strempty(ఉపసర్గ), *క్షేత్రం);
 }
 
-int rlimit_from_string_harder(const char *s) {
-        const char *suffix;
+పూర్ణాంకం rlimit_from_string_harder(స్థిరరాశి అక్షరం *s) {
+        స్థిరరాశి అక్షరం *suffix;
 
         /* The official prefix */
         suffix = startswith(s, "RLIMIT_");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        ఒకవేళ (suffix)
+                తిరిగి rlimit_from_string(suffix);
 
         /* Our own unit file setting prefix */
         suffix = startswith(s, "Limit");
-        if (suffix)
-                return rlimit_from_string(suffix);
+        ఒకవేళ (suffix)
+                తిరిగి rlimit_from_string(suffix);
 
-        return rlimit_from_string(s);
+        తిరిగి rlimit_from_string(s);
 }
 
-void rlimit_free_all(struct rlimit **rl) {
-        free_many((void**) rl, _RLIMIT_MAX);
+శూన్య rlimit_free_all(నిర్మాణం rlimit **rl) {
+        free_many((శూన్య**) rl, _RLIMIT_MAX);
 }
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]) {
-        struct rlimit* copy[_RLIMIT_MAX] = {};
+పూర్ణాంకం rlimit_copy_all(నిర్మాణం rlimit* లక్ష్యం[స్థిర _RLIMIT_MAX], నిర్మాణం rlimit* స్థిరరాశి ఆధారం[స్థిర _RLIMIT_MAX]) {
+        నిర్మాణం rlimit* copy[_RLIMIT_MAX] = {};
 
-        assert(target);
-        assert(source);
+        ప్రతిజ్ఞా(లక్ష్యం);
+        ప్రతిజ్ఞా(ఆధారం);
 
-        for (int i = 0; i < _RLIMIT_MAX; i++) {
-                if (!source[i])
-                        continue;
+        కొరకు (పూర్ణాంకం i = 0; i < _RLIMIT_MAX; i++) {
+                ఒకవేళ (!ఆధారం[i])
+                        కొనసాగు;
 
-                copy[i] = newdup(struct rlimit, source[i], 1);
-                if (!copy[i]) {
+                copy[i] = newdup(నిర్మాణం rlimit, ఆధారం[i], 1);
+                ఒకవేళ (!copy[i]) {
                         rlimit_free_all(copy);
-                        return -ENOMEM;
+                        తిరిగి -ENOMEM;
                 }
         }
 
-        memcpy(target, copy, sizeof(struct rlimit*) * _RLIMIT_MAX);
-        return 0;
+        జ్ఞాపకం_నకలు(లక్ష్యం, copy, పరిమాణం(నిర్మాణం rlimit*) * _RLIMIT_MAX);
+        తిరిగి 0;
 }
 
-int rlimit_nofile_bump(int limit) {
-        int r;
+పూర్ణాంకం rlimit_nofile_bump(పూర్ణాంకం limit) {
+        పూర్ణాంకం r;
 
         /* Bumps the (soft) RLIMIT_NOFILE resource limit as close as possible to the specified limit. If a negative
          * limit is specified, bumps it to the maximum the kernel and the hard resource limit allows. This call should
          * be used by all our programs that might need a lot of fds, and that know how to deal with high fd numbers
          * (i.e. do not use select() — which chokes on fds >= 1024) */
 
-        if (limit < 0)
+        ఒకవేళ (limit < 0)
                 limit = read_nr_open();
 
-        if (limit < 3)
+        ఒకవేళ (limit < 3)
                 limit = 3;
 
         r = setrlimit_closest(RLIMIT_NOFILE, &RLIMIT_MAKE_CONST(limit));
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
+        ఒకవేళ (r < 0)
+                తిరిగి log_debug_errno(r, "Failed to set RLIMIT_NOFILE: %m");
 
-        return 0;
+        తిరిగి 0;
 }
 
-int rlimit_nofile_safe(void) {
-        struct rlimit rl;
+పూర్ణాంకం rlimit_nofile_సురక్షిత(శూన్య) {
+        నిర్మాణం rlimit rl;
 
         /* Resets RLIMIT_NOFILE's soft limit FD_SETSIZE (i.e. 1024), for compatibility with software still using
          * select() */
 
-        if (getrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
+        ఒకవేళ (getrlimit(RLIMIT_NOFILE, &rl) < 0)
+                తిరిగి log_debug_errno(errno, "Failed to query RLIMIT_NOFILE: %m");
 
-        if (rl.rlim_cur <= FD_SETSIZE)
-                return 0;
+        ఒకవేళ (rl.rlim_cur <= FD_SETSIZE)
+                తిరిగి 0;
 
         /* So we might have inherited a hard limit that's larger than the kernel's maximum limit as stored in
          * /proc/sys/fs/nr_open. If we pass this hard limit unmodified to setrlimit(), we'll get EPERM. To
          * make sure that doesn't happen, let's limit our hard limit to the value from nr_open. */
         rl.rlim_max = MIN(rl.rlim_max, (rlim_t) read_nr_open());
         rl.rlim_cur = MIN((rlim_t) FD_SETSIZE, rl.rlim_max);
-        if (setrlimit(RLIMIT_NOFILE, &rl) < 0)
-                return log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
+        ఒకవేళ (setrlimit(RLIMIT_NOFILE, &rl) < 0)
+                తిరిగి log_debug_errno(errno, "Failed to lower RLIMIT_NOFILE's soft limit to " RLIM_FMT ": %m", rl.rlim_cur);
 
-        return 1;
+        తిరిగి 1;
 }
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
+పూర్ణాంకం pid_getrlimit(pid_t pid, పూర్ణాంకం resource, నిర్మాణం rlimit *ret) {
 
-        static const char * const prefix_table[_RLIMIT_MAX] = {
+        స్థిర స్థిరరాశి అక్షరం * స్థిరరాశి ఉపసర్గ_పట్టిక[_RLIMIT_MAX] = {
                 [RLIMIT_CPU]        = "Max cpu time",
                 [RLIMIT_FSIZE]      = "Max file size",
                 [RLIMIT_DATA]       = "Max data size",
@@ -446,94 +446,94 @@ int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret) {
                 [RLIMIT_RTTIME]     = "Max realtime timeout",
         };
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(resource >= 0);
-        assert(resource < _RLIMIT_MAX);
-        assert(pid >= 0);
-        assert(ret);
+        ప్రతిజ్ఞా(resource >= 0);
+        ప్రతిజ్ఞా(resource < _RLIMIT_MAX);
+        ప్రతిజ్ఞా(pid >= 0);
+        ప్రతిజ్ఞా(ret);
 
-        if (pid == 0 || pid == getpid_cached())
-                return RET_NERRNO(getrlimit(resource, ret));
+        ఒకవేళ (pid == 0 || pid == getpid_cached())
+                తిరిగి RET_NERRNO(getrlimit(resource, ret));
 
-        r = RET_NERRNO(prlimit(pid, resource, /* new_limit= */ NULL, ret));
-        if (!ERRNO_IS_NEG_PRIVILEGE(r))
-                return r;
+        r = RET_NERRNO(prlimit(pid, resource, /* new_limit= */ ఖాళీ, ret));
+        ఒకవేళ (!ERRNO_IS_NEG_PRIVILEGE(r))
+                తిరిగి r;
 
         /* We don't have access? Then try to go via /proc/$PID/limits. Weirdly that's world readable in
          * contrast to querying the data via prlimit() */
 
-        const char *p = procfs_file_alloca(pid, "limits");
-        _cleanup_free_ char *limits = NULL;
+        స్థిరరాశి అక్షరం *p = procfs_file_alloca(pid, "limits");
+        _cleanup_free_ అక్షరం *limits = ఖాళీ;
 
-        r = read_full_file(p, &limits, /* ret_size= */ NULL);
-        if (r < 0)
-                return -EPERM; /* propagate original permission error if we can't access the limits file */
+        r = read_నిండిన_file(p, &limits, /* ret_size= */ ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి -EPERM; /* propagate original permission error if we can't access the limits file */
 
-        _cleanup_strv_free_ char **l = NULL;
-        l = strv_split_newlines(limits);
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
+        l = strv_విభజించు_newlines(limits);
+        ఒకవేళ (!l)
+                తిరిగి -ENOMEM;
 
         STRV_FOREACH(i, strv_skip(l, 1)) {
-                _cleanup_free_ char *soft = NULL, *hard = NULL;
+                _cleanup_free_ అక్షరం *soft = ఖాళీ, *hard = ఖాళీ;
                 uint64_t sv, hv;
-                const char *e;
+                స్థిరరాశి అక్షరం *e;
 
-                e = startswith(*i, prefix_table[resource]);
-                if (!e)
-                        continue;
+                e = startswith(*i, ఉపసర్గ_పట్టిక[resource]);
+                ఒకవేళ (!e)
+                        కొనసాగు;
 
-                if (*e != ' ')
-                        continue;
+                ఒకవేళ (*e != ' ')
+                        కొనసాగు;
 
                 e += strspn(e, WHITESPACE);
 
                 size_t n;
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
-                        continue;
+                ఒకవేళ (n == 0)
+                        కొనసాగు;
 
                 soft = strndup(e, n);
-                if (!soft)
-                        return -ENOMEM;
+                ఒకవేళ (!soft)
+                        తిరిగి -ENOMEM;
 
                 e += n;
-                if (*e != ' ')
-                        continue;
+                ఒకవేళ (*e != ' ')
+                        కొనసాగు;
 
                 e += strspn(e, WHITESPACE);
                 n = strcspn(e, WHITESPACE);
-                if (n == 0)
-                        continue;
+                ఒకవేళ (n == 0)
+                        కొనసాగు;
 
                 hard = strndup(e, n);
-                if (!hard)
-                        return -ENOMEM;
+                ఒకవేళ (!hard)
+                        తిరిగి -ENOMEM;
 
-                if (streq(soft, "unlimited"))
+                ఒకవేళ (streq(soft, "unlimited"))
                         sv = RLIM_INFINITY;
-                else {
-                        r = safe_atou64(soft, &sv);
-                        if (r < 0)
-                                return r;
+                లేకపోతే {
+                        r = సురక్షిత_atou64(soft, &sv);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                if (streq(hard, "unlimited"))
+                ఒకవేళ (streq(hard, "unlimited"))
                         hv = RLIM_INFINITY;
-                else {
-                        r = safe_atou64(hard, &hv);
-                        if (r < 0)
-                                return r;
+                లేకపోతే {
+                        r = సురక్షిత_atou64(hard, &hv);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
 
-                *ret = (struct rlimit) {
+                *ret = (నిర్మాణం rlimit) {
                         .rlim_cur = sv,
                         .rlim_max = hv,
                 };
 
-                return 0;
+                తిరిగి 0;
         }
 
-        return -ENOTRECOVERABLE;
+        తిరిగి -ENOTRECOVERABLE;
 }

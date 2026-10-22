@@ -1,163 +1,163 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "io-util.h"
-#include "memfd-util.h"
-#include "process-util.h"
-#include "string-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "io-util.h"
+#అన్తర్భావ "memfd-util.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "string-util.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode) {
-        unsigned mode_compat;
-        int mfd;
+పూర్ణాంకం memfd_create_wrapper(స్థిరరాశి అక్షరం *name, గుర్తులేని బహుళకం) {
+        గుర్తులేని బహుళకం_compat;
+        పూర్ణాంకం mfd;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
         /* Wrapper around memfd_create() which adds compat with older kernels where memfd_create() didn't
          * support MFD_EXEC/MFD_NOEXEC_SEAL. (kernel 6.3+) */
 
-        mfd = RET_NERRNO(memfd_create(name, mode));
-        if (mfd != -EINVAL)
-                return mfd;
+        mfd = RET_NERRNO(memfd_create(name, బహుళకం));
+        ఒకవేళ (mfd != -EINVAL)
+                తిరిగి mfd;
 
-        mode_compat = mode & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
+        బహుళకం_compat = బహుళకం & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
 
-        if (mode == mode_compat)
-                return mfd;
+        ఒకవేళ (బహుళకం == బహుళకం_compat)
+                తిరిగి mfd;
 
-        return RET_NERRNO(memfd_create(name, mode_compat));
+        తిరిగి RET_NERRNO(memfd_create(name, బహుళకం_compat));
 }
 
-int memfd_new_full(const char *name, unsigned extra_flags) {
-        _cleanup_free_ char *g = NULL;
-        int r;
+పూర్ణాంకం memfd_new_నిండిన(స్థిరరాశి అక్షరం *name, గుర్తులేని extra_flags) {
+        _cleanup_free_ అక్షరం *g = ఖాళీ;
+        పూర్ణాంకం r;
 
-        if (!name) {
+        ఒకవేళ (!name) {
 
                 /* If no name is specified we generate one. We include
                  * a hint indicating our library implementation, and
                  * add the thread name to it */
 
-                _cleanup_free_ char *comm = NULL;
+                _cleanup_free_ అక్షరం *comm = ఖాళీ;
                 r = pid_get_comm(/* pid= */ 0, &comm);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (isempty(comm))
+                ఒకవేళ (isempty(comm))
                         name = "sd";
-                else {
+                లేకపోతే {
                         g = strjoin("sd-", comm);
-                        if (!g)
-                                return -ENOMEM;
+                        ఒకవేళ (!g)
+                                తిరిగి -ENOMEM;
 
                         name = g;
                 }
         }
 
-        return memfd_create_wrapper(
+        తిరిగి memfd_create_wrapper(
                         name,
                         MFD_CLOEXEC | MFD_NOEXEC_SEAL | extra_flags);
 }
 
-static int memfd_add_seals(int fd, unsigned seals) {
-        assert(fd >= 0);
+స్థిర పూర్ణాంకం memfd_కూడు_seals(పూర్ణాంకం fd, గుర్తులేని seals) {
+        ప్రతిజ్ఞా(fd >= 0);
 
-        return RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
+        తిరిగి RET_NERRNO(fcntl(fd, F_కూడు_SEALS, seals));
 }
 
-static int memfd_get_seals(int fd, unsigned *ret_seals) {
-        int r;
+స్థిర పూర్ణాంకం memfd_get_seals(పూర్ణాంకం fd, గుర్తులేని *ret_seals) {
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = RET_NERRNO(fcntl(fd, F_GET_SEALS));
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_seals)
+        ఒకవేళ (ret_seals)
                 *ret_seals = r;
-        return 0;
+        తిరిగి 0;
 }
 
-int memfd_set_sealed(int fd) {
-        return memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+పూర్ణాంకం memfd_సమితి_sealed(పూర్ణాంకం fd) {
+        తిరిగి memfd_కూడు_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_get_sealed(int fd) {
-        unsigned seals;
-        int r;
+పూర్ణాంకం memfd_get_sealed(పూర్ణాంకం fd) {
+        గుర్తులేని seals;
+        పూర్ణాంకం r;
 
         r = memfd_get_seals(fd, &seals);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* We ignore F_SEAL_EXEC here to support older kernels.
          * It is supported since kernel v6.3 (6fd7353829cafc4067aad9eea0dc95da67e7df16). */
-        return FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+        తిరిగి FLAGS_సమితి(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_set_sealed_gracefully(int fd) {
-        int r;
+పూర్ణాంకం memfd_సమితి_sealed_gracefully(పూర్ణాంకం fd) {
+        పూర్ణాంకం r;
 
-        r = memfd_set_sealed(fd);
-        if (r != -EPERM)
-                return r;
+        r = memfd_సమితి_sealed(fd);
+        ఒకవేళ (r != -EPERM)
+                తిరిగి r;
 
         /* Already sealed? Check if required seals are set. */
         r = memfd_get_sealed(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM; /* Propagate the original error. */
-        return 0;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0)
+                తిరిగి -EPERM; /* Propagate the original error. */
+        తిరిగి 0;
 }
 
-int memfd_get_size(int fd, uint64_t *ret) {
-        struct stat stat;
+పూర్ణాంకం memfd_get_కొలత(పూర్ణాంకం fd, uint64_t *ret) {
+        నిర్మాణం stat stat;
 
-        assert(fd >= 0);
-        assert(ret);
+        ప్రతిజ్ఞా(fd >= 0);
+        ప్రతిజ్ఞా(ret);
 
-        if (fstat(fd, &stat) < 0)
-                return -errno;
+        ఒకవేళ (fstat(fd, &stat) < 0)
+                తిరిగి -errno;
 
         *ret = stat.st_size;
-        return 0;
+        తిరిగి 0;
 }
 
-int memfd_set_size(int fd, uint64_t sz) {
-        assert(fd >= 0);
+పూర్ణాంకం memfd_సమితి_కొలత(పూర్ణాంకం fd, uint64_t sz) {
+        ప్రతిజ్ఞా(fd >= 0);
 
-        return RET_NERRNO(ftruncate(fd, sz));
+        తిరిగి RET_NERRNO(ftruncate(fd, sz));
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+పూర్ణాంకం memfd_new_and_seal(స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *దత్తాంశం, size_t sz) {
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(data || sz == 0);
+        ప్రతిజ్ఞా(దత్తాంశం || sz == 0);
 
-        if (sz == SIZE_MAX)
-                sz = strlen(data);
+        ఒకవేళ (sz == SIZE_MAX)
+                sz = అక్షరశ్రేణి_పొడవు(దత్తాంశం);
 
-        fd = memfd_new_full(name, MFD_ALLOW_SEALING);
-        if (fd < 0)
-                return fd;
+        fd = memfd_new_నిండిన(name, MFD_ALLOW_SEALING);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
-        if (sz > 0) {
-                r = pwrite_full(fd, data, sz, 0);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (sz > 0) {
+                r = pwrite_నిండిన(fd, దత్తాంశం, sz, 0);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        r = memfd_set_sealed(fd);
-        if (r < 0)
-                return r;
+        r = memfd_సమితి_sealed(fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return TAKE_FD(fd);
+        తిరిగి TAKE_FD(fd);
 }

@@ -1,43 +1,43 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/if_arp.h>
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <string.h>
+#అన్తర్భావ <linux/if_arp.h>
+#అన్తర్భావ <linux/if_infiniband.h>
+#అన్తర్భావ <netinet/in.h>
+#అన్తర్భావ <string.h>
 
-#include "arphrd-util.h"
+#అన్తర్భావ "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+స్థిర స్థిరరాశి నిర్మాణం arphrd_name* lookup_arphrd(నమోదు స్థిరరాశి అక్షరం *str, నమోదు GPERF_LEN_TYPE len);
 
-#include "arphrd-from-name.inc"
-#include "arphrd-to-name.inc"
+#అన్తర్భావ "arphrd-from-name.inc"
+#అన్తర్భావ "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+పూర్ణాంకం arphrd_from_name(స్థిరరాశి అక్షరం *name) {
+        స్థిరరాశి నిర్మాణం arphrd_name *sc;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
-        sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_arphrd(name, అక్షరశ్రేణి_పొడవు(name));
+        ఒకవేళ (!sc)
+                తిరిగి -EINVAL;
 
-        return sc->id;
+        తిరిగి sc->id;
 }
 
-size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
-        switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
-        default:
-                return 0;
+size_t arphrd_గమ్యం_hw_addr_len(uint16_t arphrd) {
+        ఎంపిక (arphrd) {
+        స్థితి ARPHRD_ETHER:
+                తిరిగి ETH_ALEN;
+        స్థితి ARPHRD_INFINIBAND:
+                తిరిగి INFINIBAND_ALEN;
+        స్థితి ARPHRD_TUNNEL:
+        స్థితి ARPHRD_SIT:
+        స్థితి ARPHRD_IPGRE:
+                తిరిగి పరిమాణం(నిర్మాణం in_addr);
+        స్థితి ARPHRD_TUNNEL6:
+        స్థితి ARPHRD_IP6GRE:
+                తిరిగి పరిమాణం(నిర్మాణం in6_addr);
+        అప్రమేయ:
+                తిరిగి 0;
         }
 }

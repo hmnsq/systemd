@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <sys/mman.h>           /* IWYU pragma: export */
+#అన్తర్భావ <sys/mman.h>           /* IWYU pragma: export */
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode);
+పూర్ణాంకం memfd_create_wrapper(స్థిరరాశి అక్షరం *name, గుర్తులేని బహుళకం);
 
-int memfd_new_full(const char *name, unsigned extra_flags);
-static inline int memfd_new(const char *name) {
-        return memfd_new_full(name, 0);
+పూర్ణాంకం memfd_new_నిండిన(స్థిరరాశి అక్షరం *name, గుర్తులేని extra_flags);
+స్థిర అంతఃవరుస పూర్ణాంకం memfd_new(స్థిరరాశి అక్షరం *name) {
+        తిరిగి memfd_new_నిండిన(name, 0);
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
-static inline int memfd_new_and_seal_string(const char *name, const char *s) {
-        return memfd_new_and_seal(name, s, SIZE_MAX);
+పూర్ణాంకం memfd_new_and_seal(స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *దత్తాంశం, size_t sz) _nonnull_if_nonzero_(2, 3);
+స్థిర అంతఃవరుస పూర్ణాంకం memfd_new_and_seal_string(స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *s) {
+        తిరిగి memfd_new_and_seal(name, s, SIZE_MAX);
 }
 
-int memfd_set_sealed(int fd);
-int memfd_get_sealed(int fd);
-int memfd_set_sealed_gracefully(int fd);
+పూర్ణాంకం memfd_సమితి_sealed(పూర్ణాంకం fd);
+పూర్ణాంకం memfd_get_sealed(పూర్ణాంకం fd);
+పూర్ణాంకం memfd_సమితి_sealed_gracefully(పూర్ణాంకం fd);
 
-int memfd_get_size(int fd, uint64_t *ret);
-int memfd_set_size(int fd, uint64_t sz);
+పూర్ణాంకం memfd_get_కొలత(పూర్ణాంకం fd, uint64_t *ret);
+పూర్ణాంకం memfd_సమితి_కొలత(పూర్ణాంకం fd, uint64_t sz);

@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef enum MkdirFlags {
+రకనిర్వచనం గణన MkdirFlags {
         MKDIR_FOLLOW_SYMLINK  = 1 << 0,
         MKDIR_IGNORE_EXISTING = 1 << 1,  /* Quietly accept a preexisting directory (or file) */
-        MKDIR_WARN_MODE       = 1 << 2,  /* Log at LOG_WARNING when mode doesn't match */
+        MKDIR_WARN_బహుళకం       = 1 << 2,  /* Log at LOG_WARNING when mode doesn't match */
 } MkdirFlags;
 
-int mkdirat_errno_wrapper(int dirfd, const char *pathname, mode_t mode, LabelContext *label_context);
+పూర్ణాంకం mkdirat_errno_wrapper(పూర్ణాంకం dirfd, స్థిరరాశి అక్షరం *pathname, mode_t బహుళకం, LabelContext *label_context);
 
-int mkdirat_safe(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-static inline int mkdir_safe(const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdirat_safe(AT_FDCWD, path, mode, uid, gid, flags);
+పూర్ణాంకం mkdirat_సురక్షిత(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags);
+స్థిర అంతఃవరుస పూర్ణాంకం mkdir_సురక్షిత(స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags) {
+        తిరిగి mkdirat_సురక్షిత(AT_FDCWD, మార్గం, బహుళకం, uid, gid, flags);
 }
-int mkdirat_parents(int dir_fd, const char *path, mode_t mode);
-static inline int mkdir_parents(const char *path, mode_t mode) {
-        return mkdirat_parents(AT_FDCWD, path, mode);
+పూర్ణాంకం mkdirat_parents(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం);
+స్థిర అంతఃవరుస పూర్ణాంకం mkdir_parents(స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం) {
+        తిరిగి mkdirat_parents(AT_FDCWD, మార్గం, బహుళకం);
 }
-int mkdir_parents_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-int mkdir_p(const char *path, mode_t mode);
-int mkdir_p_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags);
-int mkdir_p_root_full(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes);
-static inline int mkdir_p_root(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m) {
-        return mkdir_p_root_full(root, p, uid, gid, m, USEC_INFINITY, NULL);
+పూర్ణాంకం mkdir_parents_సురక్షిత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags);
+పూర్ణాంకం mkdir_p(స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం);
+పూర్ణాంకం mkdir_p_సురక్షిత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags);
+పూర్ణాంకం mkdir_p_మూలం_నిండిన(స్థిరరాశి అక్షరం *మూలం, స్థిరరాశి అక్షరం *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes);
+స్థిర అంతఃవరుస పూర్ణాంకం mkdir_p_మూలం(స్థిరరాశి అక్షరం *మూలం, స్థిరరాశి అక్షరం *p, uid_t uid, gid_t gid, mode_t m) {
+        తిరిగి mkdir_p_మూలం_నిండిన(మూలం, p, uid, gid, m, USEC_INFINITY, ఖాళీ);
 }
 
 /* The following are used to implement the mkdir_xyz_label() calls, don't use otherwise. */
-typedef int (*mkdirat_func_t)(int dir_fd, const char *pathname, mode_t mode, LabelContext *label_context);
-int mkdirat_safe_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
-static inline int mkdir_safe_internal(const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context) {
-        return mkdirat_safe_internal(AT_FDCWD, path, mode, uid, gid, flags, _mkdir, label_context);
+రకనిర్వచనం పూర్ణాంకం (*mkdirat_func_t)(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *pathname, mode_t బహుళకం, LabelContext *label_context);
+పూర్ణాంకం mkdirat_సురక్షిత_అంతర్గత(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+స్థిర అంతఃవరుస పూర్ణాంకం mkdir_సురక్షిత_అంతర్గత(స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context) {
+        తిరిగి mkdirat_సురక్షిత_అంతర్గత(AT_FDCWD, మార్గం, బహుళకం, uid, gid, flags, _mkdir, label_context);
 }
-int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context);
-int mkdir_parents_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
-int mkdir_p_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+పూర్ణాంకం mkdirat_parents_అంతర్గత(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context);
+పూర్ణాంకం mkdir_parents_అంతర్గత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);
+పూర్ణాంకం mkdir_p_అంతర్గత(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdir, LabelContext *label_context);

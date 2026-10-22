@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <glob.h>       /* IWYU pragma: export */
+#అన్తర్భావ <glob.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef DIR* (*opendir_t)(const char *);
+రకనిర్వచనం DIR* (*opendir_t)(స్థిరరాశి అక్షరం *);
 
-int safe_glob_full(const char *path, int flags, opendir_t opendir_func, char ***ret);
-static inline int safe_glob(const char *path, int flags, char ***ret) {
-        return safe_glob_full(path, flags, NULL, ret);
+పూర్ణాంకం సురక్షిత_glob_నిండిన(స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం flags, opendir_t opendir_func, అక్షరం ***ret);
+స్థిర అంతఃవరుస పూర్ణాంకం సురక్షిత_glob(స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం flags, అక్షరం ***ret) {
+        తిరిగి సురక్షిత_glob_నిండిన(మార్గం, flags, ఖాళీ, ret);
 }
 
 /* Note: which match is returned depends on the implementation/system and not guaranteed to be stable */
-int glob_first(const char *path, char **ret);
-#define glob_exists(path) glob_first(path, NULL)
-int glob_extend(char ***strv, const char *path, int flags);
+పూర్ణాంకం glob_మొదటి(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret);
+#నిర్వచించు glob_exists(మార్గం) glob_మొదటి(మార్గం, ఖాళీ)
+పూర్ణాంకం glob_extend(అక్షరం ***strv, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం flags);
 
-int glob_non_glob_prefix(const char *path, char **ret);
+పూర్ణాంకం glob_non_glob_ఉపసర్గ(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret);
 
-bool string_is_glob(const char *p) _pure_;
+bool string_is_glob(స్థిరరాశి అక్షరం *p) శుద్ధ;

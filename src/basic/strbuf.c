@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
+#అన్తర్భావ <string.h>
 
-#include "alloc-util.h"
-#include "sort-util.h"
-#include "strbuf.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "sort-util.h"
+#అన్తర్భావ "strbuf.h"
 
 /*
  * Strbuf stores given strings in a single continuous allocated memory
@@ -24,154 +24,154 @@
  *   ...
  */
 
-struct strbuf* strbuf_new(void) {
-        _cleanup_(strbuf_freep) struct strbuf *str = NULL;
+నిర్మాణం strbuf* strbuf_new(శూన్య) {
+        _cleanup_(strbuf_freep) నిర్మాణం strbuf *str = ఖాళీ;
 
-        str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        str = new(నిర్మాణం strbuf, 1);
+        ఒకవేళ (!str)
+                తిరిగి ఖాళీ;
 
-        *str = (struct strbuf) {
-                .buf = new0(char, 1),
-                .root = new0(struct strbuf_node, 1),
+        *str = (నిర్మాణం strbuf) {
+                .buf = new0(అక్షరం, 1),
+                .మూలం = new0(నిర్మాణం strbuf_కణుపు, 1),
                 .len = 1,
-                .nodes_count = 1,
+                .nodes_లెక్క = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        ఒకవేళ (!str->buf || !str->మూలం)
+                తిరిగి ఖాళీ;
 
-        return TAKE_PTR(str);
+        తిరిగి TAKE_PTR(str);
 }
 
-static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
-        assert(node);
+స్థిర నిర్మాణం strbuf_కణుపు* strbuf_కణుపు_cleanup(నిర్మాణం strbuf_కణుపు *కణుపు) {
+        ప్రతిజ్ఞా(కణుపు);
 
-        FOREACH_ARRAY(child, node->children, node->children_count)
-                strbuf_node_cleanup(child->child);
+        FOREACH_ARRAY(బిడ్డ, కణుపు->children, కణుపు->children_లెక్క)
+                strbuf_కణుపు_cleanup(బిడ్డ->బిడ్డ);
 
-        free(node->children);
-        return mfree(node);
+        విడుదల(కణుపు->children);
+        తిరిగి mfree(కణుపు);
 }
 
 /* clean up trie data, leave only the string buffer */
-void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+శూన్య strbuf_complete(నిర్మాణం strbuf *str) {
+        ఒకవేళ (!str || !str->మూలం)
+                తిరిగి;
 
-        str->root = strbuf_node_cleanup(str->root);
+        str->మూలం = strbuf_కణుపు_cleanup(str->మూలం);
 }
 
 /* clean up everything */
-struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+నిర్మాణం strbuf* strbuf_free(నిర్మాణం strbuf *str) {
+        ఒకవేళ (!str)
+                తిరిగి ఖాళీ;
 
         strbuf_complete(str);
-        free(str->buf);
-        return mfree(str);
+        విడుదల(str->buf);
+        తిరిగి mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
-        assert(n1);
-        assert(n2);
+స్థిర పూర్ణాంకం strbuf_children_cmp(స్థిరరాశి నిర్మాణం strbuf_బిడ్డ_నమోదు *n1, స్థిరరాశి నిర్మాణం strbuf_బిడ్డ_నమోదు *n2) {
+        ప్రతిజ్ఞా(n1);
+        ప్రతిజ్ఞా(n2);
 
-        return CMP(n1->c, n2->c);
+        తిరిగి CMP(n1->c, n2->c);
 }
 
-static void bubbleinsert(struct strbuf_node *node,
+స్థిర శూన్య bubbleinsert(నిర్మాణం strbuf_కణుపు *కణుపు,
                          uint8_t c,
-                         struct strbuf_node *node_child) {
+                         నిర్మాణం strbuf_కణుపు *కణుపు_బిడ్డ) {
 
-        struct strbuf_child_entry new = {
+        నిర్మాణం strbuf_బిడ్డ_నమోదు new = {
                 .c = c,
-                .child = node_child,
+                .బిడ్డ = కణుపు_బిడ్డ,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        పూర్ణాంకం ఎడమ = 0, కుడి = ASSERT_PTR(కణుపు)->children_లెక్క;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
-                        left = middle + 1;
-                else
-                        right = middle;
+        అయితే (కుడి > ఎడమ) {
+                పూర్ణాంకం మధ్య = (కుడి + ఎడమ) / 2 ;
+                ఒకవేళ (strbuf_children_cmp(&కణుపు->children[మధ్య], &new) <= 0)
+                        ఎడమ = మధ్య + 1;
+                లేకపోతే
+                        కుడి = మధ్య;
         }
 
-        memmove(node->children + left + 1, node->children + left,
-                sizeof(struct strbuf_child_entry) * (node->children_count - left));
-        node->children[left] = new;
+        memmove(కణుపు->children + ఎడమ + 1, కణుపు->children + ఎడమ,
+                పరిమాణం(నిర్మాణం strbuf_బిడ్డ_నమోదు) * (కణుపు->children_లెక్క - ఎడమ));
+        కణుపు->children[ఎడమ] = new;
 
-        node->children_count++;
+        కణుపు->children_లెక్క++;
 }
 
 /* add string, return the index/offset into the buffer */
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
+ssize_t strbuf_కూడు_string_నిండిన(నిర్మాణం strbuf *str, స్థిరరాశి అక్షరం *s, size_t len) {
         uint8_t c;
         ssize_t off;
 
-        assert(str);
-        assert(s || len == 0);
+        ప్రతిజ్ఞా(str);
+        ప్రతిజ్ఞా(s || len == 0);
 
-        if (len == SIZE_MAX)
-                len = strlen(s);
+        ఒకవేళ (len == SIZE_MAX)
+                len = అక్షరశ్రేణి_పొడవు(s);
 
-        if (!str->root)
-                return -EINVAL;
+        ఒకవేళ (!str->మూలం)
+                తిరిగి -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
-        str->in_count++;
-        if (len == 0) {
-                str->dedup_count++;
-                return 0;
+        str->లోపల_లెక్క++;
+        ఒకవేళ (len == 0) {
+                str->dedup_లెక్క++;
+                తిరిగి 0;
         }
-        str->in_len += len;
+        str->లోపల_len += len;
 
-        struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        నిర్మాణం strbuf_కణుపు *కణుపు = str->మూలం;
+        కొరకు (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
-                off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                off = కణుపు->విలువ_off + కణుపు->విలువ_len - len;
+                ఒకవేళ (depth == len || (కణుపు->విలువ_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
-                        str->dedup_count++;
-                        return off;
+                        str->dedup_లెక్క++;
+                        తిరిగి off;
                 }
 
                 c = s[len - 1 - depth];
 
                 /* lookup child node */
-                struct strbuf_child_entry *child, search = { .c = c };
-                child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
-                        break;
-                node = child->child;
+                నిర్మాణం strbuf_బిడ్డ_నమోదు *బిడ్డ, శోధన = { .c = c };
+                బిడ్డ = typesafe_bsearch(&శోధన, కణుపు->children, కణుపు->children_లెక్క, strbuf_children_cmp);
+                ఒకవేళ (!బిడ్డ)
+                        ఆపు;
+                కణుపు = బిడ్డ->బిడ్డ;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        ఒకవేళ (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                తిరిగి -ENOMEM;
         off = str->len;
-        memcpy(str->buf + off, s, len);
+        జ్ఞాపకం_నకలు(str->buf + off, s, len);
         str->len += len;
         str->buf[str->len++] = '\0';
 
         /* new node */
-        _cleanup_free_ struct strbuf_node *node_child = NULL;
+        _cleanup_free_ నిర్మాణం strbuf_కణుపు *కణుపు_బిడ్డ = ఖాళీ;
 
-        node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
-        *node_child = (struct strbuf_node) {
-                .value_off = off,
-                .value_len = len,
+        కణుపు_బిడ్డ = new(నిర్మాణం strbuf_కణుపు, 1);
+        ఒకవేళ (!కణుపు_బిడ్డ)
+                తిరిగి -ENOMEM;
+        *కణుపు_బిడ్డ = (నిర్మాణం strbuf_కణుపు) {
+                .విలువ_off = off,
+                .విలువ_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        ఒకవేళ (!GREEDY_REALLOC(కణుపు->children, కణుపు->children_లెక్క + 1))
+                తిరిగి -ENOMEM;
 
-        str->nodes_count++;
+        str->nodes_లెక్క++;
 
-        bubbleinsert(node, c, TAKE_PTR(node_child));
+        bubbleinsert(కణుపు, c, TAKE_PTR(కణుపు_బిడ్డ));
 
-        return off;
+        తిరిగి off;
 }

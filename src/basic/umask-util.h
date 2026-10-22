@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <sys/stat.h>
+#అన్తర్భావ <sys/stat.h>
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-static inline void umaskp(mode_t *u) {
+స్థిర అంతఃవరుస శూన్య umaskp(mode_t *u) {
         umask(*u);
 }
 
-#define _cleanup_umask_ _cleanup_(umaskp)
+#నిర్వచించు _cleanup_umask_ _cleanup_(umaskp)
 
 /* We make use of the fact here that the umask() syscall uses only the lower 9 bits of mode_t, although
  * mode_t has space for the file type in the bits further up. We simply OR in the file type mask S_IFMT to
@@ -18,10 +18,10 @@ static inline void umaskp(mode_t *u) {
 
 assert_cc((S_IFMT & 0777) == 0);
 
-#define WITH_UMASK(mask)                                            \
-        for (_cleanup_umask_ mode_t _saved_umask_ = umask(mask) | S_IFMT; \
-             FLAGS_SET(_saved_umask_, S_IFMT);                          \
+#నిర్వచించు WITH_UMASK(ముసుగు_3)                                            \
+        కొరకు (_cleanup_umask_ mode_t _saved_umask_ = umask(ముసుగు_3) | S_IFMT; \
+             FLAGS_సమితి(_saved_umask_, S_IFMT);                          \
              _saved_umask_ &= 0777)
 
-#define BLOCK_WITH_UMASK(mask) \
-        _unused_ _cleanup_umask_ mode_t _saved_umask_ = umask(mask);
+#నిర్వచించు ఖండం_WITH_UMASK(ముసుగు_3) \
+        వాడని _cleanup_umask_ mode_t _saved_umask_ = umask(ముసుగు_3);

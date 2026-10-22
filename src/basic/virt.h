@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef enum Virtualization {
+రకనిర్వచనం గణన Virtualization {
         VIRTUALIZATION_NONE = 0,
 
-        VIRTUALIZATION_VM_FIRST,
-        VIRTUALIZATION_KVM = VIRTUALIZATION_VM_FIRST,
+        VIRTUALIZATION_VM_మొదటి,
+        VIRTUALIZATION_KVM = VIRTUALIZATION_VM_మొదటి,
         VIRTUALIZATION_AMAZON,
         VIRTUALIZATION_QEMU,
         VIRTUALIZATION_BOCHS,
@@ -26,10 +26,10 @@ typedef enum Virtualization {
         VIRTUALIZATION_SRE,
         VIRTUALIZATION_GOOGLE,
         VIRTUALIZATION_VM_OTHER,
-        VIRTUALIZATION_VM_LAST = VIRTUALIZATION_VM_OTHER,
+        VIRTUALIZATION_VM_చివరి = VIRTUALIZATION_VM_OTHER,
 
-        VIRTUALIZATION_CONTAINER_FIRST,
-        VIRTUALIZATION_SYSTEMD_NSPAWN = VIRTUALIZATION_CONTAINER_FIRST,
+        VIRTUALIZATION_CONTAINER_మొదటి,
+        VIRTUALIZATION_SYSTEMD_NSPAWN = VIRTUALIZATION_CONTAINER_మొదటి,
         VIRTUALIZATION_LXC_LIBVIRT,
         VIRTUALIZATION_LXC,
         VIRTUALIZATION_OPENVZ,
@@ -40,28 +40,28 @@ typedef enum Virtualization {
         VIRTUALIZATION_PROOT,
         VIRTUALIZATION_POUCH,
         VIRTUALIZATION_CONTAINER_OTHER,
-        VIRTUALIZATION_CONTAINER_LAST = VIRTUALIZATION_CONTAINER_OTHER,
+        VIRTUALIZATION_CONTAINER_చివరి = VIRTUALIZATION_CONTAINER_OTHER,
 
         _VIRTUALIZATION_MAX,
         _VIRTUALIZATION_INVALID = -EINVAL,
         _VIRTUALIZATION_ERRNO_MAX = -ERRNO_MAX, /* ensure full range of errno fits into this enum */
 } Virtualization;
 
-static inline bool VIRTUALIZATION_IS_VM(Virtualization x) {
-        return x >= VIRTUALIZATION_VM_FIRST && x <= VIRTUALIZATION_VM_LAST;
+స్థిర అంతఃవరుస bool VIRTUALIZATION_IS_VM(Virtualization x) {
+        తిరిగి x >= VIRTUALIZATION_VM_మొదటి && x <= VIRTUALIZATION_VM_చివరి;
 }
 
-static inline bool VIRTUALIZATION_IS_CONTAINER(Virtualization x) {
-        return x >= VIRTUALIZATION_CONTAINER_FIRST && x <= VIRTUALIZATION_CONTAINER_LAST;
+స్థిర అంతఃవరుస bool VIRTUALIZATION_IS_CONTAINER(Virtualization x) {
+        తిరిగి x >= VIRTUALIZATION_CONTAINER_మొదటి && x <= VIRTUALIZATION_CONTAINER_చివరి;
 }
 
-Virtualization detect_vm(void);
-Virtualization detect_container(void);
-Virtualization detect_virtualization(void);
+Virtualization detect_vm(శూన్య);
+Virtualization detect_container(శూన్య);
+Virtualization detect_virtualization(శూన్య);
 
-int running_in_userns(void);
-int running_in_chroot(void);
+పూర్ణాంకం running_లోపల_userns(శూన్య);
+పూర్ణాంకం running_లోపల_chroot(శూన్య);
 
-DECLARE_STRING_TABLE_LOOKUP(virtualization, Virtualization);
-bool has_cpu_with_flag(const char *flag);
-int cpu_known_features(char ***ret);
+DECLARE_STRING_పట్టిక_LOOKUP(virtualization, Virtualization);
+bool has_cpu_with_flag(స్థిరరాశి అక్షరం *flag);
+పూర్ణాంకం cpu_తెలిసిన_features(అక్షరం ***ret);

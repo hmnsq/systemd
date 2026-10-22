@@ -1,113 +1,113 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <threads.h>
-#include <unistd.h>
+#అన్తర్భావ <threads.h>
+#అన్తర్భావ <unistd.h>
 
-#include "errno-util.h"
-#include "parse-util.h"
-#include "process-util.h"
-#include "signal-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "signal-util.h"
+#అన్తర్భావ "stdio-util.h"
+#అన్తర్భావ "string-table.h"
+#అన్తర్భావ "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+పూర్ణాంకం reset_all_signal_handlers(శూన్య) {
+        పూర్ణాంకం ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        కొరకు (పూర్ణాంకం sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
-                        continue;
+                ఒకవేళ (లోపల_సమితి(sig, SIGKILL, SIGSTOP))
+                        కొనసాగు;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
-                r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                r = RET_NERRNO(sigaction(sig, &sigaction_default, ఖాళీ));
+                ఒకవేళ (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        తిరిగి ret;
 }
 
-int reset_signal_mask(void) {
+పూర్ణాంకం reset_signal_ముసుగు(శూన్య) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ఒకవేళ (sigemptyset(&ss) < 0)
+                తిరిగి -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        తిరిగి RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, ఖాళీ));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+పూర్ణాంకం sigaction_many_అంతర్గత(స్థిరరాశి నిర్మాణం sigaction *sa, ...) {
+        పూర్ణాంకం sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        అయితే ((sig = va_arg(ap, పూర్ణాంకం)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                ఒకవేళ (sig == 0)
+                        కొనసాగు;
 
-                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
+                RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, ఖాళీ)));
         }
 
         va_end(ap);
 
-        return r;
+        తిరిగి r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+స్థిర పూర్ణాంకం sigset_కూడు_many_ap(sigset_t *ss, va_list ap) {
+        పూర్ణాంకం sig, r = 0;
 
-        assert(ss);
+        ప్రతిజ్ఞా(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        అయితే ((sig = va_arg(ap, పూర్ణాంకం)) >= 0) {
 
-                if (sig == 0)
-                        continue;
+                ఒకవేళ (sig == 0)
+                        కొనసాగు;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                ఒకవేళ (sigaddset(ss, sig) < 0) {
+                        ఒకవేళ (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        తిరిగి r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+పూర్ణాంకం sigset_కూడు_many_అంతర్గత(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
         va_start(ap, ss);
-        r = sigset_add_many_ap(ss, ap);
+        r = sigset_కూడు_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        తిరిగి r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+పూర్ణాంకం sigprocmask_many_అంతర్గత(పూర్ణాంకం how, sigset_t *ret_old_ముసుగు, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        పూర్ణాంకం r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ఒకవేళ (sigemptyset(&ss) < 0)
+                తిరిగి -errno;
 
-        va_start(ap, ret_old_mask);
-        r = sigset_add_many_ap(&ss, ap);
+        va_start(ap, ret_old_ముసుగు);
+        r = sigset_కూడు_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        తిరిగి RET_NERRNO(sigprocmask(how, &ss, ret_old_ముసుగు));
 }
 
-static const char *const static_signal_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి static_signal_పట్టిక[] = {
         [SIGHUP]    = "HUP",
         [SIGINT]    = "INT",
         [SIGQUIT]   = "QUIT",
@@ -123,9 +123,9 @@ static const char *const static_signal_table[] = {
         [SIGPIPE]   = "PIPE",
         [SIGALRM]   = "ALRM",
         [SIGTERM]   = "TERM",
-#ifdef SIGSTKFLT
+#నిర్వచితమైతే SIGSTKFLT
         [SIGSTKFLT] = "STKFLT",  /* Linux on SPARC doesn't know SIGSTKFLT */
-#endif
+#అయితే_ముగింపు
         [SIGCHLD]   = "CHLD",
         [SIGCONT]   = "CONT",
         [SIGSTOP]   = "STOP",
@@ -143,87 +143,87 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP(static_signal, పూర్ణాంకం);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
-        const char *name;
+స్థిరరాశి అక్షరం* signal_గమ్యం_string(పూర్ణాంకం signo) {
+        స్థిర thread_local అక్షరం buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(పూర్ణాంకం)];
+        స్థిరరాశి అక్షరం *name;
 
-        name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        name = static_signal_గమ్యం_string(signo);
+        ఒకవేళ (name)
+                తిరిగి name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        ఒకవేళ (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        లేకపోతే
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        తిరిగి buf;
 }
 
-int signal_from_string(const char *s) {
-        const char *p;
-        int signo, r;
+పూర్ణాంకం signal_from_string(స్థిరరాశి అక్షరం *s) {
+        స్థిరరాశి అక్షరం *p;
+        పూర్ణాంకం signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        ఒకవేళ (సురక్షిత_atoi(s, &signo) >= 0) {
+                ఒకవేళ (SIGNAL_VALID(signo))
+                        తిరిగి signo;
+                లేకపోతే
+                        తిరిగి -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        ఒకవేళ (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        ఒకవేళ (signo > 0)
+                తిరిగి signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        ఒకవేళ (p) {
+                ఒకవేళ (*p == '\0')
+                        తిరిగి SIGRTMIN;
+                ఒకవేళ (*p != '+')
+                        తిరిగి -EINVAL;
 
-                r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                r = సురక్షిత_atoi(p, &signo);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                ఒకవేళ (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        తిరిగి -ERANGE;
 
-                return signo + SIGRTMIN;
+                తిరిగి signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        ఒకవేళ (p) {
+                ఒకవేళ (*p == '\0')
+                        తిరిగి SIGRTMAX;
+                ఒకవేళ (*p != '-')
+                        తిరిగి -EINVAL;
 
-                r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                r = సురక్షిత_atoi(p, &signo);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                ఒకవేళ (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        తిరిగి -ERANGE;
 
-                return signo + SIGRTMAX;
+                తిరిగి signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-static const char *const sigill_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigill_సంకేతం_పట్టిక[] = {
         [ILL_ILLOPC]   = "ILL_ILLOPC",
         [ILL_ILLOPN]   = "ILL_ILLOPN",
         [ILL_ILLADR]   = "ILL_ILLADR",
@@ -235,9 +235,9 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigill_సంకేతం, పూర్ణాంకం);
 
-static const char *const sigfpe_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigfpe_సంకేతం_పట్టిక[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
         [FPE_INTOVF]   = "FPE_INTOVF",
         [FPE_FLTDIV]   = "FPE_FLTDIV",
@@ -250,9 +250,9 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigfpe_సంకేతం, పూర్ణాంకం);
 
-static const char *const sigsegv_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigsegv_సంకేతం_పట్టిక[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
         [SEGV_ACCERR]  = "SEGV_ACCERR",
         [SEGV_BNDERR]  = "SEGV_BNDERR",
@@ -265,9 +265,9 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigsegv_సంకేతం, పూర్ణాంకం);
 
-static const char *const sigbus_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigbus_సంకేతం_పట్టిక[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
         [BUS_ADRERR]    = "BUS_ADRERR",
         [BUS_OBJERR]    = "BUS_OBJERR",
@@ -275,9 +275,9 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigbus_సంకేతం, పూర్ణాంకం);
 
-static const char *const sigtrap_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigtrap_సంకేతం_పట్టిక[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
         [TRAP_TRACE]  = "TRAP_TRACE",
         [TRAP_BRANCH] = "TRAP_BRANCH",
@@ -286,19 +286,19 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigtrap_సంకేతం, పూర్ణాంకం);
 
-static const char *const sigsys_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigsys_సంకేతం_పట్టిక[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigsys_సంకేతం, పూర్ణాంకం);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
  * all other values decoded here, provide an uppercase variant. */
-static const char *const sigchld_uppercase_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigchld_uppercase_సంకేతం_పట్టిక[] = {
         [CLD_EXITED]    = "CLD_EXITED",
         [CLD_KILLED]    = "CLD_KILLED",
         [CLD_DUMPED]    = "CLD_DUMPED",
@@ -307,9 +307,9 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigchld_uppercase_సంకేతం, పూర్ణాంకం);
 
-static const char *const sigpoll_code_table[] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి sigpoll_సంకేతం_పట్టిక[] = {
         [POLL_IN]  = "POLL_IN",
         [POLL_OUT] = "POLL_OUT",
         [POLL_MSG] = "POLL_MSG",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_వ్యక్తిగత_STRING_పట్టిక_LOOKUP_గమ్యం_STRING(sigpoll_సంకేతం, పూర్ణాంకం);
 
-const char* signal_code_to_string(int signo, int code) {
-        switch (code) {
+స్థిరరాశి అక్షరం* signal_సంకేతం_గమ్యం_string(పూర్ణాంకం signo, పూర్ణాంకం సంకేతం_2) {
+        ఎంపిక (సంకేతం_2) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
-        case SI_KERNEL:
-                return "SI_KERNEL";
-        case SI_USER:
-                return "SI_USER";
+        స్థితి SI_KERNEL:
+                తిరిగి "SI_KERNEL";
+        స్థితి SI_USER:
+                తిరిగి "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
-        case SI_ASYNCNL:
-                return "SI_ASYNCNL";
-        case SI_DETHREAD:
-                return "SI_DETHREAD";
-        case SI_TKILL:
-                return "SI_TKILL";
-        case SI_SIGIO:
-                return "SI_SIGIO";
-        case SI_ASYNCIO:
-                return "SI_ASYNCIO";
-        case SI_MESGQ:
-                return "SI_MESGQ";
-        case SI_TIMER:
-                return "SI_TIMER";
-        case SI_QUEUE:
-                return "SI_QUEUE";
+        స్థితి SI_ASYNCNL:
+                తిరిగి "SI_ASYNCNL";
+        స్థితి SI_DETHREAD:
+                తిరిగి "SI_DETHREAD";
+        స్థితి SI_TKILL:
+                తిరిగి "SI_TKILL";
+        స్థితి SI_SIGIO:
+                తిరిగి "SI_SIGIO";
+        స్థితి SI_ASYNCIO:
+                తిరిగి "SI_ASYNCIO";
+        స్థితి SI_MESGQ:
+                తిరిగి "SI_MESGQ";
+        స్థితి SI_TIMER:
+                తిరిగి "SI_TIMER";
+        స్థితి SI_QUEUE:
+                తిరిగి "SI_QUEUE";
         }
 
-        switch (signo) {
-        case SIGILL:
-                return sigill_code_to_string(code);
-        case SIGFPE:
-                return sigfpe_code_to_string(code);
-        case SIGSEGV:
-                return sigsegv_code_to_string(code);
-        case SIGBUS:
-                return sigbus_code_to_string(code);
-        case SIGTRAP:
-                return sigtrap_code_to_string(code);
-        case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
-        case SIGPOLL:
-                return sigpoll_code_to_string(code);
-        case SIGSYS:
-                return sigsys_code_to_string(code);
-        default:
-                return NULL;
+        ఎంపిక (signo) {
+        స్థితి SIGILL:
+                తిరిగి sigill_సంకేతం_గమ్యం_string(సంకేతం_2);
+        స్థితి SIGFPE:
+                తిరిగి sigfpe_సంకేతం_గమ్యం_string(సంకేతం_2);
+        స్థితి SIGSEGV:
+                తిరిగి sigsegv_సంకేతం_గమ్యం_string(సంకేతం_2);
+        స్థితి SIGBUS:
+                తిరిగి sigbus_సంకేతం_గమ్యం_string(సంకేతం_2);
+        స్థితి SIGTRAP:
+                తిరిగి sigtrap_సంకేతం_గమ్యం_string(సంకేతం_2);
+        స్థితి SIGCHLD:
+                తిరిగి sigchld_uppercase_సంకేతం_గమ్యం_string(సంకేతం_2);
+        స్థితి SIGPOLL:
+                తిరిగి sigpoll_సంకేతం_గమ్యం_string(సంకేతం_2);
+        స్థితి SIGSYS:
+                తిరిగి sigsys_సంకేతం_గమ్యం_string(సంకేతం_2);
+        అప్రమేయ:
+                తిరిగి ఖాళీ;
         }
 }
 
-void nop_signal_handler(int sig) {
+శూన్య nop_signal_handler(పూర్ణాంకం sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+పూర్ణాంకం signal_is_blocked(పూర్ణాంకం sig) {
         sigset_t ss;
-        int r;
+        పూర్ణాంకం r;
 
-        r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        r = pthread_sigmask(SIG_SETMASK, ఖాళీ, &ss);
+        ఒకవేళ (r != 0)
+                తిరిగి -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        తిరిగి RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
-        struct sigaction sa;
+పూర్ణాంకం autoreaping_enabled(శూన్య) {
+        నిర్మాణం sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        ఒకవేళ (sigaction(SIGCHLD, /* act= */ ఖాళీ, &sa) < 0)
+                తిరిగి -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        తిరిగి sa.sa_handler == SIG_IGN || FLAGS_సమితి(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+పూర్ణాంకం తీయి_pending_signal_అంతర్గత(పూర్ణాంకం sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        ఒకవేళ (sig < 0) /* Empty list? */
+                తిరిగి -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ఒకవేళ (sigemptyset(&ss) < 0)
+                తిరిగి -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        ఒకవేళ (sig > 0 && sigaddset(&ss, sig) < 0)
+                తిరిగి -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
-        r = sigset_add_many_ap(&ss, ap);
+        r = sigset_కూడు_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        r = sigtimedwait(&ss, ఖాళీ, &(స్థిరరాశి నిర్మాణం timespec) {});
+        ఒకవేళ (r < 0) {
+                ఒకవేళ (errno == EAGAIN)
+                        తిరిగి 0;
 
-                return -errno;
+                తిరిగి -errno;
         }
 
-        return r; /* Returns the signal popped */
+        తిరిగి r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+శూన్య propagate_signal(పూర్ణాంకం sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,49 +443,49 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        ఒకవేళ (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
-const struct sigaction sigaction_ignore = {
+స్థిరరాశి నిర్మాణం sigaction sigaction_ignore = {
         .sa_handler = SIG_IGN,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_default = {
+స్థిరరాశి నిర్మాణం sigaction sigaction_default = {
         .sa_handler = SIG_DFL,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_nop_nocldstop = {
+స్థిరరాశి నిర్మాణం sigaction sigaction_nop_nocldstop = {
         .sa_handler = nop_signal_handler,
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+పూర్ణాంకం parse_signo(స్థిరరాశి అక్షరం *s, పూర్ణాంకం *ret) {
+        పూర్ణాంకం sig, r;
 
-        r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        r = సురక్షిత_atoi(s, &sig);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        ఒకవేళ (!SIGNAL_VALID(sig))
+                తిరిగి -EINVAL;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = sig;
 
-        return 0;
+        తిరిగి 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
-        assert(signal == SIGTERM);
-        assert(info);
+శూన్య sigterm_process_సమూహం_handler(పూర్ణాంకం సంకేతం, siginfo_t *info, శూన్య *ucontext) {
+        ప్రతిజ్ఞా(సంకేతం == SIGTERM);
+        ప్రతిజ్ఞా(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        ఒకవేళ (si_సంకేతం_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
-                (void) kill(0, signal);
+                (శూన్య) kill(0, సంకేతం);
 }

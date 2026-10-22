@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <sched.h>              /* IWYU pragma: export */
+#అన్తర్భావ <sched.h>              /* IWYU pragma: export */
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-pid_t raw_clone(unsigned long flags);
+pid_t raw_clone(గుర్తులేని దీర్ఘ flags);

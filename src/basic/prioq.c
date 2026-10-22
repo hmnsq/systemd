@@ -10,121 +10,121 @@
  * The underlying algorithm used in this implementation is a Heap.
  */
 
-#include "alloc-util.h"
-#include "prioq.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "prioq.h"
 
-struct prioq_item {
-        void *data;
-        unsigned *idx;
+నిర్మాణం prioq_అంశం {
+        శూన్య *దత్తాంశం;
+        గుర్తులేని *idx;
 };
 
-struct Prioq {
+నిర్మాణం Prioq {
         compare_func_t compare_func;
-        unsigned n_items;
-        struct prioq_item *items;
+        గుర్తులేని n_వస్తువులు;
+        నిర్మాణం prioq_అంశం *వస్తువులు;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        ఒకవేళ (!q)
+                తిరిగి q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        తిరిగి q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        ఒకవేళ (!q)
+                తిరిగి ఖాళీ;
 
         /* Invalidate the index fields of any remaining objects */
-        FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
-                        *(item->idx) = PRIOQ_IDX_NULL;
+        FOREACH_ARRAY(అంశం, q->వస్తువులు, q->n_వస్తువులు)
+                ఒకవేళ (అంశం->idx)
+                        *(అంశం->idx) = PRIOQ_IDX_NULL;
 
-        free(q->items);
-        return mfree(q);
+        విడుదల(q->వస్తువులు);
+        తిరిగి mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
-        assert(q);
+పూర్ణాంకం prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+        ప్రతిజ్ఞా(q);
 
-        if (*q) {
-                assert((*q)->compare_func == compare_func);
-                return 0;
+        ఒకవేళ (*q) {
+                ప్రతిజ్ఞా((*q)->compare_func == compare_func);
+                తిరిగి 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        ఒకవేళ (!*q)
+                తిరిగి -ENOMEM;
 
-        return 0;
+        తిరిగి 0;
 }
 
-static void swap(Prioq *q, unsigned j, unsigned k) {
-        assert(q);
-        assert(j < q->n_items);
-        assert(k < q->n_items);
+స్థిర శూన్య మార్పిడి(Prioq *q, గుర్తులేని j, గుర్తులేని k) {
+        ప్రతిజ్ఞా(q);
+        ప్రతిజ్ఞా(j < q->n_వస్తువులు);
+        ప్రతిజ్ఞా(k < q->n_వస్తువులు);
 
-        assert(!q->items[j].idx || *(q->items[j].idx) == j);
-        assert(!q->items[k].idx || *(q->items[k].idx) == k);
+        ప్రతిజ్ఞా(!q->వస్తువులు[j].idx || *(q->వస్తువులు[j].idx) == j);
+        ప్రతిజ్ఞా(!q->వస్తువులు[k].idx || *(q->వస్తువులు[k].idx) == k);
 
-        SWAP_TWO(q->items[j].data, q->items[k].data);
-        SWAP_TWO(q->items[j].idx, q->items[k].idx);
+        మార్పిడి_TWO(q->వస్తువులు[j].దత్తాంశం, q->వస్తువులు[k].దత్తాంశం);
+        మార్పిడి_TWO(q->వస్తువులు[j].idx, q->వస్తువులు[k].idx);
 
-        if (q->items[j].idx)
-                *q->items[j].idx = j;
+        ఒకవేళ (q->వస్తువులు[j].idx)
+                *q->వస్తువులు[j].idx = j;
 
-        if (q->items[k].idx)
-                *q->items[k].idx = k;
+        ఒకవేళ (q->వస్తువులు[k].idx)
+                *q->వస్తువులు[k].idx = k;
 }
 
-static unsigned shuffle_up(Prioq *q, unsigned idx) {
-        assert(q);
-        assert(idx < q->n_items);
+స్థిర గుర్తులేని shuffle_పైకి(Prioq *q, గుర్తులేని idx) {
+        ప్రతిజ్ఞా(q);
+        ప్రతిజ్ఞా(idx < q->n_వస్తువులు);
 
-        while (idx > 0) {
-                unsigned k;
+        అయితే (idx > 0) {
+                గుర్తులేని k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                ఒకవేళ (q->compare_func(q->వస్తువులు[k].దత్తాంశం, q->వస్తువులు[idx].దత్తాంశం) <= 0)
+                        ఆపు;
 
-                swap(q, idx, k);
+                మార్పిడి(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        తిరిగి idx;
 }
 
-static unsigned shuffle_down(Prioq *q, unsigned idx) {
-        assert(q);
+స్థిర గుర్తులేని shuffle_కిందికి(Prioq *q, గుర్తులేని idx) {
+        ప్రతిజ్ఞా(q);
 
-        for (;;) {
-                unsigned j, k, s;
+        కొరకు (;;) {
+                గుర్తులేని j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                ఒకవేళ (j >= q->n_వస్తువులు)
+                        ఆపు;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                ఒకవేళ (q->compare_func(q->వస్తువులు[j].దత్తాంశం, q->వస్తువులు[idx].దత్తాంశం) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                లేకపోతే
                         s = idx;
 
-                if (k < q->n_items &&
-                    q->compare_func(q->items[k].data, q->items[s].data) < 0)
+                ఒకవేళ (k < q->n_వస్తువులు &&
+                    q->compare_func(q->వస్తువులు[k].దత్తాంశం, q->వస్తువులు[s].దత్తాంశం) < 0)
 
                         /* So our right child is smaller than we are, let's
                          * remember this fact */
@@ -132,179 +132,179 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                ఒకవేళ (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        ఆపు;
 
-                swap(q, idx, s);
+                మార్పిడి(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        తిరిగి idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
-        unsigned k;
+పూర్ణాంకం prioq_put(Prioq *q, శూన్య *దత్తాంశం, గుర్తులేని *idx) {
+        గుర్తులేని k;
 
-        assert(q);
+        ప్రతిజ్ఞా(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        ఒకవేళ (!GREEDY_REALLOC(q->వస్తువులు, MAX(q->n_వస్తువులు + 1, 16u)))
+                తిరిగి -ENOMEM;
 
-        k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
-                .data = data,
+        k = q->n_వస్తువులు++;
+        q->వస్తువులు[k] = (నిర్మాణం prioq_అంశం) {
+                .దత్తాంశం = దత్తాంశం,
                 .idx = idx,
         };
 
-        if (idx)
+        ఒకవేళ (idx)
                 *idx = k;
 
-        shuffle_up(q, k);
+        shuffle_పైకి(q, k);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+పూర్ణాంకం _prioq_ensure_put(Prioq **q, compare_func_t compare_func, శూన్య *దత్తాంశం, గుర్తులేని *idx) {
+        పూర్ణాంకం r;
 
-        assert(q);
+        ప్రతిజ్ఞా(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return prioq_put(*q, data, idx);
+        తిరిగి prioq_put(*q, దత్తాంశం, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+స్థిర శూన్య remove_అంశం(Prioq *q, నిర్మాణం prioq_అంశం *i) {
+        నిర్మాణం prioq_అంశం *l;
 
-        assert(q);
-        assert(i);
+        ప్రతిజ్ఞా(q);
+        ప్రతిజ్ఞా(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        ఒకవేళ (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
-        l = q->items + q->n_items - 1;
+        l = q->వస్తువులు + q->n_వస్తువులు - 1;
 
-        if (i == l)
+        ఒకవేళ (i == l)
                 /* Last entry, let's just remove it */
-                q->n_items--;
-        else {
-                unsigned k;
+                q->n_వస్తువులు--;
+        లేకపోతే {
+                గుర్తులేని k;
 
                 /* Not last entry, let's replace the last entry with
                  * this one, and reshuffle */
 
-                assert(i >= q->items);
-                k = i - q->items;
+                ప్రతిజ్ఞా(i >= q->వస్తువులు);
+                k = i - q->వస్తువులు;
 
-                i->data = l->data;
+                i->దత్తాంశం = l->దత్తాంశం;
                 i->idx = l->idx;
-                if (i->idx)
+                ఒకవేళ (i->idx)
                         *i->idx = k;
-                q->n_items--;
+                q->n_వస్తువులు--;
 
-                k = shuffle_down(q, k);
-                shuffle_up(q, k);
+                k = shuffle_కిందికి(q, k);
+                shuffle_పైకి(q, k);
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+స్థిర నిర్మాణం prioq_అంశం* కనుగొను_అంశం(Prioq *q, శూన్య *దత్తాంశం, గుర్తులేని *idx) {
+        నిర్మాణం prioq_అంశం *i;
 
-        assert(q);
+        ప్రతిజ్ఞా(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        ఒకవేళ (q->n_వస్తువులు <= 0)
+                తిరిగి ఖాళీ;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
-                    *idx >= q->n_items)
-                        return NULL;
+        ఒకవేళ (idx) {
+                ఒకవేళ (*idx == PRIOQ_IDX_NULL ||
+                    *idx >= q->n_వస్తువులు)
+                        తిరిగి ఖాళీ;
 
-                i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                i = q->వస్తువులు + *idx;
+                ఒకవేళ (i->దత్తాంశం != దత్తాంశం)
+                        తిరిగి ఖాళీ;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                తిరిగి i;
+        } లేకపోతే {
+                కొరకు (i = q->వస్తువులు; i < q->వస్తువులు + q->n_వస్తువులు; i++)
+                        ఒకవేళ (i->దత్తాంశం == దత్తాంశం)
+                                తిరిగి i;
+                తిరిగి ఖాళీ;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+పూర్ణాంకం prioq_remove(Prioq *q, శూన్య *దత్తాంశం, గుర్తులేని *idx) {
+        నిర్మాణం prioq_అంశం *i;
 
-        if (!q)
-                return 0;
+        ఒకవేళ (!q)
+                తిరిగి 0;
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        i = కనుగొను_అంశం(q, దత్తాంశం, idx);
+        ఒకవేళ (!i)
+                తిరిగి 0;
 
-        remove_item(q, i);
-        return 1;
+        remove_అంశం(q, i);
+        తిరిగి 1;
 }
 
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
-        unsigned k;
+శూన్య prioq_reshuffle(Prioq *q, శూన్య *దత్తాంశం, గుర్తులేని *idx) {
+        నిర్మాణం prioq_అంశం *i;
+        గుర్తులేని k;
 
-        assert(q);
+        ప్రతిజ్ఞా(q);
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return;
+        i = కనుగొను_అంశం(q, దత్తాంశం, idx);
+        ఒకవేళ (!i)
+                తిరిగి;
 
-        assert(i >= q->items);
-        k = i - q->items;
-        k = shuffle_down(q, k);
-        shuffle_up(q, k);
+        ప్రతిజ్ఞా(i >= q->వస్తువులు);
+        k = i - q->వస్తువులు;
+        k = shuffle_కిందికి(q, k);
+        shuffle_పైకి(q, k);
 }
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+శూన్య* prioq_peek_by_సూచీ(Prioq *q, గుర్తులేని idx) {
+        ఒకవేళ (!q)
+                తిరిగి ఖాళీ;
 
-        if (idx >= q->n_items)
-                return NULL;
+        ఒకవేళ (idx >= q->n_వస్తువులు)
+                తిరిగి ఖాళీ;
 
-        return q->items[idx].data;
+        తిరిగి q->వస్తువులు[idx].దత్తాంశం;
 }
 
-void* prioq_pop(Prioq *q) {
-        void *data;
+శూన్య* prioq_తీయి(Prioq *q) {
+        శూన్య *దత్తాంశం;
 
-        if (!q)
-                return NULL;
+        ఒకవేళ (!q)
+                తిరిగి ఖాళీ;
 
-        if (q->n_items <= 0)
-                return NULL;
+        ఒకవేళ (q->n_వస్తువులు <= 0)
+                తిరిగి ఖాళీ;
 
-        data = q->items[0].data;
-        remove_item(q, q->items);
-        return data;
+        దత్తాంశం = q->వస్తువులు[0].దత్తాంశం;
+        remove_అంశం(q, q->వస్తువులు);
+        తిరిగి దత్తాంశం;
 }
 
-unsigned prioq_size(Prioq *q) {
+గుర్తులేని prioq_కొలత(Prioq *q) {
 
-        if (!q)
-                return 0;
+        ఒకవేళ (!q)
+                తిరిగి 0;
 
-        return q->n_items;
+        తిరిగి q->n_వస్తువులు;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        ఒకవేళ (!q)
+                తిరిగి true;
 
-        return q->n_items <= 0;
+        తిరిగి q->n_వస్తువులు <= 0;
 }

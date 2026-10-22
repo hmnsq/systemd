@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
 /* Bit index (0-based) to mask of specified type. Assertion failure if index is out of range. */
-#define _INDEX_TO_MASK(type, i, uniq)                                   \
+#నిర్వచించు సూచీ_గమ్యం_ముసుగు(type, i, uniq)                                   \
         ({                                                              \
-                int UNIQ_T(_i, uniq) = (i);                             \
-                assert(UNIQ_T(_i, uniq) >= 0);                          \
-                assert(UNIQ_T(_i, uniq) < (int)sizeof(type) * 8);       \
+                పూర్ణాంకం UNIQ_T(_i, uniq) = (i);                             \
+                ప్రతిజ్ఞా(UNIQ_T(_i, uniq) >= 0);                          \
+                ప్రతిజ్ఞా(UNIQ_T(_i, uniq) < (పూర్ణాంకం)పరిమాణం(type) * 8);       \
                 ((type)1) << UNIQ_T(_i, uniq);                          \
         })
-#define INDEX_TO_MASK(type, i)                                          \
+#నిర్వచించు సూచీ_గమ్యం_ముసుగు_2(type, i)                                          \
         ({                                                              \
-                assert_cc(sizeof(type) <= sizeof(unsigned long long));  \
-                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (int)(sizeof(type) * 8)); \
+                assert_cc(పరిమాణం(type) <= పరిమాణం(గుర్తులేని దీర్ఘ దీర్ఘ));  \
+                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (పూర్ణాంకం)(పరిమాణం(type) * 8)); \
                 __builtin_choose_expr(__builtin_constant_p(i),          \
                                       ((type)1) << (i),                 \
-                                      _INDEX_TO_MASK(type, i, UNIQ));   \
+                                      సూచీ_గమ్యం_ముసుగు(type, i, UNIQ));   \
         })
 
 /* Builds a mask of specified type with multiple bits set. Note the result will not be constant, even if all
  * indexes are constant. */
-#define INDEXES_TO_MASK(type, ...)                              \
-        UNIQ_INDEXES_TO_MASK(type, UNIQ, ##__VA_ARGS__)
-#define UNIQ_INDEXES_TO_MASK(type, uniq, ...)                           \
+#నిర్వచించు INDEXES_గమ్యం_ముసుగు(type, ...)                              \
+        UNIQ_INDEXES_గమ్యం_ముసుగు(type, UNIQ, ##__VA_ARGS__)
+#నిర్వచించు UNIQ_INDEXES_గమ్యం_ముసుగు(type, uniq, ...)                           \
         ({                                                              \
-                typeof(type) UNIQ_T(_mask, uniq) = (type)0;             \
-                int UNIQ_T(_i, uniq);                                   \
-                FOREACH_ARGUMENT(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
-                        UNIQ_T(_mask, uniq) |= INDEX_TO_MASK(type, UNIQ_T(_i, uniq)); \
-                UNIQ_T(_mask, uniq);                                    \
+                typeof(type) UNIQ_T(ముసుగు_2, uniq) = (type)0;             \
+                పూర్ణాంకం UNIQ_T(_i, uniq);                                   \
+                FOREACH_వాదం(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
+                        UNIQ_T(ముసుగు_2, uniq) |= సూచీ_గమ్యం_ముసుగు_2(type, UNIQ_T(_i, uniq)); \
+                UNIQ_T(ముసుగు_2, uniq);                                    \
         })
 
 /* Same as the FLAG macros, but accept a 0-based bit index instead of a mask. Results in assertion failure if
  * index is out of range for the type. */
-#define SET_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), true)
-#define CLEAR_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), false)
-#define BIT_SET(bits, i) FLAGS_SET(bits, INDEX_TO_MASK(typeof(bits), i))
+#నిర్వచించు సమితి_బిట్టు(బిట్లు, i) సమితి_FLAG(బిట్లు, సూచీ_గమ్యం_ముసుగు_2(typeof(బిట్లు), i), true)
+#నిర్వచించు CLEAR_బిట్టు(బిట్లు, i) సమితి_FLAG(బిట్లు, సూచీ_గమ్యం_ముసుగు_2(typeof(బిట్లు), i), false)
+#నిర్వచించు బిట్టు_సమితి(బిట్లు, i) FLAGS_సమితి(బిట్లు, సూచీ_గమ్యం_ముసుగు_2(typeof(బిట్లు), i))
 
 /* As above, but accepts multiple indexes. Note the result will not be constant, even if all indexes are
  * constant. */
-#define SET_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), true)
-#define CLEAR_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), false)
-#define BITS_SET(bits, ...) FLAGS_SET(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__))
+#నిర్వచించు సమితి_బిట్లు(బిట్లు, ...) సమితి_FLAG(బిట్లు, INDEXES_గమ్యం_ముసుగు(typeof(బిట్లు), ##__VA_ARGS__), true)
+#నిర్వచించు CLEAR_బిట్లు(బిట్లు, ...) సమితి_FLAG(బిట్లు, INDEXES_గమ్యం_ముసుగు(typeof(బిట్లు), ##__VA_ARGS__), false)
+#నిర్వచించు బిట్లు_సమితి(బిట్లు, ...) FLAGS_సమితి(బిట్లు, INDEXES_గమ్యం_ముసుగు(typeof(బిట్లు), ##__VA_ARGS__))
 
 /* Iterate through each set bit. Index is 0-based and type int. */
-#define BIT_FOREACH(index, bits) _BIT_FOREACH(index, bits, UNIQ)
-#define _BIT_FOREACH(index, bits, uniq)                                 \
-        for (int UNIQ_T(_last, uniq) = -1, index;                       \
-             (index = BIT_NEXT_SET(bits, UNIQ_T(_last, uniq))) >= 0;    \
-             UNIQ_T(_last, uniq) = index)
+#నిర్వచించు బిట్టు_FOREACH(index, బిట్లు) బిట్టు_FOREACH_2(index, బిట్లు, UNIQ)
+#నిర్వచించు బిట్టు_FOREACH_2(index, బిట్లు, uniq)                                 \
+        కొరకు (పూర్ణాంకం UNIQ_T(చివరి, uniq) = -1, index;                       \
+             (index = బిట్టు_తదుపరి_సమితి(బిట్లు, UNIQ_T(చివరి, uniq))) >= 0;    \
+             UNIQ_T(చివరి, uniq) = index)
 
 /* Find the next set bit after 0-based index 'prev'. Result is 0-based index of next set bit, or -1 if no
  * more bits are set. */
-#define BIT_FIRST_SET(bits) BIT_NEXT_SET(bits, -1)
-#define BIT_NEXT_SET(bits, prev)                        \
-        UNIQ_BIT_NEXT_SET(bits, prev, UNIQ)
-#define UNIQ_BIT_NEXT_SET(bits, prev, uniq)                             \
+#నిర్వచించు బిట్టు_మొదటి_సమితి(బిట్లు) బిట్టు_తదుపరి_సమితి(బిట్లు, -1)
+#నిర్వచించు బిట్టు_తదుపరి_సమితి(బిట్లు, prev)                        \
+        UNIQ_బిట్టు_తదుపరి_సమితి(బిట్లు, prev, UNIQ)
+#నిర్వచించు UNIQ_బిట్టు_తదుపరి_సమితి(బిట్లు, prev, uniq)                             \
         ({                                                              \
-                typeof(bits) UNIQ_T(_bits, uniq) = (bits);              \
-                int UNIQ_T(_prev, uniq) = (prev);                       \
-                int UNIQ_T(_next, uniq);                                \
-                _BIT_NEXT_SET(UNIQ_T(_bits, uniq),                      \
+                typeof(బిట్లు) UNIQ_T(బిట్లు_2, uniq) = (బిట్లు);              \
+                పూర్ణాంకం UNIQ_T(_prev, uniq) = (prev);                       \
+                పూర్ణాంకం UNIQ_T(తదుపరి, uniq);                                \
+                బిట్టు_తదుపరి_సమితి_2(UNIQ_T(బిట్లు_2, uniq),                      \
                               UNIQ_T(_prev, uniq),                      \
-                              UNIQ_T(_next, uniq));                     \
+                              UNIQ_T(తదుపరి, uniq));                     \
         })
-#define _BIT_NEXT_SET(bits, prev, next)                                 \
-        ((int)(prev + 1) == (int)sizeof(bits) * 8                       \
+#నిర్వచించు బిట్టు_తదుపరి_సమితి_2(బిట్లు, prev, తదుపరి_2)                                 \
+        ((పూర్ణాంకం)(prev + 1) == (పూర్ణాంకం)పరిమాణం(బిట్లు) * 8                       \
          ? -1 /* Prev index was msb. */                                 \
-         : ((next = __builtin_ffsll(((unsigned long long)(bits)) >> (prev + 1))) == 0 \
+         : ((తదుపరి_2 = __builtin_ffsll(((గుర్తులేని దీర్ఘ దీర్ఘ)(బిట్లు)) >> (prev + 1))) == 0 \
             ? -1 /* No more bits set. */                                \
-            : prev + next))
+            : prev + తదుపరి_2))

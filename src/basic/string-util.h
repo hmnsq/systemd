@@ -1,229 +1,229 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <string.h>
+#అన్తర్భావ <string.h>
 
-#include "alloc-util.h"
-#include "forward.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "forward.h"
 
-#include "../fundamental/string-util.h" /* IWYU pragma: export */
+#అన్తర్భావ "../fundamental/string-util.h" /* IWYU pragma: export */
 
-static inline char* strstr_ptr_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
-        return (char*) strstr(haystack, needle);
+స్థిర అంతఃవరుస అక్షరం* strstr_ptr_అంతర్గత(స్థిరరాశి అక్షరం *haystack, స్థిరరాశి అక్షరం *needle) {
+        ఒకవేళ (!haystack || !needle)
+                తిరిగి ఖాళీ;
+        తిరిగి (అక్షరం*) అక్షరశ్రేణి_శోధన(haystack, needle);
 }
 
-#define strstr_ptr(haystack, needle) \
-        const_generic(haystack, strstr_ptr_internal(haystack, needle))
+#నిర్వచించు strstr_ptr(haystack, needle) \
+        const_generic(haystack, strstr_ptr_అంతర్గత(haystack, needle))
 
-static inline char* strstrafter_internal(const char *haystack, const char *needle) {
+స్థిర అంతఃవరుస అక్షరం* strstrafter_అంతర్గత(స్థిరరాశి అక్షరం *haystack, స్థిరరాశి అక్షరం *needle) {
         /* Returns NULL if not found, or pointer to first character after needle if found */
 
-        char *p = (char*) strstr_ptr(haystack, needle);
-        if (!p)
-                return NULL;
+        అక్షరం *p = (అక్షరం*) strstr_ptr(haystack, needle);
+        ఒకవేళ (!p)
+                తిరిగి ఖాళీ;
 
-        return p + strlen(needle);
+        తిరిగి p + అక్షరశ్రేణి_పొడవు(needle);
 }
 
-#define strstrafter(haystack, needle) \
-        const_generic(haystack, strstrafter_internal(haystack, needle))
+#నిర్వచించు strstrafter(haystack, needle) \
+        const_generic(haystack, strstrafter_అంతర్గత(haystack, needle))
 
-static inline const char* strnull(const char *s) {
-        return s ?: "(null)";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* strnull(స్థిరరాశి అక్షరం *s) {
+        తిరిగి s ?: "(null)";
 }
 
-static inline const char* strna(const char *s) {
-        return s ?: "n/a";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* strna(స్థిరరాశి అక్షరం *s) {
+        తిరిగి s ?: "n/a";
 }
 
-static inline const char* true_false(bool b) {
-        return b ? "true" : "false";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* true_false(bool b) {
+        తిరిగి b ? "true" : "false";
 }
 
-static inline const char* plus_minus(bool b) {
-        return b ? "+" : "-";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* plus_minus(bool b) {
+        తిరిగి b ? "+" : "-";
 }
 
-static inline const char* one_zero(bool b) {
-        return b ? "1" : "0";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* one_zero(bool b) {
+        తిరిగి b ? "1" : "0";
 }
 
-static inline const char* enable_disable(bool b) {
-        return b ? "enable" : "disable";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* enable_disable(bool b) {
+        తిరిగి b ? "enable" : "disable";
 }
 
-static inline const char* enabled_disabled(bool b) {
-        return b ? "enabled" : "disabled";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* enabled_disabled(bool b) {
+        తిరిగి b ? "enabled" : "disabled";
 }
 
 /* This macro's return pointer will have the "const" qualifier set or unset the same way as the input
  * pointer. */
-#define empty_to_null(p)                                \
+#నిర్వచించు ఖాళీలు_గమ్యం_null(p)                                \
         ({                                              \
-                const char *_p = (p);                   \
-                (typeof(p)) (isempty(_p) ? NULL : _p);  \
+                స్థిరరాశి అక్షరం *_p = (p);                   \
+                (typeof(p)) (isempty(_p) ? ఖాళీ : _p);  \
         })
 
-static inline const char* empty_to_na(const char *p) {
-        return isempty(p) ? "n/a" : p;
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* ఖాళీలు_గమ్యం_na(స్థిరరాశి అక్షరం *p) {
+        తిరిగి isempty(p) ? "n/a" : p;
 }
 
-static inline const char* empty_to_dash(const char *str) {
-        return isempty(str) ? "-" : str;
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* ఖాళీలు_గమ్యం_dash(స్థిరరాశి అక్షరం *str) {
+        తిరిగి isempty(str) ? "-" : str;
 }
 
-static inline bool empty_or_dash(const char *str) {
-        return !str ||
+స్థిర అంతఃవరుస bool ఖాళీలు_or_dash(స్థిరరాశి అక్షరం *str) {
+        తిరిగి !str ||
                 str[0] == 0 ||
                 (str[0] == '-' && str[1] == 0);
 }
 
-static inline const char* empty_or_dash_to_null(const char *p) {
-        return empty_or_dash(p) ? NULL : p;
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* ఖాళీలు_or_dash_గమ్యం_null(స్థిరరాశి అక్షరం *p) {
+        తిరిగి ఖాళీలు_or_dash(p) ? ఖాళీ : p;
 }
-#define empty_or_dash_to_null(p)                                \
+#నిర్వచించు ఖాళీలు_or_dash_గమ్యం_null(p)                                \
         ({                                                      \
-                const char *_p = (p);                           \
-                (typeof(p)) (empty_or_dash(_p) ? NULL : _p);    \
+                స్థిరరాశి అక్షరం *_p = (p);                           \
+                (typeof(p)) (ఖాళీలు_or_dash(_p) ? ఖాళీ : _p);    \
         })
 
-char* first_word(const char *s, const char *word) _pure_;
+అక్షరం* మొదటి_మాట(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *మాట) శుద్ధ;
 
-char* strextendn(char **x, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+అక్షరం* strextendn(అక్షరం **x, స్థిరరాశి అక్షరం *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-#define strjoin(a, ...) strextend_with_separator_internal(NULL, NULL, a, __VA_ARGS__, NULL)
+#నిర్వచించు strjoin(a, ...) strextend_with_separator_అంతర్గత(ఖాళీ, ఖాళీ, a, __VA_ARGS__, ఖాళీ)
 
-#define strjoina(a, ...)                                                \
+#నిర్వచించు strjoina(a, ...)                                                \
         ({                                                              \
-                const char *_appendees_[] = { a, __VA_ARGS__ };         \
-                char *_d_, *_p_;                                        \
+                స్థిరరాశి అక్షరం *_appendees_[] = { a, __VA_ARGS__ };         \
+                అక్షరం *_d_, *_p_;                                        \
                 size_t _len_ = 0;                                       \
                 size_t _i_;                                             \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
-                        _len_ += strlen(_appendees_[_i_]);              \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                కొరకు (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                        _len_ += అక్షరశ్రేణి_పొడవు(_appendees_[_i_]);              \
+                _p_ = _d_ = newa(అక్షరం, _len_ + 1);                      \
+                కొరకు (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _p_ = stpcpy(_p_, _appendees_[_i_]);            \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-char* strstrip(char *s);
-char* delete_chars(char *s, const char *bad);
-char* delete_trailing_chars(char *s, const char *bad);
-char* truncate_nl_full(char *s, size_t *ret_len);
-static inline char* truncate_nl(char *s) {
-        return truncate_nl_full(s, NULL);
+అక్షరం* strstrip(అక్షరం *s);
+అక్షరం* delete_chars(అక్షరం *s, స్థిరరాశి అక్షరం *bad);
+అక్షరం* delete_trailing_chars(అక్షరం *s, స్థిరరాశి అక్షరం *bad);
+అక్షరం* truncate_nl_నిండిన(అక్షరం *s, size_t *ret_len);
+స్థిర అంతఃవరుస అక్షరం* truncate_nl(అక్షరం *s) {
+        తిరిగి truncate_nl_నిండిన(s, ఖాళీ);
 }
 
-static inline char* skip_leading_chars(const char *s, const char *bad) {
-        if (!s)
-                return NULL;
+స్థిర అంతఃవరుస అక్షరం* skip_leading_chars(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *bad) {
+        ఒకవేళ (!s)
+                తిరిగి ఖాళీ;
 
-        if (!bad)
+        ఒకవేళ (!bad)
                 bad = WHITESPACE;
 
-        return (char*) s + strspn(s, bad);
+        తిరిగి (అక్షరం*) s + strspn(s, bad);
 }
 
-char ascii_tolower(char x) _const_;
-char* ascii_strlower(char *s);
-char* ascii_strlower_n(char *s, size_t n);
+అక్షరం ascii_tolower(అక్షరం x) _const_;
+అక్షరం* ascii_strlower(అక్షరం *s);
+అక్షరం* ascii_strlower_n(అక్షరం *s, size_t n);
 
-char ascii_toupper(char x) _const_;
-char* ascii_strupper(char *s);
+అక్షరం ascii_toupper(అక్షరం x) _const_;
+అక్షరం* ascii_strupper(అక్షరం *s);
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n);
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m);
+పూర్ణాంకం ascii_strcasecmp_n(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b, size_t n);
+పూర్ణాంకం ascii_strcasecmp_nn(స్థిరరాశి అక్షరం *a, size_t n, స్థిరరాశి అక్షరం *b, size_t m);
 
-bool chars_intersect(const char *a, const char *b) _pure_;
+bool chars_intersect(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b) శుద్ధ;
 
-static inline bool _pure_ in_charset(const char *s, const char *charset) {
-        assert(s);
-        assert(charset);
-        return s[strspn(s, charset)] == '\0';
+స్థిర అంతఃవరుస bool శుద్ధ లోపల_charset(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *charset) {
+        ప్రతిజ్ఞా(s);
+        ప్రతిజ్ఞా(charset);
+        తిరిగి s[strspn(s, charset)] == '\0';
 }
 
-static inline bool char_is_cc(char p) {
+స్థిర అంతఃవరుస bool char_is_cc(అక్షరం p) {
         /* char is unsigned on some architectures, e.g. aarch64. So, compiler may warn the condition
          * p >= 0 is always true. See #19543. Hence, let's cast to unsigned before the comparison. Note
          * that the cast in the right hand side is redundant, as according to the C standard, compilers
          * automatically cast a signed value to unsigned when comparing with an unsigned variable. Just
          * for safety and readability. */
-        return (uint8_t) p < (uint8_t) ' ' || p == 127;
+        తిరిగి (uint8_t) p < (uint8_t) ' ' || p == 127;
 }
-bool string_has_cc(const char *p, const char *ok) _pure_;
+bool string_has_cc(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *ok) శుద్ధ;
 
-char* ellipsize_mem(const char *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
-static inline char* ellipsize(const char *s, size_t length, unsigned percent) {
-        return ellipsize_mem(s, strlen(s), length, percent);
+అక్షరం* ellipsize_mem(స్థిరరాశి అక్షరం *s, size_t old_నిడివి_బైట్లు, size_t new_నిడివి_columns, గుర్తులేని percent);
+స్థిర అంతఃవరుస అక్షరం* ellipsize(స్థిరరాశి అక్షరం *s, size_t length, గుర్తులేని percent) {
+        తిరిగి ellipsize_mem(s, అక్షరశ్రేణి_పొడవు(s), length, percent);
 }
 
-char* cellescape(char *buf, size_t len, const char *s);
+అక్షరం* cellescape(అక్షరం *buf, size_t len, స్థిరరాశి అక్షరం *s);
 
 /* This limit is arbitrary, enough to give some idea what the string contains */
-#define CELLESCAPE_DEFAULT_LENGTH 64
+#నిర్వచించు CELLESCAPE_DEFAULT_నిడివి 64
 
-char* strshorten(char *s, size_t l);
+అక్షరం* strshorten(అక్షరం *s, size_t l);
 
-int strgrowpad0(char **s, size_t l);
+పూర్ణాంకం strgrowpad0(అక్షరం **s, size_t l);
 
-char* strreplace(const char *text, const char *old_string, const char *new_string);
+అక్షరం* strreplace(స్థిరరాశి అక్షరం *పాఠ్యం, స్థిరరాశి అక్షరం *old_string, స్థిరరాశి అక్షరం *new_string);
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]);
+అక్షరం* strip_tab_ansi(అక్షరం **ibuf, size_t *_isz, size_t highlight[2]);
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap);
-char* strextend_with_separator_internal(char **x, const char *separator, ...) _sentinel_;
-#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, NULL)
-#define strextend(x, ...) strextend_with_separator_internal(x, NULL, __VA_ARGS__, NULL)
+అక్షరం* strextendv_with_separator(అక్షరం **x, స్థిరరాశి అక్షరం *separator, va_list ap);
+అక్షరం* strextend_with_separator_అంతర్గత(అక్షరం **x, స్థిరరాశి అక్షరం *separator, ...) _sentinel_;
+#నిర్వచించు strextend_with_separator(x, separator, ...) strextend_with_separator_అంతర్గత(x, separator, __VA_ARGS__, ఖాళీ)
+#నిర్వచించు strextend(x, ...) strextend_with_separator_అంతర్గత(x, ఖాళీ, __VA_ARGS__, ఖాళీ)
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) _printf_(3,4);
-#define strextendf(x, ...) strextendf_with_separator(x, NULL, __VA_ARGS__)
+పూర్ణాంకం strextendf_with_separator(అక్షరం **x, స్థిరరాశి అక్షరం *separator, స్థిరరాశి అక్షరం *format, ...) _printf_(3,4);
+#నిర్వచించు strextendf(x, ...) strextendf_with_separator(x, ఖాళీ, __VA_ARGS__)
 
-#define strprepend_with_separator(x, separator, ...)                            \
+#నిర్వచించు strprepend_with_separator(x, separator, ...)                            \
         ({                                                                      \
-                char **_p_ = ASSERT_PTR(x), *_s_;                               \
-                _s_ = strextend_with_separator_internal(NULL, (separator), __VA_ARGS__, empty_to_null(*_p_), NULL); \
-                if (_s_) {                                                      \
-                        free(*_p_);                                             \
+                అక్షరం **_p_ = ASSERT_PTR(x), *_s_;                               \
+                _s_ = strextend_with_separator_అంతర్గత(ఖాళీ, (separator), __VA_ARGS__, ఖాళీలు_గమ్యం_null(*_p_), ఖాళీ); \
+                ఒకవేళ (_s_) {                                                      \
+                        విడుదల(*_p_);                                             \
                         *_p_ = _s_;                                             \
                 }                                                               \
                 _s_;                                                            \
         })
-#define strprepend(x, ...) strprepend_with_separator(x, NULL, __VA_ARGS__)
+#నిర్వచించు strprepend(x, ...) strprepend_with_separator(x, ఖాళీ, __VA_ARGS__)
 
-char* strrep(const char *s, size_t n);
+అక్షరం* strrep(స్థిరరాశి అక్షరం *s, size_t n);
 
-#define strrepa(s, n)                                                   \
+#నిర్వచించు strrepa(s, n)                                                   \
         ({                                                              \
-                const char *_sss_ = (s);                                \
-                size_t _nnn_ = (n), _len_ = strlen(_sss_);              \
-                assert_se(MUL_ASSIGN_SAFE(&_len_, _nnn_));              \
-                char *_d_, *_p_;                                        \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
+                స్థిరరాశి అక్షరం *_sss_ = (s);                                \
+                size_t _nnn_ = (n), _len_ = అక్షరశ్రేణి_పొడవు(_sss_);              \
+                assert_se(MUL_కేటాయించు_సురక్షిత(&_len_, _nnn_));              \
+                అక్షరం *_d_, *_p_;                                        \
+                _p_ = _d_ = newa(అక్షరం, _len_ + 1);                      \
+                కొరకు (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
                         _p_ = stpcpy(_p_, _sss_);                       \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second);
+పూర్ణాంకం విభజించు_pair(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *sep, అక్షరం **ret_మొదటి, అక్షరం **ret_రెండవ);
 
-int free_and_strdup(char **p, const char *s);
-int free_and_strdup_warn(char **p, const char *s);
-int free_and_strndup(char **p, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+పూర్ణాంకం free_and_strdup(అక్షరం **p, స్థిరరాశి అక్షరం *s);
+పూర్ణాంకం free_and_strdup_warn(అక్షరం **p, స్థిరరాశి అక్షరం *s);
+పూర్ణాంకం free_and_strndup(అక్షరం **p, స్థిరరాశి అక్షరం *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-int strdup_to_full(char **ret, const char *src);
-static inline int strdup_to(char **ret, const char *src) {
-        int r = strdup_to_full(ASSERT_PTR(ret), src);
-        return r < 0 ? r : 0;  /* Suppress return value of 1. */
+పూర్ణాంకం strdup_గమ్యం_నిండిన(అక్షరం **ret, స్థిరరాశి అక్షరం *src);
+స్థిర అంతఃవరుస పూర్ణాంకం strdup_గమ్యం(అక్షరం **ret, స్థిరరాశి అక్షరం *src) {
+        పూర్ణాంకం r = strdup_గమ్యం_నిండిన(ASSERT_PTR(ret), src);
+        తిరిగి r < 0 ? r : 0;  /* Suppress return value of 1. */
 }
 
-typedef enum StringSafeFlags {
+రకనిర్వచనం గణన String_సురక్షిత_Flags {
         STRING_ASCII               = 1 << 0, /* Verify string is 7-Bit ASCII (rather than just UTF-8) */
-        STRING_ALLOW_EMPTY         = 1 << 1, /* Allow empty strings */
+        STRING_ALLOW_ఖాళీలు         = 1 << 1, /* Allow empty strings */
         STRING_ALLOW_NEWLINES      = 1 << 2, /* Allow newlines (\n) */
         STRING_ALLOW_BACKSLASHES   = 1 << 3, /* Allow backslashes (\) */
         STRING_ALLOW_QUOTES        = 1 << 4, /* Allow quotes (" or ') */
@@ -231,12 +231,12 @@ typedef enum StringSafeFlags {
         STRING_FILENAME            = 1 << 6, /* Verify the string is valid as regular filename */
         STRING_FILENAME_PART       = 1 << 7, /* Verify the string is valid as part of a regular filename */
         STRING_DISALLOW_WHITESPACE = 1 << 8, /* Refuse whitespace (space, tab, newline, …) */
-} StringSafeFlags;
+} String_సురక్షిత_Flags;
 
-bool string_is_safe(const char *p, StringSafeFlags flags) _pure_;
+bool string_is_సురక్షిత(స్థిరరాశి అక్షరం *p, String_సురక్షిత_Flags flags) శుద్ధ;
 
 DISABLE_WARNING_STRINGOP_TRUNCATION;
-static inline void strncpy_exact(char *buf, const char *src, size_t buf_len) {
+స్థిర అంతఃవరుస శూన్య strncpy_exact(అక్షరం *buf, స్థిరరాశి అక్షరం *src, size_t buf_len) {
         strncpy(buf, src, buf_len);
 }
 REENABLE_WARNING;
@@ -244,94 +244,94 @@ REENABLE_WARNING;
 /* Like startswith_no_case(), but operates on arbitrary memory blocks.
  * It works only for ASCII strings.
  */
-static inline void* memory_startswith_no_case(const void *p, size_t sz, const char *token) {
-        assert(token);
+స్థిర అంతఃవరుస శూన్య* జ్ఞాపకం_startswith_no_case(స్థిరరాశి శూన్య *p, size_t sz, స్థిరరాశి అక్షరం *token) {
+        ప్రతిజ్ఞా(token);
 
-        size_t n = strlen(token);
-        if (sz < n)
-                return NULL;
+        size_t n = అక్షరశ్రేణి_పొడవు(token);
+        ఒకవేళ (sz < n)
+                తిరిగి ఖాళీ;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
-        for (size_t i = 0; i < n; i++)
-                if (ascii_tolower(((char *)p)[i]) != ascii_tolower(token[i]))
-                        return NULL;
+        కొరకు (size_t i = 0; i < n; i++)
+                ఒకవేళ (ascii_tolower(((అక్షరం *)p)[i]) != ascii_tolower(token[i]))
+                        తిరిగి ఖాళీ;
 
-        return (uint8_t*) p + n;
+        తిరిగి (uint8_t*) p + n;
 }
 
-char* str_realloc(char *p);
-char* string_erase(char *x);
+అక్షరం* str_realloc(అక్షరం *p);
+అక్షరం* string_erase(అక్షరం *x);
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret);
-int string_extract_line(const char *s, size_t i, char **ret);
+పూర్ణాంకం string_truncate_పంక్తులు(స్థిరరాశి అక్షరం *s, size_t n_పంక్తులు, అక్షరం **ret);
+పూర్ణాంకం string_వెలికితీయి_పంక్తి(స్థిరరాశి అక్షరం *s, size_t i, అక్షరం **ret);
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
-static inline int string_contains_word(const char *string, const char *separators, const char *word) {
-        return string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
+పూర్ణాంకం string_కలిగియుంది_మాట_strv(స్థిరరాశి అక్షరం *string, స్థిరరాశి అక్షరం *separators, అక్షరం * స్థిరరాశి *పదాలు, స్థిరరాశి అక్షరం **ret_మాట);
+స్థిర అంతఃవరుస పూర్ణాంకం string_కలిగియుంది_మాట(స్థిరరాశి అక్షరం *string, స్థిరరాశి అక్షరం *separators, స్థిరరాశి అక్షరం *మాట) {
+        తిరిగి string_కలిగియుంది_మాట_strv(string, separators, STRV_MAKE(మాట), ఖాళీ);
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok);
+bool streq_skip_trailing_chars(స్థిరరాశి అక్షరం *s1, స్థిరరాశి అక్షరం *s2, స్థిరరాశి అక్షరం *ok);
 
-char* string_replace_char(char *str, char old_char, char new_char);
+అక్షరం* string_replace_char(అక్షరం *str, అక్షరం old_char, అక్షరం new_char);
 
-typedef enum MakeCStringMode {
+రకనిర్వచనం గణన Make_CString_బహుళకం {
         MAKE_CSTRING_REFUSE_TRAILING_NUL,
         MAKE_CSTRING_ALLOW_TRAILING_NUL,
         MAKE_CSTRING_REQUIRE_TRAILING_NUL,
-        _MAKE_CSTRING_MODE_MAX,
-        _MAKE_CSTRING_MODE_INVALID = -1,
-} MakeCStringMode;
+        MAKE_CSTRING_బహుళకం_MAX,
+        MAKE_CSTRING_బహుళకం_INVALID = -1,
+} Make_CString_బహుళకం;
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret);
+పూర్ణాంకం make_cstring(స్థిరరాశి శూన్య *s, size_t n, Make_CString_బహుళకం బహుళకం, అక్షరం **ret);
 
-size_t strspn_from_end(const char *str, const char *accept) _pure_;
-size_t strnspn(const char *str, const char *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
+size_t strspn_from_చివర(స్థిరరాశి అక్షరం *str, స్థిరరాశి అక్షరం *accept) శుద్ధ;
+size_t strnspn(స్థిరరాశి అక్షరం *str, స్థిరరాశి అక్షరం *accept, size_t n) శుద్ధ _nonnull_if_nonzero_(1, 3);
 
-char* strdupspn(const char *a, const char *accept);
-char* strdupcspn(const char *a, const char *reject);
+అక్షరం* strdupspn(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *accept);
+అక్షరం* strdupcspn(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *reject);
 
 /* These are like strdupa()/strndupa(), but honour ALLOCA_MAX */
-#define strdupa_safe(s)                                                 \
+#నిర్వచించు strdupa_సురక్షిత(s)                                                 \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strlen(_t));                \
+                స్థిరరాశి అక్షరం *_t = (s);                                   \
+                (అక్షరం*) memdupa_suffix0(_t, అక్షరశ్రేణి_పొడవు(_t));                \
         })
 
-#define strndupa_safe(s, n)                                             \
+#నిర్వచించు strndupa_సురక్షిత(s, n)                                             \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strnlen(_t, n));            \
+                స్థిరరాశి అక్షరం *_t = (s);                                   \
+                (అక్షరం*) memdupa_suffix0(_t, strnlen(_t, n));            \
         })
 
-char* find_line_startswith_internal(const char *haystack, const char *needle);
-#define find_line_startswith(haystack, needle) \
-        const_generic(haystack, find_line_startswith_internal(haystack, needle))
+అక్షరం* కనుగొను_పంక్తి_startswith_అంతర్గత(స్థిరరాశి అక్షరం *haystack, స్థిరరాశి అక్షరం *needle);
+#నిర్వచించు కనుగొను_పంక్తి_startswith(haystack, needle) \
+        const_generic(haystack, కనుగొను_పంక్తి_startswith_అంతర్గత(haystack, needle))
 
-char* find_line_internal(const char *haystack, const char *needle);
-#define find_line(haystack, needle) \
-        const_generic(haystack, find_line_internal(haystack, needle))
+అక్షరం* కనుగొను_పంక్తి_అంతర్గత(స్థిరరాశి అక్షరం *haystack, స్థిరరాశి అక్షరం *needle);
+#నిర్వచించు కనుగొను_పంక్తి(haystack, needle) \
+        const_generic(haystack, కనుగొను_పంక్తి_అంతర్గత(haystack, needle))
 
-char* find_line_after_internal(const char *haystack, const char *needle);
-#define find_line_after(haystack, needle) \
-        const_generic(haystack, find_line_after_internal(haystack, needle))
+అక్షరం* కనుగొను_పంక్తి_after_అంతర్గత(స్థిరరాశి అక్షరం *haystack, స్థిరరాశి అక్షరం *needle);
+#నిర్వచించు కనుగొను_పంక్తి_after(haystack, needle) \
+        const_generic(haystack, కనుగొను_పంక్తి_after_అంతర్గత(haystack, needle))
 
-typedef enum VersionFlags {
-        VERSION_ALLOW_EMPTY      = 1 << 0,
-        VERSION_ALLOW_UNDERSCORE = 1 << 1, /* Allow "_" as separator (recommended separator) */
-        VERSION_ALLOW_PLUS       = 1 << 2, /* Allow "+" as separator (sometimes used as separator for boot attempt counters) */
-} VersionFlags;
+రకనిర్వచనం గణన సంస్కరణ_Flags {
+        సంస్కరణ_ALLOW_ఖాళీలు      = 1 << 0,
+        సంస్కరణ_ALLOW_UNDERSCORE = 1 << 1, /* Allow "_" as separator (recommended separator) */
+        సంస్కరణ_ALLOW_PLUS       = 1 << 2, /* Allow "+" as separator (sometimes used as separator for boot attempt counters) */
+} సంస్కరణ_Flags;
 
-bool version_is_valid(const char *s, VersionFlags flags) _pure_;
+bool సంస్కరణ_is_valid(స్థిరరాశి అక్షరం *s, సంస్కరణ_Flags flags) శుద్ధ;
 
-ssize_t strlevenshtein(const char *x, const char *y);
+ssize_t strlevenshtein(స్థిరరాశి అక్షరం *x, స్థిరరాశి అక్షరం *y);
 
-char* strrstr_internal(const char *haystack, const char *needle) _pure_;
-#define strrstr(haystack, needle) \
-        const_generic(haystack, strrstr_internal(haystack, needle))
+అక్షరం* strrstr_అంతర్గత(స్థిరరాశి అక్షరం *haystack, స్థిరరాశి అక్షరం *needle) శుద్ధ;
+#నిర్వచించు strrstr(haystack, needle) \
+        const_generic(haystack, strrstr_అంతర్గత(haystack, needle))
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) _pure_;
-#define strrstr_no_case(haystack, needle) \
-        const_generic(haystack, strrstr_no_case_internal(haystack, needle))
+అక్షరం* strrstr_no_case_అంతర్గత(స్థిరరాశి అక్షరం *haystack, స్థిరరాశి అక్షరం *needle) శుద్ధ;
+#నిర్వచించు strrstr_no_case(haystack, needle) \
+        const_generic(haystack, strrstr_no_case_అంతర్గత(haystack, needle))
 
-size_t str_common_prefix(const char *a, const char *b) _pure_;
+size_t str_common_ఉపసర్గ(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b) శుద్ధ;

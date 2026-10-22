@@ -1,429 +1,429 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <linux/magic.h>
-#include <sys/statvfs.h>
-#include <unistd.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <linux/magic.h>
+#అన్తర్భావ <sys/statvfs.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "chase.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "filesystems.h"
-#include "fs-util.h"
-#include "hash-funcs.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "path-util.h"
-#include "siphash24.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "bitfield.h"
+#అన్తర్భావ "chase.h"
+#అన్తర్భావ "dirent-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "filesystems.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "hash-funcs.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "mountpoint-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "siphash24.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "time-util.h"
 
-static int verify_stat_at(
-                int fd,
-                const char *path,
+స్థిర పూర్ణాంకం verify_stat_at(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
                 bool follow,
-                int (*verify_func)(const struct stat *st),
+                పూర్ణాంకం (*verify_func)(స్థిరరాశి నిర్మాణం stat *st),
                 bool verify) {
 
-        struct stat st;
-        int r;
+        నిర్మాణం stat st;
+        పూర్ణాంకం r;
 
-        assert(wildcard_fd_is_valid(fd));
-        assert(!isempty(path) || !follow);
-        assert(verify_func);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(fd));
+        ప్రతిజ్ఞా(!isempty(మార్గం) || !follow);
+        ప్రతిజ్ఞా(verify_func);
 
-        _cleanup_free_ char *p = NULL;
-        r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        r = resolve_xat_fdroot(&fd, &మార్గం, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (fstatat(fd, strempty(path), &st,
-                    (isempty(path) ? AT_EMPTY_PATH : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
-                return -errno;
+        ఒకవేళ (fstatat(fd, strempty(మార్గం), &st,
+                    (isempty(మార్గం) ? AT_ఖాళీలు_మార్గం : 0) | (follow ? 0 : AT_SYMLINK_NOFOLLOW)) < 0)
+                తిరిగి -errno;
 
         r = verify_func(&st);
-        return verify ? r : r >= 0;
+        తిరిగి verify ? r : r >= 0;
 }
 
-static int mode_verify_regular(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+స్థిర పూర్ణాంకం బహుళకం_verify_regular(mode_t బహుళకం) {
+        ఒకవేళ (S_ISDIR(బహుళకం))
+                తిరిగి -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        ఒకవేళ (S_ISLNK(బహుళకం))
+                తిరిగి -ELOOP;
 
-        if (!S_ISREG(mode))
-                return -EBADFD;
+        ఒకవేళ (!S_ISREG(బహుళకం))
+                తిరిగి -EBADFD;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int stat_verify_regular(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_regular(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
         /* Checks whether the specified stat() structure refers to a regular file. If not returns an
          * appropriate error code. */
 
-        return mode_verify_regular(st->st_mode);
+        తిరిగి బహుళకం_verify_regular(st->st_mode);
 }
 
-int statx_verify_regular(const struct statx *stx) {
-        assert(stx);
+పూర్ణాంకం statx_verify_regular(స్థిరరాశి నిర్మాణం statx *stx) {
+        ప్రతిజ్ఞా(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        ఒకవేళ (!FLAGS_సమితి(stx->stx_ముసుగు, STATX_TYPE))
+                తిరిగి -ENODATA;
 
-        return mode_verify_regular(stx->stx_mode);
+        తిరిగి బహుళకం_verify_regular(stx->stx_బహుళకం);
 }
 
-int verify_regular_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_regular, true);
+పూర్ణాంకం verify_regular_at(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, bool follow) {
+        తిరిగి verify_stat_at(fd, మార్గం, follow, stat_verify_regular, true);
 }
 
-int fd_verify_regular(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+పూర్ణాంకం fd_verify_regular(పూర్ణాంకం fd) {
+        ఒకవేళ (లోపల_సమితి(fd, AT_FDCWD, XAT_FDROOT))
+                తిరిగి -EISDIR;
 
-        return verify_regular_at(fd, /* path= */ NULL, /* follow= */ false);
+        తిరిగి verify_regular_at(fd, /* path= */ ఖాళీ, /* follow= */ false);
 }
 
-static int mode_verify_directory(mode_t mode) {
-        if (S_ISLNK(mode))
-                return -ELOOP;
+స్థిర పూర్ణాంకం బహుళకం_verify_directory(mode_t బహుళకం) {
+        ఒకవేళ (S_ISLNK(బహుళకం))
+                తిరిగి -ELOOP;
 
-        if (!S_ISDIR(mode))
-                return -ENOTDIR;
+        ఒకవేళ (!S_ISDIR(బహుళకం))
+                తిరిగి -ENOTDIR;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int stat_verify_directory(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_directory(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        return mode_verify_directory(st->st_mode);
+        తిరిగి బహుళకం_verify_directory(st->st_mode);
 }
 
-int statx_verify_directory(const struct statx *stx) {
-        assert(stx);
+పూర్ణాంకం statx_verify_directory(స్థిరరాశి నిర్మాణం statx *stx) {
+        ప్రతిజ్ఞా(stx);
 
-        if (!FLAGS_SET(stx->stx_mask, STATX_TYPE))
-                return -ENODATA;
+        ఒకవేళ (!FLAGS_సమితి(stx->stx_ముసుగు, STATX_TYPE))
+                తిరిగి -ENODATA;
 
-        return mode_verify_directory(stx->stx_mode);
+        తిరిగి బహుళకం_verify_directory(stx->stx_బహుళకం);
 }
 
-int fd_verify_directory(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return 0;
+పూర్ణాంకం fd_verify_directory(పూర్ణాంకం fd) {
+        ఒకవేళ (లోపల_సమితి(fd, AT_FDCWD, XAT_FDROOT))
+                తిరిగి 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_directory, true);
+        తిరిగి verify_stat_at(fd, ఖాళీ, false, stat_verify_directory, true);
 }
 
-int is_dir_at(int fd, const char *path, bool follow) {
-        return verify_stat_at(fd, path, follow, stat_verify_directory, false);
+పూర్ణాంకం is_dir_at(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *మార్గం, bool follow) {
+        తిరిగి verify_stat_at(fd, మార్గం, follow, stat_verify_directory, false);
 }
 
-int is_dir(const char *path, bool follow) {
-        assert(!isempty(path));
-        return is_dir_at(AT_FDCWD, path, follow);
+పూర్ణాంకం is_dir(స్థిరరాశి అక్షరం *మార్గం, bool follow) {
+        ప్రతిజ్ఞా(!isempty(మార్గం));
+        తిరిగి is_dir_at(AT_FDCWD, మార్గం, follow);
 }
 
-int stat_verify_symlink(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_symlink(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ఒకవేళ (S_ISDIR(st->st_mode))
+                తిరిగి -EISDIR;
 
-        if (!S_ISLNK(st->st_mode))
-                return -ENOLINK;
+        ఒకవేళ (!S_ISLNK(st->st_mode))
+                తిరిగి -ENOLINK;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fd_verify_symlink(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+పూర్ణాంకం fd_verify_symlink(పూర్ణాంకం fd) {
+        ఒకవేళ (లోపల_సమితి(fd, AT_FDCWD, XAT_FDROOT))
+                తిరిగి -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
+        తిరిగి verify_stat_at(fd, /* path= */ ఖాళీ, /* follow= */ false, stat_verify_symlink, /* verify= */ true);
 }
 
-int is_symlink(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_symlink, false);
+పూర్ణాంకం is_symlink(స్థిరరాశి అక్షరం *మార్గం) {
+        ప్రతిజ్ఞా(!isempty(మార్గం));
+        తిరిగి verify_stat_at(AT_FDCWD, మార్గం, false, stat_verify_symlink, false);
 }
 
-static int mode_verify_socket(mode_t mode) {
-        if (S_ISDIR(mode))
-                return -EISDIR;
+స్థిర పూర్ణాంకం బహుళకం_verify_socket(mode_t బహుళకం) {
+        ఒకవేళ (S_ISDIR(బహుళకం))
+                తిరిగి -EISDIR;
 
-        if (S_ISLNK(mode))
-                return -ELOOP;
+        ఒకవేళ (S_ISLNK(బహుళకం))
+                తిరిగి -ELOOP;
 
-        if (!S_ISSOCK(mode))
-                return -ENOTSOCK;
+        ఒకవేళ (!S_ISSOCK(బహుళకం))
+                తిరిగి -ENOTSOCK;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int stat_verify_socket(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_socket(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        return mode_verify_socket(st->st_mode);
+        తిరిగి బహుళకం_verify_socket(st->st_mode);
 }
 
-int statx_verify_socket(const struct statx *stx) {
-        assert(stx);
+పూర్ణాంకం statx_verify_socket(స్థిరరాశి నిర్మాణం statx *stx) {
+        ప్రతిజ్ఞా(stx);
 
-        return mode_verify_socket(stx->stx_mode);
+        తిరిగి బహుళకం_verify_socket(stx->stx_బహుళకం);
 }
 
-int fd_verify_socket(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+పూర్ణాంకం fd_verify_socket(పూర్ణాంకం fd) {
+        ఒకవేళ (లోపల_సమితి(fd, AT_FDCWD, XAT_FDROOT))
+                తిరిగి -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_socket, /* verify= */ true);
+        తిరిగి verify_stat_at(fd, /* path= */ ఖాళీ, /* follow= */ false, stat_verify_socket, /* verify= */ true);
 }
 
-int is_socket(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, /* follow= */ true, stat_verify_socket, /* verify= */ false);
+పూర్ణాంకం is_socket(స్థిరరాశి అక్షరం *మార్గం) {
+        ప్రతిజ్ఞా(!isempty(మార్గం));
+        తిరిగి verify_stat_at(AT_FDCWD, మార్గం, /* follow= */ true, stat_verify_socket, /* verify= */ false);
 }
 
-int stat_verify_linked(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_linked(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        if (st->st_nlink <= 0)
-                return -EIDRM; /* recognizable error. */
+        ఒకవేళ (st->st_nlink <= 0)
+                తిరిగి -EIDRM; /* recognizable error. */
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fd_verify_linked(int fd) {
+పూర్ణాంకం fd_verify_linked(పూర్ణాంకం fd) {
 
-        if (fd == XAT_FDROOT)
-                return 0;
+        ఒకవేళ (fd == XAT_FDROOT)
+                తిరిగి 0;
 
-        return verify_stat_at(fd, NULL, false, stat_verify_linked, true);
+        తిరిగి verify_stat_at(fd, ఖాళీ, false, stat_verify_linked, true);
 }
 
-int stat_verify_block(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_ఖండం(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ఒకవేళ (S_ISDIR(st->st_mode))
+                తిరిగి -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ఒకవేళ (S_ISLNK(st->st_mode))
+                తిరిగి -ELOOP;
 
-        if (!S_ISBLK(st->st_mode))
-                return -ENOTBLK;
+        ఒకవేళ (!S_ISBLK(st->st_mode))
+                తిరిగి -ENOTBLK;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fd_verify_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+పూర్ణాంకం fd_verify_ఖండం(పూర్ణాంకం fd) {
+        ఒకవేళ (లోపల_సమితి(fd, AT_FDCWD, XAT_FDROOT))
+                తిరిగి -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_block, /* verify= */ true);
+        తిరిగి verify_stat_at(fd, /* path= */ ఖాళీ, /* follow= */ false, stat_verify_ఖండం, /* verify= */ true);
 }
 
-int stat_verify_char(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_char(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ఒకవేళ (S_ISDIR(st->st_mode))
+                తిరిగి -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ఒకవేళ (S_ISLNK(st->st_mode))
+                తిరిగి -ELOOP;
 
-        if (!S_ISCHR(st->st_mode))
-                return -EBADFD;
+        ఒకవేళ (!S_ISCHR(st->st_mode))
+                తిరిగి -EBADFD;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int stat_verify_device_node(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_device_కణుపు(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ఒకవేళ (S_ISDIR(st->st_mode))
+                తిరిగి -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ఒకవేళ (S_ISLNK(st->st_mode))
+                తిరిగి -ELOOP;
 
-        if (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
-                return -ENOTTY;
+        ఒకవేళ (!S_ISBLK(st->st_mode) && !S_ISCHR(st->st_mode))
+                తిరిగి -ENOTTY;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int is_device_node(const char *path) {
-        assert(!isempty(path));
-        return verify_stat_at(AT_FDCWD, path, false, stat_verify_device_node, false);
+పూర్ణాంకం is_device_కణుపు(స్థిరరాశి అక్షరం *మార్గం) {
+        ప్రతిజ్ఞా(!isempty(మార్గం));
+        తిరిగి verify_stat_at(AT_FDCWD, మార్గం, false, stat_verify_device_కణుపు, false);
 }
 
-int stat_verify_regular_or_block(const struct stat *st) {
-        assert(st);
+పూర్ణాంకం stat_verify_regular_or_ఖండం(స్థిరరాశి నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        if (S_ISDIR(st->st_mode))
-                return -EISDIR;
+        ఒకవేళ (S_ISDIR(st->st_mode))
+                తిరిగి -EISDIR;
 
-        if (S_ISLNK(st->st_mode))
-                return -ELOOP;
+        ఒకవేళ (S_ISLNK(st->st_mode))
+                తిరిగి -ELOOP;
 
-        if (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
-                return -EBADFD;
+        ఒకవేళ (!S_ISREG(st->st_mode) && !S_ISBLK(st->st_mode))
+                తిరిగి -EBADFD;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fd_verify_regular_or_block(int fd) {
-        if (IN_SET(fd, AT_FDCWD, XAT_FDROOT))
-                return -EISDIR;
+పూర్ణాంకం fd_verify_regular_or_ఖండం(పూర్ణాంకం fd) {
+        ఒకవేళ (లోపల_సమితి(fd, AT_FDCWD, XAT_FDROOT))
+                తిరిగి -EISDIR;
 
-        return verify_stat_at(fd, /* path= */ NULL, /* follow= */ false, stat_verify_regular_or_block, /* verify= */ true);
+        తిరిగి verify_stat_at(fd, /* path= */ ఖాళీ, /* follow= */ false, stat_verify_regular_or_ఖండం, /* verify= */ true);
 }
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup) {
-        _cleanup_close_ int fd = -EBADF;
-        struct dirent *buf;
+పూర్ణాంకం dir_is_ఖాళీలు_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, bool ignore_hidden_or_backup) {
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        నిర్మాణం dirent *buf;
         size_t m;
 
-        fd = xopenat(dir_fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        fd = xopenat(dir_fd, మార్గం, O_DIRECTORY|O_CLOEXEC);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
         /* Allocate space for at least 3 full dirents, since every dir has at least two entries ("."  +
          * ".."), and only once we have seen if there's a third we know whether the dir is empty or not. If
          * 'ignore_hidden_or_backup' is true we'll allocate a bit more, since we might skip over a bunch of
          * entries that we end up ignoring. */
-        m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_SIZE_MAX;
+        m = (ignore_hidden_or_backup ? 16 : 3) * DIRENT_కొలత_MAX;
         buf = alloca(m);
 
-        for (;;) {
-                struct dirent *de;
+        కొరకు (;;) {
+                నిర్మాణం dirent *de;
                 ssize_t n;
 
                 n = getdents64(fd, buf, m);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                ఒకవేళ (n < 0)
+                        తిరిగి -errno;
+                ఒకవేళ (n == 0)
+                        ఆపు;
 
-                assert((size_t) n <= m);
+                ప్రతిజ్ఞా((size_t) n <= m);
                 msan_unpoison(buf, n);
 
-                FOREACH_DIRENT_IN_BUFFER(de, buf, n)
-                        if (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
-                                return 0;
+                FOREACH_DIRENT_లోపల_బఫరు(de, buf, n)
+                        ఒకవేళ (!(ignore_hidden_or_backup ? hidden_or_backup_file(de->d_name) : dot_or_dot_dot(de->d_name)))
+                                తిరిగి 0;
         }
 
-        return 1;
+        తిరిగి 1;
 }
 
-bool stat_may_be_dev_null(struct stat *st) {
-        assert(st);
+bool stat_may_be_dev_null(నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
         /* We don't want to hardcode the major/minor of /dev/null, hence we do a simpler "is this a character
          * device node?" check. */
 
-        return S_ISCHR(st->st_mode);
+        తిరిగి S_ISCHR(st->st_mode);
 }
 
-bool stat_is_empty(struct stat *st) {
-        assert(st);
+bool stat_is_ఖాళీలు(నిర్మాణం stat *st) {
+        ప్రతిజ్ఞా(st);
 
-        return S_ISREG(st->st_mode) && st->st_size <= 0;
+        తిరిగి S_ISREG(st->st_mode) && st->st_size <= 0;
 }
 
-int null_or_empty_path_with_root(const char *fn, const char *root) {
-        _cleanup_free_ char *resolved = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        struct stat st;
-        int r;
+పూర్ణాంకం null_or_ఖాళీలు_మార్గం_with_మూలం(స్థిరరాశి అక్షరం *fn, స్థిరరాశి అక్షరం *మూలం) {
+        _cleanup_free_ అక్షరం *resolved = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        నిర్మాణం stat st;
+        పూర్ణాంకం r;
 
-        assert(fn);
+        ప్రతిజ్ఞా(fn);
 
         /* fn includes the root prefix. */
 
-        if (path_equal(path_startswith(fn, root ?: "/"), "dev/null"))
-                return true;
+        ఒకవేళ (మార్గం_equal(మార్గం_startswith(fn, మూలం ?: "/"), "dev/null"))
+                తిరిగి true;
 
-        if (empty_or_root(root)) {
-                if (stat(fn, &st) < 0)
-                        return -errno;
+        ఒకవేళ (ఖాళీలు_or_మూలం(మూలం)) {
+                ఒకవేళ (stat(fn, &st) < 0)
+                        తిరిగి -errno;
 
-                return null_or_empty(&st);
+                తిరిగి null_or_ఖాళీలు(&st);
         }
 
         /* An image below a root directory usually has no /dev/null, so a symlink to /dev/null dangles there.
          * CHASE_NONEXISTENT resolves such a symlink without requiring the target to exist. */
-        r = chase(fn, root, CHASE_NONEXISTENT, &resolved, &fd);
-        if (r < 0)
-                return r;
+        r = chase(fn, మూలం, CHASE_NONEXISTENT, &resolved, &fd);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (path_equal(path_startswith(resolved, root), "dev/null"))
-                return true;
+        ఒకవేళ (మార్గం_equal(మార్గం_startswith(resolved, మూలం), "dev/null"))
+                తిరిగి true;
 
-        if (r == 0)
-                return -ENOENT;
+        ఒకవేళ (r == 0)
+                తిరిగి -ENOENT;
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ఒకవేళ (fstat(fd, &st) < 0)
+                తిరిగి -errno;
 
-        return null_or_empty(&st);
+        తిరిగి null_or_ఖాళీలు(&st);
 }
 
-static const char* statx_mask_one_to_name(unsigned mask);
-static const char* statx_attribute_to_name(uint64_t attr);
+స్థిర స్థిరరాశి అక్షరం* statx_ముసుగు_one_గమ్యం_name(గుర్తులేని ముసుగు_3);
+స్థిర స్థిరరాశి అక్షరం* statx_attribute_గమ్యం_name(uint64_t attr);
 
-#include "statx-attribute-to-name.inc"
-#include "statx-mask-to-name.inc"
+#అన్తర్భావ "statx-attribute-to-name.inc"
+#అన్తర్భావ "statx-mask-to-name.inc"
 
-#define DEFINE_STATX_BITS_TO_STRING(prefix, type, func, format_str)             \
-        static char* prefix##_to_string(type v) {                               \
-                if (v == 0)                                                     \
-                        return strdup("");                                      \
+#నిర్వచించు DEFINE_STATX_బిట్లు_గమ్యం_STRING(ఉపసర్గ, type, func, format_str)             \
+        స్థిర అక్షరం* ఉపసర్గ##_to_string(type v) {                               \
+                ఒకవేళ (v == 0)                                                     \
+                        తిరిగి strdup("");                                      \
                                                                                 \
-                _cleanup_free_ char *s = NULL;                                  \
+                _cleanup_free_ అక్షరం *s = ఖాళీ;                                  \
                                                                                 \
-                BIT_FOREACH(i, v) {                                             \
+                బిట్టు_FOREACH(i, v) {                                             \
                         type f = 1 << i;                                        \
                                                                                 \
-                        const char *n = func(f);                                \
-                        if (!n)                                                 \
-                                continue;                                       \
+                        స్థిరరాశి అక్షరం *n = func(f);                                \
+                        ఒకవేళ (!n)                                                 \
+                                కొనసాగు;                                       \
                                                                                 \
-                        if (!strextend_with_separator(&s, "|", n))              \
-                                return NULL;                                    \
+                        ఒకవేళ (!strextend_with_separator(&s, "|", n))              \
+                                తిరిగి ఖాళీ;                                    \
                         v &= ~f;                                                \
                 }                                                               \
                                                                                 \
-                if (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
-                        return NULL;                                            \
+                ఒకవేళ (v != 0 && strextendf_with_separator(&s, "|", format_str, v) < 0) \
+                        తిరిగి ఖాళీ;                                            \
                                                                                 \
-                return TAKE_PTR(s);                                             \
+                తిరిగి TAKE_PTR(s);                                             \
         }
 
-DEFINE_STATX_BITS_TO_STRING(statx_mask,       unsigned, statx_mask_one_to_name,  "0x%x");
-DEFINE_STATX_BITS_TO_STRING(statx_attributes, uint64_t, statx_attribute_to_name, "0x%" PRIx64);
+DEFINE_STATX_బిట్లు_గమ్యం_STRING(statx_ముసుగు,       గుర్తులేని, statx_ముసుగు_one_గమ్యం_name,  "0x%x");
+DEFINE_STATX_బిట్లు_గమ్యం_STRING(statx_లక్షణాలు, uint64_t, statx_attribute_గమ్యం_name, "0x%" PRIx64);
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+పూర్ణాంకం xstatx_నిండిన(పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం statx_flags,
                 XStatXFlags xstatx_flags,
-                unsigned mandatory_mask,
-                unsigned optional_mask,
-                uint64_t mandatory_attributes,
-                struct statx *ret) {
+                గుర్తులేని mandatory_ముసుగు,
+                గుర్తులేని optional_ముసుగు,
+                uint64_t mandatory_లక్షణాలు,
+                నిర్మాణం statx *ret) {
 
-        struct statx sx = {}; /* explicitly initialize the struct to make msan silent. */
-        int r;
+        నిర్మాణం statx sx = {}; /* explicitly initialize the struct to make msan silent. */
+        పూర్ణాంకం r;
 
         /* Wrapper around statx(), with additional bells and whistles:
          *
@@ -436,204 +436,204 @@ int xstatx_full(int fd,
          *    STATX_MNT_ID if not.
          */
 
-        assert(wildcard_fd_is_valid(fd));
-        assert((mandatory_mask & optional_mask) == 0);
-        assert(!FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) || !((mandatory_mask|optional_mask) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
-        assert(ret);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(fd));
+        ప్రతిజ్ఞా((mandatory_ముసుగు & optional_ముసుగు) == 0);
+        ప్రతిజ్ఞా(!FLAGS_సమితి(xstatx_flags, XSTATX_MNT_ID_ఉత్తమ) || !((mandatory_ముసుగు|optional_ముసుగు) & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)));
+        ప్రతిజ్ఞా(ret);
 
-        _cleanup_free_ char *p = NULL;
-        r = resolve_xat_fdroot(&fd, &path, &p);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        r = resolve_xat_fdroot(&fd, &మార్గం, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        unsigned request_mask = mandatory_mask|optional_mask;
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST))
-                request_mask |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
+        గుర్తులేని request_ముసుగు = mandatory_ముసుగు|optional_ముసుగు;
+        ఒకవేళ (FLAGS_సమితి(xstatx_flags, XSTATX_MNT_ID_ఉత్తమ))
+                request_ముసుగు |= STATX_MNT_ID|STATX_MNT_ID_UNIQUE;
 
-        if (statx(fd,
-                  strempty(path),
-                  statx_flags|(isempty(path) ? AT_EMPTY_PATH : 0),
-                  request_mask,
+        ఒకవేళ (statx(fd,
+                  strempty(మార్గం),
+                  statx_flags|(isempty(మార్గం) ? AT_ఖాళీలు_మార్గం : 0),
+                  request_ముసుగు,
                   &sx) < 0)
-                return negative_errno();
+                తిరిగి negative_errno();
 
-        if (FLAGS_SET(xstatx_flags, XSTATX_MNT_ID_BEST) &&
-            !(sx.stx_mask & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
-                return log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
+        ఒకవేళ (FLAGS_సమితి(xstatx_flags, XSTATX_MNT_ID_ఉత్తమ) &&
+            !(sx.stx_ముసుగు & (STATX_MNT_ID|STATX_MNT_ID_UNIQUE)))
+                తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EUNATCH), "statx() did not return either STATX_MNT_ID or STATX_MNT_ID_UNIQUE.");
 
-        if (!FLAGS_SET(sx.stx_mask, mandatory_mask)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *mask_str = statx_mask_to_string(mandatory_mask & ~sx.stx_mask);
-                        log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(mask_str));
+        ఒకవేళ (!FLAGS_సమితి(sx.stx_ముసుగు, mandatory_ముసుగు)) {
+                ఒకవేళ (DEBUG_LOGGING) {
+                        _cleanup_free_ అక్షరం *ముసుగు_str = statx_ముసుగు_గమ్యం_string(mandatory_ముసుగు & ~sx.stx_ముసుగు);
+                        log_debug("statx() does not support '%s' mask (running on an old kernel?)", strnull(ముసుగు_str));
                 }
 
-                return -EUNATCH;
+                తిరిగి -EUNATCH;
         }
 
-        if (!FLAGS_SET(sx.stx_attributes_mask, mandatory_attributes)) {
-                if (DEBUG_LOGGING) {
-                        _cleanup_free_ char *attr_str = statx_attributes_to_string(mandatory_attributes & ~sx.stx_attributes_mask);
+        ఒకవేళ (!FLAGS_సమితి(sx.stx_లక్షణాలు_ముసుగు, mandatory_లక్షణాలు)) {
+                ఒకవేళ (DEBUG_LOGGING) {
+                        _cleanup_free_ అక్షరం *attr_str = statx_లక్షణాలు_గమ్యం_string(mandatory_లక్షణాలు & ~sx.stx_లక్షణాలు_ముసుగు);
                         log_debug("statx() does not support '%s' attribute (running on an old kernel?)", strnull(attr_str));
                 }
 
-                return -EUNATCH;
+                తిరిగి -EUNATCH;
         }
 
         *ret = sx;
-        return FLAGS_SET(sx.stx_mask, optional_mask);
+        తిరిగి FLAGS_సమితి(sx.stx_ముసుగు, optional_ముసుగు);
 }
 
-static int xfstatfs(int fd, struct statfs *ret) {
-        assert(ret);
+స్థిర పూర్ణాంకం xfstatfs(పూర్ణాంకం fd, నిర్మాణం statfs *ret) {
+        ప్రతిజ్ఞా(ret);
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(statfs(".", ret));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(statfs("/", ret));
+        ఒకవేళ (fd == AT_FDCWD)
+                తిరిగి RET_NERRNO(statfs(".", ret));
+        ఒకవేళ (fd == XAT_FDROOT)
+                తిరిగి RET_NERRNO(statfs("/", ret));
 
-        assert(fd >= 0);
-        return RET_NERRNO(fstatfs(fd, ret));
+        ప్రతిజ్ఞా(fd >= 0);
+        తిరిగి RET_NERRNO(fstatfs(fd, ret));
 }
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret) {
-        _cleanup_close_ int fd = -EBADF;
+పూర్ణాంకం xstatfsat(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, నిర్మాణం statfs *ret) {
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(ret);
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(ret);
 
-        if (!isempty(path)) {
-                fd = xopenat(dir_fd, path, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+        ఒకవేళ (!isempty(మార్గం)) {
+                fd = xopenat(dir_fd, మార్గం, O_మార్గం|O_CLOEXEC);
+                ఒకవేళ (fd < 0)
+                        తిరిగి fd;
                 dir_fd = fd;
         }
 
-        return xfstatfs(dir_fd, ret);
+        తిరిగి xfstatfs(dir_fd, ret);
 }
 
-int fd_is_read_only_fs(int fd) {
-        int r;
+పూర్ణాంకం fd_is_read_only_fs(పూర్ణాంకం fd) {
+        పూర్ణాంకం r;
 
-        struct statfs st;
+        నిర్మాణం statfs st;
         r = xfstatfs(fd, &st);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (st.f_flags & ST_RDONLY)
-                return true;
+        ఒకవేళ (st.f_flags & ST_RDONLY)
+                తిరిగి true;
 
-        if (is_network_fs(&st))
+        ఒకవేళ (is_జాలం_fs(&st))
                 /* On NFS, fstatfs() might not reflect whether we can actually write to the remote share.
                  * Let's try again with access(W_OK) which is more reliable, at least sometimes. */
-                return access_fd(fd, W_OK) == -EROFS;
+                తిరిగి access_fd(fd, W_OK) == -EROFS;
 
-        return false;
+        తిరిగి false;
 }
 
-int path_is_read_only_fs(const char *path) {
-        _cleanup_close_ int fd = -EBADF;
+పూర్ణాంకం మార్గం_is_read_only_fs(స్థిరరాశి అక్షరం *మార్గం) {
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        fd = open(path, O_CLOEXEC | O_PATH);
-        if (fd < 0)
-                return -errno;
+        fd = open(మార్గం, O_CLOEXEC | O_మార్గం);
+        ఒకవేళ (fd < 0)
+                తిరిగి -errno;
 
-        return fd_is_read_only_fs(fd);
+        తిరిగి fd_is_read_only_fs(fd);
 }
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags) {
-        struct stat sta, stb;
-        int r;
+పూర్ణాంకం inode_same_at(పూర్ణాంకం fda, స్థిరరాశి అక్షరం *filea, పూర్ణాంకం fdb, స్థిరరాశి అక్షరం *fileb, పూర్ణాంకం flags) {
+        నిర్మాణం stat sta, stb;
+        పూర్ణాంకం r;
 
-        assert(fda >= 0 || fda == AT_FDCWD);
-        assert(fdb >= 0 || fdb == AT_FDCWD);
-        assert((flags & ~(AT_EMPTY_PATH|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
+        ప్రతిజ్ఞా(fda >= 0 || fda == AT_FDCWD);
+        ప్రతిజ్ఞా(fdb >= 0 || fdb == AT_FDCWD);
+        ప్రతిజ్ఞా((flags & ~(AT_ఖాళీలు_మార్గం|AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT)) == 0);
 
         /* Refuse an unset filea or fileb early unless AT_EMPTY_PATH is set */
-        if ((isempty(filea) || isempty(fileb)) && !FLAGS_SET(flags, AT_EMPTY_PATH))
-                return -EINVAL;
+        ఒకవేళ ((isempty(filea) || isempty(fileb)) && !FLAGS_సమితి(flags, AT_ఖాళీలు_మార్గం))
+                తిరిగి -EINVAL;
 
         /* Shortcut: comparing the same fd with itself means we can return true */
-        if (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW))
-                return true;
+        ఒకవేళ (fda >= 0 && fda == fdb && isempty(filea) && isempty(fileb) && FLAGS_సమితి(flags, AT_SYMLINK_NOFOLLOW))
+                తిరిగి true;
 
-        _cleanup_close_ int pin_a = -EBADF, pin_b = -EBADF;
-        if (!FLAGS_SET(flags, AT_NO_AUTOMOUNT)) {
+        _cleanup_close_ పూర్ణాంకం pin_a = -EBADF, pin_b = -EBADF;
+        ఒకవేళ (!FLAGS_సమితి(flags, AT_NO_AUTOMOUNT)) {
                 /* Let's try to use the name_to_handle_at() AT_HANDLE_FID API to identify identical
                  * inodes. We have to issue multiple calls on the same file for that (first, to acquire the
                  * FID, and then to check if .st_dev is actually the same). Hence let's pin the inode in
                  * between via O_PATH, unless we already have an fd for it. */
 
-                if (!isempty(filea)) {
-                        pin_a = openat(fda, filea, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_a < 0)
-                                return -errno;
+                ఒకవేళ (!isempty(filea)) {
+                        pin_a = openat(fda, filea, O_మార్గం|O_CLOEXEC|(FLAGS_సమితి(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
+                        ఒకవేళ (pin_a < 0)
+                                తిరిగి -errno;
 
                         fda = pin_a;
-                        filea = NULL;
-                        flags |= AT_EMPTY_PATH;
+                        filea = ఖాళీ;
+                        flags |= AT_ఖాళీలు_మార్గం;
                 }
 
-                if (!isempty(fileb)) {
-                        pin_b = openat(fdb, fileb, O_PATH|O_CLOEXEC|(FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
-                        if (pin_b < 0)
-                                return -errno;
+                ఒకవేళ (!isempty(fileb)) {
+                        pin_b = openat(fdb, fileb, O_మార్గం|O_CLOEXEC|(FLAGS_సమితి(flags, AT_SYMLINK_NOFOLLOW) ? O_NOFOLLOW : 0));
+                        ఒకవేళ (pin_b < 0)
+                                తిరిగి -errno;
 
                         fdb = pin_b;
-                        fileb = NULL;
-                        flags |= AT_EMPTY_PATH;
+                        fileb = ఖాళీ;
+                        flags |= AT_ఖాళీలు_మార్గం;
                 }
 
-                int ntha_flags = at_flags_normalize_follow(flags) & (AT_EMPTY_PATH|AT_SYMLINK_FOLLOW);
-                _cleanup_free_ struct file_handle *ha = NULL, *hb = NULL;
+                పూర్ణాంకం ntha_flags = at_flags_normalize_follow(flags) & (AT_ఖాళీలు_మార్గం|AT_SYMLINK_FOLLOW);
+                _cleanup_free_ నిర్మాణం file_handle *ha = ఖాళీ, *hb = ఖాళీ;
                 uint64_t mntida, mntidb;
-                int _mntida, _mntidb;
+                పూర్ణాంకం _mntida, _mntidb;
 
-                r = name_to_handle_at_try_fid(
+                r = name_గమ్యం_handle_at_try_fid(
                                 fda,
                                 filea,
                                 &ha,
                                 &_mntida,
                                 &mntida,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                ఒకవేళ (r < 0) {
+                        ఒకవేళ (is_name_గమ్యం_handle_at_fatal_error(r))
+                                తిరిగి r;
 
-                        goto fallback;
+                        వెళ్ళు fallback;
                 }
                 bool have_unique_mntid = r > 0;
 
-                if (!have_unique_mntid)
+                ఒకవేళ (!have_unique_mntid)
                         mntida = _mntida;
 
-                r = name_to_handle_at_try_fid(
+                r = name_గమ్యం_handle_at_try_fid(
                                 fdb,
                                 fileb,
                                 &hb,
-                                have_unique_mntid ? NULL : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
-                                have_unique_mntid ? &mntidb : NULL,
+                                have_unique_mntid ? ఖాళీ : &_mntidb, /* if we managed to get unique mnt id for a, insist on that for b */
+                                have_unique_mntid ? &mntidb : ఖాళీ,
                                 ntha_flags);
-                if (r < 0) {
-                        if (is_name_to_handle_at_fatal_error(r))
-                                return r;
+                ఒకవేళ (r < 0) {
+                        ఒకవేళ (is_name_గమ్యం_handle_at_fatal_error(r))
+                                తిరిగి r;
 
-                        goto fallback;
+                        వెళ్ళు fallback;
                 }
-                if (r == 0) {
-                        assert(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
+                ఒకవేళ (r == 0) {
+                        ప్రతిజ్ఞా(!have_unique_mntid); /* _mntidb was initialized by name_to_handle_at_try_fid() */
                         mntidb = _mntidb;
                 }
 
                 /* Now compare the two file handles */
-                if (!file_handle_equal(ha, hb))
-                        return false;
+                ఒకవేళ (!file_handle_equal(ha, hb))
+                        తిరిగి false;
 
                 /* If the file handles are the same and they come from the same mount ID? Great, then we are
                  * good, they are definitely the same */
-                if (mntida == mntidb)
-                        return true;
+                ఒకవేళ (mntida == mntidb)
+                        తిరిగి true;
 
                 /* File handles are the same, they are not on the same mount id. This might either be because
                  * they are on two entirely different file systems, that just happen to have the same FIDs
@@ -644,107 +644,107 @@ int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int fl
         }
 
 fallback:
-        if (fstatat(fda, strempty(filea), &sta, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
+        ఒకవేళ (fstatat(fda, strempty(filea), &sta, flags) < 0)
+                తిరిగి log_debug_errno(errno, "Cannot stat %s: %m", strna(filea));
 
-        if (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
-                return log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
+        ఒకవేళ (fstatat(fdb, strempty(fileb), &stb, flags) < 0)
+                తిరిగి log_debug_errno(errno, "Cannot stat %s: %m", strna(fileb));
 
-        return stat_inode_same(&sta, &stb);
+        తిరిగి stat_inode_same(&sta, &stb);
 }
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
-        assert(s);
-        assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
+bool is_fs_type(స్థిరరాశి నిర్మాణం statfs *s, statfs_f_type_t magic_విలువ) {
+        ప్రతిజ్ఞా(s);
+        assert_cc(పరిమాణం(statfs_f_type_t) >= పరిమాణం(s->f_type));
 
-        return F_TYPE_EQUAL(s->f_type, magic_value);
+        తిరిగి F_TYPE_EQUAL(s->f_type, magic_విలువ);
 }
 
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value) {
-        int r;
+పూర్ణాంకం is_fs_type_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, statfs_f_type_t magic_విలువ) {
+        పూర్ణాంకం r;
 
-        struct statfs s;
-        r = xstatfsat(dir_fd, path, &s);
-        if (r < 0)
-                return r;
+        నిర్మాణం statfs s;
+        r = xstatfsat(dir_fd, మార్గం, &s);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return is_fs_type(&s, magic_value);
+        తిరిగి is_fs_type(&s, magic_విలువ);
 }
 
-bool is_temporary_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_TEMPORARY);
+bool is_temporary_fs(స్థిరరాశి నిర్మాణం statfs *s) {
+        తిరిగి fs_లోపల_సమూహం(s, FILESYSTEM_సమితి_TEMPORARY);
 }
 
-bool is_network_fs(const struct statfs *s) {
-        return fs_in_group(s, FILESYSTEM_SET_NETWORK);
+bool is_జాలం_fs(స్థిరరాశి నిర్మాణం statfs *s) {
+        తిరిగి fs_లోపల_సమూహం(s, FILESYSTEM_సమితి_జాలం);
 }
 
-int fd_is_temporary_fs(int fd) {
-        int r;
+పూర్ణాంకం fd_is_temporary_fs(పూర్ణాంకం fd) {
+        పూర్ణాంకం r;
 
-        struct statfs s;
+        నిర్మాణం statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return is_temporary_fs(&s);
+        తిరిగి is_temporary_fs(&s);
 }
 
-int fd_is_network_fs(int fd) {
-        int r;
+పూర్ణాంకం fd_is_జాలం_fs(పూర్ణాంకం fd) {
+        పూర్ణాంకం r;
 
-        struct statfs s;
+        నిర్మాణం statfs s;
         r = xfstatfs(fd, &s);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return is_network_fs(&s);
+        తిరిగి is_జాలం_fs(&s);
 }
 
-int path_is_temporary_fs(const char *path) {
-        struct statfs s;
+పూర్ణాంకం మార్గం_is_temporary_fs(స్థిరరాశి అక్షరం *మార్గం) {
+        నిర్మాణం statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        ఒకవేళ (statfs(మార్గం, &s) < 0)
+                తిరిగి -errno;
 
-        return is_temporary_fs(&s);
+        తిరిగి is_temporary_fs(&s);
 }
 
-int path_is_network_fs(const char *path) {
-        struct statfs s;
+పూర్ణాంకం మార్గం_is_జాలం_fs(స్థిరరాశి అక్షరం *మార్గం) {
+        నిర్మాణం statfs s;
 
-        if (statfs(path, &s) < 0)
-                return -errno;
+        ఒకవేళ (statfs(మార్గం, &s) < 0)
+                తిరిగి -errno;
 
-        return is_network_fs(&s);
+        తిరిగి is_జాలం_fs(&s);
 }
 
-int proc_mounted(void) {
+పూర్ణాంకం proc_mounted(శూన్య) {
         /* This is typically used in error path. So, it is better to not overwrite the original errno. */
         PROTECT_ERRNO;
-        int r;
+        పూర్ణాంకం r;
 
         /* A quick check of procfs is properly mounted */
 
-        r = path_is_fs_type("/proc/", PROC_SUPER_MAGIC);
-        if (r == -ENOENT) /* not mounted at all */
-                return false;
+        r = మార్గం_is_fs_type("/proc/", PROC_SUPER_MAGIC);
+        ఒకవేళ (r == -ENOENT) /* not mounted at all */
+                తిరిగి false;
 
-        return r;
+        తిరిగి r;
 }
 
-bool stat_inode_same(const struct stat *a, const struct stat *b) {
+bool stat_inode_same(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b) {
 
         /* Returns if the specified stat structure references the same (though possibly modified) inode. Does
          * a thorough check, comparing inode nr, backing device and if the inode is still of the same type. */
 
-        return stat_is_set(a) && stat_is_set(b) &&
+        తిరిగి stat_is_సమితి(a) && stat_is_సమితి(b) &&
                 ((a->st_mode ^ b->st_mode) & S_IFMT) == 0 &&  /* same inode type */
                 a->st_dev == b->st_dev &&
                 a->st_ino == b->st_ino;
 }
 
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
+bool stat_inode_unmodified(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b) {
 
         /* Returns if the specified stat structures reference the same, unmodified inode. This check tries to
          * be reasonably careful when detecting changes: we check both inode and mtime, to cater for file
@@ -755,55 +755,55 @@ bool stat_inode_unmodified(const struct stat *a, const struct stat *b) {
          * about contents of the file. The purpose here is to detect file contents changes, and nothing
          * else. */
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        return stat_inode_same(a, b) &&
+        తిరిగి stat_inode_same(a, b) &&
                 a->st_mtim.tv_sec == b->st_mtim.tv_sec &&
                 a->st_mtim.tv_nsec == b->st_mtim.tv_nsec &&
                 (!S_ISREG(a->st_mode) || a->st_size == b->st_size) && /* if regular file, compare file size */
                 (!(S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) || a->st_rdev == b->st_rdev); /* if device node, also compare major/minor, because we can */
 }
 
-bool statx_inode_same(const struct statx *a, const struct statx *b) {
+bool statx_inode_same(స్థిరరాశి నిర్మాణం statx *a, స్థిరరాశి నిర్మాణం statx *b) {
 
         /* Same as stat_inode_same() but for struct statx */
 
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+        ఒకవేళ (!statx_is_సమితి(a) || !statx_is_సమితి(b))
+                తిరిగి false;
 
-        assert(FLAGS_SET(a->stx_mask, STATX_TYPE|STATX_INO));
-        assert(FLAGS_SET(b->stx_mask, STATX_TYPE|STATX_INO));
+        ప్రతిజ్ఞా(FLAGS_సమితి(a->stx_ముసుగు, STATX_TYPE|STATX_INO));
+        ప్రతిజ్ఞా(FLAGS_సమితి(b->stx_ముసుగు, STATX_TYPE|STATX_INO));
 
-        return
-                ((a->stx_mode ^ b->stx_mode) & S_IFMT) == 0 &&
+        తిరిగి
+                ((a->stx_బహుళకం ^ b->stx_బహుళకం) & S_IFMT) == 0 &&
                 a->stx_dev_major == b->stx_dev_major &&
                 a->stx_dev_minor == b->stx_dev_minor &&
                 a->stx_ino == b->stx_ino;
 }
 
-int statx_mount_same(const struct statx *a, const struct statx *b) {
-        if (!statx_is_set(a) || !statx_is_set(b))
-                return false;
+పూర్ణాంకం statx_mount_same(స్థిరరాశి నిర్మాణం statx *a, స్థిరరాశి నిర్మాణం statx *b) {
+        ఒకవేళ (!statx_is_సమితి(a) || !statx_is_సమితి(b))
+                తిరిగి false;
 
-        if ((FLAGS_SET(a->stx_mask, STATX_MNT_ID) && FLAGS_SET(b->stx_mask, STATX_MNT_ID)) ||
-            (FLAGS_SET(a->stx_mask, STATX_MNT_ID_UNIQUE) && FLAGS_SET(b->stx_mask, STATX_MNT_ID_UNIQUE)))
-                return a->stx_mnt_id == b->stx_mnt_id;
+        ఒకవేళ ((FLAGS_సమితి(a->stx_ముసుగు, STATX_MNT_ID) && FLAGS_సమితి(b->stx_ముసుగు, STATX_MNT_ID)) ||
+            (FLAGS_సమితి(a->stx_ముసుగు, STATX_MNT_ID_UNIQUE) && FLAGS_సమితి(b->stx_ముసుగు, STATX_MNT_ID_UNIQUE)))
+                తిరిగి a->stx_mnt_id == b->stx_mnt_id;
 
-        return -ENODATA;
+        తిరిగి -ENODATA;
 }
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+usec_t statx_timestamp_ఎక్కించు(స్థిరరాశి నిర్మాణం statx_timestamp *ts) {
+        ప్రతిజ్ఞా(ts);
+        తిరిగి timespec_ఎక్కించు(&(స్థిరరాశి నిర్మాణం timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) {
-        assert(ts);
-        return timespec_load_nsec(&(const struct timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
+nsec_t statx_timestamp_ఎక్కించు_nsec(స్థిరరాశి నిర్మాణం statx_timestamp *ts) {
+        ప్రతిజ్ఞా(ts);
+        తిరిగి timespec_ఎక్కించు_nsec(&(స్థిరరాశి నిర్మాణం timespec) { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec });
 }
 
-void inode_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+శూన్య inode_hash_func(స్థిరరాశి నిర్మాణం stat *q, నిర్మాణం siphash *state) {
+        ప్రతిజ్ఞా(q);
 
         siphash24_compress_typesafe(q->st_dev, state);
         siphash24_compress_typesafe(q->st_ino, state);
@@ -813,145 +813,145 @@ void inode_hash_func(const struct stat *q, struct siphash *state) {
         siphash24_compress_typesafe(type, state);
 }
 
-int inode_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+పూర్ణాంకం inode_compare_func(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b) {
+        పూర్ణాంకం r;
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
         r = CMP(a->st_dev, b->st_dev);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         r = CMP(a->st_ino, b->st_ino);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
-        return CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
+        తిరిగి CMP(a->st_mode & S_IFMT, b->st_mode & S_IFMT);
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_hash_ops, struct stat, inode_hash_func, inode_compare_func, free);
+DEFINE_HASH_OPS_WITH_కీలకం_DESTRUCTOR(inode_hash_ops, నిర్మాణం stat, inode_hash_func, inode_compare_func, విడుదల);
 
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state) {
-        assert(q);
+శూన్య inode_unmodified_hash_func(స్థిరరాశి నిర్మాణం stat *q, నిర్మాణం siphash *state) {
+        ప్రతిజ్ఞా(q);
 
         inode_hash_func(q, state);
 
         siphash24_compress_typesafe(q->st_mtim.tv_sec, state);
         siphash24_compress_typesafe(q->st_mtim.tv_nsec, state);
 
-        if (S_ISREG(q->st_mode))
+        ఒకవేళ (S_ISREG(q->st_mode))
                 siphash24_compress_typesafe(q->st_size, state);
-        else {
+        లేకపోతే {
                 uint64_t invalid = UINT64_MAX;
                 siphash24_compress_typesafe(invalid, state);
         }
 
-        if (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
+        ఒకవేళ (S_ISCHR(q->st_mode) || S_ISBLK(q->st_mode))
                 siphash24_compress_typesafe(q->st_rdev, state);
-        else {
+        లేకపోతే {
                 dev_t invalid = (dev_t) -1;
                 siphash24_compress_typesafe(invalid, state);
         }
 }
 
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b) {
-        int r;
+పూర్ణాంకం inode_unmodified_compare_func(స్థిరరాశి నిర్మాణం stat *a, స్థిరరాశి నిర్మాణం stat *b) {
+        పూర్ణాంకం r;
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
         r = inode_compare_func(a, b);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         r = CMP(a->st_mtim.tv_sec, b->st_mtim.tv_sec);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         r = CMP(a->st_mtim.tv_nsec, b->st_mtim.tv_nsec);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
-        if (S_ISREG(a->st_mode)) {
+        ఒకవేళ (S_ISREG(a->st_mode)) {
                 r = CMP(a->st_size, b->st_size);
-                if (r != 0)
-                        return r;
+                ఒకవేళ (r != 0)
+                        తిరిగి r;
         }
 
-        if (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
+        ఒకవేళ (S_ISCHR(a->st_mode) || S_ISBLK(a->st_mode)) {
                 r = CMP(a->st_rdev, b->st_rdev);
-                if (r != 0)
-                        return r;
+                ఒకవేళ (r != 0)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-DEFINE_HASH_OPS_WITH_KEY_DESTRUCTOR(inode_unmodified_hash_ops, struct stat, inode_unmodified_hash_func, inode_unmodified_compare_func, free);
+DEFINE_HASH_OPS_WITH_కీలకం_DESTRUCTOR(inode_unmodified_hash_ops, నిర్మాణం stat, inode_unmodified_hash_func, inode_unmodified_compare_func, విడుదల);
 
-const char* inode_type_to_string(mode_t m) {
+స్థిరరాశి అక్షరం* inode_type_గమ్యం_string(mode_t m) {
 
         /* Returns a short string for the inode type. We use the same name as the underlying macros for each
          * inode type. */
 
-        switch (m & S_IFMT) {
-        case S_IFREG:
-                return "reg";
-        case S_IFDIR:
-                return "dir";
-        case S_IFLNK:
-                return "lnk";
-        case S_IFCHR:
-                return "chr";
-        case S_IFBLK:
-                return "blk";
-        case S_IFIFO:
-                return "fifo";
-        case S_IFSOCK:
-                return "sock";
+        ఎంపిక (m & S_IFMT) {
+        స్థితి S_IFREG:
+                తిరిగి "reg";
+        స్థితి S_IFDIR:
+                తిరిగి "dir";
+        స్థితి S_IFLNK:
+                తిరిగి "lnk";
+        స్థితి S_IFCHR:
+                తిరిగి "chr";
+        స్థితి S_IFBLK:
+                తిరిగి "blk";
+        స్థితి S_IFIFO:
+                తిరిగి "fifo";
+        స్థితి S_IFSOCK:
+                తిరిగి "sock";
         }
 
         /* Note anonymous inodes in the kernel will have a zero type. Hence fstat() of an eventfd() will
          * return an .st_mode where we'll return NULL here! */
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-mode_t inode_type_from_string(const char *s) {
-        if (!s)
-                return MODE_INVALID;
+mode_t inode_type_from_string(స్థిరరాశి అక్షరం *s) {
+        ఒకవేళ (!s)
+                తిరిగి బహుళకం_INVALID;
 
-        if (streq(s, "reg"))
-                return S_IFREG;
-        if (streq(s, "dir"))
-                return S_IFDIR;
-        if (streq(s, "lnk"))
-                return S_IFLNK;
-        if (streq(s, "chr"))
-                return S_IFCHR;
-        if (streq(s, "blk"))
-                return S_IFBLK;
-        if (streq(s, "fifo"))
-                return S_IFIFO;
-        if (streq(s, "sock"))
-                return S_IFSOCK;
+        ఒకవేళ (streq(s, "reg"))
+                తిరిగి S_IFREG;
+        ఒకవేళ (streq(s, "dir"))
+                తిరిగి S_IFDIR;
+        ఒకవేళ (streq(s, "lnk"))
+                తిరిగి S_IFLNK;
+        ఒకవేళ (streq(s, "chr"))
+                తిరిగి S_IFCHR;
+        ఒకవేళ (streq(s, "blk"))
+                తిరిగి S_IFBLK;
+        ఒకవేళ (streq(s, "fifo"))
+                తిరిగి S_IFIFO;
+        ఒకవేళ (streq(s, "sock"))
+                తిరిగి S_IFSOCK;
 
-        return MODE_INVALID;
+        తిరిగి బహుళకం_INVALID;
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret) {
-        assert(fd >= 0);
-        assert(ret);
+పూర్ణాంకం vfs_free_బైట్లు(పూర్ణాంకం fd, uint64_t *ret) {
+        ప్రతిజ్ఞా(fd >= 0);
+        ప్రతిజ్ఞా(ret);
 
         /* Safely returns the current available disk space (for root, i.e. including any space reserved for
          * root) of the disk referenced by the fd, converted to bytes. */
 
-        struct statvfs sv;
-        if (fstatvfs(fd, &sv) < 0)
-                return -errno;
+        నిర్మాణం statvfs sv;
+        ఒకవేళ (fstatvfs(fd, &sv) < 0)
+                తిరిగి -errno;
 
-        if (!MUL_SAFE(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
-                return -ERANGE;
+        ఒకవేళ (!MUL_సురక్షిత(ret, (uint64_t) sv.f_frsize, (uint64_t) sv.f_bfree))
+                తిరిగి -ERANGE;
 
-        return 0;
+        తిరిగి 0;
 }

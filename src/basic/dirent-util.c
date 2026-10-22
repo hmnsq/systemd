@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <sys/stat.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <sys/stat.h>
 
-#include "dirent-util.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
+#అన్తర్భావ "dirent-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-util.h"
 
-int dirent_ensure_type(int dir_fd, struct dirent *de) {
-        int r;
+పూర్ణాంకం dirent_ensure_type(పూర్ణాంకం dir_fd, నిర్మాణం dirent *de) {
+        పూర్ణాంకం r;
 
-        assert(dir_fd >= 0);
-        assert(de);
+        ప్రతిజ్ఞా(dir_fd >= 0);
+        ప్రతిజ్ఞా(de);
 
-        if (de->d_type != DT_UNKNOWN)
-                return 0;
+        ఒకవేళ (de->d_type != DT_UNKNOWN)
+                తిరిగి 0;
 
-        if (dot_or_dot_dot(de->d_name)) {
+        ఒకవేళ (dot_or_dot_dot(de->d_name)) {
                 de->d_type = DT_DIR;
-                return 0;
+                తిరిగి 0;
         }
 
         /* Let's ask only for the type, nothing else. */
-        struct statx sx;
-        r = xstatx_full(dir_fd,
+        నిర్మాణం statx sx;
+        r = xstatx_నిండిన(dir_fd,
                         de->d_name,
                         AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT,
                         /* xstatx_flags= */ 0,
@@ -32,81 +32,81 @@ int dirent_ensure_type(int dir_fd, struct dirent *de) {
                         /* optional_mask= */ STATX_INO,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        assert(FLAGS_SET(sx.stx_mask, STATX_TYPE));
-        de->d_type = IFTODT(sx.stx_mode);
+        ప్రతిజ్ఞా(FLAGS_సమితి(sx.stx_ముసుగు, STATX_TYPE));
+        de->d_type = IFTODT(sx.stx_బహుళకం);
 
         /* If the inode is passed too, update the field, i.e. report most recent data */
-        if (FLAGS_SET(sx.stx_mask, STATX_INO))
+        ఒకవేళ (FLAGS_సమితి(sx.stx_ముసుగు, STATX_INO))
                 de->d_ino = sx.stx_ino;
 
-        return 0;
+        తిరిగి 0;
 }
 
-bool dirent_is_file(const struct dirent *de) {
-        assert(de);
+bool dirent_is_file(స్థిరరాశి నిర్మాణం dirent *de) {
+        ప్రతిజ్ఞా(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ఒకవేళ (!లోపల_సమితి(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                తిరిగి false;
 
-        if (hidden_or_backup_file(de->d_name))
-                return false;
+        ఒకవేళ (hidden_or_backup_file(de->d_name))
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) {
-        assert(de);
+bool dirent_is_file_with_suffix(స్థిరరాశి నిర్మాణం dirent *de, స్థిరరాశి అక్షరం *suffix) {
+        ప్రతిజ్ఞా(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ఒకవేళ (!లోపల_సమితి(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                తిరిగి false;
 
-        if (de->d_name[0] == '.')
-                return false;
+        ఒకవేళ (de->d_name[0] == '.')
+                తిరిగి false;
 
-        if (!suffix)
-                return true;
+        ఒకవేళ (!suffix)
+                తిరిగి true;
 
-        return endswith(de->d_name, suffix);
+        తిరిగి endswith(de->d_name, suffix);
 }
 
-struct dirent* readdir_ensure_type(DIR *d) {
-        int r;
+నిర్మాణం dirent* readdir_ensure_type(DIR *d) {
+        పూర్ణాంకం r;
 
-        assert(d);
+        ప్రతిజ్ఞా(d);
 
         /* Like readdir(), but fills in .d_type if it is DT_UNKNOWN */
 
-        for (;;) {
-                struct dirent *de;
+        కొరకు (;;) {
+                నిర్మాణం dirent *de;
 
                 errno = 0;
                 de = readdir(d);
-                if (!de)
-                        return NULL;
+                ఒకవేళ (!de)
+                        తిరిగి ఖాళీ;
 
                 r = dirent_ensure_type(dirfd(d), de);
-                if (r >= 0)
-                        return de;
-                if (r != -ENOENT) {
+                ఒకవేళ (r >= 0)
+                        తిరిగి de;
+                ఒకవేళ (r != -ENOENT) {
                         errno = -r; /* We want to be compatible with readdir(), hence propagate error via errno here */
-                        return NULL;
+                        తిరిగి ఖాళీ;
                 }
 
                 /* Vanished by now? Then skip immediately to next */
         }
 }
 
-struct dirent* readdir_no_dot(DIR *d) {
-        assert(d);
+నిర్మాణం dirent* readdir_no_dot(DIR *d) {
+        ప్రతిజ్ఞా(d);
 
-        for (;;) {
-                struct dirent *de;
+        కొరకు (;;) {
+                నిర్మాణం dirent *de;
 
                 de = readdir_ensure_type(d);
-                if (!de || !dot_or_dot_dot(de->d_name))
-                        return de;
+                ఒకవేళ (!de || !dot_or_dot_dot(de->d_name))
+                        తిరిగి de;
         }
 }

@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef enum Glyph {
+రకనిర్వచనం గణన Glyph {
         GLYPH_SPACE,
-        GLYPH_TREE_VERTICAL,
-        GLYPH_TREE_BRANCH,
-        GLYPH_TREE_RIGHT,
-        GLYPH_TREE_SPACE,
-        GLYPH_TREE_TOP,
+        GLYPH_వృక్షం_VERTICAL,
+        GLYPH_వృక్షం_BRANCH,
+        GLYPH_వృక్షం_కుడి,
+        GLYPH_వృక్షం_SPACE,
+        GLYPH_వృక్షం_శిఖరం,
         GLYPH_VERTICAL_DOTTED,
         GLYPH_HORIZONTAL_DOTTED,
         GLYPH_HORIZONTAL_FAT,
@@ -24,28 +24,28 @@ typedef enum Glyph {
         GLYPH_CROSS_MARK,
         GLYPH_LIGHT_SHADE,
         GLYPH_DARK_SHADE,
-        GLYPH_FULL_BLOCK,
+        GLYPH_నిండిన_ఖండం,
         GLYPH_SIGMA,
-        GLYPH_ARROW_UP,
-        GLYPH_ARROW_DOWN,
-        GLYPH_ARROW_LEFT,
-        GLYPH_ARROW_RIGHT,
+        GLYPH_ARROW_పైకి,
+        GLYPH_ARROW_కిందికి,
+        GLYPH_ARROW_ఎడమ,
+        GLYPH_ARROW_కుడి,
         GLYPH_ELLIPSIS,
         GLYPH_EXTERNAL_LINK,
-        _GLYPH_FIRST_EMOJI,
-        GLYPH_ECSTATIC_SMILEY = _GLYPH_FIRST_EMOJI,
+        GLYPH_మొదటి_EMOJI,
+        GLYPH_ECSTATIC_SMILEY = GLYPH_మొదటి_EMOJI,
         GLYPH_HAPPY_SMILEY,
         GLYPH_SLIGHTLY_HAPPY_SMILEY,
         GLYPH_NEUTRAL_SMILEY,
         GLYPH_SLIGHTLY_UNHAPPY_SMILEY,
         GLYPH_UNHAPPY_SMILEY,
         GLYPH_DEPRESSED_SMILEY,
-        GLYPH_LOCK_AND_KEY,
+        GLYPH_తాళం_AND_కీలకం,
         GLYPH_TOUCH,
         GLYPH_RECYCLING,
         GLYPH_DOWNLOAD,
         GLYPH_SPARKLES,
-        GLYPH_LOW_BATTERY,
+        GLYPH_దిగువ_BATTERY,
         GLYPH_WARNING_SIGN,
         GLYPH_COMPUTER_DISK,
         GLYPH_WORLD,
@@ -68,22 +68,22 @@ typedef enum Glyph {
         _GLYPH_INVALID = -EINVAL,
 } Glyph;
 
-bool emoji_enabled(void);
+bool emoji_enabled(శూన్య);
 
-const char* glyph_full(Glyph code, bool force_utf) _const_;
+స్థిరరాశి అక్షరం* glyph_నిండిన(Glyph సంకేతం_2, bool force_utf) _const_;
 
-static inline const char* glyph(Glyph code) {
-        return glyph_full(code, false);
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* glyph(Glyph సంకేతం_2) {
+        తిరిగి glyph_నిండిన(సంకేతం_2, false);
 }
 
-static inline const char* optional_glyph(Glyph code) {
-        return emoji_enabled() ? glyph(code) : "";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* optional_glyph(Glyph సంకేతం_2) {
+        తిరిగి emoji_enabled() ? glyph(సంకేతం_2) : "";
 }
 
-static inline const char* glyph_check_mark(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* glyph_check_mark(bool b) {
+        తిరిగి b ? glyph(GLYPH_CHECK_MARK) : glyph(GLYPH_CROSS_MARK);
 }
 
-static inline const char* glyph_check_mark_space(bool b) {
-        return b ? glyph(GLYPH_CHECK_MARK) : " ";
+స్థిర అంతఃవరుస స్థిరరాశి అక్షరం* glyph_check_mark_space(bool b) {
+        తిరిగి b ? glyph(GLYPH_CHECK_MARK) : " ";
 }

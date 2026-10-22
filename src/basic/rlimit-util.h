@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <sys/resource.h>       /* IWYU pragma: export */
+#అన్తర్భావ <sys/resource.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-#define _RLIMIT_MAX RLIMIT_NLIMITS
+#నిర్వచించు _RLIMIT_MAX RLIMIT_NLIMITS
 
-DECLARE_STRING_TABLE_LOOKUP(rlimit, int);
-int rlimit_from_string_harder(const char *s) _pure_;
-void rlimits_list(const char *prefix);
+DECLARE_STRING_పట్టిక_LOOKUP(rlimit, పూర్ణాంకం);
+పూర్ణాంకం rlimit_from_string_harder(స్థిరరాశి అక్షరం *s) శుద్ధ;
+శూన్య rlimits_list(స్థిరరాశి అక్షరం *ఉపసర్గ);
 
-int setrlimit_closest(int resource, const struct rlimit *rlim);
-int setrlimit_closest_all(const struct rlimit * const *rlim, int *which_failed);
+పూర్ణాంకం setrlimit_closest(పూర్ణాంకం resource, స్థిరరాశి నిర్మాణం rlimit *rlim);
+పూర్ణాంకం setrlimit_closest_all(స్థిరరాశి నిర్మాణం rlimit * స్థిరరాశి *rlim, పూర్ణాంకం *which_failed);
 
-int rlimit_parse_one(int resource, const char *val, rlim_t *ret);
-int rlimit_parse(int resource, const char *val, struct rlimit *ret);
+పూర్ణాంకం rlimit_parse_one(పూర్ణాంకం resource, స్థిరరాశి అక్షరం *val, rlim_t *ret);
+పూర్ణాంకం rlimit_parse(పూర్ణాంకం resource, స్థిరరాశి అక్షరం *val, నిర్మాణం rlimit *ret);
 
-int rlimit_format(const struct rlimit *rl, char **ret);
+పూర్ణాంకం rlimit_format(స్థిరరాశి నిర్మాణం rlimit *rl, అక్షరం **ret);
 
-int rlimit_copy_all(struct rlimit* target[static _RLIMIT_MAX], struct rlimit* const source[static _RLIMIT_MAX]);
-void rlimit_free_all(struct rlimit **rl);
+పూర్ణాంకం rlimit_copy_all(నిర్మాణం rlimit* లక్ష్యం[స్థిర _RLIMIT_MAX], నిర్మాణం rlimit* స్థిరరాశి ఆధారం[స్థిర _RLIMIT_MAX]);
+శూన్య rlimit_free_all(నిర్మాణం rlimit **rl);
 
-#define RLIMIT_MAKE_CONST(lim) ((struct rlimit) { lim, lim })
+#నిర్వచించు RLIMIT_MAKE_CONST(lim) ((నిర్మాణం rlimit) { lim, lim })
 
-int rlimit_nofile_bump(int limit);
-int rlimit_nofile_safe(void);
+పూర్ణాంకం rlimit_nofile_bump(పూర్ణాంకం limit);
+పూర్ణాంకం rlimit_nofile_సురక్షిత(శూన్య);
 
-int pid_getrlimit(pid_t pid, int resource, struct rlimit *ret);
+పూర్ణాంకం pid_getrlimit(pid_t pid, పూర్ణాంకం resource, నిర్మాణం rlimit *ret);

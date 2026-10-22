@@ -1,64 +1,64 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "ratelimit.h"
-#include "time-util.h"
+#అన్తర్భావ "ratelimit.h"
+#అన్తర్భావ "time-util.h"
 
 /* Modelled after Linux' lib/ratelimit.c by Dave Young
  * <hidave.darkstar@gmail.com>, which is licensed GPLv2. */
 
-bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
-        assert(rl);
+bool ratelimit_క్రింద_at(రేటు_హద్దు *rl, usec_t ts) {
+        ప్రతిజ్ఞా(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        ఒకవేళ (!ratelimit_configured(rl))
+                తిరిగి true;
 
-        if (rl->begin <= 0 ||
+        ఒకవేళ (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
-                rl->num = 1;     /* Reset counter */
-                return true;
+                rl->అంకె = 1;     /* Reset counter */
+                తిరిగి true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        ఒకవేళ (_unlikely_(rl->అంకె == UINT_MAX))
+                తిరిగి false;
 
-        rl->num++;
-        return rl->num <= rl->burst;
+        rl->అంకె++;
+        తిరిగి rl->అంకె <= rl->వ్యవధి;
 }
 
-bool ratelimit_below(RateLimit *rl) {
-        assert(rl);
+bool ratelimit_క్రింద(రేటు_హద్దు *rl) {
+        ప్రతిజ్ఞా(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        ఒకవేళ (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                తిరిగి true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        తిరిగి ratelimit_క్రింద_at(rl, now(CLOCK_BOOTTIME));
 }
 
-unsigned ratelimit_num_dropped(const RateLimit *rl) {
-        assert(rl);
+గుర్తులేని ratelimit_అంకె_dropped(స్థిరరాశి రేటు_హద్దు *rl) {
+        ప్రతిజ్ఞా(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        ఒకవేళ (rl->అంకె == UINT_MAX) /* overflow, return as special case */
+                తిరిగి UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        తిరిగి LESS_BY(rl->అంకె, rl->వ్యవధి);
 }
 
-usec_t ratelimit_end(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_చివర(స్థిరరాశి రేటు_హద్దు *rl) {
+        ప్రతిజ్ఞా(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ఒకవేళ (rl->begin == 0)
+                తిరిగి 0;
 
-        return usec_add(rl->begin, rl->interval);
+        తిరిగి usec_కూడు(rl->begin, rl->interval);
 }
 
-usec_t ratelimit_left(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_ఎడమ(స్థిరరాశి రేటు_హద్దు *rl) {
+        ప్రతిజ్ఞా(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        ఒకవేళ (rl->begin == 0)
+                తిరిగి 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        తిరిగి usec_sub_unsigned(ratelimit_చివర(rl), now(CLOCK_BOOTTIME));
 }

@@ -1,44 +1,44 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/magic.h>
-#include <sys/ioctl.h>
-#include <threads.h>
-#include <unistd.h>
+#అన్తర్భావ <linux/magic.h>
+#అన్తర్భావ <sys/ioctl.h>
+#అన్తర్భావ <threads.h>
+#అన్తర్భావ <unistd.h>
 
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "mountpoint-util.h"
-#include "parse-util.h"
-#include "pidfd-util.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "mountpoint-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "pidfd-util.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "stdio-util.h"
+#అన్తర్భావ "string-util.h"
 
-static thread_local int have_pidfs = -1;
+స్థిర thread_local పూర్ణాంకం have_pidfs = -1;
 
-int pidfd_check_pidfs(int pid_fd) {
+పూర్ణాంకం pidfd_check_pidfs(పూర్ణాంకం pid_fd) {
 
         /* NB: the passed fd *must* be acquired via pidfd_open(), i.e. must be a true pidfd! */
 
-        if (have_pidfs >= 0)
-                return have_pidfs;
+        ఒకవేళ (have_pidfs >= 0)
+                తిరిగి have_pidfs;
 
-        _cleanup_close_ int our_fd = -EBADF;
-        if (pid_fd < 0) {
+        _cleanup_close_ పూర్ణాంకం our_fd = -EBADF;
+        ఒకవేళ (pid_fd < 0) {
                 our_fd = pidfd_open(getpid_cached(), /* flags= */ 0);
-                if (our_fd < 0)
-                        return -errno;
+                ఒకవేళ (our_fd < 0)
+                        తిరిగి -errno;
 
                 pid_fd = our_fd;
         }
 
-        return (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
+        తిరిగి (have_pidfs = fd_is_fs_type(pid_fd, PID_FS_MAGIC));
 }
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
-        static bool cached_supported = true;
+పూర్ణాంకం pidfd_get_namespace(పూర్ణాంకం fd, గుర్తులేని దీర్ఘ ns_type_cmd) {
+        స్థిర bool cached_supported = true;
 
         /* Obtain the namespace fd from pidfd directly through ioctl(PIDFD_GET_*_NAMESPACE).
          *
@@ -46,138 +46,138 @@ int pidfd_get_namespace(int fd, unsigned long ns_type_cmd) {
          * is disabled in kernel. (The errno used are different from what kernel returns via ioctl(),
          * see below) */
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         /* If we know ahead of time that pidfs is unavailable, shortcut things. But otherwise we don't
          * call pidfd_check_pidfs() here, which is kinda extraneous and our own cache is required
          * anyways (pidfs is introduced in kernel 6.9 while ioctl support there is added in 6.11). */
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        ఒకవేళ (have_pidfs == 0 || !cached_supported)
+                తిరిగి -EOPNOTSUPP;
 
-        int nsfd = ioctl(fd, ns_type_cmd, 0);
-        if (nsfd < 0) {
+        పూర్ణాంకం nsfd = ioctl(fd, ns_type_cmd, 0);
+        ఒకవేళ (nsfd < 0) {
                 /* Kernel returns EOPNOTSUPP if the ns type in question is disabled. Hence we need to look
                  * at precise errno instead of generic ERRNO_IS_(IOCTL_)NOT_SUPPORTED. */
-                if (IN_SET(errno, ENOTTY, EINVAL)) {
+                ఒకవేళ (లోపల_సమితి(errno, ENOTTY, EINVAL)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        తిరిగి -EOPNOTSUPP;
                 }
-                if (errno == EOPNOTSUPP) /* Translate to something more recognizable */
-                        return -ENOPKG;
+                ఒకవేళ (errno == EOPNOTSUPP) /* Translate to something more recognizable */
+                        తిరిగి -ENOPKG;
 
-                return -errno;
+                తిరిగి -errno;
         }
 
-        return nsfd;
+        తిరిగి nsfd;
 }
 
-int pidfd_get_info(int fd, struct pidfd_info *info) {
-        static bool cached_supported = true;
+పూర్ణాంకం pidfd_get_info(పూర్ణాంకం fd, నిర్మాణం pidfd_info *info) {
+        స్థిర bool cached_supported = true;
 
-        assert(fd >= 0);
-        assert(info);
+        ప్రతిజ్ఞా(fd >= 0);
+        ప్రతిజ్ఞా(info);
 
-        if (have_pidfs == 0 || !cached_supported)
-                return -EOPNOTSUPP;
+        ఒకవేళ (have_pidfs == 0 || !cached_supported)
+                తిరిగి -EOPNOTSUPP;
 
-        if (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
-                if (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
+        ఒకవేళ (ioctl(fd, PIDFD_GET_INFO, info) < 0) {
+                ఒకవేళ (ERRNO_IS_IOCTL_NOT_SUPPORTED(errno)) {
                         cached_supported = false;
-                        return -EOPNOTSUPP;
+                        తిరిగి -EOPNOTSUPP;
                 }
 
-                return -errno;
+                తిరిగి -errno;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int pidfd_info_mask_is_supported(uint64_t mask) {
-        static thread_local uint64_t cached_mask = 0;
-        static thread_local int cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
-        int r;
+పూర్ణాంకం pidfd_info_ముసుగు_is_supported(uint64_t ముసుగు_3) {
+        స్థిర thread_local uint64_t cached_ముసుగు = 0;
+        స్థిర thread_local పూర్ణాంకం cached = 0; /* 0 when not cached, 1 when cached, negative errno on failure. */
+        పూర్ణాంకం r;
 
-        if (cached < 0)
-                return cached;
+        ఒకవేళ (cached < 0)
+                తిరిగి cached;
 
-        if (cached == 0) {
-                _cleanup_close_ int pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
-                if (r < 0)
-                        return r;
+        ఒకవేళ (cached == 0) {
+                _cleanup_close_ పూర్ణాంకం pidfd = r = RET_NERRNO(pidfd_open(getpid_cached(), /* flags= */ 0));
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                struct pidfd_info info = {
-                        .mask = PIDFD_INFO_SUPPORTED_MASK, /* Since dfd78546c95330db2252e0d7e937a15ab5eddb4e (v6.19). */
+                నిర్మాణం pidfd_info info = {
+                        .ముసుగు_3 = PIDFD_INFO_SUPPORTED_ముసుగు, /* Since dfd78546c95330db2252e0d7e937a15ab5eddb4e (v6.19). */
                 };
 
                 r = pidfd_get_info(pidfd, &info);
-                if (r == -EOPNOTSUPP)
-                        return (cached = -EOPNOTSUPP);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r == -EOPNOTSUPP)
+                        తిరిగి (cached = -EOPNOTSUPP);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (FLAGS_SET(info.mask, PIDFD_INFO_SUPPORTED_MASK) &&
-                    FLAGS_SET(info.supported_mask, PIDFD_INFO_SUPPORTED_MASK))
+                ఒకవేళ (FLAGS_సమితి(info.ముసుగు_3, PIDFD_INFO_SUPPORTED_ముసుగు) &&
+                    FLAGS_సమితి(info.supported_ముసుగు, PIDFD_INFO_SUPPORTED_ముసుగు))
                         /* The kernel is v6.19 or newer. Let's use the provided supported_mask. */
-                        cached_mask = info.supported_mask;
-                else
+                        cached_ముసుగు = info.supported_ముసుగు;
+                లేకపోతే
                         /* The kernel is older than v6.19. These three flags have been supported since
                          * ioctl(PIDFD_GET_INFO) was introduced, so a successful pidfd_get_info() call
                          * guarantees they are supported. However, there is no reliable way to
                          * determine whether PIDFD_INFO_EXIT and PIDFD_INFO_COREDUMP are supported, as
                          * they predate PIDFD_INFO_SUPPORTED_MASK, so assume they are not. */
-                        cached_mask = PIDFD_INFO_PID | PIDFD_INFO_CREDS | PIDFD_INFO_CGROUPID;
+                        cached_ముసుగు = PIDFD_INFO_PID | PIDFD_INFO_CREDS | PIDFD_INFO_CGROUPID;
 
                 cached = true;
         }
 
         /* Return true when all requested features are supported. */
-        return FLAGS_SET(cached_mask, mask);
+        తిరిగి FLAGS_సమితి(cached_ముసుగు, ముసుగు_3);
 }
 
-static int pidfd_get_pid_fdinfo(int fd, pid_t *ret) {
-        char path[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(int)];
-        _cleanup_free_ char *p = NULL;
-        int r;
+స్థిర పూర్ణాంకం pidfd_get_pid_fdinfo(పూర్ణాంకం fd, pid_t *ret) {
+        అక్షరం మార్గం[STRLEN("/proc/self/fdinfo/") + DECIMAL_STR_MAX(పూర్ణాంకం)];
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
-        xsprintf(path, "/proc/self/fdinfo/%i", fd);
+        xsprintf(మార్గం, "/proc/self/fdinfo/%i", fd);
 
-        r = get_proc_field(path, "Pid", &p);
-        if (r == -ENOENT)
-                return -EBADF;
-        if (r == -ENODATA) /* not a pidfd? */
-                return -ENOTTY;
-        if (r < 0)
-                return r;
+        r = get_proc_క్షేత్రం(మార్గం, "Pid", &p);
+        ఒకవేళ (r == -ENOENT)
+                తిరిగి -EBADF;
+        ఒకవేళ (r == -ENODATA) /* not a pidfd? */
+                తిరిగి -ENOTTY;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (streq(p, "0"))
-                return -EREMOTE; /* PID is in foreign PID namespace? */
-        if (streq(p, "-1"))
-                return -ESRCH;   /* refers to reaped process? */
+        ఒకవేళ (streq(p, "0"))
+                తిరిగి -EREMOTE; /* PID is in foreign PID namespace? */
+        ఒకవేళ (streq(p, "-1"))
+                తిరిగి -ESRCH;   /* refers to reaped process? */
 
-        return parse_pid(p, ret);
+        తిరిగి parse_pid(p, ret);
 }
 
-static int pidfd_get_pid_ioctl(int fd, pid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+స్థిర పూర్ణాంకం pidfd_get_pid_ioctl(పూర్ణాంకం fd, pid_t *ret) {
+        నిర్మాణం pidfd_info info = { .ముసుగు_3 = PIDFD_INFO_PID };
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
+        ప్రతిజ్ఞా(FLAGS_సమితి(info.ముసుగు_3, PIDFD_INFO_PID));
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = info.pid;
-        return 0;
+        తిరిగి 0;
 }
 
-int pidfd_get_pid(int fd, pid_t *ret) {
-        int r;
+పూర్ణాంకం pidfd_get_pid(పూర్ణాంకం fd, pid_t *ret) {
+        పూర్ణాంకం r;
 
         /* Converts a pidfd into a pid. We try ioctl(PIDFD_GET_INFO) (kernel 6.13+) first,
          * /proc/self/fdinfo/ as fallback. Well known errors:
@@ -193,157 +193,157 @@ int pidfd_get_pid(int fd, pid_t *ret) {
          *               (when using PIDFD_GET_INFO this is indistinguishable from -ESRCH)
          */
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = pidfd_get_pid_ioctl(fd, ret);
-        if (r != -EOPNOTSUPP)
-                return r;
+        ఒకవేళ (r != -EOPNOTSUPP)
+                తిరిగి r;
 
-        return pidfd_get_pid_fdinfo(fd, ret);
+        తిరిగి pidfd_get_pid_fdinfo(fd, ret);
 }
 
-int pidfd_verify_pid(int pidfd, pid_t pid) {
+పూర్ణాంకం pidfd_verify_pid(పూర్ణాంకం pidfd, pid_t pid) {
         pid_t current_pid;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(pidfd >= 0);
-        assert(pid > 0);
+        ప్రతిజ్ఞా(pidfd >= 0);
+        ప్రతిజ్ఞా(pid > 0);
 
         r = pidfd_get_pid(pidfd, &current_pid);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return current_pid != pid ? -ESRCH : 0;
+        తిరిగి current_pid != pid ? -ESRCH : 0;
 }
 
-int pidfd_get_ppid(int fd, pid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_PID };
-        int r;
+పూర్ణాంకం pidfd_get_ppid(పూర్ణాంకం fd, pid_t *ret) {
+        నిర్మాణం pidfd_info info = { .ముసుగు_3 = PIDFD_INFO_PID };
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_PID));
+        ప్రతిజ్ఞా(FLAGS_సమితి(info.ముసుగు_3, PIDFD_INFO_PID));
 
-        if (info.ppid == 0) /* See comments in pid_get_ppid() */
-                return -EADDRNOTAVAIL;
+        ఒకవేళ (info.ppid == 0) /* See comments in pid_get_ppid() */
+                తిరిగి -EADDRNOTAVAIL;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = info.ppid;
-        return 0;
+        తిరిగి 0;
 }
 
-int pidfd_get_uid(int fd, uid_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_CREDS };
-        int r;
+పూర్ణాంకం pidfd_get_uid(పూర్ణాంకం fd, uid_t *ret) {
+        నిర్మాణం pidfd_info info = { .ముసుగు_3 = PIDFD_INFO_CREDS };
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_CREDS));
+        ప్రతిజ్ఞా(FLAGS_సమితి(info.ముసుగు_3, PIDFD_INFO_CREDS));
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = info.ruid;
-        return 0;
+        తిరిగి 0;
 }
 
-int pidfd_get_cgroupid(int fd, uint64_t *ret) {
-        struct pidfd_info info = { .mask = PIDFD_INFO_CGROUPID };
-        int r;
+పూర్ణాంకం pidfd_get_cgroupid(పూర్ణాంకం fd, uint64_t *ret) {
+        నిర్మాణం pidfd_info info = { .ముసుగు_3 = PIDFD_INFO_CGROUPID };
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = pidfd_get_info(fd, &info);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        assert(FLAGS_SET(info.mask, PIDFD_INFO_CGROUPID));
+        ప్రతిజ్ఞా(FLAGS_సమితి(info.ముసుగు_3, PIDFD_INFO_CGROUPID));
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = info.cgroupid;
-        return 0;
+        తిరిగి 0;
 }
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret) {
-        static thread_local bool file_handle_supported = true;
-        int r;
+పూర్ణాంకం pidfd_get_inode_id_impl(పూర్ణాంకం fd, uint64_t *ret) {
+        స్థిర thread_local bool file_handle_supported = true;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         /* Since kernel 6.14 (b3caba8f7a34a2bbaf45ffc6ff3a49b70afeb192), we can use name_to_handle_at(). */
-        if (file_handle_supported) {
-                r = fd_to_handle_u64(fd, ret);
-                if (r >= 0 || is_name_to_handle_at_fatal_error(r))
-                        return r;
+        ఒకవేళ (file_handle_supported) {
+                r = fd_గమ్యం_handle_u64(fd, ret);
+                ఒకవేళ (r >= 0 || is_name_గమ్యం_handle_at_fatal_error(r))
+                        తిరిగి r;
 
                 file_handle_supported = false;
         }
 
-#if SIZEOF_INO_T == 8
-        struct stat st;
-        if (fstat(fd, &st) < 0)
-                return -errno;
+#ఒకవేళ SIZEOF_INO_T == 8
+        నిర్మాణం stat st;
+        ఒకవేళ (fstat(fd, &st) < 0)
+                తిరిగి -errno;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = (uint64_t) st.st_ino;
-        return 0;
+        తిరిగి 0;
 
-#elif SIZEOF_INO_T == 4
+#లేదావేళ SIZEOF_INO_T == 4
         /* On 32-bit systems (where sizeof(ino_t) == 4), the inode id returned by fstat() cannot be used to
          * reliably identify the process, nor can we communicate the origin of the id with the clients.
          * Hence let's just refuse to acquire pidfdid through fstat() here. All clients shall also insist on
          * the 64-bit id from name_to_handle_at(). */
-        return -EOPNOTSUPP;
-#else
-#  error Unsupported ino_t size
-#endif
+        తిరిగి -EOPNOTSUPP;
+#లేకపోతే
+#  error Unsupported ino_t కొలత
+#అయితే_ముగింపు
 }
 
-int pidfd_get_inode_id(int fd, uint64_t *ret) {
-        int r;
+పూర్ణాంకం pidfd_get_inode_id(పూర్ణాంకం fd, uint64_t *ret) {
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = pidfd_check_pidfs(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EOPNOTSUPP;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0)
+                తిరిగి -EOPNOTSUPP;
 
-        return pidfd_get_inode_id_impl(fd, ret);
+        తిరిగి pidfd_get_inode_id_impl(fd, ret);
 }
 
-int pidfd_get_inode_id_self_cached(uint64_t *ret) {
-        static thread_local uint64_t cached = 0;
-        static thread_local pid_t initialized = 0; /* < 0: cached error; == 0: invalid; > 0: valid and pid that was current */
-        int r;
+పూర్ణాంకం pidfd_get_inode_id_self_cached(uint64_t *ret) {
+        స్థిర thread_local uint64_t cached = 0;
+        స్థిర thread_local pid_t initialized = 0; /* < 0: cached error; == 0: invalid; > 0: valid and pid that was current */
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (initialized == getpid_cached()) {
+        ఒకవేళ (initialized == getpid_cached()) {
                 *ret = cached;
-                return 0;
+                తిరిగి 0;
         }
-        if (initialized < 0)
-                return initialized;
+        ఒకవేళ (initialized < 0)
+                తిరిగి initialized;
 
-        _cleanup_close_ int fd = pidfd_open(getpid_cached(), 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ పూర్ణాంకం fd = pidfd_open(getpid_cached(), 0);
+        ఒకవేళ (fd < 0)
+                తిరిగి -errno;
 
         r = pidfd_get_inode_id(fd, &cached);
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                return (initialized = -EOPNOTSUPP);
-        if (r < 0)
-                return r;
+        ఒకవేళ (ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                తిరిగి (initialized = -EOPNOTSUPP);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = cached;
         initialized = getpid_cached();
-        return 0;
+        తిరిగి 0;
 }

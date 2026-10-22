@@ -1,158 +1,158 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <signal.h>
+#అన్తర్భావ <signal.h>
 
-#include "fileio.h"
-#include "format-util.h"
-#include "forward.h"
-#include "string-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "format-util.h"
+#అన్తర్భావ "forward.h"
+#అన్తర్భావ "string-util.h"
 
-#define procfs_file_alloca(pid, field)                                  \
+#నిర్వచించు procfs_file_alloca(pid, క్షేత్రం)                                  \
         ({                                                              \
                 pid_t _pid_ = (pid);                                    \
-                const char *_field_ = (field);                          \
-                char *_r_;                                              \
-                if (_pid_ == 0)                                         \
-                        _r_ = strjoina("/proc/self/", _field_);         \
-                else {                                                  \
-                        assert(_pid_ > 0);                              \
-                        _r_ = newa(char, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
-                        sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, _field_); \
+                స్థిరరాశి అక్షరం *క్షేత్రం_2 = (క్షేత్రం);                          \
+                అక్షరం *_r_;                                              \
+                ఒకవేళ (_pid_ == 0)                                         \
+                        _r_ = strjoina("/proc/self/", క్షేత్రం_2);         \
+                లేకపోతే {                                                  \
+                        ప్రతిజ్ఞా(_pid_ > 0);                              \
+                        _r_ = newa(అక్షరం, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + అక్షరశ్రేణి_పొడవు(క్షేత్రం_2) + 1); \
+                        sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, క్షేత్రం_2); \
                 }                                                       \
-                (const char*) _r_;                                      \
+                (స్థిరరాశి అక్షరం*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+స్థిర అంతఃవరుస పూర్ణాంకం procfs_file_get_క్షేత్రం(pid_t pid, స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *కీలకం, అక్షరం **ret) {
+        తిరిగి get_proc_క్షేత్రం(procfs_file_alloca(pid, name), కీలకం, ret);
 }
 
-typedef enum ProcessCmdlineFlags {
+రకనిర్వచనం గణన ProcessCmdlineFlags {
         PROCESS_CMDLINE_COMM_FALLBACK = 1 << 0,
         PROCESS_CMDLINE_USE_LOCALE    = 1 << 1,
         PROCESS_CMDLINE_QUOTE         = 1 << 2,
         PROCESS_CMDLINE_QUOTE_POSIX   = 1 << 3,
 } ProcessCmdlineFlags;
 
-int pid_get_comm(pid_t pid, char **ret);
-int pidref_get_comm(const PidRef *pid, char **ret);
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
-int get_process_exe(pid_t pid, char **ret);
-int pid_get_uid(pid_t pid, uid_t *ret);
-int pidref_get_uid(const PidRef *pid, uid_t *ret);
-int get_process_gid(pid_t pid, gid_t *ret);
-int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
-int get_process_environ(pid_t pid, char **ret);
-int pid_get_ppid(pid_t pid, pid_t *ret);
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
-int pid_get_start_time(pid_t pid, usec_t *ret);
-int pidref_get_start_time(const PidRef *pid, usec_t *ret);
-int get_process_umask(pid_t pid, mode_t *ret);
-int pidref_has_sigcgt(const PidRef *pidref, int sig);
-int pidref_has_sigblk(const PidRef *pidref, int sig);
+పూర్ణాంకం pid_get_comm(pid_t pid, అక్షరం **ret);
+పూర్ణాంకం pidref_get_comm(స్థిరరాశి PidRef *pid, అక్షరం **ret);
+పూర్ణాంకం pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, అక్షరం **ret);
+పూర్ణాంకం pidref_get_cmdline(స్థిరరాశి PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, అక్షరం **ret);
+పూర్ణాంకం pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, అక్షరం ***ret);
+పూర్ణాంకం pidref_get_cmdline_strv(స్థిరరాశి PidRef *pid, ProcessCmdlineFlags flags, అక్షరం ***ret);
+పూర్ణాంకం get_process_exe(pid_t pid, అక్షరం **ret);
+పూర్ణాంకం pid_get_uid(pid_t pid, uid_t *ret);
+పూర్ణాంకం pidref_get_uid(స్థిరరాశి PidRef *pid, uid_t *ret);
+పూర్ణాంకం get_process_gid(pid_t pid, gid_t *ret);
+పూర్ణాంకం get_process_cwd(pid_t pid, అక్షరం **ret);
+పూర్ణాంకం get_process_మూలం(pid_t pid, అక్షరం **ret);
+పూర్ణాంకం get_process_environ(pid_t pid, అక్షరం **ret);
+పూర్ణాంకం pid_get_ppid(pid_t pid, pid_t *ret);
+పూర్ణాంకం pidref_get_ppid(స్థిరరాశి PidRef *pidref, pid_t *ret);
+పూర్ణాంకం pidref_get_ppid_as_pidref(స్థిరరాశి PidRef *pidref, PidRef *ret);
+పూర్ణాంకం pid_get_ప్రారంభం_సమయం(pid_t pid, usec_t *ret);
+పూర్ణాంకం pidref_get_ప్రారంభం_సమయం(స్థిరరాశి PidRef *pid, usec_t *ret);
+పూర్ణాంకం get_process_umask(pid_t pid, mode_t *ret);
+పూర్ణాంకం pidref_has_sigcgt(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig);
+పూర్ణాంకం pidref_has_sigblk(స్థిరరాశి PidRef *pidref, పూర్ణాంకం sig);
 
-static inline bool SIGINFO_CODE_IS_DEAD(int code) {
-        return IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
+స్థిర అంతఃవరుస bool SIGINFO_సంకేతం_IS_DEAD(పూర్ణాంకం సంకేతం_2) {
+        తిరిగి లోపల_సమితి(సంకేతం_2, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
 }
 
-typedef enum WaitFlags {
+రకనిర్వచనం గణన WaitFlags {
         WAIT_LOG_ABNORMAL             = 1 << 0,
-        WAIT_LOG_NON_ZERO_EXIT_STATUS = 1 << 1,
+        WAIT_LOG_NON_ZERO_EXIT_స్థితి = 1 << 1,
 
         /* A shortcut for requesting the most complete logging */
-        WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
+        WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_స్థితి,
 } WaitFlags;
 
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
+పూర్ణాంకం pidref_wait_for_terminate_and_check(స్థిరరాశి అక్షరం *name, PidRef *pidref, WaitFlags flags);
 
-int kill_and_sigcont(pid_t pid, int sig);
+పూర్ణాంకం kill_and_sigcont(pid_t pid, పూర్ణాంకం sig);
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret);
+పూర్ణాంకం procfs_get_stat_flags(స్థిరరాశి అక్షరం *మార్గం, గుర్తులేని దీర్ఘ దీర్ఘ *ret);
 
-int pid_is_kernel_thread(pid_t pid);
-int pidref_is_kernel_thread(const PidRef *pid);
+పూర్ణాంకం pid_is_kernel_thread(pid_t pid);
+పూర్ణాంకం pidref_is_kernel_thread(స్థిరరాశి PidRef *pid);
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret);
+పూర్ణాంకం getenv_for_pid(pid_t pid, స్థిరరాశి అక్షరం *క్షేత్రం, అక్షరం **ret);
 
-int pid_is_alive(pid_t pid);
-int pidref_is_alive(const PidRef *pidref);
-int pid_is_unwaited(pid_t pid);
-int pidref_is_unwaited(PidRef *pidref);
-int pid_is_my_child(pid_t pid);
-int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+పూర్ణాంకం pid_is_alive(pid_t pid);
+పూర్ణాంకం pidref_is_alive(స్థిరరాశి PidRef *pidref);
+పూర్ణాంకం pid_is_unwaited(pid_t pid);
+పూర్ణాంకం pidref_is_unwaited(PidRef *pidref);
+పూర్ణాంకం pid_is_my_బిడ్డ(pid_t pid);
+పూర్ణాంకం pidref_is_my_బిడ్డ(PidRef *pidref);
+పూర్ణాంకం pidref_from_same_మూలం_fs(PidRef *a, PidRef *b);
 
-bool is_main_thread(void);
+bool is_main_thread(శూన్య);
 
-#ifndef PERSONALITY_INVALID
+#నిర్వచితం_కాకపోతే PERSONALITY_INVALID
 /* personality(2) documents that 0xFFFFFFFFUL is used for querying the
  * current personality, hence let's use that here as error
  * indicator. */
-#define PERSONALITY_INVALID 0xFFFFFFFFUL
-#endif
+#నిర్వచించు PERSONALITY_INVALID 0xFFFFFFFFUL
+#అయితే_ముగింపు
 
 /* The personality() syscall returns a 32-bit value where the top three bytes are reserved for flags that
  * emulate historical or architectural quirks, and only the least significant byte reflects the actual
  * personality we're interested in. */
-#define OPINIONATED_PERSONALITY_MASK 0xFFUL
+#నిర్వచించు OPINIONATED_PERSONALITY_ముసుగు 0xFFUL
 
-unsigned long personality_from_string(const char *s);
-const char* personality_to_string(unsigned long p);
+గుర్తులేని దీర్ఘ personality_from_string(స్థిరరాశి అక్షరం *s);
+స్థిరరాశి అక్షరం* personality_గమ్యం_string(గుర్తులేని దీర్ఘ p);
 
-int safe_personality(unsigned long p);
-int opinionated_personality(unsigned long *ret);
+పూర్ణాంకం సురక్షిత_personality(గుర్తులేని దీర్ఘ p);
+పూర్ణాంకం opinionated_personality(గుర్తులేని దీర్ఘ *ret);
 
-DECLARE_STRING_TABLE_LOOKUP(sigchld_code, int);
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int);
+DECLARE_STRING_పట్టిక_LOOKUP(sigchld_సంకేతం, పూర్ణాంకం);
+DECLARE_STRING_పట్టిక_LOOKUP_WITH_FALLBACK(sched_policy, పూర్ణాంకం);
 
-static inline pid_t PTR_TO_PID(const void *p) {
-        return (pid_t) ((uintptr_t) p);
+స్థిర అంతఃవరుస pid_t PTR_గమ్యం_PID(స్థిరరాశి శూన్య *p) {
+        తిరిగి (pid_t) ((uintptr_t) p);
 }
 
-static inline void* PID_TO_PTR(pid_t pid) {
-        return (void*) ((uintptr_t) pid);
+స్థిర అంతఃవరుస శూన్య* PID_గమ్యం_PTR(pid_t pid) {
+        తిరిగి (శూన్య*) ((uintptr_t) pid);
 }
 
-void valgrind_summary_hack(void);
+శూన్య valgrind_summary_hack(శూన్య);
 
-int pid_compare_func(const pid_t *a, const pid_t *b);
+పూర్ణాంకం pid_compare_func(స్థిరరాశి pid_t *a, స్థిరరాశి pid_t *b);
 
-bool nice_is_valid(int n) _const_;
+bool nice_is_valid(పూర్ణాంకం n) _const_;
 
-bool sched_policy_is_valid(int policy) _const_;
-bool sched_policy_supported(int policy);
-int sched_get_priority_min_safe(int policy);
-int sched_get_priority_max_safe(int policy);
+bool sched_policy_is_valid(పూర్ణాంకం policy) _const_;
+bool sched_policy_supported(పూర్ణాంకం policy);
+పూర్ణాంకం sched_get_ప్రాధాన్యత_min_సురక్షిత(పూర్ణాంకం policy);
+పూర్ణాంకం sched_get_ప్రాధాన్యత_max_సురక్షిత(పూర్ణాంకం policy);
 
-#define PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
+#నిర్వచించు PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
 
-static inline bool pid_is_valid(pid_t p) {
-        return p > 0;
+స్థిర అంతఃవరుస bool pid_is_valid(pid_t p) {
+        తిరిగి p > 0;
 }
 
-static inline bool pid_is_automatic(pid_t p) {
-        return p == PID_AUTOMATIC;
+స్థిర అంతఃవరుస bool pid_is_automatic(pid_t p) {
+        తిరిగి p == PID_AUTOMATIC;
 }
 
-pid_t getpid_cached(void);
-void reset_cached_pid(void);
+pid_t getpid_cached(శూన్య);
+శూన్య reset_cached_pid(శూన్య);
 
-int must_be_root(void);
+పూర్ణాంకం must_be_మూలం(శూన్య);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_దొంతర(పూర్ణాంకం (*fn)(శూన్య *), పూర్ణాంకం flags, శూన్య *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
  * and thus will cause deadlocks if the parent uses threads and the child does memory allocations. Hence: if
  * the parent is threaded these flags may not be used. These flags cannot be used if the parent uses threads
  * or the child uses malloc(). 💣 */
-typedef enum ForkFlags {
-        FORK_RESET_SIGNALS      = 1 <<  0, /* Reset all signal handlers and signal mask */
+రకనిర్వచనం గణన ForkFlags {
+        FORK_RESET_సంకేతాలు      = 1 <<  0, /* Reset all signal handlers and signal mask */
         FORK_CLOSE_ALL_FDS      = 1 <<  1, /* Close all open file descriptors in the child, except for 0,1,2 */
         FORK_DEATHSIG_SIGTERM   = 1 <<  2, /* Set PR_DEATHSIG in the child to SIGTERM */
         FORK_DEATHSIG_SIGINT    = 1 <<  3, /* Set PR_DEATHSIG in the child to SIGINT */
@@ -162,9 +162,9 @@ typedef enum ForkFlags {
         FORK_LOG                = 1 <<  7, /* Log above LOG_DEBUG log level about failures */
         FORK_WAIT               = 1 <<  8, /* Wait until child exited */
         FORK_MOUNTNS_SLAVE      = 1 <<  9, /* Make child's mount namespace MS_SLAVE */
-        FORK_PRIVATE_TMP        = 1 << 10, /* Mount new /tmp/ in the child (combine with FORK_NEW_MOUNTNS!) */
-        FORK_RLIMIT_NOFILE_SAFE = 1 << 11, /* Set RLIMIT_NOFILE soft limit to 1K for select() compat */
-        FORK_STDOUT_TO_STDERR   = 1 << 12, /* Make stdout a copy of stderr */
+        FORK_వ్యక్తిగత_TMP        = 1 << 10, /* Mount new /tmp/ in the child (combine with FORK_NEW_MOUNTNS!) */
+        FORK_RLIMIT_NOFILE_సురక్షిత = 1 << 11, /* Set RLIMIT_NOFILE soft limit to 1K for select() compat */
+        FORK_STDOUT_గమ్యం_STDERR   = 1 << 12, /* Make stdout a copy of stderr */
         FORK_FLUSH_STDIO        = 1 << 13, /* fflush() stdout (and stderr) before forking */
         FORK_CLOEXEC_OFF        = 1 << 14, /* In the child: turn off O_CLOEXEC on all fds in except_fds[] */
         FORK_KEEP_NOTIFY_SOCKET = 1 << 15, /* Unless this specified, $NOTIFY_SOCKET will be unset. */
@@ -178,86 +178,86 @@ typedef enum ForkFlags {
         FORK_ALLOW_DLOPEN       = 1 << 23, /* Do not block dlopen() in child */
 } ForkFlags;
 
-int pidref_safe_fork_full(
-                const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+పూర్ణాంకం pidref_సురక్షిత_fork_నిండిన(
+                స్థిరరాశి అక్షరం *name,
+                స్థిరరాశి పూర్ణాంకం stdio_fds[3],
+                పూర్ణాంకం except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret);
 
-static inline int pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
-        return pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
+స్థిర అంతఃవరుస పూర్ణాంకం pidref_సురక్షిత_fork(స్థిరరాశి అక్షరం *name, ForkFlags flags, PidRef *ret) {
+        తిరిగి pidref_సురక్షిత_fork_నిండిన(name, ఖాళీ, ఖాళీ, 0, flags, ret);
 }
 
-int namespace_fork_full(
-                const char *outer_name,
-                const char *inner_name,
-                int except_fds[],
+పూర్ణాంకం namespace_fork_నిండిన(
+                స్థిరరాశి అక్షరం *outer_name,
+                స్థిరరాశి అక్షరం *inner_name,
+                పూర్ణాంకం except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                పూర్ణాంకం pidns_fd,
+                పూర్ణాంకం mntns_fd,
+                పూర్ణాంకం netns_fd,
+                పూర్ణాంకం userns_fd,
+                పూర్ణాంకం మూలం_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
-int namespace_fork(
-                const char *outer_name,
-                const char *inner_name,
+పూర్ణాంకం namespace_fork(
+                స్థిరరాశి అక్షరం *outer_name,
+                స్థిరరాశి అక్షరం *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                పూర్ణాంకం pidns_fd,
+                పూర్ణాంకం mntns_fd,
+                పూర్ణాంకం netns_fd,
+                పూర్ణాంకం userns_fd,
+                పూర్ణాంకం మూలం_fd,
                 PidRef *ret);
 
-bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
-int get_oom_score_adjust(int *ret);
+bool oom_score_adjust_is_valid(పూర్ణాంకం oa);
+పూర్ణాంకం సమితి_oom_score_adjust(పూర్ణాంకం విలువ);
+పూర్ణాంకం get_oom_score_adjust(పూర్ణాంకం *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */
-#define PID_T_MAX ((pid_t) INT32_MAX)
+#నిర్వచించు PID_T_MAX ((pid_t) INT32_MAX)
 /* The maximum number of concurrent processes Linux allows on this architecture, as well as the highest valid PID value
  * the kernel will potentially assign. This reflects a value compiled into the kernel (PID_MAX_LIMIT), and sets the
  * upper boundary on what may be written to the /proc/sys/kernel/pid_max sysctl (but do note that the sysctl is off by
  * 1, since PID 0 can never exist and there can hence only be one process less than the limit would suggest). Since
  * these values are documented in proc(5) we feel quite confident that they are stable enough for the near future at
  * least to define them here too. */
-#define TASKS_MAX 4194303U
+#నిర్వచించు TASKS_MAX 4194303U
 
-assert_cc(TASKS_MAX <= (unsigned long) PID_T_MAX);
+assert_cc(TASKS_MAX <= (గుర్తులేని దీర్ఘ) PID_T_MAX);
 
-int setpriority_closest(int priority);
+పూర్ణాంకం setpriority_closest(పూర్ణాంకం priority);
 
-_noreturn_ void freeze(void);
+_noreturn_ శూన్య freeze(శూన్య);
 
-int get_process_threads(pid_t pid);
+పూర్ణాంకం get_process_దారాలు(pid_t pid);
 
-int is_reaper_process(void);
-int make_reaper_process(bool b);
+పూర్ణాంకం is_reaper_process(శూన్య);
+పూర్ణాంకం make_reaper_process(bool b);
 
-int posix_spawn_wrapper(
-                const char *path,
-                char * const *argv,
-                char * const *envp,
-                const char *cgroup,
+పూర్ణాంకం posix_spawn_wrapper(
+                స్థిరరాశి అక్షరం *మార్గం,
+                అక్షరం * స్థిరరాశి *argv,
+                అక్షరం * స్థిరరాశి *envp,
+                స్థిరరాశి అక్షరం *cgroup,
                 PidRef *ret_pidref);
 
-int proc_dir_open(DIR **ret);
-int proc_dir_read(DIR *d, pid_t *ret);
-int proc_dir_read_pidref(DIR *d, PidRef *ret);
+పూర్ణాంకం proc_dir_open(DIR **ret);
+పూర్ణాంకం proc_dir_read(DIR *d, pid_t *ret);
+పూర్ణాంకం proc_dir_read_pidref(DIR *d, PidRef *ret);
 
-int safe_mlockall(int flags);
+పూర్ణాంకం సురక్షిత_mlockall(పూర్ణాంకం flags);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error);
-int read_errno(int errno_fd);
+_noreturn_ శూన్య report_errno_and_exit(పూర్ణాంకం errno_fd, పూర్ణాంకం error);
+పూర్ణాంకం read_errno(పూర్ణాంకం errno_fd);
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+పూర్ణాంకం prctl_సురక్షిత(పూర్ణాంకం op, గుర్తులేని దీర్ఘ arg2, గుర్తులేని దీర్ఘ arg3, గుర్తులేని దీర్ఘ arg4, గుర్తులేని దీర్ఘ arg5);
 
-int proc_set_comm(const char *comm);
-int proc_set_nnp(void);
-nsec_t proc_get_timerslack(void);
+పూర్ణాంకం proc_సమితి_comm(స్థిరరాశి అక్షరం *comm);
+పూర్ణాంకం proc_సమితి_nnp(శూన్య);
+nsec_t proc_get_timerslack(శూన్య);

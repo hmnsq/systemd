@@ -1,376 +1,376 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "sd-id128.h"
+#అన్తర్భావ "sd-id128.h"
 
-#include "alloc-util.h"
-#include "glob-util.h"
-#include "hexdecoct.h"
-#include "log.h"
-#include "memory-util.h"
-#include "path-util.h"
-#include "sparse-endian.h"
-#include "special.h"
-#include "siphash24.h"
-#include "string-util.h"
-#include "unit-def.h"
-#include "unit-name.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "glob-util.h"
+#అన్తర్భావ "hexdecoct.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "memory-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "sparse-endian.h"
+#అన్తర్భావ "special.h"
+#అన్తర్భావ "siphash24.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "unit-def.h"
+#అన్తర్భావ "unit-name.h"
 
 /* Characters valid in a unit name. */
-#define VALID_CHARS                             \
+#నిర్వచించు VALID_CHARS                             \
         ALPHANUMERICAL                          \
         ":-_.\\"
 
 /* The same, but also permits the single @ character that may appear */
-#define VALID_CHARS_WITH_AT                     \
+#నిర్వచించు VALID_CHARS_WITH_AT                     \
         "@"                                     \
         VALID_CHARS
 
 /* All chars valid in a unit name glob */
-#define VALID_CHARS_GLOB                        \
+#నిర్వచించు VALID_CHARS_GLOB                        \
         VALID_CHARS_WITH_AT                     \
         "[]!-*?"
 
-#define LONG_UNIT_NAME_HASH_KEY SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
-#define UNIT_NAME_HASH_LENGTH_CHARS 16
+#నిర్వచించు LONG_UNIT_NAME_HASH_కీలకం SD_ID128_MAKE(ec,f2,37,fb,58,32,4a,32,84,9f,06,9b,0d,21,eb,9a)
+#నిర్వచించు UNIT_NAME_HASH_నిడివి_CHARS 16
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) {
-        const char *e, *i, *at;
+bool unit_name_is_valid(స్థిరరాశి అక్షరం *n, UnitNameFlags flags) {
+        స్థిరరాశి అక్షరం *e, *i, *at;
 
-        assert((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
+        ప్రతిజ్ఞా((flags & ~(UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE)) == 0);
 
-        if (_unlikely_(flags == 0))
-                return false;
+        ఒకవేళ (_unlikely_(flags == 0))
+                తిరిగి false;
 
-        if (isempty(n))
-                return false;
+        ఒకవేళ (isempty(n))
+                తిరిగి false;
 
-        if (strlen(n) >= UNIT_NAME_MAX)
-                return false;
+        ఒకవేళ (అక్షరశ్రేణి_పొడవు(n) >= UNIT_NAME_MAX)
+                తిరిగి false;
 
         e = strrchr(n, '.');
-        if (!e || e == n)
-                return false;
+        ఒకవేళ (!e || e == n)
+                తిరిగి false;
 
-        if (unit_type_from_string(e + 1) < 0)
-                return false;
+        ఒకవేళ (unit_type_from_string(e + 1) < 0)
+                తిరిగి false;
 
-        for (i = n, at = NULL; i < e; i++) {
+        కొరకు (i = n, at = ఖాళీ; i < e; i++) {
 
-                if (*i == '@' && !at)
+                ఒకవేళ (*i == '@' && !at)
                         at = i;
 
-                if (!strchr(VALID_CHARS_WITH_AT, *i))
-                        return false;
+                ఒకవేళ (!strchr(VALID_CHARS_WITH_AT, *i))
+                        తిరిగి false;
         }
 
-        if (at == n)
-                return false;
+        ఒకవేళ (at == n)
+                తిరిగి false;
 
-        if (flags & UNIT_NAME_PLAIN)
-                if (!at)
-                        return true;
+        ఒకవేళ (flags & UNIT_NAME_PLAIN)
+                ఒకవేళ (!at)
+                        తిరిగి true;
 
-        if (flags & UNIT_NAME_INSTANCE)
-                if (at && e > at + 1)
-                        return true;
+        ఒకవేళ (flags & UNIT_NAME_INSTANCE)
+                ఒకవేళ (at && e > at + 1)
+                        తిరిగి true;
 
-        if (flags & UNIT_NAME_TEMPLATE)
-                if (at && e == at + 1)
-                        return true;
+        ఒకవేళ (flags & UNIT_NAME_TEMPLATE)
+                ఒకవేళ (at && e == at + 1)
+                        తిరిగి true;
 
-        return false;
+        తిరిగి false;
 }
 
-bool unit_prefix_is_valid(const char *p) {
+bool unit_ఉపసర్గ_is_valid(స్థిరరాశి అక్షరం *p) {
 
         /* We don't allow additional @ in the prefix string */
 
-        if (isempty(p))
-                return false;
+        ఒకవేళ (isempty(p))
+                తిరిగి false;
 
-        return in_charset(p, VALID_CHARS);
+        తిరిగి లోపల_charset(p, VALID_CHARS);
 }
 
-bool unit_instance_is_valid(const char *i) {
+bool unit_instance_is_valid(స్థిరరాశి అక్షరం *i) {
 
         /* The max length depends on the length of the string, so we
          * don't really check this here. */
 
-        if (isempty(i))
-                return false;
+        ఒకవేళ (isempty(i))
+                తిరిగి false;
 
         /* We allow additional @ in the instance string, we do not
          * allow them in the prefix! */
 
-        return in_charset(i, "@" VALID_CHARS);
+        తిరిగి లోపల_charset(i, "@" VALID_CHARS);
 }
 
-bool unit_suffix_is_valid(const char *s) {
-        if (isempty(s))
-                return false;
+bool unit_suffix_is_valid(స్థిరరాశి అక్షరం *s) {
+        ఒకవేళ (isempty(s))
+                తిరిగి false;
 
-        if (s[0] != '.')
-                return false;
+        ఒకవేళ (s[0] != '.')
+                తిరిగి false;
 
-        if (unit_type_from_string(s + 1) < 0)
-                return false;
+        ఒకవేళ (unit_type_from_string(s + 1) < 0)
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-int unit_name_to_prefix(const char *n, char **ret) {
-        const char *p;
-        char *s;
+పూర్ణాంకం unit_name_గమ్యం_ఉపసర్గ(స్థిరరాశి అక్షరం *n, అక్షరం **ret) {
+        స్థిరరాశి అక్షరం *p;
+        అక్షరం *s;
 
-        assert(n);
-        assert(ret);
+        ప్రతిజ్ఞా(n);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                తిరిగి -EINVAL;
 
         p = strchr(n, '@');
-        if (!p)
+        ఒకవేళ (!p)
                 p = strrchr(n, '.');
 
         assert_se(p);
 
         s = strndup(n, p - n);
-        if (!s)
-                return -ENOMEM;
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         *ret = s;
-        return 0;
+        తిరిగి 0;
 }
 
-UnitNameFlags unit_name_to_instance(const char *n, char **ret) {
-        const char *p, *d;
+UnitNameFlags unit_name_గమ్యం_instance(స్థిరరాశి అక్షరం *n, అక్షరం **ret) {
+        స్థిరరాశి అక్షరం *p, *d;
 
-        assert(n);
+        ప్రతిజ్ఞా(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                తిరిగి -EINVAL;
 
         /* Everything past the first @ and before the last . is the instance */
         p = strchr(n, '@');
-        if (!p) {
-                if (ret)
-                        *ret = NULL;
-                return UNIT_NAME_PLAIN;
+        ఒకవేళ (!p) {
+                ఒకవేళ (ret)
+                        *ret = ఖాళీ;
+                తిరిగి UNIT_NAME_PLAIN;
         }
 
         p++;
 
         d = strrchr(p, '.');
-        if (!d)
-                return -EINVAL;
+        ఒకవేళ (!d)
+                తిరిగి -EINVAL;
 
-        if (ret) {
-                char *i = strndup(p, d-p);
-                if (!i)
-                        return -ENOMEM;
+        ఒకవేళ (ret) {
+                అక్షరం *i = strndup(p, d-p);
+                ఒకవేళ (!i)
+                        తిరిగి -ENOMEM;
 
                 *ret = i;
         }
-        return d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
+        తిరిగి d > p ? UNIT_NAME_INSTANCE : UNIT_NAME_TEMPLATE;
 }
 
-int unit_name_to_prefix_and_instance(const char *n, char **ret) {
-        const char *d;
-        char *s;
+పూర్ణాంకం unit_name_గమ్యం_ఉపసర్గ_and_instance(స్థిరరాశి అక్షరం *n, అక్షరం **ret) {
+        స్థిరరాశి అక్షరం *d;
+        అక్షరం *s;
 
-        assert(n);
-        assert(ret);
+        ప్రతిజ్ఞా(n);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                తిరిగి -EINVAL;
 
         d = strrchr(n, '.');
-        if (!d)
-                return -EINVAL;
+        ఒకవేళ (!d)
+                తిరిగి -EINVAL;
 
         s = strndup(n, d - n);
-        if (!s)
-                return -ENOMEM;
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         *ret = s;
-        return 0;
+        తిరిగి 0;
 }
 
-UnitType unit_name_to_type(const char *n) {
-        const char *e;
+UnitType unit_name_గమ్యం_type(స్థిరరాశి అక్షరం *n) {
+        స్థిరరాశి అక్షరం *e;
 
-        assert(n);
+        ప్రతిజ్ఞా(n);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return _UNIT_TYPE_INVALID;
+        ఒకవేళ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                తిరిగి _UNIT_TYPE_INVALID;
 
         assert_se(e = strrchr(n, '.'));
 
-        return unit_type_from_string(e + 1);
+        తిరిగి unit_type_from_string(e + 1);
 }
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
-        _cleanup_free_ char *s = NULL;
+పూర్ణాంకం unit_name_change_suffix(స్థిరరాశి అక్షరం *n, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
         size_t a, b;
-        const char *e;
+        స్థిరరాశి అక్షరం *e;
 
-        assert(n);
-        assert(suffix);
-        assert(ret);
+        ప్రతిజ్ఞా(n);
+        ప్రతిజ్ఞా(suffix);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_name_is_valid(n, UNIT_NAME_ANY))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(n, UNIT_NAME_ANY))
+                తిరిగి -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ఒకవేళ (!unit_suffix_is_valid(suffix))
+                తిరిగి -EINVAL;
 
         assert_se(e = strrchr(n, '.'));
 
         a = e - n;
-        b = strlen(suffix);
+        b = అక్షరశ్రేణి_పొడవు(suffix);
 
-        s = new(char, a + b + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(అక్షరం, a + b + 1);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         strcpy(mempcpy(s, n, a), suffix);
 
         /* Make sure the name is still valid (i.e. didn't grow too large due to longer suffix) */
-        if (!unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(s, UNIT_NAME_ANY))
+                తిరిగి -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret) {
+పూర్ణాంకం unit_name_build(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *instance, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret) {
         UnitType type;
 
-        assert(prefix);
-        assert(suffix);
-        assert(ret);
+        ప్రతిజ్ఞా(ఉపసర్గ);
+        ప్రతిజ్ఞా(suffix);
+        ప్రతిజ్ఞా(ret);
 
-        if (suffix[0] != '.')
-                return -EINVAL;
+        ఒకవేళ (suffix[0] != '.')
+                తిరిగి -EINVAL;
 
         type = unit_type_from_string(suffix + 1);
-        if (type < 0)
-                return type;
+        ఒకవేళ (type < 0)
+                తిరిగి type;
 
-        return unit_name_build_from_type(prefix, instance, type, ret);
+        తిరిగి unit_name_build_from_type(ఉపసర్గ, instance, type, ret);
 }
 
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        const char *ut;
+పూర్ణాంకం unit_name_build_from_type(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *instance, UnitType type, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        స్థిరరాశి అక్షరం *ut;
 
-        assert(prefix);
-        assert(type >= 0);
-        assert(type < _UNIT_TYPE_MAX);
-        assert(ret);
+        ప్రతిజ్ఞా(ఉపసర్గ);
+        ప్రతిజ్ఞా(type >= 0);
+        ప్రతిజ్ఞా(type < _UNIT_TYPE_MAX);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        ఒకవేళ (!unit_ఉపసర్గ_is_valid(ఉపసర్గ))
+                తిరిగి -EINVAL;
 
-        ut = unit_type_to_string(type);
+        ut = unit_type_గమ్యం_string(type);
 
-        if (instance) {
-                if (!unit_instance_is_valid(instance))
-                        return -EINVAL;
+        ఒకవేళ (instance) {
+                ఒకవేళ (!unit_instance_is_valid(instance))
+                        తిరిగి -EINVAL;
 
-                s = strjoin(prefix, "@", instance, ".", ut);
-        } else
-                s = strjoin(prefix, ".", ut);
-        if (!s)
-                return -ENOMEM;
+                s = strjoin(ఉపసర్గ, "@", instance, ".", ut);
+        } లేకపోతే
+                s = strjoin(ఉపసర్గ, ".", ut);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         /* Verify that this didn't grow too large (or otherwise is invalid) */
-        if (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(s, instance ? UNIT_NAME_INSTANCE : UNIT_NAME_PLAIN))
+                తిరిగి -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        తిరిగి 0;
 }
 
-static char *do_escape_char(char c, char *t) {
-        assert(t);
+స్థిర అక్షరం *do_escape_char(అక్షరం c, అక్షరం *t) {
+        ప్రతిజ్ఞా(t);
 
         *(t++) = '\\';
         *(t++) = 'x';
         *(t++) = hexchar(c >> 4);
         *(t++) = hexchar(c);
 
-        return t;
+        తిరిగి t;
 }
 
-static char *do_escape(const char *f, char *t) {
-        assert(f);
-        assert(t);
+స్థిర అక్షరం *do_escape(స్థిరరాశి అక్షరం *f, అక్షరం *t) {
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(t);
 
         /* do not create units with a leading '.', like for "/.dotdir" mount points */
-        if (*f == '.') {
+        ఒకవేళ (*f == '.') {
                 t = do_escape_char(*f, t);
                 f++;
         }
 
-        for (; *f; f++) {
-                if (*f == '/')
+        కొరకు (; *f; f++) {
+                ఒకవేళ (*f == '/')
                         *(t++) = '-';
-                else if (IN_SET(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
+                లేకపోతే ఒకవేళ (లోపల_సమితి(*f, '-', '\\') || !strchr(VALID_CHARS, *f))
                         t = do_escape_char(*f, t);
-                else
+                లేకపోతే
                         *(t++) = *f;
         }
 
-        return t;
+        తిరిగి t;
 }
 
-char* unit_name_escape(const char *f) {
-        char *r, *t;
+అక్షరం* unit_name_escape(స్థిరరాశి అక్షరం *f) {
+        అక్షరం *r, *t;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
-        r = new(char, strlen(f)*4+1);
-        if (!r)
-                return NULL;
+        r = new(అక్షరం, అక్షరశ్రేణి_పొడవు(f)*4+1);
+        ఒకవేళ (!r)
+                తిరిగి ఖాళీ;
 
         t = do_escape(f, r);
         *t = 0;
 
-        return r;
+        తిరిగి r;
 }
 
-int unit_name_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *r = NULL;
-        char *t;
+పూర్ణాంకం unit_name_unescape(స్థిరరాశి అక్షరం *f, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *r = ఖాళీ;
+        అక్షరం *t;
 
-        assert(f);
-        assert(ret);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(ret);
 
         r = strdup(f);
-        if (!r)
-                return -ENOMEM;
+        ఒకవేళ (!r)
+                తిరిగి -ENOMEM;
 
-        for (t = r; *f; f++) {
-                if (*f == '-')
+        కొరకు (t = r; *f; f++) {
+                ఒకవేళ (*f == '-')
                         *(t++) = '/';
-                else if (*f == '\\') {
-                        int a, b;
+                లేకపోతే ఒకవేళ (*f == '\\') {
+                        పూర్ణాంకం a, b;
 
-                        if (f[1] != 'x')
-                                return -EINVAL;
+                        ఒకవేళ (f[1] != 'x')
+                                తిరిగి -EINVAL;
 
                         a = unhexchar(f[2]);
-                        if (a < 0)
-                                return -EINVAL;
+                        ఒకవేళ (a < 0)
+                                తిరిగి -EINVAL;
 
                         b = unhexchar(f[3]);
-                        if (b < 0)
-                                return -EINVAL;
+                        ఒకవేళ (b < 0)
+                                తిరిగి -EINVAL;
 
-                        *(t++) = (char) (((uint8_t) a << 4U) | (uint8_t) b);
+                        *(t++) = (అక్షరం) (((uint8_t) a << 4U) | (uint8_t) b);
                         f += 3;
-                } else
+                } లేకపోతే
                         *(t++) = *f;
         }
 
@@ -378,307 +378,307 @@ int unit_name_unescape(const char *f, char **ret) {
 
         *ret = TAKE_PTR(r);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_path_escape(const char *f, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        char *s;
-        int r;
+పూర్ణాంకం unit_name_మార్గం_escape(స్థిరరాశి అక్షరం *f, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        అక్షరం *s;
+        పూర్ణాంకం r;
 
-        assert(f);
-        assert(ret);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(ret);
 
-        r = path_simplify_alloc(f, &p);
-        if (r < 0)
-                return r;
+        r = మార్గం_simplify_alloc(f, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (empty_or_root(p))
+        ఒకవేళ (ఖాళీలు_or_మూలం(p))
                 s = strdup("-");
-        else {
-                if (!path_is_normalized(p))
-                        return -EINVAL;
+        లేకపోతే {
+                ఒకవేళ (!మార్గం_is_normalized(p))
+                        తిరిగి -EINVAL;
 
                 /* Truncate trailing slashes and skip leading slashes */
                 delete_trailing_chars(p, "/");
                 s = unit_name_escape(skip_leading_chars(p, "/"));
         }
-        if (!s)
-                return -ENOMEM;
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         *ret = s;
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_path_unescape(const char *f, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+పూర్ణాంకం unit_name_మార్గం_unescape(స్థిరరాశి అక్షరం *f, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
-        if (isempty(f))
-                return -EINVAL;
+        ఒకవేళ (isempty(f))
+                తిరిగి -EINVAL;
 
-        if (streq(f, "-")) {
+        ఒకవేళ (streq(f, "-")) {
                 s = strdup("/");
-                if (!s)
-                        return -ENOMEM;
-        } else {
-                _cleanup_free_ char *w = NULL;
+                ఒకవేళ (!s)
+                        తిరిగి -ENOMEM;
+        } లేకపోతే {
+                _cleanup_free_ అక్షరం *w = ఖాళీ;
 
                 r = unit_name_unescape(f, &w);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 /* Don't accept trailing or leading slashes */
-                if (startswith(w, "/") || endswith(w, "/"))
-                        return -EINVAL;
+                ఒకవేళ (startswith(w, "/") || endswith(w, "/"))
+                        తిరిగి -EINVAL;
 
                 /* Prefix a slash again */
                 s = strjoin("/", w);
-                if (!s)
-                        return -ENOMEM;
+                ఒకవేళ (!s)
+                        తిరిగి -ENOMEM;
 
-                if (!path_is_normalized(s))
-                        return -EINVAL;
+                ఒకవేళ (!మార్గం_is_normalized(s))
+                        తిరిగి -EINVAL;
         }
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+పూర్ణాంకం unit_name_replace_instance_నిండిన(
+                స్థిరరాశి అక్షరం *original,
+                స్థిరరాశి అక్షరం *instance,
                 bool accept_glob,
-                char **ret) {
+                అక్షరం **ret) {
 
-        _cleanup_free_ char *s = NULL;
-        const char *prefix, *suffix;
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        స్థిరరాశి అక్షరం *ఉపసర్గ, *suffix;
         size_t pl;
 
-        assert(original);
-        assert(instance);
-        assert(ret);
+        ప్రతిజ్ఞా(original);
+        ప్రతిజ్ఞా(instance);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
-        if (!unit_instance_is_valid(instance) && !(accept_glob && in_charset(instance, VALID_CHARS_GLOB)))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(original, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                తిరిగి -EINVAL;
+        ఒకవేళ (!unit_instance_is_valid(instance) && !(accept_glob && లోపల_charset(instance, VALID_CHARS_GLOB)))
+                తిరిగి -EINVAL;
 
-        prefix = ASSERT_PTR(strchr(original, '@'));
+        ఉపసర్గ = ASSERT_PTR(strchr(original, '@'));
         suffix = ASSERT_PTR(strrchr(original, '.'));
-        assert(prefix < suffix);
+        ప్రతిజ్ఞా(ఉపసర్గ < suffix);
 
-        pl = prefix - original + 1; /* include '@' */
+        pl = ఉపసర్గ - original + 1; /* include '@' */
 
-        s = new(char, pl + strlen(instance) + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(అక్షరం, pl + అక్షరశ్రేణి_పొడవు(instance) + అక్షరశ్రేణి_పొడవు(suffix) + 1);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#ఒకవేళ HAS_FEATURE_జ్ఞాపకం_SANITIZER
         /* MSan doesn't like stpncpy... See also https://github.com/google/sanitizers/issues/926 */
-        memzero(s, pl + strlen(instance) + strlen(suffix) + 1);
-#endif
+        memzero(s, pl + అక్షరశ్రేణి_పొడవు(instance) + అక్షరశ్రేణి_పొడవు(suffix) + 1);
+#అయితే_ముగింపు
 
         strcpy(stpcpy(stpncpy(s, original, pl), instance), suffix);
 
         /* Make sure the resulting name still is valid, i.e. didn't grow too large. Globs will be expanded
          * by clients when used, so the check is pointless. */
-        if (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        ఒకవేళ (!accept_glob && !unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                తిరిగి -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_template(const char *f, char **ret) {
-        const char *p, *e;
-        char *s;
+పూర్ణాంకం unit_name_template(స్థిరరాశి అక్షరం *f, అక్షరం **ret) {
+        స్థిరరాశి అక్షరం *p, *e;
+        అక్షరం *s;
         size_t a;
 
-        assert(f);
-        assert(ret);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(f, UNIT_NAME_INSTANCE|UNIT_NAME_TEMPLATE))
+                తిరిగి -EINVAL;
 
         assert_se(p = strchr(f, '@'));
         assert_se(e = strrchr(f, '.'));
 
         a = p - f;
 
-        s = new(char, a + 1 + strlen(e) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(అక్షరం, a + 1 + అక్షరశ్రేణి_పొడవు(e) + 1);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         strcpy(mempcpy(s, f, a + 1), e);
 
         *ret = s;
-        return 0;
+        తిరిగి 0;
 }
 
-bool unit_name_is_hashed(const char *name) {
-        const char *s;
+bool unit_name_is_hashed(స్థిరరాశి అక్షరం *name) {
+        స్థిరరాశి అక్షరం *s;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        ఒకవేళ (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                తిరిగి false;
 
         assert_se(s = strrchr(name, '.'));
 
-        if (s - name < UNIT_NAME_HASH_LENGTH_CHARS + 1)
-                return false;
+        ఒకవేళ (s - name < UNIT_NAME_HASH_నిడివి_CHARS + 1)
+                తిరిగి false;
 
-        s -= UNIT_NAME_HASH_LENGTH_CHARS;
-        if (s[-1] != '_')
-                return false;
+        s -= UNIT_NAME_HASH_నిడివి_CHARS;
+        ఒకవేళ (s[-1] != '_')
+                తిరిగి false;
 
-        for (size_t i = 0; i < UNIT_NAME_HASH_LENGTH_CHARS; i++)
-                if (!strchr(LOWERCASE_HEXDIGITS, s[i]))
-                        return false;
+        కొరకు (size_t i = 0; i < UNIT_NAME_HASH_నిడివి_CHARS; i++)
+                ఒకవేళ (!strchr(LOWERCASE_HEXDIGITS, s[i]))
+                        తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-int unit_name_hash_long(const char *name, char **ret) {
-        _cleanup_free_ char *n = NULL, *hash = NULL;
-        const char *suffix;
+పూర్ణాంకం unit_name_hash_long(స్థిరరాశి అక్షరం *name, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *n = ఖాళీ, *hash = ఖాళీ;
+        స్థిరరాశి అక్షరం *suffix;
         le64_t h;
         size_t len;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (strlen(name) < UNIT_NAME_MAX)
-                return -EMSGSIZE;
+        ఒకవేళ (అక్షరశ్రేణి_పొడవు(name) < UNIT_NAME_MAX)
+                తిరిగి -EMSGSIZE;
 
         suffix = strrchr(name, '.');
-        if (!suffix)
-                return -EINVAL;
+        ఒకవేళ (!suffix)
+                తిరిగి -EINVAL;
 
-        if (unit_type_from_string(suffix+1) < 0)
-                return -EINVAL;
+        ఒకవేళ (unit_type_from_string(suffix+1) < 0)
+                తిరిగి -EINVAL;
 
-        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_KEY.bytes));
+        h = htole64(siphash24_string(name, LONG_UNIT_NAME_HASH_కీలకం.బైట్లు));
 
-        hash = hexmem(&h, sizeof(h));
-        if (!hash)
-                return -ENOMEM;
+        hash = hexmem(&h, పరిమాణం(h));
+        ఒకవేళ (!hash)
+                తిరిగి -ENOMEM;
 
-        assert_se(strlen(hash) == UNIT_NAME_HASH_LENGTH_CHARS);
+        assert_se(అక్షరశ్రేణి_పొడవు(hash) == UNIT_NAME_HASH_నిడివి_CHARS);
 
-        len = UNIT_NAME_MAX - 1 - strlen(suffix+1) - UNIT_NAME_HASH_LENGTH_CHARS - 2;
-        assert(len > 0 && len < UNIT_NAME_MAX);
+        len = UNIT_NAME_MAX - 1 - అక్షరశ్రేణి_పొడవు(suffix+1) - UNIT_NAME_HASH_నిడివి_CHARS - 2;
+        ప్రతిజ్ఞా(len > 0 && len < UNIT_NAME_MAX);
 
         n = strndup(name, len);
-        if (!n)
-                return -ENOMEM;
+        ఒకవేళ (!n)
+                తిరిగి -ENOMEM;
 
-        if (!strextend(&n, "_", hash, suffix))
-                return -ENOMEM;
+        ఒకవేళ (!strextend(&n, "_", hash, suffix))
+                తిరిగి -ENOMEM;
         assert_se(unit_name_is_valid(n, UNIT_NAME_PLAIN));
 
         *ret = TAKE_PTR(n);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+పూర్ణాంకం unit_name_from_మార్గం(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(suffix);
-        assert(ret);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(suffix);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ఒకవేళ (!unit_suffix_is_valid(suffix))
+                తిరిగి -EINVAL;
 
-        r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        r = unit_name_మార్గం_escape(మార్గం, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         s = strjoin(p, suffix);
-        if (!s)
-                return -ENOMEM;
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) {
-                _cleanup_free_ char *n = NULL;
+        ఒకవేళ (అక్షరశ్రేణి_పొడవు(s) >= UNIT_NAME_MAX) {
+                _cleanup_free_ అక్షరం *n = ఖాళీ;
 
                 log_debug("Unit name \"%s\" too long, falling back to hashed unit name.", s);
 
                 r = unit_name_hash_long(s, &n);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 free_and_replace(s, n);
         }
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(s, UNIT_NAME_PLAIN))
+                తిరిగి -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL;
-        int r;
+పూర్ణాంకం unit_name_from_మార్గం_instance(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(prefix);
-        assert(path);
-        assert(suffix);
-        assert(ret);
+        ప్రతిజ్ఞా(ఉపసర్గ);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(suffix);
+        ప్రతిజ్ఞా(ret);
 
-        if (!unit_prefix_is_valid(prefix))
-                return -EINVAL;
+        ఒకవేళ (!unit_ఉపసర్గ_is_valid(ఉపసర్గ))
+                తిరిగి -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ఒకవేళ (!unit_suffix_is_valid(suffix))
+                తిరిగి -EINVAL;
 
-        r = unit_name_path_escape(path, &p);
-        if (r < 0)
-                return r;
+        r = unit_name_మార్గం_escape(మార్గం, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        s = strjoin(prefix, "@", p, suffix);
-        if (!s)
-                return -ENOMEM;
+        s = strjoin(ఉపసర్గ, "@", p, suffix);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
-        if (strlen(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
-                return -ENAMETOOLONG;
+        ఒకవేళ (అక్షరశ్రేణి_పొడవు(s) >= UNIT_NAME_MAX) /* Return a slightly more descriptive error for this specific condition */
+                తిరిగి -ENAMETOOLONG;
 
         /* Refuse if this for some other reason didn't result in a valid name */
-        if (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(s, UNIT_NAME_INSTANCE))
+                తిరిగి -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        తిరిగి 0;
 }
 
-int unit_name_to_path(const char *name, char **ret) {
-        _cleanup_free_ char *prefix = NULL;
-        int r;
+పూర్ణాంకం unit_name_గమ్యం_మార్గం(స్థిరరాశి అక్షరం *name, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *ఉపసర్గ = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
-        r = unit_name_to_prefix(name, &prefix);
-        if (r < 0)
-                return r;
+        r = unit_name_గమ్యం_ఉపసర్గ(name, &ఉపసర్గ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (unit_name_is_hashed(name))
-                return -ENAMETOOLONG;
+        ఒకవేళ (unit_name_is_hashed(name))
+                తిరిగి -ENAMETOOLONG;
 
-        return unit_name_path_unescape(prefix, ret);
+        తిరిగి unit_name_మార్గం_unescape(ఉపసర్గ, ret);
 }
 
-static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
-        const char *valid_chars;
+స్థిర bool do_escape_mangle(స్థిరరాశి అక్షరం *f, bool allow_globs, అక్షరం *t) {
+        స్థిరరాశి అక్షరం *valid_chars;
         bool mangled = false;
 
-        assert(f);
-        assert(t);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(t);
 
         /* We'll only escape the obvious characters here, to play safe.
          *
@@ -687,18 +687,18 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
 
         valid_chars = allow_globs ? VALID_CHARS_GLOB : VALID_CHARS_WITH_AT;
 
-        for (; *f; f++)
-                if (*f == '/') {
+        కొరకు (; *f; f++)
+                ఒకవేళ (*f == '/') {
                         *(t++) = '-';
                         mangled = true;
-                } else if (!strchr(valid_chars, *f)) {
+                } లేకపోతే ఒకవేళ (!strchr(valid_chars, *f)) {
                         t = do_escape_char(*f, t);
                         mangled = true;
-                } else
+                } లేకపోతే
                         *(t++) = *f;
         *t = 0;
 
-        return mangled;
+        తిరిగి mangled;
 }
 
 /**
@@ -708,235 +708,235 @@ static bool do_escape_mangle(const char *f, bool allow_globs, char *t) {
  *
  *  If @allow_globs, globs characters are preserved. Otherwise, they are escaped.
  */
-int unit_name_mangle_with_suffix(
-                const char *name,
-                const char *operation,
+పూర్ణాంకం unit_name_mangle_with_suffix(
+                స్థిరరాశి అక్షరం *name,
+                స్థిరరాశి అక్షరం *operation,
                 UnitNameMangle flags,
-                const char *suffix,
-                char **ret) {
+                స్థిరరాశి అక్షరం *suffix,
+                అక్షరం **ret) {
 
-        _cleanup_free_ char *s = NULL;
-        bool mangled, suggest_escape = true, warn = FLAGS_SET(flags, UNIT_NAME_MANGLE_WARN);
-        int r;
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        bool mangled, suggest_escape = true, warn = FLAGS_సమితి(flags, UNIT_NAME_MANGLE_WARN);
+        పూర్ణాంకం r;
 
-        assert(name);
-        assert(suffix);
-        assert(ret);
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా(suffix);
+        ప్రతిజ్ఞా(ret);
 
-        if (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
-                return -EINVAL;
+        ఒకవేళ (isempty(name)) /* We cannot mangle empty unit names to become valid, sorry. */
+                తిరిగి -EINVAL;
 
-        if (!unit_suffix_is_valid(suffix))
-                return -EINVAL;
+        ఒకవేళ (!unit_suffix_is_valid(suffix))
+                తిరిగి -EINVAL;
 
         /* Already a fully valid unit name? If so, no mangling is necessary... */
-        if (unit_name_is_valid(name, UNIT_NAME_ANY)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
-                        const char *e = ASSERT_PTR(strrchr(name, '.'));
+        ఒకవేళ (unit_name_is_valid(name, UNIT_NAME_ANY)) {
+                ఒకవేళ (FLAGS_సమితి(flags, UNIT_NAME_MANGLE_STRICT) && !endswith(name, suffix)) {
+                        స్థిరరాశి అక్షరం *e = ASSERT_PTR(strrchr(name, '.'));
 
-                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                        తిరిగి log_నిండిన_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                               SYNTHETIC_ERRNO(EINVAL),
                                               "Unit name \"%s\" has unit type \"%s\", but \"%s\" is expected%s%s.",
                                               name, e + 1, suffix + 1,
                                               operation ? " " : "", strempty(operation));
                 }
 
-                goto good;
+                వెళ్ళు good;
         }
 
         /* Already a fully valid globbing expression? If so, no mangling is necessary either... */
-        if (string_is_glob(name) && in_charset(name, VALID_CHARS_GLOB)) {
-                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB))
-                        goto good;
-                log_full(warn ? LOG_NOTICE : LOG_DEBUG,
+        ఒకవేళ (string_is_glob(name) && లోపల_charset(name, VALID_CHARS_GLOB)) {
+                ఒకవేళ (FLAGS_సమితి(flags, UNIT_NAME_MANGLE_GLOB))
+                        వెళ్ళు good;
+                log_నిండిన(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Glob pattern passed%s%s, but globs are not supported for this.",
                          operation ? " " : "", strempty(operation));
                 suggest_escape = false;
         }
 
-        if (path_is_absolute(name)) {
-                _cleanup_free_ char *n = NULL, *u = NULL;
+        ఒకవేళ (మార్గం_is_absolute(name)) {
+                _cleanup_free_ అక్షరం *n = ఖాళీ, *u = ఖాళీ;
 
-                r = path_simplify_alloc(name, &n);
-                if (r < 0)
-                        return r;
+                r = మార్గం_simplify_alloc(name, &n);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (is_device_path(n)) {
-                        r = unit_name_from_path(n, ".device", &u);
-                        if (r >= 0) {
-                                if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
-                                        return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                ఒకవేళ (is_device_మార్గం(n)) {
+                        r = unit_name_from_మార్గం(n, ".device", &u);
+                        ఒకవేళ (r >= 0) {
+                                ఒకవేళ (FLAGS_సమితి(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".device"))
+                                        తిరిగి log_నిండిన_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                               SYNTHETIC_ERRNO(EINVAL),
                                                               "Path \"%s\" resolves to unit type \"device\", but \"%s\" is expected%s%s.",
                                                               name, suffix + 1,
                                                               operation ? " " : "", strempty(operation));
 
                                 *ret = TAKE_PTR(u);
-                                return 1;
+                                తిరిగి 1;
                         }
-                        if (r != -EINVAL)
-                                return r;
+                        ఒకవేళ (r != -EINVAL)
+                                తిరిగి r;
                 }
 
-                r = unit_name_from_path(n, ".mount", &u);
-                if (r >= 0) {
-                        if (FLAGS_SET(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
-                                return log_full_errno(warn ? LOG_NOTICE : LOG_DEBUG,
+                r = unit_name_from_మార్గం(n, ".mount", &u);
+                ఒకవేళ (r >= 0) {
+                        ఒకవేళ (FLAGS_సమితి(flags, UNIT_NAME_MANGLE_STRICT) && !streq(suffix, ".mount"))
+                                తిరిగి log_నిండిన_errno(warn ? LOG_NOTICE : LOG_DEBUG,
                                                       SYNTHETIC_ERRNO(EINVAL),
                                                       "Path \"%s\" resolves to unit type \"mount\", but \"%s\" is expected%s%s.",
                                                       name, suffix + 1,
                                                       operation ? " " : "", strempty(operation));
 
                         *ret = TAKE_PTR(u);
-                        return 1;
+                        తిరిగి 1;
                 }
-                if (r != -EINVAL)
-                        return r;
+                ఒకవేళ (r != -EINVAL)
+                        తిరిగి r;
         }
 
-        s = new(char, strlen(name) * 4 + strlen(suffix) + 1);
-        if (!s)
-                return -ENOMEM;
+        s = new(అక్షరం, అక్షరశ్రేణి_పొడవు(name) * 4 + అక్షరశ్రేణి_పొడవు(suffix) + 1);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
-        mangled = do_escape_mangle(name, FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB), s);
-        if (mangled)
-                log_full(warn ? LOG_NOTICE : LOG_DEBUG,
+        mangled = do_escape_mangle(name, FLAGS_సమితి(flags, UNIT_NAME_MANGLE_GLOB), s);
+        ఒకవేళ (mangled)
+                log_నిండిన(warn ? LOG_NOTICE : LOG_DEBUG,
                          "Invalid unit name \"%s\" escaped as \"%s\"%s.",
                          name, s,
                          suggest_escape ? " (maybe you should use systemd-escape?)" : "");
 
         /* Append a suffix if it doesn't have any, but only if this is not a glob, so that we can allow
          * "foo.*" as a valid glob. */
-        if ((!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_to_type(s) < 0)
+        ఒకవేళ ((!FLAGS_సమితి(flags, UNIT_NAME_MANGLE_GLOB) || !string_is_glob(s)) && unit_name_గమ్యం_type(s) < 0)
                 strcat(s, suffix);
 
         /* Make sure mangling didn't grow this too large (but don't do this check if globbing is allowed,
          * since globs generally do not qualify as valid unit names) */
-        if (!FLAGS_SET(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
-                return -EINVAL;
+        ఒకవేళ (!FLAGS_సమితి(flags, UNIT_NAME_MANGLE_GLOB) && !unit_name_is_valid(s, UNIT_NAME_ANY))
+                తిరిగి -EINVAL;
 
         *ret = TAKE_PTR(s);
-        return 1;
+        తిరిగి 1;
 
 good:
-        return strdup_to(ret, name);
+        తిరిగి strdup_గమ్యం(ret, name);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret) {
-        assert(slice);
-        assert(ret);
+పూర్ణాంకం ముక్క_build_మాతృ_ముక్క(స్థిరరాశి అక్షరం *ముక్క, అక్షరం **ret) {
+        ప్రతిజ్ఞా(ముక్క);
+        ప్రతిజ్ఞా(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        ఒకవేళ (!ముక్క_name_is_valid(ముక్క))
+                తిరిగి -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE)) {
-                *ret = NULL;
-                return 0;
+        ఒకవేళ (streq(ముక్క, SPECIAL_మూలం_ముక్క)) {
+                *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        _cleanup_free_ char *s = strdup(slice);
-        if (!s)
-                return -ENOMEM;
+        _cleanup_free_ అక్షరం *s = strdup(ముక్క);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
-        char *dash = strrchr(s, '-');
-        if (!dash)
-                return strdup_to_full(ret, SPECIAL_ROOT_SLICE);
+        అక్షరం *dash = strrchr(s, '-');
+        ఒకవేళ (!dash)
+                తిరిగి strdup_గమ్యం_నిండిన(ret, SPECIAL_మూలం_ముక్క);
 
         /* We know that s ended with .slice before truncation, so we have enough space. */
         strcpy(dash, ".slice");
 
         *ret = TAKE_PTR(s);
-        return 1;
+        తిరిగి 1;
 }
 
-int slice_build_subslice(const char *slice, const char *name, char **ret) {
-        char *subslice;
+పూర్ణాంకం ముక్క_build_subslice(స్థిరరాశి అక్షరం *ముక్క, స్థిరరాశి అక్షరం *name, అక్షరం **ret) {
+        అక్షరం *subslice;
 
-        assert(slice);
-        assert(name);
-        assert(ret);
+        ప్రతిజ్ఞా(ముక్క);
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా(ret);
 
-        if (!slice_name_is_valid(slice))
-                return -EINVAL;
+        ఒకవేళ (!ముక్క_name_is_valid(ముక్క))
+                తిరిగి -EINVAL;
 
-        if (!unit_prefix_is_valid(name))
-                return -EINVAL;
+        ఒకవేళ (!unit_ఉపసర్గ_is_valid(name))
+                తిరిగి -EINVAL;
 
-        if (streq(slice, SPECIAL_ROOT_SLICE))
+        ఒకవేళ (streq(ముక్క, SPECIAL_మూలం_ముక్క))
                 subslice = strjoin(name, ".slice");
-        else {
-                const char *e;
+        లేకపోతే {
+                స్థిరరాశి అక్షరం *e;
 
-                assert_se(e = endswith(slice, ".slice"));
+                assert_se(e = endswith(ముక్క, ".slice"));
 
-                subslice = new(char, (e - slice) + 1 + strlen(name) + 6 + 1);
-                if (!subslice)
-                        return -ENOMEM;
+                subslice = new(అక్షరం, (e - ముక్క) + 1 + అక్షరశ్రేణి_పొడవు(name) + 6 + 1);
+                ఒకవేళ (!subslice)
+                        తిరిగి -ENOMEM;
 
-                stpcpy(stpcpy(stpcpy(mempcpy(subslice, slice, e - slice), "-"), name), ".slice");
+                stpcpy(stpcpy(stpcpy(mempcpy(subslice, ముక్క, e - ముక్క), "-"), name), ".slice");
         }
 
         *ret = subslice;
-        return 0;
+        తిరిగి 0;
 }
 
-bool slice_name_is_valid(const char *name) {
-        const char *p, *e;
+bool ముక్క_name_is_valid(స్థిరరాశి అక్షరం *name) {
+        స్థిరరాశి అక్షరం *p, *e;
         bool dash = false;
 
-        if (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
-                return false;
+        ఒకవేళ (!unit_name_is_valid(name, UNIT_NAME_PLAIN))
+                తిరిగి false;
 
-        if (streq(name, SPECIAL_ROOT_SLICE))
-                return true;
+        ఒకవేళ (streq(name, SPECIAL_మూలం_ముక్క))
+                తిరిగి true;
 
         e = endswith(name, ".slice");
-        if (!e)
-                return false;
+        ఒకవేళ (!e)
+                తిరిగి false;
 
-        for (p = name; p < e; p++) {
+        కొరకు (p = name; p < e; p++) {
 
-                if (*p == '-') {
+                ఒకవేళ (*p == '-') {
 
                         /* Don't allow initial dash */
-                        if (p == name)
-                                return false;
+                        ఒకవేళ (p == name)
+                                తిరిగి false;
 
                         /* Don't allow multiple dashes */
-                        if (dash)
-                                return false;
+                        ఒకవేళ (dash)
+                                తిరిగి false;
 
                         dash = true;
-                } else
+                } లేకపోతే
                         dash = false;
         }
 
         /* Don't allow trailing hash */
-        if (dash)
-                return false;
+        ఒకవేళ (dash)
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-bool unit_name_prefix_equal(const char *a, const char *b) {
-        const char *p, *q;
+bool unit_name_ఉపసర్గ_equal(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b) {
+        స్థిరరాశి అక్షరం *p, *q;
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        if (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
-                return false;
+        ఒకవేళ (!unit_name_is_valid(a, UNIT_NAME_ANY) || !unit_name_is_valid(b, UNIT_NAME_ANY))
+                తిరిగి false;
 
         p = strchr(a, '@');
-        if (!p)
+        ఒకవేళ (!p)
                 p = strrchr(a, '.');
 
         q = strchr(b, '@');
-        if (!q)
+        ఒకవేళ (!q)
                 q = strrchr(b, '.');
 
-        assert(p);
-        assert(q);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(q);
 
-        return memcmp_nn(a, p - a, b, q - b) == 0;
+        తిరిగి memcmp_nn(a, p - a, b, q - b) == 0;
 }

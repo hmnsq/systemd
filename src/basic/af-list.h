@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-const char* af_to_name(int id) _const_;
-int af_from_name(const char *name) _pure_;
+స్థిరరాశి అక్షరం* af_గమ్యం_name(పూర్ణాంకం id) _const_;
+పూర్ణాంకం af_from_name(స్థిరరాశి అక్షరం *name) శుద్ధ;
 
-const char* af_to_name_short(int id) _const_;
+స్థిరరాశి అక్షరం* af_గమ్యం_name_short(పూర్ణాంకం id) _const_;
 
-const char* af_to_ipv4_ipv6(int id) _const_;
-int af_from_ipv4_ipv6(const char *af) _pure_;
+స్థిరరాశి అక్షరం* af_గమ్యం_ipv4_ipv6(పూర్ణాంకం id) _const_;
+పూర్ణాంకం af_from_ipv4_ipv6(స్థిరరాశి అక్షరం *af) శుద్ధ;
 
-int af_max(void) _const_;
+పూర్ణాంకం af_max(శూన్య) _const_;

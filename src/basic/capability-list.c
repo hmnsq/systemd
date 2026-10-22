@@ -1,68 +1,68 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#అన్తర్భావ <stdio.h>
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "capability-list.h"
-#include "capability-util.h"
-#include "extract-word.h"
-#include "log.h"
-#include "parse-util.h"
-#include "string-util.h"
-#include "strv.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "bitfield.h"
+#అన్తర్భావ "capability-list.h"
+#అన్తర్భావ "capability-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
 
-static const struct capability_name* lookup_capability(register const char *str, register GPERF_LEN_TYPE len);
+స్థిర స్థిరరాశి నిర్మాణం capability_name* lookup_capability(నమోదు స్థిరరాశి అక్షరం *str, నమోదు GPERF_LEN_TYPE len);
 
-#include "capability-from-name.inc"
-#include "capability-to-name.inc"
+#అన్తర్భావ "capability-from-name.inc"
+#అన్తర్భావ "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+స్థిరరాశి అక్షరం* capability_గమ్యం_name(పూర్ణాంకం id) {
+        ఒకవేళ (id < 0)
+                తిరిగి ఖాళీ;
+        ఒకవేళ ((గుర్తులేని) id >= capability_list_నిడివి())
+                తిరిగి ఖాళీ;
 
-        return capability_names[id];
+        తిరిగి capability_పేర్లు[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
-        const char *p;
+స్థిరరాశి అక్షరం* capability_గమ్యం_string(పూర్ణాంకం id, అక్షరం buf[స్థిర CAPABILITY_గమ్యం_STRING_MAX]) {
+        స్థిరరాశి అక్షరం *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        ఒకవేళ (id < 0)
+                తిరిగి ఖాళీ;
+        ఒకవేళ (id > CAP_హద్దు) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                తిరిగి ఖాళీ;
 
-        p = capability_to_name(id);
-        if (p)
-                return p;
+        p = capability_గమ్యం_name(id);
+        ఒకవేళ (p)
+                తిరిగి p;
 
-        sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        sprintf(buf, "0x%x", (గుర్తులేని) id); /* numerical fallback */
+        తిరిగి buf;
 }
 
-int capability_from_name(const char *name) {
-        const struct capability_name *sc;
-        int r, i;
+పూర్ణాంకం capability_from_name(స్థిరరాశి అక్షరం *name) {
+        స్థిరరాశి నిర్మాణం capability_name *sc;
+        పూర్ణాంకం r, i;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
         /* Try to parse numeric capability */
-        r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        r = సురక్షిత_atoi(name, &i);
+        ఒకవేళ (r >= 0) {
+                ఒకవేళ (i < 0 || i > CAP_హద్దు)
+                        తిరిగి -EINVAL;
 
-                return i;
+                తిరిగి i;
         }
 
         /* Try to parse string capability */
-        sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_capability(name, అక్షరశ్రేణి_పొడవు(name));
+        ఒకవేళ (!sc)
+                తిరిగి -EINVAL;
 
-        return sc->id;
+        తిరిగి sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -70,117 +70,117 @@ int capability_from_name(const char *name) {
  * value larger than the last known capability. This is different from cap_last_cap() which returns the
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
-unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+గుర్తులేని capability_list_నిడివి(శూన్య) {
+        తిరిగి MIN((గుర్తులేని) ELEMENTSOF(capability_పేర్లు), (గుర్తులేని) (CAP_హద్దు + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
-        _cleanup_free_ char *str = NULL;
+పూర్ణాంకం capability_సమితి_గమ్యం_string(uint64_t సమితి, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *str = ఖాళీ;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        కొరకు (గుర్తులేని i = 0; i <= cap_చివరి_cap(); i++) {
+                స్థిరరాశి అక్షరం *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                ఒకవేళ (!బిట్టు_సమితి(సమితి, i))
+                        కొనసాగు;
 
-                p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                p = CAPABILITY_గమ్యం_STRING(i);
+                ప్రతిజ్ఞా(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                ఒకవేళ (!strextend_with_separator(&str, " ", p))
+                        తిరిగి -ENOMEM;
         }
 
-        if (!str) {
-                str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+        ఒకవేళ (!str) {
+                str = new0(అక్షరం, 1);
+                ఒకవేళ (!str)
+                        తిరిగి -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        తిరిగి 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
-        _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+పూర్ణాంకం capability_సమితి_గమ్యం_string_negative(uint64_t సమితి, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *a = ఖాళీ, *b = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* Format the specified capability mask both in positive way (i.e. just listing caps) and in negative
          * way (i.e. listing only caps that are missing from the full set) and return the shorter version of
          * the two. */
 
-        r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        r = capability_సమితి_గమ్యం_string(సమితి, &a);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        r = capability_సమితి_గమ్యం_string(~సమితి & all_capabilities(), &b);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        ఒకవేళ (అక్షరశ్రేణి_పొడవు(a) <= 1 + అక్షరశ్రేణి_పొడవు(b))
                 *ret = TAKE_PTR(a);
-        else {
-                char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+        లేకపోతే {
+                అక్షరం *c = strjoin("~", b);
+                ఒకవేళ (!c)
+                        తిరిగి -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+పూర్ణాంకం capability_సమితి_గమ్యం_strv(uint64_t సమితి, అక్షరం ***ret) {
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
-                const char *p;
+        కొరకు (గుర్తులేని i = 0; i <= cap_చివరి_cap(); i++) {
+                స్థిరరాశి అక్షరం *p;
 
-                if (!BIT_SET(set, i))
-                        continue;
+                ఒకవేళ (!బిట్టు_సమితి(సమితి, i))
+                        కొనసాగు;
 
-                p = CAPABILITY_TO_STRING(i);
-                assert(p);
+                p = CAPABILITY_గమ్యం_STRING(i);
+                ప్రతిజ్ఞా(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        తిరిగి 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+పూర్ణాంకం capability_సమితి_from_string(స్థిరరాశి అక్షరం *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
-                _cleanup_free_ char *word = NULL;
-                int r;
+        కొరకు (స్థిరరాశి అక్షరం *p = s;;) {
+                _cleanup_free_ అక్షరం *మాట = ఖాళీ;
+                పూర్ణాంకం r;
 
-                r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = వెలికితీయి_మొదటి_మాట(&p, &మాట, ఖాళీ, వెలికితీయి_UNQUOTE|వెలికితీయి_RELAX);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                r = capability_from_name(word);
-                if (r < 0) {
-                        log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
+                r = capability_from_name(మాట);
+                ఒకవేళ (r < 0) {
+                        log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", మాట);
                         good = false;
-                } else
+                } లేకపోతే
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = val;
 
-        return good;
+        తిరిగి good;
 }

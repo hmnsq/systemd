@@ -1,145 +1,145 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <linux/if_packet.h>
-#include <linux/netlink.h>
-#include <linux/vm_sockets.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/un.h>
+#అన్తర్భావ <linux/if_packet.h>
+#అన్తర్భావ <linux/netlink.h>
+#అన్తర్భావ <linux/vm_sockets.h>
+#అన్తర్భావ <netinet/in.h>
+#అన్తర్భావ <sys/socket.h>
+#అన్తర్భావ <sys/un.h>
 
-#include "forward.h"
-#include "memory-util.h"
-#include "missing-network.h"
+#అన్తర్భావ "forward.h"
+#అన్తర్భావ "memory-util.h"
+#అన్తర్భావ "missing-network.h"
 
-union sockaddr_union {
+సంఘం sockaddr_union {
         /* The minimal, abstract version */
-        struct sockaddr sa;
+        నిర్మాణం sockaddr sa;
 
         /* The libc provided version that allocates "enough room" for every protocol */
-        struct sockaddr_storage storage;
+        నిర్మాణం sockaddr_storage storage;
 
         /* Protocol-specific implementations */
-        struct sockaddr_in in;
-        struct sockaddr_in6 in6;
-        struct sockaddr_un un;
-        struct sockaddr_nl nl;
-        struct sockaddr_ll ll;
-        struct sockaddr_vm vm;
+        నిర్మాణం sockaddr_in లోపల;
+        నిర్మాణం sockaddr_in6 in6;
+        నిర్మాణం sockaddr_un un;
+        నిర్మాణం sockaddr_nl nl;
+        నిర్మాణం sockaddr_ll ll;
+        నిర్మాణం sockaddr_vm vm;
 
         /* Ensure there is enough space to store an arbitrary hardware address, e.g. Infiniband */
-        uint8_t ll_buffer[offsetof(struct sockaddr_ll, sll_addr) + HW_ADDR_MAX_SIZE];
+        uint8_t ll_బఫరు[offsetof(నిర్మాణం sockaddr_ll, sll_addr) + HW_ADDR_MAX_కొలత];
 
         /* Ensure there is enough space after the AF_UNIX sun_path for one more NUL byte, just to be sure that the path
          * component is always followed by at least one NUL byte. */
-        uint8_t un_buffer[sizeof(struct sockaddr_un) + 1];
+        uint8_t un_బఫరు[పరిమాణం(నిర్మాణం sockaddr_un) + 1];
 };
 
-#define SUN_PATH_LEN (sizeof(((struct sockaddr_un){}).sun_path))
+#నిర్వచించు SUN_మార్గం_LEN (పరిమాణం(((నిర్మాణం sockaddr_un){}).sun_path))
 
-typedef struct SocketAddress {
-        union sockaddr_union sockaddr;
+రకనిర్వచనం నిర్మాణం Socket_చిరునామా {
+        సంఘం sockaddr_union sockaddr;
 
         /* We store the size here explicitly due to the weird
          * sockaddr_un semantics for abstract sockets */
-        socklen_t size;
+        socklen_t కొలత;
 
         /* Socket type, i.e. SOCK_STREAM, SOCK_DGRAM, ... */
-        int type;
+        పూర్ణాంకం type;
 
         /* Socket protocol, IPPROTO_xxx, usually 0, except for netlink */
-        int protocol;
-} SocketAddress;
+        పూర్ణాంకం protocol;
+} Socket_చిరునామా;
 
-#define socket_address_family(a) ((a)->sockaddr.sa.sa_family)
+#నిర్వచించు socket_చిరునామా_family(a) ((a)->sockaddr.sa.sa_family)
 
-DECLARE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DECLARE_STRING_పట్టిక_LOOKUP(socket_చిరునామా_type, పూర్ణాంకం);
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa);
+పూర్ణాంకం sockaddr_un_unlink(స్థిరరాశి నిర్మాణం sockaddr_un *sa);
 
-static inline int socket_address_unlink(const SocketAddress *a) {
-        return socket_address_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
+స్థిర అంతఃవరుస పూర్ణాంకం socket_చిరునామా_unlink(స్థిరరాశి Socket_చిరునామా *a) {
+        తిరిగి socket_చిరునామా_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
 }
 
-bool socket_address_can_accept(const SocketAddress *a) _pure_;
+bool socket_చిరునామా_can_accept(స్థిరరాశి Socket_చిరునామా *a) శుద్ధ;
 
-int socket_address_verify(const SocketAddress *a, bool strict) _pure_;
-int socket_address_print(const SocketAddress *a, char **ret);
-bool socket_address_matches_fd(const SocketAddress *a, int fd);
+పూర్ణాంకం socket_చిరునామా_verify(స్థిరరాశి Socket_చిరునామా *a, bool strict) శుద్ధ;
+పూర్ణాంకం socket_చిరునామా_print(స్థిరరాశి Socket_చిరునామా *a, అక్షరం **ret);
+bool socket_చిరునామా_matches_fd(స్థిరరాశి Socket_చిరునామా *a, పూర్ణాంకం fd);
 
-bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) _pure_;
+bool socket_చిరునామా_equal(స్థిరరాశి Socket_చిరునామా *a, స్థిరరాశి Socket_చిరునామా *b) శుద్ధ;
 
-const char* socket_address_get_path(const SocketAddress *a);
+స్థిరరాశి అక్షరం* socket_చిరునామా_get_మార్గం(స్థిరరాశి Socket_చిరునామా *a);
 
-bool socket_ipv6_is_supported(void);
-bool socket_ipv6_is_enabled(void);
+bool socket_ipv6_is_supported(శూన్య);
+bool socket_ipv6_is_enabled(శూన్య);
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *port);
-const union in_addr_union *sockaddr_in_addr(const struct sockaddr *sa);
-int sockaddr_set_in_addr(union sockaddr_union *u, int family, const union in_addr_union *a, uint16_t port);
+పూర్ణాంకం sockaddr_పోర్టు(స్థిరరాశి నిర్మాణం sockaddr *_sa, గుర్తులేని *port);
+స్థిరరాశి సంఘం లోపల_addr_union *sockaddr_లోపల_addr(స్థిరరాశి నిర్మాణం sockaddr *sa);
+పూర్ణాంకం sockaddr_సమితి_లోపల_addr(సంఘం sockaddr_union *u, పూర్ణాంకం family, స్థిరరాశి సంఘం లోపల_addr_union *a, uint16_t port);
 
-int sockaddr_pretty(const struct sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_port, char **ret);
-int getpeername_pretty(int fd, bool include_port, char **ret);
-int getsockname_pretty(int fd, char **ret);
+పూర్ణాంకం sockaddr_pretty(స్థిరరాశి నిర్మాణం sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_పోర్టు, అక్షరం **ret);
+పూర్ణాంకం getpeername_pretty(పూర్ణాంకం fd, bool include_పోర్టు, అక్షరం **ret);
+పూర్ణాంకం getsockname_pretty(పూర్ణాంకం fd, అక్షరం **ret);
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **_ret);
+పూర్ణాంకం socknameinfo_pretty(స్థిరరాశి నిర్మాణం sockaddr *sa, socklen_t salen, అక్షరం **_ret);
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int);
+DECLARE_STRING_పట్టిక_LOOKUP_WITH_FALLBACK(netlink_family, పూర్ణాంకం);
 
-bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b);
+bool sockaddr_equal(స్థిరరాశి సంఘం sockaddr_union *a, స్థిరరాశి సంఘం sockaddr_union *b);
 
-int fd_set_sndbuf(int fd, size_t n, bool increase);
-static inline int fd_inc_sndbuf(int fd, size_t n) {
-        return fd_set_sndbuf(fd, n, true);
+పూర్ణాంకం fd_సమితి_sndbuf(పూర్ణాంకం fd, size_t n, bool increase);
+స్థిర అంతఃవరుస పూర్ణాంకం fd_inc_sndbuf(పూర్ణాంకం fd, size_t n) {
+        తిరిగి fd_సమితి_sndbuf(fd, n, true);
 }
-int fd_set_rcvbuf(int fd, size_t n, bool increase);
-static inline int fd_increase_rxbuf(int fd, size_t n) {
-        return fd_set_rcvbuf(fd, n, true);
+పూర్ణాంకం fd_సమితి_rcvbuf(పూర్ణాంకం fd, size_t n, bool increase);
+స్థిర అంతఃవరుస పూర్ణాంకం fd_increase_rxbuf(పూర్ణాంకం fd, size_t n) {
+        తిరిగి fd_సమితి_rcvbuf(fd, n, true);
 }
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int);
+DECLARE_STRING_పట్టిక_LOOKUP_WITH_FALLBACK(ip_tos, పూర్ణాంకం);
 
-typedef enum {
+రకనిర్వచనం గణన {
         IFNAME_VALID_ALTERNATIVE = 1 << 0, /* Allow "altnames" too */
         IFNAME_VALID_NUMERIC     = 1 << 1, /* Allow decimal formatted ifindexes too */
         IFNAME_VALID_SPECIAL     = 1 << 2, /* Allow the special names "all" and "default" */
         _IFNAME_VALID_ALL        = IFNAME_VALID_ALTERNATIVE | IFNAME_VALID_NUMERIC | IFNAME_VALID_SPECIAL,
 } IfnameValidFlags;
-bool ifname_valid_char(char a) _const_;
-bool ifname_valid_full(const char *p, IfnameValidFlags flags) _pure_;
-static inline bool ifname_valid(const char *p) {
-        return ifname_valid_full(p, 0);
+bool ifname_valid_char(అక్షరం a) _const_;
+bool ifname_valid_నిండిన(స్థిరరాశి అక్షరం *p, IfnameValidFlags flags) శుద్ధ;
+స్థిర అంతఃవరుస bool ifname_valid(స్థిరరాశి అక్షరం *p) {
+        తిరిగి ifname_valid_నిండిన(p, 0);
 }
-bool address_label_valid(const char *p) _pure_;
+bool చిరునామా_label_valid(స్థిరరాశి అక్షరం *p) శుద్ధ;
 
-int getpeercred(int fd, struct ucred *ucred);
-int getpeersec(int fd, char **ret);
-int getpeergroups(int fd, gid_t **ret);
-int getpeerpidfd(int fd);
-int getpeerpidref(int fd, PidRef *ret);
+పూర్ణాంకం getpeercred(పూర్ణాంకం fd, నిర్మాణం ucred *ucred);
+పూర్ణాంకం getpeersec(పూర్ణాంకం fd, అక్షరం **ret);
+పూర్ణాంకం getpeergroups(పూర్ణాంకం fd, gid_t **ret);
+పూర్ణాంకం getpeerpidfd(పూర్ణాంకం fd);
+పూర్ణాంకం getpeerpidref(పూర్ణాంకం fd, PidRef *ret);
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
-                const struct iovec *iov, size_t iovlen,
-                const struct sockaddr *sa, socklen_t len,
-                int flags);
-int send_one_fd_sa(int transport_fd,
-                   int fd,
-                   const struct sockaddr *sa, socklen_t len,
-                   int flags);
-#define send_one_fd_iov(transport_fd, fd, iov, iovlen, flags) send_one_fd_iov_sa(transport_fd, fd, iov, iovlen, NULL, 0, flags)
-#define send_one_fd(transport_fd, fd, flags) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, NULL, 0, flags)
-ssize_t receive_one_fd_iov(int transport_fd, struct iovec *iov, size_t iovlen, int flags, int *ret_fd);
-int receive_one_fd(int transport_fd, int flags);
+                పూర్ణాంకం transport_fd,
+                పూర్ణాంకం fd,
+                స్థిరరాశి నిర్మాణం iovec *iov, size_t iovlen,
+                స్థిరరాశి నిర్మాణం sockaddr *sa, socklen_t len,
+                పూర్ణాంకం flags);
+పూర్ణాంకం send_one_fd_sa(పూర్ణాంకం transport_fd,
+                   పూర్ణాంకం fd,
+                   స్థిరరాశి నిర్మాణం sockaddr *sa, socklen_t len,
+                   పూర్ణాంకం flags);
+#నిర్వచించు send_one_fd_iov(transport_fd, fd, iov, iovlen, flags) send_one_fd_iov_sa(transport_fd, fd, iov, iovlen, ఖాళీ, 0, flags)
+#నిర్వచించు send_one_fd(transport_fd, fd, flags) send_one_fd_iov_sa(transport_fd, fd, ఖాళీ, 0, ఖాళీ, 0, flags)
+ssize_t receive_one_fd_iov(పూర్ణాంకం transport_fd, నిర్మాణం iovec *iov, size_t iovlen, పూర్ణాంకం flags, పూర్ణాంకం *ret_fd);
+పూర్ణాంకం receive_one_fd(పూర్ణాంకం transport_fd, పూర్ణాంకం flags);
 
-ssize_t next_datagram_size_fd(int fd);
+ssize_t తదుపరి_datagram_కొలత_fd(పూర్ణాంకం fd);
 
-int flush_accept(int fd);
-ssize_t flush_mqueue(int fd);
+పూర్ణాంకం flush_accept(పూర్ణాంకం fd);
+ssize_t flush_mqueue(పూర్ణాంకం fd);
 
-#define CMSG_FOREACH(cmsg, mh)                                          \
-        for ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
+#నిర్వచించు CMSG_FOREACH(cmsg, mh)                                          \
+        కొరకు ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
 
 /* Returns the cmsghdr's data pointer, but safely cast to the specified type. Does two alignment checks: one
  * at compile time, that the requested type has a smaller or same alignment as 'struct cmsghdr', and one
@@ -147,130 +147,130 @@ ssize_t flush_mqueue(int fd);
  * 'struct timeval' is embedded into 'struct cmsghdr' on architectures where the alignment of the former is 8
  * bytes (because of a 64-bit time_t), but of the latter is 4 bytes (because size_t is 32 bits), such as
  * riscv32. */
-#define CMSG_TYPED_DATA(cmsg, type)                                     \
+#నిర్వచించు CMSG_TYPED_దత్తాంశం(cmsg, type)                                     \
         ({                                                              \
-                struct cmsghdr *_cmsg = (cmsg);                         \
-                assert_cc(alignof(type) <= alignof(struct cmsghdr));    \
-                _cmsg ? CAST_ALIGN_PTR(type, CMSG_DATA(_cmsg)) : (type*) NULL; \
+                నిర్మాణం cmsghdr *_cmsg = (cmsg);                         \
+                assert_cc(alignof(type) <= alignof(నిర్మాణం cmsghdr));    \
+                _cmsg ? CAST_ALIGN_PTR(type, CMSG_DATA(_cmsg)) : (type*) ఖాళీ; \
         })
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length);
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len);
+నిర్మాణం cmsghdr* cmsg_కనుగొను(నిర్మాణం msghdr *mh, పూర్ణాంకం level, పూర్ణాంకం type, socklen_t length);
+శూన్య* cmsg_కనుగొను_and_copy_దత్తాంశం(నిర్మాణం msghdr *mh, పూర్ణాంకం level, పూర్ణాంకం type, శూన్య *buf, size_t buf_len);
 
 /* Type-safe, dereferencing version of cmsg_find() */
-#define CMSG_FIND_DATA(mh, level, type, ctype)                          \
-        CMSG_TYPED_DATA(cmsg_find(mh, level, type, CMSG_LEN(sizeof(ctype))), ctype)
+#నిర్వచించు CMSG_కనుగొను_దత్తాంశం(mh, level, type, ctype)                          \
+        CMSG_TYPED_దత్తాంశం(cmsg_కనుగొను(mh, level, type, CMSG_LEN(పరిమాణం(ctype))), ctype)
 
 /* Type-safe version of cmsg_find_and_copy_data() */
-#define CMSG_FIND_AND_COPY_DATA(mh, level, type, ctype)             \
-        (ctype*) cmsg_find_and_copy_data(mh, level, type, &(ctype){}, sizeof(ctype))
+#నిర్వచించు CMSG_కనుగొను_AND_COPY_దత్తాంశం(mh, level, type, ctype)             \
+        (ctype*) cmsg_కనుగొను_and_copy_దత్తాంశం(mh, level, type, &(ctype){}, పరిమాణం(ctype))
 
 /* Resolves to a type that can carry cmsghdr structures. Make sure things are properly aligned, i.e. the type
  * itself is placed properly in memory and the size is also aligned to what's appropriate for "cmsghdr"
  * structures. */
-#define CMSG_BUFFER_TYPE(size)                                          \
-        union {                                                         \
-                struct cmsghdr cmsghdr;                                 \
-                uint8_t buf[size];                                      \
-                uint8_t align_check[(size) >= CMSG_SPACE(0) &&          \
-                                    (size) == CMSG_ALIGN(size) ? 1 : -1]; \
+#నిర్వచించు CMSG_బఫరు_TYPE(కొలత)                                          \
+        సంఘం {                                                         \
+                నిర్మాణం cmsghdr cmsghdr;                                 \
+                uint8_t buf[కొలత];                                      \
+                uint8_t align_check[(కొలత) >= CMSG_SPACE(0) &&          \
+                                    (కొలత) == CMSG_ALIGN(కొలత) ? 1 : -1]; \
         }
 
-size_t sockaddr_ll_len(const struct sockaddr_ll *sa);
-size_t sockaddr_un_len(const struct sockaddr_un *sa);
-size_t sockaddr_len(const union sockaddr_union *sa);
+size_t sockaddr_ll_len(స్థిరరాశి నిర్మాణం sockaddr_ll *sa);
+size_t sockaddr_un_len(స్థిరరాశి నిర్మాణం sockaddr_un *sa);
+size_t sockaddr_len(స్థిరరాశి సంఘం sockaddr_union *sa);
 
-int socket_ioctl_fd(void);
+పూర్ణాంకం socket_ioctl_fd(శూన్య);
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path);
+పూర్ణాంకం sockaddr_un_సమితి_మార్గం(నిర్మాణం sockaddr_un *ret, స్థిరరాశి అక్షరం *మార్గం);
 
-static inline int setsockopt_int(int fd, int level, int optname, int value) {
-        if (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
-                return -errno;
+స్థిర అంతఃవరుస పూర్ణాంకం setsockopt_int(పూర్ణాంకం fd, పూర్ణాంకం level, పూర్ణాంకం optname, పూర్ణాంకం విలువ) {
+        ఒకవేళ (setsockopt(fd, level, optname, &విలువ, పరిమాణం(విలువ)) < 0)
+                తిరిగి -errno;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret);
+పూర్ణాంకం getsockopt_int(పూర్ణాంకం fd, పూర్ణాంకం level, పూర్ణాంకం optname, పూర్ణాంకం *ret);
 
-int socket_bind_to_ifname(int fd, const char *ifname);
-int socket_bind_to_ifindex(int fd, int ifindex);
+పూర్ణాంకం socket_bind_గమ్యం_ifname(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *ifname);
+పూర్ణాంకం socket_bind_గమ్యం_ifindex(పూర్ణాంకం fd, పూర్ణాంకం ifindex);
 
-int socket_autobind(int fd, char **ret_name);
+పూర్ణాంకం socket_autobind(పూర్ణాంకం fd, అక్షరం **ret_name);
 
 /* glibc duplicates timespec/timeval on certain 32-bit arches, once in 32-bit and once in 64-bit.
  * See __convert_scm_timestamps() in glibc source code. Hence, we need additional buffer space for them
  * to prevent truncating control msg (recvmsg() MSG_CTRUNC). */
-#define CMSG_SPACE_TIMEVAL                                              \
-        (CMSG_SPACE(sizeof(struct timeval)) + CMSG_SPACE(2 * sizeof(uint64_t)))
-#define CMSG_SPACE_TIMESPEC                                             \
-        (CMSG_SPACE(sizeof(struct timespec)) + CMSG_SPACE(2 * sizeof(uint64_t)))
+#నిర్వచించు CMSG_SPACE_TIMEVAL                                              \
+        (CMSG_SPACE(పరిమాణం(నిర్మాణం timeval)) + CMSG_SPACE(2 * పరిమాణం(uint64_t)))
+#నిర్వచించు CMSG_SPACE_TIMESPEC                                             \
+        (CMSG_SPACE(పరిమాణం(నిర్మాణం timespec)) + CMSG_SPACE(2 * పరిమాణం(uint64_t)))
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags);
+ssize_t recvmsg_సురక్షిత(పూర్ణాంకం sockfd, నిర్మాణం msghdr *msg, పూర్ణాంకం flags);
 
-int socket_get_family(int fd);
-int socket_set_recvpktinfo(int fd, int af, bool b);
-int socket_set_unicast_if(int fd, int af, int ifi);
+పూర్ణాంకం socket_get_family(పూర్ణాంకం fd);
+పూర్ణాంకం socket_సమితి_recvpktinfo(పూర్ణాంకం fd, పూర్ణాంకం af, bool b);
+పూర్ణాంకం socket_సమితి_unicast_if(పూర్ణాంకం fd, పూర్ణాంకం af, పూర్ణాంకం ifi);
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val);
-static inline int socket_set_recverr(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
+పూర్ణాంకం socket_సమితి_option(పూర్ణాంకం fd, పూర్ణాంకం af, పూర్ణాంకం opt_ipv4, పూర్ణాంకం opt_ipv6, పూర్ణాంకం val);
+స్థిర అంతఃవరుస పూర్ణాంకం socket_సమితి_recverr(పూర్ణాంకం fd, పూర్ణాంకం af, bool b) {
+        తిరిగి socket_సమితి_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
 }
-static inline int socket_set_recvttl(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
+స్థిర అంతఃవరుస పూర్ణాంకం socket_సమితి_recvttl(పూర్ణాంకం fd, పూర్ణాంకం af, bool b) {
+        తిరిగి socket_సమితి_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
 }
-static inline int socket_set_ttl(int fd, int af, int ttl) {
-        return socket_set_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
+స్థిర అంతఃవరుస పూర్ణాంకం socket_సమితి_ttl(పూర్ణాంకం fd, పూర్ణాంకం af, పూర్ణాంకం ttl) {
+        తిరిగి socket_సమితి_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
 }
-static inline int socket_set_freebind(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
+స్థిర అంతఃవరుస పూర్ణాంకం socket_సమితి_freebind(పూర్ణాంకం fd, పూర్ణాంకం af, bool b) {
+        తిరిగి socket_సమితి_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
 }
-static inline int socket_set_transparent(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
+స్థిర అంతఃవరుస పూర్ణాంకం socket_సమితి_transparent(పూర్ణాంకం fd, పూర్ణాంకం af, bool b) {
+        తిరిగి socket_సమితి_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
 }
-static inline int socket_set_recvfragsize(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
+స్థిర అంతఃవరుస పూర్ణాంకం socket_సమితి_recvfragsize(పూర్ణాంకం fd, పూర్ణాంకం af, bool b) {
+        తిరిగి socket_సమితి_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret);
+పూర్ణాంకం socket_get_mtu(పూర్ణాంకం fd, పూర్ణాంకం af, size_t *ret);
 
 /* an initializer for struct ucred that initialized all fields to the invalid value appropriate for each */
-#define UCRED_INVALID { .pid = 0, .uid = UID_INVALID, .gid = GID_INVALID }
+#నిర్వచించు UCRED_INVALID { .pid = 0, .uid = UID_INVALID, .gid = GID_INVALID }
 
-int connect_unix_path(int fd, int dir_fd, const char *path);
+పూర్ణాంకం connect_unix_మార్గం(పూర్ణాంకం fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం);
 
-static inline bool VSOCK_CID_IS_REGULAR(unsigned cid) {
+స్థిర అంతఃవరుస bool VSOCK_CID_IS_REGULAR(గుర్తులేని cid) {
         /* Refuse special CID values */
-        return !IN_SET(cid,
+        తిరిగి !లోపల_సమితి(cid,
                        VMADDR_CID_HYPERVISOR,
                        VMADDR_CID_LOCAL,
                        VMADDR_CID_HOST,
                        VMADDR_CID_ANY);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret);
-int vsock_parse_cid(const char *s, unsigned *ret);
+పూర్ణాంకం vsock_parse_పోర్టు(స్థిరరాశి అక్షరం *s, గుర్తులేని *ret);
+పూర్ణాంకం vsock_parse_cid(స్థిరరాశి అక్షరం *s, గుర్తులేని *ret);
 
 /* Parses AF_UNIX and AF_VSOCK addresses. AF_INET[6] require some netlink calls, so it cannot be in
  * src/basic/ and is done from 'socket_local_address from src/shared/. Return -EPROTO in case of
  * protocol mismatch. */
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s);
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s);
-int socket_address_equal_unix(const char *a, const char *b);
+పూర్ణాంకం socket_చిరునామా_parse_unix(Socket_చిరునామా *ret_చిరునామా, స్థిరరాశి అక్షరం *s);
+పూర్ణాంకం socket_చిరునామా_parse_vsock(Socket_చిరునామా *ret_చిరునామా, స్థిరరాశి అక్షరం *s);
+పూర్ణాంకం socket_చిరునామా_equal_unix(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b);
 
 /* libc's SOMAXCONN is defined to 128 or 4096 (at least on glibc). But actually, the value can be much
  * larger. In our codebase we want to set it to the max usually, since nowadays socket memory is properly
  * tracked by memcg, and hence we don't need to enforce extra limits here. Moreover, the kernel caps it to
  * /proc/sys/net/core/somaxconn anyway, thus by setting this to unbounded we just make that sysctl file
  * authoritative. */
-#define SOMAXCONN_DELUXE INT_MAX
+#నిర్వచించు SOMAXCONN_DELUXE గరిష్ఠ_పూర్ణాంకం
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups);
+పూర్ణాంకం netlink_socket_get_multicast_groups(పూర్ణాంకం fd, size_t *ret_len, uint32_t **ret_groups);
 
-int socket_get_cookie(int fd, uint64_t *ret);
+పూర్ణాంకం socket_get_cookie(పూర్ణాంకం fd, uint64_t *ret);
 
-void cmsg_close_all(struct msghdr *mh);
+శూన్య cmsg_close_all(నిర్మాణం msghdr *mh);
 
-int tos_to_priority(uint8_t tos);
+పూర్ణాంకం tos_గమ్యం_ప్రాధాన్యత(uint8_t tos);
 
-int socket_xattr_supported(void);
+పూర్ణాంకం socket_xattr_supported(శూన్య);

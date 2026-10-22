@@ -1,157 +1,157 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "parse-util.h"
-#include "percent-util.h"
-#include "string-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "percent-util.h"
+#అన్తర్భావ "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
-        const char *pc, *n;
-        int r, v;
+స్థిర పూర్ణాంకం parse_parts_విలువ_సంపూర్ణ(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *చిహ్నం) {
+        స్థిరరాశి అక్షరం *pc, *n;
+        పూర్ణాంకం r, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, చిహ్నం);
+        ఒకవేళ (!pc)
+                తిరిగి -EINVAL;
 
-        n = strndupa_safe(p, pc - p);
-        r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        n = strndupa_సురక్షిత(p, pc - p);
+        r = సురక్షిత_atoi(n, &v);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (v < 0)
+                తిరిగి -ERANGE;
 
-        return v;
+        తిరిగి v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+స్థిర పూర్ణాంకం parse_parts_విలువ_with_tenths_ఉంచు(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *చిహ్నం) {
+        స్థిరరాశి అక్షరం *pc, *dot, *n;
+        పూర్ణాంకం r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, చిహ్నం);
+        ఒకవేళ (!pc)
+                తిరిగి -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        ఒకవేళ (dot) {
+                ఒకవేళ (dot + 2 != pc)
+                        తిరిగి -EINVAL;
+                ఒకవేళ (dot[1] < '0' || dot[1] > '9')
+                        తిరిగి -EINVAL;
                 q = dot[1] - '0';
-                n = strndupa_safe(p, dot - p);
-        } else {
+                n = strndupa_సురక్షిత(p, dot - p);
+        } లేకపోతే {
                 q = 0;
-                n = strndupa_safe(p, pc - p);
+                n = strndupa_సురక్షిత(p, pc - p);
         }
-        r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        r = సురక్షిత_atoi(n, &v);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (v < 0)
+                తిరిగి -ERANGE;
+        ఒకవేళ (v > (గరిష్ఠ_పూర్ణాంకం - q) / 10)
+                తిరిగి -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        తిరిగి v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+స్థిర పూర్ణాంకం parse_parts_విలువ_with_hundredths_ఉంచు(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *చిహ్నం) {
+        స్థిరరాశి అక్షరం *pc, *dot, *n;
+        పూర్ణాంకం r, q, v;
 
-        pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        pc = endswith(p, చిహ్నం);
+        ఒకవేళ (!pc)
+                తిరిగి -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        ఒకవేళ (dot) {
+                ఒకవేళ (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        ఒకవేళ (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                తిరిగి -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } లేకపోతే ఒకవేళ (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        ఒకవేళ (dot[1] < '0' || dot[1] > '9')
+                                తిరిగి -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } లేకపోతే
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        తిరిగి -EINVAL;
 
-                n = strndupa_safe(p, dot - p);
-        } else {
+                n = strndupa_సురక్షిత(p, dot - p);
+        } లేకపోతే {
                 q = 0;
-                n = strndupa_safe(p, pc - p);
+                n = strndupa_సురక్షిత(p, pc - p);
         }
-        r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        r = సురక్షిత_atoi(n, &v);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (v < 0)
+                తిరిగి -ERANGE;
+        ఒకవేళ (v > (గరిష్ఠ_పూర్ణాంకం - q) / 100)
+                తిరిగి -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        తిరిగి v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+పూర్ణాంకం parse_percent_unbounded(స్థిరరాశి అక్షరం *p) {
+        తిరిగి parse_parts_విలువ_సంపూర్ణ(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+పూర్ణాంకం parse_percent(స్థిరరాశి అక్షరం *p) {
+        పూర్ణాంకం v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        ఒకవేళ (v > 100)
+                తిరిగి -ERANGE;
 
-        return v;
+        తిరిగి v;
 }
 
-int parse_permille_unbounded(const char *p) {
-        const char *pm;
+పూర్ణాంకం parse_permille_unbounded(స్థిరరాశి అక్షరం *p) {
+        స్థిరరాశి అక్షరం *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        ఒకవేళ (pm)
+                తిరిగి parse_parts_విలువ_సంపూర్ణ(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        తిరిగి parse_parts_విలువ_with_tenths_ఉంచు(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+పూర్ణాంకం parse_permille(స్థిరరాశి అక్షరం *p) {
+        పూర్ణాంకం v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        ఒకవేళ (v > 1000)
+                తిరిగి -ERANGE;
 
-        return v;
+        తిరిగి v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
-        const char *pm;
+పూర్ణాంకం parse_permyriad_unbounded(స్థిరరాశి అక్షరం *p) {
+        స్థిరరాశి అక్షరం *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        ఒకవేళ (pm)
+                తిరిగి parse_parts_విలువ_సంపూర్ణ(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        ఒకవేళ (pm)
+                తిరిగి parse_parts_విలువ_with_tenths_ఉంచు(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        తిరిగి parse_parts_విలువ_with_hundredths_ఉంచు(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+పూర్ణాంకం parse_permyriad(స్థిరరాశి అక్షరం *p) {
+        పూర్ణాంకం v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        ఒకవేళ (v > 10000)
+                తిరిగి -ERANGE;
 
-        return v;
+        తిరిగి v;
 }

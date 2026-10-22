@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "audit-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "stat-util.h"
-#include "user-util.h"
-#include "virt.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "audit-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "pidref.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "user-util.h"
+#అన్తర్భావ "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+స్థిర పూర్ణాంకం audit_read_క్షేత్రం(స్థిరరాశి PidRef *pid, స్థిరరాశి అక్షరం *క్షేత్రం, అక్షరం **ret) {
+        పూర్ణాంకం r;
 
-        assert(field);
-        assert(ret);
+        ప్రతిజ్ఞా(క్షేత్రం);
+        ప్రతిజ్ఞా(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        ఒకవేళ (!pidref_is_సమితి(pid))
+                తిరిగి -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        ఒకవేళ (detect_container() > 0)
+                తిరిగి -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        స్థిరరాశి అక్షరం *p = procfs_file_alloca(pid->pid, క్షేత్రం);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
         bool enoent = false;
-        r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        r = read_నిండిన_virtual_file(p, &s, /* ret_size= */ ఖాళీ);
+        ఒకవేళ (r == -ENOENT) {
+                ఒకవేళ (proc_mounted() == 0)
+                        తిరిగి -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } లేకపోతే ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        ఒకవేళ (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                తిరిగి -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        తిరిగి 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+పూర్ణాంకం audit_session_from_pid(స్థిరరాశి PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        r = audit_read_క్షేత్రం(pid, "sessionid", &s);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         uint32_t u;
-        r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        r = సురక్షిత_atou32(s, &u);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        ఒకవేళ (!audit_session_is_valid(u))
+                తిరిగి -ENODATA;
 
-        if (ret_id)
+        ఒకవేళ (ret_id)
                 *ret_id = u;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+పూర్ణాంకం audit_loginuid_from_pid(స్థిరరాశి PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        r = audit_read_క్షేత్రం(pid, "loginuid", &s);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        ఒకవేళ (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                తిరిగి -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        తిరిగి parse_uid(s, ret_uid);
 }

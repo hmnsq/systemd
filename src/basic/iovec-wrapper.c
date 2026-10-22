@@ -1,438 +1,438 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#అన్తర్భావ <stdio.h>
 
-#include "alloc-util.h"
-#include "iovec-util.h"
-#include "iovec-wrapper.h"
-#include "string-util.h"
-#include "unaligned.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "iovec-util.h"
+#అన్తర్భావ "iovec-wrapper.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "unaligned.h"
 
-void iovw_done(struct iovec_wrapper *iovw) {
-        assert(iovw);
+శూన్య iovw_పూర్తి(నిర్మాణం iovec_wrapper *iovw) {
+        ప్రతిజ్ఞా(iovw);
 
         iovw->iovec = mfree(iovw->iovec);
-        iovw->count = 0;
+        iovw->లెక్క = 0;
 }
 
-void iovw_done_free(struct iovec_wrapper *iovw) {
-        assert(iovw);
+శూన్య iovw_పూర్తి_free(నిర్మాణం iovec_wrapper *iovw) {
+        ప్రతిజ్ఞా(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
-                iovec_done(i);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->లెక్క)
+                iovec_పూర్తి(i);
 
-        iovw_done(iovw);
+        iovw_పూర్తి(iovw);
 }
 
-struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+నిర్మాణం iovec_wrapper* iovw_free(నిర్మాణం iovec_wrapper *iovw) {
+        ఒకవేళ (!iovw)
+                తిరిగి ఖాళీ;
 
-        iovw_done(iovw);
-        return mfree(iovw);
+        iovw_పూర్తి(iovw);
+        తిరిగి mfree(iovw);
 }
 
-struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+నిర్మాణం iovec_wrapper* iovw_free_free(నిర్మాణం iovec_wrapper *iovw) {
+        ఒకవేళ (!iovw)
+                తిరిగి ఖాళీ;
 
-        iovw_done_free(iovw);
-        return mfree(iovw);
+        iovw_పూర్తి_free(iovw);
+        తిరిగి mfree(iovw);
 }
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        int r;
+పూర్ణాంకం iovw_compare(స్థిరరాశి నిర్మాణం iovec_wrapper *a, స్థిరరాశి నిర్మాణం iovec_wrapper *b) {
+        పూర్ణాంకం r;
 
-        if (a == b)
-                return 0;
+        ఒకవేళ (a == b)
+                తిరిగి 0;
 
-        if (!a || !b)
-                return CMP(!!a, !!b);
+        ఒకవేళ (!a || !b)
+                తిరిగి CMP(!!a, !!b);
 
         /* Note, this performs structural (element-by-element) comparison, not content-based comparison.
          * Two wrappers with identical concatenated content but different element boundaries
          * (e.g., ["fo","o"] vs ["f","oo"]) will not compare as equal. */
 
-        for (size_t i = 0, n = MIN(a->count, b->count); i < n; i++) {
+        కొరకు (size_t i = 0, n = MIN(a->లెక్క, b->లెక్క); i < n; i++) {
                 r = iovec_memcmp(a->iovec + i, b->iovec + i);
-                if (r != 0)
-                        return r;
+                ఒకవేళ (r != 0)
+                        తిరిగి r;
         }
 
-        return CMP(a->count, b->count);
+        తిరిగి CMP(a->లెక్క, b->లెక్క);
 }
 
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+పూర్ణాంకం iovw_put_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, శూన్య *దత్తాంశం, size_t len) {
+        ప్రతిజ్ఞా(iovw);
+        ప్రతిజ్ఞా(దత్తాంశం || len == 0);
 
-        if (len == 0 && !accept_zero)
-                return 0;
+        ఒకవేళ (len == 0 && !accept_zero)
+                తిరిగి 0;
 
-        if (iovw->count >= IOV_MAX)
-                return -E2BIG;
+        ఒకవేళ (iovw->లెక్క >= IOV_MAX)
+                తిరిగి -E2BIG;
 
-        if (!GREEDY_REALLOC(iovw->iovec, iovw->count + 1))
-                return -ENOMEM;
+        ఒకవేళ (!GREEDY_REALLOC(iovw->iovec, iovw->లెక్క + 1))
+                తిరిగి -ENOMEM;
 
-        iovw->iovec[iovw->count++] = IOVEC_MAKE(data, len);
-        return 1;
+        iovw->iovec[iovw->లెక్క++] = IOVEC_MAKE(దత్తాంశం, len);
+        తిరిగి 1;
 }
 
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+పూర్ణాంకం iovw_put_iov_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, స్థిరరాశి నిర్మాణం iovec *iov) {
+        ప్రతిజ్ఞా(iovw);
 
-        if (!iov)
-                return 0;
+        ఒకవేళ (!iov)
+                తిరిగి 0;
 
-        return iovw_put_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        తిరిగి iovw_put_నిండిన(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+పూర్ణాంకం iovw_put_iovw_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, స్థిరరాశి నిర్మాణం iovec_wrapper *ఆధారం) {
+        పూర్ణాంకం r;
 
-        assert(iovw);
+        ప్రతిజ్ఞా(iovw);
 
-        if (iovw_isempty(source))
-                return 0;
+        ఒకవేళ (iovw_isempty(ఆధారం))
+                తిరిగి 0;
 
         /* We will reallocate iovw->iovec, hence the source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        ఒకవేళ (iovw == ఆధారం)
+                తిరిగి -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        ఒకవేళ (iovw->లెక్క > SIZE_MAX - ఆధారం->లెక్క)
+                తిరిగి -E2BIG;
+        ఒకవేళ (iovw->లెక్క + ఆధారం->లెక్క > IOV_MAX)
+                తిరిగి -E2BIG;
 
-        if (accept_zero) {
-                if (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->count, source->iovec, source->count))
-                        return -ENOMEM;
+        ఒకవేళ (accept_zero) {
+                ఒకవేళ (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->లెక్క, ఆధారం->iovec, ఆధారం->లెక్క))
+                        తిరిగి -ENOMEM;
 
-                return 0;
+                తిరిగి 0;
         }
 
         /* When accept_zero is false, we need to filter zero length iovec in source. */
-        size_t original_count = iovw->count;
+        size_t original_లెక్క = iovw->లెక్క;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
-                r = iovw_put_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+        FOREACH_ARRAY(iovec, ఆధారం->iovec, ఆధారం->లెక్క) {
+                r = iovw_put_iov_నిండిన(iovw, accept_zero, iovec);
+                ఒకవేళ (r < 0)
+                        వెళ్ళు rollback;
         }
 
-        return 0;
+        తిరిగి 0;
 
 rollback:
-        iovw->count = original_count;
-        return r;
+        iovw->లెక్క = original_లెక్క;
+        తిరిగి r;
 }
 
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
+పూర్ణాంకం iovw_consume_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, శూన్య *దత్తాంశం, size_t len) {
         /* Move data into iovw or free on error */
-        int r;
+        పూర్ణాంకం r;
 
-        r = iovw_put_full(iovw, accept_zero, data, len);
-        if (r <= 0)
-                free(data);
+        r = iovw_put_నిండిన(iovw, accept_zero, దత్తాంశం, len);
+        ఒకవేళ (r <= 0)
+                విడుదల(దత్తాంశం);
 
-        return r;
+        తిరిగి r;
 }
 
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov) {
-        int r;
+పూర్ణాంకం iovw_consume_iov_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, నిర్మాణం iovec *iov) {
+        పూర్ణాంకం r;
 
-        assert(iovw);
+        ప్రతిజ్ఞా(iovw);
 
-        if (!iov)
-                return 0;
+        ఒకవేళ (!iov)
+                తిరిగి 0;
 
-        r = iovw_put_iov_full(iovw, accept_zero, iov);
-        if (r <= 0)
-                iovec_done(iov);
-        else
+        r = iovw_put_iov_నిండిన(iovw, accept_zero, iov);
+        ఒకవేళ (r <= 0)
+                iovec_పూర్తి(iov);
+        లేకపోతే
                 /* On success, iov->iov_base is now owned by iovw. Let's emptify iov, but do not call
                  * iovec_done(), of course. */
-                *iov = (struct iovec) {};
+                *iov = (నిర్మాణం iovec) {};
 
-        return r;
+        తిరిగి r;
 }
 
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len) {
-        assert(iovw);
-        assert(data || len == 0);
+పూర్ణాంకం iovw_extend_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, స్థిరరాశి శూన్య *దత్తాంశం, size_t len) {
+        ప్రతిజ్ఞా(iovw);
+        ప్రతిజ్ఞా(దత్తాంశం || len == 0);
 
-        if (len == 0)
-                return iovw_put_full(iovw, accept_zero, /* data= */ NULL, /* len= */ 0);
+        ఒకవేళ (len == 0)
+                తిరిగి iovw_put_నిండిన(iovw, accept_zero, /* data= */ ఖాళీ, /* len= */ 0);
 
-        void *c = memdup(data, len);
-        if (!c)
-                return -ENOMEM;
+        శూన్య *c = memdup(దత్తాంశం, len);
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
-        return iovw_consume_full(iovw, accept_zero, c, len);
+        తిరిగి iovw_consume_నిండిన(iovw, accept_zero, c, len);
 }
 
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
-        assert(iovw);
+పూర్ణాంకం iovw_extend_iov_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, స్థిరరాశి నిర్మాణం iovec *iov) {
+        ప్రతిజ్ఞా(iovw);
 
-        if (!iov)
-                return 0;
+        ఒకవేళ (!iov)
+                తిరిగి 0;
 
-        return iovw_extend_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        తిరిగి iovw_extend_నిండిన(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+పూర్ణాంకం iovw_extend_iovw_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool accept_zero, స్థిరరాశి నిర్మాణం iovec_wrapper *ఆధారం) {
+        పూర్ణాంకం r;
 
-        assert(iovw);
+        ప్రతిజ్ఞా(iovw);
 
         /* This duplicates the source and merges it into the iovw. */
 
-        if (iovw_isempty(source))
-                return 0;
+        ఒకవేళ (iovw_isempty(ఆధారం))
+                తిరిగి 0;
 
         /* iovw->iovec will be reallocated in the loop below, hence source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        ఒకవేళ (iovw == ఆధారం)
+                తిరిగి -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        ఒకవేళ (iovw->లెక్క > SIZE_MAX - ఆధారం->లెక్క)
+                తిరిగి -E2BIG;
+        ఒకవేళ (iovw->లెక్క + ఆధారం->లెక్క > IOV_MAX)
+                తిరిగి -E2BIG;
 
-        size_t original_count = iovw->count;
+        size_t original_లెక్క = iovw->లెక్క;
 
-        FOREACH_ARRAY(iovec, source->iovec, source->count) {
-                r = iovw_extend_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
-                        goto rollback;
+        FOREACH_ARRAY(iovec, ఆధారం->iovec, ఆధారం->లెక్క) {
+                r = iovw_extend_iov_నిండిన(iovw, accept_zero, iovec);
+                ఒకవేళ (r < 0)
+                        వెళ్ళు rollback;
         }
 
-        return 0;
+        తిరిగి 0;
 
 rollback:
-        for (size_t i = original_count; i < iovw->count; i++)
-                iovec_done(iovw->iovec + i);
+        కొరకు (size_t i = original_లెక్క; i < iovw->లెక్క; i++)
+                iovec_పూర్తి(iovw->iovec + i);
 
-        iovw->count = original_count;
-        return r;
+        iovw->లెక్క = original_లెక్క;
+        తిరిగి r;
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value) {
-        _cleanup_free_ char *x = NULL;
-        int r;
+పూర్ణాంకం iovw_put_string_క్షేత్రం_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool replace, స్థిరరాశి అక్షరం *క్షేత్రం, స్థిరరాశి అక్షరం *విలువ) {
+        _cleanup_free_ అక్షరం *x = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(iovw);
+        ప్రతిజ్ఞా(iovw);
 
-        x = strjoin(field, value);
-        if (!x)
-                return -ENOMEM;
+        x = strjoin(క్షేత్రం, విలువ);
+        ఒకవేళ (!x)
+                తిరిగి -ENOMEM;
 
-        if (replace)
-                FOREACH_ARRAY(iovec, iovw->iovec, iovw->count)
-                        if (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
-                                iovec->iov_len = strlen(x);
-                                return free_and_replace(iovec->iov_base, x);
+        ఒకవేళ (replace)
+                FOREACH_ARRAY(iovec, iovw->iovec, iovw->లెక్క)
+                        ఒకవేళ (జ్ఞాపకం_startswith(iovec->iov_base, iovec->iov_len, క్షేత్రం)) {
+                                iovec->iov_len = అక్షరశ్రేణి_పొడవు(x);
+                                తిరిగి free_and_replace(iovec->iov_base, x);
                         }
 
-        r = iovw_put(iovw, x, strlen(x));
-        if (r >= 0)
+        r = iovw_put(iovw, x, అక్షరశ్రేణి_పొడవు(x));
+        ఒకవేళ (r >= 0)
                 TAKE_PTR(x);
 
-        return r;
+        తిరిగి r;
 }
 
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) {
-        _cleanup_free_ char *value = NULL;
+పూర్ణాంకం iovw_put_string_fieldf_నిండిన(నిర్మాణం iovec_wrapper *iovw, bool replace, స్థిరరాశి అక్షరం *క్షేత్రం, స్థిరరాశి అక్షరం *format, ...) {
+        _cleanup_free_ అక్షరం *విలువ = ఖాళీ;
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(format);
+        ప్రతిజ్ఞా(format);
 
         va_start(ap, format);
-        r = vasprintf(&value, format, ap);
+        r = vasprintf(&విలువ, format, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి -ENOMEM;
 
-        return iovw_put_string_field_full(iovw, replace, field, value);
+        తిరిగి iovw_put_string_క్షేత్రం_నిండిన(iovw, replace, క్షేత్రం, విలువ);
 }
 
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value) {
-        _cleanup_free_ _unused_ char *free_ptr = value;
+పూర్ణాంకం iovw_put_string_క్షేత్రం_free(నిర్మాణం iovec_wrapper *iovw, స్థిరరాశి అక్షరం *క్షేత్రం, అక్షరం *విలువ) {
+        _cleanup_free_ వాడని అక్షరం *free_ptr = విలువ;
 
-        return iovw_put_string_field(iovw, field, value);
+        తిరిగి iovw_put_string_క్షేత్రం(iovw, క్షేత్రం, విలువ);
 }
 
-void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new) {
-        assert(iovw);
+శూన్య iovw_rebase(నిర్మాణం iovec_wrapper *iovw, శూన్య *old, శూన్య *new) {
+        ప్రతిజ్ఞా(iovw);
 
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count) {
-                assert(i->iov_base >= old);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->లెక్క) {
+                ప్రతిజ్ఞా(i->iov_base >= old);
                 i->iov_base = (uint8_t*) i->iov_base - (uint8_t*) old + (uint8_t*) new;
         }
 }
 
-size_t iovw_size(const struct iovec_wrapper *iovw) {
-        if (iovw_isempty(iovw))
-                return 0;
+size_t iovw_కొలత(స్థిరరాశి నిర్మాణం iovec_wrapper *iovw) {
+        ఒకవేళ (iovw_isempty(iovw))
+                తిరిగి 0;
 
-        return iovec_total_size(iovw->iovec, iovw->count);
+        తిరిగి iovec_మొత్తం_కొలత(iovw->iovec, iovw->లెక్క);
 }
 
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
-        assert(iovw);
-        assert(ret);
+పూర్ణాంకం iovw_concat(స్థిరరాశి నిర్మాణం iovec_wrapper *iovw, నిర్మాణం iovec *ret) {
+        ప్రతిజ్ఞా(iovw);
+        ప్రతిజ్ఞా(ret);
 
         /* Squish a series of iovecs into a single iovec. */
 
-        size_t len = iovw_size(iovw);
-        if (len == SIZE_MAX)
-                return -E2BIG;  /* Prevent theoretical overflow */
+        size_t len = iovw_కొలత(iovw);
+        ఒకవేళ (len == SIZE_MAX)
+                తిరిగి -E2BIG;  /* Prevent theoretical overflow */
 
         /* Always allocate one more byte to make the result usable as a NUL-terminated string. */
-        _cleanup_free_ uint8_t *buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        _cleanup_free_ uint8_t *buf = జ్ఞాపకం_ఇవ్వు(len + 1);
+        ఒకవేళ (!buf)
+                తిరిగి -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(i, iovw->iovec, iovw->count)
-                p = mempcpy_safe(p, i->iov_base, i->iov_len);
+        FOREACH_ARRAY(i, iovw->iovec, iovw->లెక్క)
+                p = mempcpy_సురక్షిత(p, i->iov_base, i->iov_len);
 
         *p = 0;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), len);
-        return 0;
+        తిరిగి 0;
 }
 
-char* iovw_to_cstring(const struct iovec_wrapper *iovw) {
-        assert(iovw);
+అక్షరం* iovw_గమ్యం_cstring(స్థిరరాశి నిర్మాణం iovec_wrapper *iovw) {
+        ప్రతిజ్ఞా(iovw);
 
         /* Squish a series of iovecs into a C string. Embedded NULs are not allowed.
          * The caller is expected to filter them out when populating the data. */
 
-        _cleanup_(iovec_done) struct iovec iov = {};
-        if (iovw_concat(iovw, &iov) < 0)
-                return NULL;
+        _cleanup_(iovec_పూర్తి) నిర్మాణం iovec iov = {};
+        ఒకవేళ (iovw_concat(iovw, &iov) < 0)
+                తిరిగి ఖాళీ;
 
-        assert(!memchr(iov.iov_base, 0, iov.iov_len));
-        return TAKE_PTR(iov.iov_base);
+        ప్రతిజ్ఞా(!memchr(iov.iov_base, 0, iov.iov_len));
+        తిరిగి TAKE_PTR(iov.iov_base);
 }
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret) {
-        int r;
+పూర్ణాంకం iovec_విభజించు(స్థిరరాశి నిర్మాణం iovec *iov, size_t నిడివి_కొలత, నిర్మాణం iovec_wrapper *ret) {
+        పూర్ణాంకం r;
 
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+        ప్రతిజ్ఞా(లోపల_సమితి(నిడివి_కొలత, 1, 2, 4));
+        ప్రతిజ్ఞా(ret);
 
         /* This parses the input iovec as length-prefixed data, and stores the result as iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        if (!iovec_is_set(iov)) {
-                *ret = (struct iovec_wrapper) {};
-                return 0;
+        ఒకవేళ (!iovec_is_సమితి(iov)) {
+                *ret = (నిర్మాణం iovec_wrapper) {};
+                తిరిగి 0;
         }
 
-        _cleanup_(iovw_done_free) struct iovec_wrapper iovw = {};
-        for (struct iovec i = *iov; iovec_is_set(&i); ) {
-                if (i.iov_len < length_size)
-                        return -EBADMSG;
+        _cleanup_(iovw_పూర్తి_free) నిర్మాణం iovec_wrapper iovw = {};
+        కొరకు (నిర్మాణం iovec i = *iov; iovec_is_సమితి(&i); ) {
+                ఒకవేళ (i.iov_len < నిడివి_కొలత)
+                        తిరిగి -EBADMSG;
 
                 size_t len;
-                switch (length_size) {
-                case 1:
+                ఎంపిక (నిడివి_కొలత) {
+                స్థితి 1:
                         len = *(uint8_t*) i.iov_base;
-                        break;
-                case 2:
+                        ఆపు;
+                స్థితి 2:
                         len = unaligned_read_be16(i.iov_base);
-                        break;
-                case 4:
+                        ఆపు;
+                స్థితి 4:
                         len = unaligned_read_be32(i.iov_base);
-                        break;
-                default:
+                        ఆపు;
+                అప్రమేయ:
                         assert_not_reached();
                 }
 
-                iovec_inc(&i, length_size);
+                iovec_inc(&i, నిడివి_కొలత);
 
-                if (len == 0)
-                        continue;
+                ఒకవేళ (len == 0)
+                        కొనసాగు;
 
-                if (i.iov_len < len)
-                        return -EBADMSG;
+                ఒకవేళ (i.iov_len < len)
+                        తిరిగి -EBADMSG;
 
                 r = iovw_extend(&iovw, i.iov_base, len);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 iovec_inc(&i, len);
         }
 
         *ret = TAKE_STRUCT(iovw);
-        return 0;
+        తిరిగి 0;
 }
 
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret) {
-        assert(IN_SET(length_size, 1, 2, 4));
-        assert(ret);
+పూర్ణాంకం iovw_విలీనం(స్థిరరాశి నిర్మాణం iovec_wrapper *iovw, size_t నిడివి_కొలత, నిర్మాణం iovec *ret) {
+        ప్రతిజ్ఞా(లోపల_సమితి(నిడివి_కొలత, 1, 2, 4));
+        ప్రతిజ్ఞా(ret);
 
         /* This is the inverse of iovec_split(), and builds a length-prefixed data from iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        size_t sz = iovw_size(iovw);
-        if (sz == 0) {
-                *ret = (struct iovec) {};
-                return 0;
+        size_t sz = iovw_కొలత(iovw);
+        ఒకవేళ (sz == 0) {
+                *ret = (నిర్మాణం iovec) {};
+                తిరిగి 0;
         }
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        ఒకవేళ (sz == SIZE_MAX)
+                తిరిగి -E2BIG;
 
-        if (size_multiply_overflow(length_size, iovw->count))
-                return -E2BIG;
+        ఒకవేళ (కొలత_multiply_అధికప్రవాహం(నిడివి_కొలత, iovw->లెక్క))
+                తిరిగి -E2BIG;
 
-        sz = size_add(sz, iovw->count * length_size);
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        sz = కొలత_కూడు(sz, iovw->లెక్క * నిడివి_కొలత);
+        ఒకవేళ (sz == SIZE_MAX)
+                తిరిగి -E2BIG;
 
         _cleanup_free_ uint8_t *buf = new(uint8_t, sz);
-        if (!buf)
-                return -ENOMEM;
+        ఒకవేళ (!buf)
+                తిరిగి -ENOMEM;
 
         uint8_t *p = buf;
-        FOREACH_ARRAY(iov, iovw->iovec, iovw->count) {
-                if (iov->iov_len == 0)
-                        continue;
+        FOREACH_ARRAY(iov, iovw->iovec, iovw->లెక్క) {
+                ఒకవేళ (iov->iov_len == 0)
+                        కొనసాగు;
 
-                switch (length_size) {
-                case 1:
-                        if (iov->iov_len > UINT8_MAX)
-                                return -ERANGE;
+                ఎంపిక (నిడివి_కొలత) {
+                స్థితి 1:
+                        ఒకవేళ (iov->iov_len > UINT8_MAX)
+                                తిరిగి -ERANGE;
 
                         *p = iov->iov_len;
-                        break;
-                case 2:
-                        if (iov->iov_len > UINT16_MAX)
-                                return -ERANGE;
+                        ఆపు;
+                స్థితి 2:
+                        ఒకవేళ (iov->iov_len > UINT16_MAX)
+                                తిరిగి -ERANGE;
 
                         unaligned_write_be16(p, iov->iov_len);
-                        break;
-                case 4:
-                        if (iov->iov_len > UINT32_MAX)
-                                return -ERANGE;
+                        ఆపు;
+                స్థితి 4:
+                        ఒకవేళ (iov->iov_len > UINT32_MAX)
+                                తిరిగి -ERANGE;
 
                         unaligned_write_be32(p, iov->iov_len);
-                        break;
-                default:
+                        ఆపు;
+                అప్రమేయ:
                         assert_not_reached();
                 }
-                p += length_size;
+                p += నిడివి_కొలత;
 
                 p = mempcpy(p, iov->iov_base, iov->iov_len);
         }
 
-        assert(sz >= (size_t) (p - buf));
+        ప్రతిజ్ఞా(sz >= (size_t) (p - buf));
         sz = p - buf;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), sz);
-        return 0;
+        తిరిగి 0;
 }

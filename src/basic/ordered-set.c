@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "ordered-set.h"
+#అన్తర్భావ "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+పూర్ణాంకం ordered_సమితి_ensure_allocated(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *ops) {
+        ప్రతిజ్ఞా(s);
 
-        if (*s)
-                return 0;
+        ఒకవేళ (*s)
+                తిరిగి 0;
 
-        *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        *s = ordered_సమితి_new(ops);
+        ఒకవేళ (!*s)
+                తిరిగి -ENOMEM;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+పూర్ణాంకం ordered_సమితి_ensure_put(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *ops, శూన్య *p) {
+        పూర్ణాంకం r;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
-        r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        r = ordered_సమితి_ensure_allocated(s, ops);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return ordered_set_put(*s, p);
+        తిరిగి ordered_సమితి_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+పూర్ణాంకం ordered_సమితి_consume(Ordered_సమితి *s, శూన్య *p) {
+        పూర్ణాంకం r;
 
-        r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        r = ordered_సమితి_put(s, p);
+        ఒకవేళ (r <= 0)
+                విడుదల(p);
 
-        return r;
+        తిరిగి r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+పూర్ణాంకం ordered_సమితి_put_strdup_నిండిన(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *hash_ops, స్థిరరాశి అక్షరం *p) {
+        అక్షరం *c;
+        పూర్ణాంకం r;
 
-        assert(s);
-        assert(p);
+        ప్రతిజ్ఞా(s);
+        ప్రతిజ్ఞా(p);
 
-        r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        r = ordered_సమితి_ensure_allocated(s, hash_ops);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        ఒకవేళ (ordered_సమితి_కలిగియుంది(*s, p))
+                తిరిగి 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        తిరిగి ordered_సమితి_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+పూర్ణాంకం ordered_సమితి_put_strdupv_నిండిన(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *hash_ops, అక్షరం **l) {
+        పూర్ణాంకం r, ret = 0;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         STRV_FOREACH(i, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                r = ordered_సమితి_put_strdup_నిండిన(s, hash_ops, *i);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        తిరిగి ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+పూర్ణాంకం ordered_సమితి_put_string_సమితి_నిండిన(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *hash_ops, Ordered_సమితి *l) {
+        పూర్ణాంకం r, ret = 0;
+        అక్షరం *p;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
-        ORDERED_SET_FOREACH(p, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+        ORDERED_సమితి_FOREACH(p, l) {
+                r = ordered_సమితి_put_strdup_నిండిన(s, hash_ops, p);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        తిరిగి ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+శూన్య ordered_సమితి_print(FILE *f, స్థిరరాశి అక్షరం *క్షేత్రం, Ordered_సమితి *s) {
         bool space = false;
-        char *p;
+        అక్షరం *p;
 
-        assert(f);
-        assert(field);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(క్షేత్రం);
 
-        if (ordered_set_isempty(s))
-                return;
+        ఒకవేళ (ordered_సమితి_isempty(s))
+                తిరిగి;
 
-        fputs(field, f);
+        fputs(క్షేత్రం, f);
 
-        ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+        ORDERED_సమితి_FOREACH(p, s)
+                fputs_with_separator(f, p, ఖాళీ, &space);
 
         fputc('\n', f);
 }

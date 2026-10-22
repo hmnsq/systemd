@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "keyring-util.h"
-#include "log.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "keyring-util.h"
+#అన్తర్భావ "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+పూర్ణాంకం keyring_read(కీలకం_serial_t serial, శూన్య **ret, size_t *ret_కొలత) {
         size_t bufsize = 100;
 
-        for (;;) {
-                _cleanup_(erase_and_freep) uint8_t *buf = NULL;
-                long n;
+        కొరకు (;;) {
+                _cleanup_(erase_and_freep) uint8_t *buf = ఖాళీ;
+                దీర్ఘ n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                ఒకవేళ (!buf)
+                        తిరిగి -ENOMEM;
 
-                n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                n = keyctl(KEYCTL_READ, (గుర్తులేని దీర్ఘ) serial, (గుర్తులేని దీర్ఘ) buf, (గుర్తులేని దీర్ఘ) bufsize, 0);
+                ఒకవేళ (n < 0)
+                        తిరిగి -errno;
 
-                if ((size_t) n <= bufsize) {
+                ఒకవేళ ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        ఒకవేళ (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
-                                *ret_size = n;
+                        ఒకవేళ (ret_కొలత)
+                                *ret_కొలత = n;
 
-                        return 0;
+                        తిరిగి 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
-        _cleanup_free_ char *tuple = NULL;
+పూర్ణాంకం keyring_describe(కీలకం_serial_t serial, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *tuple = ఖాళీ;
         size_t sz = 64;
-        int c;
+        పూర్ణాంకం c;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        for (;;) {
-                tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+        కొరకు (;;) {
+                tuple = new(అక్షరం, sz);
+                ఒకవేళ (!tuple)
+                        తిరిగి log_oom_debug();
 
-                c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                c = keyctl(KEYCTL_DESCRIBE, serial, (గుర్తులేని దీర్ఘ) tuple, sz, 0);
+                ఒకవేళ (c < 0)
+                        తిరిగి log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
-                        break;
+                ఒకవేళ ((size_t) c <= sz)
+                        ఆపు;
 
                 sz = c;
-                free(tuple);
+                విడుదల(tuple);
         }
 
         /* The kernel returns a final NUL in the string, verify that. */
-        assert(tuple[c-1] == 0);
+        ప్రతిజ్ఞా(tuple[c-1] == 0);
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        తిరిగి 0;
 }

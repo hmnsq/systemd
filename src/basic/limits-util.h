@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-uint64_t physical_memory(void);
-uint64_t physical_memory_scale(uint64_t v, uint64_t max);
+uint64_t physical_జ్ఞాపకం(శూన్య);
+uint64_t physical_జ్ఞాపకం_scale(uint64_t v, uint64_t max);
 
-uint64_t system_tasks_max(void);
+uint64_t system_tasks_max(శూన్య);
 uint64_t system_tasks_max_scale(uint64_t v, uint64_t max);

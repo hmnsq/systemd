@@ -11,135 +11,135 @@
  * occur outside of a loop where this is the preferred behavior.
  */
 
-#include <stdio.h>
-#include <string.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <string.h>
 
-#include "strxcpyx.h"
+#అన్తర్భావ "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+size_t strnpcpy_నిండిన(అక్షరం **dest, size_t కొలత, స్థిరరాశి అక్షరం *src, size_t len, bool *ret_truncated) {
         bool truncated = false;
 
-        assert(dest);
-        assert(src);
+        ప్రతిజ్ఞా(dest);
+        ప్రతిజ్ఞా(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        ఒకవేళ (కొలత == 0) {
+                ఒకవేళ (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                తిరిగి 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
-                        *dest = mempcpy(*dest, src, size-1);
-                size = 0;
+        ఒకవేళ (len >= కొలత) {
+                ఒకవేళ (కొలత > 1)
+                        *dest = mempcpy(*dest, src, కొలత-1);
+                కొలత = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } లేకపోతే ఒకవేళ (len > 0) {
                 *dest = mempcpy(*dest, src, len);
-                size -= len;
+                కొలత -= len;
         }
 
-        if (ret_truncated)
+        ఒకవేళ (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        తిరిగి కొలత;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strpcpy_నిండిన(అక్షరం **dest, size_t కొలత, స్థిరరాశి అక్షరం *src, bool *ret_truncated) {
+        ప్రతిజ్ఞా(dest);
+        ప్రతిజ్ఞా(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        తిరిగి strnpcpy_నిండిన(dest, కొలత, src, అక్షరశ్రేణి_పొడవు(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyf_నిండిన(అక్షరం **dest, size_t కొలత, bool *ret_truncated, స్థిరరాశి అక్షరం *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        పూర్ణాంకం i;
 
-        assert(dest);
-        assert(src);
+        ప్రతిజ్ఞా(dest);
+        ప్రతిజ్ఞా(src);
 
         va_start(va, src);
-        i = vsnprintf(*dest, size, src, va);
+        i = vsnprintf(*dest, కొలత, src, va);
         va_end(va);
 
-        assert(i >= 0);
+        ప్రతిజ్ఞా(i >= 0);
 
-        if (i < (int) size) {
+        ఒకవేళ (i < (పూర్ణాంకం) కొలత) {
                 *dest += i;
-                size -= i;
-        } else {
-                size = 0;
+                కొలత -= i;
+        } లేకపోతే {
+                కొలత = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        ఒకవేళ (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        తిరిగి కొలత;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyl_నిండిన(అక్షరం **dest, size_t కొలత, bool *ret_truncated, స్థిరరాశి అక్షరం *src, ...) {
         bool truncated = false;
         va_list va;
 
-        assert(dest);
-        assert(src);
+        ప్రతిజ్ఞా(dest);
+        ప్రతిజ్ఞా(src);
 
         va_start(va, src);
-        do {
+        చేయి {
                 bool t;
 
-                size = strpcpy_full(dest, size, src, &t);
+                కొలత = strpcpy_నిండిన(dest, కొలత, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, అక్షరం *);
+        } అయితే (src);
         va_end(va);
 
-        if (ret_truncated)
+        ఒకవేళ (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        తిరిగి కొలత;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+size_t strnscpy_నిండిన(అక్షరం *dest, size_t కొలత, స్థిరరాశి అక్షరం *src, size_t len, bool *ret_truncated) {
+        అక్షరం *s;
 
-        assert(dest);
-        assert(src);
+        ప్రతిజ్ఞా(dest);
+        ప్రతిజ్ఞా(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        తిరిగి strnpcpy_నిండిన(&s, కొలత, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strscpy_నిండిన(అక్షరం *dest, size_t కొలత, స్థిరరాశి అక్షరం *src, bool *ret_truncated) {
+        ప్రతిజ్ఞా(dest);
+        ప్రతిజ్ఞా(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        తిరిగి strnscpy_నిండిన(dest, కొలత, src, అక్షరశ్రేణి_పొడవు(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strscpyl_నిండిన(అక్షరం *dest, size_t కొలత, bool *ret_truncated, స్థిరరాశి అక్షరం *src, ...) {
         bool truncated = false;
         va_list va;
-        char *s;
+        అక్షరం *s;
 
-        assert(dest);
-        assert(src);
+        ప్రతిజ్ఞా(dest);
+        ప్రతిజ్ఞా(src);
 
         va_start(va, src);
         s = dest;
-        do {
+        చేయి {
                 bool t;
 
-                size = strpcpy_full(&s, size, src, &t);
+                కొలత = strpcpy_నిండిన(&s, కొలత, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, అక్షరం *);
+        } అయితే (src);
         va_end(va);
 
-        if (ret_truncated)
+        ఒకవేళ (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        తిరిగి కొలత;
 }

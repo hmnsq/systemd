@@ -1,106 +1,106 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <linux/if_infiniband.h>
-#include <netinet/in.h>
-#include <net/ethernet.h>
+#అన్తర్భావ <linux/if_infiniband.h>
+#అన్తర్భావ <netinet/in.h>
+#అన్తర్భావ <net/ethernet.h>
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-struct hw_addr_data {
+నిర్మాణం hw_addr_దత్తాంశం {
         size_t length;
-        union {
-                struct ether_addr ether;
+        సంఘం {
+                నిర్మాణం ether_addr ether;
                 uint8_t infiniband[INFINIBAND_ALEN];
-                struct in_addr in;
-                struct in6_addr in6;
-                uint8_t bytes[HW_ADDR_MAX_SIZE];
+                నిర్మాణం in_addr లోపల;
+                నిర్మాణం in6_addr in6;
+                uint8_t బైట్లు[HW_ADDR_MAX_కొలత];
         };
 };
 
-int parse_hw_addr_full(const char *s, size_t expected_len, struct hw_addr_data *ret);
-static inline int parse_hw_addr(const char *s, struct hw_addr_data *ret) {
-        return parse_hw_addr_full(s, 0, ret);
+పూర్ణాంకం parse_hw_addr_నిండిన(స్థిరరాశి అక్షరం *s, size_t expected_len, నిర్మాణం hw_addr_దత్తాంశం *ret);
+స్థిర అంతఃవరుస పూర్ణాంకం parse_hw_addr(స్థిరరాశి అక్షరం *s, నిర్మాణం hw_addr_దత్తాంశం *ret) {
+        తిరిగి parse_hw_addr_నిండిన(s, 0, ret);
 }
-int parse_ether_addr(const char *s, struct ether_addr *ret);
+పూర్ణాంకం parse_ether_addr(స్థిరరాశి అక్షరం *s, నిర్మాణం ether_addr *ret);
 
-typedef enum HardwareAddressToStringFlags {
-        HW_ADDR_TO_STRING_NO_COLON = 1 << 0,
-} HardwareAddressToStringFlags;
+రకనిర్వచనం గణన Hardware_చిరునామా_గమ్యం_String_Flags {
+        HW_ADDR_గమ్యం_STRING_NO_COLON = 1 << 0,
+} Hardware_చిరునామా_గమ్యం_String_Flags;
 
-#define HW_ADDR_TO_STRING_MAX (3*HW_ADDR_MAX_SIZE)
-char* hw_addr_to_string_full(
-                const struct hw_addr_data *addr,
-                HardwareAddressToStringFlags flags,
-                char buffer[static HW_ADDR_TO_STRING_MAX]);
-static inline char* hw_addr_to_string(const struct hw_addr_data *addr, char buffer[static HW_ADDR_TO_STRING_MAX]) {
-        return hw_addr_to_string_full(addr, 0, buffer);
+#నిర్వచించు HW_ADDR_గమ్యం_STRING_MAX (3*HW_ADDR_MAX_కొలత)
+అక్షరం* hw_addr_గమ్యం_string_నిండిన(
+                స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *addr,
+                Hardware_చిరునామా_గమ్యం_String_Flags flags,
+                అక్షరం బఫరు[స్థిర HW_ADDR_గమ్యం_STRING_MAX]);
+స్థిర అంతఃవరుస అక్షరం* hw_addr_గమ్యం_string(స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *addr, అక్షరం బఫరు[స్థిర HW_ADDR_గమ్యం_STRING_MAX]) {
+        తిరిగి hw_addr_గమ్యం_string_నిండిన(addr, 0, బఫరు);
 }
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
  * see C11 §6.5.2.5, and
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks */
-#define HW_ADDR_TO_STR_FULL(hw_addr, flags) hw_addr_to_string_full((hw_addr), flags, (char[HW_ADDR_TO_STRING_MAX]){})
-#define HW_ADDR_TO_STR(hw_addr) HW_ADDR_TO_STR_FULL(hw_addr, 0)
+#నిర్వచించు HW_ADDR_గమ్యం_STR_నిండిన(hw_addr, flags) hw_addr_గమ్యం_string_నిండిన((hw_addr), flags, (అక్షరం[HW_ADDR_గమ్యం_STRING_MAX]){})
+#నిర్వచించు HW_ADDR_గమ్యం_STR(hw_addr) HW_ADDR_గమ్యం_STR_నిండిన(hw_addr, 0)
 
-#define HW_ADDR_NULL ((const struct hw_addr_data){})
+#నిర్వచించు HW_ADDR_NULL ((స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం){})
 
-struct hw_addr_data *hw_addr_set(struct hw_addr_data *addr, const uint8_t *bytes, size_t length);
+నిర్మాణం hw_addr_దత్తాంశం *hw_addr_సమితి(నిర్మాణం hw_addr_దత్తాంశం *addr, స్థిరరాశి uint8_t *బైట్లు, size_t length);
 
-void hw_addr_hash_func(const struct hw_addr_data *p, struct siphash *state);
-int hw_addr_compare(const struct hw_addr_data *a, const struct hw_addr_data *b);
-static inline bool hw_addr_equal(const struct hw_addr_data *a, const struct hw_addr_data *b) {
-        return hw_addr_compare(a, b) == 0;
+శూన్య hw_addr_hash_func(స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *p, నిర్మాణం siphash *state);
+పూర్ణాంకం hw_addr_compare(స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *a, స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *b);
+స్థిర అంతఃవరుస bool hw_addr_equal(స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *a, స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *b) {
+        తిరిగి hw_addr_compare(a, b) == 0;
 }
-bool hw_addr_is_null(const struct hw_addr_data *addr) _pure_;
-bool hw_addr_is_valid(const struct hw_addr_data *addr, uint16_t iftype);
+bool hw_addr_is_null(స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *addr) శుద్ధ;
+bool hw_addr_is_valid(స్థిరరాశి నిర్మాణం hw_addr_దత్తాంశం *addr, uint16_t iftype);
 
-extern const struct hash_ops hw_addr_hash_ops;
-extern const struct hash_ops hw_addr_hash_ops_free;
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops hw_addr_hash_ops;
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops hw_addr_hash_ops_free;
 
-#define ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
-#define ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
+#నిర్వచించు ETHER_ADDR_FORMAT_STR "%02X%02X%02X%02X%02X%02X"
+#నిర్వచించు ETHER_ADDR_FORMAT_VAL(x) (x).ether_addr_octet[0], (x).ether_addr_octet[1], (x).ether_addr_octet[2], (x).ether_addr_octet[3], (x).ether_addr_octet[4], (x).ether_addr_octet[5]
 
-#define ETHER_ADDR_TO_STRING_MAX (3*6)
-char* ether_addr_to_string(const struct ether_addr *addr, char buffer[ETHER_ADDR_TO_STRING_MAX]);
+#నిర్వచించు ETHER_ADDR_గమ్యం_STRING_MAX (3*6)
+అక్షరం* ether_addr_గమ్యం_string(స్థిరరాశి నిర్మాణం ether_addr *addr, అక్షరం బఫరు[ETHER_ADDR_గమ్యం_STRING_MAX]);
 /* Use only as function argument, never stand-alone! */
-#define ETHER_ADDR_TO_STR(addr) ether_addr_to_string((addr), (char[ETHER_ADDR_TO_STRING_MAX]){})
+#నిర్వచించు ETHER_ADDR_గమ్యం_STR(addr) ether_addr_గమ్యం_string((addr), (అక్షరం[ETHER_ADDR_గమ్యం_STRING_MAX]){})
 
-int ether_addr_compare(const struct ether_addr *a, const struct ether_addr *b);
-static inline bool ether_addr_equal(const struct ether_addr *a, const struct ether_addr *b) {
-        return ether_addr_compare(a, b) == 0;
+పూర్ణాంకం ether_addr_compare(స్థిరరాశి నిర్మాణం ether_addr *a, స్థిరరాశి నిర్మాణం ether_addr *b);
+స్థిర అంతఃవరుస bool ether_addr_equal(స్థిరరాశి నిర్మాణం ether_addr *a, స్థిరరాశి నిర్మాణం ether_addr *b) {
+        తిరిగి ether_addr_compare(a, b) == 0;
 }
 
-#define ETHER_ADDR_NULL ((const struct ether_addr){})
+#నిర్వచించు ETHER_ADDR_NULL ((స్థిరరాశి నిర్మాణం ether_addr){})
 
-static inline bool ether_addr_is_null(const struct ether_addr *addr) {
-        return ether_addr_equal(addr, &ETHER_ADDR_NULL);
+స్థిర అంతఃవరుస bool ether_addr_is_null(స్థిరరాశి నిర్మాణం ether_addr *addr) {
+        తిరిగి ether_addr_equal(addr, &ETHER_ADDR_NULL);
 }
 
-bool ether_addr_is_broadcast(const struct ether_addr *addr) _pure_;
+bool ether_addr_is_ప్రసారం(స్థిరరాశి నిర్మాణం ether_addr *addr) శుద్ధ;
 
-static inline bool ether_addr_is_multicast(const struct ether_addr *addr) {
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x01);
+స్థిర అంతఃవరుస bool ether_addr_is_multicast(స్థిరరాశి నిర్మాణం ether_addr *addr) {
+        ప్రతిజ్ఞా(addr);
+        తిరిగి FLAGS_సమితి(addr->ether_addr_octet[0], 0x01);
 }
 
-static inline bool ether_addr_is_unicast(const struct ether_addr *addr) {
-        return !ether_addr_is_multicast(addr);
+స్థిర అంతఃవరుస bool ether_addr_is_unicast(స్థిరరాశి నిర్మాణం ether_addr *addr) {
+        తిరిగి !ether_addr_is_multicast(addr);
 }
 
-static inline bool ether_addr_is_local(const struct ether_addr *addr) {
+స్థిర అంతఃవరుస bool ether_addr_is_local(స్థిరరాశి నిర్మాణం ether_addr *addr) {
         /* Determine if the Ethernet address is locally-assigned one (IEEE 802) */
-        assert(addr);
-        return FLAGS_SET(addr->ether_addr_octet[0], 0x02);
+        ప్రతిజ్ఞా(addr);
+        తిరిగి FLAGS_సమితి(addr->ether_addr_octet[0], 0x02);
 }
 
-static inline bool ether_addr_is_global(const struct ether_addr *addr) {
-        return !ether_addr_is_local(addr);
+స్థిర అంతఃవరుస bool ether_addr_is_global(స్థిరరాశి నిర్మాణం ether_addr *addr) {
+        తిరిగి !ether_addr_is_local(addr);
 }
 
-extern const struct hash_ops ether_addr_hash_ops;
-extern const struct hash_ops ether_addr_hash_ops_free;
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops ether_addr_hash_ops;
+బాహ్య స్థిరరాశి నిర్మాణం hash_ops ether_addr_hash_ops_free;
 
-void ether_addr_mark_random(struct ether_addr *addr);
+శూన్య ether_addr_mark_random(నిర్మాణం ether_addr *addr);
 
-int hw_addr_ensure_broadcast(struct hw_addr_data *bcast_addr, uint16_t arp_type);
+పూర్ణాంకం hw_addr_ensure_ప్రసారం(నిర్మాణం hw_addr_దత్తాంశం *bcast_addr, uint16_t arp_type);

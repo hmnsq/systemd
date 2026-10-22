@@ -1,94 +1,94 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/btrfs.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
+#అన్తర్భావ <linux/btrfs.h>
+#అన్తర్భావ <sys/ioctl.h>
+#అన్తర్భావ <sys/stat.h>
 
-#include "alloc-util.h"
-#include "btrfs-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "path-util.h"
-#include "string-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "btrfs-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "string-util.h"
 
-int btrfs_validate_subvolume_name(const char *name) {
+పూర్ణాంకం btrfs_validate_subvolume_name(స్థిరరాశి అక్షరం *name) {
 
-        if (!filename_is_valid(name))
-                return -EINVAL;
+        ఒకవేళ (!filename_is_valid(name))
+                తిరిగి -EINVAL;
 
-        if (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
-                return -E2BIG;
+        ఒకవేళ (అక్షరశ్రేణి_పొడవు(name) > BTRFS_SUBVOL_NAME_MAX)
+                తిరిగి -E2BIG;
 
-        return 0;
+        తిరిగి 0;
 }
 
-static int extract_subvolume_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+స్థిర పూర్ణాంకం వెలికితీయి_subvolume_name(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *fn = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(ret);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(ret);
 
-        r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
+        r = మార్గం_వెలికితీయి_filename(మార్గం, &fn);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = btrfs_validate_subvolume_name(fn);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        తిరిగి 0;
 }
 
-int btrfs_subvol_make(int dir_fd, const char *path) {
-        struct btrfs_ioctl_vol_args args = {};
-        _cleanup_free_ char *subvolume = NULL, *parent = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+పూర్ణాంకం btrfs_subvol_make(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం) {
+        నిర్మాణం btrfs_ioctl_vol_args వాదనలు = {};
+        _cleanup_free_ అక్షరం *subvolume = ఖాళీ, *మాతృ = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(wildcard_fd_is_valid(dir_fd));
-        assert(!isempty(path));
+        ప్రతిజ్ఞా(wildcard_fd_is_valid(dir_fd));
+        ప్రతిజ్ఞా(!isempty(మార్గం));
 
-        r = extract_subvolume_name(path, &subvolume);
-        if (r < 0)
-                return r;
+        r = వెలికితీయి_subvolume_name(మార్గం, &subvolume);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = path_extract_directory(path, &parent);
-        if (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
-                return r;
+        r = మార్గం_వెలికితీయి_directory(మార్గం, &మాతృ);
+        ఒకవేళ (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
+                తిరిగి r;
 
-        fd = xopenat(dir_fd, parent ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        fd = xopenat(dir_fd, మాతృ ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
-        strncpy(args.name, subvolume, sizeof(args.name)-1);
+        strncpy(వాదనలు.name, subvolume, పరిమాణం(వాదనలు.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        తిరిగి RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &వాదనలు));
 }
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode) {
+పూర్ణాంకం btrfs_subvol_make_fallback(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం) {
         mode_t old, combined;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
         /* Let's work like mkdir(), i.e. take the specified mode, and mask it with the current umask. */
-        old = umask(~mode);
-        combined = old | ~mode;
-        if (combined != ~mode)
+        old = umask(~బహుళకం);
+        combined = old | ~బహుళకం;
+        ఒకవేళ (combined != ~బహుళకం)
                 umask(combined);
-        r = btrfs_subvol_make(dir_fd, path);
+        r = btrfs_subvol_make(dir_fd, మార్గం);
         umask(old);
 
-        if (r >= 0)
-                return 1; /* subvol worked */
-        if (!ERRNO_IS_NOT_SUPPORTED(r))
-                return r;
+        ఒకవేళ (r >= 0)
+                తిరిగి 1; /* subvol worked */
+        ఒకవేళ (!ERRNO_IS_NOT_SUPPORTED(r))
+                తిరిగి r;
 
-        if (mkdirat(dir_fd, path, mode) < 0)
-                return -errno;
+        ఒకవేళ (mkdirat(dir_fd, మార్గం, బహుళకం) < 0)
+                తిరిగి -errno;
 
-        return 0; /* plain directory */
+        తిరిగి 0; /* plain directory */
 }

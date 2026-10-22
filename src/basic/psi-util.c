@@ -1,107 +1,107 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <threads.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "psi-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "psi-util.h"
+#అన్తర్భావ "string-table.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        unsigned field_filled = 0;
+పూర్ణాంకం read_resource_pressure(స్థిరరాశి అక్షరం *మార్గం, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ అక్షరం *పంక్తి = ఖాళీ;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        గుర్తులేని క్షేత్రం_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        స్థిరరాశి అక్షరం *cline;
+        అక్షరం *మాట;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
-        assert(ret);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(లోపల_సమితి(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_నిండిన));
+        ప్రతిజ్ఞా(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        స్థిరరాశి అక్షరం *t = ASSERT_PTR(pressure_type_గమ్యం_string(type));
 
-        r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        r = fopen_unlocked(మార్గం, "re", &f);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        కొరకు (;;) {
+                _cleanup_free_ అక్షరం *l = ఖాళీ;
+                అక్షరం *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_పంక్తి(f, LONG_పంక్తి_MAX, &l);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                w = first_word(l, t);
-                if (w) {
-                        line = TAKE_PTR(l);
+                w = మొదటి_మాట(l, t);
+                ఒకవేళ (w) {
+                        పంక్తి = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        ఆపు;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        ఒకవేళ (!పంక్తి)
+                తిరిగి -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        అయితే ((r = వెలికితీయి_మొదటి_మాట(&cline, &మాట, ఖాళీ, 0)) > 0) {
+                _cleanup_free_ అక్షరం *w = మాట;
+                స్థిరరాశి అక్షరం *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                ఒకవేళ ((v = startswith(w, "avg10="))) {
+                        ఒకవేళ (క్షేత్రం_filled & (1U << 0))
+                                తిరిగి -EINVAL;
 
-                        field_filled |= 1U << 0;
-                        r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                        క్షేత్రం_filled |= 1U << 0;
+                        r = parse_loadavg_fixed_బిందువు(v, &rp.avg10);
+                } లేకపోతే ఒకవేళ ((v = startswith(w, "avg60="))) {
+                        ఒకవేళ (క్షేత్రం_filled & (1U << 1))
+                                తిరిగి -EINVAL;
 
-                        field_filled |= 1U << 1;
-                        r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                        క్షేత్రం_filled |= 1U << 1;
+                        r = parse_loadavg_fixed_బిందువు(v, &rp.avg60);
+                } లేకపోతే ఒకవేళ ((v = startswith(w, "avg300="))) {
+                        ఒకవేళ (క్షేత్రం_filled & (1U << 2))
+                                తిరిగి -EINVAL;
 
-                        field_filled |= 1U << 2;
-                        r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                        క్షేత్రం_filled |= 1U << 2;
+                        r = parse_loadavg_fixed_బిందువు(v, &rp.avg300);
+                } లేకపోతే ఒకవేళ ((v = startswith(w, "total="))) {
+                        ఒకవేళ (క్షేత్రం_filled & (1U << 3))
+                                తిరిగి -EINVAL;
 
-                        field_filled |= 1U << 3;
-                        r = safe_atou64(v, &rp.total);
-                } else
-                        continue;
+                        క్షేత్రం_filled |= 1U << 3;
+                        r = సురక్షిత_atou64(v, &rp.మొత్తం);
+                } లేకపోతే
+                        కొనసాగు;
 
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        ఒకవేళ (క్షేత్రం_filled != 15U)
+                తిరిగి -EINVAL;
 
         *ret = rp;
-        return 0;
+        తిరిగి 0;
 }
 
-const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = {
+స్థిరరాశి PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_జ్ఞాపకం] = {
                 .name      = "memory",
                 .env_watch = "MEMORY_PRESSURE_WATCH",
                 .env_write = "MEMORY_PRESSURE_WRITE",
@@ -118,38 +118,38 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
-        [PRESSURE_MEMORY] = "memory",
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి pressure_resource_పట్టిక[_PRESSURE_RESOURCE_MAX] = {
+        [PRESSURE_జ్ఞాపకం] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
+DEFINE_STRING_పట్టిక_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి pressure_type_పట్టిక[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
-        [PRESSURE_TYPE_FULL] = "full",
+        [PRESSURE_TYPE_నిండిన] = "full",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
+DEFINE_STRING_పట్టిక_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+పూర్ణాంకం is_pressure_supported(శూన్య) {
+        స్థిర thread_local పూర్ణాంకం cached = -1;
+        పూర్ణాంకం r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        ఒకవేళ (cached >= 0)
+                తిరిగి cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
-                r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                r = read_virtual_file(p, 0, ఖాళీ, ఖాళీ);
+                ఒకవేళ (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        తిరిగి (cached = false);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return (cached = true);
+        తిరిగి (cached = true);
 }

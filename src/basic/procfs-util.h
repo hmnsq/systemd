@@ -1,18 +1,18 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-int procfs_get_pid_max(uint64_t *ret);
-int procfs_get_threads_max(uint64_t *ret);
+పూర్ణాంకం procfs_get_pid_max(uint64_t *ret);
+పూర్ణాంకం procfs_get_దారాలు_max(uint64_t *ret);
 
-int procfs_tasks_set_limit(uint64_t limit);
-int procfs_tasks_get_current(uint64_t *ret);
+పూర్ణాంకం procfs_tasks_సమితి_హద్దు(uint64_t limit);
+పూర్ణాంకం procfs_tasks_get_current(uint64_t *ret);
 
-nsec_t procfs_ticks_to_nsec(uint64_t ticks);
-int procfs_cpu_get_usage(nsec_t *ret);
+nsec_t procfs_ticks_గమ్యం_nsec(uint64_t ticks);
+పూర్ణాంకం procfs_cpu_get_usage(nsec_t *ret);
 
-typedef struct ProcfsCpuTicks {
+రకనిర్వచనం నిర్మాణం ProcfsCpuTicks {
         uint64_t user;
         uint64_t nice;
         uint64_t system;
@@ -23,11 +23,11 @@ typedef struct ProcfsCpuTicks {
         uint64_t steal;
 } ProcfsCpuTicks;
 
-int procfs_cpu_get_ticks(ProcfsCpuTicks *ret);
+పూర్ణాంకం procfs_cpu_get_ticks(ProcfsCpuTicks *ret);
 
-int procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used);
-static inline int procfs_memory_get_used(uint64_t *ret) {
-        return procfs_memory_get(NULL, ret);
+పూర్ణాంకం procfs_జ్ఞాపకం_get(uint64_t *ret_మొత్తం, uint64_t *ret_వాడిన);
+స్థిర అంతఃవరుస పూర్ణాంకం procfs_జ్ఞాపకం_get_వాడిన(uint64_t *ret) {
+        తిరిగి procfs_జ్ఞాపకం_get(ఖాళీ, ret);
 }
 
-int convert_meminfo_value_to_uint64_bytes(const char *s, uint64_t *ret);
+పూర్ణాంకం convert_meminfo_విలువ_గమ్యం_uint64_బైట్లు(స్థిరరాశి అక్షరం *s, uint64_t *ret);

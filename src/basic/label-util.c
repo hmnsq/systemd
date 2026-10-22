@@ -1,33 +1,33 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "label-util.h"
+#అన్తర్భావ "label-util.h"
 
-static const LabelOps *label_ops = NULL;
+స్థిర స్థిరరాశి LabelOps *label_ops = ఖాళీ;
 
-int label_ops_set(const LabelOps *ops) {
-        assert(ops);
+పూర్ణాంకం label_ops_సమితి(స్థిరరాశి LabelOps *ops) {
+        ప్రతిజ్ఞా(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        ఒకవేళ (label_ops)
+                తిరిగి -EBUSY;
 
         label_ops = ops;
-        return 0;
+        తిరిగి 0;
 }
 
-void label_ops_reset(void) {
-        label_ops = NULL;
+శూన్య label_ops_reset(శూన్య) {
+        label_ops = ఖాళీ;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+పూర్ణాంకం label_ops_pre(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, mode_t బహుళకం, LabelContext *label_context) {
+        ఒకవేళ (!label_ops || !label_ops->pre)
+                తిరిగి 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        తిరిగి label_ops->pre(dir_fd, మార్గం, బహుళకం, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+పూర్ణాంకం label_ops_post(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, bool created, LabelContext *label_context) {
+        ఒకవేళ (!label_ops || !label_ops->post)
+                తిరిగి 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        తిరిగి label_ops->post(dir_fd, మార్గం, created, label_context);
 }

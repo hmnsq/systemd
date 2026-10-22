@@ -1,56 +1,56 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
-#include <time.h>
-#include <unistd.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <sys/uio.h>
+#అన్తర్భావ <time.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "chattr-util.h"
-#include "efivars.h"
-#include "fd-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "memory-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "time-util.h"
-#include "utf8.h"
-#include "virt.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "chattr-util.h"
+#అన్తర్భావ "efivars.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "io-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "memory-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "time-util.h"
+#అన్తర్భావ "utf8.h"
+#అన్తర్భావ "virt.h"
 
-#if ENABLE_EFI
+#ఒకవేళ ENABLE_EFI
 
 /* Reads from efivarfs sometimes fail with EINTR. Retry that many times. */
-#define EFI_N_RETRIES_NO_DELAY 20
-#define EFI_N_RETRIES_TOTAL 25
-#define EFI_RETRY_DELAY (50 * USEC_PER_MSEC)
+#నిర్వచించు EFI_N_RETRIES_NO_DELAY 20
+#నిర్వచించు EFI_N_RETRIES_మొత్తం 25
+#నిర్వచించు EFI_RETRY_DELAY (50 * USEC_చొప్పున_MSEC)
 
-int efi_get_variable(
-                const char *variable,
+పూర్ణాంకం efi_get_variable(
+                స్థిరరాశి అక్షరం *variable,
                 uint32_t *ret_attribute,
-                void **ret_value,
-                size_t *ret_size) {
+                శూన్య **ret_విలువ,
+                size_t *ret_కొలత) {
 
-        int r;
+        పూర్ణాంకం r;
         usec_t begin = 0; /* Unnecessary initialization to appease gcc */
 
-        assert(variable);
+        ప్రతిజ్ఞా(variable);
 
-        const char *p = strjoina("/sys/firmware/efi/efivars/", variable);
+        స్థిరరాశి అక్షరం *p = strjoina("/sys/firmware/efi/efivars/", variable);
 
-        if (DEBUG_LOGGING) {
+        ఒకవేళ (DEBUG_LOGGING) {
                 log_debug("Reading EFI variable %s.", p);
                 begin = now(CLOCK_MONOTONIC);
         }
 
-        _cleanup_close_ int fd = open(p, O_RDONLY|O_NOCTTY|O_CLOEXEC);
-        if (fd < 0)
-                return log_debug_errno(errno, "open(\"%s\") failed: %m", p);
+        _cleanup_close_ పూర్ణాంకం fd = open(p, O_RDONLY|O_NOCTTY|O_CLOEXEC);
+        ఒకవేళ (fd < 0)
+                తిరిగి log_debug_errno(errno, "open(\"%s\") failed: %m", p);
 
         uint32_t attr;
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ అక్షరం *buf = ఖాళీ;
         ssize_t n;
 
         /* The kernel ratelimits reads from the efivarfs because EFI is inefficient, and we'll occasionally
@@ -63,68 +63,68 @@ int efi_get_variable(
          * The variable may also be overwritten between the stat and read. If we find out that the new
          * contents are longer, try again.
          */
-        for (unsigned try = 0;; try++) {
-                struct stat st;
+        కొరకు (గుర్తులేని try = 0;; try++) {
+                నిర్మాణం stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return log_debug_errno(errno, "fstat(\"%s\") failed: %m", p);
+                ఒకవేళ (fstat(fd, &st) < 0)
+                        తిరిగి log_debug_errno(errno, "fstat(\"%s\") failed: %m", p);
 
                 r = stat_verify_regular(&st);
-                if (r < 0)
-                        return log_debug_errno(r, "EFI variable '%s' is not a regular file, refusing: %m", p);
+                ఒకవేళ (r < 0)
+                        తిరిగి log_debug_errno(r, "EFI variable '%s' is not a regular file, refusing: %m", p);
 
-                if (st.st_size == 0) /* for uncommitted variables, see below */
-                        return log_debug_errno(SYNTHETIC_ERRNO(ENOENT), "EFI variable '%s' is uncommitted", p);
-                if ((uint64_t) st.st_size < sizeof(attr))
-                        return log_debug_errno(SYNTHETIC_ERRNO(ENODATA), "EFI variable '%s' is shorter than %zu bytes, refusing.", p, sizeof(attr));
-                if ((uint64_t) st.st_size > sizeof(attr) + 4 * U64_MB)
-                        return log_debug_errno(SYNTHETIC_ERRNO(E2BIG), "EFI variable '%s' is ridiculously large, refusing.", p);
+                ఒకవేళ (st.st_size == 0) /* for uncommitted variables, see below */
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(ENOENT), "EFI variable '%s' is uncommitted", p);
+                ఒకవేళ ((uint64_t) st.st_size < పరిమాణం(attr))
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(ENODATA), "EFI variable '%s' is shorter than %zu bytes, refusing.", p, పరిమాణం(attr));
+                ఒకవేళ ((uint64_t) st.st_size > పరిమాణం(attr) + 4 * U64_MB)
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(E2BIG), "EFI variable '%s' is ridiculously large, refusing.", p);
 
-                if (!ret_attribute && !ret_value) {
+                ఒకవేళ (!ret_attribute && !ret_విలువ) {
                         /* No need to read anything, return the reported size. */
                         n = st.st_size;
-                        break;
+                        ఆపు;
                 }
 
                 /* We want +1 for the read call, and +3 for the additional terminating bytes added below. */
-                size_t file_size = (size_t) st.st_size, payload_size, read_size, alloc_size, read_limit;
-                if (!SUB_SAFE(&payload_size, file_size, sizeof(attr)) ||
-                    !ADD_SAFE(&read_size, payload_size, 1) ||
-                    !ADD_SAFE(&alloc_size, read_size, 3) ||
-                    !ADD_SAFE(&read_limit, file_size, 1))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EOVERFLOW), "EFI variable '%s' size calculation overflow, refusing.", p);
+                size_t file_కొలత = (size_t) st.st_size, payload_కొలత, read_కొలత, alloc_కొలత, read_హద్దు;
+                ఒకవేళ (!SUB_సురక్షిత(&payload_కొలత, file_కొలత, పరిమాణం(attr)) ||
+                    !కూడు_సురక్షిత(&read_కొలత, payload_కొలత, 1) ||
+                    !కూడు_సురక్షిత(&alloc_కొలత, read_కొలత, 3) ||
+                    !కూడు_సురక్షిత(&read_హద్దు, file_కొలత, 1))
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EOVERFLOW), "EFI variable '%s' size calculation overflow, refusing.", p);
 
-                free(buf);
-                buf = malloc(alloc_size);
-                if (!buf)
-                        return -ENOMEM;
+                విడుదల(buf);
+                buf = జ్ఞాపకం_ఇవ్వు(alloc_కొలత);
+                ఒకవేళ (!buf)
+                        తిరిగి -ENOMEM;
 
-                struct iovec iov[] = {
-                        { &attr, sizeof(attr)                           },
-                        { buf,   read_size                              },
+                నిర్మాణం iovec iov[] = {
+                        { &attr, పరిమాణం(attr)                           },
+                        { buf,   read_కొలత                              },
                 };
 
                 n = readv(fd, iov, 2);
-                if (n < 0) {
-                        if (errno != EINTR)
-                                return log_debug_errno(errno, "Reading from '%s' failed: %m", p);
+                ఒకవేళ (n < 0) {
+                        ఒకవేళ (errno != EINTR)
+                                తిరిగి log_debug_errno(errno, "Reading from '%s' failed: %m", p);
 
                         log_debug("Reading from '%s' failed with EINTR, retrying.", p);
-                } else if ((size_t) n == read_limit)
+                } లేకపోతే ఒకవేళ ((size_t) n == read_హద్దు)
                         /* We need to try again with a bigger buffer, the variable was apparently changed concurrently? */
                         log_debug("EFI variable '%s' larger than expected, retrying.", p);
-                else {
-                        assert((size_t) n < read_limit);
-                        break;
+                లేకపోతే {
+                        ప్రతిజ్ఞా((size_t) n < read_హద్దు);
+                        ఆపు;
                 }
 
-                if (try >= EFI_N_RETRIES_TOTAL)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBUSY), "Reading EFI variable '%s' failed even after %u tries, giving up.", p, try);
-                if (try >= EFI_N_RETRIES_NO_DELAY)
-                        (void) usleep_safe(EFI_RETRY_DELAY);
+                ఒకవేళ (try >= EFI_N_RETRIES_మొత్తం)
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EBUSY), "Reading EFI variable '%s' failed even after %u tries, giving up.", p, try);
+                ఒకవేళ (try >= EFI_N_RETRIES_NO_DELAY)
+                        (శూన్య) usleep_సురక్షిత(EFI_RETRY_DELAY);
 
                 /* Start from the beginning */
-                (void) lseek(fd, 0, SEEK_SET);
+                (శూన్య) lseek(fd, 0, SEEK_SET);
         }
 
         /* Unfortunately kernel reports EOF if there's an inconsistency between efivarfs var list and
@@ -138,280 +138,280 @@ int efi_get_variable(
          * point in the future. But note that the commit is 11 years old at this point so we'll need
          * to deal with the current behaviour for a long time.
          */
-        if (n == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOENT),
+        ఒకవేళ (n == 0)
+                తిరిగి log_debug_errno(SYNTHETIC_ERRNO(ENOENT),
                                        "EFI variable %s is uncommitted", p);
-        if ((size_t) n < sizeof(attr))
-                return log_debug_errno(SYNTHETIC_ERRNO(EIO),
-                                       "Read %zi bytes from EFI variable %s, expected >= %zu", n, p, sizeof(attr));
-        size_t value_size = n - sizeof(attr);
+        ఒకవేళ ((size_t) n < పరిమాణం(attr))
+                తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EIO),
+                                       "Read %zi bytes from EFI variable %s, expected >= %zu", n, p, పరిమాణం(attr));
+        size_t విలువ_కొలత = n - పరిమాణం(attr);
 
-        if (ret_attribute)
+        ఒకవేళ (ret_attribute)
                 *ret_attribute = attr;
 
-        if (ret_value) {
-                assert(buf);
+        ఒకవేళ (ret_విలువ) {
+                ప్రతిజ్ఞా(buf);
                 /* Always NUL-terminate (3 bytes, to properly protect UTF-16, even if truncated in
                  * the middle of a character) */
-                buf[value_size] = 0;
-                buf[value_size + 1] = 0;
-                buf[value_size + 2] = 0;
-                *ret_value = TAKE_PTR(buf);
+                buf[విలువ_కొలత] = 0;
+                buf[విలువ_కొలత + 1] = 0;
+                buf[విలువ_కొలత + 2] = 0;
+                *ret_విలువ = TAKE_PTR(buf);
         }
 
-        if (DEBUG_LOGGING) {
-                usec_t end = now(CLOCK_MONOTONIC);
-                if (end > begin + EFI_RETRY_DELAY)
+        ఒకవేళ (DEBUG_LOGGING) {
+                usec_t చివర = now(CLOCK_MONOTONIC);
+                ఒకవేళ (చివర > begin + EFI_RETRY_DELAY)
                         log_debug("Detected slow EFI variable read access on %s: %s",
-                                  variable, FORMAT_TIMESPAN(end - begin, 1));
+                                  variable, FORMAT_TIMESPAN(చివర - begin, 1));
         }
 
         /* Note that efivarfs interestingly doesn't require ftruncate() to update an existing EFI variable
          * with a smaller value. */
 
-        if (ret_size)
-                *ret_size = value_size;
+        ఒకవేళ (ret_కొలత)
+                *ret_కొలత = విలువ_కొలత;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int efi_get_variable_string(const char *variable, char **ret) {
-        _cleanup_free_ void *s = NULL, *x = NULL;
+పూర్ణాంకం efi_get_variable_string(స్థిరరాశి అక్షరం *variable, అక్షరం **ret) {
+        _cleanup_free_ శూన్య *s = ఖాళీ, *x = ఖాళీ;
         size_t ss = 0;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(variable);
+        ప్రతిజ్ఞా(variable);
 
-        r = efi_get_variable(variable, NULL, &s, &ss);
-        if (r < 0)
-                return r;
+        r = efi_get_variable(variable, ఖాళీ, &s, &ss);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        x = utf16_to_utf8(s, ss);
-        if (!x)
-                return -ENOMEM;
+        x = utf16_గమ్యం_utf8(s, ss);
+        ఒకవేళ (!x)
+                తిరిగి -ENOMEM;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(x);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int efi_get_variable_path(const char *variable, char **ret) {
-        int r;
+పూర్ణాంకం efi_get_variable_మార్గం(స్థిరరాశి అక్షరం *variable, అక్షరం **ret) {
+        పూర్ణాంకం r;
 
-        assert(variable);
+        ప్రతిజ్ఞా(variable);
 
         r = efi_get_variable_string(variable, ret);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret)
+        ఒకవేళ (ret)
                 efi_tilt_backslashes(*ret);
 
-        return r;
+        తిరిగి r;
 }
 
-static int efi_verify_variable(const char *variable, uint32_t attr, const void *value, size_t size) {
-        _cleanup_free_ void *buf = NULL;
+స్థిర పూర్ణాంకం efi_verify_variable(స్థిరరాశి అక్షరం *variable, uint32_t attr, స్థిరరాశి శూన్య *విలువ, size_t కొలత) {
+        _cleanup_free_ శూన్య *buf = ఖాళీ;
         size_t n;
         uint32_t a;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(variable);
-        assert(value || size == 0);
+        ప్రతిజ్ఞా(variable);
+        ప్రతిజ్ఞా(విలువ || కొలత == 0);
 
         r = efi_get_variable(variable, &a, &buf, &n);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return a == attr && memcmp_nn(buf, n, value, size) == 0;
+        తిరిగి a == attr && memcmp_nn(buf, n, విలువ, కొలత) == 0;
 }
 
-int efi_set_variable(const char *variable, const void *value, size_t size) {
-        static const uint32_t attr = EFI_VARIABLE_NON_VOLATILE|EFI_VARIABLE_BOOTSERVICE_ACCESS|EFI_VARIABLE_RUNTIME_ACCESS;
+పూర్ణాంకం efi_సమితి_variable(స్థిరరాశి అక్షరం *variable, స్థిరరాశి శూన్య *విలువ, size_t కొలత) {
+        స్థిర స్థిరరాశి uint32_t attr = EFI_VARIABLE_NON_VOLATILE|EFI_VARIABLE_BOOTSERVICE_ACCESS|EFI_VARIABLE_RUNTIME_ACCESS;
 
-        _cleanup_free_ struct var {
+        _cleanup_free_ నిర్మాణం var {
                 uint32_t attr;
-                char buf[];
-        } _packed_ *buf = NULL;
-        _cleanup_close_ int fd = -EBADF;
+                అక్షరం buf[];
+        } _packed_ *buf = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
         bool saved_flags_valid = false;
-        unsigned saved_flags;
-        int r;
+        గుర్తులేని saved_flags;
+        పూర్ణాంకం r;
 
-        assert(variable);
-        assert(value || size == 0);
+        ప్రతిజ్ఞా(variable);
+        ప్రతిజ్ఞా(విలువ || కొలత == 0);
 
         /* size 0 means removal, empty variable would not be enough for that */
-        if (size > 0 && efi_verify_variable(variable, attr, value, size) > 0) {
+        ఒకవేళ (కొలత > 0 && efi_verify_variable(variable, attr, విలువ, కొలత) > 0) {
                 log_debug("Variable '%s' is already in wanted state, skipping write.", variable);
-                return 0;
+                తిరిగి 0;
         }
 
-        const char *p = strjoina("/sys/firmware/efi/efivars/", variable);
+        స్థిరరాశి అక్షరం *p = strjoina("/sys/firmware/efi/efivars/", variable);
 
         /* Newer efivarfs protects variables that are not in an allow list with FS_IMMUTABLE_FL by default,
          * to protect them for accidental removal and modification. We are not changing these variables
          * accidentally however, hence let's unset the bit first. */
 
-        r = chattr_full(AT_FDCWD, p,
+        r = chattr_నిండిన(AT_FDCWD, p,
                         /* value= */ 0,
                         /* mask= */ FS_IMMUTABLE_FL,
                         /* ret_previous= */ &saved_flags,
-                        /* ret_final= */ NULL,
+                        /* ret_final= */ ఖాళీ,
                         /* flags= */ 0);
-        if (r < 0 && r != -ENOENT)
+        ఒకవేళ (r < 0 && r != -ENOENT)
                 log_debug_errno(r, "Failed to drop FS_IMMUTABLE_FL flag from '%s', ignoring: %m", p);
 
         saved_flags_valid = r >= 0;
 
-        if (size == 0) {
-                if (unlink(p) < 0) {
+        ఒకవేళ (కొలత == 0) {
+                ఒకవేళ (unlink(p) < 0) {
                         r = -errno;
-                        goto finish;
+                        వెళ్ళు ముగింపు;
                 }
 
-                return 0;
+                తిరిగి 0;
         }
 
         fd = open(p, O_WRONLY|O_CREAT|O_NOCTTY|O_CLOEXEC, 0644);
-        if (fd < 0) {
+        ఒకవేళ (fd < 0) {
                 r = -errno;
-                goto finish;
+                వెళ్ళు ముగింపు;
         }
 
-        buf = malloc(sizeof(uint32_t) + size);
-        if (!buf) {
+        buf = జ్ఞాపకం_ఇవ్వు(పరిమాణం(uint32_t) + కొలత);
+        ఒకవేళ (!buf) {
                 r = -ENOMEM;
-                goto finish;
+                వెళ్ళు ముగింపు;
         }
 
         buf->attr = attr;
-        memcpy(buf->buf, value, size);
+        జ్ఞాపకం_నకలు(buf->buf, విలువ, కొలత);
 
-        r = loop_write(fd, buf, sizeof(uint32_t) + size);
-        if (r < 0)
-                goto finish;
+        r = loop_write(fd, buf, పరిమాణం(uint32_t) + కొలత);
+        ఒకవేళ (r < 0)
+                వెళ్ళు ముగింపు;
 
         /* For some reason efivarfs doesn't update mtime automatically. Let's do it manually then. This is
          * useful for processes that cache EFI variables to detect when changes occurred. */
-        if (futimens(fd, /* times= */ NULL) < 0)
+        ఒకవేళ (futimens(fd, /* times= */ ఖాళీ) < 0)
                 log_debug_errno(errno, "Failed to update mtime/atime on %s, ignoring: %m", p);
 
         r = 0;
 
-finish:
-        if (saved_flags_valid) {
-                int q;
+ముగింపు:
+        ఒకవేళ (saved_flags_valid) {
+                పూర్ణాంకం q;
 
                 /* Restore the original flags field, just in case */
-                if (fd < 0)
-                        q = chattr_path(p, saved_flags, FS_IMMUTABLE_FL);
-                else
+                ఒకవేళ (fd < 0)
+                        q = chattr_మార్గం(p, saved_flags, FS_IMMUTABLE_FL);
+                లేకపోతే
                         q = chattr_fd(fd, saved_flags, FS_IMMUTABLE_FL);
-                if (q < 0)
+                ఒకవేళ (q < 0)
                         log_debug_errno(q, "Failed to restore FS_IMMUTABLE_FL on '%s', ignoring: %m", p);
         }
 
-        return r;
+        తిరిగి r;
 }
 
-int efi_set_variable_string(const char *variable, const char *value) {
-        _cleanup_free_ char16_t *u16 = NULL;
+పూర్ణాంకం efi_సమితి_variable_string(స్థిరరాశి అక్షరం *variable, స్థిరరాశి అక్షరం *విలువ) {
+        _cleanup_free_ char16_t *u16 = ఖాళీ;
 
-        u16 = utf8_to_utf16(value, SIZE_MAX);
-        if (!u16)
-                return -ENOMEM;
+        u16 = utf8_గమ్యం_utf16(విలువ, SIZE_MAX);
+        ఒకవేళ (!u16)
+                తిరిగి -ENOMEM;
 
-        return efi_set_variable(variable, u16, (char16_strlen(u16) + 1) * sizeof(char16_t));
+        తిరిగి efi_సమితి_variable(variable, u16, (char16_strlen(u16) + 1) * పరిమాణం(char16_t));
 }
 
-static int cache_efi_boot = -1;
+స్థిర పూర్ణాంకం cache_efi_boot = -1;
 
-bool set_efi_boot(bool b) {
-        return (cache_efi_boot = b);
+bool సమితి_efi_boot(bool b) {
+        తిరిగి (cache_efi_boot = b);
 }
 
-bool is_efi_boot(void) {
-        if (cache_efi_boot >= 0)
-                return cache_efi_boot;
+bool is_efi_boot(శూన్య) {
+        ఒకవేళ (cache_efi_boot >= 0)
+                తిరిగి cache_efi_boot;
 
-        if (detect_container() > 0)
-                return (cache_efi_boot = false);
+        ఒకవేళ (detect_container() > 0)
+                తిరిగి (cache_efi_boot = false);
 
-        if (access("/sys/firmware/efi/", F_OK) < 0) {
-                if (errno != ENOENT)
+        ఒకవేళ (access("/sys/firmware/efi/", F_OK) < 0) {
+                ఒకవేళ (errno != ENOENT)
                         log_debug_errno(errno, "Unable to test whether /sys/firmware/efi/ exists, assuming EFI not available: %m");
-                return (cache_efi_boot = false);
+                తిరిగి (cache_efi_boot = false);
         }
 
-        return (cache_efi_boot = true);
+        తిరిగి (cache_efi_boot = true);
 }
 
-static int read_flag(const char *variable) {
-        _cleanup_free_ void *v = NULL;
+స్థిర పూర్ణాంకం read_flag(స్థిరరాశి అక్షరం *variable) {
+        _cleanup_free_ శూన్య *v = ఖాళీ;
         uint8_t b;
         size_t s;
-        int r;
+        పూర్ణాంకం r;
 
-        if (!is_efi_boot()) /* If this is not an EFI boot, assume the queried flags are zero */
-                return 0;
+        ఒకవేళ (!is_efi_boot()) /* If this is not an EFI boot, assume the queried flags are zero */
+                తిరిగి 0;
 
-        r = efi_get_variable(variable, NULL, &v, &s);
-        if (r < 0)
-                return r;
+        r = efi_get_variable(variable, ఖాళీ, &v, &s);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (s != 1)
-                return -EINVAL;
+        ఒకవేళ (s != 1)
+                తిరిగి -EINVAL;
 
         b = *(uint8_t *)v;
-        return !!b;
+        తిరిగి !!b;
 }
 
-bool is_efi_secure_boot(void) {
-        static int cache = -1;
-        int r;
+bool is_efi_secure_boot(శూన్య) {
+        స్థిర పూర్ణాంకం cache = -1;
+        పూర్ణాంకం r;
 
-        if (cache < 0) {
+        ఒకవేళ (cache < 0) {
                 r = read_flag(EFI_GLOBAL_VARIABLE_STR("SecureBoot"));
-                if (r == -ENOENT)
+                ఒకవేళ (r == -ENOENT)
                         cache = false;
-                else if (r < 0)
+                లేకపోతే ఒకవేళ (r < 0)
                         log_debug_errno(r, "Error reading SecureBoot EFI variable, assuming not in SecureBoot mode: %m");
-                else
+                లేకపోతే
                         cache = r;
         }
 
-        return cache > 0;
+        తిరిగి cache > 0;
 }
 
-SecureBootMode efi_get_secure_boot_mode(void) {
-        static SecureBootMode cache = _SECURE_BOOT_INVALID;
+Secure_Boot_బహుళకం efi_get_secure_boot_బహుళకం(శూన్య) {
+        స్థిర Secure_Boot_బహుళకం cache = _SECURE_BOOT_INVALID;
 
-        if (cache != _SECURE_BOOT_INVALID)
-                return cache;
+        ఒకవేళ (cache != _SECURE_BOOT_INVALID)
+                తిరిగి cache;
 
-        int secure = read_flag(EFI_GLOBAL_VARIABLE_STR("SecureBoot"));
-        if (secure < 0) {
-                if (secure != -ENOENT)
+        పూర్ణాంకం secure = read_flag(EFI_GLOBAL_VARIABLE_STR("SecureBoot"));
+        ఒకవేళ (secure < 0) {
+                ఒకవేళ (secure != -ENOENT)
                         log_debug_errno(secure, "Error reading SecureBoot EFI variable, assuming not in SecureBoot mode: %m");
 
-                return (cache = SECURE_BOOT_UNSUPPORTED);
+                తిరిగి (cache = SECURE_BOOT_UNSUPPORTED);
         }
 
         /* We can assume false for all these if they are abscent (AuditMode and
          * DeployedMode may not exist on older firmware). */
-        int audit    = read_flag(EFI_GLOBAL_VARIABLE_STR("AuditMode"));
-        int deployed = read_flag(EFI_GLOBAL_VARIABLE_STR("DeployedMode"));
-        int setup    = read_flag(EFI_GLOBAL_VARIABLE_STR("SetupMode"));
-        int moksb    = read_flag(EFI_SHIMLOCK_VARIABLE_STR("MokSBStateRT"));
+        పూర్ణాంకం audit    = read_flag(EFI_GLOBAL_VARIABLE_STR("AuditMode"));
+        పూర్ణాంకం deployed = read_flag(EFI_GLOBAL_VARIABLE_STR("DeployedMode"));
+        పూర్ణాంకం అమరిక    = read_flag(EFI_GLOBAL_VARIABLE_STR("SetupMode"));
+        పూర్ణాంకం moksb    = read_flag(EFI_SHIMLOCK_VARIABLE_STR("MokSBStateRT"));
         log_debug("Secure boot variables: SecureBoot=%d AuditMode=%d DeployedMode=%d SetupMode=%d MokSBStateRT=%d",
-                  secure, audit, deployed, setup, moksb);
+                  secure, audit, deployed, అమరిక, moksb);
 
-        return (cache = decode_secure_boot_mode(secure, audit > 0, deployed > 0, setup > 0, moksb > 0));
+        తిరిగి (cache = decode_secure_boot_బహుళకం(secure, audit > 0, deployed > 0, అమరిక > 0, moksb > 0));
 }
-#endif
+#అయితే_ముగింపు
 
-char *efi_tilt_backslashes(char *s) {
-        return string_replace_char(s, '\\', '/');
+అక్షరం *efi_tilt_backslashes(అక్షరం *s) {
+        తిరిగి string_replace_char(s, '\\', '/');
 }

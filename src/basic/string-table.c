@@ -1,80 +1,80 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#అన్తర్భావ <stdio.h>
 
-#include "parse-util.h"
-#include "stdio-util.h"
-#include "string-table.h"
-#include "string-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "stdio-util.h"
+#అన్తర్భావ "string-table.h"
+#అన్తర్భావ "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+స్థిరరాశి అక్షరం* string_పట్టిక_lookup_గమ్యం_string(స్థిరరాశి అక్షరం * స్థిరరాశి *పట్టిక, size_t len, ssize_t i) {
+        ఒకవేళ (i < 0 || i >= (ssize_t) len)
+                తిరిగి ఖాళీ;
 
-        assert(table);
+        ప్రతిజ్ఞా(పట్టిక);
 
-        return table[i];
+        తిరిగి పట్టిక[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
-        assert_return(table, -EINVAL);
+ssize_t string_పట్టిక_lookup_from_string(స్థిరరాశి అక్షరం * స్థిరరాశి *పట్టిక, size_t len, స్థిరరాశి అక్షరం *కీలకం) {
+        assert_return(పట్టిక, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        ఒకవేళ (!కీలకం)
+                తిరిగి -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        కొరకు (size_t i = 0; i < len; ++i)
+                ఒకవేళ (streq_ptr(పట్టిక[i], కీలకం))
+                        తిరిగి (ssize_t) i;
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_పట్టిక_lookup_from_string_with_boolean(స్థిరరాశి అక్షరం * స్థిరరాశి *పట్టిక, size_t len, స్థిరరాశి అక్షరం *కీలకం, ssize_t yes) {
+        ఒకవేళ (!కీలకం)
+                తిరిగి -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        పూర్ణాంకం b = parse_boolean(కీలకం);
+        ఒకవేళ (b == 0)
+                తిరిగి 0;
+        ఒకవేళ (b > 0)
+                తిరిగి yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        తిరిగి string_పట్టిక_lookup_from_string(పట్టిక, len, కీలకం);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+పూర్ణాంకం string_పట్టిక_lookup_గమ్యం_string_fallback(స్థిరరాశి అక్షరం * స్థిరరాశి *పట్టిక, size_t len, ssize_t i, size_t max, అక్షరం **ret) {
+        అక్షరం *s;
 
-        assert(table);
-        assert(ret);
+        ప్రతిజ్ఞా(పట్టిక);
+        ప్రతిజ్ఞా(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        ఒకవేళ (i < 0 || i > (ssize_t) max)
+                తిరిగి -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
-                s = strdup(table[i]);
-        else
-                s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        ఒకవేళ (i < (ssize_t) len && పట్టిక[i])
+                s = strdup(పట్టిక[i]);
+        లేకపోతే
+                s = asprintf_సురక్షిత("%zd", i);
+        ఒకవేళ (!s)
+                తిరిగి -ENOMEM;
 
         *ret = s;
-        return 0;
+        తిరిగి 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_పట్టిక_lookup_from_string_fallback(స్థిరరాశి అక్షరం * స్థిరరాశి *పట్టిక, size_t len, స్థిరరాశి అక్షరం *s, size_t max) {
+        ఒకవేళ (!s)
+                తిరిగి -EINVAL;
 
-        ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        ssize_t i = string_పట్టిక_lookup_from_string(పట్టిక, len, s);
+        ఒకవేళ (i >= 0)
+                తిరిగి i;
 
-        unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        గుర్తులేని u;
+        ఒకవేళ (సురక్షిత_atou(s, &u) < 0)
+                తిరిగి -EINVAL;
+        ఒకవేళ (u > max)
+                తిరిగి -EINVAL;
 
-        return u;
+        తిరిగి u;
 }

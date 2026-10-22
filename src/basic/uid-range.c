@@ -1,249 +1,249 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sched.h>
-#include <string.h>
+#అన్తర్భావ <sched.h>
+#అన్తర్భావ <string.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "format-util.h"
-#include "namespace-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "sort-util.h"
-#include "stat-util.h"
-#include "uid-range.h"
-#include "user-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "format-util.h"
+#అన్తర్భావ "namespace-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "pidref.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "sort-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "uid-range.h"
+#అన్తర్భావ "user-util.h"
 
 UIDRange *uid_range_free(UIDRange *range) {
-        if (!range)
-                return NULL;
+        ఒకవేళ (!range)
+                తిరిగి ఖాళీ;
 
-        free(range->entries);
-        return mfree(range);
+        విడుదల(range->entries);
+        తిరిగి mfree(range);
 }
 
-static bool uid_range_entry_intersect(const UIDRangeEntry *a, const UIDRangeEntry *b) {
-        assert(a);
-        assert(b);
+స్థిర bool uid_range_నమోదు_intersect(స్థిరరాశి UIDRange_నమోదు *a, స్థిరరాశి UIDRange_నమోదు *b) {
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        return a->start <= b->start + b->nr && a->start + a->nr >= b->start;
+        తిరిగి a->ప్రారంభం <= b->ప్రారంభం + b->nr && a->ప్రారంభం + a->nr >= b->ప్రారంభం;
 }
 
-static int uid_range_entry_compare(const UIDRangeEntry *a, const UIDRangeEntry *b) {
-        int r;
+స్థిర పూర్ణాంకం uid_range_నమోదు_compare(స్థిరరాశి UIDRange_నమోదు *a, స్థిరరాశి UIDRange_నమోదు *b) {
+        పూర్ణాంకం r;
 
-        assert(a);
-        assert(b);
+        ప్రతిజ్ఞా(a);
+        ప్రతిజ్ఞా(b);
 
-        r = CMP(a->start, b->start);
-        if (r != 0)
-                return r;
+        r = CMP(a->ప్రారంభం, b->ప్రారంభం);
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
-        return CMP(a->nr, b->nr);
+        తిరిగి CMP(a->nr, b->nr);
 }
 
-static void uid_range_coalesce(UIDRange *range) {
-        assert(range);
+స్థిర శూన్య uid_range_coalesce(UIDRange *range) {
+        ప్రతిజ్ఞా(range);
 
-        if (range->n_entries <= 0)
-                return;
+        ఒకవేళ (range->n_entries <= 0)
+                తిరిగి;
 
-        typesafe_qsort(range->entries, range->n_entries, uid_range_entry_compare);
+        typesafe_qsort(range->entries, range->n_entries, uid_range_నమోదు_compare);
 
-        for (size_t i = 0; i < range->n_entries; i++) {
-                UIDRangeEntry *x = range->entries + i;
+        కొరకు (size_t i = 0; i < range->n_entries; i++) {
+                UIDRange_నమోదు *x = range->entries + i;
 
-                for (size_t j = i + 1; j < range->n_entries; j++) {
-                        UIDRangeEntry *y = range->entries + j;
-                        uid_t begin, end;
+                కొరకు (size_t j = i + 1; j < range->n_entries; j++) {
+                        UIDRange_నమోదు *y = range->entries + j;
+                        uid_t begin, చివర;
 
-                        if (!uid_range_entry_intersect(x, y))
-                                break;
+                        ఒకవేళ (!uid_range_నమోదు_intersect(x, y))
+                                ఆపు;
 
-                        begin = MIN(x->start, y->start);
+                        begin = MIN(x->ప్రారంభం, y->ప్రారంభం);
 
                         /* Silence static analyzers, overflow is prevented by uid_range_add_internal() */
-                        assert(x->start <= UINT32_MAX - x->nr);
-                        assert(y->start <= UINT32_MAX - y->nr);
-                        end = MAX(x->start + x->nr, y->start + y->nr);
+                        ప్రతిజ్ఞా(x->ప్రారంభం <= UINT32_MAX - x->nr);
+                        ప్రతిజ్ఞా(y->ప్రారంభం <= UINT32_MAX - y->nr);
+                        చివర = MAX(x->ప్రారంభం + x->nr, y->ప్రారంభం + y->nr);
 
-                        x->start = begin;
-                        x->nr = end - begin;
+                        x->ప్రారంభం = begin;
+                        x->nr = చివర - begin;
 
-                        if (range->n_entries > j + 1)
-                                memmove(y, y + 1, sizeof(UIDRangeEntry) * (range->n_entries - j - 1));
+                        ఒకవేళ (range->n_entries > j + 1)
+                                memmove(y, y + 1, పరిమాణం(UIDRange_నమోదు) * (range->n_entries - j - 1));
 
                         /* Silence static analyzers, n_entries > 0 since j < n_entries holds in the loop condition */
-                        assert(range->n_entries > 0);
+                        ప్రతిజ్ఞా(range->n_entries > 0);
                         range->n_entries--;
 
                         /* Silence static analyzers, j cannot be 0 here since it starts at i + 1, i.e. >= 1 */
-                        assert(j > 0);
+                        ప్రతిజ్ఞా(j > 0);
                         j--;
                 }
         }
 }
 
-int uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce) {
-        _cleanup_(uid_range_freep) UIDRange *range_new = NULL;
+పూర్ణాంకం uid_range_కూడు_అంతర్గత(UIDRange **range, uid_t ప్రారంభం, uid_t nr, bool coalesce) {
+        _cleanup_(uid_range_freep) UIDRange *range_new = ఖాళీ;
         UIDRange *p;
 
-        assert(range);
+        ప్రతిజ్ఞా(range);
 
-        if (nr <= 0)
-                return 0;
+        ఒకవేళ (nr <= 0)
+                తిరిగి 0;
 
-        if (start > UINT32_MAX - nr) /* overflow check */
-                return -ERANGE;
+        ఒకవేళ (ప్రారంభం > UINT32_MAX - nr) /* overflow check */
+                తిరిగి -ERANGE;
 
-        if (*range)
+        ఒకవేళ (*range)
                 p = *range;
-        else {
+        లేకపోతే {
                 range_new = new0(UIDRange, 1);
-                if (!range_new)
-                        return -ENOMEM;
+                ఒకవేళ (!range_new)
+                        తిరిగి -ENOMEM;
 
                 p = range_new;
         }
 
-        if (!GREEDY_REALLOC(p->entries, p->n_entries + 1))
-                return -ENOMEM;
+        ఒకవేళ (!GREEDY_REALLOC(p->entries, p->n_entries + 1))
+                తిరిగి -ENOMEM;
 
-        p->entries[p->n_entries++] = (UIDRangeEntry) {
-                .start = start,
+        p->entries[p->n_entries++] = (UIDRange_నమోదు) {
+                .ప్రారంభం = ప్రారంభం,
                 .nr = nr,
         };
 
-        if (coalesce)
+        ఒకవేళ (coalesce)
                 uid_range_coalesce(p);
 
         TAKE_PTR(range_new);
         *range = p;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int uid_range_add_str_full(UIDRange **range, const char *s, bool coalesce) {
-        uid_t start, end;
-        int r;
+పూర్ణాంకం uid_range_కూడు_str_నిండిన(UIDRange **range, స్థిరరాశి అక్షరం *s, bool coalesce) {
+        uid_t ప్రారంభం, చివర;
+        పూర్ణాంకం r;
 
-        assert(range);
-        assert(s);
+        ప్రతిజ్ఞా(range);
+        ప్రతిజ్ఞా(s);
 
-        r = parse_uid_range(s, &start, &end);
-        if (r < 0)
-                return r;
+        r = parse_uid_range(s, &ప్రారంభం, &చివర);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return uid_range_add_internal(range, start, end - start + 1, coalesce);
+        తిరిగి uid_range_కూడు_అంతర్గత(range, ప్రారంభం, చివర - ప్రారంభం + 1, coalesce);
 }
 
-int uid_range_next_lower(const UIDRange *range, uid_t *uid) {
+పూర్ణాంకం uid_range_తదుపరి_క్రింది(స్థిరరాశి UIDRange *range, uid_t *uid) {
         uid_t closest = UID_INVALID, candidate;
 
-        assert(range);
-        assert(uid);
+        ప్రతిజ్ఞా(range);
+        ప్రతిజ్ఞా(uid);
 
-        if (*uid == 0)
-                return -EBUSY;
+        ఒకవేళ (*uid == 0)
+                తిరిగి -EBUSY;
 
         candidate = *uid - 1;
 
-        for (size_t i = 0; i < range->n_entries; i++) {
-                uid_t begin, end;
+        కొరకు (size_t i = 0; i < range->n_entries; i++) {
+                uid_t begin, చివర;
 
-                begin = range->entries[i].start;
-                end = range->entries[i].start + range->entries[i].nr - 1;
+                begin = range->entries[i].ప్రారంభం;
+                చివర = range->entries[i].ప్రారంభం + range->entries[i].nr - 1;
 
-                if (candidate >= begin && candidate <= end) {
+                ఒకవేళ (candidate >= begin && candidate <= చివర) {
                         *uid = candidate;
-                        return 1;
+                        తిరిగి 1;
                 }
 
-                if (end < candidate)
-                        closest = end;
+                ఒకవేళ (చివర < candidate)
+                        closest = చివర;
         }
 
-        if (closest == UID_INVALID)
-                return -EBUSY;
+        ఒకవేళ (closest == UID_INVALID)
+                తిరిగి -EBUSY;
 
         *uid = closest;
-        return 1;
+        తిరిగి 1;
 }
 
-bool uid_range_covers(const UIDRange *range, uid_t start, uid_t nr) {
-        if (nr == 0) /* empty range? always covered... */
-                return true;
+bool uid_range_covers(స్థిరరాశి UIDRange *range, uid_t ప్రారంభం, uid_t nr) {
+        ఒకవేళ (nr == 0) /* empty range? always covered... */
+                తిరిగి true;
 
-        if (start > UINT32_MAX - nr) /* range overflows? definitely not covered... */
-                return false;
+        ఒకవేళ (ప్రారంభం > UINT32_MAX - nr) /* range overflows? definitely not covered... */
+                తిరిగి false;
 
-        if (!range)
-                return false;
+        ఒకవేళ (!range)
+                తిరిగి false;
 
         FOREACH_ARRAY(i, range->entries, range->n_entries)
-                if (start >= i->start &&
-                    start + nr <= i->start + i->nr)
-                        return true;
+                ఒకవేళ (ప్రారంభం >= i->ప్రారంభం &&
+                    ప్రారంభం + nr <= i->ప్రారంభం + i->nr)
+                        తిరిగి true;
 
-        return false;
+        తిరిగి false;
 }
 
-int uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range) {
-        uid_t uid_base, uid_shift, uid_range;
-        int r;
+పూర్ణాంకం uid_map_read_one(FILE *f, uid_t *ret_పునాది, uid_t *ret_జరుపు, uid_t *ret_range) {
+        uid_t uid_పునాది, uid_జరుపు, uid_range;
+        పూర్ణాంకం r;
 
-        assert(f);
+        ప్రతిజ్ఞా(f);
 
         errno = 0;
-        r = fscanf(f, UID_FMT " " UID_FMT " " UID_FMT "\n", &uid_base, &uid_shift, &uid_range);
-        if (r == EOF)
-                return errno_or_else(ENOMSG);
-        assert(r >= 0);
-        if (r != 3)
-                return -EBADMSG;
-        if (uid_range <= 0)
-                return -EBADMSG;
+        r = fscanf(f, UID_FMT " " UID_FMT " " UID_FMT "\n", &uid_పునాది, &uid_జరుపు, &uid_range);
+        ఒకవేళ (r == EOF)
+                తిరిగి errno_or_else(ENOMSG);
+        ప్రతిజ్ఞా(r >= 0);
+        ఒకవేళ (r != 3)
+                తిరిగి -EBADMSG;
+        ఒకవేళ (uid_range <= 0)
+                తిరిగి -EBADMSG;
 
-        if (ret_base)
-                *ret_base = uid_base;
-        if (ret_shift)
-                *ret_shift = uid_shift;
-        if (ret_range)
+        ఒకవేళ (ret_పునాది)
+                *ret_పునాది = uid_పునాది;
+        ఒకవేళ (ret_జరుపు)
+                *ret_జరుపు = uid_జరుపు;
+        ఒకవేళ (ret_range)
                 *ret_range = uid_range;
 
-        return 0;
+        తిరిగి 0;
 }
 
-unsigned uid_range_size(const UIDRange *range) {
-        if (!range)
-                return 0;
+గుర్తులేని uid_range_కొలత(స్థిరరాశి UIDRange *range) {
+        ఒకవేళ (!range)
+                తిరిగి 0;
 
-        unsigned n = 0;
+        గుర్తులేని n = 0;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
                 n += e->nr;
 
-        return n;
+        తిరిగి n;
 }
 
-bool uid_range_is_empty(const UIDRange *range) {
+bool uid_range_is_ఖాళీలు(స్థిరరాశి UIDRange *range) {
 
-        if (!range)
-                return true;
+        ఒకవేళ (!range)
+                తిరిగి true;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                if (e->nr > 0)
-                        return false;
+                ఒకవేళ (e->nr > 0)
+                        తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
-        _cleanup_(uid_range_freep) UIDRange *range = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+పూర్ణాంకం uid_range_ఎక్కించు_userns_నిండిన(స్థిరరాశి అక్షరం *మార్గం, UIDRange_Userns_బహుళకం బహుళకం, bool coalesce, UIDRange **ret) {
+        _cleanup_(uid_range_freep) UIDRange *range = ఖాళీ;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        పూర్ణాంకం r;
 
         /* If 'path' is NULL loads the UID range of the userns namespace we run. Otherwise load the data from
          * the specified file (which can be either uid_map or gid_map, in case caller needs to deal with GID
@@ -251,132 +251,132 @@ int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool c
          *
          * To simplify things this will modify the passed array in case of later failure. */
 
-        assert(mode >= 0);
-        assert(mode < _UID_RANGE_USERNS_MODE_MAX);
-        assert(ret);
+        ప్రతిజ్ఞా(బహుళకం >= 0);
+        ప్రతిజ్ఞా(బహుళకం < UID_RANGE_USERNS_బహుళకం_MAX);
+        ప్రతిజ్ఞా(ret);
 
-        if (!path)
-                path = IN_SET(mode, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "/proc/self/uid_map" : "/proc/self/gid_map";
+        ఒకవేళ (!మార్గం)
+                మార్గం = లోపల_సమితి(బహుళకం, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "/proc/self/uid_map" : "/proc/self/gid_map";
 
-        f = fopen(path, "re");
-        if (!f) {
+        f = fopen(మార్గం, "re");
+        ఒకవేళ (!f) {
                 r = -errno;
 
-                if (r == -ENOENT && path_startswith(path, "/proc/"))
-                        return proc_mounted() > 0 ? -EOPNOTSUPP : -ENOSYS;
+                ఒకవేళ (r == -ENOENT && మార్గం_startswith(మార్గం, "/proc/"))
+                        తిరిగి proc_mounted() > 0 ? -EOPNOTSUPP : -ENOSYS;
 
-                return r;
+                తిరిగి r;
         }
 
         range = new0(UIDRange, 1);
-        if (!range)
-                return -ENOMEM;
+        ఒకవేళ (!range)
+                తిరిగి -ENOMEM;
 
-        for (;;) {
-                uid_t uid_base, uid_shift, uid_range;
+        కొరకు (;;) {
+                uid_t uid_పునాది, uid_జరుపు, uid_range;
 
-                r = uid_map_read_one(f, &uid_base, &uid_shift, &uid_range);
-                if (r == -ENOMSG)
-                        break;
-                if (r < 0)
-                        return r;
+                r = uid_map_read_one(f, &uid_పునాది, &uid_జరుపు, &uid_range);
+                ఒకవేళ (r == -ENOMSG)
+                        ఆపు;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                r = uid_range_add_internal(
+                r = uid_range_కూడు_అంతర్గత(
                                 &range,
-                                IN_SET(mode, UID_RANGE_USERNS_INSIDE, GID_RANGE_USERNS_INSIDE) ? uid_base : uid_shift,
+                                లోపల_సమితి(బహుళకం, UID_RANGE_USERNS_INSIDE, GID_RANGE_USERNS_INSIDE) ? uid_పునాది : uid_జరుపు,
                                 uid_range,
                                 /* coalesce= */ false);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        if (coalesce)
+        ఒకవేళ (coalesce)
                 uid_range_coalesce(range);
 
         *ret = TAKE_PTR(range);
-        return 0;
+        తిరిగి 0;
 }
 
-int uid_range_load_userns_by_fd_full(int userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret) {
-        _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
-        int r;
+పూర్ణాంకం uid_range_ఎక్కించు_userns_by_fd_నిండిన(పూర్ణాంకం userns_fd, UIDRange_Userns_బహుళకం బహుళకం, bool coalesce, UIDRange **ret) {
+        _cleanup_(pidref_పూర్తి_sigkill_wait) PidRef pidref = PIDREF_NULL;
+        పూర్ణాంకం r;
 
-        assert(userns_fd >= 0);
-        assert(mode >= 0);
-        assert(mode < _UID_RANGE_USERNS_MODE_MAX);
-        assert(ret);
+        ప్రతిజ్ఞా(userns_fd >= 0);
+        ప్రతిజ్ఞా(బహుళకం >= 0);
+        ప్రతిజ్ఞా(బహుళకం < UID_RANGE_USERNS_బహుళకం_MAX);
+        ప్రతిజ్ఞా(ret);
 
         r = is_our_namespace(userns_fd, NAMESPACE_USER);
-        if (r < 0)
-                return r;
-        if (r > 0)
-                return uid_range_load_userns_full(/* path= */ NULL, mode, coalesce, ret);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r > 0)
+                తిరిగి uid_range_ఎక్కించు_userns_నిండిన(/* path= */ ఖాళీ, బహుళకం, coalesce, ret);
 
         r = userns_enter_and_pin(userns_fd, &pidref);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        const char *p = procfs_file_alloca(
+        స్థిరరాశి అక్షరం *p = procfs_file_alloca(
                         pidref.pid,
-                        IN_SET(mode, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "uid_map" : "gid_map");
+                        లోపల_సమితి(బహుళకం, UID_RANGE_USERNS_INSIDE, UID_RANGE_USERNS_OUTSIDE) ? "uid_map" : "gid_map");
 
-        return uid_range_load_userns_full(p, mode, coalesce, ret);
+        తిరిగి uid_range_ఎక్కించు_userns_నిండిన(p, బహుళకం, coalesce, ret);
 }
 
-bool uid_range_overlaps(const UIDRange *range, uid_t start, uid_t nr) {
+bool uid_range_overlaps(స్థిరరాశి UIDRange *range, uid_t ప్రారంభం, uid_t nr) {
 
-        if (!range)
-                return false;
+        ఒకవేళ (!range)
+                తిరిగి false;
 
         /* Avoid overflow */
-        if (start > UINT32_MAX - nr)
-                nr = UINT32_MAX - start;
+        ఒకవేళ (ప్రారంభం > UINT32_MAX - nr)
+                nr = UINT32_MAX - ప్రారంభం;
 
-        if (nr == 0)
-                return false;
+        ఒకవేళ (nr == 0)
+                తిరిగి false;
 
-        FOREACH_ARRAY(entry, range->entries, range->n_entries)
-                if (start < entry->start + entry->nr &&
-                    start + nr >= entry->start)
-                        return true;
+        FOREACH_ARRAY(నమోదు_2, range->entries, range->n_entries)
+                ఒకవేళ (ప్రారంభం < నమోదు_2->ప్రారంభం + నమోదు_2->nr &&
+                    ప్రారంభం + nr >= నమోదు_2->ప్రారంభం)
+                        తిరిగి true;
 
-        return false;
+        తిరిగి false;
 }
 
-int uid_range_clip(UIDRange *range, uid_t min, uid_t max) {
-        assert(range);
+పూర్ణాంకం uid_range_clip(UIDRange *range, uid_t min, uid_t max) {
+        ప్రతిజ్ఞా(range);
 
-        if (min > max)
-                return -EINVAL;
+        ఒకవేళ (min > max)
+                తిరిగి -EINVAL;
 
         size_t t = 0;
         FOREACH_ARRAY(e, range->entries, range->n_entries) {
-                uid_t entry_end = e->start + e->nr; /* one past the last UID in entry */
+                uid_t నమోదు_చివర = e->ప్రారంభం + e->nr; /* one past the last UID in entry */
 
                 /* Skip entries completely outside [min, max] */
-                if (entry_end <= min || e->start > max)
-                        continue;
+                ఒకవేళ (నమోదు_చివర <= min || e->ప్రారంభం > max)
+                        కొనసాగు;
 
                 /* Trim the entry to fit within [min, max] */
-                uid_t new_start = MAX(e->start, min);
+                uid_t new_ప్రారంభం = MAX(e->ప్రారంభం, min);
                 /* entry_end is exclusive, avoid overflow when max == UINT32_MAX */
-                uid_t new_end = entry_end <= max ? entry_end : max + 1;
-                assert(new_end > new_start);
+                uid_t new_చివర = నమోదు_చివర <= max ? నమోదు_చివర : max + 1;
+                ప్రతిజ్ఞా(new_చివర > new_ప్రారంభం);
 
-                range->entries[t++] = (UIDRangeEntry) {
-                        .start = new_start,
-                        .nr = new_end - new_start,
+                range->entries[t++] = (UIDRange_నమోదు) {
+                        .ప్రారంభం = new_ప్రారంభం,
+                        .nr = new_చివర - new_ప్రారంభం,
                 };
         }
 
         range->n_entries = t;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int uid_range_partition(UIDRange *range, uid_t size) {
-        assert(range);
-        assert(size > 0);
+పూర్ణాంకం uid_range_విభజన(UIDRange *range, uid_t కొలత) {
+        ప్రతిజ్ఞా(range);
+        ప్రతిజ్ఞా(కొలత > 0);
 
         /* Partitions the UID range entries into buckets of the given size. Any entry larger than the given
          * size will be partitioned into multiple entries, each of the given size. Any leftover UIDs in the
@@ -385,143 +385,143 @@ int uid_range_partition(UIDRange *range, uid_t size) {
         /* Count how many entries we'll need after partitioning */
         size_t n_new_entries = 0;
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                n_new_entries += e->nr / size;
+                n_new_entries += e->nr / కొలత;
 
-        if (n_new_entries == 0) {
+        ఒకవేళ (n_new_entries == 0) {
                 range->n_entries = 0;
-                return 0;
+                తిరిగి 0;
         }
 
-        if (n_new_entries > range->n_entries && !GREEDY_REALLOC(range->entries, n_new_entries))
-                return -ENOMEM;
+        ఒకవేళ (n_new_entries > range->n_entries && !GREEDY_REALLOC(range->entries, n_new_entries))
+                తిరిగి -ENOMEM;
 
         /* Compact in place: drop entries that contribute zero partitions (nr < size). This forward pass
          * reads each entry once and only writes to lower-or-equal indices, so it cannot alias an unread
          * source entry. */
         size_t n_src = 0;
-        for (size_t i = 0; i < range->n_entries; i++)
-                if (range->entries[i].nr >= size)
+        కొరకు (size_t i = 0; i < range->n_entries; i++)
+                ఒకవేళ (range->entries[i].nr >= కొలత)
                         range->entries[n_src++] = range->entries[i];
 
         /* Pre-compaction guarantees every surviving entry contributes at least one partition slot, so the
          * write cursor t stays ahead of the read index. */
         size_t t = n_new_entries;
-        for (size_t i = n_src; i > 0; i--) {
-                UIDRangeEntry *e = range->entries + i - 1;
-                unsigned n_parts = e->nr / size;
+        కొరకు (size_t i = n_src; i > 0; i--) {
+                UIDRange_నమోదు *e = range->entries + i - 1;
+                గుర్తులేని n_parts = e->nr / కొలత;
 
-                for (unsigned j = n_parts; j > 0; j--)
-                        range->entries[--t] = (UIDRangeEntry) {
-                                .start = e->start + (j - 1) * size,
-                                .nr = size,
+                కొరకు (గుర్తులేని j = n_parts; j > 0; j--)
+                        range->entries[--t] = (UIDRange_నమోదు) {
+                                .ప్రారంభం = e->ప్రారంభం + (j - 1) * కొలత,
+                                .nr = కొలత,
                         };
         }
 
         range->n_entries = n_new_entries;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int uid_range_copy(const UIDRange *range, UIDRange **ret) {
-        assert(ret);
+పూర్ణాంకం uid_range_copy(స్థిరరాశి UIDRange *range, UIDRange **ret) {
+        ప్రతిజ్ఞా(ret);
 
-        if (!range) {
-                *ret = NULL;
-                return 0;
+        ఒకవేళ (!range) {
+                *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
         _cleanup_(uid_range_freep) UIDRange *copy = new0(UIDRange, 1);
-        if (!copy)
-                return -ENOMEM;
+        ఒకవేళ (!copy)
+                తిరిగి -ENOMEM;
 
-        if (range->n_entries > 0) {
-                copy->entries = newdup(UIDRangeEntry, range->entries, range->n_entries);
-                if (!copy->entries)
-                        return -ENOMEM;
+        ఒకవేళ (range->n_entries > 0) {
+                copy->entries = newdup(UIDRange_నమోదు, range->entries, range->n_entries);
+                ఒకవేళ (!copy->entries)
+                        తిరిగి -ENOMEM;
 
                 copy->n_entries = range->n_entries;
         }
 
         *ret = TAKE_PTR(copy);
-        return 0;
+        తిరిగి 0;
 }
 
-int uid_range_remove(UIDRange *range, uid_t start, uid_t size) {
-        assert(range);
+పూర్ణాంకం uid_range_remove(UIDRange *range, uid_t ప్రారంభం, uid_t కొలత) {
+        ప్రతిజ్ఞా(range);
 
-        if (size == 0)
-                return 0;
+        ఒకవేళ (కొలత == 0)
+                తిరిగి 0;
 
-        uid_t end = start + size; /* one past the last UID to remove */
+        uid_t చివర = ప్రారంభం + కొలత; /* one past the last UID to remove */
 
-        for (size_t i = 0; i < range->n_entries; i++) {
-                UIDRangeEntry *e = range->entries + i;
-                uid_t entry_end = e->start + e->nr;
+        కొరకు (size_t i = 0; i < range->n_entries; i++) {
+                UIDRange_నమోదు *e = range->entries + i;
+                uid_t నమోదు_చివర = e->ప్రారంభం + e->nr;
 
                 /* No overlap */
-                if (entry_end <= start || e->start >= end)
-                        continue;
+                ఒకవేళ (నమోదు_చివర <= ప్రారంభం || e->ప్రారంభం >= చివర)
+                        కొనసాగు;
 
                 /* Check if this removal splits the entry into two parts */
-                if (e->start < start && entry_end > end) {
+                ఒకవేళ (e->ప్రారంభం < ప్రారంభం && నమోదు_చివర > చివర) {
                         /* Need to split: grow the array first */
-                        if (!GREEDY_REALLOC(range->entries, range->n_entries + 1))
-                                return -ENOMEM;
+                        ఒకవేళ (!GREEDY_REALLOC(range->entries, range->n_entries + 1))
+                                తిరిగి -ENOMEM;
 
                         /* Re-fetch pointer after potential realloc */
                         e = range->entries + i;
-                        entry_end = e->start + e->nr;
+                        నమోదు_చివర = e->ప్రారంభం + e->nr;
 
                         /* Shift everything after this entry to make room */
                         memmove(range->entries + i + 2, range->entries + i + 1,
-                                (range->n_entries - i - 1) * sizeof(UIDRangeEntry));
+                                (range->n_entries - i - 1) * పరిమాణం(UIDRange_నమోదు));
                         range->n_entries++;
 
                         /* First part: before the removed range */
-                        range->entries[i] = (UIDRangeEntry) {
-                                .start = e->start,
-                                .nr = start - e->start,
+                        range->entries[i] = (UIDRange_నమోదు) {
+                                .ప్రారంభం = e->ప్రారంభం,
+                                .nr = ప్రారంభం - e->ప్రారంభం,
                         };
 
                         /* Second part: after the removed range */
-                        range->entries[i + 1] = (UIDRangeEntry) {
-                                .start = end,
-                                .nr = entry_end - end,
+                        range->entries[i + 1] = (UIDRange_నమోదు) {
+                                .ప్రారంభం = చివర,
+                                .nr = నమోదు_చివర - చివర,
                         };
 
                         /* Skip the newly inserted entry */
                         i++;
-                        continue;
+                        కొనసాగు;
                 }
 
                 /* Removal covers the entire entry */
-                if (start <= e->start && end >= entry_end) {
-                        memmove(e, e + 1, (range->n_entries - i - 1) * sizeof(UIDRangeEntry));
+                ఒకవేళ (ప్రారంభం <= e->ప్రారంభం && చివర >= నమోదు_చివర) {
+                        memmove(e, e + 1, (range->n_entries - i - 1) * పరిమాణం(UIDRange_నమోదు));
                         range->n_entries--;
                         i--;
-                        continue;
+                        కొనసాగు;
                 }
 
                 /* Removal trims the start of the entry */
-                if (start <= e->start && end > e->start) {
-                        e->nr = entry_end - end;
-                        e->start = end;
-                        continue;
+                ఒకవేళ (ప్రారంభం <= e->ప్రారంభం && చివర > e->ప్రారంభం) {
+                        e->nr = నమోదు_చివర - చివర;
+                        e->ప్రారంభం = చివర;
+                        కొనసాగు;
                 }
 
                 /* Removal trims the end of the entry */
-                if (start < entry_end && end >= entry_end) {
-                        e->nr = start - e->start;
-                        continue;
+                ఒకవేళ (ప్రారంభం < నమోదు_చివర && చివర >= నమోదు_చివర) {
+                        e->nr = ప్రారంభం - e->ప్రారంభం;
+                        కొనసాగు;
                 }
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret) {
-        assert(uid_range_entries(outside) == uid_range_entries(inside));
-        assert(ret);
+పూర్ణాంకం uid_range_translate(స్థిరరాశి UIDRange *outside, స్థిరరాశి UIDRange *inside, uid_t uid, uid_t *ret) {
+        ప్రతిజ్ఞా(uid_range_entries(outside) == uid_range_entries(inside));
+        ప్రతిజ్ఞా(ret);
 
         /* Given two UID ranges that represent the outside UID range of a user namespace (the 2nd and 3rd
          * columns in /proc/xxx/uid_map) and the inside UID range of a user namespace (the 1st and 3rd
@@ -534,107 +534,107 @@ int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t u
          * calling uid_range_translate(inside, outside, 0) will return 1000 as the output UID.
          */
 
-        for (size_t i = 0; i < uid_range_entries(outside); i++)
-                assert(outside->entries[i].nr == inside->entries[i].nr);
+        కొరకు (size_t i = 0; i < uid_range_entries(outside); i++)
+                ప్రతిజ్ఞా(outside->entries[i].nr == inside->entries[i].nr);
 
-        for (size_t i = 0; i < uid_range_entries(outside); i++) {
-                const UIDRangeEntry *e = outside->entries + i;
+        కొరకు (size_t i = 0; i < uid_range_entries(outside); i++) {
+                స్థిరరాశి UIDRange_నమోదు *e = outside->entries + i;
 
-                if (uid < e->start || uid >= e->start + e->nr)
-                        continue;
+                ఒకవేళ (uid < e->ప్రారంభం || uid >= e->ప్రారంభం + e->nr)
+                        కొనసాగు;
 
-                *ret = inside->entries[i].start + uid - e->start;
-                return 0;
+                *ret = inside->entries[i].ప్రారంభం + uid - e->ప్రారంభం;
+                తిరిగి 0;
         }
 
-        return -ESRCH;
+        తిరిగి -ESRCH;
 }
 
-int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret) {
-        int r;
+పూర్ణాంకం uid_range_translate_userns_fd(పూర్ణాంకం userns_fd, UIDRange_Userns_బహుళకం బహుళకం, uid_t uid, uid_t *ret) {
+        పూర్ణాంకం r;
 
-        assert(userns_fd >= 0);
-        assert(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
+        ప్రతిజ్ఞా(userns_fd >= 0);
+        ప్రతిజ్ఞా(లోపల_సమితి(బహుళకం, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
 
-        _cleanup_(uid_range_freep) UIDRange *outside_range = NULL;
-        r = uid_range_load_userns_by_fd_full(userns_fd, mode, /* coalesce= */ false, &outside_range);
-        if (r < 0)
-                return r;
+        _cleanup_(uid_range_freep) UIDRange *outside_range = ఖాళీ;
+        r = uid_range_ఎక్కించు_userns_by_fd_నిండిన(userns_fd, బహుళకం, /* coalesce= */ false, &outside_range);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        mode = mode == UID_RANGE_USERNS_OUTSIDE ? UID_RANGE_USERNS_INSIDE : GID_RANGE_USERNS_INSIDE;
+        బహుళకం = బహుళకం == UID_RANGE_USERNS_OUTSIDE ? UID_RANGE_USERNS_INSIDE : GID_RANGE_USERNS_INSIDE;
 
-        _cleanup_(uid_range_freep) UIDRange *inside_range = NULL;
-        r = uid_range_load_userns_by_fd_full(userns_fd, mode, /* coalesce= */ false, &inside_range);
-        if (r < 0)
-                return r;
+        _cleanup_(uid_range_freep) UIDRange *inside_range = ఖాళీ;
+        r = uid_range_ఎక్కించు_userns_by_fd_నిండిన(userns_fd, బహుళకం, /* coalesce= */ false, &inside_range);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return uid_range_translate(outside_range, inside_range, uid, ret);
+        తిరిగి uid_range_translate(outside_range, inside_range, uid, ret);
 }
 
-bool uid_range_equal(const UIDRange *a, const UIDRange *b) {
-        if (a == b)
-                return true;
+bool uid_range_equal(స్థిరరాశి UIDRange *a, స్థిరరాశి UIDRange *b) {
+        ఒకవేళ (a == b)
+                తిరిగి true;
 
-        if (!a || !b)
-                return false;
+        ఒకవేళ (!a || !b)
+                తిరిగి false;
 
-        if (a->n_entries != b->n_entries)
-                return false;
+        ఒకవేళ (a->n_entries != b->n_entries)
+                తిరిగి false;
 
-        for (size_t i = 0; i < a->n_entries; i++) {
-                if (a->entries[i].start != b->entries[i].start)
-                        return false;
-                if (a->entries[i].nr != b->entries[i].nr)
-                        return false;
+        కొరకు (size_t i = 0; i < a->n_entries; i++) {
+                ఒకవేళ (a->entries[i].ప్రారంభం != b->entries[i].ప్రారంభం)
+                        తిరిగి false;
+                ఒకవేళ (a->entries[i].nr != b->entries[i].nr)
+                        తిరిగి false;
         }
 
-        return true;
+        తిరిగి true;
 }
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret) {
-        int r;
+పూర్ణాంకం uid_map_శోధన_మూలం(pid_t pid, UIDRange_Userns_బహుళకం బహుళకం, uid_t *ret) {
+        పూర్ణాంకం r;
 
-        assert(pid_is_valid(pid));
-        assert(IN_SET(mode, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
+        ప్రతిజ్ఞా(pid_is_valid(pid));
+        ప్రతిజ్ఞా(లోపల_సమితి(బహుళకం, UID_RANGE_USERNS_OUTSIDE, GID_RANGE_USERNS_OUTSIDE));
 
-        const char *p = procfs_file_alloca(pid, mode == UID_RANGE_USERNS_OUTSIDE ? "uid_map" : "gid_map");
+        స్థిరరాశి అక్షరం *p = procfs_file_alloca(pid, బహుళకం == UID_RANGE_USERNS_OUTSIDE ? "uid_map" : "gid_map");
         _cleanup_fclose_ FILE *f = fopen(p, "re");
-        if (!f) {
-                if (errno != ENOENT)
-                        return -errno;
+        ఒకవేళ (!f) {
+                ఒకవేళ (errno != ENOENT)
+                        తిరిగి -errno;
 
                 r = proc_mounted();
-                if (r < 0)
-                        return -ENOENT; /* original error, if we can't determine /proc/ state */
+                ఒకవేళ (r < 0)
+                        తిరిగి -ENOENT; /* original error, if we can't determine /proc/ state */
 
-                return r ? -ENOPKG : -ENOSYS;
+                తిరిగి r ? -ENOPKG : -ENOSYS;
         }
 
-        for (;;) {
-                uid_t uid_base = UID_INVALID, uid_shift = UID_INVALID;
+        కొరకు (;;) {
+                uid_t uid_పునాది = UID_INVALID, uid_జరుపు = UID_INVALID;
 
-                r = uid_map_read_one(f, &uid_base, &uid_shift, /* ret_range= */ NULL);
-                if (r < 0)
-                        return r;
+                r = uid_map_read_one(f, &uid_పునాది, &uid_జరుపు, /* ret_range= */ ఖాళీ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (uid_base == 0) {
-                        if (ret)
-                                *ret = uid_shift;
-                        return 0;
+                ఒకవేళ (uid_పునాది == 0) {
+                        ఒకవేళ (ret)
+                                *ret = uid_జరుపు;
+                        తిరిగి 0;
                 }
         }
 }
 
-uid_t uid_range_base(const UIDRange *range) {
+uid_t uid_range_పునాది(స్థిరరాశి UIDRange *range) {
         /* Returns the lowest UID in the range (notw that elements are sorted, hence we just need to look at
          * the first one that is populated. */
 
-        if (uid_range_is_empty(range))
-                return UID_INVALID;
+        ఒకవేళ (uid_range_is_ఖాళీలు(range))
+                తిరిగి UID_INVALID;
 
         FOREACH_ARRAY(e, range->entries, range->n_entries)
-                if (e->nr > 0)
-                        return e->start;
+                ఒకవేళ (e->nr > 0)
+                        తిరిగి e->ప్రారంభం;
 
-        return UID_INVALID;
+        తిరిగి UID_INVALID;
 }

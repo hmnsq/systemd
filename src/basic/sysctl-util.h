@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
 
-#include "forward.h"
-#include "stdio-util.h"
+#అన్తర్భావ "forward.h"
+#అన్తర్భావ "stdio-util.h"
 
-char* sysctl_normalize(char *s);
-int sysctl_read(const char *property, char **ret);
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow);
-int sysctl_writef(const char *property, const char *format, ...) _printf_(2, 3);
-static inline int sysctl_write(const char *property, const char *value) {
-        return sysctl_write_full(property, value, NULL);
+అక్షరం* sysctl_normalize(అక్షరం *s);
+పూర్ణాంకం sysctl_read(స్థిరరాశి అక్షరం *property, అక్షరం **ret);
+పూర్ణాంకం sysctl_write_నిండిన(స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ, Hashmap **shadow);
+పూర్ణాంకం sysctl_writef(స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *format, ...) _printf_(2, 3);
+స్థిర అంతఃవరుస పూర్ణాంకం sysctl_write(స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ) {
+        తిరిగి sysctl_write_నిండిన(property, విలువ, ఖాళీ);
 }
-int sysctl_write_verify(const char *property, const char *value);
+పూర్ణాంకం sysctl_write_verify(స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ);
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret);
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret);
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret);
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow);
+పూర్ణాంకం sysctl_read_ip_property(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, అక్షరం **ret);
+పూర్ణాంకం sysctl_read_ip_property_int(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, పూర్ణాంకం *ret);
+పూర్ణాంకం sysctl_read_ip_property_uint32(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, uint32_t *ret);
+పూర్ణాంకం sysctl_write_ip_property(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ, Hashmap **shadow);
+పూర్ణాంకం sysctl_write_ip_property_boolean(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, bool విలువ, Hashmap **shadow);
 
-static inline int sysctl_write_ip_property_tristate(int af, const char *ifname, const char *property, int value, Hashmap **shadow) {
-        if (value < 0)
-                return 0;
+స్థిర అంతఃవరుస పూర్ణాంకం sysctl_write_ip_property_tristate(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, పూర్ణాంకం విలువ, Hashmap **shadow) {
+        ఒకవేళ (విలువ < 0)
+                తిరిగి 0;
 
-        return sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
+        తిరిగి sysctl_write_ip_property_boolean(af, ifname, property, విలువ, shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow);
+పూర్ణాంకం sysctl_write_ip_neighbor_property(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ, Hashmap **shadow);
+పూర్ణాంకం sysctl_write_ip_neighbor_property_uint32(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, uint32_t విలువ, Hashmap **shadow);
 
-#define DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
-        static inline int sysctl_write_ip_property_##name(int af, const char *ifname, const char *property, type value, Hashmap **shadow) { \
-                char buf[DECIMAL_STR_MAX(type)];                        \
-                xsprintf(buf, format, value);                           \
-                return sysctl_write_ip_property(af, ifname, property, buf, shadow); \
+#నిర్వచించు DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
+        స్థిర అంతఃవరుస పూర్ణాంకం sysctl_write_ip_property_##name(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, type విలువ, Hashmap **shadow) { \
+                అక్షరం buf[DECIMAL_STR_MAX(type)];                        \
+                xsprintf(buf, format, విలువ);                           \
+                తిరిగి sysctl_write_ip_property(af, ifname, property, buf, shadow); \
         }
 
-DEFINE_SYSCTL_WRITE_IP_PROPERTY(int, int, "%i");
+DEFINE_SYSCTL_WRITE_IP_PROPERTY(పూర్ణాంకం, పూర్ణాంకం, "%i");
 DEFINE_SYSCTL_WRITE_IP_PROPERTY(uint32, uint32_t, "%" PRIu32);

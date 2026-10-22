@@ -1,27 +1,27 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-struct pool;
+నిర్మాణం pool;
 
-struct mempool {
-        struct pool *first_pool;
-        void *freelist;
-        size_t tile_size;
-        size_t at_least;
+నిర్మాణం mempool {
+        నిర్మాణం pool *మొదటి_pool;
+        శూన్య *freelist;
+        size_t tile_కొలత;
+        size_t at_కనిష్ఠ;
 };
 
-void* mempool_alloc_tile(struct mempool *mp);
-void* mempool_alloc0_tile(struct mempool *mp);
-void* mempool_free_tile(struct mempool *mp, void *p);
+శూన్య* mempool_alloc_tile(నిర్మాణం mempool *mp);
+శూన్య* mempool_alloc0_tile(నిర్మాణం mempool *mp);
+శూన్య* mempool_free_tile(నిర్మాణం mempool *mp, శూన్య *p);
 
-#define DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_least) \
-static struct mempool pool_name = { \
-        .tile_size = sizeof(tile_type), \
-        .at_least = alloc_at_least, \
+#నిర్వచించు DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_కనిష్ఠ) \
+స్థిర నిర్మాణం mempool pool_name = { \
+        .tile_కొలత = పరిమాణం(tile_type), \
+        .at_కనిష్ఠ = alloc_at_కనిష్ఠ, \
 }
 
-bool mempool_enabled(void) _weak_ _pure_;
+bool mempool_enabled(శూన్య) _weak_ శుద్ధ;
 
-void mempool_trim(struct mempool *mp);
+శూన్య mempool_trim(నిర్మాణం mempool *mp);

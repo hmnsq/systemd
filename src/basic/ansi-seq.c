@@ -1,37 +1,37 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "ansi-seq.h"
-#include "string-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "ansi-seq.h"
+#అన్తర్భావ "string-util.h"
 
-void ansi_seq_parser_done(AnsiSeqParser *p) {
-        assert(p);
+శూన్య ansi_seq_parser_పూర్తి(AnsiSeqParser *p) {
+        ప్రతిజ్ఞా(p);
 
         p->string = mfree(p->string);
         p->string_len = 0;
 }
 
-static void ansi_seq_parser_begin_string(AnsiSeqParser *p, char introducer) {
-        assert(p);
+స్థిర శూన్య ansi_seq_parser_begin_string(AnsiSeqParser *p, అక్షరం introducer) {
+        ప్రతిజ్ఞా(p);
 
         p->string_len = 0;
-        if (p->string)
+        ఒకవేళ (p->string)
                 p->string[0] = 0;
         p->bad = false;
         p->introducer = introducer;
 }
 
-static int ansi_seq_parser_push_string(AnsiSeqParser *p, char c) {
-        assert(p);
-        assert(!p->bad); /* only ever set together with a reset to the ground state, hence never seen here */
+స్థిర పూర్ణాంకం ansi_seq_parser_నెట్టు_string(AnsiSeqParser *p, అక్షరం c) {
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(!p->bad); /* only ever set together with a reset to the ground state, hence never seen here */
 
         /* Safety check: don't capture unbounded string sequences */
-        if (p->string_len >= ANSI_SEQ_STRING_MAX)
-                return 0; /* too long */
+        ఒకవేళ (p->string_len >= ANSI_SEQ_STRING_MAX)
+                తిరిగి 0; /* too long */
 
-        if (p->capture) {
-                if (!GREEDY_REALLOC(p->string, p->string_len + 2))
-                        return -ENOMEM;
+        ఒకవేళ (p->capture) {
+                ఒకవేళ (!GREEDY_REALLOC(p->string, p->string_len + 2))
+                        తిరిగి -ENOMEM;
 
                 p->string[p->string_len+0] = c;
                 p->string[p->string_len+1] = 0;
@@ -39,184 +39,184 @@ static int ansi_seq_parser_push_string(AnsiSeqParser *p, char c) {
 
         p->string_len++;
 
-        return 1; /* added */
+        తిరిగి 1; /* added */
 }
 
-static int ansi_seq_parser_bad(AnsiSeqParser *p) {
-        assert(p);
+స్థిర పూర్ణాంకం ansi_seq_parser_bad(AnsiSeqParser *p) {
+        ప్రతిజ్ఞా(p);
 
         /* A bad sequence has been received, reset state to ground, and remember this */
 
         p->state = ANSI_SEQ_STATE_GROUND;
         p->bad = true;
-        return ANSI_SEQ_EVENT_ABORT;
+        తిరిగి ANSI_SEQ_EVENT_ABORT;
 }
 
-int ansi_seq_parser_feed(AnsiSeqParser *p, char c) {
+పూర్ణాంకం ansi_seq_parser_feed(AnsiSeqParser *p, అక్షరం c) {
         uint8_t u = (uint8_t) c;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
-        switch (p->state) {
+        ఎంపిక (p->state) {
 
-        case ANSI_SEQ_STATE_GROUND:
-                if (c == 0x1B) { /* ESC */
+        స్థితి ANSI_SEQ_STATE_GROUND:
+                ఒకవేళ (c == 0x1B) { /* ESC */
                         p->state = ANSI_SEQ_STATE_ESC;
                         ansi_seq_parser_begin_string(p, /* introducer= */ 0);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
                 }
 
-                return ANSI_SEQ_EVENT_TEXT;
+                తిరిగి ANSI_SEQ_EVENT_పాఠ్యం;
 
-        case ANSI_SEQ_STATE_ESC:
-                switch (c) {
+        స్థితి ANSI_SEQ_STATE_ESC:
+                ఎంపిక (c) {
 
-                case '[': /* CSI sequence */
+                స్థితి '[': /* CSI sequence */
                         p->state = ANSI_SEQ_STATE_CSI;
                         ansi_seq_parser_begin_string(p, c);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
 
-                case ']': /* OSC */
-                case 'P': /* DCS */
-                case 'X': /* SOS */
-                case '^': /* PM */
-                case '_': /* APC */
+                స్థితి ']': /* OSC */
+                స్థితి 'P': /* DCS */
+                స్థితి 'X': /* SOS */
+                స్థితి '^': /* PM */
+                స్థితి '_': /* APC */
                         p->state = ANSI_SEQ_STATE_STRING;
                         ansi_seq_parser_begin_string(p, c);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
 
-                case 0x40 ... 0x4f: /* Fe sequence, i.e. the 7-bit form of the C1 controls (e.g. ESC M = RI),
+                స్థితి 0x40 ... 0x4f: /* Fe sequence, i.e. the 7-bit form of the C1 controls (e.g. ESC M = RI),
                                      * except for those introducing CSI/string sequences, handled above */
-                case 0x51 ... 0x57:
-                case 0x59 ... 0x5a:
-                case 0x5c:
-                case 0x60 ... 0x7e: /* Fs sequence */
-                case 0x30 ... 0x3f: /* Fp sequence */
+                స్థితి 0x51 ... 0x57:
+                స్థితి 0x59 ... 0x5a:
+                స్థితి 0x5c:
+                స్థితి 0x60 ... 0x7e: /* Fs sequence */
+                స్థితి 0x30 ... 0x3f: /* Fp sequence */
                         p->state = ANSI_SEQ_STATE_GROUND;
                         p->introducer = c;
-                        return ANSI_SEQ_EVENT_END;
+                        తిరిగి ANSI_SEQ_EVENT_చివర;
 
-                case 0x20 ... 0x2f: /* nF sequence */
+                స్థితి 0x20 ... 0x2f: /* nF sequence */
                         p->state = ANSI_SEQ_STATE_NF;
                         ansi_seq_parser_begin_string(p, c);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
 
-                default:
+                అప్రమేయ:
                         /* Anything else is not a valid escape sequence, give up on it */
-                        return ansi_seq_parser_bad(p);
+                        తిరిగి ansi_seq_parser_bad(p);
                 }
 
-        case ANSI_SEQ_STATE_CSI:
-                if (u >= 0x40 && u <= 0x7E) { /* final byte, the sequence is complete */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return ansi_seq_parser_bad(p);
+        స్థితి ANSI_SEQ_STATE_CSI:
+                ఒకవేళ (u >= 0x40 && u <= 0x7E) { /* final byte, the sequence is complete */
+                        r = ansi_seq_parser_నెట్టు_string(p, c);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (r == 0)
+                                తిరిగి ansi_seq_parser_bad(p);
 
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        తిరిగి ANSI_SEQ_EVENT_చివర;
                 }
 
-                if (u >= 0x20 && u <= 0x3F) {
+                ఒకవేళ (u >= 0x20 && u <= 0x3F) {
                         /* parameter or intermediate byte, the sequence continues */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return ANSI_SEQ_EVENT_SEQUENCE;
+                        r = ansi_seq_parser_నెట్టు_string(p, c);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (r > 0)
+                                తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
 
                         /* fall through on too long */
                 }
 
                 /* Anything else is not a valid escape sequence, give up on it */
-                return ansi_seq_parser_bad(p);
+                తిరిగి ansi_seq_parser_bad(p);
 
-        case ANSI_SEQ_STATE_STRING:
-                if (c == 0x07) { /* BEL, the single character ST */
+        స్థితి ANSI_SEQ_STATE_STRING:
+                ఒకవేళ (c == 0x07) { /* BEL, the single character ST */
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        తిరిగి ANSI_SEQ_EVENT_చివర;
                 }
 
-                if (c == 0x1B) { /* Presumably the beginning of the two character ST. Note that we do not
+                ఒకవేళ (c == 0x1B) { /* Presumably the beginning of the two character ST. Note that we do not
                                   * support the C1 encoding of ST (0x9C), since that's a valid UTF-8
                                   * codepoint and would hence be ambiguous. */
                         p->state = ANSI_SEQ_STATE_STRING_ESC;
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
                 }
 
-                if (u >= 0x20U) { /* regular payload */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return ANSI_SEQ_EVENT_SEQUENCE;
+                ఒకవేళ (u >= 0x20U) { /* regular payload */
+                        r = ansi_seq_parser_నెట్టు_string(p, c);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (r > 0)
+                                తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
 
                         /* fall through on too long */
                 }
 
                 /* Any other control character: give up on this sequence */
-                return ansi_seq_parser_bad(p);
+                తిరిగి ansi_seq_parser_bad(p);
 
-        case ANSI_SEQ_STATE_STRING_ESC:
-                if (c == '\\') { /* ST is complete, and so is the string sequence */
+        స్థితి ANSI_SEQ_STATE_STRING_ESC:
+                ఒకవేళ (c == '\\') { /* ST is complete, and so is the string sequence */
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        తిరిగి ANSI_SEQ_EVENT_చివర;
                 }
 
-                return ansi_seq_parser_bad(p);
+                తిరిగి ansi_seq_parser_bad(p);
 
-        case ANSI_SEQ_STATE_NF:
-                if (u >= 0x30 && u <= 0x7E) { /* final byte, the sequence is complete */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return ansi_seq_parser_bad(p);
+        స్థితి ANSI_SEQ_STATE_NF:
+                ఒకవేళ (u >= 0x30 && u <= 0x7E) { /* final byte, the sequence is complete */
+                        r = ansi_seq_parser_నెట్టు_string(p, c);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (r == 0)
+                                తిరిగి ansi_seq_parser_bad(p);
 
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        తిరిగి ANSI_SEQ_EVENT_చివర;
                 }
 
-                if (u >= 0x20 && u <= 0x2F) {
+                ఒకవేళ (u >= 0x20 && u <= 0x2F) {
                         /* parameter or intermediate byte, the sequence continues */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return ANSI_SEQ_EVENT_SEQUENCE;
+                        r = ansi_seq_parser_నెట్టు_string(p, c);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        ఒకవేళ (r > 0)
+                                తిరిగి ANSI_SEQ_EVENT_SEQUENCE;
 
                         /* fall through on too long */
                 }
 
                 /* Anything else is not a valid escape sequence, give up on it */
-                return ansi_seq_parser_bad(p);
+                తిరిగి ansi_seq_parser_bad(p);
 
-        default:
+        అప్రమేయ:
                 assert_not_reached();
         }
 }
 
-int ansi_seq_parser_feed_harder(AnsiSeqParser *p, char c) {
-        int r;
+పూర్ణాంకం ansi_seq_parser_feed_harder(AnsiSeqParser *p, అక్షరం c) {
+        పూర్ణాంకం r;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
         /* Just like ansi_seq_parser_feed(), but automatically eat up abort events, and resubmit the bad character. */
 
-        do {
+        చేయి {
                 r = ansi_seq_parser_feed(p, c);
-        } while (r == ANSI_SEQ_EVENT_ABORT);
+        } అయితే (r == ANSI_SEQ_EVENT_ABORT);
 
-        return r;
+        తిరిగి r;
 }
 
-const char* ansi_seq_parser_string(const AnsiSeqParser *p) {
-        assert(p);
+స్థిరరాశి అక్షరం* ansi_seq_parser_string(స్థిరరాశి AnsiSeqParser *p) {
+        ప్రతిజ్ఞా(p);
 
-        if (!p->capture || p->bad || p->introducer == 0)
-                return NULL;
+        ఒకవేళ (!p->capture || p->bad || p->introducer == 0)
+                తిరిగి ఖాళీ;
 
-        return strempty(p->string);
+        తిరిగి strempty(p->string);
 }

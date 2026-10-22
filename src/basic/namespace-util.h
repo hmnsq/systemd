@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef enum NamespaceType {
+రకనిర్వచనం గణన NamespaceType {
         NAMESPACE_CGROUP,
         NAMESPACE_IPC,
         NAMESPACE_NET,
@@ -11,107 +11,107 @@ typedef enum NamespaceType {
         NAMESPACE_PID,
         NAMESPACE_USER,
         NAMESPACE_UTS,
-        NAMESPACE_TIME,
+        NAMESPACE_సమయం,
         _NAMESPACE_TYPE_MAX,
         _NAMESPACE_TYPE_INVALID = -EINVAL,
 } NamespaceType;
 
-extern const struct namespace_info {
-        const char *proc_name;
-        const char *proc_path;
-        unsigned long clone_flag;
-        unsigned long pidfd_get_ns_ioctl_cmd;
-        ino_t root_inode;
+బాహ్య స్థిరరాశి నిర్మాణం namespace_info {
+        స్థిరరాశి అక్షరం *proc_name;
+        స్థిరరాశి అక్షరం *proc_మార్గం;
+        గుర్తులేని దీర్ఘ clone_flag;
+        గుర్తులేని దీర్ఘ pidfd_get_ns_ioctl_cmd;
+        ino_t మూలం_inode;
 } namespace_info[_NAMESPACE_TYPE_MAX + 1];
 
-NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag);
+NamespaceType clone_flag_గమ్యం_namespace_type(గుర్తులేని దీర్ఘ clone_flag);
 
 bool namespace_type_supported(NamespaceType type);
 
-int pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
-int namespace_open_by_type(NamespaceType type);
+పూర్ణాంకం pidref_namespace_open_by_type(స్థిరరాశి PidRef *pidref, NamespaceType type);
+పూర్ణాంకం namespace_open_by_type(NamespaceType type);
 
-int pidref_namespace_open(
-                const PidRef *pidref,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
-int namespace_open(
+పూర్ణాంకం pidref_namespace_open(
+                స్థిరరాశి PidRef *pidref,
+                పూర్ణాంకం *ret_pidns_fd,
+                పూర్ణాంకం *ret_mntns_fd,
+                పూర్ణాంకం *ret_netns_fd,
+                పూర్ణాంకం *ret_userns_fd,
+                పూర్ణాంకం *ret_మూలం_fd);
+పూర్ణాంకం namespace_open(
                 pid_t pid,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
+                పూర్ణాంకం *ret_pidns_fd,
+                పూర్ణాంకం *ret_mntns_fd,
+                పూర్ణాంకం *ret_netns_fd,
+                పూర్ణాంకం *ret_userns_fd,
+                పూర్ణాంకం *ret_మూలం_fd);
 
-typedef enum NamespaceEnterFlags {
+రకనిర్వచనం గణన NamespaceEnterFlags {
         /* If root is not mapped in the user namespace, keep our UID/GID instead of failing. The caller must
          * ensure that retaining its original identity is appropriate in that case. Entering still fails
          * with -ENODATA if the namespace has no mappings at all yet, since root might still get mapped. */
-        NAMESPACE_ENTER_KEEP_UID_GID_IF_ROOT_UNMAPPED = 1 << 0,
+        NAMESPACE_ENTER_KEEP_UID_GID_IF_మూలం_UNMAPPED = 1 << 0,
 } NamespaceEnterFlags;
 
 /* If a user namespace is entered we become root in it, and fail if that's not possible. */
-int namespace_enter_full(
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+పూర్ణాంకం namespace_enter_నిండిన(
+                పూర్ణాంకం pidns_fd,
+                పూర్ణాంకం mntns_fd,
+                పూర్ణాంకం netns_fd,
+                పూర్ణాంకం userns_fd,
+                పూర్ణాంకం మూలం_fd,
                 NamespaceEnterFlags flags);
 
-static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
+స్థిర అంతఃవరుస పూర్ణాంకం namespace_enter(పూర్ణాంకం pidns_fd, పూర్ణాంకం mntns_fd, పూర్ణాంకం netns_fd, పూర్ణాంకం userns_fd, పూర్ణాంకం మూలం_fd) {
+        తిరిగి namespace_enter_నిండిన(pidns_fd, mntns_fd, netns_fd, userns_fd, మూలం_fd, /* flags= */ 0);
 }
 
-int fd_is_namespace(int fd, NamespaceType type);
-int is_our_namespace(int fd, NamespaceType type);
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
+పూర్ణాంకం fd_is_namespace(పూర్ణాంకం fd, NamespaceType type);
+పూర్ణాంకం is_our_namespace(పూర్ణాంకం fd, NamespaceType type);
+పూర్ణాంకం are_our_namespaces(పూర్ణాంకం pidns_fd, పూర్ణాంకం mntns_fd, పూర్ణాంకం netns_fd, పూర్ణాంకం userns_fd, పూర్ణాంకం మూలం_fd);
 
-int network_namespace_is_init(int socket_fd);
-int namespace_is_init(NamespaceType type);
+పూర్ణాంకం జాలం_namespace_is_init(పూర్ణాంకం socket_fd);
+పూర్ణాంకం namespace_is_init(NamespaceType type);
 
-int pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
-int in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
+పూర్ణాంకం pidref_లోపల_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
+పూర్ణాంకం లోపల_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
 
-int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
+పూర్ణాంకం namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
 
-int detach_mount_namespace(void);
-int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
-int detach_mount_namespace_userns(int userns_fd);
+పూర్ణాంకం detach_mount_namespace(శూన్య);
+పూర్ణాంకం detach_mount_namespace_harder(uid_t లక్ష్యం_uid, gid_t లక్ష్యం_gid);
+పూర్ణాంకం detach_mount_namespace_userns(పూర్ణాంకం userns_fd);
 
-static inline bool userns_shift_range_valid(uid_t shift, uid_t range) {
+స్థిర అంతఃవరుస bool userns_జరుపు_range_valid(uid_t జరుపు, uid_t range) {
         /* Checks that the specified userns range makes sense, i.e. contains at least one UID, and the end
          * doesn't overflow uid_t. */
 
         assert_cc((uid_t) -1 > 0); /* verify that uid_t is unsigned */
 
-        if (range <= 0)
-                return false;
+        ఒకవేళ (range <= 0)
+                తిరిగి false;
 
-        if (shift > (uid_t) -1 - range)
-                return false;
+        ఒకవేళ (జరుపు > (uid_t) -1 - range)
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
+పూర్ణాంకం parse_userns_uid_range(స్థిరరాశి అక్షరం *s, uid_t *ret_uid_జరుపు, uid_t *ret_uid_range);
 
-int userns_acquire_empty(void);
-int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
-int userns_acquire_self_root(void);
-int userns_enter_and_pin(int userns_fd, PidRef *ret);
-bool userns_supported(void);
+పూర్ణాంకం userns_acquire_ఖాళీలు(శూన్య);
+పూర్ణాంకం userns_acquire(స్థిరరాశి అక్షరం *uid_map, స్థిరరాశి అక్షరం *gid_map, bool setgroups_deny);
+పూర్ణాంకం userns_acquire_self_మూలం(శూన్య);
+పూర్ణాంకం userns_enter_and_pin(పూర్ణాంకం userns_fd, PidRef *ret);
+bool userns_supported(శూన్య);
 
-int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid);
-int userns_has_root_mapping(int userns_fd);
+పూర్ణాంకం userns_get_పునాది_uid(పూర్ణాంకం userns_fd, uid_t *ret_uid, gid_t *ret_gid);
+పూర్ణాంకం userns_has_మూలం_mapping(పూర్ణాంకం userns_fd);
 
-int namespace_open_by_id(uint64_t ns_id);
+పూర్ణాంకం namespace_open_by_id(uint64_t ns_id);
 
-int process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
+పూర్ణాంకం process_is_owned_by_uid(స్థిరరాశి PidRef *pidref, uid_t uid);
 
-int is_idmapping_supported(const char *path);
+పూర్ణాంకం is_idmapping_supported(స్థిరరాశి అక్షరం *మార్గం);
 
-int netns_acquire(void);
+పూర్ణాంకం netns_acquire(శూన్య);

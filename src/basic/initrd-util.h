@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-bool in_initrd(void);
-void in_initrd_force(bool value);
+bool లోపల_initrd(శూన్య);
+శూన్య లోపల_initrd_force(bool విలువ);
 
-int in_first_boot(void);
+పూర్ణాంకం లోపల_మొదటి_boot(శూన్య);

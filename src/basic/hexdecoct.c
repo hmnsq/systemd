@@ -1,160 +1,160 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <ctype.h>
-#include <stdio.h>
+#అన్తర్భావ <ctype.h>
+#అన్తర్భావ <stdio.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "memory-util.h"
-#include "string-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "hexdecoct.h"
+#అన్తర్భావ "memory-util.h"
+#అన్తర్భావ "string-util.h"
 
-char octchar(int x) {
-        return '0' + (x & 7);
+అక్షరం octchar(పూర్ణాంకం x) {
+        తిరిగి '0' + (x & 7);
 }
 
-int unoctchar(char c) {
+పూర్ణాంకం unoctchar(అక్షరం c) {
 
-        if (c >= '0' && c <= '7')
-                return c - '0';
+        ఒకవేళ (c >= '0' && c <= '7')
+                తిరిగి c - '0';
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-char decchar(int x) {
-        return '0' + (x % 10);
+అక్షరం decchar(పూర్ణాంకం x) {
+        తిరిగి '0' + (x % 10);
 }
 
-int undecchar(char c) {
+పూర్ణాంకం undecchar(అక్షరం c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        ఒకవేళ (c >= '0' && c <= '9')
+                తిరిగి c - '0';
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-char hexchar(int x) {
-        const char *table = LOWERCASE_HEXDIGITS;
-        return table[x & 15];
+అక్షరం hexchar(పూర్ణాంకం x) {
+        స్థిరరాశి అక్షరం *పట్టిక = LOWERCASE_HEXDIGITS;
+        తిరిగి పట్టిక[x & 15];
 }
 
-int unhexchar(char c) {
+పూర్ణాంకం unhexchar(అక్షరం c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        ఒకవేళ (c >= '0' && c <= '9')
+                తిరిగి c - '0';
 
-        if (c >= 'a' && c <= 'f')
-                return c - 'a' + 10;
+        ఒకవేళ (c >= 'a' && c <= 'f')
+                తిరిగి c - 'a' + 10;
 
-        if (c >= 'A' && c <= 'F')
-                return c - 'A' + 10;
+        ఒకవేళ (c >= 'A' && c <= 'F')
+                తిరిగి c - 'A' + 10;
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-char* hexmem(const void *p, size_t l) {
-        const uint8_t *x;
-        char *r, *z;
+అక్షరం* hexmem(స్థిరరాశి శూన్య *p, size_t l) {
+        స్థిరరాశి uint8_t *x;
+        అక్షరం *r, *z;
 
-        assert(p || l == 0);
+        ప్రతిజ్ఞా(p || l == 0);
 
-        z = r = new(char, l * 2 + 1);
-        if (!r)
-                return NULL;
+        z = r = new(అక్షరం, l * 2 + 1);
+        ఒకవేళ (!r)
+                తిరిగి ఖాళీ;
 
-        for (x = p; x && x < (const uint8_t*) p + l; x++) {
+        కొరకు (x = p; x && x < (స్థిరరాశి uint8_t*) p + l; x++) {
                 *(z++) = hexchar(*x >> 4);
                 *(z++) = hexchar(*x & 15);
         }
 
         *z = 0;
-        return r;
+        తిరిగి r;
 }
 
-static int unhex_next(const char **p, size_t *l) {
-        int r;
+స్థిర పూర్ణాంకం unhex_తదుపరి(స్థిరరాశి అక్షరం **p, size_t *l) {
+        పూర్ణాంకం r;
 
-        assert(p);
-        assert(l);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(l);
 
         /* Find the next non-whitespace character, and decode it. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        కొరకు (;;) {
+                ఒకవేళ (*l == 0)
+                        తిరిగి -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                ఒకవేళ (!strchr(WHITESPACE, **p))
+                        ఆపు;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
         r = unhexchar(**p);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        for (;;) {
+        కొరకు (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0 || !strchr(WHITESPACE, **p))
-                        break;
+                ఒకవేళ (*l == 0 || !strchr(WHITESPACE, **p))
+                        ఆపు;
 
                 /* Skip following whitespace */
         }
 
-        return r;
+        తిరిగి r;
 }
 
-int unhexmem_full(
-                const char *p,
+పూర్ణాంకం unhexmem_నిండిన(
+                స్థిరరాశి అక్షరం *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
-                size_t *ret_size) {
+                శూన్య **ret_దత్తాంశం,
+                size_t *ret_కొలత) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
+        _cleanup_free_ uint8_t *buf = ఖాళీ;
         size_t buf_size;
-        const char *x;
+        స్థిరరాశి అక్షరం *x;
         uint8_t *z;
 
-        assert(p || l == 0);
+        ప్రతిజ్ఞా(p || l == 0);
 
-        if (l == SIZE_MAX)
-                l = strlen(p);
+        ఒకవేళ (l == SIZE_MAX)
+                l = అక్షరశ్రేణి_పొడవు(p);
 
         /* Note that the calculation of memory size is an upper boundary, as we ignore whitespace while decoding */
         buf_size = (l + 1) / 2 + 1;
-        buf = malloc(buf_size);
-        if (!buf)
-                return -ENOMEM;
+        buf = జ్ఞాపకం_ఇవ్వు(buf_size);
+        ఒకవేళ (!buf)
+                తిరిగి -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, buf_size);
+        CLEANUP_ERASE_PTR(secure ? &buf : ఖాళీ, buf_size);
 
-        for (x = p, z = buf;;) {
-                int a, b;
+        కొరకు (x = p, z = buf;;) {
+                పూర్ణాంకం a, b;
 
-                a = unhex_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
+                a = unhex_తదుపరి(&x, &l);
+                ఒకవేళ (a == -EPIPE) /* End of string */
+                        ఆపు;
+                ఒకవేళ (a < 0)
+                        తిరిగి a;
 
-                b = unhex_next(&x, &l);
-                if (b < 0)
-                        return b;
+                b = unhex_తదుపరి(&x, &l);
+                ఒకవేళ (b < 0)
+                        తిరిగి b;
 
                 *(z++) = (uint8_t) a << 4 | (uint8_t) b;
         }
 
         *z = 0;
 
-        if (ret_size)
-                *ret_size = (size_t) (z - buf);
-        if (ret_data)
-                *ret_data = TAKE_PTR(buf);
+        ఒకవేళ (ret_కొలత)
+                *ret_కొలత = (size_t) (z - buf);
+        ఒకవేళ (ret_దత్తాంశం)
+                *ret_దత్తాంశం = TAKE_PTR(buf);
 
-        return 0;
+        తిరిగి 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-6
@@ -163,60 +163,60 @@ int unhexmem_full(
  * order of the underlying data when compared as bytestrings, this is
  * useful when representing NSEC3 hashes, as one can then verify the
  * order of hashes directly from their representation. */
-char base32hexchar(int x) {
-        const char *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
-        return table[x & 31];
+అక్షరం base32hexchar(పూర్ణాంకం x) {
+        స్థిరరాశి అక్షరం *పట్టిక = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
+        తిరిగి పట్టిక[x & 31];
 }
 
-int unbase32hexchar(char c) {
-        unsigned offset;
+పూర్ణాంకం unbase32hexchar(అక్షరం c) {
+        గుర్తులేని స్థానభ్రంశం;
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        ఒకవేళ (c >= '0' && c <= '9')
+                తిరిగి c - '0';
 
-        offset = '9' - '0' + 1;
+        స్థానభ్రంశం = '9' - '0' + 1;
 
-        if (c >= 'A' && c <= 'V')
-                return c - 'A' + offset;
+        ఒకవేళ (c >= 'A' && c <= 'V')
+                తిరిగి c - 'A' + స్థానభ్రంశం;
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-char* base32hexmem(const void *p, size_t l, bool padding) {
-        char *r, *z;
-        const uint8_t *x;
+అక్షరం* base32hexmem(స్థిరరాశి శూన్య *p, size_t l, bool padding) {
+        అక్షరం *r, *z;
+        స్థిరరాశి uint8_t *x;
         size_t len;
 
-        assert(p || l == 0);
+        ప్రతిజ్ఞా(p || l == 0);
 
-        if (padding)
+        ఒకవేళ (padding)
                 /* five input bytes makes eight output bytes, padding is added so we must round up */
                 len = 8 * (l + 4) / 5;
-        else {
+        లేకపోతే {
                 /* same, but round down as there is no padding */
                 len = 8 * l / 5;
 
-                switch (l % 5) {
-                case 4:
+                ఎంపిక (l % 5) {
+                స్థితి 4:
                         len += 7;
-                        break;
-                case 3:
+                        ఆపు;
+                స్థితి 3:
                         len += 5;
-                        break;
-                case 2:
+                        ఆపు;
+                స్థితి 2:
                         len += 4;
-                        break;
-                case 1:
+                        ఆపు;
+                స్థితి 1:
                         len += 2;
-                        break;
+                        ఆపు;
                 }
         }
 
-        z = r = malloc(len + 1);
-        if (!r)
-                return NULL;
+        z = r = జ్ఞాపకం_ఇవ్వు(len + 1);
+        ఒకవేళ (!r)
+                తిరిగి ఖాళీ;
 
-        for (x = p; x < (const uint8_t*) p + (l / 5) * 5; x += 5) {
+        కొరకు (x = p; x < (స్థిరరాశి uint8_t*) p + (l / 5) * 5; x += 5) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ
                  * x[3] == QQQQQQQQ; x[4] == WWWWWWWW */
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
@@ -229,8 +229,8 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[4] & 31));                  /* 000WWWWW */
         }
 
-        switch (l % 5) {
-        case 4:
+        ఎంపిక (l % 5) {
+        స్థితి 4:
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6);  /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);             /* 000YYYYY */
@@ -238,43 +238,43 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[2] & 15) << 1 | x[3] >> 7); /* 000ZZZZQ */
                 *(z++) = base32hexchar((x[3] & 127) >> 2);            /* 000QQQQQ */
                 *(z++) = base32hexchar((x[3] & 3) << 3);              /* 000QQ000 */
-                if (padding)
+                ఒకవేళ (padding)
                         *(z++) = '=';
 
-                break;
+                ఆపు;
 
-        case 3:
+        స్థితి 3:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4 | x[2] >> 4); /* 000YZZZZ */
                 *(z++) = base32hexchar((x[2] & 15) << 1);            /* 000ZZZZ0 */
-                if (padding) {
+                ఒకవేళ (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                ఆపు;
 
-        case 2:
+        స్థితి 2:
                 *(z++) = base32hexchar(x[0] >> 3);                   /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4);             /* 000Y0000 */
-                if (padding) {
+                ఒకవేళ (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
                 }
 
-                break;
+                ఆపు;
 
-        case 1:
+        స్థితి 1:
                 *(z++) = base32hexchar(x[0] >> 3);       /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2); /* 000XXX00 */
-                if (padding) {
+                ఒకవేళ (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
@@ -283,35 +283,35 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                         *(z++) = '=';
                 }
 
-                break;
+                ఆపు;
         }
 
         *z = 0;
-        return r;
+        తిరిగి r;
 }
 
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_len) {
-        _cleanup_free_ uint8_t *r = NULL;
-        int a, b, c, d, e, f, g, h;
+పూర్ణాంకం unbase32hexmem(స్థిరరాశి అక్షరం *p, size_t l, bool padding, శూన్య **mem, size_t *_len) {
+        _cleanup_free_ uint8_t *r = ఖాళీ;
+        పూర్ణాంకం a, b, c, d, e, f, g, h;
         uint8_t *z;
-        const char *x;
+        స్థిరరాశి అక్షరం *x;
         size_t len;
-        unsigned pad = 0;
+        గుర్తులేని pad = 0;
 
-        assert(p || l == 0);
-        assert(mem);
-        assert(_len);
+        ప్రతిజ్ఞా(p || l == 0);
+        ప్రతిజ్ఞా(mem);
+        ప్రతిజ్ఞా(_len);
 
-        if (l == SIZE_MAX)
-                l = strlen(p);
+        ఒకవేళ (l == SIZE_MAX)
+                l = అక్షరశ్రేణి_పొడవు(p);
 
         /* padding ensures any base32hex input has input divisible by 8 */
-        if (padding && l % 8 != 0)
-                return -EINVAL;
+        ఒకవేళ (padding && l % 8 != 0)
+                తిరిగి -EINVAL;
 
-        if (padding) {
+        ఒకవేళ (padding) {
                 /* strip the padding */
-                while (l > 0 && p[l - 1] == '=' && pad < 7) {
+                అయితే (l > 0 && p[l - 1] == '=' && pad < 7) {
                         pad++;
                         l--;
                 }
@@ -321,63 +321,63 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
          * padding we need to add some extra bytes */
         len = (l / 8) * 5;
 
-        switch (l % 8) {
-        case 7:
+        ఎంపిక (l % 8) {
+        స్థితి 7:
                 len += 4;
-                break;
-        case 5:
+                ఆపు;
+        స్థితి 5:
                 len += 3;
-                break;
-        case 4:
+                ఆపు;
+        స్థితి 4:
                 len += 2;
-                break;
-        case 2:
+                ఆపు;
+        స్థితి 2:
                 len += 1;
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                ఆపు;
+        స్థితి 0:
+                ఆపు;
+        అప్రమేయ:
+                తిరిగి -EINVAL;
         }
 
-        z = r = malloc(len + 1);
-        if (!r)
-                return -ENOMEM;
+        z = r = జ్ఞాపకం_ఇవ్వు(len + 1);
+        ఒకవేళ (!r)
+                తిరిగి -ENOMEM;
 
-        for (x = p; x < p + (l / 8) * 8; x += 8) {
+        కొరకు (x = p; x < p + (l / 8) * 8; x += 8) {
                 /* a == 000XXXXX; b == 000YYYYY; c == 000ZZZZZ; d == 000WWWWW
                  * e == 000SSSSS; f == 000QQQQQ; g == 000VVVVV; h == 000RRRRR */
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ఒకవేళ (a < 0)
+                        తిరిగి -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ఒకవేళ (b < 0)
+                        తిరిగి -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ఒకవేళ (c < 0)
+                        తిరిగి -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ఒకవేళ (d < 0)
+                        తిరిగి -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                ఒకవేళ (e < 0)
+                        తిరిగి -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                ఒకవేళ (f < 0)
+                        తిరిగి -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                ఒకవేళ (g < 0)
+                        తిరిగి -EINVAL;
 
                 h = unbase32hexchar(x[7]);
-                if (h < 0)
-                        return -EINVAL;
+                ఒకవేళ (h < 0)
+                        తిరిగి -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -386,121 +386,121 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
                 *(z++) = (uint8_t) g << 5 | (uint8_t) h;                         /* VVVRRRRR */
         }
 
-        switch (l % 8) {
-        case 7:
+        ఎంపిక (l % 8) {
+        స్థితి 7:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ఒకవేళ (a < 0)
+                        తిరిగి -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ఒకవేళ (b < 0)
+                        తిరిగి -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ఒకవేళ (c < 0)
+                        తిరిగి -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ఒకవేళ (d < 0)
+                        తిరిగి -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                ఒకవేళ (e < 0)
+                        తిరిగి -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                ఒకవేళ (f < 0)
+                        తిరిగి -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                ఒకవేళ (g < 0)
+                        తిరిగి -EINVAL;
 
                 /* g == 000VV000 */
-                if (g & 7)
-                        return -EINVAL;
+                ఒకవేళ (g & 7)
+                        తిరిగి -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
                 *(z++) = (uint8_t) e << 7 | (uint8_t) f << 2 | (uint8_t) g >> 3; /* SQQQQQVV */
 
-                break;
-        case 5:
+                ఆపు;
+        స్థితి 5:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ఒకవేళ (a < 0)
+                        తిరిగి -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ఒకవేళ (b < 0)
+                        తిరిగి -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ఒకవేళ (c < 0)
+                        తిరిగి -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ఒకవేళ (d < 0)
+                        తిరిగి -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                ఒకవేళ (e < 0)
+                        తిరిగి -EINVAL;
 
                 /* e == 000SSSS0 */
-                if (e & 1)
-                        return -EINVAL;
+                ఒకవేళ (e & 1)
+                        తిరిగి -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
                 *(z++) = (uint8_t) d << 4 | (uint8_t) e >> 1;                    /* WWWWSSSS */
 
-                break;
-        case 4:
+                ఆపు;
+        స్థితి 4:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ఒకవేళ (a < 0)
+                        తిరిగి -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ఒకవేళ (b < 0)
+                        తిరిగి -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ఒకవేళ (c < 0)
+                        తిరిగి -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                ఒకవేళ (d < 0)
+                        తిరిగి -EINVAL;
 
                 /* d == 000W0000 */
-                if (d & 15)
-                        return -EINVAL;
+                ఒకవేళ (d & 15)
+                        తిరిగి -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
 
-                break;
-        case 2:
+                ఆపు;
+        స్థితి 2:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ఒకవేళ (a < 0)
+                        తిరిగి -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ఒకవేళ (b < 0)
+                        తిరిగి -EINVAL;
 
                 /* b == 000YYY00 */
-                if (b & 3)
-                        return -EINVAL;
+                ఒకవేళ (b & 3)
+                        తిరిగి -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2; /* XXXXXYYY */
 
-                break;
-        case 0:
-                break;
-        default:
-                return -EINVAL;
+                ఆపు;
+        స్థితి 0:
+                ఆపు;
+        అప్రమేయ:
+                తిరిగి -EINVAL;
         }
 
         *z = 0;
@@ -508,329 +508,329 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         *mem = TAKE_PTR(r);
         *_len = len;
 
-        return 0;
+        తిరిగి 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-4 */
-char base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
-        return table[x & 63];
+అక్షరం base64char(పూర్ణాంకం x) {
+        స్థిరరాశి అక్షరం *పట్టిక = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
+        తిరిగి పట్టిక[x & 63];
 }
 
 /* This is almost base64char(), but not entirely, as it uses the "url and filename safe" alphabet,
  * since we don't want "/" appear in interface names (since interfaces appear in sysfs as filenames).
  * See section #5 of RFC 4648. */
-char urlsafe_base64char(int x) {
-        const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
-        return table[x & 63];
+అక్షరం urlsafe_base64char(పూర్ణాంకం x) {
+        స్థిరరాశి అక్షరం *పట్టిక = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
+        తిరిగి పట్టిక[x & 63];
 }
 
-int unbase64char(char c) {
-        unsigned offset;
+పూర్ణాంకం unbase64char(అక్షరం c) {
+        గుర్తులేని స్థానభ్రంశం;
 
-        if (c >= 'A' && c <= 'Z')
-                return c - 'A';
+        ఒకవేళ (c >= 'A' && c <= 'Z')
+                తిరిగి c - 'A';
 
-        offset = 'Z' - 'A' + 1;
+        స్థానభ్రంశం = 'Z' - 'A' + 1;
 
-        if (c >= 'a' && c <= 'z')
-                return c - 'a' + offset;
+        ఒకవేళ (c >= 'a' && c <= 'z')
+                తిరిగి c - 'a' + స్థానభ్రంశం;
 
-        offset += 'z' - 'a' + 1;
+        స్థానభ్రంశం += 'z' - 'a' + 1;
 
-        if (c >= '0' && c <= '9')
-                return c - '0' + offset;
+        ఒకవేళ (c >= '0' && c <= '9')
+                తిరిగి c - '0' + స్థానభ్రంశం;
 
-        offset += '9' - '0' + 1;
+        స్థానభ్రంశం += '9' - '0' + 1;
 
-        if (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
-                return offset;
+        ఒకవేళ (లోపల_సమితి(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
+                తిరిగి స్థానభ్రంశం;
 
-        offset++;
+        స్థానభ్రంశం++;
 
-        if (IN_SET(c, '/', '_')) /* ditto */
-                return offset;
+        ఒకవేళ (లోపల_సమితి(c, '/', '_')) /* ditto */
+                తిరిగి స్థానభ్రంశం;
 
-        return -EINVAL;
+        తిరిగి -EINVAL;
 }
 
-static void maybe_line_break(char **x, char *start, size_t line_break) {
+స్థిర శూన్య maybe_పంక్తి_break(అక్షరం **x, అక్షరం *ప్రారంభం, size_t పంక్తి_break) {
         size_t n;
 
-        assert(x);
-        assert(*x);
-        assert(start);
-        assert(*x >= start);
+        ప్రతిజ్ఞా(x);
+        ప్రతిజ్ఞా(*x);
+        ప్రతిజ్ఞా(ప్రారంభం);
+        ప్రతిజ్ఞా(*x >= ప్రారంభం);
 
-        if (line_break == SIZE_MAX)
-                return;
+        ఒకవేళ (పంక్తి_break == SIZE_MAX)
+                తిరిగి;
 
-        n = *x - start;
+        n = *x - ప్రారంభం;
 
-        if (n % (line_break + 1) == line_break)
+        ఒకవేళ (n % (పంక్తి_break + 1) == పంక్తి_break)
                 *((*x)++) = '\n';
 }
 
-ssize_t base64mem_full(
-                const void *p,
+ssize_t base64mem_నిండిన(
+                స్థిరరాశి శూన్య *p,
                 size_t l,
-                size_t line_break,
-                char **ret) {
+                size_t పంక్తి_break,
+                అక్షరం **ret) {
 
-        const uint8_t *x;
-        char *b, *z;
+        స్థిరరాశి uint8_t *x;
+        అక్షరం *b, *z;
         size_t m;
 
-        assert(p || l == 0);
-        assert(line_break > 0);
-        assert(ret);
+        ప్రతిజ్ఞా(p || l == 0);
+        ప్రతిజ్ఞా(పంక్తి_break > 0);
+        ప్రతిజ్ఞా(ret);
 
         /* three input bytes makes four output bytes, padding is added so we must round up */
         m = 4 * (l + 2) / 3 + 1;
-        if (line_break != SIZE_MAX)
-                m += m / line_break;
+        ఒకవేళ (పంక్తి_break != SIZE_MAX)
+                m += m / పంక్తి_break;
 
-        z = b = malloc(m);
-        if (!b)
-                return -ENOMEM;
+        z = b = జ్ఞాపకం_ఇవ్వు(m);
+        ఒకవేళ (!b)
+                తిరిగి -ENOMEM;
 
-        for (x = p; x && x < (const uint8_t*) p + (l / 3) * 3; x += 3) {
+        కొరకు (x = p; x && x < (స్థిరరాశి uint8_t*) p + (l / 3) * 3; x += 3) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char(x[0] >> 2);                    /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4);  /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char((x[1] & 15) << 2 | x[2] >> 6); /* 00YYYYZZ */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char(x[2] & 63);                    /* 00ZZZZZZ */
         }
 
-        switch (l % 3) {
-        case 2:
-                maybe_line_break(&z, b, line_break);
+        ఎంపిక (l % 3) {
+        స్థితి 2:
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char(x[0] >> 2);                   /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char((x[0] & 3) << 4 | x[1] >> 4); /* 00XXYYYY */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char((x[1] & 15) << 2);            /* 00YYYY00 */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = '=';
-                break;
+                ఆపు;
 
-        case 1:
-                maybe_line_break(&z, b, line_break);
+        స్థితి 1:
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char(x[0] >> 2);        /* 00XXXXXX */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = base64char((x[0] & 3) << 4);  /* 00XX0000 */
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = '=';
-                maybe_line_break(&z, b, line_break);
+                maybe_పంక్తి_break(&z, b, పంక్తి_break);
                 *(z++) = '=';
-                break;
+                ఆపు;
         }
 
         *z = 0;
         *ret = b;
 
-        assert(z >= b); /* Let static analyzers know that the answer is non-negative. */
-        return z - b;
+        ప్రతిజ్ఞా(z >= b); /* Let static analyzers know that the answer is non-negative. */
+        తిరిగి z - b;
 }
 
-static ssize_t base64_append_width(
-                char **prefix,
+స్థిర ssize_t base64_append_వెడల్పు(
+                అక్షరం **ఉపసర్గ,
                 size_t plen,
-                char sep,
+                అక్షరం sep,
                 size_t indent,
-                const void *p,
+                స్థిరరాశి శూన్య *p,
                 size_t l,
                 size_t width) {
 
-        _cleanup_free_ char *x = NULL;
-        char *t, *s;
-        size_t lines;
+        _cleanup_free_ అక్షరం *x = ఖాళీ;
+        అక్షరం *t, *s;
+        size_t పంక్తులు;
         ssize_t len;
 
-        assert(prefix);
-        assert(*prefix || plen == 0);
-        assert(p || l == 0);
+        ప్రతిజ్ఞా(ఉపసర్గ);
+        ప్రతిజ్ఞా(*ఉపసర్గ || plen == 0);
+        ప్రతిజ్ఞా(p || l == 0);
 
         len = base64mem(p, l, &x);
-        if (len < 0)
-                return len;
-        if (len == 0)
-                return plen;
+        ఒకవేళ (len < 0)
+                తిరిగి len;
+        ఒకవేళ (len == 0)
+                తిరిగి plen;
 
-        lines = DIV_ROUND_UP(len, width);
+        పంక్తులు = DIV_విడత_పైకి(len, width);
 
-        if (plen >= SSIZE_MAX - 1 - 1 ||
-            lines > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
-                return -ENOMEM;
+        ఒకవేళ (plen >= SSIZE_MAX - 1 - 1 ||
+            పంక్తులు > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
+                తిరిగి -ENOMEM;
 
-        t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * lines);
-        if (!t)
-                return -ENOMEM;
+        t = realloc(*ఉపసర్గ, plen + 1 + 1 + (indent + width + 1) * పంక్తులు);
+        ఒకవేళ (!t)
+                తిరిగి -ENOMEM;
 
         s = t + plen;
-        for (size_t line = 0; line < lines; line++) {
+        కొరకు (size_t పంక్తి = 0; పంక్తి < పంక్తులు; పంక్తి++) {
                 size_t act = MIN(width, (size_t) len);
 
-                if (line > 0)
+                ఒకవేళ (పంక్తి > 0)
                         sep = '\n';
 
-                if (s > t) {
+                ఒకవేళ (s > t) {
                         *s++ = sep;
-                        if (sep == '\n')
+                        ఒకవేళ (sep == '\n')
                                 s = mempset(s, ' ', indent);
                 }
 
-                s = mempcpy(s, x + width * line, act);
+                s = mempcpy(s, x + width * పంక్తి, act);
                 len -= act;
         }
-        assert(len == 0);
+        ప్రతిజ్ఞా(len == 0);
 
         *s = '\0';
-        *prefix = t;
-        return s - t;
+        *ఉపసర్గ = t;
+        తిరిగి s - t;
 }
 
 ssize_t base64_append(
-                char **prefix,
+                అక్షరం **ఉపసర్గ,
                 size_t plen,
-                const void *p,
+                స్థిరరాశి శూన్య *p,
                 size_t l,
                 size_t indent,
                 size_t width) {
 
-        if (plen > width / 2 || plen + indent > width)
+        ఒకవేళ (plen > width / 2 || plen + indent > width)
                 /* leave indent on the left, keep last column free */
-                return base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
-        else
+                తిరిగి base64_append_వెడల్పు(ఉపసర్గ, plen, '\n', indent, p, l, width - indent);
+        లేకపోతే
                 /* leave plen on the left, keep last column free */
-                return base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
+                తిరిగి base64_append_వెడల్పు(ఉపసర్గ, plen, ' ', plen + 1, p, l, width - plen - 1);
 }
 
-static int unbase64_next(const char **p, size_t *l) {
-        int ret;
+స్థిర పూర్ణాంకం unbase64_తదుపరి(స్థిరరాశి అక్షరం **p, size_t *l) {
+        పూర్ణాంకం ret;
 
-        assert(p);
-        assert(l);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(l);
 
         /* Find the next non-whitespace character, and decode it. If we find padding, we return it as INT_MAX. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        కొరకు (;;) {
+                ఒకవేళ (*l == 0)
+                        తిరిగి -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                ఒకవేళ (!strchr(WHITESPACE, **p))
+                        ఆపు;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
-        if (**p == '=')
-                ret = INT_MAX; /* return padding as INT_MAX */
-        else {
+        ఒకవేళ (**p == '=')
+                ret = గరిష్ఠ_పూర్ణాంకం; /* return padding as INT_MAX */
+        లేకపోతే {
                 ret = unbase64char(**p);
-                if (ret < 0)
-                        return ret;
+                ఒకవేళ (ret < 0)
+                        తిరిగి ret;
         }
 
-        for (;;) {
+        కొరకు (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0)
-                        break;
-                if (!strchr(WHITESPACE, **p))
-                        break;
+                ఒకవేళ (*l == 0)
+                        ఆపు;
+                ఒకవేళ (!strchr(WHITESPACE, **p))
+                        ఆపు;
 
                 /* Skip following whitespace */
         }
 
-        return ret;
+        తిరిగి ret;
 }
 
-int unbase64mem_full(
-                const char *p,
+పూర్ణాంకం unbase64mem_నిండిన(
+                స్థిరరాశి అక్షరం *p,
                 size_t l,
                 bool secure,
-                void **ret_data,
-                size_t *ret_size) {
+                శూన్య **ret_దత్తాంశం,
+                size_t *ret_కొలత) {
 
-        _cleanup_free_ uint8_t *buf = NULL;
-        const char *x;
+        _cleanup_free_ uint8_t *buf = ఖాళీ;
+        స్థిరరాశి అక్షరం *x;
         uint8_t *z;
         size_t len;
 
-        assert(p || l == 0);
+        ప్రతిజ్ఞా(p || l == 0);
 
-        if (l == SIZE_MAX)
-                l = strlen(p);
+        ఒకవేళ (l == SIZE_MAX)
+                l = అక్షరశ్రేణి_పొడవు(p);
 
         /* A group of four input bytes needs three output bytes, in case of padding we need to add two or three extra
          * bytes. Note that this calculation is an upper boundary, as we ignore whitespace while decoding */
         len = (l / 4) * 3 + (l % 4 != 0 ? (l % 4) - 1 : 0);
 
-        buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        buf = జ్ఞాపకం_ఇవ్వు(len + 1);
+        ఒకవేళ (!buf)
+                తిరిగి -ENOMEM;
 
-        CLEANUP_ERASE_PTR(secure ? &buf : NULL, len);
+        CLEANUP_ERASE_PTR(secure ? &buf : ఖాళీ, len);
 
-        for (x = p, z = buf;;) {
-                int a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
+        కొరకు (x = p, z = buf;;) {
+                పూర్ణాంకం a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
 
-                a = unbase64_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
-                        break;
-                if (a < 0)
-                        return a;
-                if (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
-                        return -EINVAL;
+                a = unbase64_తదుపరి(&x, &l);
+                ఒకవేళ (a == -EPIPE) /* End of string */
+                        ఆపు;
+                ఒకవేళ (a < 0)
+                        తిరిగి a;
+                ఒకవేళ (a == గరిష్ఠ_పూర్ణాంకం) /* Padding is not allowed at the beginning of a 4ch block */
+                        తిరిగి -EINVAL;
 
-                b = unbase64_next(&x, &l);
-                if (b < 0)
-                        return b;
-                if (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
-                        return -EINVAL;
+                b = unbase64_తదుపరి(&x, &l);
+                ఒకవేళ (b < 0)
+                        తిరిగి b;
+                ఒకవేళ (b == గరిష్ఠ_పూర్ణాంకం) /* Padding is not allowed at the second character of a 4ch block either */
+                        తిరిగి -EINVAL;
 
-                c = unbase64_next(&x, &l);
-                if (c < 0)
-                        return c;
+                c = unbase64_తదుపరి(&x, &l);
+                ఒకవేళ (c < 0)
+                        తిరిగి c;
 
-                d = unbase64_next(&x, &l);
-                if (d < 0)
-                        return d;
+                d = unbase64_తదుపరి(&x, &l);
+                ఒకవేళ (d < 0)
+                        తిరిగి d;
 
-                if (c == INT_MAX) { /* Padding at the third character */
+                ఒకవేళ (c == గరిష్ఠ_పూర్ణాంకం) { /* Padding at the third character */
 
-                        if (d != INT_MAX) /* If the third character is padding, the fourth must be too */
-                                return -EINVAL;
+                        ఒకవేళ (d != గరిష్ఠ_పూర్ణాంకం) /* If the third character is padding, the fourth must be too */
+                                తిరిగి -EINVAL;
 
                         /* b == 00YY0000 */
-                        if (b & 15)
-                                return -EINVAL;
+                        ఒకవేళ (b & 15)
+                                తిరిగి -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        ఒకవేళ (l > 0) /* Trailing rubbish? */
+                                తిరిగి -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) (b >> 4); /* XXXXXXYY */
-                        break;
+                        ఆపు;
                 }
 
-                if (d == INT_MAX) {
+                ఒకవేళ (d == గరిష్ఠ_పూర్ణాంకం) {
                         /* c == 00ZZZZ00 */
-                        if (c & 3)
-                                return -EINVAL;
+                        ఒకవేళ (c & 3)
+                                తిరిగి -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        ఒకవేళ (l > 0) /* Trailing rubbish? */
+                                తిరిగి -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
                         *(z++) = (uint8_t) b << 4 | (uint8_t) c >> 2; /* YYYYZZZZ */
-                        break;
+                        ఆపు;
                 }
 
                 *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
@@ -840,58 +840,58 @@ int unbase64mem_full(
 
         *z = 0;
 
-        assert((size_t) (z - buf) <= len);
+        ప్రతిజ్ఞా((size_t) (z - buf) <= len);
 
-        if (ret_size)
-                *ret_size = (size_t) (z - buf);
-        if (ret_data)
-                *ret_data = TAKE_PTR(buf);
+        ఒకవేళ (ret_కొలత)
+                *ret_కొలత = (size_t) (z - buf);
+        ఒకవేళ (ret_దత్తాంశం)
+                *ret_దత్తాంశం = TAKE_PTR(buf);
 
-        return 0;
+        తిరిగి 0;
 }
 
-void hexdump(FILE *f, const void *p, size_t s) {
-        const uint8_t *b = p;
-        unsigned n = 0;
+శూన్య hexdump(FILE *f, స్థిరరాశి శూన్య *p, size_t s) {
+        స్థిరరాశి uint8_t *b = p;
+        గుర్తులేని n = 0;
 
-        assert(b || s == 0);
+        ప్రతిజ్ఞా(b || s == 0);
 
-        if (s == SIZE_MAX)
-                s = strlen(p);
+        ఒకవేళ (s == SIZE_MAX)
+                s = అక్షరశ్రేణి_పొడవు(p);
 
-        if (!f)
+        ఒకవేళ (!f)
                 f = stdout;
 
-        while (s > 0) {
+        అయితే (s > 0) {
                 size_t i;
 
                 fprintf(f, "%04x  ", n);
 
-                for (i = 0; i < 16; i++) {
+                కొరకు (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        ఒకవేళ (i >= s)
                                 fputs("   ", f);
-                        else
+                        లేకపోతే
                                 fprintf(f, "%02x ", b[i]);
 
-                        if (i == 7)
+                        ఒకవేళ (i == 7)
                                 fputc(' ', f);
                 }
 
                 fputc(' ', f);
 
-                for (i = 0; i < 16; i++) {
+                కొరకు (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        ఒకవేళ (i >= s)
                                 fputc(' ', f);
-                        else
-                                fputc(isprint(b[i]) ? (char) b[i] : '.', f);
+                        లేకపోతే
+                                fputc(isprint(b[i]) ? (అక్షరం) b[i] : '.', f);
                 }
 
                 fputc('\n', f);
 
-                if (s < 16)
-                        break;
+                ఒకవేళ (s < 16)
+                        ఆపు;
 
                 n += 16;
                 b += 16;

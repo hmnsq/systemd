@@ -1,337 +1,337 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
+#అన్తర్భావ <stdlib.h>
 
-#include "alloc-util.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "initrd-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "proc-cmdline.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "virt.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "initrd-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "proc-cmdline.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "virt.h"
 
-typedef enum ArgType {
-        no_argument,
-        required_argument,
-        optional_argument,
+రకనిర్వచనం గణన ArgType {
+        no_వాదం,
+        required_వాదం,
+        optional_వాదం,
 } ArgType;
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret) {
-        const struct {
-                const char *name;
+పూర్ణాంకం proc_cmdline_filter_pid1_వాదనలు(అక్షరం **argv, అక్షరం ***ret) {
+        స్థిరరాశి నిర్మాణం {
+                స్థిరరాశి అక్షరం *name;
                 ArgType has_arg;
         } options[] = {
-                { "log-level",                required_argument },
-                { "log-target",               required_argument },
-                { "log-color",                optional_argument },
-                { "log-location",             optional_argument },
-                { "log-time",                 optional_argument },
-                { "unit",                     required_argument },
-                { "system",                   no_argument,      },
-                { "user",                     no_argument,      },
-                { "test",                     no_argument,      },
-                { "no-pager",                 no_argument,      },
-                { "help",                     no_argument,      },
-                { "version",                  no_argument,      },
-                { "introspect-cli",           no_argument,      },
-                { "dump-configuration-items", no_argument,      },
-                { "dump-bus-properties",      no_argument,      },
-                { "bus-introspect",           required_argument },
-                { "dump-core",                optional_argument },
-                { "crash-chvt",               required_argument },
-                { "crash-vt",                 required_argument },
-                { "crash-shell",              optional_argument },
-                { "crash-reboot",             optional_argument },
-                { "crash-action",             required_argument },
-                { "confirm-spawn",            optional_argument },
-                { "show-status",              optional_argument },
-                { "deserialize",              required_argument },
-                { "switched-root",            no_argument,      },
-                { "default-standard-output",  required_argument },
-                { "default-standard-error",   required_argument },
-                { "machine-id",               required_argument },
-                { "service-watchdogs",        required_argument },
-                { "exit-code",                required_argument },
-                { "timeout",                  required_argument },
+                { "log-level",                required_వాదం },
+                { "log-target",               required_వాదం },
+                { "log-color",                optional_వాదం },
+                { "log-location",             optional_వాదం },
+                { "log-time",                 optional_వాదం },
+                { "unit",                     required_వాదం },
+                { "system",                   no_వాదం,      },
+                { "user",                     no_వాదం,      },
+                { "test",                     no_వాదం,      },
+                { "no-pager",                 no_వాదం,      },
+                { "help",                     no_వాదం,      },
+                { "version",                  no_వాదం,      },
+                { "introspect-cli",           no_వాదం,      },
+                { "dump-configuration-items", no_వాదం,      },
+                { "dump-bus-properties",      no_వాదం,      },
+                { "bus-introspect",           required_వాదం },
+                { "dump-core",                optional_వాదం },
+                { "crash-chvt",               required_వాదం },
+                { "crash-vt",                 required_వాదం },
+                { "crash-shell",              optional_వాదం },
+                { "crash-reboot",             optional_వాదం },
+                { "crash-action",             required_వాదం },
+                { "confirm-spawn",            optional_వాదం },
+                { "show-status",              optional_వాదం },
+                { "deserialize",              required_వాదం },
+                { "switched-root",            no_వాదం,      },
+                { "default-standard-output",  required_వాదం },
+                { "default-standard-error",   required_వాదం },
+                { "machine-id",               required_వాదం },
+                { "service-watchdogs",        required_వాదం },
+                { "exit-code",                required_వాదం },
+                { "timeout",                  required_వాదం },
         };
-        const char *short_options = "hDbsz:";
+        స్థిరరాశి అక్షరం *short_options = "hDbsz:";
 
-        _cleanup_strv_free_ char **filtered = NULL;
-        int state, r;
+        _cleanup_strv_free_ అక్షరం **filtered = ఖాళీ;
+        పూర్ణాంకం state, r;
 
-        assert(argv);
-        assert(ret);
+        ప్రతిజ్ఞా(argv);
+        ప్రతిజ్ఞా(ret);
 
         /* Currently, we do not support '-', '+', and ':' at the beginning. */
-        assert(!IN_SET(short_options[0], '-', '+', ':'));
+        ప్రతిజ్ఞా(!లోపల_సమితి(short_options[0], '-', '+', ':'));
 
         /* Filter out all known options. */
-        state = no_argument;
+        state = no_వాదం;
         STRV_FOREACH(p, strv_skip(argv, 1)) {
-                int prev_state = state;
-                const char *a = *p;
+                పూర్ణాంకం prev_state = state;
+                స్థిరరాశి అక్షరం *a = *p;
 
                 /* Reset the state for the next step. */
-                state = no_argument;
+                state = no_వాదం;
 
-                if (prev_state == required_argument ||
-                    (prev_state == optional_argument && a[0] != '-'))
+                ఒకవేళ (prev_state == required_వాదం ||
+                    (prev_state == optional_వాదం && a[0] != '-'))
                         /* Handled as an argument of the previous option, filtering out the string. */
-                        continue;
+                        కొనసాగు;
 
-                if (a[0] != '-') {
+                ఒకవేళ (a[0] != '-') {
                         /* Not an option, accepting the string. */
                         r = strv_extend(&filtered, a);
-                        if (r < 0)
-                                return r;
-                        continue;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        కొనసాగు;
                 }
 
-                if (a[1] == '-') {
-                        if (a[2] == '\0') {
+                ఒకవేళ (a[1] == '-') {
+                        ఒకవేళ (a[2] == '\0') {
                                 /* "--" is specified, accepting remaining strings. */
                                 r = strv_extend_strv(&filtered, strv_skip(p, 1), /* filter_duplicates= */ false);
-                                if (r < 0)
-                                        return r;
-                                break;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
+                                ఆపు;
                         }
 
                         /* long option, e.g. --foo */
                         FOREACH_ELEMENT(option, options) {
-                                const char *q = startswith(a + 2, option->name);
-                                if (!q || !IN_SET(q[0], '=', '\0'))
-                                        continue;
+                                స్థిరరాశి అక్షరం *q = startswith(a + 2, option->name);
+                                ఒకవేళ (!q || !లోపల_సమితి(q[0], '=', '\0'))
+                                        కొనసాగు;
 
                                 /* Found matching option, updating the state if necessary. */
-                                if (q[0] == '\0' && option->has_arg == required_argument)
-                                        state = required_argument;
+                                ఒకవేళ (q[0] == '\0' && option->has_arg == required_వాదం)
+                                        state = required_వాదం;
 
-                                break;
+                                ఆపు;
                         }
-                        continue;
+                        కొనసాగు;
                 }
 
                 /* short option(s), e.g. -x or -xyz */
-                while (a && *++a != '\0')
-                        for (const char *q = short_options; *q != '\0'; q++) {
-                                if (*q != *a)
-                                        continue;
+                అయితే (a && *++a != '\0')
+                        కొరకు (స్థిరరాశి అక్షరం *q = short_options; *q != '\0'; q++) {
+                                ఒకవేళ (*q != *a)
+                                        కొనసాగు;
 
                                 /* Found matching short option. */
 
-                                if (q[1] == ':') {
+                                ఒకవేళ (q[1] == ':') {
                                         /* An argument is required or optional, and remaining part
                                          * is handled as argument if exists. */
-                                        state = a[1] != '\0' ? no_argument :
-                                                q[2] == ':' ? optional_argument : required_argument;
+                                        state = a[1] != '\0' ? no_వాదం :
+                                                q[2] == ':' ? optional_వాదం : required_వాదం;
 
-                                        a = NULL; /* Not necessary to parse remaining part. */
+                                        a = ఖాళీ; /* Not necessary to parse remaining part. */
                                 }
-                                break;
+                                ఆపు;
                         }
         }
 
         *ret = TAKE_PTR(filtered);
-        return 0;
+        తిరిగి 0;
 }
 
-int proc_cmdline(char **ret) {
-        assert(ret);
+పూర్ణాంకం proc_cmdline(అక్షరం **ret) {
+        ప్రతిజ్ఞా(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strdup_to(ret, e);
+        స్థిరరాశి అక్షరం *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        ఒకవేళ (e)
+                తిరిగి strdup_గమ్యం(ret, e);
 
-        if (detect_container() > 0)
-                return pid_get_cmdline(1, SIZE_MAX, 0, ret);
+        ఒకవేళ (detect_container() > 0)
+                తిరిగి pid_get_cmdline(1, SIZE_MAX, 0, ret);
 
-        return read_full_file("/proc/cmdline", ret, /* ret_size= */  NULL);
+        తిరిగి read_నిండిన_file("/proc/cmdline", ret, /* ret_size= */  ఖాళీ);
 }
 
-static int proc_cmdline_strv_internal(char ***ret, bool filter_pid1_args) {
-        int r;
+స్థిర పూర్ణాంకం proc_cmdline_strv_అంతర్గత(అక్షరం ***ret, bool filter_pid1_వాదనలు) {
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* For testing purposes it is sometimes useful to be able to override what we consider /proc/cmdline to be */
-        const char *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
-        if (e)
-                return strv_split_full(ret, e, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+        స్థిరరాశి అక్షరం *e = secure_getenv("SYSTEMD_PROC_CMDLINE");
+        ఒకవేళ (e)
+                తిరిగి strv_విభజించు_నిండిన(ret, e, ఖాళీ, వెలికితీయి_UNQUOTE|వెలికితీయి_RELAX|వెలికితీయి_RETAIN_ESCAPE);
 
-        if (detect_container() > 0) {
-                _cleanup_strv_free_ char **args = NULL;
+        ఒకవేళ (detect_container() > 0) {
+                _cleanup_strv_free_ అక్షరం **వాదనలు = ఖాళీ;
 
-                r = pid_get_cmdline_strv(1, /* flags= */ 0, &args);
-                if (r < 0)
-                        return r;
+                r = pid_get_cmdline_strv(1, /* flags= */ 0, &వాదనలు);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (filter_pid1_args)
-                        return proc_cmdline_filter_pid1_args(args, ret);
+                ఒకవేళ (filter_pid1_వాదనలు)
+                        తిరిగి proc_cmdline_filter_pid1_వాదనలు(వాదనలు, ret);
 
-                *ret = TAKE_PTR(args);
-                return 0;
+                *ret = TAKE_PTR(వాదనలు);
+                తిరిగి 0;
 
-        } else {
-                _cleanup_free_ char *s = NULL;
+        } లేకపోతే {
+                _cleanup_free_ అక్షరం *s = ఖాళీ;
 
-                r = read_full_file("/proc/cmdline", &s, NULL);
-                if (r < 0)
-                        return r;
+                r = read_నిండిన_file("/proc/cmdline", &s, ఖాళీ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                return strv_split_full(ret, s, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX|EXTRACT_RETAIN_ESCAPE);
+                తిరిగి strv_విభజించు_నిండిన(ret, s, ఖాళీ, వెలికితీయి_UNQUOTE|వెలికితీయి_RELAX|వెలికితీయి_RETAIN_ESCAPE);
         }
 }
 
-int proc_cmdline_strv(char ***ret) {
-        return proc_cmdline_strv_internal(ret, /* filter_pid1_args= */ false);
+పూర్ణాంకం proc_cmdline_strv(అక్షరం ***ret) {
+        తిరిగి proc_cmdline_strv_అంతర్గత(ret, /* filter_pid1_args= */ false);
 }
 
-static char *mangle_word(const char *word, ProcCmdlineFlags flags) {
-        char *c = (char*) startswith(word, "rd.");
-        if (c) {
+స్థిర అక్షరం *mangle_మాట(స్థిరరాశి అక్షరం *మాట, ProcCmdlineFlags flags) {
+        అక్షరం *c = (అక్షరం*) startswith(మాట, "rd.");
+        ఒకవేళ (c) {
                 /* Filter out arguments that are intended only for the initrd */
 
-                if (!in_initrd())
-                        return NULL;
+                ఒకవేళ (!లోపల_initrd())
+                        తిరిగి ఖాళీ;
 
-                if (FLAGS_SET(flags, PROC_CMDLINE_STRIP_RD_PREFIX))
-                        return c;
+                ఒకవేళ (FLAGS_సమితి(flags, PROC_CMDLINE_STRIP_RD_ఉపసర్గ))
+                        తిరిగి c;
 
-        } else if (FLAGS_SET(flags, PROC_CMDLINE_RD_STRICT) && in_initrd())
+        } లేకపోతే ఒకవేళ (FLAGS_సమితి(flags, PROC_CMDLINE_RD_STRICT) && లోపల_initrd())
                 /* And optionally filter out arguments that are intended only for the host */
-                return NULL;
+                తిరిగి ఖాళీ;
 
-        return (char*) word;
+        తిరిగి (అక్షరం*) మాట;
 }
 
-#define mangle_word(word, flags) const_generic(word, mangle_word(word, flags))
+#నిర్వచించు mangle_మాట(మాట, flags) const_generic(మాట, mangle_మాట(మాట, flags))
 
-static int proc_cmdline_parse_strv(char **args, proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        int r;
+స్థిర పూర్ణాంకం proc_cmdline_parse_strv(అక్షరం **వాదనలు, proc_cmdline_parse_t parse_అంశం, శూన్య *దత్తాంశం, ProcCmdlineFlags flags) {
+        పూర్ణాంకం r;
 
-        assert(parse_item);
+        ప్రతిజ్ఞా(parse_అంశం);
 
-        STRV_FOREACH(word, args) {
-                char *key, *value;
+        STRV_FOREACH(మాట, వాదనలు) {
+                అక్షరం *కీలకం, *విలువ;
 
-                key = mangle_word(*word, flags);
-                if (!key)
-                        continue;
+                కీలకం = mangle_మాట(*మాట, flags);
+                ఒకవేళ (!కీలకం)
+                        కొనసాగు;
 
-                value = strchr(key, '=');
-                if (value)
-                        *(value++) = '\0';
+                విలువ = strchr(కీలకం, '=');
+                ఒకవేళ (విలువ)
+                        *(విలువ++) = '\0';
 
-                r = parse_item(key, value, data);
-                if (r < 0)
-                        return r;
+                r = parse_అంశం(కీలకం, విలువ, దత్తాంశం);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse_item, void *data, ProcCmdlineFlags flags) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+పూర్ణాంకం proc_cmdline_parse(proc_cmdline_parse_t parse_అంశం, శూన్య *దత్తాంశం, ProcCmdlineFlags flags) {
+        _cleanup_strv_free_ అక్షరం **వాదనలు = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(parse_item);
+        ప్రతిజ్ఞా(parse_అంశం);
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_parse(), let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ప్రతిజ్ఞా(!(flags & (PROC_CMDLINE_విలువ_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv_అంతర్గత(&వాదనలు, /* filter_pid1_args= */ true);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return proc_cmdline_parse_strv(args, parse_item, data, flags);
+        తిరిగి proc_cmdline_parse_strv(వాదనలు, parse_అంశం, దత్తాంశం, flags);
 }
 
-static bool relaxed_equal_char(char a, char b) {
-        return a == b ||
+స్థిర bool relaxed_equal_char(అక్షరం a, అక్షరం b) {
+        తిరిగి a == b ||
                 (a == '_' && b == '-') ||
                 (a == '-' && b == '_');
 }
 
-char* proc_cmdline_key_startswith(const char *s, const char *prefix) {
-        assert(s);
-        assert(prefix);
+అక్షరం* proc_cmdline_కీలకం_startswith(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *ఉపసర్గ) {
+        ప్రతిజ్ఞా(s);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
         /* Much like startswith(), but considers "-" and "_" the same */
 
-        for (; *prefix != 0; s++, prefix++)
-                if (!relaxed_equal_char(*s, *prefix))
-                        return NULL;
+        కొరకు (; *ఉపసర్గ != 0; s++, ఉపసర్గ++)
+                ఒకవేళ (!relaxed_equal_char(*s, *ఉపసర్గ))
+                        తిరిగి ఖాళీ;
 
-        return (char*) s;
+        తిరిగి (అక్షరం*) s;
 }
 
-bool proc_cmdline_key_streq(const char *x, const char *y) {
-        assert(x);
-        assert(y);
+bool proc_cmdline_కీలకం_streq(స్థిరరాశి అక్షరం *x, స్థిరరాశి అక్షరం *y) {
+        ప్రతిజ్ఞా(x);
+        ప్రతిజ్ఞా(y);
 
         /* Much like streq(), but considers "-" and "_" the same */
 
-        for (; *x != 0 || *y != 0; x++, y++)
-                if (!relaxed_equal_char(*x, *y))
-                        return false;
+        కొరకు (; *x != 0 || *y != 0; x++, y++)
+                ఒకవేళ (!relaxed_equal_char(*x, *y))
+                        తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-static int cmdline_get_key(char **args, const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_free_ char *v = NULL;
-        bool found = false;
-        int r;
+స్థిర పూర్ణాంకం cmdline_get_కీలకం(అక్షరం **వాదనలు, స్థిరరాశి అక్షరం *కీలకం, ProcCmdlineFlags flags, అక్షరం **ret_విలువ) {
+        _cleanup_free_ అక్షరం *v = ఖాళీ;
+        bool దొరికింది = false;
+        పూర్ణాంకం r;
 
-        assert(key);
+        ప్రతిజ్ఞా(కీలకం);
 
-        STRV_FOREACH(p, args) {
-                const char *word;
+        STRV_FOREACH(p, వాదనలు) {
+                స్థిరరాశి అక్షరం *మాట;
 
-                word = mangle_word(*p, flags);
-                if (!word)
-                        continue;
+                మాట = mangle_మాట(*p, flags);
+                ఒకవేళ (!మాట)
+                        కొనసాగు;
 
-                if (ret_value) {
-                        const char *e;
+                ఒకవేళ (ret_విలువ) {
+                        స్థిరరాశి అక్షరం *e;
 
-                        e = proc_cmdline_key_startswith(word, key);
-                        if (!e)
-                                continue;
+                        e = proc_cmdline_కీలకం_startswith(మాట, కీలకం);
+                        ఒకవేళ (!e)
+                                కొనసాగు;
 
-                        if (*e == '=') {
+                        ఒకవేళ (*e == '=') {
                                 r = free_and_strdup(&v, e+1);
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                found = true;
+                                దొరికింది = true;
 
-                        } else if (*e == 0 && FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL))
-                                found = true;
+                        } లేకపోతే ఒకవేళ (*e == 0 && FLAGS_సమితి(flags, PROC_CMDLINE_విలువ_OPTIONAL))
+                                దొరికింది = true;
 
-                } else {
-                        if (proc_cmdline_key_streq(word, key)) {
-                                found = true;
-                                break; /* we found what we were looking for */
+                } లేకపోతే {
+                        ఒకవేళ (proc_cmdline_కీలకం_streq(మాట, కీలకం)) {
+                                దొరికింది = true;
+                                ఆపు; /* we found what we were looking for */
                         }
                 }
         }
 
-        if (ret_value)
-                *ret_value = TAKE_PTR(v);
+        ఒకవేళ (ret_విలువ)
+                *ret_విలువ = TAKE_PTR(v);
 
-        return found;
+        తిరిగి దొరికింది;
 }
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+పూర్ణాంకం proc_cmdline_get_కీలకం(స్థిరరాశి అక్షరం *కీలకం, ProcCmdlineFlags flags, అక్షరం **ret_విలువ) {
+        _cleanup_strv_free_ అక్షరం **వాదనలు = ఖాళీ;
+        పూర్ణాంకం r;
 
         /* Looks for a specific key on the kernel command line. Supports three modes:
          *
@@ -347,109 +347,109 @@ int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_val
          * In all three cases, > 0 is returned if the key is found, 0 if not. */
 
         /* PROC_CMDLINE_TRUE_WHEN_MISSING doesn't really make sense for proc_cmdline_get_key(). */
-        assert(!FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
+        ప్రతిజ్ఞా(!FLAGS_సమితి(flags, PROC_CMDLINE_TRUE_WHEN_MISSING));
 
-        if (isempty(key))
-                return -EINVAL;
+        ఒకవేళ (isempty(కీలకం))
+                తిరిగి -EINVAL;
 
-        if (FLAGS_SET(flags, PROC_CMDLINE_VALUE_OPTIONAL) && !ret_value)
-                return -EINVAL;
+        ఒకవేళ (FLAGS_సమితి(flags, PROC_CMDLINE_విలువ_OPTIONAL) && !ret_విలువ)
+                తిరిగి -EINVAL;
 
-        r = proc_cmdline_strv_internal(&args, /* filter_pid1_args= */ true);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv_అంతర్గత(&వాదనలు, /* filter_pid1_args= */ true);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cmdline_get_key(args, key, flags, ret_value);
+        తిరిగి cmdline_get_కీలకం(వాదనలు, కీలకం, flags, ret_విలువ);
 }
 
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+పూర్ణాంకం proc_cmdline_get_bool(స్థిరరాశి అక్షరం *కీలకం, ProcCmdlineFlags flags, bool *ret) {
+        _cleanup_free_ అక్షరం *v = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        r = proc_cmdline_get_key(key, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_VALUE_OPTIONAL, &v);
-        if (r < 0)
-                return r;
-        if (r == 0) { /* key not specified at all */
-                *ret = FLAGS_SET(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
-                return 0;
+        r = proc_cmdline_get_కీలకం(కీలకం, (flags & ~PROC_CMDLINE_TRUE_WHEN_MISSING) | PROC_CMDLINE_విలువ_OPTIONAL, &v);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0) { /* key not specified at all */
+                *ret = FLAGS_సమితి(flags, PROC_CMDLINE_TRUE_WHEN_MISSING);
+                తిరిగి 0;
         }
 
-        if (v) { /* key with parameter passed */
+        ఒకవేళ (v) { /* key with parameter passed */
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
                 *ret = r;
-        } else /* key without parameter passed */
+        } లేకపోతే /* key without parameter passed */
                 *ret = true;
 
-        return 1;
+        తిరిగి 1;
 }
 
-static int cmdline_get_key_ap(ProcCmdlineFlags flags, char* const* args, va_list ap) {
-        int r, ret = 0;
+స్థిర పూర్ణాంకం cmdline_get_కీలకం_ap(ProcCmdlineFlags flags, అక్షరం* స్థిరరాశి* వాదనలు, va_list ap) {
+        పూర్ణాంకం r, ret = 0;
 
-        for (;;) {
-                char **v;
-                const char *k, *e;
+        కొరకు (;;) {
+                అక్షరం **v;
+                స్థిరరాశి అక్షరం *k, *e;
 
-                k = va_arg(ap, const char*);
-                if (!k)
-                        break;
+                k = va_arg(ap, స్థిరరాశి అక్షరం*);
+                ఒకవేళ (!k)
+                        ఆపు;
 
-                assert_se(v = va_arg(ap, char**));
+                assert_se(v = va_arg(ap, అక్షరం**));
 
-                STRV_FOREACH(p, args) {
-                        const char *word;
+                STRV_FOREACH(p, వాదనలు) {
+                        స్థిరరాశి అక్షరం *మాట;
 
-                        word = mangle_word(*p, flags);
-                        if (!word)
-                                continue;
+                        మాట = mangle_మాట(*p, flags);
+                        ఒకవేళ (!మాట)
+                                కొనసాగు;
 
-                        e = proc_cmdline_key_startswith(word, k);
-                        if (e && *e == '=') {
+                        e = proc_cmdline_కీలకం_startswith(మాట, k);
+                        ఒకవేళ (e && *e == '=') {
                                 r = free_and_strdup(v, e + 1);
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
                                 ret++;
                         }
                 }
         }
 
-        return ret;
+        తిరిగి ret;
 }
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...) {
-        _cleanup_strv_free_ char **args = NULL;
-        int r;
+పూర్ణాంకం proc_cmdline_get_కీలకం_many_అంతర్గత(ProcCmdlineFlags flags, ...) {
+        _cleanup_strv_free_ అక్షరం **వాదనలు = ఖాళీ;
+        పూర్ణాంకం r;
         va_list ap;
 
         /* The PROC_CMDLINE_VALUE_OPTIONAL and PROC_CMDLINE_TRUE_WHEN_MISSING flags don't really make sense
          * for proc_cmdline_get_key_many, let's make this clear. */
-        assert(!(flags & (PROC_CMDLINE_VALUE_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
+        ప్రతిజ్ఞా(!(flags & (PROC_CMDLINE_విలువ_OPTIONAL|PROC_CMDLINE_TRUE_WHEN_MISSING)));
 
         /* This call may clobber arguments on failure! */
 
-        r = proc_cmdline_strv(&args);
-        if (r < 0)
-                return r;
+        r = proc_cmdline_strv(&వాదనలు);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         va_start(ap, flags);
-        r = cmdline_get_key_ap(flags, args, ap);
+        r = cmdline_get_కీలకం_ap(flags, వాదనలు, ap);
         va_end(ap);
 
-        return r;
+        తిరిగి r;
 }
 
-bool proc_cmdline_value_missing(const char *key, const char *value) {
-        assert(key);
+bool proc_cmdline_విలువ_missing(స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        ప్రతిజ్ఞా(కీలకం);
 
-        if (!value) {
-                log_warning("Missing argument for %s= kernel command line switch, ignoring.", key);
-                return true;
+        ఒకవేళ (!విలువ) {
+                log_warning("Missing argument for %s= kernel command line switch, ignoring.", కీలకం);
+                తిరిగి true;
         }
 
-        return false;
+        తిరిగి false;
 }

@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-char* bus_label_escape(const char *s);
-char* bus_label_unescape_n(const char *f, size_t l);
+అక్షరం* bus_label_escape(స్థిరరాశి అక్షరం *s);
+అక్షరం* bus_label_unescape_n(స్థిరరాశి అక్షరం *f, size_t l);
 
-static inline char* bus_label_unescape(const char *f) {
-        return bus_label_unescape_n(f, SIZE_MAX);
+స్థిర అంతఃవరుస అక్షరం* bus_label_unescape(స్థిరరాశి అక్షరం *f) {
+        తిరిగి bus_label_unescape_n(f, SIZE_MAX);
 }

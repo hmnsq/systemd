@@ -14,7 +14,7 @@
 // 2. It will not produce the same results on little-endian and big-endian
 //    machines.
 
-#include "MurmurHash2.h"
+#అన్తర్భావ "MurmurHash2.h"
 
 _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
@@ -23,39 +23,39 @@ _Pragma("GCC diagnostic ignored \"-Wimplicit-fallthrough\"")
 
 // Microsoft Visual Studio
 
-#if defined(_MSC_VER)
+#ఒకవేళ defined(_MSC_VER)
 
-#define BIG_CONSTANT(x) (x)
+#నిర్వచించు BIG_CONSTANT(x) (x)
 
 // Other compilers
 
-#else        // defined(_MSC_VER)
+#లేకపోతే        // defined(_MSC_VER)
 
-#define BIG_CONSTANT(x) (x##LLU)
+#నిర్వచించు BIG_CONSTANT(x) (x##LLU)
 
-#endif // !defined(_MSC_VER)
+#అయితే_ముగింపు // !defined(_MSC_VER)
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
+uint32_t MurmurHash2 ( స్థిరరాశి శూన్య * కీలకం, పూర్ణాంకం len, uint32_t విత్తనం )
 {
   // 'm' and 'r' are mixing constants generated offline.
   // They're not really 'magic', they just happen to work well.
 
-  const uint32_t m = 0x5bd1e995;
-  const int r = 24;
+  స్థిరరాశి uint32_t m = 0x5bd1e995;
+  స్థిరరాశి పూర్ణాంకం r = 24;
 
   // Initialize the hash to a 'random' value
 
-  uint32_t h = seed ^ len;
+  uint32_t h = విత్తనం ^ len;
 
   // Mix 4 bytes at a time into the hash
 
-  const unsigned char * data = (const unsigned char *)key;
+  స్థిరరాశి గుర్తులేని అక్షరం * దత్తాంశం = (స్థిరరాశి గుర్తులేని అక్షరం *)కీలకం;
 
-  while (len >= 4)
+  అయితే (len >= 4)
   {
-    uint32_t k = *(uint32_t*)data;
+    uint32_t k = *(uint32_t*)దత్తాంశం;
 
     k *= m;
     k ^= k >> r;
@@ -64,17 +64,17 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
     h *= m;
     h ^= k;
 
-    data += 4;
+    దత్తాంశం += 4;
     len -= 4;
   }
 
   // Handle the last few bytes of the input array
 
-  switch(len)
+  ఎంపిక(len)
   {
-  case 3: h ^= data[2] << 16; /* fall through */
-  case 2: h ^= data[1] << 8;  /* fall through */
-  case 1: h ^= data[0];       /* fall through */
+  స్థితి 3: h ^= దత్తాంశం[2] << 16; /* fall through */
+  స్థితి 2: h ^= దత్తాంశం[1] << 8;  /* fall through */
+  స్థితి 1: h ^= దత్తాంశం[0];       /* fall through */
       h *= m;
   };
 
@@ -85,5 +85,5 @@ uint32_t MurmurHash2 ( const void * key, int len, uint32_t seed )
   h *= m;
   h ^= h >> 15;
 
-  return h;
+  తిరిగి h;
 }

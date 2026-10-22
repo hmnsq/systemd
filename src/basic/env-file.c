@@ -1,660 +1,660 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-file.h"
-#include "env-util.h"
-#include "escape.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "label-util.h"
-#include "log.h"
-#include "string-util.h"
-#include "strv.h"
-#include "tmpfile-util.h"
-#include "utf8.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "env-file.h"
+#అన్తర్భావ "env-util.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "label-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "tmpfile-util.h"
+#అన్తర్భావ "utf8.h"
 
-typedef int (*push_env_func_t)(
-                const char *filename,
-                unsigned line,
-                const char *key,
-                char *value,
-                void *userdata);
+రకనిర్వచనం పూర్ణాంకం (*నెట్టు_env_func_t)(
+                స్థిరరాశి అక్షరం *filename,
+                గుర్తులేని పంక్తి,
+                స్థిరరాశి అక్షరం *కీలకం,
+                అక్షరం *విలువ,
+                శూన్య *userdata);
 
-static int parse_env_file_internal(
+స్థిర పూర్ణాంకం parse_env_file_అంతర్గత(
                 FILE *f,
-                const char *fname,
-                push_env_func_t push,
-                void *userdata) {
+                స్థిరరాశి అక్షరం *fname,
+                నెట్టు_env_func_t నెట్టు,
+                శూన్య *userdata) {
 
-        size_t n_key = 0, n_value = 0, last_value_whitespace = SIZE_MAX, last_key_whitespace = SIZE_MAX;
-        _cleanup_free_ char *contents = NULL, *key = NULL, *value = NULL;
-        unsigned line = 1;
-        int r;
+        size_t n_కీలకం = 0, n_విలువ = 0, చివరి_విలువ_whitespace = SIZE_MAX, చివరి_కీలకం_whitespace = SIZE_MAX;
+        _cleanup_free_ అక్షరం *contents = ఖాళీ, *కీలకం = ఖాళీ, *విలువ = ఖాళీ;
+        గుర్తులేని పంక్తి = 1;
+        పూర్ణాంకం r;
 
-        enum {
-                PRE_KEY,
-                KEY,
-                PRE_VALUE,
-                VALUE,
-                VALUE_ESCAPE,
-                SINGLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE,
-                DOUBLE_QUOTE_VALUE_ESCAPE,
+        గణన {
+                PRE_కీలకం,
+                కీలకం_2,
+                PRE_విలువ,
+                విలువ_2,
+                విలువ_ESCAPE,
+                SINGLE_QUOTE_విలువ,
+                DOUBLE_QUOTE_విలువ,
+                DOUBLE_QUOTE_విలువ_ESCAPE,
                 COMMENT,
                 COMMENT_ESCAPE
-        } state = PRE_KEY;
+        } state = PRE_కీలకం;
 
-        assert(f || fname);
-        assert(push);
+        ప్రతిజ్ఞా(f || fname);
+        ప్రతిజ్ఞా(నెట్టు);
 
-        if (f)
-                r = read_full_stream(f, &contents, NULL);
-        else
-                r = read_full_file(fname, &contents, NULL);
-        if (r < 0)
-                return r;
+        ఒకవేళ (f)
+                r = read_నిండిన_ప్రవాహం(f, &contents, ఖాళీ);
+        లేకపోతే
+                r = read_నిండిన_file(fname, &contents, ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        for (char *p = contents; *p; p++) {
-                char c = *p;
+        కొరకు (అక్షరం *p = contents; *p; p++) {
+                అక్షరం c = *p;
 
-                switch (state) {
+                ఎంపిక (state) {
 
-                case PRE_KEY:
-                        if (strchr(COMMENTS, c))
+                స్థితి PRE_కీలకం:
+                        ఒకవేళ (strchr(COMMENTS, c))
                                 state = COMMENT;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = KEY;
-                                last_key_whitespace = SIZE_MAX;
+                        లేకపోతే ఒకవేళ (!strchr(WHITESPACE, c)) {
+                                state = కీలకం_2;
+                                చివరి_కీలకం_whitespace = SIZE_MAX;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                ఒకవేళ (!GREEDY_REALLOC(కీలకం, n_కీలకం+2))
+                                        తిరిగి -ENOMEM;
 
-                                key[n_key++] = c;
+                                కీలకం[n_కీలకం++] = c;
                         }
-                        break;
+                        ఆపు;
 
-                case KEY:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                n_key = 0;
-                        } else if (c == '=') {
-                                state = PRE_VALUE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_key_whitespace = SIZE_MAX;
-                                else if (last_key_whitespace == SIZE_MAX)
-                                         last_key_whitespace = n_key;
+                స్థితి కీలకం_2:
+                        ఒకవేళ (strchr(NEWLINE, c)) {
+                                state = PRE_కీలకం;
+                                పంక్తి++;
+                                n_కీలకం = 0;
+                        } లేకపోతే ఒకవేళ (c == '=') {
+                                state = PRE_విలువ;
+                                చివరి_విలువ_whitespace = SIZE_MAX;
+                        } లేకపోతే {
+                                ఒకవేళ (!strchr(WHITESPACE, c))
+                                        చివరి_కీలకం_whitespace = SIZE_MAX;
+                                లేకపోతే ఒకవేళ (చివరి_కీలకం_whitespace == SIZE_MAX)
+                                         చివరి_కీలకం_whitespace = n_కీలకం;
 
-                                if (!GREEDY_REALLOC(key, n_key+2))
-                                        return -ENOMEM;
+                                ఒకవేళ (!GREEDY_REALLOC(కీలకం, n_కీలకం+2))
+                                        తిరిగి -ENOMEM;
 
-                                key[n_key++] = c;
+                                కీలకం[n_కీలకం++] = c;
                         }
 
-                        break;
+                        ఆపు;
 
-                case PRE_VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                                key[n_key] = 0;
+                స్థితి PRE_విలువ:
+                        ఒకవేళ (strchr(NEWLINE, c)) {
+                                state = PRE_కీలకం;
+                                పంక్తి++;
+                                కీలకం[n_కీలకం] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                ఒకవేళ (విలువ)
+                                        విలువ[n_విలువ] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                ఒకవేళ (చివరి_కీలకం_whitespace != SIZE_MAX)
+                                        కీలకం[చివరి_కీలకం_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = నెట్టు(fname, పంక్తి, కీలకం, విలువ, userdata);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_కీలకం = 0;
+                                విలువ = ఖాళీ;
+                                n_విలువ = 0;
 
-                        } else if (c == '\'')
-                                state = SINGLE_QUOTE_VALUE;
-                        else if (c == '"')
-                                state = DOUBLE_QUOTE_VALUE;
-                        else if (c == '\\')
-                                state = VALUE_ESCAPE;
-                        else if (!strchr(WHITESPACE, c)) {
-                                state = VALUE;
+                        } లేకపోతే ఒకవేళ (c == '\'')
+                                state = SINGLE_QUOTE_విలువ;
+                        లేకపోతే ఒకవేళ (c == '"')
+                                state = DOUBLE_QUOTE_విలువ;
+                        లేకపోతే ఒకవేళ (c == '\\')
+                                state = విలువ_ESCAPE;
+                        లేకపోతే ఒకవేళ (!strchr(WHITESPACE, c)) {
+                                state = విలువ_2;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ఒకవేళ (!GREEDY_REALLOC(విలువ, n_విలువ+2))
+                                        తిరిగి -ENOMEM;
 
-                                value[n_value++] = c;
+                                విలువ[n_విలువ++] = c;
                         }
 
-                        break;
+                        ఆపు;
 
-                case VALUE:
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                స్థితి విలువ_2:
+                        ఒకవేళ (strchr(NEWLINE, c)) {
+                                state = PRE_కీలకం;
+                                పంక్తి++;
 
-                                key[n_key] = 0;
+                                కీలకం[n_కీలకం] = 0;
 
-                                if (value)
-                                        value[n_value] = 0;
+                                ఒకవేళ (విలువ)
+                                        విలువ[n_విలువ] = 0;
 
                                 /* Chomp off trailing whitespace from value */
-                                if (last_value_whitespace != SIZE_MAX)
-                                        value[last_value_whitespace] = 0;
+                                ఒకవేళ (చివరి_విలువ_whitespace != SIZE_MAX)
+                                        విలువ[చివరి_విలువ_whitespace] = 0;
 
                                 /* strip trailing whitespace from key */
-                                if (last_key_whitespace != SIZE_MAX)
-                                        key[last_key_whitespace] = 0;
+                                ఒకవేళ (చివరి_కీలకం_whitespace != SIZE_MAX)
+                                        కీలకం[చివరి_కీలకం_whitespace] = 0;
 
-                                r = push(fname, line, key, value, userdata);
-                                if (r < 0)
-                                        return r;
+                                r = నెట్టు(fname, పంక్తి, కీలకం, విలువ, userdata);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                n_key = 0;
-                                value = NULL;
-                                n_value = 0;
+                                n_కీలకం = 0;
+                                విలువ = ఖాళీ;
+                                n_విలువ = 0;
 
-                        } else if (c == '\\') {
-                                state = VALUE_ESCAPE;
-                                last_value_whitespace = SIZE_MAX;
-                        } else {
-                                if (!strchr(WHITESPACE, c))
-                                        last_value_whitespace = SIZE_MAX;
-                                else if (last_value_whitespace == SIZE_MAX)
-                                        last_value_whitespace = n_value;
+                        } లేకపోతే ఒకవేళ (c == '\\') {
+                                state = విలువ_ESCAPE;
+                                చివరి_విలువ_whitespace = SIZE_MAX;
+                        } లేకపోతే {
+                                ఒకవేళ (!strchr(WHITESPACE, c))
+                                        చివరి_విలువ_whitespace = SIZE_MAX;
+                                లేకపోతే ఒకవేళ (చివరి_విలువ_whitespace == SIZE_MAX)
+                                        చివరి_విలువ_whitespace = n_విలువ;
 
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ఒకవేళ (!GREEDY_REALLOC(విలువ, n_విలువ+2))
+                                        తిరిగి -ENOMEM;
 
-                                value[n_value++] = c;
+                                విలువ[n_విలువ++] = c;
                         }
 
-                        break;
+                        ఆపు;
 
-                case VALUE_ESCAPE:
-                        state = VALUE;
+                స్థితి విలువ_ESCAPE:
+                        state = విలువ_2;
 
-                        if (!strchr(NEWLINE, c)) {
+                        ఒకవేళ (!strchr(NEWLINE, c)) {
                                 /* Escaped newlines we eat up entirely */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                                ఒకవేళ (!GREEDY_REALLOC(విలువ, n_విలువ+2))
+                                        తిరిగి -ENOMEM;
 
-                                value[n_value++] = c;
+                                విలువ[n_విలువ++] = c;
                         }
-                        break;
+                        ఆపు;
 
-                case SINGLE_QUOTE_VALUE:
-                        if (c == '\'')
-                                state = PRE_VALUE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
+                స్థితి SINGLE_QUOTE_విలువ:
+                        ఒకవేళ (c == '\'')
+                                state = PRE_విలువ;
+                        లేకపోతే {
+                                ఒకవేళ (!GREEDY_REALLOC(విలువ, n_విలువ+2))
+                                        తిరిగి -ENOMEM;
 
-                                value[n_value++] = c;
-                        }
-
-                        break;
-
-                case DOUBLE_QUOTE_VALUE:
-                        if (c == '"')
-                                state = PRE_VALUE;
-                        else if (c == '\\')
-                                state = DOUBLE_QUOTE_VALUE_ESCAPE;
-                        else {
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-
-                                value[n_value++] = c;
+                                విలువ[n_విలువ++] = c;
                         }
 
-                        break;
+                        ఆపు;
 
-                case DOUBLE_QUOTE_VALUE_ESCAPE:
-                        state = DOUBLE_QUOTE_VALUE;
+                స్థితి DOUBLE_QUOTE_విలువ:
+                        ఒకవేళ (c == '"')
+                                state = PRE_విలువ;
+                        లేకపోతే ఒకవేళ (c == '\\')
+                                state = DOUBLE_QUOTE_విలువ_ESCAPE;
+                        లేకపోతే {
+                                ఒకవేళ (!GREEDY_REALLOC(విలువ, n_విలువ+2))
+                                        తిరిగి -ENOMEM;
 
-                        if (strchr(SHELL_NEED_ESCAPE, c)) {
+                                విలువ[n_విలువ++] = c;
+                        }
+
+                        ఆపు;
+
+                స్థితి DOUBLE_QUOTE_విలువ_ESCAPE:
+                        state = DOUBLE_QUOTE_విలువ;
+
+                        ఒకవేళ (strchr(SHELL_NEED_ESCAPE, c)) {
                                 /* If this is a char that needs escaping, just unescape it. */
-                                if (!GREEDY_REALLOC(value, n_value+2))
-                                        return -ENOMEM;
-                                value[n_value++] = c;
-                        } else if (c != '\n') {
+                                ఒకవేళ (!GREEDY_REALLOC(విలువ, n_విలువ+2))
+                                        తిరిగి -ENOMEM;
+                                విలువ[n_విలువ++] = c;
+                        } లేకపోతే ఒకవేళ (c != '\n') {
                                 /* If other char than what needs escaping, keep the "\" in place, like the
                                  * real shell does. */
-                                if (!GREEDY_REALLOC(value, n_value+3))
-                                        return -ENOMEM;
-                                value[n_value++] = '\\';
-                                value[n_value++] = c;
+                                ఒకవేళ (!GREEDY_REALLOC(విలువ, n_విలువ+3))
+                                        తిరిగి -ENOMEM;
+                                విలువ[n_విలువ++] = '\\';
+                                విలువ[n_విలువ++] = c;
                         }
 
                         /* Escaped newlines (aka "continuation lines") are eaten up entirely */
-                        break;
+                        ఆపు;
 
-                case COMMENT:
-                        if (c == '\\')
+                స్థితి COMMENT:
+                        ఒకవేళ (c == '\\')
                                 state = COMMENT_ESCAPE;
-                        else if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
+                        లేకపోతే ఒకవేళ (strchr(NEWLINE, c)) {
+                                state = PRE_కీలకం;
+                                పంక్తి++;
                         }
-                        break;
+                        ఆపు;
 
-                case COMMENT_ESCAPE:
+                స్థితి COMMENT_ESCAPE:
                         log_debug("The line which doesn't begin with \";\" or \"#\", but follows a comment" \
                                   " line trailing with escape is now treated as a non comment line since v254.");
-                        if (strchr(NEWLINE, c)) {
-                                state = PRE_KEY;
-                                line++;
-                        } else
+                        ఒకవేళ (strchr(NEWLINE, c)) {
+                                state = PRE_కీలకం;
+                                పంక్తి++;
+                        } లేకపోతే
                                 state = COMMENT;
-                        break;
+                        ఆపు;
                 }
         }
 
-        if (IN_SET(state,
-                   PRE_VALUE,
-                   VALUE,
-                   VALUE_ESCAPE,
-                   SINGLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE,
-                   DOUBLE_QUOTE_VALUE_ESCAPE)) {
+        ఒకవేళ (లోపల_సమితి(state,
+                   PRE_విలువ,
+                   విలువ_2,
+                   విలువ_ESCAPE,
+                   SINGLE_QUOTE_విలువ,
+                   DOUBLE_QUOTE_విలువ,
+                   DOUBLE_QUOTE_విలువ_ESCAPE)) {
 
-                key[n_key] = 0;
+                కీలకం[n_కీలకం] = 0;
 
-                if (value)
-                        value[n_value] = 0;
+                ఒకవేళ (విలువ)
+                        విలువ[n_విలువ] = 0;
 
-                if (state == VALUE)
-                        if (last_value_whitespace != SIZE_MAX)
-                                value[last_value_whitespace] = 0;
+                ఒకవేళ (state == విలువ_2)
+                        ఒకవేళ (చివరి_విలువ_whitespace != SIZE_MAX)
+                                విలువ[చివరి_విలువ_whitespace] = 0;
 
                 /* strip trailing whitespace from key */
-                if (last_key_whitespace != SIZE_MAX)
-                        key[last_key_whitespace] = 0;
+                ఒకవేళ (చివరి_కీలకం_whitespace != SIZE_MAX)
+                        కీలకం[చివరి_కీలకం_whitespace] = 0;
 
-                r = push(fname, line, key, value, userdata);
-                if (r < 0)
-                        return r;
+                r = నెట్టు(fname, పంక్తి, కీలకం, విలువ, userdata);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                value = NULL;
+                విలువ = ఖాళీ;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-static int check_utf8ness_and_warn(
-                const char *filename, unsigned line,
-                const char *key, char *value) {
+స్థిర పూర్ణాంకం check_utf8ness_and_warn(
+                స్థిరరాశి అక్షరం *filename, గుర్తులేని పంక్తి,
+                స్థిరరాశి అక్షరం *కీలకం, అక్షరం *విలువ) {
 
-        assert(key);
+        ప్రతిజ్ఞా(కీలకం);
 
-        if (!utf8_is_valid(key)) {
-                _cleanup_free_ char *p = NULL;
+        ఒకవేళ (!utf8_is_valid(కీలకం)) {
+                _cleanup_free_ అక్షరం *p = ఖాళీ;
 
-                p = utf8_escape_invalid(key);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(కీలకం);
+                తిరిగి log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 in key '%s', ignoring.",
-                                       strna(filename), line, p);
+                                       strna(filename), పంక్తి, p);
         }
 
-        if (value && !utf8_is_valid(value)) {
-                _cleanup_free_ char *p = NULL;
+        ఒకవేళ (విలువ && !utf8_is_valid(విలువ)) {
+                _cleanup_free_ అక్షరం *p = ఖాళీ;
 
-                p = utf8_escape_invalid(value);
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL),
+                p = utf8_escape_invalid(విలువ);
+                తిరిగి log_error_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "%s:%u: invalid UTF-8 value for key %s: '%s', ignoring.",
-                                       strna(filename), line, key, p);
+                                       strna(filename), పంక్తి, కీలకం, p);
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-static int parse_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+స్థిర పూర్ణాంకం parse_env_file_నెట్టు(
+                స్థిరరాశి అక్షరం *filename, గుర్తులేని పంక్తి,
+                స్థిరరాశి అక్షరం *కీలకం, అక్షరం *విలువ,
+                శూన్య *userdata) {
 
-        const char *k;
+        స్థిరరాశి అక్షరం *k;
         va_list aq, *ap = userdata;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(key);
+        ప్రతిజ్ఞా(కీలకం);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, పంక్తి, కీలకం, విలువ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         va_copy(aq, *ap);
 
-        while ((k = va_arg(aq, const char *))) {
-                char **v;
+        అయితే ((k = va_arg(aq, స్థిరరాశి అక్షరం *))) {
+                అక్షరం **v;
 
-                v = va_arg(aq, char **);
+                v = va_arg(aq, అక్షరం **);
 
-                if (streq(key, k)) {
+                ఒకవేళ (streq(కీలకం, k)) {
                         va_end(aq);
-                        free_and_replace(*v, value);
+                        free_and_replace(*v, విలువ);
 
-                        return 1;
+                        తిరిగి 1;
                 }
         }
 
         va_end(aq);
-        free(value);
+        విడుదల(విలువ);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int parse_env_filev(
+పూర్ణాంకం parse_env_filev(
                 FILE *f,
-                const char *fname,
+                స్థిరరాశి అక్షరం *fname,
                 va_list ap) {
 
-        int r;
+        పూర్ణాంకం r;
         va_list aq;
 
-        assert(f || fname);
+        ప్రతిజ్ఞా(f || fname);
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_అంతర్గత(f, fname, parse_env_file_నెట్టు, &aq);
         va_end(aq);
-        return r;
+        తిరిగి r;
 }
 
-int parse_env_file_fdv(int fd, const char *fname, va_list ap) {
-        _cleanup_fclose_ FILE *f = NULL;
+పూర్ణాంకం parse_env_file_fdv(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *fname, va_list ap) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
         va_list aq;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         va_copy(aq, ap);
-        r = parse_env_file_internal(f, fname, parse_env_file_push, &aq);
+        r = parse_env_file_అంతర్గత(f, fname, parse_env_file_నెట్టు, &aq);
         va_end(aq);
-        return r;
+        తిరిగి r;
 }
 
-int parse_env_file_sentinel(
+పూర్ణాంకం parse_env_file_sentinel(
                 FILE *f,
-                const char *fname,
+                స్థిరరాశి అక్షరం *fname,
                 ...) {
 
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(f || fname);
+        ప్రతిజ్ఞా(f || fname);
 
         va_start(ap, fname);
         r = parse_env_filev(f, fname, ap);
         va_end(ap);
 
-        return r;
+        తిరిగి r;
 }
 
-int parse_env_file_fd_sentinel(
-                int fd,
-                const char *fname, /* only used for logging */
+పూర్ణాంకం parse_env_file_fd_sentinel(
+                పూర్ణాంకం fd,
+                స్థిరరాశి అక్షరం *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         va_start(ap, fname);
         r = parse_env_file_fdv(fd, fname, ap);
         va_end(ap);
 
-        return r;
+        తిరిగి r;
 }
 
-int parse_env_datav(
-                const char *data,
-                size_t size,
-                const char *fname, /* only used for logging */
+పూర్ణాంకం parse_env_datav(
+                స్థిరరాశి అక్షరం *దత్తాంశం,
+                size_t కొలత,
+                స్థిరరాశి అక్షరం *fname, /* only used for logging */
                 va_list ap) {
 
-        assert(data);
+        ప్రతిజ్ఞా(దత్తాంశం);
 
-        if (size == SIZE_MAX)
-                size = strlen_ptr(data);
+        ఒకవేళ (కొలత == SIZE_MAX)
+                కొలత = strlen_ptr(దత్తాంశం);
 
-        _cleanup_fclose_ FILE *f = fmemopen_unlocked((void*) data, size, "r");
-        if (!f)
-                return -ENOMEM;
+        _cleanup_fclose_ FILE *f = fmemopen_unlocked((శూన్య*) దత్తాంశం, కొలత, "r");
+        ఒకవేళ (!f)
+                తిరిగి -ENOMEM;
 
-        return parse_env_filev(f, fname, ap);
+        తిరిగి parse_env_filev(f, fname, ap);
 }
 
-int parse_env_data_sentinel(
-                const char *data,
-                size_t size,
-                const char *fname, /* only used for logging */
+పూర్ణాంకం parse_env_దత్తాంశం_sentinel(
+                స్థిరరాశి అక్షరం *దత్తాంశం,
+                size_t కొలత,
+                స్థిరరాశి అక్షరం *fname, /* only used for logging */
                 ...) {
 
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
         va_start(ap, fname);
-        r = parse_env_datav(data, size, fname, ap);
+        r = parse_env_datav(దత్తాంశం, కొలత, fname, ap);
         va_end(ap);
 
-        return r;
+        తిరిగి r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+స్థిర పూర్ణాంకం ఎక్కించు_env_file_నెట్టు(
+                స్థిరరాశి అక్షరం *filename, గుర్తులేని పంక్తి,
+                స్థిరరాశి అక్షరం *కీలకం, అక్షరం *విలువ,
+                శూన్య *userdata) {
 
-        char ***m = userdata;
-        char *p;
-        int r;
+        అక్షరం ***m = userdata;
+        అక్షరం *p;
+        పూర్ణాంకం r;
 
-        assert(key);
+        ప్రతిజ్ఞా(కీలకం);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, పంక్తి, కీలకం, విలువ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        p = strjoin(కీలకం, "=", విలువ);
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
         r = strv_env_replace_consume(m, p);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        free(value);
-        return 0;
+        విడుదల(విలువ);
+        తిరిగి 0;
 }
 
-int load_env_file(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+పూర్ణాంకం ఎక్కించు_env_file(FILE *f, స్థిరరాశి అక్షరం *fname, అక్షరం ***ret) {
+        _cleanup_strv_free_ అక్షరం **m = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(f || fname);
-        assert(ret);
+        ప్రతిజ్ఞా(f || fname);
+        ప్రతిజ్ఞా(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_అంతర్గత(f, fname, ఎక్కించు_env_file_నెట్టు, &m);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        తిరిగి 0;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+స్థిర పూర్ణాంకం ఎక్కించు_env_file_నెట్టు_జతలు(
+                స్థిరరాశి అక్షరం *filename, గుర్తులేని పంక్తి,
+                స్థిరరాశి అక్షరం *కీలకం, అక్షరం *విలువ,
+                శూన్య *userdata) {
 
-        char ***m = ASSERT_PTR(userdata);
-        int r;
+        అక్షరం ***m = ASSERT_PTR(userdata);
+        పూర్ణాంకం r;
 
-        assert(key);
+        ప్రతిజ్ఞా(కీలకం);
 
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
+        r = check_utf8ness_and_warn(filename, పంక్తి, కీలకం, విలువ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* Check if the key is present */
-        for (char **t = *m; t && *t; t += 2)
-                if (streq(t[0], key)) {
-                        if (value)
-                                return free_and_replace(t[1], value);
-                        else
-                                return free_and_strdup(t+1, "");
+        కొరకు (అక్షరం **t = *m; t && *t; t += 2)
+                ఒకవేళ (streq(t[0], కీలకం)) {
+                        ఒకవేళ (విలువ)
+                                తిరిగి free_and_replace(t[1], విలువ);
+                        లేకపోతే
+                                తిరిగి free_and_strdup(t+1, "");
                 }
 
-        r = strv_extend(m, key);
-        if (r < 0)
-                return r;
+        r = strv_extend(m, కీలకం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (value)
-                return strv_push(m, value);
-        else
-                return strv_extend(m, "");
+        ఒకవేళ (విలువ)
+                తిరిగి strv_నెట్టు(m, విలువ);
+        లేకపోతే
+                తిరిగి strv_extend(m, "");
 }
 
-int load_env_file_pairs(FILE *f, const char *fname, char ***ret) {
-        _cleanup_strv_free_ char **m = NULL;
-        int r;
+పూర్ణాంకం ఎక్కించు_env_file_జతలు(FILE *f, స్థిరరాశి అక్షరం *fname, అక్షరం ***ret) {
+        _cleanup_strv_free_ అక్షరం **m = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(f || fname);
-        assert(ret);
+        ప్రతిజ్ఞా(f || fname);
+        ప్రతిజ్ఞా(ret);
 
-        r = parse_env_file_internal(f, fname, load_env_file_push_pairs, &m);
-        if (r < 0)
-                return r;
+        r = parse_env_file_అంతర్గత(f, fname, ఎక్కించు_env_file_నెట్టు_జతలు, &m);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = TAKE_PTR(m);
-        return 0;
+        తిరిగి 0;
 }
 
-int load_env_file_pairs_fd(int fd, const char *fname, char ***ret) {
-        _cleanup_fclose_ FILE *f = NULL;
-        int r;
+పూర్ణాంకం ఎక్కించు_env_file_జతలు_fd(పూర్ణాంకం fd, స్థిరరాశి అక్షరం *fname, అక్షరం ***ret) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         r = fdopen_independent(fd, "re", &f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return load_env_file_pairs(f, fname, ret);
+        తిరిగి ఎక్కించు_env_file_జతలు(f, fname, ret);
 }
 
-static int merge_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata) {
+స్థిర పూర్ణాంకం విలీనం_env_file_నెట్టు(
+                స్థిరరాశి అక్షరం *filename, గుర్తులేని పంక్తి,
+                స్థిరరాశి అక్షరం *కీలకం, అక్షరం *విలువ,
+                శూన్య *userdata) {
 
-        char ***env = ASSERT_PTR(userdata);
-        char *expanded_value;
-        int r;
+        అక్షరం ***env = ASSERT_PTR(userdata);
+        అక్షరం *expanded_విలువ;
+        పూర్ణాంకం r;
 
-        assert(key);
+        ప్రతిజ్ఞా(కీలకం);
 
-        if (!value) {
-                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), line, key);
-                return 0;
+        ఒకవేళ (!విలువ) {
+                log_error("%s:%u: invalid syntax (around \"%s\"), ignoring.", strna(filename), పంక్తి, కీలకం);
+                తిరిగి 0;
         }
 
-        if (!env_name_is_valid(key)) {
-                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), line, key);
-                free(value);
-                return 0;
+        ఒకవేళ (!env_name_is_valid(కీలకం)) {
+                log_error("%s:%u: invalid variable name \"%s\", ignoring.", strna(filename), పంక్తి, కీలకం);
+                విడుదల(విలువ);
+                తిరిగి 0;
         }
 
-        r = replace_env(value,
+        r = replace_env(విలువ,
                         *env,
                         REPLACE_ENV_USE_ENVIRONMENT|REPLACE_ENV_ALLOW_BRACELESS|REPLACE_ENV_ALLOW_EXTENDED,
-                        &expanded_value);
-        if (r < 0)
-                return log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), line, value);
+                        &expanded_విలువ);
+        ఒకవేళ (r < 0)
+                తిరిగి log_error_errno(r, "%s:%u: Failed to expand variable '%s': %m", strna(filename), పంక్తి, విలువ);
 
-        free_and_replace(value, expanded_value);
+        free_and_replace(విలువ, expanded_విలువ);
 
-        log_debug("%s:%u: setting %s=%s", filename, line, key, value);
+        log_debug("%s:%u: setting %s=%s", filename, పంక్తి, కీలకం, విలువ);
 
-        return load_env_file_push(filename, line, key, value, env);
+        తిరిగి ఎక్కించు_env_file_నెట్టు(filename, పంక్తి, కీలకం, విలువ, env);
 }
 
-int merge_env_file(
-                char ***env,
+పూర్ణాంకం విలీనం_env_file(
+                అక్షరం ***env,
                 FILE *f,
-                const char *fname) {
+                స్థిరరాశి అక్షరం *fname) {
 
-        assert(env);
-        assert(f || fname);
+        ప్రతిజ్ఞా(env);
+        ప్రతిజ్ఞా(f || fname);
 
         /* NOTE: this function supports braceful and braceless variable expansions,
          * plus "extended" substitutions, unlike other exported parsing functions.
          */
 
-        return parse_env_file_internal(f, fname, merge_env_file_push, env);
+        తిరిగి parse_env_file_అంతర్గత(f, fname, విలీనం_env_file_నెట్టు, env);
 }
 
-static void env_file_fputs_escaped(FILE *f, const char *p) {
-        assert(f);
-        assert(p);
+స్థిర శూన్య env_file_fputs_escaped(FILE *f, స్థిరరాశి అక్షరం *p) {
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(p);
 
         flockfile(f);
 
-        if (string_has_cc(p, NULL) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
+        ఒకవేళ (string_has_cc(p, ఖాళీ) || chars_intersect(p, WHITESPACE SHELL_NEED_QUOTES)) {
                 fputc_unlocked('"', f);
 
-                for (; *p; p++) {
-                        if (strchr(SHELL_NEED_ESCAPE, *p))
+                కొరకు (; *p; p++) {
+                        ఒకవేళ (strchr(SHELL_NEED_ESCAPE, *p))
                                 fputc_unlocked('\\', f);
 
                         fputc_unlocked(*p, f);
                 }
 
                 fputc_unlocked('"', f);
-        } else
+        } లేకపోతే
                 fputs_unlocked(p, f);
 
         funlockfile(f);
 }
 
-void env_file_fputs_assignment(FILE *f, const char *k, const char *v) {
-        assert(f);
-        assert(k);
+శూన్య env_file_fputs_assignment(FILE *f, స్థిరరాశి అక్షరం *k, స్థిరరాశి అక్షరం *v) {
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(k);
 
-        if (!v)
-                return;
+        ఒకవేళ (!v)
+                తిరిగి;
 
         fputs(k, f);
         env_file_fputs_escaped(f, v);
         fputc('\n', f);
 }
 
-static void write_env_var(FILE *f, const char *v) {
-        const char *p;
+స్థిర శూన్య write_env_var(FILE *f, స్థిరరాశి అక్షరం *v) {
+        స్థిరరాశి అక్షరం *p;
 
-        assert(f);
-        assert(v);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(v);
 
         p = strchr(v, '=');
-        if (!p) {
+        ఒకవేళ (!p) {
                 /* Fallback */
                 fputs_unlocked(v, f);
                 fputc_unlocked('\n', f);
-                return;
+                తిరిగి;
         }
 
         p++;
@@ -665,40 +665,40 @@ static void write_env_var(FILE *f, const char *v) {
         fputc_unlocked('\n', f);
 }
 
-int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l, WriteEnvFileFlags flags, LabelContext *label_context) {
-        int r;
+పూర్ణాంకం write_env_file_label(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *fname, అక్షరం **శీర్షికలు, అక్షరం **l, WriteEnvFileFlags flags, LabelContext *label_context) {
+        పూర్ణాంకం r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(fname);
+        ప్రతిజ్ఞా(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ప్రతిజ్ఞా(fname);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
+        ఒకవేళ (FLAGS_సమితి(flags, WRITE_ENV_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fname, S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
         r = fopen_tmpfile_linkable_at(dir_fd, fname, O_WRONLY|O_CLOEXEC, &p, &f);
-        if (r < 0) {
-                if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL))
-                        (void) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
-                return r;
+        ఒకవేళ (r < 0) {
+                ఒకవేళ (FLAGS_సమితి(flags, WRITE_ENV_FILE_LABEL))
+                        (శూన్య) label_ops_post(dir_fd, fname, /* created= */ false, label_context);
+                తిరిగి r;
         }
         CLEANUP_TMPFILE_AT(dir_fd, p);
 
-        if (FLAGS_SET(flags, WRITE_ENV_FILE_LABEL)) {
-                r = label_ops_post(fileno(f), /* path= */ NULL, /* created= */ true, label_context);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (FLAGS_సమితి(flags, WRITE_ENV_FILE_LABEL)) {
+                r = label_ops_post(fileno(f), /* path= */ ఖాళీ, /* created= */ true, label_context);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
         r = fchmod_umask(fileno(f), 0644);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        STRV_FOREACH(i, headers) {
-                assert(isempty(*i) || startswith(*i, "#"));
+        STRV_FOREACH(i, శీర్షికలు) {
+                ప్రతిజ్ఞా(isempty(*i) || startswith(*i, "#"));
                 fputs_unlocked(*i, f);
                 fputc_unlocked('\n', f);
         }
@@ -707,18 +707,18 @@ int write_env_file_label(int dir_fd, const char *fname, char **headers, char **l
                 write_env_var(f, *i);
 
         r = flink_tmpfile_at(f, dir_fd, p, fname, LINK_TMPFILE_REPLACE|LINK_TMPFILE_SYNC);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        return 0;
+        తిరిగి 0;
 }
 
-int write_vconsole_conf(int dir_fd, const char *fname, char **l) {
-        char **headers = STRV_MAKE(
+పూర్ణాంకం write_vconsole_conf(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *fname, అక్షరం **l) {
+        అక్షరం **శీర్షికలు = STRV_MAKE(
                 "# Written by systemd-localed(8) or systemd-firstboot(1), read by systemd-localed",
                 "# and systemd-vconsole-setup(8). Use localectl(1) to update this file.");
 
-        return write_env_file_label(dir_fd, fname, headers, l, WRITE_ENV_FILE_LABEL, /* label_context= */ NULL);
+        తిరిగి write_env_file_label(dir_fd, fname, శీర్షికలు, l, WRITE_ENV_FILE_LABEL, /* label_context= */ ఖాళీ);
 }

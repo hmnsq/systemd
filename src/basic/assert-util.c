@@ -1,56 +1,56 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
 
-#include "assert-util.h"
-#include "errno-util.h"
-#include "log.h"
+#అన్తర్భావ "assert-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "log.h"
 
 /* Akin to glibc's __abort_msg; which is private and we hence cannot
  * use here. */
-static char *log_abort_msg = NULL;
+స్థిర అక్షరం *log_abort_సందేశం = ఖాళీ;
 
-static void log_assert(
-        int level,
-        const char *text,
-        const char *file,
-        int line,
-        const char *func,
-        const char *format) {
+స్థిర శూన్య log_assert(
+        పూర్ణాంకం level,
+        స్థిరరాశి అక్షరం *పాఠ్యం,
+        స్థిరరాశి అక్షరం *file,
+        పూర్ణాంకం పంక్తి,
+        స్థిరరాశి అక్షరం *func,
+        స్థిరరాశి అక్షరం *format) {
 
-        static char buffer[LINE_MAX];
+        స్థిర అక్షరం బఫరు[LINE_MAX];
 
-        if (_likely_(LOG_PRI(level) > log_get_max_level()))
-                return;
+        ఒకవేళ (_likely_(LOG_PRI(level) > log_get_max_level()))
+                తిరిగి;
 
         DISABLE_WARNING_FORMAT_NONLITERAL;
-        (void) snprintf(buffer, sizeof buffer, format, text, file, line, func);
+        (శూన్య) snprintf(బఫరు, పరిమాణం బఫరు, format, పాఠ్యం, file, పంక్తి, func);
         REENABLE_WARNING;
 
-        log_abort_msg = buffer;
+        log_abort_సందేశం = బఫరు;
 
-        log_dispatch_internal(level, 0, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        log_dispatch_అంతర్గత(level, 0, file, పంక్తి, func, ఖాళీ, ఖాళీ, ఖాళీ, ఖాళీ, బఫరు);
 }
 
-_noreturn_ void log_assert_failed(const char *text, const char *file, int line, const char *func) {
-        log_assert(LOG_CRIT, text, file, line, func,
+_noreturn_ శూన్య log_assert_failed(స్థిరరాశి అక్షరం *పాఠ్యం, స్థిరరాశి అక్షరం *file, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *func) {
+        log_assert(LOG_CRIT, పాఠ్యం, file, పంక్తి, func,
                    "Assertion '%s' failed at %s:%u, function %s(). Aborting.");
         abort();
 }
 
-_noreturn_ void log_assert_failed_unreachable(const char *file, int line, const char *func) {
-        log_assert(LOG_CRIT, "Code should not be reached", file, line, func,
+_noreturn_ శూన్య log_assert_failed_unreachable(స్థిరరాశి అక్షరం *file, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *func) {
+        log_assert(LOG_CRIT, "Code should not be reached", file, పంక్తి, func,
                    "%s at %s:%u, function %s(). Aborting. 💥");
         abort();
 }
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func) {
+శూన్య log_assert_failed_return(స్థిరరాశి అక్షరం *పాఠ్యం, స్థిరరాశి అక్షరం *file, పూర్ణాంకం పంక్తి, స్థిరరాశి అక్షరం *func) {
         /* log_get_assert_return_is_critical is a weak symbol. It may be NULL. */
-        if (log_get_assert_return_is_critical && log_get_assert_return_is_critical())
-                log_assert_failed(text, file, line, func);
+        ఒకవేళ (log_get_assert_return_is_critical && log_get_assert_return_is_critical())
+                log_assert_failed(పాఠ్యం, file, పంక్తి, func);
 
         PROTECT_ERRNO;
-        log_assert(LOG_DEBUG, text, file, line, func,
+        log_assert(LOG_DEBUG, పాఠ్యం, file, పంక్తి, func,
                    "Assertion '%s' failed at %s:%u, function %s(), ignoring.");
 }

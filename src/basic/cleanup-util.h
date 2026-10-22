@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "../fundamental/assert-util.h"
-#include "../fundamental/cleanup-util.h" /* IWYU pragma: export */
+#అన్తర్భావ "../fundamental/assert-util.h"
+#అన్తర్భావ "../fundamental/cleanup-util.h" /* IWYU pragma: export */
 
-typedef void (*free_func_t)(void *p);
-typedef void* (*mfree_func_t)(void *p);
+రకనిర్వచనం శూన్య (*free_func_t)(శూన్య *p);
+రకనిర్వచనం శూన్య* (*mfree_func_t)(శూన్య *p);
 
-#define free_and_replace_full(a, b, free_func)  \
+#నిర్వచించు free_and_replace_నిండిన(a, b, free_func)  \
         ({                                      \
                 typeof(a)* _a = &(a);           \
                 typeof(b)* _b = &(b);           \
                 free_func(*_a);                 \
                 *_a = *_b;                      \
-                *_b = NULL;                     \
+                *_b = ఖాళీ;                     \
                 0;                              \
         })
 
 /* This is similar to free_and_replace_full(), but NULL is not assigned to 'b', and its reference counter is
  * increased. */
-#define unref_and_replace_new_ref(a, b, ref_func, unref_func) \
+#నిర్వచించు unref_and_replace_new_ref(a, b, ref_func, unref_func) \
         ({                                                    \
                 typeof(a)* _a = &(a);                         \
                 typeof(b) _b = ref_func(b);                   \
@@ -28,78 +28,78 @@ typedef void* (*mfree_func_t)(void *p);
                 0;                                            \
         })
 
-#define _DEFINE_TRIVIAL_REF_FUNC(type, name, scope)                                     \
+#నిర్వచించు _DEFINE_TRIVIAL_REF_FUNC(type, name, scope)                                     \
         scope type *name##_ref(type *p) {                                               \
-                if (!p)                                                                 \
-                        return NULL;                                                    \
+                ఒకవేళ (!p)                                                                 \
+                        తిరిగి ఖాళీ;                                                    \
                                                                                         \
                 /* For type check. */                                                   \
-                unsigned *q = &p->n_ref;                                                \
-                assert(*q > 0);                                                         \
+                గుర్తులేని *q = &p->n_ref;                                                \
+                ప్రతిజ్ఞా(*q > 0);                                                         \
                 assert_se(*q < UINT_MAX);                                               \
                                                                                         \
                 (*q)++;                                                                 \
-                return p;                                                               \
+                తిరిగి p;                                                               \
         }
 
-#define _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, scope)                        \
+#నిర్వచించు _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, scope)                        \
         scope type *name##_unref(type *p) {                                             \
-                if (!p)                                                                 \
-                        return NULL;                                                    \
+                ఒకవేళ (!p)                                                                 \
+                        తిరిగి ఖాళీ;                                                    \
                                                                                         \
-                assert(p->n_ref > 0);                                                   \
+                ప్రతిజ్ఞా(p->n_ref > 0);                                                   \
                 p->n_ref--;                                                             \
-                if (p->n_ref > 0)                                                       \
-                        return NULL;                                                    \
+                ఒకవేళ (p->n_ref > 0)                                                       \
+                        తిరిగి ఖాళీ;                                                    \
                                                                                         \
-                return free_func(p);                                                    \
+                తిరిగి free_func(p);                                                    \
         }
 
-#define DEFINE_TRIVIAL_REF_FUNC(type, name)     \
+#నిర్వచించు DEFINE_TRIVIAL_REF_FUNC(type, name)     \
         _DEFINE_TRIVIAL_REF_FUNC(type, name,)
-#define DEFINE_PRIVATE_TRIVIAL_REF_FUNC(type, name)     \
-        _DEFINE_TRIVIAL_REF_FUNC(type, name, static)
-#define DEFINE_PUBLIC_TRIVIAL_REF_FUNC(type, name)      \
-        _DEFINE_TRIVIAL_REF_FUNC(type, name, _public_)
+#నిర్వచించు DEFINE_వ్యక్తిగత_TRIVIAL_REF_FUNC(type, name)     \
+        _DEFINE_TRIVIAL_REF_FUNC(type, name, స్థిర)
+#నిర్వచించు DEFINE_ప్రజా_TRIVIAL_REF_FUNC(type, name)      \
+        _DEFINE_TRIVIAL_REF_FUNC(type, name, ప్రజా)
 
-#define DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
+#నిర్వచించు DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
         _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func,)
-#define DEFINE_PRIVATE_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
-        _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, static)
-#define DEFINE_PUBLIC_TRIVIAL_UNREF_FUNC(type, name, free_func)         \
-        _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, _public_)
+#నిర్వచించు DEFINE_వ్యక్తిగత_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
+        _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, స్థిర)
+#నిర్వచించు DEFINE_ప్రజా_TRIVIAL_UNREF_FUNC(type, name, free_func)         \
+        _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, ప్రజా)
 
-#define DEFINE_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
+#నిర్వచించు DEFINE_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
         DEFINE_TRIVIAL_REF_FUNC(type, name);                    \
         DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func);
 
-#define DECLARE_TRIVIAL_REF_FUNC(type, name) \
+#నిర్వచించు DECLARE_TRIVIAL_REF_FUNC(type, name) \
         type* name##_ref(type *p)
 
-#define DECLARE_TRIVIAL_UNREF_FUNC(type, name) \
+#నిర్వచించు DECLARE_TRIVIAL_UNREF_FUNC(type, name) \
         type* name##_unref(type *p)
 
-#define DECLARE_TRIVIAL_REF_UNREF_FUNC(type, name)      \
+#నిర్వచించు DECLARE_TRIVIAL_REF_UNREF_FUNC(type, name)      \
         DECLARE_TRIVIAL_REF_FUNC(type, name);           \
         DECLARE_TRIVIAL_UNREF_FUNC(type, name)
 
-#define DEFINE_PRIVATE_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
-        DEFINE_PRIVATE_TRIVIAL_REF_FUNC(type, name);                    \
-        DEFINE_PRIVATE_TRIVIAL_UNREF_FUNC(type, name, free_func);
+#నిర్వచించు DEFINE_వ్యక్తిగత_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
+        DEFINE_వ్యక్తిగత_TRIVIAL_REF_FUNC(type, name);                    \
+        DEFINE_వ్యక్తిగత_TRIVIAL_UNREF_FUNC(type, name, free_func);
 
-#define DEFINE_PUBLIC_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
-        DEFINE_PUBLIC_TRIVIAL_REF_FUNC(type, name);                    \
-        DEFINE_PUBLIC_TRIVIAL_UNREF_FUNC(type, name, free_func);
+#నిర్వచించు DEFINE_ప్రజా_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
+        DEFINE_ప్రజా_TRIVIAL_REF_FUNC(type, name);                    \
+        DEFINE_ప్రజా_TRIVIAL_UNREF_FUNC(type, name, free_func);
 
-typedef void (*void_func_t)(void);
+రకనిర్వచనం శూన్య (*void_func_t)(శూన్య);
 
-static inline void dispatch_void_func(void_func_t *f) {
-        assert(f);
-        assert(*f);
+స్థిర అంతఃవరుస శూన్య dispatch_void_func(void_func_t *f) {
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(*f);
         (*f)();
 }
 
 /* Inspired by Go's "defer" construct, but much more basic. This basically just calls a void function when
  * the current scope is left. Doesn't do function parameters (i.e. no closures). */
-#define DEFER_VOID_CALL(x) _DEFER_VOID_CALL(UNIQ, x)
-#define _DEFER_VOID_CALL(uniq, x) _unused_ _cleanup_(dispatch_void_func) void_func_t UNIQ_T(defer, uniq) = (x)
+#నిర్వచించు DEFER_VOID_CALL(x) _DEFER_VOID_CALL(UNIQ, x)
+#నిర్వచించు _DEFER_VOID_CALL(uniq, x) వాడని _cleanup_(dispatch_void_func) void_func_t UNIQ_T(defer, uniq) = (x)

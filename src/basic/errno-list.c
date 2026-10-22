@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <string.h>
 
-#include "errno-list.h"
+#అన్తర్భావ "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+స్థిర స్థిరరాశి నిర్మాణం errno_name* lookup_errno(నమోదు స్థిరరాశి అక్షరం *str,
+                                             నమోదు GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#అన్తర్భావ "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+పూర్ణాంకం errno_from_name(స్థిరరాశి అక్షరం *name) {
+        స్థిరరాశి నిర్మాణం errno_name *sc;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
-        sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        sc = lookup_errno(name, అక్షరశ్రేణి_పొడవు(name));
+        ఒకవేళ (!sc)
+                తిరిగి -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        ప్రతిజ్ఞా(sc->id > 0);
+        తిరిగి sc->id;
 }
 
-#ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+#నిర్వచితమైతే __GLIBC__
+స్థిరరాశి అక్షరం* errno_name_no_fallback(పూర్ణాంకం id) {
+        ఒకవేళ (id == 0) /* To stay in line with our implementation below.  */
+                తిరిగి ఖాళీ;
 
-        return strerrorname_np(ABS(id));
+        తిరిగి strerrorname_np(ABS(id));
 }
-#else
+#లేకపోతే
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+స్థిరరాశి అక్షరం* errno_name_no_fallback(పూర్ణాంకం id) {
+        ఒకవేళ (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        ఒకవేళ ((size_t) id >= ELEMENTSOF(errno_పేర్లు))
+                తిరిగి ఖాళీ;
 
-        return errno_names[id];
+        తిరిగి errno_పేర్లు[id];
 }
-#endif
+#అయితే_ముగింపు
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
-        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+స్థిరరాశి అక్షరం* errno_name(పూర్ణాంకం id, అక్షరం buf[స్థిర ERRNO_NAME_BUF_LEN]) {
+        స్థిరరాశి అక్షరం *a = errno_name_no_fallback(id);
+        ఒకవేళ (a)
+                తిరిగి a;
+        snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", నిరపేక్ష(id));
+        తిరిగి buf;
 }

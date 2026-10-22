@@ -1,69 +1,69 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "format-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "syslog-util.h"
-#include "utf8.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "env-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "format-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "syslog-util.h"
+#అన్తర్భావ "utf8.h"
 
 /* We follow bash for the character set. Different shells have different rules. */
-#define VALID_BASH_ENV_NAME_CHARS               \
+#నిర్వచించు VALID_BASH_ENV_NAME_CHARS               \
         ALPHANUMERICAL                          \
         "_"
 
-size_t sc_arg_max(void) {
-        long l = sysconf(_SC_ARG_MAX);
-        assert(l > 0);
-        return (size_t) l;
+size_t sc_arg_max(శూన్య) {
+        దీర్ఘ l = sysconf(_SC_ARG_MAX);
+        ప్రతిజ్ఞా(l > 0);
+        తిరిగి (size_t) l;
 }
 
-static bool env_name_is_valid_n(const char *e, size_t n) {
+స్థిర bool env_name_is_valid_n(స్థిరరాశి అక్షరం *e, size_t n) {
 
-        if (n == SIZE_MAX)
+        ఒకవేళ (n == SIZE_MAX)
                 n = strlen_ptr(e);
 
-        if (n == 0)
-                return false;
+        ఒకవేళ (n == 0)
+                తిరిగి false;
 
-        assert(e);
+        ప్రతిజ్ఞా(e);
 
-        if (ascii_isdigit(e[0]))
-                return false;
+        ఒకవేళ (ascii_isdigit(e[0]))
+                తిరిగి false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the equal sign and trailing NUL this hence leaves ARG_MAX-2 as
          * longest possible variable name. */
-        if (_unlikely_(n > sc_arg_max() - 2))
-                return false;
+        ఒకవేళ (_unlikely_(n > sc_arg_max() - 2))
+                తిరిగి false;
 
-        for (const char *p = e; p < e + n; p++)
-                if (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
-                        return false;
+        కొరకు (స్థిరరాశి అక్షరం *p = e; p < e + n; p++)
+                ఒకవేళ (!strchr(VALID_BASH_ENV_NAME_CHARS, *p))
+                        తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-bool env_name_is_valid(const char *e) {
-        return env_name_is_valid_n(e, SIZE_MAX);
+bool env_name_is_valid(స్థిరరాశి అక్షరం *e) {
+        తిరిగి env_name_is_valid_n(e, SIZE_MAX);
 }
 
-bool env_value_is_valid(const char *e) {
-        if (!e)
-                return false;
+bool env_విలువ_is_valid(స్థిరరాశి అక్షరం *e) {
+        ఒకవేళ (!e)
+                తిరిగి false;
 
-        if (!utf8_is_valid(e))
-                return false;
+        ఒకవేళ (!utf8_is_valid(e))
+                తిరిగి false;
 
         /* Note that variable *values* may contain control characters, in particular NL, TAB, BS, DEL, ESC…
          * When printing those variables with show-environment, we'll escape them. Make sure to print
@@ -72,83 +72,83 @@ bool env_value_is_valid(const char *e) {
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, an individual assignment
          * hence cannot be either. Discounting the shortest possible variable name of length 1, the equal
          * sign and trailing NUL this hence leaves ARG_MAX-3 as longest possible variable value. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 3))
-                return false;
+        ఒకవేళ (_unlikely_(అక్షరశ్రేణి_పొడవు(e) > sc_arg_max() - 3))
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-bool env_assignment_is_valid(const char *e) {
-        const char *eq;
+bool env_assignment_is_valid(స్థిరరాశి అక్షరం *e) {
+        స్థిరరాశి అక్షరం *eq;
 
-        assert(e);
+        ప్రతిజ్ఞా(e);
 
         eq = strchr(e, '=');
-        if (!eq)
-                return false;
+        ఒకవేళ (!eq)
+                తిరిగి false;
 
-        if (!env_name_is_valid_n(e, eq - e))
-                return false;
+        ఒకవేళ (!env_name_is_valid_n(e, eq - e))
+                తిరిగి false;
 
-        if (!env_value_is_valid(eq + 1))
-                return false;
+        ఒకవేళ (!env_విలువ_is_valid(eq + 1))
+                తిరిగి false;
 
         /* POSIX says the overall size of the environment block cannot be > ARG_MAX, hence the individual
          * variable assignments cannot be either, but let's leave room for one trailing NUL byte. */
-        if (_unlikely_(strlen(e) > sc_arg_max() - 1))
-                return false;
+        ఒకవేళ (_unlikely_(అక్షరశ్రేణి_పొడవు(e) > sc_arg_max() - 1))
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-bool strv_env_is_valid(char * const *e) {
+bool strv_env_is_valid(అక్షరం * స్థిరరాశి *e) {
         STRV_FOREACH(p, e) {
                 size_t k;
 
-                if (!env_assignment_is_valid(*p))
-                        return false;
+                ఒకవేళ (!env_assignment_is_valid(*p))
+                        తిరిగి false;
 
                 /* Check if there are duplicate assignments */
                 k = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, k) && (*q)[k] == '=')
-                                return false;
+                        ఒకవేళ (strneq(*p, *q, k) && (*q)[k] == '=')
+                                తిరిగి false;
         }
 
-        return true;
+        తిరిగి true;
 }
 
-bool strv_env_name_is_valid(char * const *l) {
+bool strv_env_name_is_valid(అక్షరం * స్థిరరాశి *l) {
         STRV_FOREACH(p, l) {
-                if (!env_name_is_valid(*p))
-                        return false;
+                ఒకవేళ (!env_name_is_valid(*p))
+                        తిరిగి false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                ఒకవేళ (strv_కలిగియుంది(p + 1, *p))
+                        తిరిగి false;
         }
 
-        return true;
+        తిరిగి true;
 }
 
-bool strv_env_name_or_assignment_is_valid(char * const *l) {
+bool strv_env_name_or_assignment_is_valid(అక్షరం * స్థిరరాశి *l) {
         STRV_FOREACH(p, l) {
-                if (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
-                        return false;
+                ఒకవేళ (!env_assignment_is_valid(*p) && !env_name_is_valid(*p))
+                        తిరిగి false;
 
-                if (strv_contains(p + 1, *p))
-                        return false;
+                ఒకవేళ (strv_కలిగియుంది(p + 1, *p))
+                        తిరిగి false;
         }
 
-        return true;
+        తిరిగి true;
 }
 
-static int env_append(char **e, char ***k, char **a) {
-        assert(e);
-        assert(k);
-        assert(*k >= e);
+స్థిర పూర్ణాంకం env_append(అక్షరం **e, అక్షరం ***k, అక్షరం **a) {
+        ప్రతిజ్ఞా(e);
+        ప్రతిజ్ఞా(k);
+        ప్రతిజ్ఞా(*k >= e);
 
-        if (!a)
-                return 0;
+        ఒకవేళ (!a)
+                తిరిగి 0;
 
         /* Expects the following arguments: 'e' shall point to the beginning of an strv we are going to append to, 'k'
          * to a pointer pointing to the NULL entry at the end of the same array. 'a' shall point to another strv.
@@ -157,83 +157,83 @@ static int env_append(char **e, char ***k, char **a) {
          *
          * This call assumes 'e' has enough pre-allocated space to grow by all of 'a''s items. */
 
-        for (; *a; a++) {
-                char **j, *c;
+        కొరకు (; *a; a++) {
+                అక్షరం **j, *c;
                 size_t n;
 
                 n = strcspn(*a, "=");
-                if ((*a)[n] == '=')
+                ఒకవేళ ((*a)[n] == '=')
                         n++;
 
-                for (j = e; j < *k; j++)
-                        if (strneq(*j, *a, n))
-                                break;
+                కొరకు (j = e; j < *k; j++)
+                        ఒకవేళ (strneq(*j, *a, n))
+                                ఆపు;
 
                 c = strdup(*a);
-                if (!c)
-                        return -ENOMEM;
+                ఒకవేళ (!c)
+                        తిరిగి -ENOMEM;
 
-                if (j >= *k) { /* Append to the end? */
+                ఒకవేళ (j >= *k) { /* Append to the end? */
                         (*k)[0] = c;
-                        (*k)[1] = NULL;
+                        (*k)[1] = ఖాళీ;
                         (*k)++;
-                } else
+                } లేకపోతే
                         free_and_replace(*j, c); /* Override existing item */
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-char** _strv_env_merge(char **first, ...) {
-        _cleanup_strv_free_ char **merged = NULL;
-        char **k;
+అక్షరం** strv_env_విలీనం(అక్షరం **మొదటి, ...) {
+        _cleanup_strv_free_ అక్షరం **merged = ఖాళీ;
+        అక్షరం **k;
         va_list ap;
 
         /* Merges an arbitrary number of environment sets */
 
-        size_t n = strv_length(first);
+        size_t n = strv_నిడివి(మొదటి);
 
-        va_start(ap, first);
-        for (;;) {
-                char **l;
+        va_start(ap, మొదటి);
+        కొరకు (;;) {
+                అక్షరం **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, అక్షరం**);
+                ఒకవేళ (l == సూచిక_MAX)
+                        ఆపు;
 
-                n += strv_length(l);
+                n += strv_నిడివి(l);
         }
         va_end(ap);
 
-        k = merged = new(char*, n + 1);
-        if (!merged)
-                return NULL;
-        merged[0] = NULL;
+        k = merged = new(అక్షరం*, n + 1);
+        ఒకవేళ (!merged)
+                తిరిగి ఖాళీ;
+        merged[0] = ఖాళీ;
 
-        if (env_append(merged, &k, first) < 0)
-                return NULL;
+        ఒకవేళ (env_append(merged, &k, మొదటి) < 0)
+                తిరిగి ఖాళీ;
 
-        va_start(ap, first);
-        for (;;) {
-                char **l;
+        va_start(ap, మొదటి);
+        కొరకు (;;) {
+                అక్షరం **l;
 
-                l = va_arg(ap, char**);
-                if (l == POINTER_MAX)
-                        break;
+                l = va_arg(ap, అక్షరం**);
+                ఒకవేళ (l == సూచిక_MAX)
+                        ఆపు;
 
-                if (env_append(merged, &k, l) < 0) {
+                ఒకవేళ (env_append(merged, &k, l) < 0) {
                         va_end(ap);
-                        return NULL;
+                        తిరిగి ఖాళీ;
                 }
         }
         va_end(ap);
 
-        return TAKE_PTR(merged);
+        తిరిగి TAKE_PTR(merged);
 }
 
-static bool env_match(const char *t, const char *pattern) {
-        assert(t);
-        assert(pattern);
+స్థిర bool env_సరిపోలిక(స్థిరరాశి అక్షరం *t, స్థిరరాశి అక్షరం *నమూనా) {
+        ప్రతిజ్ఞా(t);
+        ప్రతిజ్ఞా(నమూనా);
 
         /* pattern a matches string a
          *         a matches a=
@@ -245,138 +245,138 @@ static bool env_match(const char *t, const char *pattern) {
          *         a=b does not match a
          *         a=b does not match a=c */
 
-        if (streq(t, pattern))
-                return true;
+        ఒకవేళ (streq(t, నమూనా))
+                తిరిగి true;
 
-        if (!strchr(pattern, '=')) {
-                t = startswith(t, pattern);
+        ఒకవేళ (!strchr(నమూనా, '=')) {
+                t = startswith(t, నమూనా);
 
-                return t && *t == '=';
+                తిరిగి t && *t == '=';
         }
 
-        return false;
+        తిరిగి false;
 }
 
-static bool env_entry_has_name(const char *entry, const char *name) {
-        const char *t;
+స్థిర bool env_నమోదు_has_name(స్థిరరాశి అక్షరం *నమోదు_2, స్థిరరాశి అక్షరం *name) {
+        స్థిరరాశి అక్షరం *t;
 
-        assert(entry);
-        assert(name);
+        ప్రతిజ్ఞా(నమోదు_2);
+        ప్రతిజ్ఞా(name);
 
-        t = startswith(entry, name);
-        if (!t)
-                return false;
+        t = startswith(నమోదు_2, name);
+        ఒకవేళ (!t)
+                తిరిగి false;
 
-        return *t == '=';
+        తిరిగి *t == '=';
 }
 
-char** strv_env_delete(char **x, size_t n_lists, ...) {
+అక్షరం** strv_env_delete(అక్షరం **x, size_t n_lists, ...) {
         size_t n, i = 0;
-        _cleanup_strv_free_ char **t = NULL;
+        _cleanup_strv_free_ అక్షరం **t = ఖాళీ;
         va_list ap;
 
         /* Deletes every entry from x that is mentioned in the other
          * string lists */
 
-        n = strv_length(x);
+        n = strv_నిడివి(x);
 
-        t = new(char*, n+1);
-        if (!t)
-                return NULL;
+        t = new(అక్షరం*, n+1);
+        ఒకవేళ (!t)
+                తిరిగి ఖాళీ;
 
         STRV_FOREACH(k, x) {
                 va_start(ap, n_lists);
-                for (size_t v = 0; v < n_lists; v++) {
-                        char **l;
+                కొరకు (size_t v = 0; v < n_lists; v++) {
+                        అక్షరం **l;
 
-                        l = va_arg(ap, char**);
+                        l = va_arg(ap, అక్షరం**);
                         STRV_FOREACH(j, l)
-                                if (env_match(*k, *j))
-                                        goto skip;
+                                ఒకవేళ (env_సరిపోలిక(*k, *j))
+                                        వెళ్ళు skip;
                 }
                 va_end(ap);
 
                 t[i] = strdup(*k);
-                if (!t[i])
-                        return NULL;
+                ఒకవేళ (!t[i])
+                        తిరిగి ఖాళీ;
 
                 i++;
-                continue;
+                కొనసాగు;
 
         skip:
                 va_end(ap);
         }
 
-        t[i] = NULL;
+        t[i] = ఖాళీ;
 
-        assert(i <= n);
+        ప్రతిజ్ఞా(i <= n);
 
-        return TAKE_PTR(t);
+        తిరిగి TAKE_PTR(t);
 }
 
-char** strv_env_unset(char **l, const char *p) {
-        assert(p);
+అక్షరం** strv_env_unset(అక్షరం **l, స్థిరరాశి అక్షరం *p) {
+        ప్రతిజ్ఞా(p);
 
-        if (!l)
-                return NULL;
+        ఒకవేళ (!l)
+                తిరిగి ఖాళీ;
 
         /* Drops every occurrence of the env var setting p in the
          * string list. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                if (env_match(*f, p)) {
-                        free(*f);
-                        continue;
+        అక్షరం **f, **t;
+        కొరకు (f = t = l; *f; f++) {
+                ఒకవేళ (env_సరిపోలిక(*f, p)) {
+                        విడుదల(*f);
+                        కొనసాగు;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = ఖాళీ;
+        తిరిగి l;
 }
 
-char** strv_env_unset_many_internal(char **l, ...) {
-        if (!l)
-                return NULL;
+అక్షరం** strv_env_unset_many_అంతర్గత(అక్షరం **l, ...) {
+        ఒకవేళ (!l)
+                తిరిగి ఖాళీ;
 
         /* Like strv_env_unset() but applies many at once. Edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++) {
-                bool found = false;
-                const char *p;
+        అక్షరం **f, **t;
+        కొరకు (f = t = l; *f; f++) {
+                bool దొరికింది = false;
+                స్థిరరాశి అక్షరం *p;
                 va_list ap;
 
                 va_start(ap, l);
 
-                while ((p = va_arg(ap, const char*)))
-                        if (env_match(*f, p)) {
-                                found = true;
-                                break;
+                అయితే ((p = va_arg(ap, స్థిరరాశి అక్షరం*)))
+                        ఒకవేళ (env_సరిపోలిక(*f, p)) {
+                                దొరికింది = true;
+                                ఆపు;
                         }
 
                 va_end(ap);
 
-                if (found) {
-                        free(*f);
-                        continue;
+                ఒకవేళ (దొరికింది) {
+                        విడుదల(*f);
+                        కొనసాగు;
                 }
 
                 *(t++) = *f;
         }
 
-        *t = NULL;
-        return l;
+        *t = ఖాళీ;
+        తిరిగి l;
 }
 
-int strv_env_replace_consume(char ***l, char *p) {
-        const char *t, *name;
-        int r;
+పూర్ణాంకం strv_env_replace_consume(అక్షరం ***l, అక్షరం *p) {
+        స్థిరరాశి అక్షరం *t, *name;
+        పూర్ణాంకం r;
 
-        assert(l);
-        assert(p);
+        ప్రతిజ్ఞా(l);
+        ప్రతిజ్ఞా(p);
 
         /* Replace first occurrence of the env var or add a new one in the string list. Drop other
          * occurrences. Edits in-place. Does not copy p and CONSUMES p EVEN ON FAILURE.
@@ -384,790 +384,790 @@ int strv_env_replace_consume(char ***l, char *p) {
          * p must be a valid key=value assignment. */
 
         t = strchr(p, '=');
-        if (!t) {
-                free(p);
-                return -EINVAL;
+        ఒకవేళ (!t) {
+                విడుదల(p);
+                తిరిగి -EINVAL;
         }
 
-        name = strndupa_safe(p, t - p);
+        name = strndupa_సురక్షిత(p, t - p);
 
         STRV_FOREACH(f, *l)
-                if (env_entry_has_name(*f, name)) {
+                ఒకవేళ (env_నమోదు_has_name(*f, name)) {
                         free_and_replace(*f, p);
                         strv_env_unset(f + 1, *f);
-                        return 0;
+                        తిరిగి 0;
                 }
 
         /* We didn't find a match, we need to append p or create a new strv */
         r = strv_consume(l, p);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return 1;
+        తిరిగి 1;
 }
 
-int strv_env_replace_strdup(char ***l, const char *assignment) {
+పూర్ణాంకం strv_env_replace_strdup(అక్షరం ***l, స్థిరరాశి అక్షరం *assignment) {
         /* Like strv_env_replace_consume(), but copies the argument. */
 
-        assert(l);
-        assert(assignment);
+        ప్రతిజ్ఞా(l);
+        ప్రతిజ్ఞా(assignment);
 
-        char *p = strdup(assignment);
-        if (!p)
-                return -ENOMEM;
+        అక్షరం *p = strdup(assignment);
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        తిరిగి strv_env_replace_consume(l, p);
 }
 
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment) {
-        char *p;
+పూర్ణాంకం strv_env_replace_strdup_passthrough(అక్షరం ***l, స్థిరరాశి అక్షరం *assignment) {
+        అక్షరం *p;
 
         /* Like strv_env_replace_strdup(), but pulls the variable from the environment of
          * the calling program, if a variable name without value is specified. */
 
-        assert(l);
-        assert(assignment);
+        ప్రతిజ్ఞా(l);
+        ప్రతిజ్ఞా(assignment);
 
-        if (strchr(assignment, '=')) {
-                if (!env_assignment_is_valid(assignment))
-                        return -EINVAL;
+        ఒకవేళ (strchr(assignment, '=')) {
+                ఒకవేళ (!env_assignment_is_valid(assignment))
+                        తిరిగి -EINVAL;
 
                 p = strdup(assignment);
-        } else {
-                if (!env_name_is_valid(assignment))
-                        return -EINVAL;
+        } లేకపోతే {
+                ఒకవేళ (!env_name_is_valid(assignment))
+                        తిరిగి -EINVAL;
 
                 /* If we can't find the variable in our environment, we will use
                  * the empty string. This way "passthrough" is equivalent to passing
                  * --setenv=FOO=$FOO in the shell. */
                 p = strjoin(assignment, "=", secure_getenv(assignment));
         }
-        if (!p)
-                return -ENOMEM;
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        తిరిగి strv_env_replace_consume(l, p);
 }
 
-int strv_env_assign(char ***l, const char *key, const char *value) {
-        assert(l);
+పూర్ణాంకం strv_env_కేటాయించు(అక్షరం ***l, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *విలువ) {
+        ప్రతిజ్ఞా(l);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        ఒకవేళ (!env_name_is_valid(కీలకం))
+                తిరిగి -EINVAL;
 
         /* NULL removes assignment, "" creates an empty assignment. */
 
-        if (!value) {
-                strv_env_unset(*l, key);
-                return 0;
+        ఒకవేళ (!విలువ) {
+                strv_env_unset(*l, కీలకం);
+                తిరిగి 0;
         }
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        అక్షరం *p = strjoin(కీలకం, "=", విలువ);
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        తిరిగి strv_env_replace_consume(l, p);
 }
 
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) {
-        int r;
+పూర్ణాంకం strv_env_assignf(అక్షరం ***l, స్థిరరాశి అక్షరం *కీలకం, స్థిరరాశి అక్షరం *valuef, ...) {
+        పూర్ణాంకం r;
 
-        assert(l);
-        assert(key);
+        ప్రతిజ్ఞా(l);
+        ప్రతిజ్ఞా(కీలకం);
 
-        if (!env_name_is_valid(key))
-                return -EINVAL;
+        ఒకవేళ (!env_name_is_valid(కీలకం))
+                తిరిగి -EINVAL;
 
-        if (!valuef) {
-                strv_env_unset(*l, key);
-                return 0;
+        ఒకవేళ (!valuef) {
+                strv_env_unset(*l, కీలకం);
+                తిరిగి 0;
         }
 
-        _cleanup_free_ char *value = NULL;
+        _cleanup_free_ అక్షరం *విలువ = ఖాళీ;
         va_list ap;
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&విలువ, valuef, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి -ENOMEM;
 
-        char *p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
+        అక్షరం *p = strjoin(కీలకం, "=", విలువ);
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        return strv_env_replace_consume(l, p);
+        తిరిగి strv_env_replace_consume(l, p);
 }
 
-int _strv_env_assign_many(char ***l, ...) {
+పూర్ణాంకం strv_env_కేటాయించు_many(అక్షరం ***l, ...) {
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(l);
+        ప్రతిజ్ఞా(l);
 
         va_start(ap, l);
-        for (;;) {
-                const char *key, *value;
+        కొరకు (;;) {
+                స్థిరరాశి అక్షరం *కీలకం, *విలువ;
 
-                key = va_arg(ap, const char *);
-                if (!key)
-                        break;
+                కీలకం = va_arg(ap, స్థిరరాశి అక్షరం *);
+                ఒకవేళ (!కీలకం)
+                        ఆపు;
 
-                if (!env_name_is_valid(key)) {
+                ఒకవేళ (!env_name_is_valid(కీలకం)) {
                         va_end(ap);
-                        return -EINVAL;
+                        తిరిగి -EINVAL;
                 }
 
-                value = va_arg(ap, const char *);
-                if (!value) {
-                        strv_env_unset(*l, key);
-                        continue;
+                విలువ = va_arg(ap, స్థిరరాశి అక్షరం *);
+                ఒకవేళ (!విలువ) {
+                        strv_env_unset(*l, కీలకం);
+                        కొనసాగు;
                 }
 
-                char *p = strjoin(key, "=", value);
-                if (!p) {
+                అక్షరం *p = strjoin(కీలకం, "=", విలువ);
+                ఒకవేళ (!p) {
                         va_end(ap);
-                        return -ENOMEM;
+                        తిరిగి -ENOMEM;
                 }
 
                 r = strv_env_replace_consume(l, p);
-                if (r < 0) {
+                ఒకవేళ (r < 0) {
                         va_end(ap);
-                        return r;
+                        తిరిగి r;
                 }
         }
         va_end(ap);
 
-        return 0;
+        తిరిగి 0;
 }
 
-char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags) {
-        assert(name);
+అక్షరం* strv_env_get_n(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *name, size_t k, ReplaceEnvFlags flags) {
+        ప్రతిజ్ఞా(name);
 
-        if (k == SIZE_MAX)
-                k = strlen(name);
-        if (k <= 0)
-                return NULL;
+        ఒకవేళ (k == SIZE_MAX)
+                k = అక్షరశ్రేణి_పొడవు(name);
+        ఒకవేళ (k <= 0)
+                తిరిగి ఖాళీ;
 
         STRV_FOREACH_BACKWARDS(i, l)
-                if (strneq(*i, name, k) && (*i)[k] == '=')
-                        return (char*) *i + k + 1;
+                ఒకవేళ (strneq(*i, name, k) && (*i)[k] == '=')
+                        తిరిగి (అక్షరం*) *i + k + 1;
 
-        if (flags & REPLACE_ENV_USE_ENVIRONMENT) {
-                const char *t;
+        ఒకవేళ (flags & REPLACE_ENV_USE_ENVIRONMENT) {
+                స్థిరరాశి అక్షరం *t;
 
                 /* Safety check that the name is not overly long, before we do a stack allocation */
-                if (k > sc_arg_max() - 2)
-                        return NULL;
+                ఒకవేళ (k > sc_arg_max() - 2)
+                        తిరిగి ఖాళీ;
 
-                t = strndupa_safe(name, k);
-                return secure_getenv(t);
+                t = strndupa_సురక్షిత(name, k);
+                తిరిగి secure_getenv(t);
         };
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-char* strv_env_pairs_get(char **l, const char *name) {
-        char *result = NULL;
+అక్షరం* strv_env_జతలు_get(అక్షరం **l, స్థిరరాశి అక్షరం *name) {
+        అక్షరం *ఫలితం = ఖాళీ;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
-        STRV_FOREACH_PAIR(key, value, l)
-                if (streq(*key, name))
-                        result = *value;
+        STRV_FOREACH_PAIR(కీలకం, విలువ, l)
+                ఒకవేళ (streq(*కీలకం, name))
+                        ఫలితం = *విలువ;
 
-        return result;
+        తిరిగి ఫలితం;
 }
 
-int strv_env_get_merged(char **l, char ***ret) {
-        _cleanup_strv_free_ char **v = NULL;
+పూర్ణాంకం strv_env_get_merged(అక్షరం **l, అక్షరం ***ret) {
+        _cleanup_strv_free_ అక్షరం **v = ఖాళీ;
         size_t n = 0;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* This converts a strv with pairs of environment variable name + value into a strv of name and
          * value concatenated with a "=" separator. E.g.
          * input  : { "NAME", "value", "FOO", "var" }
          * output : { "NAME=value", "FOO=var" } */
 
-        STRV_FOREACH_PAIR(key, value, l) {
-                char *s;
+        STRV_FOREACH_PAIR(కీలకం, విలువ, l) {
+                అక్షరం *s;
 
-                s = strjoin(*key, "=", *value);
-                if (!s)
-                        return -ENOMEM;
+                s = strjoin(*కీలకం, "=", *విలువ);
+                ఒకవేళ (!s)
+                        తిరిగి -ENOMEM;
 
-                r = strv_consume_with_size(&v, &n, s);
-                if (r < 0)
-                        return r;
+                r = strv_consume_with_కొలత(&v, &n, s);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
         *ret = TAKE_PTR(v);
-        return 0;
+        తిరిగి 0;
 }
 
-char** strv_env_clean_with_callback(char **l, void (*invalid_callback)(const char *p, void *userdata), void *userdata) {
-        int k = 0;
+అక్షరం** strv_env_clean_with_callback(అక్షరం **l, శూన్య (*invalid_callback)(స్థిరరాశి అక్షరం *p, శూన్య *userdata), శూన్య *userdata) {
+        పూర్ణాంకం k = 0;
 
         STRV_FOREACH(p, l) {
                 size_t n;
                 bool duplicate = false;
 
-                if (!env_assignment_is_valid(*p)) {
-                        if (invalid_callback)
+                ఒకవేళ (!env_assignment_is_valid(*p)) {
+                        ఒకవేళ (invalid_callback)
                                 invalid_callback(*p, userdata);
-                        free(*p);
-                        continue;
+                        విడుదల(*p);
+                        కొనసాగు;
                 }
 
                 n = strcspn(*p, "=");
                 STRV_FOREACH(q, p + 1)
-                        if (strneq(*p, *q, n) && (*q)[n] == '=') {
+                        ఒకవేళ (strneq(*p, *q, n) && (*q)[n] == '=') {
                                 duplicate = true;
-                                break;
+                                ఆపు;
                         }
 
-                if (duplicate) {
-                        free(*p);
-                        continue;
+                ఒకవేళ (duplicate) {
+                        విడుదల(*p);
+                        కొనసాగు;
                 }
 
                 l[k++] = *p;
         }
 
-        if (l)
-                l[k] = NULL;
+        ఒకవేళ (l)
+                l[k] = ఖాళీ;
 
-        return l;
+        తిరిగి l;
 }
 
-static int strv_extend_with_length(char ***l, const char *s, size_t n) {
-        char *c;
+స్థిర పూర్ణాంకం strv_extend_with_నిడివి(అక్షరం ***l, స్థిరరాశి అక్షరం *s, size_t n) {
+        అక్షరం *c;
 
         c = strndup(s, n);
-        if (!c)
-                return -ENOMEM;
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
-        return strv_consume(l, c);
+        తిరిగి strv_consume(l, c);
 }
 
-static int strv_env_get_n_validated(
-                char **env,
-                const char *name,
+స్థిర పూర్ణాంకం strv_env_get_n_validated(
+                అక్షరం **env,
+                స్థిరరాశి అక్షరం *name,
                 size_t l,
                 ReplaceEnvFlags flags,
-                char **ret,              /* points into the env block! do not free! */
-                char ***unset_variables, /* updated in place */
-                char ***bad_variables) { /* ditto */
+                అక్షరం **ret,              /* points into the env block! do not free! */
+                అక్షరం ***unset_variables, /* updated in place */
+                అక్షరం ***bad_variables) { /* ditto */
 
-        char *e;
-        int r;
+        అక్షరం *e;
+        పూర్ణాంకం r;
 
-        assert(l == 0 || name);
-        assert(ret);
+        ప్రతిజ్ఞా(l == 0 || name);
+        ప్రతిజ్ఞా(ret);
 
-        if (env_name_is_valid_n(name, l)) {
+        ఒకవేళ (env_name_is_valid_n(name, l)) {
                 e = strv_env_get_n(env, name, l, flags);
-                if (!e && unset_variables) {
-                        r = strv_extend_with_length(unset_variables, name, l);
-                        if (r < 0)
-                                return r;
+                ఒకవేళ (!e && unset_variables) {
+                        r = strv_extend_with_నిడివి(unset_variables, name, l);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
-        } else {
-                e = NULL; /* Resolve invalid variable names the same way as unset ones */
+        } లేకపోతే {
+                e = ఖాళీ; /* Resolve invalid variable names the same way as unset ones */
 
-                if (bad_variables) {
-                        r = strv_extend_with_length(bad_variables, name, l);
-                        if (r < 0)
-                                return r;
+                ఒకవేళ (bad_variables) {
+                        r = strv_extend_with_నిడివి(bad_variables, name, l);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
                 }
         }
 
         *ret = e;
-        return !!e;
+        తిరిగి !!e;
 }
 
-int replace_env_full(
-                const char *format,
+పూర్ణాంకం replace_env_నిండిన(
+                స్థిరరాశి అక్షరం *format,
                 size_t length,
-                char **env,
+                అక్షరం **env,
                 ReplaceEnvFlags flags,
-                char **ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+                అక్షరం **ret,
+                అక్షరం ***ret_unset_variables,
+                అక్షరం ***ret_bad_variables) {
 
-        enum {
-                WORD,
+        గణన {
+                మాట_2,
                 CURLY,
                 VARIABLE,
                 VARIABLE_RAW,
                 TEST,
-                DEFAULT_VALUE,
-                ALTERNATE_VALUE,
-        } state = WORD;
+                DEFAULT_విలువ,
+                ALTERNATE_విలువ,
+        } state = మాట_2;
 
-        _cleanup_strv_free_ char **unset_variables = NULL, **bad_variables = NULL;
-        const char *e, *word = format, *test_value = NULL; /* test_value is initialized to appease gcc */
-        _cleanup_free_ char *s = NULL;
-        char ***pu, ***pb;
+        _cleanup_strv_free_ అక్షరం **unset_variables = ఖాళీ, **bad_variables = ఖాళీ;
+        స్థిరరాశి అక్షరం *e, *మాట = format, *test_విలువ = ఖాళీ; /* test_value is initialized to appease gcc */
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        అక్షరం ***pu, ***pb;
         size_t i, len = 0; /* len is initialized to appease gcc */
-        int nest = 0, r;
+        పూర్ణాంకం nest = 0, r;
 
-        assert(format);
+        ప్రతిజ్ఞా(format);
 
-        if (length == SIZE_MAX)
-                length = strlen(format);
+        ఒకవేళ (length == SIZE_MAX)
+                length = అక్షరశ్రేణి_పొడవు(format);
 
-        pu = ret_unset_variables ? &unset_variables : NULL;
-        pb = ret_bad_variables ? &bad_variables : NULL;
+        pu = ret_unset_variables ? &unset_variables : ఖాళీ;
+        pb = ret_bad_variables ? &bad_variables : ఖాళీ;
 
-        for (e = format, i = 0; *e && i < length; e++, i++)
-                switch (state) {
+        కొరకు (e = format, i = 0; *e && i < length; e++, i++)
+                ఎంపిక (state) {
 
-                case WORD:
-                        if (*e == '$')
+                స్థితి మాట_2:
+                        ఒకవేళ (*e == '$')
                                 state = CURLY;
-                        break;
+                        ఆపు;
 
-                case CURLY:
-                        if (*e == '{') {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                స్థితి CURLY:
+                        ఒకవేళ (*e == '{') {
+                                ఒకవేళ (!strextendn(&s, మాట, e-మాట-1))
+                                        తిరిగి -ENOMEM;
 
-                                word = e-1;
+                                మాట = e-1;
                                 state = VARIABLE;
                                 nest++;
 
-                        } else if (*e == '$') {
-                                if (!strextendn(&s, word, e-word))
-                                        return -ENOMEM;
+                        } లేకపోతే ఒకవేళ (*e == '$') {
+                                ఒకవేళ (!strextendn(&s, మాట, e-మాట))
+                                        తిరిగి -ENOMEM;
 
-                                word = e+1;
-                                state = WORD;
+                                మాట = e+1;
+                                state = మాట_2;
 
-                        } else if (FLAGS_SET(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                if (!strextendn(&s, word, e-word-1))
-                                        return -ENOMEM;
+                        } లేకపోతే ఒకవేళ (FLAGS_సమితి(flags, REPLACE_ENV_ALLOW_BRACELESS) && strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                ఒకవేళ (!strextendn(&s, మాట, e-మాట-1))
+                                        తిరిగి -ENOMEM;
 
-                                word = e-1;
+                                మాట = e-1;
                                 state = VARIABLE_RAW;
 
-                        } else
-                                state = WORD;
-                        break;
+                        } లేకపోతే
+                                state = మాట_2;
+                        ఆపు;
 
-                case VARIABLE:
-                        if (*e == '}') {
-                                char *t;
+                స్థితి VARIABLE:
+                        ఒకవేళ (*e == '}') {
+                                అక్షరం *t;
 
-                                r = strv_env_get_n_validated(env, word+2, e-word-2, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                r = strv_env_get_n_validated(env, మాట+2, e-మాట-2, flags, &t, pu, pb);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                ఒకవేళ (!strextend(&s, t))
+                                        తిరిగి -ENOMEM;
 
-                                word = e+1;
-                                state = WORD;
+                                మాట = e+1;
+                                state = మాట_2;
                                 nest--;
-                        } else if (*e == ':') {
-                                if (flags & REPLACE_ENV_ALLOW_EXTENDED) {
-                                        len = e - word - 2;
+                        } లేకపోతే ఒకవేళ (*e == ':') {
+                                ఒకవేళ (flags & REPLACE_ENV_ALLOW_EXTENDED) {
+                                        len = e - మాట - 2;
                                         state = TEST;
-                                } else
+                                } లేకపోతే
                                         /* Treat this as unsupported syntax, i.e. do no replacement */
-                                        state = WORD;
+                                        state = మాట_2;
                         }
-                        break;
+                        ఆపు;
 
-                case TEST:
-                        if (*e == '-')
-                                state = DEFAULT_VALUE;
-                        else if (*e == '+')
-                                state = ALTERNATE_VALUE;
-                        else {
-                                state = WORD;
-                                break;
+                స్థితి TEST:
+                        ఒకవేళ (*e == '-')
+                                state = DEFAULT_విలువ;
+                        లేకపోతే ఒకవేళ (*e == '+')
+                                state = ALTERNATE_విలువ;
+                        లేకపోతే {
+                                state = మాట_2;
+                                ఆపు;
                         }
 
-                        test_value = e+1;
-                        break;
+                        test_విలువ = e+1;
+                        ఆపు;
 
-                case DEFAULT_VALUE: /* fall through */
-                case ALTERNATE_VALUE:
-                        assert(flags & REPLACE_ENV_ALLOW_EXTENDED);
+                స్థితి DEFAULT_విలువ: /* fall through */
+                స్థితి ALTERNATE_విలువ:
+                        ప్రతిజ్ఞా(flags & REPLACE_ENV_ALLOW_EXTENDED);
 
-                        if (*e == '{') {
+                        ఒకవేళ (*e == '{') {
                                 nest++;
-                                break;
+                                ఆపు;
                         }
 
-                        if (*e != '}')
-                                break;
+                        ఒకవేళ (*e != '}')
+                                ఆపు;
 
                         nest--;
-                        if (nest == 0) {
-                                _cleanup_strv_free_ char **u = NULL, **b = NULL;
-                                _cleanup_free_ char *v = NULL;
-                                char *t = NULL;
+                        ఒకవేళ (nest == 0) {
+                                _cleanup_strv_free_ అక్షరం **u = ఖాళీ, **b = ఖాళీ;
+                                _cleanup_free_ అక్షరం *v = ఖాళీ;
+                                అక్షరం *t = ఖాళీ;
 
-                                r = strv_env_get_n_validated(env, word+2, len, flags, &t, pu, pb);
-                                if (r < 0)
-                                        return r;
+                                r = strv_env_get_n_validated(env, మాట+2, len, flags, &t, pu, pb);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                if (t && state == ALTERNATE_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                ఒకవేళ (t && state == ALTERNATE_విలువ) {
+                                        r = replace_env_నిండిన(test_విలువ, e-test_విలువ, env, flags, &v, pu ? &u : ఖాళీ, pb ? &b : ఖాళీ);
+                                        ఒకవేళ (r < 0)
+                                                తిరిగి r;
 
                                         t = v;
-                                } else if (!t && state == DEFAULT_VALUE) {
-                                        r = replace_env_full(test_value, e-test_value, env, flags, &v, pu ? &u : NULL, pb ? &b : NULL);
-                                        if (r < 0)
-                                                return r;
+                                } లేకపోతే ఒకవేళ (!t && state == DEFAULT_విలువ) {
+                                        r = replace_env_నిండిన(test_విలువ, e-test_విలువ, env, flags, &v, pu ? &u : ఖాళీ, pb ? &b : ఖాళీ);
+                                        ఒకవేళ (r < 0)
+                                                తిరిగి r;
 
                                         t = v;
                                 }
 
                                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
                                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                ఒకవేళ (!strextend(&s, t))
+                                        తిరిగి -ENOMEM;
 
-                                word = e+1;
-                                state = WORD;
+                                మాట = e+1;
+                                state = మాట_2;
                         }
-                        break;
+                        ఆపు;
 
-                case VARIABLE_RAW:
-                        assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                స్థితి VARIABLE_RAW:
+                        ప్రతిజ్ఞా(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                        if (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
-                                char *t = NULL;
+                        ఒకవేళ (!strchr(VALID_BASH_ENV_NAME_CHARS, *e)) {
+                                అక్షరం *t = ఖాళీ;
 
-                                r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                                if (r < 0)
-                                        return r;
+                                r = strv_env_get_n_validated(env, మాట+1, e-మాట-1, flags, &t, &unset_variables, &bad_variables);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                if (!strextend(&s, t))
-                                        return -ENOMEM;
+                                ఒకవేళ (!strextend(&s, t))
+                                        తిరిగి -ENOMEM;
 
-                                word = e--;
+                                మాట = e--;
                                 i--;
-                                state = WORD;
+                                state = మాట_2;
                         }
-                        break;
+                        ఆపు;
                 }
 
-        if (state == VARIABLE_RAW) {
-                char *t;
+        ఒకవేళ (state == VARIABLE_RAW) {
+                అక్షరం *t;
 
-                assert(flags & REPLACE_ENV_ALLOW_BRACELESS);
+                ప్రతిజ్ఞా(flags & REPLACE_ENV_ALLOW_BRACELESS);
 
-                r = strv_env_get_n_validated(env, word+1, e-word-1, flags, &t, &unset_variables, &bad_variables);
-                if (r < 0)
-                        return r;
+                r = strv_env_get_n_validated(env, మాట+1, e-మాట-1, flags, &t, &unset_variables, &bad_variables);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (!strextend(&s, t))
-                        return -ENOMEM;
+                ఒకవేళ (!strextend(&s, t))
+                        తిరిగి -ENOMEM;
 
-        } else if (!strextendn(&s, word, e-word))
-                return -ENOMEM;
+        } లేకపోతే ఒకవేళ (!strextendn(&s, మాట, e-మాట))
+                తిరిగి -ENOMEM;
 
-        if (ret_unset_variables)
+        ఒకవేళ (ret_unset_variables)
                 *ret_unset_variables = TAKE_PTR(unset_variables);
-        if (ret_bad_variables)
+        ఒకవేళ (ret_bad_variables)
                 *ret_bad_variables = TAKE_PTR(bad_variables);
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(s);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int replace_env_argv(
-                char **argv,
-                char **env,
-                char ***ret,
-                char ***ret_unset_variables,
-                char ***ret_bad_variables) {
+పూర్ణాంకం replace_env_argv(
+                అక్షరం **argv,
+                అక్షరం **env,
+                అక్షరం ***ret,
+                అక్షరం ***ret_unset_variables,
+                అక్షరం ***ret_bad_variables) {
 
-        _cleanup_strv_free_ char **n = NULL, **unset_variables = NULL, **bad_variables = NULL;
+        _cleanup_strv_free_ అక్షరం **n = ఖాళీ, **unset_variables = ఖాళీ, **bad_variables = ఖాళీ;
         size_t k = 0, l;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(!strv_isempty(argv));
-        assert(ret);
+        ప్రతిజ్ఞా(!strv_isempty(argv));
+        ప్రతిజ్ఞా(ret);
 
-        l = strv_length(argv);
+        l = strv_నిడివి(argv);
 
-        n = new(char*, l+1);
-        if (!n)
-                return -ENOMEM;
+        n = new(అక్షరం*, l+1);
+        ఒకవేళ (!n)
+                తిరిగి -ENOMEM;
 
         STRV_FOREACH(i, argv) {
-                const char *word = *i;
+                స్థిరరాశి అక్షరం *మాట = *i;
 
                 /* If $FOO appears as single word, replace it by the split up variable */
-                if (word[0] == '$' && !IN_SET(word[1], '{', '$')) {
-                        _cleanup_strv_free_ char **m = NULL;
-                        const char *name = word + 1;
-                        char *e, **w;
+                ఒకవేళ (మాట[0] == '$' && !లోపల_సమితి(మాట[1], '{', '$')) {
+                        _cleanup_strv_free_ అక్షరం **m = ఖాళీ;
+                        స్థిరరాశి అక్షరం *name = మాట + 1;
+                        అక్షరం *e, **w;
                         size_t q;
 
-                        if (env_name_is_valid(name)) {
+                        ఒకవేళ (env_name_is_valid(name)) {
                                 e = strv_env_get(env, name);
-                                if (e)
-                                        r = strv_split_full(&m, e, WHITESPACE, EXTRACT_RELAX|EXTRACT_UNQUOTE);
-                                else if (ret_unset_variables)
+                                ఒకవేళ (e)
+                                        r = strv_విభజించు_నిండిన(&m, e, WHITESPACE, వెలికితీయి_RELAX|వెలికితీయి_UNQUOTE);
+                                లేకపోతే ఒకవేళ (ret_unset_variables)
                                         r = strv_extend(&unset_variables, name);
-                                else
+                                లేకపోతే
                                         r = 0;
-                        } else if (ret_bad_variables)
+                        } లేకపోతే ఒకవేళ (ret_bad_variables)
                                 r = strv_extend(&bad_variables, name);
-                        else
+                        లేకపోతే
                                 r = 0;
-                        if (r < 0)
-                                return r;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        q = strv_length(m);
+                        q = strv_నిడివి(m);
                         l = l + q - 1;
 
-                        w = reallocarray(n, l + 1, sizeof(char*));
-                        if (!w)
-                                return -ENOMEM;
+                        w = reallocarray(n, l + 1, పరిమాణం(అక్షరం*));
+                        ఒకవేళ (!w)
+                                తిరిగి -ENOMEM;
 
                         n = w;
-                        if (m) {
-                                memcpy(n + k, m, (q + 1) * sizeof(char*));
+                        ఒకవేళ (m) {
+                                జ్ఞాపకం_నకలు(n + k, m, (q + 1) * పరిమాణం(అక్షరం*));
                                 m = mfree(m);
                         }
 
                         k += q;
                         /* reallocarray() does not zero-initialize the grown tail, add NUL termination */
-                        n[k] = NULL;
-                        continue;
+                        n[k] = ఖాళీ;
+                        కొనసాగు;
                 }
 
-                _cleanup_strv_free_ char **u = NULL, **b = NULL;
+                _cleanup_strv_free_ అక్షరం **u = ఖాళీ, **b = ఖాళీ;
 
                 /* If ${FOO} appears as part of a word, replace it by the variable as-is */
-                r = replace_env_full(
-                                word,
+                r = replace_env_నిండిన(
+                                మాట,
                                 /* length= */ SIZE_MAX,
                                 env,
                                 /* flags= */ 0,
                                 n + k,
-                                ret_unset_variables ? &u : NULL,
-                                ret_bad_variables ? &b : NULL);
-                if (r < 0)
-                        return r;
-                n[++k] = NULL;
+                                ret_unset_variables ? &u : ఖాళీ,
+                                ret_bad_variables ? &b : ఖాళీ);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                n[++k] = ఖాళీ;
 
                 r = strv_extend_strv_consume(&unset_variables, TAKE_PTR(u), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 r = strv_extend_strv_consume(&bad_variables, TAKE_PTR(b), /* filter_duplicates= */ true);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        if (ret_unset_variables) {
-                strv_sort_uniq(unset_variables);
+        ఒకవేళ (ret_unset_variables) {
+                strv_క్రమీకరించు_uniq(unset_variables);
                 *ret_unset_variables = TAKE_PTR(unset_variables);
         }
-        if (ret_bad_variables) {
-                strv_sort_uniq(bad_variables);
+        ఒకవేళ (ret_bad_variables) {
+                strv_క్రమీకరించు_uniq(bad_variables);
                 *ret_bad_variables = TAKE_PTR(bad_variables);
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        తిరిగి 0;
 }
 
-int getenv_bool(const char *p) {
-        const char *e;
+పూర్ణాంకం getenv_bool(స్థిరరాశి అక్షరం *p) {
+        స్థిరరాశి అక్షరం *e;
 
         e = getenv(p);
-        if (!e)
-                return -ENXIO;
+        ఒకవేళ (!e)
+                తిరిగి -ENXIO;
 
-        return parse_boolean(e);
+        తిరిగి parse_boolean(e);
 }
 
-int secure_getenv_bool(const char *p) {
-        const char *e;
+పూర్ణాంకం secure_getenv_bool(స్థిరరాశి అక్షరం *p) {
+        స్థిరరాశి అక్షరం *e;
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        ఒకవేళ (!e)
+                తిరిగి -ENXIO;
 
-        return parse_boolean(e);
+        తిరిగి parse_boolean(e);
 }
 
-int secure_getenv_uint64(const char *p, uint64_t *ret) {
-        const char *e;
+పూర్ణాంకం secure_getenv_uint64(స్థిరరాశి అక్షరం *p, uint64_t *ret) {
+        స్థిరరాశి అక్షరం *e;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
         e = secure_getenv(p);
-        if (!e)
-                return -ENXIO;
+        ఒకవేళ (!e)
+                తిరిగి -ENXIO;
 
-        return safe_atou64(e, ret);
+        తిరిగి సురక్షిత_atou64(e, ret);
 }
 
-int set_unset_env(const char *name, const char *value, bool overwrite) {
-        assert(name);
+పూర్ణాంకం సమితి_unset_env(స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *విలువ, bool overwrite) {
+        ప్రతిజ్ఞా(name);
 
-        if (value)
-                return RET_NERRNO(setenv(name, value, overwrite));
+        ఒకవేళ (విలువ)
+                తిరిగి RET_NERRNO(setenv(name, విలువ, overwrite));
 
-        return RET_NERRNO(unsetenv(name));
+        తిరిగి RET_NERRNO(unsetenv(name));
 }
 
-int putenv_dup(const char *assignment, bool override) {
-        const char *e, *n;
+పూర్ణాంకం putenv_dup(స్థిరరాశి అక్షరం *assignment, bool override) {
+        స్థిరరాశి అక్షరం *e, *n;
 
         e = strchr(assignment, '=');
-        if (!e)
-                return -EINVAL;
+        ఒకవేళ (!e)
+                తిరిగి -EINVAL;
 
-        n = strndupa_safe(assignment, e - assignment);
+        n = strndupa_సురక్షిత(assignment, e - assignment);
 
         /* This is like putenv(), but uses setenv() so that our memory doesn't become part of environ[]. */
-        return RET_NERRNO(setenv(n, e + 1, override));
+        తిరిగి RET_NERRNO(setenv(n, e + 1, override));
 }
 
-int setenv_systemd_exec_pid(bool update_only) {
-        const char *e;
-        int r;
+పూర్ణాంకం setenv_systemd_exec_pid(bool update_only) {
+        స్థిరరాశి అక్షరం *e;
+        పూర్ణాంకం r;
 
         /* Update $SYSTEMD_EXEC_PID=pid except when '*' is set for the variable. */
 
         e = secure_getenv("SYSTEMD_EXEC_PID");
-        if (!e && update_only)
-                return 0;
+        ఒకవేళ (!e && update_only)
+                తిరిగి 0;
 
-        if (streq_ptr(e, "*"))
-                return 0;
+        ఒకవేళ (streq_ptr(e, "*"))
+                తిరిగి 0;
 
         r = setenvf("SYSTEMD_EXEC_PID", /* overwrite= */ 1, PID_FMT, getpid_cached());
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return 1;
+        తిరిగి 1;
 }
 
-int setenv_systemd_log_level(void) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+పూర్ణాంకం setenv_systemd_log_level(శూన్య) {
+        _cleanup_free_ అక్షరం *val = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = log_level_to_string_alloc(log_get_max_level(), &val);
-        if (r < 0)
-                return r;
+        r = log_level_గమ్యం_string_alloc(log_get_max_level(), &val);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
+        తిరిగి RET_NERRNO(setenv("SYSTEMD_LOG_LEVEL", val, /* overwrite= */ true));
 }
 
-int getenv_path_list(const char *name, char ***ret_paths) {
-        _cleanup_strv_free_ char **l = NULL;
-        const char *e;
-        int r;
+పూర్ణాంకం getenv_మార్గం_list(స్థిరరాశి అక్షరం *name, అక్షరం ***ret_paths) {
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
+        స్థిరరాశి అక్షరం *e;
+        పూర్ణాంకం r;
 
-        assert(name);
-        assert(ret_paths);
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా(ret_paths);
 
         e = secure_getenv(name);
-        if (!e)
-                return -ENXIO;
+        ఒకవేళ (!e)
+                తిరిగి -ENXIO;
 
-        r = strv_split_full(&l, e, ":", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse $%s: %m", name);
+        r = strv_విభజించు_నిండిన(&l, e, ":", వెలికితీయి_DONT_COALESCE_SEPARATORS);
+        ఒకవేళ (r < 0)
+                తిరిగి log_debug_errno(r, "Failed to parse $%s: %m", name);
 
         STRV_FOREACH(p, l) {
-                if (!path_is_absolute(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                ఒకవేళ (!మార్గం_is_absolute(*p))
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not absolute, refusing.", *p);
 
-                if (!path_is_normalized(*p))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                ఒకవేళ (!మార్గం_is_normalized(*p))
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is not normalized, refusing.", *p);
 
-                if (path_equal(*p, "/"))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+                ఒకవేళ (మార్గం_equal(*p, "/"))
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                                "Path '%s' is the root fs, refusing.", *p);
         }
 
-        if (strv_isempty(l))
-                return log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
+        ఒకవేళ (strv_isempty(l))
+                తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EINVAL),
                                        "No paths specified, refusing.");
 
         *ret_paths = TAKE_PTR(l);
-        return 1;
+        తిరిగి 1;
 }
 
-int getenv_steal_erase(const char *name, char **ret) {
-        _cleanup_(erase_and_freep) char *a = NULL;
-        char *e;
+పూర్ణాంకం getenv_steal_erase(స్థిరరాశి అక్షరం *name, అక్షరం **ret) {
+        _cleanup_(erase_and_freep) అక్షరం *a = ఖాళీ;
+        అక్షరం *e;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
         /* Reads an environment variable, makes a copy of it, erases its memory in the environment block and removes
          * it from there. Usecase: reading passwords from the env block (which is a bad idea, but useful for
          * testing, and given that people are likely going to misuse this, be thorough) */
 
         e = secure_getenv(name);
-        if (!e) {
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        ఒకవేళ (!e) {
+                ఒకవేళ (ret)
+                        *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        if (ret) {
+        ఒకవేళ (ret) {
                 a = strdup(e);
-                if (!a)
-                        return -ENOMEM;
+                ఒకవేళ (!a)
+                        తిరిగి -ENOMEM;
         }
 
         string_erase(e);
 
-        if (unsetenv(name) < 0)
-                return -errno;
+        ఒకవేళ (unsetenv(name) < 0)
+                తిరిగి -errno;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(a);
 
-        return 1;
+        తిరిగి 1;
 }
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) {
-        _cleanup_free_ char *value = NULL;
+పూర్ణాంకం setenvf(స్థిరరాశి అక్షరం *name, bool overwrite, స్థిరరాశి అక్షరం *valuef, ...) {
+        _cleanup_free_ అక్షరం *విలువ = ఖాళీ;
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
-        if (!valuef)
-                return RET_NERRNO(unsetenv(name));
+        ఒకవేళ (!valuef)
+                తిరిగి RET_NERRNO(unsetenv(name));
 
         va_start(ap, valuef);
-        r = vasprintf(&value, valuef, ap);
+        r = vasprintf(&విలువ, valuef, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి -ENOMEM;
 
         /* Try to suppress writes if the value is already set correctly (simply because memory management of
          * environment variables sucks a bit. */
-        if (streq_ptr(getenv(name), value))
-                return 0;
+        ఒకవేళ (streq_ptr(getenv(name), విలువ))
+                తిరిగి 0;
 
-        return RET_NERRNO(setenv(name, value, overwrite));
+        తిరిగి RET_NERRNO(setenv(name, విలువ, overwrite));
 }

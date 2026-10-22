@@ -4,13 +4,13 @@
  *  Copyright (C) 1999, 2000 Tom Tromey
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-char *utf8_prev_char (const char *p);
+అక్షరం *utf8_prev_char (స్థిరరాశి అక్షరం *p);
 
-extern const char utf8_skip_data[256];
+బాహ్య స్థిరరాశి అక్షరం utf8_skip_దత్తాంశం[256];
 
 /**
  * g_utf8_next_char:
@@ -23,6 +23,6 @@ extern const char utf8_skip_data[256];
  * Before using this macro, use g_utf8_validate() to validate strings
  * that may contain invalid UTF-8.
  */
-#define utf8_next_char(p) (char *)((p) + utf8_skip_data[*(const unsigned char *)(p)])
+#నిర్వచించు utf8_తదుపరి_char(p) (అక్షరం *)((p) + utf8_skip_దత్తాంశం[*(స్థిరరాశి గుర్తులేని అక్షరం *)(p)])
 
 bool unichar_iswide (uint32_t c);

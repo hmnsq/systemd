@@ -1,114 +1,114 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <string.h>
-#include <sys/mman.h> /* IWYU pragma: export */
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sys/mman.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-#include "../fundamental/memory-util.h" /* IWYU pragma: export */
+#అన్తర్భావ "../fundamental/memory-util.h" /* IWYU pragma: export */
 
-size_t page_size(void) _pure_;
-#define PAGE_ALIGN(l)          ALIGN_TO(l, page_size())
-#define PAGE_ALIGN_U64(l)      ALIGN_TO_U64(l, page_size())
-#define PAGE_ALIGN_DOWN(l)     ALIGN_DOWN(l, page_size())
-#define PAGE_ALIGN_DOWN_U64(l) ALIGN_DOWN_U64(l, page_size())
-#define PAGE_OFFSET(l)         ALIGN_OFFSET(l, page_size())
-#define PAGE_OFFSET_U64(l)     ALIGN_OFFSET_U64(l, page_size())
+size_t పుట_కొలత(శూన్య) శుద్ధ;
+#నిర్వచించు పుట_ALIGN(l)          ALIGN_గమ్యం(l, పుట_కొలత())
+#నిర్వచించు పుట_ALIGN_U64(l)      ALIGN_గమ్యం_U64(l, పుట_కొలత())
+#నిర్వచించు పుట_ALIGN_కిందికి(l)     ALIGN_కిందికి(l, పుట_కొలత())
+#నిర్వచించు పుట_ALIGN_కిందికి_U64(l) ALIGN_కిందికి_U64(l, పుట_కొలత())
+#నిర్వచించు పుట_స్థానభ్రంశం(l)         ALIGN_స్థానభ్రంశం(l, పుట_కొలత())
+#నిర్వచించు పుట_స్థానభ్రంశం_U64(l)     ALIGN_స్థానభ్రంశం_U64(l, పుట_కొలత())
 
 /* Normal memcpy() requires src to be nonnull. We do nothing if n is 0. */
-static inline void* memcpy_safe(void *dst, const void *src, size_t n) {
-        if (n == 0)
-                return dst;
-        assert(src);
-        return memcpy(dst, src, n);
+స్థిర అంతఃవరుస శూన్య* memcpy_సురక్షిత(శూన్య *dst, స్థిరరాశి శూన్య *src, size_t n) {
+        ఒకవేళ (n == 0)
+                తిరిగి dst;
+        ప్రతిజ్ఞా(src);
+        తిరిగి జ్ఞాపకం_నకలు(dst, src, n);
 }
 
 /* Normal mempcpy() requires src to be nonnull. We do nothing if n is 0. */
-static inline void* mempcpy_safe(void *dst, const void *src, size_t n) {
-        if (n == 0)
-                return dst;
-        assert(src);
-        return mempcpy(dst, src, n);
+స్థిర అంతఃవరుస శూన్య* mempcpy_సురక్షిత(శూన్య *dst, స్థిరరాశి శూన్య *src, size_t n) {
+        ఒకవేళ (n == 0)
+                తిరిగి dst;
+        ప్రతిజ్ఞా(src);
+        తిరిగి mempcpy(dst, src, n);
 }
 
-#define _mempcpy_typesafe(dst, src, n, sz)                              \
+#నిర్వచించు _mempcpy_typesafe(dst, src, n, sz)                              \
         ({                                                              \
                 size_t sz;                                              \
-                assert_se(MUL_SAFE(&sz, sizeof((dst)[0]), n));          \
-                (typeof((dst)[0])*) mempcpy_safe(dst, src, sz);         \
+                assert_se(MUL_సురక్షిత(&sz, పరిమాణం((dst)[0]), n));          \
+                (typeof((dst)[0])*) mempcpy_సురక్షిత(dst, src, sz);         \
         })
 
-#define mempcpy_typesafe(dst, src, n)                                   \
+#నిర్వచించు mempcpy_typesafe(dst, src, n)                                   \
         _mempcpy_typesafe(dst, src, n, UNIQ_T(sz, UNIQ))
 
 /* Normal memcmp() requires s1 and s2 to be nonnull. We do nothing if n is 0. */
-static inline int memcmp_safe(const void *s1, const void *s2, size_t n) {
-        if (n == 0)
-                return 0;
-        assert(s1);
-        assert(s2);
-        return memcmp(s1, s2, n);
+స్థిర అంతఃవరుస పూర్ణాంకం memcmp_సురక్షిత(స్థిరరాశి శూన్య *s1, స్థిరరాశి శూన్య *s2, size_t n) {
+        ఒకవేళ (n == 0)
+                తిరిగి 0;
+        ప్రతిజ్ఞా(s1);
+        ప్రతిజ్ఞా(s2);
+        తిరిగి memcmp(s1, s2, n);
 }
 
 /* Compare s1 (length n1) with s2 (length n2) in lexicographic order. */
-static inline int memcmp_nn(const void *s1, size_t n1, const void *s2, size_t n2) {
-        return memcmp_safe(s1, s2, MIN(n1, n2))
+స్థిర అంతఃవరుస పూర్ణాంకం memcmp_nn(స్థిరరాశి శూన్య *s1, size_t n1, స్థిరరాశి శూన్య *s2, size_t n2) {
+        తిరిగి memcmp_సురక్షిత(s1, s2, MIN(n1, n2))
             ?: CMP(n1, n2);
 }
 
-#define zero(x) (memzero(&(x), sizeof(x)))
+#నిర్వచించు zero(x) (memzero(&(x), పరిమాణం(x)))
 
-static inline void* mempset(void *s, int c, size_t n) {
+స్థిర అంతఃవరుస శూన్య* mempset(శూన్య *s, పూర్ణాంకం c, size_t n) {
         memset(s, c, n);
-        return (uint8_t*) s + n;
+        తిరిగి (uint8_t*) s + n;
 }
 
 /* Normal memmem() requires haystack to be nonnull, which is annoying for zero-length buffers */
-static inline void* memmem_safe(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen) {
+స్థిర అంతఃవరుస శూన్య* memmem_సురక్షిత(స్థిరరాశి శూన్య *haystack, size_t haystacklen, స్థిరరాశి శూన్య *needle, size_t needlelen) {
 
-        if (needlelen <= 0)
-                return (void*) haystack;
+        ఒకవేళ (needlelen <= 0)
+                తిరిగి (శూన్య*) haystack;
 
-        if (haystacklen < needlelen)
-                return NULL;
+        ఒకవేళ (haystacklen < needlelen)
+                తిరిగి ఖాళీ;
 
-        assert(haystack);
-        assert(needle);
+        ప్రతిజ్ఞా(haystack);
+        ప్రతిజ్ఞా(needle);
 
-        return memmem(haystack, haystacklen, needle, needlelen);
+        తిరిగి memmem(haystack, haystacklen, needle, needlelen);
 }
 
-static inline void* mempmem_safe(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen) {
-        const uint8_t *p;
+స్థిర అంతఃవరుస శూన్య* mempmem_సురక్షిత(స్థిరరాశి శూన్య *haystack, size_t haystacklen, స్థిరరాశి శూన్య *needle, size_t needlelen) {
+        స్థిరరాశి uint8_t *p;
 
-        p = memmem_safe(haystack, haystacklen, needle, needlelen);
-        if (!p)
-                return NULL;
+        p = memmem_సురక్షిత(haystack, haystacklen, needle, needlelen);
+        ఒకవేళ (!p)
+                తిరిగి ఖాళీ;
 
-        return (uint8_t*) p + needlelen;
+        తిరిగి (uint8_t*) p + needlelen;
 }
 
-void* erase_and_free(void *p);
+శూన్య* erase_and_free(శూన్య *p);
 
-static inline void erase_and_freep(void *p) {
-        erase_and_free(*(void**) p);
+స్థిర అంతఃవరుస శూన్య erase_and_freep(శూన్య *p) {
+        erase_and_free(*(శూన్య**) p);
 }
 
 /* Use with _cleanup_ to erase a single 'char' when leaving scope */
-static inline void erase_char(char *p) {
-        explicit_bzero_safe(p, sizeof(char));
+స్థిర అంతఃవరుస శూన్య erase_char(అక్షరం *p) {
+        explicit_bzero_సురక్షిత(p, పరిమాణం(అక్షరం));
 }
 
-#define munmap_safe(p, sz) _munmap_safe(UNIQ_T(P, UNIQ), (p), UNIQ_T(SZ, UNIQ), (sz))
-#define _munmap_safe(_p, p, _sz, sz)                                    \
+#నిర్వచించు munmap_సురక్షిత(p, sz) munmap_సురక్షిత_2(UNIQ_T(P, UNIQ), (p), UNIQ_T(SZ, UNIQ), (sz))
+#నిర్వచించు munmap_సురక్షిత_2(_p, p, _sz, sz)                                    \
         ({                                                              \
                 typeof(p) _p = (p);                                     \
-                if (_p && _p != MAP_FAILED) {                           \
+                ఒకవేళ (_p && _p != MAP_FAILED) {                           \
                         size_t _sz = (sz);                              \
-                        assert(_sz > 0);                                \
-                        assert(_sz != SIZE_MAX); /* catch PAGE_ALIGN() overflows */ \
+                        ప్రతిజ్ఞా(_sz > 0);                                \
+                        ప్రతిజ్ఞా(_sz != SIZE_MAX); /* catch PAGE_ALIGN() overflows */ \
                         assert_se(munmap(_p, _sz) >= 0);                \
                 }                                                       \
-                (typeof(p)) NULL;                                       \
+                (typeof(p)) ఖాళీ;                                       \
         })

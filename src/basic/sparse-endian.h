@@ -20,72 +20,72 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-#pragma once
+#సూచన once
 
-#include <byteswap.h>
-#include <endian.h>
+#అన్తర్భావ <byteswap.h>
+#అన్తర్భావ <endian.h>
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-#ifdef __CHECKER__
-#define __sd_bitwise __attribute__((__bitwise__))
-#define __sd_force __attribute__((__force__))
-#else
-#define __sd_bitwise
-#define __sd_force
-#endif
+#నిర్వచితమైతే __CHECKER__
+#నిర్వచించు __sd_bitwise __attribute__((__bitwise__))
+#నిర్వచించు __sd_force __attribute__((__force__))
+#లేకపోతే
+#నిర్వచించు __sd_bitwise
+#నిర్వచించు __sd_force
+#అయితే_ముగింపు
 
-typedef uint16_t __sd_bitwise le16_t;
-typedef uint16_t __sd_bitwise be16_t;
-typedef uint32_t __sd_bitwise le32_t;
-typedef uint32_t __sd_bitwise be32_t;
-typedef uint64_t __sd_bitwise le64_t;
-typedef uint64_t __sd_bitwise be64_t;
+రకనిర్వచనం uint16_t __sd_bitwise le16_t;
+రకనిర్వచనం uint16_t __sd_bitwise be16_t;
+రకనిర్వచనం uint32_t __sd_bitwise le32_t;
+రకనిర్వచనం uint32_t __sd_bitwise be32_t;
+రకనిర్వచనం uint64_t __sd_bitwise le64_t;
+రకనిర్వచనం uint64_t __sd_bitwise be64_t;
 
-#undef htobe16
-#undef htole16
-#undef be16toh
-#undef le16toh
-#undef htobe32
-#undef htole32
-#undef be32toh
-#undef le32toh
-#undef htobe64
-#undef htole64
-#undef be64toh
-#undef le64toh
+#నిర్వచనం_రద్దు htobe16
+#నిర్వచనం_రద్దు htole16
+#నిర్వచనం_రద్దు be16toh
+#నిర్వచనం_రద్దు le16toh
+#నిర్వచనం_రద్దు htobe32
+#నిర్వచనం_రద్దు htole32
+#నిర్వచనం_రద్దు be32toh
+#నిర్వచనం_రద్దు le32toh
+#నిర్వచనం_రద్దు htobe64
+#నిర్వచనం_రద్దు htole64
+#నిర్వచనం_రద్దు be64toh
+#నిర్వచనం_రద్దు le64toh
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#define bswap_16_on_le(x) bswap_16(x)
-#define bswap_32_on_le(x) bswap_32(x)
-#define bswap_64_on_le(x) bswap_64(x)
-#define bswap_16_on_be(x) (x)
-#define bswap_32_on_be(x) (x)
-#define bswap_64_on_be(x) (x)
-#elif __BYTE_ORDER == __BIG_ENDIAN
-#define bswap_16_on_le(x) (x)
-#define bswap_32_on_le(x) (x)
-#define bswap_64_on_le(x) (x)
-#define bswap_16_on_be(x) bswap_16(x)
-#define bswap_32_on_be(x) bswap_32(x)
-#define bswap_64_on_be(x) bswap_64(x)
-#endif
+#ఒకవేళ __BYTE_ORDER == __LITTLE_ENDIAN
+#నిర్వచించు bswap_16_on_le(x) bswap_16(x)
+#నిర్వచించు bswap_32_on_le(x) bswap_32(x)
+#నిర్వచించు bswap_64_on_le(x) bswap_64(x)
+#నిర్వచించు bswap_16_on_be(x) (x)
+#నిర్వచించు bswap_32_on_be(x) (x)
+#నిర్వచించు bswap_64_on_be(x) (x)
+#లేదావేళ __BYTE_ORDER == __BIG_ENDIAN
+#నిర్వచించు bswap_16_on_le(x) (x)
+#నిర్వచించు bswap_32_on_le(x) (x)
+#నిర్వచించు bswap_64_on_le(x) (x)
+#నిర్వచించు bswap_16_on_be(x) bswap_16(x)
+#నిర్వచించు bswap_32_on_be(x) bswap_32(x)
+#నిర్వచించు bswap_64_on_be(x) bswap_64(x)
+#అయితే_ముగింపు
 
-static inline le16_t htole16(uint16_t value) { return (le16_t __sd_force) bswap_16_on_be(value); }
-static inline le32_t htole32(uint32_t value) { return (le32_t __sd_force) bswap_32_on_be(value); }
-static inline le64_t htole64(uint64_t value) { return (le64_t __sd_force) bswap_64_on_be(value); }
+స్థిర అంతఃవరుస le16_t htole16(uint16_t విలువ) { తిరిగి (le16_t __sd_force) bswap_16_on_be(విలువ); }
+స్థిర అంతఃవరుస le32_t htole32(uint32_t విలువ) { తిరిగి (le32_t __sd_force) bswap_32_on_be(విలువ); }
+స్థిర అంతఃవరుస le64_t htole64(uint64_t విలువ) { తిరిగి (le64_t __sd_force) bswap_64_on_be(విలువ); }
 
-static inline be16_t htobe16(uint16_t value) { return (be16_t __sd_force) bswap_16_on_le(value); }
-static inline be32_t htobe32(uint32_t value) { return (be32_t __sd_force) bswap_32_on_le(value); }
-static inline be64_t htobe64(uint64_t value) { return (be64_t __sd_force) bswap_64_on_le(value); }
+స్థిర అంతఃవరుస be16_t htobe16(uint16_t విలువ) { తిరిగి (be16_t __sd_force) bswap_16_on_le(విలువ); }
+స్థిర అంతఃవరుస be32_t htobe32(uint32_t విలువ) { తిరిగి (be32_t __sd_force) bswap_32_on_le(విలువ); }
+స్థిర అంతఃవరుస be64_t htobe64(uint64_t విలువ) { తిరిగి (be64_t __sd_force) bswap_64_on_le(విలువ); }
 
-static inline uint16_t le16toh(le16_t value) { return bswap_16_on_be((uint16_t __sd_force)value); }
-static inline uint32_t le32toh(le32_t value) { return bswap_32_on_be((uint32_t __sd_force)value); }
-static inline uint64_t le64toh(le64_t value) { return bswap_64_on_be((uint64_t __sd_force)value); }
+స్థిర అంతఃవరుస uint16_t le16toh(le16_t విలువ) { తిరిగి bswap_16_on_be((uint16_t __sd_force)విలువ); }
+స్థిర అంతఃవరుస uint32_t le32toh(le32_t విలువ) { తిరిగి bswap_32_on_be((uint32_t __sd_force)విలువ); }
+స్థిర అంతఃవరుస uint64_t le64toh(le64_t విలువ) { తిరిగి bswap_64_on_be((uint64_t __sd_force)విలువ); }
 
-static inline uint16_t be16toh(be16_t value) { return bswap_16_on_le((uint16_t __sd_force)value); }
-static inline uint32_t be32toh(be32_t value) { return bswap_32_on_le((uint32_t __sd_force)value); }
-static inline uint64_t be64toh(be64_t value) { return bswap_64_on_le((uint64_t __sd_force)value); }
+స్థిర అంతఃవరుస uint16_t be16toh(be16_t విలువ) { తిరిగి bswap_16_on_le((uint16_t __sd_force)విలువ); }
+స్థిర అంతఃవరుస uint32_t be32toh(be32_t విలువ) { తిరిగి bswap_32_on_le((uint32_t __sd_force)విలువ); }
+స్థిర అంతఃవరుస uint64_t be64toh(be64_t విలువ) { తిరిగి bswap_64_on_le((uint64_t __sd_force)విలువ); }
 
-#undef __sd_bitwise
-#undef __sd_force
+#నిర్వచనం_రద్దు __sd_bitwise
+#నిర్వచనం_రద్దు __sd_force

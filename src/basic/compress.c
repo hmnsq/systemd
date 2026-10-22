@@ -1,65 +1,65 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <sys/stat.h>
+#అన్తర్భావ <unistd.h>
 
-#if HAVE_XZ
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBXZ
+#ఒకవేళ HAVE_XZ
+#నిర్వచితం_కాకపోతే SYSTEMD_CFLAGS_MARKER_LIBXZ
 #  error "missing libxz_cflags in meson dependency."
-#endif
-#include <lzma.h>
-#endif
+#అయితే_ముగింపు
+#అన్తర్భావ <lzma.h>
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBLZ4
+#ఒకవేళ HAVE_LZ4
+#నిర్వచితం_కాకపోతే SYSTEMD_CFLAGS_MARKER_LIBLZ4
 #  error "missing liblz4_cflags in meson dependency."
-#endif
-#include <lz4.h>
-#include <lz4frame.h>
-#include <lz4hc.h>
-#endif
+#అయితే_ముగింపు
+#అన్తర్భావ <lz4.h>
+#అన్తర్భావ <lz4frame.h>
+#అన్తర్భావ <lz4hc.h>
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBZSTD
+#ఒకవేళ HAVE_ZSTD
+#నిర్వచితం_కాకపోతే SYSTEMD_CFLAGS_MARKER_LIBZSTD
 #  error "missing libzstd_cflags in meson dependency."
-#endif
-#include <zstd.h>
-#include <zstd_errors.h>
-#endif
+#అయితే_ముగింపు
+#అన్తర్భావ <zstd.h>
+#అన్తర్భావ <zstd_errors.h>
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBZ
+#ఒకవేళ HAVE_ZLIB
+#నిర్వచితం_కాకపోతే SYSTEMD_CFLAGS_MARKER_LIBZ
 #  error "missing libz_cflags in meson dependency."
-#endif
-#include <zlib.h>
-#endif
+#అయితే_ముగింపు
+#అన్తర్భావ <zlib.h>
+#అయితే_ముగింపు
 
-#if HAVE_BZIP2
-#ifndef SYSTEMD_CFLAGS_MARKER_LIBBZIP2
+#ఒకవేళ HAVE_BZIP2
+#నిర్వచితం_కాకపోతే SYSTEMD_CFLAGS_MARKER_LIBBZIP2
 #  error "missing libbzip2_cflags in meson dependency."
-#endif
-#include <bzlib.h>
-#endif
+#అయితే_ముగింపు
+#అన్తర్భావ <bzlib.h>
+#అయితే_ముగింపు
 
-#include "alloc-util.h"
-#include "bitfield.h"
-#include "compress.h"
-#include "dlfcn-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "string-table.h"
-#include "unaligned.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "bitfield.h"
+#అన్తర్భావ "compress.h"
+#అన్తర్భావ "dlfcn-util.h"
+#అన్తర్భావ "io-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "string-table.h"
+#అన్తర్భావ "unaligned.h"
 
-#if HAVE_XZ
-static DLSYM_PROTOTYPE(lzma_auto_decoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_code) = NULL;
-static DLSYM_PROTOTYPE(lzma_easy_encoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_end) = NULL;
-static DLSYM_PROTOTYPE(lzma_stream_buffer_encode) = NULL;
-static DLSYM_PROTOTYPE(lzma_stream_decoder) = NULL;
-static DLSYM_PROTOTYPE(lzma_lzma_preset) = NULL;
+#ఒకవేళ HAVE_XZ
+స్థిర DLSYM_PROTOTYPE(lzma_auto_decoder) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(lzma_సంకేతం) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(lzma_easy_encoder) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(lzma_చివర) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(lzma_ప్రవాహం_బఫరు_encode) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(lzma_ప్రవాహం_decoder) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(lzma_lzma_preset) = ఖాళీ;
 
 /* We can’t just do _cleanup_(sym_lzma_end) because a compiler bug makes
  * this fail with:
@@ -68,136 +68,136 @@ static DLSYM_PROTOTYPE(lzma_lzma_preset) = NULL;
  *   304 |         _cleanup_(sym_lzma_end) lzma_stream s = LZMA_STREAM_INIT;
  *       |         ^~~~~~~~~
  */
-static inline void lzma_end_wrapper(lzma_stream *ls) {
-        sym_lzma_end(ls);
+స్థిర అంతఃవరుస శూన్య lzma_చివర_wrapper(lzma_ప్రవాహం *ls) {
+        sym_lzma_చివర(ls);
 }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-static DLSYM_PROTOTYPE(LZ4F_compressBegin) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressBound) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressEnd) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_compressUpdate) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_createCompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_createDecompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_decompress) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_freeCompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_freeDecompressionContext) = NULL;
-static DLSYM_PROTOTYPE(LZ4F_isError) = NULL;
-static DLSYM_PROTOTYPE(LZ4_compress_HC) = NULL;
-static DLSYM_PROTOTYPE(LZ4_compress_default) = NULL;
-static DLSYM_PROTOTYPE(LZ4_decompress_safe) = NULL;
-static DLSYM_PROTOTYPE(LZ4_decompress_safe_partial) = NULL;
-static DLSYM_PROTOTYPE(LZ4_versionNumber) = NULL;
+#ఒకవేళ HAVE_LZ4
+స్థిర DLSYM_PROTOTYPE(LZ4F_compressBegin) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_compressBound) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4_F_compress_చివర) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_compressUpdate) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_createCompressionContext) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_createDecompressionContext) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_decompress) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_freeCompressionContext) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_freeDecompressionContext) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4F_isError) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4_compress_HC) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4_compress_default) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4_decompress_సురక్షిత) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4_decompress_సురక్షిత_partial) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(LZ4_సంస్కరణ_సంఖ్య) = ఖాళీ;
 
-static const LZ4F_preferences_t lz4_preferences = {
-        .frameInfo.blockSizeID = 5,
+స్థిర స్థిరరాశి LZ4F_preferences_t lz4_preferences = {
+        .చట్రం_Info.ఖండం_కొలత_ID = 5,
 };
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-static DLSYM_PROTOTYPE(ZSTD_CCtx_setParameter) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_compress) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_compressStream2) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_createCCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_createDCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_CStreamInSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_CStreamOutSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_decompressStream) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_DStreamInSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_DStreamOutSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_freeCCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_freeDCtx) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getErrorCode) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getErrorName) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_getFrameContentSize) = NULL;
-static DLSYM_PROTOTYPE(ZSTD_isError) = NULL;
+#ఒకవేళ HAVE_ZSTD
+స్థిర DLSYM_PROTOTYPE(ZSTD_CCtx_సమితి_Parameter) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_compress) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_compressStream2) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_createCCtx) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_createDCtx) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_CStream_లోపల_కొలత) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_CStream_బహిర్గతం_కొలత) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_decompress_ప్రవాహం) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_DStream_లోపల_కొలత) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_DStream_బహిర్గతం_కొలత) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_freeCCtx) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_freeDCtx) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_get_Error_సంకేతం) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_getErrorName) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_get_చట్రం_Content_కొలత) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(ZSTD_isError) = ఖాళీ;
 
-DEFINE_TRIVIAL_CLEANUP_FUNC_FULL_RENAME(ZSTD_DCtx*, sym_ZSTD_freeDCtx, ZSTD_freeDCtxp, NULL);
+DEFINE_TRIVIAL_CLEANUP_FUNC_నిండిన_RENAME(ZSTD_DCtx*, sym_ZSTD_freeDCtx, ZSTD_freeDCtxp, ఖాళీ);
 
-static int zstd_ret_to_errno(size_t ret) {
-        switch (sym_ZSTD_getErrorCode(ret)) {
-        case ZSTD_error_dstSize_tooSmall:
-                return -ENOBUFS;
-        case ZSTD_error_memory_allocation:
-                return -ENOMEM;
-        default:
-                return -EBADMSG;
+స్థిర పూర్ణాంకం zstd_ret_గమ్యం_errno(size_t ret) {
+        ఎంపిక (sym_ZSTD_get_Error_సంకేతం(ret)) {
+        స్థితి ZSTD_error_dst_కొలత_too_Small:
+                తిరిగి -ENOBUFS;
+        స్థితి ZSTD_error_జ్ఞాపకం_కేటాయింపు:
+                తిరిగి -ENOMEM;
+        అప్రమేయ:
+                తిరిగి -EBADMSG;
         }
 }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-static DLSYM_PROTOTYPE(deflateInit2_) = NULL;
-static DLSYM_PROTOTYPE(deflate) = NULL;
-static DLSYM_PROTOTYPE(deflateEnd) = NULL;
-static DLSYM_PROTOTYPE(inflateInit2_) = NULL;
-static DLSYM_PROTOTYPE(inflate) = NULL;
-static DLSYM_PROTOTYPE(inflateEnd) = NULL;
-static DLSYM_PROTOTYPE(inflateReset) = NULL;
+#ఒకవేళ HAVE_ZLIB
+స్థిర DLSYM_PROTOTYPE(deflateInit2_) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(deflate) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(deflate_చివర) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(inflateInit2_) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(inflate) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(inflate_చివర) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(inflateReset) = ఖాళీ;
 
-static inline void deflateEnd_wrapper(z_stream *s) {
-        sym_deflateEnd(s);
+స్థిర అంతఃవరుస శూన్య deflate_చివర_wrapper(z_ప్రవాహం *s) {
+        sym_deflate_చివర(s);
 }
 
-static inline void inflateEnd_wrapper(z_stream *s) {
-        sym_inflateEnd(s);
+స్థిర అంతఃవరుస శూన్య inflate_చివర_wrapper(z_ప్రవాహం *s) {
+        sym_inflate_చివర(s);
 }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_BZIP2
-static DLSYM_PROTOTYPE(BZ2_bzCompressInit) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzCompress) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzCompressEnd) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompressInit) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompress) = NULL;
-static DLSYM_PROTOTYPE(BZ2_bzDecompressEnd) = NULL;
+#ఒకవేళ HAVE_BZIP2
+స్థిర DLSYM_PROTOTYPE(BZ2_bzCompressInit) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(BZ2_bzCompress) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(BZ2_bz_Compress_చివర) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(BZ2_bzDecompressInit) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(BZ2_bzDecompress) = ఖాళీ;
+స్థిర DLSYM_PROTOTYPE(BZ2_bz_Decompress_చివర) = ఖాళీ;
 
-static inline void BZ2_bzCompressEnd_wrapper(bz_stream *s) {
-        sym_BZ2_bzCompressEnd(s);
+స్థిర అంతఃవరుస శూన్య BZ2_bz_Compress_చివర_wrapper(bz_ప్రవాహం *s) {
+        sym_BZ2_bz_Compress_చివర(s);
 }
 
-static inline void BZ2_bzDecompressEnd_wrapper(bz_stream *s) {
-        sym_BZ2_bzDecompressEnd(s);
+స్థిర అంతఃవరుస శూన్య BZ2_bz_Decompress_చివర_wrapper(bz_ప్రవాహం *s) {
+        sym_BZ2_bz_Decompress_చివర(s);
 }
-#endif
+#అయితే_ముగింపు
 
 /* Opaque Compressor/Decompressor struct definition */
-struct Compressor {
+నిర్మాణం Compressor {
         Compression type;
         bool encoding;
-        bool finished;
-        union {
-#if HAVE_XZ
-                lzma_stream xz;
-#endif
-#if HAVE_LZ4
-                struct {
+        bool ముగిసిన;
+        సంఘం {
+#ఒకవేళ HAVE_XZ
+                lzma_ప్రవాహం xz;
+#అయితే_ముగింపు
+#ఒకవేళ HAVE_LZ4
+                నిర్మాణం {
                         LZ4F_compressionContext_t c_lz4;
-                        void *lz4_header;        /* stashed frame header from LZ4F_compressBegin */
-                        size_t lz4_header_size;
+                        శూన్య *lz4_శీర్షిక;        /* stashed frame header from LZ4F_compressBegin */
+                        size_t lz4_శీర్షిక_కొలత;
                 };
                 LZ4F_decompressionContext_t d_lz4;
-#endif
-#if HAVE_ZSTD
+#అయితే_ముగింపు
+#ఒకవేళ HAVE_ZSTD
                 ZSTD_CCtx *c_zstd;
                 ZSTD_DCtx *d_zstd;
-#endif
-#if HAVE_ZLIB
-                z_stream gzip;
-#endif
-#if HAVE_BZIP2
-                bz_stream bzip2;
-#endif
+#అయితే_ముగింపు
+#ఒకవేళ HAVE_ZLIB
+                z_ప్రవాహం gzip;
+#అయితే_ముగింపు
+#ఒకవేళ HAVE_BZIP2
+                bz_ప్రవాహం bzip2;
+#అయితే_ముగింపు
         };
 };
 
-#define ALIGN_8(l) ALIGN_TO(l, sizeof(size_t))
+#నిర్వచించు ALIGN_8(l) ALIGN_గమ్యం(l, పరిమాణం(size_t))
 
 /* zlib windowBits value for gzip format: MAX_WBITS (15) + 16 to enable gzip header detection/generation */
-#define ZLIB_WBITS_GZIP (15 + 16)
+#నిర్వచించు ZLIB_WBITS_GZIP (15 + 16)
 
-static const char* const compression_table[_COMPRESSION_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి compression_పట్టిక[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "uncompressed", /* backwards compatibility with importd */
         [COMPRESSION_XZ]    = "xz",
         [COMPRESSION_LZ4]   = "lz4",
@@ -206,7 +206,7 @@ static const char* const compression_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = "bzip2",
 };
 
-static const char* const compression_uppercase_table[_COMPRESSION_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి compression_uppercase_పట్టిక[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "NONE", /* backwards compatibility with SYSTEMD_JOURNAL_COMPRESS=NONE */
         [COMPRESSION_XZ]    = "XZ",
         [COMPRESSION_LZ4]   = "LZ4",
@@ -215,7 +215,7 @@ static const char* const compression_uppercase_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = "BZIP2",
 };
 
-static const char* const compression_extension_table[_COMPRESSION_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి compression_extension_పట్టిక[_COMPRESSION_MAX] = {
         [COMPRESSION_NONE]  = "",
         [COMPRESSION_XZ]    = ".xz",
         [COMPRESSION_LZ4]   = ".lz4",
@@ -224,54 +224,54 @@ static const char* const compression_extension_table[_COMPRESSION_MAX] = {
         [COMPRESSION_BZIP2] = ".bz2",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(compression, Compression);
-DEFINE_STRING_TABLE_LOOKUP(compression_uppercase, Compression);
-DEFINE_STRING_TABLE_LOOKUP(compression_extension, Compression);
+DEFINE_STRING_పట్టిక_LOOKUP(compression, Compression);
+DEFINE_STRING_పట్టిక_LOOKUP(compression_uppercase, Compression);
+DEFINE_STRING_పట్టిక_LOOKUP(compression_extension, Compression);
 
-Compression compression_from_string_harder(const char *s) {
+Compression compression_from_string_harder(స్థిరరాశి అక్షరం *s) {
         Compression c;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         c = compression_from_string(s);
-        if (c >= 0)
-                return c;
+        ఒకవేళ (c >= 0)
+                తిరిగి c;
 
-        return compression_uppercase_from_string(s);
+        తిరిగి compression_uppercase_from_string(s);
 }
 
-Compression compression_from_filename(const char *filename) {
+Compression compression_from_filename(స్థిరరాశి అక్షరం *filename) {
         Compression c;
-        const char *e;
+        స్థిరరాశి అక్షరం *e;
 
-        assert(filename);
+        ప్రతిజ్ఞా(filename);
 
         e = strrchr(filename, '.');
-        if (!e)
-                return COMPRESSION_NONE;
+        ఒకవేళ (!e)
+                తిరిగి COMPRESSION_NONE;
 
         c = compression_extension_from_string(e);
-        if (c < 0)
-                return COMPRESSION_NONE;
+        ఒకవేళ (c < 0)
+                తిరిగి COMPRESSION_NONE;
 
-        return c;
+        తిరిగి c;
 }
 
 bool compression_supported_journal(Compression c) {
-        static const unsigned supported =
+        స్థిర స్థిరరాశి గుర్తులేని supported =
                 (1U << COMPRESSION_NONE) |
                 (1U << COMPRESSION_XZ) * HAVE_XZ |
                 (1U << COMPRESSION_LZ4) * HAVE_LZ4 |
                 (1U << COMPRESSION_ZSTD) * HAVE_ZSTD;
 
-        assert(c >= 0);
-        assert(c < _COMPRESSION_MAX);
+        ప్రతిజ్ఞా(c >= 0);
+        ప్రతిజ్ఞా(c < _COMPRESSION_MAX);
 
-        return BIT_SET(supported, c);
+        తిరిగి బిట్టు_సమితి(supported, c);
 }
 
 bool compression_supported(Compression c) {
-        static const unsigned supported =
+        స్థిర స్థిరరాశి గుర్తులేని supported =
                 (1U << COMPRESSION_NONE) |
                 (1U << COMPRESSION_XZ) * HAVE_XZ |
                 (1U << COMPRESSION_LZ4) * HAVE_LZ4 |
@@ -279,64 +279,64 @@ bool compression_supported(Compression c) {
                 (1U << COMPRESSION_GZIP) * HAVE_ZLIB |
                 (1U << COMPRESSION_BZIP2) * HAVE_BZIP2;
 
-        assert(c >= 0);
-        assert(c < _COMPRESSION_MAX);
+        ప్రతిజ్ఞా(c >= 0);
+        ప్రతిజ్ఞా(c < _COMPRESSION_MAX);
 
-        return BIT_SET(supported, c);
+        తిరిగి బిట్టు_సమితి(supported, c);
 }
 
-Compression compression_detect_from_magic(const uint8_t data[static COMPRESSION_MAGIC_BYTES_MAX]) {
+Compression compression_detect_from_magic(స్థిరరాశి uint8_t దత్తాంశం[స్థిర COMPRESSION_MAGIC_బైట్లు_MAX]) {
         /* Magic signatures per RFC 1952 (gzip), tukaani.org/xz/xz-file-format.txt (xz),
          * RFC 8878 (zstd), lz4/doc/lz4_Frame_format.md (lz4), and the bzip2 file format.
          * Make sure to update COMPRESSION_MAGIC_BYTES_MAX if needed when adding a new magic. */
-        if (memcmp(data, (const uint8_t[]) { 0x1f, 0x8b }, 2) == 0)
-                return COMPRESSION_GZIP;
-        if (memcmp(data, (const uint8_t[]) { 0xfd, '7', 'z', 'X', 'Z', 0x00 }, 6) == 0)
-                return COMPRESSION_XZ;
-        if (memcmp(data, (const uint8_t[]) { 0x28, 0xb5, 0x2f, 0xfd }, 4) == 0)
-                return COMPRESSION_ZSTD;
-        if (memcmp(data, (const uint8_t[]) { 0x04, 0x22, 0x4d, 0x18 }, 4) == 0)
-                return COMPRESSION_LZ4;
-        if (memcmp(data, (const uint8_t[]) { 'B', 'Z', 'h' }, 3) == 0)
-                return COMPRESSION_BZIP2;
+        ఒకవేళ (memcmp(దత్తాంశం, (స్థిరరాశి uint8_t[]) { 0x1f, 0x8b }, 2) == 0)
+                తిరిగి COMPRESSION_GZIP;
+        ఒకవేళ (memcmp(దత్తాంశం, (స్థిరరాశి uint8_t[]) { 0xfd, '7', 'z', 'X', 'Z', 0x00 }, 6) == 0)
+                తిరిగి COMPRESSION_XZ;
+        ఒకవేళ (memcmp(దత్తాంశం, (స్థిరరాశి uint8_t[]) { 0x28, 0xb5, 0x2f, 0xfd }, 4) == 0)
+                తిరిగి COMPRESSION_ZSTD;
+        ఒకవేళ (memcmp(దత్తాంశం, (స్థిరరాశి uint8_t[]) { 0x04, 0x22, 0x4d, 0x18 }, 4) == 0)
+                తిరిగి COMPRESSION_LZ4;
+        ఒకవేళ (memcmp(దత్తాంశం, (స్థిరరాశి uint8_t[]) { 'B', 'Z', 'h' }, 3) == 0)
+                తిరిగి COMPRESSION_BZIP2;
 
-        return _COMPRESSION_INVALID;
+        తిరిగి _COMPRESSION_INVALID;
 }
 
-int dlopen_xz(int log_level) {
-#if HAVE_XZ
-        static void *lzma_dl = NULL;
+పూర్ణాంకం dlopen_xz(పూర్ణాంకం log_level) {
+#ఒకవేళ HAVE_XZ
+        స్థిర శూన్య *lzma_dl = ఖాళీ;
 
         LIBLZMA_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        తిరిగి dlopen_many_sym_or_warn(
                         &lzma_dl,
                         "liblzma.so.5", log_level,
                         DLSYM_ARG(lzma_auto_decoder),
-                        DLSYM_ARG(lzma_code),
+                        DLSYM_ARG(lzma_సంకేతం),
                         DLSYM_ARG(lzma_easy_encoder),
-                        DLSYM_ARG(lzma_end),
-                        DLSYM_ARG(lzma_stream_buffer_encode),
+                        DLSYM_ARG(lzma_చివర),
+                        DLSYM_ARG(lzma_ప్రవాహం_బఫరు_encode),
                         DLSYM_ARG(lzma_lzma_preset),
-                        DLSYM_ARG(lzma_stream_decoder));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+                        DLSYM_ARG(lzma_ప్రవాహం_decoder));
+#లేకపోతే
+        తిరిగి log_నిండిన_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "lzma support is not compiled in.");
-#endif
+#అయితే_ముగింపు
 }
 
-int dlopen_lz4(int log_level) {
-#if HAVE_LZ4
-        static void *lz4_dl = NULL;
+పూర్ణాంకం dlopen_lz4(పూర్ణాంకం log_level) {
+#ఒకవేళ HAVE_LZ4
+        స్థిర శూన్య *lz4_dl = ఖాళీ;
 
         LIBLZ4_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        తిరిగి dlopen_many_sym_or_warn(
                         &lz4_dl,
                         "liblz4.so.1", log_level,
                         DLSYM_ARG(LZ4F_compressBegin),
                         DLSYM_ARG(LZ4F_compressBound),
-                        DLSYM_ARG(LZ4F_compressEnd),
+                        DLSYM_ARG(LZ4_F_compress_చివర),
                         DLSYM_ARG(LZ4F_compressUpdate),
                         DLSYM_ARG(LZ4F_createCompressionContext),
                         DLSYM_ARG(LZ4F_createDecompressionContext),
@@ -346,522 +346,522 @@ int dlopen_lz4(int log_level) {
                         DLSYM_ARG(LZ4F_isError),
                         DLSYM_ARG(LZ4_compress_default),
                         DLSYM_ARG(LZ4_compress_HC),
-                        DLSYM_ARG(LZ4_decompress_safe),
-                        DLSYM_ARG(LZ4_decompress_safe_partial),
-                        DLSYM_ARG(LZ4_versionNumber));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+                        DLSYM_ARG(LZ4_decompress_సురక్షిత),
+                        DLSYM_ARG(LZ4_decompress_సురక్షిత_partial),
+                        DLSYM_ARG(LZ4_సంస్కరణ_సంఖ్య));
+#లేకపోతే
+        తిరిగి log_నిండిన_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "lz4 support is not compiled in.");
-#endif
+#అయితే_ముగింపు
 }
 
-int dlopen_zstd(int log_level) {
-#if HAVE_ZSTD
-        static void *zstd_dl = NULL;
+పూర్ణాంకం dlopen_zstd(పూర్ణాంకం log_level) {
+#ఒకవేళ HAVE_ZSTD
+        స్థిర శూన్య *zstd_dl = ఖాళీ;
 
         LIBZSTD_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        తిరిగి dlopen_many_sym_or_warn(
                         &zstd_dl,
                         "libzstd.so.1", log_level,
-                        DLSYM_ARG(ZSTD_getErrorCode),
+                        DLSYM_ARG(ZSTD_get_Error_సంకేతం),
                         DLSYM_ARG(ZSTD_compress),
-                        DLSYM_ARG(ZSTD_getFrameContentSize),
-                        DLSYM_ARG(ZSTD_decompressStream),
+                        DLSYM_ARG(ZSTD_get_చట్రం_Content_కొలత),
+                        DLSYM_ARG(ZSTD_decompress_ప్రవాహం),
                         DLSYM_ARG(ZSTD_getErrorName),
-                        DLSYM_ARG(ZSTD_DStreamOutSize),
-                        DLSYM_ARG(ZSTD_CStreamInSize),
-                        DLSYM_ARG(ZSTD_CStreamOutSize),
-                        DLSYM_ARG(ZSTD_CCtx_setParameter),
+                        DLSYM_ARG(ZSTD_DStream_బహిర్గతం_కొలత),
+                        DLSYM_ARG(ZSTD_CStream_లోపల_కొలత),
+                        DLSYM_ARG(ZSTD_CStream_బహిర్గతం_కొలత),
+                        DLSYM_ARG(ZSTD_CCtx_సమితి_Parameter),
                         DLSYM_ARG(ZSTD_compressStream2),
-                        DLSYM_ARG(ZSTD_DStreamInSize),
+                        DLSYM_ARG(ZSTD_DStream_లోపల_కొలత),
                         DLSYM_ARG(ZSTD_freeCCtx),
                         DLSYM_ARG(ZSTD_freeDCtx),
                         DLSYM_ARG(ZSTD_isError),
                         DLSYM_ARG(ZSTD_createDCtx),
                         DLSYM_ARG(ZSTD_createCCtx));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#లేకపోతే
+        తిరిగి log_నిండిన_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "zstd support is not compiled in.");
-#endif
+#అయితే_ముగింపు
 }
 
-int dlopen_zlib(int log_level) {
-#if HAVE_ZLIB
-        static void *zlib_dl = NULL;
+పూర్ణాంకం dlopen_zlib(పూర్ణాంకం log_level) {
+#ఒకవేళ HAVE_ZLIB
+        స్థిర శూన్య *zlib_dl = ఖాళీ;
 
         LIBZ_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        తిరిగి dlopen_many_sym_or_warn(
                         &zlib_dl,
                         "libz.so.1", log_level,
                         DLSYM_ARG(deflateInit2_),
                         DLSYM_ARG(deflate),
-                        DLSYM_ARG(deflateEnd),
+                        DLSYM_ARG(deflate_చివర),
                         DLSYM_ARG(inflateInit2_),
                         DLSYM_ARG(inflate),
-                        DLSYM_ARG(inflateEnd),
+                        DLSYM_ARG(inflate_చివర),
                         DLSYM_ARG(inflateReset));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+#లేకపోతే
+        తిరిగి log_నిండిన_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "zlib support is not compiled in.");
-#endif
+#అయితే_ముగింపు
 }
 
-int dlopen_bzip2(int log_level) {
-#if HAVE_BZIP2
-        static void *bzip2_dl = NULL;
+పూర్ణాంకం dlopen_bzip2(పూర్ణాంకం log_level) {
+#ఒకవేళ HAVE_BZIP2
+        స్థిర శూన్య *bzip2_dl = ఖాళీ;
 
         LIBBZ2_NOTE(suggested);
 
-        return dlopen_many_sym_or_warn(
+        తిరిగి dlopen_many_sym_or_warn(
                         &bzip2_dl,
                         "libbz2.so.1", log_level,
                         DLSYM_ARG(BZ2_bzCompressInit),
                         DLSYM_ARG(BZ2_bzCompress),
-                        DLSYM_ARG(BZ2_bzCompressEnd),
+                        DLSYM_ARG(BZ2_bz_Compress_చివర),
                         DLSYM_ARG(BZ2_bzDecompressInit),
                         DLSYM_ARG(BZ2_bzDecompress),
-                        DLSYM_ARG(BZ2_bzDecompressEnd));
-#else
-        return log_full_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
+                        DLSYM_ARG(BZ2_bz_Decompress_చివర));
+#లేకపోతే
+        తిరిగి log_నిండిన_errno(log_level, SYNTHETIC_ERRNO(EOPNOTSUPP),
                               "bzip2 support is not compiled in.");
-#endif
+#అయితే_ముగింపు
 }
 
-int dlopen_compress_journal(Compression c, int log_level) {
-        switch (c) {
-        case COMPRESSION_NONE:
-                return 0;
-        case COMPRESSION_XZ:
-                return dlopen_xz(log_level);
-        case COMPRESSION_LZ4:
-                return dlopen_lz4(log_level);
-        case COMPRESSION_ZSTD:
-                return dlopen_zstd(log_level);
-        default:
-                return -EOPNOTSUPP;
+పూర్ణాంకం dlopen_compress_journal(Compression c, పూర్ణాంకం log_level) {
+        ఎంపిక (c) {
+        స్థితి COMPRESSION_NONE:
+                తిరిగి 0;
+        స్థితి COMPRESSION_XZ:
+                తిరిగి dlopen_xz(log_level);
+        స్థితి COMPRESSION_LZ4:
+                తిరిగి dlopen_lz4(log_level);
+        స్థితి COMPRESSION_ZSTD:
+                తిరిగి dlopen_zstd(log_level);
+        అప్రమేయ:
+                తిరిగి -EOPNOTSUPP;
         }
 }
 
-int dlopen_compress(Compression c, int log_level) {
-        switch (c) {
-        case COMPRESSION_GZIP:
-                return dlopen_zlib(log_level);
-        case COMPRESSION_BZIP2:
-                return dlopen_bzip2(log_level);
-        default:
-                return dlopen_compress_journal(c, log_level);
+పూర్ణాంకం dlopen_compress(Compression c, పూర్ణాంకం log_level) {
+        ఎంపిక (c) {
+        స్థితి COMPRESSION_GZIP:
+                తిరిగి dlopen_zlib(log_level);
+        స్థితి COMPRESSION_BZIP2:
+                తిరిగి dlopen_bzip2(log_level);
+        అప్రమేయ:
+                తిరిగి dlopen_compress_journal(c, log_level);
         }
 }
 
-static int compress_blob_xz(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+స్థిర పూర్ణాంకం compress_blob_xz(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య *dst,
+                size_t dst_alloc_కొలత,
+                size_t *dst_కొలత,
+                పూర్ణాంకం level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_alloc_కొలత > 0);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_XZ
+#ఒకవేళ HAVE_XZ
         lzma_options_lzma opt = {
-                1u << 20u, NULL, 0, LZMA_LC_DEFAULT, LZMA_LP_DEFAULT,
-                LZMA_PB_DEFAULT, LZMA_MODE_FAST, 128, LZMA_MF_HC3, 4
+                1u << 20u, ఖాళీ, 0, LZMA_LC_DEFAULT, LZMA_LP_DEFAULT,
+                LZMA_PB_DEFAULT, LZMA_బహుళకం_FAST, 128, LZMA_MF_HC3, 4
         };
         lzma_filter filters[] = {
                 { LZMA_FILTER_LZMA2, &opt },
-                { LZMA_VLI_UNKNOWN, NULL }
+                { LZMA_VLI_UNKNOWN, ఖాళీ }
         };
         lzma_ret ret;
-        size_t out_pos = 0;
-        int r;
+        size_t బహిర్గతం_pos = 0;
+        పూర్ణాంకం r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (level >= 0) {
+        ఒకవేళ (level >= 0) {
                 /* This returns lzma_bool, and true means failure, i.e. the specified level is not supported. */
-                if (sym_lzma_lzma_preset(&opt, (uint32_t) level))
-                        return -EINVAL;
+                ఒకవేళ (sym_lzma_lzma_preset(&opt, (uint32_t) level))
+                        తిరిగి -EINVAL;
         }
 
         /* Returns < 0 if we couldn't compress the data or the
          * compressed result is longer than the original */
 
-        if (src_size < 80)
-                return -ENOBUFS;
+        ఒకవేళ (src_కొలత < 80)
+                తిరిగి -ENOBUFS;
 
-        ret = sym_lzma_stream_buffer_encode(filters, LZMA_CHECK_NONE, /* allocator= */ NULL,
-                                            src, src_size, dst, &out_pos, dst_alloc_size);
-        if (ret != LZMA_OK)
-                return -ENOBUFS;
+        ret = sym_lzma_ప్రవాహం_బఫరు_encode(filters, LZMA_CHECK_NONE, /* allocator= */ ఖాళీ,
+                                            src, src_కొలత, dst, &బహిర్గతం_pos, dst_alloc_కొలత);
+        ఒకవేళ (ret != LZMA_OK)
+                తిరిగి -ENOBUFS;
 
-        *dst_size = out_pos;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = బహిర్గతం_pos;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int compress_blob_lz4(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+స్థిర పూర్ణాంకం compress_blob_lz4(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య *dst,
+                size_t dst_alloc_కొలత,
+                size_t *dst_కొలత,
+                పూర్ణాంకం level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_alloc_కొలత > 0);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_LZ4
-        int r;
+#ఒకవేళ HAVE_LZ4
+        పూర్ణాంకం r;
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
         /* Returns < 0 if we couldn't compress the data or the
          * compressed result is longer than the original */
 
-        if (src_size < 9)
-                return -ENOBUFS;
+        ఒకవేళ (src_కొలత < 9)
+                తిరిగి -ENOBUFS;
 
-        if (src_size > INT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > INT_MAX)
-                dst_alloc_size = INT_MAX;
+        ఒకవేళ (src_కొలత > గరిష్ఠ_పూర్ణాంకం)
+                తిరిగి -EFBIG;
+        ఒకవేళ (dst_alloc_కొలత > గరిష్ఠ_పూర్ణాంకం)
+                dst_alloc_కొలత = గరిష్ఠ_పూర్ణాంకం;
 
-        if (level <= 0)
-                r = sym_LZ4_compress_default(src, (char*)dst + 8, src_size, (int) dst_alloc_size - 8);
-        else
-                r = sym_LZ4_compress_HC(src, (char*)dst + 8, src_size, (int) dst_alloc_size - 8, level);
-        if (r <= 0)
-                return -ENOBUFS;
+        ఒకవేళ (level <= 0)
+                r = sym_LZ4_compress_default(src, (అక్షరం*)dst + 8, src_కొలత, (పూర్ణాంకం) dst_alloc_కొలత - 8);
+        లేకపోతే
+                r = sym_LZ4_compress_HC(src, (అక్షరం*)dst + 8, src_కొలత, (పూర్ణాంకం) dst_alloc_కొలత - 8, level);
+        ఒకవేళ (r <= 0)
+                తిరిగి -ENOBUFS;
 
-        unaligned_write_le64(dst, src_size);
-        *dst_size = r + 8;
+        unaligned_write_le64(dst, src_కొలత);
+        *dst_కొలత = r + 8;
 
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int compress_blob_zstd(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_alloc_size,
-                size_t *dst_size,
-                int level) {
+స్థిర పూర్ణాంకం compress_blob_zstd(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య *dst,
+                size_t dst_alloc_కొలత,
+                size_t *dst_కొలత,
+                పూర్ణాంకం level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_alloc_కొలత > 0);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_ZSTD
+#ఒకవేళ HAVE_ZSTD
         size_t k;
-        int r;
+        పూర్ణాంకం r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        k = sym_ZSTD_compress(dst, dst_alloc_size, src, src_size, level < 0 ? 0 : level);
-        if (sym_ZSTD_isError(k))
-                return zstd_ret_to_errno(k);
+        k = sym_ZSTD_compress(dst, dst_alloc_కొలత, src, src_కొలత, level < 0 ? 0 : level);
+        ఒకవేళ (sym_ZSTD_isError(k))
+                తిరిగి zstd_ret_గమ్యం_errno(k);
 
-        *dst_size = k;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = k;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int compress_blob_gzip(const void *src, uint64_t src_size,
-                       void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+స్థిర పూర్ణాంకం compress_blob_gzip(స్థిరరాశి శూన్య *src, uint64_t src_కొలత,
+                       శూన్య *dst, size_t dst_alloc_కొలత, size_t *dst_కొలత, పూర్ణాంకం level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_alloc_కొలత > 0);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_ZLIB
-        int r;
+#ఒకవేళ HAVE_ZLIB
+        పూర్ణాంకం r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > UINT_MAX)
-                dst_alloc_size = UINT_MAX;
+        ఒకవేళ (src_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
+        ఒకవేళ (dst_alloc_కొలత > UINT_MAX)
+                dst_alloc_కొలత = UINT_MAX;
 
-        _cleanup_(deflateEnd_wrapper) z_stream s = {};
+        _cleanup_(deflate_చివర_wrapper) z_ప్రవాహం s = {};
 
         r = sym_deflateInit2_(&s, level < 0 ? Z_DEFAULT_COMPRESSION : level,
                               /* method= */ Z_DEFLATED,
                               /* windowBits= */ ZLIB_WBITS_GZIP,
                               /* memLevel= */ 8,
                               /* strategy= */ Z_DEFAULT_STRATEGY,
-                              ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -ENOMEM;
+                              ZLIB_సంస్కరణ, (పూర్ణాంకం) పరిమాణం(s));
+        ఒకవేళ (r != Z_OK)
+                తిరిగి -ENOMEM;
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
-        s.next_out = dst;
-        s.avail_out = dst_alloc_size;
+        s.తదుపరి_లోపల = (శూన్య*) src;
+        s.avail_లోపల = src_కొలత;
+        s.తదుపరి_బహిర్గతం = dst;
+        s.avail_బహిర్గతం = dst_alloc_కొలత;
 
-        r = sym_deflate(&s, Z_FINISH);
-        if (r != Z_STREAM_END)
-                return -ENOBUFS;
+        r = sym_deflate(&s, Z_ముగింపు);
+        ఒకవేళ (r != Z_ప్రవాహం_చివర)
+                తిరిగి -ENOBUFS;
 
-        *dst_size = dst_alloc_size - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = dst_alloc_కొలత - s.avail_బహిర్గతం;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int compress_blob_bzip2(
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+స్థిర పూర్ణాంకం compress_blob_bzip2(
+                స్థిరరాశి శూన్య *src, uint64_t src_కొలత,
+                శూన్య *dst, size_t dst_alloc_కొలత, size_t *dst_కొలత, పూర్ణాంకం level) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_alloc_size > 0);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_alloc_కొలత > 0);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_BZIP2
-        int r;
+#ఒకవేళ HAVE_BZIP2
+        పూర్ణాంకం r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_alloc_size > UINT_MAX)
-                dst_alloc_size = UINT_MAX;
+        ఒకవేళ (src_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
+        ఒకవేళ (dst_alloc_కొలత > UINT_MAX)
+                dst_alloc_కొలత = UINT_MAX;
 
-        _cleanup_(BZ2_bzCompressEnd_wrapper) bz_stream s = {};
+        _cleanup_(BZ2_bz_Compress_చివర_wrapper) bz_ప్రవాహం s = {};
 
         r = sym_BZ2_bzCompressInit(&s, level < 0 ? 9 : level, /* verbosity= */ 0, /* workFactor= */ 0);
-        if (r != BZ_OK)
-                return -ENOMEM;
+        ఒకవేళ (r != BZ_OK)
+                తిరిగి -ENOMEM;
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
-        s.next_out = (char*) dst;
-        s.avail_out = dst_alloc_size;
+        s.తదుపరి_లోపల = (అక్షరం*) src;
+        s.avail_లోపల = src_కొలత;
+        s.తదుపరి_బహిర్గతం = (అక్షరం*) dst;
+        s.avail_బహిర్గతం = dst_alloc_కొలత;
 
-        r = sym_BZ2_bzCompress(&s, BZ_FINISH);
+        r = sym_BZ2_bzCompress(&s, BZ_ముగింపు);
 
-        if (r != BZ_STREAM_END)
-                return -ENOBUFS;
+        ఒకవేళ (r != BZ_ప్రవాహం_చివర)
+                తిరిగి -ENOBUFS;
 
-        *dst_size = dst_alloc_size - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = dst_alloc_కొలత - s.avail_బహిర్గతం;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-int compress_blob_journal(
+పూర్ణాంకం compress_blob_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+                స్థిరరాశి శూన్య *src, uint64_t src_కొలత,
+                శూన్య *dst, size_t dst_alloc_కొలత, size_t *dst_కొలత, పూర్ణాంకం level) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return compress_blob_xz(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_LZ4:
-                return compress_blob_lz4(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_ZSTD:
-                return compress_blob_zstd(src, src_size, dst, dst_alloc_size, dst_size, level);
-        default:
-                return -EOPNOTSUPP;
+        ఎంపిక (compression) {
+        స్థితి COMPRESSION_XZ:
+                తిరిగి compress_blob_xz(src, src_కొలత, dst, dst_alloc_కొలత, dst_కొలత, level);
+        స్థితి COMPRESSION_LZ4:
+                తిరిగి compress_blob_lz4(src, src_కొలత, dst, dst_alloc_కొలత, dst_కొలత, level);
+        స్థితి COMPRESSION_ZSTD:
+                తిరిగి compress_blob_zstd(src, src_కొలత, dst, dst_alloc_కొలత, dst_కొలత, level);
+        అప్రమేయ:
+                తిరిగి -EOPNOTSUPP;
         }
 }
 
-int compress_blob(
+పూర్ణాంకం compress_blob(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level) {
+                స్థిరరాశి శూన్య *src, uint64_t src_కొలత,
+                శూన్య *dst, size_t dst_alloc_కొలత, size_t *dst_కొలత, పూర్ణాంకం level) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return compress_blob_gzip(src, src_size, dst, dst_alloc_size, dst_size, level);
-        case COMPRESSION_BZIP2:
-                return compress_blob_bzip2(src, src_size, dst, dst_alloc_size, dst_size, level);
-        default:
-                return compress_blob_journal(compression, src, src_size, dst, dst_alloc_size, dst_size, level);
+        ఎంపిక (compression) {
+        స్థితి COMPRESSION_GZIP:
+                తిరిగి compress_blob_gzip(src, src_కొలత, dst, dst_alloc_కొలత, dst_కొలత, level);
+        స్థితి COMPRESSION_BZIP2:
+                తిరిగి compress_blob_bzip2(src, src_కొలత, dst, dst_alloc_కొలత, dst_కొలత, level);
+        అప్రమేయ:
+                తిరిగి compress_blob_journal(compression, src, src_కొలత, dst, dst_alloc_కొలత, dst_కొలత, level);
         }
 }
 
-static int decompress_blob_xz(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+స్థిర పూర్ణాంకం decompress_blob_xz(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **dst,
+                size_t *dst_కొలత,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_XZ
-        int r;
+#ఒకవేళ HAVE_XZ
+        పూర్ణాంకం r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        _cleanup_(lzma_end_wrapper) lzma_stream s = LZMA_STREAM_INIT;
-        lzma_ret ret = sym_lzma_stream_decoder(&s, UINT64_MAX, /* flags= */ 0);
-        if (ret != LZMA_OK)
-                return -ENOMEM;
+        _cleanup_(lzma_చివర_wrapper) lzma_ప్రవాహం s = LZMA_ప్రవాహం_INIT;
+        lzma_ret ret = sym_lzma_ప్రవాహం_decoder(&s, UINT64_MAX, /* flags= */ 0);
+        ఒకవేళ (ret != LZMA_OK)
+                తిరిగి -ENOMEM;
 
-        size_t space = MIN(src_size * 2, dst_max ?: SIZE_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        size_t space = MIN(src_కొలత * 2, dst_max ?: SIZE_MAX);
+        ఒకవేళ (!greedy_realloc(dst, space, 1))
+                తిరిగి -ENOMEM;
 
-        s.next_in = src;
-        s.avail_in = src_size;
+        s.తదుపరి_లోపల = src;
+        s.avail_లోపల = src_కొలత;
 
-        s.next_out = *dst;
-        s.avail_out = space;
+        s.తదుపరి_బహిర్గతం = *dst;
+        s.avail_బహిర్గతం = space;
 
-        for (;;) {
-                size_t used;
+        కొరకు (;;) {
+                size_t వాడిన;
 
-                ret = sym_lzma_code(&s, LZMA_FINISH);
-                if (ret == LZMA_STREAM_END)
-                        break;
-                if (ret != LZMA_OK)
-                        return -ENOMEM;
+                ret = sym_lzma_సంకేతం(&s, LZMA_ముగింపు);
+                ఒకవేళ (ret == LZMA_ప్రవాహం_చివర)
+                        ఆపు;
+                ఒకవేళ (ret != LZMA_OK)
+                        తిరిగి -ENOMEM;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                ఒకవేళ (dst_max > 0 && (space - s.avail_బహిర్గతం) >= dst_max)
+                        ఆపు;
+                ఒకవేళ (dst_max > 0 && space == dst_max)
+                        తిరిగి -ENOBUFS;
 
-                used = space - s.avail_out;
+                వాడిన = space - s.avail_బహిర్గతం;
                 /* Silence static analyzers, space is bounded by allocation size */
-                assert(space <= SIZE_MAX / 2);
+                ప్రతిజ్ఞా(space <= SIZE_MAX / 2);
                 space = MIN(2 * space, dst_max ?: SIZE_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                ఒకవేళ (!greedy_realloc(dst, space, 1))
+                        తిరిగి -ENOMEM;
 
-                s.avail_out = space - used;
-                s.next_out = *(uint8_t**)dst + used;
+                s.avail_బహిర్గతం = space - వాడిన;
+                s.తదుపరి_బహిర్గతం = *(uint8_t**)dst + వాడిన;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = space - s.avail_బహిర్గతం;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_blob_lz4(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+స్థిర పూర్ణాంకం decompress_blob_lz4(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **dst,
+                size_t *dst_కొలత,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_LZ4
-        char* out;
-        int r, size; /* LZ4 uses int for size */
+#ఒకవేళ HAVE_LZ4
+        అక్షరం* బహిర్గతం;
+        పూర్ణాంకం r, కొలత; /* LZ4 uses int for size */
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size <= 8)
-                return -EBADMSG;
+        ఒకవేళ (src_కొలత <= 8)
+                తిరిగి -EBADMSG;
 
-        if (src_size - 8 > INT_MAX)
-                return -EFBIG;
+        ఒకవేళ (src_కొలత - 8 > గరిష్ఠ_పూర్ణాంకం)
+                తిరిగి -EFBIG;
 
-        size = unaligned_read_le64(src);
-        if (size < 0 || (unsigned) size != unaligned_read_le64(src))
-                return -EFBIG;
-        if (dst_max > 0 && (size_t) size > dst_max)
-                return -ENOBUFS;
-        out = greedy_realloc(dst, size, 1);
-        if (!out)
-                return -ENOMEM;
+        కొలత = unaligned_read_le64(src);
+        ఒకవేళ (కొలత < 0 || (గుర్తులేని) కొలత != unaligned_read_le64(src))
+                తిరిగి -EFBIG;
+        ఒకవేళ (dst_max > 0 && (size_t) కొలత > dst_max)
+                తిరిగి -ENOBUFS;
+        బహిర్గతం = greedy_realloc(dst, కొలత, 1);
+        ఒకవేళ (!బహిర్గతం)
+                తిరిగి -ENOMEM;
 
-        r = sym_LZ4_decompress_safe((char*)src + 8, out, src_size - 8, size);
-        if (r < 0 || r != size)
-                return -EBADMSG;
+        r = sym_LZ4_decompress_సురక్షిత((అక్షరం*)src + 8, బహిర్గతం, src_కొలత - 8, కొలత);
+        ఒకవేళ (r < 0 || r != కొలత)
+                తిరిగి -EBADMSG;
 
-        *dst_size = size;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = కొలత;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-size_t zstd_dstream_out_size(void) {
-#if HAVE_ZSTD
-        if (dlopen_zstd(LOG_DEBUG) < 0)
-                return 0;
+size_t zstd_dstream_బహిర్గతం_కొలత(శూన్య) {
+#ఒకవేళ HAVE_ZSTD
+        ఒకవేళ (dlopen_zstd(LOG_DEBUG) < 0)
+                తిరిగి 0;
 
-        return sym_ZSTD_DStreamOutSize();
-#else
-        return 0;
-#endif
+        తిరిగి sym_ZSTD_DStream_బహిర్గతం_కొలత();
+#లేకపోతే
+        తిరిగి 0;
+#అయితే_ముగింపు
 }
 
-static int decompress_blob_zstd(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+స్థిర పూర్ణాంకం decompress_blob_zstd(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **dst,
+                size_t *dst_కొలత,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_ZSTD
-        int r;
+#ఒకవేళ HAVE_ZSTD
+        పూర్ణాంకం r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* ZSTD_getFrameContentSize() returns unsigned long long, which is not necessarily size_t, so
          * keep the value in that type until we've clamped it down to something that fits size_t. */
-        unsigned long long size = sym_ZSTD_getFrameContentSize(src, src_size);
-        if (size == ZSTD_CONTENTSIZE_ERROR)
-                return -EBADMSG;
+        గుర్తులేని దీర్ఘ దీర్ఘ కొలత = sym_ZSTD_get_చట్రం_Content_కొలత(src, src_కొలత);
+        ఒకవేళ (కొలత == ZSTD_CONTENTSIZE_ERROR)
+                తిరిగి -EBADMSG;
 
         /* ZSTD_CONTENTSIZE_UNKNOWN is returned when the frame header doesn't record the decompressed
          * size, which is the case e.g. for kernel images compressed with 'zstd'. Per the zstd
@@ -873,1598 +873,1598 @@ static int decompress_blob_zstd(
         size_t cap = dst_max ?: SIZE_MAX;
 
         size_t space;
-        if (size != ZSTD_CONTENTSIZE_UNKNOWN)
+        ఒకవేళ (కొలత != ZSTD_CONTENTSIZE_UNKNOWN)
                 /* The MIN clamps the (possibly 64-bit) content size to the ceiling, which is <= SIZE_MAX,
                  * so the result always fits size_t. */
-                space = MAX(sym_ZSTD_DStreamOutSize(), (size_t) MIN(size, (unsigned long long) cap));
-        else {
+                space = MAX(sym_ZSTD_DStream_బహిర్గతం_కొలత(), (size_t) MIN(కొలత, (గుర్తులేని దీర్ఘ దీర్ఘ) cap));
+        లేకపోతే {
                 /* Start from twice the compressed size, guarding the doubling against overflow, then
                  * clamp to the ceiling. */
-                uint64_t twice = src_size <= UINT64_MAX / 2 ? src_size * 2 : UINT64_MAX;
-                space = MAX(sym_ZSTD_DStreamOutSize(), (size_t) MIN(twice, (uint64_t) cap));
+                uint64_t twice = src_కొలత <= UINT64_MAX / 2 ? src_కొలత * 2 : UINT64_MAX;
+                space = MAX(sym_ZSTD_DStream_బహిర్గతం_కొలత(), (size_t) MIN(twice, (uint64_t) cap));
         }
 
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
-        space = MALLOC_SIZEOF_SAFE(*dst);
+        ఒకవేళ (!greedy_realloc(dst, space, 1))
+                తిరిగి -ENOMEM;
+        space = MALLOC_SIZEOF_సురక్షిత(*dst);
 
         _cleanup_(ZSTD_freeDCtxp) ZSTD_DCtx *dctx = sym_ZSTD_createDCtx();
-        if (!dctx)
-                return -ENOMEM;
+        ఒకవేళ (!dctx)
+                తిరిగి -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_లోపల_బఫరు ఆదానం = {
                 .src = src,
-                .size = src_size,
+                .కొలత = src_కొలత,
         };
-        ZSTD_outBuffer output = {
+        ZSTD_బహిర్గతం_బఫరు output = {
                 .dst = *dst,
                 /* Never offer the decoder more room than the cap: greedy_realloc() over-allocates, so
                  * without this clamp a single ZSTD_decompressStream() call could write past dst_max
                  * before the output.pos >= cap check below fires. */
-                .size = MIN(space, cap),
+                .కొలత = MIN(space, cap),
         };
 
-        for (;;) {
-                size_t k = sym_ZSTD_decompressStream(dctx, &output, &input);
-                if (sym_ZSTD_isError(k))
-                        return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
+        కొరకు (;;) {
+                size_t k = sym_ZSTD_decompress_ప్రవాహం(dctx, &output, &ఆదానం);
+                ఒకవేళ (sym_ZSTD_isError(k))
+                        తిరిగి log_debug_errno(zstd_ret_గమ్యం_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
 
                 /* output.size is clamped to MIN(space, cap) here and after every grow, and zstd keeps
                  * output.pos <= output.size, so output.pos never exceeds cap: this fires exactly when the
                  * caller's limit has been filled. */
-                if (output.pos >= cap)
-                        break;
+                ఒకవేళ (output.pos >= cap)
+                        ఆపు;
 
                 /* k == 0 means the current frame was fully decoded and flushed. If no input is left
                  * either, the whole stream is done. This must be checked before the grow branch below:
                  * the frame can finish exactly as the output buffer fills, and growing then would call
                  * the decoder again on already-exhausted input, which it'd misread as a truncated next
                  * frame. */
-                if (k == 0 && input.pos >= input.size)
-                        break;
+                ఒకవేళ (k == 0 && ఆదానం.pos >= ఆదానం.కొలత)
+                        ఆపు;
 
                 /* Otherwise there is still work to do: either decoded data buffered inside the decoder
                  * that didn't fit (k != 0, e.g. zstd's buffered-flush mode), or another concatenated
                  * frame to decode (k == 0 with input left). If the output buffer is full, grow it and
                  * call again. Guard against the doubling overflowing size_t (only reachable with an
                  * uncapped dst_max once the allocation has already grown past SIZE_MAX/2). */
-                if (output.pos == output.size) {
-                        if (space > SIZE_MAX / 2)
-                                return -E2BIG;
+                ఒకవేళ (output.pos == output.కొలత) {
+                        ఒకవేళ (space > SIZE_MAX / 2)
+                                తిరిగి -E2BIG;
                         space = MIN(2 * space, cap);
-                        if (!greedy_realloc(dst, space, 1))
-                                return -ENOMEM;
-                        space = MALLOC_SIZEOF_SAFE(*dst);
+                        ఒకవేళ (!greedy_realloc(dst, space, 1))
+                                తిరిగి -ENOMEM;
+                        space = MALLOC_SIZEOF_సురక్షిత(*dst);
                         output.dst = *dst;
-                        output.size = MIN(space, cap);
-                        continue;
+                        output.కొలత = MIN(space, cap);
+                        కొనసాగు;
                 }
 
                 /* The output buffer still has room but the decoder stopped. If input is exhausted the
                  * decoder wanted more (k != 0, since k == 0 + no input broke above), i.e. the stream was
                  * truncated mid-frame. Otherwise input remains (a concatenated frame) and we loop. */
-                if (input.pos >= input.size)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
+                ఒకవేళ (ఆదానం.pos >= ఆదానం.కొలత)
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
         }
 
-        *dst_size = output.pos;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = output.pos;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_blob_gzip(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+స్థిర పూర్ణాంకం decompress_blob_gzip(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **dst,
+                size_t *dst_కొలత,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_ZLIB
-        int r;
+#ఒకవేళ HAVE_ZLIB
+        పూర్ణాంకం r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        ఒకవేళ (src_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
 
-        _cleanup_(inflateEnd_wrapper) z_stream s = {};
+        _cleanup_(inflate_చివర_wrapper) z_ప్రవాహం s = {};
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -ENOMEM;
+        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_సంస్కరణ, (పూర్ణాంకం) పరిమాణం(s));
+        ఒకవేళ (r != Z_OK)
+                తిరిగి -ENOMEM;
 
-        size_t space = MIN3(src_size * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        size_t space = MIN3(src_కొలత * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
+        ఒకవేళ (!greedy_realloc(dst, space, 1))
+                తిరిగి -ENOMEM;
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
-        s.next_out = *dst;
-        s.avail_out = space;
+        s.తదుపరి_లోపల = (శూన్య*) src;
+        s.avail_లోపల = src_కొలత;
+        s.తదుపరి_బహిర్గతం = *dst;
+        s.avail_బహిర్గతం = space;
 
-        for (;;) {
-                size_t used;
+        కొరకు (;;) {
+                size_t వాడిన;
 
                 r = sym_inflate(&s, Z_NO_FLUSH);
-                if (r == Z_STREAM_END)
-                        break;
-                if (!IN_SET(r, Z_OK, Z_BUF_ERROR))
-                        return -EBADMSG;
+                ఒకవేళ (r == Z_ప్రవాహం_చివర)
+                        ఆపు;
+                ఒకవేళ (!లోపల_సమితి(r, Z_OK, Z_BUF_ERROR))
+                        తిరిగి -EBADMSG;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                ఒకవేళ (dst_max > 0 && (space - s.avail_బహిర్గతం) >= dst_max)
+                        ఆపు;
+                ఒకవేళ (dst_max > 0 && space == dst_max)
+                        తిరిగి -ENOBUFS;
 
-                used = space - s.avail_out;
+                వాడిన = space - s.avail_బహిర్గతం;
                 space = MIN3(2 * space, dst_max ?: SIZE_MAX, UINT_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                ఒకవేళ (!greedy_realloc(dst, space, 1))
+                        తిరిగి -ENOMEM;
 
-                s.avail_out = space - used;
-                s.next_out = *(uint8_t**)dst + used;
+                s.avail_బహిర్గతం = space - వాడిన;
+                s.తదుపరి_బహిర్గతం = *(uint8_t**)dst + వాడిన;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = space - s.avail_బహిర్గతం;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_blob_bzip2(
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+స్థిర పూర్ణాంకం decompress_blob_bzip2(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **dst,
+                size_t *dst_కొలత,
                 size_t dst_max) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(dst);
-        assert(dst_size);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(dst);
+        ప్రతిజ్ఞా(dst_కొలత);
 
-#if HAVE_BZIP2
-        int r;
+#ఒకవేళ HAVE_BZIP2
+        పూర్ణాంకం r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        ఒకవేళ (src_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
 
-        _cleanup_(BZ2_bzDecompressEnd_wrapper) bz_stream s = {};
+        _cleanup_(BZ2_bz_Decompress_చివర_wrapper) bz_ప్రవాహం s = {};
 
-        if (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                return -EIO;
+        ఒకవేళ (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                తిరిగి -EIO;
 
-        size_t space = MIN3(src_size * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-        if (!greedy_realloc(dst, space, 1))
-                return -ENOMEM;
+        size_t space = MIN3(src_కొలత * 2, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
+        ఒకవేళ (!greedy_realloc(dst, space, 1))
+                తిరిగి -ENOMEM;
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
-        s.next_out = (char*) *dst;
-        s.avail_out = space;
+        s.తదుపరి_లోపల = (అక్షరం*) src;
+        s.avail_లోపల = src_కొలత;
+        s.తదుపరి_బహిర్గతం = (అక్షరం*) *dst;
+        s.avail_బహిర్గతం = space;
 
-        for (;;) {
-                size_t used;
+        కొరకు (;;) {
+                size_t వాడిన;
 
                 r = sym_BZ2_bzDecompress(&s);
-                if (r == BZ_STREAM_END)
-                        break;
-                if (r != BZ_OK)
-                        return -EBADMSG;
+                ఒకవేళ (r == BZ_ప్రవాహం_చివర)
+                        ఆపు;
+                ఒకవేళ (r != BZ_OK)
+                        తిరిగి -EBADMSG;
 
-                if (dst_max > 0 && (space - s.avail_out) >= dst_max)
-                        break;
-                if (dst_max > 0 && space == dst_max)
-                        return -ENOBUFS;
+                ఒకవేళ (dst_max > 0 && (space - s.avail_బహిర్గతం) >= dst_max)
+                        ఆపు;
+                ఒకవేళ (dst_max > 0 && space == dst_max)
+                        తిరిగి -ENOBUFS;
 
-                used = space - s.avail_out;
+                వాడిన = space - s.avail_బహిర్గతం;
                 space = MIN3(2 * space, dst_max ?: SIZE_MAX, (size_t) UINT_MAX);
-                if (!greedy_realloc(dst, space, 1))
-                        return -ENOMEM;
+                ఒకవేళ (!greedy_realloc(dst, space, 1))
+                        తిరిగి -ENOMEM;
 
-                s.avail_out = space - used;
-                s.next_out = (char*) *dst + used;
+                s.avail_బహిర్గతం = space - వాడిన;
+                s.తదుపరి_బహిర్గతం = (అక్షరం*) *dst + వాడిన;
         }
 
-        *dst_size = space - s.avail_out;
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        *dst_కొలత = space - s.avail_బహిర్గతం;
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-int decompress_blob_journal(
+పూర్ణాంకం decompress_blob_journal(
                 Compression compression,
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **dst,
+                size_t *dst_కొలత,
                 size_t dst_max) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return decompress_blob_xz(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_LZ4:
-                return decompress_blob_lz4(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_ZSTD:
-                return decompress_blob_zstd(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        default:
-                return -EPROTONOSUPPORT;
+        ఎంపిక (compression) {
+        స్థితి COMPRESSION_XZ:
+                తిరిగి decompress_blob_xz(
+                                src, src_కొలత,
+                                dst, dst_కొలత, dst_max);
+        స్థితి COMPRESSION_LZ4:
+                తిరిగి decompress_blob_lz4(
+                                src, src_కొలత,
+                                dst, dst_కొలత, dst_max);
+        స్థితి COMPRESSION_ZSTD:
+                తిరిగి decompress_blob_zstd(
+                                src, src_కొలత,
+                                dst, dst_కొలత, dst_max);
+        అప్రమేయ:
+                తిరిగి -EPROTONOSUPPORT;
         }
 }
 
-int decompress_blob(
+పూర్ణాంకం decompress_blob(
                 Compression compression,
-                const void *src,
-                uint64_t src_size,
-                void **dst,
-                size_t *dst_size,
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **dst,
+                size_t *dst_కొలత,
                 size_t dst_max) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return decompress_blob_gzip(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        case COMPRESSION_BZIP2:
-                return decompress_blob_bzip2(
-                                src, src_size,
-                                dst, dst_size, dst_max);
-        default:
-                return decompress_blob_journal(
+        ఎంపిక (compression) {
+        స్థితి COMPRESSION_GZIP:
+                తిరిగి decompress_blob_gzip(
+                                src, src_కొలత,
+                                dst, dst_కొలత, dst_max);
+        స్థితి COMPRESSION_BZIP2:
+                తిరిగి decompress_blob_bzip2(
+                                src, src_కొలత,
+                                dst, dst_కొలత, dst_max);
+        అప్రమేయ:
+                తిరిగి decompress_blob_journal(
                                 compression,
-                                src, src_size,
-                                dst, dst_size, dst_max);
+                                src, src_కొలత,
+                                dst, dst_కొలత, dst_max);
         }
 }
 
-int decompress_zlib_raw(
-                const void *src,
-                uint64_t src_size,
-                void *dst,
-                size_t dst_size,
-                int wbits) {
+పూర్ణాంకం decompress_zlib_raw(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య *dst,
+                size_t dst_కొలత,
+                పూర్ణాంకం wbits) {
 
-#if HAVE_ZLIB
-        int r;
+#ఒకవేళ HAVE_ZLIB
+        పూర్ణాంకం r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
-        if (dst_size > UINT_MAX)
-                return -EFBIG;
+        ఒకవేళ (src_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
+        ఒకవేళ (dst_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
 
-        _cleanup_(inflateEnd_wrapper) z_stream s = {
-                .next_in = (void*) src,
-                .avail_in = src_size,
-                .next_out = dst,
-                .avail_out = dst_size,
+        _cleanup_(inflate_చివర_wrapper) z_ప్రవాహం s = {
+                .తదుపరి_లోపల = (శూన్య*) src,
+                .avail_లోపల = src_కొలత,
+                .తదుపరి_బహిర్గతం = dst,
+                .avail_బహిర్గతం = dst_కొలత,
         };
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ wbits, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -EIO;
+        r = sym_inflateInit2_(&s, /* windowBits= */ wbits, ZLIB_సంస్కరణ, (పూర్ణాంకం) పరిమాణం(s));
+        ఒకవేళ (r != Z_OK)
+                తిరిగి -EIO;
 
-        r = sym_inflate(&s, Z_FINISH);
-        size_t produced = (uint8_t*) s.next_out - (uint8_t*) dst;
+        r = sym_inflate(&s, Z_ముగింపు);
+        size_t produced = (uint8_t*) s.తదుపరి_బహిర్గతం - (uint8_t*) dst;
 
-        if (r != Z_STREAM_END || produced != dst_size)
-                return -EBADMSG;
+        ఒకవేళ (r != Z_ప్రవాహం_చివర || produced != dst_కొలత)
+                తిరిగి -EBADMSG;
 
-        return 0;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        తిరిగి 0;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_startswith_xz(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+స్థిర పూర్ణాంకం decompress_startswith_xz(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **బఫరు,
+                స్థిరరాశి శూన్య *ఉపసర్గ,
+                size_t ఉపసర్గ_len,
                 uint8_t extra) {
 
         /* Checks whether the decompressed blob starts with the mentioned prefix. The byte extra needs to
          * follow the prefix */
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
-#if HAVE_XZ
-        int r;
+#ఒకవేళ HAVE_XZ
+        పూర్ణాంకం r;
 
         r = dlopen_xz(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        _cleanup_(lzma_end_wrapper) lzma_stream s = LZMA_STREAM_INIT;
-        lzma_ret ret = sym_lzma_stream_decoder(&s, UINT64_MAX, /* flags= */ 0);
-        if (ret != LZMA_OK)
-                return -EBADMSG;
+        _cleanup_(lzma_చివర_wrapper) lzma_ప్రవాహం s = LZMA_ప్రవాహం_INIT;
+        lzma_ret ret = sym_lzma_ప్రవాహం_decoder(&s, UINT64_MAX, /* flags= */ 0);
+        ఒకవేళ (ret != LZMA_OK)
+                తిరిగి -EBADMSG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        ఒకవేళ (!(greedy_realloc(బఫరు, ALIGN_8(ఉపసర్గ_len + 1), 1)))
+                తిరిగి -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        size_t allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
 
-        s.next_in = src;
-        s.avail_in = src_size;
+        s.తదుపరి_లోపల = src;
+        s.avail_లోపల = src_కొలత;
 
-        s.next_out = *buffer;
-        s.avail_out = allocated;
+        s.తదుపరి_బహిర్గతం = *బఫరు;
+        s.avail_బహిర్గతం = allocated;
 
-        for (;;) {
-                ret = sym_lzma_code(&s, LZMA_FINISH);
+        కొరకు (;;) {
+                ret = sym_lzma_సంకేతం(&s, LZMA_ముగింపు);
 
-                if (!IN_SET(ret, LZMA_OK, LZMA_STREAM_END))
-                        return -EBADMSG;
+                ఒకవేళ (!లోపల_సమితి(ret, LZMA_OK, LZMA_ప్రవాహం_చివర))
+                        తిరిగి -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                ఒకవేళ (allocated - s.avail_బహిర్గతం >= ఉపసర్గ_len + 1)
+                        తిరిగి memcmp(*బఫరు, ఉపసర్గ, ఉపసర్గ_len) == 0 &&
+                                ((స్థిరరాశి uint8_t*) *బఫరు)[ఉపసర్గ_len] == extra;
 
-                if (ret == LZMA_STREAM_END)
-                        return 0;
+                ఒకవేళ (ret == LZMA_ప్రవాహం_చివర)
+                        తిరిగి 0;
 
-                s.avail_out += allocated;
+                s.avail_బహిర్గతం += allocated;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                ఒకవేళ (!(greedy_realloc(బఫరు, allocated * 2, 1)))
+                        తిరిగి -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.next_out = *(uint8_t**)buffer + allocated - s.avail_out;
+                allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
+                s.తదుపరి_బహిర్గతం = *(uint8_t**)బఫరు + allocated - s.avail_బహిర్గతం;
         }
 
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_startswith_lz4(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+స్థిర పూర్ణాంకం decompress_startswith_lz4(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **బఫరు,
+                స్థిరరాశి శూన్య *ఉపసర్గ,
+                size_t ఉపసర్గ_len,
                 uint8_t extra) {
 
         /* Checks whether the decompressed blob starts with the mentioned prefix. The byte extra needs to
          * follow the prefix */
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
-#if HAVE_LZ4
+#ఒకవేళ HAVE_LZ4
         size_t allocated;
-        int r;
+        పూర్ణాంకం r;
 
         r = dlopen_lz4(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size <= 8)
-                return -EBADMSG;
+        ఒకవేళ (src_కొలత <= 8)
+                తిరిగి -EBADMSG;
 
-        if (src_size - 8 > INT_MAX)
-                return -EFBIG;
+        ఒకవేళ (src_కొలత - 8 > గరిష్ఠ_పూర్ణాంకం)
+                తిరిగి -EFBIG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
-        allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        ఒకవేళ (!(greedy_realloc(బఫరు, ALIGN_8(ఉపసర్గ_len + 1), 1)))
+                తిరిగి -ENOMEM;
+        allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
 
-        r = sym_LZ4_decompress_safe_partial(
-                        (char*)src + 8,
-                        *buffer,
-                        src_size - 8,
-                        prefix_len + 1,
+        r = sym_LZ4_decompress_సురక్షిత_partial(
+                        (అక్షరం*)src + 8,
+                        *బఫరు,
+                        src_కొలత - 8,
+                        ఉపసర్గ_len + 1,
                         allocated);
 
         /* One lz4 < 1.8.3, we might get "failure" (r < 0), or "success" where just a part of the buffer is
          * decompressed. But if we get a smaller amount of bytes than requested, we don't know whether there
          * isn't enough data to fill the requested size or whether we just got a partial answer.
          */
-        if (r < 0 || (size_t) r < prefix_len + 1) {
-                size_t size;
+        ఒకవేళ (r < 0 || (size_t) r < ఉపసర్గ_len + 1) {
+                size_t కొలత;
 
-                if (sym_LZ4_versionNumber() >= 10803)
+                ఒకవేళ (sym_LZ4_సంస్కరణ_సంఖ్య() >= 10803)
                         /* We trust that the newer lz4 decompresses the number of bytes we
                          * requested if available in the compressed string. */
-                        return 0;
+                        తిరిగి 0;
 
-                if (r > 0)
+                ఒకవేళ (r > 0)
                         /* Compare what we have first, in case of mismatch we can
                          * shortcut the full comparison. */
-                        if (memcmp(*buffer, prefix, r) != 0)
-                                return 0;
+                        ఒకవేళ (memcmp(*బఫరు, ఉపసర్గ, r) != 0)
+                                తిరిగి 0;
 
                 /* Before version 1.8.3, lz4 always tries to decode full a "sequence",
                  * so in pathological cases might need to decompress the full field. */
-                r = decompress_blob_lz4(src, src_size, buffer, &size, 0);
-                if (r < 0)
-                        return r;
+                r = decompress_blob_lz4(src, src_కొలత, బఫరు, &కొలత, 0);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (size < prefix_len + 1)
-                        return 0;
+                ఒకవేళ (కొలత < ఉపసర్గ_len + 1)
+                        తిరిగి 0;
         }
 
-        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                ((const uint8_t*) *buffer)[prefix_len] == extra;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        తిరిగి memcmp(*బఫరు, ఉపసర్గ, ఉపసర్గ_len) == 0 &&
+                ((స్థిరరాశి uint8_t*) *బఫరు)[ఉపసర్గ_len] == extra;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_startswith_zstd(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+స్థిర పూర్ణాంకం decompress_startswith_zstd(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **బఫరు,
+                స్థిరరాశి శూన్య *ఉపసర్గ,
+                size_t ఉపసర్గ_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
-#if HAVE_ZSTD
-        int r;
+#ఒకవేళ HAVE_ZSTD
+        పూర్ణాంకం r;
 
         r = dlopen_zstd(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* ZSTD_getFrameContentSize() returns unsigned long long, which is not necessarily size_t. */
-        unsigned long long size = sym_ZSTD_getFrameContentSize(src, src_size);
-        if (size == ZSTD_CONTENTSIZE_ERROR)
-                return -EBADMSG;
+        గుర్తులేని దీర్ఘ దీర్ఘ కొలత = sym_ZSTD_get_చట్రం_Content_కొలత(src, src_కొలత);
+        ఒకవేళ (కొలత == ZSTD_CONTENTSIZE_ERROR)
+                తిరిగి -EBADMSG;
 
         /* ZSTD_CONTENTSIZE_UNKNOWN means the frame doesn't record the decompressed size, so we can't
          * shortcut here. The single decompression below only needs prefix_len + 1 bytes anyway. */
-        if (size != ZSTD_CONTENTSIZE_UNKNOWN && size < prefix_len + 1)
-                return 0; /* Decompressed text too short to match the prefix and extra */
+        ఒకవేళ (కొలత != ZSTD_CONTENTSIZE_UNKNOWN && కొలత < ఉపసర్గ_len + 1)
+                తిరిగి 0; /* Decompressed text too short to match the prefix and extra */
 
         _cleanup_(ZSTD_freeDCtxp) ZSTD_DCtx *dctx = sym_ZSTD_createDCtx();
-        if (!dctx)
-                return -ENOMEM;
+        ఒకవేళ (!dctx)
+                తిరిగి -ENOMEM;
 
-        if (!(greedy_realloc(buffer, MAX(sym_ZSTD_DStreamOutSize(), prefix_len + 1), 1)))
-                return -ENOMEM;
+        ఒకవేళ (!(greedy_realloc(బఫరు, MAX(sym_ZSTD_DStream_బహిర్గతం_కొలత(), ఉపసర్గ_len + 1), 1)))
+                తిరిగి -ENOMEM;
 
-        ZSTD_inBuffer input = {
+        ZSTD_లోపల_బఫరు ఆదానం = {
                 .src = src,
-                .size = src_size,
+                .కొలత = src_కొలత,
         };
-        ZSTD_outBuffer output = {
-                .dst = *buffer,
-                .size = MALLOC_SIZEOF_SAFE(*buffer),
+        ZSTD_బహిర్గతం_బఫరు output = {
+                .dst = *బఫరు,
+                .కొలత = MALLOC_SIZEOF_సురక్షిత(*బఫరు),
         };
         size_t k;
 
-        k = sym_ZSTD_decompressStream(dctx, &output, &input);
-        if (sym_ZSTD_isError(k))
-                return log_debug_errno(zstd_ret_to_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
-        if (output.pos < prefix_len + 1) {
+        k = sym_ZSTD_decompress_ప్రవాహం(dctx, &output, &ఆదానం);
+        ఒకవేళ (sym_ZSTD_isError(k))
+                తిరిగి log_debug_errno(zstd_ret_గమ్యం_errno(k), "ZSTD decoder failed: %s", sym_ZSTD_getErrorName(k));
+        ఒకవేళ (output.pos < ఉపసర్గ_len + 1) {
                 /* The output buffer is at least prefix_len + 1 bytes, so if it isn't full the decoder
                  * stopped for another reason: either the frame ended (k == 0), in which case the stream
                  * is simply too short to match the prefix, or it's still expecting input (k != 0), which
                  * means the stream was truncated mid-frame. */
-                if (k != 0)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
-                return 0; /* Decompressed text too short to match the prefix and extra */
+                ఒకవేళ (k != 0)
+                        తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "ZSTD stream ended unexpectedly, probably corrupted.");
+                తిరిగి 0; /* Decompressed text too short to match the prefix and extra */
         }
 
-        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                ((const uint8_t*) *buffer)[prefix_len] == extra;
-#else
-        return -EPROTONOSUPPORT;
-#endif
+        తిరిగి memcmp(*బఫరు, ఉపసర్గ, ఉపసర్గ_len) == 0 &&
+                ((స్థిరరాశి uint8_t*) *బఫరు)[ఉపసర్గ_len] == extra;
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_startswith_gzip(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+స్థిర పూర్ణాంకం decompress_startswith_gzip(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **బఫరు,
+                స్థిరరాశి శూన్య *ఉపసర్గ,
+                size_t ఉపసర్గ_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
-#if HAVE_ZLIB
-        int r;
+#ఒకవేళ HAVE_ZLIB
+        పూర్ణాంకం r;
 
         r = dlopen_zlib(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        ఒకవేళ (src_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
 
-        _cleanup_(inflateEnd_wrapper) z_stream s = {};
+        _cleanup_(inflate_చివర_wrapper) z_ప్రవాహం s = {};
 
-        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(s));
-        if (r != Z_OK)
-                return -EBADMSG;
+        r = sym_inflateInit2_(&s, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_సంస్కరణ, (పూర్ణాంకం) పరిమాణం(s));
+        ఒకవేళ (r != Z_OK)
+                తిరిగి -EBADMSG;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        ఒకవేళ (!(greedy_realloc(బఫరు, ALIGN_8(ఉపసర్గ_len + 1), 1)))
+                తిరిగి -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        size_t allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
 
-        s.next_in = (void*) src;
-        s.avail_in = src_size;
+        s.తదుపరి_లోపల = (శూన్య*) src;
+        s.avail_లోపల = src_కొలత;
 
-        s.next_out = *buffer;
-        s.avail_out = MIN(allocated, (size_t) UINT_MAX);
+        s.తదుపరి_బహిర్గతం = *బఫరు;
+        s.avail_బహిర్గతం = MIN(allocated, (size_t) UINT_MAX);
 
-        for (;;) {
-                r = sym_inflate(&s, Z_FINISH);
+        కొరకు (;;) {
+                r = sym_inflate(&s, Z_ముగింపు);
 
-                if (!IN_SET(r, Z_OK, Z_STREAM_END, Z_BUF_ERROR))
-                        return -EBADMSG;
+                ఒకవేళ (!లోపల_సమితి(r, Z_OK, Z_ప్రవాహం_చివర, Z_BUF_ERROR))
+                        తిరిగి -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                ఒకవేళ (allocated - s.avail_బహిర్గతం >= ఉపసర్గ_len + 1)
+                        తిరిగి memcmp(*బఫరు, ఉపసర్గ, ఉపసర్గ_len) == 0 &&
+                                ((స్థిరరాశి uint8_t*) *బఫరు)[ఉపసర్గ_len] == extra;
 
-                if (r == Z_STREAM_END)
-                        return 0;
+                ఒకవేళ (r == Z_ప్రవాహం_చివర)
+                        తిరిగి 0;
 
-                if (s.avail_out > 0)
-                        return -EBADMSG; /* truncated */
+                ఒకవేళ (s.avail_బహిర్గతం > 0)
+                        తిరిగి -EBADMSG; /* truncated */
 
-                size_t used = allocated - s.avail_out;
+                size_t వాడిన = allocated - s.avail_బహిర్గతం;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                ఒకవేళ (!(greedy_realloc(బఫరు, allocated * 2, 1)))
+                        తిరిగి -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.avail_out = MIN(allocated - used, (size_t) UINT_MAX);
-                s.next_out = *(uint8_t**)buffer + used;
+                allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
+                s.avail_బహిర్గతం = MIN(allocated - వాడిన, (size_t) UINT_MAX);
+                s.తదుపరి_బహిర్గతం = *(uint8_t**)బఫరు + వాడిన;
         }
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-static int decompress_startswith_bzip2(
-                const void *src,
-                uint64_t src_size,
-                void **buffer,
-                const void *prefix,
-                size_t prefix_len,
+స్థిర పూర్ణాంకం decompress_startswith_bzip2(
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                శూన్య **బఫరు,
+                స్థిరరాశి శూన్య *ఉపసర్గ,
+                size_t ఉపసర్గ_len,
                 uint8_t extra) {
 
-        assert(src);
-        assert(src_size > 0);
-        assert(buffer);
-        assert(prefix);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(src_కొలత > 0);
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
-#if HAVE_BZIP2
-        int r;
+#ఒకవేళ HAVE_BZIP2
+        పూర్ణాంకం r;
 
         r = dlopen_bzip2(LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (src_size > UINT_MAX)
-                return -EFBIG;
+        ఒకవేళ (src_కొలత > UINT_MAX)
+                తిరిగి -EFBIG;
 
-        _cleanup_(BZ2_bzDecompressEnd_wrapper) bz_stream s = {};
+        _cleanup_(BZ2_bz_Decompress_చివర_wrapper) bz_ప్రవాహం s = {};
 
-        if (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                return -EIO;
+        ఒకవేళ (sym_BZ2_bzDecompressInit(&s, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                తిరిగి -EIO;
 
-        if (!(greedy_realloc(buffer, ALIGN_8(prefix_len + 1), 1)))
-                return -ENOMEM;
+        ఒకవేళ (!(greedy_realloc(బఫరు, ALIGN_8(ఉపసర్గ_len + 1), 1)))
+                తిరిగి -ENOMEM;
 
-        size_t allocated = MALLOC_SIZEOF_SAFE(*buffer);
+        size_t allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
 
-        s.next_in = (char*) src;
-        s.avail_in = src_size;
+        s.తదుపరి_లోపల = (అక్షరం*) src;
+        s.avail_లోపల = src_కొలత;
 
-        s.next_out = *buffer;
-        s.avail_out = MIN(allocated, (size_t) UINT_MAX);
+        s.తదుపరి_బహిర్గతం = *బఫరు;
+        s.avail_బహిర్గతం = MIN(allocated, (size_t) UINT_MAX);
 
-        for (;;) {
+        కొరకు (;;) {
                 r = sym_BZ2_bzDecompress(&s);
 
-                if (!IN_SET(r, BZ_OK, BZ_STREAM_END))
-                        return -EBADMSG;
+                ఒకవేళ (!లోపల_సమితి(r, BZ_OK, BZ_ప్రవాహం_చివర))
+                        తిరిగి -EBADMSG;
 
-                if (allocated - s.avail_out >= prefix_len + 1)
-                        return memcmp(*buffer, prefix, prefix_len) == 0 &&
-                                ((const uint8_t*) *buffer)[prefix_len] == extra;
+                ఒకవేళ (allocated - s.avail_బహిర్గతం >= ఉపసర్గ_len + 1)
+                        తిరిగి memcmp(*బఫరు, ఉపసర్గ, ఉపసర్గ_len) == 0 &&
+                                ((స్థిరరాశి uint8_t*) *బఫరు)[ఉపసర్గ_len] == extra;
 
-                if (r == BZ_STREAM_END)
-                        return 0;
+                ఒకవేళ (r == BZ_ప్రవాహం_చివర)
+                        తిరిగి 0;
 
-                if (s.avail_out > 0)
-                        return -EBADMSG; /* truncated */
+                ఒకవేళ (s.avail_బహిర్గతం > 0)
+                        తిరిగి -EBADMSG; /* truncated */
 
-                size_t used = allocated - s.avail_out;
+                size_t వాడిన = allocated - s.avail_బహిర్గతం;
 
-                if (!(greedy_realloc(buffer, allocated * 2, 1)))
-                        return -ENOMEM;
+                ఒకవేళ (!(greedy_realloc(బఫరు, allocated * 2, 1)))
+                        తిరిగి -ENOMEM;
 
-                allocated = MALLOC_SIZEOF_SAFE(*buffer);
-                s.avail_out = MIN(allocated - used, (size_t) UINT_MAX);
-                s.next_out = (char*) *buffer + used;
+                allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
+                s.avail_బహిర్గతం = MIN(allocated - వాడిన, (size_t) UINT_MAX);
+                s.తదుపరి_బహిర్గతం = (అక్షరం*) *బఫరు + వాడిన;
         }
-#else
-        return -EPROTONOSUPPORT;
-#endif
+#లేకపోతే
+        తిరిగి -EPROTONOSUPPORT;
+#అయితే_ముగింపు
 }
 
-int decompress_startswith_journal(
+పూర్ణాంకం decompress_startswith_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **buffer,
-                const void *prefix, size_t prefix_len,
+                స్థిరరాశి శూన్య *src, uint64_t src_కొలత,
+                శూన్య **బఫరు,
+                స్థిరరాశి శూన్య *ఉపసర్గ, size_t ఉపసర్గ_len,
                 uint8_t extra) {
 
-        switch (compression) {
-        case COMPRESSION_XZ:
-                return decompress_startswith_xz(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_LZ4:
-                return decompress_startswith_lz4(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_ZSTD:
-                return decompress_startswith_zstd(src, src_size, buffer, prefix, prefix_len, extra);
-        default:
-                return -EOPNOTSUPP;
+        ఎంపిక (compression) {
+        స్థితి COMPRESSION_XZ:
+                తిరిగి decompress_startswith_xz(src, src_కొలత, బఫరు, ఉపసర్గ, ఉపసర్గ_len, extra);
+        స్థితి COMPRESSION_LZ4:
+                తిరిగి decompress_startswith_lz4(src, src_కొలత, బఫరు, ఉపసర్గ, ఉపసర్గ_len, extra);
+        స్థితి COMPRESSION_ZSTD:
+                తిరిగి decompress_startswith_zstd(src, src_కొలత, బఫరు, ఉపసర్గ, ఉపసర్గ_len, extra);
+        అప్రమేయ:
+                తిరిగి -EOPNOTSUPP;
         }
 }
 
-int decompress_startswith(
+పూర్ణాంకం decompress_startswith(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **buffer,
-                const void *prefix, size_t prefix_len,
+                స్థిరరాశి శూన్య *src, uint64_t src_కొలత,
+                శూన్య **బఫరు,
+                స్థిరరాశి శూన్య *ఉపసర్గ, size_t ఉపసర్గ_len,
                 uint8_t extra) {
 
-        switch (compression) {
-        case COMPRESSION_GZIP:
-                return decompress_startswith_gzip(src, src_size, buffer, prefix, prefix_len, extra);
-        case COMPRESSION_BZIP2:
-                return decompress_startswith_bzip2(src, src_size, buffer, prefix, prefix_len, extra);
-        default:
-                return decompress_startswith_journal(compression, src, src_size, buffer, prefix, prefix_len, extra);
+        ఎంపిక (compression) {
+        స్థితి COMPRESSION_GZIP:
+                తిరిగి decompress_startswith_gzip(src, src_కొలత, బఫరు, ఉపసర్గ, ఉపసర్గ_len, extra);
+        స్థితి COMPRESSION_BZIP2:
+                తిరిగి decompress_startswith_bzip2(src, src_కొలత, బఫరు, ఉపసర్గ, ఉపసర్గ_len, extra);
+        అప్రమేయ:
+                తిరిగి decompress_startswith_journal(compression, src, src_కొలత, బఫరు, ఉపసర్గ, ఉపసర్గ_len, extra);
         }
 }
 
-int compress_stream(
+పూర్ణాంకం compress_ప్రవాహం(
                 Compression type,
-                int fdf, int fdt,
+                పూర్ణాంకం fdf, పూర్ణాంకం fdt,
                 uint64_t max_bytes,
-                uint64_t *ret_uncompressed_size) {
+                uint64_t *ret_uncompressed_కొలత) {
 
-        _cleanup_(compressor_freep) Compressor *c = NULL;
-        _cleanup_free_ void *buf = NULL;
-        _cleanup_free_ uint8_t *input = NULL;
+        _cleanup_(compressor_freep) Compressor *c = ఖాళీ;
+        _cleanup_free_ శూన్య *buf = ఖాళీ;
+        _cleanup_free_ uint8_t *ఆదానం = ఖాళీ;
         size_t buf_size = 0, buf_alloc = 0;
-        uint64_t total_in = 0, total_out = 0;
-        int r;
+        uint64_t మొత్తం_లోపల = 0, మొత్తం_బహిర్గతం = 0;
+        పూర్ణాంకం r;
 
-        assert(fdf >= 0);
-        assert(fdt >= 0);
+        ప్రతిజ్ఞా(fdf >= 0);
+        ప్రతిజ్ఞా(fdt >= 0);
 
         r = compressor_new(&c, type);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        input = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-        if (!input)
-                return -ENOMEM;
+        ఆదానం = new(uint8_t, COMPRESS_PIPE_బఫరు_కొలత);
+        ఒకవేళ (!ఆదానం)
+                తిరిగి -ENOMEM;
 
-        for (;;) {
-                size_t m = COMPRESS_PIPE_BUFFER_SIZE;
+        కొరకు (;;) {
+                size_t m = COMPRESS_PIPE_బఫరు_కొలత;
                 ssize_t n;
 
-                if (max_bytes != UINT64_MAX && (uint64_t) m > max_bytes)
+                ఒకవేళ (max_bytes != UINT64_MAX && (uint64_t) m > max_bytes)
                         m = (size_t) max_bytes;
 
-                n = read(fdf, input, m);
-                if (n < 0)
-                        return -errno;
+                n = పఠ(fdf, ఆదానం, m);
+                ఒకవేళ (n < 0)
+                        తిరిగి -errno;
 
-                if (n == 0) {
-                        r = compressor_finish(c, &buf, &buf_size, &buf_alloc);
-                        if (r < 0)
-                                return r;
+                ఒకవేళ (n == 0) {
+                        r = compressor_ముగింపు(c, &buf, &buf_size, &buf_alloc);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        if (buf_size > 0) {
+                        ఒకవేళ (buf_size > 0) {
                                 r = loop_write(fdt, buf, buf_size);
-                                if (r < 0)
-                                        return r;
-                                total_out += buf_size;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
+                                మొత్తం_బహిర్గతం += buf_size;
                         }
-                        break;
+                        ఆపు;
                 }
 
-                total_in += n;
-                if (max_bytes != UINT64_MAX) {
-                        assert(max_bytes >= (uint64_t) n);
+                మొత్తం_లోపల += n;
+                ఒకవేళ (max_bytes != UINT64_MAX) {
+                        ప్రతిజ్ఞా(max_bytes >= (uint64_t) n);
                         max_bytes -= n;
                 }
 
-                r = compressor_start(c, input, n, &buf, &buf_size, &buf_alloc);
-                if (r < 0)
-                        return r;
+                r = compressor_ప్రారంభం(c, ఆదానం, n, &buf, &buf_size, &buf_alloc);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (buf_size > 0) {
+                ఒకవేళ (buf_size > 0) {
                         r = loop_write(fdt, buf, buf_size);
-                        if (r < 0)
-                                return r;
-                        total_out += buf_size;
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
+                        మొత్తం_బహిర్గతం += buf_size;
                 }
         }
 
-        if (ret_uncompressed_size)
-                *ret_uncompressed_size = total_in;
+        ఒకవేళ (ret_uncompressed_కొలత)
+                *ret_uncompressed_కొలత = మొత్తం_లోపల;
 
-        if (total_in == 0)
-                log_debug("%s compression finished (no input data)", compression_to_string(type));
-        else
+        ఒకవేళ (మొత్తం_లోపల == 0)
+                log_debug("%s compression finished (no input data)", compression_గమ్యం_string(type));
+        లేకపోతే
                 log_debug("%s compression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                          compression_to_string(type), total_in, total_out, (double) total_out / total_in * 100);
+                          compression_గమ్యం_string(type), మొత్తం_లోపల, మొత్తం_బహిర్గతం, (ద్విగుణ) మొత్తం_బహిర్గతం / మొత్తం_లోపల * 100);
 
-        return 0;
+        తిరిగి 0;
 }
 
-static int should_sparse(int fd) {
-        struct stat st;
+స్థిర పూర్ణాంకం should_sparse(పూర్ణాంకం fd) {
+        నిర్మాణం stat st;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         /* Determine whether sparse writes should be used for this fd. Sparse writes are only safe on regular
          * files, without O_APPEND (which ignores the lseek position, collapsing any holes we try to create),
          * and only when starting from a position at or beyond the current end of file (otherwise the skipped
          * ranges would overlap pre-existing data instead of being genuinely unwritten). */
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ఒకవేళ (fstat(fd, &st) < 0)
+                తిరిగి -errno;
 
-        if (!S_ISREG(st.st_mode))
-                return false;
+        ఒకవేళ (!S_ISREG(st.st_mode))
+                తిరిగి false;
 
-        int flags = fcntl(fd, F_GETFL);
-        if (flags < 0)
-                return -errno;
+        పూర్ణాంకం flags = fcntl(fd, F_GETFL);
+        ఒకవేళ (flags < 0)
+                తిరిగి -errno;
 
-        if (FLAGS_SET(flags, O_APPEND))
-                return false;
+        ఒకవేళ (FLAGS_సమితి(flags, O_APPEND))
+                తిరిగి false;
 
         off_t pos = lseek(fd, 0, SEEK_CUR);
-        if (pos < 0)
-                return -errno;
+        ఒకవేళ (pos < 0)
+                తిరిగి -errno;
 
-        return pos >= st.st_size;
+        తిరిగి pos >= st.st_size;
 }
 
 /* After sparse decompression, set the file size to the current position to account for
  * trailing holes that sparse_write() created via lseek but never extended the file size for. */
-static int finalize_sparse(int fd) {
+స్థిర పూర్ణాంకం finalize_sparse(పూర్ణాంకం fd) {
         off_t pos;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
         pos = lseek(fd, 0, SEEK_CUR);
-        if (pos < 0)
-                return -errno;
+        ఒకవేళ (pos < 0)
+                తిరిగి -errno;
 
-        if (ftruncate(fd, pos) < 0)
-                return -errno;
+        ఒకవేళ (ftruncate(fd, pos) < 0)
+                తిరిగి -errno;
 
-        return 0;
+        తిరిగి 0;
 }
 
 /* Common helper for decompress_stream_*() wrappers */
 
-struct decompress_stream_userdata {
-        int fd;
+నిర్మాణం decompress_ప్రవాహం_userdata {
+        పూర్ణాంకం fd;
         uint64_t max_bytes;
-        uint64_t total_out;
+        uint64_t మొత్తం_బహిర్గతం;
         uint64_t skip; /* bytes to discard from the very start of the decompressed stream before anything is
                         * actually written */
         bool sparse;
 };
 
-static int decompress_stream_write_callback(const void *data, size_t size, void *userdata) {
-        struct decompress_stream_userdata *u = ASSERT_PTR(userdata);
+స్థిర పూర్ణాంకం decompress_ప్రవాహం_write_callback(స్థిరరాశి శూన్య *దత్తాంశం, size_t కొలత, శూన్య *userdata) {
+        నిర్మాణం decompress_ప్రవాహం_userdata *u = ASSERT_PTR(userdata);
 
         /* Accounting (max_bytes/total_out) happens against the *full* decompressed stream, including the
          * part we're about to skip. */
-        if (u->max_bytes != UINT64_MAX) {
-                if (u->max_bytes < size)
-                        return -EFBIG;
-                u->max_bytes -= size;
+        ఒకవేళ (u->max_bytes != UINT64_MAX) {
+                ఒకవేళ (u->max_bytes < కొలత)
+                        తిరిగి -EFBIG;
+                u->max_bytes -= కొలత;
         }
 
-        u->total_out += size;
+        u->మొత్తం_బహిర్గతం += కొలత;
 
-        if (u->skip > 0) {
-                if (u->skip >= size) {
-                        u->skip -= size;
-                        return 0;
+        ఒకవేళ (u->skip > 0) {
+                ఒకవేళ (u->skip >= కొలత) {
+                        u->skip -= కొలత;
+                        తిరిగి 0;
                 }
 
-                data = (const uint8_t*) data + u->skip;
-                size -= u->skip;
+                దత్తాంశం = (స్థిరరాశి uint8_t*) దత్తాంశం + u->skip;
+                కొలత -= u->skip;
                 u->skip = 0;
         }
 
-        if (size == 0)
-                return 0;
+        ఒకవేళ (కొలత == 0)
+                తిరిగి 0;
 
-        if (u->sparse) {
+        ఒకవేళ (u->sparse) {
                 /* Note: sparse_write() does not retry on EINTR and converts short writes to -EIO.
                  * This is fine here since sparse mode is only used on regular files, where short
                  * writes and EINTR are not expected in practice. */
-                ssize_t k = sparse_write(u->fd, data, size, 64);
-                if (k < 0)
-                        return (int) k;
-                return 0;
+                ssize_t k = sparse_write(u->fd, దత్తాంశం, కొలత, 64);
+                ఒకవేళ (k < 0)
+                        తిరిగి (పూర్ణాంకం) k;
+                తిరిగి 0;
         }
 
-        return loop_write(u->fd, data, size);
+        తిరిగి loop_write(u->fd, దత్తాంశం, కొలత);
 }
 
-static int decompressor_new(Decompressor **ret, Compression type, DecompressFlags flags) {
-        assert(ret);
+స్థిర పూర్ణాంకం decompressor_new(Decompressor **ret, Compression type, DecompressFlags flags) {
+        ప్రతిజ్ఞా(ret);
 
         _cleanup_(compressor_freep) Decompressor *c = new0(Decompressor, 1);
-        if (!c)
-                return -ENOMEM;
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
         c->type = _COMPRESSION_INVALID;
 
-        switch (type) {
-        case COMPRESSION_NONE:
-                break;
+        ఎంపిక (type) {
+        స్థితి COMPRESSION_NONE:
+                ఆపు;
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#ఒకవేళ HAVE_XZ
+        స్థితి COMPRESSION_XZ: {
                 uint32_t xz_flags = LZMA_TELL_UNSUPPORTED_CHECK |
-                        (FLAGS_SET(flags, DECOMPRESS_REFUSE_CONCATENATED) ? 0 : LZMA_CONCATENATED);
-                lzma_ret xz_ret = FLAGS_SET(flags, DECOMPRESS_LEGACY_LZMA) ?
+                        (FLAGS_సమితి(flags, DECOMPRESS_REFUSE_CONCATENATED) ? 0 : LZMA_CONCATENATED);
+                lzma_ret xz_ret = FLAGS_సమితి(flags, DECOMPRESS_LEGACY_LZMA) ?
                         sym_lzma_auto_decoder(&c->xz, UINT64_MAX, xz_flags) :
-                        sym_lzma_stream_decoder(&c->xz, UINT64_MAX, xz_flags);
-                if (xz_ret != LZMA_OK)
-                        return -EIO;
-                break;
+                        sym_lzma_ప్రవాహం_decoder(&c->xz, UINT64_MAX, xz_flags);
+                ఒకవేళ (xz_ret != LZMA_OK)
+                        తిరిగి -EIO;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                size_t rc = sym_LZ4F_createDecompressionContext(&c->d_lz4, LZ4F_VERSION);
-                if (sym_LZ4F_isError(rc))
-                        return -ENOMEM;
+#ఒకవేళ HAVE_LZ4
+        స్థితి COMPRESSION_LZ4: {
+                size_t rc = sym_LZ4F_createDecompressionContext(&c->d_lz4, LZ4_F_సంస్కరణ);
+                ఒకవేళ (sym_LZ4F_isError(rc))
+                        తిరిగి -ENOMEM;
 
-                break;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
+#ఒకవేళ HAVE_ZSTD
+        స్థితి COMPRESSION_ZSTD:
                 c->d_zstd = sym_ZSTD_createDCtx();
-                if (!c->d_zstd)
-                        return -ENOMEM;
-                break;
-#endif
+                ఒకవేళ (!c->d_zstd)
+                        తిరిగి -ENOMEM;
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (sym_inflateInit2_(&c->gzip, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_VERSION, (int) sizeof(c->gzip)) != Z_OK)
-                        return -EIO;
-                break;
-#endif
+#ఒకవేళ HAVE_ZLIB
+        స్థితి COMPRESSION_GZIP:
+                ఒకవేళ (sym_inflateInit2_(&c->gzip, /* windowBits= */ ZLIB_WBITS_GZIP, ZLIB_సంస్కరణ, (పూర్ణాంకం) పరిమాణం(c->gzip)) != Z_OK)
+                        తిరిగి -EIO;
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                        return -EIO;
-                break;
-#endif
+#ఒకవేళ HAVE_BZIP2
+        స్థితి COMPRESSION_BZIP2:
+                ఒకవేళ (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                        తిరిగి -EIO;
+                ఆపు;
+#అయితే_ముగింపు
 
-        default:
+        అప్రమేయ:
                 assert_not_reached();
         }
 
         c->type = type;
         c->encoding = false;
         *ret = TAKE_PTR(c);
-        return 0;
+        తిరిగి 0;
 }
 
-static int decompress_blob_to_fd_impl(
+స్థిర పూర్ణాంకం decompress_blob_గమ్యం_fd_impl(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                పూర్ణాంకం fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                size_t *ret_కొలత) {
 
-        int r;
+        పూర్ణాంకం r;
 
-        assert(src);
-        assert(fdt >= 0);
+        ప్రతిజ్ఞా(src);
+        ప్రతిజ్ఞా(fdt >= 0);
 
-        if (type == COMPRESSION_NONE)
-                return -EOPNOTSUPP;
+        ఒకవేళ (type == COMPRESSION_NONE)
+                తిరిగి -EOPNOTSUPP;
 
-        if (src_size == 0)
-                return -EBADMSG;
+        ఒకవేళ (src_కొలత == 0)
+                తిరిగి -EBADMSG;
 
         /* LZ4 is special: compress_blob() produces the raw LZ4 block format (with a custom 8-byte size
          * header), while the streaming decompressor infra (decompressor_push()) expects LZ4 Frame format, as
          * produced by compress_stream(). The two are not interchangeable, so route LZ4 blobs through the raw
          * block decoder instead. */
-        if (type == COMPRESSION_LZ4 &&
-            src_size >= COMPRESSION_MAGIC_BYTES_MAX &&
+        ఒకవేళ (type == COMPRESSION_LZ4 &&
+            src_కొలత >= COMPRESSION_MAGIC_బైట్లు_MAX &&
             compression_detect_from_magic(src) != COMPRESSION_LZ4) {
 
                 /* Hopefully, the data is produced by compress_blob(). In that case, let's use
                  * decompress_blob_lz4() + loop_write(). */
 
-                if (skip > 0) {
+                ఒకవేళ (skip > 0) {
                         /* Check if the result size is larger than skip. */
 
-                        if (src_size <= sizeof(uint64_t))
-                                return -EBADMSG;
+                        ఒకవేళ (src_కొలత <= పరిమాణం(uint64_t))
+                                తిరిగి -EBADMSG;
 
                         uint64_t sz = unaligned_read_le64(src);
-                        if (sz < skip)
-                                return -EBADMSG;
+                        ఒకవేళ (sz < skip)
+                                తిరిగి -EBADMSG;
                 }
 
                 /* max_bytes == 0 means do not write anything, but decompress_blob_lz4() with
                  * dst_max=0 means no size limit. Let's return earlier when max_bytes == 0. */
-                if (max_bytes == 0)
-                        return -ENOBUFS;
+                ఒకవేళ (max_bytes == 0)
+                        తిరిగి -ENOBUFS;
 
-                _cleanup_free_ void *buf = NULL;
-                size_t size = 0;  /* avoid false maybe-uninitialized warning */
-                r = decompress_blob_lz4(src, src_size, &buf, &size,
+                _cleanup_free_ శూన్య *buf = ఖాళీ;
+                size_t కొలత = 0;  /* avoid false maybe-uninitialized warning */
+                r = decompress_blob_lz4(src, src_కొలత, &buf, &కొలత,
                                         max_bytes >= SIZE_MAX ? 0 : (size_t) max_bytes);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 /* Check the result size again for safety. */
-                if (size < skip)
-                        return -EBADMSG;
+                ఒకవేళ (కొలత < skip)
+                        తిరిగి -EBADMSG;
 
-                r = loop_write(fdt, (uint8_t*) buf + skip, size - skip);
-                if (r < 0)
-                        return r;
+                r = loop_write(fdt, (uint8_t*) buf + skip, కొలత - skip);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 log_debug("lz4 decompression finished (%" PRIu64 " -> %zu bytes, %.1f%%)",
-                          src_size, size, (double) size / src_size * 100);
+                          src_కొలత, కొలత, (ద్విగుణ) కొలత / src_కొలత * 100);
 
-                if (ret_size)
-                        *ret_size = size - skip;
-                return 0;
+                ఒకవేళ (ret_కొలత)
+                        *ret_కొలత = కొలత - skip;
+                తిరిగి 0;
         }
 
-        _cleanup_(compressor_freep) Decompressor *c = NULL;
+        _cleanup_(compressor_freep) Decompressor *c = ఖాళీ;
         r = decompressor_new(&c, type, DECOMPRESS_REFUSE_CONCATENATED);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        struct decompress_stream_userdata userdata = {
+        నిర్మాణం decompress_ప్రవాహం_userdata userdata = {
                 .fd = fdt,
                 .max_bytes = max_bytes,
                 .skip = skip,
                 .sparse = should_sparse(fdt) > 0,
         };
 
-        r = decompressor_push(c, src, src_size, decompress_stream_write_callback, &userdata);
-        if (r < 0)
-                return r;
+        r = decompressor_నెట్టు(c, src, src_కొలత, decompress_ప్రవాహం_write_callback, &userdata);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* Finalize */
-        r = decompressor_push(c, /* data= */ NULL, /* size= */ 0, decompress_stream_write_callback, &userdata);
-        if (r < 0)
-                return r;
+        r = decompressor_నెట్టు(c, /* data= */ ఖాళీ, /* size= */ 0, decompress_ప్రవాహం_write_callback, &userdata);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (userdata.total_out < skip)
-                return -EBADMSG;
+        ఒకవేళ (userdata.మొత్తం_బహిర్గతం < skip)
+                తిరిగి -EBADMSG;
 
-        if (userdata.sparse) {
+        ఒకవేళ (userdata.sparse) {
                 r = finalize_sparse(fdt);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
         log_debug("%s decompression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                  compression_to_string(type), src_size, userdata.total_out,
-                  (double) userdata.total_out / src_size * 100);
+                  compression_గమ్యం_string(type), src_కొలత, userdata.మొత్తం_బహిర్గతం,
+                  (ద్విగుణ) userdata.మొత్తం_బహిర్గతం / src_కొలత * 100);
 
-        if (ret_size)
-                *ret_size = userdata.total_out - skip;
+        ఒకవేళ (ret_కొలత)
+                *ret_కొలత = userdata.మొత్తం_బహిర్గతం - skip;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int decompress_blob_to_fd_journal(
+పూర్ణాంకం decompress_blob_గమ్యం_fd_journal(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                పూర్ణాంకం fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                size_t *ret_కొలత) {
 
-        int r;
+        పూర్ణాంకం r;
 
         r = dlopen_compress_journal(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return decompress_blob_to_fd_impl(type, src, src_size, fdt, max_bytes, skip, ret_size);
+        తిరిగి decompress_blob_గమ్యం_fd_impl(type, src, src_కొలత, fdt, max_bytes, skip, ret_కొలత);
 }
 
-int decompress_blob_to_fd(
+పూర్ణాంకం decompress_blob_గమ్యం_fd(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                స్థిరరాశి శూన్య *src,
+                uint64_t src_కొలత,
+                పూర్ణాంకం fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size) {
+                size_t *ret_కొలత) {
 
-        int r;
+        పూర్ణాంకం r;
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return decompress_blob_to_fd_impl(type, src, src_size, fdt, max_bytes, skip, ret_size);
+        తిరిగి decompress_blob_గమ్యం_fd_impl(type, src, src_కొలత, fdt, max_bytes, skip, ret_కొలత);
 }
 
-int decompress_stream_full(
+పూర్ణాంకం decompress_ప్రవాహం_నిండిన(
                 Compression type,
-                int fdf, int fdt,
+                పూర్ణాంకం fdf, పూర్ణాంకం fdt,
                 uint64_t max_bytes,
                 DecompressFlags flags) {
 
-        _cleanup_(compressor_freep) Decompressor *c = NULL;
-        _cleanup_free_ uint8_t *buf = NULL;
-        uint64_t total_in = 0;
-        int r;
+        _cleanup_(compressor_freep) Decompressor *c = ఖాళీ;
+        _cleanup_free_ uint8_t *buf = ఖాళీ;
+        uint64_t మొత్తం_లోపల = 0;
+        పూర్ణాంకం r;
 
-        assert(fdf >= 0);
-        assert(fdt >= 0);
+        ప్రతిజ్ఞా(fdf >= 0);
+        ప్రతిజ్ఞా(fdt >= 0);
 
-        if (type == COMPRESSION_NONE)
-                return -EOPNOTSUPP;
+        ఒకవేళ (type == COMPRESSION_NONE)
+                తిరిగి -EOPNOTSUPP;
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = decompressor_new(&c, type, flags);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        struct decompress_stream_userdata userdata = {
+        నిర్మాణం decompress_ప్రవాహం_userdata userdata = {
                 .fd = fdt,
                 .max_bytes = max_bytes,
                 .sparse = should_sparse(fdt) > 0,
         };
 
-        buf = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-        if (!buf)
-                return -ENOMEM;
+        buf = new(uint8_t, COMPRESS_PIPE_బఫరు_కొలత);
+        ఒకవేళ (!buf)
+                తిరిగి -ENOMEM;
 
-        for (;;) {
+        కొరకు (;;) {
                 ssize_t n;
 
-                n = read(fdf, buf, COMPRESS_PIPE_BUFFER_SIZE);
-                if (n < 0)
-                        return -errno;
+                n = పఠ(fdf, buf, COMPRESS_PIPE_బఫరు_కొలత);
+                ఒకవేళ (n < 0)
+                        తిరిగి -errno;
 
-                total_in += n;
+                మొత్తం_లోపల += n;
 
-                r = decompressor_push(c, buf, n, decompress_stream_write_callback, &userdata);
-                if (r < 0)
-                        return r;
+                r = decompressor_నెట్టు(c, buf, n, decompress_ప్రవాహం_write_callback, &userdata);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (n == 0)
-                        break;
+                ఒకవేళ (n == 0)
+                        ఆపు;
         }
 
-        if (total_in == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "%s decompression failed: no data read",
-                                       compression_to_string(type));
+        ఒకవేళ (మొత్తం_లోపల == 0)
+                తిరిగి log_debug_errno(SYNTHETIC_ERRNO(EBADMSG), "%s decompression failed: no data read",
+                                       compression_గమ్యం_string(type));
 
-        if (userdata.sparse) {
+        ఒకవేళ (userdata.sparse) {
                 r = finalize_sparse(fdt);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
         log_debug("%s decompression finished (%" PRIu64 " -> %" PRIu64 " bytes, %.1f%%)",
-                  compression_to_string(type), total_in, userdata.total_out,
-                  (double) userdata.total_out / total_in * 100);
+                  compression_గమ్యం_string(type), మొత్తం_లోపల, userdata.మొత్తం_బహిర్గతం,
+                  (ద్విగుణ) userdata.మొత్తం_బహిర్గతం / మొత్తం_లోపల * 100);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int decompress_stream_by_filename(const char *filename, int fdf, int fdt, uint64_t max_bytes) {
+పూర్ణాంకం decompress_ప్రవాహం_by_filename(స్థిరరాశి అక్షరం *filename, పూర్ణాంకం fdf, పూర్ణాంకం fdt, uint64_t max_bytes) {
         Compression c = compression_from_filename(filename);
-        if (c == COMPRESSION_NONE)
-                return -EPROTONOSUPPORT;
+        ఒకవేళ (c == COMPRESSION_NONE)
+                తిరిగి -EPROTONOSUPPORT;
 
-        return decompress_stream(c, fdf, fdt, max_bytes);
+        తిరిగి decompress_ప్రవాహం(c, fdf, fdt, max_bytes);
 }
 
 /* Push-based streaming compression/decompression context API */
 
 Compressor* compressor_free(Compressor *c) {
-        if (!c)
-                return NULL;
+        ఒకవేళ (!c)
+                తిరిగి ఖాళీ;
 
-        switch (c->type) {
+        ఎంపిక (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
-                sym_lzma_end(&c->xz);
-                break;
-#endif
+#ఒకవేళ HAVE_XZ
+        స్థితి COMPRESSION_XZ:
+                sym_lzma_చివర(&c->xz);
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4:
-                if (c->encoding) {
+#ఒకవేళ HAVE_LZ4
+        స్థితి COMPRESSION_LZ4:
+                ఒకవేళ (c->encoding) {
                         sym_LZ4F_freeCompressionContext(c->c_lz4);
-                        c->c_lz4 = NULL;
-                        c->lz4_header = mfree(c->lz4_header);
-                } else {
+                        c->c_lz4 = ఖాళీ;
+                        c->lz4_శీర్షిక = mfree(c->lz4_శీర్షిక);
+                } లేకపోతే {
                         sym_LZ4F_freeDecompressionContext(c->d_lz4);
-                        c->d_lz4 = NULL;
+                        c->d_lz4 = ఖాళీ;
                 }
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
-                if (c->encoding) {
+#ఒకవేళ HAVE_ZSTD
+        స్థితి COMPRESSION_ZSTD:
+                ఒకవేళ (c->encoding) {
                         sym_ZSTD_freeCCtx(c->c_zstd);
-                        c->c_zstd = NULL;
-                } else {
+                        c->c_zstd = ఖాళీ;
+                } లేకపోతే {
                         sym_ZSTD_freeDCtx(c->d_zstd);
-                        c->d_zstd = NULL;
+                        c->d_zstd = ఖాళీ;
                 }
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (c->encoding)
-                        sym_deflateEnd(&c->gzip);
-                else
-                        sym_inflateEnd(&c->gzip);
-                break;
-#endif
+#ఒకవేళ HAVE_ZLIB
+        స్థితి COMPRESSION_GZIP:
+                ఒకవేళ (c->encoding)
+                        sym_deflate_చివర(&c->gzip);
+                లేకపోతే
+                        sym_inflate_చివర(&c->gzip);
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (c->encoding)
-                        sym_BZ2_bzCompressEnd(&c->bzip2);
-                else
-                        sym_BZ2_bzDecompressEnd(&c->bzip2);
-                break;
-#endif
+#ఒకవేళ HAVE_BZIP2
+        స్థితి COMPRESSION_BZIP2:
+                ఒకవేళ (c->encoding)
+                        sym_BZ2_bz_Compress_చివర(&c->bzip2);
+                లేకపోతే
+                        sym_BZ2_bz_Decompress_చివర(&c->bzip2);
+                ఆపు;
+#అయితే_ముగింపు
 
-        default:
-                break;
+        అప్రమేయ:
+                ఆపు;
         }
 
-        return mfree(c);
+        తిరిగి mfree(c);
 }
 
-Compression compressor_type(const Compressor *c) {
-        return c ? c->type : _COMPRESSION_INVALID;
+Compression compressor_type(స్థిరరాశి Compressor *c) {
+        తిరిగి c ? c->type : _COMPRESSION_INVALID;
 }
 
-int decompressor_detect(Decompressor **decompressor, const void *data, size_t size) {
-        int r;
+పూర్ణాంకం decompressor_detect(Decompressor **decompressor, స్థిరరాశి శూన్య *దత్తాంశం, size_t కొలత) {
+        పూర్ణాంకం r;
 
-        assert(decompressor);
+        ప్రతిజ్ఞా(decompressor);
 
-        if (*decompressor)
-                return 1;
+        ఒకవేళ (*decompressor)
+                తిరిగి 1;
 
-        if (size < COMPRESSION_MAGIC_BYTES_MAX)
-                return 0;
+        ఒకవేళ (కొలత < COMPRESSION_MAGIC_బైట్లు_MAX)
+                తిరిగి 0;
 
-        assert(data);
+        ప్రతిజ్ఞా(దత్తాంశం);
 
-        Compression type = compression_detect_from_magic(data);
-        if (type == _COMPRESSION_INVALID)
+        Compression type = compression_detect_from_magic(దత్తాంశం);
+        ఒకవేళ (type == _COMPRESSION_INVALID)
                 type = COMPRESSION_NONE;
 
-        log_debug("Detected compression type: %s", compression_to_string(type));
+        log_debug("Detected compression type: %s", compression_గమ్యం_string(type));
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = decompressor_new(decompressor, type, /* flags= */ 0);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return 1;
+        తిరిగి 1;
 }
 
-int decompressor_force(Decompressor **decompressor, Compression type) {
-        int r;
+పూర్ణాంకం decompressor_force(Decompressor **decompressor, Compression type) {
+        పూర్ణాంకం r;
 
-        assert(decompressor);
-        assert(type >= 0 && type < _COMPRESSION_MAX);
+        ప్రతిజ్ఞా(decompressor);
+        ప్రతిజ్ఞా(type >= 0 && type < _COMPRESSION_MAX);
 
         /* Like decompressor_detect(), but uses the specified compression algorithm instead of guessing
          * from the magic bytes. Replaces any decompressor already set up. */
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *decompressor = compressor_free(*decompressor);
-        return decompressor_new(decompressor, type, /* flags= */ 0);
+        తిరిగి decompressor_new(decompressor, type, /* flags= */ 0);
 }
 
-int decompressor_force_off(Decompressor **decompressor) {
-        return decompressor_force(decompressor, COMPRESSION_NONE);
+పూర్ణాంకం decompressor_force_off(Decompressor **decompressor) {
+        తిరిగి decompressor_force(decompressor, COMPRESSION_NONE);
 }
 
-int decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata) {
-        int r;
+పూర్ణాంకం decompressor_నెట్టు(Decompressor *c, స్థిరరాశి శూన్య *దత్తాంశం, size_t కొలత, DecompressorCallback callback, శూన్య *userdata) {
+        పూర్ణాంకం r;
 
-        assert(c);
-        assert(data || size == 0);
-        assert(callback);
+        ప్రతిజ్ఞా(c);
+        ప్రతిజ్ఞా(దత్తాంశం || కొలత == 0);
+        ప్రతిజ్ఞా(callback);
 
         /* This feeds `size` bytes of compressed data into `c`. Passing size == 0 has special meaning: it
          * signals that no further input will be provided, and the function will attempt to finalize the
          * stream, failing with -EBADMSG if the compressed data was truncated or has trailing garbage after
          * the logical end of stream. */
 
-        if (c->encoding)
-                return -EINVAL;
+        ఒకవేళ (c->encoding)
+                తిరిగి -EINVAL;
 
-        if (c->finished && size == 0)
+        ఒకవేళ (c->ముగిసిన && కొలత == 0)
                 /* The previous stream was correctly finished, and it was the last one. */
-                return 0;
+                తిరిగి 0;
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        _cleanup_free_ uint8_t *buffer = NULL;
-        if (c->type != COMPRESSION_NONE) {
-                buffer = new(uint8_t, COMPRESS_PIPE_BUFFER_SIZE);
-                if (!buffer)
-                        return -ENOMEM;
+#ఒకవేళ HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        _cleanup_free_ uint8_t *బఫరు = ఖాళీ;
+        ఒకవేళ (c->type != COMPRESSION_NONE) {
+                బఫరు = new(uint8_t, COMPRESS_PIPE_బఫరు_కొలత);
+                ఒకవేళ (!బఫరు)
+                        తిరిగి -ENOMEM;
         }
-#endif
+#అయితే_ముగింపు
 
-        switch (c->type) {
+        ఎంపిక (c->type) {
 
-        case COMPRESSION_NONE:
-                if (c->finished)
-                        return -EBADMSG;
+        స్థితి COMPRESSION_NONE:
+                ఒకవేళ (c->ముగిసిన)
+                        తిరిగి -EBADMSG;
 
-                if (size == 0) {
-                        c->finished = true;
-                        return 0;
+                ఒకవేళ (కొలత == 0) {
+                        c->ముగిసిన = true;
+                        తిరిగి 0;
                 }
 
-                r = callback(data, size, userdata);
-                if (r < 0)
-                        return r;
+                r = callback(దత్తాంశం, కొలత, userdata);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                return 0;
+                తిరిగి 0;
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
-                if (c->finished)
-                        return -EBADMSG;
+#ఒకవేళ HAVE_XZ
+        స్థితి COMPRESSION_XZ:
+                ఒకవేళ (c->ముగిసిన)
+                        తిరిగి -EBADMSG;
 
-                c->xz.next_in = data;
-                c->xz.avail_in = size;
+                c->xz.తదుపరి_లోపల = దత్తాంశం;
+                c->xz.avail_లోపల = కొలత;
 
-                for (;;) {
-                        c->xz.next_out = buffer;
-                        c->xz.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
+                కొరకు (;;) {
+                        c->xz.తదుపరి_బహిర్గతం = బఫరు;
+                        c->xz.avail_బహిర్గతం = COMPRESS_PIPE_బఫరు_కొలత;
 
-                        lzma_ret lzr = sym_lzma_code(&c->xz, size == 0 ? LZMA_FINISH : LZMA_RUN);
-                        if (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
-                                return -EBADMSG;
+                        lzma_ret lzr = sym_lzma_సంకేతం(&c->xz, కొలత == 0 ? LZMA_ముగింపు : LZMA_నిరంతరం);
+                        ఒకవేళ (!లోపల_సమితి(lzr, LZMA_OK, LZMA_ప్రవాహం_చివర))
+                                తిరిగి -EBADMSG;
 
-                        if (c->xz.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        ఒకవేళ (c->xz.avail_బహిర్గతం > COMPRESS_PIPE_బఫరు_కొలత)
+                                తిరిగి -EIO;
 
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->xz.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        size_t produced = COMPRESS_PIPE_బఫరు_కొలత - c->xz.avail_బహిర్గతం;
+                        ఒకవేళ (produced > 0) {
+                                r = callback(బఫరు, produced, userdata);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
                         }
 
-                        if (lzr == LZMA_STREAM_END) {
-                                if (c->xz.avail_in > 0)
-                                        return -EBADMSG; /* garbage data at the end */
+                        ఒకవేళ (lzr == LZMA_ప్రవాహం_చివర) {
+                                ఒకవేళ (c->xz.avail_లోపల > 0)
+                                        తిరిగి -EBADMSG; /* garbage data at the end */
 
-                                c->finished = true;
-                                return 0;
+                                c->ముగిసిన = true;
+                                తిరిగి 0;
                         }
 
-                        if (c->xz.avail_in == 0 && c->xz.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                        ఒకవేళ (c->xz.avail_లోపల == 0 && c->xz.avail_బహిర్గతం > 0) {
+                                ఒకవేళ (కొలత == 0)
+                                        తిరిగి -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                తిరిగి 0; /* No progress possible with the current input. */
                         }
                 }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                const uint8_t *src = data;
-                size_t src_remaining = size;
+#ఒకవేళ HAVE_LZ4
+        స్థితి COMPRESSION_LZ4: {
+                స్థిరరాశి uint8_t *src = దత్తాంశం;
+                size_t src_మిగిలిన = కొలత;
 
-                c->finished = false;
+                c->ముగిసిన = false;
 
-                for (;;) {
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE;
-                        size_t consumed = src_remaining;
+                కొరకు (;;) {
+                        size_t produced = COMPRESS_PIPE_బఫరు_కొలత;
+                        size_t consumed = src_మిగిలిన;
 
-                        size_t rc = sym_LZ4F_decompress(c->d_lz4, buffer, &produced, src, &consumed, NULL);
-                        if (sym_LZ4F_isError(rc))
-                                return -EBADMSG;
+                        size_t rc = sym_LZ4F_decompress(c->d_lz4, బఫరు, &produced, src, &consumed, ఖాళీ);
+                        ఒకవేళ (sym_LZ4F_isError(rc))
+                                తిరిగి -EBADMSG;
 
-                        if (consumed > src_remaining ||
-                            produced > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        ఒకవేళ (consumed > src_మిగిలిన ||
+                            produced > COMPRESS_PIPE_బఫరు_కొలత)
+                                తిరిగి -EIO;
 
-                        if (consumed > 0) {
-                                assert(src);
+                        ఒకవేళ (consumed > 0) {
+                                ప్రతిజ్ఞా(src);
                                 src += consumed;
-                                src_remaining -= consumed;
+                                src_మిగిలిన -= consumed;
                         }
 
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        ఒకవేళ (produced > 0) {
+                                r = callback(బఫరు, produced, userdata);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
                         }
 
-                        if (src_remaining == 0) {
-                                if (rc == 0) {
+                        ఒకవేళ (src_మిగిలిన == 0) {
+                                ఒకవేళ (rc == 0) {
                                         /* The current stream has finished. */
-                                        c->finished = true;
-                                        return 0;
+                                        c->ముగిసిన = true;
+                                        తిరిగి 0;
                                 }
 
-                                if (produced == COMPRESS_PIPE_BUFFER_SIZE)
+                                ఒకవేళ (produced == COMPRESS_PIPE_బఫరు_కొలత)
                                         /* Remaining data exist in the library buffer. We need to read them. */
-                                        continue;
+                                        కొనసాగు;
 
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                                ఒకవేళ (కొలత == 0)
+                                        తిరిగి -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                తిరిగి 0; /* No progress possible with the current input. */
                         }
                 }
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
-                        .src =  (void*) data,
-                        .size = size,
+#ఒకవేళ HAVE_ZSTD
+        స్థితి COMPRESSION_ZSTD: {
+                ZSTD_లోపల_బఫరు ఆదానం = {
+                        .src =  (శూన్య*) దత్తాంశం,
+                        .కొలత = కొలత,
                 };
 
-                c->finished = false;
+                c->ముగిసిన = false;
 
-                for (;;) {
-                        ZSTD_outBuffer output = {
-                                .dst = buffer,
-                                .size = COMPRESS_PIPE_BUFFER_SIZE,
+                కొరకు (;;) {
+                        ZSTD_బహిర్గతం_బఫరు output = {
+                                .dst = బఫరు,
+                                .కొలత = COMPRESS_PIPE_బఫరు_కొలత,
                         };
 
-                        size_t res = sym_ZSTD_decompressStream(c->d_zstd, &output, &input);
-                        if (sym_ZSTD_isError(res))
-                                return -EBADMSG;
+                        size_t res = sym_ZSTD_decompress_ప్రవాహం(c->d_zstd, &output, &ఆదానం);
+                        ఒకవేళ (sym_ZSTD_isError(res))
+                                తిరిగి -EBADMSG;
 
-                        if (input.pos > input.size ||
-                            output.pos > output.size)
-                                return -EIO;
+                        ఒకవేళ (ఆదానం.pos > ఆదానం.కొలత ||
+                            output.pos > output.కొలత)
+                                తిరిగి -EIO;
 
-                        if (output.pos > 0) {
+                        ఒకవేళ (output.pos > 0) {
                                 r = callback(output.dst, output.pos, userdata);
-                                if (r < 0)
-                                        return r;
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
                         }
 
-                        if (input.pos == input.size) {
-                                if (res == 0) {
+                        ఒకవేళ (ఆదానం.pos == ఆదానం.కొలత) {
+                                ఒకవేళ (res == 0) {
                                         /* The current stream has finished. */
-                                        c->finished = true;
-                                        return 0;
+                                        c->ముగిసిన = true;
+                                        తిరిగి 0;
                                 }
 
-                                if (output.pos == COMPRESS_PIPE_BUFFER_SIZE)
+                                ఒకవేళ (output.pos == COMPRESS_PIPE_బఫరు_కొలత)
                                         /* Remaining data exist in the library buffer. We need to read them. */
-                                        continue;
+                                        కొనసాగు;
 
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                                ఒకవేళ (కొలత == 0)
+                                        తిరిగి -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
+                                తిరిగి 0; /* No progress possible with the current input. */
                         }
                 }
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#ఒకవేళ HAVE_ZLIB
+        స్థితి COMPRESSION_GZIP:
+                ఒకవేళ (కొలత > UINT_MAX)
+                        తిరిగి -EFBIG;
 
-                c->gzip.next_in = (void*) data;
-                c->gzip.avail_in = size;
+                c->gzip.తదుపరి_లోపల = (శూన్య*) దత్తాంశం;
+                c->gzip.avail_లోపల = కొలత;
 
-                for (;;) {
-                        if (c->finished) {
-                                if (sym_inflateReset(&c->gzip) != Z_OK)
-                                        return -EIO;
+                కొరకు (;;) {
+                        ఒకవేళ (c->ముగిసిన) {
+                                ఒకవేళ (sym_inflateReset(&c->gzip) != Z_OK)
+                                        తిరిగి -EIO;
 
-                                c->finished = false;
+                                c->ముగిసిన = false;
                         }
 
-                        c->gzip.next_out = buffer;
-                        c->gzip.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
+                        c->gzip.తదుపరి_బహిర్గతం = బఫరు;
+                        c->gzip.avail_బహిర్గతం = COMPRESS_PIPE_బఫరు_కొలత;
 
                         /* Z_BUF_ERROR is not fatal if all input is used up: it just means no progress was
                          * possible, which happens if the previous iteration filled the output buffer exactly
                          * while also consuming all input. That case is handled by the avail_in check
                          * below. If there's still input left however, Z_BUF_ERROR means we are stuck, hence
                          * refuse it, so that we don't loop forever. */
-                        int zr = sym_inflate(&c->gzip, Z_NO_FLUSH);
-                        if (!IN_SET(zr, Z_OK, Z_STREAM_END) &&
-                            !(zr == Z_BUF_ERROR && c->gzip.avail_in == 0))
-                                return -EBADMSG;
+                        పూర్ణాంకం zr = sym_inflate(&c->gzip, Z_NO_FLUSH);
+                        ఒకవేళ (!లోపల_సమితి(zr, Z_OK, Z_ప్రవాహం_చివర) &&
+                            !(zr == Z_BUF_ERROR && c->gzip.avail_లోపల == 0))
+                                తిరిగి -EBADMSG;
 
-                        if (c->gzip.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
+                        ఒకవేళ (c->gzip.avail_బహిర్గతం > COMPRESS_PIPE_బఫరు_కొలత)
+                                తిరిగి -EIO;
 
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->gzip.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
+                        size_t produced = COMPRESS_PIPE_బఫరు_కొలత - c->gzip.avail_బహిర్గతం;
+                        ఒకవేళ (produced > 0) {
+                                r = callback(బఫరు, produced, userdata);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
                         }
 
-                        if (zr == Z_STREAM_END) {
-                                c->finished = true;
+                        ఒకవేళ (zr == Z_ప్రవాహం_చివర) {
+                                c->ముగిసిన = true;
 
-                                if (c->gzip.avail_in > 0)
-                                        continue; /* New stream may be pending. */
+                                ఒకవేళ (c->gzip.avail_లోపల > 0)
+                                        కొనసాగు; /* New stream may be pending. */
 
-                                return 0;
+                                తిరిగి 0;
                         }
 
-                        if (c->gzip.avail_in == 0 && c->gzip.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
+                        ఒకవేళ (c->gzip.avail_లోపల == 0 && c->gzip.avail_బహిర్గతం > 0) {
+                                ఒకవేళ (కొలత == 0)
+                                        తిరిగి -EBADMSG; /* truncated */
 
-                                return 0; /* No progress possible with the current input. */
-                        }
-                }
-#endif
-
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (size > UINT_MAX)
-                        return -EFBIG;
-
-                c->bzip2.next_in = (char*) data;
-                c->bzip2.avail_in = size;
-
-                for (;;) {
-                        if (c->finished) {
-                                sym_BZ2_bzDecompressEnd(&c->bzip2);
-                                if (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
-                                        return -EIO;
-
-                                c->finished = false;
-                        }
-
-                        c->bzip2.next_out = (char*) buffer;
-                        c->bzip2.avail_out = COMPRESS_PIPE_BUFFER_SIZE;
-
-                        int bzr = sym_BZ2_bzDecompress(&c->bzip2);
-                        if (!IN_SET(bzr, BZ_OK, BZ_STREAM_END))
-                                return -EBADMSG;
-
-                        if (c->bzip2.avail_out > COMPRESS_PIPE_BUFFER_SIZE)
-                                return -EIO;
-
-                        size_t produced = COMPRESS_PIPE_BUFFER_SIZE - c->bzip2.avail_out;
-                        if (produced > 0) {
-                                r = callback(buffer, produced, userdata);
-                                if (r < 0)
-                                        return r;
-                        }
-
-                        if (bzr == BZ_STREAM_END) {
-                                c->finished = true;
-
-                                if (c->bzip2.avail_in > 0)
-                                        continue; /* New stream may be pending. */
-
-                                return 0;
-                        }
-
-                        if (c->bzip2.avail_in == 0 && c->bzip2.avail_out > 0) {
-                                if (size == 0)
-                                        return -EBADMSG; /* truncated */
-
-                                return 0; /* No progress possible with the current input. */
+                                తిరిగి 0; /* No progress possible with the current input. */
                         }
                 }
-#endif
+#అయితే_ముగింపు
 
-        default:
+#ఒకవేళ HAVE_BZIP2
+        స్థితి COMPRESSION_BZIP2:
+                ఒకవేళ (కొలత > UINT_MAX)
+                        తిరిగి -EFBIG;
+
+                c->bzip2.తదుపరి_లోపల = (అక్షరం*) దత్తాంశం;
+                c->bzip2.avail_లోపల = కొలత;
+
+                కొరకు (;;) {
+                        ఒకవేళ (c->ముగిసిన) {
+                                sym_BZ2_bz_Decompress_చివర(&c->bzip2);
+                                ఒకవేళ (sym_BZ2_bzDecompressInit(&c->bzip2, /* verbosity= */ 0, /* small= */ 0) != BZ_OK)
+                                        తిరిగి -EIO;
+
+                                c->ముగిసిన = false;
+                        }
+
+                        c->bzip2.తదుపరి_బహిర్గతం = (అక్షరం*) బఫరు;
+                        c->bzip2.avail_బహిర్గతం = COMPRESS_PIPE_బఫరు_కొలత;
+
+                        పూర్ణాంకం bzr = sym_BZ2_bzDecompress(&c->bzip2);
+                        ఒకవేళ (!లోపల_సమితి(bzr, BZ_OK, BZ_ప్రవాహం_చివర))
+                                తిరిగి -EBADMSG;
+
+                        ఒకవేళ (c->bzip2.avail_బహిర్గతం > COMPRESS_PIPE_బఫరు_కొలత)
+                                తిరిగి -EIO;
+
+                        size_t produced = COMPRESS_PIPE_బఫరు_కొలత - c->bzip2.avail_బహిర్గతం;
+                        ఒకవేళ (produced > 0) {
+                                r = callback(బఫరు, produced, userdata);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
+                        }
+
+                        ఒకవేళ (bzr == BZ_ప్రవాహం_చివర) {
+                                c->ముగిసిన = true;
+
+                                ఒకవేళ (c->bzip2.avail_లోపల > 0)
+                                        కొనసాగు; /* New stream may be pending. */
+
+                                తిరిగి 0;
+                        }
+
+                        ఒకవేళ (c->bzip2.avail_లోపల == 0 && c->bzip2.avail_బహిర్గతం > 0) {
+                                ఒకవేళ (కొలత == 0)
+                                        తిరిగి -EBADMSG; /* truncated */
+
+                                తిరిగి 0; /* No progress possible with the current input. */
+                        }
+                }
+#అయితే_ముగింపు
+
+        అప్రమేయ:
                 assert_not_reached();
         }
 }
 
-int compressor_new(Compressor **ret, Compression type) {
-        int r;
+పూర్ణాంకం compressor_new(Compressor **ret, Compression type) {
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         r = dlopen_compress(type, LOG_DEBUG);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         _cleanup_(compressor_freep) Compressor *c = new0(Compressor, 1);
-        if (!c)
-                return -ENOMEM;
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
         c->type = _COMPRESSION_INVALID;
         /* Set encoding early so that compressor_freep calls the correct cleanup (compression vs
@@ -2472,444 +2472,444 @@ int compressor_new(Compressor **ret, Compression type) {
          * because _COMPRESSION_INVALID hits the default: break case regardless of the encoding flag. */
         c->encoding = true;
 
-        switch (type) {
+        ఎంపిక (type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#ఒకవేళ HAVE_XZ
+        స్థితి COMPRESSION_XZ: {
                 lzma_ret xzr = sym_lzma_easy_encoder(&c->xz, LZMA_PRESET_DEFAULT, LZMA_CHECK_CRC64);
-                if (xzr != LZMA_OK)
-                        return -EIO;
+                ఒకవేళ (xzr != LZMA_OK)
+                        తిరిగి -EIO;
 
                 c->type = COMPRESSION_XZ;
-                break;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
-                size_t rc = sym_LZ4F_createCompressionContext(&c->c_lz4, LZ4F_VERSION);
-                if (sym_LZ4F_isError(rc))
-                        return -ENOMEM;
+#ఒకవేళ HAVE_LZ4
+        స్థితి COMPRESSION_LZ4: {
+                size_t rc = sym_LZ4F_createCompressionContext(&c->c_lz4, LZ4_F_సంస్కరణ);
+                ఒకవేళ (sym_LZ4F_isError(rc))
+                        తిరిగి -ENOMEM;
 
                 c->type = COMPRESSION_LZ4;
 
                 /* Generate the frame header and stash it for the first compressor_start call */
-                size_t header_bound = sym_LZ4F_compressBound(0, &lz4_preferences);
-                c->lz4_header = malloc(header_bound);
-                if (!c->lz4_header)
-                        return -ENOMEM;
+                size_t శీర్షిక_bound = sym_LZ4F_compressBound(0, &lz4_preferences);
+                c->lz4_శీర్షిక = జ్ఞాపకం_ఇవ్వు(శీర్షిక_bound);
+                ఒకవేళ (!c->lz4_శీర్షిక)
+                        తిరిగి -ENOMEM;
 
-                c->lz4_header_size = sym_LZ4F_compressBegin(c->c_lz4, c->lz4_header, header_bound, &lz4_preferences);
-                if (sym_LZ4F_isError(c->lz4_header_size))
-                        return -EINVAL;
+                c->lz4_శీర్షిక_కొలత = sym_LZ4F_compressBegin(c->c_lz4, c->lz4_శీర్షిక, శీర్షిక_bound, &lz4_preferences);
+                ఒకవేళ (sym_LZ4F_isError(c->lz4_శీర్షిక_కొలత))
+                        తిరిగి -EINVAL;
 
-                break;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD:
+#ఒకవేళ HAVE_ZSTD
+        స్థితి COMPRESSION_ZSTD:
                 c->c_zstd = sym_ZSTD_createCCtx();
-                if (!c->c_zstd)
-                        return -ENOMEM;
+                ఒకవేళ (!c->c_zstd)
+                        తిరిగి -ENOMEM;
 
                 c->type = COMPRESSION_ZSTD;
 
-                size_t z = sym_ZSTD_CCtx_setParameter(c->c_zstd, ZSTD_c_compressionLevel, ZSTD_CLEVEL_DEFAULT);
-                if (sym_ZSTD_isError(z))
-                        return -EIO;
+                size_t z = sym_ZSTD_CCtx_సమితి_Parameter(c->c_zstd, ZSTD_c_compressionLevel, ZSTD_CLEVEL_DEFAULT);
+                ఒకవేళ (sym_ZSTD_isError(z))
+                        తిరిగి -EIO;
 
-                z = sym_ZSTD_CCtx_setParameter(c->c_zstd, ZSTD_c_checksumFlag, /* enable= */ 1);
-                if (sym_ZSTD_isError(z))
+                z = sym_ZSTD_CCtx_సమితి_Parameter(c->c_zstd, ZSTD_c_checksumFlag, /* enable= */ 1);
+                ఒకవేళ (sym_ZSTD_isError(z))
                         log_debug("Failed to enable ZSTD checksum, ignoring: %s", sym_ZSTD_getErrorName(z));
 
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
+#ఒకవేళ HAVE_ZLIB
+        స్థితి COMPRESSION_GZIP:
                 r = sym_deflateInit2_(&c->gzip,
                                       Z_DEFAULT_COMPRESSION,
                                       /* method= */ Z_DEFLATED,
                                       /* windowBits= */ ZLIB_WBITS_GZIP,
                                       /* memLevel= */ 8,
                                       /* strategy= */ Z_DEFAULT_STRATEGY,
-                                      ZLIB_VERSION, (int) sizeof(c->gzip));
-                if (r != Z_OK)
-                        return -EIO;
+                                      ZLIB_సంస్కరణ, (పూర్ణాంకం) పరిమాణం(c->gzip));
+                ఒకవేళ (r != Z_OK)
+                        తిరిగి -EIO;
 
                 c->type = COMPRESSION_GZIP;
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
+#ఒకవేళ HAVE_BZIP2
+        స్థితి COMPRESSION_BZIP2:
                 r = sym_BZ2_bzCompressInit(&c->bzip2, /* blockSize100k= */ 9, /* verbosity= */ 0, /* workFactor= */ 0);
-                if (r != BZ_OK)
-                        return -EIO;
+                ఒకవేళ (r != BZ_OK)
+                        తిరిగి -EIO;
 
                 c->type = COMPRESSION_BZIP2;
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-        case COMPRESSION_NONE:
+        స్థితి COMPRESSION_NONE:
                 c->type = COMPRESSION_NONE;
-                break;
+                ఆపు;
 
-        default:
-                return -EOPNOTSUPP;
+        అప్రమేయ:
+                తిరిగి -EOPNOTSUPP;
         }
 
         *ret = TAKE_PTR(c);
-        return 0;
+        తిరిగి 0;
 }
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-static int enlarge_buffer(void **buffer, size_t *buffer_size, size_t *buffer_allocated, size_t need) {
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+#ఒకవేళ HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+స్థిర పూర్ణాంకం enlarge_బఫరు(శూన్య **బఫరు, size_t *బఫరు_కొలత, size_t *బఫరు_allocated, size_t need) {
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(బఫరు_కొలత);
+        ప్రతిజ్ఞా(బఫరు_allocated);
 
-        need = MAX3(need, *buffer_size + 1, (size_t) COMPRESS_PIPE_BUFFER_SIZE);
-        if (*buffer_allocated >= need)
-                return 0;
+        need = MAX3(need, *బఫరు_కొలత + 1, (size_t) COMPRESS_PIPE_బఫరు_కొలత);
+        ఒకవేళ (*బఫరు_allocated >= need)
+                తిరిగి 0;
 
-        if (!greedy_realloc(buffer, need, 1))
-                return -ENOMEM;
+        ఒకవేళ (!greedy_realloc(బఫరు, need, 1))
+                తిరిగి -ENOMEM;
 
-        *buffer_allocated = MALLOC_SIZEOF_SAFE(*buffer);
-        return 1;
+        *బఫరు_allocated = MALLOC_SIZEOF_సురక్షిత(*బఫరు);
+        తిరిగి 1;
 }
-#endif
+#అయితే_ముగింపు
 
-int compressor_start(
+పూర్ణాంకం compressor_ప్రారంభం(
                 Compressor *c,
-                const void *data,
-                size_t size,
-                void **buffer,
-                size_t *buffer_size,
-                size_t *buffer_allocated) {
+                స్థిరరాశి శూన్య *దత్తాంశం,
+                size_t కొలత,
+                శూన్య **బఫరు,
+                size_t *బఫరు_కొలత,
+                size_t *బఫరు_allocated) {
 
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        int r;
-#endif
+#ఒకవేళ HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        పూర్ణాంకం r;
+#అయితే_ముగింపు
 
-        assert(c);
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+        ప్రతిజ్ఞా(c);
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(బఫరు_కొలత);
+        ప్రతిజ్ఞా(బఫరు_allocated);
 
-        if (!c->encoding)
-                return -EINVAL;
+        ఒకవేళ (!c->encoding)
+                తిరిగి -EINVAL;
 
-        if (size == 0)
-                return 0;
+        ఒకవేళ (కొలత == 0)
+                తిరిగి 0;
 
-        assert(data);
+        ప్రతిజ్ఞా(దత్తాంశం);
 
-        *buffer_size = 0;
+        *బఫరు_కొలత = 0;
 
-        switch (c->type) {
+        ఎంపిక (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ:
+#ఒకవేళ HAVE_XZ
+        స్థితి COMPRESSION_XZ:
 
-                c->xz.next_in = data;
-                c->xz.avail_in = size;
+                c->xz.తదుపరి_లోపల = దత్తాంశం;
+                c->xz.avail_లోపల = కొలత;
 
-                while (c->xz.avail_in > 0) {
+                అయితే (c->xz.avail_లోపల > 0) {
                         lzma_ret lzr;
 
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        c->xz.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->xz.avail_out = *buffer_allocated - *buffer_size;
+                        c->xz.తదుపరి_బహిర్గతం = (uint8_t*) *బఫరు + *బఫరు_కొలత;
+                        c->xz.avail_బహిర్గతం = *బఫరు_allocated - *బఫరు_కొలత;
 
-                        lzr = sym_lzma_code(&c->xz, LZMA_RUN);
-                        if (lzr != LZMA_OK)
-                                return -EIO;
+                        lzr = sym_lzma_సంకేతం(&c->xz, LZMA_నిరంతరం);
+                        ఒకవేళ (lzr != LZMA_OK)
+                                తిరిగి -EIO;
 
-                        *buffer_size += (*buffer_allocated - *buffer_size) - c->xz.avail_out;
+                        *బఫరు_కొలత += (*బఫరు_allocated - *బఫరు_కొలత) - c->xz.avail_బహిర్గతం;
                 }
 
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
+#ఒకవేళ HAVE_LZ4
+        స్థితి COMPRESSION_LZ4: {
                 /* Prepend any stashed frame header from compressor_new */
-                if (c->lz4_header_size > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, c->lz4_header_size);
-                        if (r < 0)
-                                return r;
+                ఒకవేళ (c->lz4_శీర్షిక_కొలత > 0) {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, c->lz4_శీర్షిక_కొలత);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        memcpy(*buffer, c->lz4_header, c->lz4_header_size);
-                        *buffer_size = c->lz4_header_size;
-                        c->lz4_header = mfree(c->lz4_header);
-                        c->lz4_header_size = 0;
+                        జ్ఞాపకం_నకలు(*బఫరు, c->lz4_శీర్షిక, c->lz4_శీర్షిక_కొలత);
+                        *బఫరు_కొలత = c->lz4_శీర్షిక_కొలత;
+                        c->lz4_శీర్షిక = mfree(c->lz4_శీర్షిక);
+                        c->lz4_శీర్షిక_కొలత = 0;
                 }
 
-                size_t bound = sym_LZ4F_compressBound(size, &lz4_preferences);
-                r = enlarge_buffer(buffer, buffer_size, buffer_allocated, *buffer_size + bound);
-                if (r < 0)
-                        return r;
+                size_t bound = sym_LZ4F_compressBound(కొలత, &lz4_preferences);
+                r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, *బఫరు_కొలత + bound);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 size_t n = sym_LZ4F_compressUpdate(c->c_lz4,
-                                                   (uint8_t*) *buffer + *buffer_size,
-                                                   *buffer_allocated - *buffer_size,
-                                                   data, size, NULL);
-                if (sym_LZ4F_isError(n))
-                        return -EIO;
+                                                   (uint8_t*) *బఫరు + *బఫరు_కొలత,
+                                                   *బఫరు_allocated - *బఫరు_కొలత,
+                                                   దత్తాంశం, కొలత, ఖాళీ);
+                ఒకవేళ (sym_LZ4F_isError(n))
+                        తిరిగి -EIO;
 
-                *buffer_size += n;
-                break;
+                *బఫరు_కొలత += n;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {
-                        .src = data,
-                        .size = size,
+#ఒకవేళ HAVE_ZSTD
+        స్థితి COMPRESSION_ZSTD: {
+                ZSTD_లోపల_బఫరు ఆదానం = {
+                        .src = దత్తాంశం,
+                        .కొలత = కొలత,
                 };
 
-                while (input.pos < input.size) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                అయితే (ఆదానం.pos < ఆదానం.కొలత) {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        ZSTD_outBuffer output = {
-                                .dst = ((uint8_t *) *buffer + *buffer_size),
-                                .size = *buffer_allocated - *buffer_size,
+                        ZSTD_బహిర్గతం_బఫరు output = {
+                                .dst = ((uint8_t *) *బఫరు + *బఫరు_కొలత),
+                                .కొలత = *బఫరు_allocated - *బఫరు_కొలత,
                         };
 
-                        size_t res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_continue);
-                        if (sym_ZSTD_isError(res))
-                                return -EIO;
+                        size_t res = sym_ZSTD_compressStream2(c->c_zstd, &output, &ఆదానం, ZSTD_e_continue);
+                        ఒకవేళ (sym_ZSTD_isError(res))
+                                తిరిగి -EIO;
 
-                        *buffer_size += output.pos;
+                        *బఫరు_కొలత += output.pos;
                 }
 
-                break;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#ఒకవేళ HAVE_ZLIB
+        స్థితి COMPRESSION_GZIP:
+                ఒకవేళ (కొలత > UINT_MAX)
+                        తిరిగి -EFBIG;
 
-                c->gzip.next_in = (void*) data;
-                c->gzip.avail_in = size;
+                c->gzip.తదుపరి_లోపల = (శూన్య*) దత్తాంశం;
+                c->gzip.avail_లోపల = కొలత;
 
-                while (c->gzip.avail_in > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                అయితే (c->gzip.avail_లోపల > 0) {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->gzip.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->gzip.avail_out = avail;
+                        size_t avail = MIN(*బఫరు_allocated - *బఫరు_కొలత, (size_t) UINT_MAX);
+                        c->gzip.తదుపరి_బహిర్గతం = (uint8_t*) *బఫరు + *బఫరు_కొలత;
+                        c->gzip.avail_బహిర్గతం = avail;
 
                         r = sym_deflate(&c->gzip, Z_NO_FLUSH);
-                        if (r != Z_OK)
-                                return -EIO;
+                        ఒకవేళ (r != Z_OK)
+                                తిరిగి -EIO;
 
-                        *buffer_size += avail - c->gzip.avail_out;
+                        *బఫరు_కొలత += avail - c->gzip.avail_బహిర్గతం;
                 }
 
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                if (size > UINT_MAX)
-                        return -EFBIG;
+#ఒకవేళ HAVE_BZIP2
+        స్థితి COMPRESSION_BZIP2:
+                ఒకవేళ (కొలత > UINT_MAX)
+                        తిరిగి -EFBIG;
 
-                c->bzip2.next_in = (void*) data;
-                c->bzip2.avail_in = size;
+                c->bzip2.తదుపరి_లోపల = (శూన్య*) దత్తాంశం;
+                c->bzip2.avail_లోపల = కొలత;
 
-                while (c->bzip2.avail_in > 0) {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                అయితే (c->bzip2.avail_లోపల > 0) {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->bzip2.next_out = (void*) ((uint8_t*) *buffer + *buffer_size);
-                        c->bzip2.avail_out = avail;
+                        size_t avail = MIN(*బఫరు_allocated - *బఫరు_కొలత, (size_t) UINT_MAX);
+                        c->bzip2.తదుపరి_బహిర్గతం = (శూన్య*) ((uint8_t*) *బఫరు + *బఫరు_కొలత);
+                        c->bzip2.avail_బహిర్గతం = avail;
 
-                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_RUN);
-                        if (r != BZ_RUN_OK)
-                                return -EIO;
+                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_నిరంతరం);
+                        ఒకవేళ (r != BZ_నిరంతరం_OK)
+                                తిరిగి -EIO;
 
-                        *buffer_size += avail - c->bzip2.avail_out;
+                        *బఫరు_కొలత += avail - c->bzip2.avail_బహిర్గతం;
                 }
 
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-        case COMPRESSION_NONE:
+        స్థితి COMPRESSION_NONE:
 
-                if (*buffer_allocated < size) {
-                        void *p;
+                ఒకవేళ (*బఫరు_allocated < కొలత) {
+                        శూన్య *p;
 
-                        p = realloc(*buffer, size);
-                        if (!p)
-                                return -ENOMEM;
+                        p = realloc(*బఫరు, కొలత);
+                        ఒకవేళ (!p)
+                                తిరిగి -ENOMEM;
 
-                        *buffer = p;
-                        *buffer_allocated = size;
+                        *బఫరు = p;
+                        *బఫరు_allocated = కొలత;
                 }
 
-                memcpy(*buffer, data, size);
-                *buffer_size = size;
-                break;
+                జ్ఞాపకం_నకలు(*బఫరు, దత్తాంశం, కొలత);
+                *బఫరు_కొలత = కొలత;
+                ఆపు;
 
-        default:
-                return -EOPNOTSUPP;
+        అప్రమేయ:
+                తిరిగి -EOPNOTSUPP;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t *buffer_allocated) {
-#if HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
-        int r;
-#endif
+పూర్ణాంకం compressor_ముగింపు(Compressor *c, శూన్య **బఫరు, size_t *బఫరు_కొలత, size_t *బఫరు_allocated) {
+#ఒకవేళ HAVE_XZ || HAVE_LZ4 || HAVE_ZSTD || HAVE_ZLIB || HAVE_BZIP2
+        పూర్ణాంకం r;
+#అయితే_ముగింపు
 
-        assert(c);
-        assert(buffer);
-        assert(buffer_size);
-        assert(buffer_allocated);
+        ప్రతిజ్ఞా(c);
+        ప్రతిజ్ఞా(బఫరు);
+        ప్రతిజ్ఞా(బఫరు_కొలత);
+        ప్రతిజ్ఞా(బఫరు_allocated);
 
-        if (!c->encoding)
-                return -EINVAL;
+        ఒకవేళ (!c->encoding)
+                తిరిగి -EINVAL;
 
-        *buffer_size = 0;
+        *బఫరు_కొలత = 0;
 
-        switch (c->type) {
+        ఎంపిక (c->type) {
 
-#if HAVE_XZ
-        case COMPRESSION_XZ: {
+#ఒకవేళ HAVE_XZ
+        స్థితి COMPRESSION_XZ: {
                 lzma_ret lzr;
 
-                c->xz.avail_in = 0;
+                c->xz.avail_లోపల = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                చేయి {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        c->xz.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->xz.avail_out = *buffer_allocated - *buffer_size;
+                        c->xz.తదుపరి_బహిర్గతం = (uint8_t*) *బఫరు + *బఫరు_కొలత;
+                        c->xz.avail_బహిర్గతం = *బఫరు_allocated - *బఫరు_కొలత;
 
-                        lzr = sym_lzma_code(&c->xz, LZMA_FINISH);
-                        if (!IN_SET(lzr, LZMA_OK, LZMA_STREAM_END))
-                                return -EIO;
+                        lzr = sym_lzma_సంకేతం(&c->xz, LZMA_ముగింపు);
+                        ఒకవేళ (!లోపల_సమితి(lzr, LZMA_OK, LZMA_ప్రవాహం_చివర))
+                                తిరిగి -EIO;
 
-                        *buffer_size += (*buffer_allocated - *buffer_size) - c->xz.avail_out;
-                } while (lzr != LZMA_STREAM_END);
+                        *బఫరు_కొలత += (*బఫరు_allocated - *బఫరు_కొలత) - c->xz.avail_బహిర్గతం;
+                } అయితే (lzr != LZMA_ప్రవాహం_చివర);
 
-                break;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_LZ4
-        case COMPRESSION_LZ4: {
+#ఒకవేళ HAVE_LZ4
+        స్థితి COMPRESSION_LZ4: {
                 size_t bound = sym_LZ4F_compressBound(0, &lz4_preferences);
-                r = enlarge_buffer(buffer, buffer_size, buffer_allocated, bound);
-                if (r < 0)
-                        return r;
+                r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, bound);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                size_t n = sym_LZ4F_compressEnd(c->c_lz4, *buffer, *buffer_allocated, NULL);
-                if (sym_LZ4F_isError(n))
-                        return -EIO;
+                size_t n = sym_LZ4_F_compress_చివర(c->c_lz4, *బఫరు, *బఫరు_allocated, ఖాళీ);
+                ఒకవేళ (sym_LZ4F_isError(n))
+                        తిరిగి -EIO;
 
-                *buffer_size = n;
-                break;
+                *బఫరు_కొలత = n;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZSTD
-        case COMPRESSION_ZSTD: {
-                ZSTD_inBuffer input = {};
+#ఒకవేళ HAVE_ZSTD
+        స్థితి COMPRESSION_ZSTD: {
+                ZSTD_లోపల_బఫరు ఆదానం = {};
                 size_t res;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                చేయి {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        ZSTD_outBuffer output = {
-                                .dst = ((uint8_t *) *buffer + *buffer_size),
-                                .size = *buffer_allocated - *buffer_size,
+                        ZSTD_బహిర్గతం_బఫరు output = {
+                                .dst = ((uint8_t *) *బఫరు + *బఫరు_కొలత),
+                                .కొలత = *బఫరు_allocated - *బఫరు_కొలత,
                         };
 
-                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &input, ZSTD_e_end);
-                        if (sym_ZSTD_isError(res))
-                                return -EIO;
+                        res = sym_ZSTD_compressStream2(c->c_zstd, &output, &ఆదానం, ZSTD_e_చివర);
+                        ఒకవేళ (sym_ZSTD_isError(res))
+                                తిరిగి -EIO;
 
-                        *buffer_size += output.pos;
-                } while (res != 0);
+                        *బఫరు_కొలత += output.pos;
+                } అయితే (res != 0);
 
-                break;
+                ఆపు;
         }
-#endif
+#అయితే_ముగింపు
 
-#if HAVE_ZLIB
-        case COMPRESSION_GZIP:
-                c->gzip.avail_in = 0;
+#ఒకవేళ HAVE_ZLIB
+        స్థితి COMPRESSION_GZIP:
+                c->gzip.avail_లోపల = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                చేయి {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->gzip.next_out = (uint8_t*) *buffer + *buffer_size;
-                        c->gzip.avail_out = avail;
+                        size_t avail = MIN(*బఫరు_allocated - *బఫరు_కొలత, (size_t) UINT_MAX);
+                        c->gzip.తదుపరి_బహిర్గతం = (uint8_t*) *బఫరు + *బఫరు_కొలత;
+                        c->gzip.avail_బహిర్గతం = avail;
 
-                        r = sym_deflate(&c->gzip, Z_FINISH);
-                        if (!IN_SET(r, Z_OK, Z_STREAM_END))
-                                return -EIO;
+                        r = sym_deflate(&c->gzip, Z_ముగింపు);
+                        ఒకవేళ (!లోపల_సమితి(r, Z_OK, Z_ప్రవాహం_చివర))
+                                తిరిగి -EIO;
 
-                        *buffer_size += avail - c->gzip.avail_out;
-                } while (r != Z_STREAM_END);
+                        *బఫరు_కొలత += avail - c->gzip.avail_బహిర్గతం;
+                } అయితే (r != Z_ప్రవాహం_చివర);
 
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-#if HAVE_BZIP2
-        case COMPRESSION_BZIP2:
-                c->bzip2.avail_in = 0;
+#ఒకవేళ HAVE_BZIP2
+        స్థితి COMPRESSION_BZIP2:
+                c->bzip2.avail_లోపల = 0;
 
-                do {
-                        r = enlarge_buffer(buffer, buffer_size, buffer_allocated, /* need= */ 0);
-                        if (r < 0)
-                                return r;
+                చేయి {
+                        r = enlarge_బఫరు(బఫరు, బఫరు_కొలత, బఫరు_allocated, /* need= */ 0);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        size_t avail = MIN(*buffer_allocated - *buffer_size, (size_t) UINT_MAX);
-                        c->bzip2.next_out = (void*) ((uint8_t*) *buffer + *buffer_size);
-                        c->bzip2.avail_out = avail;
+                        size_t avail = MIN(*బఫరు_allocated - *బఫరు_కొలత, (size_t) UINT_MAX);
+                        c->bzip2.తదుపరి_బహిర్గతం = (శూన్య*) ((uint8_t*) *బఫరు + *బఫరు_కొలత);
+                        c->bzip2.avail_బహిర్గతం = avail;
 
-                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_FINISH);
-                        if (!IN_SET(r, BZ_FINISH_OK, BZ_STREAM_END))
-                                return -EIO;
+                        r = sym_BZ2_bzCompress(&c->bzip2, BZ_ముగింపు);
+                        ఒకవేళ (!లోపల_సమితి(r, BZ_ముగింపు_OK, BZ_ప్రవాహం_చివర))
+                                తిరిగి -EIO;
 
-                        *buffer_size += avail - c->bzip2.avail_out;
-                } while (r != BZ_STREAM_END);
+                        *బఫరు_కొలత += avail - c->bzip2.avail_బహిర్గతం;
+                } అయితే (r != BZ_ప్రవాహం_చివర);
 
-                break;
-#endif
+                ఆపు;
+#అయితే_ముగింపు
 
-        case COMPRESSION_NONE:
-                break;
+        స్థితి COMPRESSION_NONE:
+                ఆపు;
 
-        default:
-                return -EOPNOTSUPP;
+        అప్రమేయ:
+                తిరిగి -EOPNOTSUPP;
         }
 
-        return 0;
+        తిరిగి 0;
 }

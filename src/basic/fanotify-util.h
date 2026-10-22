@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include <sys/fanotify.h>       /* IWYU pragma: export */
-#include <sys/vfs.h>            /* IWYU pragma: export */
+#అన్తర్భావ <sys/fanotify.h>       /* IWYU pragma: export */
+#అన్తర్భావ <sys/vfs.h>            /* IWYU pragma: export */
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-union fanotify_event_buffer {
-        struct fanotify_event_metadata em;
+సంఘం fanotify_event_బఫరు {
+        నిర్మాణం fanotify_event_metadata em;
         uint8_t raw[4096];
 };
 
-typedef struct FanotifyEventIterator {
-        const uint8_t *ptr;                  /* cursor into the raw read buffer */
-        size_t left;                         /* remaining bytes */
-        union fanotify_event_buffer aligned; /* 8-byte aligned scratch for one event */
+రకనిర్వచనం నిర్మాణం FanotifyEventIterator {
+        స్థిరరాశి uint8_t *ptr;                  /* cursor into the raw read buffer */
+        size_t ఎడమ;                         /* remaining bytes */
+        సంఘం fanotify_event_బఫరు aligned; /* 8-byte aligned scratch for one event */
 } FanotifyEventIterator;
 
-bool fanotify_event_iterator_next(FanotifyEventIterator *i, const struct fanotify_event_metadata **ret);
+bool fanotify_event_iterator_తదుపరి(FanotifyEventIterator *i, స్థిరరాశి నిర్మాణం fanotify_event_metadata **ret);
 
 /* Iterates over the events in a buffer filled by read() on an fanotify fd. Each event is copied into an
  * 8-byte aligned scratch buffer first, so 'e' is always suitably aligned. 'buffer' must be a
  * union fanotify_event_buffer, 'sz' the number of bytes read (must be >= 0). FAN_EVENT_OK()/
  * FAN_EVENT_NEXT() can't be used, as they dereference the metadata in place while possibly unaligned. */
-#define _FOREACH_FANOTIFY_EVENT(e, buffer, sz, i)               \
-        for (FanotifyEventIterator i =                          \
-                     { .ptr = (buffer).raw, .left = (sz), };    \
+#నిర్వచించు _FOREACH_FANOTIFY_EVENT(e, బఫరు, sz, i)               \
+        కొరకు (FanotifyEventIterator i =                          \
+                     { .ptr = (బఫరు).raw, .ఎడమ = (sz), };    \
              i.ptr;                                             \
-             i.ptr = NULL)                                      \
-                for (const struct fanotify_event_metadata *e;   \
-                     fanotify_event_iterator_next(&i, &e); )
-#define FOREACH_FANOTIFY_EVENT(e, buffer, sz)                   \
-        _FOREACH_FANOTIFY_EVENT(e, buffer, sz, UNIQ_T(i, UNIQ))
+             i.ptr = ఖాళీ)                                      \
+                కొరకు (స్థిరరాశి నిర్మాణం fanotify_event_metadata *e;   \
+                     fanotify_event_iterator_తదుపరి(&i, &e); )
+#నిర్వచించు FOREACH_FANOTIFY_EVENT(e, బఫరు, sz)                   \
+        _FOREACH_FANOTIFY_EVENT(e, బఫరు, sz, UNIQ_T(i, UNIQ))
 
-int fanotify_event_pin_fd(
-                const struct fanotify_event_metadata *e,
-                int mount_fd,              /* O_PATH fd cannot be used */
-                const struct statfs *sfs); /* can be NULL */
+పూర్ణాంకం fanotify_event_pin_fd(
+                స్థిరరాశి నిర్మాణం fanotify_event_metadata *e,
+                పూర్ణాంకం mount_fd,              /* O_PATH fd cannot be used */
+                స్థిరరాశి నిర్మాణం statfs *sfs); /* can be NULL */
 
-int fanotify_mark_fd(int fanotify_fd, unsigned flags, uint64_t mask, int fd);
+పూర్ణాంకం fanotify_mark_fd(పూర్ణాంకం fanotify_fd, గుర్తులేని flags, uint64_t ముసుగు_3, పూర్ణాంకం fd);

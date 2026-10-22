@@ -1,71 +1,71 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
 /* What characters are special in the shell? */
 /* must be escaped outside and inside double-quotes */
-#define SHELL_NEED_ESCAPE "\"\\`$"
+#నిర్వచించు SHELL_NEED_ESCAPE "\"\\`$"
 
 /* Those that can be escaped or double-quoted.
  *
  * Strictly speaking, ! does not need to be escaped, except in interactive
  * mode, but let's be extra nice to the user and quote ! in case this
  * output is ever used in interactive mode. */
-#define SHELL_NEED_QUOTES SHELL_NEED_ESCAPE GLOB_CHARS "'()<>|&;!"
+#నిర్వచించు SHELL_NEED_QUOTES SHELL_NEED_ESCAPE GLOB_CHARS "'()<>|&;!"
 
 /* Note that we assume control characters would need to be escaped too in
  * addition to the "special" characters listed here, if they appear in the
  * string. Current users disallow control characters. Also '"' shall not
  * be escaped.
  */
-#define SHELL_NEED_ESCAPE_POSIX "\\\'"
+#నిర్వచించు SHELL_NEED_ESCAPE_POSIX "\\\'"
 
-typedef enum UnescapeFlags {
+రకనిర్వచనం గణన UnescapeFlags {
         UNESCAPE_RELAX      = 1 << 0,
         UNESCAPE_ACCEPT_NUL = 1 << 1,
 } UnescapeFlags;
 
-typedef enum ShellEscapeFlags {
+రకనిర్వచనం గణన ShellEscapeFlags {
         /* The default is to add shell quotes ("") so the shell will consider this a single argument.
          * Tabs and newlines are escaped. */
 
         SHELL_ESCAPE_POSIX = 1 << 1, /* Use POSIX shell escape syntax (a string enclosed in $'') instead of plain quotes. */
-        SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
+        SHELL_ESCAPE_ఖాళీలు = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
-char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
-static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+పూర్ణాంకం cescape_char(అక్షరం c, అక్షరం *buf);
+అక్షరం* cescape_నిడివి(స్థిరరాశి అక్షరం *s, size_t n) _nonnull_if_nonzero_(1, 2);
+స్థిర అంతఃవరుస అక్షరం* cescape(స్థిరరాశి అక్షరం *s) {
+        తిరిగి cescape_నిడివి(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+పూర్ణాంకం cunescape_one(స్థిరరాశి అక్షరం *p, size_t length, char32_t *ret, bool *eight_బిట్టు, bool accept_nul);
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
-static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+ssize_t cunescape_నిడివి_with_ఉపసర్గ(స్థిరరాశి అక్షరం *s, size_t length, స్థిరరాశి అక్షరం *ఉపసర్గ, UnescapeFlags flags, అక్షరం **ret);
+స్థిర అంతఃవరుస ssize_t cunescape_నిడివి(స్థిరరాశి అక్షరం *s, size_t length, UnescapeFlags flags, అక్షరం **ret) {
+        తిరిగి cunescape_నిడివి_with_ఉపసర్గ(s, length, ఖాళీ, flags, ret);
 }
-static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+స్థిర అంతఃవరుస ssize_t cunescape(స్థిరరాశి అక్షరం *s, UnescapeFlags flags, అక్షరం **ret) {
+        తిరిగి cunescape_నిడివి(s, SIZE_MAX, flags, ret);
 }
 
-typedef enum XEscapeFlags {
-        XESCAPE_8_BIT          = 1 << 0,
+రకనిర్వచనం గణన XEscapeFlags {
+        XESCAPE_8_బిట్టు          = 1 << 0,
         XESCAPE_FORCE_ELLIPSIS = 1 << 1,
 } XEscapeFlags;
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
-static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+అక్షరం* xescape_నిండిన(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *bad, size_t console_వెడల్పు, XEscapeFlags flags);
+స్థిర అంతఃవరుస అక్షరం* xescape(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *bad) {
+        తిరిగి xescape_నిండిన(s, bad, SIZE_MAX, 0);
 }
-char* octescape_full(const char *s, size_t len, const char *bad);
-static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+అక్షరం* octescape_నిండిన(స్థిరరాశి అక్షరం *s, size_t len, స్థిరరాశి అక్షరం *bad);
+స్థిర అంతఃవరుస అక్షరం* octescape(స్థిరరాశి అక్షరం *s, size_t len) {
+        తిరిగి octescape_నిండిన(s, len, ఖాళీ);
 }
-char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);
+అక్షరం* decescape(స్థిరరాశి అక్షరం *s, size_t len, స్థిరరాశి అక్షరం *bad) _nonnull_if_nonzero_(1, 2);
+అక్షరం* escape_non_printable_నిండిన(స్థిరరాశి అక్షరం *str, size_t console_వెడల్పు, XEscapeFlags flags);
 
-char* shell_escape(const char *s, const char *bad);
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags);
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags);
+అక్షరం* shell_escape(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *bad);
+అక్షరం* shell_maybe_quote(స్థిరరాశి అక్షరం *s, ShellEscapeFlags flags);
+అక్షరం* quote_command_పంక్తి(అక్షరం * స్థిరరాశి *argv, ShellEscapeFlags flags);

@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-#define UNIT_NAME_MAX 256
+#నిర్వచించు UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+రకనిర్వచనం గణన UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(స్థిరరాశి అక్షరం *n, UnitNameFlags flags) శుద్ధ;
+bool unit_ఉపసర్గ_is_valid(స్థిరరాశి అక్షరం *p) శుద్ధ;
+bool unit_instance_is_valid(స్థిరరాశి అక్షరం *i) శుద్ధ;
+bool unit_suffix_is_valid(స్థిరరాశి అక్షరం *s) శుద్ధ;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+పూర్ణాంకం unit_name_గమ్యం_ఉపసర్గ(స్థిరరాశి అక్షరం *n, అక్షరం **ret);
+UnitNameFlags unit_name_గమ్యం_instance(స్థిరరాశి అక్షరం *n, అక్షరం **ret);
+స్థిర అంతఃవరుస UnitNameFlags unit_name_classify(స్థిరరాశి అక్షరం *n) {
+        తిరిగి unit_name_గమ్యం_instance(n, ఖాళీ);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+పూర్ణాంకం unit_name_గమ్యం_ఉపసర్గ_and_instance(స్థిరరాశి అక్షరం *n, అక్షరం **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_గమ్యం_type(స్థిరరాశి అక్షరం *n) శుద్ధ;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+పూర్ణాంకం unit_name_change_suffix(స్థిరరాశి అక్షరం *n, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+పూర్ణాంకం unit_name_build(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *instance, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret);
+పూర్ణాంకం unit_name_build_from_type(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *instance, UnitType type, అక్షరం **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+అక్షరం* unit_name_escape(స్థిరరాశి అక్షరం *f);
+పూర్ణాంకం unit_name_unescape(స్థిరరాశి అక్షరం *f, అక్షరం **ret);
+పూర్ణాంకం unit_name_మార్గం_escape(స్థిరరాశి అక్షరం *f, అక్షరం **ret);
+పూర్ణాంకం unit_name_మార్గం_unescape(స్థిరరాశి అక్షరం *f, అక్షరం **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+పూర్ణాంకం unit_name_replace_instance_నిండిన(
+                స్థిరరాశి అక్షరం *original,
+                స్థిరరాశి అక్షరం *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                అక్షరం **ret);
+స్థిర అంతఃవరుస పూర్ణాంకం unit_name_replace_instance(స్థిరరాశి అక్షరం *original, స్థిరరాశి అక్షరం *instance, అక్షరం **ret) {
+        తిరిగి unit_name_replace_instance_నిండిన(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+పూర్ణాంకం unit_name_template(స్థిరరాశి అక్షరం *f, అక్షరం **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+పూర్ణాంకం unit_name_hash_long(స్థిరరాశి అక్షరం *name, అక్షరం **ret);
+bool unit_name_is_hashed(స్థిరరాశి అక్షరం *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+పూర్ణాంకం unit_name_from_మార్గం(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret);
+పూర్ణాంకం unit_name_from_మార్గం_instance(స్థిరరాశి అక్షరం *ఉపసర్గ, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret);
+పూర్ణాంకం unit_name_గమ్యం_మార్గం(స్థిరరాశి అక్షరం *name, అక్షరం **ret);
 
-typedef enum UnitNameMangle {
+రకనిర్వచనం గణన UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+పూర్ణాంకం unit_name_mangle_with_suffix(స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *operation, UnitNameMangle flags, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+స్థిర అంతఃవరుస పూర్ణాంకం unit_name_mangle(స్థిరరాశి అక్షరం *name, UnitNameMangle flags, అక్షరం **ret) {
+        తిరిగి unit_name_mangle_with_suffix(name, ఖాళీ, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+పూర్ణాంకం ముక్క_build_మాతృ_ముక్క(స్థిరరాశి అక్షరం *ముక్క, అక్షరం **ret);
+పూర్ణాంకం ముక్క_build_subslice(స్థిరరాశి అక్షరం *ముక్క, స్థిరరాశి అక్షరం *name, అక్షరం **ret);
+bool ముక్క_name_is_valid(స్థిరరాశి అక్షరం *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_ఉపసర్గ_equal(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b);

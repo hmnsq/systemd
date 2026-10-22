@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "format-util.h"
+#అన్తర్భావ "format-util.h"
 
-char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
-        typedef struct {
-                const char *suffix;
-                uint64_t factor;
-        } suffix_table;
-        static const suffix_table table_iec[] = {
+అక్షరం* format_బైట్లు_నిండిన(అక్షరం *buf, size_t l, uint64_t t, Format_బైట్లు_Flag flag) {
+        రకనిర్వచనం నిర్మాణం {
+                స్థిరరాశి అక్షరం *suffix;
+                uint64_t గుణకం;
+        } suffix_పట్టిక;
+        స్థిర స్థిరరాశి suffix_పట్టిక పట్టిక_iec[] = {
                 { "E", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "P", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "T", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "G", UINT64_C(1024)*UINT64_C(1024)*UINT64_C(1024) },
                 { "M", UINT64_C(1024)*UINT64_C(1024) },
                 { "K", UINT64_C(1024) },
-        }, table_si[] = {
+        }, పట్టిక_si[] = {
                 { "E", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
                 { "P", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
                 { "T", UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000)*UINT64_C(1000) },
@@ -22,43 +22,43 @@ char* format_bytes_full(char *buf, size_t l, uint64_t t, FormatBytesFlag flag) {
                 { "M", UINT64_C(1000)*UINT64_C(1000) },
                 { "K", UINT64_C(1000) },
         };
-        const suffix_table *table;
+        స్థిరరాశి suffix_పట్టిక *పట్టిక;
         size_t n;
 
-        assert(buf);
-        assert_cc(ELEMENTSOF(table_iec) == ELEMENTSOF(table_si));
+        ప్రతిజ్ఞా(buf);
+        assert_cc(ELEMENTSOF(పట్టిక_iec) == ELEMENTSOF(పట్టిక_si));
 
-        if (t == UINT64_MAX)
-                return NULL;
+        ఒకవేళ (t == UINT64_MAX)
+                తిరిగి ఖాళీ;
 
-        table = flag & FORMAT_BYTES_USE_IEC ? table_iec : table_si;
-        n = ELEMENTSOF(table_iec);
+        పట్టిక = flag & FORMAT_బైట్లు_USE_IEC ? పట్టిక_iec : పట్టిక_si;
+        n = ELEMENTSOF(పట్టిక_iec);
 
-        for (size_t i = 0; i < n; i++)
-                if (t >= table[i].factor) {
+        కొరకు (size_t i = 0; i < n; i++)
+                ఒకవేళ (t >= పట్టిక[i].గుణకం) {
                         uint64_t remainder = i != n - 1 ?
-                                (t / table[i + 1].factor * 10 / table[n - 1].factor) % 10 :
-                                (t * 10 / table[i].factor) % 10;
+                                (t / పట్టిక[i + 1].గుణకం * 10 / పట్టిక[n - 1].గుణకం) % 10 :
+                                (t * 10 / పట్టిక[i].గుణకం) % 10;
 
-                        if (FLAGS_SET(flag, FORMAT_BYTES_ALWAYS_POINT) ||
-                            (FLAGS_SET(flag, FORMAT_BYTES_BELOW_POINT) && remainder > 0))
-                                (void) snprintf(buf, l,
+                        ఒకవేళ (FLAGS_సమితి(flag, FORMAT_బైట్లు_ALWAYS_బిందువు) ||
+                            (FLAGS_సమితి(flag, FORMAT_బైట్లు_క్రింద_బిందువు) && remainder > 0))
+                                (శూన్య) snprintf(buf, l,
                                                 "%" PRIu64 ".%" PRIu64 "%s",
-                                                t / table[i].factor,
+                                                t / పట్టిక[i].గుణకం,
                                                 remainder,
-                                                table[i].suffix);
-                        else
-                                (void) snprintf(buf, l,
+                                                పట్టిక[i].suffix);
+                        లేకపోతే
+                                (శూన్య) snprintf(buf, l,
                                                 "%" PRIu64 "%s",
-                                                t / table[i].factor,
-                                                table[i].suffix);
+                                                t / పట్టిక[i].గుణకం,
+                                                పట్టిక[i].suffix);
 
-                        goto finish;
+                        వెళ్ళు ముగింపు;
                 }
 
-        (void) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_BYTES_TRAILING_B ? "B" : "");
+        (శూన్య) snprintf(buf, l, "%" PRIu64 "%s", t, flag & FORMAT_బైట్లు_TRAILING_B ? "B" : "");
 
-finish:
+ముగింపు:
         buf[l-1] = 0;
-        return buf;
+        తిరిగి buf;
 }

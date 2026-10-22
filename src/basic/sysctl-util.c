@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
+#అన్తర్భావ <stdio.h>
 
-#include "af-list.h"
-#include "alloc-util.h"
-#include "fileio.h"
-#include "hashmap.h"
-#include "log.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "socket-util.h"
-#include "string-util.h"
-#include "sysctl-util.h"
+#అన్తర్భావ "af-list.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "hashmap.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "socket-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "sysctl-util.h"
 
-char* sysctl_normalize(char *s) {
-        char *n;
+అక్షరం* sysctl_normalize(అక్షరం *s) {
+        అక్షరం *n;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         n = strpbrk(s, "/.");
 
@@ -24,101 +24,101 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        ఒకవేళ (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
-                do {
-                        if (*n == '.')
+                చేయి {
+                        ఒకవేళ (*n == '.')
                                 *n = '/';
-                        else
+                        లేకపోతే
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } అయితే (n);
 
-        path_simplify(s);
+        మార్గం_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
-                memmove(s, s+1, strlen(s));
+        ఒకవేళ (s[0] == '/' && s[1] != 0)
+                memmove(s, s+1, అక్షరశ్రేణి_పొడవు(s));
 
-        return s;
+        తిరిగి s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
-        _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+స్థిర పూర్ణాంకం shadow_update(Hashmap **shadow, స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ) {
+        _cleanup_free_ అక్షరం *k = ఖాళీ, *v = ఖాళీ, *cur_k = ఖాళీ, *cur_v = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(property);
-        assert(value);
+        ప్రతిజ్ఞా(property);
+        ప్రతిజ్ఞా(విలువ);
 
-        if (!shadow)
-                return 0;
+        ఒకవేళ (!shadow)
+                తిరిగి 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        ఒకవేళ (!k)
+                తిరిగి -ENOMEM;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(విలువ);
+        ఒకవేళ (!v)
+                తిరిగి -ENOMEM;
 
-        cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
+        cur_v = hashmap_remove2(*shadow, k, (శూన్య**)&cur_k);
 
-        r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
-                assert(r != -EEXIST);
+        r = hashmap_ensure_put(shadow, &మార్గం_hash_ops_free_free, k, v);
+        ఒకవేళ (r < 0) {
+                ప్రతిజ్ఞా(r != -EEXIST);
 
-                return r;
+                తిరిగి r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
-        char *p;
-        int r;
+పూర్ణాంకం sysctl_write_నిండిన(స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ, Hashmap **shadow) {
+        అక్షరం *p;
+        పూర్ణాంకం r;
 
-        assert(property);
-        assert(value);
+        ప్రతిజ్ఞా(property);
+        ప్రతిజ్ఞా(విలువ);
 
         p = strjoina("/proc/sys/", property);
 
-        path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        మార్గం_simplify(p);
+        ఒకవేళ (!మార్గం_is_normalized(p))
+                తిరిగి -EINVAL;
 
-        log_debug("Setting '%s' to '%s'", p, value);
+        log_debug("Setting '%s' to '%s'", p, విలువ);
 
-        r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        r = shadow_update(shadow, p, విలువ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        తిరిగి write_string_file(p, విలువ, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_బఫరు | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
-        _cleanup_free_ char *v = NULL;
+పూర్ణాంకం sysctl_writef(స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *format, ...) {
+        _cleanup_free_ అక్షరం *v = ఖాళీ;
         va_list ap;
-        int r;
+        పూర్ణాంకం r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ఒకవేళ (r < 0)
+                తిరిగి -ENOMEM;
 
-        return sysctl_write(property, v);
+        తిరిగి sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+పూర్ణాంకం sysctl_write_verify(స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ) {
+        పూర్ణాంకం r;
 
-        assert(property);
-        assert(value);
+        ప్రతిజ్ఞా(property);
+        ప్రతిజ్ఞా(విలువ);
 
         /* Some sysctl settings accept invalid values on write, but refuses on read. E.g. coredump pattern,
          * be1e0283021ec73c2eb92839db9a471a068709d9 (v6.17) and 7d7c1fb85cba5627bbe741fb7539c709435e3848
@@ -126,18 +126,18 @@ int sysctl_write_verify(const char *property, const char *value) {
          * 304aa560385720baf3660fe8500f6dd425b63ea9 (v6.17.5). Let's first save the original value, and
          * restore to the saved value if the new value is refused. */
 
-        _cleanup_free_ char *original = NULL;
+        _cleanup_free_ అక్షరం *original = ఖాళీ;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        ఒకవేళ (r >= 0 && streq(original, విలువ))
+                తిరిగి 0; /* Already set. */
 
-        r = sysctl_write(property, value);
-        if (r >= 0) {
-                _cleanup_free_ char *current = NULL;
+        r = sysctl_write(property, విలువ);
+        ఒకవేళ (r >= 0) {
+                _cleanup_free_ అక్షరం *current = ఖాళీ;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                ఒకవేళ (r >= 0) {
+                        ఒకవేళ (streq(current, విలువ))
+                                తిరిగి 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
-                (void) sysctl_write(property, original);
+        ఒకవేళ (original)
+                (శూన్య) sysctl_write(property, original);
 
-        return r;
+        తిరిగి r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+స్థిర స్థిరరాశి అక్షరం* af_గమ్యం_sysctl_dir(పూర్ణాంకం af) {
+        ఒకవేళ (af == AF_MPLS)
+                తిరిగి "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        తిరిగి af_గమ్యం_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+పూర్ణాంకం sysctl_write_ip_property(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ, Hashmap **shadow) {
+        స్థిరరాశి అక్షరం *p;
 
-        assert(property);
-        assert(value);
+        ప్రతిజ్ఞా(property);
+        ప్రతిజ్ఞా(విలువ);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        ఒకవేళ (!లోపల_సమితి(af, AF_INET, AF_INET6, AF_MPLS))
+                తిరిగి -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        ఒకవేళ (ifname) {
+                ఒకవేళ (!ifname_valid_నిండిన(ifname, IFNAME_VALID_SPECIAL))
+                        తిరిగి -EINVAL;
 
-                p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
-                p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
+                p = strjoina("net/", af_గమ్యం_sysctl_dir(af), "/conf/", ifname, "/", property);
+        } లేకపోతే
+                p = strjoina("net/", af_గమ్యం_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        తిరిగి sysctl_write_నిండిన(p, విలువ, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+పూర్ణాంకం sysctl_write_ip_property_boolean(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, bool విలువ, Hashmap **shadow) {
+        తిరిగి sysctl_write_ip_property(af, ifname, property, one_zero(విలువ), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+పూర్ణాంకం sysctl_write_ip_neighbor_property(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, స్థిరరాశి అక్షరం *విలువ, Hashmap **shadow) {
+        స్థిరరాశి అక్షరం *p;
 
-        assert(property);
-        assert(value);
-        assert(ifname);
+        ప్రతిజ్ఞా(property);
+        ప్రతిజ్ఞా(విలువ);
+        ప్రతిజ్ఞా(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        ఒకవేళ (!లోపల_సమితి(af, AF_INET, AF_INET6))
+                తిరిగి -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
-                p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
-                p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
+        ఒకవేళ (ifname) {
+                ఒకవేళ (!ifname_valid_నిండిన(ifname, IFNAME_VALID_SPECIAL))
+                        తిరిగి -EINVAL;
+                p = strjoina("net/", af_గమ్యం_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
+        } లేకపోతే
+                p = strjoina("net/", af_గమ్యం_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        తిరిగి sysctl_write_నిండిన(p, విలువ, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
-        char buf[DECIMAL_STR_MAX(uint32_t)];
-        xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+పూర్ణాంకం sysctl_write_ip_neighbor_property_uint32(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, uint32_t విలువ, Hashmap **shadow) {
+        అక్షరం buf[DECIMAL_STR_MAX(uint32_t)];
+        xsprintf(buf, "%u", విలువ);
+        తిరిగి sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
-        char *p;
-        int r;
+పూర్ణాంకం sysctl_read(స్థిరరాశి అక్షరం *property, అక్షరం **ret) {
+        అక్షరం *p;
+        పూర్ణాంకం r;
 
-        assert(property);
+        ప్రతిజ్ఞా(property);
 
         p = strjoina("/proc/sys/", property);
 
-        path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        మార్గం_simplify(p);
+        ఒకవేళ (!మార్గం_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                తిరిగి -EINVAL;
 
-        r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        r = read_నిండిన_virtual_file(p, ret, ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        తిరిగి r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
-        const char *p;
+పూర్ణాంకం sysctl_read_ip_property(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, అక్షరం **ret) {
+        స్థిరరాశి అక్షరం *p;
 
-        assert(property);
+        ప్రతిజ్ఞా(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        ఒకవేళ (!లోపల_సమితి(af, AF_INET, AF_INET6, AF_MPLS))
+                తిరిగి -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        ఒకవేళ (ifname) {
+                ఒకవేళ (!ifname_valid_నిండిన(ifname, IFNAME_VALID_SPECIAL))
+                        తిరిగి -EINVAL;
 
-                p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
-                p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
+                p = strjoina("net/", af_గమ్యం_sysctl_dir(af), "/conf/", ifname, "/", property);
+        } లేకపోతే
+                p = strjoina("net/", af_గమ్యం_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        తిరిగి sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+పూర్ణాంకం sysctl_read_ip_property_int(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, పూర్ణాంకం *ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return safe_atoi(s, ret);
+        తిరిగి సురక్షిత_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+పూర్ణాంకం sysctl_read_ip_property_uint32(పూర్ణాంకం af, స్థిరరాశి అక్షరం *ifname, స్థిరరాశి అక్షరం *property, uint32_t *ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return safe_atou32(s, ret);
+        తిరిగి సురక్షిత_atou32(s, ret);
 }

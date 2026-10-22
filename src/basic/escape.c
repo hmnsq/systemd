@@ -1,112 +1,112 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <string.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <string.h>
 
-#include "alloc-util.h"
-#include "escape.h"
-#include "hexdecoct.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "escape.h"
+#అన్తర్భావ "hexdecoct.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "utf8.h"
 
-int cescape_char(char c, char *buf) {
-        char *buf_old = buf;
+పూర్ణాంకం cescape_char(అక్షరం c, అక్షరం *buf) {
+        అక్షరం *buf_old = buf;
 
         /* Needs space for 4 characters in the buffer */
 
-        switch (c) {
+        ఎంపిక (c) {
 
-                case '\a':
+                స్థితి '\a':
                         *(buf++) = '\\';
                         *(buf++) = 'a';
-                        break;
-                case '\b':
+                        ఆపు;
+                స్థితి '\b':
                         *(buf++) = '\\';
                         *(buf++) = 'b';
-                        break;
-                case '\f':
+                        ఆపు;
+                స్థితి '\f':
                         *(buf++) = '\\';
                         *(buf++) = 'f';
-                        break;
-                case '\n':
+                        ఆపు;
+                స్థితి '\n':
                         *(buf++) = '\\';
                         *(buf++) = 'n';
-                        break;
-                case '\r':
+                        ఆపు;
+                స్థితి '\r':
                         *(buf++) = '\\';
                         *(buf++) = 'r';
-                        break;
-                case '\t':
+                        ఆపు;
+                స్థితి '\t':
                         *(buf++) = '\\';
                         *(buf++) = 't';
-                        break;
-                case '\v':
+                        ఆపు;
+                స్థితి '\v':
                         *(buf++) = '\\';
                         *(buf++) = 'v';
-                        break;
-                case '\\':
+                        ఆపు;
+                స్థితి '\\':
                         *(buf++) = '\\';
                         *(buf++) = '\\';
-                        break;
-                case '"':
+                        ఆపు;
+                స్థితి '"':
                         *(buf++) = '\\';
                         *(buf++) = '"';
-                        break;
-                case '\'':
+                        ఆపు;
+                స్థితి '\'':
                         *(buf++) = '\\';
                         *(buf++) = '\'';
-                        break;
+                        ఆపు;
 
-                default:
+                అప్రమేయ:
                         /* For special chars we prefer octal over
                          * hexadecimal encoding, simply because glib's
                          * g_strescape() does the same */
-                        if ((c < ' ') || (c >= 127)) {
+                        ఒకవేళ ((c < ' ') || (c >= 127)) {
                                 *(buf++) = '\\';
-                                *(buf++) = octchar((unsigned char) c >> 6);
-                                *(buf++) = octchar((unsigned char) c >> 3);
-                                *(buf++) = octchar((unsigned char) c);
-                        } else
+                                *(buf++) = octchar((గుర్తులేని అక్షరం) c >> 6);
+                                *(buf++) = octchar((గుర్తులేని అక్షరం) c >> 3);
+                                *(buf++) = octchar((గుర్తులేని అక్షరం) c);
+                        } లేకపోతే
                                 *(buf++) = c;
-                        break;
+                        ఆపు;
         }
 
-        return buf - buf_old;
+        తిరిగి buf - buf_old;
 }
 
-char* cescape_length(const char *s, size_t n) {
-        const char *f;
-        char *r, *t;
+అక్షరం* cescape_నిడివి(స్థిరరాశి అక్షరం *s, size_t n) {
+        స్థిరరాశి అక్షరం *f;
+        అక్షరం *r, *t;
 
         /* Does C style string escaping. May be reversed with cunescape(). */
 
-        assert(s || n == 0);
+        ప్రతిజ్ఞా(s || n == 0);
 
-        if (n == SIZE_MAX)
-                n = strlen(s);
+        ఒకవేళ (n == SIZE_MAX)
+                n = అక్షరశ్రేణి_పొడవు(s);
 
-        if (n > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ఒకవేళ (n > (SIZE_MAX - 1) / 4)
+                తిరిగి ఖాళీ;
 
-        r = new(char, n*4 + 1);
-        if (!r)
-                return NULL;
+        r = new(అక్షరం, n*4 + 1);
+        ఒకవేళ (!r)
+                తిరిగి ఖాళీ;
 
-        for (f = s, t = r; f < s + n; f++)
+        కొరకు (f = s, t = r; f < s + n; f++)
                 t += cescape_char(*f, t);
 
         *t = 0;
 
-        return r;
+        తిరిగి r;
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
-        int r = 1;
+పూర్ణాంకం cunescape_one(స్థిరరాశి అక్షరం *p, size_t length, char32_t *ret, bool *eight_బిట్టు, bool accept_nul) {
+        పూర్ణాంకం r = 1;
 
-        assert(p);
-        assert(ret);
-        assert(eight_bit);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(ret);
+        ప్రతిజ్ఞా(eight_బిట్టు);
 
         /* Unescapes C style. Returns the unescaped character in ret.
          * Sets *eight_bit to true if the escaped sequence either fits in
@@ -114,267 +114,267 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
          * instead be copied directly.
          */
 
-        if (length != SIZE_MAX && length < 1)
-                return -EINVAL;
+        ఒకవేళ (length != SIZE_MAX && length < 1)
+                తిరిగి -EINVAL;
 
-        switch (p[0]) {
+        ఎంపిక (p[0]) {
 
-        case 'a':
+        స్థితి 'a':
                 *ret = '\a';
-                break;
-        case 'b':
+                ఆపు;
+        స్థితి 'b':
                 *ret = '\b';
-                break;
-        case 'f':
+                ఆపు;
+        స్థితి 'f':
                 *ret = '\f';
-                break;
-        case 'n':
+                ఆపు;
+        స్థితి 'n':
                 *ret = '\n';
-                break;
-        case 'r':
+                ఆపు;
+        స్థితి 'r':
                 *ret = '\r';
-                break;
-        case 't':
+                ఆపు;
+        స్థితి 't':
                 *ret = '\t';
-                break;
-        case 'v':
+                ఆపు;
+        స్థితి 'v':
                 *ret = '\v';
-                break;
-        case '\\':
+                ఆపు;
+        స్థితి '\\':
                 *ret = '\\';
-                break;
-        case '"':
+                ఆపు;
+        స్థితి '"':
                 *ret = '"';
-                break;
-        case '\'':
+                ఆపు;
+        స్థితి '\'':
                 *ret = '\'';
-                break;
+                ఆపు;
 
-        case 's':
+        స్థితి 's':
                 /* This is an extension of the XDG syntax files */
                 *ret = ' ';
-                break;
+                ఆపు;
 
-        case 'x': {
+        స్థితి 'x': {
                 /* hexadecimal encoding */
-                int a, b;
+                పూర్ణాంకం a, b;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                ఒకవేళ (length != SIZE_MAX && length < 3)
+                        తిరిగి -EINVAL;
 
                 a = unhexchar(p[1]);
-                if (a < 0)
-                        return -EINVAL;
+                ఒకవేళ (a < 0)
+                        తిరిగి -EINVAL;
 
                 b = unhexchar(p[2]);
-                if (b < 0)
-                        return -EINVAL;
+                ఒకవేళ (b < 0)
+                        తిరిగి -EINVAL;
 
                 /* Don't allow NUL bytes */
-                if (a == 0 && b == 0 && !accept_nul)
-                        return -EINVAL;
+                ఒకవేళ (a == 0 && b == 0 && !accept_nul)
+                        తిరిగి -EINVAL;
 
                 *ret = (a << 4U) | b;
-                *eight_bit = true;
+                *eight_బిట్టు = true;
                 r = 3;
-                break;
+                ఆపు;
         }
 
-        case 'u': {
+        స్థితి 'u': {
                 /* C++11 style 16-bit unicode */
 
-                int a[4];
+                పూర్ణాంకం a[4];
                 size_t i;
                 uint32_t c;
 
-                if (length != SIZE_MAX && length < 5)
-                        return -EINVAL;
+                ఒకవేళ (length != SIZE_MAX && length < 5)
+                        తిరిగి -EINVAL;
 
-                for (i = 0; i < 4; i++) {
+                కొరకు (i = 0; i < 4; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        ఒకవేళ (a[i] < 0)
+                                తిరిగి a[i];
                 }
 
                 c = ((uint32_t) a[0] << 12U) | ((uint32_t) a[1] << 8U) | ((uint32_t) a[2] << 4U) | (uint32_t) a[3];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                ఒకవేళ (c == 0 && !accept_nul)
+                        తిరిగి -EINVAL;
 
                 /* Don't allow UTF-16 surrogates, they cannot be encoded as valid UTF-8. Note we
                  * deliberately do *not* use unichar_is_valid() here (unlike the \U case below):
                  * it also rejects noncharacters such as U+FFFE, which callers legitimately round-trip
                  * through \u (e.g. systemd.mount-extra= parsing, see test-fstab-generator). */
-                if (utf16_is_surrogate(c))
-                        return -EINVAL;
+                ఒకవేళ (utf16_is_surrogate(c))
+                        తిరిగి -EINVAL;
 
                 *ret = c;
                 r = 5;
-                break;
+                ఆపు;
         }
 
-        case 'U': {
+        స్థితి 'U': {
                 /* C++11 style 32-bit unicode */
 
-                int a[8];
+                పూర్ణాంకం a[8];
                 size_t i;
                 char32_t c;
 
-                if (length != SIZE_MAX && length < 9)
-                        return -EINVAL;
+                ఒకవేళ (length != SIZE_MAX && length < 9)
+                        తిరిగి -EINVAL;
 
-                for (i = 0; i < 8; i++) {
+                కొరకు (i = 0; i < 8; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        ఒకవేళ (a[i] < 0)
+                                తిరిగి a[i];
                 }
 
                 c = ((uint32_t) a[0] << 28U) | ((uint32_t) a[1] << 24U) | ((uint32_t) a[2] << 20U) | ((uint32_t) a[3] << 16U) |
                     ((uint32_t) a[4] << 12U) | ((uint32_t) a[5] <<  8U) | ((uint32_t) a[6] <<  4U) |  (uint32_t) a[7];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                ఒకవేళ (c == 0 && !accept_nul)
+                        తిరిగి -EINVAL;
 
                 /* Don't allow invalid code points */
-                if (!unichar_is_valid(c))
-                        return -EINVAL;
+                ఒకవేళ (!unichar_is_valid(c))
+                        తిరిగి -EINVAL;
 
                 *ret = c;
                 r = 9;
-                break;
+                ఆపు;
         }
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7': {
+        స్థితి '0':
+        స్థితి '1':
+        స్థితి '2':
+        స్థితి '3':
+        స్థితి '4':
+        స్థితి '5':
+        స్థితి '6':
+        స్థితి '7': {
                 /* octal encoding */
-                int a, b, c;
+                పూర్ణాంకం a, b, c;
                 char32_t m;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                ఒకవేళ (length != SIZE_MAX && length < 3)
+                        తిరిగి -EINVAL;
 
                 a = unoctchar(p[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ఒకవేళ (a < 0)
+                        తిరిగి -EINVAL;
 
                 b = unoctchar(p[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ఒకవేళ (b < 0)
+                        తిరిగి -EINVAL;
 
                 c = unoctchar(p[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ఒకవేళ (c < 0)
+                        తిరిగి -EINVAL;
 
                 /* don't allow NUL bytes */
-                if (a == 0 && b == 0 && c == 0 && !accept_nul)
-                        return -EINVAL;
+                ఒకవేళ (a == 0 && b == 0 && c == 0 && !accept_nul)
+                        తిరిగి -EINVAL;
 
                 /* Don't allow bytes above 255 */
                 m = ((uint32_t) a << 6U) | ((uint32_t) b << 3U) | (uint32_t) c;
-                if (m > 255)
-                        return -EINVAL;
+                ఒకవేళ (m > 255)
+                        తిరిగి -EINVAL;
 
                 *ret = m;
-                *eight_bit = true;
+                *eight_బిట్టు = true;
                 r = 3;
-                break;
+                ఆపు;
         }
 
-        default:
-                return -EINVAL;
+        అప్రమేయ:
+                తిరిగి -EINVAL;
         }
 
-        return r;
+        తిరిగి r;
 }
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret) {
-        _cleanup_free_ char *ans = NULL;
-        char *t;
-        const char *f;
+ssize_t cunescape_నిడివి_with_ఉపసర్గ(స్థిరరాశి అక్షరం *s, size_t length, స్థిరరాశి అక్షరం *ఉపసర్గ, UnescapeFlags flags, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *ans = ఖాళీ;
+        అక్షరం *t;
+        స్థిరరాశి అక్షరం *f;
         size_t pl;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(s);
-        assert(ret);
+        ప్రతిజ్ఞా(s);
+        ప్రతిజ్ఞా(ret);
 
         /* Undoes C style string escaping, and optionally prefixes it. */
 
-        if (length == SIZE_MAX)
-                length = strlen(s);
+        ఒకవేళ (length == SIZE_MAX)
+                length = అక్షరశ్రేణి_పొడవు(s);
 
-        pl = strlen_ptr(prefix);
+        pl = strlen_ptr(ఉపసర్గ);
 
-        ans = new(char, pl+length+1);
-        if (!ans)
-                return -ENOMEM;
+        ans = new(అక్షరం, pl+length+1);
+        ఒకవేళ (!ans)
+                తిరిగి -ENOMEM;
 
-        if (prefix)
-                memcpy(ans, prefix, pl);
+        ఒకవేళ (ఉపసర్గ)
+                జ్ఞాపకం_నకలు(ans, ఉపసర్గ, pl);
 
-        for (f = s, t = ans + pl; f < s + length; f++) {
-                size_t remaining;
-                bool eight_bit = false;
+        కొరకు (f = s, t = ans + pl; f < s + length; f++) {
+                size_t మిగిలిన;
+                bool eight_బిట్టు = false;
                 char32_t u;
 
-                remaining = s + length - f;
-                assert(remaining > 0);
+                మిగిలిన = s + length - f;
+                ప్రతిజ్ఞా(మిగిలిన > 0);
 
-                if (*f != '\\') {
+                ఒకవేళ (*f != '\\') {
                         /* A literal, copy verbatim */
                         *(t++) = *f;
-                        continue;
+                        కొనసాగు;
                 }
 
-                if (remaining == 1) {
-                        if (flags & UNESCAPE_RELAX) {
+                ఒకవేళ (మిగిలిన == 1) {
+                        ఒకవేళ (flags & UNESCAPE_RELAX) {
                                 /* A trailing backslash, copy verbatim */
                                 *(t++) = *f;
-                                continue;
+                                కొనసాగు;
                         }
 
-                        return -EINVAL;
+                        తిరిగి -EINVAL;
                 }
 
-                r = cunescape_one(f + 1, remaining - 1, &u, &eight_bit, flags & UNESCAPE_ACCEPT_NUL);
-                if (r < 0) {
-                        if (flags & UNESCAPE_RELAX) {
+                r = cunescape_one(f + 1, మిగిలిన - 1, &u, &eight_బిట్టు, flags & UNESCAPE_ACCEPT_NUL);
+                ఒకవేళ (r < 0) {
+                        ఒకవేళ (flags & UNESCAPE_RELAX) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '\\';
-                                continue;
+                                కొనసాగు;
                         }
 
-                        return r;
+                        తిరిగి r;
                 }
 
                 f += r;
-                if (eight_bit)
+                ఒకవేళ (eight_బిట్టు)
                         /* One byte? Set directly as specified */
                         *(t++) = u;
-                else
+                లేకపోతే
                         /* Otherwise encode as multi-byte UTF-8 */
                         t += utf8_encode_unichar(t, u);
         }
 
         *t = 0;
 
-        assert(t >= ans); /* Let static analyzers know that the answer is non-negative. */
+        ప్రతిజ్ఞా(t >= ans); /* Let static analyzers know that the answer is non-negative. */
         *ret = TAKE_PTR(ans);
-        return t - *ret;
+        తిరిగి t - *ret;
 }
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags) {
-        char *ans, *t, *prev, *prev2;
-        const char *f;
+అక్షరం* xescape_నిండిన(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *bad, size_t console_వెడల్పు, XEscapeFlags flags) {
+        అక్షరం *ans, *t, *prev, *prev2;
+        స్థిరరాశి అక్షరం *f;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         /* Escapes all chars in bad, in addition to \ and all special chars, in \xFF style escaping. May be
          * reversed with cunescape(). If XESCAPE_8_BIT is specified, characters >= 127 are let through
@@ -383,44 +383,44 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
          * If console_width is reached, or XESCAPE_FORCE_ELLIPSIS is set, output is truncated and "..." is
          * appended. */
 
-        if (console_width == 0)
-                return strdup("");
+        ఒకవేళ (console_వెడల్పు == 0)
+                తిరిగి strdup("");
 
-        size_t len_forced_ellipsis = FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
-        size_t len_s = strlen(s);
+        size_t len_forced_ellipsis = FLAGS_సమితి(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
+        size_t len_s = అక్షరశ్రేణి_పొడవు(s);
 
-        size_t len_body = MIN(console_width, SIZE_MAX - 1); /* We need room for the NUL byte */
-        if (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
+        size_t len_body = MIN(console_వెడల్పు, SIZE_MAX - 1); /* We need room for the NUL byte */
+        ఒకవేళ (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
                 len_body = len_s * 4 + len_forced_ellipsis;
 
-        ans = new(char, len_body + 1);
-        if (!ans)
-                return NULL;
+        ans = new(అక్షరం, len_body + 1);
+        ఒకవేళ (!ans)
+                తిరిగి ఖాళీ;
 
-        for (f = s, t = prev = prev2 = ans; ; f++) {
-                char *tmp_t = t;
+        కొరకు (f = s, t = prev = prev2 = ans; ; f++) {
+                అక్షరం *tmp_t = t;
 
-                if (!*f) {
-                        if (len_forced_ellipsis != 0)
-                                break;
+                ఒకవేళ (!*f) {
+                        ఒకవేళ (len_forced_ellipsis != 0)
+                                ఆపు;
 
                         *t = 0;
-                        return ans;
+                        తిరిగి ans;
                 }
 
-                if ((unsigned char) *f < ' ' ||
-                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned char) *f >= 127) ||
+                ఒకవేళ ((గుర్తులేని అక్షరం) *f < ' ' ||
+                    (!FLAGS_సమితి(flags, XESCAPE_8_బిట్టు) && (గుర్తులేని అక్షరం) *f >= 127) ||
                     *f == '\\' || (bad && strchr(bad, *f))) {
-                        if ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
-                                break;
+                        ఒకవేళ ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
+                                ఆపు;
 
                         *(t++) = '\\';
                         *(t++) = 'x';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else {
-                        if ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
-                                break;
+                } లేకపోతే {
+                        ఒకవేళ ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
+                                ఆపు;
 
                         *(t++) = *f;
                 }
@@ -433,197 +433,197 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
         /* We can just write where we want, since chars are one-byte */
         size_t c = MIN(len_body, STRLEN("...")); /* If the console is too narrow, write fewer dots */
         size_t off;
-        if (len_body - c >= (size_t) (t - ans))
+        ఒకవేళ (len_body - c >= (size_t) (t - ans))
                 off = (size_t) (t - ans);
-        else if (len_body - c >= (size_t) (prev - ans))
+        లేకపోతే ఒకవేళ (len_body - c >= (size_t) (prev - ans))
                 off = (size_t) (prev - ans);
-        else if (len_body - c >= (size_t) (prev2 - ans))
+        లేకపోతే ఒకవేళ (len_body - c >= (size_t) (prev2 - ans))
                 off = (size_t) (prev2 - ans);
-        else
+        లేకపోతే
                 off = len_body - c;
-        assert(off <= (size_t) (t - ans));
+        ప్రతిజ్ఞా(off <= (size_t) (t - ans));
 
-        memcpy(ans + off, "...", c);
+        జ్ఞాపకం_నకలు(ans + off, "...", c);
         ans[off + c] = '\0';
-        return ans;
+        తిరిగి ans;
 }
 
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags) {
-        if (FLAGS_SET(flags, XESCAPE_8_BIT))
-                return xescape_full(str, /* bad= */ NULL, console_width, flags);
-        else
-                return utf8_escape_non_printable_full(str,
-                                                      console_width,
-                                                      FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS));
+అక్షరం* escape_non_printable_నిండిన(స్థిరరాశి అక్షరం *str, size_t console_వెడల్పు, XEscapeFlags flags) {
+        ఒకవేళ (FLAGS_సమితి(flags, XESCAPE_8_బిట్టు))
+                తిరిగి xescape_నిండిన(str, /* bad= */ ఖాళీ, console_వెడల్పు, flags);
+        లేకపోతే
+                తిరిగి utf8_escape_non_printable_నిండిన(str,
+                                                      console_వెడల్పు,
+                                                      FLAGS_సమితి(flags, XESCAPE_FORCE_ELLIPSIS));
 }
 
-char* octescape_full(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+అక్షరం* octescape_నిండిన(స్థిరరాశి అక్షరం *s, size_t len, స్థిరరాశి అక్షరం *bad) {
+        అక్షరం *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn octal style escaping. May be
          * reversed with cunescape(). */
 
-        assert(s || len == 0);
+        ప్రతిజ్ఞా(s || len == 0);
 
-        if (len == SIZE_MAX)
-                len = strlen(s);
+        ఒకవేళ (len == SIZE_MAX)
+                len = అక్షరశ్రేణి_పొడవు(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ఒకవేళ (len > (SIZE_MAX - 1) / 4)
+                తిరిగి ఖాళీ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(అక్షరం, len * 4 + 1);
+        ఒకవేళ (!buf)
+                తిరిగి ఖాళీ;
 
-        for (size_t i = 0; i < len; i++) {
+        కొరకు (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
+                ఒకవేళ (u < ' ' || u >= 127 || లోపల_సమితి(u, '\\', '"') || (bad && strchr(bad, u))) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u >> 6);
                         *(t++) = '0' + ((u >> 3) & 7);
                         *(t++) = '0' + (u & 7);
-                } else
+                } లేకపోతే
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        తిరిగి buf;
 }
 
-char* decescape(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+అక్షరం* decescape(స్థిరరాశి అక్షరం *s, size_t len, స్థిరరాశి అక్షరం *bad) {
+        అక్షరం *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn decimal style escaping. */
 
-        assert(s || len == 0);
+        ప్రతిజ్ఞా(s || len == 0);
 
-        if (len == SIZE_MAX)
-                len = strlen(s);
+        ఒకవేళ (len == SIZE_MAX)
+                len = అక్షరశ్రేణి_పొడవు(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ఒకవేళ (len > (SIZE_MAX - 1) / 4)
+                తిరిగి ఖాళీ;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(అక్షరం, len * 4 + 1);
+        ఒకవేళ (!buf)
+                తిరిగి ఖాళీ;
 
-        for (size_t i = 0; i < len; i++) {
+        కొరకు (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
+                ఒకవేళ (u < ' ' || u >= 127 || లోపల_సమితి(u, '\\', '"') || strchr(bad, u)) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u / 100);
                         *(t++) = '0' + ((u / 10) % 10);
                         *(t++) = '0' + (u % 10);
-                } else
+                } లేకపోతే
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        తిరిగి buf;
 }
 
-static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
-        assert(bad);
-        assert(t);
-        assert(s);
+స్థిర అక్షరం* strcpy_backslash_escaped(అక్షరం *t, స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *bad) {
+        ప్రతిజ్ఞా(bad);
+        ప్రతిజ్ఞా(t);
+        ప్రతిజ్ఞా(s);
 
-        while (*s) {
-                int l = utf8_encoded_valid_unichar(s, SIZE_MAX);
+        అయితే (*s) {
+                పూర్ణాంకం l = utf8_encoded_valid_unichar(s, SIZE_MAX);
 
-                if (char_is_cc(*s) || l < 0)
+                ఒకవేళ (char_is_cc(*s) || l < 0)
                         t += cescape_char(*(s++), t);
-                else if (l == 1) {
-                        if (*s == '\\' || strchr(bad, *s))
+                లేకపోతే ఒకవేళ (l == 1) {
+                        ఒకవేళ (*s == '\\' || strchr(bad, *s))
                                 *(t++) = '\\';
                         *(t++) = *(s++);
-                } else {
+                } లేకపోతే {
                         t = mempcpy(t, s, l);
                         s += l;
                 }
         }
 
-        return t;
+        తిరిగి t;
 }
 
-char* shell_escape(const char *s, const char *bad) {
-        char *buf, *t;
+అక్షరం* shell_escape(స్థిరరాశి అక్షరం *s, స్థిరరాశి అక్షరం *bad) {
+        అక్షరం *buf, *t;
 
-        buf = new(char, strlen(s)*4+1);
-        if (!buf)
-                return NULL;
+        buf = new(అక్షరం, అక్షరశ్రేణి_పొడవు(s)*4+1);
+        ఒకవేళ (!buf)
+                తిరిగి ఖాళీ;
 
         t = strcpy_backslash_escaped(buf, s, bad);
         *t = 0;
 
-        return buf;
+        తిరిగి buf;
 }
 
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
-        const char *p;
-        char *buf, *t;
+అక్షరం* shell_maybe_quote(స్థిరరాశి అక్షరం *s, ShellEscapeFlags flags) {
+        స్థిరరాశి అక్షరం *p;
+        అక్షరం *buf, *t;
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         /* Encloses a string in quotes if necessary to make it OK as a shell string. */
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
-                return strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
+        ఒకవేళ (FLAGS_సమితి(flags, SHELL_ESCAPE_ఖాళీలు) && isempty(s))
+                తిరిగి strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
 
-        for (p = s; *p; ) {
-                int l = utf8_encoded_valid_unichar(p, SIZE_MAX);
+        కొరకు (p = s; *p; ) {
+                పూర్ణాంకం l = utf8_encoded_valid_unichar(p, SIZE_MAX);
 
-                if (char_is_cc(*p) || l < 0 ||
+                ఒకవేళ (char_is_cc(*p) || l < 0 ||
                     strchr(WHITESPACE SHELL_NEED_QUOTES, *p))
-                        break;
+                        ఆపు;
 
                 p += l;
         }
 
-        if (!*p)
-                return strdup(s);
+        ఒకవేళ (!*p)
+                తిరిగి strdup(s);
 
-        buf = new(char, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
-        if (!buf)
-                return NULL;
+        buf = new(అక్షరం, FLAGS_సమితి(flags, SHELL_ESCAPE_POSIX) + 1 + అక్షరశ్రేణి_పొడవు(s)*4 + 1 + 1);
+        ఒకవేళ (!buf)
+                తిరిగి ఖాళీ;
 
         t = buf;
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
+        ఒకవేళ (FLAGS_సమితి(flags, SHELL_ESCAPE_POSIX)) {
                 *(t++) = '$';
                 *(t++) = '\'';
-        } else
+        } లేకపోతే
                 *(t++) = '"';
 
         t = mempcpy(t, s, p - s);
 
         t = strcpy_backslash_escaped(t, p,
-                                     FLAGS_SET(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
+                                     FLAGS_సమితి(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
+        ఒకవేళ (FLAGS_సమితి(flags, SHELL_ESCAPE_POSIX))
                 *(t++) = '\'';
-        else
+        లేకపోతే
                 *(t++) = '"';
         *t = 0;
 
-        return str_realloc(buf);
+        తిరిగి str_realloc(buf);
 }
 
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
-        _cleanup_free_ char *result = NULL;
+అక్షరం* quote_command_పంక్తి(అక్షరం * స్థిరరాశి *argv, ShellEscapeFlags flags) {
+        _cleanup_free_ అక్షరం *ఫలితం = ఖాళీ;
 
-        assert(argv);
+        ప్రతిజ్ఞా(argv);
 
         STRV_FOREACH(a, argv) {
-                _cleanup_free_ char *t = NULL;
+                _cleanup_free_ అక్షరం *t = ఖాళీ;
 
                 t = shell_maybe_quote(*a, flags);
-                if (!t)
-                        return NULL;
+                ఒకవేళ (!t)
+                        తిరిగి ఖాళీ;
 
-                if (!strextend_with_separator(&result, " ", t))
-                        return NULL;
+                ఒకవేళ (!strextend_with_separator(&ఫలితం, " ", t))
+                        తిరిగి ఖాళీ;
         }
 
-        return str_realloc(TAKE_PTR(result));
+        తిరిగి str_realloc(TAKE_PTR(ఫలితం));
 }

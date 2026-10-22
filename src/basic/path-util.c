@@ -1,205 +1,205 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#అన్తర్భావ <fnmatch.h>
+#అన్తర్భావ <stdio.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "glob-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "chase.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "glob-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
 
-bool is_path(const char *p) {
-        if (!p) /* A NULL pointer is definitely not a path */
-                return false;
+bool is_మార్గం(స్థిరరాశి అక్షరం *p) {
+        ఒకవేళ (!p) /* A NULL pointer is definitely not a path */
+                తిరిగి false;
 
-        return strchr(p, '/');
+        తిరిగి strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+పూర్ణాంకం మార్గం_విభజించు_and_make_absolute(స్థిరరాశి అక్షరం *p, అక్షరం ***ret) {
+        _cleanup_strv_free_ అక్షరం **l = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(p);
-        assert(ret);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(ret);
 
-        l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
+        l = strv_విభజించు(p, ":");
+        ఒకవేళ (!l)
+                తిరిగి -ENOMEM;
 
-        r = path_strv_make_absolute_cwd(l);
-        if (r < 0)
-                return r;
+        r = మార్గం_strv_make_absolute_cwd(l);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = TAKE_PTR(l);
-        return r;
+        తిరిగి r;
 }
 
-char* path_make_absolute(const char *p, const char *prefix) {
-        assert(p);
+అక్షరం* మార్గం_make_absolute(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *ఉపసర్గ) {
+        ప్రతిజ్ఞా(p);
 
         /* Makes every item in the list an absolute path by prepending
          * the prefix, if specified and necessary */
 
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
+        ఒకవేళ (మార్గం_is_absolute(p) || isempty(ఉపసర్గ))
+                తిరిగి strdup(p);
 
-        return path_join(prefix, p);
+        తిరిగి మార్గం_join(ఉపసర్గ, p);
 }
 
-int safe_getcwd(char **ret) {
-        _cleanup_free_ char *cwd = NULL;
+పూర్ణాంకం సురక్షిత_getcwd(అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *cwd = ఖాళీ;
 
         cwd = get_current_dir_name();
-        if (!cwd)
-                return negative_errno();
+        ఒకవేళ (!cwd)
+                తిరిగి negative_errno();
 
         /* Let's make sure the directory is really absolute, to protect us from the logic behind
          * CVE-2018-1000001 */
-        if (cwd[0] != '/')
-                return -ENOMEDIUM;
+        ఒకవేళ (cwd[0] != '/')
+                తిరిగి -ENOMEDIUM;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(cwd);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int path_make_absolute_cwd(const char *p, char **ret) {
-        char *c;
-        int r;
+పూర్ణాంకం మార్గం_make_absolute_cwd(స్థిరరాశి అక్షరం *p, అక్షరం **ret) {
+        అక్షరం *c;
+        పూర్ణాంకం r;
 
-        assert(p);
-        assert(ret);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(ret);
 
         /* Similar to path_make_absolute(), but prefixes with the
          * current working directory. */
 
-        if (path_is_absolute(p))
+        ఒకవేళ (మార్గం_is_absolute(p))
                 c = strdup(p);
-        else {
-                _cleanup_free_ char *cwd = NULL;
+        లేకపోతే {
+                _cleanup_free_ అక్షరం *cwd = ఖాళీ;
 
-                r = safe_getcwd(&cwd);
-                if (r < 0)
-                        return r;
+                r = సురక్షిత_getcwd(&cwd);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                c = path_join(cwd, p);
+                c = మార్గం_join(cwd, p);
         }
-        if (!c)
-                return -ENOMEM;
+        ఒకవేళ (!c)
+                తిరిగి -ENOMEM;
 
         *ret = c;
-        return 0;
+        తిరిగి 0;
 }
 
-int path_make_relative(const char *from, const char *to, char **ret) {
-        _cleanup_free_ char *result = NULL;
-        unsigned n_parents;
-        const char *f, *t;
-        int r, k;
-        char *p;
+పూర్ణాంకం మార్గం_make_relative(స్థిరరాశి అక్షరం *from, స్థిరరాశి అక్షరం *to, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *ఫలితం = ఖాళీ;
+        గుర్తులేని n_parents;
+        స్థిరరాశి అక్షరం *f, *t;
+        పూర్ణాంకం r, k;
+        అక్షరం *p;
 
-        assert(from);
-        assert(to);
-        assert(ret);
+        ప్రతిజ్ఞా(from);
+        ప్రతిజ్ఞా(to);
+        ప్రతిజ్ఞా(ret);
 
         /* Strips the common part, and adds ".." elements as necessary. */
 
-        if (!path_is_absolute(from) || !path_is_absolute(to))
-                return -EINVAL;
+        ఒకవేళ (!మార్గం_is_absolute(from) || !మార్గం_is_absolute(to))
+                తిరిగి -EINVAL;
 
-        for (;;) {
-                r = path_find_first_component(&from, true, &f);
-                if (r < 0)
-                        return r;
+        కొరకు (;;) {
+                r = మార్గం_కనుగొను_మొదటి_component(&from, true, &f);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                k = path_find_first_component(&to, true, &t);
-                if (k < 0)
-                        return k;
+                k = మార్గం_కనుగొను_మొదటి_component(&to, true, &t);
+                ఒకవేళ (k < 0)
+                        తిరిగి k;
 
-                if (r == 0) {
+                ఒకవేళ (r == 0) {
                         /* end of 'from' */
-                        if (k == 0) {
+                        ఒకవేళ (k == 0) {
                                 /* from and to are equivalent. */
-                                result = strdup(".");
-                                if (!result)
-                                        return -ENOMEM;
-                        } else {
+                                ఫలితం = strdup(".");
+                                ఒకవేళ (!ఫలితం)
+                                        తిరిగి -ENOMEM;
+                        } లేకపోతే {
                                 /* 'to' is inside of 'from'. */
-                                r = path_simplify_alloc(t, &result);
-                                if (r < 0)
-                                        return r;
+                                r = మార్గం_simplify_alloc(t, &ఫలితం);
+                                ఒకవేళ (r < 0)
+                                        తిరిగి r;
 
-                                if (!path_is_valid(result))
-                                        return -EINVAL;
+                                ఒకవేళ (!మార్గం_is_valid(ఫలితం))
+                                        తిరిగి -EINVAL;
                         }
 
-                        *ret = TAKE_PTR(result);
-                        return 0;
+                        *ret = TAKE_PTR(ఫలితం);
+                        తిరిగి 0;
                 }
 
-                if (r != k || !strneq(f, t, r))
-                        break;
+                ఒకవేళ (r != k || !strneq(f, t, r))
+                        ఆపు;
         }
 
         /* If we're here, then "from_dir" has one or more elements that need to
          * be replaced with "..". */
 
-        for (n_parents = 1;; n_parents++) {
+        కొరకు (n_parents = 1;; n_parents++) {
                 /* If this includes ".." we can't do a simple series of "..". */
-                r = path_find_first_component(&from, false, &f);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = మార్గం_కనుగొను_మొదటి_component(&from, false, &f);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        ఆపు;
         }
 
-        if (isempty(t) && n_parents * 3 > PATH_MAX)
+        ఒకవేళ (isempty(t) && n_parents * 3 > PATH_MAX)
                 /* PATH_MAX is counted *with* the trailing NUL byte */
-                return -EINVAL;
+                తిరిగి -EINVAL;
 
-        result = new(char, n_parents * 3 + !isempty(t) + strlen_ptr(t));
-        if (!result)
-                return -ENOMEM;
+        ఫలితం = new(అక్షరం, n_parents * 3 + !isempty(t) + strlen_ptr(t));
+        ఒకవేళ (!ఫలితం)
+                తిరిగి -ENOMEM;
 
-        for (p = result; n_parents > 0; n_parents--)
+        కొరకు (p = ఫలితం; n_parents > 0; n_parents--)
                 p = mempcpy(p, "../", 3);
 
-        if (isempty(t)) {
+        ఒకవేళ (isempty(t)) {
                 /* Remove trailing slash and terminate string. */
                 *(--p) = '\0';
-                *ret = TAKE_PTR(result);
-                return 0;
+                *ret = TAKE_PTR(ఫలితం);
+                తిరిగి 0;
         }
 
         strcpy(p, t);
 
-        path_simplify(result);
+        మార్గం_simplify(ఫలితం);
 
-        if (!path_is_valid(result))
-                return -EINVAL;
+        ఒకవేళ (!మార్గం_is_valid(ఫలితం))
+                తిరిగి -EINVAL;
 
-        *ret = TAKE_PTR(result);
-        return 0;
+        *ret = TAKE_PTR(ఫలితం);
+        తిరిగి 0;
 }
 
-int path_make_relative_parent(const char *from_child, const char *to, char **ret) {
-        _cleanup_free_ char *from = NULL;
-        int r;
+పూర్ణాంకం మార్గం_make_relative_మాతృ(స్థిరరాశి అక్షరం *from_బిడ్డ, స్థిరరాశి అక్షరం *to, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *from = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(from_child);
-        assert(to);
-        assert(ret);
+        ప్రతిజ్ఞా(from_బిడ్డ);
+        ప్రతిజ్ఞా(to);
+        ప్రతిజ్ఞా(ret);
 
         /* Similar to path_make_relative(), but provides the relative path from the parent directory of
          * 'from_child'. This may be useful when creating relative symlink.
@@ -214,148 +214,148 @@ int path_make_relative_parent(const char *from_child, const char *to, char **ret
          *      path_make_relative_parent(from, to) = "../ccc/ddd"
          */
 
-        r = path_extract_directory(from_child, &from);
-        if (r < 0)
-                return r;
+        r = మార్గం_వెలికితీయి_directory(from_బిడ్డ, &from);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return path_make_relative(from, to, ret);
+        తిరిగి మార్గం_make_relative(from, to, ret);
 }
 
-char* path_startswith_strv(const char *p, char * const *strv) {
-        assert(p);
+అక్షరం* మార్గం_startswith_strv(స్థిరరాశి అక్షరం *p, అక్షరం * స్థిరరాశి *strv) {
+        ప్రతిజ్ఞా(p);
 
         STRV_FOREACH(s, strv) {
-                char *t;
+                అక్షరం *t;
 
-                t = path_startswith(p, *s);
-                if (t)
-                        return t;
+                t = మార్గం_startswith(p, *s);
+                ఒకవేళ (t)
+                        తిరిగి t;
         }
 
-        return NULL;
+        తిరిగి ఖాళీ;
 }
 
-int path_strv_make_absolute_cwd(char **l) {
-        int r;
+పూర్ణాంకం మార్గం_strv_make_absolute_cwd(అక్షరం **l) {
+        పూర్ణాంకం r;
 
         /* Goes through every item in the string list and makes it
          * absolute. This works in place and won't rollback any
          * changes on failure. */
 
         STRV_FOREACH(s, l) {
-                char *t;
+                అక్షరం *t;
 
-                r = path_make_absolute_cwd(*s, &t);
-                if (r < 0)
-                        return r;
+                r = మార్గం_make_absolute_cwd(*s, &t);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                path_simplify(t);
+                మార్గం_simplify(t);
                 free_and_replace(*s, t);
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-char** path_strv_resolve(char **l, const char *root) {
-        unsigned k = 0;
+అక్షరం** మార్గం_strv_resolve(అక్షరం **l, స్థిరరాశి అక్షరం *మూలం) {
+        గుర్తులేని k = 0;
         bool enomem = false;
-        int r;
+        పూర్ణాంకం r;
 
-        if (strv_isempty(l))
-                return l;
+        ఒకవేళ (strv_isempty(l))
+                తిరిగి l;
 
         /* Go through every item in the string list and canonicalize the path.
          * This works in place and doesn't roll back any changes on failure. */
 
         STRV_FOREACH(s, l) {
-                _cleanup_free_ char *orig = NULL;
-                char *t, *u;
+                _cleanup_free_ అక్షరం *orig = ఖాళీ;
+                అక్షరం *t, *u;
 
-                if (root) {
-                        if (!path_is_absolute(*s)) {
+                ఒకవేళ (మూలం) {
+                        ఒకవేళ (!మార్గం_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
-                                free(*s);
-                                continue;
+                                విడుదల(*s);
+                                కొనసాగు;
                         }
 
                         orig = *s;
-                        t = path_join(root, orig);
-                        if (!t) {
+                        t = మార్గం_join(మూలం, orig);
+                        ఒకవేళ (!t) {
                                 enomem = true;
-                                continue;
+                                కొనసాగు;
                         }
-                } else
+                } లేకపోతే
                         t = *s;
 
-                r = chase(t, root, 0, &u, NULL);
-                if (r == -ENOENT) {
-                        if (root) {
+                r = chase(t, మూలం, 0, &u, ఖాళీ);
+                ఒకవేళ (r == -ENOENT) {
+                        ఒకవేళ (మూలం) {
                                 u = TAKE_PTR(orig);
-                                free(t);
-                        } else
+                                విడుదల(t);
+                        } లేకపోతే
                                 u = t;
-                } else if (r < 0) {
-                        free(t);
+                } లేకపోతే ఒకవేళ (r < 0) {
+                        విడుదల(t);
 
-                        if (r == -ENOMEM)
+                        ఒకవేళ (r == -ENOMEM)
                                 enomem = true;
 
-                        continue;
-                } else if (root) {
-                        char *x;
+                        కొనసాగు;
+                } లేకపోతే ఒకవేళ (మూలం) {
+                        అక్షరం *x;
 
-                        free(t);
-                        x = path_startswith(u, root);
-                        if (x) {
+                        విడుదల(t);
+                        x = మార్గం_startswith(u, మూలం);
+                        ఒకవేళ (x) {
                                 /* restore the slash if it was lost */
-                                if (!startswith(x, "/"))
+                                ఒకవేళ (!startswith(x, "/"))
                                         *(--x) = '/';
 
                                 t = strdup(x);
-                                free(u);
-                                if (!t) {
+                                విడుదల(u);
+                                ఒకవేళ (!t) {
                                         enomem = true;
-                                        continue;
+                                        కొనసాగు;
                                 }
                                 u = t;
-                        } else {
+                        } లేకపోతే {
                                 /* canonicalized path goes outside of
                                  * prefix, keep the original path instead */
                                 free_and_replace(u, orig);
                         }
-                } else
-                        free(t);
+                } లేకపోతే
+                        విడుదల(t);
 
                 l[k++] = u;
         }
 
-        l[k] = NULL;
+        l[k] = ఖాళీ;
 
-        if (enomem)
-                return NULL;
+        ఒకవేళ (enomem)
+                తిరిగి ఖాళీ;
 
-        return l;
+        తిరిగి l;
 }
 
-char** path_strv_resolve_uniq(char **l, const char *root) {
+అక్షరం** మార్గం_strv_resolve_uniq(అక్షరం **l, స్థిరరాశి అక్షరం *మూలం) {
 
-        if (strv_isempty(l))
-                return l;
+        ఒకవేళ (strv_isempty(l))
+                తిరిగి l;
 
-        if (!path_strv_resolve(l, root))
-                return NULL;
+        ఒకవేళ (!మార్గం_strv_resolve(l, మూలం))
+                తిరిగి ఖాళీ;
 
-        return strv_uniq(l);
+        తిరిగి strv_uniq(l);
 }
 
-char* skip_leading_slash(const char *p) {
-        return skip_leading_chars(p, "/");
+అక్షరం* skip_leading_slash(స్థిరరాశి అక్షరం *p) {
+        తిరిగి skip_leading_chars(p, "/");
 }
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags) {
-        bool add_slash = false, keep_trailing_slash, absolute, beginning = true;
-        char *f = path;
-        int r;
+అక్షరం* మార్గం_simplify_నిండిన(అక్షరం *మార్గం, మార్గం_Simplify_Flags flags) {
+        bool కూడు_slash = false, keep_trailing_slash, absolute, beginning = true;
+        అక్షరం *f = మార్గం;
+        పూర్ణాంకం r;
 
         /* Removes redundant inner and trailing slashes. Also removes unnecessary dots.
          * Modifies the passed string in-place.
@@ -366,72 +366,72 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
          * /../foo/bar/..    becomes /foo/bar/..
          */
 
-        if (isempty(path))
-                return path;
+        ఒకవేళ (isempty(మార్గం))
+                తిరిగి మార్గం;
 
-        keep_trailing_slash = FLAGS_SET(flags, PATH_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(path, "/");
+        keep_trailing_slash = FLAGS_సమితి(flags, మార్గం_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(మార్గం, "/");
 
-        absolute = path_is_absolute(path);
+        absolute = మార్గం_is_absolute(మార్గం);
         f += absolute;  /* Keep leading /, if present. */
 
-        for (const char *p = f;;) {
-                const char *e;
+        కొరకు (స్థిరరాశి అక్షరం *p = f;;) {
+                స్థిరరాశి అక్షరం *e;
 
-                r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        break;
+                r = మార్గం_కనుగొను_మొదటి_component(&p, true, &e);
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                if (r > 0 && absolute && beginning && path_startswith(e, ".."))
+                ఒకవేళ (r > 0 && absolute && beginning && మార్గం_startswith(e, ".."))
                         /* If we're at the beginning of an absolute path, we can safely skip ".." */
-                        continue;
+                        కొనసాగు;
 
                 beginning = false;
 
-                if (add_slash)
+                ఒకవేళ (కూడు_slash)
                         *f++ = '/';
 
-                if (r < 0) {
+                ఒకవేళ (r < 0) {
                         /* if path is invalid, then refuse to simplify the remaining part. */
-                        memmove(f, p, strlen(p) + 1);
-                        return path;
+                        memmove(f, p, అక్షరశ్రేణి_పొడవు(p) + 1);
+                        తిరిగి మార్గం;
                 }
 
                 memmove(f, e, r);
                 f += r;
 
-                add_slash = true;
+                కూడు_slash = true;
         }
 
         /* Special rule, if we stripped everything, we need a "." for the current directory. */
-        if (f == path)
+        ఒకవేళ (f == మార్గం)
                 *f++ = '.';
 
-        if (*(f-1) != '/' && keep_trailing_slash)
+        ఒకవేళ (*(f-1) != '/' && keep_trailing_slash)
                 *f++ = '/';
 
         *f = '\0';
-        return path;
+        తిరిగి మార్గం;
 }
 
-int path_simplify_alloc(const char *path, char **ret) {
-        assert(ret);
+పూర్ణాంకం మార్గం_simplify_alloc(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret) {
+        ప్రతిజ్ఞా(ret);
 
-        if (!path) {
-                *ret = NULL;
-                return 0;
+        ఒకవేళ (!మార్గం) {
+                *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        char *t = strdup(path);
-        if (!t)
-                return -ENOMEM;
+        అక్షరం *t = strdup(మార్గం);
+        ఒకవేళ (!t)
+                తిరిగి -ENOMEM;
 
-        *ret = path_simplify(t);
-        return 0;
+        *ret = మార్గం_simplify(t);
+        తిరిగి 0;
 }
 
-char* path_startswith_full(const char *original_path, const char *prefix, PathStartWithFlags flags) {
-        assert(original_path);
-        assert(prefix);
+అక్షరం* మార్గం_startswith_నిండిన(స్థిరరాశి అక్షరం *original_మార్గం, స్థిరరాశి అక్షరం *ఉపసర్గ, మార్గం_ప్రారంభం_With_Flags flags) {
+        ప్రతిజ్ఞా(original_మార్గం);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
         /* Returns a pointer to the start of the first component after the parts matched by
          * the prefix, iff
@@ -443,151 +443,151 @@ char* path_startswith_full(const char *original_path, const char *prefix, PathSt
          * Returns NULL otherwise.
          */
 
-        const char *path = original_path;
+        స్థిరరాశి అక్షరం *మార్గం = original_మార్గం;
 
-        if ((path[0] == '/') != (prefix[0] == '/'))
-                return NULL;
+        ఒకవేళ ((మార్గం[0] == '/') != (ఉపసర్గ[0] == '/'))
+                తిరిగి ఖాళీ;
 
-        for (;;) {
-                const char *p, *q;
-                int m, n;
+        కొరకు (;;) {
+                స్థిరరాశి అక్షరం *p, *q;
+                పూర్ణాంకం m, n;
 
-                m = path_find_first_component(&path, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &p);
-                if (m < 0)
-                        return NULL;
+                m = మార్గం_కనుగొను_మొదటి_component(&మార్గం, !FLAGS_సమితి(flags, మార్గం_STARTSWITH_REFUSE_DOT_DOT), &p);
+                ఒకవేళ (m < 0)
+                        తిరిగి ఖాళీ;
 
-                n = path_find_first_component(&prefix, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &q);
-                if (n < 0)
-                        return NULL;
+                n = మార్గం_కనుగొను_మొదటి_component(&ఉపసర్గ, !FLAGS_సమితి(flags, మార్గం_STARTSWITH_REFUSE_DOT_DOT), &q);
+                ఒకవేళ (n < 0)
+                        తిరిగి ఖాళీ;
 
-                if (n == 0) {
-                        if (!p)
-                                p = path;
+                ఒకవేళ (n == 0) {
+                        ఒకవేళ (!p)
+                                p = మార్గం;
 
-                        if (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
+                        ఒకవేళ (FLAGS_సమితి(flags, మార్గం_STARTSWITH_RETURN_LEADING_SLASH)) {
 
-                                if (p <= original_path)
-                                        return NULL;
+                                ఒకవేళ (p <= original_మార్గం)
+                                        తిరిగి ఖాళీ;
 
                                 p--;
 
-                                if (*p != '/')
-                                        return NULL;
+                                ఒకవేళ (*p != '/')
+                                        తిరిగి ఖాళీ;
                         }
 
-                        return (char*) p;
+                        తిరిగి (అక్షరం*) p;
                 }
 
-                if (m != n)
-                        return NULL;
+                ఒకవేళ (m != n)
+                        తిరిగి ఖాళీ;
 
-                if (!strneq(p, q, m))
-                        return NULL;
+                ఒకవేళ (!strneq(p, q, m))
+                        తిరిగి ఖాళీ;
         }
 }
 
-int path_compare(const char *a, const char *b) {
-        int r;
+పూర్ణాంకం మార్గం_compare(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b) {
+        పూర్ణాంకం r;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         /* A relative path and an absolute path must not compare as equal.
          * Which one is sorted before the other does not really matter.
          * Here a relative path is ordered before an absolute path. */
-        r = CMP(path_is_absolute(a), path_is_absolute(b));
-        if (r != 0)
-                return r;
+        r = CMP(మార్గం_is_absolute(a), మార్గం_is_absolute(b));
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
-        for (;;) {
-                const char *aa, *bb;
-                int j, k;
+        కొరకు (;;) {
+                స్థిరరాశి అక్షరం *aa, *bb;
+                పూర్ణాంకం j, k;
 
-                j = path_find_first_component(&a, true, &aa);
-                k = path_find_first_component(&b, true, &bb);
+                j = మార్గం_కనుగొను_మొదటి_component(&a, true, &aa);
+                k = మార్గం_కనుగొను_మొదటి_component(&b, true, &bb);
 
-                if (j < 0 || k < 0) {
+                ఒకవేళ (j < 0 || k < 0) {
                         /* When one of paths is invalid, order invalid path after valid one. */
                         r = CMP(j < 0, k < 0);
-                        if (r != 0)
-                                return r;
+                        ఒకవేళ (r != 0)
+                                తిరిగి r;
 
                         /* fallback to use strcmp() if both paths are invalid. */
-                        return strcmp(a, b);
+                        తిరిగి strcmp(a, b);
                 }
 
                 /* Order prefixes first: "/foo" before "/foo/bar" */
-                if (j == 0) {
-                        if (k == 0)
-                                return 0;
-                        return -1;
+                ఒకవేళ (j == 0) {
+                        ఒకవేళ (k == 0)
+                                తిరిగి 0;
+                        తిరిగి -1;
                 }
-                if (k == 0)
-                        return 1;
+                ఒకవేళ (k == 0)
+                        తిరిగి 1;
 
                 /* Alphabetical sort: "/foo/aaa" before "/foo/b" */
                 r = memcmp(aa, bb, MIN(j, k));
-                if (r != 0)
-                        return r;
+                ఒకవేళ (r != 0)
+                        తిరిగి r;
 
                 /* Sort "/foo/a" before "/foo/aaa" */
                 r = CMP(j, k);
-                if (r != 0)
-                        return r;
+                ఒకవేళ (r != 0)
+                        తిరిగి r;
         }
 }
 
-int path_compare_filename(const char *a, const char *b) {
-        _cleanup_free_ char *fa = NULL, *fb = NULL;
-        int r, j, k;
+పూర్ణాంకం మార్గం_compare_filename(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b) {
+        _cleanup_free_ అక్షరం *fa = ఖాళీ, *fb = ఖాళీ;
+        పూర్ణాంకం r, j, k;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
-        j = path_extract_filename(a, &fa);
-        k = path_extract_filename(b, &fb);
+        j = మార్గం_వెలికితీయి_filename(a, &fa);
+        k = మార్గం_వెలికితీయి_filename(b, &fb);
 
         /* When one of paths is "." or root, then order it earlier. */
         r = CMP(j != -EADDRNOTAVAIL, k != -EADDRNOTAVAIL);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         /* When one of paths is invalid (or we get OOM), order invalid path after valid one. */
         r = CMP(j < 0, k < 0);
-        if (r != 0)
-                return r;
+        ఒకవేళ (r != 0)
+                తిరిగి r;
 
         /* fallback to use strcmp() if both paths are invalid. */
-        if (j < 0)
-                return strcmp(a, b);
+        ఒకవేళ (j < 0)
+                తిరిగి strcmp(a, b);
 
-        return strcmp(fa, fb);
+        తిరిగి strcmp(fa, fb);
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags) {
+పూర్ణాంకం మార్గం_equal_or_inode_same_నిండిన(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b, పూర్ణాంకం flags) {
         /* Returns true if paths are of the same entry, false if not, <0 on error. */
 
-        if (path_equal(a, b))
-                return 1;
+        ఒకవేళ (మార్గం_equal(a, b))
+                తిరిగి 1;
 
-        if (!a || !b)
-                return 0;
+        ఒకవేళ (!a || !b)
+                తిరిగి 0;
 
-        return inode_same(a, b, flags);
+        తిరిగి inode_same(a, b, flags);
 }
 
-char* path_extend_internal(char **x, ...) {
+అక్షరం* మార్గం_extend_అంతర్గత(అక్షరం **x, ...) {
         size_t sz, old_sz;
-        char *q, *nx;
-        const char *p;
+        అక్షరం *q, *nx;
+        స్థిరరాశి అక్షరం *p;
         va_list ap;
         bool slash;
 
-        POINTER_MAY_BE_NULL(x);
+        సూచిక_MAY_BE_NULL(x);
 
         /* Joins all listed strings until the sentinel and places a "/" between them unless the strings
          * end/begin already with one so that it is unnecessary. Note that slashes which are already
@@ -609,31 +609,31 @@ char* path_extend_internal(char **x, ...) {
 
         sz = old_sz = x ? strlen_ptr(*x) : 0;
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                size_t add;
+        అయితే ((p = va_arg(ap, అక్షరం*)) != సూచిక_MAX) {
+                size_t కూడు;
 
-                if (isempty(p))
-                        continue;
+                ఒకవేళ (isempty(p))
+                        కొనసాగు;
 
-                add = 1 + strlen(p);
-                if (sz > SIZE_MAX - add) { /* overflow check */
+                కూడు = 1 + అక్షరశ్రేణి_పొడవు(p);
+                ఒకవేళ (sz > SIZE_MAX - కూడు) { /* overflow check */
                         va_end(ap);
-                        return NULL;
+                        తిరిగి ఖాళీ;
                 }
 
-                sz += add;
+                sz += కూడు;
         }
         va_end(ap);
 
-        nx = realloc(x ? *x : NULL, GREEDY_ALLOC_ROUND_UP(sz+1));
-        if (!nx)
-                return NULL;
-        if (x)
+        nx = realloc(x ? *x : ఖాళీ, GREEDY_ALLOC_విడత_పైకి(sz+1));
+        ఒకవేళ (!nx)
+                తిరిగి ఖాళీ;
+        ఒకవేళ (x)
                 *x = nx;
 
-        if (old_sz > 0)
+        ఒకవేళ (old_sz > 0)
                 slash = nx[old_sz-1] == '/';
-        else {
+        లేకపోతే {
                 nx[old_sz] = 0;
                 slash = true; /* no need to generate a slash anymore */
         }
@@ -641,11 +641,11 @@ char* path_extend_internal(char **x, ...) {
         q = nx + old_sz;
 
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                if (isempty(p))
-                        continue;
+        అయితే ((p = va_arg(ap, అక్షరం*)) != సూచిక_MAX) {
+                ఒకవేళ (isempty(p))
+                        కొనసాగు;
 
-                if (!slash && p[0] != '/')
+                ఒకవేళ (!slash && p[0] != '/')
                         *(q++) = '/';
 
                 q = stpcpy(q, p);
@@ -653,204 +653,204 @@ char* path_extend_internal(char **x, ...) {
         }
         va_end(ap);
 
-        return nx;
+        తిరిగి nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *resolved = NULL;
-        int r;
+పూర్ణాంకం open_and_check_executable(స్థిరరాశి అక్షరం *name, స్థిరరాశి అక్షరం *మూలం, అక్షరం **ret_మార్గం, పూర్ణాంకం *ret_fd) {
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        _cleanup_free_ అక్షరం *resolved = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
         /* Function chase() is invoked only when root is not NULL, as using it regardless of
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        ఒకవేళ (మూలం) {
                 /* prefix root to name in case full paths are not specified */
-                r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
-                if (r < 0)
-                        return r;
+                r = chase(name, మూలం, CHASE_ఉపసర్గ_మూలం, &resolved, &fd);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 name = resolved;
-        } else {
+        } లేకపోతే {
                 /* We need to use O_PATH because there may be executables for which we have only exec permissions,
                  * but not read (usually suid executables). */
-                fd = open(name, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
+                fd = open(name, O_మార్గం|O_CLOEXEC);
+                ఒకవేళ (fd < 0)
+                        తిరిగి -errno;
         }
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = access_fd(fd, X_OK);
-        if (r == -ENOSYS)
+        ఒకవేళ (r == -ENOSYS)
                 /* /proc/ is not mounted. Fall back to access(). */
                 r = RET_NERRNO(access(name, X_OK));
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path) {
-                if (resolved)
-                        *ret_path = TAKE_PTR(resolved);
-                else {
-                        r = path_make_absolute_cwd(name, ret_path);
-                        if (r < 0)
-                                return r;
+        ఒకవేళ (ret_మార్గం) {
+                ఒకవేళ (resolved)
+                        *ret_మార్గం = TAKE_PTR(resolved);
+                లేకపోతే {
+                        r = మార్గం_make_absolute_cwd(name, ret_మార్గం);
+                        ఒకవేళ (r < 0)
+                                తిరిగి r;
 
-                        path_simplify(*ret_path);
+                        మార్గం_simplify(*ret_మార్గం);
                 }
         }
 
-        if (ret_fd)
+        ఒకవేళ (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
-                bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd) {
+పూర్ణాంకం కనుగొను_executable_నిండిన(
+                స్థిరరాశి అక్షరం *name,
+                స్థిరరాశి అక్షరం *మూలం,
+                అక్షరం * స్థిరరాశి *exec_శోధన_మార్గం,
+                bool use_మార్గం_envvar,
+                అక్షరం **ret_filename,
+                పూర్ణాంకం *ret_fd) {
 
-        int last_error = -ENOENT, r = 0;
+        పూర్ణాంకం చివరి_error = -ENOENT, r = 0;
 
-        assert(name);
+        ప్రతిజ్ఞా(name);
 
-        if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+        ఒకవేళ (is_మార్గం(name))
+                తిరిగి open_and_check_executable(name, మూలం, ret_filename, ret_fd);
 
-        if (exec_search_path) {
-                STRV_FOREACH(element, exec_search_path) {
-                        _cleanup_free_ char *full_path = NULL;
+        ఒకవేళ (exec_శోధన_మార్గం) {
+                STRV_FOREACH(element, exec_శోధన_మార్గం) {
+                        _cleanup_free_ అక్షరం *నిండిన_మార్గం = ఖాళీ;
 
-                        if (!path_is_absolute(*element)) {
+                        ఒకవేళ (!మార్గం_is_absolute(*element)) {
                                 log_debug("Exec search path '%s' isn't absolute, ignoring.", *element);
-                                continue;
+                                కొనసాగు;
                         }
 
-                        full_path = path_join(*element, name);
-                        if (!full_path)
-                                return -ENOMEM;
+                        నిండిన_మార్గం = మార్గం_join(*element, name);
+                        ఒకవేళ (!నిండిన_మార్గం)
+                                తిరిగి -ENOMEM;
 
-                        r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
-                        if (r >= 0)
-                                return 0;
-                        if (r != -EACCES)
-                                last_error = r;
+                        r = open_and_check_executable(నిండిన_మార్గం, మూలం, ret_filename, ret_fd);
+                        ఒకవేళ (r >= 0)
+                                తిరిగి 0;
+                        ఒకవేళ (r != -EACCES)
+                                చివరి_error = r;
                 }
-                return last_error;
+                తిరిగి చివరి_error;
         }
 
-        const char *p = NULL;
+        స్థిరరాశి అక్షరం *p = ఖాళీ;
 
-        if (use_path_envvar)
+        ఒకవేళ (use_మార్గం_envvar)
                 /* Plain getenv, not secure_getenv, because we want to actually allow the user to pick the
                  * binary. */
                 p = getenv("PATH");
-        if (!p)
-                p = default_PATH();
+        ఒకవేళ (!p)
+                p = default_మార్గం();
 
         /* Resolve a single-component name to a full path */
-        for (;;) {
-                _cleanup_free_ char *element = NULL;
+        కొరకు (;;) {
+                _cleanup_free_ అక్షరం *element = ఖాళీ;
 
-                r = extract_first_word(&p, &element, ":", EXTRACT_RELAX|EXTRACT_DONT_COALESCE_SEPARATORS);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = వెలికితీయి_మొదటి_మాట(&p, &element, ":", వెలికితీయి_RELAX|వెలికితీయి_DONT_COALESCE_SEPARATORS);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                if (!path_is_absolute(element)) {
+                ఒకవేళ (!మార్గం_is_absolute(element)) {
                         log_debug("Exec search path '%s' isn't absolute, ignoring.", element);
-                        continue;
+                        కొనసాగు;
                 }
 
-                if (!path_extend(&element, name))
-                        return -ENOMEM;
+                ఒకవేళ (!మార్గం_extend(&element, name))
+                        తిరిగి -ENOMEM;
 
-                r = open_and_check_executable(element, root, ret_filename, ret_fd);
-                if (r >= 0) /* Found it! */
-                        return 0;
+                r = open_and_check_executable(element, మూలం, ret_filename, ret_fd);
+                ఒకవేళ (r >= 0) /* Found it! */
+                        తిరిగి 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
-                if (r != -EACCES)
-                        last_error = r;
+                ఒకవేళ (r != -EACCES)
+                        చివరి_error = r;
         }
 
-        return last_error;
+        తిరిగి చివరి_error;
 }
 
-static int executable_is_good(const char *executable) {
-        _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
+స్థిర పూర్ణాంకం executable_is_good(స్థిరరాశి అక్షరం *executable) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *d = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = find_executable(executable, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
+        r = కనుగొను_executable(executable, &p);
+        ఒకవేళ (r == -ENOENT)
+                తిరిగి 0;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* An fsck that is linked to /bin/true is a non-existent fsck */
 
         r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
+        ఒకవేళ (r == -EINVAL) /* not a symlink */
+                తిరిగి 1;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return !PATH_IN_SET(d, "true",
+        తిరిగి !మార్గం_లోపల_సమితి(d, "true",
                                "/bin/true",
                                "/usr/bin/true",
                                "/dev/null");
 }
 
-int fsck_exists(void) {
-        return executable_is_good("fsck");
+పూర్ణాంకం fsck_exists(శూన్య) {
+        తిరిగి executable_is_good("fsck");
 }
 
-int fsck_exists_for_fstype(const char *fstype) {
-        const char *checker;
-        int r;
+పూర్ణాంకం fsck_exists_for_fstype(స్థిరరాశి అక్షరం *fstype) {
+        స్థిరరాశి అక్షరం *checker;
+        పూర్ణాంకం r;
 
-        assert(fstype);
+        ప్రతిజ్ఞా(fstype);
 
-        if (streq(fstype, "auto"))
-                return -EINVAL;
+        ఒకవేళ (streq(fstype, "auto"))
+                తిరిగి -EINVAL;
 
         r = fsck_exists();
-        if (r <= 0)
-                return r;
+        ఒకవేళ (r <= 0)
+                తిరిగి r;
 
         checker = strjoina("fsck.", fstype);
-        return executable_is_good(checker);
+        తిరిగి executable_is_good(checker);
 }
 
-static const char* skip_slash_or_dot(const char *p) {
-        POINTER_MAY_BE_NULL(p);
+స్థిర స్థిరరాశి అక్షరం* skip_slash_or_dot(స్థిరరాశి అక్షరం *p) {
+        సూచిక_MAY_BE_NULL(p);
 
-        for (; !isempty(p); p++) {
-                if (*p == '/')
-                        continue;
-                if (startswith(p, "./")) {
+        కొరకు (; !isempty(p); p++) {
+                ఒకవేళ (*p == '/')
+                        కొనసాగు;
+                ఒకవేళ (startswith(p, "./")) {
                         p++;
-                        continue;
+                        కొనసాగు;
                 }
-                break;
+                ఆపు;
         }
-        return p;
+        తిరిగి p;
 }
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
-        const char *q, *first, *end_first, *next;
+పూర్ణాంకం మార్గం_కనుగొను_మొదటి_component(స్థిరరాశి అక్షరం **p, bool accept_dot_dot, స్థిరరాశి అక్షరం **ret) {
+        స్థిరరాశి అక్షరం *q, *మొదటి, *చివర_మొదటి, *తదుపరి_2;
         size_t len;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
         /* When a path is input, then returns the pointer to the first component and its length, and
          * move the input pointer to the next component or nul. This skips both over any '/'
@@ -887,58 +887,58 @@ int path_find_first_component(const char **p, bool accept_dot_dot, const char **
 
         q = *p;
 
-        first = skip_slash_or_dot(q);
-        if (isempty(first)) {
-                *p = first;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        మొదటి = skip_slash_or_dot(q);
+        ఒకవేళ (isempty(మొదటి)) {
+                *p = మొదటి;
+                ఒకవేళ (ret)
+                        *ret = ఖాళీ;
+                తిరిగి 0;
         }
-        if (streq(first, ".")) {
-                *p = first + 1;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        ఒకవేళ (streq(మొదటి, ".")) {
+                *p = మొదటి + 1;
+                ఒకవేళ (ret)
+                        *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        end_first = strchrnul(first, '/');
-        len = end_first - first;
+        చివర_మొదటి = strchrnul(మొదటి, '/');
+        len = చివర_మొదటి - మొదటి;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
-                return -EINVAL;
+        ఒకవేళ (len > NAME_MAX)
+                తిరిగి -EINVAL;
+        ఒకవేళ (!accept_dot_dot && len == 2 && మొదటి[0] == '.' && మొదటి[1] == '.')
+                తిరిగి -EINVAL;
 
-        next = skip_slash_or_dot(end_first);
+        తదుపరి_2 = skip_slash_or_dot(చివర_మొదటి);
 
-        *p = next + streq(next, ".");
-        if (ret)
-                *ret = first;
-        return len;
+        *p = తదుపరి_2 + streq(తదుపరి_2, ".");
+        ఒకవేళ (ret)
+                *ret = మొదటి;
+        తిరిగి len;
 }
 
-static const char* skip_slash_or_dot_backward(const char *path, const char *q) {
-        assert(path);
-        assert(!q || q >= path);
+స్థిర స్థిరరాశి అక్షరం* skip_slash_or_dot_backward(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *q) {
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(!q || q >= మార్గం);
 
-        for (; q; q = PTR_SUB1(q, path)) {
-                if (*q == '/')
-                        continue;
-                if (q > path && strneq(q - 1, "/.", 2))
-                        continue;
-                if (q == path && *q == '.')
-                        continue;
-                break;
+        కొరకు (; q; q = PTR_SUB1(q, మార్గం)) {
+                ఒకవేళ (*q == '/')
+                        కొనసాగు;
+                ఒకవేళ (q > మార్గం && strneq(q - 1, "/.", 2))
+                        కొనసాగు;
+                ఒకవేళ (q == మార్గం && *q == '.')
+                        కొనసాగు;
+                ఆపు;
         }
-        return q;
+        తిరిగి q;
 }
 
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
-        const char *q, *last_end, *last_begin;
+పూర్ణాంకం మార్గం_కనుగొను_చివరి_component(స్థిరరాశి అక్షరం *మార్గం, bool accept_dot_dot, స్థిరరాశి అక్షరం **తదుపరి_2, స్థిరరాశి అక్షరం **ret) {
+        స్థిరరాశి అక్షరం *q, *చివరి_చివర, *చివరి_begin;
         size_t len;
 
-        POINTER_MAY_BE_NULL(next);
-        POINTER_MAY_BE_NULL(ret);
+        సూచిక_MAY_BE_NULL(తదుపరి_2);
+        సూచిక_MAY_BE_NULL(ret);
 
         /* Similar to path_find_first_component(), but search components from the end.
         *
@@ -974,61 +974,61 @@ int path_find_last_component(const char *path, bool accept_dot_dot, const char *
         *   Output: return value: -EINVAL
         */
 
-        if (isempty(path)) {
-                if (next)
-                        *next = path;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        ఒకవేళ (isempty(మార్గం)) {
+                ఒకవేళ (తదుపరి_2)
+                        *తదుపరి_2 = మార్గం;
+                ఒకవేళ (ret)
+                        *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        if (next && *next) {
-                if (*next < path || *next > path + strlen(path))
-                        return -EINVAL;
-                if (*next == path) {
-                        if (ret)
-                                *ret = NULL;
-                        return 0;
+        ఒకవేళ (తదుపరి_2 && *తదుపరి_2) {
+                ఒకవేళ (*తదుపరి_2 < మార్గం || *తదుపరి_2 > మార్గం + అక్షరశ్రేణి_పొడవు(మార్గం))
+                        తిరిగి -EINVAL;
+                ఒకవేళ (*తదుపరి_2 == మార్గం) {
+                        ఒకవేళ (ret)
+                                *ret = ఖాళీ;
+                        తిరిగి 0;
                 }
-                if (!IN_SET(**next, '\0', '/'))
-                        return -EINVAL;
-                q = *next - 1;
-        } else
-                q = path + strlen(path) - 1;
+                ఒకవేళ (!లోపల_సమితి(**తదుపరి_2, '\0', '/'))
+                        తిరిగి -EINVAL;
+                q = *తదుపరి_2 - 1;
+        } లేకపోతే
+                q = మార్గం + అక్షరశ్రేణి_పొడవు(మార్గం) - 1;
 
-        q = skip_slash_or_dot_backward(path, q);
-        if (!q) { /* the root directory, "." or "./" */
-                if (next)
-                        *next = path;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+        q = skip_slash_or_dot_backward(మార్గం, q);
+        ఒకవేళ (!q) { /* the root directory, "." or "./" */
+                ఒకవేళ (తదుపరి_2)
+                        *తదుపరి_2 = మార్గం;
+                ఒకవేళ (ret)
+                        *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        last_end = q + 1;
+        చివరి_చివర = q + 1;
 
-        while (q && *q != '/')
-                q = PTR_SUB1(q, path);
+        అయితే (q && *q != '/')
+                q = PTR_SUB1(q, మార్గం);
 
-        last_begin = q ? q + 1 : path;
-        len = last_end - last_begin;
+        చివరి_begin = q ? q + 1 : మార్గం;
+        len = చివరి_చివర - చివరి_begin;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
-                return -EINVAL;
+        ఒకవేళ (len > NAME_MAX)
+                తిరిగి -EINVAL;
+        ఒకవేళ (!accept_dot_dot && len == 2 && strneq(చివరి_begin, "..", 2))
+                తిరిగి -EINVAL;
 
-        if (next) {
-                q = skip_slash_or_dot_backward(path, q);
-                *next = q ? q + 1 : path;
+        ఒకవేళ (తదుపరి_2) {
+                q = skip_slash_or_dot_backward(మార్గం, q);
+                *తదుపరి_2 = q ? q + 1 : మార్గం;
         }
 
-        if (ret)
-                *ret = last_begin;
-        return len;
+        ఒకవేళ (ret)
+                *ret = చివరి_begin;
+        తిరిగి len;
 }
 
-const char* last_path_component(const char *path) {
+స్థిరరాశి అక్షరం* చివరి_మార్గం_component(స్థిరరాశి అక్షరం *మార్గం) {
 
         /* Finds the last component of the path, preserving the optional trailing slash that signifies a directory.
          *
@@ -1050,33 +1050,33 @@ const char* last_path_component(const char *path) {
          * This always succeeds (except if you pass NULL in which case it returns NULL, too).
          */
 
-        unsigned l, k;
+        గుర్తులేని l, k;
 
-        if (!path)
-                return NULL;
+        ఒకవేళ (!మార్గం)
+                తిరిగి ఖాళీ;
 
-        l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
+        l = k = అక్షరశ్రేణి_పొడవు(మార్గం);
+        ఒకవేళ (l == 0) /* special case — an empty string */
+                తిరిగి మార్గం;
 
-        while (k > 0 && path[k-1] == '/')
+        అయితే (k > 0 && మార్గం[k-1] == '/')
                 k--;
 
-        if (k == 0) /* the root directory */
-                return path + l - 1;
+        ఒకవేళ (k == 0) /* the root directory */
+                తిరిగి మార్గం + l - 1;
 
-        while (k > 0 && path[k-1] != '/')
+        అయితే (k > 0 && మార్గం[k-1] != '/')
                 k--;
 
-        return path + k;
+        తిరిగి మార్గం + k;
 }
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
-        _cleanup_free_ char *d = NULL;
-        const char *c, *next = NULL;
-        int r;
+పూర్ణాంకం మార్గం_విభజించు_ఉపసర్గ_filename(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret_dir, అక్షరం **ret_filename) {
+        _cleanup_free_ అక్షరం *d = ఖాళీ;
+        స్థిరరాశి అక్షరం *c, *తదుపరి_2 = ఖాళీ;
+        పూర్ణాంకం r;
 
-        POINTER_MAY_BE_NULL(path);
+        సూచిక_MAY_BE_NULL(మార్గం);
 
         /* Split the path into dir prefix/filename pair. Returns:
          *
@@ -1092,161 +1092,161 @@ int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_file
          * This function guarantees to return a fully valid filename, i.e. one that passes
          * filename_is_valid() – this means "." and ".." are not accepted. */
 
-        if (isempty(path))
-                return -EINVAL;
+        ఒకవేళ (isempty(మార్గం))
+                తిరిగి -EINVAL;
 
-        r = path_find_last_component(path, /* accept_dot_dot = */ false, &next, &c);
-        if (r < 0)
-                return r;
-        if (r == 0) /* root directory or "." */
-                return -EADDRNOTAVAIL;
+        r = మార్గం_కనుగొను_చివరి_component(మార్గం, /* accept_dot_dot = */ false, &తదుపరి_2, &c);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r == 0) /* root directory or "." */
+                తిరిగి -EADDRNOTAVAIL;
 
-        if (ret_dir) {
-                if (next == path) {
-                        if (*path != '/') { /* filename only */
-                                if (!ret_filename)
-                                        return -EDESTADDRREQ;
-                        } else {
+        ఒకవేళ (ret_dir) {
+                ఒకవేళ (తదుపరి_2 == మార్గం) {
+                        ఒకవేళ (*మార్గం != '/') { /* filename only */
+                                ఒకవేళ (!ret_filename)
+                                        తిరిగి -EDESTADDRREQ;
+                        } లేకపోతే {
                                 d = strdup("/");
-                                if (!d)
-                                        return -ENOMEM;
+                                ఒకవేళ (!d)
+                                        తిరిగి -ENOMEM;
                         }
-                } else {
-                        d = strndup(path, next - path);
-                        if (!d)
-                                return -ENOMEM;
+                } లేకపోతే {
+                        d = strndup(మార్గం, తదుపరి_2 - మార్గం);
+                        ఒకవేళ (!d)
+                                తిరిగి -ENOMEM;
 
-                        path_simplify(d);
+                        మార్గం_simplify(d);
 
-                        if (!path_is_valid(d))
-                                return -EINVAL;
+                        ఒకవేళ (!మార్గం_is_valid(d))
+                                తిరిగి -EINVAL;
                 }
 
-        } else if (!path_is_valid(path))
+        } లేకపోతే ఒకవేళ (!మార్గం_is_valid(మార్గం))
                 /* We didn't validate the dir prefix, hence check if the whole path is valid now */
-                return -EINVAL;
+                తిరిగి -EINVAL;
 
-        if (ret_filename) {
-                char *fn = strndup(c, r);
-                if (!fn)
-                        return -ENOMEM;
+        ఒకవేళ (ret_filename) {
+                అక్షరం *fn = strndup(c, r);
+                ఒకవేళ (!fn)
+                        తిరిగి -ENOMEM;
 
                 *ret_filename = fn;
         }
 
-        if (ret_dir)
+        ఒకవేళ (ret_dir)
                 *ret_dir = TAKE_PTR(d);
 
-        return strlen(c) > (size_t) r ? O_DIRECTORY : 0;
+        తిరిగి అక్షరశ్రేణి_పొడవు(c) > (size_t) r ? O_DIRECTORY : 0;
 }
 
-bool filename_part_is_valid(const char *p) {
-        const char *e;
+bool filename_part_is_valid(స్థిరరాశి అక్షరం *p) {
+        స్థిరరాశి అక్షరం *e;
 
         /* Checks f the specified string is OK to be *part* of a filename. This is different from
          * filename_is_valid() as "." and ".." and "" are OK by this call, but not by filename_is_valid(). */
 
-        if (!p)
-                return false;
+        ఒకవేళ (!p)
+                తిరిగి false;
 
         e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
+        ఒకవేళ (*e != 0)
+                తిరిగి false;
 
-        if (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
-                return false;
+        ఒకవేళ (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-bool filename_is_valid(const char *p) {
+bool filename_is_valid(స్థిరరాశి అక్షరం *p) {
 
-        if (isempty(p))
-                return false;
+        ఒకవేళ (isempty(p))
+                తిరిగి false;
 
-        if (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
-                return false;
+        ఒకవేళ (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
+                తిరిగి false;
 
-        return filename_part_is_valid(p);
+        తిరిగి filename_part_is_valid(p);
 }
 
-bool path_is_valid_full(const char *p, bool accept_dot_dot) {
-        if (isempty(p))
-                return false;
+bool మార్గం_is_valid_నిండిన(స్థిరరాశి అక్షరం *p, bool accept_dot_dot) {
+        ఒకవేళ (isempty(p))
+                తిరిగి false;
 
-        for (const char *e = p;;) {
-                int r;
+        కొరకు (స్థిరరాశి అక్షరం *e = p;;) {
+                పూర్ణాంకం r;
 
-                r = path_find_first_component(&e, accept_dot_dot, NULL);
-                if (r < 0)
-                        return false;
+                r = మార్గం_కనుగొను_మొదటి_component(&e, accept_dot_dot, ఖాళీ);
+                ఒకవేళ (r < 0)
+                        తిరిగి false;
 
-                if (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
+                ఒకవేళ (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
                                         * *with* the trailing NUL byte) */
-                        return false;
-                if (*e == 0)           /* End of string? Yay! */
-                        return true;
+                        తిరిగి false;
+                ఒకవేళ (*e == 0)           /* End of string? Yay! */
+                        తిరిగి true;
         }
 }
 
-bool path_is_normalized(const char *p) {
-        if (!path_is_safe(p))
-                return false;
+bool మార్గం_is_normalized(స్థిరరాశి అక్షరం *p) {
+        ఒకవేళ (!మార్గం_is_సురక్షిత(p))
+                తిరిగి false;
 
-        if (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
+        ఒకవేళ (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || అక్షరశ్రేణి_శోధన(p, "/./"))
+                తిరిగి false;
 
-        if (strstr(p, "//"))
-                return false;
+        ఒకవేళ (అక్షరశ్రేణి_శోధన(p, "//"))
+                తిరిగి false;
 
-        return true;
+        తిరిగి true;
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret) {
-        _cleanup_free_ char *b = NULL;
-        int r;
+పూర్ణాంకం file_లోపల_same_dir(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *filename, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *b = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(filename);
-        assert(ret);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(filename);
+        ప్రతిజ్ఞా(ret);
 
         /* This removes the last component of path and appends filename, unless the latter is absolute anyway
          * or the former isn't */
 
-        if (path_is_absolute(filename))
+        ఒకవేళ (మార్గం_is_absolute(filename))
                 b = strdup(filename);
-        else {
-                _cleanup_free_ char *dn = NULL;
+        లేకపోతే {
+                _cleanup_free_ అక్షరం *dn = ఖాళీ;
 
-                r = path_extract_directory(path, &dn);
-                if (r == -EDESTADDRREQ) /* no path prefix */
+                r = మార్గం_వెలికితీయి_directory(మార్గం, &dn);
+                ఒకవేళ (r == -EDESTADDRREQ) /* no path prefix */
                         b = strdup(filename);
-                else if (r < 0)
-                        return r;
-                else
-                        b = path_join(dn, filename);
+                లేకపోతే ఒకవేళ (r < 0)
+                        తిరిగి r;
+                లేకపోతే
+                        b = మార్గం_join(dn, filename);
         }
-        if (!b)
-                return -ENOMEM;
+        ఒకవేళ (!b)
+                తిరిగి -ENOMEM;
 
         *ret = TAKE_PTR(b);
-        return 0;
+        తిరిగి 0;
 }
 
-bool hidden_or_backup_file(const char *filename) {
-        assert(filename);
+bool hidden_or_backup_file(స్థిరరాశి అక్షరం *filename) {
+        ప్రతిజ్ఞా(filename);
 
-        if (filename[0] == '.' ||
-            STR_IN_SET(filename,
+        ఒకవేళ (filename[0] == '.' ||
+            STR_లోపల_సమితి(filename,
                        "lost+found",
                        "aquota.user",
                        "aquota.group") ||
             endswith(filename, "~"))
-                return true;
+                తిరిగి true;
 
-        const char *dot = strrchr(filename, '.');
-        if (!dot)
-                return false;
+        స్థిరరాశి అక్షరం *dot = strrchr(filename, '.');
+        ఒకవేళ (!dot)
+                తిరిగి false;
 
         /* Please, let's not add more entries to the list below. If external projects think it's a good idea
          * to come up with always new suffixes and that everybody else should just adjust to that, then it
@@ -1262,7 +1262,7 @@ bool hidden_or_backup_file(const char *filename) {
          * ".foopkg.old" or ".foopkg~" instead.
          */
 
-        return STR_IN_SET(dot + 1,
+        తిరిగి STR_లోపల_సమితి(dot + 1,
                           "ignore",
                           "rpmnew",
                           "rpmsave",
@@ -1283,7 +1283,7 @@ bool hidden_or_backup_file(const char *filename) {
                           "new");
 }
 
-bool is_device_path(const char *path) {
+bool is_device_మార్గం(స్థిరరాశి అక్షరం *మార్గం) {
 
         /* Returns true for paths that likely refer to a device, either by path in sysfs or to something in
          * /dev. This accepts any path that starts with /dev/ or /sys/ and has something after that prefix.
@@ -1294,206 +1294,206 @@ bool is_device_path(const char *path) {
          * /../dev/sda, /dev, /sys, /usr/path, /usr/../dev/sda → no.
          */
 
-        const char *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
-        return !isempty(p);
+        స్థిరరాశి అక్షరం *p = మార్గం_STARTSWITH_సమితి(ASSERT_PTR(మార్గం), "/dev/", "/sys/");
+        తిరిగి !isempty(p);
 }
 
-bool valid_device_node_path(const char *path) {
+bool valid_device_కణుపు_మార్గం(స్థిరరాశి అక్షరం *మార్గం) {
 
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
 
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
+        ఒకవేళ (!మార్గం_STARTSWITH_సమితి(మార్గం, "/dev/", "/run/systemd/inaccessible/"))
+                తిరిగి false;
 
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
+        ఒకవేళ (endswith(మార్గం, "/")) /* can't be a device node if it ends in a slash */
+                తిరిగి false;
 
-        return path_is_normalized(path);
+        తిరిగి మార్గం_is_normalized(మార్గం);
 }
 
-bool valid_device_allow_pattern(const char *path) {
-        assert(path);
+bool valid_device_allow_నమూనా(స్థిరరాశి అక్షరం *మార్గం) {
+        ప్రతిజ్ఞా(మార్గం);
 
         /* Like valid_device_node_path(), but also allows full-subsystem expressions like those accepted by
          * DeviceAllow= and DeviceDeny=. */
 
-        if (STARTSWITH_SET(path, "block-", "char-"))
-                return true;
+        ఒకవేళ (STARTSWITH_సమితి(మార్గం, "block-", "char-"))
+                తిరిగి true;
 
-        return valid_device_node_path(path);
+        తిరిగి valid_device_కణుపు_మార్గం(మార్గం);
 }
 
-bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
+bool dot_or_dot_dot(స్థిరరాశి అక్షరం *మార్గం) {
+        ఒకవేళ (!మార్గం)
+                తిరిగి false;
+        ఒకవేళ (మార్గం[0] != '.')
+                తిరిగి false;
+        ఒకవేళ (మార్గం[1] == 0)
+                తిరిగి true;
+        ఒకవేళ (మార్గం[1] != '.')
+                తిరిగి false;
 
-        return path[2] == 0;
+        తిరిగి మార్గం[2] == 0;
 }
 
-bool path_implies_directory(const char *path) {
+bool మార్గం_సూచిస్తుంది_directory(స్థిరరాశి అక్షరం *మార్గం) {
 
         /* Sometimes, if we look at a path we already know it must refer to a directory, because it is
          * suffixed with a slash, or its last component is "." or ".." */
 
-        if (!path)
-                return false;
+        ఒకవేళ (!మార్గం)
+                తిరిగి false;
 
-        if (dot_or_dot_dot(path))
-                return true;
+        ఒకవేళ (dot_or_dot_dot(మార్గం))
+                తిరిగి true;
 
-        return ENDSWITH_SET(path, "/", "/.", "/..");
+        తిరిగి ENDSWITH_సమితి(మార్గం, "/", "/.", "/..");
 }
 
-bool empty_or_root(const char *path) {
+bool ఖాళీలు_or_మూలం(స్థిరరాశి అక్షరం *మార్గం) {
 
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
 
-        if (isempty(path))
-                return true;
+        ఒకవేళ (isempty(మార్గం))
+                తిరిగి true;
 
-        return path_equal(path, "/");
+        తిరిగి మార్గం_equal(మార్గం, "/");
 }
 
-const char* empty_to_root(const char *path) {
-        return isempty(path) ? "/" : path;
+స్థిరరాశి అక్షరం* ఖాళీలు_గమ్యం_మూలం(స్థిరరాశి అక్షరం *మార్గం) {
+        తిరిగి isempty(మార్గం) ? "/" : మార్గం;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
-        int r;
+పూర్ణాంకం ఖాళీలు_or_మూలం_harder_గమ్యం_null(స్థిరరాశి అక్షరం **మార్గం) {
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
-                *path = NULL;
-                return 0;
+        ఒకవేళ (ఖాళీలు_or_మూలం(*మార్గం)) {
+                *మార్గం = ఖాళీ;
+                తిరిగి 0;
         }
 
-        r = path_is_root(*path);
-        if (r < 0)
-                return r;
-        if (r > 0)
-                *path = NULL;
+        r = మార్గం_is_మూలం(*మార్గం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
+        ఒకవేళ (r > 0)
+                *మార్గం = ఖాళీ;
 
-        return 0;
+        తిరిగి 0;
 }
 
-bool path_strv_contains(char * const *l, const char *path) {
-        assert(path);
+bool మార్గం_strv_కలిగియుంది(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *మార్గం) {
+        ప్రతిజ్ఞా(మార్గం);
 
         STRV_FOREACH(i, l)
-                if (path_equal(*i, path))
-                        return true;
+                ఒకవేళ (మార్గం_equal(*i, మార్గం))
+                        తిరిగి true;
 
-        return false;
+        తిరిగి false;
 }
 
-bool prefixed_path_strv_contains(char * const *l, const char *path) {
-        assert(path);
+bool prefixed_మార్గం_strv_కలిగియుంది(అక్షరం * స్థిరరాశి *l, స్థిరరాశి అక్షరం *మార్గం) {
+        ప్రతిజ్ఞా(మార్గం);
 
         STRV_FOREACH(i, l) {
-                const char *j = *i;
+                స్థిరరాశి అక్షరం *j = *i;
 
-                if (*j == '-')
+                ఒకవేళ (*j == '-')
                         j++;
-                if (*j == '+')
+                ఒకవేళ (*j == '+')
                         j++;
 
-                if (path_equal(j, path))
-                        return true;
+                ఒకవేళ (మార్గం_equal(j, మార్గం))
+                        తిరిగి true;
         }
 
-        return false;
+        తిరిగి false;
 }
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
-        assert(pattern);
-        assert(prefix);
+పూర్ణాంకం మార్గం_glob_can_సరిపోలిక(స్థిరరాశి అక్షరం *నమూనా, స్థిరరాశి అక్షరం *ఉపసర్గ, అక్షరం **ret) {
+        ప్రతిజ్ఞా(నమూనా);
+        ప్రతిజ్ఞా(ఉపసర్గ);
 
-        for (const char *a = pattern, *b = prefix;;) {
-                _cleanup_free_ char *g = NULL, *h = NULL;
-                const char *p, *q;
-                int r, s;
+        కొరకు (స్థిరరాశి అక్షరం *a = నమూనా, *b = ఉపసర్గ;;) {
+                _cleanup_free_ అక్షరం *g = ఖాళీ, *h = ఖాళీ;
+                స్థిరరాశి అక్షరం *p, *q;
+                పూర్ణాంకం r, s;
 
-                r = path_find_first_component(&a, /* accept_dot_dot= */ false, &p);
-                if (r < 0)
-                        return r;
+                r = మార్గం_కనుగొను_మొదటి_component(&a, /* accept_dot_dot= */ false, &p);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                s = path_find_first_component(&b, /* accept_dot_dot= */ false, &q);
-                if (s < 0)
-                        return s;
+                s = మార్గం_కనుగొను_మొదటి_component(&b, /* accept_dot_dot= */ false, &q);
+                ఒకవేళ (s < 0)
+                        తిరిగి s;
 
-                if (s == 0) {
+                ఒకవేళ (s == 0) {
                         /* The pattern matches the prefix. */
-                        if (ret) {
-                                char *t;
+                        ఒకవేళ (ret) {
+                                అక్షరం *t;
 
-                                t = path_join(prefix, p);
-                                if (!t)
-                                        return -ENOMEM;
+                                t = మార్గం_join(ఉపసర్గ, p);
+                                ఒకవేళ (!t)
+                                        తిరిగి -ENOMEM;
 
                                 *ret = t;
                         }
-                        return true;
+                        తిరిగి true;
                 }
 
-                if (r == 0)
-                        break;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                if (r == s && strneq(p, q, r))
-                        continue; /* common component. Check next. */
+                ఒకవేళ (r == s && strneq(p, q, r))
+                        కొనసాగు; /* common component. Check next. */
 
                 g = strndup(p, r);
-                if (!g)
-                        return -ENOMEM;
+                ఒకవేళ (!g)
+                        తిరిగి -ENOMEM;
 
-                if (!string_is_glob(g))
-                        break;
+                ఒకవేళ (!string_is_glob(g))
+                        ఆపు;
 
                 /* We found a glob component. Check if the glob pattern matches the prefix component. */
 
                 h = strndup(q, s);
-                if (!h)
-                        return -ENOMEM;
+                ఒకవేళ (!h)
+                        తిరిగి -ENOMEM;
 
                 r = fnmatch(g, h, 0);
-                if (r == FNM_NOMATCH)
-                        break;
-                if (r != 0) /* Failure to process pattern? */
-                        return -EINVAL;
+                ఒకవేళ (r == FNM_NOMATCH)
+                        ఆపు;
+                ఒకవేళ (r != 0) /* Failure to process pattern? */
+                        తిరిగి -EINVAL;
         }
 
         /* The pattern does not match the prefix. */
-        if (ret)
-                *ret = NULL;
-        return false;
+        ఒకవేళ (ret)
+                *ret = ఖాళీ;
+        తిరిగి false;
 }
 
-#if HAVE_SPLIT_BIN
-static bool dir_is_split(const char *a, const char *b) {
-        int r;
+#ఒకవేళ HAVE_విభజించు_BIN
+స్థిర bool dir_is_విభజించు(స్థిరరాశి అక్షరం *a, స్థిరరాశి అక్షరం *b) {
+        పూర్ణాంకం r;
 
         r = inode_same(a, b, AT_NO_AUTOMOUNT);
-        if (r < 0 && r != -ENOENT) {
+        ఒకవేళ (r < 0 && r != -ENOENT) {
                 log_debug_errno(r, "Failed to compare \"%s\" and \"%s\", assuming split directories: %m", a, b);
-                return true;
+                తిరిగి true;
         }
-        return r == 0;
+        తిరిగి r == 0;
 }
-#endif
+#అయితే_ముగింపు
 
-const char* default_PATH(void) {
-#if HAVE_SPLIT_BIN
-        static const char *default_path = NULL;
+స్థిరరాశి అక్షరం* default_మార్గం(శూన్య) {
+#ఒకవేళ HAVE_విభజించు_BIN
+        స్థిర స్థిరరాశి అక్షరం *default_మార్గం_2 = ఖాళీ;
 
         /* Return one of the three sets of paths:
          * a) split /usr/s?bin, /usr/local/sbin doesn't matter.
@@ -1503,15 +1503,15 @@ const char* default_PATH(void) {
          * On error the fallback to the safe value with both directories as configured is returned.
          */
 
-        if (default_path)
-                return default_path;
+        ఒకవేళ (default_మార్గం_2)
+                తిరిగి default_మార్గం_2;
 
-        if (dir_is_split("/usr/sbin", "/usr/bin"))
-                return (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
-        if (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
-                return (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
-        return (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
-#else
-        return DEFAULT_PATH_WITHOUT_SBIN;
-#endif
+        ఒకవేళ (dir_is_విభజించు("/usr/sbin", "/usr/bin"))
+                తిరిగి (default_మార్గం_2 = DEFAULT_మార్గం_WITH_నిండిన_SBIN);  /* a */
+        ఒకవేళ (dir_is_విభజించు("/usr/local/sbin", "/usr/local/bin"))
+                తిరిగి (default_మార్గం_2 = DEFAULT_మార్గం_WITH_LOCAL_SBIN); /* b */
+        తిరిగి (default_మార్గం_2 = DEFAULT_మార్గం_WITHOUT_SBIN);            /* c */
+#లేకపోతే
+        తిరిగి DEFAULT_మార్గం_WITHOUT_SBIN;
+#అయితే_ముగింపు
 }

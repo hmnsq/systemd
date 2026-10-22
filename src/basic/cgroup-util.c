@@ -1,267 +1,267 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <linux/fs.h>
-#include <linux/magic.h>
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/xattr.h>
-#include <threads.h>
-#include <unistd.h>
+#అన్తర్భావ <linux/fs.h>
+#అన్తర్భావ <linux/magic.h>
+#అన్తర్భావ <signal.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <sys/xattr.h>
+#అన్తర్భావ <threads.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "capsule-util.h"
-#include "cgroup-util.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "login-util.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "set.h"
-#include "special.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
-#include "unaligned.h"
-#include "unit-name.h"
-#include "user-util.h"
-#include "xattr-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "capsule-util.h"
+#అన్తర్భావ "cgroup-util.h"
+#అన్తర్భావ "dirent-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "extract-word.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "format-util.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "login-util.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "pidref.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "set.h"
+#అన్తర్భావ "special.h"
+#అన్తర్భావ "stat-util.h"
+#అన్తర్భావ "string-table.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "strv.h"
+#అన్తర్భావ "unaligned.h"
+#అన్తర్భావ "unit-name.h"
+#అన్తర్భావ "user-util.h"
+#అన్తర్భావ "xattr-util.h"
 
-int cg_is_available(void) {
-        struct statfs fs;
+పూర్ణాంకం cg_is_అందుబాటు(శూన్య) {
+        నిర్మాణం statfs fs;
 
-        if (statfs("/sys/fs/cgroup/", &fs) < 0) {
-                if (errno == ENOENT) /* sysfs not mounted? */
-                        return false;
+        ఒకవేళ (statfs("/sys/fs/cgroup/", &fs) < 0) {
+                ఒకవేళ (errno == ENOENT) /* sysfs not mounted? */
+                        తిరిగి false;
 
-                return log_debug_errno(errno, "Failed to statfs /sys/fs/cgroup/: %m");
+                తిరిగి log_debug_errno(errno, "Failed to statfs /sys/fs/cgroup/: %m");
         }
 
-        return is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
+        తిరిగి is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
 }
 
-int cg_path_open(const char *path) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+పూర్ణాంకం cg_మార్గం_open(స్థిరరాశి అక్షరం *మార్గం) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, /* suffix= */ ఖాళీ, &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return RET_NERRNO(open(fs, O_DIRECTORY|O_CLOEXEC));
+        తిరిగి RET_NERRNO(open(fs, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id) {
-        _cleanup_close_ int fsfd = -EBADF;
+పూర్ణాంకం cg_cgroupid_open(పూర్ణాంకం cgroupfs_fd, uint64_t id) {
+        _cleanup_close_ పూర్ణాంకం fsfd = -EBADF;
 
-        if (cgroupfs_fd < 0) {
+        ఒకవేళ (cgroupfs_fd < 0) {
                 fsfd = open("/sys/fs/cgroup", O_CLOEXEC|O_DIRECTORY);
-                if (fsfd < 0)
-                        return -errno;
+                ఒకవేళ (fsfd < 0)
+                        తిరిగి -errno;
 
                 cgroupfs_fd = fsfd;
         }
 
-        union {
-                struct file_handle file_handle;
-                uint8_t space[offsetof(struct file_handle, f_handle) + sizeof(uint64_t)];
+        సంఘం {
+                నిర్మాణం file_handle file_handle;
+                uint8_t space[offsetof(నిర్మాణం file_handle, f_handle) + పరిమాణం(uint64_t)];
         } fh = {
-                .file_handle.handle_bytes = sizeof(uint64_t),
+                .file_handle.handle_బైట్లు = పరిమాణం(uint64_t),
                 .file_handle.handle_type = FILEID_KERNFS,
         };
 
         unaligned_write_ne64(fh.file_handle.f_handle, id);
 
-        return RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
+        తిరిగి RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret) {
-        _cleanup_close_ int cgfd = -EBADF;
-        int r;
+పూర్ణాంకం cg_మార్గం_from_cgroupid(పూర్ణాంకం cgroupfs_fd, uint64_t id, అక్షరం **ret) {
+        _cleanup_close_ పూర్ణాంకం cgfd = -EBADF;
+        పూర్ణాంకం r;
 
         cgfd = cg_cgroupid_open(cgroupfs_fd, id);
-        if (cgfd < 0)
-                return cgfd;
+        ఒకవేళ (cgfd < 0)
+                తిరిగి cgfd;
 
-        _cleanup_free_ char *path = NULL;
-        r = fd_get_path(cgfd, &path);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *మార్గం = ఖాళీ;
+        r = fd_get_మార్గం(cgfd, &మార్గం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!path_startswith(path, "/sys/fs/cgroup/"))
-                return -EXDEV; /* recognizable error */
+        ఒకవేళ (!మార్గం_startswith(మార్గం, "/sys/fs/cgroup/"))
+                తిరిగి -EXDEV; /* recognizable error */
 
-        if (ret)
-                *ret = TAKE_PTR(path);
-        return 0;
+        ఒకవేళ (ret)
+                *ret = TAKE_PTR(మార్గం);
+        తిరిగి 0;
 }
 
-int cg_enumerate_processes(const char *path, FILE **ret) {
-        _cleanup_free_ char *fs = NULL;
+పూర్ణాంకం cg_enumerate_processes(స్థిరరాశి అక్షరం *మార్గం, FILE **ret) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ;
         FILE *f;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        r = cg_get_path(path, "cgroup.procs", &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, "cgroup.procs", &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         f = fopen(fs, "re");
-        if (!f)
-                return -errno;
+        ఒకవేళ (!f)
+                తిరిగి -errno;
 
         *ret = f;
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
-        unsigned long ul;
+పూర్ణాంకం cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
+        గుర్తులేని దీర్ఘ ul;
 
         /* Note that the cgroup.procs might contain duplicates! See cgroups.txt for details. */
 
-        assert(f);
-        assert(ret);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(ret);
 
         /* NB: The kernel returns ENODEV if we tried to read from cgroup.procs of a cgroup that has been
          * removed already. Callers should handle that! */
 
-        for (;;) {
+        కొరకు (;;) {
                 errno = 0;
-                if (fscanf(f, "%lu", &ul) != 1) {
+                ఒకవేళ (fscanf(f, "%lu", &ul) != 1) {
 
-                        if (feof(f)) {
+                        ఒకవేళ (feof(f)) {
                                 *ret = 0;
-                                return 0;
+                                తిరిగి 0;
                         }
 
-                        return errno_or_else(EIO);
+                        తిరిగి errno_or_else(EIO);
                 }
 
-                if (ul > PID_T_MAX)
-                        return -EIO;
+                ఒకవేళ (ul > PID_T_MAX)
+                        తిరిగి -EIO;
 
                 /* In some circumstances (e.g. WSL), cgroups might contain unmappable PIDs from other
                  * contexts. These show up as zeros, and depending on the caller, can either be plain
                  * skipped over, or returned as-is. */
-                if (ul == 0 && !FLAGS_SET(flags, CGROUP_DONT_SKIP_UNMAPPED))
-                        continue;
+                ఒకవేళ (ul == 0 && !FLAGS_సమితి(flags, CGROUP_DONT_SKIP_UNMAPPED))
+                        కొనసాగు;
 
                 *ret = (pid_t) ul;
-                return 1;
+                తిరిగి 1;
         }
 }
 
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags) {
-        int r;
+పూర్ణాంకం cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags) {
+        పూర్ణాంకం r;
 
-        assert(f);
-        assert(ret);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(ret);
 
-        for (;;) {
+        కొరకు (;;) {
                 pid_t pid;
 
                 r = cg_read_pid(f, &pid, flags);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to read pid from cgroup item: %m");
-                if (r == 0) {
+                ఒకవేళ (r < 0)
+                        తిరిగి log_debug_errno(r, "Failed to read pid from cgroup item: %m");
+                ఒకవేళ (r == 0) {
                         *ret = PIDREF_NULL;
-                        return 0;
+                        తిరిగి 0;
                 }
 
-                if (pid == 0)
-                        return -EREMOTE;
+                ఒకవేళ (pid == 0)
+                        తిరిగి -EREMOTE;
 
-                r = pidref_set_pid(ret, pid);
-                if (r >= 0)
-                        return 1;
-                if (r != -ESRCH)
-                        return r;
+                r = pidref_సమితి_pid(ret, pid);
+                ఒకవేళ (r >= 0)
+                        తిరిగి 1;
+                ఒకవేళ (r != -ESRCH)
+                        తిరిగి r;
 
                 /* ESRCH → gone by now? just skip over it, read the next */
         }
 }
 
-bool cg_kill_supported(void) {
-        static thread_local int supported = -1;
+bool cg_kill_supported(శూన్య) {
+        స్థిర thread_local పూర్ణాంకం supported = -1;
 
-        if (supported >= 0)
-                return supported;
+        ఒకవేళ (supported >= 0)
+                తిరిగి supported;
 
-        if (cg_is_available() <= 0)
-                return (supported = false);
+        ఒకవేళ (cg_is_అందుబాటు() <= 0)
+                తిరిగి (supported = false);
 
-        if (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
-                return (supported = true);
-        if (errno != ENOENT)
+        ఒకవేళ (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
+                తిరిగి (supported = true);
+        ఒకవేళ (errno != ENOENT)
                 log_debug_errno(errno, "Failed to check whether cgroup.kill is available, assuming not: %m");
-        return (supported = false);
+        తిరిగి (supported = false);
 }
 
-int cg_enumerate_subgroups(const char *path, DIR **ret) {
-        _cleanup_free_ char *fs = NULL;
+పూర్ణాంకం cg_enumerate_subgroups(స్థిరరాశి అక్షరం *మార్గం, DIR **ret) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ;
         DIR *d;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* This is not recursive! */
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, /* suffix= */ ఖాళీ, &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         d = opendir(fs);
-        if (!d)
-                return -errno;
+        ఒకవేళ (!d)
+                తిరిగి -errno;
 
         *ret = d;
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_read_subgroup(DIR *d, char **ret) {
-        assert(d);
-        assert(ret);
+పూర్ణాంకం cg_read_subgroup(DIR *d, అక్షరం **ret) {
+        ప్రతిజ్ఞా(d);
+        ప్రతిజ్ఞా(ret);
 
-        FOREACH_DIRENT_ALL(de, d, return -errno) {
-                if (de->d_type != DT_DIR)
-                        continue;
+        FOREACH_DIRENT_ALL(de, d, తిరిగి -errno) {
+                ఒకవేళ (de->d_type != DT_DIR)
+                        కొనసాగు;
 
-                if (dot_or_dot_dot(de->d_name))
-                        continue;
+                ఒకవేళ (dot_or_dot_dot(de->d_name))
+                        కొనసాగు;
 
-                return strdup_to_full(ret, de->d_name);
+                తిరిగి strdup_గమ్యం_నిండిన(ret, de->d_name);
         }
 
-        *ret = NULL;
-        return 0;
+        *ret = ఖాళీ;
+        తిరిగి 0;
 }
 
-int cg_kill(
-                const char *path,
-                int sig,
+పూర్ణాంకం cg_kill(
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం sig,
                 CGroupFlags flags,
-                Set *killed_pids,
+                సమితి_2 *killed_pids,
                 cg_kill_log_func_t log_kill,
-                void *userdata) {
+                శూన్య *userdata) {
 
-        _cleanup_set_free_ Set *allocated_set = NULL;
-        int r, ret = 0;
+        cleanup_సమితి_free సమితి_2 *allocated_సమితి = ఖాళీ;
+        పూర్ణాంకం r, ret = 0;
 
-        assert(path);
-        assert(sig >= 0);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(sig >= 0);
 
          /* Don't send SIGCONT twice. Also, SIGKILL always works even when process is suspended, hence
           * don't send SIGCONT on SIGKILL. */
-        if (IN_SET(sig, SIGCONT, SIGKILL))
+        ఒకవేళ (లోపల_సమితి(sig, SIGCONT, SIGKILL))
                 flags &= ~CGROUP_SIGCONT;
 
         /* This goes through the tasks list and kills them all. This is repeated until no further processes
@@ -269,1030 +269,1030 @@ int cg_kill(
          *
          * When sending SIGKILL, prefer cg_kill_kernel_sigkill(), which is fully atomic. */
 
-        if (!killed_pids) {
-                killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+        ఒకవేళ (!killed_pids) {
+                killed_pids = allocated_సమితి = సమితి_new(ఖాళీ);
+                ఒకవేళ (!killed_pids)
+                        తిరిగి -ENOMEM;
         }
 
-        bool done;
-        do {
-                _cleanup_fclose_ FILE *f = NULL;
-                int ret_log_kill;
+        bool పూర్తి;
+        చేయి {
+                _cleanup_fclose_ FILE *f = ఖాళీ;
+                పూర్ణాంకం ret_log_kill;
 
-                done = true;
+                పూర్తి = true;
 
-                r = cg_enumerate_processes(path, &f);
-                if (r == -ENOENT)
-                        break;
-                if (r < 0)
-                        return RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
+                r = cg_enumerate_processes(మార్గం, &f);
+                ఒకవేళ (r == -ENOENT)
+                        ఆపు;
+                ఒకవేళ (r < 0)
+                        తిరిగి RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
 
-                for (;;) {
-                        _cleanup_(pidref_done) PidRef pidref = PIDREF_NULL;
+                కొరకు (;;) {
+                        _cleanup_(pidref_పూర్తి) PidRef pidref = PIDREF_NULL;
 
                         r = cg_read_pidref(f, &pidref, flags);
-                        if (r == -ENODEV) {
+                        ఒకవేళ (r == -ENODEV) {
                                 /* reading from cgroup.pids will result in ENODEV if the cgroup is
                                  * concurrently removed. Just leave in that case, because a removed cgroup
                                  * contains no processes anymore. */
-                                done = true;
-                                break;
+                                పూర్తి = true;
+                                ఆపు;
                         }
-                        if (r < 0)
-                                return RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", path));
-                        if (r == 0)
-                                break;
+                        ఒకవేళ (r < 0)
+                                తిరిగి RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", మార్గం));
+                        ఒకవేళ (r == 0)
+                                ఆపు;
 
-                        if ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
-                                continue;
+                        ఒకవేళ ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
+                                కొనసాగు;
 
-                        if (set_contains(killed_pids, PID_TO_PTR(pidref.pid)))
-                                continue;
+                        ఒకవేళ (సమితి_కలిగియుంది(killed_pids, PID_గమ్యం_PTR(pidref.pid)))
+                                కొనసాగు;
 
                         /* Ignore kernel threads to mimic the behavior of cgroup.kill. */
-                        if (pidref_is_kernel_thread(&pidref) > 0) {
-                                log_debug("Ignoring kernel thread with pid " PID_FMT " in cgroup '%s'", pidref.pid, path);
-                                continue;
+                        ఒకవేళ (pidref_is_kernel_thread(&pidref) > 0) {
+                                log_debug("Ignoring kernel thread with pid " PID_FMT " in cgroup '%s'", pidref.pid, మార్గం);
+                                కొనసాగు;
                         }
 
-                        if (log_kill)
+                        ఒకవేళ (log_kill)
                                 ret_log_kill = log_kill(&pidref, sig, userdata);
 
                         /* If we haven't killed this process yet, kill it */
                         r = pidref_kill(&pidref, sig);
-                        if (r < 0 && r != -ESRCH)
-                                RET_GATHER(ret, log_debug_errno(r, "Failed to kill process with pid " PID_FMT " from cgroup '%s': %m", pidref.pid, path));
-                        if (r >= 0) {
-                                if (flags & CGROUP_SIGCONT)
-                                        (void) pidref_kill(&pidref, SIGCONT);
+                        ఒకవేళ (r < 0 && r != -ESRCH)
+                                RET_GATHER(ret, log_debug_errno(r, "Failed to kill process with pid " PID_FMT " from cgroup '%s': %m", pidref.pid, మార్గం));
+                        ఒకవేళ (r >= 0) {
+                                ఒకవేళ (flags & CGROUP_SIGCONT)
+                                        (శూన్య) pidref_kill(&pidref, SIGCONT);
 
-                                if (ret == 0) {
-                                        if (log_kill)
+                                ఒకవేళ (ret == 0) {
+                                        ఒకవేళ (log_kill)
                                                 ret = ret_log_kill;
-                                        else
+                                        లేకపోతే
                                                 ret = 1;
                                 }
                         }
 
-                        done = false;
+                        పూర్తి = false;
 
-                        r = set_put(killed_pids, PID_TO_PTR(pidref.pid));
-                        if (r < 0)
-                                return RET_GATHER(ret, r);
+                        r = సమితి_put(killed_pids, PID_గమ్యం_PTR(pidref.pid));
+                        ఒకవేళ (r < 0)
+                                తిరిగి RET_GATHER(ret, r);
                 }
 
                 /* To avoid racing against processes which fork quicker than we can kill them, we repeat this
                  * until no new pids need to be killed. */
 
-        } while (!done);
+        } అయితే (!పూర్తి);
 
-        return ret;
+        తిరిగి ret;
 }
 
-int cg_kill_recursive(
-                const char *path,
-                int sig,
+పూర్ణాంకం cg_kill_recursive(
+                స్థిరరాశి అక్షరం *మార్గం,
+                పూర్ణాంకం sig,
                 CGroupFlags flags,
-                Set *killed_pids,
+                సమితి_2 *killed_pids,
                 cg_kill_log_func_t log_kill,
-                void *userdata) {
+                శూన్య *userdata) {
 
-        _cleanup_set_free_ Set *allocated_set = NULL;
-        _cleanup_closedir_ DIR *d = NULL;
-        int r, ret;
+        cleanup_సమితి_free సమితి_2 *allocated_సమితి = ఖాళీ;
+        _cleanup_closedir_ DIR *d = ఖాళీ;
+        పూర్ణాంకం r, ret;
 
-        assert(path);
-        assert(sig >= 0);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(sig >= 0);
 
-        if (!killed_pids) {
-                killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+        ఒకవేళ (!killed_pids) {
+                killed_pids = allocated_సమితి = సమితి_new(ఖాళీ);
+                ఒకవేళ (!killed_pids)
+                        తిరిగి -ENOMEM;
         }
 
-        ret = cg_kill(path, sig, flags, killed_pids, log_kill, userdata);
+        ret = cg_kill(మార్గం, sig, flags, killed_pids, log_kill, userdata);
 
-        r = cg_enumerate_subgroups(path, &d);
-        if (r < 0) {
-                if (r != -ENOENT)
-                        RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup '%s' subgroups: %m", path));
+        r = cg_enumerate_subgroups(మార్గం, &d);
+        ఒకవేళ (r < 0) {
+                ఒకవేళ (r != -ENOENT)
+                        RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup '%s' subgroups: %m", మార్గం));
 
-                return ret;
+                తిరిగి ret;
         }
 
-        for (;;) {
-                _cleanup_free_ char *fn = NULL, *p = NULL;
+        కొరకు (;;) {
+                _cleanup_free_ అక్షరం *fn = ఖాళీ, *p = ఖాళీ;
 
                 r = cg_read_subgroup(d, &fn);
-                if (r < 0) {
-                        RET_GATHER(ret, log_debug_errno(r, "Failed to read subgroup from cgroup '%s': %m", path));
-                        break;
+                ఒకవేళ (r < 0) {
+                        RET_GATHER(ret, log_debug_errno(r, "Failed to read subgroup from cgroup '%s': %m", మార్గం));
+                        ఆపు;
                 }
-                if (r == 0)
-                        break;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
-                p = path_join(empty_to_root(path), fn);
-                if (!p)
-                        return -ENOMEM;
+                p = మార్గం_join(ఖాళీలు_గమ్యం_మూలం(మార్గం), fn);
+                ఒకవేళ (!p)
+                        తిరిగి -ENOMEM;
 
                 r = cg_kill_recursive(p, sig, flags, killed_pids, log_kill, userdata);
-                if (r < 0)
+                ఒకవేళ (r < 0)
                         log_debug_errno(r, "Failed to recursively kill processes in cgroup '%s': %m", p);
-                if (r != 0 && ret >= 0)
+                ఒకవేళ (r != 0 && ret >= 0)
                         ret = r;
         }
 
-        return ret;
+        తిరిగి ret;
 }
 
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed) {
-        _cleanup_free_ char *killfile = NULL;
+పూర్ణాంకం cg_kill_kernel_sigkill(స్థిరరాశి అక్షరం *మార్గం, uint64_t *ret_n_pids_killed) {
+        _cleanup_free_ అక్షరం *killfile = ఖాళీ;
         uint64_t n_pids = UINT64_MAX;
-        int r;
+        పూర్ణాంకం r;
 
         /* Kills the cgroup at `path` directly by writing to its cgroup.kill file.  This sends SIGKILL to all
          * processes in the cgroup and has the advantage of being completely atomic, unlike cg_kill_items(). */
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        if (!cg_kill_supported())
-                return -EOPNOTSUPP;
+        ఒకవేళ (!cg_kill_supported())
+                తిరిగి -EOPNOTSUPP;
 
-        r = cg_get_path(path, "cgroup.kill", &killfile);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, "cgroup.kill", &killfile);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_n_pids_killed) {
+        ఒకవేళ (ret_n_pids_killed) {
                 /* This is not and cannot be atomic so there is a chance the counter might not be accurate
                  * if a process starts/stops between this read and the next write, but this is used for
                  * informational purposes so that's ok. */
-                r = cg_get_attribute_as_uint64(path, "pids.current", &n_pids);
-                if (r < 0)
-                        log_debug_errno(r, "Failed to read pids.current from cgroup '%s', ignoring: %m", path);
+                r = cg_get_attribute_as_uint64(మార్గం, "pids.current", &n_pids);
+                ఒకవేళ (r < 0)
+                        log_debug_errno(r, "Failed to read pids.current from cgroup '%s', ignoring: %m", మార్గం);
         }
 
-        r = write_string_file(killfile, "1", WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", path);
+        r = write_string_file(killfile, "1", WRITE_STRING_FILE_DISABLE_బఫరు);
+        ఒకవేళ (r < 0)
+                తిరిగి log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", మార్గం);
 
-        if (ret_n_pids_killed)
+        ఒకవేళ (ret_n_pids_killed)
                 *ret_n_pids_killed = n_pids;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_get_path(const char *path, const char *suffix, char **ret) {
-        char *t;
+పూర్ణాంకం cg_get_మార్గం(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *suffix, అక్షరం **ret) {
+        అక్షరం *t;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (isempty(path))
-                path = TAKE_PTR(suffix);
+        ఒకవేళ (isempty(మార్గం))
+                మార్గం = TAKE_PTR(suffix);
 
-        t = path_join("/sys/fs/cgroup", path, suffix);
-        if (!t)
-                return -ENOMEM;
+        t = మార్గం_join("/sys/fs/cgroup", మార్గం, suffix);
+        ఒకవేళ (!t)
+                తిరిగి -ENOMEM;
 
-        *ret = path_simplify(t);
-        return 0;
+        *ret = మార్గం_simplify(t);
+        తిరిగి 0;
 }
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+పూర్ణాంకం cg_సమితి_xattr(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *విలువ, size_t కొలత, పూర్ణాంకం flags) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(name);
-        assert(value || size <= 0);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(name);
+        ప్రతిజ్ఞా(విలువ || కొలత <= 0);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, /* suffix= */ ఖాళీ, &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return RET_NERRNO(setxattr(fs, name, value, size, flags));
+        తిరిగి RET_NERRNO(setxattr(fs, name, విలువ, కొలత, flags));
 }
 
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+పూర్ణాంకం cg_get_xattr(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *name, అక్షరం **ret, size_t *ret_కొలత) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(name);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, /* suffix= */ ఖాళీ, &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return lgetxattr_malloc(fs, name, ret, ret_size);
+        తిరిగి lgetxattr_malloc(fs, name, ret, ret_కొలత);
 }
 
-int cg_get_xattr_bool(const char *path, const char *name) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+పూర్ణాంకం cg_get_xattr_bool(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *name) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(name);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, /* suffix= */ ఖాళీ, &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
+        తిరిగి getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
 }
 
-int cg_remove_xattr(const char *path, const char *name) {
-        _cleanup_free_ char *fs = NULL;
-        int r;
+పూర్ణాంకం cg_remove_xattr(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *name) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(name);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(name);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, /* suffix= */ ఖాళీ, &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return RET_NERRNO(removexattr(fs, name));
+        తిరిగి RET_NERRNO(removexattr(fs, name));
 }
 
-int cg_pid_get_path(pid_t pid, char **ret_path) {
-        _cleanup_fclose_ FILE *f = NULL;
-        const char *fs;
-        int r;
+పూర్ణాంకం cg_pid_get_మార్గం(pid_t pid, అక్షరం **ret_మార్గం) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        స్థిరరాశి అక్షరం *fs;
+        పూర్ణాంకం r;
 
-        assert(pid >= 0);
-        assert(ret_path);
+        ప్రతిజ్ఞా(pid >= 0);
+        ప్రతిజ్ఞా(ret_మార్గం);
 
         fs = procfs_file_alloca(pid, "cgroup");
         r = fopen_unlocked(fs, "re", &f);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        ఒకవేళ (r == -ENOENT)
+                తిరిగి -ESRCH;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                char *e;
+        కొరకు (;;) {
+                _cleanup_free_ అక్షరం *పంక్తి = ఖాళీ;
+                అక్షరం *e;
 
-                r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -ENODATA;
+                r = read_పంక్తి(f, LONG_పంక్తి_MAX, &పంక్తి);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        తిరిగి -ENODATA;
 
-                e = startswith(line, "0:");
-                if (!e)
-                        continue;
+                e = startswith(పంక్తి, "0:");
+                ఒకవేళ (!e)
+                        కొనసాగు;
 
                 e = strchr(e, ':');
-                if (!e)
-                        continue;
+                ఒకవేళ (!e)
+                        కొనసాగు;
 
-                _cleanup_free_ char *path = strdup(e + 1);
-                if (!path)
-                        return -ENOMEM;
+                _cleanup_free_ అక్షరం *మార్గం = strdup(e + 1);
+                ఒకవేళ (!మార్గం)
+                        తిరిగి -ENOMEM;
 
                 /* Refuse cgroup paths from outside our cgroup namespace */
-                if (startswith(path, "/../"))
-                        return -EUNATCH;
+                ఒకవేళ (startswith(మార్గం, "/../"))
+                        తిరిగి -EUNATCH;
 
                 /* Truncate suffix indicating the process is a zombie */
-                e = endswith(path, " (deleted)");
-                if (e)
+                e = endswith(మార్గం, " (deleted)");
+                ఒకవేళ (e)
                         *e = 0;
 
-                *ret_path = TAKE_PTR(path);
-                return 0;
+                *ret_మార్గం = TAKE_PTR(మార్గం);
+                తిరిగి 0;
         }
 }
 
-int cg_pidref_get_path(const PidRef *pidref, char **ret_path) {
-        _cleanup_free_ char *path = NULL;
-        int r;
+పూర్ణాంకం cg_pidref_get_మార్గం(స్థిరరాశి PidRef *pidref, అక్షరం **ret_మార్గం) {
+        _cleanup_free_ అక్షరం *మార్గం = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret_path);
+        ప్రతిజ్ఞా(ret_మార్గం);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
         // XXX: Ideally we'd use pidfd_get_cgroupid() + cg_path_from_cgroupid() here, to extract this
         // bit of information from pidfd directly. However, the latter requires privilege and it's
         // not entirely clear how to handle cgroups from outer namespace.
 
-        r = cg_pid_get_path(pidref->pid, &path);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం(pidref->pid, &మార్గం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* Before we return the path, make sure the procfs entry for this pid still matches the pidref */
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        *ret_path = TAKE_PTR(path);
-        return 0;
+        *ret_మార్గం = TAKE_PTR(మార్గం);
+        తిరిగి 0;
 }
 
-int cg_is_empty(const char *path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+పూర్ణాంకం cg_is_ఖాళీలు(స్థిరరాశి అక్షరం *మార్గం) {
+        _cleanup_free_ అక్షరం *t = ఖాళీ;
+        పూర్ణాంకం r;
 
         /* Check if the cgroup hierarchy under 'path' is empty. On cgroup v2 it's exposed via the "populated"
          * attribute of "cgroup.events". */
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
         /* The root cgroup is always populated */
-        if (empty_or_root(path))
-                return false;
+        ఒకవేళ (ఖాళీలు_or_మూలం(మార్గం))
+                తిరిగి false;
 
-        r = cg_get_keyed_attribute(path, "cgroup.events", STRV_MAKE("populated"), &t);
-        if (r == -ENOENT)
-                return true;
-        if (r < 0)
-                return r;
+        r = cg_get_keyed_attribute(మార్గం, "cgroup.events", STRV_MAKE("populated"), &t);
+        ఒకవేళ (r == -ENOENT)
+                తిరిగి true;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return streq(t, "0");
+        తిరిగి streq(t, "0");
 }
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path) {
-        _cleanup_free_ char *controller = NULL;
-        const char *path;
-        int r;
+పూర్ణాంకం cg_విభజించు_spec(స్థిరరాశి అక్షరం *spec, అక్షరం **ret_controller, అక్షరం **ret_మార్గం) {
+        _cleanup_free_ అక్షరం *controller = ఖాళీ;
+        స్థిరరాశి అక్షరం *మార్గం;
+        పూర్ణాంకం r;
 
-        assert(spec);
+        ప్రతిజ్ఞా(spec);
 
         /* This extracts the path part from the deprecated controller:path spec. The path must be absolute or
          * an empty string. No validation is done for the controller part. */
 
-        if (isempty(spec) || path_is_absolute(spec)) {
+        ఒకవేళ (isempty(spec) || మార్గం_is_absolute(spec)) {
                 /* Assume this does not contain controller. */
-                path = spec;
-                goto finalize;
+                మార్గం = spec;
+                వెళ్ళు finalize;
         }
 
-        const char *e = strchr(spec, ':');
-        if (!e) {
+        స్థిరరాశి అక్షరం *e = strchr(spec, ':');
+        ఒకవేళ (!e) {
                 /* Controller only. */
-                if (ret_controller) {
+                ఒకవేళ (ret_controller) {
                         controller = strdup(spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        ఒకవేళ (!controller)
+                                తిరిగి -ENOMEM;
                 }
 
-                path = NULL;
-        } else {
+                మార్గం = ఖాళీ;
+        } లేకపోతే {
                 /* Both controller and path. */
-                if (ret_controller) {
+                ఒకవేళ (ret_controller) {
                         controller = strndup(spec, e - spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        ఒకవేళ (!controller)
+                                తిరిగి -ENOMEM;
                 }
 
-                path = e + 1;
+                మార్గం = e + 1;
         }
 
 finalize:
-        path = empty_to_null(path);
+        మార్గం = ఖాళీలు_గమ్యం_null(మార్గం);
 
-        if (path) {
+        ఒకవేళ (మార్గం) {
                 /* Non-empty path must be absolute. */
-                if (!path_is_absolute(path))
-                        return -EINVAL;
+                ఒకవేళ (!మార్గం_is_absolute(మార్గం))
+                        తిరిగి -EINVAL;
 
                 /* Path must not contain dot-dot. */
-                if (!path_is_safe(path))
-                        return -EINVAL;
+                ఒకవేళ (!మార్గం_is_సురక్షిత(మార్గం))
+                        తిరిగి -EINVAL;
         }
 
-        if (ret_path) {
-                r = path_simplify_alloc(path, ret_path);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (ret_మార్గం) {
+                r = మార్గం_simplify_alloc(మార్గం, ret_మార్గం);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        if (ret_controller)
+        ఒకవేళ (ret_controller)
                 *ret_controller = TAKE_PTR(controller);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_get_root_path(char **ret_path) {
-        char *p, *e;
-        int r;
+పూర్ణాంకం cg_get_మూలం_మార్గం(అక్షరం **ret_మార్గం) {
+        అక్షరం *p, *e;
+        పూర్ణాంకం r;
 
-        assert(ret_path);
+        ప్రతిజ్ఞా(ret_మార్గం);
 
-        r = cg_pid_get_path(1, &p);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం(1, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         e = endswith(p, "/" SPECIAL_INIT_SCOPE);
-        if (e)
+        ఒకవేళ (e)
                 *e = 0;
 
-        *ret_path = p;
-        return 0;
+        *ret_మార్గం = p;
+        తిరిగి 0;
 }
 
-int cg_shift_path(const char *cgroup, const char *root, const char **ret_shifted) {
-        int r;
+పూర్ణాంకం cg_జరుపు_మార్గం(స్థిరరాశి అక్షరం *cgroup, స్థిరరాశి అక్షరం *మూలం, స్థిరరాశి అక్షరం **ret_shifted) {
+        పూర్ణాంకం r;
 
-        assert(cgroup);
-        assert(ret_shifted);
+        ప్రతిజ్ఞా(cgroup);
+        ప్రతిజ్ఞా(ret_shifted);
 
-        _cleanup_free_ char *rt = NULL;
-        if (!root) {
+        _cleanup_free_ అక్షరం *rt = ఖాళీ;
+        ఒకవేళ (!మూలం) {
                 /* If the root was specified let's use that, otherwise
                  * let's determine it from PID 1 */
 
-                r = cg_get_root_path(&rt);
-                if (r < 0)
-                        return r;
+                r = cg_get_మూలం_మార్గం(&rt);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                root = rt;
+                మూలం = rt;
         }
 
-        *ret_shifted = path_startswith_full(cgroup, root, PATH_STARTSWITH_RETURN_LEADING_SLASH|PATH_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
-        return 0;
+        *ret_shifted = మార్గం_startswith_నిండిన(cgroup, మూలం, మార్గం_STARTSWITH_RETURN_LEADING_SLASH|మార్గం_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
+        తిరిగి 0;
 }
 
-int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
-        _cleanup_free_ char *raw = NULL;
-        const char *c;
-        int r;
+పూర్ణాంకం cg_pid_get_మార్గం_shifted(pid_t pid, స్థిరరాశి అక్షరం *మూలం, అక్షరం **ret_cgroup) {
+        _cleanup_free_ అక్షరం *raw = ఖాళీ;
+        స్థిరరాశి అక్షరం *c;
+        పూర్ణాంకం r;
 
-        assert(pid >= 0);
-        assert(ret_cgroup);
+        ప్రతిజ్ఞా(pid >= 0);
+        ప్రతిజ్ఞా(ret_cgroup);
 
-        r = cg_pid_get_path(pid, &raw);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం(pid, &raw);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        r = cg_జరుపు_మార్గం(raw, మూలం, &c);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (c == raw) {
+        ఒకవేళ (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                తిరిగి 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        తిరిగి strdup_గమ్యం(ret_cgroup, c);
 }
 
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *root, char **ret_cgroup) {
-        _cleanup_free_ char *raw = NULL;
-        const char *c;
-        int r;
+పూర్ణాంకం cg_pidref_get_మార్గం_shifted(స్థిరరాశి PidRef *pidref, స్థిరరాశి అక్షరం *మూలం, అక్షరం **ret_cgroup) {
+        _cleanup_free_ అక్షరం *raw = ఖాళీ;
+        స్థిరరాశి అక్షరం *c;
+        పూర్ణాంకం r;
 
-        assert(ret_cgroup);
+        ప్రతిజ్ఞా(ret_cgroup);
 
-        r = cg_pidref_get_path(pidref, &raw);
-        if (r < 0)
-                return r;
+        r = cg_pidref_get_మార్గం(pidref, &raw);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        r = cg_జరుపు_మార్గం(raw, మూలం, &c);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (c == raw) {
+        ఒకవేళ (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                తిరిగి 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        తిరిగి strdup_గమ్యం(ret_cgroup, c);
 }
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit) {
-        assert(cgroup);
+పూర్ణాంకం cg_మార్గం_decode_unit(స్థిరరాశి అక్షరం *cgroup, అక్షరం **ret_unit) {
+        ప్రతిజ్ఞా(cgroup);
 
         size_t n = strcspn(cgroup, "/");
-        if (n < 3)
-                return -ENXIO;
+        ఒకవేళ (n < 3)
+                తిరిగి -ENXIO;
 
-        char *c = strndupa_safe(cgroup, n);
+        అక్షరం *c = strndupa_సురక్షిత(cgroup, n);
         c = cg_unescape(c);
 
-        if (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        ఒకవేళ (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                తిరిగి -ENXIO;
 
-        if (ret_unit)
-                return strdup_to(ret_unit, c);
+        ఒకవేళ (ret_unit)
+                తిరిగి strdup_గమ్యం(ret_unit, c);
 
-        return 0;
+        తిరిగి 0;
 }
 
-static bool valid_slice_name(const char *p, size_t n) {
-        assert(p || n == 0);
+స్థిర bool valid_ముక్క_name(స్థిరరాశి అక్షరం *p, size_t n) {
+        ప్రతిజ్ఞా(p || n == 0);
 
-        if (n < STRLEN("x.slice"))
-                return false;
+        ఒకవేళ (n < STRLEN("x.slice"))
+                తిరిగి false;
 
-        char *c = strndupa_safe(p, n);
-        if (!endswith(c, ".slice"))
-                return false;
+        అక్షరం *c = strndupa_సురక్షిత(p, n);
+        ఒకవేళ (!endswith(c, ".slice"))
+                తిరిగి false;
 
-        return unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
+        తిరిగి unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
 }
 
-static const char* skip_slices(const char *p) {
-        assert(p);
+స్థిర స్థిరరాశి అక్షరం* skip_slices(స్థిరరాశి అక్షరం *p) {
+        ప్రతిజ్ఞా(p);
 
         /* Skips over all slice assignments */
 
-        for (;;) {
+        కొరకు (;;) {
                 size_t n;
 
                 p += strspn(p, "/");
 
                 n = strcspn(p, "/");
-                if (!valid_slice_name(p, n))
-                        return p;
+                ఒకవేళ (!valid_ముక్క_name(p, n))
+                        తిరిగి p;
 
                 p += n;
         }
 }
 
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
-        int r;
+పూర్ణాంకం cg_మార్గం_get_unit_నిండిన(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret_unit, అక్షరం **ret_subgroup) {
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        const char *e = skip_slices(path);
+        స్థిరరాశి అక్షరం *e = skip_slices(మార్గం);
 
-        _cleanup_free_ char *unit = NULL;
-        r = cg_path_decode_unit(e, &unit);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *unit = ఖాళీ;
+        r = cg_మార్గం_decode_unit(e, &unit);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* We skipped over the slices, don't accept any now */
-        if (endswith(unit, ".slice"))
-                return -ENXIO;
+        ఒకవేళ (endswith(unit, ".slice"))
+                తిరిగి -ENXIO;
 
-        if (ret_subgroup) {
-                _cleanup_free_ char *subgroup = NULL;
+        ఒకవేళ (ret_subgroup) {
+                _cleanup_free_ అక్షరం *subgroup = ఖాళీ;
                 e += strcspn(e, "/");
                 e += strspn(e, "/");
 
-                if (isempty(e))
-                        subgroup = NULL;
-                else {
+                ఒకవేళ (isempty(e))
+                        subgroup = ఖాళీ;
+                లేకపోతే {
                         subgroup = strdup(e);
-                        if (!subgroup)
-                                return -ENOMEM;
+                        ఒకవేళ (!subgroup)
+                                తిరిగి -ENOMEM;
                 }
 
-                path_simplify(subgroup);
+                మార్గం_simplify(subgroup);
 
                 *ret_subgroup = TAKE_PTR(subgroup);
         }
 
-        if (ret_unit)
+        ఒకవేళ (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_path_get_unit_path(const char *path, char **ret) {
-        _cleanup_free_ char *path_copy = NULL;
-        char *unit_name;
+పూర్ణాంకం cg_మార్గం_get_unit_మార్గం(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *మార్గం_copy = ఖాళీ;
+        అక్షరం *unit_name;
 
-        assert(path);
-        assert(ret);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(ret);
 
-        path_copy = strdup(path);
-        if (!path_copy)
-                return -ENOMEM;
+        మార్గం_copy = strdup(మార్గం);
+        ఒకవేళ (!మార్గం_copy)
+                తిరిగి -ENOMEM;
 
-        unit_name = (char*) skip_slices(path_copy);
+        unit_name = (అక్షరం*) skip_slices(మార్గం_copy);
         unit_name[strcspn(unit_name, "/")] = 0;
 
-        if (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        ఒకవేళ (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                తిరిగి -ENXIO;
 
-        *ret = TAKE_PTR(path_copy);
+        *ret = TAKE_PTR(మార్గం_copy);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+పూర్ణాంకం cg_pid_get_unit_నిండిన(pid_t pid, అక్షరం **ret_unit, అక్షరం **ret_subgroup) {
+        పూర్ణాంకం r;
 
-        _cleanup_free_ char *cgroup = NULL;
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *cgroup = ఖాళీ;
+        r = cg_pid_get_మార్గం_shifted(pid, ఖాళీ, &cgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_path_get_unit_full(cgroup, ret_unit, ret_subgroup);
+        తిరిగి cg_మార్గం_get_unit_నిండిన(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+పూర్ణాంకం cg_pidref_get_unit_నిండిన(స్థిరరాశి PidRef *pidref, అక్షరం **ret_unit, అక్షరం **ret_subgroup) {
+        పూర్ణాంకం r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        _cleanup_free_ char *unit = NULL, *subgroup = NULL;
-        r = cg_pid_get_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *unit = ఖాళీ, *subgroup = ఖాళీ;
+        r = cg_pid_get_unit_నిండిన(pidref->pid, &unit, &subgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_unit)
+        ఒకవేళ (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        ఒకవేళ (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        తిరిగి 0;
 }
 
-static const char* skip_session(const char *p) {
+స్థిర స్థిరరాశి అక్షరం* skip_session(స్థిరరాశి అక్షరం *p) {
         size_t n;
 
         /* Skip session-*.scope, but require it to be there. */
 
-        if (isempty(p))
-                return NULL;
+        ఒకవేళ (isempty(p))
+                తిరిగి ఖాళీ;
 
         p += strspn(p, "/");
 
         n = strcspn(p, "/");
-        if (n < STRLEN("session-x.scope"))
-                return NULL;
+        ఒకవేళ (n < STRLEN("session-x.scope"))
+                తిరిగి ఖాళీ;
 
-        const char *s = startswith(p, "session-");
-        if (!s)
-                return NULL;
+        స్థిరరాశి అక్షరం *s = startswith(p, "session-");
+        ఒకవేళ (!s)
+                తిరిగి ఖాళీ;
 
         /* Note that session scopes never need unescaping, since they cannot conflict with the kernel's
          * own names, hence we don't need to call cg_unescape() here. */
-        char *f = strndupa_safe(s, p + n - s),
+        అక్షరం *f = strndupa_సురక్షిత(s, p + n - s),
              *e = endswith(f, ".scope");
-        if (!e)
-                return NULL;
+        ఒకవేళ (!e)
+                తిరిగి ఖాళీ;
         *e = '\0';
 
-        if (!session_id_valid(f))
-                return NULL;
+        ఒకవేళ (!session_id_valid(f))
+                తిరిగి ఖాళీ;
 
-        return skip_leading_slash(p + n);
+        తిరిగి skip_leading_slash(p + n);
 }
 
-static const char* skip_user_manager(const char *p) {
+స్థిర స్థిరరాశి అక్షరం* skip_user_manager(స్థిరరాశి అక్షరం *p) {
         size_t n;
 
         /* Skip user@*.service or capsule@*.service, but require either of them to be there. */
 
-        if (isempty(p))
-                return NULL;
+        ఒకవేళ (isempty(p))
+                తిరిగి ఖాళీ;
 
         p += strspn(p, "/");
 
         n = strcspn(p, "/");
-        if (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
-                return NULL;
+        ఒకవేళ (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
+                తిరిగి ఖాళీ;
 
         /* Any possible errors from functions called below are converted to NULL return, so our callers won't
          * resolve user/capsule name. */
-        _cleanup_free_ char *unit_name = strndup(p, n);
-        if (!unit_name)
-                return NULL;
+        _cleanup_free_ అక్షరం *unit_name = strndup(p, n);
+        ఒకవేళ (!unit_name)
+                తిరిగి ఖాళీ;
 
-        _cleanup_free_ char *i = NULL;
-        UnitNameFlags type = unit_name_to_instance(unit_name, &i);
+        _cleanup_free_ అక్షరం *i = ఖాళీ;
+        UnitNameFlags type = unit_name_గమ్యం_instance(unit_name, &i);
 
-        if (type != UNIT_NAME_INSTANCE)
-                return NULL;
+        ఒకవేళ (type != UNIT_NAME_INSTANCE)
+                తిరిగి ఖాళీ;
 
         /* Note that user manager services never need unescaping, since they cannot conflict with the
          * kernel's own names, hence we don't need to call cg_unescape() here.  Prudently check validity of
          * instance names, they should be always valid as we validate them upon unit start. */
-        if (!(startswith(unit_name, "user@") && parse_uid(i, NULL) >= 0) &&
+        ఒకవేళ (!(startswith(unit_name, "user@") && parse_uid(i, ఖాళీ) >= 0) &&
             !(startswith(unit_name, "capsule@") && capsule_name_is_valid(i) > 0))
-                return NULL;
+                తిరిగి ఖాళీ;
 
-        return skip_leading_slash(p + n);
+        తిరిగి skip_leading_slash(p + n);
 }
 
-static const char* skip_user_prefix(const char *path) {
-        const char *e, *t;
+స్థిర స్థిరరాశి అక్షరం* skip_user_ఉపసర్గ(స్థిరరాశి అక్షరం *మార్గం) {
+        స్థిరరాశి అక్షరం *e, *t;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
         /* Skip slices, if there are any */
-        e = skip_slices(path);
+        e = skip_slices(మార్గం);
 
         /* Skip the user manager, if it's in the path now... */
         t = skip_user_manager(e);
-        if (t)
-                return t;
+        ఒకవేళ (t)
+                తిరిగి t;
 
         /* Alternatively skip the user session if it is in the path... */
-        return skip_session(e);
+        తిరిగి skip_session(e);
 }
 
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
-        const char *t;
+పూర్ణాంకం cg_మార్గం_get_user_unit_నిండిన(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret_unit, అక్షరం **ret_subgroup) {
+        స్థిరరాశి అక్షరం *t;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        t = skip_user_prefix(path);
-        if (!t)
-                return -ENXIO;
+        t = skip_user_ఉపసర్గ(మార్గం);
+        ఒకవేళ (!t)
+                తిరిగి -ENXIO;
 
         /* And from here on it looks pretty much the same as for a system unit, hence let's use the same
          * parser. */
-        return cg_path_get_unit_full(t, ret_unit, ret_subgroup);
+        తిరిగి cg_మార్గం_get_unit_నిండిన(t, ret_unit, ret_subgroup);
 }
 
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+పూర్ణాంకం cg_pid_get_user_unit_నిండిన(pid_t pid, అక్షరం **ret_unit, అక్షరం **ret_subgroup) {
+        పూర్ణాంకం r;
 
-        _cleanup_free_ char *cgroup = NULL;
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *cgroup = ఖాళీ;
+        r = cg_pid_get_మార్గం_shifted(pid, ఖాళీ, &cgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_path_get_user_unit_full(cgroup, ret_unit, ret_subgroup);
+        తిరిగి cg_మార్గం_get_user_unit_నిండిన(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+పూర్ణాంకం cg_pidref_get_user_unit_నిండిన(స్థిరరాశి PidRef *pidref, అక్షరం **ret_unit, అక్షరం **ret_subgroup) {
+        పూర్ణాంకం r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        _cleanup_free_ char *unit = NULL, *subgroup = NULL;
-        r = cg_pid_get_user_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *unit = ఖాళీ, *subgroup = ఖాళీ;
+        r = cg_pid_get_user_unit_నిండిన(pidref->pid, &unit, &subgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_unit)
+        ఒకవేళ (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        ఒకవేళ (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_path_get_machine_name(const char *path, char **ret_machine) {
-        _cleanup_free_ char *u = NULL;
-        const char *sl;
-        int r;
+పూర్ణాంకం cg_మార్గం_get_machine_name(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret_machine) {
+        _cleanup_free_ అక్షరం *u = ఖాళీ;
+        స్థిరరాశి అక్షరం *sl;
+        పూర్ణాంకం r;
 
-        r = cg_path_get_unit(path, &u);
-        if (r < 0)
-                return r;
+        r = cg_మార్గం_get_unit(మార్గం, &u);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         sl = strjoina("/run/systemd/machines/unit:", u);
-        return readlink_malloc(sl, ret_machine);
+        తిరిగి readlink_malloc(sl, ret_machine);
 }
 
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+పూర్ణాంకం cg_pid_get_machine_name(pid_t pid, అక్షరం **ret_machine) {
+        _cleanup_free_ అక్షరం *cgroup = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం_shifted(pid, ఖాళీ, &cgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_path_get_machine_name(cgroup, ret_machine);
+        తిరిగి cg_మార్గం_get_machine_name(cgroup, ret_machine);
 }
 
-int cg_path_get_session(const char *path, char **ret_session) {
-        _cleanup_free_ char *unit = NULL;
-        char *start, *end;
-        int r;
+పూర్ణాంకం cg_మార్గం_get_session(స్థిరరాశి అక్షరం *మార్గం, అక్షరం **ret_session) {
+        _cleanup_free_ అక్షరం *unit = ఖాళీ;
+        అక్షరం *ప్రారంభం, *చివర;
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        r = cg_path_get_unit(path, &unit);
-        if (r < 0)
-                return r;
+        r = cg_మార్గం_get_unit(మార్గం, &unit);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        start = startswith(unit, "session-");
-        if (!start)
-                return -ENXIO;
-        end = endswith(start, ".scope");
-        if (!end)
-                return -ENXIO;
+        ప్రారంభం = startswith(unit, "session-");
+        ఒకవేళ (!ప్రారంభం)
+                తిరిగి -ENXIO;
+        చివర = endswith(ప్రారంభం, ".scope");
+        ఒకవేళ (!చివర)
+                తిరిగి -ENXIO;
 
-        *end = 0;
-        if (!session_id_valid(start))
-                return -ENXIO;
+        *చివర = 0;
+        ఒకవేళ (!session_id_valid(ప్రారంభం))
+                తిరిగి -ENXIO;
 
-        if (!ret_session)
-                return 0;
+        ఒకవేళ (!ret_session)
+                తిరిగి 0;
 
-        return strdup_to(ret_session, start);
+        తిరిగి strdup_గమ్యం(ret_session, ప్రారంభం);
 }
 
-int cg_pid_get_session(pid_t pid, char **ret_session) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+పూర్ణాంకం cg_pid_get_session(pid_t pid, అక్షరం **ret_session) {
+        _cleanup_free_ అక్షరం *cgroup = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం_shifted(pid, ఖాళీ, &cgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_path_get_session(cgroup, ret_session);
+        తిరిగి cg_మార్గం_get_session(cgroup, ret_session);
 }
 
-int cg_pidref_get_session(const PidRef *pidref, char **ret) {
-        int r;
+పూర్ణాంకం cg_pidref_get_session(స్థిరరాశి PidRef *pidref, అక్షరం **ret) {
+        పూర్ణాంకం r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
-        _cleanup_free_ char *session = NULL;
+        _cleanup_free_ అక్షరం *session = ఖాళీ;
         r = cg_pid_get_session(pidref->pid, &session);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(session);
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
-        _cleanup_free_ char *slice = NULL;
-        char *start, *end;
-        int r;
+పూర్ణాంకం cg_మార్గం_get_owner_uid(స్థిరరాశి అక్షరం *మార్గం, uid_t *ret_uid) {
+        _cleanup_free_ అక్షరం *ముక్క = ఖాళీ;
+        అక్షరం *ప్రారంభం, *చివర;
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        r = cg_path_get_slice(path, &slice);
-        if (r < 0)
-                return r;
+        r = cg_మార్గం_get_ముక్క(మార్గం, &ముక్క);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        start = startswith(slice, "user-");
-        if (!start)
-                return -ENXIO;
+        ప్రారంభం = startswith(ముక్క, "user-");
+        ఒకవేళ (!ప్రారంభం)
+                తిరిగి -ENXIO;
 
-        end = endswith(start, ".slice");
-        if (!end)
-                return -ENXIO;
+        చివర = endswith(ప్రారంభం, ".slice");
+        ఒకవేళ (!చివర)
+                తిరిగి -ENXIO;
 
-        *end = 0;
-        if (parse_uid(start, ret_uid) < 0)
-                return -ENXIO;
+        *చివర = 0;
+        ఒకవేళ (parse_uid(ప్రారంభం, ret_uid) < 0)
+                తిరిగి -ENXIO;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+పూర్ణాంకం cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
+        _cleanup_free_ అక్షరం *cgroup = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం_shifted(pid, ఖాళీ, &cgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_path_get_owner_uid(cgroup, ret_uid);
+        తిరిగి cg_మార్గం_get_owner_uid(cgroup, ret_uid);
 }
 
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret) {
-        int r;
+పూర్ణాంకం cg_pidref_get_owner_uid(స్థిరరాశి PidRef *pidref, uid_t *ret) {
+        పూర్ణాంకం r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        ఒకవేళ (!pidref_is_సమితి(pidref))
+                తిరిగి -ESRCH;
+        ఒకవేళ (pidref_is_remote(pidref))
+                తిరిగి -EREMOTE;
 
         uid_t uid;
         r = cg_pid_get_owner_uid(pidref->pid, &uid);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = uid;
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_path_get_slice(const char *p, char **ret_slice) {
-        const char *e = NULL;
+పూర్ణాంకం cg_మార్గం_get_ముక్క(స్థిరరాశి అక్షరం *p, అక్షరం **ret_ముక్క) {
+        స్థిరరాశి అక్షరం *e = ఖాళీ;
 
-        assert(p);
+        ప్రతిజ్ఞా(p);
 
         /* Finds the right-most slice unit from the beginning, but stops before we come to
          * the first non-slice unit. */
 
-        for (;;) {
-                const char *s;
-                int n;
+        కొరకు (;;) {
+                స్థిరరాశి అక్షరం *s;
+                పూర్ణాంకం n;
 
-                n = path_find_first_component(&p, /* accept_dot_dot= */ false, &s);
-                if (n < 0)
-                        return n;
-                if (!valid_slice_name(s, n))
-                        break;
+                n = మార్గం_కనుగొను_మొదటి_component(&p, /* accept_dot_dot= */ false, &s);
+                ఒకవేళ (n < 0)
+                        తిరిగి n;
+                ఒకవేళ (!valid_ముక్క_name(s, n))
+                        ఆపు;
 
                 e = s;
         }
 
-        if (e)
-                return cg_path_decode_unit(e, ret_slice);
+        ఒకవేళ (e)
+                తిరిగి cg_మార్గం_decode_unit(e, ret_ముక్క);
 
-        if (ret_slice)
-                return strdup_to(ret_slice, SPECIAL_ROOT_SLICE);
+        ఒకవేళ (ret_ముక్క)
+                తిరిగి strdup_గమ్యం(ret_ముక్క, SPECIAL_మూలం_ముక్క);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_pid_get_slice(pid_t pid, char **ret_slice) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+పూర్ణాంకం cg_pid_get_ముక్క(pid_t pid, అక్షరం **ret_ముక్క) {
+        _cleanup_free_ అక్షరం *cgroup = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం_shifted(pid, ఖాళీ, &cgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_path_get_slice(cgroup, ret_slice);
+        తిరిగి cg_మార్గం_get_ముక్క(cgroup, ret_ముక్క);
 }
 
-int cg_path_get_user_slice(const char *p, char **ret_slice) {
-        const char *t;
-        assert(p);
+పూర్ణాంకం cg_మార్గం_get_user_ముక్క(స్థిరరాశి అక్షరం *p, అక్షరం **ret_ముక్క) {
+        స్థిరరాశి అక్షరం *t;
+        ప్రతిజ్ఞా(p);
 
-        t = skip_user_prefix(p);
-        if (!t)
-                return -ENXIO;
+        t = skip_user_ఉపసర్గ(p);
+        ఒకవేళ (!t)
+                తిరిగి -ENXIO;
 
         /* And now it looks pretty much the same as for a system slice, so let's just use the same parser
          * from here on. */
-        return cg_path_get_slice(t, ret_slice);
+        తిరిగి cg_మార్గం_get_ముక్క(t, ret_ముక్క);
 }
 
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice) {
-        _cleanup_free_ char *cgroup = NULL;
-        int r;
+పూర్ణాంకం cg_pid_get_user_ముక్క(pid_t pid, అక్షరం **ret_ముక్క) {
+        _cleanup_free_ అక్షరం *cgroup = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        r = cg_pid_get_మార్గం_shifted(pid, ఖాళీ, &cgroup);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_path_get_user_slice(cgroup, ret_slice);
+        తిరిగి cg_మార్గం_get_user_ముక్క(cgroup, ret_ముక్క);
 }
 
-bool cg_needs_escape(const char *p) {
+bool cg_needs_escape(స్థిరరాశి అక్షరం *p) {
 
         /* Checks if the specified path is a valid cgroup name by our rules, or if it must be escaped. Note
          * that we consider escaped cgroup names invalid here, as they need to be escaped a second time if
          * they shall be used. Also note that various names cannot be made valid by escaping even if we
          * return true here (because too long, or contain the forbidden character "/"). */
 
-        if (!filename_is_valid(p))
-                return true;
+        ఒకవేళ (!filename_is_valid(p))
+                తిరిగి true;
 
-        if (IN_SET(p[0], '_', '.'))
-                return true;
+        ఒకవేళ (లోపల_సమితి(p[0], '_', '.'))
+                తిరిగి true;
 
-        if (STR_IN_SET(p, "notify_on_release", "release_agent", "tasks"))
-                return true;
+        ఒకవేళ (STR_లోపల_సమితి(p, "notify_on_release", "release_agent", "tasks"))
+                తిరిగి true;
 
-        if (startswith(p, "cgroup."))
-                return true;
+        ఒకవేళ (startswith(p, "cgroup."))
+                తిరిగి true;
 
-        for (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
-                const char *q;
+        కొరకు (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+                స్థిరరాశి అక్షరం *q;
 
-                q = startswith(p, cgroup_controller_to_string(c));
-                if (!q)
-                        continue;
+                q = startswith(p, cgroup_controller_గమ్యం_string(c));
+                ఒకవేళ (!q)
+                        కొనసాగు;
 
-                if (q[0] == '.')
-                        return true;
+                ఒకవేళ (q[0] == '.')
+                        తిరిగి true;
         }
 
-        return false;
+        తిరిగి false;
 }
 
-int cg_escape(const char *p, char **ret) {
-        _cleanup_free_ char *n = NULL;
+పూర్ణాంకం cg_escape(స్థిరరాశి అక్షరం *p, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *n = ఖాళీ;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* This implements very minimal escaping for names to be used as file names in the cgroup tree: any
          * name which might conflict with a kernel name or is prefixed with '_' is prefixed with a '_'. That
@@ -1301,231 +1301,231 @@ int cg_escape(const char *p, char **ret) {
 
         /* The return value of this function (unlike cg_unescape()) needs free()! */
 
-        if (cg_needs_escape(p)) {
+        ఒకవేళ (cg_needs_escape(p)) {
                 n = strjoin("_", p);
-                if (!n)
-                        return -ENOMEM;
+                ఒకవేళ (!n)
+                        తిరిగి -ENOMEM;
 
-                if (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
-                        return -EINVAL;
-        } else {
+                ఒకవేళ (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
+                        తిరిగి -EINVAL;
+        } లేకపోతే {
                 n = strdup(p);
-                if (!n)
-                        return -ENOMEM;
+                ఒకవేళ (!n)
+                        తిరిగి -ENOMEM;
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        తిరిగి 0;
 }
 
-char* cg_unescape(const char *p) {
-        assert(p);
+అక్షరం* cg_unescape(స్థిరరాశి అక్షరం *p) {
+        ప్రతిజ్ఞా(p);
 
         /* The return value of this function (unlike cg_escape())
          * doesn't need free()! */
 
-        if (p[0] == '_')
-                return (char*) p+1;
+        ఒకవేళ (p[0] == '_')
+                తిరిగి (అక్షరం*) p+1;
 
-        return (char*) p;
+        తిరిగి (అక్షరం*) p;
 }
 
-int cg_slice_to_path(const char *unit, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL, *e = NULL;
-        const char *dash;
-        int r;
+పూర్ణాంకం cg_ముక్క_గమ్యం_మార్గం(స్థిరరాశి అక్షరం *unit, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ, *s = ఖాళీ, *e = ఖాళీ;
+        స్థిరరాశి అక్షరం *dash;
+        పూర్ణాంకం r;
 
-        assert(unit);
-        assert(ret);
+        ప్రతిజ్ఞా(unit);
+        ప్రతిజ్ఞా(ret);
 
-        if (streq(unit, SPECIAL_ROOT_SLICE))
-                return strdup_to(ret, "");
+        ఒకవేళ (streq(unit, SPECIAL_మూలం_ముక్క))
+                తిరిగి strdup_గమ్యం(ret, "");
 
-        if (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        ఒకవేళ (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
+                తిరిగి -EINVAL;
 
-        if (!endswith(unit, ".slice"))
-                return -EINVAL;
+        ఒకవేళ (!endswith(unit, ".slice"))
+                తిరిగి -EINVAL;
 
-        r = unit_name_to_prefix(unit, &p);
-        if (r < 0)
-                return r;
+        r = unit_name_గమ్యం_ఉపసర్గ(unit, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         dash = strchr(p, '-');
 
         /* Don't allow initial dashes */
-        if (dash == p)
-                return -EINVAL;
+        ఒకవేళ (dash == p)
+                తిరిగి -EINVAL;
 
-        while (dash) {
-                _cleanup_free_ char *escaped = NULL;
-                char n[dash - p + sizeof(".slice")];
+        అయితే (dash) {
+                _cleanup_free_ అక్షరం *escaped = ఖాళీ;
+                అక్షరం n[dash - p + పరిమాణం(".slice")];
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#ఒకవేళ HAS_FEATURE_జ్ఞాపకం_SANITIZER
                 /* msan doesn't instrument stpncpy, so it thinks
                  * n is later used uninitialized:
                  * https://github.com/google/sanitizers/issues/926
                  */
                 zero(n);
-#endif
+#అయితే_ముగింపు
 
                 /* Don't allow trailing or double dashes */
-                if (IN_SET(dash[1], 0, '-'))
-                        return -EINVAL;
+                ఒకవేళ (లోపల_సమితి(dash[1], 0, '-'))
+                        తిరిగి -EINVAL;
 
                 strcpy(stpncpy(n, p, dash - p), ".slice");
-                if (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
-                        return -EINVAL;
+                ఒకవేళ (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
+                        తిరిగి -EINVAL;
 
                 r = cg_escape(n, &escaped);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                if (!strextend(&s, escaped, "/"))
-                        return -ENOMEM;
+                ఒకవేళ (!strextend(&s, escaped, "/"))
+                        తిరిగి -ENOMEM;
 
                 dash = strchr(dash+1, '-');
         }
 
         r = cg_escape(unit, &e);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (!strextend(&s, e))
-                return -ENOMEM;
+        ఒకవేళ (!strextend(&s, e))
+                తిరిగి -ENOMEM;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_is_threaded(const char *path) {
-        _cleanup_free_ char *fs = NULL, *contents = NULL;
-        _cleanup_strv_free_ char **v = NULL;
-        int r;
+పూర్ణాంకం cg_is_threaded(స్థిరరాశి అక్షరం *మార్గం) {
+        _cleanup_free_ అక్షరం *fs = ఖాళీ, *contents = ఖాళీ;
+        _cleanup_strv_free_ అక్షరం **v = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_get_path(path, "cgroup.type", &fs);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, "cgroup.type", &fs);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = read_full_virtual_file(fs, &contents, NULL);
-        if (r == -ENOENT)
-                return false; /* Assume no. */
-        if (r < 0)
-                return r;
+        r = read_నిండిన_virtual_file(fs, &contents, ఖాళీ);
+        ఒకవేళ (r == -ENOENT)
+                తిరిగి false; /* Assume no. */
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        v = strv_split(contents, NULL);
-        if (!v)
-                return -ENOMEM;
+        v = strv_విభజించు(contents, ఖాళీ);
+        ఒకవేళ (!v)
+                తిరిగి -ENOMEM;
 
         /* If the cgroup is in the threaded mode, it contains "threaded".
          * If one of the parents or siblings is in the threaded mode, it may contain "invalid". */
-        return strv_contains(v, "threaded") || strv_contains(v, "invalid");
+        తిరిగి strv_కలిగియుంది(v, "threaded") || strv_కలిగియుంది(v, "invalid");
 }
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+పూర్ణాంకం cg_సమితి_attribute(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *attribute, స్థిరరాశి అక్షరం *విలువ) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(attribute);
+        ప్రతిజ్ఞా(attribute);
 
-        r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, attribute, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* https://lore.kernel.org/all/20250419183545.1982187-1-shakeel.butt@linux.dev/ adds O_NONBLOCK
          * semantics to memory.max and memory.high to skip synchronous memory reclaim when O_NONBLOCK is
          * enabled. Let's always open cgroupv2 attribute files in nonblocking mode to immediately take
          * advantage of this and any other asynchronous resource reclaim that's added to the cgroupv2 API in
          * the future. */
-        return write_string_file(p, value, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
+        తిరిగి write_string_file(p, విలువ, WRITE_STRING_FILE_DISABLE_బఫరు|WRITE_STRING_FILE_OPEN_NONBLOCKING);
 }
 
-int cg_get_attribute(const char *path, const char *attribute, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+పూర్ణాంకం cg_get_attribute(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *attribute, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(attribute);
+        ప్రతిజ్ఞా(attribute);
 
-        r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, attribute, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return read_one_line_file(p, ret);
+        తిరిగి read_one_పంక్తి_file(p, ret);
 }
 
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
+పూర్ణాంకం cg_get_attribute_as_uint64(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *attribute, uint64_t *ret) {
+        _cleanup_free_ అక్షరం *విలువ = ఖాళీ;
         uint64_t v;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        r = cg_get_attribute(మార్గం, attribute, &విలువ);
+        ఒకవేళ (r == -ENOENT)
+                తిరిగి -ENODATA;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (streq(value, "max")) {
-                *ret = CGROUP_LIMIT_MAX;
-                return 0;
+        ఒకవేళ (streq(విలువ, "max")) {
+                *ret = CGROUP_హద్దు_MAX;
+                తిరిగి 0;
         }
 
-        r = safe_atou64(value, &v);
-        if (r < 0)
-                return r;
+        r = సురక్షిత_atou64(విలువ, &v);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = v;
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_get_attribute_as_bool(const char *path, const char *attribute) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+పూర్ణాంకం cg_get_attribute_as_bool(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *attribute) {
+        _cleanup_free_ అక్షరం *విలువ = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        r = cg_get_attribute(మార్గం, attribute, &విలువ);
+        ఒకవేళ (r == -ENOENT)
+                తిరిగి -ENODATA;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return parse_boolean(value);
+        తిరిగి parse_boolean(విలువ);
 }
 
-int cg_get_owner(const char *path, uid_t *ret_uid) {
-        _cleanup_free_ char *f = NULL;
-        struct stat stats;
-        int r;
+పూర్ణాంకం cg_get_owner(స్థిరరాశి అక్షరం *మార్గం, uid_t *ret_uid) {
+        _cleanup_free_ అక్షరం *f = ఖాళీ;
+        నిర్మాణం stat stats;
+        పూర్ణాంకం r;
 
-        assert(ret_uid);
+        ప్రతిజ్ఞా(ret_uid);
 
-        r = cg_get_path(path, /* suffix= */ NULL, &f);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, /* suffix= */ ఖాళీ, &f);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (stat(f, &stats) < 0)
-                return -errno;
+        ఒకవేళ (stat(f, &stats) < 0)
+                తిరిగి -errno;
 
         r = stat_verify_directory(&stats);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret_uid = stats.st_uid;
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_get_keyed_attribute(
-                const char *path,
-                const char *attribute,
-                char * const *keys,
-                char **values) {
+పూర్ణాంకం cg_get_keyed_attribute(
+                స్థిరరాశి అక్షరం *మార్గం,
+                స్థిరరాశి అక్షరం *attribute,
+                అక్షరం * స్థిరరాశి *కీలకాలు,
+                అక్షరం **values) {
 
-        _cleanup_free_ char *filename = NULL, *contents = NULL;
+        _cleanup_free_ అక్షరం *filename = ఖాళీ, *contents = ఖాళీ;
         size_t n;
-        int r;
+        పూర్ణాంకం r;
 
-        assert(path);
-        assert(attribute);
+        ప్రతిజ్ఞా(మార్గం);
+        ప్రతిజ్ఞా(attribute);
 
         /* Reads one or more fields of a cgroup v2 keyed attribute file. The 'keys' parameter should be an strv with
          * all keys to retrieve. The 'values' parameter should be passed as string size with the same number of
@@ -1533,292 +1533,292 @@ int cg_get_keyed_attribute(
          *
          * If the attribute file doesn't exist at all returns ENOENT, if any key is not found returns ENXIO. */
 
-        r = cg_get_path(path, attribute, &filename);
-        if (r < 0)
-                return r;
+        r = cg_get_మార్గం(మార్గం, attribute, &filename);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = read_full_file(filename, &contents, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        r = read_నిండిన_file(filename, &contents, /* ret_size= */ ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        n = strv_length(keys);
-        if (n == 0) /* No keys to retrieve? That's easy, we are done then */
-                return 0;
-        assert(strv_is_uniq(keys));
+        n = strv_నిడివి(కీలకాలు);
+        ఒకవేళ (n == 0) /* No keys to retrieve? That's easy, we are done then */
+                తిరిగి 0;
+        ప్రతిజ్ఞా(strv_is_uniq(కీలకాలు));
 
         /* Let's build this up in a temporary array for now in order not to clobber the return parameter on failure */
-        char **v = newa0(char*, n);
-        size_t n_done = 0;
+        అక్షరం **v = newa0(అక్షరం*, n);
+        size_t n_పూర్తి = 0;
 
-        for (const char *p = contents; *p;) {
-                const char *w;
+        కొరకు (స్థిరరాశి అక్షరం *p = contents; *p;) {
+                స్థిరరాశి అక్షరం *w;
                 size_t i;
 
-                for (i = 0; i < n; i++) {
-                        w = first_word(p, keys[i]);
-                        if (w)
-                                break;
+                కొరకు (i = 0; i < n; i++) {
+                        w = మొదటి_మాట(p, కీలకాలు[i]);
+                        ఒకవేళ (w)
+                                ఆపు;
                 }
 
-                if (w) {
-                        if (v[i]) { /* duplicate entry? */
+                ఒకవేళ (w) {
+                        ఒకవేళ (v[i]) { /* duplicate entry? */
                                 r = -EBADMSG;
-                                goto fail;
+                                వెళ్ళు fail;
                         }
 
                         size_t l = strcspn(w, NEWLINE);
 
                         v[i] = strndup(w, l);
-                        if (!v[i]) {
+                        ఒకవేళ (!v[i]) {
                                 r = -ENOMEM;
-                                goto fail;
+                                వెళ్ళు fail;
                         }
 
-                        n_done++;
-                        if (n_done >= n)
-                                break;
+                        n_పూర్తి++;
+                        ఒకవేళ (n_పూర్తి >= n)
+                                ఆపు;
 
                         p = w + l;
-                } else
+                } లేకపోతే
                         p += strcspn(p, NEWLINE);
 
                 p += strspn(p, NEWLINE);
         }
 
-        if (n_done < n) {
+        ఒకవేళ (n_పూర్తి < n) {
                 r = -ENXIO;
-                goto fail;
+                వెళ్ళు fail;
         }
 
-        memcpy(values, v, sizeof(char*) * n);
-        return 0;
+        జ్ఞాపకం_నకలు(values, v, పరిమాణం(అక్షరం*) * n);
+        తిరిగి 0;
 
 fail:
         free_many_charp(v, n);
-        return r;
+        తిరిగి r;
 }
 
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret) {
-        _cleanup_free_ char *val = NULL;
-        int r;
+పూర్ణాంకం cg_get_keyed_attribute_uint64(స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *attribute, స్థిరరాశి అక్షరం *కీలకం, uint64_t *ret) {
+        _cleanup_free_ అక్షరం *val = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(key);
-        assert(ret);
+        ప్రతిజ్ఞా(కీలకం);
+        ప్రతిజ్ఞా(ret);
 
-        r = cg_get_keyed_attribute(path, attribute, STRV_MAKE(key), &val);
-        if (r < 0)
-                return r;
+        r = cg_get_keyed_attribute(మార్గం, attribute, STRV_MAKE(కీలకం), &val);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = safe_atou64(val, ret);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, key, attribute);
+        r = సురక్షిత_atou64(val, ret);
+        ఒకవేళ (r < 0)
+                తిరిగి log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, కీలకం, attribute);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_mask_to_string(CGroupMask mask, char **ret) {
-        _cleanup_free_ char *s = NULL;
+పూర్ణాంకం cg_ముసుగు_గమ్యం_string(CGroup_ముసుగు ముసుగు_3, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
         bool space = false;
         CGroupController c;
         size_t n = 0;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (mask == 0) {
-                *ret = NULL;
-                return 0;
+        ఒకవేళ (ముసుగు_3 == 0) {
+                *ret = ఖాళీ;
+                తిరిగి 0;
         }
 
-        for (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
-                const char *k;
+        కొరకు (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+                స్థిరరాశి అక్షరం *k;
                 size_t l;
 
-                if (!FLAGS_SET(mask, CGROUP_CONTROLLER_TO_MASK(c)))
-                        continue;
+                ఒకవేళ (!FLAGS_సమితి(ముసుగు_3, CGROUP_CONTROLLER_గమ్యం_ముసుగు(c)))
+                        కొనసాగు;
 
-                k = cgroup_controller_to_string(c);
-                l = strlen(k);
+                k = cgroup_controller_గమ్యం_string(c);
+                l = అక్షరశ్రేణి_పొడవు(k);
 
-                if (!GREEDY_REALLOC(s, n + space + l + 1))
-                        return -ENOMEM;
+                ఒకవేళ (!GREEDY_REALLOC(s, n + space + l + 1))
+                        తిరిగి -ENOMEM;
 
-                if (space)
+                ఒకవేళ (space)
                         s[n] = ' ';
-                memcpy(s + n + space, k, l);
+                జ్ఞాపకం_నకలు(s + n + space, k, l);
                 n += space + l;
 
                 space = true;
         }
 
-        assert(s);
+        ప్రతిజ్ఞా(s);
 
         s[n] = 0;
         *ret = TAKE_PTR(s);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_mask_from_string(const char *s, CGroupMask *ret) {
-        CGroupMask m = 0;
+పూర్ణాంకం cg_ముసుగు_from_string(స్థిరరాశి అక్షరం *s, CGroup_ముసుగు *ret) {
+        CGroup_ముసుగు m = 0;
 
-        assert(ret);
-        assert(s);
+        ప్రతిజ్ఞా(ret);
+        ప్రతిజ్ఞా(s);
 
-        for (;;) {
-                _cleanup_free_ char *n = NULL;
+        కొరకు (;;) {
+                _cleanup_free_ అక్షరం *n = ఖాళీ;
                 CGroupController v;
-                int r;
+                పూర్ణాంకం r;
 
-                r = extract_first_word(&s, &n, NULL, 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = వెలికితీయి_మొదటి_మాట(&s, &n, ఖాళీ, 0);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+                ఒకవేళ (r == 0)
+                        ఆపు;
 
                 v = cgroup_controller_from_string(n);
-                if (v < 0)
-                        continue;
+                ఒకవేళ (v < 0)
+                        కొనసాగు;
 
-                m |= CGROUP_CONTROLLER_TO_MASK(v);
+                m |= CGROUP_CONTROLLER_గమ్యం_ముసుగు(v);
         }
 
         *ret = m;
-        return 0;
+        తిరిగి 0;
 }
 
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
-        CGroupMask mask;
-        int r;
+పూర్ణాంకం cg_ముసుగు_supported_subtree(స్థిరరాశి అక్షరం *మూలం, CGroup_ముసుగు *ret) {
+        CGroup_ముసుగు ముసుగు_3;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* Determines the mask of supported cgroup controllers. Only includes controllers we can make sense of and that
          * are actually accessible. Only covers real controllers, i.e. not the CGROUP_CONTROLLER_BPF_xyz
          * pseudo-controllers. */
 
         /* We can read the supported and accessible controllers from the top-level cgroup attribute */
-        _cleanup_free_ char *controllers = NULL, *path = NULL;
-        r = cg_get_path(root, "cgroup.controllers", &path);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *controllers = ఖాళీ, *మార్గం = ఖాళీ;
+        r = cg_get_మార్గం(మూలం, "cgroup.controllers", &మార్గం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = read_one_line_file(path, &controllers);
-        if (r < 0)
-                return r;
+        r = read_one_పంక్తి_file(మార్గం, &controllers);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = cg_mask_from_string(controllers, &mask);
-        if (r < 0)
-                return r;
+        r = cg_ముసుగు_from_string(controllers, &ముసుగు_3);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         /* Mask controllers that are not supported in cgroup v2. */
-        mask &= CGROUP_MASK_V2;
+        ముసుగు_3 &= CGROUP_ముసుగు_V2;
 
-        *ret = mask;
-        return 0;
+        *ret = ముసుగు_3;
+        తిరిగి 0;
 }
 
-int cg_mask_supported(CGroupMask *ret) {
-        _cleanup_free_ char *root = NULL;
-        int r;
+పూర్ణాంకం cg_ముసుగు_supported(CGroup_ముసుగు *ret) {
+        _cleanup_free_ అక్షరం *మూలం = ఖాళీ;
+        పూర్ణాంకం r;
 
-        r = cg_get_root_path(&root);
-        if (r < 0)
-                return r;
+        r = cg_get_మూలం_మార్గం(&మూలం);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return cg_mask_supported_subtree(root, ret);
+        తిరిగి cg_ముసుగు_supported_subtree(మూలం, ret);
 }
 
-int cg_is_delegated(const char *path) {
-        int r;
+పూర్ణాంకం cg_is_delegated(స్థిరరాశి అక్షరం *మార్గం) {
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        r = cg_get_xattr_bool(path, "trusted.delegate");
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        r = cg_get_xattr_bool(మార్గం, "trusted.delegate");
+        ఒకవేళ (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                తిరిగి r;
 
         /* If the trusted xattr isn't set (preferred), then check the untrusted one. Under the assumption
          * that whoever is trusted enough to own the cgroup, is also trusted enough to decide if it is
          * delegated or not this should be safe. */
-        r = cg_get_xattr_bool(path, "user.delegate");
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        r = cg_get_xattr_bool(మార్గం, "user.delegate");
+        తిరిగి ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_is_delegated_fd(int fd) {
-        int r;
+పూర్ణాంకం cg_is_delegated_fd(పూర్ణాంకం fd) {
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
+        ప్రతిజ్ఞా(fd >= 0);
 
-        r = getxattr_at_bool(fd, /* path= */ NULL, "trusted.delegate", /* at_flags= */ 0);
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        r = getxattr_at_bool(fd, /* path= */ ఖాళీ, "trusted.delegate", /* at_flags= */ 0);
+        ఒకవేళ (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                తిరిగి r;
 
-        r = getxattr_at_bool(fd, /* path= */ NULL, "user.delegate", /* at_flags= */ 0);
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        r = getxattr_at_bool(fd, /* path= */ ఖాళీ, "user.delegate", /* at_flags= */ 0);
+        తిరిగి ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_has_coredump_receive(const char *path) {
-        int r;
+పూర్ణాంకం cg_has_coredump_receive(స్థిరరాశి అక్షరం *మార్గం) {
+        పూర్ణాంకం r;
 
-        assert(path);
+        ప్రతిజ్ఞా(మార్గం);
 
-        r = cg_get_xattr_bool(path, "user.coredump_receive");
-        if (ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return false;
+        r = cg_get_xattr_bool(మార్గం, "user.coredump_receive");
+        ఒకవేళ (ERRNO_IS_NEG_XATTR_ABSENT(r))
+                తిరిగి false;
 
-        return r;
+        తిరిగి r;
 }
 
-const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX] = {
-        [CGROUP_IO_RBPS_MAX]  = CGROUP_LIMIT_MAX,
-        [CGROUP_IO_WBPS_MAX]  = CGROUP_LIMIT_MAX,
-        [CGROUP_IO_RIOPS_MAX] = CGROUP_LIMIT_MAX,
-        [CGROUP_IO_WIOPS_MAX] = CGROUP_LIMIT_MAX,
+స్థిరరాశి uint64_t cgroup_io_హద్దు_defaults[CGROUP_IO_హద్దు_TYPE_MAX] = {
+        [CGROUP_IO_RBPS_MAX]  = CGROUP_హద్దు_MAX,
+        [CGROUP_IO_WBPS_MAX]  = CGROUP_హద్దు_MAX,
+        [CGROUP_IO_RIOPS_MAX] = CGROUP_హద్దు_MAX,
+        [CGROUP_IO_WIOPS_MAX] = CGROUP_హద్దు_MAX,
 };
 
-static const char* const cgroup_io_limit_type_table[_CGROUP_IO_LIMIT_TYPE_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి cgroup_io_హద్దు_type_పట్టిక[CGROUP_IO_హద్దు_TYPE_MAX] = {
         [CGROUP_IO_RBPS_MAX]  = "IOReadBandwidthMax",
         [CGROUP_IO_WBPS_MAX]  = "IOWriteBandwidthMax",
         [CGROUP_IO_RIOPS_MAX] = "IOReadIOPSMax",
         [CGROUP_IO_WIOPS_MAX] = "IOWriteIOPSMax",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
+DEFINE_STRING_పట్టిక_LOOKUP(cgroup_io_హద్దు_type, CGroupIOLimitType);
 
-void cgroup_io_limits_list(void) {
-        DUMP_STRING_TABLE(cgroup_io_limit_type, CGroupIOLimitType, _CGROUP_IO_LIMIT_TYPE_MAX);
+శూన్య cgroup_io_limits_list(శూన్య) {
+        DUMP_STRING_పట్టిక(cgroup_io_హద్దు_type, CGroupIOLimitType, CGROUP_IO_హద్దు_TYPE_MAX);
 }
 
-static const char *const cgroup_controller_table[_CGROUP_CONTROLLER_MAX] = {
+స్థిర స్థిరరాశి అక్షరం *స్థిరరాశి cgroup_controller_పట్టిక[_CGROUP_CONTROLLER_MAX] = {
         [CGROUP_CONTROLLER_CPU]                             = "cpu",
         [CGROUP_CONTROLLER_CPUACCT]                         = "cpuacct",
         [CGROUP_CONTROLLER_CPUSET]                          = "cpuset",
         [CGROUP_CONTROLLER_IO]                              = "io",
         [CGROUP_CONTROLLER_BLKIO]                           = "blkio",
-        [CGROUP_CONTROLLER_MEMORY]                          = "memory",
+        [CGROUP_CONTROLLER_జ్ఞాపకం]                          = "memory",
         [CGROUP_CONTROLLER_DEVICES]                         = "devices",
         [CGROUP_CONTROLLER_PIDS]                            = "pids",
         [CGROUP_CONTROLLER_BPF_FIREWALL]                    = "bpf-firewall",
         [CGROUP_CONTROLLER_BPF_DEVICES]                     = "bpf-devices",
         [CGROUP_CONTROLLER_BPF_FOREIGN]                     = "bpf-foreign",
         [CGROUP_CONTROLLER_BPF_SOCKET_BIND]                 = "bpf-socket-bind",
-        [CGROUP_CONTROLLER_BPF_RESTRICT_NETWORK_INTERFACES] = "bpf-restrict-network-interfaces",
-        [CGROUP_CONTROLLER_BPF_BIND_NETWORK_INTERFACE]      = "bpf-bind-network-interface",
+        [CGROUP_CONTROLLER_BPF_RESTRICT_జాలం_INTERFACES] = "bpf-restrict-network-interfaces",
+        [CGROUP_CONTROLLER_BPF_BIND_జాలం_INTERFACE]      = "bpf-bind-network-interface",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
+DEFINE_STRING_పట్టిక_LOOKUP(cgroup_controller, CGroupController);
 
-static const char* const managed_oom_mode_table[_MANAGED_OOM_MODE_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి managed_oom_బహుళకం_పట్టిక[MANAGED_OOM_బహుళకం_MAX] = {
         [MANAGED_OOM_AUTO] = "auto",
         [MANAGED_OOM_KILL] = "kill",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
+DEFINE_STRING_పట్టిక_LOOKUP(managed_oom_బహుళకం, ManagedOOMMode);
 
-static const char* const managed_oom_preference_table[_MANAGED_OOM_PREFERENCE_MAX] = {
+స్థిర స్థిరరాశి అక్షరం* స్థిరరాశి managed_oom_preference_పట్టిక[_MANAGED_OOM_PREFERENCE_MAX] = {
         [MANAGED_OOM_PREFERENCE_NONE] = "none",
         [MANAGED_OOM_PREFERENCE_AVOID] = "avoid",
         [MANAGED_OOM_PREFERENCE_OMIT] = "omit",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(managed_oom_preference, ManagedOOMPreference);
+DEFINE_STRING_పట్టిక_LOOKUP(managed_oom_preference, ManagedOOMPreference);

@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-struct strbuf {
-        char *buf;
+నిర్మాణం strbuf {
+        అక్షరం *buf;
         size_t len;
-        struct strbuf_node *root;
+        నిర్మాణం strbuf_కణుపు *మూలం;
 
-        size_t nodes_count;
-        size_t in_count;
-        size_t in_len;
+        size_t nodes_లెక్క;
+        size_t లోపల_లెక్క;
+        size_t లోపల_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_లెక్క;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+నిర్మాణం strbuf_కణుపు {
+        size_t విలువ_off;
+        size_t విలువ_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        నిర్మాణం strbuf_బిడ్డ_నమోదు *children;
+        uint8_t children_లెక్క;
 };
 
-struct strbuf_child_entry {
+నిర్మాణం strbuf_బిడ్డ_నమోదు {
         uint8_t c;
-        struct strbuf_node *child;
+        నిర్మాణం strbuf_కణుపు *బిడ్డ;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+నిర్మాణం strbuf* strbuf_new(శూన్య);
+ssize_t strbuf_కూడు_string_నిండిన(నిర్మాణం strbuf *str, స్థిరరాశి అక్షరం *s, size_t len);
+స్థిర అంతఃవరుస ssize_t strbuf_కూడు_string(నిర్మాణం strbuf *str, స్థిరరాశి అక్షరం *s) {
+        తిరిగి strbuf_కూడు_string_నిండిన(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+శూన్య strbuf_complete(నిర్మాణం strbuf *str);
+నిర్మాణం strbuf* strbuf_free(నిర్మాణం strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(నిర్మాణం strbuf*, strbuf_free);

@@ -1,37 +1,37 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <elf.h>
-#include <fcntl.h>
-#include <linux/random.h>
-#include <string.h>
-#include <sys/auxv.h>
-#include <sys/ioctl.h>
-#include <sys/random.h>
-#include <threads.h>
-#include <unistd.h>
+#అన్తర్భావ <elf.h>
+#అన్తర్భావ <fcntl.h>
+#అన్తర్భావ <linux/random.h>
+#అన్తర్భావ <string.h>
+#అన్తర్భావ <sys/auxv.h>
+#అన్తర్భావ <sys/ioctl.h>
+#అన్తర్భావ <sys/random.h>
+#అన్తర్భావ <threads.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "log.h"
-#include "parse-util.h"
-#include "pidfd-util.h"
-#include "process-util.h"
-#include "random-util.h"
-#include "sha256.h"
-#include "time-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "io-util.h"
+#అన్తర్భావ "iovec-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "parse-util.h"
+#అన్తర్భావ "pidfd-util.h"
+#అన్తర్భావ "process-util.h"
+#అన్తర్భావ "random-util.h"
+#అన్తర్భావ "sha256.h"
+#అన్తర్భావ "time-util.h"
 
 /* This is a "best effort" kind of thing, but has no real security value. So, this should only be used by
  * random_bytes(), which is not meant for crypto. This could be made better, but we're *not* trying to roll a
  * userspace prng here, or even have forward secrecy, but rather just do the shortest thing that is at least
  * better than libc rand(). */
-static void fallback_random_bytes(void *p, size_t n) {
-        static thread_local uint64_t fallback_counter = 0;
-        struct {
-                char label[32];
-                uint64_t call_id, block_id;
+స్థిర శూన్య fallback_random_బైట్లు(శూన్య *p, size_t n) {
+        స్థిర thread_local uint64_t fallback_counter = 0;
+        నిర్మాణం {
+                అక్షరం label[32];
+                uint64_t call_id, ఖండం_id;
                 usec_t stamp_mono, stamp_real;
                 pid_t pid, tid;
                 uint64_t pidfdid;
@@ -45,87 +45,87 @@ static void fallback_random_bytes(void *p, size_t n) {
                 .tid = gettid(),
         };
 
-        memcpy(state.label, "systemd fallback random bytes v1", sizeof(state.label));
-        memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), sizeof(state.auxval));
-        (void) pidfd_get_inode_id_self_cached(&state.pidfdid);
+        జ్ఞాపకం_నకలు(state.label, "systemd fallback random bytes v1", పరిమాణం(state.label));
+        జ్ఞాపకం_నకలు(state.auxval, ULONG_గమ్యం_PTR(getauxval(AT_RANDOM)), పరిమాణం(state.auxval));
+        (శూన్య) pidfd_get_inode_id_self_cached(&state.pidfdid);
 
-        while (n > 0) {
-                struct sha256_ctx ctx;
+        అయితే (n > 0) {
+                నిర్మాణం sha256_ctx ctx;
 
                 sha256_init_ctx(&ctx);
-                sha256_process_bytes(&state, sizeof(state), &ctx);
-                if (n < SHA256_DIGEST_SIZE) {
-                        uint8_t partial[SHA256_DIGEST_SIZE];
-                        sha256_finish_ctx(&ctx, partial);
-                        memcpy(p, partial, n);
-                        break;
+                sha256_process_బైట్లు(&state, పరిమాణం(state), &ctx);
+                ఒకవేళ (n < SHA256_DIGEST_కొలత) {
+                        uint8_t partial[SHA256_DIGEST_కొలత];
+                        sha256_ముగింపు_ctx(&ctx, partial);
+                        జ్ఞాపకం_నకలు(p, partial, n);
+                        ఆపు;
                 }
-                sha256_finish_ctx(&ctx, p);
-                p = (uint8_t *) p + SHA256_DIGEST_SIZE;
-                n -= SHA256_DIGEST_SIZE;
-                ++state.block_id;
+                sha256_ముగింపు_ctx(&ctx, p);
+                p = (uint8_t *) p + SHA256_DIGEST_కొలత;
+                n -= SHA256_DIGEST_కొలత;
+                ++state.ఖండం_id;
         }
 }
 
-void random_bytes(void *p, size_t n) {
-        assert(p || n == 0);
+శూన్య random_బైట్లు(శూన్య *p, size_t n) {
+        ప్రతిజ్ఞా(p || n == 0);
 
-        if (n == 0)
-                return;
+        ఒకవేళ (n == 0)
+                తిరిగి;
 
-        for (;;) {
+        కొరకు (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, GRND_INSECURE);
-                if (l <= 0)
-                        break; /* Unexpected error. Give up and fallback to /dev/urandom. */
+                ఒకవేళ (l <= 0)
+                        ఆపు; /* Unexpected error. Give up and fallback to /dev/urandom. */
 
-                if ((size_t) l == n)
-                        return; /* Done reading, success. */
+                ఒకవేళ ((size_t) l == n)
+                        తిరిగి; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
                 /* Interrupted by a signal; keep going. */
         }
 
-        _cleanup_close_ int fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
-                return;
+        _cleanup_close_ పూర్ణాంకం fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
+        ఒకవేళ (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
+                తిరిగి;
 
         /* This is a terrible fallback. Oh well. */
-        fallback_random_bytes(p, n);
+        fallback_random_బైట్లు(p, n);
 }
 
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
-        assert(ret);
+పూర్ణాంకం random_బైట్లు_allocate_iovec(size_t n, నిర్మాణం iovec *ret) {
+        ప్రతిజ్ఞా(ret);
 
-        void *p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        శూన్య *p = జ్ఞాపకం_ఇవ్వు(MAX(n, 1U));
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        random_bytes(p, n);
+        random_బైట్లు(p, n);
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        తిరిగి 0;
 }
 
-int crypto_random_bytes(void *p, size_t n) {
-        assert(p || n == 0);
+పూర్ణాంకం crypto_random_బైట్లు(శూన్య *p, size_t n) {
+        ప్రతిజ్ఞా(p || n == 0);
 
-        if (n == 0)
-                return 0;
+        ఒకవేళ (n == 0)
+                తిరిగి 0;
 
-        for (;;) {
+        కొరకు (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, 0);
-                if (l < 0)
-                        return -errno;
-                if (l == 0)
-                        return -EIO; /* Weird, should never happen. */
+                ఒకవేళ (l < 0)
+                        తిరిగి -errno;
+                ఒకవేళ (l == 0)
+                        తిరిగి -EIO; /* Weird, should never happen. */
 
-                if ((size_t) l == n)
-                        return 0; /* Done reading, success. */
+                ఒకవేళ ((size_t) l == n)
+                        తిరిగి 0; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
@@ -133,89 +133,89 @@ int crypto_random_bytes(void *p, size_t n) {
         }
 }
 
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
-        _cleanup_free_ void *p = NULL;
-        int r;
+పూర్ణాంకం crypto_random_బైట్లు_allocate_iovec(size_t n, నిర్మాణం iovec *ret) {
+        _cleanup_free_ శూన్య *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        p = జ్ఞాపకం_ఇవ్వు(MAX(n, 1U));
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        r = crypto_random_bytes(p, n);
-        if (r < 0)
-                return r;
+        r = crypto_random_బైట్లు(p, n);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        తిరిగి 0;
 }
 
-size_t random_pool_size(void) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+size_t random_pool_కొలత(శూన్య) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
         /* Read pool size, if possible */
-        r = read_one_line_file("/proc/sys/kernel/random/poolsize", &s);
-        if (r < 0)
+        r = read_one_పంక్తి_file("/proc/sys/kernel/random/poolsize", &s);
+        ఒకవేళ (r < 0)
                 log_debug_errno(r, "Failed to read pool size from kernel: %m");
-        else {
-                unsigned sz;
+        లేకపోతే {
+                గుర్తులేని sz;
 
-                r = safe_atou(s, &sz);
-                if (r < 0)
+                r = సురక్షిత_atou(s, &sz);
+                ఒకవేళ (r < 0)
                         log_debug_errno(r, "Failed to parse pool size: %s", s);
-                else
+                లేకపోతే
                         /* poolsize is in bits on 2.6, but we want bytes */
-                        return CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
+                        తిరిగి CLAMP(sz / 8, RANDOM_POOL_కొలత_MIN, RANDOM_POOL_కొలత_MAX);
         }
 
         /* Use the minimum as default, if we can't retrieve the correct value */
-        return RANDOM_POOL_SIZE_MIN;
+        తిరిగి RANDOM_POOL_కొలత_MIN;
 }
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int r;
+పూర్ణాంకం random_write_entropy(పూర్ణాంకం fd, స్థిరరాశి శూన్య *విత్తనం, size_t కొలత, bool credit) {
+        _cleanup_close_ పూర్ణాంకం opened_fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(seed || size == 0);
+        ప్రతిజ్ఞా(విత్తనం || కొలత == 0);
 
-        if (size == 0)
-                return 0;
+        ఒకవేళ (కొలత == 0)
+                తిరిగి 0;
 
-        if (fd < 0) {
+        ఒకవేళ (fd < 0) {
                 opened_fd = open("/dev/urandom", O_WRONLY|O_CLOEXEC|O_NOCTTY);
-                if (opened_fd < 0)
-                        return -errno;
+                ఒకవేళ (opened_fd < 0)
+                        తిరిగి -errno;
 
                 fd = opened_fd;
         }
 
-        if (credit) {
-                _cleanup_free_ struct rand_pool_info *info = NULL;
+        ఒకవేళ (credit) {
+                _cleanup_free_ నిర్మాణం rand_pool_info *info = ఖాళీ;
 
                 /* The kernel API only accepts "int" as entropy count (which is in bits), let's avoid any
                  * chance for confusion here. */
-                if (size > INT_MAX / 8)
-                        return -EOVERFLOW;
+                ఒకవేళ (కొలత > గరిష్ఠ_పూర్ణాంకం / 8)
+                        తిరిగి -EOVERFLOW;
 
-                info = malloc(offsetof(struct rand_pool_info, buf) + size);
-                if (!info)
-                        return -ENOMEM;
+                info = జ్ఞాపకం_ఇవ్వు(offsetof(నిర్మాణం rand_pool_info, buf) + కొలత);
+                ఒకవేళ (!info)
+                        తిరిగి -ENOMEM;
 
-                info->entropy_count = size * 8;
-                info->buf_size = size;
-                memcpy(info->buf, seed, size);
+                info->entropy_count = కొలత * 8;
+                info->buf_size = కొలత;
+                జ్ఞాపకం_నకలు(info->buf, విత్తనం, కొలత);
 
-                if (ioctl(fd, RNDADDENTROPY, info) < 0)
-                        return -errno;
-        } else {
-                r = loop_write(fd, seed, size);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (ioctl(fd, RNDADDENTROPY, info) < 0)
+                        తిరిగి -errno;
+        } లేకపోతే {
+                r = loop_write(fd, విత్తనం, కొలత);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return 1;
+        తిరిగి 1;
 }
 
 uint64_t random_u64_range(uint64_t m) {
@@ -223,16 +223,16 @@ uint64_t random_u64_range(uint64_t m) {
 
         /* Generates a random number in the range 0…m-1, unbiased. (Java's algorithm) */
 
-        if (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
-                return random_u64();
-        if (m == 1)
-                return 0;
+        ఒకవేళ (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
+                తిరిగి random_u64();
+        ఒకవేళ (m == 1)
+                తిరిగి 0;
 
         remainder = UINT64_MAX % m;
 
-        do {
+        చేయి {
                 x = random_u64();
-        } while (x >= UINT64_MAX - remainder);
+        } అయితే (x >= UINT64_MAX - remainder);
 
-        return x % m;
+        తిరిగి x % m;
 }

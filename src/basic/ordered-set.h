@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
-#include "hashmap.h"
+#అన్తర్భావ "forward.h"
+#అన్తర్భావ "hashmap.h"
 
-typedef struct OrderedSet OrderedSet;
+రకనిర్వచనం నిర్మాణం Ordered_సమితి Ordered_సమితి;
 
-static inline OrderedSet* ordered_set_new(const struct hash_ops *ops) {
-        return (OrderedSet*) ordered_hashmap_new(ops);
+స్థిర అంతఃవరుస Ordered_సమితి* ordered_సమితి_new(స్థిరరాశి నిర్మాణం hash_ops *ops) {
+        తిరిగి (Ordered_సమితి*) ordered_hashmap_new(ops);
 }
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops);
+పూర్ణాంకం ordered_సమితి_ensure_allocated(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *ops);
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p);
+పూర్ణాంకం ordered_సమితి_ensure_put(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *ops, శూన్య *p);
 
-static inline void ordered_set_clear(OrderedSet *s) {
-        return ordered_hashmap_clear((OrderedHashmap*) s);
+స్థిర అంతఃవరుస శూన్య ordered_సమితి_clear(Ordered_సమితి *s) {
+        తిరిగి ordered_hashmap_clear((OrderedHashmap*) s);
 }
 
-static inline OrderedSet* ordered_set_free(OrderedSet *s) {
-        return (OrderedSet*) ordered_hashmap_free((OrderedHashmap*) s);
+స్థిర అంతఃవరుస Ordered_సమితి* ordered_సమితి_free(Ordered_సమితి *s) {
+        తిరిగి (Ordered_సమితి*) ordered_hashmap_free((OrderedHashmap*) s);
 }
 
-static inline int ordered_set_contains(OrderedSet *s, const void *p) {
-        return ordered_hashmap_contains((OrderedHashmap*) s, p);
+స్థిర అంతఃవరుస పూర్ణాంకం ordered_సమితి_కలిగియుంది(Ordered_సమితి *s, స్థిరరాశి శూన్య *p) {
+        తిరిగి ordered_hashmap_కలిగియుంది((OrderedHashmap*) s, p);
 }
 
-static inline int ordered_set_put(OrderedSet *s, void *p) {
-        return ordered_hashmap_put((OrderedHashmap*) s, p, p);
+స్థిర అంతఃవరుస పూర్ణాంకం ordered_సమితి_put(Ordered_సమితి *s, శూన్య *p) {
+        తిరిగి ordered_hashmap_put((OrderedHashmap*) s, p, p);
 }
 
-static inline void *ordered_set_get(OrderedSet *s, const void *p) {
-        return ordered_hashmap_get((OrderedHashmap*) s, p);
+స్థిర అంతఃవరుస శూన్య *ordered_సమితి_get(Ordered_సమితి *s, స్థిరరాశి శూన్య *p) {
+        తిరిగి ordered_hashmap_get((OrderedHashmap*) s, p);
 }
 
-static inline unsigned ordered_set_size(OrderedSet *s) {
-        return ordered_hashmap_size((OrderedHashmap*) s);
+స్థిర అంతఃవరుస గుర్తులేని ordered_సమితి_కొలత(Ordered_సమితి *s) {
+        తిరిగి ordered_hashmap_కొలత((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_isempty(OrderedSet *s) {
-        return ordered_hashmap_isempty((OrderedHashmap*) s);
+స్థిర అంతఃవరుస bool ordered_సమితి_isempty(Ordered_సమితి *s) {
+        తిరిగి ordered_hashmap_isempty((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_iterate(OrderedSet *s, Iterator *i, void **value) {
-        return ordered_hashmap_iterate((OrderedHashmap*) s, i, value, NULL);
+స్థిర అంతఃవరుస bool ordered_సమితి_iterate(Ordered_సమితి *s, Iterator *i, శూన్య **విలువ) {
+        తిరిగి ordered_hashmap_iterate((OrderedHashmap*) s, i, విలువ, ఖాళీ);
 }
 
-static inline void* ordered_set_remove(OrderedSet *s, void *p) {
-        return ordered_hashmap_remove((OrderedHashmap*) s, p);
+స్థిర అంతఃవరుస శూన్య* ordered_సమితి_remove(Ordered_సమితి *s, శూన్య *p) {
+        తిరిగి ordered_hashmap_remove((OrderedHashmap*) s, p);
 }
 
-static inline void* ordered_set_first(OrderedSet *s) {
-        return ordered_hashmap_first((OrderedHashmap*) s);
+స్థిర అంతఃవరుస శూన్య* ordered_సమితి_మొదటి(Ordered_సమితి *s) {
+        తిరిగి ordered_hashmap_మొదటి((OrderedHashmap*) s);
 }
 
-static inline void* ordered_set_steal_first(OrderedSet *s) {
-        return ordered_hashmap_steal_first((OrderedHashmap*) s);
+స్థిర అంతఃవరుస శూన్య* ordered_సమితి_steal_మొదటి(Ordered_సమితి *s) {
+        తిరిగి ordered_hashmap_steal_మొదటి((OrderedHashmap*) s);
 }
 
-static inline char** ordered_set_get_strv(OrderedSet *s) {
-        return _hashmap_get_strv(HASHMAP_BASE((OrderedHashmap*) s));
+స్థిర అంతఃవరుస అక్షరం** ordered_సమితి_get_strv(Ordered_సమితి *s) {
+        తిరిగి _hashmap_get_strv(HASHMAP_పునాది((OrderedHashmap*) s));
 }
 
-static inline int ordered_set_reserve(OrderedSet *s, unsigned entries_add) {
-        return ordered_hashmap_reserve((OrderedHashmap*) s, entries_add);
+స్థిర అంతఃవరుస పూర్ణాంకం ordered_సమితి_reserve(Ordered_సమితి *s, గుర్తులేని entries_కూడు) {
+        తిరిగి ordered_hashmap_reserve((OrderedHashmap*) s, entries_కూడు);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p);
+పూర్ణాంకం ordered_సమితి_consume(Ordered_సమితి *s, శూన్య *p);
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p);
-#define ordered_set_put_strdup(s, p) ordered_set_put_strdup_full(s, &string_hash_ops_free, p)
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l);
-#define ordered_set_put_strdupv(s, l) ordered_set_put_strdupv_full(s, &string_hash_ops_free, l)
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l);
-#define ordered_set_put_string_set(s, l) ordered_set_put_string_set_full(s, &string_hash_ops_free, l)
+పూర్ణాంకం ordered_సమితి_put_strdup_నిండిన(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *hash_ops, స్థిరరాశి అక్షరం *p);
+#నిర్వచించు ordered_సమితి_put_strdup(s, p) ordered_సమితి_put_strdup_నిండిన(s, &string_hash_ops_free, p)
+పూర్ణాంకం ordered_సమితి_put_strdupv_నిండిన(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *hash_ops, అక్షరం **l);
+#నిర్వచించు ordered_సమితి_put_strdupv(s, l) ordered_సమితి_put_strdupv_నిండిన(s, &string_hash_ops_free, l)
+పూర్ణాంకం ordered_సమితి_put_string_సమితి_నిండిన(Ordered_సమితి **s, స్థిరరాశి నిర్మాణం hash_ops *hash_ops, Ordered_సమితి *l);
+#నిర్వచించు ordered_సమితి_put_string_సమితి(s, l) ordered_సమితి_put_string_సమితి_నిండిన(s, &string_hash_ops_free, l)
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s);
+శూన్య ordered_సమితి_print(FILE *f, స్థిరరాశి అక్షరం *క్షేత్రం, Ordered_సమితి *s);
 
-#define _ORDERED_SET_FOREACH(e, s, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (void**)&(e)); )
-#define ORDERED_SET_FOREACH(e, s) \
-        _ORDERED_SET_FOREACH(e, s, UNIQ_T(i, UNIQ))
+#నిర్వచించు ORDERED_సమితి_FOREACH_2(e, s, i) \
+        కొరకు (Iterator i = ITERATOR_మొదటి; ordered_సమితి_iterate((s), &i, (శూన్య**)&(e)); )
+#నిర్వచించు ORDERED_సమితి_FOREACH(e, s) \
+        ORDERED_సమితి_FOREACH_2(e, s, UNIQ_T(i, UNIQ))
 
-DEFINE_TRIVIAL_CLEANUP_FUNC(OrderedSet*, ordered_set_free);
+DEFINE_TRIVIAL_CLEANUP_FUNC(Ordered_సమితి*, ordered_సమితి_free);
 
-#define _cleanup_ordered_set_free_ _cleanup_(ordered_set_freep)
+#నిర్వచించు cleanup_ordered_సమితి_free _cleanup_(ordered_సమితి_freep)

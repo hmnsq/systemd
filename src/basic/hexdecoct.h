@@ -1,48 +1,48 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-char octchar(int x) _const_;
-int unoctchar(char c) _const_;
+అక్షరం octchar(పూర్ణాంకం x) _const_;
+పూర్ణాంకం unoctchar(అక్షరం c) _const_;
 
-char decchar(int x) _const_;
-int undecchar(char c) _const_;
+అక్షరం decchar(పూర్ణాంకం x) _const_;
+పూర్ణాంకం undecchar(అక్షరం c) _const_;
 
-char hexchar(int x) _const_;
-int unhexchar(char c) _const_;
+అక్షరం hexchar(పూర్ణాంకం x) _const_;
+పూర్ణాంకం unhexchar(అక్షరం c) _const_;
 
-char* hexmem(const void *p, size_t l) _nonnull_if_nonzero_(1, 2);
-int unhexmem_full(const char *p, size_t l, bool secure, void **ret_data, size_t *ret_size) _nonnull_if_nonzero_(1, 2);
-static inline int unhexmem(const char *p, void **ret_data, size_t *ret_size) {
-        return unhexmem_full(p, SIZE_MAX, false, ret_data, ret_size);
+అక్షరం* hexmem(స్థిరరాశి శూన్య *p, size_t l) _nonnull_if_nonzero_(1, 2);
+పూర్ణాంకం unhexmem_నిండిన(స్థిరరాశి అక్షరం *p, size_t l, bool secure, శూన్య **ret_దత్తాంశం, size_t *ret_కొలత) _nonnull_if_nonzero_(1, 2);
+స్థిర అంతఃవరుస పూర్ణాంకం unhexmem(స్థిరరాశి అక్షరం *p, శూన్య **ret_దత్తాంశం, size_t *ret_కొలత) {
+        తిరిగి unhexmem_నిండిన(p, SIZE_MAX, false, ret_దత్తాంశం, ret_కొలత);
 }
 
-char base32hexchar(int x) _const_;
-int unbase32hexchar(char c) _const_;
+అక్షరం base32hexchar(పూర్ణాంకం x) _const_;
+పూర్ణాంకం unbase32hexchar(అక్షరం c) _const_;
 
-char base64char(int x) _const_;
-char urlsafe_base64char(int x) _const_;
-int unbase64char(char c) _const_;
+అక్షరం base64char(పూర్ణాంకం x) _const_;
+అక్షరం urlsafe_base64char(పూర్ణాంకం x) _const_;
+పూర్ణాంకం unbase64char(అక్షరం c) _const_;
 
-char* base32hexmem(const void *p, size_t l, bool padding) _nonnull_if_nonzero_(1, 2);
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *len) _nonnull_if_nonzero_(1, 2);
+అక్షరం* base32hexmem(స్థిరరాశి శూన్య *p, size_t l, bool padding) _nonnull_if_nonzero_(1, 2);
+పూర్ణాంకం unbase32hexmem(స్థిరరాశి అక్షరం *p, size_t l, bool padding, శూన్య **mem, size_t *len) _nonnull_if_nonzero_(1, 2);
 
-ssize_t base64mem_full(const void *p, size_t l, size_t line_break, char **ret) _nonnull_if_nonzero_(1, 2);
-static inline ssize_t base64mem(const void *p, size_t l, char **ret) {
-        return base64mem_full(p, l, SIZE_MAX, ret);
+ssize_t base64mem_నిండిన(స్థిరరాశి శూన్య *p, size_t l, size_t పంక్తి_break, అక్షరం **ret) _nonnull_if_nonzero_(1, 2);
+స్థిర అంతఃవరుస ssize_t base64mem(స్థిరరాశి శూన్య *p, size_t l, అక్షరం **ret) {
+        తిరిగి base64mem_నిండిన(p, l, SIZE_MAX, ret);
 }
 
 ssize_t base64_append(
-                char **prefix,
+                అక్షరం **ఉపసర్గ,
                 size_t plen,
-                const void *p,
+                స్థిరరాశి శూన్య *p,
                 size_t l,
                 size_t indent,
                 size_t width);
-int unbase64mem_full(const char *p, size_t l, bool secure, void **ret_data, size_t *ret_size) _nonnull_if_nonzero_(1, 2);
-static inline int unbase64mem(const char *p, void **ret_data, size_t *ret_size) {
-        return unbase64mem_full(p, SIZE_MAX, false, ret_data, ret_size);
+పూర్ణాంకం unbase64mem_నిండిన(స్థిరరాశి అక్షరం *p, size_t l, bool secure, శూన్య **ret_దత్తాంశం, size_t *ret_కొలత) _nonnull_if_nonzero_(1, 2);
+స్థిర అంతఃవరుస పూర్ణాంకం unbase64mem(స్థిరరాశి అక్షరం *p, శూన్య **ret_దత్తాంశం, size_t *ret_కొలత) {
+        తిరిగి unbase64mem_నిండిన(p, SIZE_MAX, false, ret_దత్తాంశం, ret_కొలత);
 }
 
-void hexdump(FILE *f, const void *p, size_t s) _nonnull_if_nonzero_(2, 3);
+శూన్య hexdump(FILE *f, స్థిరరాశి శూన్య *p, size_t s) _nonnull_if_nonzero_(2, 3);

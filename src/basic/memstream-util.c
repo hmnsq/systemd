@@ -1,75 +1,75 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "log.h"
-#include "memstream-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "memstream-util.h"
 
-void memstream_done(MemStream *m) {
-        assert(m);
+శూన్య memstream_పూర్తి(Mem_ప్రవాహం *m) {
+        ప్రతిజ్ఞా(m);
 
         /* First, close file stream, as the buffer may be reallocated on close. */
-        safe_fclose(m->f);
+        సురక్షిత_fclose(m->f);
 
         /* Then, free buffer. */
-        free(m->buf);
+        విడుదల(m->buf);
 }
 
-FILE* memstream_init(MemStream *m) {
-        assert(m);
-        assert(!m->f);
+FILE* memstream_init(Mem_ప్రవాహం *m) {
+        ప్రతిజ్ఞా(m);
+        ప్రతిజ్ఞా(!m->f);
 
         m->f = open_memstream_unlocked(&m->buf, &m->sz);
-        return m->f;
+        తిరిగి m->f;
 }
 
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
-        int r;
+పూర్ణాంకం memstream_finalize(Mem_ప్రవాహం *m, అక్షరం **ret_buf, size_t *ret_కొలత) {
+        పూర్ణాంకం r;
 
-        assert(m);
-        assert(m->f);
-        assert(ret_buf);
+        ప్రతిజ్ఞా(m);
+        ప్రతిజ్ఞా(m->f);
+        ప్రతిజ్ఞా(ret_buf);
 
         /* Add terminating NUL, so that the output buffer is a valid string. */
         fputc('\0', m->f);
 
         r = fflush_and_check(m->f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        m->f = safe_fclose(m->f);
+        m->f = సురక్షిత_fclose(m->f);
 
         /* On fclose(), the buffer may be reallocated, and may trigger OOM. */
-        if (!m->buf)
-                return -ENOMEM;
+        ఒకవేళ (!m->buf)
+                తిరిగి -ENOMEM;
 
-        assert(m->sz > 0);
+        ప్రతిజ్ఞా(m->sz > 0);
 
         *ret_buf = TAKE_PTR(m->buf);
-        if (ret_size)
-                *ret_size = m->sz - 1;
+        ఒకవేళ (ret_కొలత)
+                *ret_కొలత = m->sz - 1;
 
         m->sz = 0; /* For safety when the MemStream object will be reused later. */
-        return 0;
+        తిరిగి 0;
 }
 
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                MemStream *m) {
+పూర్ణాంకం memstream_dump_అంతర్గత(
+                పూర్ణాంకం level,
+                పూర్ణాంకం error,
+                స్థిరరాశి అక్షరం *file,
+                పూర్ణాంకం పంక్తి,
+                స్థిరరాశి అక్షరం *func,
+                Mem_ప్రవాహం *m) {
 
-        _cleanup_free_ char *buf = NULL;
-        int r;
+        _cleanup_free_ అక్షరం *buf = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(m);
+        ప్రతిజ్ఞా(m);
 
-        r = memstream_finalize(m, &buf, NULL);
-        if (r < 0)
-                return log_full_errno(level, r, "Failed to flush memstream: %m");
+        r = memstream_finalize(m, &buf, ఖాళీ);
+        ఒకవేళ (r < 0)
+                తిరిగి log_నిండిన_errno(level, r, "Failed to flush memstream: %m");
 
-        return log_dump_internal(level, error, file, line, func, buf);
+        తిరిగి log_dump_అంతర్గత(level, error, file, పంక్తి, func, buf);
 }

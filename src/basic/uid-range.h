@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
-typedef struct UIDRangeEntry {
-        uid_t start, nr;
-} UIDRangeEntry;
+రకనిర్వచనం నిర్మాణం UIDRange_నమోదు {
+        uid_t ప్రారంభం, nr;
+} UIDRange_నమోదు;
 
-typedef struct UIDRange {
-        UIDRangeEntry *entries;
+రకనిర్వచనం నిర్మాణం UIDRange {
+        UIDRange_నమోదు *entries;
         size_t n_entries;
 } UIDRange;
 
 UIDRange* uid_range_free(UIDRange *range);
 DEFINE_TRIVIAL_CLEANUP_FUNC(UIDRange*, uid_range_free);
 
-int uid_range_add_internal(UIDRange **range, uid_t start, uid_t nr, bool coalesce);
-static inline int uid_range_add(UIDRange **range, uid_t start, uid_t nr) {
-        return uid_range_add_internal(range, start, nr, true);
+పూర్ణాంకం uid_range_కూడు_అంతర్గత(UIDRange **range, uid_t ప్రారంభం, uid_t nr, bool coalesce);
+స్థిర అంతఃవరుస పూర్ణాంకం uid_range_కూడు(UIDRange **range, uid_t ప్రారంభం, uid_t nr) {
+        తిరిగి uid_range_కూడు_అంతర్గత(range, ప్రారంభం, nr, true);
 }
-int uid_range_add_str_full(UIDRange **range, const char *s, bool coalesce);
-static inline int uid_range_add_str(UIDRange **range, const char *s) {
-        return uid_range_add_str_full(range, s, true);
-}
-
-int uid_range_next_lower(const UIDRange *range, uid_t *uid);
-
-bool uid_range_covers(const UIDRange *range, uid_t start, uid_t nr);
-static inline bool uid_range_contains(const UIDRange *range, uid_t uid) {
-        return uid_range_covers(range, uid, 1);
+పూర్ణాంకం uid_range_కూడు_str_నిండిన(UIDRange **range, స్థిరరాశి అక్షరం *s, bool coalesce);
+స్థిర అంతఃవరుస పూర్ణాంకం uid_range_కూడు_str(UIDRange **range, స్థిరరాశి అక్షరం *s) {
+        తిరిగి uid_range_కూడు_str_నిండిన(range, s, true);
 }
 
-int uid_map_read_one(FILE *f, uid_t *ret_base, uid_t *ret_shift, uid_t *ret_range);
+పూర్ణాంకం uid_range_తదుపరి_క్రింది(స్థిరరాశి UIDRange *range, uid_t *uid);
 
-static inline size_t uid_range_entries(const UIDRange *range) {
-        return range ? range->n_entries : 0;
+bool uid_range_covers(స్థిరరాశి UIDRange *range, uid_t ప్రారంభం, uid_t nr);
+స్థిర అంతఃవరుస bool uid_range_కలిగియుంది(స్థిరరాశి UIDRange *range, uid_t uid) {
+        తిరిగి uid_range_covers(range, uid, 1);
 }
 
-unsigned uid_range_size(const UIDRange *range) _pure_;
-bool uid_range_is_empty(const UIDRange *range) _pure_;
+పూర్ణాంకం uid_map_read_one(FILE *f, uid_t *ret_పునాది, uid_t *ret_జరుపు, uid_t *ret_range);
 
-bool uid_range_equal(const UIDRange *a, const UIDRange *b);
+స్థిర అంతఃవరుస size_t uid_range_entries(స్థిరరాశి UIDRange *range) {
+        తిరిగి range ? range->n_entries : 0;
+}
 
-typedef enum UIDRangeUsernsMode {
+గుర్తులేని uid_range_కొలత(స్థిరరాశి UIDRange *range) శుద్ధ;
+bool uid_range_is_ఖాళీలు(స్థిరరాశి UIDRange *range) శుద్ధ;
+
+bool uid_range_equal(స్థిరరాశి UIDRange *a, స్థిరరాశి UIDRange *b);
+
+రకనిర్వచనం గణన UIDRange_Userns_బహుళకం {
         UID_RANGE_USERNS_INSIDE,
         UID_RANGE_USERNS_OUTSIDE,
         GID_RANGE_USERNS_INSIDE,
         GID_RANGE_USERNS_OUTSIDE,
-        _UID_RANGE_USERNS_MODE_MAX,
-        _UID_RANGE_USERNS_MODE_INVALID = -EINVAL,
-} UIDRangeUsernsMode;
+        UID_RANGE_USERNS_బహుళకం_MAX,
+        UID_RANGE_USERNS_బహుళకం_INVALID = -EINVAL,
+} UIDRange_Userns_బహుళకం;
 
-int uid_range_load_userns_full(const char *path, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns(const char *path, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_full(path, mode, true, ret);
+పూర్ణాంకం uid_range_ఎక్కించు_userns_నిండిన(స్థిరరాశి అక్షరం *మార్గం, UIDRange_Userns_బహుళకం బహుళకం, bool coalesce, UIDRange **ret);
+స్థిర అంతఃవరుస పూర్ణాంకం uid_range_ఎక్కించు_userns(స్థిరరాశి అక్షరం *మార్గం, UIDRange_Userns_బహుళకం బహుళకం, UIDRange **ret) {
+        తిరిగి uid_range_ఎక్కించు_userns_నిండిన(మార్గం, బహుళకం, true, ret);
 }
-int uid_range_load_userns_by_fd_full(int userns_fd, UIDRangeUsernsMode mode, bool coalesce, UIDRange **ret);
-static inline int uid_range_load_userns_by_fd(int userns_fd, UIDRangeUsernsMode mode, UIDRange **ret) {
-        return uid_range_load_userns_by_fd_full(userns_fd, mode, true, ret);
+పూర్ణాంకం uid_range_ఎక్కించు_userns_by_fd_నిండిన(పూర్ణాంకం userns_fd, UIDRange_Userns_బహుళకం బహుళకం, bool coalesce, UIDRange **ret);
+స్థిర అంతఃవరుస పూర్ణాంకం uid_range_ఎక్కించు_userns_by_fd(పూర్ణాంకం userns_fd, UIDRange_Userns_బహుళకం బహుళకం, UIDRange **ret) {
+        తిరిగి uid_range_ఎక్కించు_userns_by_fd_నిండిన(userns_fd, బహుళకం, true, ret);
 }
 
-bool uid_range_overlaps(const UIDRange *range, uid_t start, uid_t nr);
+bool uid_range_overlaps(స్థిరరాశి UIDRange *range, uid_t ప్రారంభం, uid_t nr);
 
-int uid_range_clip(UIDRange *range, uid_t min, uid_t max);
-int uid_range_partition(UIDRange *range, uid_t size);
-int uid_range_copy(const UIDRange *range, UIDRange **ret);
-int uid_range_remove(UIDRange *range, uid_t start, uid_t size);
-int uid_range_translate(const UIDRange *outside, const UIDRange *inside, uid_t uid, uid_t *ret);
-int uid_range_translate_userns_fd(int userns_fd, UIDRangeUsernsMode mode, uid_t uid, uid_t *ret);
+పూర్ణాంకం uid_range_clip(UIDRange *range, uid_t min, uid_t max);
+పూర్ణాంకం uid_range_విభజన(UIDRange *range, uid_t కొలత);
+పూర్ణాంకం uid_range_copy(స్థిరరాశి UIDRange *range, UIDRange **ret);
+పూర్ణాంకం uid_range_remove(UIDRange *range, uid_t ప్రారంభం, uid_t కొలత);
+పూర్ణాంకం uid_range_translate(స్థిరరాశి UIDRange *outside, స్థిరరాశి UIDRange *inside, uid_t uid, uid_t *ret);
+పూర్ణాంకం uid_range_translate_userns_fd(పూర్ణాంకం userns_fd, UIDRange_Userns_బహుళకం బహుళకం, uid_t uid, uid_t *ret);
 
-int uid_map_search_root(pid_t pid, UIDRangeUsernsMode mode, uid_t *ret);
+పూర్ణాంకం uid_map_శోధన_మూలం(pid_t pid, UIDRange_Userns_బహుళకం బహుళకం, uid_t *ret);
 
-uid_t uid_range_base(const UIDRange *range);
+uid_t uid_range_పునాది(స్థిరరాశి UIDRange *range);

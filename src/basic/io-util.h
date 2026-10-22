@@ -1,52 +1,52 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#సూచన once
 
-#include "forward.h"
+#అన్తర్భావ "forward.h"
 
 /* On most architectures POLL* and EPOLL* share numeric values, but sparc allocates POLLRDHUP at
  * 0x800 while EPOLLRDHUP is 0x2000 everywhere. Always go through these helpers when crossing
  * between poll() and epoll() event masks. Bits outside the mapped set (EPOLLET, EPOLLONESHOT,
  * POLLNVAL, …) are dropped. */
-uint32_t poll_events_to_epoll(uint32_t events);
-uint32_t epoll_events_to_poll(uint32_t events);
+uint32_t poll_events_గమ్యం_epoll(uint32_t events);
+uint32_t epoll_events_గమ్యం_poll(uint32_t events);
 
-int flush_fd(int fd);
+పూర్ణాంకం flush_fd(పూర్ణాంకం fd);
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll);
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll);
+ssize_t loop_read(పూర్ణాంకం fd, శూన్య *buf, size_t nbytes, bool do_poll);
+పూర్ణాంకం loop_read_exact(పూర్ణాంకం fd, శూన్య *buf, size_t nbytes, bool do_poll);
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) _nonnull_if_nonzero_(2, 3);
-static inline int loop_write(int fd, const void *buf, size_t nbytes) {
-        return loop_write_full(fd, buf, nbytes, 0);
+పూర్ణాంకం loop_write_నిండిన(పూర్ణాంకం fd, స్థిరరాశి శూన్య *buf, size_t nbytes, usec_t timeout) _nonnull_if_nonzero_(2, 3);
+స్థిర అంతఃవరుస పూర్ణాంకం loop_write(పూర్ణాంకం fd, స్థిరరాశి శూన్య *buf, size_t nbytes) {
+        తిరిగి loop_write_నిండిన(fd, buf, nbytes, 0);
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written);
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) _nonnull_if_nonzero_(2, 3);
+పూర్ణాంకం pwritev_నిండిన(పూర్ణాంకం fd, నిర్మాణం iovec *iovec, size_t n, uint64_t స్థానభ్రంశం, uint64_t *ret_written);
+పూర్ణాంకం pwrite_నిండిన(పూర్ణాంకం fd, స్థిరరాశి శూన్య *buf, size_t nbytes, uint64_t స్థానభ్రంశం) _nonnull_if_nonzero_(2, 3);
 
-int pipe_eof(int fd);
+పూర్ణాంకం pipe_eof(పూర్ణాంకం fd);
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) _nonnull_if_nonzero_(1, 2);
-_nonnull_if_nonzero_(1, 2) static inline int ppoll_usec(struct pollfd *fds, size_t n_fds, usec_t timeout) {
-        return ppoll_usec_full(fds, n_fds, timeout, NULL);
+పూర్ణాంకం ppoll_usec_నిండిన(నిర్మాణం pollfd *fds, size_t n_fds, usec_t timeout, స్థిరరాశి sigset_t *ss) _nonnull_if_nonzero_(1, 2);
+_nonnull_if_nonzero_(1, 2) స్థిర అంతఃవరుస పూర్ణాంకం ppoll_usec(నిర్మాణం pollfd *fds, size_t n_fds, usec_t timeout) {
+        తిరిగి ppoll_usec_నిండిన(fds, n_fds, timeout, ఖాళీ);
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout);
+పూర్ణాంకం fd_wait_for_event(పూర్ణాంకం fd, పూర్ణాంకం event, usec_t timeout);
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length);
+ssize_t sparse_write(పూర్ణాంకం fd, స్థిరరాశి శూన్య *p, size_t sz, size_t నిరంతరం_నిడివి);
 
-static inline bool FILE_SIZE_VALID(uint64_t l) {
+స్థిర అంతఃవరుస bool FILE_కొలత_VALID(uint64_t l) {
         /* ftruncate() and friends take an unsigned file size, but actually cannot deal with file sizes larger than
          * 2^63 since the kernel internally handles it as signed value. This call allows checking for this early. */
 
-        return (l >> 63) == 0;
+        తిరిగి (l >> 63) == 0;
 }
 
-static inline bool FILE_SIZE_VALID_OR_INFINITY(uint64_t l) {
+స్థిర అంతఃవరుస bool FILE_కొలత_VALID_OR_INFINITY(uint64_t l) {
 
         /* Same as above, but allows one extra value: -1 as indication for infinity. */
 
-        if (l == UINT64_MAX)
-                return true;
+        ఒకవేళ (l == UINT64_MAX)
+                తిరిగి true;
 
-        return FILE_SIZE_VALID(l);
+        తిరిగి FILE_కొలత_VALID(l);
 }

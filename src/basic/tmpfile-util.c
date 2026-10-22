@@ -1,138 +1,138 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#అన్తర్భావ <stdlib.h>
+#అన్తర్భావ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "random-util.h"
-#include "string-util.h"
-#include "sync-util.h"
-#include "tmpfile-util.h"
-#include "umask-util.h"
+#అన్తర్భావ "alloc-util.h"
+#అన్తర్భావ "errno-util.h"
+#అన్తర్భావ "fd-util.h"
+#అన్తర్భావ "fileio.h"
+#అన్తర్భావ "fs-util.h"
+#అన్తర్భావ "log.h"
+#అన్తర్భావ "path-util.h"
+#అన్తర్భావ "random-util.h"
+#అన్తర్భావ "string-util.h"
+#అన్తర్భావ "sync-util.h"
+#అన్తర్భావ "tmpfile-util.h"
+#అన్తర్భావ "umask-util.h"
 
-static int fopen_temporary_internal(int dir_fd, const char *path, FILE **ret_file) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+స్థిర పూర్ణాంకం fopen_temporary_అంతర్గత(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, FILE **ret_file) {
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
+        పూర్ణాంకం r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        ప్రతిజ్ఞా(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ప్రతిజ్ఞా(మార్గం);
 
-        fd = openat(dir_fd, path, O_CLOEXEC|O_NOCTTY|O_RDWR|O_CREAT|O_EXCL, 0600);
-        if (fd < 0)
-                return -errno;
+        fd = openat(dir_fd, మార్గం, O_CLOEXEC|O_NOCTTY|O_RDWR|O_CREAT|O_EXCL, 0600);
+        ఒకవేళ (fd < 0)
+                తిరిగి -errno;
 
         /* This assumes that returned FILE object is short-lived and used within the same single-threaded
          * context and never shared externally, hence locking is not necessary. */
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0) {
-                (void) unlinkat(dir_fd, path, 0);
-                return r;
+        ఒకవేళ (r < 0) {
+                (శూన్య) unlinkat(dir_fd, మార్గం, 0);
+                తిరిగి r;
         }
 
-        if (ret_file)
+        ఒకవేళ (ret_file)
                 *ret_file = TAKE_PTR(f);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+పూర్ణాంకం fopen_temporary_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, FILE **ret_file, అక్షరం **ret_మార్గం) {
+        _cleanup_free_ అక్షరం *t = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        ప్రతిజ్ఞా(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ప్రతిజ్ఞా(మార్గం);
 
-        r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random(మార్గం, ఖాళీ, &t);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        r = fopen_temporary_అంతర్గత(dir_fd, t, ret_file);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(t);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(t);
 
-        return 0;
+        తిరిగి 0;
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+పూర్ణాంకం fopen_temporary_బిడ్డ_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, FILE **ret_file, అక్షరం **ret_మార్గం) {
+        _cleanup_free_ అక్షరం *t = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ప్రతిజ్ఞా(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        if (!path) {
-                r = tmp_dir(&path);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (!మార్గం) {
+                r = tmp_dir(&మార్గం);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        r = tempfn_random_child(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random_బిడ్డ(మార్గం, ఖాళీ, &t);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        r = fopen_temporary_అంతర్గత(dir_fd, t, ret_file);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (ret_path)
-                *ret_path = TAKE_PTR(t);
+        ఒకవేళ (ret_మార్గం)
+                *ret_మార్గం = TAKE_PTR(t);
 
-        return 0;
+        తిరిగి 0;
 }
 
 /* This is much like mkostemp() but is subject to umask(). */
-int mkostemp_safe(char *pattern) {
-        assert(pattern);
-        BLOCK_WITH_UMASK(0077);
-        return RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
+పూర్ణాంకం mkostemp_సురక్షిత(అక్షరం *నమూనా) {
+        ప్రతిజ్ఞా(నమూనా);
+        ఖండం_WITH_UMASK(0077);
+        తిరిగి RET_NERRNO(mkostemp(నమూనా, O_CLOEXEC));
 }
 
-int fmkostemp_safe(char *pattern, const char *mode, FILE **ret_f) {
-        _cleanup_close_ int fd = -EBADF;
+పూర్ణాంకం fmkostemp_సురక్షిత(అక్షరం *నమూనా, స్థిరరాశి అక్షరం *బహుళకం, FILE **ret_f) {
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
         FILE *f;
 
-        assert(ret_f);
+        ప్రతిజ్ఞా(ret_f);
 
-        fd = mkostemp_safe(pattern);
-        if (fd < 0)
-                return fd;
+        fd = mkostemp_సురక్షిత(నమూనా);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
-        f = take_fdopen(&fd, mode);
-        if (!f)
-                return -errno;
+        f = take_fdopen(&fd, బహుళకం);
+        ఒకవేళ (!f)
+                తిరిగి -errno;
 
         *ret_f = f;
-        return 0;
+        తిరిగి 0;
 }
 
-void unlink_tempfilep(char (*p)[]) {
-        assert(p);
+శూన్య unlink_tempfilep(అక్షరం (*p)[]) {
+        ప్రతిజ్ఞా(p);
 
         /* If the file is created with mkstemp(), it will (almost always) change the suffix.
          * Treat this as a sign that the file was successfully created. We ignore both the rare case
          * where the original suffix is used and unlink failures. */
 
-        if (!endswith(*p, ".XXXXXX"))
-                (void) unlink(*p);
+        ఒకవేళ (!endswith(*p, ".XXXXXX"))
+                (శూన్య) unlink(*p);
 }
 
-static int tempfn_build(const char *p, const char *pre, const char *post, bool child, char **ret) {
-        _cleanup_free_ char *d = NULL, *fn = NULL, *nf = NULL, *result = NULL;
-        size_t len_pre, len_post, len_add;
-        int r;
+స్థిర పూర్ణాంకం tempfn_build(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *pre, స్థిరరాశి అక్షరం *post, bool బిడ్డ, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *d = ఖాళీ, *fn = ఖాళీ, *nf = ఖాళీ, *ఫలితం = ఖాళీ;
+        size_t len_pre, len_post, len_కూడు;
+        పూర్ణాంకం r;
 
-        assert(p);
-        assert(ret);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(ret);
 
         /*
          * Turns this:
@@ -143,54 +143,54 @@ static int tempfn_build(const char *p, const char *pre, const char *post, bool c
          *         /foo/bar/.#<pre>waldo<post> (child == false)
          */
 
-        if (pre && strchr(pre, '/'))
-                return -EINVAL;
+        ఒకవేళ (pre && strchr(pre, '/'))
+                తిరిగి -EINVAL;
 
-        if (post && strchr(post, '/'))
-                return -EINVAL;
+        ఒకవేళ (post && strchr(post, '/'))
+                తిరిగి -EINVAL;
 
         len_pre = strlen_ptr(pre);
         len_post = strlen_ptr(post);
         /* NAME_MAX is counted *without* the trailing NUL byte. */
-        if (len_pre > NAME_MAX - STRLEN(".#") ||
+        ఒకవేళ (len_pre > NAME_MAX - STRLEN(".#") ||
             len_post > NAME_MAX - STRLEN(".#") - len_pre)
-                return -EINVAL;
+                తిరిగి -EINVAL;
 
-        len_add = len_pre + len_post + STRLEN(".#");
+        len_కూడు = len_pre + len_post + STRLEN(".#");
 
-        if (child) {
+        ఒకవేళ (బిడ్డ) {
                 d = strdup(p);
-                if (!d)
-                        return -ENOMEM;
-        } else {
-                r = path_split_prefix_filename(p, &d, &fn);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (!d)
+                        తిరిగి -ENOMEM;
+        } లేకపోతే {
+                r = మార్గం_విభజించు_ఉపసర్గ_filename(p, &d, &fn);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
                 /* Truncate the filename if it would become too long after mangling. */
-                strshorten(fn, NAME_MAX - len_add);
+                strshorten(fn, NAME_MAX - len_కూడు);
         }
 
         nf = strjoin(".#", strempty(pre), strempty(fn), strempty(post));
-        if (!nf)
-                return -ENOMEM;
+        ఒకవేళ (!nf)
+                తిరిగి -ENOMEM;
 
-        if (d) {
-                if (!path_extend(&d, nf))
-                        return -ENOMEM;
+        ఒకవేళ (d) {
+                ఒకవేళ (!మార్గం_extend(&d, nf))
+                        తిరిగి -ENOMEM;
 
-                result = path_simplify(TAKE_PTR(d));
-        } else
-                result = TAKE_PTR(nf);
+                ఫలితం = మార్గం_simplify(TAKE_PTR(d));
+        } లేకపోతే
+                ఫలితం = TAKE_PTR(nf);
 
-        if (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
-                return -EINVAL;
+        ఒకవేళ (!మార్గం_is_valid(ఫలితం)) /* New path is not valid? (Maybe because too long?) Refuse. */
+                తిరిగి -EINVAL;
 
-        *ret = TAKE_PTR(result);
-        return 0;
+        *ret = TAKE_PTR(ఫలితం);
+        తిరిగి 0;
 }
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
+పూర్ణాంకం tempfn_xxxxxx(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *extra, అక్షరం **ret) {
         /*
          * Turns this:
          *         /foo/bar/waldo
@@ -199,14 +199,14 @@ int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldoXXXXXX
          */
 
-        return tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
+        తిరిగి tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
 }
 
-int tempfn_random(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
+పూర్ణాంకం tempfn_random(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *extra, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
 
-        assert(p);
-        assert(ret);
+        ప్రతిజ్ఞా(p);
+        ప్రతిజ్ఞా(ret);
 
         /*
          * Turns this:
@@ -216,17 +216,17 @@ int tempfn_random(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldobaa2a261115984a9
          */
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        ఒకవేళ (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                తిరిగి -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ false, ret);
+        తిరిగి tempfn_build(p, extra, s, /* child= */ false, ret);
 }
 
-int tempfn_random_child(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+పూర్ణాంకం tempfn_random_బిడ్డ(స్థిరరాశి అక్షరం *p, స్థిరరాశి అక్షరం *extra, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *s = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
         /* Turns this:
          *         /foo/bar/waldo
@@ -234,220 +234,220 @@ int tempfn_random_child(const char *p, const char *extra, char **ret) {
          *         /foo/bar/waldo/.#<extra>3c2b6219aa75d7d0
          */
 
-        if (!p) {
+        ఒకవేళ (!p) {
                 r = tmp_dir(&p);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        ఒకవేళ (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                తిరిగి -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ true, ret);
+        తిరిగి tempfn_build(p, extra, s, /* child= */ true, ret);
 }
 
-int open_tmpfile_unlinkable(const char *directory, int flags) {
-        int r;
+పూర్ణాంకం open_tmpfile_unlinkable(స్థిరరాశి అక్షరం *directory, పూర్ణాంకం flags) {
+        పూర్ణాంకం r;
 
-        if (!directory) {
+        ఒకవేళ (!directory) {
                 r = tmp_dir(&directory);
-                if (r < 0)
-                        return r;
-        } else if (isempty(directory))
-                return -EINVAL;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
+        } లేకపోతే ఒకవేళ (isempty(directory))
+                తిరిగి -EINVAL;
 
         /* Returns an unlinked temporary file that cannot be linked into the file system anymore */
 
         /* Try O_TMPFILE first, if it is supported */
-        int fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
-        if (fd >= 0)
-                return fd;
+        పూర్ణాంకం fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
+        ఒకవేళ (fd >= 0)
+                తిరిగి fd;
 
         /* Fall back to unguessable name + unlinking */
-        _cleanup_free_ char *p = path_join(directory, "/systemd-tmp-XXXXXX");
-        if (!p)
-                return -ENOMEM;
+        _cleanup_free_ అక్షరం *p = మార్గం_join(directory, "/systemd-tmp-XXXXXX");
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        fd = mkostemp_safe(p);
-        if (fd < 0)
-                return fd;
+        fd = mkostemp_సురక్షిత(p);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
-        (void) unlink(p);
+        (శూన్య) unlink(p);
 
-        return fd;
+        తిరిగి fd;
 }
 
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path) {
-        int r;
+పూర్ణాంకం open_tmpfile_linkable_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *లక్ష్యం, పూర్ణాంకం flags, అక్షరం **ret_మార్గం) {
+        పూర్ణాంకం r;
 
-        assert(target);
-        assert(ret_path);
+        ప్రతిజ్ఞా(లక్ష్యం);
+        ప్రతిజ్ఞా(ret_మార్గం);
 
         /* Don't allow O_EXCL, as that has a special meaning for O_TMPFILE */
-        assert((flags & O_EXCL) == 0);
+        ప్రతిజ్ఞా((flags & O_EXCL) == 0);
 
         /* Creates a temporary file, that shall be renamed to "target" later. If possible, this uses O_TMPFILE – in
          * which case "ret_path" will be returned as NULL. If not possible the temporary path name used is returned in
          * "ret_path". Use link_tmpfile() below to rename the result after writing the file in full. */
 
-        int fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
-        if (fd >= 0) {
-                *ret_path = NULL;
-                return fd;
+        పూర్ణాంకం fd = open_మాతృ_at(dir_fd, లక్ష్యం, O_TMPFILE|flags, 0640);
+        ఒకవేళ (fd >= 0) {
+                *ret_మార్గం = ఖాళీ;
+                తిరిగి fd;
         }
 
-        if (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
-                log_debug_errno(fd, "Failed to use O_TMPFILE for %s: %m", target);
+        ఒకవేళ (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
+                log_debug_errno(fd, "Failed to use O_TMPFILE for %s: %m", లక్ష్యం);
 
-        _cleanup_free_ char *tmp = NULL;
-        r = tempfn_random(target, NULL, &tmp);
-        if (r < 0)
-                return r;
+        _cleanup_free_ అక్షరం *tmp = ఖాళీ;
+        r = tempfn_random(లక్ష్యం, ఖాళీ, &tmp);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         fd = openat(dir_fd, tmp, O_CREAT|O_EXCL|O_NOFOLLOW|O_NOCTTY|flags, 0640);
-        if (fd < 0)
-                return -errno;
+        ఒకవేళ (fd < 0)
+                తిరిగి -errno;
 
-        *ret_path = TAKE_PTR(tmp);
+        *ret_మార్గం = TAKE_PTR(tmp);
 
-        return fd;
+        తిరిగి fd;
 }
 
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file) {
-        _cleanup_free_ char *path = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
+పూర్ణాంకం fopen_tmpfile_linkable_at(పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *లక్ష్యం, పూర్ణాంకం flags, అక్షరం **ret_మార్గం, FILE **ret_file) {
+        _cleanup_free_ అక్షరం *మార్గం = ఖాళీ;
+        _cleanup_fclose_ FILE *f = ఖాళీ;
+        _cleanup_close_ పూర్ణాంకం fd = -EBADF;
 
-        assert(target);
-        assert(ret_file);
-        assert(ret_path);
+        ప్రతిజ్ఞా(లక్ష్యం);
+        ప్రతిజ్ఞా(ret_file);
+        ప్రతిజ్ఞా(ret_మార్గం);
 
-        fd = open_tmpfile_linkable_at(dir_fd, target, flags, &path);
-        if (fd < 0)
-                return fd;
+        fd = open_tmpfile_linkable_at(dir_fd, లక్ష్యం, flags, &మార్గం);
+        ఒకవేళ (fd < 0)
+                తిరిగి fd;
 
         f = take_fdopen(&fd, "w");
-        if (!f)
-                return -ENOMEM;
+        ఒకవేళ (!f)
+                తిరిగి -ENOMEM;
 
-        *ret_path = TAKE_PTR(path);
+        *ret_మార్గం = TAKE_PTR(మార్గం);
         *ret_file = TAKE_PTR(f);
-        return 0;
+        తిరిగి 0;
 }
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int r;
+పూర్ణాంకం link_tmpfile_at(పూర్ణాంకం fd, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *లక్ష్యం, LinkTmpfileFlags flags) {
+        పూర్ణాంకం r;
 
-        assert(fd >= 0);
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(target);
+        ప్రతిజ్ఞా(fd >= 0);
+        ప్రతిజ్ఞా(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        ప్రతిజ్ఞా(లక్ష్యం);
 
         /* Moves a temporary file created with open_tmpfile() above into its final place. If "path" is NULL
          * an fd created with O_TMPFILE is assumed, and linkat() is used. Otherwise it is assumed O_TMPFILE
          * is not supported on the directory, and renameat2() is used instead. */
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
-                return -errno;
+        ఒకవేళ (FLAGS_సమితి(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
+                తిరిగి -errno;
 
-        if (path) {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
-                        r = RET_NERRNO(renameat(dir_fd, path, dir_fd, target));
-                else
-                        r = rename_noreplace(dir_fd, path, dir_fd, target);
-        } else {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
-                        r = linkat_replace(fd, /* oldpath= */ NULL, dir_fd, target);
-                else
-                        r = link_fd(fd, dir_fd, target);
+        ఒకవేళ (మార్గం) {
+                ఒకవేళ (FLAGS_సమితి(flags, LINK_TMPFILE_REPLACE))
+                        r = RET_NERRNO(renameat(dir_fd, మార్గం, dir_fd, లక్ష్యం));
+                లేకపోతే
+                        r = rename_noreplace(dir_fd, మార్గం, dir_fd, లక్ష్యం);
+        } లేకపోతే {
+                ఒకవేళ (FLAGS_సమితి(flags, LINK_TMPFILE_REPLACE))
+                        r = linkat_replace(fd, /* oldpath= */ ఖాళీ, dir_fd, లక్ష్యం);
+                లేకపోతే
+                        r = link_fd(fd, dir_fd, లక్ష్యం);
         }
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
-                r = fsync_full(fd);
-                if (r < 0)
-                        return r;
+        ఒకవేళ (FLAGS_సమితి(flags, LINK_TMPFILE_SYNC)) {
+                r = fsync_నిండిన(fd);
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
         }
 
-        return 0;
+        తిరిగి 0;
 }
 
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int fd, r;
+పూర్ణాంకం flink_tmpfile_at(FILE *f, పూర్ణాంకం dir_fd, స్థిరరాశి అక్షరం *మార్గం, స్థిరరాశి అక్షరం *లక్ష్యం, LinkTmpfileFlags flags) {
+        పూర్ణాంకం fd, r;
 
-        assert(f);
-        assert(target);
+        ప్రతిజ్ఞా(f);
+        ప్రతిజ్ఞా(లక్ష్యం);
 
         fd = fileno(f);
-        if (fd < 0) /* Not all FILE* objects encapsulate fds */
-                return -EBADF;
+        ఒకవేళ (fd < 0) /* Not all FILE* objects encapsulate fds */
+                తిరిగి -EBADF;
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
-        return link_tmpfile_at(fd, dir_fd, path, target, flags);
+        తిరిగి link_tmpfile_at(fd, dir_fd, మార్గం, లక్ష్యం, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+పూర్ణాంకం mkdtemp_malloc(స్థిరరాశి అక్షరం *మూస, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం r;
 
-        assert(ret);
+        ప్రతిజ్ఞా(ret);
 
-        if (template)
-                p = strdup(template);
-        else {
-                const char *tmp;
+        ఒకవేళ (మూస)
+                p = strdup(మూస);
+        లేకపోతే {
+                స్థిరరాశి అక్షరం *tmp;
 
                 r = tmp_dir(&tmp);
-                if (r < 0)
-                        return r;
+                ఒకవేళ (r < 0)
+                        తిరిగి r;
 
-                p = path_join(tmp, "XXXXXX");
+                p = మార్గం_join(tmp, "XXXXXX");
         }
-        if (!p)
-                return -ENOMEM;
+        ఒకవేళ (!p)
+                తిరిగి -ENOMEM;
 
-        if (!mkdtemp(p))
-                return -errno;
+        ఒకవేళ (!mkdtemp(p))
+                తిరిగి -errno;
 
         *ret = TAKE_PTR(p);
-        return 0;
+        తిరిగి 0;
 }
 
-int mkdtemp_open(const char *template, int flags, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int fd, r;
+పూర్ణాంకం mkdtemp_open(స్థిరరాశి అక్షరం *మూస, పూర్ణాంకం flags, అక్షరం **ret) {
+        _cleanup_free_ అక్షరం *p = ఖాళీ;
+        పూర్ణాంకం fd, r;
 
-        r = mkdtemp_malloc(template, &p);
-        if (r < 0)
-                return r;
+        r = mkdtemp_malloc(మూస, &p);
+        ఒకవేళ (r < 0)
+                తిరిగి r;
 
         fd = RET_NERRNO(open(p, O_DIRECTORY|O_CLOEXEC|flags));
-        if (fd < 0) {
-                (void) rmdir(p);
-                return fd;
+        ఒకవేళ (fd < 0) {
+                (శూన్య) rmdir(p);
+                తిరిగి fd;
         }
 
-        if (ret)
+        ఒకవేళ (ret)
                 *ret = TAKE_PTR(p);
 
-        return fd;
+        తిరిగి fd;
 }
 
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d) {
-        assert(d);
+శూన్య cleanup_tmpfile_దత్తాంశం_పూర్తి(నిర్మాణం cleanup_tmpfile_దత్తాంశం *d) {
+        ప్రతిజ్ఞా(d);
 
-        if (!d->dir_fd ||
+        ఒకవేళ (!d->dir_fd ||
             (*d->dir_fd < 0 && *d->dir_fd != AT_FDCWD) ||
             !d->filename ||
             !*d->filename)
-                return;
+                తిరిగి;
 
         PROTECT_ERRNO;
 
-        (void) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
-        d->dir_fd = NULL;
-        d->filename = NULL;
+        (శూన్య) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
+        d->dir_fd = ఖాళీ;
+        d->filename = ఖాళీ;
 }
