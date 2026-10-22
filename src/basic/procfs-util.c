@@ -14,42 +14,42 @@
 #include "string-util.h"
 #include "time-util.h"
 
-int procfs_get_pid_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+puur_naa_nka procfs_get_pid_max(uint64_t *ret) {
+        _cleanup_free_ var_na *value = NULL;
+        puur_naa_nka r;
 
         assert(ret);
 
         r = read_one_line_file("/proc/sys/kernel/pid_max", &value);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        return safe_atou64(value, ret);
+        ᱨᱩᱣᱟᱹᱲ safe_atou64(value, ret);
 }
 
-int procfs_get_threads_max(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        int r;
+puur_naa_nka procfs_get_threads_max(uint64_t *ret) {
+        _cleanup_free_ var_na *value = NULL;
+        puur_naa_nka r;
 
         assert(ret);
 
         r = read_one_line_file("/proc/sys/kernel/threads-max", &value);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        return safe_atou64(value, ret);
+        ᱨᱩᱣᱟᱹᱲ safe_atou64(value, ret);
 }
 
-int procfs_tasks_set_limit(uint64_t limit) {
-        char buffer[DECIMAL_STR_MAX(uint64_t)+1];
+puur_naa_nka procfs_tasks_set_limit(uint64_t limit) {
+        var_na buffer[DECIMAL_STR_MAX(uint64_t)+1];
         uint64_t pid_max;
-        int r;
+        puur_naa_nka r;
 
-        if (limit == 0) /* This makes no sense, we are userspace and hence count as tasks too, and we want to live,
+        ᱡᱩᱫᱤ (limit == 0) /* This makes no sense, we are userspace and hence count as tasks too, and we want to live,
                          * hence the limit conceptually has to be above 0. Also, most likely if anyone asks for a zero
                          * limit they probably mean "no limit", hence let's better refuse this to avoid
                          * confusion. */
-                return -EINVAL;
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
         /* The Linux kernel doesn't allow this value to go below 20, hence don't allow this either, higher values than
          * TASKS_MAX are not accepted by the pid_max sysctl. We'll treat anything this high as "unbounded" and hence
@@ -57,66 +57,66 @@ int procfs_tasks_set_limit(uint64_t limit) {
         limit = CLAMP(limit, 20U, TASKS_MAX);
 
         r = procfs_get_pid_max(&pid_max);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         /* As pid_max is about the numeric pid_t range we'll bump it if necessary, but only ever increase it, never
          * decrease it, as threads-max is the much more relevant sysctl. */
-        if (limit > pid_max-1) {
+        ᱡᱩᱫᱤ (limit > pid_max-1) {
                 xsprintf(buffer, "%" PRIu64, limit+1); /* Add one, since PID 0 is not a valid PID */
                 r = write_string_file("/proc/sys/kernel/pid_max", buffer, WRITE_STRING_FILE_DISABLE_BUFFER);
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
         }
 
         xsprintf(buffer, "%" PRIu64, limit);
         r = write_string_file("/proc/sys/kernel/threads-max", buffer, WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0) {
+        ᱡᱩᱫᱤ (r < 0) {
                 uint64_t threads_max;
 
                 /* Hmm, we couldn't write this? If so, maybe it was already set properly? In that case let's not
                  * generate an error */
 
-                if (procfs_get_threads_max(&threads_max) < 0)
-                        return r; /* return original error */
+                ᱡᱩᱫᱤ (procfs_get_threads_max(&threads_max) < 0)
+                        ᱨᱩᱣᱟᱹᱲ r; /* return original error */
 
-                if (MIN(pid_max - 1, threads_max) != limit)
-                        return r; /* return original error */
+                ᱡᱩᱫᱤ (MIN(pid_max - 1, threads_max) != limit)
+                        ᱨᱩᱣᱟᱹᱲ r; /* return original error */
 
                 /* Yay! Value set already matches what we were trying to set, hence consider this a success. */
         }
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int procfs_tasks_get_current(uint64_t *ret) {
-        _cleanup_free_ char *value = NULL;
-        const char *p, *nr;
+puur_naa_nka procfs_tasks_get_current(uint64_t *ret) {
+        _cleanup_free_ var_na *value = NULL;
+        const var_na *p, *nr;
         size_t n;
-        int r;
+        puur_naa_nka r;
 
         assert(ret);
 
         r = read_one_line_file("/proc/loadavg", &value);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         /* Look for the second part of the fourth field, which is separated by a slash from the first part. None of the
          * earlier fields use a slash, hence let's use this to find the right spot. */
         p = strchr(value, '/');
-        if (!p)
-                return -EINVAL;
+        ᱡᱩᱫᱤ (!p)
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
         p++;
         n = strspn(p, DIGITS);
         nr = strndupa_safe(p, n);
 
-        return safe_atou64(nr, ret);
+        ᱨᱩᱣᱟᱹᱲ safe_atou64(nr, ret);
 }
 
 static uint64_t calc_gcd64(uint64_t a, uint64_t b) {
 
-        while (b > 0) {
+        ᱡᱚᱠᱷᱚᱱ (b > 0) {
                 uint64_t t;
 
                 t = a % b;
@@ -125,7 +125,7 @@ static uint64_t calc_gcd64(uint64_t a, uint64_t b) {
                 b = t;
         }
 
-        return a;
+        ᱨᱩᱣᱟᱹᱲ a;
 }
 
 nsec_t procfs_ticks_to_nsec(uint64_t ticks) {
@@ -139,36 +139,36 @@ nsec_t procfs_ticks_to_nsec(uint64_t ticks) {
         uint64_t a = NSEC_PER_SEC / gcd,
                  b = ticks_per_second / gcd;
 
-        return ticks / b * a + DIV_ROUND_UP(ticks % b * a, b);
+        ᱨᱩᱣᱟᱹᱲ ticks / b * a + DIV_ROUND_UP(ticks % b * a, b);
 }
 
-int procfs_cpu_get_usage(nsec_t *ret) {
-        int r;
+puur_naa_nka procfs_cpu_get_usage(nsec_t *ret) {
+        puur_naa_nka r;
 
         assert(ret);
 
         ProcfsCpuTicks ticks;
         r = procfs_cpu_get_ticks(&ticks);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         *ret = procfs_ticks_to_nsec(ticks.user + ticks.nice + ticks.system + ticks.irq + ticks.softirq);
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
-        _cleanup_free_ char *first_line = NULL;
-        int r;
+puur_naa_nka procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
+        _cleanup_free_ var_na *first_line = NULL;
+        puur_naa_nka r;
 
         assert(ret);
 
         r = read_one_line_file("/proc/stat", &first_line);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        const char *p = first_word(first_line, "cpu");
-        if (!p)
-                return -EINVAL;
+        const var_na *p = first_word(first_line, "cpu");
+        ᱡᱩᱫᱤ (!p)
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
         /* All eight fields exist on any kernel we support: iowait was added in 2.5.41, steal in 2.6.11.
          * "guest" and "guest_nice" are not returned, the kernel already includes them in "user" and "nice".
@@ -184,91 +184,91 @@ int procfs_cpu_get_ticks(ProcfsCpuTicks *ret) {
                    &t.irq,
                    &t.softirq,
                    &t.steal);
-        if (r < 5)
-                return -EINVAL;
-        if (r < 8)
+        ᱡᱩᱫᱤ (r < 5)
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
+        ᱡᱩᱫᱤ (r < 8)
                 log_once(LOG_INFO, "Short read (%d fields) from /proc/stat, continuing.", r);
 
         *ret = t;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int convert_meminfo_value_to_uint64_bytes(const char *s, uint64_t *ret) {
-        _cleanup_free_ char *w = NULL;
+puur_naa_nka convert_meminfo_value_to_uint64_bytes(const var_na *s, uint64_t *ret) {
+        _cleanup_free_ var_na *w = NULL;
         uint64_t v;
-        int r;
+        puur_naa_nka r;
 
         assert(s);
         assert(ret);
 
         r = extract_first_word(&s, &w, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
+        ᱡᱩᱫᱤ (r == 0)
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
         /* Ensure the line ends in "kB" */
-        if (!streq(s, "kB"))
-                return -EINVAL;
+        ᱡᱩᱫᱤ (!streq(s, "kB"))
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
         r = safe_atou64(w, &v);
-        if (r < 0)
-                return r;
-        if (v == UINT64_MAX)
-                return -EINVAL;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
+        ᱡᱩᱫᱤ (v == UINT64_MAX)
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
-        if (!MUL_ASSIGN_SAFE(&v, U64_KB))
-                return -EOVERFLOW;
+        ᱡᱩᱫᱤ (!MUL_ASSIGN_SAFE(&v, U64_KB))
+                ᱨᱩᱣᱟᱹᱲ -EOVERFLOW;
 
         *ret = v;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used) {
+puur_naa_nka procfs_memory_get(uint64_t *ret_total, uint64_t *ret_used) {
         uint64_t mem_total = UINT64_MAX, mem_available = UINT64_MAX;
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        puur_naa_nka r;
 
         f = fopen("/proc/meminfo", "re");
-        if (!f)
-                return -errno;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
         for (;;) {
-                _cleanup_free_ char *line = NULL;
+                _cleanup_free_ var_na *line = NULL;
                 uint64_t *v;
-                char *p;
+                var_na *p;
 
                 r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -EINVAL; /* EOF: Couldn't find one or both fields? */
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
+                ᱡᱩᱫᱤ (r == 0)
+                        ᱨᱩᱣᱟᱹᱲ -EINVAL; /* EOF: Couldn't find one or both fields? */
 
                 p = first_word(line, "MemTotal:");
-                if (p)
+                ᱡᱩᱫᱤ (p)
                         v = &mem_total;
-                else {
+                ᱵᱟᱝ {
                         p = first_word(line, "MemAvailable:");
-                        if (p)
+                        ᱡᱩᱫᱤ (p)
                                 v = &mem_available;
-                        else
+                        ᱵᱟᱝ
                                 continue;
                 }
 
                 r = convert_meminfo_value_to_uint64_bytes(p, v);
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
 
-                if (mem_total != UINT64_MAX && mem_available != UINT64_MAX)
-                        break;
+                ᱡᱩᱫᱤ (mem_total != UINT64_MAX && mem_available != UINT64_MAX)
+                        bha_nga;
         }
 
-        if (mem_available > mem_total)
-                return -EINVAL;
+        ᱡᱩᱫᱤ (mem_available > mem_total)
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
-        if (ret_total)
+        ᱡᱩᱫᱤ (ret_total)
                 *ret_total = mem_total;
-        if (ret_used)
+        ᱡᱩᱫᱤ (ret_used)
                 *ret_used = mem_total - mem_available;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }

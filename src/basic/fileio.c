@@ -48,127 +48,127 @@
  * can detect EOFs. */
 #define READ_VIRTUAL_BYTES_MAX (4U * U64_MB - UINT64_C(2))
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret) {
+puur_naa_nka fdopen_unlocked(puur_naa_nka fd, const var_na *options, FILE **ret) {
         assert(ret);
 
         FILE *f = fdopen(fd, options);
-        if (!f)
-                return -errno;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret) {
-        int r;
+puur_naa_nka take_fdopen_unlocked(puur_naa_nka *fd, const var_na *options, FILE **ret) {
+        puur_naa_nka r;
 
         assert(fd);
 
         r = fdopen_unlocked(*fd, options, ret);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         *fd = -EBADF;
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-FILE* take_fdopen(int *fd, const char *options) {
+FILE* take_fdopen(puur_naa_nka *fd, const var_na *options) {
         assert(fd);
 
         FILE *f = fdopen(*fd, options);
-        if (!f)
-                return NULL;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ NULL;
 
         *fd = -EBADF;
 
-        return f;
+        ᱨᱩᱣᱟᱹᱲ f;
 }
 
-DIR* take_fdopendir(int *dfd) {
+DIR* take_fdopendir(puur_naa_nka *dfd) {
         assert(dfd);
 
         DIR *d = fdopendir(*dfd);
-        if (!d)
-                return NULL;
+        ᱡᱩᱫᱤ (!d)
+                ᱨᱩᱣᱟᱹᱲ NULL;
 
         *dfd = -EBADF;
 
-        return d;
+        ᱨᱩᱣᱟᱹᱲ d;
 }
 
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc) {
+FILE* open_memstream_unlocked(var_na **ptr, size_t *sizeloc) {
         FILE *f = open_memstream(ptr, sizeloc);
-        if (!f)
-                return NULL;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        ᱨᱩᱣᱟᱹᱲ f;
 }
 
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
+FILE* fmemopen_unlocked(void *buf, size_t size, const var_na *mode) {
         FILE *f = fmemopen(buf, size, mode);
-        if (!f)
-                return NULL;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        ᱨᱩᱣᱟᱹᱲ f;
 }
 
-int write_string_stream_full(
+puur_naa_nka write_string_stream_full(
                 FILE *f,
-                const char *line,
+                const var_na *line,
                 WriteStringFileFlags flags,
-                const struct timespec *ts) {
+                const sa_nracanaa timespec *ts) {
 
         bool needs_nl;
-        int r, fd = -EBADF;
+        puur_naa_nka r, fd = -EBADF;
 
         assert(f);
         assert(line);
 
-        if (ferror(f))
-                return -EIO;
+        ᱡᱩᱫᱤ (ferror(f))
+                ᱨᱩᱣᱟᱹᱲ -EIO;
 
-        if (ts) {
+        ᱡᱩᱫᱤ (ts) {
                 /* If we shall set the timestamp we need the fd. But fmemopen() streams generally don't have
                  * an fd. Let's fail early in that case. */
                 fd = fileno(f);
-                if (fd < 0)
-                        return -EBADF;
+                ᱡᱩᱫᱤ (fd < 0)
+                        ᱨᱩᱣᱟᱹᱲ -EBADF;
         }
 
-        if (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
-                _cleanup_free_ char *t = NULL;
+        ᱡᱩᱫᱤ (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
+                _cleanup_free_ var_na *t = NULL;
 
                 /* If value to be written is same as that of the existing value, then suppress the write. */
 
-                if (fd < 0) {
+                ᱡᱩᱫᱤ (fd < 0) {
                         fd = fileno(f);
-                        if (fd < 0)
-                                return -EBADF;
+                        ᱡᱩᱫᱤ (fd < 0)
+                                ᱨᱩᱣᱟᱹᱲ -EBADF;
                 }
 
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
+                ᱡᱩᱫᱤ (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
                     streq_skip_trailing_chars(line, t, NEWLINE)) {
                         log_debug("No change in value '%s', suppressing write", line);
-                        return 0;
+                        ᱨᱩᱣᱟᱹᱲ 0;
                 }
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                ᱡᱩᱫᱤ (lseek(fd, 0, SEEK_SET) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
         }
 
         needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
 
-        if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
+        ᱡᱩᱫᱤ (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
@@ -176,29 +176,29 @@ int write_string_stream_full(
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
-                return -errno;
+        ᱡᱩᱫᱤ (fputs(line, f) == EOF)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
-        if (needs_nl)
-                if (fputc('\n', f) == EOF)
-                        return -errno;
+        ᱡᱩᱫᱤ (needs_nl)
+                ᱡᱩᱫᱤ (fputc('\n', f) == EOF)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
 
-        if (flags & WRITE_STRING_FILE_SYNC)
+        ᱡᱩᱫᱤ (flags & WRITE_STRING_FILE_SYNC)
                 r = fflush_sync_and_check(f);
-        else
+        ᱵᱟᱝ
                 r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        if (ts) {
-                const struct timespec twice[2] = {*ts, *ts};
+        ᱡᱩᱫᱤ (ts) {
+                const sa_nracanaa timespec twice[2] = {*ts, *ts};
 
                 assert(fd >= 0);
-                if (futimens(fd, twice) < 0)
-                        return -errno;
+                ᱡᱩᱫᱤ (futimens(fd, twice) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
         }
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
 static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
@@ -210,21 +210,21 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
          *     → 0644 (i.e. writable for root, readable for everyone else)
          */
 
-        return FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
+        ᱨᱩᱣᱟᱹᱲ FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
                 FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0444) ? 0444 : 0644;
 }
 
-static int write_string_file_atomic_at(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+static puur_naa_nka write_string_file_atomic_at(
+                puur_naa_nka dir_fd,
+                const var_na *fn,
+                const var_na *line,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
+                const sa_nracanaa timespec *ts,
                 LabelContext *label_context) {
 
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *p = NULL;
-        int r;
+        _cleanup_free_ var_na *p = NULL;
+        puur_naa_nka r;
 
         assert(fn);
         assert(line);
@@ -235,61 +235,61 @@ static int write_string_file_atomic_at(
         mode_t mode = write_string_file_flags_to_mode(flags);
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
+        ᱡᱩᱫᱤ (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fn, mode, label_context);
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
 
                 call_label_ops_post = true;
         }
 
         r = fopen_temporary_at(dir_fd, fn, &f, &p);
-        int k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
+        puur_naa_nka k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
         /* If fopen_temporary_at() failed in the above, propagate the error code, and ignore failures in
          * label_ops_post(). */
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
         CLEANUP_TMPFILE_AT(dir_fd, p);
-        if (k < 0)
-                return k;
+        ᱡᱩᱫᱤ (k < 0)
+                ᱨᱩᱣᱟᱹᱲ k;
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         r = fchmod_umask(fileno(f), mode);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         r = RET_NERRNO(renameat(dir_fd, p, dir_fd, fn));
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
+        ᱡᱩᱫᱤ (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
                 /* Sync the rename, too */
                 r = fsync_directory_of_file(fileno(f));
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
         }
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int write_string_file_full_label(
-                int dir_fd,
-                const char *fn,
-                const char *line,
+puur_naa_nka write_string_file_full_label(
+                puur_naa_nka dir_fd,
+                const var_na *fn,
+                const var_na *line,
                 WriteStringFileFlags flags,
-                const struct timespec *ts,
-                const char *label_fn,
+                const sa_nracanaa timespec *ts,
+                const var_na *label_fn,
                 LabelContext *label_context) {
 
         bool made_file = false;
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
+        puur_naa_nka r;
 
         assert(dir_fd == AT_FDCWD || dir_fd >= 0);
         assert(line);
@@ -297,39 +297,39 @@ int write_string_file_full_label(
         /* We don't know how to verify whether the file contents was already on-disk. */
         assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
 
-        if (flags & WRITE_STRING_FILE_MKDIR_0755) {
+        ᱡᱩᱫᱤ (flags & WRITE_STRING_FILE_MKDIR_0755) {
                 assert(fn);
 
                 r = mkdirat_parents(dir_fd, fn, 0755);
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
         }
 
-        if (flags & WRITE_STRING_FILE_ATOMIC) {
+        ᱡᱩᱫᱤ (flags & WRITE_STRING_FILE_ATOMIC) {
                 assert(fn);
                 assert(flags & WRITE_STRING_FILE_CREATE);
 
                 r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
-                if (r < 0)
+                ᱡᱩᱫᱤ (r < 0)
                         goto fail;
 
-                return r;
+                ᱨᱩᱣᱟᱹᱲ r;
         }
 
         /* We manually build our own version of fopen(..., "we") that works without O_CREAT and with O_NOFOLLOW if needed. */
-        if (isempty(fn))
+        ᱡᱩᱫᱤ (isempty(fn))
                 r = fd = fd_reopen(
                                 ASSERT_FD(dir_fd), O_CLOEXEC | O_NOCTTY |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
-        else {
+        ᱵᱟᱝ {
                 mode_t mode = write_string_file_flags_to_mode(flags);
                 bool call_label_ops_post = false;
 
-                if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
+                ᱡᱩᱫᱤ (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
                         r = label_ops_pre(dir_fd, label_fn ?: fn, mode, label_context);
-                        if (r < 0)
+                        ᱡᱩᱫᱤ (r < 0)
                                 goto fail;
 
                         call_label_ops_post = true;
@@ -344,176 +344,176 @@ int write_string_file_full_label(
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
                                 mode,
                                 &made_file);
-                if (call_label_ops_post)
+                ᱡᱩᱫᱤ (call_label_ops_post)
                         /* If openat_report_new() failed in the above, propagate the error code, and ignore
                          * failures in label_ops_post(). */
                         RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : fn, made_file, label_context));
         }
-        if (r < 0)
+        ᱡᱩᱫᱤ (r < 0)
                 goto fail;
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0)
+        ᱡᱩᱫᱤ (r < 0)
                 goto fail;
 
-        if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
+        ᱡᱩᱫᱤ (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
                 setvbuf(f, NULL, _IONBF, 0);
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
+        ᱡᱩᱫᱤ (r < 0)
                 goto fail;
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 
 fail:
-        if (made_file)
+        ᱡᱩᱫᱤ (made_file)
                 (void) unlinkat(dir_fd, fn, 0);
 
-        if (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
-                return r;
+        ᱡᱩᱫᱤ (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
+                ᱨᱩᱣᱟᱹᱲ r;
 
         f = safe_fclose(f);
         fd = safe_close(fd);
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
-                return 0;
+        ᱡᱩᱫᱤ (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+                ᱨᱩᱣᱟᱹᱲ 0;
 
-        return r;
+        ᱨᱩᱣᱟᱹᱲ r;
 }
 
-int write_string_filef(
-                const char *fn,
+puur_naa_nka write_string_filef(
+                const var_na *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                const var_na *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ var_na *p = NULL;
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
-        return write_string_file(fn, p, flags);
+        ᱨᱩᱣᱟᱹᱲ write_string_file(fn, p, flags);
 }
 
-int write_string_filef_at(
-                int dir_fd,
-                const char *fn,
+puur_naa_nka write_string_filef_at(
+                puur_naa_nka dir_fd,
+                const var_na *fn,
                 WriteStringFileFlags flags,
-                const char *format, ...) {
+                const var_na *format, ...) {
 
-        _cleanup_free_ char *p = NULL;
+        _cleanup_free_ var_na *p = NULL;
         va_list ap;
-        int r;
+        puur_naa_nka r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
-        return write_string_file_at(dir_fd, fn, p, flags);
+        ᱨᱩᱣᱟᱹᱲ write_string_file_at(dir_fd, fn, p, flags);
 }
 
-int write_base64_file_at(
-                int dir_fd,
-                const char *fn,
-                const struct iovec *data,
+puur_naa_nka write_base64_file_at(
+                puur_naa_nka dir_fd,
+                const var_na *fn,
+                const sa_nracanaa iovec *data,
                 WriteStringFileFlags flags) {
 
-        _cleanup_free_ char *encoded = NULL;
+        _cleanup_free_ var_na *encoded = NULL;
         ssize_t n;
 
         n = base64mem_full(data ? data->iov_base : NULL, data ? data->iov_len : 0, 79, &encoded);
-        if (n < 0)
-                return n;
+        ᱡᱩᱫᱤ (n < 0)
+                ᱨᱩᱣᱟᱹᱲ n;
 
-        return write_string_file_at(dir_fd, fn, encoded, flags);
+        ᱨᱩᱣᱟᱹᱲ write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
+puur_naa_nka read_one_line_file_at(puur_naa_nka dir_fd, const var_na *filename, var_na **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        puur_naa_nka r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
         assert(ret);
 
         r = fopen_unlocked_at(dir_fd, filename, "re", /* open_flags= */ 0, &f);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        ᱨᱩᱣᱟᱹᱲ read_line(f, LONG_LINE_MAX, ret);
 }
 
-int read_boolean_file_at(int dir_fd, const char *filename) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+puur_naa_nka read_boolean_file_at(puur_naa_nka dir_fd, const var_na *filename) {
+        _cleanup_free_ var_na *s = NULL;
+        puur_naa_nka r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
 
         r = read_one_line_file_at(dir_fd, filename, &s);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        return parse_boolean(s);
+        ᱨᱩᱣᱟᱹᱲ parse_boolean(s);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
+puur_naa_nka verify_file_at(puur_naa_nka dir_fd, const var_na *fn, const var_na *blob, bool accept_extra_nl) {
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ var_na *buf = NULL;
         size_t l, k;
-        int r;
+        puur_naa_nka r;
 
         assert(blob);
 
         l = strlen(blob);
 
-        if (accept_extra_nl && endswith(blob, "\n"))
+        ᱡᱩᱫᱤ (accept_extra_nl && endswith(blob, "\n"))
                 accept_extra_nl = false;
 
         buf = malloc(l + accept_extra_nl + 1);
-        if (!buf)
-                return -ENOMEM;
+        ᱡᱩᱫᱤ (!buf)
+                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
         r = fopen_unlocked_at(dir_fd, strempty(fn), "re", 0, &f);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         /* We try to read one byte more than we need, so that we know whether we hit eof */
         errno = 0;
         k = fread(buf, 1, l + accept_extra_nl + 1, f);
-        if (ferror(f))
-                return errno_or_else(EIO);
+        ᱡᱩᱫᱤ (ferror(f))
+                ᱨᱩᱣᱟᱹᱲ errno_or_else(EIO);
 
-        if (k != l && k != l + accept_extra_nl)
-                return 0;
-        if (memcmp(buf, blob, l) != 0)
-                return 0;
-        if (k > l && buf[l] != '\n')
-                return 0;
+        ᱡᱩᱫᱤ (k != l && k != l + accept_extra_nl)
+                ᱨᱩᱣᱟᱹᱲ 0;
+        ᱡᱩᱫᱤ (memcmp(buf, blob, l) != 0)
+                ᱨᱩᱣᱟᱹᱲ 0;
+        ᱡᱩᱫᱤ (k > l && buf[l] != '\n')
+                ᱨᱩᱣᱟᱹᱲ 0;
 
-        return 1;
+        ᱨᱩᱣᱟᱹᱲ 1;
 }
 
-int read_virtual_file_at(
-                int dir_fd,
-                const char *filename,
+puur_naa_nka read_virtual_file_at(
+                puur_naa_nka dir_fd,
+                const var_na *filename,
                 size_t max_size,
-                char **ret_contents,
+                var_na **ret_contents,
                 size_t *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ var_na *buf = NULL;
         size_t n, size;
-        int n_retries;
+        puur_naa_nka n_retries;
         bool truncated = false;
 
         /* Virtual filesystems such as sysfs or procfs use kernfs, and kernfs can work with two sorts of
@@ -536,59 +536,59 @@ int read_virtual_file_at(
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
 
-        _cleanup_close_ int fd = -EBADF;
-        if (isempty(filename))
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
+        ᱡᱩᱫᱤ (isempty(filename))
                 fd = fd_reopen(ASSERT_FD(dir_fd), O_RDONLY | O_NOCTTY | O_CLOEXEC);
-        else
+        ᱵᱟᱝ
                 fd = RET_NERRNO(openat(dir_fd, filename, O_RDONLY | O_NOCTTY | O_CLOEXEC));
-        if (fd < 0)
-                return fd;
+        ᱡᱩᱫᱤ (fd < 0)
+                ᱨᱩᱣᱟᱹᱲ fd;
 
         /* Limit the number of attempts to read the number of bytes returned by fstat(). */
         n_retries = 3;
 
         for (;;) {
-                struct stat st;
+                sa_nracanaa stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                ᱡᱩᱫᱤ (fstat(fd, &st) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
 
-                if (!S_ISREG(st.st_mode))
-                        return -EBADF;
+                ᱡᱩᱫᱤ (!S_ISREG(st.st_mode))
+                        ᱨᱩᱣᱟᱹᱲ -EBADF;
 
                 /* Be prepared for files from /proc which generally report a file size of 0. */
                 assert_cc(READ_VIRTUAL_BYTES_MAX < SSIZE_MAX);
-                if (st.st_size > 0 && n_retries > 1) {
+                ᱡᱩᱫᱤ (st.st_size > 0 && n_retries > 1) {
                         /* Let's use the file size if we have more than 1 attempt left. On the last attempt
                          * we'll ignore the file size */
 
-                        if (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
+                        ᱡᱩᱫᱤ (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
 
-                                if (max_size == SIZE_MAX)
-                                        return -EFBIG;
+                                ᱡᱩᱫᱤ (max_size == SIZE_MAX)
+                                        ᱨᱩᱣᱟᱹᱲ -EFBIG;
 
                                 size = max_size;
-                        } else {
+                        } ᱵᱟᱝ {
                                 size = MIN((size_t) st.st_size, max_size);
 
-                                if (size > READ_VIRTUAL_BYTES_MAX)
-                                        return -EFBIG;
+                                ᱡᱩᱫᱤ (size > READ_VIRTUAL_BYTES_MAX)
+                                        ᱨᱩᱣᱟᱹᱲ -EFBIG;
                         }
 
                         n_retries--;
-                } else if (n_retries > 1) {
+                } ᱵᱟᱝ ᱡᱩᱫᱤ (n_retries > 1) {
                         /* Files in /proc are generally smaller than the page size so let's start with
                          * a page size buffer from malloc and only use the max buffer on the final try. */
                         size = MIN3(page_size() - 1, READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 1;
-                } else {
+                } ᱵᱟᱝ {
                         size = MIN(READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 0;
                 }
 
                 buf = malloc(size + 1);
-                if (!buf)
-                        return -ENOMEM;
+                ᱡᱩᱫᱤ (!buf)
+                        ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
                 /* Use a bigger allocation if we got it anyway, but not more than the limit. */
                 size = MIN3(MALLOC_SIZEOF_SAFE(buf) - 1, max_size, READ_VIRTUAL_BYTES_MAX);
@@ -600,60 +600,60 @@ int read_virtual_file_at(
                          * file has already changed or the guessed size for files from /proc
                          * wasn't large enough . */
                         k = read(fd, buf, size + 1);
-                        if (k >= 0) {
+                        ᱡᱩᱫᱤ (k >= 0) {
                                 n = k;
-                                break;
+                                bha_nga;
                         }
 
-                        if (errno != EINTR)
-                                return -errno;
+                        ᱡᱩᱫᱤ (errno != EINTR)
+                                ᱨᱩᱣᱟᱹᱲ -errno;
                 }
 
                 /* Consider a short read as EOF */
-                if (n <= size)
-                        break;
+                ᱡᱩᱫᱤ (n <= size)
+                        bha_nga;
 
                 /* If a maximum size is specified and we already read more we know the file is larger, and
                  * can handle this as truncation case. Note that if the size of what we read equals the
                  * maximum size then this doesn't mean truncation, the file might or might not end on that
                  * byte. We need to rerun the loop in that case, with a larger buffer size, so that we read
                  * at least one more byte to be able to distinguish EOF from truncation. */
-                if (max_size != SIZE_MAX && n > max_size) {
+                ᱡᱩᱫᱤ (max_size != SIZE_MAX && n > max_size) {
                         n = size; /* Make sure we never use more than what we sized the buffer for (so that
                                    * we have one free byte in it for the trailing NUL we add below). */
                         truncated = true;
-                        break;
+                        bha_nga;
                 }
 
                 /* We have no further attempts left? Then the file is apparently larger than our limits. Give up. */
-                if (n_retries <= 0)
-                        return -EFBIG;
+                ᱡᱩᱫᱤ (n_retries <= 0)
+                        ᱨᱩᱣᱟᱹᱲ -EFBIG;
 
                 /* Hmm... either we read too few bytes from /proc or less likely the content of the file
                  * might have been changed (and is now bigger) while we were processing, let's try again
                  * either with the new file size. */
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                ᱡᱩᱫᱤ (lseek(fd, 0, SEEK_SET) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
 
                 buf = mfree(buf);
         }
 
-        if (ret_contents) {
+        ᱡᱩᱫᱤ (ret_contents) {
 
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
-                if (!ret_size && memchr(buf, 0, n))
-                        return -EBADMSG;
+                ᱡᱩᱫᱤ (!ret_size && memchr(buf, 0, n))
+                        ᱨᱩᱣᱟᱹᱲ -EBADMSG;
 
-                if (n < size) {
-                        char *p;
+                ᱡᱩᱫᱤ (n < size) {
+                        var_na *p;
 
                         /* Return rest of the buffer to libc */
                         p = realloc(buf, n + 1);
-                        if (!p)
-                                return -ENOMEM;
+                        ᱡᱩᱫᱤ (!p)
+                                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
                         buf = p;
                 }
 
@@ -661,55 +661,55 @@ int read_virtual_file_at(
                 *ret_contents = TAKE_PTR(buf);
         }
 
-        if (ret_size)
+        ᱡᱩᱫᱤ (ret_size)
                 *ret_size = n;
 
-        return !truncated;
+        ᱨᱩᱣᱟᱹᱲ !truncated;
 }
 
-int read_full_stream_full(
+puur_naa_nka read_full_stream_full(
                 FILE *f,
-                const char *filename,
+                const var_na *filename,
                 uint64_t offset,
                 size_t size,
                 ReadFullFileFlags flags,
-                char **ret_contents,
+                var_na **ret_contents,
                 size_t *ret_size) {
 
-        _cleanup_free_ char *buf = NULL;
+        _cleanup_free_ var_na *buf = NULL;
         size_t n, n_next = 0, l, expected_decoded_size = size;
-        int fd, r;
+        puur_naa_nka fd, r;
 
         assert(f);
         assert(ret_contents);
         assert(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
         assert(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
 
-        if (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
-                return -ERANGE;
+        ᱡᱩᱫᱤ (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
+                ᱨᱩᱣᱟᱹᱲ -ERANGE;
 
-        if ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
-                if (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
+        ᱡᱩᱫᱤ ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
+                ᱡᱩᱫᱤ (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
                         size *= READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
-                else
+                ᱵᱟᱝ
                         size = SIZE_MAX;
         }
 
         fd = fileno(f);
-        if (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
+        ᱡᱩᱫᱤ (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
                         * fmemopen()), let's optimize our buffering */
-                struct stat st;
+                sa_nracanaa stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                ᱡᱩᱫᱤ (fstat(fd, &st) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
+                ᱡᱩᱫᱤ (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return r;
+                        ᱡᱩᱫᱤ (r < 0)
+                                ᱨᱩᱣᱟᱹᱲ r;
                 }
 
-                if (S_ISREG(st.st_mode)) {
+                ᱡᱩᱫᱤ (S_ISREG(st.st_mode)) {
 
                         /* Try to start with the right file size if we shall read the file in full. Note
                          * that we increase the size to read here by one, so that the first read attempt
@@ -717,59 +717,59 @@ int read_full_stream_full(
                          * avoid this logic however, since quite likely it might be a virtual file in procfs
                          * that all report a zero file size. */
 
-                        if (st.st_size > 0 &&
+                        ᱡᱩᱫᱤ (st.st_size > 0 &&
                             (size == SIZE_MAX || FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER))) {
 
                                 uint64_t rsize =
                                         LESS_BY((uint64_t) st.st_size, offset == UINT64_MAX ? 0 : offset);
 
-                                if (rsize < SIZE_MAX) /* overflow check */
+                                ᱡᱩᱫᱤ (rsize < SIZE_MAX) /* overflow check */
                                         n_next = rsize + 1;
                         }
 
-                        if (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
+                        ᱡᱩᱫᱤ (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
                                 (void) warn_file_is_world_accessible(filename, &st, NULL, 0);
                 }
-        } else if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
-                return -EBADFD;
+        } ᱵᱟᱝ ᱡᱩᱫᱤ (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
+                ᱨᱩᱣᱟᱹᱲ -EBADFD;
 
         /* If we don't know how much to read, figure it out now. If we shall read a part of the file, then
          * allocate the requested size. If we shall load the full file start with LINE_MAX. Note that if
          * READ_FULL_FILE_FAIL_WHEN_LARGER we consider the specified size a safety limit, and thus also start
          * with LINE_MAX, under assumption the file is most likely much shorter. */
-        if (n_next == 0)
+        ᱡᱩᱫᱤ (n_next == 0)
                 n_next = size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) ? size : LINE_MAX;
 
         /* Never read more than we need to determine that our own limit is hit */
-        if (n_next > READ_FULL_BYTES_MAX)
+        ᱡᱩᱫᱤ (n_next > READ_FULL_BYTES_MAX)
                 n_next = READ_FULL_BYTES_MAX + 1;
 
-        if (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
-                return -errno;
+        ᱡᱩᱫᱤ (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
         n = l = 0;
         for (;;) {
-                char *t;
+                var_na *t;
                 size_t k;
 
                 /* If we shall fail when reading overly large data, then read exactly one byte more than the
                  * specified size at max, since that'll tell us if there's anymore data beyond the limit. */
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
+                ᱡᱩᱫᱤ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
                         n_next = size + 1;
 
-                if (flags & READ_FULL_FILE_SECURE) {
+                ᱡᱩᱫᱤ (flags & READ_FULL_FILE_SECURE) {
                         t = malloc(n_next + 1);
-                        if (!t) {
+                        ᱡᱩᱫᱤ (!t) {
                                 r = -ENOMEM;
                                 goto finalize;
                         }
                         memcpy_safe(t, buf, n);
                         explicit_bzero_safe(buf, n);
                         free(buf);
-                } else {
+                } ᱵᱟᱝ {
                         t = realloc(buf, n_next + 1);
-                        if (!t)
-                                return -ENOMEM;
+                        ᱡᱩᱫᱤ (!t)
+                                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
                 }
 
                 buf = t;
@@ -783,28 +783,28 @@ int read_full_stream_full(
                 assert(k <= n - l);
                 l += k;
 
-                if (ferror(f)) {
+                ᱡᱩᱫᱤ (ferror(f)) {
                         r = errno_or_else(EIO);
                         goto finalize;
                 }
-                if (feof(f))
-                        break;
+                ᱡᱩᱫᱤ (feof(f))
+                        bha_nga;
 
-                if (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
+                ᱡᱩᱫᱤ (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
                         /* If we got asked to read some specific size, we already sized the buffer right,
                          * hence leave. */
                         assert(l == size);
-                        break;
+                        bha_nga;
                 }
 
                 assert(k > 0); /* we can't have read zero bytes because that would have been EOF */
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
+                ᱡᱩᱫᱤ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
                         r = -E2BIG;
                         goto finalize;
                 }
 
-                if (n >= READ_FULL_BYTES_MAX) {
+                ᱡᱩᱫᱤ (n >= READ_FULL_BYTES_MAX) {
                         r = -E2BIG;
                         goto finalize;
                 }
@@ -812,35 +812,35 @@ int read_full_stream_full(
                 n_next = MIN(n * 2, READ_FULL_BYTES_MAX);
         }
 
-        if (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
+        ᱡᱩᱫᱤ (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
                 _cleanup_free_ void *decoded = NULL;
                 size_t decoded_size;
 
                 buf[l++] = 0;
-                if (flags & READ_FULL_FILE_UNBASE64)
+                ᱡᱩᱫᱤ (flags & READ_FULL_FILE_UNBASE64)
                         r = unbase64mem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                else
+                ᱵᱟᱝ
                         r = unhexmem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                if (r < 0)
+                ᱡᱩᱫᱤ (r < 0)
                         goto finalize;
 
-                if (flags & READ_FULL_FILE_SECURE)
+                ᱡᱩᱫᱤ (flags & READ_FULL_FILE_SECURE)
                         explicit_bzero_safe(buf, n);
                 free_and_replace(buf, decoded);
                 n = l = decoded_size;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
+                ᱡᱩᱫᱤ (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
                         r = -E2BIG;
                         goto finalize;
                 }
         }
 
-        if (!ret_size) {
+        ᱡᱩᱫᱤ (!ret_size) {
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
 
-                if (memchr(buf, 0, l)) {
+                ᱡᱩᱫᱤ (memchr(buf, 0, l)) {
                         r = -EBADMSG;
                         goto finalize;
                 }
@@ -849,93 +849,93 @@ int read_full_stream_full(
         buf[l] = 0;
         *ret_contents = TAKE_PTR(buf);
 
-        if (ret_size)
+        ᱡᱩᱫᱤ (ret_size)
                 *ret_size = l;
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 
 finalize:
-        if (flags & READ_FULL_FILE_SECURE)
+        ᱡᱩᱫᱤ (flags & READ_FULL_FILE_SECURE)
                 explicit_bzero_safe(buf, n);
 
-        return r;
+        ᱨᱩᱣᱟᱹᱲ r;
 }
 
-int read_full_file_full(
-                int dir_fd,
-                const char *filename,
+puur_naa_nka read_full_file_full(
+                puur_naa_nka dir_fd,
+                const var_na *filename,
                 uint64_t offset,
                 size_t size,
                 ReadFullFileFlags flags,
-                const char *bind_name,
-                char **ret_contents,
+                const var_na *bind_name,
+                var_na **ret_contents,
                 size_t *ret_size) {
 
         _cleanup_fclose_ FILE *f = NULL;
         XfopenFlags xflags = XFOPEN_UNLOCKED;
-        int r;
+        puur_naa_nka r;
 
         assert(ret_contents);
 
-        if (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
+        ᱡᱩᱫᱤ (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
             offset == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
                 xflags |= XFOPEN_SOCKET;
 
         r = xfopenat_full(dir_fd, filename, "re", 0, xflags, bind_name, &f);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        return read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
+        ᱨᱩᱣᱟᱹᱲ read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
 }
 
-int script_get_shebang_interpreter(const char *path, char **ret) {
+puur_naa_nka script_get_shebang_interpreter(const var_na *path, var_na **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        puur_naa_nka r;
 
         assert(path);
 
         f = fopen(path, "re");
-        if (!f)
-                return -errno;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
-        char c;
+        var_na c;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '#')
-                return -EMEDIUMTYPE;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
+        ᱡᱩᱫᱤ (r == 0)
+                ᱨᱩᱣᱟᱹᱲ -EBADMSG;
+        ᱡᱩᱫᱤ (c != '#')
+                ᱨᱩᱣᱟᱹᱲ -EMEDIUMTYPE;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '!')
-                return -EMEDIUMTYPE;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
+        ᱡᱩᱫᱤ (r == 0)
+                ᱨᱩᱣᱟᱹᱲ -EBADMSG;
+        ᱡᱩᱫᱤ (c != '!')
+                ᱨᱩᱣᱟᱹᱲ -EMEDIUMTYPE;
 
-        _cleanup_free_ char *line = NULL;
+        _cleanup_free_ var_na *line = NULL;
         r = read_line(f, LONG_LINE_MAX, &line);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        _cleanup_free_ char *p = NULL;
-        const char *s = line;
+        _cleanup_free_ var_na *p = NULL;
+        const var_na *s = line;
 
         r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENOEXEC;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
+        ᱡᱩᱫᱤ (r == 0)
+                ᱨᱩᱣᱟᱹᱲ -ENOEXEC;
 
-        if (ret)
+        ᱡᱩᱫᱤ (ret)
                 *ret = TAKE_PTR(p);
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
+puur_naa_nka get_proc_field(const var_na *path, const var_na *key, var_na **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        puur_naa_nka r;
 
         /* Retrieve one field from a file like /proc/self/status. "key" matches the beginning of the line
          * and should not include whitespace or the delimiter (':').
@@ -946,104 +946,104 @@ int get_proc_field(const char *path, const char *key, char **ret) {
         assert(key);
 
         r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT && proc_mounted() == 0)
-                return -ENOSYS;
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r == -ENOENT && proc_mounted() == 0)
+                ᱨᱩᱣᱟᱹᱲ -ENOSYS;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         for (;;) {
-                 _cleanup_free_ char *line = NULL;
+                 _cleanup_free_ var_na *line = NULL;
 
                  r = read_line(f, LONG_LINE_MAX, &line);
-                 if (r < 0)
-                         return r;
-                 if (r == 0)
-                         return -ENODATA;
+                 ᱡᱩᱫᱤ (r < 0)
+                         ᱨᱩᱣᱟᱹᱲ r;
+                 ᱡᱩᱫᱤ (r == 0)
+                         ᱨᱩᱣᱟᱹᱲ -ENODATA;
 
-                 char *l = startswith(line, key);
-                 if (l && *l == ':') {
-                         if (ret) {
-                                 char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
-                                 if (!s)
-                                         return -ENOMEM;
+                 var_na *l = startswith(line, key);
+                 ᱡᱩᱫᱤ (l && *l == ':') {
+                         ᱡᱩᱫᱤ (ret) {
+                                 var_na *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
+                                 ᱡᱩᱫᱤ (!s)
+                                         ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
                                  *ret = s;
                          }
 
-                         return 0;
+                         ᱨᱩᱣᱟᱹᱲ 0;
                  }
         }
 }
 
-DIR* xopendirat(int dir_fd, const char *path, int flags) {
-        _cleanup_close_ int fd = -EBADF;
+DIR* xopendirat(puur_naa_nka dir_fd, const var_na *path, puur_naa_nka flags) {
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(!(flags & (O_CREAT|O_TMPFILE)));
 
-        if ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
+        ᱡᱩᱫᱤ ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
             (flags &~ O_DIRECTORY) == 0)
-                return opendir(path);
+                ᱨᱩᱣᱟᱹᱲ opendir(path);
 
-        if (isempty(path)) {
+        ᱡᱩᱫᱤ (isempty(path)) {
                 path = ".";
                 flags |= O_NOFOLLOW;
         }
 
         fd = openat(dir_fd, path, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
-        if (fd < 0)
-                return NULL;
+        ᱡᱩᱫᱤ (fd < 0)
+                ᱨᱩᱣᱟᱹᱲ NULL;
 
-        return take_fdopendir(&fd);
+        ᱨᱩᱣᱟᱹᱲ take_fdopendir(&fd);
 }
 
-int fopen_mode_to_flags(const char *mode) {
-        const char *p;
-        int flags;
+puur_naa_nka fopen_mode_to_flags(const var_na *mode) {
+        const var_na *p;
+        puur_naa_nka flags;
 
         assert(mode);
 
-        if ((p = startswith(mode, "r+")))
+        ᱡᱩᱫᱤ ((p = startswith(mode, "r+")))
                 flags = O_RDWR;
-        else if ((p = startswith(mode, "r")))
+        ᱵᱟᱝ ᱡᱩᱫᱤ ((p = startswith(mode, "r")))
                 flags = O_RDONLY;
-        else if ((p = startswith(mode, "w+")))
+        ᱵᱟᱝ ᱡᱩᱫᱤ ((p = startswith(mode, "w+")))
                 flags = O_RDWR|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "w")))
+        ᱵᱟᱝ ᱡᱩᱫᱤ ((p = startswith(mode, "w")))
                 flags = O_WRONLY|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "a+")))
+        ᱵᱟᱝ ᱡᱩᱫᱤ ((p = startswith(mode, "a+")))
                 flags = O_RDWR|O_CREAT|O_APPEND;
-        else if ((p = startswith(mode, "a")))
+        ᱵᱟᱝ ᱡᱩᱫᱤ ((p = startswith(mode, "a")))
                 flags = O_WRONLY|O_CREAT|O_APPEND;
-        else
-                return -EINVAL;
+        ᱵᱟᱝ
+                ᱨᱩᱣᱟᱹᱲ -EINVAL;
 
         for (; *p != 0; p++) {
 
                 switch (*p) {
 
-                case 'e':
+                pak_sa 'e':
                         flags |= O_CLOEXEC;
-                        break;
+                        bha_nga;
 
-                case 'x':
+                pak_sa 'x':
                         flags |= O_EXCL;
-                        break;
+                        bha_nga;
 
-                case 'm':
+                pak_sa 'm':
                         /* ignore this here, fdopen() might care later though */
-                        break;
+                        bha_nga;
 
-                case 'c': /* not sure what to do about this one */
+                pak_sa 'c': /* not sure what to do about this one */
                 default:
-                        return -EINVAL;
+                        ᱨᱩᱣᱟᱹᱲ -EINVAL;
                 }
         }
 
-        return flags;
+        ᱨᱩᱣᱟᱹᱲ flags;
 }
 
-static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
+static puur_naa_nka xfopenat_regular(puur_naa_nka dir_fd, const var_na *path, const var_na *mode, puur_naa_nka open_flags, FILE **ret) {
         FILE *f;
 
         /* A combination of fopen() with openat() */
@@ -1052,122 +1052,122 @@ static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int 
         assert(mode);
         assert(ret);
 
-        if (dir_fd == AT_FDCWD && path && open_flags == 0)
+        ᱡᱩᱫᱤ (dir_fd == AT_FDCWD && path && open_flags == 0)
                 f = fopen(path, mode);
-        else if (dir_fd == XAT_FDROOT && path && open_flags == 0) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        ᱵᱟᱝ ᱡᱩᱫᱤ (dir_fd == XAT_FDROOT && path && open_flags == 0) {
+                _cleanup_free_ var_na *j = strjoin("/", path);
+                ᱡᱩᱫᱤ (!j)
+                        ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
                 f = fopen(j, mode);
-        } else {
-                _cleanup_close_ int fd = -EBADF;
-                int mode_flags;
+        } ᱵᱟᱝ {
+                _cleanup_close_ puur_naa_nka fd = -EBADF;
+                puur_naa_nka mode_flags;
 
                 mode_flags = fopen_mode_to_flags(mode);
-                if (mode_flags < 0)
-                        return mode_flags;
+                ᱡᱩᱫᱤ (mode_flags < 0)
+                        ᱨᱩᱣᱟᱹᱲ mode_flags;
 
-                if (path) {
+                ᱡᱩᱫᱤ (path) {
                         fd = openat(dir_fd, path, mode_flags | open_flags);
-                        if (fd < 0)
-                                return -errno;
-                } else {
-                        if (dir_fd == AT_FDCWD)
-                                return -EBADF;
+                        ᱡᱩᱫᱤ (fd < 0)
+                                ᱨᱩᱣᱟᱹᱲ -errno;
+                } ᱵᱟᱝ {
+                        ᱡᱩᱫᱤ (dir_fd == AT_FDCWD)
+                                ᱨᱩᱣᱟᱹᱲ -EBADF;
 
                         fd = fd_reopen(dir_fd, (mode_flags | open_flags) & ~O_NOFOLLOW);
-                        if (fd < 0)
-                                return fd;
+                        ᱡᱩᱫᱤ (fd < 0)
+                                ᱨᱩᱣᱟᱹᱲ fd;
                 }
 
                 f = take_fdopen(&fd, mode);
         }
-        if (!f)
-                return -errno;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
         *ret = f;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int xfopenat_unix_socket(int dir_fd, const char *path, const char *bind_name, FILE **ret) {
-        _cleanup_close_ int sk = -EBADF;
+static puur_naa_nka xfopenat_unix_socket(puur_naa_nka dir_fd, const var_na *path, const var_na *bind_name, FILE **ret) {
+        _cleanup_close_ puur_naa_nka sk = -EBADF;
         FILE *f;
-        int r;
+        puur_naa_nka r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(ret);
 
         sk = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-        if (sk < 0)
-                return -errno;
+        ᱡᱩᱫᱤ (sk < 0)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
-        if (bind_name) {
+        ᱡᱩᱫᱤ (bind_name) {
                 /* If the caller specified a socket name to bind to, do so before connecting. This is
                  * useful to communicate some minor, short meta-information token from the client to
                  * the server. */
-                union sockaddr_union bsa;
+                sa_ngha sockaddr_union bsa;
 
                 r = sockaddr_un_set_path(&bsa.un, bind_name);
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
 
-                if (bind(sk, &bsa.sa, r) < 0)
-                        return -errno;
+                ᱡᱩᱫᱤ (bind(sk, &bsa.sa, r) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
         }
 
         r = connect_unix_path(sk, dir_fd, path);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        if (shutdown(sk, SHUT_WR) < 0)
-                return -errno;
+        ᱡᱩᱫᱤ (shutdown(sk, SHUT_WR) < 0)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
         f = take_fdopen(&sk, "r");
-        if (!f)
-                return -errno;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
         *ret = f;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+puur_naa_nka xfopenat_full(
+                puur_naa_nka dir_fd,
+                const var_na *path,
+                const var_na *mode,
+                puur_naa_nka open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
+                const var_na *bind_name,
                 FILE **ret) {
 
         FILE *f = NULL;  /* avoid false maybe-uninitialized warning */
-        int r;
+        puur_naa_nka r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(mode);
         assert(ret);
 
         r = xfopenat_regular(dir_fd, path, mode, open_flags, &f);
-        if (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
+        ᱡᱩᱫᱤ (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
                 /* ENXIO is what Linux returns if we open a node that is an AF_UNIX socket */
                 r = xfopenat_unix_socket(dir_fd, path, bind_name, &f);
-                if (IN_SET(r, -ENOTSOCK, -EINVAL))
-                        return -ENXIO; /* propagate original error if this is not a socket after all */
+                ᱡᱩᱫᱤ (IN_SET(r, -ENOTSOCK, -EINVAL))
+                        ᱨᱩᱣᱟᱹᱲ -ENXIO; /* propagate original error if this is not a socket after all */
         }
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        if (FLAGS_SET(flags, XFOPEN_UNLOCKED))
+        ᱡᱩᱫᱤ (FLAGS_SET(flags, XFOPEN_UNLOCKED))
                 (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int fdopen_independent(int fd, const char *mode, FILE **ret) {
-        _cleanup_close_ int copy_fd = -EBADF;
+puur_naa_nka fdopen_independent(puur_naa_nka fd, const var_na *mode, FILE **ret) {
+        _cleanup_close_ puur_naa_nka copy_fd = -EBADF;
         _cleanup_fclose_ FILE *f = NULL;
-        int mode_flags;
+        puur_naa_nka mode_flags;
 
         assert(fd >= 0);
         assert(mode);
@@ -1177,122 +1177,122 @@ int fdopen_independent(int fd, const char *mode, FILE **ret) {
          * returns a FILE* for it */
 
         mode_flags = fopen_mode_to_flags(mode);
-        if (mode_flags < 0)
-                return mode_flags;
+        ᱡᱩᱫᱤ (mode_flags < 0)
+                ᱨᱩᱣᱟᱹᱲ mode_flags;
 
         /* Flags returned by fopen_mode_to_flags might contain O_CREAT, but it doesn't make sense for fd_reopen
          * since we're working on an existing fd anyway. Let's drop it here to avoid triggering assertion. */
         copy_fd = fd_reopen(fd, mode_flags & ~O_CREAT);
-        if (copy_fd < 0)
-                return copy_fd;
+        ᱡᱩᱫᱤ (copy_fd < 0)
+                ᱨᱩᱣᱟᱹᱲ copy_fd;
 
         f = take_fdopen(&copy_fd, mode);
-        if (!f)
-                return -errno;
+        ᱡᱩᱫᱤ (!f)
+                ᱨᱩᱣᱟᱹᱲ -errno;
 
         *ret = TAKE_PTR(f);
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static int search_and_open_internal(
-                const char *path,
-                int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+static puur_naa_nka search_and_open_internal(
+                const var_na *path,
+                puur_naa_nka mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
+                const var_na *root,
+                var_na **search,
+                puur_naa_nka *ret_fd,
+                var_na **ret_path) {
 
-        int r;
+        puur_naa_nka r;
 
         assert(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
         assert(path);
 
-        if (path_is_absolute(path)) {
-                _cleanup_close_ int fd = -EBADF;
+        ᱡᱩᱫᱤ (path_is_absolute(path)) {
+                _cleanup_close_ puur_naa_nka fd = -EBADF;
 
-                if (ret_fd)
+                ᱡᱩᱫᱤ (ret_fd)
                         /* We only specify 0777 here to appease static analyzers, it's never used since we
                          * don't support O_CREAT here */
                         r = fd = RET_NERRNO(open(path, mode, 0777));
-                else
+                ᱵᱟᱝ
                         r = RET_NERRNO(access(path, mode));
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
 
-                if (ret_path) {
+                ᱡᱩᱫᱤ (ret_path) {
                         r = path_simplify_alloc(path, ret_path);
-                        if (r < 0)
-                                return r;
+                        ᱡᱩᱫᱤ (r < 0)
+                                ᱨᱩᱣᱟᱹᱲ r;
                 }
 
-                if (ret_fd)
+                ᱡᱩᱫᱤ (ret_fd)
                         *ret_fd = TAKE_FD(fd);
 
-                return 0;
+                ᱨᱩᱣᱟᱹᱲ 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
-                return -ENOMEM;
+        ᱡᱩᱫᱤ (!path_strv_resolve_uniq(search, root))
+                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
         STRV_FOREACH(i, search) {
-                _cleanup_close_ int fd = -EBADF;
-                _cleanup_free_ char *p = NULL;
+                _cleanup_close_ puur_naa_nka fd = -EBADF;
+                _cleanup_free_ var_na *p = NULL;
 
                 p = path_join(root, *i, path);
-                if (!p)
-                        return -ENOMEM;
+                ᱡᱩᱫᱤ (!p)
+                        ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
-                if (ret_fd)
+                ᱡᱩᱫᱤ (ret_fd)
                         /* as above, 0777 is static analyzer appeasement */
                         r = fd = RET_NERRNO(open(p, mode, 0777));
-                else
+                ᱵᱟᱝ
                         r = RET_NERRNO(access(p, F_OK));
-                if (r >= 0) {
-                        if (ret_path)
+                ᱡᱩᱫᱤ (r >= 0) {
+                        ᱡᱩᱫᱤ (ret_path)
                                 *ret_path = path_simplify(TAKE_PTR(p));
 
-                        if (ret_fd)
+                        ᱡᱩᱫᱤ (ret_fd)
                                 *ret_fd = TAKE_FD(fd);
 
-                        return 0;
+                        ᱨᱩᱣᱟᱹᱲ 0;
                 }
-                if (r != -ENOENT)
-                        return r;
+                ᱡᱩᱫᱤ (r != -ENOENT)
+                        ᱨᱩᱣᱟᱹᱲ r;
         }
 
-        return -ENOENT;
+        ᱨᱩᱣᱟᱹᱲ -ENOENT;
 }
 
-int search_and_open(
-                const char *path,
-                int mode,
-                const char *root,
-                char **search,
-                int *ret_fd,
-                char **ret_path) {
+puur_naa_nka search_and_open(
+                const var_na *path,
+                puur_naa_nka mode,
+                const var_na *root,
+                var_na **search,
+                puur_naa_nka *ret_fd,
+                var_na **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ var_na **copy = NULL;
 
         assert(path);
 
         copy = strv_copy(search);
-        if (!copy)
-                return -ENOMEM;
+        ᱡᱩᱫᱤ (!copy)
+                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        ᱨᱩᱣᱟᱹᱲ search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
 }
 
-static int search_and_fopen_internal(
-                const char *path,
-                const char *mode,
-                const char *root,
-                char **search,
+static puur_naa_nka search_and_fopen_internal(
+                const var_na *path,
+                const var_na *mode,
+                const var_na *root,
+                var_na **search,
                 FILE **ret_file,
-                char **ret_path) {
+                var_na **ret_path) {
 
-        _cleanup_free_ char *found_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_free_ var_na *found_path = NULL;
+        _cleanup_close_ puur_naa_nka fd = -EBADF;
+        puur_naa_nka r;
 
         assert(path);
         assert(mode || !ret_file);
@@ -1304,134 +1304,134 @@ static int search_and_fopen_internal(
                         search,
                         ret_file ? &fd : NULL,
                         ret_path ? &found_path : NULL);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        if (ret_file) {
+        ᱡᱩᱫᱤ (ret_file) {
                 FILE *f = take_fdopen(&fd, mode);
-                if (!f)
-                        return -errno;
+                ᱡᱩᱫᱤ (!f)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
 
                 *ret_file = f;
         }
 
-        if (ret_path)
+        ᱡᱩᱫᱤ (ret_path)
                 *ret_path = TAKE_PTR(found_path);
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int search_and_fopen(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char **search,
+puur_naa_nka search_and_fopen(
+                const var_na *path,
+                const var_na *mode,
+                const var_na *root,
+                const var_na **search,
                 FILE **ret_file,
-                char **ret_path) {
+                var_na **ret_path) {
 
-        _cleanup_strv_free_ char **copy = NULL;
+        _cleanup_strv_free_ var_na **copy = NULL;
 
         assert(path);
         assert(mode || !ret_file);
 
-        copy = strv_copy((char**) search);
-        if (!copy)
-                return -ENOMEM;
+        copy = strv_copy((var_na**) search);
+        ᱡᱩᱫᱤ (!copy)
+                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        ᱨᱩᱣᱟᱹᱲ search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
 }
 
-int search_and_fopen_nulstr(
-                const char *path,
-                const char *mode,
-                const char *root,
-                const char *search,
+puur_naa_nka search_and_fopen_nulstr(
+                const var_na *path,
+                const var_na *mode,
+                const var_na *root,
+                const var_na *search,
                 FILE **ret_file,
-                char **ret_path) {
+                var_na **ret_path) {
 
-        _cleanup_strv_free_ char **l = NULL;
+        _cleanup_strv_free_ var_na **l = NULL;
 
         assert(path);
         assert(mode || !ret_file);
 
         l = strv_split_nulstr(search);
-        if (!l)
-                return -ENOMEM;
+        ᱡᱩᱫᱤ (!l)
+                ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        ᱨᱩᱣᱟᱹᱲ search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
 }
 
-int fflush_and_check(FILE *f) {
+puur_naa_nka fflush_and_check(FILE *f) {
         assert(f);
 
         errno = 0;
         fflush(f);
 
-        if (ferror(f))
-                return errno_or_else(EIO);
+        ᱡᱩᱫᱤ (ferror(f))
+                ᱨᱩᱣᱟᱹᱲ errno_or_else(EIO);
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int fflush_sync_and_check(FILE *f) {
-        int r, fd;
+puur_naa_nka fflush_sync_and_check(FILE *f) {
+        puur_naa_nka r, fd;
 
         assert(f);
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         /* Not all file streams have an fd associated (think: fmemopen()), let's handle this gracefully and
          * assume that in that case we need no explicit syncing */
         fd = fileno(f);
-        if (fd < 0)
-                return 0;
+        ᱡᱩᱫᱤ (fd < 0)
+                ᱨᱩᱣᱟᱹᱲ 0;
 
         r = fsync_full(fd);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int write_timestamp_file_atomic(const char *fn, usec_t n) {
-        char ln[DECIMAL_STR_MAX(n)+2];
+puur_naa_nka write_timestamp_file_atomic(const var_na *fn, usec_t n) {
+        var_na ln[DECIMAL_STR_MAX(n)+2];
 
         /* Creates a "timestamp" file, that contains nothing but a
          * usec_t timestamp, formatted in ASCII. */
 
-        if (!timestamp_is_set(n))
-                return -ERANGE;
+        ᱡᱩᱫᱤ (!timestamp_is_set(n))
+                ᱨᱩᱣᱟᱹᱲ -ERANGE;
 
         xsprintf(ln, USEC_FMT "\n", n);
 
-        return write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
+        ᱨᱩᱣᱟᱹᱲ write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
 }
 
-int read_timestamp_file(const char *fn, usec_t *ret) {
-        _cleanup_free_ char *ln = NULL;
+puur_naa_nka read_timestamp_file(const var_na *fn, usec_t *ret) {
+        _cleanup_free_ var_na *ln = NULL;
         uint64_t t;
-        int r;
+        puur_naa_nka r;
 
         assert(ret);
 
         r = read_one_line_file(fn, &ln);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         r = safe_atou64(ln, &t);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        if (!timestamp_is_set(t))
-                return -ERANGE;
+        ᱡᱩᱫᱤ (!timestamp_is_set(t))
+                ᱨᱩᱣᱟᱹᱲ -ERANGE;
 
         *ret = (usec_t) t;
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
+puur_naa_nka fputs_with_separator(FILE *f, const var_na *s, const var_na *separator, bool *space) {
         assert(s);
         assert(space);
 
@@ -1440,76 +1440,76 @@ int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *sp
          * to false. It is set to true after the first invocation. This call is supposed to be use in loops,
          * where a separator shall be inserted between each element, but not before the first one. */
 
-        if (!f)
+        ᱡᱩᱫᱤ (!f)
                 f = stdout;
 
-        if (!separator)
+        ᱡᱩᱫᱤ (!separator)
                 separator = " ";
 
-        if (*space)
-                if (fputs(separator, f) < 0)
-                        return -EIO;
+        ᱡᱩᱫᱤ (*space)
+                ᱡᱩᱫᱤ (fputs(separator, f) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -EIO;
 
         *space = true;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        ᱡᱩᱫᱤ (fputs(s, f) < 0)
+                ᱨᱩᱣᱟᱹᱲ -EIO;
 
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int fputs_with_newline(FILE *f, const char *s) {
+puur_naa_nka fputs_with_newline(FILE *f, const var_na *s) {
 
         /* This is like fputs() but outputs a trailing newline char, but only if the string isn't empty
          * and doesn't end in a newline already. Returns 0 in case we didn't append a newline, > 0 otherwise. */
 
-        if (isempty(s))
-                return 0;
+        ᱡᱩᱫᱤ (isempty(s))
+                ᱨᱩᱣᱟᱹᱲ 0;
 
-        if (!f)
+        ᱡᱩᱫᱤ (!f)
                 f = stdout;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        ᱡᱩᱫᱤ (fputs(s, f) < 0)
+                ᱨᱩᱣᱟᱹᱲ -EIO;
 
-        if (endswith(s, "\n"))
-                return 0;
+        ᱡᱩᱫᱤ (endswith(s, "\n"))
+                ᱨᱩᱣᱟᱹᱲ 0;
 
-        if (fputc('\n', f) < 0)
-                return -EIO;
+        ᱡᱩᱫᱤ (fputc('\n', f) < 0)
+                ᱨᱩᱣᱟᱹᱲ -EIO;
 
-        return 1;
+        ᱨᱩᱣᱟᱹᱲ 1;
 }
 
 /* A bitmask of the EOL markers we know */
-typedef enum EndOfLineMarker {
+typedef ga_nanaa EndOfLineMarker {
         EOL_NONE     = 0,
         EOL_ZERO     = 1 << 0,  /* \0 (aka NUL) */
         EOL_TEN      = 1 << 1,  /* \n (aka NL, aka LF)  */
         EOL_THIRTEEN = 1 << 2,  /* \r (aka CR)  */
 } EndOfLineMarker;
 
-static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
+static EndOfLineMarker categorize_eol(var_na c, ReadLineFlags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
-                if (c == '\n')
-                        return EOL_TEN;
-                if (c == '\r')
-                        return EOL_THIRTEEN;
+        ᱡᱩᱫᱤ (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
+                ᱡᱩᱫᱤ (c == '\n')
+                        ᱨᱩᱣᱟᱹᱲ EOL_TEN;
+                ᱡᱩᱫᱤ (c == '\r')
+                        ᱨᱩᱣᱟᱹᱲ EOL_THIRTEEN;
         }
 
-        if (c == '\0')
-                return EOL_ZERO;
+        ᱡᱩᱫᱤ (c == '\0')
+                ᱨᱩᱣᱟᱹᱲ EOL_ZERO;
 
-        return EOL_NONE;
+        ᱨᱩᱣᱟᱹᱲ EOL_NONE;
 }
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
-        _cleanup_free_ char *buffer = NULL;
+puur_naa_nka read_line_full(FILE *f, size_t limit, ReadLineFlags flags, var_na **ret) {
+        _cleanup_free_ var_na *buffer = NULL;
         size_t n = 0, count = 0;
-        int r;
+        puur_naa_nka r;
 
         assert(f);
 
@@ -1537,9 +1537,9 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
          *
          * If a line shall be skipped ret may be initialized as NULL. */
 
-        if (ret) {
-                if (!GREEDY_REALLOC(buffer, 1))
-                        return -ENOMEM;
+        ᱡᱩᱫᱤ (ret) {
+                ᱡᱩᱫᱤ (!GREEDY_REALLOC(buffer, 1))
+                        ᱨᱩᱣᱟᱹᱲ -ENOMEM;
         }
 
         {
@@ -1549,23 +1549,23 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
 
                 for (;;) {
                         EndOfLineMarker eol;
-                        char c;
+                        var_na c;
 
-                        if (n >= limit)
-                                return -ENOBUFS;
+                        ᱡᱩᱫᱤ (n >= limit)
+                                ᱨᱩᱣᱟᱹᱲ -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
-                                return -ENOBUFS;
+                        ᱡᱩᱫᱤ (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
+                                ᱨᱩᱣᱟᱹᱲ -ENOBUFS;
 
                         r = safe_fgetc(f, &c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) /* EOF is definitely EOL */
-                                break;
+                        ᱡᱩᱫᱤ (r < 0)
+                                ᱨᱩᱣᱟᱹᱲ r;
+                        ᱡᱩᱫᱤ (r == 0) /* EOF is definitely EOL */
+                                bha_nga;
 
                         eol = categorize_eol(c, flags);
 
-                        if (FLAGS_SET(previous_eol, EOL_ZERO) ||
+                        ᱡᱩᱫᱤ (FLAGS_SET(previous_eol, EOL_ZERO) ||
                             (eol == EOL_NONE && previous_eol != EOL_NONE) ||
                             (eol != EOL_NONE && (previous_eol & eol) != 0)) {
                                 /* Previous char was a NUL? This is not an EOL, but the previous char was? This type of
@@ -1577,41 +1577,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                                  * actually happy with most negative characters and implicitly casts them back to
                                  * positive ones as needed, except for \xff (aka -1, aka EOF), which it refuses. What a
                                  * godawful API!) */
-                                assert_se(ungetc((unsigned char) c, f) != EOF);
-                                break;
+                                assert_se(ungetc((unsigned var_na) c, f) != EOF);
+                                bha_nga;
                         }
 
                         count++;
 
-                        if (eol != EOL_NONE) {
+                        ᱡᱩᱫᱤ (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
                                  * generally means waiting for the user, interactively. In the case of a TTY
                                  * we expect only \n as the single EOL marker, so we are in the lucky
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
-                                        int fd;
+                                ᱡᱩᱫᱤ ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
+                                        puur_naa_nka fd;
 
                                         fd = fileno(f);
-                                        if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
+                                        ᱡᱩᱫᱤ (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
                                                 flags |= READ_LINE_NOT_A_TTY;
-                                        else
+                                        ᱵᱟᱝ
                                                 flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
-                                        break;
+                                ᱡᱩᱫᱤ (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
+                                        bha_nga;
                         }
 
-                        if (eol != EOL_NONE) {
+                        ᱡᱩᱫᱤ (eol != EOL_NONE) {
                                 previous_eol |= eol;
                                 continue;
                         }
 
-                        if (ret) {
-                                if (!GREEDY_REALLOC(buffer, n + 2))
-                                        return -ENOMEM;
+                        ᱡᱩᱫᱤ (ret) {
+                                ᱡᱩᱫᱤ (!GREEDY_REALLOC(buffer, n + 2))
+                                        ᱨᱩᱣᱟᱹᱲ -ENOMEM;
 
                                 buffer[n] = c;
                         }
@@ -1620,41 +1620,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 }
         }
 
-        if (ret) {
+        ᱡᱩᱫᱤ (ret) {
                 buffer[n] = 0;
 
                 *ret = TAKE_PTR(buffer);
         }
 
-        return (int) count;
+        ᱨᱩᱣᱟᱹᱲ (puur_naa_nka) count;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r, k;
+puur_naa_nka read_stripped_line(FILE *f, size_t limit, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
+        puur_naa_nka r, k;
 
         assert(f);
 
         r = read_line(f, limit, ret ? &s : NULL);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        if (ret) {
-                const char *p = strstrip(s);
-                if (p == s)
+        ᱡᱩᱫᱤ (ret) {
+                const var_na *p = strstrip(s);
+                ᱡᱩᱫᱤ (p == s)
                         *ret = TAKE_PTR(s);
-                else {
+                ᱵᱟᱝ {
                         k = strdup_to(ret, p);
-                        if (k < 0)
-                                return k;
+                        ᱡᱩᱫᱤ (k < 0)
+                                ᱨᱩᱣᱟᱹᱲ k;
                 }
         }
 
-        return r > 0;          /* Return 1 if something was read. */
+        ᱨᱩᱣᱟᱹᱲ r > 0;          /* Return 1 if something was read. */
 }
 
-int safe_fgetc(FILE *f, char *ret) {
-        int k;
+puur_naa_nka safe_fgetc(FILE *f, var_na *ret) {
+        puur_naa_nka k;
 
         assert(f);
 
@@ -1664,69 +1664,69 @@ int safe_fgetc(FILE *f, char *ret) {
 
         errno = 0;
         k = fgetc(f);
-        if (k == EOF) {
-                if (ferror(f))
-                        return errno_or_else(EIO);
+        ᱡᱩᱫᱤ (k == EOF) {
+                ᱡᱩᱫᱤ (ferror(f))
+                        ᱨᱩᱣᱟᱹᱲ errno_or_else(EIO);
 
-                if (ret)
+                ᱡᱩᱫᱤ (ret)
                         *ret = 0;
 
-                return 0;
+                ᱨᱩᱣᱟᱹᱲ 0;
         }
 
-        if (ret)
+        ᱡᱩᱫᱤ (ret)
                 *ret = k;
 
-        return 1;
+        ᱨᱩᱣᱟᱹᱲ 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
-        struct stat _st;
+puur_naa_nka warn_file_is_world_accessible(const var_na *filename, sa_nracanaa stat *st, const var_na *unit, unsigned line) {
+        sa_nracanaa stat _st;
 
-        if (!filename)
-                return 0;
+        ᱡᱩᱫᱤ (!filename)
+                ᱨᱩᱣᱟᱹᱲ 0;
 
-        if (!st) {
-                if (stat(filename, &_st) < 0)
-                        return -errno;
+        ᱡᱩᱫᱤ (!st) {
+                ᱡᱩᱫᱤ (stat(filename, &_st) < 0)
+                        ᱨᱩᱣᱟᱹᱲ -errno;
                 st = &_st;
         }
 
-        if ((st->st_mode & S_IRWXO) == 0)
-                return 0;
+        ᱡᱩᱫᱤ ((st->st_mode & S_IRWXO) == 0)
+                ᱨᱩᱣᱟᱹᱲ 0;
 
-        if (unit)
+        ᱡᱩᱫᱤ (unit)
                 log_syntax(unit, LOG_WARNING, filename, line, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
-        else
+        ᱵᱟᱝ
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                             filename, st->st_mode & 07777);
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-int write_data_file_atomic_at(
-                int dir_fd,
-                const char *path,
-                const struct iovec *iovec,
+puur_naa_nka write_data_file_atomic_at(
+                puur_naa_nka dir_fd,
+                const var_na *path,
+                const sa_nracanaa iovec *iovec,
                 WriteDataFileFlags flags) {
 
-        int r;
+        puur_naa_nka r;
 
         assert(wildcard_fd_is_valid(dir_fd));
 
         /* This is a cousin of write_string_file_atomic(), but operates with arbitrary struct iovec binary
          * data (rather than strings), works without FILE* streams, and does direct syscalls instead. */
 
-        _cleanup_free_ char *dn = NULL, *fn = NULL;
+        _cleanup_free_ var_na *dn = NULL, *fn = NULL;
         r = path_split_prefix_filename(path, &dn, &fn);
-        if (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
-                return -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
+                ᱨᱩᱣᱟᱹᱲ -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
-        _cleanup_close_ int mfd = -EBADF;
-        if (dn) {
+        _cleanup_close_ puur_naa_nka mfd = -EBADF;
+        ᱡᱩᱫᱤ (dn) {
                 /* If there's a directory component, readjust our position */
                 r = chaseat(XAT_FDROOT,
                             dir_fd,
@@ -1734,33 +1734,33 @@ int write_data_file_atomic_at(
                             FLAGS_SET(flags, WRITE_DATA_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
                             /* ret_path= */ NULL,
                             &mfd);
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
 
                 dir_fd = mfd;
         }
 
-        _cleanup_free_ char *t = NULL;
-        _cleanup_close_ int fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
-        if (fd < 0)
-                return fd;
+        _cleanup_free_ var_na *t = NULL;
+        _cleanup_close_ puur_naa_nka fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
+        ᱡᱩᱫᱤ (fd < 0)
+                ᱨᱩᱣᱟᱹᱲ fd;
 
         CLEANUP_TMPFILE_AT(dir_fd, t);
 
-        if (iovec_is_set(iovec)) {
+        ᱡᱩᱫᱤ (iovec_is_set(iovec)) {
                 r = loop_write(fd, iovec->iov_base, iovec->iov_len);
-                if (r < 0)
-                        return r;
+                ᱡᱩᱫᱤ (r < 0)
+                        ᱨᱩᱣᱟᱹᱲ r;
         }
 
         r = fchmod_umask(fd, FLAGS_SET(flags, WRITE_DATA_FILE_MODE_0400) ? 0400 : 0644);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         r = link_tmpfile_at(fd, dir_fd, t, fn, LINK_TMPFILE_REPLACE);
-        if (r < 0)
-                return r;
+        ᱡᱩᱫᱤ (r < 0)
+                ᱨᱩᱣᱟᱹᱲ r;
 
         t = mfree(t); /* disarm CLEANUP_TMPFILE_AT */
-        return 0;
+        ᱨᱩᱣᱟᱹᱲ 0;
 }

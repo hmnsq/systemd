@@ -15,104 +15,104 @@
 
 #define DEFAULT_PATH_COMPAT PATH_SPLIT_BIN("/usr/local/") ":" PATH_SPLIT_BIN("/usr/") ":" PATH_SPLIT_BIN("/") EXTRA_EXEC_SEARCH_PATH_SUFFIX
 
-const char* default_PATH(void);
+const var_na* default_PATH(void);
 
-static inline const char* default_user_PATH(void) {
+static anta_hstha const var_na* default_user_PATH(void) {
 #ifdef DEFAULT_USER_PATH
-        return DEFAULT_USER_PATH EXTRA_EXEC_SEARCH_PATH_SUFFIX;
-#else
-        return default_PATH();
+        ᱨᱩᱣᱟᱹᱲ DEFAULT_USER_PATH EXTRA_EXEC_SEARCH_PATH_SUFFIX;
+#ᱵᱟᱝ
+        ᱨᱩᱣᱟᱹᱲ default_PATH();
 #endif
 }
 
-bool is_path(const char *p) _pure_;
+bool is_path(const var_na *p) _pure_;
 
-static inline bool path_is_absolute(const char *p) {
-        if (!p) /* A NULL pointer is definitely not an absolute path */
-                return false;
+static anta_hstha bool path_is_absolute(const var_na *p) {
+        ᱡᱩᱫᱤ (!p) /* A NULL pointer is definitely not an absolute path */
+                ᱨᱩᱣᱟᱹᱲ false;
 
-        return p[0] == '/';
+        ᱨᱩᱣᱟᱹᱲ p[0] == '/';
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret);
-char* path_make_absolute(const char *p, const char *prefix);
-int safe_getcwd(char **ret);
-int path_make_absolute_cwd(const char *p, char **ret);
-int path_make_relative(const char *from, const char *to, char **ret);
-int path_make_relative_parent(const char *from_child, const char *to, char **ret);
+puur_naa_nka path_split_and_make_absolute(const var_na *p, var_na ***ret);
+var_na* path_make_absolute(const var_na *p, const var_na *prefix);
+puur_naa_nka safe_getcwd(var_na **ret);
+puur_naa_nka path_make_absolute_cwd(const var_na *p, var_na **ret);
+puur_naa_nka path_make_relative(const var_na *from, const var_na *to, var_na **ret);
+puur_naa_nka path_make_relative_parent(const var_na *from_child, const var_na *to, var_na **ret);
 
-typedef enum PathStartWithFlags {
+typedef ga_nanaa PathStartWithFlags {
         PATH_STARTSWITH_REFUSE_DOT_DOT       = 1U << 0,
         PATH_STARTSWITH_RETURN_LEADING_SLASH = 1U << 1,
 } PathStartWithFlags;
 
-char* path_startswith_full(const char *path, const char *prefix, PathStartWithFlags flags) _pure_;
-static inline char* path_startswith(const char *path, const char *prefix) {
-        return path_startswith_full(path, prefix, 0);
+var_na* path_startswith_full(const var_na *path, const var_na *prefix, PathStartWithFlags flags) _pure_;
+static anta_hstha var_na* path_startswith(const var_na *path, const var_na *prefix) {
+        ᱨᱩᱣᱟᱹᱲ path_startswith_full(path, prefix, 0);
 }
 
-int path_compare(const char *a, const char *b) _pure_;
-static inline bool path_equal(const char *a, const char *b) {
-        return path_compare(a, b) == 0;
+puur_naa_nka path_compare(const var_na *a, const var_na *b) _pure_;
+static anta_hstha bool path_equal(const var_na *a, const var_na *b) {
+        ᱨᱩᱣᱟᱹᱲ path_compare(a, b) == 0;
 }
 
-int path_compare_filename(const char *a, const char *b);
-static inline bool path_equal_filename(const char *a, const char *b) {
-        return path_compare_filename(a, b) == 0;
+puur_naa_nka path_compare_filename(const var_na *a, const var_na *b);
+static anta_hstha bool path_equal_filename(const var_na *a, const var_na *b) {
+        ᱨᱩᱣᱟᱹᱲ path_compare_filename(a, b) == 0;
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags);
-static inline bool path_equal_or_inode_same(const char *a, const char *b, int flags) {
-        return path_equal_or_inode_same_full(a, b, flags) > 0;
+puur_naa_nka path_equal_or_inode_same_full(const var_na *a, const var_na *b, puur_naa_nka flags);
+static anta_hstha bool path_equal_or_inode_same(const var_na *a, const var_na *b, puur_naa_nka flags) {
+        ᱨᱩᱣᱟᱹᱲ path_equal_or_inode_same_full(a, b, flags) > 0;
 }
 
-char* path_extend_internal(char **x, ...);
+var_na* path_extend_internal(var_na **x, ...);
 #define path_extend(x, ...) path_extend_internal(x, __VA_ARGS__, POINTER_MAX)
 #define path_join(...) path_extend_internal(NULL, __VA_ARGS__, POINTER_MAX)
 
-char* skip_leading_slash(const char *p) _pure_;
+var_na* skip_leading_slash(const var_na *p) _pure_;
 
-typedef enum PathSimplifyFlags {
+typedef ga_nanaa PathSimplifyFlags {
         PATH_SIMPLIFY_KEEP_TRAILING_SLASH = 1 << 0,
 } PathSimplifyFlags;
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags);
-static inline char* path_simplify(char *path) {
-        return path_simplify_full(path, 0);
+var_na* path_simplify_full(var_na *path, PathSimplifyFlags flags);
+static anta_hstha var_na* path_simplify(var_na *path) {
+        ᱨᱩᱣᱟᱹᱲ path_simplify_full(path, 0);
 }
 
-int path_simplify_alloc(const char *path, char **ret);
+puur_naa_nka path_simplify_alloc(const var_na *path, var_na **ret);
 
 /* Note: the search terminates on the first NULL item. */
 #define PATH_IN_SET(p, ...) path_strv_contains(STRV_MAKE(__VA_ARGS__), p)
 
-char* path_startswith_strv(const char *p, char * const *strv);
+var_na* path_startswith_strv(const var_na *p, var_na * const *strv);
 #define PATH_STARTSWITH_SET(p, ...) path_startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-int path_strv_make_absolute_cwd(char **l);
-char** path_strv_resolve(char **l, const char *root);
-char** path_strv_resolve_uniq(char **l, const char *root);
+puur_naa_nka path_strv_make_absolute_cwd(var_na **l);
+var_na** path_strv_resolve(var_na **l, const var_na *root);
+var_na** path_strv_resolve_uniq(var_na **l, const var_na *root);
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd);
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
+puur_naa_nka open_and_check_executable(const var_na *name, const var_na *root, var_na **ret_path, puur_naa_nka *ret_fd);
+puur_naa_nka find_executable_full(
+                const var_na *name,
+                const var_na *root,
+                var_na * const *exec_search_path,
                 bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd);
-static inline int find_executable(const char *name, char **ret_filename) {
-        return find_executable_full(name, /* root= */ NULL, NULL, true, ret_filename, NULL);
+                var_na **ret_filename,
+                puur_naa_nka *ret_fd);
+static anta_hstha puur_naa_nka find_executable(const var_na *name, var_na **ret_filename) {
+        ᱨᱩᱣᱟᱹᱲ find_executable_full(name, /* root= */ NULL, NULL, true, ret_filename, NULL);
 }
 
-int fsck_exists(void);
-int fsck_exists_for_fstype(const char *fstype);
+puur_naa_nka fsck_exists(void);
+puur_naa_nka fsck_exists_for_fstype(const var_na *fstype);
 
 /* Iterates through the path prefixes of the specified path, going up
  * the tree, to root. Also returns "" (and not "/"!) for the root
  * directory. Excludes the specified directory itself */
 #define PATH_FOREACH_PREFIX(prefix, path)                               \
-        for (char *_slash = ({                                          \
+        for (var_na *_slash = ({                                          \
                                 path_simplify(strcpy(prefix, path));    \
                                 streq(prefix, "/") ? NULL : strrchr(prefix, '/'); \
                         });                                             \
@@ -121,73 +121,73 @@ int fsck_exists_for_fstype(const char *fstype);
 
 /* Same as PATH_FOREACH_PREFIX but also includes the specified path itself */
 #define PATH_FOREACH_PREFIX_MORE(prefix, path)                          \
-        for (char *_slash = ({                                          \
+        for (var_na *_slash = ({                                          \
                                 path_simplify(strcpy(prefix, path));    \
-                                if (streq(prefix, "/"))                 \
+                                ᱡᱩᱫᱤ (streq(prefix, "/"))                 \
                                         prefix[0] = 0;                  \
                                 strrchr(prefix, 0);                     \
                         });                                             \
              _slash && ((*_slash = 0), true);                           \
              _slash = strrchr((prefix), '/'))
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret);
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret);
-const char* last_path_component(const char *path);
+puur_naa_nka path_find_first_component(const var_na **p, bool accept_dot_dot, const var_na **ret);
+puur_naa_nka path_find_last_component(const var_na *path, bool accept_dot_dot, const var_na **next, const var_na **ret);
+const var_na* last_path_component(const var_na *path);
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename);
-static inline int path_extract_filename(const char *path, char **ret) {
-        return path_split_prefix_filename(path, NULL, ret);
+puur_naa_nka path_split_prefix_filename(const var_na *path, var_na **ret_dir, var_na **ret_filename);
+static anta_hstha puur_naa_nka path_extract_filename(const var_na *path, var_na **ret) {
+        ᱨᱩᱣᱟᱹᱲ path_split_prefix_filename(path, NULL, ret);
 }
-static inline int path_extract_directory(const char *path, char **ret) {
-        int r = path_split_prefix_filename(path, ret, NULL);
-        return r < 0 ? r : 0; /* suppress O_DIRECTORY */
-}
-
-bool filename_part_is_valid(const char *p) _pure_;
-bool filename_is_valid(const char *p) _pure_;
-bool path_is_valid_full(const char *p, bool accept_dot_dot) _pure_;
-static inline bool path_is_valid(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ true);
-}
-static inline bool path_is_safe(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ false);
-}
-bool path_is_normalized(const char *p) _pure_;
-static inline bool filename_or_absolute_path_is_valid(const char *p) {
-        if (path_is_absolute(p))
-                return path_is_valid(p);
-
-        return filename_is_valid(p);
+static anta_hstha puur_naa_nka path_extract_directory(const var_na *path, var_na **ret) {
+        puur_naa_nka r = path_split_prefix_filename(path, ret, NULL);
+        ᱨᱩᱣᱟᱹᱲ r < 0 ? r : 0; /* suppress O_DIRECTORY */
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret);
+bool filename_part_is_valid(const var_na *p) _pure_;
+bool filename_is_valid(const var_na *p) _pure_;
+bool path_is_valid_full(const var_na *p, bool accept_dot_dot) _pure_;
+static anta_hstha bool path_is_valid(const var_na *p) {
+        ᱨᱩᱣᱟᱹᱲ path_is_valid_full(p, /* accept_dot_dot= */ true);
+}
+static anta_hstha bool path_is_safe(const var_na *p) {
+        ᱨᱩᱣᱟᱹᱲ path_is_valid_full(p, /* accept_dot_dot= */ false);
+}
+bool path_is_normalized(const var_na *p) _pure_;
+static anta_hstha bool filename_or_absolute_path_is_valid(const var_na *p) {
+        ᱡᱩᱫᱤ (path_is_absolute(p))
+                ᱨᱩᱣᱟᱹᱲ path_is_valid(p);
 
-bool hidden_or_backup_file(const char *filename) _pure_;
+        ᱨᱩᱣᱟᱹᱲ filename_is_valid(p);
+}
 
-bool is_device_path(const char *path) _pure_;
+puur_naa_nka file_in_same_dir(const var_na *path, const var_na *filename, var_na **ret);
 
-bool valid_device_node_path(const char *path) _pure_;
-bool valid_device_allow_pattern(const char *path) _pure_;
+bool hidden_or_backup_file(const var_na *filename) _pure_;
 
-bool dot_or_dot_dot(const char *path) _pure_;
+bool is_device_path(const var_na *path) _pure_;
 
-bool path_implies_directory(const char *path) _pure_;
+bool valid_device_node_path(const var_na *path) _pure_;
+bool valid_device_allow_pattern(const var_na *path) _pure_;
 
-static inline const char* skip_dev_prefix(const char *p) {
-        const char *e;
+bool dot_or_dot_dot(const var_na *path) _pure_;
+
+bool path_implies_directory(const var_na *path) _pure_;
+
+static anta_hstha const var_na* skip_dev_prefix(const var_na *p) {
+        const var_na *e;
 
         /* Drop any /dev prefix if there is any */
 
         e = path_startswith(p, "/dev/");
 
-        return e ?: p;
+        ᱨᱩᱣᱟᱹᱲ e ?: p;
 }
 
-bool empty_or_root(const char *path) _pure_;
-const char* empty_to_root(const char *path) _pure_;
-int empty_or_root_harder_to_null(const char **path);
+bool empty_or_root(const var_na *path) _pure_;
+const var_na* empty_to_root(const var_na *path) _pure_;
+puur_naa_nka empty_or_root_harder_to_null(const var_na **path);
 
-bool path_strv_contains(char * const *l, const char *path);
-bool prefixed_path_strv_contains(char * const *l, const char *path);
+bool path_strv_contains(var_na * const *l, const var_na *path);
+bool prefixed_path_strv_contains(var_na * const *l, const var_na *path);
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret);
+puur_naa_nka path_glob_can_match(const var_na *pattern, const var_na *prefix, var_na **ret);

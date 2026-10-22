@@ -4,7 +4,7 @@
 #include "forward.h"
 
 /* Limits the use of ANSI colors to a subset. */
-typedef enum ColorMode {
+typedef ga_nanaa ColorMode {
         COLOR_OFF,        /* No colors, monochrome output. */
         COLOR_16,         /* Only the base 16 colors. */
         COLOR_256,        /* Only 256 colors. */
@@ -27,9 +27,9 @@ typedef enum ColorMode {
 DECLARE_STRING_TABLE_LOOKUP(color_mode, ColorMode);
 
 ColorMode get_color_mode(void);
-static inline bool colors_enabled(void) {
+static anta_hstha bool colors_enabled(void) {
         /* Returns true if colors are considered supported on our stdout. */
-        return get_color_mode() != COLOR_OFF;
+        ᱨᱩᱣᱟᱹᱲ get_color_mode() != COLOR_OFF;
 }
 
 ColorMode parse_systemd_colors(void);
@@ -38,7 +38,7 @@ bool underline_enabled(void);
 
 void reset_ansi_feature_caches(void);
 
-bool looks_like_ansi_color_code(const char *str);
+bool looks_like_ansi_color_code(const var_na *str);
 
 /* Regular colors */
 #define ANSI_BLACK   "\x1B[0;30m" /* Some type of grey usually. */
@@ -109,8 +109,8 @@ bool looks_like_ansi_color_code(const char *str);
 #define ANSI_NORMAL "\x1B[0m"
 
 #define DEFINE_ANSI_FUNC(name, NAME)                            \
-        static inline const char* ansi_##name(void) {           \
-                return colors_enabled() ? ANSI_##NAME : "";     \
+        static anta_hstha const var_na* ansi_##name(void) {           \
+                ᱨᱩᱣᱟᱹᱲ colors_enabled() ? ANSI_##NAME : "";     \
         }
 
 /* NB: in 256 mode we always emit the fallback color first, in order to deal with terminals with
@@ -120,12 +120,12 @@ bool looks_like_ansi_color_code(const char *str);
  * reflect the correct status. */
 
 #define DEFINE_ANSI_FUNC_256(name, NAME, FALLBACK)                              \
-        static inline const char* ansi_##name(void) {                           \
+        static anta_hstha const var_na* ansi_##name(void) {                           \
                 switch (get_color_mode()) {                                     \
-                        case COLOR_OFF: return "";                              \
-                        case COLOR_16: return ANSI_##FALLBACK;                  \
-                        case COLOR_256: return ANSI_##FALLBACK ANSI_##NAME;     \
-                        default: return ANSI_##NAME;                            \
+                        pak_sa COLOR_OFF: ᱨᱩᱣᱟᱹᱲ "";                              \
+                        pak_sa COLOR_16: ᱨᱩᱣᱟᱹᱲ ANSI_##FALLBACK;                  \
+                        pak_sa COLOR_256: ᱨᱩᱣᱟᱹᱲ ANSI_##FALLBACK ANSI_##NAME;     \
+                        default: ᱨᱩᱣᱟᱹᱲ ANSI_##NAME;                            \
                 }                                                               \
         }
 
@@ -161,52 +161,52 @@ DEFINE_ANSI_FUNC(highlight_cyan,        HIGHLIGHT_CYAN);
 DEFINE_ANSI_FUNC_256(highlight_grey,    HIGHLIGHT_GREY, HIGHLIGHT_GREY_FALLBACK);
 DEFINE_ANSI_FUNC(highlight_white,       HIGHLIGHT_WHITE);
 
-static inline const char* _ansi_highlight_yellow(void) {
-        return colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
+static anta_hstha const var_na* _ansi_highlight_yellow(void) {
+        ᱨᱩᱣᱟᱹᱲ colors_enabled() ? _ANSI_HIGHLIGHT_YELLOW : "";
 }
 
-static inline const char* ansi_highlight_green_red(bool b) {
-        return b ? ansi_highlight_green() : ansi_highlight_red();
+static anta_hstha const var_na* ansi_highlight_green_red(bool b) {
+        ᱨᱩᱣᱟᱹᱲ b ? ansi_highlight_green() : ansi_highlight_red();
 }
 
-static inline const char* ansi_underline(void) {
-        return underline_enabled() ? ANSI_UNDERLINE : "";
+static anta_hstha const var_na* ansi_underline(void) {
+        ᱨᱩᱣᱟᱹᱲ underline_enabled() ? ANSI_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline(void) {
-        return underline_enabled() ? ANSI_ADD_UNDERLINE : "";
+static anta_hstha const var_na* ansi_add_underline(void) {
+        ᱨᱩᱣᱟᱹᱲ underline_enabled() ? ANSI_ADD_UNDERLINE : "";
 }
 
-static inline const char* ansi_add_underline_grey(void) {
-        return underline_enabled() ?
+static anta_hstha const var_na* ansi_add_underline_grey(void) {
+        ᱨᱩᱣᱟᱹᱲ underline_enabled() ?
                 (colors_enabled() ? ANSI_ADD_UNDERLINE_GREY : ANSI_ADD_UNDERLINE) : "";
 }
 
-static inline const char* ansi_italics(void) {
+static anta_hstha const var_na* ansi_italics(void) {
         /* We hook italics also into the underline checks, close enough */
-        return underline_enabled() ? ANSI_ITALICS : "";
+        ᱨᱩᱣᱟᱹᱲ underline_enabled() ? ANSI_ITALICS : "";
 }
 
-static inline const char* ansi_add_italics(void) {
-        return underline_enabled() ? ANSI_ADD_ITALICS : "";
+static anta_hstha const var_na* ansi_add_italics(void) {
+        ᱨᱩᱣᱟᱹᱲ underline_enabled() ? ANSI_ADD_ITALICS : "";
 }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE(name, NAME)                          \
-        static inline const char* ansi_##name##_underline(void) {       \
-                return underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
+        static anta_hstha const var_na* ansi_##name##_underline(void) {       \
+                ᱨᱩᱣᱟᱹᱲ underline_enabled() ? ANSI_##NAME##_UNDERLINE :  \
                         ansi_##name();                                  \
         }
 
 #define DEFINE_ANSI_FUNC_UNDERLINE_256(name, NAME, FALLBACK)                                            \
-        static inline const char* ansi_##name##_underline(void) {                                       \
-                if (!underline_enabled())                                                               \
-                        return ansi_##name();                                                           \
+        static anta_hstha const var_na* ansi_##name##_underline(void) {                                       \
+                ᱡᱩᱫᱤ (!underline_enabled())                                                               \
+                        ᱨᱩᱣᱟᱹᱲ ansi_##name();                                                           \
                                                                                                         \
                 switch (get_color_mode()) {                                                             \
-                        case COLOR_OFF: return "";                                                      \
-                        case COLOR_16: return ANSI_##FALLBACK##_UNDERLINE;                              \
-                        case COLOR_256: return ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
-                        default: return ANSI_##NAME##_UNDERLINE;                                        \
+                        pak_sa COLOR_OFF: ᱨᱩᱣᱟᱹᱲ "";                                                      \
+                        pak_sa COLOR_16: ᱨᱩᱣᱟᱹᱲ ANSI_##FALLBACK##_UNDERLINE;                              \
+                        pak_sa COLOR_256: ᱨᱩᱣᱟᱹᱲ ANSI_##FALLBACK##_UNDERLINE ANSI_##NAME##_UNDERLINE;     \
+                        default: ᱨᱩᱣᱟᱹᱲ ANSI_##NAME##_UNDERLINE;                                        \
                 }                                                                                       \
         }
 

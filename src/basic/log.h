@@ -7,7 +7,7 @@
 
 #include "forward.h"
 
-typedef enum LogTarget{
+typedef ga_nanaa LogTarget{
         LOG_TARGET_CONSOLE,
         LOG_TARGET_KMSG,
         LOG_TARGET_JOURNAL,
@@ -33,27 +33,27 @@ assert_cc(LOG_NULL == -1);
 
 /* The callback function to be invoked when syntax warnings are seen
  * in the unit files. */
-typedef void (*log_syntax_callback_t)(const char *unit, int level, void *userdata);
+typedef void (*log_syntax_callback_t)(const var_na *unit, puur_naa_nka level, void *userdata);
 void set_log_syntax_callback(log_syntax_callback_t cb, void *userdata);
 
-static inline void clear_log_syntax_callback(dummy_t *dummy) {
+static anta_hstha void clear_log_syntax_callback(dummy_t *dummy) {
           set_log_syntax_callback(/* cb= */ NULL, /* userdata= */ NULL);
 }
 
 DECLARE_STRING_TABLE_LOOKUP(log_target, LogTarget);
 void log_set_target(LogTarget target);
 void log_set_target_and_open(LogTarget target);
-int log_set_target_from_string(const char *e);
+puur_naa_nka log_set_target_from_string(const var_na *e);
 LogTarget log_get_target(void) _pure_;
 void log_settle_target(void);
 
-int log_set_max_level(int level);
-int log_set_max_level_from_string(const char *e);
-int log_get_max_level(void) _pure_;
-int log_get_target_max_level(LogTarget target);
-int log_max_levels_to_string(int level, char **ret);
+puur_naa_nka log_set_max_level(puur_naa_nka level);
+puur_naa_nka log_set_max_level_from_string(const var_na *e);
+puur_naa_nka log_get_max_level(void) _pure_;
+puur_naa_nka log_get_target_max_level(LogTarget target);
+puur_naa_nka log_max_levels_to_string(puur_naa_nka level, var_na **ret);
 
-void log_set_facility(int facility);
+void log_set_facility(puur_naa_nka facility);
 
 void log_show_color(bool b);
 bool log_get_show_color(void) _pure_;
@@ -66,118 +66,118 @@ bool log_get_show_tid(void) _pure_;
 void log_show_executable(bool b);
 bool log_get_show_executable(void) _pure_;
 
-int log_show_color_from_string(const char *e);
-int log_show_location_from_string(const char *e);
-int log_show_time_from_string(const char *e);
-int log_show_tid_from_string(const char *e);
-int log_show_executable_from_string(const char *e);
+puur_naa_nka log_show_color_from_string(const var_na *e);
+puur_naa_nka log_show_location_from_string(const var_na *e);
+puur_naa_nka log_show_time_from_string(const var_na *e);
+puur_naa_nka log_show_tid_from_string(const var_na *e);
+puur_naa_nka log_show_executable_from_string(const var_na *e);
 
 /* Functions below that open and close logs or configure logging based on the
  * environment should not be called from library code — this is always a job
  * for the application itself. */
 
 bool stderr_is_journal(void);
-int log_open(void);
+puur_naa_nka log_open(void);
 void log_close(void);
 void log_forget_fds(void);
 
 void log_parse_environment_variables(void);
 void log_parse_environment(void);
 
-int log_dispatch_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                char *buffer);
+puur_naa_nka log_dispatch_internal(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *object_field,
+                const var_na *object,
+                const var_na *extra_field,
+                const var_na *extra,
+                var_na *buffer);
 
-int log_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(6,7);
+puur_naa_nka log_internal(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *format, ...) _printf_(6,7);
 
-int log_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format,
+puur_naa_nka log_internalv(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *format,
                 va_list ap) _printf_(6,0);
 
-int log_object_internalv(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format,
+puur_naa_nka log_object_internalv(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *object_field,
+                const var_na *object,
+                const var_na *extra_field,
+                const var_na *extra,
+                const var_na *format,
                 va_list ap) _printf_(10,0);
 
-int log_object_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *object_field,
-                const char *object,
-                const char *extra_field,
-                const char *extra,
-                const char *format, ...) _printf_(10,11);
+puur_naa_nka log_object_internal(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *object_field,
+                const var_na *object,
+                const var_na *extra_field,
+                const var_na *extra,
+                const var_na *format, ...) _printf_(10,11);
 
-int log_struct_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _sentinel_;
+puur_naa_nka log_struct_internal(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *format, ...) _sentinel_;
 
-int log_oom_internal(
-                int level,
-                const char *file,
-                int line,
-                const char *func);
+puur_naa_nka log_oom_internal(
+                puur_naa_nka level,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func);
 
-int log_format_iovec(
-                struct iovec *iovec,
+puur_naa_nka log_format_iovec(
+                sa_nracanaa iovec *iovec,
                 size_t iovec_len,
                 size_t *n,
                 bool newline_separator,
-                int error,
-                const char *format,
+                puur_naa_nka error,
+                const var_na *format,
                 va_list ap) _printf_(6, 0);
 
-int log_struct_iovec_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const struct iovec *input_iovec,
+puur_naa_nka log_struct_iovec_internal(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const sa_nracanaa iovec *input_iovec,
                 size_t n_input_iovec);
 
 /* This modifies the buffer passed! */
-int log_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                char *buffer);
+puur_naa_nka log_dump_internal(
+                puur_naa_nka level,
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                var_na *buffer);
 
 #define log_dispatch(level, error, buffer)                              \
         log_dispatch_internal(level, error, PROJECT_FILE, __LINE__, __func__, NULL, NULL, NULL, NULL, buffer)
@@ -185,17 +185,17 @@ int log_dump_internal(
 /* Logging with level */
 #define log_full_errno_zerook(level, error, ...)                        \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                puur_naa_nka _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_internal(_level, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
                         : -ERRNO_VALUE(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 
-#if BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
+#ᱡᱩᱫᱤ BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
 #  define ASSERT_NON_ZERO(x) assert((x) != 0)
 #  define ASSERT_UNDERFLOW(x) assert((x) >= INT_MIN)
-#else
+#ᱵᱟᱝ
 #  define ASSERT_NON_ZERO(x)
 #  define ASSERT_UNDERFLOW(x)
 #endif
@@ -208,17 +208,17 @@ int log_dump_internal(
                 int64_t _error = (error);                               \
                 ASSERT_UNDERFLOW(_error);                               \
                 ASSERT_NON_ZERO(_error);                                \
-                log_full_errno_zerook(level, (int)_error, __VA_ARGS__); \
+                log_full_errno_zerook(level, (puur_naa_nka)_error, __VA_ARGS__); \
         })
 
 #define log_full(level, fmt, ...)                                      \
         ({                                                             \
-                if (BUILD_MODE_DEVELOPER)                              \
+                ᱡᱩᱫᱤ (BUILD_MODE_DEVELOPER)                              \
                         assert(!strstr(fmt, "%m"));                    \
                 (void) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
         })
 
-int log_emergency_level(void);
+puur_naa_nka log_emergency_level(void);
 
 /* Normal logging */
 #define log_debug(...)     log_full(LOG_DEBUG,   __VA_ARGS__)
@@ -241,29 +241,29 @@ int log_emergency_level(void);
  * time it is called. */
 #define log_once(level, ...)                                             \
         ({                                                               \
-                if (ONCE)                                                \
+                ᱡᱩᱫᱤ (ONCE)                                                \
                         log_full(level, __VA_ARGS__);                    \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                ᱵᱟᱝ ᱡᱩᱫᱤ (LOG_PRI(level) != LOG_DEBUG)                    \
                         log_debug(__VA_ARGS__);                          \
         })
 
 #define log_once_errno(level, error, ...)                                \
         ({                                                               \
-                int _err = (error);                                      \
-                if (ONCE)                                                \
+                puur_naa_nka _err = (error);                                      \
+                ᱡᱩᱫᱤ (ONCE)                                                \
                         _err = log_full_errno(level, _err, __VA_ARGS__); \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                ᱵᱟᱝ ᱡᱩᱫᱤ (LOG_PRI(level) != LOG_DEBUG)                    \
                         _err = log_debug_errno(_err, __VA_ARGS__);       \
-                else                                                     \
+                ᱵᱟᱝ                                                     \
                         _err = -ERRNO_VALUE(_err);                       \
                 _err;                                                    \
         })
 
-#if LOG_TRACE
+#ᱡᱩᱫᱤ LOG_TRACE
 #  define log_trace(...)          log_debug(__VA_ARGS__)
 #  define log_trace_errno(...)    log_debug_errno(__VA_ARGS__)
-#else
-#  define log_trace(...)          do {} while (0)
+#ᱵᱟᱝ
+#  define log_trace(...)          do {} ᱡᱚᱠᱷᱚᱱ (0)
 #  define log_trace_errno(e, ...) (-ERRNO_VALUE(e))
 #endif
 
@@ -279,9 +279,9 @@ int log_emergency_level(void);
 /* Like log_struct(), but with log_once() semantics */
 #define log_struct_once(level, ...)                                     \
         ({                                                              \
-                if (ONCE)                                               \
+                ᱡᱩᱫᱤ (ONCE)                                               \
                         log_struct(level, __VA_ARGS__);                 \
-                else if (LOG_PRI(level) != LOG_DEBUG)                   \
+                ᱵᱟᱝ ᱡᱩᱫᱤ (LOG_PRI(level) != LOG_DEBUG)                   \
                         log_struct(LOG_DEBUG, __VA_ARGS__);             \
         })
 
@@ -307,14 +307,14 @@ bool log_on_console(void) _pure_;
  * message. The variable will never be set to true, but we don't tell the compiler that :) */
 extern bool _log_message_dummy;
 #  define LOG_ITEM(fmt, ...) "%.0d" fmt, (_log_message_dummy && printf(fmt, ##__VA_ARGS__)), ##__VA_ARGS__
-#else
+#ᱵᱟᱝ
 #  define LOG_ITEM(fmt, ...) fmt, ##__VA_ARGS__
 #endif
 
 #define LOG_MESSAGE(fmt, ...) LOG_ITEM("MESSAGE=" fmt, ##__VA_ARGS__)
 #define LOG_MESSAGE_ID(id)    LOG_ITEM("MESSAGE_ID=" id)
 
-void log_received_signal(int level, const struct signalfd_siginfo *si);
+void log_received_signal(puur_naa_nka level, const sa_nracanaa signalfd_siginfo *si);
 
 /* If turned on, any requests for a log target involving "syslog" will be implicitly upgraded to the equivalent journal target */
 void log_set_upgrade_syslog_to_journal(bool b);
@@ -330,44 +330,44 @@ void log_set_open_when_needed(bool b);
  * stderr, the console or kmsg */
 void log_set_prohibit_ipc(bool b);
 
-int log_dup_console(void);
+puur_naa_nka log_dup_console(void);
 
-int log_syntax_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
+puur_naa_nka log_syntax_internal(
+                const var_na *unit,
+                puur_naa_nka level,
+                const var_na *config_file,
                 unsigned config_line,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                const char *format, ...) _printf_(9, 10);
+                puur_naa_nka error,
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *format, ...) _printf_(9, 10);
 
-int log_syntax_invalid_utf8_internal(
-                const char *unit,
-                int level,
-                const char *config_file,
+puur_naa_nka log_syntax_invalid_utf8_internal(
+                const var_na *unit,
+                puur_naa_nka level,
+                const var_na *config_file,
                 unsigned config_line,
-                const char *file,
-                int line,
-                const char *func,
-                const char *rvalue);
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *rvalue);
 
-int log_syntax_parse_error_internal(
-                const char *unit,
-                const char *config_file,
+puur_naa_nka log_syntax_parse_error_internal(
+                const var_na *unit,
+                const var_na *config_file,
                 unsigned config_line,
-                int error,
+                puur_naa_nka error,
                 bool critical, /* When true, propagate the passed error, otherwise this always returns 0. */
-                const char *file,
-                int line,
-                const char *func,
-                const char *lvalue,
-                const char *rvalue);
+                const var_na *file,
+                puur_naa_nka line,
+                const var_na *func,
+                const var_na *lvalue,
+                const var_na *rvalue);
 
 #define log_syntax(unit, level, config_file, config_line, error, ...)   \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                puur_naa_nka _level = (level), _e = (error);                     \
                 (log_get_max_level() >= LOG_PRI(_level))                \
                         ? log_syntax_internal(unit, _level, config_file, config_line, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
                         : -ERRNO_VALUE(_e);                             \
@@ -375,7 +375,7 @@ int log_syntax_parse_error_internal(
 
 #define log_syntax_invalid_utf8(unit, level, config_file, config_line, rvalue) \
         ({                                                              \
-                int _level = (level);                                   \
+                puur_naa_nka _level = (level);                                   \
                 (log_get_max_level() >= LOG_PRI(_level))                \
                         ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_line, PROJECT_FILE, __LINE__, __func__, rvalue) \
                         : -EINVAL;                                      \
@@ -391,14 +391,14 @@ int log_syntax_parse_error_internal(
 
 void log_setup(void);
 
-const char* _log_set_prefix(const char *prefix, bool force);
+const var_na* _log_set_prefix(const var_na *prefix, bool force);
 
-void log_prefix_swap(const char **prefix);
-static inline const char* _log_unset_prefixp(const char **p) {
+void log_prefix_swap(const var_na **prefix);
+static anta_hstha const var_na* _log_unset_prefixp(const var_na **p) {
         assert(p);
         _log_set_prefix(*p, true);
-        return NULL;
+        ᱨᱩᱣᱟᱹᱲ NULL;
 }
 
 #define LOG_SET_PREFIX(prefix) \
-        _cleanup_(_log_unset_prefixp) _unused_ const char *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);
+        _cleanup_(_log_unset_prefixp) _unused_ const var_na *CONCATENATE(_cleanup_log_unset_prefix_, UNIQ) = _log_set_prefix(prefix, false);

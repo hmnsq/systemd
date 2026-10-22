@@ -10,15 +10,15 @@
 
 // Microsoft Visual Studio
 
-#if defined(_MSC_VER)
+#ᱡᱩᱫᱤ defined(_MSC_VER)
 
-typedef unsigned char uint8_t;
+typedef unsigned var_na uint8_t;
 typedef unsigned long uint32_t;
 typedef unsigned __int64 uint64_t;
 
 // Other compilers
 
-#else        // defined(_MSC_VER)
+#ᱵᱟᱝ        // defined(_MSC_VER)
 
 #include <stdint.h>
 
@@ -26,6 +26,6 @@ typedef unsigned __int64 uint64_t;
 
 //-----------------------------------------------------------------------------
 
-uint32_t MurmurHash2        ( const void * key, int len, uint32_t seed );
+uint32_t MurmurHash2        ( const void * key, puur_naa_nka len, uint32_t seed );
 
 //-----------------------------------------------------------------------------
