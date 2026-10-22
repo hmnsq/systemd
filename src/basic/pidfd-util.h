@@ -5,20 +5,20 @@
 
 #include "forward.h"
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd);
+số_nguyên pidfd_get_namespace(số_nguyên fd, unsigned long ns_type_cmd);
 
-int pidfd_get_info(int fd, struct pidfd_info *info);
-int pidfd_info_mask_is_supported(uint64_t mask);
+số_nguyên pidfd_get_info(số_nguyên fd, struct pidfd_info *info);
+số_nguyên pidfd_info_mask_is_supported(uint64_t mask);
 
-int pidfd_get_pid(int fd, pid_t *ret);
-int pidfd_verify_pid(int pidfd, pid_t pid);
+số_nguyên pidfd_get_pid(số_nguyên fd, pid_t *ret);
+số_nguyên pidfd_verify_pid(số_nguyên pidfd, pid_t pid);
 
-int pidfd_get_ppid(int fd, pid_t *ret);
-int pidfd_get_uid(int fd, uid_t *ret);
-int pidfd_get_cgroupid(int fd, uint64_t *ret);
+số_nguyên pidfd_get_ppid(số_nguyên fd, pid_t *ret);
+số_nguyên pidfd_get_uid(số_nguyên fd, uid_t *ret);
+số_nguyên pidfd_get_cgroupid(số_nguyên fd, uint64_t *ret);
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret);
-int pidfd_get_inode_id(int fd, uint64_t *ret);
-int pidfd_get_inode_id_self_cached(uint64_t *ret);
+số_nguyên pidfd_get_inode_id_impl(số_nguyên fd, uint64_t *ret);
+số_nguyên pidfd_get_inode_id(số_nguyên fd, uint64_t *ret);
+số_nguyên pidfd_get_inode_id_self_cached(uint64_t *ret);
 
-int pidfd_check_pidfs(int pid_fd);
+số_nguyên pidfd_check_pidfs(số_nguyên pid_fd);

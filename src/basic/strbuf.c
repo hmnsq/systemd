@@ -28,8 +28,8 @@ struct strbuf* strbuf_new(void) {
         _cleanup_(strbuf_freep) struct strbuf *str = NULL;
 
         str = new(struct strbuf, 1);
-        if (!str)
-                return NULL;
+        nếu (!str)
+                trả_về NULL;
 
         *str = (struct strbuf) {
                 .buf = new0(char, 1),
@@ -37,10 +37,10 @@ struct strbuf* strbuf_new(void) {
                 .len = 1,
                 .nodes_count = 1,
         };
-        if (!str->buf || !str->root)
-                return NULL;
+        nếu (!str->buf || !str->root)
+                trả_về NULL;
 
-        return TAKE_PTR(str);
+        trả_về TAKE_PTR(str);
 }
 
 static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
@@ -50,32 +50,32 @@ static struct strbuf_node* strbuf_node_cleanup(struct strbuf_node *node) {
                 strbuf_node_cleanup(child->child);
 
         free(node->children);
-        return mfree(node);
+        trả_về mfree(node);
 }
 
 /* clean up trie data, leave only the string buffer */
 void strbuf_complete(struct strbuf *str) {
-        if (!str || !str->root)
-                return;
+        nếu (!str || !str->root)
+                trả_về;
 
         str->root = strbuf_node_cleanup(str->root);
 }
 
 /* clean up everything */
 struct strbuf* strbuf_free(struct strbuf *str) {
-        if (!str)
-                return NULL;
+        nếu (!str)
+                trả_về NULL;
 
         strbuf_complete(str);
         free(str->buf);
-        return mfree(str);
+        trả_về mfree(str);
 }
 
-static int strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
+static số_nguyên strbuf_children_cmp(const struct strbuf_child_entry *n1, const struct strbuf_child_entry *n2) {
         assert(n1);
         assert(n2);
 
-        return CMP(n1->c, n2->c);
+        trả_về CMP(n1->c, n2->c);
 }
 
 static void bubbleinsert(struct strbuf_node *node,
@@ -86,13 +86,13 @@ static void bubbleinsert(struct strbuf_node *node,
                 .c = c,
                 .child = node_child,
         };
-        int left = 0, right = ASSERT_PTR(node)->children_count;
+        số_nguyên left = 0, right = ASSERT_PTR(node)->children_count;
 
-        while (right > left) {
-                int middle = (right + left) / 2 ;
-                if (strbuf_children_cmp(&node->children[middle], &new) <= 0)
+        trong_khi (right > left) {
+                số_nguyên middle = (right + left) / 2 ;
+                nếu (strbuf_children_cmp(&node->children[middle], &new) <= 0)
                         left = middle + 1;
-                else
+                không_thì
                         right = middle;
         }
 
@@ -111,29 +111,29 @@ ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
         assert(str);
         assert(s || len == 0);
 
-        if (len == SIZE_MAX)
+        nếu (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (!str->root)
-                return -EINVAL;
+        nếu (!str->root)
+                trả_về -EINVAL;
 
         /* search string; start from last character to find possibly matching tails */
 
         str->in_count++;
-        if (len == 0) {
+        nếu (len == 0) {
                 str->dedup_count++;
-                return 0;
+                trả_về 0;
         }
         str->in_len += len;
 
         struct strbuf_node *node = str->root;
-        for (size_t depth = 0; depth <= len; depth++) {
+        cho (size_t depth = 0; depth <= len; depth++) {
                 /* match against current node */
                 off = node->value_off + node->value_len - len;
-                if (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
+                nếu (depth == len || (node->value_len >= len && memcmp(str->buf + off, s, len) == 0)) {
                         str->dedup_len += len;
                         str->dedup_count++;
-                        return off;
+                        trả_về off;
                 }
 
                 c = s[len - 1 - depth];
@@ -141,14 +141,14 @@ ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
                 /* lookup child node */
                 struct strbuf_child_entry *child, search = { .c = c };
                 child = typesafe_bsearch(&search, node->children, node->children_count, strbuf_children_cmp);
-                if (!child)
+                nếu (!child)
                         break;
                 node = child->child;
         }
 
         /* add new string */
-        if (!GREEDY_REALLOC(str->buf, str->len + len + 1))
-                return -ENOMEM;
+        nếu (!GREEDY_REALLOC(str->buf, str->len + len + 1))
+                trả_về -ENOMEM;
         off = str->len;
         memcpy(str->buf + off, s, len);
         str->len += len;
@@ -158,20 +158,20 @@ ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len) {
         _cleanup_free_ struct strbuf_node *node_child = NULL;
 
         node_child = new(struct strbuf_node, 1);
-        if (!node_child)
-                return -ENOMEM;
+        nếu (!node_child)
+                trả_về -ENOMEM;
         *node_child = (struct strbuf_node) {
                 .value_off = off,
                 .value_len = len,
         };
 
         /* extend array, add new entry, sort for bisection */
-        if (!GREEDY_REALLOC(node->children, node->children_count + 1))
-                return -ENOMEM;
+        nếu (!GREEDY_REALLOC(node->children, node->children_count + 1))
+                trả_về -ENOMEM;
 
         str->nodes_count++;
 
         bubbleinsert(node, c, TAKE_PTR(node_child));
 
-        return off;
+        trả_về off;
 }

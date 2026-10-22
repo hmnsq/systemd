@@ -7,24 +7,24 @@
 #include "string-util.h"
 #include "utf8.h"
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
+số_nguyên extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags) {
         _cleanup_free_ char *s = NULL;
         size_t sz = 0;
         char quote = 0;                 /* 0 or ' or " */
         bool backslash = false;         /* whether we've just seen a backslash */
         char c;
-        int r;
+        số_nguyên r;
 
         assert(p);
         assert(ret);
         assert(!FLAGS_SET(flags, EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE));
 
         /* Bail early if called after last value or with no input */
-        if (!*p)
+        nếu (!*p)
                 goto finish;
         c = **p;
 
-        if (!separators)
+        nếu (!separators)
                 separators = WHITESPACE;
 
         /* Parses the first word of a string, and returns it in
@@ -32,36 +32,36 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
          * (because of an uneven number of quotes or similar), leaves
          * the pointer *p at the first invalid character. */
 
-        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
-                if (!GREEDY_REALLOC(s, sz+1))
-                        return -ENOMEM;
+        nếu (flags & EXTRACT_DONT_COALESCE_SEPARATORS)
+                nếu (!GREEDY_REALLOC(s, sz+1))
+                        trả_về -ENOMEM;
 
-        for (;; (*p)++, c = **p) {
-                if (c == 0)
+        cho (;; (*p)++, c = **p) {
+                nếu (c == 0)
                         goto finish_force_terminate;
-                else if (strchr(separators, c)) {
-                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                không_thì nếu (strchr(separators, c)) {
+                        nếu (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                nếu (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                         (*p)++;
                                 goto finish_force_next;
                         }
-                } else {
+                } không_thì {
                         /* We found a non-blank character, so we will always
                          * want to return a string (even if it is empty),
                          * allocate it here. */
-                        if (!GREEDY_REALLOC(s, sz+1))
-                                return -ENOMEM;
+                        nếu (!GREEDY_REALLOC(s, sz+1))
+                                trả_về -ENOMEM;
                         break;
                 }
         }
 
-        for (;; (*p)++, c = **p) {
-                if (backslash) {
-                        if (!GREEDY_REALLOC(s, sz+7))
-                                return -ENOMEM;
+        cho (;; (*p)++, c = **p) {
+                nếu (backslash) {
+                        nếu (!GREEDY_REALLOC(s, sz+7))
+                                trả_về -ENOMEM;
 
-                        if (c == 0) {
-                                if ((flags & EXTRACT_UNESCAPE_RELAX) &&
+                        nếu (c == 0) {
+                                nếu ((flags & EXTRACT_UNESCAPE_RELAX) &&
                                     (quote == 0 || flags & EXTRACT_RELAX)) {
                                         /* If we find an unquoted trailing backslash and we're in
                                          * EXTRACT_UNESCAPE_RELAX mode, keep it verbatim in the
@@ -73,99 +73,99 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
                                         s[sz++] = '\\';
                                         goto finish_force_terminate;
                                 }
-                                if (flags & EXTRACT_RELAX)
+                                nếu (flags & EXTRACT_RELAX)
                                         goto finish_force_terminate;
-                                return -EINVAL;
+                                trả_về -EINVAL;
                         }
 
-                        if (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
+                        nếu (flags & (EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS|EXTRACT_UNESCAPE_RELAX)) {
                                 bool eight_bit = false;
                                 char32_t u;
 
-                                if ((flags & EXTRACT_CUNESCAPE) &&
+                                nếu ((flags & EXTRACT_CUNESCAPE) &&
                                     (r = cunescape_one(*p, SIZE_MAX, &u, &eight_bit, false)) >= 0) {
                                         /* A valid escaped sequence */
                                         assert(r >= 1);
 
                                         (*p) += r - 1;
 
-                                        if (eight_bit)
+                                        nếu (eight_bit)
                                                 s[sz++] = u;
-                                        else
+                                        không_thì
                                                 sz += utf8_encode_unichar(s + sz, u);
-                                } else if ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
+                                } không_thì nếu ((flags & EXTRACT_UNESCAPE_SEPARATORS) &&
                                            (strchr(separators, **p) || **p == '\\'))
                                         /* An escaped separator char or the escape char itself */
                                         s[sz++] = c;
-                                else if (flags & EXTRACT_UNESCAPE_RELAX) {
+                                không_thì nếu (flags & EXTRACT_UNESCAPE_RELAX) {
                                         s[sz++] = '\\';
                                         s[sz++] = c;
-                                } else
-                                        return -EINVAL;
-                        } else
+                                } không_thì
+                                        trả_về -EINVAL;
+                        } không_thì
                                 s[sz++] = c;
 
                         backslash = false;
 
-                } else if (quote != 0) {     /* inside either single or double quotes */
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0) {
-                                        if (flags & EXTRACT_RELAX)
+                } không_thì nếu (quote != 0) {     /* inside either single or double quotes */
+                        cho (;; (*p)++, c = **p) {
+                                nếu (c == 0) {
+                                        nếu (flags & EXTRACT_RELAX)
                                                 goto finish_force_terminate;
-                                        return -EINVAL;
-                                } else if (c == quote) {        /* found the end quote */
+                                        trả_về -EINVAL;
+                                } không_thì nếu (c == quote) {        /* found the end quote */
                                         quote = 0;
-                                        if (flags & EXTRACT_UNQUOTE)
+                                        nếu (flags & EXTRACT_UNQUOTE)
                                                 break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                } không_thì nếu (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
                                         break;
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                nếu (!GREEDY_REALLOC(s, sz+2))
+                                        trả_về -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote == 0)
+                                nếu (quote == 0)
                                         break;
                         }
 
-                } else {
-                        for (;; (*p)++, c = **p) {
-                                if (c == 0)
+                } không_thì {
+                        cho (;; (*p)++, c = **p) {
+                                nếu (c == 0)
                                         goto finish_force_terminate;
-                                else if (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
+                                không_thì nếu (IN_SET(c, '\'', '"') && (flags & (EXTRACT_KEEP_QUOTE | EXTRACT_UNQUOTE))) {
                                         quote = c;
-                                        if (flags & EXTRACT_UNQUOTE)
+                                        nếu (flags & EXTRACT_UNQUOTE)
                                                 break;
-                                } else if (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
+                                } không_thì nếu (c == '\\' && !(flags & EXTRACT_RETAIN_ESCAPE)) {
                                         backslash = true;
                                         break;
-                                } else if (strchr(separators, c)) {
-                                        if (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
-                                                if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                } không_thì nếu (strchr(separators, c)) {
+                                        nếu (flags & EXTRACT_DONT_COALESCE_SEPARATORS) {
+                                                nếu (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                         (*p)++;
                                                 goto finish_force_next;
                                         }
-                                        if (!(flags & EXTRACT_RETAIN_SEPARATORS))
+                                        nếu (!(flags & EXTRACT_RETAIN_SEPARATORS))
                                                 /* Skip additional coalesced separators. */
-                                                for (;; (*p)++, c = **p) {
-                                                        if (c == 0)
+                                                cho (;; (*p)++, c = **p) {
+                                                        nếu (c == 0)
                                                                 goto finish_force_terminate;
-                                                        if (!strchr(separators, c))
+                                                        nếu (!strchr(separators, c))
                                                                 break;
                                                 }
                                         goto finish;
 
                                 }
 
-                                if (!GREEDY_REALLOC(s, sz+2))
-                                        return -ENOMEM;
+                                nếu (!GREEDY_REALLOC(s, sz+2))
+                                        trả_về -ENOMEM;
 
                                 s[sz++] = c;
 
-                                if (quote != 0)
+                                nếu (quote != 0)
                                         break;
                         }
                 }
@@ -174,20 +174,20 @@ int extract_first_word(const char **p, char **ret, const char *separators, Extra
 finish_force_terminate:
         *p = NULL;
 finish:
-        if (!s) {
+        nếu (!s) {
                 *p = NULL;
                 *ret = NULL;
-                return 0;
+                trả_về 0;
         }
 
 finish_force_next:
         s[sz] = 0;
         *ret = TAKE_PTR(s);
 
-        return 1;
+        trả_về 1;
 }
 
-int extract_first_word_and_warn(
+số_nguyên extract_first_word_and_warn(
                 const char **p,
                 char **ret,
                 const char *separators,
@@ -202,34 +202,34 @@ int extract_first_word_and_warn(
          * backslashes verbatim in invalid escape sequences. */
 
         const char *save;
-        int r;
+        số_nguyên r;
 
         assert(p);
         assert(ret);
 
         save = *p;
         r = extract_first_word(p, ret, separators, flags);
-        if (r >= 0)
-                return r;
+        nếu (r >= 0)
+                trả_về r;
 
-        if (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
+        nếu (r == -EINVAL && !(flags & EXTRACT_UNESCAPE_RELAX)) {
 
                 /* Retry it with EXTRACT_UNESCAPE_RELAX. */
                 *p = save;
                 r = extract_first_word(p, ret, separators, flags|EXTRACT_UNESCAPE_RELAX);
-                if (r >= 0) {
+                nếu (r >= 0) {
                         /* It worked this time, hence it must have been an invalid escape sequence. */
                         log_syntax(unit, LOG_WARNING, filename, line, EINVAL, "Ignoring unknown escape sequences: \"%s\"", *ret);
-                        return r;
+                        trả_về r;
                 }
 
                 /* If it's still EINVAL; then it must be unbalanced quoting, report this. */
-                if (r == -EINVAL)
-                        return log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
+                nếu (r == -EINVAL)
+                        trả_về log_syntax(unit, LOG_ERR, filename, line, r, "Unbalanced quoting, ignoring: \"%s\"", rvalue);
         }
 
         /* Can be any error, report it */
-        return log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
+        trả_về log_syntax(unit, LOG_ERR, filename, line, r, "Unable to decode word \"%s\", ignoring: %m", rvalue);
 }
 
 /* We pass ExtractFlags as unsigned int (to avoid undefined behaviour when passing
@@ -237,10 +237,10 @@ int extract_first_word_and_warn(
  * Let's make sure that ExtractFlags fits into an unsigned int. */
 assert_cc(sizeof(enum ExtractFlags) <= sizeof(unsigned));
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
+số_nguyên extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) {
         va_list ap;
         unsigned n = 0;
-        int r;
+        số_nguyên r;
 
         /* Parses a number of words from a string, stripping any quotes if necessary. */
 
@@ -248,24 +248,24 @@ int extract_many_words_internal(const char **p, const char *separators, unsigned
 
         /* Count how many words are expected */
         va_start(ap, flags);
-        while (va_arg(ap, char**))
+        trong_khi (va_arg(ap, char**))
                 n++;
         va_end(ap);
 
-        if (n == 0)
-                return 0;
+        nếu (n == 0)
+                trả_về 0;
 
         /* Read all words into a temporary array */
         char **l = newa0(char*, n);
         unsigned c;
 
-        for (c = 0; c < n; c++) {
+        cho (c = 0; c < n; c++) {
                 r = extract_first_word(p, &l[c], separators, flags);
-                if (r < 0) {
+                nếu (r < 0) {
                         free_many_charp(l, c);
-                        return r;
+                        trả_về r;
                 }
-                if (r == 0)
+                nếu (r == 0)
                         break;
         }
 
@@ -277,5 +277,5 @@ int extract_many_words_internal(const char **p, const char *separators, unsigned
         }
         va_end(ap);
 
-        return c;
+        trả_về c;
 }

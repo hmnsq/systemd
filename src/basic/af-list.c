@@ -11,57 +11,57 @@ static const struct af_name* lookup_af(register const char *str, register GPERF_
 #include "af-from-name.inc"
 #include "af-to-name.inc"
 
-const char* af_to_name(int id) {
+const char* af_to_name(số_nguyên id) {
 
-        if (id <= 0)
-                return NULL;
+        nếu (id <= 0)
+                trả_về NULL;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        nếu ((size_t) id >= ELEMENTSOF(af_names))
+                trả_về NULL;
 
-        return af_names[id];
+        trả_về af_names[id];
 }
 
-const char* af_to_name_short(int id) {
+const char* af_to_name_short(số_nguyên id) {
         const char *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        nếu (id == AF_UNSPEC)
+                trả_về "*";
 
         f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        nếu (!f)
+                trả_về "unknown";
 
         assert(startswith(f, "AF_"));
-        return f + 3;
+        trả_về f + 3;
 }
 
-int af_from_name(const char *name) {
+số_nguyên af_from_name(const char *name) {
         size_t len = strlen(ASSERT_PTR(name));
 
         const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
+        nếu (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
                 const char *t = strjoina("AF_", name);
                 sc = lookup_af(t, strlen("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        nếu (!sc)
+                trả_về -EINVAL;
 
-        return sc->id;
+        trả_về sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+số_nguyên af_max(void) {
+        trả_về ELEMENTSOF(af_names);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+const char* af_to_ipv4_ipv6(số_nguyên id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
+        trả_về id == AF_INET ? "ipv4" :
                 id == AF_INET6 ? "ipv6" : NULL;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+số_nguyên af_from_ipv4_ipv6(const char *af) {
+        trả_về streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

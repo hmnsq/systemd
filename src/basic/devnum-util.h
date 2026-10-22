@@ -5,7 +5,7 @@
 
 #include "forward.h"
 
-int parse_devnum(const char *s, dev_t *ret);
+số_nguyên parse_devnum(const char *s, dev_t *ret);
 
 #define DEVNUM_MAJOR_MAX ((UINT32_C(1) << 12) - 1U)
 #define DEVNUM_MINOR_MAX ((UINT32_C(1) << 20) - 1U)
@@ -29,15 +29,15 @@ int parse_devnum(const char *s, dev_t *ret);
                 _x >= _y && _x <= DEVNUM_MINOR_MAX;                     \
         })
 
-int device_path_make_major_minor(mode_t mode, dev_t devnum, char **ret);
-int device_path_make_inaccessible(mode_t mode, char **ret);
-int device_path_make_canonical(mode_t mode, dev_t devnum, char **ret);
-int device_path_parse_major_minor(const char *path, mode_t *ret_mode, dev_t *ret_devnum);
+số_nguyên device_path_make_major_minor(mode_t mode, dev_t devnum, char **ret);
+số_nguyên device_path_make_inaccessible(mode_t mode, char **ret);
+số_nguyên device_path_make_canonical(mode_t mode, dev_t devnum, char **ret);
+số_nguyên device_path_parse_major_minor(const char *path, mode_t *ret_mode, dev_t *ret_devnum);
 
 static inline bool devnum_set_and_equal(dev_t a, dev_t b) {
         /* Returns true if a and b definitely refer to the same device. If either is zero, this means "don't
          * know" and we'll return false */
-        return a == b && a != 0;
+        trả_về a == b && a != 0;
 }
 
 /* Maximum string length for a major:minor string. (Note that DECIMAL_STR_MAX includes space for a trailing NUL) */
@@ -51,7 +51,7 @@ char *format_devnum(dev_t d, char buf[static DEVNUM_STR_MAX]);
 #define FORMAT_DEVNUM(d) format_devnum((d), (char[DEVNUM_STR_MAX]) {})
 
 static inline bool devnum_is_zero(dev_t d) {
-        return major(d) == 0 && minor(d) == 0;
+        trả_về major(d) == 0 && minor(d) == 0;
 }
 
 #define DEVNUM_TO_PTR(u) ((void*) (uintptr_t) (u))

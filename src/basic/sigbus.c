@@ -27,79 +27,79 @@ static void sigbus_push(void *addr) {
         FOREACH_ELEMENT(u, sigbus_queue) {
                 /* OK to initialize this here since we haven't started the atomic ops yet */
                 void *tmp = NULL;
-                if (__atomic_compare_exchange_n(u, &tmp, addr, false,
+                nếu (__atomic_compare_exchange_n(u, &tmp, addr, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                         __atomic_fetch_add(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
-                        return;
+                        trả_về;
                 }
         }
 
         /* If we can't, make sure the queue size is out of bounds, to
          * mark it as overflowed */
-        for (;;) {
+        cho (;;) {
                 sig_atomic_t c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (c > SIGBUS_QUEUE_MAX) /* already overflowed */
-                        return;
+                nếu (c > SIGBUS_QUEUE_MAX) /* already overflowed */
+                        trả_về;
 
                 /* OK if we clobber c here, since we either immediately return
                  * or it will be immediately reinitialized on next loop */
-                if (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
+                nếu (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
-                        return;
+                        trả_về;
         }
 }
 
-int sigbus_pop(void **ret) {
+số_nguyên sigbus_pop(void **ret) {
         assert(ret);
 
-        for (;;) {
+        cho (;;) {
                 unsigned u, c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (_likely_(c == 0))
-                        return 0;
+                nếu (_likely_(c == 0))
+                        trả_về 0;
 
-                if (_unlikely_(c > SIGBUS_QUEUE_MAX))
-                        return -EOVERFLOW;
+                nếu (_unlikely_(c > SIGBUS_QUEUE_MAX))
+                        trả_về -EOVERFLOW;
 
-                for (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
+                cho (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
                         void *addr;
 
                         addr = sigbus_queue[u];
-                        if (!addr)
+                        nếu (!addr)
                                 continue;
 
                         /* OK if we clobber addr here, since we either immediately return
                          * or it will be immediately reinitialized on next loop */
-                        if (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, NULL, false,
+                        nếu (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, NULL, false,
                                                         __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                                 __atomic_fetch_sub(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
                                 /* If we successfully entered this if condition, addr won't
                                  * have been modified since its assignment, so safe to use it */
                                 *ret = addr;
-                                return 1;
+                                trả_về 1;
                         }
                 }
         }
 }
 
-static void sigbus_handler(int sn, siginfo_t *si, void *data) {
+static void sigbus_handler(số_nguyên sn, siginfo_t *si, void *data) {
         unsigned long ul;
         void *aligned;
 
         assert(sn == SIGBUS);
         assert(si);
 
-        if (si->si_code != BUS_ADRERR || !si->si_addr) {
+        nếu (si->si_code != BUS_ADRERR || !si->si_addr) {
                 assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
                 propagate_signal(sn, si);
-                return;
+                trả_về;
         }
 
         ul = (unsigned long) si->si_addr;
@@ -127,21 +127,21 @@ void sigbus_install(void) {
 
         n_installed++;
 
-        if (n_installed == 1)
+        nếu (n_installed == 1)
                 assert_se(sigaction(SIGBUS, &sa, &old_sigaction) >= 0);
 
-        return;
+        trả_về;
 }
 
 void sigbus_reset(void) {
 
-        if (n_installed <= 0)
-                return;
+        nếu (n_installed <= 0)
+                trả_về;
 
         n_installed--;
 
-        if (n_installed == 0)
+        nếu (n_installed == 0)
                 assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
 
-        return;
+        trả_về;
 }

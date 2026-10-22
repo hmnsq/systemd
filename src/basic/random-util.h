@@ -5,22 +5,22 @@
 
 /* Returns random bytes suitable for most uses, but may be insecure sometimes. */
 void random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+số_nguyên random_bytes_allocate_iovec(size_t n, struct iovec *ret);
 
 /* Returns secure random bytes after waiting for the RNG to initialize. */
-int crypto_random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret);
+số_nguyên crypto_random_bytes(void *p, size_t n) _nonnull_if_nonzero_(1, 2);
+số_nguyên crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret);
 
 static inline uint64_t random_u64(void) {
         uint64_t u;
         random_bytes(&u, sizeof(u));
-        return u;
+        trả_về u;
 }
 
 static inline uint32_t random_u32(void) {
         uint32_t u;
         random_bytes(&u, sizeof(u));
-        return u;
+        trả_về u;
 }
 
 /* Some limits on the pool sizes when we deal with the kernel random pool */
@@ -30,6 +30,6 @@ static inline uint32_t random_u32(void) {
 
 size_t random_pool_size(void);
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) _nonnull_if_nonzero_(2, 3);
+số_nguyên random_write_entropy(số_nguyên fd, const void *seed, size_t size, bool credit) _nonnull_if_nonzero_(2, 3);
 
 uint64_t random_u64_range(uint64_t max);

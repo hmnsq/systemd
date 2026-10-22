@@ -25,91 +25,91 @@ void iovw_done_free(struct iovec_wrapper *iovw) {
 }
 
 struct iovec_wrapper* iovw_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+        nếu (!iovw)
+                trả_về NULL;
 
         iovw_done(iovw);
-        return mfree(iovw);
+        trả_về mfree(iovw);
 }
 
 struct iovec_wrapper* iovw_free_free(struct iovec_wrapper *iovw) {
-        if (!iovw)
-                return NULL;
+        nếu (!iovw)
+                trả_về NULL;
 
         iovw_done_free(iovw);
-        return mfree(iovw);
+        trả_về mfree(iovw);
 }
 
-int iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
-        int r;
+số_nguyên iovw_compare(const struct iovec_wrapper *a, const struct iovec_wrapper *b) {
+        số_nguyên r;
 
-        if (a == b)
-                return 0;
+        nếu (a == b)
+                trả_về 0;
 
-        if (!a || !b)
-                return CMP(!!a, !!b);
+        nếu (!a || !b)
+                trả_về CMP(!!a, !!b);
 
         /* Note, this performs structural (element-by-element) comparison, not content-based comparison.
          * Two wrappers with identical concatenated content but different element boundaries
          * (e.g., ["fo","o"] vs ["f","oo"]) will not compare as equal. */
 
-        for (size_t i = 0, n = MIN(a->count, b->count); i < n; i++) {
+        cho (size_t i = 0, n = MIN(a->count, b->count); i < n; i++) {
                 r = iovec_memcmp(a->iovec + i, b->iovec + i);
-                if (r != 0)
-                        return r;
+                nếu (r != 0)
+                        trả_về r;
         }
 
-        return CMP(a->count, b->count);
+        trả_về CMP(a->count, b->count);
 }
 
-int iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
+số_nguyên iovw_put_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
         assert(iovw);
         assert(data || len == 0);
 
-        if (len == 0 && !accept_zero)
-                return 0;
+        nếu (len == 0 && !accept_zero)
+                trả_về 0;
 
-        if (iovw->count >= IOV_MAX)
-                return -E2BIG;
+        nếu (iovw->count >= IOV_MAX)
+                trả_về -E2BIG;
 
-        if (!GREEDY_REALLOC(iovw->iovec, iovw->count + 1))
-                return -ENOMEM;
+        nếu (!GREEDY_REALLOC(iovw->iovec, iovw->count + 1))
+                trả_về -ENOMEM;
 
         iovw->iovec[iovw->count++] = IOVEC_MAKE(data, len);
-        return 1;
+        trả_về 1;
 }
 
-int iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
+số_nguyên iovw_put_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
         assert(iovw);
 
-        if (!iov)
-                return 0;
+        nếu (!iov)
+                trả_về 0;
 
-        return iovw_put_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        trả_về iovw_put_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+số_nguyên iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
+        số_nguyên r;
 
         assert(iovw);
 
-        if (iovw_isempty(source))
-                return 0;
+        nếu (iovw_isempty(source))
+                trả_về 0;
 
         /* We will reallocate iovw->iovec, hence the source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        nếu (iovw == source)
+                trả_về -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        nếu (iovw->count > SIZE_MAX - source->count)
+                trả_về -E2BIG;
+        nếu (iovw->count + source->count > IOV_MAX)
+                trả_về -E2BIG;
 
-        if (accept_zero) {
-                if (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->count, source->iovec, source->count))
-                        return -ENOMEM;
+        nếu (accept_zero) {
+                nếu (!GREEDY_REALLOC_APPEND(iovw->iovec, iovw->count, source->iovec, source->count))
+                        trả_về -ENOMEM;
 
-                return 0;
+                trả_về 0;
         }
 
         /* When accept_zero is false, we need to filter zero length iovec in source. */
@@ -117,151 +117,151 @@ int iovw_put_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struc
 
         FOREACH_ARRAY(iovec, source->iovec, source->count) {
                 r = iovw_put_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
+                nếu (r < 0)
                         goto rollback;
         }
 
-        return 0;
+        trả_về 0;
 
 rollback:
         iovw->count = original_count;
-        return r;
+        trả_về r;
 }
 
-int iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
+số_nguyên iovw_consume_full(struct iovec_wrapper *iovw, bool accept_zero, void *data, size_t len) {
         /* Move data into iovw or free on error */
-        int r;
+        số_nguyên r;
 
         r = iovw_put_full(iovw, accept_zero, data, len);
-        if (r <= 0)
+        nếu (r <= 0)
                 free(data);
 
-        return r;
+        trả_về r;
 }
 
-int iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov) {
-        int r;
+số_nguyên iovw_consume_iov_full(struct iovec_wrapper *iovw, bool accept_zero, struct iovec *iov) {
+        số_nguyên r;
 
         assert(iovw);
 
-        if (!iov)
-                return 0;
+        nếu (!iov)
+                trả_về 0;
 
         r = iovw_put_iov_full(iovw, accept_zero, iov);
-        if (r <= 0)
+        nếu (r <= 0)
                 iovec_done(iov);
-        else
+        không_thì
                 /* On success, iov->iov_base is now owned by iovw. Let's emptify iov, but do not call
                  * iovec_done(), of course. */
                 *iov = (struct iovec) {};
 
-        return r;
+        trả_về r;
 }
 
-int iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len) {
+số_nguyên iovw_extend_full(struct iovec_wrapper *iovw, bool accept_zero, const void *data, size_t len) {
         assert(iovw);
         assert(data || len == 0);
 
-        if (len == 0)
-                return iovw_put_full(iovw, accept_zero, /* data= */ NULL, /* len= */ 0);
+        nếu (len == 0)
+                trả_về iovw_put_full(iovw, accept_zero, /* data= */ NULL, /* len= */ 0);
 
         void *c = memdup(data, len);
-        if (!c)
-                return -ENOMEM;
+        nếu (!c)
+                trả_về -ENOMEM;
 
-        return iovw_consume_full(iovw, accept_zero, c, len);
+        trả_về iovw_consume_full(iovw, accept_zero, c, len);
 }
 
-int iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
+số_nguyên iovw_extend_iov_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec *iov) {
         assert(iovw);
 
-        if (!iov)
-                return 0;
+        nếu (!iov)
+                trả_về 0;
 
-        return iovw_extend_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
+        trả_về iovw_extend_full(iovw, accept_zero, iov->iov_base, iov->iov_len);
 }
 
-int iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
-        int r;
+số_nguyên iovw_extend_iovw_full(struct iovec_wrapper *iovw, bool accept_zero, const struct iovec_wrapper *source) {
+        số_nguyên r;
 
         assert(iovw);
 
         /* This duplicates the source and merges it into the iovw. */
 
-        if (iovw_isempty(source))
-                return 0;
+        nếu (iovw_isempty(source))
+                trả_về 0;
 
         /* iovw->iovec will be reallocated in the loop below, hence source cannot point to the same object. */
-        if (iovw == source)
-                return -EINVAL;
+        nếu (iovw == source)
+                trả_về -EINVAL;
 
-        if (iovw->count > SIZE_MAX - source->count)
-                return -E2BIG;
-        if (iovw->count + source->count > IOV_MAX)
-                return -E2BIG;
+        nếu (iovw->count > SIZE_MAX - source->count)
+                trả_về -E2BIG;
+        nếu (iovw->count + source->count > IOV_MAX)
+                trả_về -E2BIG;
 
         size_t original_count = iovw->count;
 
         FOREACH_ARRAY(iovec, source->iovec, source->count) {
                 r = iovw_extend_iov_full(iovw, accept_zero, iovec);
-                if (r < 0)
+                nếu (r < 0)
                         goto rollback;
         }
 
-        return 0;
+        trả_về 0;
 
 rollback:
-        for (size_t i = original_count; i < iovw->count; i++)
+        cho (size_t i = original_count; i < iovw->count; i++)
                 iovec_done(iovw->iovec + i);
 
         iovw->count = original_count;
-        return r;
+        trả_về r;
 }
 
-int iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value) {
+số_nguyên iovw_put_string_field_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *value) {
         _cleanup_free_ char *x = NULL;
-        int r;
+        số_nguyên r;
 
         assert(iovw);
 
         x = strjoin(field, value);
-        if (!x)
-                return -ENOMEM;
+        nếu (!x)
+                trả_về -ENOMEM;
 
-        if (replace)
+        nếu (replace)
                 FOREACH_ARRAY(iovec, iovw->iovec, iovw->count)
-                        if (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
+                        nếu (memory_startswith(iovec->iov_base, iovec->iov_len, field)) {
                                 iovec->iov_len = strlen(x);
-                                return free_and_replace(iovec->iov_base, x);
+                                trả_về free_and_replace(iovec->iov_base, x);
                         }
 
         r = iovw_put(iovw, x, strlen(x));
-        if (r >= 0)
+        nếu (r >= 0)
                 TAKE_PTR(x);
 
-        return r;
+        trả_về r;
 }
 
-int iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) {
+số_nguyên iovw_put_string_fieldf_full(struct iovec_wrapper *iovw, bool replace, const char *field, const char *format, ...) {
         _cleanup_free_ char *value = NULL;
         va_list ap;
-        int r;
+        số_nguyên r;
 
         assert(format);
 
         va_start(ap, format);
         r = vasprintf(&value, format, ap);
         va_end(ap);
-        if (r < 0)
-                return -ENOMEM;
+        nếu (r < 0)
+                trả_về -ENOMEM;
 
-        return iovw_put_string_field_full(iovw, replace, field, value);
+        trả_về iovw_put_string_field_full(iovw, replace, field, value);
 }
 
-int iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value) {
+số_nguyên iovw_put_string_field_free(struct iovec_wrapper *iovw, const char *field, char *value) {
         _cleanup_free_ _unused_ char *free_ptr = value;
 
-        return iovw_put_string_field(iovw, field, value);
+        trả_về iovw_put_string_field(iovw, field, value);
 }
 
 void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new) {
@@ -274,26 +274,26 @@ void iovw_rebase(struct iovec_wrapper *iovw, void *old, void *new) {
 }
 
 size_t iovw_size(const struct iovec_wrapper *iovw) {
-        if (iovw_isempty(iovw))
-                return 0;
+        nếu (iovw_isempty(iovw))
+                trả_về 0;
 
-        return iovec_total_size(iovw->iovec, iovw->count);
+        trả_về iovec_total_size(iovw->iovec, iovw->count);
 }
 
-int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
+số_nguyên iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
         assert(iovw);
         assert(ret);
 
         /* Squish a series of iovecs into a single iovec. */
 
         size_t len = iovw_size(iovw);
-        if (len == SIZE_MAX)
-                return -E2BIG;  /* Prevent theoretical overflow */
+        nếu (len == SIZE_MAX)
+                trả_về -E2BIG;  /* Prevent theoretical overflow */
 
         /* Always allocate one more byte to make the result usable as a NUL-terminated string. */
         _cleanup_free_ uint8_t *buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        nếu (!buf)
+                trả_về -ENOMEM;
 
         uint8_t *p = buf;
         FOREACH_ARRAY(i, iovw->iovec, iovw->count)
@@ -302,7 +302,7 @@ int iovw_concat(const struct iovec_wrapper *iovw, struct iovec *ret) {
         *p = 0;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), len);
-        return 0;
+        trả_về 0;
 }
 
 char* iovw_to_cstring(const struct iovec_wrapper *iovw) {
@@ -312,15 +312,15 @@ char* iovw_to_cstring(const struct iovec_wrapper *iovw) {
          * The caller is expected to filter them out when populating the data. */
 
         _cleanup_(iovec_done) struct iovec iov = {};
-        if (iovw_concat(iovw, &iov) < 0)
-                return NULL;
+        nếu (iovw_concat(iovw, &iov) < 0)
+                trả_về NULL;
 
         assert(!memchr(iov.iov_base, 0, iov.iov_len));
-        return TAKE_PTR(iov.iov_base);
+        trả_về TAKE_PTR(iov.iov_base);
 }
 
-int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret) {
-        int r;
+số_nguyên iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrapper *ret) {
+        số_nguyên r;
 
         assert(IN_SET(length_size, 1, 2, 4));
         assert(ret);
@@ -328,15 +328,15 @@ int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrappe
         /* This parses the input iovec as length-prefixed data, and stores the result as iovec_wrapper.
          * Note, zero-length entries are silently dropped. */
 
-        if (!iovec_is_set(iov)) {
+        nếu (!iovec_is_set(iov)) {
                 *ret = (struct iovec_wrapper) {};
-                return 0;
+                trả_về 0;
         }
 
         _cleanup_(iovw_done_free) struct iovec_wrapper iovw = {};
-        for (struct iovec i = *iov; iovec_is_set(&i); ) {
-                if (i.iov_len < length_size)
-                        return -EBADMSG;
+        cho (struct iovec i = *iov; iovec_is_set(&i); ) {
+                nếu (i.iov_len < length_size)
+                        trả_về -EBADMSG;
 
                 size_t len;
                 switch (length_size) {
@@ -355,24 +355,24 @@ int iovec_split(const struct iovec *iov, size_t length_size, struct iovec_wrappe
 
                 iovec_inc(&i, length_size);
 
-                if (len == 0)
+                nếu (len == 0)
                         continue;
 
-                if (i.iov_len < len)
-                        return -EBADMSG;
+                nếu (i.iov_len < len)
+                        trả_về -EBADMSG;
 
                 r = iovw_extend(&iovw, i.iov_base, len);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
 
                 iovec_inc(&i, len);
         }
 
         *ret = TAKE_STRUCT(iovw);
-        return 0;
+        trả_về 0;
 }
 
-int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret) {
+số_nguyên iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iovec *ret) {
         assert(IN_SET(length_size, 1, 2, 4));
         assert(ret);
 
@@ -380,45 +380,45 @@ int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iove
          * Note, zero-length entries are silently dropped. */
 
         size_t sz = iovw_size(iovw);
-        if (sz == 0) {
+        nếu (sz == 0) {
                 *ret = (struct iovec) {};
-                return 0;
+                trả_về 0;
         }
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        nếu (sz == SIZE_MAX)
+                trả_về -E2BIG;
 
-        if (size_multiply_overflow(length_size, iovw->count))
-                return -E2BIG;
+        nếu (size_multiply_overflow(length_size, iovw->count))
+                trả_về -E2BIG;
 
         sz = size_add(sz, iovw->count * length_size);
-        if (sz == SIZE_MAX)
-                return -E2BIG;
+        nếu (sz == SIZE_MAX)
+                trả_về -E2BIG;
 
         _cleanup_free_ uint8_t *buf = new(uint8_t, sz);
-        if (!buf)
-                return -ENOMEM;
+        nếu (!buf)
+                trả_về -ENOMEM;
 
         uint8_t *p = buf;
         FOREACH_ARRAY(iov, iovw->iovec, iovw->count) {
-                if (iov->iov_len == 0)
+                nếu (iov->iov_len == 0)
                         continue;
 
                 switch (length_size) {
                 case 1:
-                        if (iov->iov_len > UINT8_MAX)
-                                return -ERANGE;
+                        nếu (iov->iov_len > UINT8_MAX)
+                                trả_về -ERANGE;
 
                         *p = iov->iov_len;
                         break;
                 case 2:
-                        if (iov->iov_len > UINT16_MAX)
-                                return -ERANGE;
+                        nếu (iov->iov_len > UINT16_MAX)
+                                trả_về -ERANGE;
 
                         unaligned_write_be16(p, iov->iov_len);
                         break;
                 case 4:
-                        if (iov->iov_len > UINT32_MAX)
-                                return -ERANGE;
+                        nếu (iov->iov_len > UINT32_MAX)
+                                trả_về -ERANGE;
 
                         unaligned_write_be32(p, iov->iov_len);
                         break;
@@ -434,5 +434,5 @@ int iovw_merge(const struct iovec_wrapper *iovw, size_t length_size, struct iove
         sz = p - buf;
 
         *ret = IOVEC_MAKE(TAKE_PTR(buf), sz);
-        return 0;
+        trả_về 0;
 }

@@ -49,12 +49,12 @@ static void fallback_random_bytes(void *p, size_t n) {
         memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), sizeof(state.auxval));
         (void) pidfd_get_inode_id_self_cached(&state.pidfdid);
 
-        while (n > 0) {
+        trong_khi (n > 0) {
                 struct sha256_ctx ctx;
 
                 sha256_init_ctx(&ctx);
                 sha256_process_bytes(&state, sizeof(state), &ctx);
-                if (n < SHA256_DIGEST_SIZE) {
+                nếu (n < SHA256_DIGEST_SIZE) {
                         uint8_t partial[SHA256_DIGEST_SIZE];
                         sha256_finish_ctx(&ctx, partial);
                         memcpy(p, partial, n);
@@ -70,62 +70,62 @@ static void fallback_random_bytes(void *p, size_t n) {
 void random_bytes(void *p, size_t n) {
         assert(p || n == 0);
 
-        if (n == 0)
-                return;
+        nếu (n == 0)
+                trả_về;
 
-        for (;;) {
+        cho (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, GRND_INSECURE);
-                if (l <= 0)
+                nếu (l <= 0)
                         break; /* Unexpected error. Give up and fallback to /dev/urandom. */
 
-                if ((size_t) l == n)
-                        return; /* Done reading, success. */
+                nếu ((size_t) l == n)
+                        trả_về; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
                 /* Interrupted by a signal; keep going. */
         }
 
-        _cleanup_close_ int fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
-                return;
+        _cleanup_close_ số_nguyên fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
+        nếu (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
+                trả_về;
 
         /* This is a terrible fallback. Oh well. */
         fallback_random_bytes(p, n);
 }
 
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
+số_nguyên random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
         assert(ret);
 
         void *p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        nếu (!p)
+                trả_về -ENOMEM;
 
         random_bytes(p, n);
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        trả_về 0;
 }
 
-int crypto_random_bytes(void *p, size_t n) {
+số_nguyên crypto_random_bytes(void *p, size_t n) {
         assert(p || n == 0);
 
-        if (n == 0)
-                return 0;
+        nếu (n == 0)
+                trả_về 0;
 
-        for (;;) {
+        cho (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, 0);
-                if (l < 0)
-                        return -errno;
-                if (l == 0)
-                        return -EIO; /* Weird, should never happen. */
+                nếu (l < 0)
+                        trả_về -errno;
+                nếu (l == 0)
+                        trả_về -EIO; /* Weird, should never happen. */
 
-                if ((size_t) l == n)
-                        return 0; /* Done reading, success. */
+                nếu ((size_t) l == n)
+                        trả_về 0; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
@@ -133,89 +133,89 @@ int crypto_random_bytes(void *p, size_t n) {
         }
 }
 
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
+số_nguyên crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
         _cleanup_free_ void *p = NULL;
-        int r;
+        số_nguyên r;
 
         assert(ret);
 
         p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        nếu (!p)
+                trả_về -ENOMEM;
 
         r = crypto_random_bytes(p, n);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        trả_về 0;
 }
 
 size_t random_pool_size(void) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        số_nguyên r;
 
         /* Read pool size, if possible */
         r = read_one_line_file("/proc/sys/kernel/random/poolsize", &s);
-        if (r < 0)
+        nếu (r < 0)
                 log_debug_errno(r, "Failed to read pool size from kernel: %m");
-        else {
+        không_thì {
                 unsigned sz;
 
                 r = safe_atou(s, &sz);
-                if (r < 0)
+                nếu (r < 0)
                         log_debug_errno(r, "Failed to parse pool size: %s", s);
-                else
+                không_thì
                         /* poolsize is in bits on 2.6, but we want bytes */
-                        return CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
+                        trả_về CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
         }
 
         /* Use the minimum as default, if we can't retrieve the correct value */
-        return RANDOM_POOL_SIZE_MIN;
+        trả_về RANDOM_POOL_SIZE_MIN;
 }
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int r;
+số_nguyên random_write_entropy(số_nguyên fd, const void *seed, size_t size, bool credit) {
+        _cleanup_close_ số_nguyên opened_fd = -EBADF;
+        số_nguyên r;
 
         assert(seed || size == 0);
 
-        if (size == 0)
-                return 0;
+        nếu (size == 0)
+                trả_về 0;
 
-        if (fd < 0) {
+        nếu (fd < 0) {
                 opened_fd = open("/dev/urandom", O_WRONLY|O_CLOEXEC|O_NOCTTY);
-                if (opened_fd < 0)
-                        return -errno;
+                nếu (opened_fd < 0)
+                        trả_về -errno;
 
                 fd = opened_fd;
         }
 
-        if (credit) {
+        nếu (credit) {
                 _cleanup_free_ struct rand_pool_info *info = NULL;
 
                 /* The kernel API only accepts "int" as entropy count (which is in bits), let's avoid any
                  * chance for confusion here. */
-                if (size > INT_MAX / 8)
-                        return -EOVERFLOW;
+                nếu (size > INT_MAX / 8)
+                        trả_về -EOVERFLOW;
 
                 info = malloc(offsetof(struct rand_pool_info, buf) + size);
-                if (!info)
-                        return -ENOMEM;
+                nếu (!info)
+                        trả_về -ENOMEM;
 
                 info->entropy_count = size * 8;
                 info->buf_size = size;
                 memcpy(info->buf, seed, size);
 
-                if (ioctl(fd, RNDADDENTROPY, info) < 0)
-                        return -errno;
-        } else {
+                nếu (ioctl(fd, RNDADDENTROPY, info) < 0)
+                        trả_về -errno;
+        } không_thì {
                 r = loop_write(fd, seed, size);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
         }
 
-        return 1;
+        trả_về 1;
 }
 
 uint64_t random_u64_range(uint64_t m) {
@@ -223,16 +223,16 @@ uint64_t random_u64_range(uint64_t m) {
 
         /* Generates a random number in the range 0…m-1, unbiased. (Java's algorithm) */
 
-        if (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
-                return random_u64();
-        if (m == 1)
-                return 0;
+        nếu (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
+                trả_về random_u64();
+        nếu (m == 1)
+                trả_về 0;
 
         remainder = UINT64_MAX % m;
 
         do {
                 x = random_u64();
-        } while (x >= UINT64_MAX - remainder);
+        } trong_khi (x >= UINT64_MAX - remainder);
 
-        return x % m;
+        trả_về x % m;
 }

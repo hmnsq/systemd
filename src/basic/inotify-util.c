@@ -9,7 +9,7 @@ bool inotify_event_next(
                 union inotify_event_buffer *buffer,
                 size_t size,
                 struct inotify_event **iterator,
-                int log_level) {
+                số_nguyên log_level) {
 
         struct inotify_event *e;
         size_t offset = 0;
@@ -17,59 +17,59 @@ bool inotify_event_next(
         assert(buffer);
         assert(iterator);
 
-        if (*iterator) {
+        nếu (*iterator) {
                 assert((uint8_t*) *iterator >= buffer->raw);
                 offset = (uint8_t*) *iterator - buffer->raw;
                 offset += offsetof(struct inotify_event, name) + (*iterator)->len;
         }
 
-        if (size == offset)
-                return false; /* reached end of list */
+        nếu (size == offset)
+                trả_về false; /* reached end of list */
 
-        if (size < offset ||
+        nếu (size < offset ||
             size - offset < offsetof(struct inotify_event, name)) {
                 log_full(log_level, "Received invalid inotify event, ignoring.");
-                return false;
+                trả_về false;
         }
 
         e = CAST_ALIGN_PTR(struct inotify_event, buffer->raw + offset);
-        if (size - offset - offsetof(struct inotify_event, name) < e->len) {
+        nếu (size - offset - offsetof(struct inotify_event, name) < e->len) {
                 log_full(log_level, "Received invalid inotify event, ignoring.");
-                return false;
+                trả_về false;
         }
 
         *iterator = e;
-        return true;
+        trả_về true;
 }
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask) {
-        int wd;
+số_nguyên inotify_add_watch_fd(số_nguyên fd, số_nguyên what, uint32_t mask) {
+        số_nguyên wd;
 
         assert(fd >= 0);
         assert(what >= 0);
 
         /* This is like inotify_add_watch(), except that the file to watch is not referenced by a path, but by an fd */
         wd = inotify_add_watch(fd, FORMAT_PROC_FD_PATH(what), mask);
-        if (wd < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        nếu (wd < 0) {
+                nếu (errno != ENOENT)
+                        trả_về -errno;
 
-                return proc_fd_enoent_errno();
+                trả_về proc_fd_enoent_errno();
         }
 
-        return wd;
+        trả_về wd;
 }
 
-int inotify_add_watch_and_warn(int fd, const char *pathname, uint32_t mask) {
-        int wd;
+số_nguyên inotify_add_watch_and_warn(số_nguyên fd, const char *pathname, uint32_t mask) {
+        số_nguyên wd;
 
         wd = inotify_add_watch(fd, pathname, mask);
-        if (wd < 0) {
-                if (errno == ENOSPC)
-                        return log_error_errno(errno, "Failed to add a watch for %s: inotify watch limit reached", pathname);
+        nếu (wd < 0) {
+                nếu (errno == ENOSPC)
+                        trả_về log_error_errno(errno, "Failed to add a watch for %s: inotify watch limit reached", pathname);
 
-                return log_error_errno(errno, "Failed to add a watch for %s: %m", pathname);
+                trả_về log_error_errno(errno, "Failed to add a watch for %s: %m", pathname);
         }
 
-        return wd;
+        trả_về wd;
 }

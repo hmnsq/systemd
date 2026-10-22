@@ -17,52 +17,52 @@ static const struct capability_name* lookup_capability(register const char *str,
 #include "capability-from-name.inc"
 #include "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+const char* capability_to_name(số_nguyên id) {
+        nếu (id < 0)
+                trả_về NULL;
+        nếu ((unsigned) id >= capability_list_length())
+                trả_về NULL;
 
-        return capability_names[id];
+        trả_về capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
+const char* capability_to_string(số_nguyên id, char buf[static CAPABILITY_TO_STRING_MAX]) {
         const char *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        nếu (id < 0)
+                trả_về NULL;
+        nếu (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                trả_về NULL;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        nếu (p)
+                trả_về p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        trả_về buf;
 }
 
-int capability_from_name(const char *name) {
+số_nguyên capability_from_name(const char *name) {
         const struct capability_name *sc;
-        int r, i;
+        số_nguyên r, i;
 
         assert(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        nếu (r >= 0) {
+                nếu (i < 0 || i > CAP_LIMIT)
+                        trả_về -EINVAL;
 
-                return i;
+                trả_về i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        nếu (!sc)
+                trả_về -EINVAL;
 
-        return sc->id;
+        trả_về sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -71,40 +71,40 @@ int capability_from_name(const char *name) {
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
 unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+        trả_về MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
+số_nguyên capability_set_to_string(uint64_t set, char **ret) {
         _cleanup_free_ char *str = NULL;
 
         assert(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
+        cho (unsigned i = 0; i <= cap_last_cap(); i++) {
                 const char *p;
 
-                if (!BIT_SET(set, i))
+                nếu (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                nếu (!strextend_with_separator(&str, " ", p))
+                        trả_về -ENOMEM;
         }
 
-        if (!str) {
+        nếu (!str) {
                 str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+                nếu (!str)
+                        trả_về -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        trả_về 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
+số_nguyên capability_set_to_string_negative(uint64_t set, char **ret) {
         _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+        số_nguyên r;
 
         assert(ret);
 
@@ -113,74 +113,74 @@ int capability_set_to_string_negative(uint64_t set, char **ret) {
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        nếu (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
+        không_thì {
                 char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+                nếu (!c)
+                        trả_về -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        trả_về 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
+số_nguyên capability_set_to_strv(uint64_t set, char ***ret) {
         _cleanup_strv_free_ char **l = NULL;
-        int r;
+        số_nguyên r;
 
         assert(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
+        cho (unsigned i = 0; i <= cap_last_cap(); i++) {
                 const char *p;
 
-                if (!BIT_SET(set, i))
+                nếu (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        trả_về 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+số_nguyên capability_set_from_string(const char *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
+        cho (const char *p = s;;) {
                 _cleanup_free_ char *word = NULL;
-                int r;
+                số_nguyên r;
 
                 r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                nếu (r < 0)
+                        trả_về r;
+                nếu (r == 0)
                         break;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                nếu (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } không_thì
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        nếu (ret)
                 *ret = val;
 
-        return good;
+        trả_về good;
 }

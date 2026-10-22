@@ -13,9 +13,9 @@
                 pid_t _pid_ = (pid);                                    \
                 const char *_field_ = (field);                          \
                 char *_r_;                                              \
-                if (_pid_ == 0)                                         \
+                nếu (_pid_ == 0)                                         \
                         _r_ = strjoina("/proc/self/", _field_);         \
-                else {                                                  \
+                không_thì {                                                  \
                         assert(_pid_ > 0);                              \
                         _r_ = newa(char, STRLEN("/proc/") + DECIMAL_STR_MAX(pid_t) + 1 + strlen(_field_) + 1); \
                         sprintf(_r_, "/proc/" PID_FMT "/%s", _pid_, _field_); \
@@ -23,8 +23,8 @@
                 (const char*) _r_;                                      \
         })
 
-static inline int procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
-        return get_proc_field(procfs_file_alloca(pid, name), key, ret);
+static inline số_nguyên procfs_file_get_field(pid_t pid, const char *name, const char *key, char **ret) {
+        trả_về get_proc_field(procfs_file_alloca(pid, name), key, ret);
 }
 
 typedef enum ProcessCmdlineFlags {
@@ -34,30 +34,30 @@ typedef enum ProcessCmdlineFlags {
         PROCESS_CMDLINE_QUOTE_POSIX   = 1 << 3,
 } ProcessCmdlineFlags;
 
-int pid_get_comm(pid_t pid, char **ret);
-int pidref_get_comm(const PidRef *pid, char **ret);
-int pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
-int pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
-int pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
-int get_process_exe(pid_t pid, char **ret);
-int pid_get_uid(pid_t pid, uid_t *ret);
-int pidref_get_uid(const PidRef *pid, uid_t *ret);
-int get_process_gid(pid_t pid, gid_t *ret);
-int get_process_cwd(pid_t pid, char **ret);
-int get_process_root(pid_t pid, char **ret);
-int get_process_environ(pid_t pid, char **ret);
-int pid_get_ppid(pid_t pid, pid_t *ret);
-int pidref_get_ppid(const PidRef *pidref, pid_t *ret);
-int pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
-int pid_get_start_time(pid_t pid, usec_t *ret);
-int pidref_get_start_time(const PidRef *pid, usec_t *ret);
-int get_process_umask(pid_t pid, mode_t *ret);
-int pidref_has_sigcgt(const PidRef *pidref, int sig);
-int pidref_has_sigblk(const PidRef *pidref, int sig);
+số_nguyên pid_get_comm(pid_t pid, char **ret);
+số_nguyên pidref_get_comm(const PidRef *pid, char **ret);
+số_nguyên pid_get_cmdline(pid_t pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
+số_nguyên pidref_get_cmdline(const PidRef *pid, size_t max_columns, ProcessCmdlineFlags flags, char **ret);
+số_nguyên pid_get_cmdline_strv(pid_t pid, ProcessCmdlineFlags flags, char ***ret);
+số_nguyên pidref_get_cmdline_strv(const PidRef *pid, ProcessCmdlineFlags flags, char ***ret);
+số_nguyên get_process_exe(pid_t pid, char **ret);
+số_nguyên pid_get_uid(pid_t pid, uid_t *ret);
+số_nguyên pidref_get_uid(const PidRef *pid, uid_t *ret);
+số_nguyên get_process_gid(pid_t pid, gid_t *ret);
+số_nguyên get_process_cwd(pid_t pid, char **ret);
+số_nguyên get_process_root(pid_t pid, char **ret);
+số_nguyên get_process_environ(pid_t pid, char **ret);
+số_nguyên pid_get_ppid(pid_t pid, pid_t *ret);
+số_nguyên pidref_get_ppid(const PidRef *pidref, pid_t *ret);
+số_nguyên pidref_get_ppid_as_pidref(const PidRef *pidref, PidRef *ret);
+số_nguyên pid_get_start_time(pid_t pid, usec_t *ret);
+số_nguyên pidref_get_start_time(const PidRef *pid, usec_t *ret);
+số_nguyên get_process_umask(pid_t pid, mode_t *ret);
+số_nguyên pidref_has_sigcgt(const PidRef *pidref, số_nguyên sig);
+số_nguyên pidref_has_sigblk(const PidRef *pidref, số_nguyên sig);
 
-static inline bool SIGINFO_CODE_IS_DEAD(int code) {
-        return IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
+static inline bool SIGINFO_CODE_IS_DEAD(số_nguyên code) {
+        trả_về IN_SET(code, CLD_EXITED, CLD_KILLED, CLD_DUMPED);
 }
 
 typedef enum WaitFlags {
@@ -68,24 +68,24 @@ typedef enum WaitFlags {
         WAIT_LOG = WAIT_LOG_ABNORMAL|WAIT_LOG_NON_ZERO_EXIT_STATUS,
 } WaitFlags;
 
-int pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
+số_nguyên pidref_wait_for_terminate_and_check(const char *name, PidRef *pidref, WaitFlags flags);
 
-int kill_and_sigcont(pid_t pid, int sig);
+số_nguyên kill_and_sigcont(pid_t pid, số_nguyên sig);
 
-int procfs_get_stat_flags(const char *path, unsigned long long *ret);
+số_nguyên procfs_get_stat_flags(const char *path, unsigned long long *ret);
 
-int pid_is_kernel_thread(pid_t pid);
-int pidref_is_kernel_thread(const PidRef *pid);
+số_nguyên pid_is_kernel_thread(pid_t pid);
+số_nguyên pidref_is_kernel_thread(const PidRef *pid);
 
-int getenv_for_pid(pid_t pid, const char *field, char **ret);
+số_nguyên getenv_for_pid(pid_t pid, const char *field, char **ret);
 
-int pid_is_alive(pid_t pid);
-int pidref_is_alive(const PidRef *pidref);
-int pid_is_unwaited(pid_t pid);
-int pidref_is_unwaited(PidRef *pidref);
-int pid_is_my_child(pid_t pid);
-int pidref_is_my_child(PidRef *pidref);
-int pidref_from_same_root_fs(PidRef *a, PidRef *b);
+số_nguyên pid_is_alive(pid_t pid);
+số_nguyên pidref_is_alive(const PidRef *pidref);
+số_nguyên pid_is_unwaited(pid_t pid);
+số_nguyên pidref_is_unwaited(PidRef *pidref);
+số_nguyên pid_is_my_child(pid_t pid);
+số_nguyên pidref_is_my_child(PidRef *pidref);
+số_nguyên pidref_from_same_root_fs(PidRef *a, PidRef *b);
 
 bool is_main_thread(void);
 
@@ -104,47 +104,47 @@ bool is_main_thread(void);
 unsigned long personality_from_string(const char *s);
 const char* personality_to_string(unsigned long p);
 
-int safe_personality(unsigned long p);
-int opinionated_personality(unsigned long *ret);
+số_nguyên safe_personality(unsigned long p);
+số_nguyên opinionated_personality(unsigned long *ret);
 
-DECLARE_STRING_TABLE_LOOKUP(sigchld_code, int);
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, int);
+DECLARE_STRING_TABLE_LOOKUP(sigchld_code, số_nguyên);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(sched_policy, số_nguyên);
 
 static inline pid_t PTR_TO_PID(const void *p) {
-        return (pid_t) ((uintptr_t) p);
+        trả_về (pid_t) ((uintptr_t) p);
 }
 
 static inline void* PID_TO_PTR(pid_t pid) {
-        return (void*) ((uintptr_t) pid);
+        trả_về (void*) ((uintptr_t) pid);
 }
 
 void valgrind_summary_hack(void);
 
-int pid_compare_func(const pid_t *a, const pid_t *b);
+số_nguyên pid_compare_func(const pid_t *a, const pid_t *b);
 
-bool nice_is_valid(int n) _const_;
+bool nice_is_valid(số_nguyên n) _const_;
 
-bool sched_policy_is_valid(int policy) _const_;
-bool sched_policy_supported(int policy);
-int sched_get_priority_min_safe(int policy);
-int sched_get_priority_max_safe(int policy);
+bool sched_policy_is_valid(số_nguyên policy) _const_;
+bool sched_policy_supported(số_nguyên policy);
+số_nguyên sched_get_priority_min_safe(số_nguyên policy);
+số_nguyên sched_get_priority_max_safe(số_nguyên policy);
 
 #define PID_AUTOMATIC ((pid_t) INT_MIN) /* special value indicating "acquire pid from connection peer" */
 
 static inline bool pid_is_valid(pid_t p) {
-        return p > 0;
+        trả_về p > 0;
 }
 
 static inline bool pid_is_automatic(pid_t p) {
-        return p == PID_AUTOMATIC;
+        trả_về p == PID_AUTOMATIC;
 }
 
 pid_t getpid_cached(void);
 void reset_cached_pid(void);
 
-int must_be_root(void);
+số_nguyên must_be_root(void);
 
-pid_t clone_with_nested_stack(int (*fn)(void *), int flags, void *userdata);
+pid_t clone_with_nested_stack(số_nguyên (*fn)(void *), số_nguyên flags, void *userdata);
 
 /* 💣 Note that FORK_NEW_USERNS, FORK_NEW_MOUNTNS, FORK_NEW_NETNS or FORK_NEW_PIDNS should not be called in threaded
  * programs, because they cause us to use raw_clone() which does not synchronize the glibc malloc() locks,
@@ -178,46 +178,46 @@ typedef enum ForkFlags {
         FORK_ALLOW_DLOPEN       = 1 << 23, /* Do not block dlopen() in child */
 } ForkFlags;
 
-int pidref_safe_fork_full(
+số_nguyên pidref_safe_fork_full(
                 const char *name,
-                const int stdio_fds[3],
-                int except_fds[],
+                const số_nguyên stdio_fds[3],
+                số_nguyên except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
                 PidRef *ret);
 
-static inline int pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
-        return pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
+static inline số_nguyên pidref_safe_fork(const char *name, ForkFlags flags, PidRef *ret) {
+        trả_về pidref_safe_fork_full(name, NULL, NULL, 0, flags, ret);
 }
 
-int namespace_fork_full(
+số_nguyên namespace_fork_full(
                 const char *outer_name,
                 const char *inner_name,
-                int except_fds[],
+                số_nguyên except_fds[],
                 size_t n_except_fds,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                số_nguyên pidns_fd,
+                số_nguyên mntns_fd,
+                số_nguyên netns_fd,
+                số_nguyên userns_fd,
+                số_nguyên root_fd,
                 NamespaceEnterFlags namespace_flags,
                 PidRef *ret);
 
-int namespace_fork(
+số_nguyên namespace_fork(
                 const char *outer_name,
                 const char *inner_name,
                 ForkFlags flags,
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+                số_nguyên pidns_fd,
+                số_nguyên mntns_fd,
+                số_nguyên netns_fd,
+                số_nguyên userns_fd,
+                số_nguyên root_fd,
                 PidRef *ret);
 
-bool oom_score_adjust_is_valid(int oa);
-int set_oom_score_adjust(int value);
-int get_oom_score_adjust(int *ret);
+bool oom_score_adjust_is_valid(số_nguyên oa);
+số_nguyên set_oom_score_adjust(số_nguyên value);
+số_nguyên get_oom_score_adjust(số_nguyên *ret);
 
 /* The highest possibly (theoretic) pid_t value on this architecture. */
 #define PID_T_MAX ((pid_t) INT32_MAX)
@@ -231,33 +231,33 @@ int get_oom_score_adjust(int *ret);
 
 assert_cc(TASKS_MAX <= (unsigned long) PID_T_MAX);
 
-int setpriority_closest(int priority);
+số_nguyên setpriority_closest(số_nguyên priority);
 
 _noreturn_ void freeze(void);
 
-int get_process_threads(pid_t pid);
+số_nguyên get_process_threads(pid_t pid);
 
-int is_reaper_process(void);
-int make_reaper_process(bool b);
+số_nguyên is_reaper_process(void);
+số_nguyên make_reaper_process(bool b);
 
-int posix_spawn_wrapper(
+số_nguyên posix_spawn_wrapper(
                 const char *path,
                 char * const *argv,
                 char * const *envp,
                 const char *cgroup,
                 PidRef *ret_pidref);
 
-int proc_dir_open(DIR **ret);
-int proc_dir_read(DIR *d, pid_t *ret);
-int proc_dir_read_pidref(DIR *d, PidRef *ret);
+số_nguyên proc_dir_open(DIR **ret);
+số_nguyên proc_dir_read(DIR *d, pid_t *ret);
+số_nguyên proc_dir_read_pidref(DIR *d, PidRef *ret);
 
-int safe_mlockall(int flags);
+số_nguyên safe_mlockall(số_nguyên flags);
 
-_noreturn_ void report_errno_and_exit(int errno_fd, int error);
-int read_errno(int errno_fd);
+_noreturn_ void report_errno_and_exit(số_nguyên errno_fd, số_nguyên error);
+số_nguyên read_errno(số_nguyên errno_fd);
 
-int prctl_safe(int op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+số_nguyên prctl_safe(số_nguyên op, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
 
-int proc_set_comm(const char *comm);
-int proc_set_nnp(void);
+số_nguyên proc_set_comm(const char *comm);
+số_nguyên proc_set_nnp(void);
 nsec_t proc_get_timerslack(void);

@@ -8,80 +8,80 @@
 #include "ordered-set.h"
 #include "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
+số_nguyên ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
         assert(s);
 
-        if (*s)
-                return 0;
+        nếu (*s)
+                trả_về 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        nếu (!*s)
+                trả_về -ENOMEM;
 
-        return 0;
+        trả_về 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+số_nguyên ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
+        số_nguyên r;
 
         assert(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
-        return ordered_set_put(*s, p);
+        trả_về ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+số_nguyên ordered_set_consume(OrderedSet *s, void *p) {
+        số_nguyên r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
+        nếu (r <= 0)
                 free(p);
 
-        return r;
+        trả_về r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
+số_nguyên ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
         char *c;
-        int r;
+        số_nguyên r;
 
         assert(s);
         assert(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        nếu (ordered_set_contains(*s, p))
+                trả_về 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        nếu (!c)
+                trả_về -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        trả_về ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+số_nguyên ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
+        số_nguyên r, ret = 0;
 
         assert(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        trả_về ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
+số_nguyên ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
+        số_nguyên r, ret = 0;
         char *p;
 
         assert(s);
@@ -90,13 +90,13 @@ int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        trả_về ret;
 }
 
 void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
@@ -106,8 +106,8 @@ void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
         assert(f);
         assert(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        nếu (ordered_set_isempty(s))
+                trả_về;
 
         fputs(field, f);
 

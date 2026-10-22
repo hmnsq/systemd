@@ -16,16 +16,16 @@
 
 bool unichar_is_valid(char32_t ch) {
 
-        if (ch >= 0x110000) /* End of unicode space */
-                return false;
-        if ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
-                return false;
-        if ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
-                return false;
-        if ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
-                return false;
+        nếu (ch >= 0x110000) /* End of unicode space */
+                trả_về false;
+        nếu ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
+                trả_về false;
+        nếu ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
+                trả_về false;
+        nếu ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
+                trả_về false;
 
-        return true;
+        trả_về true;
 }
 
 static bool unichar_is_control(char32_t ch) {
@@ -36,30 +36,30 @@ static bool unichar_is_control(char32_t ch) {
           '\t' is in C0 range, but more or less harmless and commonly used.
         */
 
-        return (ch < ' ' && !IN_SET(ch, '\t', '\n')) ||
+        trả_về (ch < ' ' && !IN_SET(ch, '\t', '\n')) ||
                 (0x7F <= ch && ch <= 0x9F);
 }
 
 /* count of characters used to encode one unicode char */
 static size_t utf8_encoded_expected_len(uint8_t c) {
-        if (c < 0x80)
-                return 1;
-        if ((c & 0xe0) == 0xc0)
-                return 2;
-        if ((c & 0xf0) == 0xe0)
-                return 3;
-        if ((c & 0xf8) == 0xf0)
-                return 4;
-        if ((c & 0xfc) == 0xf8)
-                return 5;
-        if ((c & 0xfe) == 0xfc)
-                return 6;
+        nếu (c < 0x80)
+                trả_về 1;
+        nếu ((c & 0xe0) == 0xc0)
+                trả_về 2;
+        nếu ((c & 0xf0) == 0xe0)
+                trả_về 3;
+        nếu ((c & 0xf8) == 0xf0)
+                trả_về 4;
+        nếu ((c & 0xfc) == 0xf8)
+                trả_về 5;
+        nếu ((c & 0xfe) == 0xfc)
+                trả_về 6;
 
-        return 0;
+        trả_về 0;
 }
 
 /* decode one unicode char */
-int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
+số_nguyên utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
 
@@ -71,7 +71,7 @@ int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
         switch (len) {
         case 1:
                 *ret_unichar = (char32_t)str[0];
-                return 1;
+                trả_về 1;
         case 2:
                 unichar = str[0] & 0x1f;
                 break;
@@ -88,19 +88,19 @@ int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
                 unichar = (char32_t)str[0] & 0x01;
                 break;
         default:
-                return -EINVAL;
+                trả_về -EINVAL;
         }
 
-        for (size_t i = 1; i < len; i++) {
-                if (((char32_t)str[i] & 0xc0) != 0x80)
-                        return -EINVAL;
+        cho (size_t i = 1; i < len; i++) {
+                nếu (((char32_t)str[i] & 0xc0) != 0x80)
+                        trả_về -EINVAL;
 
                 unichar <<= 6;
                 unichar |= (char32_t)str[i] & 0x3f;
         }
 
         *ret_unichar = unichar;
-        return len;
+        trả_về len;
 }
 
 /* Tests whether all eight bytes of a word are plain printable ASCII, i.e. within 0x20…0x7e. The three
@@ -111,7 +111,7 @@ int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
 static bool is_printable_fastpath_u64(uint64_t w) {
         uint64_t x = w ^ UINT64_C(0x7f7f7f7f7f7f7f7f);
 
-        return (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
+        trả_về (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
                  ((w - UINT64_C(0x2020202020202020)) & ~w) |                           /* < 0x20 */
                  ((x - UINT64_C(0x0101010101010101)) & ~x)) &                          /* == 0x7f */
                 UINT64_C(0x8080808080808080)) == 0;
@@ -120,28 +120,28 @@ static bool is_printable_fastpath_u64(uint64_t w) {
 bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newline) {
         assert(str);
 
-        for (const char *p = str; length > 0;) {
-                int encoded_len;
+        cho (const char *p = str; length > 0;) {
+                số_nguyên encoded_len;
                 char32_t val;
 
                 /* Bulk fast path: almost everything we are asked about is plain printable ASCII, so
                  * test eight bytes of it at once. Anything else falls through to the per-character
                  * path below, which handles it as before. A remainder of less than eight bytes is
                  * copied into a word padded with spaces, so that it can be tested the same way. */
-                while (length > 0) {
+                trong_khi (length > 0) {
                         uint64_t w;
                         size_t n;
 
-                        if (length < sizeof(uint64_t)) {
+                        nếu (length < sizeof(uint64_t)) {
                                 n = length;
                                 w = UINT64_C(0x2020202020202020);
                                 memcpy(&w, p, n);
-                        } else {
+                        } không_thì {
                                 n = sizeof(uint64_t);
                                 w = unaligned_read_ne64(p);
                         }
 
-                        if (!is_printable_fastpath_u64(w))
+                        nếu (!is_printable_fastpath_u64(w))
                                 break;
 
                         length -= n;
@@ -150,22 +150,22 @@ bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newlin
 
                 /* Note that this is not redundant with the loop condition above: the fast path may
                  * have consumed the remainder of the string, and then there's nothing left to decode. */
-                if (length == 0)
+                nếu (length == 0)
                         break;
 
                 encoded_len = utf8_encoded_valid_unichar_full(p, length, &val);
-                if (encoded_len < 0)
-                        return false;
+                nếu (encoded_len < 0)
+                        trả_về false;
                 assert(encoded_len > 0 && (size_t) encoded_len <= length);
 
-                if (unichar_is_control(val) || (!allow_newline && val == '\n'))
-                        return false;
+                nếu (unichar_is_control(val) || (!allow_newline && val == '\n'))
+                        trả_về false;
 
                 length -= encoded_len;
                 p += encoded_len;
         }
 
-        return true;
+        trả_về true;
 }
 
 char* utf8_is_valid_n(const char *str, size_t len_bytes) {
@@ -174,21 +174,21 @@ char* utf8_is_valid_n(const char *str, size_t len_bytes) {
 
         assert(str);
 
-        for (size_t i = 0; len_bytes != SIZE_MAX ? i < len_bytes : str[i] != '\0'; ) {
-                int len;
+        cho (size_t i = 0; len_bytes != SIZE_MAX ? i < len_bytes : str[i] != '\0'; ) {
+                số_nguyên len;
 
-                if (_unlikely_(str[i] == '\0'))
-                        return NULL; /* embedded NUL */
+                nếu (_unlikely_(str[i] == '\0'))
+                        trả_về NULL; /* embedded NUL */
 
                 len = utf8_encoded_valid_unichar(str + i,
                                                  len_bytes != SIZE_MAX ? len_bytes - i : SIZE_MAX);
-                if (_unlikely_(len < 0))
-                        return NULL; /* invalid character */
+                nếu (_unlikely_(len < 0))
+                        trả_về NULL; /* invalid character */
 
                 i += len;
         }
 
-        return (char*) str;
+        trả_về (char*) str;
 }
 
 char* utf8_escape_invalid(const char *str) {
@@ -197,29 +197,29 @@ char* utf8_escape_invalid(const char *str) {
         assert(str);
 
         p = s = malloc(strlen(str) * 4 + 1);
-        if (!p)
-                return NULL;
+        nếu (!p)
+                trả_về NULL;
 
-        while (*str) {
-                int len;
+        trong_khi (*str) {
+                số_nguyên len;
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
+                nếu (len > 0) {
                         s = mempcpy(s, str, len);
                         str += len;
-                } else {
+                } không_thì {
                         s = stpcpy(s, UTF8_REPLACEMENT_CHARACTER);
                         str += 1;
                 }
         }
 
         *s = '\0';
-        return str_realloc(p);
+        trả_về str_realloc(p);
 }
 
-int utf8_char_console_width(const char *str) {
+số_nguyên utf8_char_console_width(const char *str) {
         char32_t c;
-        int r;
+        số_nguyên r;
 
         assert(str);
 
@@ -228,21 +228,21 @@ int utf8_char_console_width(const char *str) {
          * make our idea of how wide a string is disagree with our idea of whether it is valid UTF-8 in
          * the first place. */
         r = utf8_encoded_valid_unichar(str, SIZE_MAX);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         assert_se(utf8_encoded_to_unichar(str, &c) == r);
 
-        return unichar_console_width(c);
+        trả_về unichar_console_width(c);
 }
 
-int unichar_console_width(char32_t c) {
-        if (c == '\t')
-                return 8; /* Assume a tab width of 8 */
+số_nguyên unichar_console_width(char32_t c) {
+        nếu (c == '\t')
+                trả_về 8; /* Assume a tab width of 8 */
 
         /* TODO: we should detect combining characters */
 
-        return unichar_iswide(c) ? 2 : 1;
+        trả_về unichar_iswide(c) ? 2 : 1;
 }
 
 char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool force_ellipsis) {
@@ -251,55 +251,55 @@ char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool
 
         assert(str);
 
-        if (console_width == 0)
-                return strdup("");
+        nếu (console_width == 0)
+                trả_về strdup("");
 
         size_t body = strlen(str) * 4;
         p = s = prev_s = malloc(body + STRLEN("…") + 1);
-        if (!p)
-                return NULL;
+        nếu (!p)
+                trả_về NULL;
 
-        for (;;) {
-                int len;
+        cho (;;) {
+                số_nguyên len;
                 char *saved_s = s;
 
-                if (!*str) { /* done! */
-                        if (force_ellipsis)
+                nếu (!*str) { /* done! */
+                        nếu (force_ellipsis)
                                 goto truncation;
-                        else
+                        không_thì
                                 goto finish;
                 }
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
-                        if (utf8_is_printable(str, len)) {
-                                int w;
+                nếu (len > 0) {
+                        nếu (utf8_is_printable(str, len)) {
+                                số_nguyên w;
 
                                 w = utf8_char_console_width(str);
                                 assert(w >= 0);
-                                if (n + w > console_width)
+                                nếu (n + w > console_width)
                                         goto truncation;
 
                                 s = mempcpy(s, str, len);
                                 str += len;
                                 n += w;
 
-                        } else {
-                                for (; len > 0; len--) {
-                                        if (n + 4 > console_width)
+                        } không_thì {
+                                cho (; len > 0; len--) {
+                                        nếu (n + 4 > console_width)
                                                 goto truncation;
 
                                         *(s++) = '\\';
                                         *(s++) = 'x';
-                                        *(s++) = hexchar((int) *str >> 4);
-                                        *(s++) = hexchar((int) *str);
+                                        *(s++) = hexchar((số_nguyên) *str >> 4);
+                                        *(s++) = hexchar((số_nguyên) *str);
 
                                         str += 1;
                                         n += 4;
                                 }
                         }
-                } else {
-                        if (n + 1 > console_width)
+                } không_thì {
+                        nếu (n + 1 > console_width)
                                 goto truncation;
 
                         s = mempcpy(s, UTF8_REPLACEMENT_CHARACTER, strlen(UTF8_REPLACEMENT_CHARACTER));
@@ -312,14 +312,14 @@ char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool
 
  truncation:
         /* Try to go back one if we don't have enough space for the ellipsis */
-        if (n + 1 > console_width)
+        nếu (n + 1 > console_width)
                 s = prev_s;
 
         s = mempcpy(s, "…", strlen("…"));
 
  finish:
         *s = '\0';
-        return str_realloc(p);
+        trả_về str_realloc(p);
 }
 
 char* ascii_is_valid_n(const char *str, size_t len) {
@@ -328,14 +328,14 @@ char* ascii_is_valid_n(const char *str, size_t len) {
 
         assert(str);
 
-        for (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
-                if ((unsigned char) str[i] >= 128 || str[i] == '\0')
-                        return NULL;
+        cho (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
+                nếu ((unsigned char) str[i] >= 128 || str[i] == '\0')
+                        trả_về NULL;
 
-        return (char*) str;
+        trả_về (char*) str;
 }
 
-int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
+số_nguyên utf8_to_ascii(const char *str, char replacement_char, char **ret) {
         /* Convert to a string that has only ASCII chars, replacing anything that is not ASCII
          * by replacement_char. */
 
@@ -343,21 +343,21 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
         assert(ret);
 
         _cleanup_free_ char *ans = new(char, strlen(str) + 1);
-        if (!ans)
-                return -ENOMEM;
+        nếu (!ans)
+                trả_về -ENOMEM;
 
         char *q = ans;
 
-        for (const char *p = str; *p; q++) {
-                int l;
+        cho (const char *p = str; *p; q++) {
+                số_nguyên l;
 
                 l = utf8_encoded_valid_unichar(p, SIZE_MAX);
-                if (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
-                        return l;
+                nếu (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
+                        trả_về l;
 
-                if (l == 1)
+                nếu (l == 1)
                         *q = *p;
-                else
+                không_thì
                         /* non-ASCII, we need to replace it */
                         *q = replacement_char;
 
@@ -366,7 +366,7 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
         *q = '\0';
 
         *ret = TAKE_PTR(ans);
-        return 0;
+        trả_về 0;
 }
 
 /**
@@ -383,67 +383,67 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
  */
 size_t utf8_encode_unichar(char *out_utf8, char32_t g) {
 
-        if (g < (1 << 7)) {
-                if (out_utf8)
+        nếu (g < (1 << 7)) {
+                nếu (out_utf8)
                         out_utf8[0] = g & 0x7f;
-                return 1;
-        } else if (g < (1 << 11)) {
-                if (out_utf8) {
+                trả_về 1;
+        } không_thì nếu (g < (1 << 11)) {
+                nếu (out_utf8) {
                         out_utf8[0] = 0xc0 | ((g >> 6) & 0x1f);
                         out_utf8[1] = 0x80 | (g & 0x3f);
                 }
-                return 2;
-        } else if (g < (1 << 16)) {
-                if (out_utf8) {
+                trả_về 2;
+        } không_thì nếu (g < (1 << 16)) {
+                nếu (out_utf8) {
                         out_utf8[0] = 0xe0 | ((g >> 12) & 0x0f);
                         out_utf8[1] = 0x80 | ((g >> 6) & 0x3f);
                         out_utf8[2] = 0x80 | (g & 0x3f);
                 }
-                return 3;
-        } else if (g < (1 << 21)) {
-                if (out_utf8) {
+                trả_về 3;
+        } không_thì nếu (g < (1 << 21)) {
+                nếu (out_utf8) {
                         out_utf8[0] = 0xf0 | ((g >> 18) & 0x07);
                         out_utf8[1] = 0x80 | ((g >> 12) & 0x3f);
                         out_utf8[2] = 0x80 | ((g >> 6) & 0x3f);
                         out_utf8[3] = 0x80 | (g & 0x3f);
                 }
-                return 4;
+                trả_về 4;
         }
 
-        return 0;
+        trả_về 0;
 }
 
 char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
         const uint8_t *f;
         char *r, *t;
 
-        if (length == 0)
-                return new0(char, 1);
+        nếu (length == 0)
+                trả_về new0(char, 1);
 
         assert(s);
 
-        if (length == SIZE_MAX) {
+        nếu (length == SIZE_MAX) {
                 length = char16_strlen(s);
 
-                if (length > SIZE_MAX/2)
-                        return NULL; /* overflow */
+                nếu (length > SIZE_MAX/2)
+                        trả_về NULL; /* overflow */
 
                 length *= 2;
         }
 
         /* Input length is in bytes, i.e. the shortest possible character takes 2 bytes. Each unicode character may
          * take up to 4 bytes in UTF-8. Let's also account for a trailing NUL byte. */
-        if (length > (SIZE_MAX - 1) / 2)
-                return NULL; /* overflow */
+        nếu (length > (SIZE_MAX - 1) / 2)
+                trả_về NULL; /* overflow */
 
         r = new(char, length * 2 + 1);
-        if (!r)
-                return NULL;
+        nếu (!r)
+                trả_về NULL;
 
         f = (const uint8_t*) s;
         t = r;
 
-        while (f + 1 < (const uint8_t*) s + length) {
+        trong_khi (f + 1 < (const uint8_t*) s + length) {
                 char16_t w1, w2;
 
                 /* see RFC 2781 section 2.2 */
@@ -451,21 +451,21 @@ char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
                 w1 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_surrogate(w1)) {
+                nếu (!utf16_is_surrogate(w1)) {
                         t += utf8_encode_unichar(t, w1);
                         continue;
                 }
 
-                if (utf16_is_trailing_surrogate(w1))
+                nếu (utf16_is_trailing_surrogate(w1))
                         continue; /* spurious trailing surrogate, ignore */
 
-                if (f + 1 >= (const uint8_t*) s + length)
+                nếu (f + 1 >= (const uint8_t*) s + length)
                         break;
 
                 w2 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_trailing_surrogate(w2)) {
+                nếu (!utf16_is_trailing_surrogate(w2)) {
                         f -= 2;
                         continue; /* surrogate missing its trailing surrogate, ignore */
                 }
@@ -474,7 +474,7 @@ char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
         }
 
         *t = 0;
-        return r;
+        trả_về r;
 }
 
 size_t utf16_encode_unichar(char16_t *out, char32_t c) {
@@ -487,53 +487,53 @@ size_t utf16_encode_unichar(char16_t *out, char32_t c) {
         case 0 ... 0xd7ffU:
         case 0xe000U ... 0xffffU:
                 out[0] = htole16(c);
-                return 1;
+                trả_về 1;
 
         case 0x10000U ... 0x10ffffU:
                 c -= 0x10000U;
                 out[0] = htole16((c >> 10) + 0xd800U);
                 out[1] = htole16((c & 0x3ffU) + 0xdc00U);
-                return 2;
+                trả_về 2;
 
         default: /* A surrogate (invalid) */
-                return 0;
+                trả_về 0;
         }
 }
 
 char16_t *utf8_to_utf16(const char *s, size_t length) {
         char16_t *n, *p;
-        int r;
+        số_nguyên r;
 
-        if (length == 0)
-                return new0(char16_t, 1);
+        nếu (length == 0)
+                trả_về new0(char16_t, 1);
 
         assert(s);
 
-        if (length == SIZE_MAX)
+        nếu (length == SIZE_MAX)
                 length = strlen(s);
 
-        if (length > SIZE_MAX - 1)
-                return NULL; /* overflow */
+        nếu (length > SIZE_MAX - 1)
+                trả_về NULL; /* overflow */
 
         n = new(char16_t, length + 1);
-        if (!n)
-                return NULL;
+        nếu (!n)
+                trả_về NULL;
 
         p = n;
 
-        for (size_t i = 0; i < length;) {
+        cho (size_t i = 0; i < length;) {
                 char32_t unichar;
                 size_t e;
 
                 e = utf8_encoded_expected_len(s[i]);
-                if (e <= 1) /* Invalid and single byte characters are copied as they are */
+                nếu (e <= 1) /* Invalid and single byte characters are copied as they are */
                         goto copy;
 
-                if (i + e > length) /* sequence longer than input buffer, then copy as-is */
+                nếu (i + e > length) /* sequence longer than input buffer, then copy as-is */
                         goto copy;
 
                 r = utf8_encoded_to_unichar(s + i, &unichar);
-                if (r < 0) /* sequence invalid, then copy as-is */
+                nếu (r < 0) /* sequence invalid, then copy as-is */
                         goto copy;
 
                 p += utf16_encode_unichar(p, unichar);
@@ -545,7 +545,7 @@ char16_t *utf8_to_utf16(const char *s, size_t length) {
         }
 
         *p = 0;
-        return n;
+        trả_về n;
 }
 
 size_t char16_strlen(const char16_t *s) {
@@ -553,40 +553,40 @@ size_t char16_strlen(const char16_t *s) {
 
         assert(s);
 
-        while (*s != 0)
+        trong_khi (*s != 0)
                 n++, s++;
 
-        return n;
+        trả_về n;
 }
 
 size_t char16_strsize(const char16_t *s) {
         POINTER_MAY_BE_NULL(s);
 
-        return s ? (char16_strlen(s) + 1) * sizeof(*s) : 0;
+        trả_về s ? (char16_strlen(s) + 1) * sizeof(*s) : 0;
 }
 
 /* expected size used to encode one unicode char */
-static int utf8_unichar_to_encoded_len(char32_t unichar) {
+static số_nguyên utf8_unichar_to_encoded_len(char32_t unichar) {
 
-        if (unichar < 0x80)
-                return 1;
-        if (unichar < 0x800)
-                return 2;
-        if (unichar < 0x10000)
-                return 3;
-        if (unichar < 0x200000)
-                return 4;
-        if (unichar < 0x4000000)
-                return 5;
+        nếu (unichar < 0x80)
+                trả_về 1;
+        nếu (unichar < 0x800)
+                trả_về 2;
+        nếu (unichar < 0x10000)
+                trả_về 3;
+        nếu (unichar < 0x200000)
+                trả_về 4;
+        nếu (unichar < 0x4000000)
+                trả_về 5;
 
-        return 6;
+        trả_về 6;
 }
 
 /* validate one encoded unicode char and return its length */
-int utf8_encoded_valid_unichar_full(const char *str, size_t length /* bytes */, char32_t *ret_unichar) {
+số_nguyên utf8_encoded_valid_unichar_full(const char *str, size_t length /* bytes */, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
-        int r;
+        số_nguyên r;
 
         assert(str);
         assert(length > 0);
@@ -596,41 +596,41 @@ int utf8_encoded_valid_unichar_full(const char *str, size_t length /* bytes */, 
          * interested in both validity and value needn't decode the character a second time. */
 
         len = utf8_encoded_expected_len(str[0]);
-        if (len == 0)
-                return -EINVAL;
+        nếu (len == 0)
+                trả_về -EINVAL;
 
         /* Do we have a truncated multi-byte character? */
-        if (len > length)
-                return -EINVAL;
+        nếu (len > length)
+                trả_về -EINVAL;
 
         /* ascii is valid */
-        if (len == 1) {
-                if (ret_unichar)
+        nếu (len == 1) {
+                nếu (ret_unichar)
                         *ret_unichar = (char32_t) (uint8_t) str[0];
-                return 1;
+                trả_về 1;
         }
 
         /* check if expected encoded chars are available */
-        for (size_t i = 0; i < len; i++)
-                if ((str[i] & 0x80) != 0x80)
-                        return -EINVAL;
+        cho (size_t i = 0; i < len; i++)
+                nếu ((str[i] & 0x80) != 0x80)
+                        trả_về -EINVAL;
 
         r = utf8_encoded_to_unichar(str, &unichar);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         /* check if encoded length matches encoded value */
-        if (utf8_unichar_to_encoded_len(unichar) != (int) len)
-                return -EINVAL;
+        nếu (utf8_unichar_to_encoded_len(unichar) != (số_nguyên) len)
+                trả_về -EINVAL;
 
         /* check if value has valid range */
-        if (!unichar_is_valid(unichar))
-                return -EINVAL;
+        nếu (!unichar_is_valid(unichar))
+                trả_về -EINVAL;
 
-        if (ret_unichar)
+        nếu (ret_unichar)
                 *ret_unichar = unichar;
 
-        return (int) len;
+        trả_về (số_nguyên) len;
 }
 
 size_t utf8_n_codepoints(const char *str) {
@@ -640,61 +640,61 @@ size_t utf8_n_codepoints(const char *str) {
 
         /* Returns the number of UTF-8 codepoints in this string, or SIZE_MAX if the string is not valid UTF-8. */
 
-        while (*str != 0) {
-                int k;
+        trong_khi (*str != 0) {
+                số_nguyên k;
 
                 k = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (k < 0)
-                        return SIZE_MAX;
+                nếu (k < 0)
+                        trả_về SIZE_MAX;
 
                 str += k;
                 n++;
         }
 
-        return n;
+        trả_về n;
 }
 
 size_t utf8_console_width(const char *str) {
         POINTER_MAY_BE_NULL(str);
 
-        if (isempty(str))
-                return 0;
+        nếu (isempty(str))
+                trả_về 0;
 
         /* Returns the approximate width a string will take on screen when printed on a character cell
          * terminal/console. */
 
         size_t n = 0;
-        while (*str) {
-                int w;
+        trong_khi (*str) {
+                số_nguyên w;
 
                 w = utf8_char_console_width(str);
-                if (w < 0)
-                        return SIZE_MAX;
+                nếu (w < 0)
+                        trả_về SIZE_MAX;
 
                 n += w;
                 str = utf8_next_char(str);
         }
 
-        return n;
+        trả_về n;
 }
 
 size_t utf8_last_length(const char *s, size_t n) {
-        int r;
+        số_nguyên r;
 
         assert(s);
 
-        if (n == SIZE_MAX)
+        nếu (n == SIZE_MAX)
                 n = strlen(s);
 
         /* Determines length in bytes of last UTF-8 codepoint in string. If the string is empty, returns
          * zero. Treats invalid UTF-8 codepoints as 1 sized ones. */
 
-        for (size_t last = 0;;) {
-                if (n == 0)
-                        return last;
+        cho (size_t last = 0;;) {
+                nếu (n == 0)
+                        trả_về last;
 
                 r = utf8_encoded_valid_unichar(s, n);
-                if (r <= 0)
+                nếu (r <= 0)
                         r = 1; /* treat invalid UTF-8 as byte-wide */
 
                 s += r;

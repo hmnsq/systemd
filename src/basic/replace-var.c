@@ -9,26 +9,26 @@
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+static số_nguyên get_variable(const char *b, char **r) {
         size_t k;
         char *t;
 
         assert(b);
         assert(r);
 
-        if (*b != '@')
-                return 0;
+        nếu (*b != '@')
+                trả_về 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        nếu (k <= 0 || b[k+1] != '@')
+                trả_về 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        nếu (!t)
+                trả_về -ENOMEM;
 
         *r = t;
-        return 1;
+        trả_về 1;
 }
 
 char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
@@ -41,27 +41,27 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
 
         l = strlen(text);
         r = new(char, l+1);
-        if (!r)
-                return NULL;
+        nếu (!r)
+                trả_về NULL;
 
         f = text;
         t = r;
-        while (*f) {
+        trong_khi (*f) {
                 _cleanup_free_ char *v = NULL, *n = NULL;
                 char *a;
-                int k;
+                số_nguyên k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
+                nếu (k < 0)
                         goto oom;
-                if (k == 0) {
+                nếu (k == 0) {
                         *(t++) = *(f++);
                         continue;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
+                nếu (!n)
                         goto oom;
 
                 skip = strlen(v) + 2;
@@ -69,7 +69,7 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
                 d = t - r;
                 nl = l - skip + strlen(n);
                 a = realloc(r, nl + 1);
-                if (!a)
+                nếu (!a)
                         goto oom;
 
                 l = nl;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        trả_về r;
 
 oom:
-        return mfree(r);
+        trả_về mfree(r);
 }

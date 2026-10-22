@@ -84,9 +84,9 @@ typedef struct x509_st X509;
 /* basic/ forward declarations */
 
 typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
+typedef số_nguyên (*compare_func_t)(const void *a, const void *b);
 typedef compare_func_t comparison_fn_t;
-typedef int (*comparison_userdata_fn_t)(const void *, const void *, void *);
+typedef số_nguyên (*comparison_userdata_fn_t)(const void *, const void *, void *);
 
 struct hash_ops;
 struct hw_addr_data;
@@ -146,7 +146,7 @@ typedef struct SocketAddress SocketAddress;
 /* glibc defines AT_FDCWD as -100, but musl defines it as (-100). */
 #ifdef __GLIBC__
 #define AT_FDCWD                -100
-#else
+#không_thì
 #define AT_FDCWD                (-100)
 #endif
 #define AT_EMPTY_PATH           0x1000

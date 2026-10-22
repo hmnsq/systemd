@@ -4,30 +4,30 @@
 
 static const LabelOps *label_ops = NULL;
 
-int label_ops_set(const LabelOps *ops) {
+số_nguyên label_ops_set(const LabelOps *ops) {
         assert(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        nếu (label_ops)
+                trả_về -EBUSY;
 
         label_ops = ops;
-        return 0;
+        trả_về 0;
 }
 
 void label_ops_reset(void) {
         label_ops = NULL;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+số_nguyên label_ops_pre(số_nguyên dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
+        nếu (!label_ops || !label_ops->pre)
+                trả_về 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        trả_về label_ops->pre(dir_fd, path, mode, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+số_nguyên label_ops_post(số_nguyên dir_fd, const char *path, bool created, LabelContext *label_context) {
+        nếu (!label_ops || !label_ops->post)
+                trả_về 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        trả_về label_ops->post(dir_fd, path, created, label_context);
 }

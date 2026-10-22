@@ -29,8 +29,8 @@ static inline void siphash24_compress_usec_t(usec_t in, struct siphash *state) {
 }
 
 static inline void siphash24_compress_safe(const void *in, size_t inlen, struct siphash *state) {
-        if (inlen == 0)
-                return;
+        nếu (inlen == 0)
+                trả_về;
 
         siphash24_compress(in, inlen, state);
 }

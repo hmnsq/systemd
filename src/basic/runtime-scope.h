@@ -21,12 +21,12 @@ static inline mode_t runtime_scope_to_socket_mode(RuntimeScope scope) {
 
         switch (scope) {
         case RUNTIME_SCOPE_SYSTEM:
-                return 0666;
+                trả_về 0666;
 
         case RUNTIME_SCOPE_USER:
-                return 0600;
+                trả_về 0600;
 
         default:
-                return MODE_INVALID;
+                trả_về MODE_INVALID;
         }
 }

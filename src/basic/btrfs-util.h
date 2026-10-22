@@ -11,8 +11,8 @@ typedef enum BtrfsSubvolFlags {
         _BTRFS_SUBVOL_FLAGS_ERRNO_MAX = -ERRNO_MAX, /* Ensure the whole errno range fits into this enum */
 } BtrfsSubvolFlags;
 
-int btrfs_validate_subvolume_name(const char *name);
+số_nguyên btrfs_validate_subvolume_name(const char *name);
 
-int btrfs_subvol_make(int dir_fd, const char *path);
+số_nguyên btrfs_subvol_make(số_nguyên dir_fd, const char *path);
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode);
+số_nguyên btrfs_subvol_make_fallback(số_nguyên dir_fd, const char *path, mode_t mode);

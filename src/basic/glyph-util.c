@@ -8,21 +8,21 @@
 #include "strv.h"
 
 bool emoji_enabled(void) {
-        static int cached_emoji_enabled = -1;
+        static số_nguyên cached_emoji_enabled = -1;
 
-        if (cached_emoji_enabled < 0) {
-                int val = getenv_bool("SYSTEMD_EMOJI");
-                if (val >= 0)
-                        return (cached_emoji_enabled = val);
+        nếu (cached_emoji_enabled < 0) {
+                số_nguyên val = getenv_bool("SYSTEMD_EMOJI");
+                nếu (val >= 0)
+                        trả_về (cached_emoji_enabled = val);
 
                 const char *term = getenv("TERM");
-                if (!term || STR_IN_SET(term, "dumb", "linux"))
-                        return (cached_emoji_enabled = false);
+                nếu (!term || STR_IN_SET(term, "dumb", "linux"))
+                        trả_về (cached_emoji_enabled = false);
 
                 cached_emoji_enabled = is_locale_utf8();
         }
 
-        return cached_emoji_enabled;
+        trả_về cached_emoji_enabled;
 }
 
 const char* glyph_full(Glyph code, bool force_utf) {
@@ -181,9 +181,9 @@ const char* glyph_full(Glyph code, bool force_utf) {
                 },
         };
 
-        if (code < 0)
-                return NULL;
+        nếu (code < 0)
+                trả_về NULL;
 
         assert(code < _GLYPH_MAX);
-        return draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
+        trả_về draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
 }

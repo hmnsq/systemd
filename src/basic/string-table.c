@@ -8,73 +8,73 @@
 #include "string-util.h"
 
 const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+        nếu (i < 0 || i >= (ssize_t) len)
+                trả_về NULL;
 
         assert(table);
 
-        return table[i];
+        trả_về table[i];
 }
 
 ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        nếu (!key)
+                trả_về -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        cho (size_t i = 0; i < len; ++i)
+                nếu (streq_ptr(table[i], key))
+                        trả_về (ssize_t) i;
 
-        return -EINVAL;
+        trả_về -EINVAL;
 }
 
 ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+        nếu (!key)
+                trả_về -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        số_nguyên b = parse_boolean(key);
+        nếu (b == 0)
+                trả_về 0;
+        nếu (b > 0)
+                trả_về yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        trả_về string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
+số_nguyên string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
         char *s;
 
         assert(table);
         assert(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        nếu (i < 0 || i > (ssize_t) max)
+                trả_về -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        nếu (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        không_thì
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        nếu (!s)
+                trả_về -ENOMEM;
 
         *ret = s;
-        return 0;
+        trả_về 0;
 }
 
 ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+        nếu (!s)
+                trả_về -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        nếu (i >= 0)
+                trả_về i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        nếu (safe_atou(s, &u) < 0)
+                trả_về -EINVAL;
+        nếu (u > max)
+                trả_về -EINVAL;
 
-        return u;
+        trả_về u;
 }

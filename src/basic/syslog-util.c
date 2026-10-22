@@ -10,8 +10,8 @@
 #include "syslog-util.h"
 #include "unit-name.h"
 
-int syslog_parse_priority(const char **p, int *priority, bool with_facility) {
-        int a = 0, b = 0, c = 0;
+số_nguyên syslog_parse_priority(const char **p, số_nguyên *priority, bool with_facility) {
+        số_nguyên a = 0, b = 0, c = 0;
         const char *end;
         size_t k;
 
@@ -19,39 +19,39 @@ int syslog_parse_priority(const char **p, int *priority, bool with_facility) {
         assert(*p);
         assert(priority);
 
-        if ((*p)[0] != '<')
-                return 0;
+        nếu ((*p)[0] != '<')
+                trả_về 0;
 
         end = strchr(*p, '>');
-        if (!end)
-                return 0;
+        nếu (!end)
+                trả_về 0;
 
         k = end - *p;
         assert(k > 0);
 
-        if (k == 2)
+        nếu (k == 2)
                 c = undecchar((*p)[1]);
-        else if (k == 3) {
+        không_thì nếu (k == 3) {
                 b = undecchar((*p)[1]);
                 c = undecchar((*p)[2]);
-        } else if (k == 4) {
+        } không_thì nếu (k == 4) {
                 a = undecchar((*p)[1]);
                 b = undecchar((*p)[2]);
                 c = undecchar((*p)[3]);
-        } else
-                return 0;
+        } không_thì
+                trả_về 0;
 
-        if (a < 0 || b < 0 || c < 0 ||
+        nếu (a < 0 || b < 0 || c < 0 ||
             (!with_facility && (a || b || c > 7)))
-                return 0;
+                trả_về 0;
 
-        if (with_facility)
+        nếu (with_facility)
                 *priority = a*100 + b*10 + c;
-        else
+        không_thì
                 *priority = (*priority & LOG_FACMASK) | c;
 
         *p += k + 1;
-        return 1;
+        trả_về 1;
 }
 
 static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
@@ -77,10 +77,10 @@ static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_LOCAL7)]   = "local7",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, int, LOG_FAC(~0));
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, số_nguyên, LOG_FAC(~0));
 
-bool log_facility_unshifted_is_valid(int facility) {
-        return facility >= 0 && facility <= LOG_FAC(~0);
+bool log_facility_unshifted_is_valid(số_nguyên facility) {
+        trả_về facility >= 0 && facility <= LOG_FAC(~0);
 }
 
 static const char *const log_level_table[] = {
@@ -94,10 +94,10 @@ static const char *const log_level_table[] = {
         [LOG_DEBUG]   = "debug",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, int, LOG_DEBUG);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, số_nguyên, LOG_DEBUG);
 
-bool log_level_is_valid(int level) {
-        return level >= 0 && level <= LOG_DEBUG;
+bool log_level_is_valid(số_nguyên level) {
+        trả_về level >= 0 && level <= LOG_DEBUG;
 }
 
 /* The maximum size for a log namespace length. This is the file name size limit 255 minus the size of a
@@ -110,14 +110,14 @@ bool log_namespace_name_valid(const char *s) {
          * is suitable as unit instance name, and does not contain fishy characters. */
 
         /* Let's avoid globbing for now */
-        if (!string_is_safe(s, STRING_FILENAME))
-                return false;
+        nếu (!string_is_safe(s, STRING_FILENAME))
+                trả_về false;
 
-        if (strlen(s) > LOG_NAMESPACE_MAX)
-                return false;
+        nếu (strlen(s) > LOG_NAMESPACE_MAX)
+                trả_về false;
 
-        if (!unit_instance_is_valid(s))
-                return false;
+        nếu (!unit_instance_is_valid(s))
+                trả_về false;
 
-        return true;
+        trả_về true;
 }

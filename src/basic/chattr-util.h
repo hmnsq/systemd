@@ -37,31 +37,31 @@ typedef enum ChattrApplyFlags {
         CHATTR_WARN_UNSUPPORTED_FLAGS = 1 << 1,
 } ChattrApplyFlags;
 
-int chattr_full(int dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
-static inline int chattr_at(int dir_fd, const char *path, unsigned value, unsigned mask) {
-        return chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
+số_nguyên chattr_full(số_nguyên dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
+static inline số_nguyên chattr_at(số_nguyên dir_fd, const char *path, unsigned value, unsigned mask) {
+        trả_về chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_fd(int fd, unsigned value, unsigned mask) {
-        return chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
+static inline số_nguyên chattr_fd(số_nguyên fd, unsigned value, unsigned mask) {
+        trả_về chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_path(const char *path, unsigned value, unsigned mask) {
-        return chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
+static inline số_nguyên chattr_path(const char *path, unsigned value, unsigned mask) {
+        trả_về chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
 }
 
-int read_attr_fd(int fd, unsigned *ret);
-int read_attr_at(int dir_fd, const char *path, unsigned *ret);
-int read_fs_xattr_fd(int fd, uint32_t *ret_xflags, uint32_t *ret_projid);
+số_nguyên read_attr_fd(số_nguyên fd, unsigned *ret);
+số_nguyên read_attr_at(số_nguyên dir_fd, const char *path, unsigned *ret);
+số_nguyên read_fs_xattr_fd(số_nguyên fd, uint32_t *ret_xflags, uint32_t *ret_projid);
 
-int set_proj_id(int fd, uint32_t proj_id);
-int set_proj_id_recursive(int fd, uint32_t proj_id);
+số_nguyên set_proj_id(số_nguyên fd, uint32_t proj_id);
+số_nguyên set_proj_id_recursive(số_nguyên fd, uint32_t proj_id);
 
 /* Combination of chattr flags, that should be appropriate for secrets stored on disk: Secure Remove +
  * Exclusion from Dumping + Synchronous Writing (i.e. not caching in memory) + In-Place Updating (i.e. not
  * spurious copies). */
 #define CHATTR_SECRET_FLAGS (FS_SECRM_FL|FS_NODUMP_FL|FS_SYNC_FL|FS_NOCOW_FL)
 
-static inline int chattr_secret(int fd, ChattrApplyFlags flags) {
-        return chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
+static inline số_nguyên chattr_secret(số_nguyên fd, ChattrApplyFlags flags) {
+        trả_về chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
 }
 
 bool inode_type_can_chattr(mode_t mode);

@@ -15,7 +15,7 @@ struct pool {
 };
 
 static void* pool_ptr(struct pool *p) {
-        return ((uint8_t*) ASSERT_PTR(p)) + ALIGN(sizeof(struct pool));
+        trả_về ((uint8_t*) ASSERT_PTR(p)) + ALIGN(sizeof(struct pool));
 }
 
 void* mempool_alloc_tile(struct mempool *mp) {
@@ -28,15 +28,15 @@ void* mempool_alloc_tile(struct mempool *mp) {
         assert(mp->tile_size >= sizeof(void*));
         assert(mp->at_least > 0);
 
-        if (mp->freelist) {
+        nếu (mp->freelist) {
                 void *t;
 
                 t = mp->freelist;
                 mp->freelist = *(void**) mp->freelist;
-                return t;
+                trả_về t;
         }
 
-        if (_unlikely_(!mp->first_pool) ||
+        nếu (_unlikely_(!mp->first_pool) ||
             _unlikely_(mp->first_pool->n_used >= mp->first_pool->n_tiles)) {
                 size_t size, n;
                 struct pool *p;
@@ -47,8 +47,8 @@ void* mempool_alloc_tile(struct mempool *mp) {
                 n = (size - ALIGN(sizeof(struct pool))) / mp->tile_size;
 
                 p = malloc(size);
-                if (!p)
-                        return NULL;
+                nếu (!p)
+                        trả_về NULL;
 
                 p->next = mp->first_pool;
                 p->n_tiles = n;
@@ -59,7 +59,7 @@ void* mempool_alloc_tile(struct mempool *mp) {
 
         i = mp->first_pool->n_used++;
 
-        return (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_size;
+        trả_về (uint8_t*) pool_ptr(mp->first_pool) + i*mp->tile_size;
 }
 
 void* mempool_alloc0_tile(struct mempool *mp) {
@@ -68,21 +68,21 @@ void* mempool_alloc0_tile(struct mempool *mp) {
         assert(mp);
 
         p = mempool_alloc_tile(mp);
-        if (p)
+        nếu (p)
                 memzero(p, mp->tile_size);
-        return p;
+        trả_về p;
 }
 
 void* mempool_free_tile(struct mempool *mp, void *p) {
         assert(mp);
 
-        if (!p)
-                return NULL;
+        nếu (!p)
+                trả_về NULL;
 
         *(void**) p = mp->freelist;
         mp->freelist = p;
 
-        return NULL;
+        trả_về NULL;
 }
 
 static bool pool_contains(struct mempool *mp, struct pool *p, void *ptr) {
@@ -92,33 +92,33 @@ static bool pool_contains(struct mempool *mp, struct pool *p, void *ptr) {
         assert(mp);
         assert(p);
 
-        if (!ptr)
-                return false;
+        nếu (!ptr)
+                trả_về false;
 
         a = pool_ptr(p);
-        if ((uint8_t*) ptr < (uint8_t*) a)
-                return false;
+        nếu ((uint8_t*) ptr < (uint8_t*) a)
+                trả_về false;
 
         off = (uint8_t*) ptr - (uint8_t*) a;
-        if (off >= mp->tile_size * p->n_tiles)
-                return false;
+        nếu (off >= mp->tile_size * p->n_tiles)
+                trả_về false;
 
         assert(off % mp->tile_size == 0);
-        return true;
+        trả_về true;
 }
 
 static bool pool_is_unused(struct mempool *mp, struct pool *p) {
         assert(mp);
         assert(p);
 
-        if (p->n_used == 0)
-                return true;
+        nếu (p->n_used == 0)
+                trả_về true;
 
         /* Check if all tiles in this specific pool are in the freelist. */
         size_t n = 0;
         void *i = mp->freelist;
-        while (i) {
-                if (pool_contains(mp, p, i))
+        trong_khi (i) {
+                nếu (pool_contains(mp, p, i))
                         n++;
 
                 i = *(void**) i;
@@ -126,7 +126,7 @@ static bool pool_is_unused(struct mempool *mp, struct pool *p) {
 
         assert(n <= p->n_used);
 
-        return n == p->n_used;
+        trả_về n == p->n_used;
 }
 
 static void pool_unlink(struct mempool *mp, struct pool *p) {
@@ -135,20 +135,20 @@ static void pool_unlink(struct mempool *mp, struct pool *p) {
         assert(mp);
         assert(p);
 
-        if (p->n_used == 0)
-                return;
+        nếu (p->n_used == 0)
+                trả_về;
 
         void **i = &mp->freelist;
-        while (*i) {
+        trong_khi (*i) {
                 void *d = *i;
 
-                if (pool_contains(mp, p, d)) {
+                nếu (pool_contains(mp, p, d)) {
                         *i = *(void**) d;
                         m++;
 
-                        if (m == p->n_used)
+                        nếu (m == p->n_used)
                                 break;
-                } else
+                } không_thì
                         i = (void**) d;
         }
 }
@@ -159,15 +159,15 @@ void mempool_trim(struct mempool *mp) {
         assert(mp);
 
         struct pool **p = &mp->first_pool;
-        while (*p) {
+        trong_khi (*p) {
                 struct pool *d = *p;
 
-                if (pool_is_unused(mp, d)) {
+                nếu (pool_is_unused(mp, d)) {
                         trimmed += d->n_tiles * mp->tile_size;
                         pool_unlink(mp, d);
                         *p = d->next;
                         free(d);
-                } else {
+                } không_thì {
                         left += d->n_tiles * mp->tile_size;
                         p = &d->next;
                 }

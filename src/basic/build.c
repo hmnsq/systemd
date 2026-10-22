@@ -15,229 +15,229 @@ const char* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#nếu HAVE_PAM
         "+PAM"
-#else
+#không_thì
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#nếu HAVE_AUDIT
         " +AUDIT"
-#else
+#không_thì
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#nếu HAVE_SELINUX
         " +SELINUX"
-#else
+#không_thì
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#nếu HAVE_APPARMOR
         " +APPARMOR"
-#else
+#không_thì
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#nếu ENABLE_IMA
         " +IMA"
-#else
+#không_thì
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#nếu ENABLE_IPE
         " +IPE"
-#else
+#không_thì
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#nếu ENABLE_SMACK
         " +SMACK"
-#else
+#không_thì
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#nếu HAVE_SECCOMP
         " +SECCOMP"
-#else
+#không_thì
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#nếu HAVE_GNUTLS
         " +GNUTLS"
-#else
+#không_thì
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#nếu HAVE_OPENSSL
         " +OPENSSL"
-#else
+#không_thì
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#nếu HAVE_ACL
         " +ACL"
-#else
+#không_thì
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#nếu HAVE_BLKID
         " +BLKID"
-#else
+#không_thì
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#nếu HAVE_LIBCURL
         " +CURL"
-#else
+#không_thì
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#nếu HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#không_thì
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#nếu HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#không_thì
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#nếu HAVE_LIBIDN2
         " +IDN2"
-#else
+#không_thì
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#nếu HAVE_KMOD
         " +KMOD"
-#else
+#không_thì
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#nếu HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#không_thì
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#nếu HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#không_thì
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#nếu HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#không_thì
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#nếu HAVE_PCRE2
         " +PCRE2"
-#else
+#không_thì
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#nếu HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#không_thì
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#nếu HAVE_P11KIT
         " +P11KIT"
-#else
+#không_thì
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#nếu HAVE_QRENCODE
         " +QRENCODE"
-#else
+#không_thì
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#nếu HAVE_TPM2
         " +TPM2"
-#else
+#không_thì
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#nếu HAVE_BZIP2
         " +BZIP2"
-#else
+#không_thì
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#nếu HAVE_LZ4
         " +LZ4"
-#else
+#không_thì
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#nếu HAVE_XZ
         " +XZ"
-#else
+#không_thì
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#nếu HAVE_ZLIB
         " +ZLIB"
-#else
+#không_thì
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#nếu HAVE_ZSTD
         " +ZSTD"
-#else
+#không_thì
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#nếu BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#không_thì
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#nếu HAVE_VMLINUX_H
         " +BTF"
-#else
+#không_thì
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#nếu HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#không_thì
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#nếu ENABLE_UTMP
         " +UTMP"
-#else
+#không_thì
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#nếu HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#không_thì
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#nếu EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#không_thì
         " -EXPERIMENTAL"
 #endif
         ;
@@ -245,68 +245,68 @@ const char* const systemd_features =
 static char* systemd_features_with_color(void) {
         const char *p = systemd_features;
         _cleanup_free_ char *ret = NULL;
-        int r;
+        số_nguyên r;
 
-        for (;;) {
+        cho (;;) {
                 _cleanup_free_ char *word = NULL;
                 char *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                nếu (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        trả_về NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                nếu (r == 0)
+                        trả_về TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                nếu (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        trả_về NULL;
                 }
 
-                if (word[0] == '+')
+                nếu (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                không_thì nếu (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                không_thì
                         q = strextend(&ret, word);
-                if (!q) {
+                nếu (!q) {
                         log_oom_warning();
-                        return NULL;
+                        trả_về NULL;
                 }
         }
 }
 
-int version(void) {
+số_nguyên version(void) {
         _cleanup_free_ char *b = NULL;
 
-        if (colors_enabled())
+        nếu (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        trả_về 0;
 }
 
-int version_only(void) {
+số_nguyên version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        trả_về 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#nếu EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        trả_về false;
+#không_thì
+        số_nguyên r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        nếu (r >= 0)
+                trả_về r;
+        nếu (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        trả_về EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

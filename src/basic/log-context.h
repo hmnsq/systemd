@@ -68,10 +68,10 @@ size_t log_context_num_fields(void);
 
 void log_context_swap(LogContext **log_context, size_t *num_fields);
 
-void _reset_log_level(int *saved_log_level);
+void _reset_log_level(số_nguyên *saved_log_level);
 
 #define _LOG_CONTEXT_SET_LOG_LEVEL(level, l) \
-        _cleanup_(_reset_log_level) _unused_ int l = log_set_max_level(level);
+        _cleanup_(_reset_log_level) _unused_ số_nguyên l = log_set_max_level(level);
 
 #define LOG_CONTEXT_SET_LOG_LEVEL(level) \
         _LOG_CONTEXT_SET_LOG_LEVEL(level, UNIQ_T(l, UNIQ))
@@ -107,7 +107,7 @@ void _reset_log_level(int *saved_log_level);
 
 #define _LOG_CONTEXT_CONSUME_STR(s, c, strv) \
         _unused_ _cleanup_strv_free_ strv = strv_new(s);                                                \
-        if (!strv)                                                                                      \
+        nếu (!strv)                                                                                      \
                 free(s);                                                                                \
         _unused_ _cleanup_(log_context_unrefp) LogContext *c = log_context_new_strv_consume(TAKE_PTR(strv))
 

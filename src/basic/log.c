@@ -43,25 +43,25 @@ static log_syntax_callback_t log_syntax_callback = NULL;
 static void *log_syntax_callback_userdata = NULL;
 
 static LogTarget log_target = LOG_TARGET_CONSOLE;
-static int log_max_level = LOG_INFO;
-static int log_target_max_level[_LOG_TARGET_SINGLE_MAX] = {
+static số_nguyên log_max_level = LOG_INFO;
+static số_nguyên log_target_max_level[_LOG_TARGET_SINGLE_MAX] = {
         [LOG_TARGET_CONSOLE] = INT_MAX,
         [LOG_TARGET_KMSG]    = INT_MAX,
         [LOG_TARGET_SYSLOG]  = INT_MAX,
         [LOG_TARGET_JOURNAL] = INT_MAX,
 };
-static int log_facility = LOG_DAEMON;
+static số_nguyên log_facility = LOG_DAEMON;
 static bool ratelimit_kmsg = true;
 
-static int console_fd = STDERR_FILENO;
-static int console_fd_is_tty = -1; /* tri-state: -1 means don't know */
-static int syslog_fd = -EBADF;
-static int kmsg_fd = -EBADF;
-static int journal_fd = -EBADF;
+static số_nguyên console_fd = STDERR_FILENO;
+static số_nguyên console_fd_is_tty = -1; /* tri-state: -1 means don't know */
+static số_nguyên syslog_fd = -EBADF;
+static số_nguyên kmsg_fd = -EBADF;
+static số_nguyên journal_fd = -EBADF;
 
 static bool syslog_is_stream = false;
 
-static int show_color = -1; /* tristate */
+static số_nguyên show_color = -1; /* tristate */
 static bool show_location = false;
 static bool show_time = false;
 static bool show_tid = false;
@@ -74,7 +74,7 @@ static bool prohibit_ipc = false;
 
 static thread_local const char *log_prefix = NULL;
 
-#if LOG_MESSAGE_VERIFICATION || defined(__COVERITY__)
+#nếu LOG_MESSAGE_VERIFICATION || defined(__COVERITY__)
 bool _log_message_dummy = false; /* Always false */
 #endif
 
@@ -82,11 +82,11 @@ bool _log_message_dummy = false; /* Always false */
  * into our logging functions (since that might lead to a loop). */
 #define assert_raw(expr)                                                \
         do {                                                            \
-                if (_unlikely_(!(expr))) {                              \
+                nếu (_unlikely_(!(expr))) {                              \
                         fputs(#expr "\n", stderr);                      \
                         abort();                                        \
                 }                                                       \
-        } while (false)
+        } trong_khi (false)
 
 void log_prefix_swap(const char **prefix) {
         assert(prefix);
@@ -100,26 +100,26 @@ static void log_close_console(void) {
         console_fd_is_tty = -1;
 }
 
-static int log_open_console(void) {
+static số_nguyên log_open_console(void) {
 
-        if (!always_reopen_console) {
+        nếu (!always_reopen_console) {
                 console_fd = STDERR_FILENO;
                 console_fd_is_tty = -1;
-                return 0;
+                trả_về 0;
         }
 
-        if (console_fd < 3) {
-                int fd;
+        nếu (console_fd < 3) {
+                số_nguyên fd;
 
                 fd = open_terminal("/dev/console", O_WRONLY|O_NOCTTY|O_CLOEXEC);
-                if (fd < 0)
-                        return fd;
+                nếu (fd < 0)
+                        trả_về fd;
 
                 console_fd = fd_move_above_stdio(fd);
                 console_fd_is_tty = true;
         }
 
-        return 0;
+        trả_về 0;
 }
 
 static void log_close_kmsg(void) {
@@ -127,17 +127,17 @@ static void log_close_kmsg(void) {
         (void) safe_close(TAKE_FD(kmsg_fd));
 }
 
-static int log_open_kmsg(void) {
+static số_nguyên log_open_kmsg(void) {
 
-        if (kmsg_fd >= 0)
-                return 0;
+        nếu (kmsg_fd >= 0)
+                trả_về 0;
 
         kmsg_fd = open("/dev/kmsg", O_WRONLY|O_NOCTTY|O_CLOEXEC);
-        if (kmsg_fd < 0)
-                return -errno;
+        nếu (kmsg_fd < 0)
+                trả_về -errno;
 
         kmsg_fd = fd_move_above_stdio(kmsg_fd);
-        return 0;
+        trả_về 0;
 }
 
 static void log_close_syslog(void) {
@@ -145,65 +145,65 @@ static void log_close_syslog(void) {
         (void) safe_close(TAKE_FD(syslog_fd));
 }
 
-static int create_log_socket(int type) {
+static số_nguyên create_log_socket(số_nguyên type) {
         struct timeval tv;
-        int fd;
+        số_nguyên fd;
 
         fd = socket(AF_UNIX, type|SOCK_CLOEXEC, 0);
-        if (fd < 0)
-                return -errno;
+        nếu (fd < 0)
+                trả_về -errno;
 
         fd = fd_move_above_stdio(fd);
         (void) fd_inc_sndbuf(fd, SNDBUF_SIZE);
 
         /* We need a blocking fd here since we'd otherwise lose messages way too early. However, let's not hang forever
          * in the unlikely case of a deadlock. */
-        if (getpid_cached() == 1)
+        nếu (getpid_cached() == 1)
                 timeval_store(&tv, 10 * USEC_PER_MSEC);
-        else
+        không_thì
                 timeval_store(&tv, 10 * USEC_PER_SEC);
         (void) setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
-        return fd;
+        trả_về fd;
 }
 
-static int log_open_syslog(void) {
-        int r;
+static số_nguyên log_open_syslog(void) {
+        số_nguyên r;
 
-        if (syslog_fd >= 0)
-                return 0;
+        nếu (syslog_fd >= 0)
+                trả_về 0;
 
         syslog_fd = create_log_socket(SOCK_DGRAM);
-        if (syslog_fd < 0) {
+        nếu (syslog_fd < 0) {
                 r = syslog_fd;
                 goto fail;
         }
 
         r = connect_unix_path(syslog_fd, AT_FDCWD, "/dev/log");
-        if (r < 0) {
+        nếu (r < 0) {
                 safe_close(syslog_fd);
 
                 /* Some legacy syslog systems still use stream sockets. They really shouldn't. But what can
                  * we do... */
                 syslog_fd = create_log_socket(SOCK_STREAM);
-                if (syslog_fd < 0) {
+                nếu (syslog_fd < 0) {
                         r = syslog_fd;
                         goto fail;
                 }
 
                 r = connect_unix_path(syslog_fd, AT_FDCWD, "/dev/log");
-                if (r < 0)
+                nếu (r < 0)
                         goto fail;
 
                 syslog_is_stream = true;
-        } else
+        } không_thì
                 syslog_is_stream = false;
 
-        return 0;
+        trả_về 0;
 
 fail:
         log_close_syslog();
-        return r;
+        trả_về r;
 }
 
 static void log_close_journal(void) {
@@ -214,27 +214,27 @@ static void log_close_journal(void) {
         (void) safe_close(TAKE_FD(journal_fd));
 }
 
-static int log_open_journal(void) {
-        int r;
+static số_nguyên log_open_journal(void) {
+        số_nguyên r;
 
-        if (journal_fd >= 0)
-                return 0;
+        nếu (journal_fd >= 0)
+                trả_về 0;
 
         journal_fd = create_log_socket(SOCK_DGRAM);
-        if (journal_fd < 0) {
+        nếu (journal_fd < 0) {
                 r = journal_fd;
                 goto fail;
         }
 
         r = connect_unix_path(journal_fd, AT_FDCWD, "/run/systemd/journal/socket");
-        if (r < 0)
+        nếu (r < 0)
                 goto fail;
 
-        return 0;
+        trả_về 0;
 
 fail:
         log_close_journal();
-        return r;
+        trả_về r;
 }
 
 bool stderr_is_journal(void) {
@@ -244,27 +244,27 @@ bool stderr_is_journal(void) {
         struct stat st;
 
         e = getenv("JOURNAL_STREAM");
-        if (!e)
-                return false;
+        nếu (!e)
+                trả_về false;
 
-        if (extract_first_word(&e, &w, ":", EXTRACT_DONT_COALESCE_SEPARATORS) <= 0)
-                return false;
-        if (!e)
-                return false;
+        nếu (extract_first_word(&e, &w, ":", EXTRACT_DONT_COALESCE_SEPARATORS) <= 0)
+                trả_về false;
+        nếu (!e)
+                trả_về false;
 
-        if (safe_atou64(w, &dev) < 0)
-                return false;
-        if (safe_atou64(e, &ino) < 0)
-                return false;
+        nếu (safe_atou64(w, &dev) < 0)
+                trả_về false;
+        nếu (safe_atou64(e, &ino) < 0)
+                trả_về false;
 
-        if (fstat(STDERR_FILENO, &st) < 0)
-                return false;
+        nếu (fstat(STDERR_FILENO, &st) < 0)
+                trả_về false;
 
-        return st.st_dev == dev && st.st_ino == ino;
+        trả_về st.st_dev == dev && st.st_ino == ino;
 }
 
-int log_open(void) {
-        int r;
+số_nguyên log_open(void) {
+        số_nguyên r;
 
         /* Do not call from library code. */
 
@@ -278,14 +278,14 @@ int log_open(void) {
          * make sure we don't use it if prohibit_ipc is set. If we don't use /dev/kmsg we still keep it open,
          * because there is no reason to close it. */
 
-        if (log_target == LOG_TARGET_NULL) {
+        nếu (log_target == LOG_TARGET_NULL) {
                 log_close_journal();
                 log_close_syslog();
                 log_close_console();
-                return 0;
+                trả_về 0;
         }
 
-        if (getpid_cached() == 1 ||
+        nếu (getpid_cached() == 1 ||
             stderr_is_journal() ||
             IN_SET(log_target,
                    LOG_TARGET_KMSG,
@@ -294,43 +294,43 @@ int log_open(void) {
                    LOG_TARGET_SYSLOG,
                    LOG_TARGET_SYSLOG_OR_KMSG)) {
 
-                if (!prohibit_ipc) {
-                        if (IN_SET(log_target,
+                nếu (!prohibit_ipc) {
+                        nếu (IN_SET(log_target,
                                    LOG_TARGET_AUTO,
                                    LOG_TARGET_JOURNAL_OR_KMSG,
                                    LOG_TARGET_JOURNAL)) {
 
                                 r = log_open_journal();
-                                if (r >= 0) {
+                                nếu (r >= 0) {
                                         log_close_syslog();
                                         log_close_console();
-                                        return r;
+                                        trả_về r;
                                 }
                         }
 
-                        if (IN_SET(log_target,
+                        nếu (IN_SET(log_target,
                                    LOG_TARGET_SYSLOG_OR_KMSG,
                                    LOG_TARGET_SYSLOG)) {
 
                                 r = log_open_syslog();
-                                if (r >= 0) {
+                                nếu (r >= 0) {
                                         log_close_journal();
                                         log_close_console();
-                                        return r;
+                                        trả_về r;
                                 }
                         }
                 }
 
-                if (IN_SET(log_target, LOG_TARGET_AUTO,
+                nếu (IN_SET(log_target, LOG_TARGET_AUTO,
                                        LOG_TARGET_JOURNAL_OR_KMSG,
                                        LOG_TARGET_SYSLOG_OR_KMSG,
                                        LOG_TARGET_KMSG)) {
                         r = log_open_kmsg();
-                        if (r >= 0) {
+                        nếu (r >= 0) {
                                 log_close_journal();
                                 log_close_syslog();
                                 log_close_console();
-                                return r;
+                                trả_về r;
                         }
                 }
         }
@@ -338,17 +338,17 @@ int log_open(void) {
         log_close_journal();
         log_close_syslog();
 
-        return log_open_console();
+        trả_về log_open_console();
 }
 
 void log_set_target(LogTarget target) {
         assert(target >= 0);
         assert(target < _LOG_TARGET_MAX);
 
-        if (upgrade_syslog_to_journal) {
-                if (target == LOG_TARGET_SYSLOG)
+        nếu (upgrade_syslog_to_journal) {
+                nếu (target == LOG_TARGET_SYSLOG)
                         target = LOG_TARGET_JOURNAL;
-                else if (target == LOG_TARGET_SYSLOG_OR_KMSG)
+                không_thì nếu (target == LOG_TARGET_SYSLOG_OR_KMSG)
                         target = LOG_TARGET_JOURNAL_OR_KMSG;
         }
 
@@ -376,10 +376,10 @@ void log_forget_fds(void) {
         console_fd_is_tty = -1;
 }
 
-int log_set_max_level(int level) {
+số_nguyên log_set_max_level(số_nguyên level) {
         assert(level == LOG_NULL || log_level_is_valid(level));
 
-        int old = log_max_level;
+        số_nguyên old = log_max_level;
         log_max_level = level;
 
         /* Also propagate max log level to libc's syslog(), just in case some other component loaded into our
@@ -393,77 +393,77 @@ int log_set_max_level(int level) {
         /* Ensure that our own LOG_NULL define maps sanely to the log mask */
         assert_cc(LOG_UPTO(LOG_NULL) == 0);
 
-        return old;
+        trả_về old;
 }
 
-void log_set_facility(int facility) {
+void log_set_facility(số_nguyên facility) {
         log_facility = facility;
 }
 
 static bool check_console_fd_is_tty(void) {
-        if (console_fd < 0)
-                return false;
+        nếu (console_fd < 0)
+                trả_về false;
 
-        if (console_fd_is_tty < 0)
+        nếu (console_fd_is_tty < 0)
                 console_fd_is_tty = isatty_safe(console_fd);
 
-        return console_fd_is_tty;
+        trả_về console_fd_is_tty;
 }
 
-static int write_to_console(
-                int level,
-                int error,
+static số_nguyên write_to_console(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *buffer) {
 
-        static int dumb = -1;
+        static số_nguyên dumb = -1;
 
         char location[256],
              header_time[FORMAT_TIMESTAMP_MAX],
-             prefix[1 + DECIMAL_STR_MAX(int) + 2],
+             prefix[1 + DECIMAL_STR_MAX(số_nguyên) + 2],
              tid_string[3 + DECIMAL_STR_MAX(pid_t) + 1];
         struct iovec iovec[13];
         const char *on = NULL, *off = NULL;
         size_t n = 0;
 
-        if (console_fd < 0)
-                return 0;
+        nếu (console_fd < 0)
+                trả_về 0;
 
-        if (dumb < 0)
+        nếu (dumb < 0)
                 dumb = getenv_terminal_is_dumb();
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_CONSOLE])
-                return 0;
+        nếu (LOG_PRI(level) > log_target_max_level[LOG_TARGET_CONSOLE])
+                trả_về 0;
 
-        if (log_target == LOG_TARGET_CONSOLE_PREFIXED) {
+        nếu (log_target == LOG_TARGET_CONSOLE_PREFIXED) {
                 xsprintf(prefix, "<%i>", level);
                 iovec[n++] = IOVEC_MAKE_STRING(prefix);
         }
 
-        if (show_time &&
+        nếu (show_time &&
             format_timestamp(header_time, sizeof(header_time), now(CLOCK_REALTIME))) {
                 iovec[n++] = IOVEC_MAKE_STRING(header_time);
                 iovec[n++] = IOVEC_MAKE_STRING(" ");
         }
 
-        if (show_executable) {
+        nếu (show_executable) {
                 iovec[n++] = IOVEC_MAKE_STRING(program_invocation_short_name);
                 iovec[n++] = IOVEC_MAKE_STRING(": ");
         }
 
-        if (show_tid) {
+        nếu (show_tid) {
                 xsprintf(tid_string, "(" PID_FMT ") ", gettid());
                 iovec[n++] = IOVEC_MAKE_STRING(tid_string);
         }
 
-        if (log_get_show_color())
+        nếu (log_get_show_color())
                 get_log_colors(LOG_PRI(level), &on, &off, NULL);
 
-        if (show_location) {
+        nếu (show_location) {
                 const char *lon = "", *loff = "";
-                if (log_get_show_color()) {
+                nếu (log_get_show_color()) {
                         lon = ansi_highlight_yellow4();
                         loff = ansi_normal();
                 }
@@ -472,14 +472,14 @@ static int write_to_console(
                 iovec[n++] = IOVEC_MAKE_STRING(location);
         }
 
-        if (on)
+        nếu (on)
                 iovec[n++] = IOVEC_MAKE_STRING(on);
-        if (log_prefix) {
+        nếu (log_prefix) {
                 iovec[n++] = IOVEC_MAKE_STRING(log_prefix);
                 iovec[n++] = IOVEC_MAKE_STRING(": ");
         }
         iovec[n++] = IOVEC_MAKE_STRING(buffer);
-        if (off)
+        nếu (off)
                 iovec[n++] = IOVEC_MAKE_STRING(off);
 
         /* When writing to a TTY we output an extra '\r' (i.e. CR) first, to generate CRNL rather than just
@@ -489,55 +489,55 @@ static int write_to_console(
          * a dumb terminal, only write NL as CRNL might be interpreted as a double newline. */
         iovec[n++] = IOVEC_MAKE_STRING(check_console_fd_is_tty() && !dumb ? "\r\n" : "\n");
 
-        if (writev(console_fd, iovec, n) < 0) {
+        nếu (writev(console_fd, iovec, n) < 0) {
 
-                if (errno == EIO && getpid_cached() == 1) {
+                nếu (errno == EIO && getpid_cached() == 1) {
 
                         /* If somebody tried to kick us from our console tty (via vhangup() or suchlike), try
                          * to reconnect. */
 
                         log_close_console();
                         (void) log_open_console();
-                        if (console_fd < 0)
-                                return 0;
+                        nếu (console_fd < 0)
+                                trả_về 0;
 
-                        if (writev(console_fd, iovec, n) < 0)
-                                return -errno;
-                } else
-                        return -errno;
+                        nếu (writev(console_fd, iovec, n) < 0)
+                                trả_về -errno;
+                } không_thì
+                        trả_về -errno;
         }
 
-        return 1;
+        trả_về 1;
 }
 
-static int write_to_syslog(
-                int level,
-                int error,
+static số_nguyên write_to_syslog(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *buffer) {
 
-        char header_priority[2 + DECIMAL_STR_MAX(int) + 1],
+        char header_priority[2 + DECIMAL_STR_MAX(số_nguyên) + 1],
              header_time[64],
              header_pid[4 + DECIMAL_STR_MAX(pid_t) + 1];
         struct tm tm;
-        int r;
+        số_nguyên r;
 
-        if (syslog_fd < 0)
-                return 0;
+        nếu (syslog_fd < 0)
+                trả_về 0;
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_SYSLOG])
-                return 0;
+        nếu (LOG_PRI(level) > log_target_max_level[LOG_TARGET_SYSLOG])
+                trả_về 0;
 
         xsprintf(header_priority, "<%i>", level);
 
         r = localtime_or_gmtime_usec(now(CLOCK_REALTIME), /* utc= */ false, &tm);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
-        if (strftime(header_time, sizeof(header_time), "%h %e %T ", &tm) <= 0)
-                return -EINVAL;
+        nếu (strftime(header_time, sizeof(header_time), "%h %e %T ", &tm) <= 0)
+                trả_về -EINVAL;
 
         xsprintf(header_pid, "["PID_FMT"]: ", getpid_cached());
 
@@ -556,31 +556,31 @@ static int write_to_syslog(
         };
 
         /* When using syslog via SOCK_STREAM separate the messages by NUL chars */
-        if (syslog_is_stream)
+        nếu (syslog_is_stream)
                 iovec[ELEMENTSOF(iovec) - 1].iov_len++;
 
-        for (;;) {
+        cho (;;) {
                 ssize_t n;
 
                 n = sendmsg(syslog_fd, &msghdr, MSG_NOSIGNAL);
-                if (n < 0)
-                        return -errno;
+                nếu (n < 0)
+                        trả_về -errno;
 
-                if (!syslog_is_stream)
+                nếu (!syslog_is_stream)
                         break;
 
-                if (iovec_inc_many(iovec, ELEMENTSOF(iovec), n))
+                nếu (iovec_inc_many(iovec, ELEMENTSOF(iovec), n))
                         break;
         }
 
-        return 1;
+        trả_về 1;
 }
 
-static int write_to_kmsg(
-                int level,
-                int error,
+static số_nguyên write_to_kmsg(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *buffer) {
 
@@ -593,18 +593,18 @@ static int write_to_kmsg(
          */
         static thread_local RateLimit ratelimit = { 5 * USEC_PER_SEC, 200 };
 
-        char header_priority[2 + DECIMAL_STR_MAX(int) + 1],
+        char header_priority[2 + DECIMAL_STR_MAX(số_nguyên) + 1],
              header_pid[4 + DECIMAL_STR_MAX(pid_t) + 1];
 
-        if (kmsg_fd < 0)
-                return 0;
+        nếu (kmsg_fd < 0)
+                trả_về 0;
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_KMSG])
-                return 0;
+        nếu (LOG_PRI(level) > log_target_max_level[LOG_TARGET_KMSG])
+                trả_về 0;
 
-        if (ratelimit_kmsg && !ratelimit_below(&ratelimit)) {
-                if (ratelimit_num_dropped(&ratelimit) > 1)
-                        return 0;
+        nếu (ratelimit_kmsg && !ratelimit_below(&ratelimit)) {
+                nếu (ratelimit_num_dropped(&ratelimit) > 1)
+                        trả_về 0;
 
                 buffer = "Too many messages being logged to kmsg, ignoring";
         }
@@ -622,21 +622,21 @@ static int write_to_kmsg(
                 IOVEC_MAKE_STRING("\n"),
         };
 
-        if (writev(kmsg_fd, iovec, ELEMENTSOF(iovec)) < 0)
-                return -errno;
+        nếu (writev(kmsg_fd, iovec, ELEMENTSOF(iovec)) < 0)
+                trả_về -errno;
 
-        return 1;
+        trả_về 1;
 }
 
-static int log_do_header(
+static số_nguyên log_do_header(
                 char *header,
                 size_t size,
-                int level,
-                int error,
-                const char *file, int line, const char *func,
+                số_nguyên level,
+                số_nguyên error,
+                const char *file, số_nguyên line, const char *func,
                 const char *object_field, const char *object,
                 const char *extra_field, const char *extra) {
-        int r;
+        số_nguyên r;
 
         error = IS_SYNTHETIC_ERRNO(error) ? 0 : ERRNO_VALUE(error);
 
@@ -675,7 +675,7 @@ static int log_do_header(
                      program_invocation_short_name);
         assert_raw((size_t) r < size);
 
-        return 0;
+        trả_về 0;
 }
 
 static void log_do_context(struct iovec *iovec, size_t iovec_len, size_t *n) {
@@ -684,24 +684,24 @@ static void log_do_context(struct iovec *iovec, size_t iovec_len, size_t *n) {
 
         LIST_FOREACH(ll, c, log_context_head()) {
                 STRV_FOREACH(s, c->fields) {
-                        if (*n + 2 >= iovec_len)
-                                return;
+                        nếu (*n + 2 >= iovec_len)
+                                trả_về;
 
                         iovec[(*n)++] = IOVEC_MAKE_STRING(*s);
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
 
-                for (size_t i = 0; i < c->n_input_iovec; i++) {
-                        if (*n + 2 >= iovec_len)
-                                return;
+                cho (size_t i = 0; i < c->n_input_iovec; i++) {
+                        nếu (*n + 2 >= iovec_len)
+                                trả_về;
 
                         iovec[(*n)++] = c->input_iovec[i];
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
                 }
 
-                if (c->key && c->value) {
-                        if (*n + 3 >= iovec_len)
-                                return;
+                nếu (c->key && c->value) {
+                        nếu (*n + 3 >= iovec_len)
+                                trả_về;
 
                         iovec[(*n)++] = IOVEC_MAKE_STRING(c->key);
                         iovec[(*n)++] = IOVEC_MAKE_STRING(c->value);
@@ -710,11 +710,11 @@ static void log_do_context(struct iovec *iovec, size_t iovec_len, size_t *n) {
         }
 }
 
-static int write_to_journal(
-                int level,
-                int error,
+static số_nguyên write_to_journal(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -726,16 +726,16 @@ static int write_to_journal(
         size_t n = 0, iovec_len;
         struct iovec *iovec;
 
-        if (journal_fd < 0)
-                return 0;
+        nếu (journal_fd < 0)
+                trả_về 0;
 
-        if (LOG_PRI(level) > log_target_max_level[LOG_TARGET_JOURNAL])
-                return 0;
+        nếu (LOG_PRI(level) > log_target_max_level[LOG_TARGET_JOURNAL])
+                trả_về 0;
 
-        if (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
+        nếu (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
             !ADD_SAFE(&iovec_len, iovec_len, 6))
                 iovec_len = IOVEC_MAX;
-        else
+        không_thì
                 iovec_len = MIN(iovec_len, IOVEC_MAX);
         iovec = newa(struct iovec, iovec_len);
 
@@ -743,7 +743,7 @@ static int write_to_journal(
 
         iovec[n++] = IOVEC_MAKE_STRING(header);
         iovec[n++] = IOVEC_MAKE_STRING("MESSAGE=");
-        if (log_prefix) {
+        nếu (log_prefix) {
                 iovec[n++] = IOVEC_MAKE_STRING(log_prefix);
                 iovec[n++] = IOVEC_MAKE_STRING(": ");
         }
@@ -757,17 +757,17 @@ static int write_to_journal(
                 .msg_iovlen = n,
         };
 
-        if (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) < 0)
-                return -errno;
+        nếu (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) < 0)
+                trả_về -errno;
 
-        return 1;
+        trả_về 1;
 }
 
-int log_dispatch_internal(
-                int level,
-                int error,
+số_nguyên log_dispatch_internal(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -777,78 +777,78 @@ int log_dispatch_internal(
 
         assert_raw(buffer);
 
-        if (log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+        nếu (log_target == LOG_TARGET_NULL)
+                trả_về -ERRNO_VALUE(error);
 
         /* Patch in LOG_DAEMON facility if necessary */
-        if (LOG_FAC(level) == 0)
+        nếu (LOG_FAC(level) == 0)
                 level |= log_facility;
 
-        if (open_when_needed)
+        nếu (open_when_needed)
                 (void) log_open();
 
         do {
                 char *e;
-                int k = 0;
+                số_nguyên k = 0;
 
                 buffer += strspn(buffer, NEWLINE);
 
-                if (buffer[0] == 0)
+                nếu (buffer[0] == 0)
                         break;
 
-                if ((e = strpbrk(buffer, NEWLINE)))
+                nếu ((e = strpbrk(buffer, NEWLINE)))
                         *(e++) = 0;
 
-                if (IN_SET(log_target, LOG_TARGET_AUTO,
+                nếu (IN_SET(log_target, LOG_TARGET_AUTO,
                                        LOG_TARGET_JOURNAL_OR_KMSG,
                                        LOG_TARGET_JOURNAL)) {
 
                         k = write_to_journal(level, error, file, line, func, object_field, object, extra_field, extra, buffer);
-                        if (k < 0 && k != -EAGAIN)
+                        nếu (k < 0 && k != -EAGAIN)
                                 log_close_journal();
                 }
 
-                if (IN_SET(log_target, LOG_TARGET_SYSLOG_OR_KMSG,
+                nếu (IN_SET(log_target, LOG_TARGET_SYSLOG_OR_KMSG,
                                        LOG_TARGET_SYSLOG)) {
 
                         k = write_to_syslog(level, error, file, line, func, buffer);
-                        if (k < 0 && k != -EAGAIN)
+                        nếu (k < 0 && k != -EAGAIN)
                                 log_close_syslog();
                 }
 
-                if (k <= 0 &&
+                nếu (k <= 0 &&
                     IN_SET(log_target, LOG_TARGET_AUTO,
                                        LOG_TARGET_SYSLOG_OR_KMSG,
                                        LOG_TARGET_JOURNAL_OR_KMSG,
                                        LOG_TARGET_KMSG)) {
 
-                        if (k < 0)
+                        nếu (k < 0)
                                 log_open_kmsg();
 
                         k = write_to_kmsg(level, error, file, line, func, buffer);
-                        if (k < 0) {
+                        nếu (k < 0) {
                                 log_close_kmsg();
                                 (void) log_open_console();
                         }
                 }
 
-                if (k <= 0)
+                nếu (k <= 0)
                         (void) write_to_console(level, error, file, line, func, buffer);
 
                 buffer = e;
-        } while (buffer);
+        } trong_khi (buffer);
 
-        if (open_when_needed)
+        nếu (open_when_needed)
                 log_close();
 
-        return -ERRNO_VALUE(error);
+        trả_về -ERRNO_VALUE(error);
 }
 
-int log_dump_internal(
-                int level,
-                int error,
+số_nguyên log_dump_internal(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 char *buffer) {
 
@@ -856,23 +856,23 @@ int log_dump_internal(
 
         /* This modifies the buffer... */
 
-        if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+        nếu (_likely_(LOG_PRI(level) > log_max_level))
+                trả_về -ERRNO_VALUE(error);
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        trả_về log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
 }
 
-int log_internalv(
-                int level,
-                int error,
+số_nguyên log_internalv(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *format,
                 va_list ap) {
 
-        if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+        nếu (_likely_(LOG_PRI(level) > log_max_level))
+                trả_về -ERRNO_VALUE(error);
 
         /* Make sure that %m maps to the specified error (or "Success"). */
         char buffer[LINE_MAX];
@@ -880,32 +880,32 @@ int log_internalv(
 
         (void) vsnprintf(buffer, sizeof buffer, format, ap);
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
+        trả_về log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
 }
 
-int log_internal(
-                int level,
-                int error,
+số_nguyên log_internal(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *format, ...) {
 
         va_list ap;
-        int r;
+        số_nguyên r;
 
         va_start(ap, format);
         r = log_internalv(level, error, file, line, func, format, ap);
         va_end(ap);
 
-        return r;
+        trả_về r;
 }
 
-int log_object_internalv(
-                int level,
-                int error,
+số_nguyên log_object_internalv(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -916,8 +916,8 @@ int log_object_internalv(
 
         char *buffer, *b;
 
-        if (_likely_(LOG_PRI(level) > log_max_level))
-                return -ERRNO_VALUE(error);
+        nếu (_likely_(LOG_PRI(level) > log_max_level))
+                trả_về -ERRNO_VALUE(error);
 
         /* Make sure that %m maps to the specified error (or "Success"). */
         LOCAL_ERRNO(ERRNO_VALUE(error));
@@ -927,15 +927,15 @@ int log_object_internalv(
         b = buffer = newa(char, LINE_MAX);
         (void) vsnprintf(b, LINE_MAX, format, ap);
 
-        return log_dispatch_internal(level, error, file, line, func,
+        trả_về log_dispatch_internal(level, error, file, line, func,
                                      object_field, object, extra_field, extra, buffer);
 }
 
-int log_object_internal(
-                int level,
-                int error,
+số_nguyên log_object_internal(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -944,35 +944,35 @@ int log_object_internal(
                 const char *format, ...) {
 
         va_list ap;
-        int r;
+        số_nguyên r;
 
         va_start(ap, format);
         r = log_object_internalv(level, error, file, line, func, object_field, object, extra_field, extra, format, ap);
         va_end(ap);
 
-        return r;
+        trả_về r;
 }
 
-int log_oom_internal(int level, const char *file, int line, const char *func) {
-        return log_internal(level, ENOMEM, file, line, func, "Out of memory.");
+số_nguyên log_oom_internal(số_nguyên level, const char *file, số_nguyên line, const char *func) {
+        trả_về log_internal(level, ENOMEM, file, line, func, "Out of memory.");
 }
 
-int log_format_iovec(
+số_nguyên log_format_iovec(
                 struct iovec *iovec,
                 size_t iovec_len,
                 size_t *n,
                 bool newline_separator,
-                int error,
+                số_nguyên error,
                 const char *format,
                 va_list ap) {
 
         assert(iovec);
         assert(n);
 
-        while (format && *n + 1 < iovec_len) {
+        trong_khi (format && *n + 1 < iovec_len) {
                 va_list aq;
                 char *m;
-                int r;
+                số_nguyên r;
 
                 /* We need to copy the va_list structure,
                  * since vasprintf() leaves it afterwards at
@@ -983,27 +983,27 @@ int log_format_iovec(
                 va_copy(aq, ap);
                 r = vasprintf(&m, format, aq);
                 va_end(aq);
-                if (r < 0)
-                        return -EINVAL;
+                nếu (r < 0)
+                        trả_về -EINVAL;
 
                 /* Now, jump enough ahead, so that we point to
                  * the next format string */
                 VA_FORMAT_ADVANCE(format, ap);
 
                 iovec[(*n)++] = IOVEC_MAKE_STRING(m);
-                if (newline_separator)
+                nếu (newline_separator)
                         iovec[(*n)++] = IOVEC_MAKE_STRING("\n");
 
                 format = va_arg(ap, char *);
         }
-        return 0;
+        trả_về 0;
 }
 
-int log_struct_internal(
-                int level,
-                int error,
+số_nguyên log_struct_internal(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *format, ...) {
 
@@ -1012,32 +1012,32 @@ int log_struct_internal(
         PROTECT_ERRNO;
         va_list ap;
 
-        if (_likely_(LOG_PRI(level) > log_max_level) ||
+        nếu (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                trả_về -ERRNO_VALUE(error);
 
-        if (LOG_FAC(level) == 0)
+        nếu (LOG_FAC(level) == 0)
                 level |= log_facility;
 
-        if (IN_SET(log_target,
+        nếu (IN_SET(log_target,
                    LOG_TARGET_AUTO,
                    LOG_TARGET_JOURNAL_OR_KMSG,
                    LOG_TARGET_JOURNAL)) {
 
-                if (open_when_needed)
+                nếu (open_when_needed)
                         log_open_journal();
 
-                if (journal_fd >= 0) {
+                nếu (journal_fd >= 0) {
                         char header[LINE_MAX];
                         struct iovec *iovec;
                         size_t n = 0, m, iovec_len;
-                        int r;
+                        số_nguyên r;
                         bool fallback = false;
 
-                        if (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
+                        nếu (!MUL_SAFE(&iovec_len, log_context_num_fields(), 3) ||
                             !ADD_SAFE(&iovec_len, iovec_len, 17))
                                 iovec_len = IOVEC_MAX;
-                        else
+                        không_thì
                                 iovec_len = MIN(iovec_len, IOVEC_MAX);
                         iovec = newa(struct iovec, iovec_len);
 
@@ -1051,9 +1051,9 @@ int log_struct_internal(
                         r = log_format_iovec(iovec, iovec_len, &n, true, error, format, ap);
                         REENABLE_WARNING;
                         m = n;
-                        if (r < 0)
+                        nếu (r < 0)
                                 fallback = true;
-                        else {
+                        không_thì {
                                 log_do_context(iovec, iovec_len, &n);
 
                                 const struct msghdr msghdr = {
@@ -1065,14 +1065,14 @@ int log_struct_internal(
                         }
 
                         va_end(ap);
-                        for (size_t i = 1; i < m; i += 2)
+                        cho (size_t i = 1; i < m; i += 2)
                                 free(iovec[i].iov_base);
 
-                        if (!fallback) {
-                                if (open_when_needed)
+                        nếu (!fallback) {
+                                nếu (open_when_needed)
                                         log_close();
 
-                                return -ERRNO_VALUE(error);
+                                trả_về -ERRNO_VALUE(error);
                         }
                 }
         }
@@ -1080,7 +1080,7 @@ int log_struct_internal(
         /* Fallback if journal logging is not available or didn't work. */
 
         va_start(ap, format);
-        while (format) {
+        trong_khi (format) {
                 va_list aq;
 
                 errno = ERRNO_VALUE(error);
@@ -1091,7 +1091,7 @@ int log_struct_internal(
                 REENABLE_WARNING;
                 va_end(aq);
 
-                if (startswith(buf, "MESSAGE=")) {
+                nếu (startswith(buf, "MESSAGE=")) {
                         found = true;
                         break;
                 }
@@ -1102,35 +1102,35 @@ int log_struct_internal(
         }
         va_end(ap);
 
-        if (!found) {
-                if (open_when_needed)
+        nếu (!found) {
+                nếu (open_when_needed)
                         log_close();
 
-                return -ERRNO_VALUE(error);
+                trả_về -ERRNO_VALUE(error);
         }
 
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buf + 8);
+        trả_về log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buf + 8);
 }
 
-int log_struct_iovec_internal(
-                int level,
-                int error,
+số_nguyên log_struct_iovec_internal(
+                số_nguyên level,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const struct iovec input_iovec[],
                 size_t n_input_iovec) {
 
         PROTECT_ERRNO;
 
-        if (_likely_(LOG_PRI(level) > log_max_level) ||
+        nếu (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                trả_về -ERRNO_VALUE(error);
 
-        if (LOG_FAC(level) == 0)
+        nếu (LOG_FAC(level) == 0)
                 level |= log_facility;
 
-        if (IN_SET(log_target, LOG_TARGET_AUTO,
+        nếu (IN_SET(log_target, LOG_TARGET_AUTO,
                                LOG_TARGET_JOURNAL_OR_KMSG,
                                LOG_TARGET_JOURNAL) &&
             journal_fd >= 0) {
@@ -1139,19 +1139,19 @@ int log_struct_iovec_internal(
                 struct iovec *iovec;
                 size_t n = 0, iovec_len, n_context_iovec, n_input_iovec_expanded;
 
-                if (!MUL_SAFE(&n_input_iovec_expanded, n_input_iovec, 2) ||
+                nếu (!MUL_SAFE(&n_input_iovec_expanded, n_input_iovec, 2) ||
                     !MUL_SAFE(&n_context_iovec, log_context_num_fields(), 3) ||
                     !ADD_SAFE(&iovec_len, 1, n_input_iovec_expanded) ||
                     !ADD_SAFE(&iovec_len, iovec_len, n_context_iovec))
                         iovec_len = IOVEC_MAX;
-                else
+                không_thì
                         iovec_len = MIN(iovec_len, IOVEC_MAX);
                 iovec = newa(struct iovec, iovec_len);
 
                 log_do_header(header, sizeof(header), level, error, file, line, func, NULL, NULL, NULL, NULL);
 
                 iovec[n++] = IOVEC_MAKE_STRING(header);
-                for (size_t i = 0; i < n_input_iovec && n + 2 <= iovec_len; i++) {
+                cho (size_t i = 0; i < n_input_iovec && n + 2 <= iovec_len; i++) {
                         iovec[n++] = input_iovec[i];
                         iovec[n++] = IOVEC_MAKE_STRING("\n");
                 }
@@ -1163,121 +1163,121 @@ int log_struct_iovec_internal(
                         .msg_iovlen = n,
                 };
 
-                if (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) >= 0)
-                        return -ERRNO_VALUE(error);
+                nếu (sendmsg(journal_fd, &msghdr, MSG_NOSIGNAL) >= 0)
+                        trả_về -ERRNO_VALUE(error);
         }
 
-        for (size_t i = 0; i < n_input_iovec; i++)
-                if (memory_startswith(input_iovec[i].iov_base, input_iovec[i].iov_len, "MESSAGE=")) {
+        cho (size_t i = 0; i < n_input_iovec; i++)
+                nếu (memory_startswith(input_iovec[i].iov_base, input_iovec[i].iov_len, "MESSAGE=")) {
                         char *m;
 
                         m = strndupa_safe((char*) input_iovec[i].iov_base + STRLEN("MESSAGE="),
                                           input_iovec[i].iov_len - STRLEN("MESSAGE="));
 
-                        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, m);
+                        trả_về log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, m);
                 }
 
         /* Couldn't find MESSAGE=. */
-        return -ERRNO_VALUE(error);
+        trả_về -ERRNO_VALUE(error);
 }
 
-int log_set_target_from_string(const char *e) {
+số_nguyên log_set_target_from_string(const char *e) {
         LogTarget t;
 
         t = log_target_from_string(e);
-        if (t < 0)
-                return t;
+        nếu (t < 0)
+                trả_về t;
 
         log_set_target(t);
-        return 0;
+        trả_về 0;
 }
 
-int log_set_max_level_from_string(const char *e) {
-        int r;
+số_nguyên log_set_max_level_from_string(const char *e) {
+        số_nguyên r;
 
-        for (;;) {
+        cho (;;) {
                 _cleanup_free_ char *word = NULL, *prefix = NULL;
                 LogTarget target;
                 const char *colon;
 
                 r = extract_first_word(&e, &word, ",", 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                nếu (r < 0)
+                        trả_về r;
+                nếu (r == 0)
                         break;
 
                 colon = strchr(word, ':');
-                if (!colon) {
+                nếu (!colon) {
                         r = log_level_from_string(word);
-                        if (r < 0)
-                                return r;
+                        nếu (r < 0)
+                                trả_về r;
 
                         log_set_max_level(r);
                         continue;
                 }
 
                 prefix = strndup(word, colon - word);
-                if (!prefix)
-                        return -ENOMEM;
+                nếu (!prefix)
+                        trả_về -ENOMEM;
 
                 target = log_target_from_string(prefix);
-                if (target < 0)
-                        return target;
+                nếu (target < 0)
+                        trả_về target;
 
-                if (target >= _LOG_TARGET_SINGLE_MAX)
-                        return -EINVAL;
+                nếu (target >= _LOG_TARGET_SINGLE_MAX)
+                        trả_về -EINVAL;
 
                 r = log_level_from_string(colon + 1);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
 
                 log_target_max_level[target] = r;
         }
 
-        return 0;
+        trả_về 0;
 }
 
-int log_max_levels_to_string(int level, char **ret) {
+số_nguyên log_max_levels_to_string(số_nguyên level, char **ret) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        số_nguyên r;
 
         assert(ret);
 
         r = log_level_to_string_alloc(level, &s);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
-        for (LogTarget target = 0; target < _LOG_TARGET_SINGLE_MAX; target++) {
+        cho (LogTarget target = 0; target < _LOG_TARGET_SINGLE_MAX; target++) {
                 _cleanup_free_ char *l = NULL;
 
-                if (log_target_max_level[target] == INT_MAX)
+                nếu (log_target_max_level[target] == INT_MAX)
                         continue;
 
                 r = log_level_to_string_alloc(log_target_max_level[target], &l);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
 
                 r = strextendf_with_separator(&s, ",", "%s:%s", log_target_to_string(target), l);
-                if (r < 0)
-                        return r;
+                nếu (r < 0)
+                        trả_về r;
         }
 
         *ret = TAKE_PTR(s);
-        return 0;
+        trả_về 0;
 }
 
-static int log_set_ratelimit_kmsg_from_string(const char *e) {
-        int r;
+static số_nguyên log_set_ratelimit_kmsg_from_string(const char *e) {
+        số_nguyên r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         ratelimit_kmsg = r;
-        return 0;
+        trả_về 0;
 }
 
-static int parse_proc_cmdline_item(const char *key, const char *value, void *data) {
+static số_nguyên parse_proc_cmdline_item(const char *key, const char *value, void *data) {
 
         /*
          * The systemd.log_xyz= settings are parsed by all tools, and
@@ -1288,125 +1288,125 @@ static int parse_proc_cmdline_item(const char *key, const char *value, void *dat
          * level.
          */
 
-        if (streq(key, "debug") && !value)
+        nếu (streq(key, "debug") && !value)
                 log_set_max_level(LOG_DEBUG);
 
-        else if (proc_cmdline_key_streq(key, "systemd.log_target")) {
+        không_thì nếu (proc_cmdline_key_streq(key, "systemd.log_target")) {
 
-                if (proc_cmdline_value_missing(key, value))
-                        return 0;
+                nếu (proc_cmdline_value_missing(key, value))
+                        trả_về 0;
 
-                if (log_set_target_from_string(value) < 0)
+                nếu (log_set_target_from_string(value) < 0)
                         log_warning("Failed to parse log target '%s', ignoring.", value);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_level")) {
+        } không_thì nếu (proc_cmdline_key_streq(key, "systemd.log_level")) {
 
-                if (proc_cmdline_value_missing(key, value))
-                        return 0;
+                nếu (proc_cmdline_value_missing(key, value))
+                        trả_về 0;
 
-                if (log_set_max_level_from_string(value) < 0)
+                nếu (log_set_max_level_from_string(value) < 0)
                         log_warning("Failed to parse log level setting '%s', ignoring.", value);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_color")) {
+        } không_thì nếu (proc_cmdline_key_streq(key, "systemd.log_color")) {
 
-                if (log_show_color_from_string(value ?: "1") < 0)
+                nếu (log_show_color_from_string(value ?: "1") < 0)
                         log_warning("Failed to parse log color setting '%s', ignoring.", value);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_location")) {
+        } không_thì nếu (proc_cmdline_key_streq(key, "systemd.log_location")) {
 
-                if (log_show_location_from_string(value ?: "1") < 0)
+                nếu (log_show_location_from_string(value ?: "1") < 0)
                         log_warning("Failed to parse log location setting '%s', ignoring.", value);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_tid")) {
+        } không_thì nếu (proc_cmdline_key_streq(key, "systemd.log_tid")) {
 
-                if (log_show_tid_from_string(value ?: "1") < 0)
+                nếu (log_show_tid_from_string(value ?: "1") < 0)
                         log_warning("Failed to parse log tid setting '%s', ignoring.", value);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_time")) {
+        } không_thì nếu (proc_cmdline_key_streq(key, "systemd.log_time")) {
 
-                if (log_show_time_from_string(value ?: "1") < 0)
+                nếu (log_show_time_from_string(value ?: "1") < 0)
                         log_warning("Failed to parse log time setting '%s', ignoring.", value);
 
-        } else if (proc_cmdline_key_streq(key, "systemd.log_ratelimit_kmsg")) {
+        } không_thì nếu (proc_cmdline_key_streq(key, "systemd.log_ratelimit_kmsg")) {
 
-                if (log_set_ratelimit_kmsg_from_string(value ?: "1") < 0)
+                nếu (log_set_ratelimit_kmsg_from_string(value ?: "1") < 0)
                         log_warning("Failed to parse log ratelimit kmsg boolean '%s', ignoring.", value);
         }
 
-        return 0;
+        trả_về 0;
 }
 
 static bool should_parse_proc_cmdline(void) {
         /* PID1 always reads the kernel command line. */
-        if (getpid_cached() == 1)
-                return true;
+        nếu (getpid_cached() == 1)
+                trả_về true;
 
         /* Otherwise, parse the command line if invoked directly by systemd. */
-        return invoked_by_systemd();
+        trả_về invoked_by_systemd();
 }
 
 void log_parse_environment_variables(void) {
         const char *e;
-        int r;
+        số_nguyên r;
 
         e = getenv("SYSTEMD_LOG_TARGET");
-        if (e && log_set_target_from_string(e) < 0)
+        nếu (e && log_set_target_from_string(e) < 0)
                 log_warning("Failed to parse log target '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_LEVEL");
-        if (e) {
+        nếu (e) {
                 r = log_set_max_level_from_string(e);
-                if (r < 0)
+                nếu (r < 0)
                         log_warning_errno(r, "Failed to parse log level '%s', ignoring: %m", e);
-        } else {
+        } không_thì {
                 /* If no explicit log level is specified then let's see if this is a debug invocation, and if
                  * so raise the log level to debug too. Note that this is not symmetric: just because
                  * DEBUG_INVOCATION is explicitly set to 0 we won't lower the log level below debug. This
                  * follows the logic that debug logging is an opt-in thing anyway, and if there's any reason
                  * to enable it we should not disable it here automatically. */
                 r = getenv_bool("DEBUG_INVOCATION");
-                if (r < 0 && r != -ENXIO)
+                nếu (r < 0 && r != -ENXIO)
                         log_warning_errno(r, "Failed to parse $DEBUG_INVOCATION value, ignoring: %m");
-                else if (r > 0)
+                không_thì nếu (r > 0)
                         log_set_max_level(LOG_DEBUG);
         }
 
         e = getenv("SYSTEMD_LOG_COLOR");
-        if (e && log_show_color_from_string(e) < 0)
+        nếu (e && log_show_color_from_string(e) < 0)
                 log_warning("Failed to parse log color '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_LOCATION");
-        if (e && log_show_location_from_string(e) < 0)
+        nếu (e && log_show_location_from_string(e) < 0)
                 log_warning("Failed to parse log location '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_TIME");
-        if (e && log_show_time_from_string(e) < 0)
+        nếu (e && log_show_time_from_string(e) < 0)
                 log_warning("Failed to parse log time '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_TID");
-        if (e && log_show_tid_from_string(e) < 0)
+        nếu (e && log_show_tid_from_string(e) < 0)
                 log_warning("Failed to parse log tid '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_RATELIMIT_KMSG");
-        if (e && log_set_ratelimit_kmsg_from_string(e) < 0)
+        nếu (e && log_set_ratelimit_kmsg_from_string(e) < 0)
                 log_warning("Failed to parse log ratelimit kmsg boolean '%s', ignoring.", e);
 
         e = getenv("SYSTEMD_LOG_EXECUTABLE");
-        if (e && log_show_executable_from_string(e) < 0)
+        nếu (e && log_show_executable_from_string(e) < 0)
                 log_warning("Failed to parse log executable '%s', ignoring.", e);
 }
 
 void log_parse_environment(void) {
         /* Do not call from library code. */
 
-        if (should_parse_proc_cmdline())
+        nếu (should_parse_proc_cmdline())
                 (void) proc_cmdline_parse(parse_proc_cmdline_item, NULL, PROC_CMDLINE_STRIP_RD_PREFIX);
 
         log_parse_environment_variables();
 }
 
 LogTarget log_get_target(void) {
-        return log_target;
+        trả_về log_target;
 }
 
 void log_settle_target(void) {
@@ -1419,22 +1419,22 @@ void log_settle_target(void) {
 
         LogTarget t = log_get_target();
 
-        if (t != LOG_TARGET_AUTO)
-                return;
+        nếu (t != LOG_TARGET_AUTO)
+                trả_về;
 
         t = getpid_cached() == 1 || stderr_is_journal() ? (prohibit_ipc ? LOG_TARGET_KMSG : LOG_TARGET_JOURNAL_OR_KMSG)
                                                         : LOG_TARGET_CONSOLE;
         log_set_target(t);
 }
 
-int log_get_max_level(void) {
-        return log_max_level;
+số_nguyên log_get_max_level(void) {
+        trả_về log_max_level;
 }
 
-int log_get_target_max_level(LogTarget target) {
+số_nguyên log_get_target_max_level(LogTarget target) {
         assert(target >= 0);
         assert(target < _LOG_TARGET_SINGLE_MAX);
-        return log_target_max_level[target];
+        trả_về log_target_max_level[target];
 }
 
 void log_show_color(bool b) {
@@ -1442,7 +1442,7 @@ void log_show_color(bool b) {
 }
 
 bool log_get_show_color(void) {
-        return show_color > 0; /* Defaults to false. */
+        trả_về show_color > 0; /* Defaults to false. */
 }
 
 void log_show_location(bool b) {
@@ -1450,7 +1450,7 @@ void log_show_location(bool b) {
 }
 
 bool log_get_show_location(void) {
-        return show_location;
+        trả_về show_location;
 }
 
 void log_show_time(bool b) {
@@ -1458,7 +1458,7 @@ void log_show_time(bool b) {
 }
 
 bool log_get_show_time(void) {
-        return show_time;
+        trả_về show_time;
 }
 
 void log_show_tid(bool b) {
@@ -1466,7 +1466,7 @@ void log_show_tid(bool b) {
 }
 
 bool log_get_show_tid(void) {
-        return show_tid;
+        trả_về show_tid;
 }
 
 void log_show_executable(bool b) {
@@ -1474,70 +1474,70 @@ void log_show_executable(bool b) {
 }
 
 bool log_get_show_executable(void) {
-        return show_executable;
+        trả_về show_executable;
 }
 
-int log_show_color_from_string(const char *e) {
-        int r;
+số_nguyên log_show_color_from_string(const char *e) {
+        số_nguyên r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         log_show_color(r);
-        return 0;
+        trả_về 0;
 }
 
-int log_show_location_from_string(const char *e) {
-        int r;
+số_nguyên log_show_location_from_string(const char *e) {
+        số_nguyên r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         log_show_location(r);
-        return 0;
+        trả_về 0;
 }
 
-int log_show_time_from_string(const char *e) {
-        int r;
+số_nguyên log_show_time_from_string(const char *e) {
+        số_nguyên r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         log_show_time(r);
-        return 0;
+        trả_về 0;
 }
 
-int log_show_tid_from_string(const char *e) {
-        int r;
+số_nguyên log_show_tid_from_string(const char *e) {
+        số_nguyên r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         log_show_tid(r);
-        return 0;
+        trả_về 0;
 }
 
-int log_show_executable_from_string(const char *e) {
-        int r;
+số_nguyên log_show_executable_from_string(const char *e) {
+        số_nguyên r;
 
         r = parse_boolean(e);
-        if (r < 0)
-                return r;
+        nếu (r < 0)
+                trả_về r;
 
         log_show_executable(r);
-        return 0;
+        trả_về 0;
 }
 
 bool log_on_console(void) {
-        if (IN_SET(log_target, LOG_TARGET_CONSOLE,
+        nếu (IN_SET(log_target, LOG_TARGET_CONSOLE,
                                LOG_TARGET_CONSOLE_PREFIXED))
-                return true;
+                trả_về true;
 
-        return syslog_fd < 0 && kmsg_fd < 0 && journal_fd < 0;
+        trả_về syslog_fd < 0 && kmsg_fd < 0 && journal_fd < 0;
 }
 
 static const char *const log_target_table[_LOG_TARGET_MAX] = {
@@ -1554,10 +1554,10 @@ static const char *const log_target_table[_LOG_TARGET_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(log_target, LogTarget);
 
-void log_received_signal(int level, const struct signalfd_siginfo *si) {
+void log_received_signal(số_nguyên level, const struct signalfd_siginfo *si) {
         assert(si);
 
-        if (si_code_from_process(si->ssi_code) && pid_is_valid(si->ssi_pid)) {
+        nếu (si_code_from_process(si->ssi_code) && pid_is_valid(si->ssi_pid)) {
                 _cleanup_free_ char *p = NULL;
 
                 (void) pid_get_comm(si->ssi_pid, &p);
@@ -1566,7 +1566,7 @@ void log_received_signal(int level, const struct signalfd_siginfo *si) {
                          "Received SIG%s from PID %"PRIu32" (%s).",
                          signal_to_string(si->ssi_signo),
                          si->ssi_pid, strna(p));
-        } else
+        } không_thì
                 log_full(level,
                          "Received SIG%s.",
                          signal_to_string(si->ssi_signo));
@@ -1580,25 +1580,25 @@ void set_log_syntax_callback(log_syntax_callback_t cb, void *userdata) {
         log_syntax_callback_userdata = userdata;
 }
 
-int log_syntax_internal(
+số_nguyên log_syntax_internal(
                 const char *unit,
-                int level,
+                số_nguyên level,
                 const char *config_file,
                 unsigned config_line,
-                int error,
+                số_nguyên error,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *format, ...) {
 
         PROTECT_ERRNO;
 
-        if (log_syntax_callback)
+        nếu (log_syntax_callback)
                 log_syntax_callback(unit, level, log_syntax_callback_userdata);
 
-        if (_likely_(LOG_PRI(level) > log_max_level) ||
+        nếu (_likely_(LOG_PRI(level) > log_max_level) ||
             log_target == LOG_TARGET_NULL)
-                return -ERRNO_VALUE(error);
+                trả_về -ERRNO_VALUE(error);
 
         char buffer[LINE_MAX];
         va_list ap;
@@ -1610,12 +1610,12 @@ int log_syntax_internal(
         (void) vsnprintf(buffer, sizeof buffer, format, ap);
         va_end(ap);
 
-        if (unit)
+        nếu (unit)
                 unit_fmt = getpid_cached() == 1 ? "UNIT=%s" : "USER_UNIT=%s";
 
-        if (config_file) {
-                if (config_line > 0)
-                        return log_struct_internal(
+        nếu (config_file) {
+                nếu (config_line > 0)
+                        trả_về log_struct_internal(
                                         level,
                                         error,
                                         file, line, func,
@@ -1625,8 +1625,8 @@ int log_syntax_internal(
                                         LOG_MESSAGE("%s:%u: %s", config_file, config_line, buffer),
                                         unit_fmt, unit,
                                         NULL);
-                else
-                        return log_struct_internal(
+                không_thì
+                        trả_về log_struct_internal(
                                         level,
                                         error,
                                         file, line, func,
@@ -1635,8 +1635,8 @@ int log_syntax_internal(
                                         LOG_MESSAGE("%s: %s", config_file, buffer),
                                         unit_fmt, unit,
                                         NULL);
-        } else if (unit)
-                return log_struct_internal(
+        } không_thì nếu (unit)
+                trả_về log_struct_internal(
                                 level,
                                 error,
                                 file, line, func,
@@ -1644,8 +1644,8 @@ int log_syntax_internal(
                                 LOG_MESSAGE("%s: %s", unit, buffer),
                                 unit_fmt, unit,
                                 NULL);
-        else
-                return log_struct_internal(
+        không_thì
+                trả_về log_struct_internal(
                                 level,
                                 error,
                                 file, line, func,
@@ -1654,35 +1654,35 @@ int log_syntax_internal(
                                 NULL);
 }
 
-int log_syntax_invalid_utf8_internal(
+số_nguyên log_syntax_invalid_utf8_internal(
                 const char *unit,
-                int level,
+                số_nguyên level,
                 const char *config_file,
                 unsigned config_line,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *rvalue) {
 
         PROTECT_ERRNO;
         _cleanup_free_ char *p = NULL;
 
-        if (rvalue)
+        nếu (rvalue)
                 p = utf8_escape_invalid(rvalue);
 
-        return log_syntax_internal(unit, level, config_file, config_line,
+        trả_về log_syntax_internal(unit, level, config_file, config_line,
                                    SYNTHETIC_ERRNO(EINVAL), file, line, func,
                                    "String is not UTF-8 clean, ignoring assignment: %s", strna(p));
 }
 
-int log_syntax_parse_error_internal(
+số_nguyên log_syntax_parse_error_internal(
                 const char *unit,
                 const char *config_file,
                 unsigned config_line,
-                int error,
+                số_nguyên error,
                 bool critical,
                 const char *file,
-                int line,
+                số_nguyên line,
                 const char *func,
                 const char *lvalue,
                 const char *rvalue) {
@@ -1691,14 +1691,14 @@ int log_syntax_parse_error_internal(
         _cleanup_free_ char *escaped = NULL;
 
         /* OOM is always handled as critical. */
-        if (ERRNO_VALUE(error) == ENOMEM)
-                return log_oom_internal(LOG_ERR, file, line, func);
+        nếu (ERRNO_VALUE(error) == ENOMEM)
+                trả_về log_oom_internal(LOG_ERR, file, line, func);
 
-        if (rvalue && !utf8_is_valid(rvalue)) {
+        nếu (rvalue && !utf8_is_valid(rvalue)) {
                 escaped = utf8_escape_invalid(rvalue);
-                if (!escaped)
+                nếu (!escaped)
                         rvalue = "(oom)";
-                else
+                không_thì
                         rvalue = " (escaped)";
         }
 
@@ -1710,17 +1710,17 @@ int log_syntax_parse_error_internal(
                             error == 0 ? "." : ": ",
                             error == 0 ? "" : STRERROR(error));
 
-        return critical ? -ERRNO_VALUE(error) : 0;
+        trả_về critical ? -ERRNO_VALUE(error) : 0;
 }
 
 void log_set_upgrade_syslog_to_journal(bool b) {
         upgrade_syslog_to_journal = b;
 
         /* Make the change effective immediately */
-        if (b) {
-                if (log_target == LOG_TARGET_SYSLOG)
+        nếu (b) {
+                nếu (log_target == LOG_TARGET_SYSLOG)
                         log_target = LOG_TARGET_JOURNAL;
-                else if (log_target == LOG_TARGET_SYSLOG_OR_KMSG)
+                không_thì nếu (log_target == LOG_TARGET_SYSLOG_OR_KMSG)
                         log_target = LOG_TARGET_JOURNAL_OR_KMSG;
         }
 }
@@ -1737,43 +1737,43 @@ void log_set_prohibit_ipc(bool b) {
         prohibit_ipc = b;
 }
 
-int log_emergency_level(void) {
+số_nguyên log_emergency_level(void) {
         /* Returns the log level to use for log_emergency() logging. We use LOG_EMERG only when we are PID 1, as only
          * then the system of the whole system is obviously affected. */
 
-        return getpid_cached() == 1 ? LOG_EMERG : LOG_ERR;
+        trả_về getpid_cached() == 1 ? LOG_EMERG : LOG_ERR;
 }
 
-int log_dup_console(void) {
-        int copy;
+số_nguyên log_dup_console(void) {
+        số_nguyên copy;
 
         /* Duplicate the fd we use for fd logging if it's < 3 and use the copy from now on. This call is useful
          * whenever we want to continue logging through the original fd, but want to rearrange stderr. */
 
-        if (console_fd < 0 || console_fd >= 3)
-                return 0;
+        nếu (console_fd < 0 || console_fd >= 3)
+                trả_về 0;
 
         copy = fcntl(console_fd, F_DUPFD_CLOEXEC, 3);
-        if (copy < 0)
-                return -errno;
+        nếu (copy < 0)
+                trả_về -errno;
 
         console_fd = copy;
-        return 0;
+        trả_về 0;
 }
 
 void log_setup(void) {
         log_set_target(LOG_TARGET_AUTO);
         log_parse_environment();
         (void) log_open();
-        if (log_on_console() && show_color < 0)
+        nếu (log_on_console() && show_color < 0)
                 log_show_color(true);
 }
 
 const char* _log_set_prefix(const char *prefix, bool force) {
         const char *old = log_prefix;
 
-        if (prefix || force)
+        nếu (prefix || force)
                 log_prefix = prefix;
 
-        return old;
+        trả_về old;
 }

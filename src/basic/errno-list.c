@@ -11,44 +11,44 @@ static const struct errno_name* lookup_errno(register const char *str,
 
 #include "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
+số_nguyên errno_from_name(const char *name) {
         const struct errno_name *sc;
 
         assert(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        nếu (!sc)
+                trả_về -EINVAL;
 
         assert(sc->id > 0);
-        return sc->id;
+        trả_về sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+const char* errno_name_no_fallback(số_nguyên id) {
+        nếu (id == 0) /* To stay in line with our implementation below.  */
+                trả_về NULL;
 
-        return strerrorname_np(ABS(id));
+        trả_về strerrorname_np(ABS(id));
 }
-#else
+#không_thì
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+const char* errno_name_no_fallback(số_nguyên id) {
+        nếu (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        nếu ((size_t) id >= ELEMENTSOF(errno_names))
+                trả_về NULL;
 
-        return errno_names[id];
+        trả_về errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
+const char* errno_name(số_nguyên id, char buf[static ERRNO_NAME_BUF_LEN]) {
         const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+        nếu (a)
+                trả_về a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        trả_về buf;
 }
