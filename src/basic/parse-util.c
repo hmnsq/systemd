@@ -20,76 +20,76 @@
 #include "string-util.h"
 #include "strv.h"
 
-int parse_boolean(const char *v) {
-        if (!v)
-                return -EINVAL;
+정수 parse_boolean(const char *v) {
+        만약 (!v)
+                반환 -EINVAL;
 
-        if (STRCASE_IN_SET(v,
+        만약 (STRCASE_IN_SET(v,
                            "1",
                            "yes",
                            "y",
                            "true",
                            "t",
                            "on"))
-                return 1;
+                반환 1;
 
-        if (STRCASE_IN_SET(v,
+        만약 (STRCASE_IN_SET(v,
                            "0",
                            "no",
                            "n",
                            "false",
                            "f",
                            "off"))
-                return 0;
+                반환 0;
 
-        return -EINVAL;
+        반환 -EINVAL;
 }
 
-int parse_tristate_full(const char *v, const char *third, int *ret) {
-        int r;
+정수 parse_tristate_full(const char *v, const char *third, 정수 *ret) {
+        정수 r;
 
-        if (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
-                if (ret)
+        만약 (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
+                만약 (ret)
                         *ret = -1;
-        } else {
+        } 아니면 {
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
-                if (ret)
+                만약 (ret)
                         *ret = r;
         }
 
-        return 0;
+        반환 0;
 }
 
-int parse_pid(const char *s, pid_t *ret) {
+정수 parse_pid(const char *s, pid_t *ret) {
         unsigned long ul = 0;
         pid_t pid;
-        int r;
+        정수 r;
 
         assert(s);
 
         r = safe_atolu(s, &ul);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         pid = (pid_t) ul;
 
-        if ((unsigned long) pid != ul)
-                return -ERANGE;
+        만약 ((unsigned long) pid != ul)
+                반환 -ERANGE;
 
-        if (!pid_is_valid(pid))
-                return -ERANGE;
+        만약 (!pid_is_valid(pid))
+                반환 -ERANGE;
 
-        if (ret)
+        만약 (ret)
                 *ret = pid;
-        return 0;
+        반환 0;
 }
 
-int parse_mode(const char *s, mode_t *ret) {
+정수 parse_mode(const char *s, mode_t *ret) {
         unsigned m;
-        int r;
+        정수 r;
 
         assert(s);
 
@@ -99,42 +99,42 @@ int parse_mode(const char *s, mode_t *ret) {
                                                         * so, but this parser doesn't allow that, so let's
                                                         * better be safe. */
                            &m);
-        if (r < 0)
-                return r;
-        if (m > 07777)
-                return -ERANGE;
+        만약 (r < 0)
+                반환 r;
+        만약 (m > 07777)
+                반환 -ERANGE;
 
-        if (ret)
+        만약 (ret)
                 *ret = m;
-        return 0;
+        반환 0;
 }
 
-int parse_ifindex(const char *s) {
-        int ifi, r;
+정수 parse_ifindex(const char *s) {
+        정수 ifi, r;
 
         assert(s);
 
         r = safe_atoi(s, &ifi);
-        if (r < 0)
-                return r;
-        if (ifi <= 0)
-                return -EINVAL;
+        만약 (r < 0)
+                반환 r;
+        만약 (ifi <= 0)
+                반환 -EINVAL;
 
-        return ifi;
+        반환 ifi;
 }
 
-int parse_mtu(int family, const char *s, uint32_t *ret) {
+정수 parse_mtu(정수 family, const char *s, uint32_t *ret) {
         uint64_t u, m;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = parse_size(s, 1024, &u);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (u > UINT32_MAX)
-                return -ERANGE;
+        만약 (u > UINT32_MAX)
+                반환 -ERANGE;
 
         switch (family) {
         case AF_INET:
@@ -147,14 +147,14 @@ int parse_mtu(int family, const char *s, uint32_t *ret) {
                 m = 0;
         }
 
-        if (u < m)
-                return -ERANGE;
+        만약 (u < m)
+                반환 -ERANGE;
 
         *ret = (uint32_t) u;
-        return 0;
+        반환 0;
 }
 
-int parse_size(const char *t, uint64_t base, uint64_t *size) {
+정수 parse_size(const char *t, uint64_t base, uint64_t *size) {
 
         /* Soo, sometimes we want to parse IEC binary suffixes, and
          * sometimes SI decimal suffixes. This function can parse
@@ -206,10 +206,10 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
         assert(IN_SET(base, 1000, 1024));
         assert(size);
 
-        if (base == 1000) {
+        만약 (base == 1000) {
                 table = si;
                 n_entries = ELEMENTSOF(si);
-        } else {
+        } 아니면 {
                 table = iec;
                 n_entries = ELEMENTSOF(iec);
         }
@@ -225,65 +225,65 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
 
                 errno = 0;
                 l = strtoull(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (e == p)
-                        return -EINVAL;
-                if (*p == '-')
-                        return -ERANGE;
+                만약 (errno > 0)
+                        반환 -errno;
+                만약 (e == p)
+                        반환 -EINVAL;
+                만약 (*p == '-')
+                        반환 -ERANGE;
 
-                if (*e == '.') {
+                만약 (*e == '.') {
                         e++;
 
                         /* strtoull() itself would accept space/+/- */
-                        if (ascii_isdigit(*e)) {
+                        만약 (ascii_isdigit(*e)) {
                                 unsigned long long l2;
                                 char *e2;
 
                                 l2 = strtoull(e, &e2, 10);
-                                if (errno > 0)
-                                        return -errno;
+                                만약 (errno > 0)
+                                        반환 -errno;
 
                                 /* Ignore failure. E.g. 10.M is valid */
                                 frac = l2;
-                                for (; e < e2; e++)
+                                위해 (; e < e2; e++)
                                         frac /= 10;
                         }
                 }
 
                 e += strspn(e, WHITESPACE);
 
-                for (i = start_pos; i < n_entries; i++)
-                        if (startswith(e, table[i].suffix))
+                위해 (i = start_pos; i < n_entries; i++)
+                        만약 (startswith(e, table[i].suffix))
                                 break;
 
-                if (i >= n_entries)
-                        return -EINVAL;
+                만약 (i >= n_entries)
+                        반환 -EINVAL;
 
-                if (l + (frac > 0) > ULLONG_MAX / table[i].factor)
-                        return -ERANGE;
+                만약 (l + (frac > 0) > ULLONG_MAX / table[i].factor)
+                        반환 -ERANGE;
 
                 tmp = l * table[i].factor + (unsigned long long) (frac * table[i].factor);
-                if (tmp > ULLONG_MAX - r)
-                        return -ERANGE;
+                만약 (tmp > ULLONG_MAX - r)
+                        반환 -ERANGE;
 
                 r += tmp;
-                if ((unsigned long long) (uint64_t) r != r)
-                        return -ERANGE;
+                만약 ((unsigned long long) (uint64_t) r != r)
+                        반환 -ERANGE;
 
                 p = e + strlen(table[i].suffix);
 
                 start_pos = i + 1;
 
-        } while (*p);
+        } 동안 (*p);
 
         *size = r;
 
-        return 0;
+        반환 0;
 }
 
-int parse_sector_size(const char *t, uint64_t *ret) {
-        int r;
+정수 parse_sector_size(const char *t, uint64_t *ret) {
+        정수 r;
 
         assert(t);
         assert(ret);
@@ -291,113 +291,113 @@ int parse_sector_size(const char *t, uint64_t *ret) {
         uint64_t ss;
 
         r = safe_atou64(t, &ss);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse sector size parameter %s", t);
-        if (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
-                return log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
-        if (!ISPOWEROF2(ss))
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
+        만약 (r < 0)
+                반환 log_error_errno(r, "Failed to parse sector size parameter %s", t);
+        만약 (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
+                반환 log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
+        만약 (!ISPOWEROF2(ss))
+                반환 log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
 
         *ret = ss;
-        return 0;
+        반환 0;
 }
 
-int parse_range(const char *t, unsigned *lower, unsigned *upper) {
+정수 parse_range(const char *t, unsigned *lower, unsigned *upper) {
         _cleanup_free_ char *word = NULL;
         unsigned l, u;
-        int r;
+        정수 r;
 
         assert(lower);
         assert(upper);
 
         /* Extract the lower bound. */
         r = extract_first_word(&t, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        만약 (r < 0)
+                반환 r;
+        만약 (r == 0)
+                반환 -EINVAL;
 
         r = safe_atou(word, &l);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!t)
+        만약 (!t)
                 /* Single number with no dashes. */
                 u = l;
-        else if (!*t)
+        아니면 만약 (!*t)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                반환 -EINVAL;
+        아니면 {
                 r = safe_atou(t, &u);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
         }
 
         *lower = l;
         *upper = u;
-        return 0;
+        반환 0;
 }
 
-int parse_errno(const char *t) {
-        int r, e;
+정수 parse_errno(const char *t) {
+        정수 r, e;
 
         assert(t);
 
         r = errno_from_name(t);
-        if (r > 0)
-                return r;
+        만약 (r > 0)
+                반환 r;
 
         r = safe_atoi(t, &e);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         /* 0 is also allowed here */
-        if (!errno_is_valid(e) && e != 0)
-                return -ERANGE;
+        만약 (!errno_is_valid(e) && e != 0)
+                반환 -ERANGE;
 
-        return e;
+        반환 e;
 }
 
-int parse_fd(const char *t) {
-        int r, fd;
+정수 parse_fd(const char *t) {
+        정수 r, fd;
 
         assert(t);
 
         r = safe_atoi(t, &fd);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (fd < 0)
-                return -EBADF;
+        만약 (fd < 0)
+                반환 -EBADF;
 
-        return fd;
+        반환 fd;
 }
 
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
+정수 parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
         char *sh;
-        int r;
+        정수 r;
 
         assert(ret_sh);
         assert(ret_copy);
 
-        if (path_is_absolute(s) && path_is_normalized(s)) {
+        만약 (path_is_absolute(s) && path_is_normalized(s)) {
                 sh = strdup(s);
-                if (!sh)
-                        return -ENOMEM;
+                만약 (!sh)
+                        반환 -ENOMEM;
 
                 *ret_sh = sh;
                 *ret_copy = false;
-        } else {
+        } 아니면 {
                 r = parse_boolean(s);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 *ret_sh = NULL;
                 *ret_copy = r;
         }
 
-        return 0;
+        반환 0;
 }
 
 static const char *mangle_base(const char *s, unsigned *base) {
@@ -407,26 +407,26 @@ static const char *mangle_base(const char *s, unsigned *base) {
         assert(base);
 
         /* Base already explicitly specified, then don't do anything. */
-        if (SAFE_ATO_MASK_FLAGS(*base) != 0)
-                return s;
+        만약 (SAFE_ATO_MASK_FLAGS(*base) != 0)
+                반환 s;
 
         /* Support Python 3 style "0b" and 0x" prefixes, because they truly make sense, much more than C's "0" prefix for octal. */
         k = STARTSWITH_SET(s, "0b", "0B");
-        if (k) {
+        만약 (k) {
                 *base = 2 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                반환 k;
         }
 
         k = STARTSWITH_SET(s, "0o", "0O");
-        if (k) {
+        만약 (k) {
                 *base = 8 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                반환 k;
         }
 
-        return s;
+        반환 s;
 }
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
+정수 safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
         char *x = NULL;
         unsigned long l;
 
@@ -438,23 +438,23 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
          * generate an error. But let's do so only after strtoul() validated that the string is clean
          * otherwise, so that we return EINVAL preferably over ERANGE. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        만약 (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                반환 -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        만약 (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
+                반환 -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
                                  * different error. I.e. if the SAFE_ATO_REFUSE_PLUS_MINUS flag is set we
                                  * blanket refuse +/- prefixed integers, while if it is missing we'll just
                                  * return ERANGE, because the string actually parses correctly, but doesn't
                                  * fit in the return type. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        만약 (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && !streq(s, "0"))
-                return -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
+                반환 -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
                                  * notation and assumed-to-be-decimal integers with a leading zero. */
 
         s = mangle_base(s, &base);
@@ -462,39 +462,39 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
         errno = 0;
         l = strtoul(s, &x, SAFE_ATO_MASK_FLAGS(base) /* Let's mask off the flags bits so that only the actual
                                                       * base is left */);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
-        if ((unsigned long) (unsigned) l != l)
-                return -ERANGE;
+        만약 (errno > 0)
+                반환 -errno;
+        만약 (!x || x == s || *x != 0)
+                반환 -EINVAL;
+        만약 (l != 0 && s[0] == '-')
+                반환 -ERANGE;
+        만약 ((unsigned long) (unsigned) l != l)
+                반환 -ERANGE;
 
-        if (ret_u)
+        만약 (ret_u)
                 *ret_u = (unsigned) l;
 
-        return 0;
+        반환 0;
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
+정수 safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
         unsigned v;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = safe_atou(s, &v);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (v < min || v > max)
-                return -ERANGE;
+        만약 (v < min || v > max)
+                반환 -ERANGE;
 
         *ret = v;
-        return 0;
+        반환 0;
 }
 
-int safe_atoi(const char *s, int *ret_i) {
+정수 safe_atoi(const char *s, 정수 *ret_i) {
         unsigned base = 0;
         char *x = NULL;
         long l;
@@ -506,58 +506,58 @@ int safe_atoi(const char *s, int *ret_i) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int) l != l)
-                return -ERANGE;
+        만약 (errno > 0)
+                반환 -errno;
+        만약 (!x || x == s || *x != 0)
+                반환 -EINVAL;
+        만약 ((long) (정수) l != l)
+                반환 -ERANGE;
 
-        if (ret_i)
-                *ret_i = (int) l;
+        만약 (ret_i)
+                *ret_i = (정수) l;
 
-        return 0;
+        반환 0;
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
+정수 safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
         char *x = NULL;
         unsigned long long l;
 
         assert(s);
         assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        만약 (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                반환 -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        만약 (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL;
+                반환 -EINVAL;
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        만약 (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && s[1] != 0)
-                return -EINVAL;
+                반환 -EINVAL;
 
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtoull(s, &x, SAFE_ATO_MASK_FLAGS(base));
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
+        만약 (errno > 0)
+                반환 -errno;
+        만약 (!x || x == s || *x != 0)
+                반환 -EINVAL;
+        만약 (l != 0 && s[0] == '-')
+                반환 -ERANGE;
 
-        if (ret_llu)
+        만약 (ret_llu)
                 *ret_llu = l;
 
-        return 0;
+        반환 0;
 }
 
-int safe_atolli(const char *s, long long *ret_lli) {
+정수 safe_atolli(const char *s, long long *ret_lli) {
         unsigned base = 0;
         char *x = NULL;
         long long l;
@@ -569,50 +569,50 @@ int safe_atolli(const char *s, long long *ret_lli) {
 
         errno = 0;
         l = strtoll(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        만약 (errno > 0)
+                반환 -errno;
+        만약 (!x || x == s || *x != 0)
+                반환 -EINVAL;
 
-        if (ret_lli)
+        만약 (ret_lli)
                 *ret_lli = l;
 
-        return 0;
+        반환 0;
 }
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
+정수 safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
         unsigned u;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT8_MAX)
-                return -ERANGE;
+        만약 (r < 0)
+                반환 r;
+        만약 (u > UINT8_MAX)
+                반환 -ERANGE;
 
         *ret = (uint8_t) u;
-        return 0;
+        반환 0;
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
+정수 safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
         unsigned u;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT16_MAX)
-                return -ERANGE;
+        만약 (r < 0)
+                반환 r;
+        만약 (u > UINT16_MAX)
+                반환 -ERANGE;
 
         *ret = (uint16_t) u;
-        return 0;
+        반환 0;
 }
 
-int safe_atoi16(const char *s, int16_t *ret) {
+정수 safe_atoi16(const char *s, int16_t *ret) {
         unsigned base = 0;
         char *x = NULL;
         long l;
@@ -624,20 +624,20 @@ int safe_atoi16(const char *s, int16_t *ret) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int16_t) l != l)
-                return -ERANGE;
+        만약 (errno > 0)
+                반환 -errno;
+        만약 (!x || x == s || *x != 0)
+                반환 -EINVAL;
+        만약 ((long) (int16_t) l != l)
+                반환 -ERANGE;
 
-        if (ret)
+        만약 (ret)
                 *ret = (int16_t) l;
 
-        return 0;
+        반환 0;
 }
 
-int safe_atod(const char *s, double *ret_d) {
+정수 safe_atod(const char *s, double *ret_d) {
         _cleanup_(freelocalep) locale_t loc = (locale_t) 0;
         char *x = NULL;
         double d = 0;
@@ -645,23 +645,23 @@ int safe_atod(const char *s, double *ret_d) {
         assert(s);
 
         loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return -errno;
+        만약 (loc == (locale_t) 0)
+                반환 -errno;
 
         errno = 0;
         d = strtod_l(s, &x, loc);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        만약 (errno > 0)
+                반환 -errno;
+        만약 (!x || x == s || *x != 0)
+                반환 -EINVAL;
 
-        if (ret_d)
+        만약 (ret_d)
                 *ret_d = d;
 
-        return 0;
+        반환 0;
 }
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
+정수 parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         unsigned val = 0;
         const char *s;
 
@@ -671,13 +671,13 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         s = *p;
 
         /* accept any number of digits, strtoull is limited to 19 */
-        for (size_t i = 0; i < digits; i++, s++) {
-                if (!ascii_isdigit(*s)) {
-                        if (i == 0)
-                                return -EINVAL;
+        위해 (size_t i = 0; i < digits; i++, s++) {
+                만약 (!ascii_isdigit(*s)) {
+                        만약 (i == 0)
+                                반환 -EINVAL;
 
                         /* too few digits, pad with 0 */
-                        for (; i < digits; i++)
+                        위해 (; i < digits; i++)
                                 val *= 10;
 
                         break;
@@ -688,7 +688,7 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         }
 
         /* maybe round up */
-        if (*s >= '5' && *s <= '9')
+        만약 (*s >= '5' && *s <= '9')
                 val++;
 
         s += strspn(s, DIGITS);
@@ -696,176 +696,176 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         *p = s;
         *res = val;
 
-        return 0;
+        반환 0;
 }
 
-int parse_nice(const char *s, int *ret) {
-        int n, r;
+정수 parse_nice(const char *s, 정수 *ret) {
+        정수 n, r;
 
         assert(ret);
 
         r = safe_atoi(s, &n);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (!nice_is_valid(n))
-                return -ERANGE;
+        만약 (!nice_is_valid(n))
+                반환 -ERANGE;
 
         *ret = n;
-        return 0;
+        반환 0;
 }
 
-int parse_ip_port(const char *s, uint16_t *ret) {
+정수 parse_ip_port(const char *s, uint16_t *ret) {
         uint16_t l;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = safe_atou16_full(s, SAFE_ATO_REFUSE_LEADING_WHITESPACE, &l);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (l == 0)
-                return -EINVAL;
+        만약 (l == 0)
+                반환 -EINVAL;
 
         *ret = l;
 
-        return 0;
+        반환 0;
 }
 
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
+정수 parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
         unsigned l, h;
-        int r;
+        정수 r;
 
         assert(low);
         assert(high);
 
         r = parse_range(s, &l, &h);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (l > 65535 || h > 65535)
-                return -EINVAL;
+        만약 (l > 65535 || h > 65535)
+                반환 -EINVAL;
 
-        if (!allow_zero && (l == 0 || h == 0))
-                return -EINVAL;
+        만약 (!allow_zero && (l == 0 || h == 0))
+                반환 -EINVAL;
 
-        if (h < l)
-                return -EINVAL;
+        만약 (h < l)
+                반환 -EINVAL;
 
         *low = l;
         *high = h;
 
-        return 0;
+        반환 0;
 }
 
-int parse_oom_score_adjust(const char *s, int *ret) {
-        int r, v;
+정수 parse_oom_score_adjust(const char *s, 정수 *ret) {
+        정수 r, v;
 
         assert(s);
         assert(ret);
 
         r = safe_atoi(s, &v);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (!oom_score_adjust_is_valid(v))
-                return -ERANGE;
+        만약 (!oom_score_adjust_is_valid(v))
+                반환 -ERANGE;
 
         *ret = v;
-        return 0;
+        반환 0;
 }
 
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
+정수 store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
         assert(ret);
 
         /* Validate both parts *before* shifting them, so that the shifts themselves cannot overflow.
          * Rejecting f >= 100 is equivalent to the old check of the shifted value against
          * LOADAVG_FIXED_POINT_1_0, since DIV_ROUND_UP(99 << 11, 100) == 2028 and
          * DIV_ROUND_UP(100 << 11, 100) == 2048. */
-        if (i > (~0UL >> LOADAVG_PRECISION_BITS))
-                return -ERANGE;
+        만약 (i > (~0UL >> LOADAVG_PRECISION_BITS))
+                반환 -ERANGE;
 
-        if (f >= 100)
-                return -ERANGE;
+        만약 (f >= 100)
+                반환 -ERANGE;
 
         *ret = (i << LOADAVG_PRECISION_BITS) | DIV_ROUND_UP(f << LOADAVG_PRECISION_BITS, 100);
-        return 0;
+        반환 0;
 }
 
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
+정수 parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
         const char *d, *f_str, *i_str;
         unsigned long i, f;
-        int r;
+        정수 r;
 
         assert(s);
         assert(ret);
 
         d = strchr(s, '.');
-        if (!d)
-                return -EINVAL;
+        만약 (!d)
+                반환 -EINVAL;
 
         i_str = strndupa_safe(s, d - s);
         f_str = d + 1;
 
         r = safe_atolu_full(i_str, 10, &i);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         r = safe_atolu_full(f_str, 10, &f);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return store_loadavg_fixed_point(i, f, ret);
+        반환 store_loadavg_fixed_point(i, f, ret);
 }
 
 /* Limitations are described in https://www.netfilter.org/projects/nftables/manpage.html and
  * https://bugzilla.netfilter.org/show_bug.cgi?id=1175 */
 bool nft_identifier_valid(const char *id) {
-        if (isempty(id))
-                return false;
+        만약 (isempty(id))
+                반환 false;
 
-        if (strlen(id) >= NFT_NAME_MAXLEN)
-                return false;
+        만약 (strlen(id) >= NFT_NAME_MAXLEN)
+                반환 false;
 
-        if (!ascii_isalpha(id[0]))
-                return false;
+        만약 (!ascii_isalpha(id[0]))
+                반환 false;
 
-        return in_charset(id + 1, ALPHANUMERICAL "/\\_.");
+        반환 in_charset(id + 1, ALPHANUMERICAL "/\\_.");
 }
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
-        int r;
+정수 parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
+        정수 r;
 
         assert(s);
         assert(current);
 
-        if (isempty(s)) {
+        만약 (isempty(s)) {
                 *current = CAP_MASK_UNSET;
-                return 1;
+                반환 1;
         }
 
         bool invert = false;
-        if (s[0] == '~') {
+        만약 (s[0] == '~') {
                 invert = true;
                 s++;
         }
 
         uint64_t parsed;
         r = capability_set_from_string(s, &parsed);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (parsed == 0 || *current == initial)
+        만약 (parsed == 0 || *current == initial)
                 /* "~" or uninitialized data -> replace */
                 *current = invert ? all_capabilities() & ~parsed : parsed;
-        else {
+        아니면 {
                 /* previous data -> merge */
-                if (invert)
+                만약 (invert)
                         *current &= ~parsed;
-                else
+                아니면
                         *current |= parsed;
         }
 
-        return r;
+        반환 r;
 }

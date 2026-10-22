@@ -49,12 +49,12 @@ static void fallback_random_bytes(void *p, size_t n) {
         memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), sizeof(state.auxval));
         (void) pidfd_get_inode_id_self_cached(&state.pidfdid);
 
-        while (n > 0) {
+        동안 (n > 0) {
                 struct sha256_ctx ctx;
 
                 sha256_init_ctx(&ctx);
                 sha256_process_bytes(&state, sizeof(state), &ctx);
-                if (n < SHA256_DIGEST_SIZE) {
+                만약 (n < SHA256_DIGEST_SIZE) {
                         uint8_t partial[SHA256_DIGEST_SIZE];
                         sha256_finish_ctx(&ctx, partial);
                         memcpy(p, partial, n);
@@ -70,62 +70,62 @@ static void fallback_random_bytes(void *p, size_t n) {
 void random_bytes(void *p, size_t n) {
         assert(p || n == 0);
 
-        if (n == 0)
-                return;
+        만약 (n == 0)
+                반환;
 
-        for (;;) {
+        위해 (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, GRND_INSECURE);
-                if (l <= 0)
+                만약 (l <= 0)
                         break; /* Unexpected error. Give up and fallback to /dev/urandom. */
 
-                if ((size_t) l == n)
-                        return; /* Done reading, success. */
+                만약 ((size_t) l == n)
+                        반환; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
                 /* Interrupted by a signal; keep going. */
         }
 
-        _cleanup_close_ int fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
-                return;
+        _cleanup_close_ 정수 fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
+        만약 (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
+                반환;
 
         /* This is a terrible fallback. Oh well. */
         fallback_random_bytes(p, n);
 }
 
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
+정수 random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
         assert(ret);
 
         void *p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        만약 (!p)
+                반환 -ENOMEM;
 
         random_bytes(p, n);
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        반환 0;
 }
 
-int crypto_random_bytes(void *p, size_t n) {
+정수 crypto_random_bytes(void *p, size_t n) {
         assert(p || n == 0);
 
-        if (n == 0)
-                return 0;
+        만약 (n == 0)
+                반환 0;
 
-        for (;;) {
+        위해 (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, 0);
-                if (l < 0)
-                        return -errno;
-                if (l == 0)
-                        return -EIO; /* Weird, should never happen. */
+                만약 (l < 0)
+                        반환 -errno;
+                만약 (l == 0)
+                        반환 -EIO; /* Weird, should never happen. */
 
-                if ((size_t) l == n)
-                        return 0; /* Done reading, success. */
+                만약 ((size_t) l == n)
+                        반환 0; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
@@ -133,89 +133,89 @@ int crypto_random_bytes(void *p, size_t n) {
         }
 }
 
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
+정수 crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
         _cleanup_free_ void *p = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
         p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        만약 (!p)
+                반환 -ENOMEM;
 
         r = crypto_random_bytes(p, n);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        반환 0;
 }
 
 size_t random_pool_size(void) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        정수 r;
 
         /* Read pool size, if possible */
         r = read_one_line_file("/proc/sys/kernel/random/poolsize", &s);
-        if (r < 0)
+        만약 (r < 0)
                 log_debug_errno(r, "Failed to read pool size from kernel: %m");
-        else {
+        아니면 {
                 unsigned sz;
 
                 r = safe_atou(s, &sz);
-                if (r < 0)
+                만약 (r < 0)
                         log_debug_errno(r, "Failed to parse pool size: %s", s);
-                else
+                아니면
                         /* poolsize is in bits on 2.6, but we want bytes */
-                        return CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
+                        반환 CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
         }
 
         /* Use the minimum as default, if we can't retrieve the correct value */
-        return RANDOM_POOL_SIZE_MIN;
+        반환 RANDOM_POOL_SIZE_MIN;
 }
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int r;
+정수 random_write_entropy(정수 fd, const void *seed, size_t size, bool credit) {
+        _cleanup_close_ 정수 opened_fd = -EBADF;
+        정수 r;
 
         assert(seed || size == 0);
 
-        if (size == 0)
-                return 0;
+        만약 (size == 0)
+                반환 0;
 
-        if (fd < 0) {
+        만약 (fd < 0) {
                 opened_fd = open("/dev/urandom", O_WRONLY|O_CLOEXEC|O_NOCTTY);
-                if (opened_fd < 0)
-                        return -errno;
+                만약 (opened_fd < 0)
+                        반환 -errno;
 
                 fd = opened_fd;
         }
 
-        if (credit) {
+        만약 (credit) {
                 _cleanup_free_ struct rand_pool_info *info = NULL;
 
                 /* The kernel API only accepts "int" as entropy count (which is in bits), let's avoid any
                  * chance for confusion here. */
-                if (size > INT_MAX / 8)
-                        return -EOVERFLOW;
+                만약 (size > INT_MAX / 8)
+                        반환 -EOVERFLOW;
 
                 info = malloc(offsetof(struct rand_pool_info, buf) + size);
-                if (!info)
-                        return -ENOMEM;
+                만약 (!info)
+                        반환 -ENOMEM;
 
                 info->entropy_count = size * 8;
                 info->buf_size = size;
                 memcpy(info->buf, seed, size);
 
-                if (ioctl(fd, RNDADDENTROPY, info) < 0)
-                        return -errno;
-        } else {
+                만약 (ioctl(fd, RNDADDENTROPY, info) < 0)
+                        반환 -errno;
+        } 아니면 {
                 r = loop_write(fd, seed, size);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
         }
 
-        return 1;
+        반환 1;
 }
 
 uint64_t random_u64_range(uint64_t m) {
@@ -223,16 +223,16 @@ uint64_t random_u64_range(uint64_t m) {
 
         /* Generates a random number in the range 0…m-1, unbiased. (Java's algorithm) */
 
-        if (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
-                return random_u64();
-        if (m == 1)
-                return 0;
+        만약 (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
+                반환 random_u64();
+        만약 (m == 1)
+                반환 0;
 
         remainder = UINT64_MAX % m;
 
         do {
                 x = random_u64();
-        } while (x >= UINT64_MAX - remainder);
+        } 동안 (x >= UINT64_MAX - remainder);
 
-        return x % m;
+        반환 x % m;
 }

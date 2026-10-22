@@ -17,52 +17,52 @@ static const struct capability_name* lookup_capability(register const char *str,
 #include "capability-from-name.inc"
 #include "capability-to-name.inc"
 
-const char* capability_to_name(int id) {
-        if (id < 0)
-                return NULL;
-        if ((unsigned) id >= capability_list_length())
-                return NULL;
+const char* capability_to_name(정수 id) {
+        만약 (id < 0)
+                반환 NULL;
+        만약 ((unsigned) id >= capability_list_length())
+                반환 NULL;
 
-        return capability_names[id];
+        반환 capability_names[id];
 }
 
-const char* capability_to_string(int id, char buf[static CAPABILITY_TO_STRING_MAX]) {
+const char* capability_to_string(정수 id, char buf[static CAPABILITY_TO_STRING_MAX]) {
         const char *p;
 
-        if (id < 0)
-                return NULL;
-        if (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
-                return NULL;
+        만약 (id < 0)
+                반환 NULL;
+        만약 (id > CAP_LIMIT) /* refuse caps > 62 since we can't store them in a uint64_t mask anymore, and still retain UINT64_MAX as marker for "unset" */
+                반환 NULL;
 
         p = capability_to_name(id);
-        if (p)
-                return p;
+        만약 (p)
+                반환 p;
 
         sprintf(buf, "0x%x", (unsigned) id); /* numerical fallback */
-        return buf;
+        반환 buf;
 }
 
-int capability_from_name(const char *name) {
+정수 capability_from_name(const char *name) {
         const struct capability_name *sc;
-        int r, i;
+        정수 r, i;
 
         assert(name);
 
         /* Try to parse numeric capability */
         r = safe_atoi(name, &i);
-        if (r >= 0) {
-                if (i < 0 || i > CAP_LIMIT)
-                        return -EINVAL;
+        만약 (r >= 0) {
+                만약 (i < 0 || i > CAP_LIMIT)
+                        반환 -EINVAL;
 
-                return i;
+                반환 i;
         }
 
         /* Try to parse string capability */
         sc = lookup_capability(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        만약 (!sc)
+                반환 -EINVAL;
 
-        return sc->id;
+        반환 sc->id;
 }
 
 /* This is the number of capability names we are *compiled* with. For the max capability number of the
@@ -71,40 +71,40 @@ int capability_from_name(const char *name) {
  * highest supported capability. Hence with everyone agreeing on the same capabilities list, this function
  * will return one higher than cap_last_cap(). */
 unsigned capability_list_length(void) {
-        return MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
+        반환 MIN((unsigned) ELEMENTSOF(capability_names), (unsigned) (CAP_LIMIT + 1));
 }
 
-int capability_set_to_string(uint64_t set, char **ret) {
+정수 capability_set_to_string(uint64_t set, char **ret) {
         _cleanup_free_ char *str = NULL;
 
         assert(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
+        위해 (unsigned i = 0; i <= cap_last_cap(); i++) {
                 const char *p;
 
-                if (!BIT_SET(set, i))
+                만약 (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
-                if (!strextend_with_separator(&str, " ", p))
-                        return -ENOMEM;
+                만약 (!strextend_with_separator(&str, " ", p))
+                        반환 -ENOMEM;
         }
 
-        if (!str) {
+        만약 (!str) {
                 str = new0(char, 1);
-                if (!str)
-                        return -ENOMEM;
+                만약 (!str)
+                        반환 -ENOMEM;
         }
 
         *ret = TAKE_PTR(str);
-        return 0;
+        반환 0;
 }
 
-int capability_set_to_string_negative(uint64_t set, char **ret) {
+정수 capability_set_to_string_negative(uint64_t set, char **ret) {
         _cleanup_free_ char *a = NULL, *b = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
@@ -113,74 +113,74 @@ int capability_set_to_string_negative(uint64_t set, char **ret) {
          * the two. */
 
         r = capability_set_to_string(set, &a);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         r = capability_set_to_string(~set & all_capabilities(), &b);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (strlen(a) <= 1 + strlen(b))
+        만약 (strlen(a) <= 1 + strlen(b))
                 *ret = TAKE_PTR(a);
-        else {
+        아니면 {
                 char *c = strjoin("~", b);
-                if (!c)
-                        return -ENOMEM;
+                만약 (!c)
+                        반환 -ENOMEM;
 
                 *ret = c;
         }
 
-        return 0;
+        반환 0;
 }
 
-int capability_set_to_strv(uint64_t set, char ***ret) {
+정수 capability_set_to_strv(uint64_t set, char ***ret) {
         _cleanup_strv_free_ char **l = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
-        for (unsigned i = 0; i <= cap_last_cap(); i++) {
+        위해 (unsigned i = 0; i <= cap_last_cap(); i++) {
                 const char *p;
 
-                if (!BIT_SET(set, i))
+                만약 (!BIT_SET(set, i))
                         continue;
 
                 p = CAPABILITY_TO_STRING(i);
                 assert(p);
 
                 r = strv_extend(&l, p);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
         }
 
         *ret = TAKE_PTR(l);
-        return 0;
+        반환 0;
 }
 
-int capability_set_from_string(const char *s, uint64_t *ret) {
+정수 capability_set_from_string(const char *s, uint64_t *ret) {
         uint64_t val = 0;
         bool good = true;
 
-        for (const char *p = s;;) {
+        위해 (const char *p = s;;) {
                 _cleanup_free_ char *word = NULL;
-                int r;
+                정수 r;
 
                 r = extract_first_word(&p, &word, NULL, EXTRACT_UNQUOTE|EXTRACT_RELAX);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                만약 (r < 0)
+                        반환 r;
+                만약 (r == 0)
                         break;
 
                 r = capability_from_name(word);
-                if (r < 0) {
+                만약 (r < 0) {
                         log_debug_errno(r, "Failed to parse capability '%s', ignoring: %m", word);
                         good = false;
-                } else
+                } 아니면
                         val |= UINT64_C(1) << r;
         }
 
-        if (ret)
+        만약 (ret)
                 *ret = val;
 
-        return good;
+        반환 good;
 }

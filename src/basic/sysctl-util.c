@@ -24,62 +24,62 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        만약 (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
                 do {
-                        if (*n == '.')
+                        만약 (*n == '.')
                                 *n = '/';
-                        else
+                        아니면
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } 동안 (n);
 
         path_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
+        만약 (s[0] == '/' && s[1] != 0)
                 memmove(s, s+1, strlen(s));
 
-        return s;
+        반환 s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
+static 정수 shadow_update(Hashmap **shadow, const char *property, const char *value) {
         _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+        정수 r;
 
         assert(property);
         assert(value);
 
-        if (!shadow)
-                return 0;
+        만약 (!shadow)
+                반환 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        만약 (!k)
+                반환 -ENOMEM;
 
         v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        만약 (!v)
+                반환 -ENOMEM;
 
         cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
 
         r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
+        만약 (r < 0) {
                 assert(r != -EEXIST);
 
-                return r;
+                반환 r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        반환 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
+정수 sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
         char *p;
-        int r;
+        정수 r;
 
         assert(property);
         assert(value);
@@ -87,35 +87,35 @@ int sysctl_write_full(const char *property, const char *value, Hashmap **shadow)
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        만약 (!path_is_normalized(p))
+                반환 -EINVAL;
 
         log_debug("Setting '%s' to '%s'", p, value);
 
         r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        반환 write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
+정수 sysctl_writef(const char *property, const char *format, ...) {
         _cleanup_free_ char *v = NULL;
         va_list ap;
-        int r;
+        정수 r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        만약 (r < 0)
+                반환 -ENOMEM;
 
-        return sysctl_write(property, v);
+        반환 sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+정수 sysctl_write_verify(const char *property, const char *value) {
+        정수 r;
 
         assert(property);
         assert(value);
@@ -128,16 +128,16 @@ int sysctl_write_verify(const char *property, const char *value) {
 
         _cleanup_free_ char *original = NULL;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        만약 (r >= 0 && streq(original, value))
+                반환 0; /* Already set. */
 
         r = sysctl_write(property, value);
-        if (r >= 0) {
+        만약 (r >= 0) {
                 _cleanup_free_ char *current = NULL;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                만약 (r >= 0) {
+                        만약 (streq(current, value))
+                                반환 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
+        만약 (original)
                 (void) sysctl_write(property, original);
 
-        return r;
+        반환 r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+static const char* af_to_sysctl_dir(정수 af) {
+        만약 (af == AF_MPLS)
+                반환 "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        반환 af_to_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
+정수 sysctl_write_ip_property(정수 af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
         const char *p;
 
         assert(property);
         assert(value);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        만약 (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                반환 -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        만약 (ifname) {
+                만약 (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        반환 -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } 아니면
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        반환 sysctl_write_full(p, value, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+정수 sysctl_write_ip_property_boolean(정수 af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
+        반환 sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
+정수 sysctl_write_ip_neighbor_property(정수 af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
         const char *p;
 
         assert(property);
         assert(value);
         assert(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        만약 (!IN_SET(af, AF_INET, AF_INET6))
+                반환 -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        만약 (ifname) {
+                만약 (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        반환 -EINVAL;
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
+        } 아니면
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        반환 sysctl_write_full(p, value, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
+정수 sysctl_write_ip_neighbor_property_uint32(정수 af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
         char buf[DECIMAL_STR_MAX(uint32_t)];
         xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+        반환 sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
+정수 sysctl_read(const char *property, char **ret) {
         char *p;
-        int r;
+        정수 r;
 
         assert(property);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        만약 (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                반환 -EINVAL;
 
         r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        만약 (r < 0)
+                반환 r;
+        만약 (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        반환 r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
+정수 sysctl_read_ip_property(정수 af, const char *ifname, const char *property, char **ret) {
         const char *p;
 
         assert(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        만약 (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                반환 -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        만약 (ifname) {
+                만약 (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        반환 -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } 아니면
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        반환 sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
+정수 sysctl_read_ip_property_int(정수 af, const char *ifname, const char *property, 정수 *ret) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return safe_atoi(s, ret);
+        반환 safe_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
+정수 sysctl_read_ip_property_uint32(정수 af, const char *ifname, const char *property, uint32_t *ret) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return safe_atou32(s, ret);
+        반환 safe_atou32(s, ret);
 }

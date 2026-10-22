@@ -10,26 +10,26 @@
 #include "string-util.h"
 #include "strv.h"
 
-static int saved_log_context_enabled = -1;
+static 정수 saved_log_context_enabled = -1;
 static thread_local LIST_HEAD(LogContext, _log_context) = NULL;
 static thread_local size_t _log_context_num_fields = 0;
 
 bool log_context_enabled(void) {
-        int r;
+        정수 r;
 
-        if (log_get_max_level() == LOG_DEBUG)
-                return true;
+        만약 (log_get_max_level() == LOG_DEBUG)
+                반환 true;
 
-        if (saved_log_context_enabled >= 0)
-                return saved_log_context_enabled;
+        만약 (saved_log_context_enabled >= 0)
+                반환 saved_log_context_enabled;
 
         r = secure_getenv_bool("SYSTEMD_ENABLE_LOG_CONTEXT");
-        if (r < 0 && r != -ENXIO)
+        만약 (r < 0 && r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_ENABLE_LOG_CONTEXT, ignoring: %m");
 
         saved_log_context_enabled = r > 0;
 
-        return saved_log_context_enabled;
+        반환 saved_log_context_enabled;
 }
 
 static LogContext* log_context_attach(LogContext *c) {
@@ -39,12 +39,12 @@ static LogContext* log_context_attach(LogContext *c) {
         _log_context_num_fields += c->n_input_iovec;
         _log_context_num_fields += !!c->key;
 
-        return LIST_PREPEND(ll, _log_context, c);
+        반환 LIST_PREPEND(ll, _log_context, c);
 }
 
 static LogContext* log_context_detach(LogContext *c) {
-        if (!c)
-                return NULL;
+        만약 (!c)
+                반환 NULL;
 
         assert(_log_context_num_fields >= strv_length(c->fields) + c->n_input_iovec +!!c->key);
         _log_context_num_fields -= strv_length(c->fields);
@@ -52,23 +52,23 @@ static LogContext* log_context_detach(LogContext *c) {
         _log_context_num_fields -= !!c->key;
 
         LIST_REMOVE(ll, _log_context, c);
-        return NULL;
+        반환 NULL;
 }
 
 LogContext* log_context_new(const char *key, const char *value) {
         assert(key);
         assert(endswith(key, "="));
 
-        if (!value)
-                return NULL;
+        만약 (!value)
+                반환 NULL;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->key == key && i->value == value)
-                        return log_context_ref(i);
+                만약 (i->key == key && i->value == value)
+                        반환 log_context_ref(i);
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        만약 (!c)
+                반환 NULL;
 
         *c = (LogContext) {
                 .n_ref = 1,
@@ -76,22 +76,22 @@ LogContext* log_context_new(const char *key, const char *value) {
                 .value = (char *) value,
         };
 
-        return log_context_attach(c);
+        반환 log_context_attach(c);
 }
 
 LogContext* log_context_new_strv(char **fields, bool owned) {
-        if (!fields)
-                return NULL;
+        만약 (!fields)
+                반환 NULL;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->fields == fields) {
+                만약 (i->fields == fields) {
                         assert(!owned);
-                        return log_context_ref(i);
+                        반환 log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        만약 (!c)
+                반환 NULL;
 
         *c = (LogContext) {
                 .n_ref = 1,
@@ -99,22 +99,22 @@ LogContext* log_context_new_strv(char **fields, bool owned) {
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        반환 log_context_attach(c);
 }
 
 LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec, bool owned) {
-        if (!input_iovec || n_input_iovec == 0)
-                return NULL;
+        만약 (!input_iovec || n_input_iovec == 0)
+                반환 NULL;
 
         LIST_FOREACH(ll, i, _log_context)
-                if (i->input_iovec == input_iovec && i->n_input_iovec == n_input_iovec) {
+                만약 (i->input_iovec == input_iovec && i->n_input_iovec == n_input_iovec) {
                         assert(!owned);
-                        return log_context_ref(i);
+                        반환 log_context_ref(i);
                 }
 
         LogContext *c = new(LogContext, 1);
-        if (!c)
-                return NULL;
+        만약 (!c)
+                반환 NULL;
 
         *c = (LogContext) {
                 .n_ref = 1,
@@ -123,45 +123,45 @@ LogContext* log_context_new_iov(struct iovec *input_iovec, size_t n_input_iovec,
                 .owned = owned,
         };
 
-        return log_context_attach(c);
+        반환 log_context_attach(c);
 }
 
 static LogContext* log_context_free(LogContext *c) {
-        if (!c)
-                return NULL;
+        만약 (!c)
+                반환 NULL;
 
         log_context_detach(c);
 
-        if (c->owned) {
+        만약 (c->owned) {
                 strv_free(c->fields);
                 iovec_array_free(c->input_iovec, c->n_input_iovec);
                 free(c->key);
                 free(c->value);
         }
 
-        return mfree(c);
+        반환 mfree(c);
 }
 
 DEFINE_TRIVIAL_REF_UNREF_FUNC(LogContext, log_context, log_context_free);
 
 LogContext* log_context_new_strv_consume(char **fields) {
         LogContext *c = log_context_new_strv(fields, /* owned= */ true);
-        if (!c)
+        만약 (!c)
                 strv_free(fields);
 
-        return c;
+        반환 c;
 }
 
 LogContext* log_context_new_iov_consume(struct iovec *input_iovec, size_t n_input_iovec) {
         LogContext *c = log_context_new_iov(input_iovec, n_input_iovec, /* owned= */ true);
-        if (!c)
+        만약 (!c)
                 iovec_array_free(input_iovec, n_input_iovec);
 
-        return c;
+        반환 c;
 }
 
 LogContext* log_context_head(void) {
-        return _log_context;
+        반환 _log_context;
 }
 
 size_t log_context_num_contexts(void) {
@@ -170,11 +170,11 @@ size_t log_context_num_contexts(void) {
         LIST_FOREACH(ll, c, _log_context)
                 n++;
 
-        return n;
+        반환 n;
 }
 
 size_t log_context_num_fields(void) {
-        return _log_context_num_fields;
+        반환 _log_context_num_fields;
 }
 
 void log_context_swap(LogContext **log_context, size_t *num_fields) {
@@ -185,7 +185,7 @@ void log_context_swap(LogContext **log_context, size_t *num_fields) {
         SWAP_TWO(_log_context_num_fields, *num_fields);
 }
 
-void _reset_log_level(int *saved_log_level) {
+void _reset_log_level(정수 *saved_log_level) {
         assert(saved_log_level);
 
         log_set_max_level(*saved_log_level);

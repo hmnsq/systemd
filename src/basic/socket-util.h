@@ -45,27 +45,27 @@ typedef struct SocketAddress {
         socklen_t size;
 
         /* Socket type, i.e. SOCK_STREAM, SOCK_DGRAM, ... */
-        int type;
+        정수 type;
 
         /* Socket protocol, IPPROTO_xxx, usually 0, except for netlink */
-        int protocol;
+        정수 protocol;
 } SocketAddress;
 
 #define socket_address_family(a) ((a)->sockaddr.sa.sa_family)
 
-DECLARE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DECLARE_STRING_TABLE_LOOKUP(socket_address_type, 정수);
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa);
+정수 sockaddr_un_unlink(const struct sockaddr_un *sa);
 
-static inline int socket_address_unlink(const SocketAddress *a) {
-        return socket_address_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
+static inline 정수 socket_address_unlink(const SocketAddress *a) {
+        반환 socket_address_family(a) == AF_UNIX ? sockaddr_un_unlink(&a->sockaddr.un) : 0;
 }
 
 bool socket_address_can_accept(const SocketAddress *a) _pure_;
 
-int socket_address_verify(const SocketAddress *a, bool strict) _pure_;
-int socket_address_print(const SocketAddress *a, char **ret);
-bool socket_address_matches_fd(const SocketAddress *a, int fd);
+정수 socket_address_verify(const SocketAddress *a, bool strict) _pure_;
+정수 socket_address_print(const SocketAddress *a, char **ret);
+bool socket_address_matches_fd(const SocketAddress *a, 정수 fd);
 
 bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) _pure_;
 
@@ -74,30 +74,30 @@ const char* socket_address_get_path(const SocketAddress *a);
 bool socket_ipv6_is_supported(void);
 bool socket_ipv6_is_enabled(void);
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *port);
+정수 sockaddr_port(const struct sockaddr *_sa, unsigned *port);
 const union in_addr_union *sockaddr_in_addr(const struct sockaddr *sa);
-int sockaddr_set_in_addr(union sockaddr_union *u, int family, const union in_addr_union *a, uint16_t port);
+정수 sockaddr_set_in_addr(union sockaddr_union *u, 정수 family, const union in_addr_union *a, uint16_t port);
 
-int sockaddr_pretty(const struct sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_port, char **ret);
-int getpeername_pretty(int fd, bool include_port, char **ret);
-int getsockname_pretty(int fd, char **ret);
+정수 sockaddr_pretty(const struct sockaddr *_sa, socklen_t salen, bool translate_ipv6, bool include_port, char **ret);
+정수 getpeername_pretty(정수 fd, bool include_port, char **ret);
+정수 getsockname_pretty(정수 fd, char **ret);
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **_ret);
+정수 socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **_ret);
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, 정수);
 
 bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b);
 
-int fd_set_sndbuf(int fd, size_t n, bool increase);
-static inline int fd_inc_sndbuf(int fd, size_t n) {
-        return fd_set_sndbuf(fd, n, true);
+정수 fd_set_sndbuf(정수 fd, size_t n, bool increase);
+static inline 정수 fd_inc_sndbuf(정수 fd, size_t n) {
+        반환 fd_set_sndbuf(fd, n, true);
 }
-int fd_set_rcvbuf(int fd, size_t n, bool increase);
-static inline int fd_increase_rxbuf(int fd, size_t n) {
-        return fd_set_rcvbuf(fd, n, true);
+정수 fd_set_rcvbuf(정수 fd, size_t n, bool increase);
+static inline 정수 fd_increase_rxbuf(정수 fd, size_t n) {
+        반환 fd_set_rcvbuf(fd, n, true);
 }
 
-DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int);
+DECLARE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, 정수);
 
 typedef enum {
         IFNAME_VALID_ALTERNATIVE = 1 << 0, /* Allow "altnames" too */
@@ -108,38 +108,38 @@ typedef enum {
 bool ifname_valid_char(char a) _const_;
 bool ifname_valid_full(const char *p, IfnameValidFlags flags) _pure_;
 static inline bool ifname_valid(const char *p) {
-        return ifname_valid_full(p, 0);
+        반환 ifname_valid_full(p, 0);
 }
 bool address_label_valid(const char *p) _pure_;
 
-int getpeercred(int fd, struct ucred *ucred);
-int getpeersec(int fd, char **ret);
-int getpeergroups(int fd, gid_t **ret);
-int getpeerpidfd(int fd);
-int getpeerpidref(int fd, PidRef *ret);
+정수 getpeercred(정수 fd, struct ucred *ucred);
+정수 getpeersec(정수 fd, char **ret);
+정수 getpeergroups(정수 fd, gid_t **ret);
+정수 getpeerpidfd(정수 fd);
+정수 getpeerpidref(정수 fd, PidRef *ret);
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
+                정수 transport_fd,
+                정수 fd,
                 const struct iovec *iov, size_t iovlen,
                 const struct sockaddr *sa, socklen_t len,
-                int flags);
-int send_one_fd_sa(int transport_fd,
-                   int fd,
+                정수 flags);
+정수 send_one_fd_sa(정수 transport_fd,
+                   정수 fd,
                    const struct sockaddr *sa, socklen_t len,
-                   int flags);
+                   정수 flags);
 #define send_one_fd_iov(transport_fd, fd, iov, iovlen, flags) send_one_fd_iov_sa(transport_fd, fd, iov, iovlen, NULL, 0, flags)
 #define send_one_fd(transport_fd, fd, flags) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, NULL, 0, flags)
-ssize_t receive_one_fd_iov(int transport_fd, struct iovec *iov, size_t iovlen, int flags, int *ret_fd);
-int receive_one_fd(int transport_fd, int flags);
+ssize_t receive_one_fd_iov(정수 transport_fd, struct iovec *iov, size_t iovlen, 정수 flags, 정수 *ret_fd);
+정수 receive_one_fd(정수 transport_fd, 정수 flags);
 
-ssize_t next_datagram_size_fd(int fd);
+ssize_t next_datagram_size_fd(정수 fd);
 
-int flush_accept(int fd);
-ssize_t flush_mqueue(int fd);
+정수 flush_accept(정수 fd);
+ssize_t flush_mqueue(정수 fd);
 
 #define CMSG_FOREACH(cmsg, mh)                                          \
-        for ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
+        위해 ((cmsg) = CMSG_FIRSTHDR(mh); (cmsg); (cmsg) = CMSG_NXTHDR((mh), (cmsg)))
 
 /* Returns the cmsghdr's data pointer, but safely cast to the specified type. Does two alignment checks: one
  * at compile time, that the requested type has a smaller or same alignment as 'struct cmsghdr', and one
@@ -154,8 +154,8 @@ ssize_t flush_mqueue(int fd);
                 _cmsg ? CAST_ALIGN_PTR(type, CMSG_DATA(_cmsg)) : (type*) NULL; \
         })
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length);
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len);
+struct cmsghdr* cmsg_find(struct msghdr *mh, 정수 level, 정수 type, socklen_t length);
+void* cmsg_find_and_copy_data(struct msghdr *mh, 정수 level, 정수 type, void *buf, size_t buf_len);
 
 /* Type-safe, dereferencing version of cmsg_find() */
 #define CMSG_FIND_DATA(mh, level, type, ctype)                          \
@@ -180,23 +180,23 @@ size_t sockaddr_ll_len(const struct sockaddr_ll *sa);
 size_t sockaddr_un_len(const struct sockaddr_un *sa);
 size_t sockaddr_len(const union sockaddr_union *sa);
 
-int socket_ioctl_fd(void);
+정수 socket_ioctl_fd(void);
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path);
+정수 sockaddr_un_set_path(struct sockaddr_un *ret, const char *path);
 
-static inline int setsockopt_int(int fd, int level, int optname, int value) {
-        if (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
-                return -errno;
+static inline 정수 setsockopt_int(정수 fd, 정수 level, 정수 optname, 정수 value) {
+        만약 (setsockopt(fd, level, optname, &value, sizeof(value)) < 0)
+                반환 -errno;
 
-        return 0;
+        반환 0;
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret);
+정수 getsockopt_int(정수 fd, 정수 level, 정수 optname, 정수 *ret);
 
-int socket_bind_to_ifname(int fd, const char *ifname);
-int socket_bind_to_ifindex(int fd, int ifindex);
+정수 socket_bind_to_ifname(정수 fd, const char *ifname);
+정수 socket_bind_to_ifindex(정수 fd, 정수 ifindex);
 
-int socket_autobind(int fd, char **ret_name);
+정수 socket_autobind(정수 fd, char **ret_name);
 
 /* glibc duplicates timespec/timeval on certain 32-bit arches, once in 32-bit and once in 64-bit.
  * See __convert_scm_timestamps() in glibc source code. Hence, we need additional buffer space for them
@@ -206,57 +206,57 @@ int socket_autobind(int fd, char **ret_name);
 #define CMSG_SPACE_TIMESPEC                                             \
         (CMSG_SPACE(sizeof(struct timespec)) + CMSG_SPACE(2 * sizeof(uint64_t)))
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags);
+ssize_t recvmsg_safe(정수 sockfd, struct msghdr *msg, 정수 flags);
 
-int socket_get_family(int fd);
-int socket_set_recvpktinfo(int fd, int af, bool b);
-int socket_set_unicast_if(int fd, int af, int ifi);
+정수 socket_get_family(정수 fd);
+정수 socket_set_recvpktinfo(정수 fd, 정수 af, bool b);
+정수 socket_set_unicast_if(정수 fd, 정수 af, 정수 ifi);
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val);
-static inline int socket_set_recverr(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
+정수 socket_set_option(정수 fd, 정수 af, 정수 opt_ipv4, 정수 opt_ipv6, 정수 val);
+static inline 정수 socket_set_recverr(정수 fd, 정수 af, bool b) {
+        반환 socket_set_option(fd, af, IP_RECVERR, IPV6_RECVERR, b);
 }
-static inline int socket_set_recvttl(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
+static inline 정수 socket_set_recvttl(정수 fd, 정수 af, bool b) {
+        반환 socket_set_option(fd, af, IP_RECVTTL, IPV6_RECVHOPLIMIT, b);
 }
-static inline int socket_set_ttl(int fd, int af, int ttl) {
-        return socket_set_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
+static inline 정수 socket_set_ttl(정수 fd, 정수 af, 정수 ttl) {
+        반환 socket_set_option(fd, af, IP_TTL, IPV6_UNICAST_HOPS, ttl);
 }
-static inline int socket_set_freebind(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
+static inline 정수 socket_set_freebind(정수 fd, 정수 af, bool b) {
+        반환 socket_set_option(fd, af, IP_FREEBIND, IPV6_FREEBIND, b);
 }
-static inline int socket_set_transparent(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
+static inline 정수 socket_set_transparent(정수 fd, 정수 af, bool b) {
+        반환 socket_set_option(fd, af, IP_TRANSPARENT, IPV6_TRANSPARENT, b);
 }
-static inline int socket_set_recvfragsize(int fd, int af, bool b) {
-        return socket_set_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
+static inline 정수 socket_set_recvfragsize(정수 fd, 정수 af, bool b) {
+        반환 socket_set_option(fd, af, IP_RECVFRAGSIZE, IPV6_RECVFRAGSIZE, b);
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret);
+정수 socket_get_mtu(정수 fd, 정수 af, size_t *ret);
 
 /* an initializer for struct ucred that initialized all fields to the invalid value appropriate for each */
 #define UCRED_INVALID { .pid = 0, .uid = UID_INVALID, .gid = GID_INVALID }
 
-int connect_unix_path(int fd, int dir_fd, const char *path);
+정수 connect_unix_path(정수 fd, 정수 dir_fd, const char *path);
 
 static inline bool VSOCK_CID_IS_REGULAR(unsigned cid) {
         /* Refuse special CID values */
-        return !IN_SET(cid,
+        반환 !IN_SET(cid,
                        VMADDR_CID_HYPERVISOR,
                        VMADDR_CID_LOCAL,
                        VMADDR_CID_HOST,
                        VMADDR_CID_ANY);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret);
-int vsock_parse_cid(const char *s, unsigned *ret);
+정수 vsock_parse_port(const char *s, unsigned *ret);
+정수 vsock_parse_cid(const char *s, unsigned *ret);
 
 /* Parses AF_UNIX and AF_VSOCK addresses. AF_INET[6] require some netlink calls, so it cannot be in
  * src/basic/ and is done from 'socket_local_address from src/shared/. Return -EPROTO in case of
  * protocol mismatch. */
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s);
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s);
-int socket_address_equal_unix(const char *a, const char *b);
+정수 socket_address_parse_unix(SocketAddress *ret_address, const char *s);
+정수 socket_address_parse_vsock(SocketAddress *ret_address, const char *s);
+정수 socket_address_equal_unix(const char *a, const char *b);
 
 /* libc's SOMAXCONN is defined to 128 or 4096 (at least on glibc). But actually, the value can be much
  * larger. In our codebase we want to set it to the max usually, since nowadays socket memory is properly
@@ -265,12 +265,12 @@ int socket_address_equal_unix(const char *a, const char *b);
  * authoritative. */
 #define SOMAXCONN_DELUXE INT_MAX
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups);
+정수 netlink_socket_get_multicast_groups(정수 fd, size_t *ret_len, uint32_t **ret_groups);
 
-int socket_get_cookie(int fd, uint64_t *ret);
+정수 socket_get_cookie(정수 fd, uint64_t *ret);
 
 void cmsg_close_all(struct msghdr *mh);
 
-int tos_to_priority(uint8_t tos);
+정수 tos_to_priority(uint8_t tos);
 
-int socket_xattr_supported(void);
+정수 socket_xattr_supported(void);

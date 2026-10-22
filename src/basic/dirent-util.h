@@ -8,25 +8,25 @@
 
 bool dirent_is_file(const struct dirent *de) _pure_;
 bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) _pure_;
-int dirent_ensure_type(int dir_fd, struct dirent *de);
+정수 dirent_ensure_type(정수 dir_fd, struct dirent *de);
 
 struct dirent* readdir_ensure_type(DIR *d);
 struct dirent* readdir_no_dot(DIR *dirp);
 
 #define FOREACH_DIRENT_ALL(de, d, on_error)                             \
-        for (struct dirent *(de) = readdir_ensure_type(d);; (de) = readdir_ensure_type(d)) \
-                if (!de) {                                              \
-                        if (errno > 0) {                                \
+        위해 (struct dirent *(de) = readdir_ensure_type(d);; (de) = readdir_ensure_type(d)) \
+                만약 (!de) {                                              \
+                        만약 (errno > 0) {                                \
                                 on_error;                               \
                         }                                               \
                         break;                                          \
-                } else
+                } 아니면
 
 #define FOREACH_DIRENT(de, d, on_error)                                 \
         FOREACH_DIRENT_ALL(de, d, on_error)                             \
-             if (hidden_or_backup_file((de)->d_name))                   \
+             만약 (hidden_or_backup_file((de)->d_name))                   \
                      continue;                                          \
-             else
+             아니면
 
 /* Maximum space one dirent structure might require at most */
 #define DIRENT_SIZE_MAX CONST_MAX(sizeof(struct dirent), offsetof(struct dirent, d_name) + NAME_MAX + 1)
@@ -47,7 +47,7 @@ assert_cc(offsetof(struct dirent, d_name) == offsetof(struct dirent64, d_name));
 assert_cc(sizeof_field(struct dirent, d_name) == sizeof_field(struct dirent64, d_name));
 
 #define FOREACH_DIRENT_IN_BUFFER(de, buf, sz)                           \
-        for (void *_end = (uint8_t*) ({ (de) = (buf); }) + (sz);        \
+        위해 (void *_end = (uint8_t*) ({ (de) = (buf); }) + (sz);        \
              (uint8_t*) (de) < (uint8_t*) _end;                         \
              (de) = (struct dirent*) ((uint8_t*) (de) + (de)->d_reclen))
 

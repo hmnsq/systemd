@@ -4,35 +4,35 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(정수) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+정수 format_ifname_full(정수 ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
+        만약 (ifindex <= 0)
+                반환 -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        만약 (if_indextoname(ifindex, buf))
+                반환 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        만약 (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                반환 -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        만약 (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        아니면
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        반환 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
+정수 format_ifname_full_alloc(정수 ifindex, FormatIfnameFlag flag, char **ret) {
         char buf[IF_NAMESIZE];
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return strdup_to(ret, buf);
+        반환 strdup_to(ret, buf);
 }

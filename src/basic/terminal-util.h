@@ -32,9 +32,9 @@
  * 0x1B 0x5c. */
 #define ANSI_ST "\e\\"
 
-bool isatty_safe(int fd);
+bool isatty_safe(정수 fd);
 
-int terminal_reset_ansi_seq(int fd);
+정수 terminal_reset_ansi_seq(정수 fd);
 
 typedef enum TerminalResetFlags {
         TERMINAL_RESET_SWITCH_TO_TEXT = 1 << 0,
@@ -42,13 +42,13 @@ typedef enum TerminalResetFlags {
         TERMINAL_RESET_FORCE_ANSI_SEQ = 1 << 2,
 } TerminalResetFlags;
 
-int terminal_reset_defensive(int fd, TerminalResetFlags flags);
-int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags);
+정수 terminal_reset_defensive(정수 fd, TerminalResetFlags flags);
+정수 terminal_reset_defensive_locked(정수 fd, TerminalResetFlags flags);
 
-int terminal_set_cursor_position(int fd, unsigned row, unsigned column);
-int terminal_get_cursor_position(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_column);
+정수 terminal_set_cursor_position(정수 fd, unsigned row, unsigned column);
+정수 terminal_get_cursor_position(정수 input_fd, 정수 output_fd, unsigned *ret_rows, unsigned *ret_column);
 
-int open_terminal(const char *name, int mode);
+정수 open_terminal(const char *name, 정수 mode);
 
 /* Flags for tweaking the way we become the controlling process of a terminal. */
 typedef enum AcquireTerminalFlags {
@@ -71,22 +71,22 @@ typedef enum AcquireTerminalFlags {
         ACQUIRE_TERMINAL_WATCH_SIGTERM = 1 << 3,
 } AcquireTerminalFlags;
 
-int acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
-int release_terminal(void);
+정수 acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
+정수 release_terminal(void);
 
-int terminal_new_session(void);
+정수 terminal_new_session(void);
 void terminal_detach_session(void);
 
-int terminal_vhangup_fd(int fd);
-int terminal_vhangup(const char *tty);
+정수 terminal_vhangup_fd(정수 fd);
+정수 terminal_vhangup(const char *tty);
 
-int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols);
-int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols);
+정수 terminal_set_size_fd(정수 fd, const char *ident, unsigned rows, unsigned cols);
+정수 proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols);
 
-int chvt(int vt);
+정수 chvt(정수 vt);
 
-int read_one_char(FILE *f, char *ret, usec_t timeout, bool echo, bool *need_nl);
-int ask_char(char *ret, const char *replies, const char *fmt, ...) _printf_(3, 4);
+정수 read_one_char(FILE *f, char *ret, usec_t timeout, bool echo, bool *need_nl);
+정수 ask_char(char *ret, const char *replies, const char *fmt, ...) _printf_(3, 4);
 
 typedef enum GetCompletionsFlags {
         /* Only return the items subject to preselection: typically you want to suppress meta entries such as
@@ -94,33 +94,33 @@ typedef enum GetCompletionsFlags {
         GET_COMPLETIONS_PRESELECT = 1 << 0,
 } GetCompletionsFlags;
 
-typedef int (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
-int ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
+typedef 정수 (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
+정수 ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
 #define ask_string(ret, text, ...) ask_string_full(ret, NULL, NULL, NULL, text, ##__VA_ARGS__)
 
 bool any_key_to_proceed(void);
-int show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
+정수 show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
 
-int vt_disallocate(const char *tty_path);
+정수 vt_disallocate(const char *tty_path);
 
-int resolve_dev_console(char **ret);
-int get_kernel_consoles(char ***ret);
+정수 resolve_dev_console(char **ret);
+정수 get_kernel_consoles(char ***ret);
 bool tty_is_vc(const char *tty);
 bool tty_is_vc_resolve(const char *tty);
 bool tty_is_console(const char *tty) _pure_;
-int vtnr_from_tty(const char *tty);
+정수 vtnr_from_tty(const char *tty);
 
-void reset_dev_console_fd(int fd, bool switch_to_text);
-int lock_dev_console(void);
-int make_console_stdio(bool switch_to_text);
+void reset_dev_console_fd(정수 fd, bool switch_to_text);
+정수 lock_dev_console(void);
+정수 make_console_stdio(bool switch_to_text);
 
-int getenv_columns(void);
-int fd_columns(int fd);
+정수 getenv_columns(void);
+정수 fd_columns(정수 fd);
 unsigned columns(void);
-int fd_lines(int fd);
+정수 fd_lines(정수 fd);
 unsigned lines(void);
 
-void columns_lines_cache_reset(int _unused_ signum);
+void columns_lines_cache_reset(정수 _unused_ signum);
 void reset_terminal_feature_caches(void);
 
 bool on_tty(void);
@@ -130,21 +130,21 @@ bool terminal_is_dumb(void);
 
 bool dev_console_colors_enabled(void);
 
-int get_ctty_devnr(pid_t pid, dev_t *ret);
-int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret);
+정수 get_ctty_devnr(pid_t pid, dev_t *ret);
+정수 get_ctty(pid_t pid, dev_t *ret_devnr, char **ret);
 
-int getttyname_malloc(int fd, char **ret);
-int getttyname_harder(int fd, char **ret);
+정수 getttyname_malloc(정수 fd, char **ret);
+정수 getttyname_harder(정수 fd, char **ret);
 
-int ptsname_malloc(int fd, char **ret);
+정수 ptsname_malloc(정수 fd, char **ret);
 
-int openpt_allocate(int flags, char **ret_peer_path);
-int openpt_allocate_in_namespace(const PidRef *pidref, int flags, char **ret_peer_path);
+정수 openpt_allocate(정수 flags, char **ret_peer_path);
+정수 openpt_allocate_in_namespace(const PidRef *pidref, 정수 flags, char **ret_peer_path);
 
-int vt_restore(int fd);
-int vt_release(int fd, bool restore);
+정수 vt_restore(정수 fd);
+정수 vt_release(정수 fd, bool restore);
 
-void get_log_colors(int priority, const char **on, const char **off, const char **highlight);
+void get_log_colors(정수 priority, const char **on, const char **off, const char **highlight);
 
 /* Assume TTY_MODE is defined in config.h. Also, this assumes there is a 'tty' group. */
 assert_cc((TTY_MODE & ~0666) == 0);
@@ -162,7 +162,7 @@ void termios_disable_echo(struct termios *termios);
 }
 
 typedef struct TermiosResetContext {
-        int *fd;
+        정수 *fd;
         struct termios *termios;
 } TermiosResetContext;
 
@@ -178,26 +178,26 @@ void termios_reset(const TermiosResetContext *c);
 /* The $TERM value we use for terminals other than the Linux console */
 #define FALLBACK_TERM "vt220"
 
-int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
-int terminal_get_size(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
-int terminal_fix_size(int input_fd, int output_fd);
+정수 get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
+정수 terminal_get_size(정수 input_fd, 정수 output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
+정수 terminal_fix_size(정수 input_fd, 정수 output_fd);
 
-int terminal_get_terminfo_by_dcs(int fd, char **ret_name);
-int have_terminfo_file(const char *name);
-int query_term_for_tty(const char *tty, char **ret_term);
+정수 terminal_get_terminfo_by_dcs(정수 fd, char **ret_name);
+정수 have_terminfo_file(const char *name);
+정수 query_term_for_tty(const char *tty, char **ret_term);
 
-int terminal_is_pty_fd(int fd);
+정수 terminal_is_pty_fd(정수 fd);
 
-int pty_open_peer(int fd, int mode);
+정수 pty_open_peer(정수 fd, 정수 mode);
 
 static inline bool osc_char_is_valid(char c) {
         /* Checks whether the specified character is safe to be included inside an ANSI OSC sequence, as per
          * ECMA-48 5th edition, section 8.3.89 */
-        return (unsigned char) c >= 32 && (unsigned char) c < 127;
+        반환 (unsigned char) c >= 32 && (unsigned char) c < 127;
 }
 
 #define VTNR_MAX 63
 
 static inline bool vtnr_is_valid(unsigned n) {
-        return n >= 1 && n <= VTNR_MAX;
+        반환 n >= 1 && n <= VTNR_MAX;
 }

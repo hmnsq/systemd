@@ -8,21 +8,21 @@
 #include "strv.h"
 
 bool emoji_enabled(void) {
-        static int cached_emoji_enabled = -1;
+        static 정수 cached_emoji_enabled = -1;
 
-        if (cached_emoji_enabled < 0) {
-                int val = getenv_bool("SYSTEMD_EMOJI");
-                if (val >= 0)
-                        return (cached_emoji_enabled = val);
+        만약 (cached_emoji_enabled < 0) {
+                정수 val = getenv_bool("SYSTEMD_EMOJI");
+                만약 (val >= 0)
+                        반환 (cached_emoji_enabled = val);
 
                 const char *term = getenv("TERM");
-                if (!term || STR_IN_SET(term, "dumb", "linux"))
-                        return (cached_emoji_enabled = false);
+                만약 (!term || STR_IN_SET(term, "dumb", "linux"))
+                        반환 (cached_emoji_enabled = false);
 
                 cached_emoji_enabled = is_locale_utf8();
         }
 
-        return cached_emoji_enabled;
+        반환 cached_emoji_enabled;
 }
 
 const char* glyph_full(Glyph code, bool force_utf) {
@@ -181,9 +181,9 @@ const char* glyph_full(Glyph code, bool force_utf) {
                 },
         };
 
-        if (code < 0)
-                return NULL;
+        만약 (code < 0)
+                반환 NULL;
 
         assert(code < _GLYPH_MAX);
-        return draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
+        반환 draw_table[force_utf || (code >= _GLYPH_FIRST_EMOJI ? emoji_enabled() : is_locale_utf8())][code];
 }

@@ -19,29 +19,29 @@
 #include "strv.h"
 
 bool is_path(const char *p) {
-        if (!p) /* A NULL pointer is definitely not a path */
-                return false;
+        만약 (!p) /* A NULL pointer is definitely not a path */
+                반환 false;
 
-        return strchr(p, '/');
+        반환 strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
+정수 path_split_and_make_absolute(const char *p, char ***ret) {
         _cleanup_strv_free_ char **l = NULL;
-        int r;
+        정수 r;
 
         assert(p);
         assert(ret);
 
         l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
+        만약 (!l)
+                반환 -ENOMEM;
 
         r = path_strv_make_absolute_cwd(l);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         *ret = TAKE_PTR(l);
-        return r;
+        반환 r;
 }
 
 char* path_make_absolute(const char *p, const char *prefix) {
@@ -50,33 +50,33 @@ char* path_make_absolute(const char *p, const char *prefix) {
         /* Makes every item in the list an absolute path by prepending
          * the prefix, if specified and necessary */
 
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
+        만약 (path_is_absolute(p) || isempty(prefix))
+                반환 strdup(p);
 
-        return path_join(prefix, p);
+        반환 path_join(prefix, p);
 }
 
-int safe_getcwd(char **ret) {
+정수 safe_getcwd(char **ret) {
         _cleanup_free_ char *cwd = NULL;
 
         cwd = get_current_dir_name();
-        if (!cwd)
-                return negative_errno();
+        만약 (!cwd)
+                반환 negative_errno();
 
         /* Let's make sure the directory is really absolute, to protect us from the logic behind
          * CVE-2018-1000001 */
-        if (cwd[0] != '/')
-                return -ENOMEDIUM;
+        만약 (cwd[0] != '/')
+                반환 -ENOMEDIUM;
 
-        if (ret)
+        만약 (ret)
                 *ret = TAKE_PTR(cwd);
 
-        return 0;
+        반환 0;
 }
 
-int path_make_absolute_cwd(const char *p, char **ret) {
+정수 path_make_absolute_cwd(const char *p, char **ret) {
         char *c;
-        int r;
+        정수 r;
 
         assert(p);
         assert(ret);
@@ -84,29 +84,29 @@ int path_make_absolute_cwd(const char *p, char **ret) {
         /* Similar to path_make_absolute(), but prefixes with the
          * current working directory. */
 
-        if (path_is_absolute(p))
+        만약 (path_is_absolute(p))
                 c = strdup(p);
-        else {
+        아니면 {
                 _cleanup_free_ char *cwd = NULL;
 
                 r = safe_getcwd(&cwd);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 c = path_join(cwd, p);
         }
-        if (!c)
-                return -ENOMEM;
+        만약 (!c)
+                반환 -ENOMEM;
 
         *ret = c;
-        return 0;
+        반환 0;
 }
 
-int path_make_relative(const char *from, const char *to, char **ret) {
+정수 path_make_relative(const char *from, const char *to, char **ret) {
         _cleanup_free_ char *result = NULL;
         unsigned n_parents;
         const char *f, *t;
-        int r, k;
+        정수 r, k;
         char *p;
 
         assert(from);
@@ -115,87 +115,87 @@ int path_make_relative(const char *from, const char *to, char **ret) {
 
         /* Strips the common part, and adds ".." elements as necessary. */
 
-        if (!path_is_absolute(from) || !path_is_absolute(to))
-                return -EINVAL;
+        만약 (!path_is_absolute(from) || !path_is_absolute(to))
+                반환 -EINVAL;
 
-        for (;;) {
+        위해 (;;) {
                 r = path_find_first_component(&from, true, &f);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 k = path_find_first_component(&to, true, &t);
-                if (k < 0)
-                        return k;
+                만약 (k < 0)
+                        반환 k;
 
-                if (r == 0) {
+                만약 (r == 0) {
                         /* end of 'from' */
-                        if (k == 0) {
+                        만약 (k == 0) {
                                 /* from and to are equivalent. */
                                 result = strdup(".");
-                                if (!result)
-                                        return -ENOMEM;
-                        } else {
+                                만약 (!result)
+                                        반환 -ENOMEM;
+                        } 아니면 {
                                 /* 'to' is inside of 'from'. */
                                 r = path_simplify_alloc(t, &result);
-                                if (r < 0)
-                                        return r;
+                                만약 (r < 0)
+                                        반환 r;
 
-                                if (!path_is_valid(result))
-                                        return -EINVAL;
+                                만약 (!path_is_valid(result))
+                                        반환 -EINVAL;
                         }
 
                         *ret = TAKE_PTR(result);
-                        return 0;
+                        반환 0;
                 }
 
-                if (r != k || !strneq(f, t, r))
+                만약 (r != k || !strneq(f, t, r))
                         break;
         }
 
         /* If we're here, then "from_dir" has one or more elements that need to
          * be replaced with "..". */
 
-        for (n_parents = 1;; n_parents++) {
+        위해 (n_parents = 1;; n_parents++) {
                 /* If this includes ".." we can't do a simple series of "..". */
                 r = path_find_first_component(&from, false, &f);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                만약 (r < 0)
+                        반환 r;
+                만약 (r == 0)
                         break;
         }
 
-        if (isempty(t) && n_parents * 3 > PATH_MAX)
+        만약 (isempty(t) && n_parents * 3 > PATH_MAX)
                 /* PATH_MAX is counted *with* the trailing NUL byte */
-                return -EINVAL;
+                반환 -EINVAL;
 
         result = new(char, n_parents * 3 + !isempty(t) + strlen_ptr(t));
-        if (!result)
-                return -ENOMEM;
+        만약 (!result)
+                반환 -ENOMEM;
 
-        for (p = result; n_parents > 0; n_parents--)
+        위해 (p = result; n_parents > 0; n_parents--)
                 p = mempcpy(p, "../", 3);
 
-        if (isempty(t)) {
+        만약 (isempty(t)) {
                 /* Remove trailing slash and terminate string. */
                 *(--p) = '\0';
                 *ret = TAKE_PTR(result);
-                return 0;
+                반환 0;
         }
 
         strcpy(p, t);
 
         path_simplify(result);
 
-        if (!path_is_valid(result))
-                return -EINVAL;
+        만약 (!path_is_valid(result))
+                반환 -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        반환 0;
 }
 
-int path_make_relative_parent(const char *from_child, const char *to, char **ret) {
+정수 path_make_relative_parent(const char *from_child, const char *to, char **ret) {
         _cleanup_free_ char *from = NULL;
-        int r;
+        정수 r;
 
         assert(from_child);
         assert(to);
@@ -215,10 +215,10 @@ int path_make_relative_parent(const char *from_child, const char *to, char **ret
          */
 
         r = path_extract_directory(from_child, &from);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return path_make_relative(from, to, ret);
+        반환 path_make_relative(from, to, ret);
 }
 
 char* path_startswith_strv(const char *p, char * const *strv) {
@@ -228,15 +228,15 @@ char* path_startswith_strv(const char *p, char * const *strv) {
                 char *t;
 
                 t = path_startswith(p, *s);
-                if (t)
-                        return t;
+                만약 (t)
+                        반환 t;
         }
 
-        return NULL;
+        반환 NULL;
 }
 
-int path_strv_make_absolute_cwd(char **l) {
-        int r;
+정수 path_strv_make_absolute_cwd(char **l) {
+        정수 r;
 
         /* Goes through every item in the string list and makes it
          * absolute. This works in place and won't rollback any
@@ -246,23 +246,23 @@ int path_strv_make_absolute_cwd(char **l) {
                 char *t;
 
                 r = path_make_absolute_cwd(*s, &t);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 path_simplify(t);
                 free_and_replace(*s, t);
         }
 
-        return 0;
+        반환 0;
 }
 
 char** path_strv_resolve(char **l, const char *root) {
         unsigned k = 0;
         bool enomem = false;
-        int r;
+        정수 r;
 
-        if (strv_isempty(l))
-                return l;
+        만약 (strv_isempty(l))
+                반환 l;
 
         /* Go through every item in the string list and canonicalize the path.
          * This works in place and doesn't roll back any changes on failure. */
@@ -271,8 +271,8 @@ char** path_strv_resolve(char **l, const char *root) {
                 _cleanup_free_ char *orig = NULL;
                 char *t, *u;
 
-                if (root) {
-                        if (!path_is_absolute(*s)) {
+                만약 (root) {
+                        만약 (!path_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
                                 free(*s);
                                 continue;
@@ -280,50 +280,50 @@ char** path_strv_resolve(char **l, const char *root) {
 
                         orig = *s;
                         t = path_join(root, orig);
-                        if (!t) {
+                        만약 (!t) {
                                 enomem = true;
                                 continue;
                         }
-                } else
+                } 아니면
                         t = *s;
 
                 r = chase(t, root, 0, &u, NULL);
-                if (r == -ENOENT) {
-                        if (root) {
+                만약 (r == -ENOENT) {
+                        만약 (root) {
                                 u = TAKE_PTR(orig);
                                 free(t);
-                        } else
+                        } 아니면
                                 u = t;
-                } else if (r < 0) {
+                } 아니면 만약 (r < 0) {
                         free(t);
 
-                        if (r == -ENOMEM)
+                        만약 (r == -ENOMEM)
                                 enomem = true;
 
                         continue;
-                } else if (root) {
+                } 아니면 만약 (root) {
                         char *x;
 
                         free(t);
                         x = path_startswith(u, root);
-                        if (x) {
+                        만약 (x) {
                                 /* restore the slash if it was lost */
-                                if (!startswith(x, "/"))
+                                만약 (!startswith(x, "/"))
                                         *(--x) = '/';
 
                                 t = strdup(x);
                                 free(u);
-                                if (!t) {
+                                만약 (!t) {
                                         enomem = true;
                                         continue;
                                 }
                                 u = t;
-                        } else {
+                        } 아니면 {
                                 /* canonicalized path goes outside of
                                  * prefix, keep the original path instead */
                                 free_and_replace(u, orig);
                         }
-                } else
+                } 아니면
                         free(t);
 
                 l[k++] = u;
@@ -331,31 +331,31 @@ char** path_strv_resolve(char **l, const char *root) {
 
         l[k] = NULL;
 
-        if (enomem)
-                return NULL;
+        만약 (enomem)
+                반환 NULL;
 
-        return l;
+        반환 l;
 }
 
 char** path_strv_resolve_uniq(char **l, const char *root) {
 
-        if (strv_isempty(l))
-                return l;
+        만약 (strv_isempty(l))
+                반환 l;
 
-        if (!path_strv_resolve(l, root))
-                return NULL;
+        만약 (!path_strv_resolve(l, root))
+                반환 NULL;
 
-        return strv_uniq(l);
+        반환 strv_uniq(l);
 }
 
 char* skip_leading_slash(const char *p) {
-        return skip_leading_chars(p, "/");
+        반환 skip_leading_chars(p, "/");
 }
 
 char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         bool add_slash = false, keep_trailing_slash, absolute, beginning = true;
         char *f = path;
-        int r;
+        정수 r;
 
         /* Removes redundant inner and trailing slashes. Also removes unnecessary dots.
          * Modifies the passed string in-place.
@@ -366,34 +366,34 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
          * /../foo/bar/..    becomes /foo/bar/..
          */
 
-        if (isempty(path))
-                return path;
+        만약 (isempty(path))
+                반환 path;
 
         keep_trailing_slash = FLAGS_SET(flags, PATH_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(path, "/");
 
         absolute = path_is_absolute(path);
         f += absolute;  /* Keep leading /, if present. */
 
-        for (const char *p = f;;) {
+        위해 (const char *p = f;;) {
                 const char *e;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
+                만약 (r == 0)
                         break;
 
-                if (r > 0 && absolute && beginning && path_startswith(e, ".."))
+                만약 (r > 0 && absolute && beginning && path_startswith(e, ".."))
                         /* If we're at the beginning of an absolute path, we can safely skip ".." */
                         continue;
 
                 beginning = false;
 
-                if (add_slash)
+                만약 (add_slash)
                         *f++ = '/';
 
-                if (r < 0) {
+                만약 (r < 0) {
                         /* if path is invalid, then refuse to simplify the remaining part. */
                         memmove(f, p, strlen(p) + 1);
-                        return path;
+                        반환 path;
                 }
 
                 memmove(f, e, r);
@@ -403,30 +403,30 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         }
 
         /* Special rule, if we stripped everything, we need a "." for the current directory. */
-        if (f == path)
+        만약 (f == path)
                 *f++ = '.';
 
-        if (*(f-1) != '/' && keep_trailing_slash)
+        만약 (*(f-1) != '/' && keep_trailing_slash)
                 *f++ = '/';
 
         *f = '\0';
-        return path;
+        반환 path;
 }
 
-int path_simplify_alloc(const char *path, char **ret) {
+정수 path_simplify_alloc(const char *path, char **ret) {
         assert(ret);
 
-        if (!path) {
+        만약 (!path) {
                 *ret = NULL;
-                return 0;
+                반환 0;
         }
 
         char *t = strdup(path);
-        if (!t)
-                return -ENOMEM;
+        만약 (!t)
+                반환 -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        반환 0;
 }
 
 char* path_startswith_full(const char *original_path, const char *prefix, PathStartWithFlags flags) {
@@ -445,139 +445,139 @@ char* path_startswith_full(const char *original_path, const char *prefix, PathSt
 
         const char *path = original_path;
 
-        if ((path[0] == '/') != (prefix[0] == '/'))
-                return NULL;
+        만약 ((path[0] == '/') != (prefix[0] == '/'))
+                반환 NULL;
 
-        for (;;) {
+        위해 (;;) {
                 const char *p, *q;
-                int m, n;
+                정수 m, n;
 
                 m = path_find_first_component(&path, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &p);
-                if (m < 0)
-                        return NULL;
+                만약 (m < 0)
+                        반환 NULL;
 
                 n = path_find_first_component(&prefix, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &q);
-                if (n < 0)
-                        return NULL;
+                만약 (n < 0)
+                        반환 NULL;
 
-                if (n == 0) {
-                        if (!p)
+                만약 (n == 0) {
+                        만약 (!p)
                                 p = path;
 
-                        if (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
+                        만약 (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
 
-                                if (p <= original_path)
-                                        return NULL;
+                                만약 (p <= original_path)
+                                        반환 NULL;
 
                                 p--;
 
-                                if (*p != '/')
-                                        return NULL;
+                                만약 (*p != '/')
+                                        반환 NULL;
                         }
 
-                        return (char*) p;
+                        반환 (char*) p;
                 }
 
-                if (m != n)
-                        return NULL;
+                만약 (m != n)
+                        반환 NULL;
 
-                if (!strneq(p, q, m))
-                        return NULL;
+                만약 (!strneq(p, q, m))
+                        반환 NULL;
         }
 }
 
-int path_compare(const char *a, const char *b) {
-        int r;
+정수 path_compare(const char *a, const char *b) {
+        정수 r;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        만약 (r != 0)
+                반환 r;
 
         /* A relative path and an absolute path must not compare as equal.
          * Which one is sorted before the other does not really matter.
          * Here a relative path is ordered before an absolute path. */
         r = CMP(path_is_absolute(a), path_is_absolute(b));
-        if (r != 0)
-                return r;
+        만약 (r != 0)
+                반환 r;
 
-        for (;;) {
+        위해 (;;) {
                 const char *aa, *bb;
-                int j, k;
+                정수 j, k;
 
                 j = path_find_first_component(&a, true, &aa);
                 k = path_find_first_component(&b, true, &bb);
 
-                if (j < 0 || k < 0) {
+                만약 (j < 0 || k < 0) {
                         /* When one of paths is invalid, order invalid path after valid one. */
                         r = CMP(j < 0, k < 0);
-                        if (r != 0)
-                                return r;
+                        만약 (r != 0)
+                                반환 r;
 
                         /* fallback to use strcmp() if both paths are invalid. */
-                        return strcmp(a, b);
+                        반환 strcmp(a, b);
                 }
 
                 /* Order prefixes first: "/foo" before "/foo/bar" */
-                if (j == 0) {
-                        if (k == 0)
-                                return 0;
-                        return -1;
+                만약 (j == 0) {
+                        만약 (k == 0)
+                                반환 0;
+                        반환 -1;
                 }
-                if (k == 0)
-                        return 1;
+                만약 (k == 0)
+                        반환 1;
 
                 /* Alphabetical sort: "/foo/aaa" before "/foo/b" */
                 r = memcmp(aa, bb, MIN(j, k));
-                if (r != 0)
-                        return r;
+                만약 (r != 0)
+                        반환 r;
 
                 /* Sort "/foo/a" before "/foo/aaa" */
                 r = CMP(j, k);
-                if (r != 0)
-                        return r;
+                만약 (r != 0)
+                        반환 r;
         }
 }
 
-int path_compare_filename(const char *a, const char *b) {
+정수 path_compare_filename(const char *a, const char *b) {
         _cleanup_free_ char *fa = NULL, *fb = NULL;
-        int r, j, k;
+        정수 r, j, k;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        만약 (r != 0)
+                반환 r;
 
         j = path_extract_filename(a, &fa);
         k = path_extract_filename(b, &fb);
 
         /* When one of paths is "." or root, then order it earlier. */
         r = CMP(j != -EADDRNOTAVAIL, k != -EADDRNOTAVAIL);
-        if (r != 0)
-                return r;
+        만약 (r != 0)
+                반환 r;
 
         /* When one of paths is invalid (or we get OOM), order invalid path after valid one. */
         r = CMP(j < 0, k < 0);
-        if (r != 0)
-                return r;
+        만약 (r != 0)
+                반환 r;
 
         /* fallback to use strcmp() if both paths are invalid. */
-        if (j < 0)
-                return strcmp(a, b);
+        만약 (j < 0)
+                반환 strcmp(a, b);
 
-        return strcmp(fa, fb);
+        반환 strcmp(fa, fb);
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags) {
+정수 path_equal_or_inode_same_full(const char *a, const char *b, 정수 flags) {
         /* Returns true if paths are of the same entry, false if not, <0 on error. */
 
-        if (path_equal(a, b))
-                return 1;
+        만약 (path_equal(a, b))
+                반환 1;
 
-        if (!a || !b)
-                return 0;
+        만약 (!a || !b)
+                반환 0;
 
-        return inode_same(a, b, flags);
+        반환 inode_same(a, b, flags);
 }
 
 char* path_extend_internal(char **x, ...) {
@@ -609,16 +609,16 @@ char* path_extend_internal(char **x, ...) {
 
         sz = old_sz = x ? strlen_ptr(*x) : 0;
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
+        동안 ((p = va_arg(ap, char*)) != POINTER_MAX) {
                 size_t add;
 
-                if (isempty(p))
+                만약 (isempty(p))
                         continue;
 
                 add = 1 + strlen(p);
-                if (sz > SIZE_MAX - add) { /* overflow check */
+                만약 (sz > SIZE_MAX - add) { /* overflow check */
                         va_end(ap);
-                        return NULL;
+                        반환 NULL;
                 }
 
                 sz += add;
@@ -626,14 +626,14 @@ char* path_extend_internal(char **x, ...) {
         va_end(ap);
 
         nx = realloc(x ? *x : NULL, GREEDY_ALLOC_ROUND_UP(sz+1));
-        if (!nx)
-                return NULL;
-        if (x)
+        만약 (!nx)
+                반환 NULL;
+        만약 (x)
                 *x = nx;
 
-        if (old_sz > 0)
+        만약 (old_sz > 0)
                 slash = nx[old_sz-1] == '/';
-        else {
+        아니면 {
                 nx[old_sz] = 0;
                 slash = true; /* no need to generate a slash anymore */
         }
@@ -641,11 +641,11 @@ char* path_extend_internal(char **x, ...) {
         q = nx + old_sz;
 
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                if (isempty(p))
+        동안 ((p = va_arg(ap, char*)) != POINTER_MAX) {
+                만약 (isempty(p))
                         continue;
 
-                if (!slash && p[0] != '/')
+                만약 (!slash && p[0] != '/')
                         *(q++) = '/';
 
                 q = stpcpy(q, p);
@@ -653,13 +653,13 @@ char* path_extend_internal(char **x, ...) {
         }
         va_end(ap);
 
-        return nx;
+        반환 nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int fd = -EBADF;
+정수 open_and_check_executable(const char *name, const char *root, char **ret_path, 정수 *ret_fd) {
+        _cleanup_close_ 정수 fd = -EBADF;
         _cleanup_free_ char *resolved = NULL;
-        int r;
+        정수 r;
 
         assert(name);
 
@@ -667,186 +667,186 @@ int open_and_check_executable(const char *name, const char *root, char **ret_pat
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        만약 (root) {
                 /* prefix root to name in case full paths are not specified */
                 r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 name = resolved;
-        } else {
+        } 아니면 {
                 /* We need to use O_PATH because there may be executables for which we have only exec permissions,
                  * but not read (usually suid executables). */
                 fd = open(name, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
+                만약 (fd < 0)
+                        반환 -errno;
         }
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         r = access_fd(fd, X_OK);
-        if (r == -ENOSYS)
+        만약 (r == -ENOSYS)
                 /* /proc/ is not mounted. Fall back to access(). */
                 r = RET_NERRNO(access(name, X_OK));
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (ret_path) {
-                if (resolved)
+        만약 (ret_path) {
+                만약 (resolved)
                         *ret_path = TAKE_PTR(resolved);
-                else {
+                아니면 {
                         r = path_make_absolute_cwd(name, ret_path);
-                        if (r < 0)
-                                return r;
+                        만약 (r < 0)
+                                반환 r;
 
                         path_simplify(*ret_path);
                 }
         }
 
-        if (ret_fd)
+        만약 (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        반환 0;
 }
 
-int find_executable_full(
+정수 find_executable_full(
                 const char *name,
                 const char *root,
                 char * const *exec_search_path,
                 bool use_path_envvar,
                 char **ret_filename,
-                int *ret_fd) {
+                정수 *ret_fd) {
 
-        int last_error = -ENOENT, r = 0;
+        정수 last_error = -ENOENT, r = 0;
 
         assert(name);
 
-        if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+        만약 (is_path(name))
+                반환 open_and_check_executable(name, root, ret_filename, ret_fd);
 
-        if (exec_search_path) {
+        만약 (exec_search_path) {
                 STRV_FOREACH(element, exec_search_path) {
                         _cleanup_free_ char *full_path = NULL;
 
-                        if (!path_is_absolute(*element)) {
+                        만약 (!path_is_absolute(*element)) {
                                 log_debug("Exec search path '%s' isn't absolute, ignoring.", *element);
                                 continue;
                         }
 
                         full_path = path_join(*element, name);
-                        if (!full_path)
-                                return -ENOMEM;
+                        만약 (!full_path)
+                                반환 -ENOMEM;
 
                         r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
-                        if (r >= 0)
-                                return 0;
-                        if (r != -EACCES)
+                        만약 (r >= 0)
+                                반환 0;
+                        만약 (r != -EACCES)
                                 last_error = r;
                 }
-                return last_error;
+                반환 last_error;
         }
 
         const char *p = NULL;
 
-        if (use_path_envvar)
+        만약 (use_path_envvar)
                 /* Plain getenv, not secure_getenv, because we want to actually allow the user to pick the
                  * binary. */
                 p = getenv("PATH");
-        if (!p)
+        만약 (!p)
                 p = default_PATH();
 
         /* Resolve a single-component name to a full path */
-        for (;;) {
+        위해 (;;) {
                 _cleanup_free_ char *element = NULL;
 
                 r = extract_first_word(&p, &element, ":", EXTRACT_RELAX|EXTRACT_DONT_COALESCE_SEPARATORS);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                만약 (r < 0)
+                        반환 r;
+                만약 (r == 0)
                         break;
 
-                if (!path_is_absolute(element)) {
+                만약 (!path_is_absolute(element)) {
                         log_debug("Exec search path '%s' isn't absolute, ignoring.", element);
                         continue;
                 }
 
-                if (!path_extend(&element, name))
-                        return -ENOMEM;
+                만약 (!path_extend(&element, name))
+                        반환 -ENOMEM;
 
                 r = open_and_check_executable(element, root, ret_filename, ret_fd);
-                if (r >= 0) /* Found it! */
-                        return 0;
+                만약 (r >= 0) /* Found it! */
+                        반환 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
-                if (r != -EACCES)
+                만약 (r != -EACCES)
                         last_error = r;
         }
 
-        return last_error;
+        반환 last_error;
 }
 
-static int executable_is_good(const char *executable) {
+static 정수 executable_is_good(const char *executable) {
         _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
+        정수 r;
 
         r = find_executable(executable, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
+        만약 (r == -ENOENT)
+                반환 0;
+        만약 (r < 0)
+                반환 r;
 
         /* An fsck that is linked to /bin/true is a non-existent fsck */
 
         r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
+        만약 (r == -EINVAL) /* not a symlink */
+                반환 1;
+        만약 (r < 0)
+                반환 r;
 
-        return !PATH_IN_SET(d, "true",
+        반환 !PATH_IN_SET(d, "true",
                                "/bin/true",
                                "/usr/bin/true",
                                "/dev/null");
 }
 
-int fsck_exists(void) {
-        return executable_is_good("fsck");
+정수 fsck_exists(void) {
+        반환 executable_is_good("fsck");
 }
 
-int fsck_exists_for_fstype(const char *fstype) {
+정수 fsck_exists_for_fstype(const char *fstype) {
         const char *checker;
-        int r;
+        정수 r;
 
         assert(fstype);
 
-        if (streq(fstype, "auto"))
-                return -EINVAL;
+        만약 (streq(fstype, "auto"))
+                반환 -EINVAL;
 
         r = fsck_exists();
-        if (r <= 0)
-                return r;
+        만약 (r <= 0)
+                반환 r;
 
         checker = strjoina("fsck.", fstype);
-        return executable_is_good(checker);
+        반환 executable_is_good(checker);
 }
 
 static const char* skip_slash_or_dot(const char *p) {
         POINTER_MAY_BE_NULL(p);
 
-        for (; !isempty(p); p++) {
-                if (*p == '/')
+        위해 (; !isempty(p); p++) {
+                만약 (*p == '/')
                         continue;
-                if (startswith(p, "./")) {
+                만약 (startswith(p, "./")) {
                         p++;
                         continue;
                 }
                 break;
         }
-        return p;
+        반환 p;
 }
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
+정수 path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
         const char *q, *first, *end_first, *next;
         size_t len;
 
@@ -888,52 +888,52 @@ int path_find_first_component(const char **p, bool accept_dot_dot, const char **
         q = *p;
 
         first = skip_slash_or_dot(q);
-        if (isempty(first)) {
+        만약 (isempty(first)) {
                 *p = first;
-                if (ret)
+                만약 (ret)
                         *ret = NULL;
-                return 0;
+                반환 0;
         }
-        if (streq(first, ".")) {
+        만약 (streq(first, ".")) {
                 *p = first + 1;
-                if (ret)
+                만약 (ret)
                         *ret = NULL;
-                return 0;
+                반환 0;
         }
 
         end_first = strchrnul(first, '/');
         len = end_first - first;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
-                return -EINVAL;
+        만약 (len > NAME_MAX)
+                반환 -EINVAL;
+        만약 (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
+                반환 -EINVAL;
 
         next = skip_slash_or_dot(end_first);
 
         *p = next + streq(next, ".");
-        if (ret)
+        만약 (ret)
                 *ret = first;
-        return len;
+        반환 len;
 }
 
 static const char* skip_slash_or_dot_backward(const char *path, const char *q) {
         assert(path);
         assert(!q || q >= path);
 
-        for (; q; q = PTR_SUB1(q, path)) {
-                if (*q == '/')
+        위해 (; q; q = PTR_SUB1(q, path)) {
+                만약 (*q == '/')
                         continue;
-                if (q > path && strneq(q - 1, "/.", 2))
+                만약 (q > path && strneq(q - 1, "/.", 2))
                         continue;
-                if (q == path && *q == '.')
+                만약 (q == path && *q == '.')
                         continue;
                 break;
         }
-        return q;
+        반환 q;
 }
 
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
+정수 path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
         const char *q, *last_end, *last_begin;
         size_t len;
 
@@ -974,58 +974,58 @@ int path_find_last_component(const char *path, bool accept_dot_dot, const char *
         *   Output: return value: -EINVAL
         */
 
-        if (isempty(path)) {
-                if (next)
+        만약 (isempty(path)) {
+                만약 (next)
                         *next = path;
-                if (ret)
+                만약 (ret)
                         *ret = NULL;
-                return 0;
+                반환 0;
         }
 
-        if (next && *next) {
-                if (*next < path || *next > path + strlen(path))
-                        return -EINVAL;
-                if (*next == path) {
-                        if (ret)
+        만약 (next && *next) {
+                만약 (*next < path || *next > path + strlen(path))
+                        반환 -EINVAL;
+                만약 (*next == path) {
+                        만약 (ret)
                                 *ret = NULL;
-                        return 0;
+                        반환 0;
                 }
-                if (!IN_SET(**next, '\0', '/'))
-                        return -EINVAL;
+                만약 (!IN_SET(**next, '\0', '/'))
+                        반환 -EINVAL;
                 q = *next - 1;
-        } else
+        } 아니면
                 q = path + strlen(path) - 1;
 
         q = skip_slash_or_dot_backward(path, q);
-        if (!q) { /* the root directory, "." or "./" */
-                if (next)
+        만약 (!q) { /* the root directory, "." or "./" */
+                만약 (next)
                         *next = path;
-                if (ret)
+                만약 (ret)
                         *ret = NULL;
-                return 0;
+                반환 0;
         }
 
         last_end = q + 1;
 
-        while (q && *q != '/')
+        동안 (q && *q != '/')
                 q = PTR_SUB1(q, path);
 
         last_begin = q ? q + 1 : path;
         len = last_end - last_begin;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
-                return -EINVAL;
+        만약 (len > NAME_MAX)
+                반환 -EINVAL;
+        만약 (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
+                반환 -EINVAL;
 
-        if (next) {
+        만약 (next) {
                 q = skip_slash_or_dot_backward(path, q);
                 *next = q ? q + 1 : path;
         }
 
-        if (ret)
+        만약 (ret)
                 *ret = last_begin;
-        return len;
+        반환 len;
 }
 
 const char* last_path_component(const char *path) {
@@ -1052,29 +1052,29 @@ const char* last_path_component(const char *path) {
 
         unsigned l, k;
 
-        if (!path)
-                return NULL;
+        만약 (!path)
+                반환 NULL;
 
         l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
+        만약 (l == 0) /* special case — an empty string */
+                반환 path;
 
-        while (k > 0 && path[k-1] == '/')
+        동안 (k > 0 && path[k-1] == '/')
                 k--;
 
-        if (k == 0) /* the root directory */
-                return path + l - 1;
+        만약 (k == 0) /* the root directory */
+                반환 path + l - 1;
 
-        while (k > 0 && path[k-1] != '/')
+        동안 (k > 0 && path[k-1] != '/')
                 k--;
 
-        return path + k;
+        반환 path + k;
 }
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
+정수 path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
         _cleanup_free_ char *d = NULL;
         const char *c, *next = NULL;
-        int r;
+        정수 r;
 
         POINTER_MAY_BE_NULL(path);
 
@@ -1092,52 +1092,52 @@ int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_file
          * This function guarantees to return a fully valid filename, i.e. one that passes
          * filename_is_valid() – this means "." and ".." are not accepted. */
 
-        if (isempty(path))
-                return -EINVAL;
+        만약 (isempty(path))
+                반환 -EINVAL;
 
         r = path_find_last_component(path, /* accept_dot_dot = */ false, &next, &c);
-        if (r < 0)
-                return r;
-        if (r == 0) /* root directory or "." */
-                return -EADDRNOTAVAIL;
+        만약 (r < 0)
+                반환 r;
+        만약 (r == 0) /* root directory or "." */
+                반환 -EADDRNOTAVAIL;
 
-        if (ret_dir) {
-                if (next == path) {
-                        if (*path != '/') { /* filename only */
-                                if (!ret_filename)
-                                        return -EDESTADDRREQ;
-                        } else {
+        만약 (ret_dir) {
+                만약 (next == path) {
+                        만약 (*path != '/') { /* filename only */
+                                만약 (!ret_filename)
+                                        반환 -EDESTADDRREQ;
+                        } 아니면 {
                                 d = strdup("/");
-                                if (!d)
-                                        return -ENOMEM;
+                                만약 (!d)
+                                        반환 -ENOMEM;
                         }
-                } else {
+                } 아니면 {
                         d = strndup(path, next - path);
-                        if (!d)
-                                return -ENOMEM;
+                        만약 (!d)
+                                반환 -ENOMEM;
 
                         path_simplify(d);
 
-                        if (!path_is_valid(d))
-                                return -EINVAL;
+                        만약 (!path_is_valid(d))
+                                반환 -EINVAL;
                 }
 
-        } else if (!path_is_valid(path))
+        } 아니면 만약 (!path_is_valid(path))
                 /* We didn't validate the dir prefix, hence check if the whole path is valid now */
-                return -EINVAL;
+                반환 -EINVAL;
 
-        if (ret_filename) {
+        만약 (ret_filename) {
                 char *fn = strndup(c, r);
-                if (!fn)
-                        return -ENOMEM;
+                만약 (!fn)
+                        반환 -ENOMEM;
 
                 *ret_filename = fn;
         }
 
-        if (ret_dir)
+        만약 (ret_dir)
                 *ret_dir = TAKE_PTR(d);
 
-        return strlen(c) > (size_t) r ? O_DIRECTORY : 0;
+        반환 strlen(c) > (size_t) r ? O_DIRECTORY : 0;
 }
 
 bool filename_part_is_valid(const char *p) {
@@ -1146,65 +1146,65 @@ bool filename_part_is_valid(const char *p) {
         /* Checks f the specified string is OK to be *part* of a filename. This is different from
          * filename_is_valid() as "." and ".." and "" are OK by this call, but not by filename_is_valid(). */
 
-        if (!p)
-                return false;
+        만약 (!p)
+                반환 false;
 
         e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
+        만약 (*e != 0)
+                반환 false;
 
-        if (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
-                return false;
+        만약 (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
+                반환 false;
 
-        return true;
+        반환 true;
 }
 
 bool filename_is_valid(const char *p) {
 
-        if (isempty(p))
-                return false;
+        만약 (isempty(p))
+                반환 false;
 
-        if (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
-                return false;
+        만약 (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
+                반환 false;
 
-        return filename_part_is_valid(p);
+        반환 filename_part_is_valid(p);
 }
 
 bool path_is_valid_full(const char *p, bool accept_dot_dot) {
-        if (isempty(p))
-                return false;
+        만약 (isempty(p))
+                반환 false;
 
-        for (const char *e = p;;) {
-                int r;
+        위해 (const char *e = p;;) {
+                정수 r;
 
                 r = path_find_first_component(&e, accept_dot_dot, NULL);
-                if (r < 0)
-                        return false;
+                만약 (r < 0)
+                        반환 false;
 
-                if (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
+                만약 (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
                                         * *with* the trailing NUL byte) */
-                        return false;
-                if (*e == 0)           /* End of string? Yay! */
-                        return true;
+                        반환 false;
+                만약 (*e == 0)           /* End of string? Yay! */
+                        반환 true;
         }
 }
 
 bool path_is_normalized(const char *p) {
-        if (!path_is_safe(p))
-                return false;
+        만약 (!path_is_safe(p))
+                반환 false;
 
-        if (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
+        만약 (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
+                반환 false;
 
-        if (strstr(p, "//"))
-                return false;
+        만약 (strstr(p, "//"))
+                반환 false;
 
-        return true;
+        반환 true;
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret) {
+정수 file_in_same_dir(const char *path, const char *filename, char **ret) {
         _cleanup_free_ char *b = NULL;
-        int r;
+        정수 r;
 
         assert(path);
         assert(filename);
@@ -1213,40 +1213,40 @@ int file_in_same_dir(const char *path, const char *filename, char **ret) {
         /* This removes the last component of path and appends filename, unless the latter is absolute anyway
          * or the former isn't */
 
-        if (path_is_absolute(filename))
+        만약 (path_is_absolute(filename))
                 b = strdup(filename);
-        else {
+        아니면 {
                 _cleanup_free_ char *dn = NULL;
 
                 r = path_extract_directory(path, &dn);
-                if (r == -EDESTADDRREQ) /* no path prefix */
+                만약 (r == -EDESTADDRREQ) /* no path prefix */
                         b = strdup(filename);
-                else if (r < 0)
-                        return r;
-                else
+                아니면 만약 (r < 0)
+                        반환 r;
+                아니면
                         b = path_join(dn, filename);
         }
-        if (!b)
-                return -ENOMEM;
+        만약 (!b)
+                반환 -ENOMEM;
 
         *ret = TAKE_PTR(b);
-        return 0;
+        반환 0;
 }
 
 bool hidden_or_backup_file(const char *filename) {
         assert(filename);
 
-        if (filename[0] == '.' ||
+        만약 (filename[0] == '.' ||
             STR_IN_SET(filename,
                        "lost+found",
                        "aquota.user",
                        "aquota.group") ||
             endswith(filename, "~"))
-                return true;
+                반환 true;
 
         const char *dot = strrchr(filename, '.');
-        if (!dot)
-                return false;
+        만약 (!dot)
+                반환 false;
 
         /* Please, let's not add more entries to the list below. If external projects think it's a good idea
          * to come up with always new suffixes and that everybody else should just adjust to that, then it
@@ -1262,7 +1262,7 @@ bool hidden_or_backup_file(const char *filename) {
          * ".foopkg.old" or ".foopkg~" instead.
          */
 
-        return STR_IN_SET(dot + 1,
+        반환 STR_IN_SET(dot + 1,
                           "ignore",
                           "rpmnew",
                           "rpmsave",
@@ -1295,7 +1295,7 @@ bool is_device_path(const char *path) {
          */
 
         const char *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
-        return !isempty(p);
+        반환 !isempty(p);
 }
 
 bool valid_device_node_path(const char *path) {
@@ -1303,13 +1303,13 @@ bool valid_device_node_path(const char *path) {
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
 
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
+        만약 (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
+                반환 false;
 
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
+        만약 (endswith(path, "/")) /* can't be a device node if it ends in a slash */
+                반환 false;
 
-        return path_is_normalized(path);
+        반환 path_is_normalized(path);
 }
 
 bool valid_device_allow_pattern(const char *path) {
@@ -1318,23 +1318,23 @@ bool valid_device_allow_pattern(const char *path) {
         /* Like valid_device_node_path(), but also allows full-subsystem expressions like those accepted by
          * DeviceAllow= and DeviceDeny=. */
 
-        if (STARTSWITH_SET(path, "block-", "char-"))
-                return true;
+        만약 (STARTSWITH_SET(path, "block-", "char-"))
+                반환 true;
 
-        return valid_device_node_path(path);
+        반환 valid_device_node_path(path);
 }
 
 bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
+        만약 (!path)
+                반환 false;
+        만약 (path[0] != '.')
+                반환 false;
+        만약 (path[1] == 0)
+                반환 true;
+        만약 (path[1] != '.')
+                반환 false;
 
-        return path[2] == 0;
+        반환 path[2] == 0;
 }
 
 bool path_implies_directory(const char *path) {
@@ -1342,13 +1342,13 @@ bool path_implies_directory(const char *path) {
         /* Sometimes, if we look at a path we already know it must refer to a directory, because it is
          * suffixed with a slash, or its last component is "." or ".." */
 
-        if (!path)
-                return false;
+        만약 (!path)
+                반환 false;
 
-        if (dot_or_dot_dot(path))
-                return true;
+        만약 (dot_or_dot_dot(path))
+                반환 true;
 
-        return ENDSWITH_SET(path, "/", "/.", "/..");
+        반환 ENDSWITH_SET(path, "/", "/.", "/..");
 }
 
 bool empty_or_root(const char *path) {
@@ -1356,45 +1356,45 @@ bool empty_or_root(const char *path) {
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
 
-        if (isempty(path))
-                return true;
+        만약 (isempty(path))
+                반환 true;
 
-        return path_equal(path, "/");
+        반환 path_equal(path, "/");
 }
 
 const char* empty_to_root(const char *path) {
-        return isempty(path) ? "/" : path;
+        반환 isempty(path) ? "/" : path;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
-        int r;
+정수 empty_or_root_harder_to_null(const char **path) {
+        정수 r;
 
         assert(path);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
+        만약 (empty_or_root(*path)) {
                 *path = NULL;
-                return 0;
+                반환 0;
         }
 
         r = path_is_root(*path);
-        if (r < 0)
-                return r;
-        if (r > 0)
+        만약 (r < 0)
+                반환 r;
+        만약 (r > 0)
                 *path = NULL;
 
-        return 0;
+        반환 0;
 }
 
 bool path_strv_contains(char * const *l, const char *path) {
         assert(path);
 
         STRV_FOREACH(i, l)
-                if (path_equal(*i, path))
-                        return true;
+                만약 (path_equal(*i, path))
+                        반환 true;
 
-        return false;
+        반환 false;
 }
 
 bool prefixed_path_strv_contains(char * const *l, const char *path) {
@@ -1403,96 +1403,96 @@ bool prefixed_path_strv_contains(char * const *l, const char *path) {
         STRV_FOREACH(i, l) {
                 const char *j = *i;
 
-                if (*j == '-')
+                만약 (*j == '-')
                         j++;
-                if (*j == '+')
+                만약 (*j == '+')
                         j++;
 
-                if (path_equal(j, path))
-                        return true;
+                만약 (path_equal(j, path))
+                        반환 true;
         }
 
-        return false;
+        반환 false;
 }
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
+정수 path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
         assert(pattern);
         assert(prefix);
 
-        for (const char *a = pattern, *b = prefix;;) {
+        위해 (const char *a = pattern, *b = prefix;;) {
                 _cleanup_free_ char *g = NULL, *h = NULL;
                 const char *p, *q;
-                int r, s;
+                정수 r, s;
 
                 r = path_find_first_component(&a, /* accept_dot_dot= */ false, &p);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 s = path_find_first_component(&b, /* accept_dot_dot= */ false, &q);
-                if (s < 0)
-                        return s;
+                만약 (s < 0)
+                        반환 s;
 
-                if (s == 0) {
+                만약 (s == 0) {
                         /* The pattern matches the prefix. */
-                        if (ret) {
+                        만약 (ret) {
                                 char *t;
 
                                 t = path_join(prefix, p);
-                                if (!t)
-                                        return -ENOMEM;
+                                만약 (!t)
+                                        반환 -ENOMEM;
 
                                 *ret = t;
                         }
-                        return true;
+                        반환 true;
                 }
 
-                if (r == 0)
+                만약 (r == 0)
                         break;
 
-                if (r == s && strneq(p, q, r))
+                만약 (r == s && strneq(p, q, r))
                         continue; /* common component. Check next. */
 
                 g = strndup(p, r);
-                if (!g)
-                        return -ENOMEM;
+                만약 (!g)
+                        반환 -ENOMEM;
 
-                if (!string_is_glob(g))
+                만약 (!string_is_glob(g))
                         break;
 
                 /* We found a glob component. Check if the glob pattern matches the prefix component. */
 
                 h = strndup(q, s);
-                if (!h)
-                        return -ENOMEM;
+                만약 (!h)
+                        반환 -ENOMEM;
 
                 r = fnmatch(g, h, 0);
-                if (r == FNM_NOMATCH)
+                만약 (r == FNM_NOMATCH)
                         break;
-                if (r != 0) /* Failure to process pattern? */
-                        return -EINVAL;
+                만약 (r != 0) /* Failure to process pattern? */
+                        반환 -EINVAL;
         }
 
         /* The pattern does not match the prefix. */
-        if (ret)
+        만약 (ret)
                 *ret = NULL;
-        return false;
+        반환 false;
 }
 
-#if HAVE_SPLIT_BIN
+#만약 HAVE_SPLIT_BIN
 static bool dir_is_split(const char *a, const char *b) {
-        int r;
+        정수 r;
 
         r = inode_same(a, b, AT_NO_AUTOMOUNT);
-        if (r < 0 && r != -ENOENT) {
+        만약 (r < 0 && r != -ENOENT) {
                 log_debug_errno(r, "Failed to compare \"%s\" and \"%s\", assuming split directories: %m", a, b);
-                return true;
+                반환 true;
         }
-        return r == 0;
+        반환 r == 0;
 }
 #endif
 
 const char* default_PATH(void) {
-#if HAVE_SPLIT_BIN
+#만약 HAVE_SPLIT_BIN
         static const char *default_path = NULL;
 
         /* Return one of the three sets of paths:
@@ -1503,15 +1503,15 @@ const char* default_PATH(void) {
          * On error the fallback to the safe value with both directories as configured is returned.
          */
 
-        if (default_path)
-                return default_path;
+        만약 (default_path)
+                반환 default_path;
 
-        if (dir_is_split("/usr/sbin", "/usr/bin"))
-                return (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
-        if (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
-                return (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
-        return (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
-#else
-        return DEFAULT_PATH_WITHOUT_SBIN;
+        만약 (dir_is_split("/usr/sbin", "/usr/bin"))
+                반환 (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
+        만약 (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
+                반환 (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
+        반환 (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
+#아니면
+        반환 DEFAULT_PATH_WITHOUT_SBIN;
 #endif
 }

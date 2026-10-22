@@ -6,13 +6,13 @@
 char* asprintf_safe(const char *restrict fmt, ...) {
         _cleanup_free_ char *buf = NULL;
         va_list ap;
-        int r;
+        정수 r;
 
         va_start(ap, fmt);
         r = vasprintf(&buf, fmt, ap);
         va_end(ap);
 
-        if (r < 0)
-                return NULL;
-        return TAKE_PTR(buf);
+        만약 (r < 0)
+                반환 NULL;
+        반환 TAKE_PTR(buf);
 }

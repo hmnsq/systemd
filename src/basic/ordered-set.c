@@ -8,80 +8,80 @@
 #include "ordered-set.h"
 #include "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
+정수 ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
         assert(s);
 
-        if (*s)
-                return 0;
+        만약 (*s)
+                반환 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        만약 (!*s)
+                반환 -ENOMEM;
 
-        return 0;
+        반환 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+정수 ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
+        정수 r;
 
         assert(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return ordered_set_put(*s, p);
+        반환 ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+정수 ordered_set_consume(OrderedSet *s, void *p) {
+        정수 r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
+        만약 (r <= 0)
                 free(p);
 
-        return r;
+        반환 r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
+정수 ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
         char *c;
-        int r;
+        정수 r;
 
         assert(s);
         assert(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        만약 (ordered_set_contains(*s, p))
+                반환 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        만약 (!c)
+                반환 -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        반환 ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+정수 ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
+        정수 r, ret = 0;
 
         assert(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        반환 ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
+정수 ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
+        정수 r, ret = 0;
         char *p;
 
         assert(s);
@@ -90,13 +90,13 @@ int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        반환 ret;
 }
 
 void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
@@ -106,8 +106,8 @@ void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
         assert(f);
         assert(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        만약 (ordered_set_isempty(s))
+                반환;
 
         fputs(field, f);
 

@@ -4,53 +4,53 @@
 #include "keyring-util.h"
 #include "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+정수 keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
         size_t bufsize = 100;
 
-        for (;;) {
+        위해 (;;) {
                 _cleanup_(erase_and_freep) uint8_t *buf = NULL;
                 long n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                만약 (!buf)
+                        반환 -ENOMEM;
 
                 n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                만약 (n < 0)
+                        반환 -errno;
 
-                if ((size_t) n <= bufsize) {
+                만약 ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        만약 (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
+                        만약 (ret_size)
                                 *ret_size = n;
 
-                        return 0;
+                        반환 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
+정수 keyring_describe(key_serial_t serial, char **ret) {
         _cleanup_free_ char *tuple = NULL;
         size_t sz = 64;
-        int c;
+        정수 c;
 
         assert(ret);
 
-        for (;;) {
+        위해 (;;) {
                 tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+                만약 (!tuple)
+                        반환 log_oom_debug();
 
                 c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                만약 (c < 0)
+                        반환 log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
+                만약 ((size_t) c <= sz)
                         break;
 
                 sz = c;
@@ -62,5 +62,5 @@ int keyring_describe(key_serial_t serial, char **ret) {
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        반환 0;
 }

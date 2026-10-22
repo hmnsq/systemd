@@ -6,7 +6,7 @@
 #include "forward.h"
 #include "memory-util.h"        /* IWYU pragma: keep */
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#만약 HAS_FEATURE_MEMORY_SANITIZER
 #  include <sanitizer/msan_interface.h>
 #endif
 
@@ -82,30 +82,30 @@ static inline void freep(void *p) {
 #define _cleanup_free_ _cleanup_(freep)
 
 static inline bool size_multiply_overflow(size_t size, size_t need) {
-        return _unlikely_(need != 0 && size > (SIZE_MAX / need));
+        반환 _unlikely_(need != 0 && size > (SIZE_MAX / need));
 }
 
 _malloc_ _alloc_(1, 2) static inline void *malloc_multiply(size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+        만약 (size_multiply_overflow(size, need))
+                반환 NULL;
 
-        return malloc(size * need ?: 1);
+        반환 malloc(size * need ?: 1);
 }
 
 _alloc_(2, 3) static inline void *memdup_multiply(const void *p, size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+        만약 (size_multiply_overflow(size, need))
+                반환 NULL;
 
-        return memdup(p, size * need);
+        반환 memdup(p, size * need);
 }
 
 /* Note that we can't decorate this function with _alloc_() since the returned memory area is one byte larger
  * than the product of its parameters. */
 static inline void *memdup_suffix0_multiply(const void *p, size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+        만약 (size_multiply_overflow(size, need))
+                반환 NULL;
 
-        return memdup_suffix0(p, size * need);
+        반환 memdup_suffix0(p, size * need);
 }
 
 size_t malloc_sizeof_safe(void **xp);
@@ -149,14 +149,14 @@ static inline size_t GREEDY_ALLOC_ROUND_UP(size_t l) {
          * Note the benefits of direct ALIGN_POWER2() usage: type-safety for size_t, sane handling for very
          * small (i.e. <= 2) and safe handling for very large (i.e. > SSIZE_MAX) values. */
 
-        if (l <= 2)
-                return 2; /* Never allocate less than 2 of something.  */
+        만약 (l <= 2)
+                반환 2; /* Never allocate less than 2 of something.  */
 
         m = ALIGN_POWER2(l);
-        if (m == 0) /* overflow? */
-                return l;
+        만약 (m == 0) /* overflow? */
+                반환 l;
 
-        return m;
+        반환 m;
 }
 
 void* greedy_realloc(void **p, size_t need, size_t size);
@@ -201,9 +201,9 @@ void* greedy_realloc_append(void **p, size_t *n_p, const void *from, size_t n_fr
                 memset(_new_, 0, _xsize_);                              \
         })
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#만약 HAS_FEATURE_MEMORY_SANITIZER
 #  define msan_unpoison(r, s) __msan_unpoison(r, s)
-#else
+#아니면
 #  define msan_unpoison(r, s)
 #endif
 

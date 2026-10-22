@@ -16,24 +16,24 @@
 #define STRERROR(errnum) strerror_r(ABS(errnum), (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
 /* A helper to print an error message or message for functions that return 0 on EOF. */
-const char* strerror_or_eof(int errnum, char *buf, size_t buflen);
+const char* strerror_or_eof(정수 errnum, char *buf, size_t buflen);
 #define STRERROR_OR_EOF(errnum) strerror_or_eof(errnum, (char[ERRNO_BUF_LEN]){}, ERRNO_BUF_LEN)
 
-static inline void _reset_errno_(int *saved_errno) {
-        if (*saved_errno < 0) /* Invalidated by UNPROTECT_ERRNO? */
-                return;
+static inline void _reset_errno_(정수 *saved_errno) {
+        만약 (*saved_errno < 0) /* Invalidated by UNPROTECT_ERRNO? */
+                반환;
 
         errno = *saved_errno;
 }
 
 #define PROTECT_ERRNO                           \
-        _cleanup_(_reset_errno_) _unused_ int _saved_errno_ = errno
+        _cleanup_(_reset_errno_) _unused_ 정수 _saved_errno_ = errno
 
 #define UNPROTECT_ERRNO                         \
         do {                                    \
                 errno = _saved_errno_;          \
                 _saved_errno_ = -1;             \
-        } while (false)
+        } 동안 (false)
 
 #define LOCAL_ERRNO(value)                      \
         PROTECT_ERRNO;                          \
@@ -42,19 +42,19 @@ static inline void _reset_errno_(int *saved_errno) {
 #define return_with_errno(r, err)                     \
         do {                                          \
                 errno = ABS(err);                     \
-                return r;                             \
-        } while (false)
+                반환 r;                             \
+        } 동안 (false)
 
-static inline int negative_errno(void) {
+static inline 정수 negative_errno(void) {
         /* This helper should be used to shut up gcc if you know 'errno' is
          * negative. Instead of "return -errno;", use "return negative_errno();"
          * It will suppress bogus gcc warnings in case it assumes 'errno' might
          * be 0 and thus the caller's error-handling might not be triggered. */
         assert_return(errno > 0, -EINVAL);
-        return -errno;
+        반환 -errno;
 }
 
-static inline int RET_NERRNO(int ret) {
+static inline 정수 RET_NERRNO(정수 ret) {
 
         /* Helper to wrap system calls in to make them return negative errno errors. This brings system call
          * error handling in sync with how we usually handle errors in our own code, i.e. with immediate
@@ -71,44 +71,44 @@ static inline int RET_NERRNO(int ret) {
          *     …
          */
 
-        if (ret < 0)
-                return negative_errno();
+        만약 (ret < 0)
+                반환 negative_errno();
 
-        return ret;
+        반환 ret;
 }
 
 /* Collect possible errors in <acc>, so that the first error can be returned.
  * Returns (possibly updated) <acc>. */
 #define RET_GATHER(acc, err)                    \
         ({                                      \
-                int *__a = &(acc), __e = (err); \
-                if (*__a >= 0 && __e < 0)       \
+                정수 *__a = &(acc), __e = (err); \
+                만약 (*__a >= 0 && __e < 0)       \
                         *__a = __e;             \
                 *__a;                           \
         })
 
-static inline int errno_or_else(int fallback) {
+static inline 정수 errno_or_else(정수 fallback) {
         /* To be used when invoking library calls where errno handling is not defined clearly: we return
          * errno if it is set, and the specified error otherwise. The idea is that the caller initializes
          * errno to zero before doing an API call, and then uses this helper to retrieve a somewhat useful
          * error code */
-        if (errno > 0)
-                return -errno;
+        만약 (errno > 0)
+                반환 -errno;
 
-        return -ABS(fallback);
+        반환 -ABS(fallback);
 }
 
 /* abs(3) says: Trying to take the absolute value of the most negative integer is not defined. */
 #define _DEFINE_ABS_WRAPPER(name)                         \
         static inline bool ERRNO_IS_##name(intmax_t r) {  \
-                if (r == INTMAX_MIN)                      \
-                        return false;                     \
-                return ERRNO_IS_NEG_##name(-ABS(r));      \
+                만약 (r == INTMAX_MIN)                      \
+                        반환 false;                     \
+                반환 ERRNO_IS_NEG_##name(-ABS(r));      \
         }
 
 /* For send()/recv() or read()/write(). */
 static inline bool ERRNO_IS_NEG_TRANSIENT(intmax_t r) {
-        return IN_SET(r,
+        반환 IN_SET(r,
                       -EAGAIN,
                       -EINTR);
 }
@@ -122,7 +122,7 @@ _DEFINE_ABS_WRAPPER(TRANSIENT);
  * Hint #3: When asynchronous connect() on TCP fails because the host never acknowledges a single packet,
  *          kernel tells us that with ETIMEDOUT, see tcp(7). */
 static inline bool ERRNO_IS_NEG_DISCONNECT(intmax_t r) {
-        return IN_SET(r,
+        반환 IN_SET(r,
                       -ECONNABORTED,
                       -ECONNREFUSED,
                       -ECONNRESET,
@@ -144,7 +144,7 @@ _DEFINE_ABS_WRAPPER(DISCONNECT);
 /* Transient errors we might get on accept() that we should ignore. As per error handling comment in
  * the accept(2) man page. */
 static inline bool ERRNO_IS_NEG_ACCEPT_AGAIN(intmax_t r) {
-        return ERRNO_IS_NEG_DISCONNECT(r) ||
+        반환 ERRNO_IS_NEG_DISCONNECT(r) ||
                 ERRNO_IS_NEG_TRANSIENT(r) ||
                 r == -EOPNOTSUPP;
 }
@@ -152,7 +152,7 @@ _DEFINE_ABS_WRAPPER(ACCEPT_AGAIN);
 
 /* Resource exhaustion, could be our fault or general system trouble */
 static inline bool ERRNO_IS_NEG_RESOURCE(intmax_t r) {
-        return IN_SET(r,
+        반환 IN_SET(r,
                       -EMFILE,
                       -ENFILE,
                       -ENOMEM);
@@ -161,7 +161,7 @@ _DEFINE_ABS_WRAPPER(RESOURCE);
 
 /* Seven different errors for "operation/system call/socket feature not supported" */
 static inline bool ERRNO_IS_NEG_NOT_SUPPORTED(intmax_t r) {
-        return IN_SET(r,
+        반환 IN_SET(r,
                       -EOPNOTSUPP,
                       -ENOTTY,
                       -ENOSYS,
@@ -175,13 +175,13 @@ _DEFINE_ABS_WRAPPER(NOT_SUPPORTED);
 
 /* ioctl() with unsupported command/arg might additionally return EINVAL */
 static inline bool ERRNO_IS_NEG_IOCTL_NOT_SUPPORTED(intmax_t r) {
-        return ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EINVAL;
+        반환 ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EINVAL;
 }
 _DEFINE_ABS_WRAPPER(IOCTL_NOT_SUPPORTED);
 
 /* Two different errors for access problems */
 static inline bool ERRNO_IS_NEG_PRIVILEGE(intmax_t r) {
-        return IN_SET(r,
+        반환 IN_SET(r,
                       -EACCES,
                       -EPERM);
 }
@@ -189,13 +189,13 @@ _DEFINE_ABS_WRAPPER(PRIVILEGE);
 
 /* Three different errors for writing on a filesystem */
 static inline bool ERRNO_IS_NEG_FS_WRITE_REFUSED(intmax_t r) {
-        return r == -EROFS || ERRNO_IS_NEG_PRIVILEGE(r);
+        반환 r == -EROFS || ERRNO_IS_NEG_PRIVILEGE(r);
 }
 _DEFINE_ABS_WRAPPER(FS_WRITE_REFUSED);
 
 /* Three different errors for "not enough disk space" */
 static inline bool ERRNO_IS_NEG_DISK_SPACE(intmax_t r) {
-        return IN_SET(r,
+        반환 IN_SET(r,
                       -ENOSPC,
                       -EDQUOT,
                       -EFBIG);
@@ -204,7 +204,7 @@ _DEFINE_ABS_WRAPPER(DISK_SPACE);
 
 /* Three different errors for "this device does not quite exist" */
 static inline bool ERRNO_IS_NEG_DEVICE_ABSENT(intmax_t r) {
-        return IN_SET(r,
+        반환 IN_SET(r,
                       -ENODEV,
                       -ENXIO,
                       -ENOENT);
@@ -213,7 +213,7 @@ _DEFINE_ABS_WRAPPER(DEVICE_ABSENT);
 
 /* Device is absent or "empty". We get -ENOMEDIUM from CD/DVD devices, also in VMs. */
 static inline bool ERRNO_IS_NEG_DEVICE_ABSENT_OR_EMPTY(intmax_t r) {
-        return ERRNO_IS_NEG_DEVICE_ABSENT(r) ||
+        반환 ERRNO_IS_NEG_DEVICE_ABSENT(r) ||
                 r == -ENOMEDIUM;
 }
 _DEFINE_ABS_WRAPPER(DEVICE_ABSENT_OR_EMPTY);
@@ -223,7 +223,7 @@ _DEFINE_ABS_WRAPPER(DEVICE_ABSENT_OR_EMPTY);
  * xattr the same way. Note that getxattr(2) does not enumerate -ENOENT in its own error list, but inherits
  * it via stat(2) (see ERRORS in getxattr(2)) for the path-component-missing case. */
 static inline bool ERRNO_IS_NEG_XATTR_ABSENT(intmax_t r) {
-        return r == -ENODATA ||
+        반환 r == -ENODATA ||
                 r == -ENOENT ||
                 ERRNO_IS_NEG_NOT_SUPPORTED(r);
 }

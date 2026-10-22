@@ -104,16 +104,16 @@ triple_timestamp* triple_timestamp_from_boottime(triple_timestamp *ts, usec_t u)
         IN_SET(clock, CLOCK_REALTIME, CLOCK_REALTIME_ALARM, CLOCK_MONOTONIC, CLOCK_BOOTTIME, CLOCK_BOOTTIME_ALARM)
 
 static inline bool timestamp_is_set(usec_t timestamp) {
-        return timestamp > 0 && timestamp != USEC_INFINITY;
+        반환 timestamp > 0 && timestamp != USEC_INFINITY;
 }
 
 static inline bool dual_timestamp_is_set(const dual_timestamp *ts) {
-        return timestamp_is_set(ts->realtime) ||
+        반환 timestamp_is_set(ts->realtime) ||
                timestamp_is_set(ts->monotonic);
 }
 
 static inline bool triple_timestamp_is_set(const triple_timestamp *ts) {
-        return timestamp_is_set(ts->realtime) ||
+        반환 timestamp_is_set(ts->realtime) ||
                timestamp_is_set(ts->monotonic) ||
                timestamp_is_set(ts->boottime);
 }
@@ -141,20 +141,20 @@ char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) _warn_unus
 
 /* Returns the abbreviated English weekday name for wd in Mon=0 … Sun=6 order
  * (matching systemd's weekdays_bits layout). */
-const char* weekday_to_string(int i);
+const char* weekday_to_string(정수 i);
 
 _warn_unused_result_
 static inline char* format_timestamp_relative(char *buf, size_t l, usec_t t) {
-        return format_timestamp_relative_full(buf, l, t, CLOCK_REALTIME, /* implicit_left= */ false);
+        반환 format_timestamp_relative_full(buf, l, t, CLOCK_REALTIME, /* implicit_left= */ false);
 }
 _warn_unused_result_
 static inline char* format_timestamp_relative_monotonic(char *buf, size_t l, usec_t t) {
-        return format_timestamp_relative_full(buf, l, t, CLOCK_MONOTONIC, /* implicit_left= */ false);
+        반환 format_timestamp_relative_full(buf, l, t, CLOCK_MONOTONIC, /* implicit_left= */ false);
 }
 
 _warn_unused_result_
 static inline char* format_timestamp(char *buf, size_t l, usec_t t) {
-        return format_timestamp_style(buf, l, t, TIMESTAMP_PRETTY);
+        반환 format_timestamp_style(buf, l, t, TIMESTAMP_PRETTY);
 }
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
@@ -170,19 +170,19 @@ static inline char* format_timestamp(char *buf, size_t l, usec_t t) {
         format_timestamp_style((char[FORMAT_TIMESTAMP_MAX]){}, FORMAT_TIMESTAMP_MAX, t, style)
 
 const char* get_tzname(bool dst);
-int parse_gmtoff(const char *t, long *ret);
-int parse_timestamp(const char *t, usec_t *ret);
+정수 parse_gmtoff(const char *t, long *ret);
+정수 parse_timestamp(const char *t, usec_t *ret);
 
-int parse_sec(const char *t, usec_t *ret);
-int parse_sec_fix_0(const char *t, usec_t *ret);
-int parse_sec_def_infinity(const char *t, usec_t *ret);
-int parse_time(const char *t, usec_t *ret, usec_t default_unit);
-int parse_nsec(const char *t, nsec_t *ret);
+정수 parse_sec(const char *t, usec_t *ret);
+정수 parse_sec_fix_0(const char *t, usec_t *ret);
+정수 parse_sec_def_infinity(const char *t, usec_t *ret);
+정수 parse_time(const char *t, usec_t *ret, usec_t default_unit);
+정수 parse_nsec(const char *t, nsec_t *ret);
 
-int get_timezones(char ***ret);
-int verify_timezone(const char *name, int log_level);
-static inline bool timezone_is_valid(const char *name, int log_level) {
-        return verify_timezone(name, log_level) >= 0;
+정수 get_timezones(char ***ret);
+정수 verify_timezone(const char *name, 정수 log_level);
+static inline bool timezone_is_valid(const char *name, 정수 log_level) {
+        반환 verify_timezone(name, log_level) >= 0;
 }
 
 void reset_timezonep(char **p);
@@ -195,17 +195,17 @@ bool clock_supported(clockid_t clock);
 
 usec_t usec_shift_clock(usec_t x, clockid_t from, clockid_t to);
 
-int get_timezone(char **ret);
-int get_timezone_prefer_env(char **ret);
+정수 get_timezone(char **ret);
+정수 get_timezone_prefer_env(char **ret);
 const char* etc_localtime(void);
 
-int mktime_or_timegm_usec(struct tm *tm, bool utc, usec_t *ret);
-int localtime_or_gmtime_usec(usec_t t, bool utc, struct tm *ret);
+정수 mktime_or_timegm_usec(struct tm *tm, bool utc, usec_t *ret);
+정수 localtime_or_gmtime_usec(usec_t t, bool utc, struct tm *ret);
 
-int parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_usec, struct tm *ret_tm);
+정수 parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_usec, struct tm *ret_tm);
 
-static inline int parse_calendar_date(const char *s, usec_t *ret) {
-        return parse_calendar_date_full(s, /* allow_pre_epoch= */ false, ret, NULL);
+static inline 정수 parse_calendar_date(const char *s, usec_t *ret) {
+        반환 parse_calendar_date_full(s, /* allow_pre_epoch= */ false, ret, NULL);
 }
 
 #define BIRTH_DATE_UNSET                        \
@@ -215,8 +215,8 @@ static inline int parse_calendar_date(const char *s, usec_t *ret) {
 
 #define BIRTH_DATE_IS_SET(tm) ((tm).tm_year != INT_MIN)
 
-static inline int parse_birth_date(const char *s, struct tm *ret) {
-        return parse_calendar_date_full(s, /* allow_pre_epoch= */ true, NULL, ret);
+static inline 정수 parse_birth_date(const char *s, struct tm *ret) {
+        반환 parse_calendar_date_full(s, /* allow_pre_epoch= */ true, NULL, ret);
 }
 
 uint64_t sysconf_clock_ticks_cached(void);
@@ -229,31 +229,31 @@ bool in_utc_timezone(void);
 static inline usec_t usec_add(usec_t a, usec_t b) {
         /* Adds two time values, and makes sure USEC_INFINITY as input results as USEC_INFINITY in output,
          * and doesn't overflow. */
-        return saturate_add(a, b, USEC_INFINITY);
+        반환 saturate_add(a, b, USEC_INFINITY);
 }
 
 static inline usec_t usec_sub_unsigned(usec_t timestamp, usec_t delta) {
-        if (timestamp == USEC_INFINITY) /* Make sure infinity doesn't degrade */
-                return USEC_INFINITY;
-        if (timestamp < delta)
-                return 0;
+        만약 (timestamp == USEC_INFINITY) /* Make sure infinity doesn't degrade */
+                반환 USEC_INFINITY;
+        만약 (timestamp < delta)
+                반환 0;
 
-        return timestamp - delta;
+        반환 timestamp - delta;
 }
 
 static inline usec_t usec_sub_signed(usec_t timestamp, int64_t delta) {
-        if (delta == INT64_MIN) { /* prevent overflow */
+        만약 (delta == INT64_MIN) { /* prevent overflow */
                 assert_cc(-(INT64_MIN + 1) == INT64_MAX);
                 assert_cc(USEC_INFINITY > INT64_MAX);
-                return usec_add(timestamp, (usec_t) INT64_MAX + 1);
+                반환 usec_add(timestamp, (usec_t) INT64_MAX + 1);
         }
-        if (delta < 0)
-                return usec_add(timestamp, (usec_t) (-delta));
+        만약 (delta < 0)
+                반환 usec_add(timestamp, (usec_t) (-delta));
 
-        return usec_sub_unsigned(timestamp, (usec_t) delta);
+        반환 usec_sub_unsigned(timestamp, (usec_t) delta);
 }
 
-int usleep_safe(usec_t usec);
+정수 usleep_safe(usec_t usec);
 
 /* The last second we can format is 31. Dec 9999, 1s before midnight, because otherwise we'd enter 5 digit
  * year territory. However, since we want to stay away from this in all timezones we take one day off. */
@@ -262,14 +262,14 @@ int usleep_safe(usec_t usec);
  * We parse timestamp with RFC-822/ISO 8601 (e.g. +06, or -03:00) as UTC, hence the upper bound must be off
  * by USEC_PER_DAY. See parse_timestamp() for more details. */
 #define USEC_TIMESTAMP_FORMATTABLE_MAX_32BIT (((usec_t) INT32_MAX) * USEC_PER_SEC - USEC_PER_DAY)
-#if SIZEOF_TIME_T == 8
+#만약 SIZEOF_TIME_T == 8
 #  define USEC_TIMESTAMP_FORMATTABLE_MAX USEC_TIMESTAMP_FORMATTABLE_MAX_64BIT
 #elif SIZEOF_TIME_T == 4
 #  define USEC_TIMESTAMP_FORMATTABLE_MAX USEC_TIMESTAMP_FORMATTABLE_MAX_32BIT
-#else
+#아니면
 #  error "Yuck, time_t is neither 4 nor 8 bytes wide?"
 #endif
 
-int time_change_fd(void);
+정수 time_change_fd(void);
 
 DECLARE_STRING_TABLE_LOOKUP(timestamp_style, TimestampStyle);

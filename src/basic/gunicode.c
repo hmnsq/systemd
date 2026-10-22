@@ -29,11 +29,11 @@ utf8_prev_char (const char *p)
 {
   assert(p);
 
-  for (;;)
+  위해 (;;)
     {
       p--;
-      if ((*p & 0xc0) != 0x80)
-        return (char *)p;
+      만약 ((*p & 0xc0) != 0x80)
+        반환 (char *)p;
     }
 }
 
@@ -42,18 +42,18 @@ struct Interval
   unichar start, end;
 };
 
-static int
+static 정수
 interval_compare (const void *key, const void *elt)
 {
   unichar c = (unichar) (long) (key);
   struct Interval *interval = (struct Interval *)elt;
 
-  if (c < interval->start)
-    return -1;
-  if (c > interval->end)
-    return +1;
+  만약 (c < interval->start)
+    반환 -1;
+  만약 (c > interval->end)
+    반환 +1;
 
-  return 0;
+  반환 0;
 }
 
 /*
@@ -96,11 +96,11 @@ unichar_iswide (unichar c)
     {0x20000, 0x2FFFD}, {0x30000, 0x3FFFD},
   };
 
-  if (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
+  만약 (bsearch ((void *)(uintptr_t)c, wide, ELEMENTSOF(wide), sizeof wide[0],
                interval_compare))
-    return true;
+    반환 true;
 
-  return false;
+  반환 false;
 }
 
 const char utf8_skip_data[256] = {

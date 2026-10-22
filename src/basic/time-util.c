@@ -35,13 +35,13 @@ static clockid_t map_clock_id(clockid_t c) {
         switch (c) {
 
         case CLOCK_BOOTTIME_ALARM:
-                return CLOCK_BOOTTIME;
+                반환 CLOCK_BOOTTIME;
 
         case CLOCK_REALTIME_ALARM:
-                return CLOCK_REALTIME;
+                반환 CLOCK_REALTIME;
 
         default:
-                return c;
+                반환 c;
         }
 }
 
@@ -58,7 +58,7 @@ usec_t now(clockid_t clock_id) {
         assert(n > 0);
         assert(n < USEC_INFINITY);
 
-        return n;
+        반환 n;
 }
 
 nsec_t now_nsec(clockid_t clock_id) {
@@ -71,7 +71,7 @@ nsec_t now_nsec(clockid_t clock_id) {
         assert(n > 0);
         assert(n < NSEC_INFINITY);
 
-        return n;
+        반환 n;
 }
 
 dual_timestamp* dual_timestamp_now(dual_timestamp *ts) {
@@ -80,7 +80,7 @@ dual_timestamp* dual_timestamp_now(dual_timestamp *ts) {
         ts->realtime = now(CLOCK_REALTIME);
         ts->monotonic = now(CLOCK_MONOTONIC);
 
-        return ts;
+        반환 ts;
 }
 
 triple_timestamp* triple_timestamp_now(triple_timestamp *ts) {
@@ -90,7 +90,7 @@ triple_timestamp* triple_timestamp_now(triple_timestamp *ts) {
         ts->monotonic = now(CLOCK_MONOTONIC);
         ts->boottime = now(CLOCK_BOOTTIME);
 
-        return ts;
+        반환 ts;
 }
 
 usec_t map_clock_usec_raw(usec_t from, usec_t from_base, usec_t to_base) {
@@ -102,21 +102,21 @@ usec_t map_clock_usec_raw(usec_t from, usec_t from_base, usec_t to_base) {
          *
          * But takes care of overflows/underflows and avoids signed operations. */
 
-        if (from >= from_base) { /* In the future */
+        만약 (from >= from_base) { /* In the future */
                 usec_t delta = from - from_base;
 
-                if (to_base >= USEC_INFINITY - delta) /* overflow? */
-                        return USEC_INFINITY;
+                만약 (to_base >= USEC_INFINITY - delta) /* overflow? */
+                        반환 USEC_INFINITY;
 
-                return to_base + delta;
+                반환 to_base + delta;
 
-        } else { /* In the past */
+        } 아니면 { /* In the past */
                 usec_t delta = from_base - from;
 
-                if (to_base <= delta) /* underflow? */
-                        return 0;
+                만약 (to_base <= delta) /* underflow? */
+                        반환 0;
 
-                return to_base - delta;
+                반환 to_base - delta;
         }
 }
 
@@ -124,27 +124,27 @@ usec_t map_clock_usec(usec_t from, clockid_t from_clock, clockid_t to_clock) {
 
         /* Try to avoid any inaccuracy needlessly added in case we convert from effectively the same clock
          * onto itself */
-        if (map_clock_id(from_clock) == map_clock_id(to_clock))
-                return from;
+        만약 (map_clock_id(from_clock) == map_clock_id(to_clock))
+                반환 from;
 
         /* Keep infinity as is */
-        if (from == USEC_INFINITY)
-                return from;
+        만약 (from == USEC_INFINITY)
+                반환 from;
 
-        return map_clock_usec_raw(from, now(from_clock), now(to_clock));
+        반환 map_clock_usec_raw(from, now(from_clock), now(to_clock));
 }
 
 dual_timestamp* dual_timestamp_from_realtime(dual_timestamp *ts, usec_t u) {
         assert(ts);
 
-        if (!timestamp_is_set(u)) {
+        만약 (!timestamp_is_set(u)) {
                 ts->realtime = ts->monotonic = u;
-                return ts;
+                반환 ts;
         }
 
         ts->realtime = u;
         ts->monotonic = map_clock_usec(u, CLOCK_REALTIME, CLOCK_MONOTONIC);
-        return ts;
+        반환 ts;
 }
 
 triple_timestamp* triple_timestamp_from_realtime(triple_timestamp *ts, usec_t u) {
@@ -152,9 +152,9 @@ triple_timestamp* triple_timestamp_from_realtime(triple_timestamp *ts, usec_t u)
 
         assert(ts);
 
-        if (!timestamp_is_set(u)) {
+        만약 (!timestamp_is_set(u)) {
                 ts->realtime = ts->monotonic = ts->boottime = u;
-                return ts;
+                반환 ts;
         }
 
         nowr = now(CLOCK_REALTIME);
@@ -163,7 +163,7 @@ triple_timestamp* triple_timestamp_from_realtime(triple_timestamp *ts, usec_t u)
         ts->monotonic = map_clock_usec_raw(u, nowr, now(CLOCK_MONOTONIC));
         ts->boottime = map_clock_usec_raw(u, nowr, now(CLOCK_BOOTTIME));
 
-        return ts;
+        반환 ts;
 }
 
 triple_timestamp* triple_timestamp_from_boottime(triple_timestamp *ts, usec_t u) {
@@ -171,9 +171,9 @@ triple_timestamp* triple_timestamp_from_boottime(triple_timestamp *ts, usec_t u)
 
         assert(ts);
 
-        if (u == USEC_INFINITY) {
+        만약 (u == USEC_INFINITY) {
                 ts->realtime = ts->monotonic = ts->boottime = u;
-                return ts;
+                반환 ts;
         }
 
         nowb = now(CLOCK_BOOTTIME);
@@ -182,20 +182,20 @@ triple_timestamp* triple_timestamp_from_boottime(triple_timestamp *ts, usec_t u)
         ts->monotonic = map_clock_usec_raw(u, nowb, now(CLOCK_MONOTONIC));
         ts->realtime = map_clock_usec_raw(u, nowb, now(CLOCK_REALTIME));
 
-        return ts;
+        반환 ts;
 }
 
 dual_timestamp* dual_timestamp_from_monotonic(dual_timestamp *ts, usec_t u) {
         assert(ts);
 
-        if (u == USEC_INFINITY) {
+        만약 (u == USEC_INFINITY) {
                 ts->realtime = ts->monotonic = USEC_INFINITY;
-                return ts;
+                반환 ts;
         }
 
         ts->monotonic = u;
         ts->realtime = map_clock_usec(u, CLOCK_MONOTONIC, CLOCK_REALTIME);
-        return ts;
+        반환 ts;
 }
 
 dual_timestamp* dual_timestamp_from_boottime(dual_timestamp *ts, usec_t u) {
@@ -203,15 +203,15 @@ dual_timestamp* dual_timestamp_from_boottime(dual_timestamp *ts, usec_t u) {
 
         assert(ts);
 
-        if (u == USEC_INFINITY) {
+        만약 (u == USEC_INFINITY) {
                 ts->realtime = ts->monotonic = USEC_INFINITY;
-                return ts;
+                반환 ts;
         }
 
         nowm = now(CLOCK_BOOTTIME);
         ts->monotonic = map_clock_usec_raw(u, nowm, now(CLOCK_MONOTONIC));
         ts->realtime = map_clock_usec_raw(u, nowm, now(CLOCK_REALTIME));
-        return ts;
+        반환 ts;
 }
 
 usec_t triple_timestamp_by_clock(triple_timestamp *ts, clockid_t clock) {
@@ -221,30 +221,30 @@ usec_t triple_timestamp_by_clock(triple_timestamp *ts, clockid_t clock) {
 
         case CLOCK_REALTIME:
         case CLOCK_REALTIME_ALARM:
-                return ts->realtime;
+                반환 ts->realtime;
 
         case CLOCK_MONOTONIC:
-                return ts->monotonic;
+                반환 ts->monotonic;
 
         case CLOCK_BOOTTIME:
         case CLOCK_BOOTTIME_ALARM:
-                return ts->boottime;
+                반환 ts->boottime;
 
         default:
-                return USEC_INFINITY;
+                반환 USEC_INFINITY;
         }
 }
 
 usec_t timespec_load(const struct timespec *ts) {
         assert(ts);
 
-        if (ts->tv_sec < 0 || ts->tv_nsec < 0)
-                return USEC_INFINITY;
+        만약 (ts->tv_sec < 0 || ts->tv_nsec < 0)
+                반환 USEC_INFINITY;
 
-        if ((usec_t) ts->tv_sec > (UINT64_MAX - (ts->tv_nsec / NSEC_PER_USEC)) / USEC_PER_SEC)
-                return USEC_INFINITY;
+        만약 ((usec_t) ts->tv_sec > (UINT64_MAX - (ts->tv_nsec / NSEC_PER_USEC)) / USEC_PER_SEC)
+                반환 USEC_INFINITY;
 
-        return
+        반환
                 (usec_t) ts->tv_sec * USEC_PER_SEC +
                 (usec_t) ts->tv_nsec / NSEC_PER_USEC;
 }
@@ -252,45 +252,45 @@ usec_t timespec_load(const struct timespec *ts) {
 nsec_t timespec_load_nsec(const struct timespec *ts) {
         assert(ts);
 
-        if (ts->tv_sec < 0 || ts->tv_nsec < 0)
-                return NSEC_INFINITY;
+        만약 (ts->tv_sec < 0 || ts->tv_nsec < 0)
+                반환 NSEC_INFINITY;
 
-        if ((nsec_t) ts->tv_sec >= (UINT64_MAX - ts->tv_nsec) / NSEC_PER_SEC)
-                return NSEC_INFINITY;
+        만약 ((nsec_t) ts->tv_sec >= (UINT64_MAX - ts->tv_nsec) / NSEC_PER_SEC)
+                반환 NSEC_INFINITY;
 
-        return (nsec_t) ts->tv_sec * NSEC_PER_SEC + (nsec_t) ts->tv_nsec;
+        반환 (nsec_t) ts->tv_sec * NSEC_PER_SEC + (nsec_t) ts->tv_nsec;
 }
 
 struct timespec *timespec_store(struct timespec *ts, usec_t u) {
         assert(ts);
 
-        if (u == USEC_INFINITY ||
+        만약 (u == USEC_INFINITY ||
             u / USEC_PER_SEC >= TIME_T_MAX) {
                 ts->tv_sec = (time_t) -1;
                 ts->tv_nsec = -1L;
-                return ts;
+                반환 ts;
         }
 
         ts->tv_sec = (time_t) (u / USEC_PER_SEC);
         ts->tv_nsec = (long) ((u % USEC_PER_SEC) * NSEC_PER_USEC);
 
-        return ts;
+        반환 ts;
 }
 
 struct timespec *timespec_store_nsec(struct timespec *ts, nsec_t n) {
         assert(ts);
 
-        if (n == NSEC_INFINITY ||
+        만약 (n == NSEC_INFINITY ||
             n / NSEC_PER_SEC >= TIME_T_MAX) {
                 ts->tv_sec = (time_t) -1;
                 ts->tv_nsec = -1L;
-                return ts;
+                반환 ts;
         }
 
         ts->tv_sec = (time_t) (n / NSEC_PER_SEC);
         ts->tv_nsec = (long) (n % NSEC_PER_SEC);
 
-        return ts;
+        반환 ts;
 }
 
 struct __kernel_timespec *kernel_timespec_store(struct __kernel_timespec *ts, usec_t u) {
@@ -302,19 +302,19 @@ struct __kernel_timespec *kernel_timespec_store(struct __kernel_timespec *ts, us
         ts->tv_sec  = u / USEC_PER_SEC;
         ts->tv_nsec = (u % USEC_PER_SEC) * NSEC_PER_USEC;
 
-        return ts;
+        반환 ts;
 }
 
 usec_t timeval_load(const struct timeval *tv) {
         assert(tv);
 
-        if (tv->tv_sec < 0 || tv->tv_usec < 0)
-                return USEC_INFINITY;
+        만약 (tv->tv_sec < 0 || tv->tv_usec < 0)
+                반환 USEC_INFINITY;
 
-        if ((usec_t) tv->tv_sec > (UINT64_MAX - tv->tv_usec) / USEC_PER_SEC)
-                return USEC_INFINITY;
+        만약 ((usec_t) tv->tv_sec > (UINT64_MAX - tv->tv_usec) / USEC_PER_SEC)
+                반환 USEC_INFINITY;
 
-        return
+        반환
                 (usec_t) tv->tv_sec * USEC_PER_SEC +
                 (usec_t) tv->tv_usec;
 }
@@ -322,16 +322,16 @@ usec_t timeval_load(const struct timeval *tv) {
 struct timeval *timeval_store(struct timeval *tv, usec_t u) {
         assert(tv);
 
-        if (u == USEC_INFINITY ||
+        만약 (u == USEC_INFINITY ||
             u / USEC_PER_SEC > TIME_T_MAX) {
                 tv->tv_sec = (time_t) -1;
                 tv->tv_usec = (suseconds_t) -1;
-        } else {
+        } 아니면 {
                 tv->tv_sec = (time_t) (u / USEC_PER_SEC);
                 tv->tv_usec = (suseconds_t) (u % USEC_PER_SEC);
         }
 
-        return tv;
+        반환 tv;
 }
 
 /* Returns the abbreviated English weekday name for wd in Mon=0 … Sun=6 order.
@@ -347,7 +347,7 @@ static const char *const weekday_table[_WEEKDAY_MAX] = {
         [WEEKDAY_SUN] = "Sun",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_TO_STRING(weekday, int);
+DEFINE_STRING_TABLE_LOOKUP_TO_STRING(weekday, 정수);
 
 char* format_timestamp_style(
                 char *buf,
@@ -362,30 +362,30 @@ char* format_timestamp_style(
         assert(style >= 0);
         assert(style < _TIMESTAMP_STYLE_MAX);
 
-        if (!timestamp_is_set(t))
-                return NULL; /* Timestamp is unset */
+        만약 (!timestamp_is_set(t))
+                반환 NULL; /* Timestamp is unset */
 
-        if (style == TIMESTAMP_UNIX) {
-                if (l < (size_t) (1 + 1 + 1))
-                        return NULL; /* not enough space for even the shortest of forms */
+        만약 (style == TIMESTAMP_UNIX) {
+                만약 (l < (size_t) (1 + 1 + 1))
+                        반환 NULL; /* not enough space for even the shortest of forms */
 
-                return snprintf_ok(buf, l, "@" USEC_FMT, t / USEC_PER_SEC);  /* round down μs → s */
+                반환 snprintf_ok(buf, l, "@" USEC_FMT, t / USEC_PER_SEC);  /* round down μs → s */
         }
 
         utc = IN_SET(style, TIMESTAMP_UTC, TIMESTAMP_US_UTC, TIMESTAMP_DATE);
         us = IN_SET(style, TIMESTAMP_US, TIMESTAMP_US_UTC);
 
-        if (l < (size_t) (3 +                   /* week day */
+        만약 (l < (size_t) (3 +                   /* week day */
                           1 + 10 +              /* space and date */
                           style == TIMESTAMP_DATE ? 0 :
                           (1 + 8 +              /* space and time */
                            (us ? 1 + 6 : 0) +   /* "." and microsecond part */
                            1 + (utc ? 3 : 1)) + /* space and shortest possible zone */
                           1))
-                return NULL; /* Not enough space even for the shortest form. */
+                반환 NULL; /* Not enough space even for the shortest form. */
 
         /* Let's not format times with years > 9999 */
-        if (t > USEC_TIMESTAMP_FORMATTABLE_MAX) {
+        만약 (t > USEC_TIMESTAMP_FORMATTABLE_MAX) {
                 static const char* const xxx[_TIMESTAMP_STYLE_MAX] = {
                         [TIMESTAMP_PRETTY] = "--- XXXX-XX-XX XX:XX:XX",
                         [TIMESTAMP_US]     = "--- XXXX-XX-XX XX:XX:XX.XXXXXX",
@@ -395,58 +395,58 @@ char* format_timestamp_style(
                 };
 
                 assert(l >= strlen(xxx[style]) + 1);
-                return strcpy(buf, xxx[style]);
+                반환 strcpy(buf, xxx[style]);
         }
 
-        if (localtime_or_gmtime_usec(t, utc, &tm) < 0)
-                return NULL;
+        만약 (localtime_or_gmtime_usec(t, utc, &tm) < 0)
+                반환 NULL;
 
         /* Start with the week day */
         const char *weekday = weekday_to_string(tm.tm_wday == 0 ? 6 : tm.tm_wday - 1);
         assert(weekday);
         memcpy(buf, weekday, 4);
 
-        if (style == TIMESTAMP_DATE) {
+        만약 (style == TIMESTAMP_DATE) {
                 /* Special format string if only date should be shown. */
-                if (strftime(buf + 3, l - 3, " %Y-%m-%d", &tm) <= 0)
-                        return NULL; /* Doesn't fit */
+                만약 (strftime(buf + 3, l - 3, " %Y-%m-%d", &tm) <= 0)
+                        반환 NULL; /* Doesn't fit */
 
-                return buf;
+                반환 buf;
         }
 
         /* Add the main components */
-        if (strftime(buf + 3, l - 3, " %Y-%m-%d %H:%M:%S", &tm) <= 0)
-                return NULL; /* Doesn't fit */
+        만약 (strftime(buf + 3, l - 3, " %Y-%m-%d %H:%M:%S", &tm) <= 0)
+                반환 NULL; /* Doesn't fit */
 
         /* Append the microseconds part, if that's requested */
-        if (us) {
+        만약 (us) {
                 n = strlen(buf);
-                if (n + 8 > l)
-                        return NULL; /* Microseconds part doesn't fit. */
+                만약 (n + 8 > l)
+                        반환 NULL; /* Microseconds part doesn't fit. */
 
                 sprintf(buf + n, ".%06"PRI_USEC, t % USEC_PER_SEC);
         }
 
         /* Append the timezone */
         n = strlen(buf);
-        if (utc) {
+        만약 (utc) {
                 /* If this is UTC then let's explicitly use the "UTC" string here, because gmtime_r()
                  * normally uses the obsolete "GMT" instead. */
-                if (n + 5 > l)
-                        return NULL; /* "UTC" doesn't fit. */
+                만약 (n + 5 > l)
+                        반환 NULL; /* "UTC" doesn't fit. */
 
                 strcpy(buf + n, " UTC");
 
-        } else if (!isempty(tm.tm_zone)) {
+        } 아니면 만약 (!isempty(tm.tm_zone)) {
                 size_t tn;
 
                 /* An explicit timezone is specified, let's use it, if it fits */
                 tn = strlen(tm.tm_zone);
-                if (n + 1 + tn + 1 > l) {
+                만약 (n + 1 + tn + 1 > l) {
                         /* The full time zone does not fit in. Yuck. */
 
-                        if (n + 1 + _POSIX_TZNAME_MAX + 1 > l)
-                                return NULL; /* Not even enough space for the POSIX minimum (of 6)? In that
+                        만약 (n + 1 + _POSIX_TZNAME_MAX + 1 > l)
+                                반환 NULL; /* Not even enough space for the POSIX minimum (of 6)? In that
                                               * case, complain that it doesn't fit. */
 
                         /* So the time zone doesn't fit in fully, but the caller passed enough space for the
@@ -454,13 +454,13 @@ char* format_timestamp_style(
                          * order not to dump an overly long, hard to read string on the user. This should be
                          * safe, because the user will assume the local timezone anyway if none is shown. And
                          * so does parse_timestamp(). */
-                } else {
+                } 아니면 {
                         buf[n++] = ' ';
                         strcpy(buf + n, tm.tm_zone);
                 }
         }
 
-        return buf;
+        반환 buf;
 }
 
 char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t clock, bool implicit_left) {
@@ -469,19 +469,19 @@ char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t cl
 
         assert(buf);
 
-        if (!timestamp_is_set(t))
-                return NULL;
+        만약 (!timestamp_is_set(t))
+                반환 NULL;
 
         n = now(clock);
-        if (n > t) {
+        만약 (n > t) {
                 d = n - t;
                 s = " ago";
-        } else {
+        } 아니면 {
                 d = t - n;
                 s = implicit_left ? "" : " left";
         }
 
-        if (d >= USEC_PER_YEAR) {
+        만약 (d >= USEC_PER_YEAR) {
                 usec_t years = d / USEC_PER_YEAR;
                 usec_t months = (d % USEC_PER_YEAR) / USEC_PER_MONTH;
 
@@ -491,7 +491,7 @@ char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t cl
                                 months,
                                 months == 1 ? "month" : "months",
                                 s);
-        } else if (d >= USEC_PER_MONTH) {
+        } 아니면 만약 (d >= USEC_PER_MONTH) {
                 usec_t months = d / USEC_PER_MONTH;
                 usec_t days = (d % USEC_PER_MONTH) / USEC_PER_DAY;
 
@@ -501,7 +501,7 @@ char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t cl
                                 days,
                                 days == 1 ? "day" : "days",
                                 s);
-        } else if (d >= USEC_PER_WEEK) {
+        } 아니면 만약 (d >= USEC_PER_WEEK) {
                 usec_t weeks = d / USEC_PER_WEEK;
                 usec_t days = (d % USEC_PER_WEEK) / USEC_PER_DAY;
 
@@ -511,39 +511,39 @@ char* format_timestamp_relative_full(char *buf, size_t l, usec_t t, clockid_t cl
                                 days,
                                 days == 1 ? "day" : "days",
                                 s);
-        } else if (d >= 2*USEC_PER_DAY)
+        } 아니면 만약 (d >= 2*USEC_PER_DAY)
                 (void) snprintf(buf, l, USEC_FMT " days%s", d / USEC_PER_DAY,s);
-        else if (d >= 25*USEC_PER_HOUR)
+        아니면 만약 (d >= 25*USEC_PER_HOUR)
                 (void) snprintf(buf, l, "1 day " USEC_FMT "h%s",
                                 (d - USEC_PER_DAY) / USEC_PER_HOUR, s);
-        else if (d >= 6*USEC_PER_HOUR)
+        아니면 만약 (d >= 6*USEC_PER_HOUR)
                 (void) snprintf(buf, l, USEC_FMT "h%s",
                                 d / USEC_PER_HOUR, s);
-        else if (d >= USEC_PER_HOUR)
+        아니면 만약 (d >= USEC_PER_HOUR)
                 (void) snprintf(buf, l, USEC_FMT "h " USEC_FMT "min%s",
                                 d / USEC_PER_HOUR,
                                 (d % USEC_PER_HOUR) / USEC_PER_MINUTE, s);
-        else if (d >= 5*USEC_PER_MINUTE)
+        아니면 만약 (d >= 5*USEC_PER_MINUTE)
                 (void) snprintf(buf, l, USEC_FMT "min%s",
                                 d / USEC_PER_MINUTE, s);
-        else if (d >= USEC_PER_MINUTE)
+        아니면 만약 (d >= USEC_PER_MINUTE)
                 (void) snprintf(buf, l, USEC_FMT "min " USEC_FMT "s%s",
                                 d / USEC_PER_MINUTE,
                                 (d % USEC_PER_MINUTE) / USEC_PER_SEC, s);
-        else if (d >= USEC_PER_SEC)
+        아니면 만약 (d >= USEC_PER_SEC)
                 (void) snprintf(buf, l, USEC_FMT "s%s",
                                 d / USEC_PER_SEC, s);
-        else if (d >= USEC_PER_MSEC)
+        아니면 만약 (d >= USEC_PER_MSEC)
                 (void) snprintf(buf, l, USEC_FMT "ms%s",
                                 d / USEC_PER_MSEC, s);
-        else if (d > 0)
+        아니면 만약 (d > 0)
                 (void) snprintf(buf, l, USEC_FMT"us%s",
                                 d, s);
-        else
+        아니면
                 (void) snprintf(buf, l, "now");
 
         buf[l-1] = 0;
-        return buf;
+        반환 buf;
 }
 
 char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
@@ -567,54 +567,54 @@ char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
 
         assert(l > 0);
 
-        if (t == USEC_INFINITY) {
+        만약 (t == USEC_INFINITY) {
                 strncpy(p, "infinity", l-1);
                 p[l-1] = 0;
-                return p;
+                반환 p;
         }
 
-        if (t <= 0) {
+        만약 (t <= 0) {
                 strncpy(p, "0", l-1);
                 p[l-1] = 0;
-                return p;
+                반환 p;
         }
 
         /* The result of this function can be parsed with parse_sec */
 
         FOREACH_ELEMENT(i, table) {
-                int k = 0;
+                정수 k = 0;
                 size_t n;
                 bool done = false;
                 usec_t a, b;
 
-                if (t <= 0)
+                만약 (t <= 0)
                         break;
 
-                if (t < accuracy && something)
+                만약 (t < accuracy && something)
                         break;
 
-                if (t < i->usec)
+                만약 (t < i->usec)
                         continue;
 
-                if (l <= 1)
+                만약 (l <= 1)
                         break;
 
                 a = t / i->usec;
                 b = t % i->usec;
 
                 /* Let's see if we should shows this in dot notation */
-                if (t < USEC_PER_MINUTE && b > 0) {
+                만약 (t < USEC_PER_MINUTE && b > 0) {
                         signed char j = 0;
 
-                        for (usec_t cc = i->usec; cc > 1; cc /= 10)
+                        위해 (usec_t cc = i->usec; cc > 1; cc /= 10)
                                 j++;
 
-                        for (usec_t cc = accuracy; cc > 1; cc /= 10) {
+                        위해 (usec_t cc = accuracy; cc > 1; cc /= 10) {
                                 b /= 10;
                                 j--;
                         }
 
-                        if (j > 0) {
+                        만약 (j > 0) {
                                 k = snprintf(p, l,
                                              "%s"USEC_FMT".%0*"PRI_USEC"%s",
                                              p > buf ? " " : "",
@@ -629,7 +629,7 @@ char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
                 }
 
                 /* No? Then let's show it normally */
-                if (!done) {
+                만약 (!done) {
                         k = snprintf(p, l,
                                      "%s"USEC_FMT"%s",
                                      p > buf ? " " : "",
@@ -649,33 +649,33 @@ char* format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
 
         *p = 0;
 
-        return buf;
+        반환 buf;
 }
 
 const char* get_tzname(bool dst) {
         /* musl leaves the DST timezone name unset if there is no DST, map this back to no DST */
-        if (dst && isempty(tzname[1]))
+        만약 (dst && isempty(tzname[1]))
                 dst = false;
 
-        return empty_to_null(tzname[dst]);
+        반환 empty_to_null(tzname[dst]);
 }
 
-int parse_gmtoff(const char *t, long *ret) {
+정수 parse_gmtoff(const char *t, long *ret) {
         assert(t);
 
         struct tm tm;
         const char *k = strptime(t, "%z", &tm);
-        if (k && *k == '\0') {
+        만약 (k && *k == '\0') {
                 /* Success! */
-                if (ret)
+                만약 (ret)
                         *ret = tm.tm_gmtoff;
-                return 0;
+                반환 0;
         }
 
 #ifdef __GLIBC__
-        return -EINVAL;
-#else
-        int r;
+        반환 -EINVAL;
+#아니면
+        정수 r;
 
         /* musl v1.2.5 does not support %z specifier in strptime(). Since
          * https://github.com/kraj/musl/commit/fced99e93daeefb0192fd16304f978d4401d1d77
@@ -692,72 +692,72 @@ int parse_gmtoff(const char *t, long *ret) {
                 positive = false;
                 break;
         default:
-                return -EINVAL;
+                반환 -EINVAL;
         }
 
         t++;
         r = undecchar(*t);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         usec_t u = r * 10 * USEC_PER_HOUR;
 
         t++;
         r = undecchar(*t);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
         u += r * USEC_PER_HOUR;
 
         t++;
-        if (*t == '\0') /* 2 digits case */
+        만약 (*t == '\0') /* 2 digits case */
                 goto finalize;
 
-        if (*t == ':') /* skip colon */
+        만약 (*t == ':') /* skip colon */
                 t++;
 
         r = undecchar(*t);
-        if (r < 0)
-                return r;
-        if (r >= 6) /* refuse minutes equal to or larger than 60 */
-                return -EINVAL;
+        만약 (r < 0)
+                반환 r;
+        만약 (r >= 6) /* refuse minutes equal to or larger than 60 */
+                반환 -EINVAL;
 
         u += r * 10 * USEC_PER_MINUTE;
 
         t++;
         r = undecchar(*t);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         u += r * USEC_PER_MINUTE;
 
         t++;
-        if (*t != '\0')
-                return -EINVAL;
+        만약 (*t != '\0')
+                반환 -EINVAL;
 
 finalize:
-        if (u > USEC_PER_DAY) /* refuse larger than one day */
-                return -EINVAL;
+        만약 (u > USEC_PER_DAY) /* refuse larger than one day */
+                반환 -EINVAL;
 
-        if (ret) {
+        만약 (ret) {
                 long gmtoff = u / USEC_PER_SEC;
                 *ret = positive ? gmtoff : -gmtoff;
         }
 
-        return 0;
+        반환 0;
 #endif
 }
 
-static int parse_timestamp_impl(
+static 정수 parse_timestamp_impl(
                 const char *t,
                 size_t max_len,
                 bool utc,
-                int isdst,
+                정수 isdst,
                 long gmtoff,
                 usec_t *ret) {
 
         static const struct {
                 const char *name;
-                const int nr;
+                const 정수 nr;
         } day_nr[] = {
                 { "Sunday",    0 },
                 { "Sun",       0 },
@@ -778,7 +778,7 @@ static int parse_timestamp_impl(
         _cleanup_free_ char *t_alloc = NULL;
         usec_t usec, plus = 0, minus = 0;
         bool with_tz = false;
-        int r, weekday = -1;
+        정수 r, weekday = -1;
         unsigned fractional = 0;
         const char *k;
         struct tm tm, copy;
@@ -817,99 +817,99 @@ static int parse_timestamp_impl(
 
         assert(t);
 
-        if (max_len != SIZE_MAX) {
+        만약 (max_len != SIZE_MAX) {
                 /* If the input string contains timezone, then cut it here. */
 
-                if (max_len == 0) /* Can't be the only field */
-                        return -EINVAL;
+                만약 (max_len == 0) /* Can't be the only field */
+                        반환 -EINVAL;
 
                 t_alloc = strndup(t, max_len);
-                if (!t_alloc)
-                        return -ENOMEM;
+                만약 (!t_alloc)
+                        반환 -ENOMEM;
 
                 t = t_alloc;
                 with_tz = true;
         }
 
-        if (utc) {
+        만약 (utc) {
                 /* glibc accepts gmtoff more than 24 hours, but we refuse it. */
-                if ((usec_t) labs(gmtoff) * USEC_PER_SEC > USEC_PER_DAY)
-                        return -EINVAL;
-        } else {
-                if (gmtoff != 0)
-                        return -EINVAL;
+                만약 ((usec_t) labs(gmtoff) * USEC_PER_SEC > USEC_PER_DAY)
+                        반환 -EINVAL;
+        } 아니면 {
+                만약 (gmtoff != 0)
+                        반환 -EINVAL;
         }
 
-        if (t[0] == '@' && !with_tz)
-                return parse_sec(t + 1, ret);
+        만약 (t[0] == '@' && !with_tz)
+                반환 parse_sec(t + 1, ret);
 
         usec = now(CLOCK_REALTIME);
 
-        if (!with_tz) {
-                if (streq(t, "now"))
+        만약 (!with_tz) {
+                만약 (streq(t, "now"))
                         goto finish;
 
-                if (t[0] == '+') {
+                만약 (t[0] == '+') {
                         r = parse_sec(t+1, &plus);
-                        if (r < 0)
-                                return r;
+                        만약 (r < 0)
+                                반환 r;
 
                         goto finish;
                 }
 
-                if (t[0] == '-') {
+                만약 (t[0] == '-') {
                         r = parse_sec(t+1, &minus);
-                        if (r < 0)
-                                return r;
+                        만약 (r < 0)
+                                반환 r;
 
                         goto finish;
                 }
 
-                if ((k = endswith(t, " ago"))) {
+                만약 ((k = endswith(t, " ago"))) {
                         _cleanup_free_ char *buf = NULL;
 
                         buf = strndup(t, k - t);
-                        if (!buf)
-                                return -ENOMEM;
+                        만약 (!buf)
+                                반환 -ENOMEM;
 
                         r = parse_sec(buf, &minus);
-                        if (r < 0)
-                                return r;
+                        만약 (r < 0)
+                                반환 r;
 
                         goto finish;
                 }
 
-                if ((k = endswith(t, " left"))) {
+                만약 ((k = endswith(t, " left"))) {
                         _cleanup_free_ char *buf = NULL;
 
                         buf = strndup(t, k - t);
-                        if (!buf)
-                                return -ENOMEM;
+                        만약 (!buf)
+                                반환 -ENOMEM;
 
                         r = parse_sec(buf, &plus);
-                        if (r < 0)
-                                return r;
+                        만약 (r < 0)
+                                반환 r;
 
                         goto finish;
                 }
         }
 
         r = localtime_or_gmtime_usec(usec, utc, &tm);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         tm.tm_isdst = isdst;
 
-        if (streq(t, "today")) {
+        만약 (streq(t, "today")) {
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
                 goto from_tm;
 
-        } else if (streq(t, "yesterday")) {
+        } 아니면 만약 (streq(t, "yesterday")) {
                 tm.tm_mday--;
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
                 goto from_tm;
 
-        } else if (streq(t, "tomorrow")) {
+        } 아니면 만약 (streq(t, "tomorrow")) {
                 tm.tm_mday++;
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
                 goto from_tm;
@@ -917,7 +917,7 @@ static int parse_timestamp_impl(
 
         FOREACH_ELEMENT(day, day_nr) {
                 k = startswith_no_case(t, day->name);
-                if (!k || *k != ' ')
+                만약 (!k || *k != ' ')
                         continue;
 
 #ifdef __GLIBC__
@@ -931,46 +931,46 @@ static int parse_timestamp_impl(
 
         copy = tm;
         k = strptime(t, "%y-%m-%d %H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
+        만약 (k) {
+                만약 (*k == '.')
                         goto parse_usec;
-                else if (*k == 0)
+                아니면 만약 (*k == 0)
                         goto from_tm;
         }
 
         /* Our "canonical" RFC3339 syntax variant */
         tm = copy;
         k = strptime(t, "%Y-%m-%d %H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
+        만약 (k) {
+                만약 (*k == '.')
                         goto parse_usec;
-                else if (*k == 0)
+                아니면 만약 (*k == 0)
                         goto from_tm;
         }
 
         /* RFC3339 syntax */
         tm = copy;
         k = strptime(t, "%Y-%m-%dT%H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
+        만약 (k) {
+                만약 (*k == '.')
                         goto parse_usec;
-                else if (*k == 0)
+                아니면 만약 (*k == 0)
                         goto from_tm;
         }
 
         /* Support OUTPUT_SHORT and OUTPUT_SHORT_PRECISE formats */
         tm = copy;
         k = strptime(t, "%b %d %H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
+        만약 (k) {
+                만약 (*k == '.')
                         goto parse_usec;
-                else if (*k == 0)
+                아니면 만약 (*k == 0)
                         goto from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%y-%m-%d %H:%M", &tm);
-        if (k && *k == 0) {
+        만약 (k && *k == 0) {
                 tm.tm_sec = 0;
                 goto from_tm;
         }
@@ -978,7 +978,7 @@ static int parse_timestamp_impl(
         /* Our "canonical" RFC3339 syntax variant without seconds */
         tm = copy;
         k = strptime(t, "%Y-%m-%d %H:%M", &tm);
-        if (k && *k == 0) {
+        만약 (k && *k == 0) {
                 tm.tm_sec = 0;
                 goto from_tm;
         }
@@ -986,59 +986,59 @@ static int parse_timestamp_impl(
         /* RFC3339 syntax without seconds */
         tm = copy;
         k = strptime(t, "%Y-%m-%dT%H:%M", &tm);
-        if (k && *k == 0) {
+        만약 (k && *k == 0) {
                 tm.tm_sec = 0;
                 goto from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%y-%m-%d", &tm);
-        if (k && *k == 0) {
+        만약 (k && *k == 0) {
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
                 goto from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%Y-%m-%d", &tm);
-        if (k && *k == 0) {
+        만약 (k && *k == 0) {
                 tm.tm_sec = tm.tm_min = tm.tm_hour = 0;
                 goto from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%H:%M:%S", &tm);
-        if (k) {
-                if (*k == '.')
+        만약 (k) {
+                만약 (*k == '.')
                         goto parse_usec;
-                else if (*k == 0)
+                아니면 만약 (*k == 0)
                         goto from_tm;
         }
 
         tm = copy;
         k = strptime(t, "%H:%M", &tm);
-        if (k && *k == 0) {
+        만약 (k && *k == 0) {
                 tm.tm_sec = 0;
                 goto from_tm;
         }
 
-        return -EINVAL;
+        반환 -EINVAL;
 
 parse_usec:
         k++;
         r = parse_fractional_part_u(&k, 6, &fractional);
-        if (r < 0)
-                return -EINVAL;
-        if (*k != '\0')
-                return -EINVAL;
+        만약 (r < 0)
+                반환 -EINVAL;
+        만약 (*k != '\0')
+                반환 -EINVAL;
 
 from_tm:
         assert(plus == 0);
         assert(minus == 0);
 
-        if (weekday >= 0 && tm.tm_wday != weekday)
-                return -EINVAL;
+        만약 (weekday >= 0 && tm.tm_wday != weekday)
+                반환 -EINVAL;
 
-        if (gmtoff < 0) {
+        만약 (gmtoff < 0) {
                 plus = -gmtoff * USEC_PER_SEC;
 
                 /* If gmtoff is negative, the string may be too old to be parsed as UTC.
@@ -1046,7 +1046,7 @@ from_tm:
                  * We assumed that gmtoff is in the range of -24:00…+24:00, hence the only date we need to
                  * handle here is 1969-12-31. So, let's shift the date with one day, then subtract the shift
                  * later. */
-                if (tm.tm_year == 69 && tm.tm_mon == 11 && tm.tm_mday == 31) {
+                만약 (tm.tm_year == 69 && tm.tm_mon == 11 && tm.tm_mday == 31) {
                         /* Thu 1970-01-01-00:00:00 */
                         tm.tm_year = 70;
                         tm.tm_mon = 0;
@@ -1055,93 +1055,93 @@ from_tm:
                         tm.tm_yday = 0;
                         minus = USEC_PER_DAY;
                 }
-        } else
+        } 아니면
                 minus = gmtoff * USEC_PER_SEC;
 
         r = mktime_or_timegm_usec(&tm, utc, &usec);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         usec = usec_add(usec, fractional);
 
 finish:
         usec = usec_add(usec, plus);
 
-        if (usec < minus)
-                return -EINVAL;
+        만약 (usec < minus)
+                반환 -EINVAL;
 
         usec = usec_sub_unsigned(usec, minus);
 
-        if (usec > USEC_TIMESTAMP_FORMATTABLE_MAX)
-                return -EINVAL;
+        만약 (usec > USEC_TIMESTAMP_FORMATTABLE_MAX)
+                반환 -EINVAL;
 
-        if (ret)
+        만약 (ret)
                 *ret = usec;
-        return 0;
+        반환 0;
 }
 
-int parse_timestamp(const char *t, usec_t *ret) {
+정수 parse_timestamp(const char *t, usec_t *ret) {
         long gmtoff;
-        int r;
+        정수 r;
 
         assert(t);
 
         size_t t_len = strlen(t);
-        if (t_len > 2 && t[t_len - 1] == 'Z') {
+        만약 (t_len > 2 && t[t_len - 1] == 'Z') {
                 /* Try to parse as RFC3339-style welded UTC: "1985-04-12T23:20:50.52Z" */
                 r = parse_timestamp_impl(t, t_len - 1, /* utc= */ true, /* isdst= */ -1, /* gmtoff= */ 0, ret);
-                if (r >= 0)
-                        return r;
+                만약 (r >= 0)
+                        반환 r;
         }
 
         /* RFC3339-style welded offset: "1990-12-31T15:59:60-08:00" */
-        if (t_len > 7 && IN_SET(t[t_len - 6], '+', '-') && t[t_len - 7] != ' ' && parse_gmtoff(&t[t_len - 6], &gmtoff) >= 0)
-                return parse_timestamp_impl(t, t_len - 6, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
+        만약 (t_len > 7 && IN_SET(t[t_len - 6], '+', '-') && t[t_len - 7] != ' ' && parse_gmtoff(&t[t_len - 6], &gmtoff) >= 0)
+                반환 parse_timestamp_impl(t, t_len - 6, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
 
         const char *tz = strrchr(t, ' ');
-        if (!tz)
-                return parse_timestamp_impl(t, /* max_len= */ SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+        만약 (!tz)
+                반환 parse_timestamp_impl(t, /* max_len= */ SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
 
         size_t max_len = tz - t;
         tz++;
 
         /* Shortcut, parse the string as UTC. */
-        if (streq(tz, "UTC"))
-                return parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+        만약 (streq(tz, "UTC"))
+                반환 parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, /* gmtoff= */ 0, ret);
 
         /* If the timezone is compatible with RFC-822/ISO 8601 (e.g. +06, or -03:00) then parse the string as
          * UTC and shift the result. Note, this must be earlier than the timezone check with tzname[], as
          * tzname[] may be in the same format. */
-        if (parse_gmtoff(tz, &gmtoff) >= 0)
-                return parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
+        만약 (parse_gmtoff(tz, &gmtoff) >= 0)
+                반환 parse_timestamp_impl(t, max_len, /* utc= */ true, /* isdst= */ -1, gmtoff, ret);
 
         /* Check if the last word matches tzname[] of the local timezone. Note, this must be done earlier
          * than the check by timezone_is_valid() below, as some short timezone specifications have their own
          * timezone files (e.g. WET has its own timezone file, but JST does not), but using such files does
          * not follow the timezone change in the current area. */
         tzset();
-        for (int j = 0; j <= 1; j++) {
-                if (!streq_ptr(tz, get_tzname(j)))
+        위해 (정수 j = 0; j <= 1; j++) {
+                만약 (!streq_ptr(tz, get_tzname(j)))
                         continue;
 
                 /* The specified timezone matches tzname[] of the local timezone. */
-                return parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ j, /* gmtoff= */ 0, ret);
+                반환 parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ j, /* gmtoff= */ 0, ret);
         }
 
         /* If the last word is a valid timezone file (e.g. Asia/Tokyo), then save the current timezone, apply
          * the specified timezone, and parse the remaining string as a local time. */
-        if (timezone_is_valid(tz, LOG_DEBUG)) {
+        만약 (timezone_is_valid(tz, LOG_DEBUG)) {
                 SAVE_TIMEZONE;
 
-                if (setenv("TZ", tz, /* overwrite= */ true) < 0)
-                        return negative_errno();
+                만약 (setenv("TZ", tz, /* overwrite= */ true) < 0)
+                        반환 negative_errno();
 
-                return parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+                반환 parse_timestamp_impl(t, max_len, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
         }
 
         /* Otherwise, assume that the last word is a part of the time and try to parse the whole string as a
          * local time. */
-        return parse_timestamp_impl(t, SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
+        반환 parse_timestamp_impl(t, SIZE_MAX, /* utc= */ false, /* isdst= */ -1, /* gmtoff= */ 0, ret);
 }
 
 static const char* extract_multiplier(const char *p, usec_t *ret) {
@@ -1186,16 +1186,16 @@ static const char* extract_multiplier(const char *p, usec_t *ret) {
 
         FOREACH_ELEMENT(i, table) {
                 const char *e = startswith(p, i->suffix);
-                if (e) {
+                만약 (e) {
                         *ret = i->usec;
-                        return e;
+                        반환 e;
                 }
         }
 
-        return p;
+        반환 p;
 }
 
-int parse_time(const char *t, usec_t *ret, usec_t default_unit) {
+정수 parse_time(const char *t, usec_t *ret, usec_t default_unit) {
         const char *p, *s;
 
         assert(t);
@@ -1203,118 +1203,118 @@ int parse_time(const char *t, usec_t *ret, usec_t default_unit) {
 
         p = skip_leading_chars(t, /* bad= */ NULL);
         s = startswith(p, "infinity");
-        if (s) {
-                if (!in_charset(s, WHITESPACE))
-                        return -EINVAL;
+        만약 (s) {
+                만약 (!in_charset(s, WHITESPACE))
+                        반환 -EINVAL;
 
-                if (ret)
+                만약 (ret)
                         *ret = USEC_INFINITY;
-                return 0;
+                반환 0;
         }
 
         usec_t usec = 0;
 
-        for (bool something = false;;) {
+        위해 (bool something = false;;) {
                 usec_t multiplier = default_unit, k;
                 long long l;
                 char *e;
 
                 p = skip_leading_chars(p, /* bad= */ NULL);
-                if (*p == 0) {
-                        if (!something)
-                                return -EINVAL;
+                만약 (*p == 0) {
+                        만약 (!something)
+                                반환 -EINVAL;
 
                         break;
                 }
 
-                if (*p == '-') /* Don't allow "-0" */
-                        return -ERANGE;
+                만약 (*p == '-') /* Don't allow "-0" */
+                        반환 -ERANGE;
 
                 errno = 0;
                 l = strtoll(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (l < 0)
-                        return -ERANGE;
+                만약 (errno > 0)
+                        반환 -errno;
+                만약 (l < 0)
+                        반환 -ERANGE;
 
-                if (*e == '.') {
+                만약 (*e == '.') {
                         p = e + 1;
                         p += strspn(p, DIGITS);
-                } else if (e == p)
-                        return -EINVAL;
-                else
+                } 아니면 만약 (e == p)
+                        반환 -EINVAL;
+                아니면
                         p = e;
 
                 s = extract_multiplier(p + strspn(p, WHITESPACE), &multiplier);
-                if (s == p && *s != '\0')
+                만약 (s == p && *s != '\0')
                         /* Don't allow '12.34.56', but accept '12.34 .56' or '12.34s.56' */
-                        return -EINVAL;
+                        반환 -EINVAL;
 
                 p = s;
 
-                if ((usec_t) l >= USEC_INFINITY / multiplier)
-                        return -ERANGE;
+                만약 ((usec_t) l >= USEC_INFINITY / multiplier)
+                        반환 -ERANGE;
 
                 k = (usec_t) l * multiplier;
-                if (k >= USEC_INFINITY - usec)
-                        return -ERANGE;
+                만약 (k >= USEC_INFINITY - usec)
+                        반환 -ERANGE;
 
                 usec += k;
 
                 something = true;
 
-                if (*e == '.') {
+                만약 (*e == '.') {
                         usec_t m = multiplier / 10;
                         const char *b;
 
-                        for (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
+                        위해 (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
                                 k = (usec_t) (*b - '0') * m;
-                                if (k >= USEC_INFINITY - usec)
-                                        return -ERANGE;
+                                만약 (k >= USEC_INFINITY - usec)
+                                        반환 -ERANGE;
 
                                 usec += k;
                         }
 
                         /* Don't allow "0.-0", "3.+1", "3. 1", "3.sec" or "3.hoge" */
-                        if (b == e + 1)
-                                return -EINVAL;
+                        만약 (b == e + 1)
+                                반환 -EINVAL;
                 }
         }
 
-        if (ret)
+        만약 (ret)
                 *ret = usec;
-        return 0;
+        반환 0;
 }
 
-int parse_sec(const char *t, usec_t *ret) {
-        return parse_time(t, ret, USEC_PER_SEC);
+정수 parse_sec(const char *t, usec_t *ret) {
+        반환 parse_time(t, ret, USEC_PER_SEC);
 }
 
-int parse_sec_fix_0(const char *t, usec_t *ret) {
+정수 parse_sec_fix_0(const char *t, usec_t *ret) {
         usec_t k;
-        int r;
+        정수 r;
 
         assert(t);
         assert(ret);
 
         r = parse_sec(t, &k);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         *ret = k == 0 ? USEC_INFINITY : k;
-        return r;
+        반환 r;
 }
 
-int parse_sec_def_infinity(const char *t, usec_t *ret) {
+정수 parse_sec_def_infinity(const char *t, usec_t *ret) {
         assert(t);
         assert(ret);
 
         t += strspn(t, WHITESPACE);
-        if (isempty(t)) {
+        만약 (isempty(t)) {
                 *ret = USEC_INFINITY;
-                return 0;
+                반환 0;
         }
-        return parse_sec(t, ret);
+        반환 parse_sec(t, ret);
 }
 
 static const char* extract_nsec_multiplier(const char *p, nsec_t *ret) {
@@ -1362,16 +1362,16 @@ static const char* extract_nsec_multiplier(const char *p, nsec_t *ret) {
 
         FOREACH_ELEMENT(i, table) {
                 const char *e = startswith(p, i->suffix);
-                if (e) {
+                만약 (e) {
                         *ret = i->nsec;
-                        return e;
+                        반환 e;
                 }
         }
 
-        return p;
+        반환 p;
 }
 
-int parse_nsec(const char *t, nsec_t *ret) {
+정수 parse_nsec(const char *t, nsec_t *ret) {
         const char *p, *s;
         nsec_t nsec = 0;
         bool something = false;
@@ -1383,106 +1383,106 @@ int parse_nsec(const char *t, nsec_t *ret) {
 
         p += strspn(p, WHITESPACE);
         s = startswith(p, "infinity");
-        if (s) {
+        만약 (s) {
                 s += strspn(s, WHITESPACE);
-                if (*s != 0)
-                        return -EINVAL;
+                만약 (*s != 0)
+                        반환 -EINVAL;
 
                 *ret = NSEC_INFINITY;
-                return 0;
+                반환 0;
         }
 
-        for (;;) {
+        위해 (;;) {
                 nsec_t multiplier = 1, k;
                 long long l;
                 char *e;
 
                 p += strspn(p, WHITESPACE);
 
-                if (*p == 0) {
-                        if (!something)
-                                return -EINVAL;
+                만약 (*p == 0) {
+                        만약 (!something)
+                                반환 -EINVAL;
 
                         break;
                 }
 
-                if (*p == '-') /* Don't allow "-0" */
-                        return -ERANGE;
+                만약 (*p == '-') /* Don't allow "-0" */
+                        반환 -ERANGE;
 
                 errno = 0;
                 l = strtoll(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (l < 0)
-                        return -ERANGE;
+                만약 (errno > 0)
+                        반환 -errno;
+                만약 (l < 0)
+                        반환 -ERANGE;
 
-                if (*e == '.') {
+                만약 (*e == '.') {
                         p = e + 1;
                         p += strspn(p, DIGITS);
-                } else if (e == p)
-                        return -EINVAL;
-                else
+                } 아니면 만약 (e == p)
+                        반환 -EINVAL;
+                아니면
                         p = e;
 
                 s = extract_nsec_multiplier(p + strspn(p, WHITESPACE), &multiplier);
-                if (s == p && *s != '\0')
+                만약 (s == p && *s != '\0')
                         /* Don't allow '12.34.56', but accept '12.34 .56' or '12.34s.56' */
-                        return -EINVAL;
+                        반환 -EINVAL;
 
                 p = s;
 
-                if ((nsec_t) l >= NSEC_INFINITY / multiplier)
-                        return -ERANGE;
+                만약 ((nsec_t) l >= NSEC_INFINITY / multiplier)
+                        반환 -ERANGE;
 
                 k = (nsec_t) l * multiplier;
-                if (k >= NSEC_INFINITY - nsec)
-                        return -ERANGE;
+                만약 (k >= NSEC_INFINITY - nsec)
+                        반환 -ERANGE;
 
                 nsec += k;
 
                 something = true;
 
-                if (*e == '.') {
+                만약 (*e == '.') {
                         nsec_t m = multiplier / 10;
                         const char *b;
 
-                        for (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
+                        위해 (b = e + 1; *b >= '0' && *b <= '9'; b++, m /= 10) {
                                 k = (nsec_t) (*b - '0') * m;
-                                if (k >= NSEC_INFINITY - nsec)
-                                        return -ERANGE;
+                                만약 (k >= NSEC_INFINITY - nsec)
+                                        반환 -ERANGE;
 
                                 nsec += k;
                         }
 
                         /* Don't allow "0.-0", "3.+1", "3. 1", "3.sec" or "3.hoge" */
-                        if (b == e + 1)
-                                return -EINVAL;
+                        만약 (b == e + 1)
+                                반환 -EINVAL;
                 }
         }
 
         *ret = nsec;
 
-        return 0;
+        반환 0;
 }
 
-static int get_timezones_from_zone1970_tab(char ***ret) {
+static 정수 get_timezones_from_zone1970_tab(char ***ret) {
         _cleanup_fclose_ FILE *f = NULL;
         _cleanup_strv_free_ char **zones = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
         f = fopen("/usr/share/zoneinfo/zone1970.tab", "re");
-        if (!f)
-                return -errno;
+        만약 (!f)
+                반환 -errno;
 
-        for (;;) {
+        위해 (;;) {
                 _cleanup_free_ char *line = NULL, *cc = NULL, *co = NULL, *tz = NULL;
 
                 r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                만약 (r < 0)
+                        반환 r;
+                만약 (r == 0)
                         break;
 
                 const char *p = line;
@@ -1490,44 +1490,44 @@ static int get_timezones_from_zone1970_tab(char ***ret) {
                 /* Line format is:
                  * 'country codes' 'coordinates' 'timezone' 'comments' */
                 r = extract_many_words(&p, NULL, 0, &cc, &co, &tz);
-                if (r < 0)
+                만약 (r < 0)
                         continue;
 
                 /* Lines that start with # are comments. */
-                if (*cc == '#')
+                만약 (*cc == '#')
                         continue;
 
-                if (!timezone_is_valid(tz, LOG_DEBUG))
+                만약 (!timezone_is_valid(tz, LOG_DEBUG))
                         /* Don't list unusable timezones. */
                         continue;
 
                 r = strv_extend(&zones, tz);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
         }
 
         *ret = TAKE_PTR(zones);
-        return 0;
+        반환 0;
 }
 
-static int get_timezones_from_tzdata_zi(char ***ret) {
+static 정수 get_timezones_from_tzdata_zi(char ***ret) {
         _cleanup_fclose_ FILE *f = NULL;
         _cleanup_strv_free_ char **zones = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
         f = fopen("/usr/share/zoneinfo/tzdata.zi", "re");
-        if (!f)
-                return -errno;
+        만약 (!f)
+                반환 -errno;
 
-        for (;;) {
+        위해 (;;) {
                 _cleanup_free_ char *line = NULL, *type = NULL, *f1 = NULL, *f2 = NULL;
 
                 r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                만약 (r < 0)
+                        반환 r;
+                만약 (r == 0)
                         break;
 
                 const char *p = line;
@@ -1539,119 +1539,119 @@ static int get_timezones_from_tzdata_zi(char ***ret) {
                  * 'Link' 'target' 'alias'
                  * See 'man zic' for more detail. */
                 r = extract_many_words(&p, NULL, 0, &type, &f1, &f2);
-                if (r < 0)
+                만약 (r < 0)
                         continue;
 
                 char *tz;
-                if (IN_SET(*type, 'Z', 'z'))
+                만약 (IN_SET(*type, 'Z', 'z'))
                         /* Zone lines have timezone in field 1. */
                         tz = f1;
-                else if (IN_SET(*type, 'L', 'l'))
+                아니면 만약 (IN_SET(*type, 'L', 'l'))
                         /* Link lines have timezone in field 2. */
                         tz = f2;
-                else
+                아니면
                         /* Not a line we care about. */
                         continue;
 
-                if (!timezone_is_valid(tz, LOG_DEBUG))
+                만약 (!timezone_is_valid(tz, LOG_DEBUG))
                         /* Don't list unusable timezones. */
                         continue;
 
                 r = strv_extend(&zones, tz);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
         }
 
         *ret = TAKE_PTR(zones);
-        return 0;
+        반환 0;
 }
 
-int get_timezones(char ***ret) {
+정수 get_timezones(char ***ret) {
         _cleanup_strv_free_ char **zones = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = get_timezones_from_tzdata_zi(&zones);
-        if (r == -ENOENT) {
+        만약 (r == -ENOENT) {
                 log_debug_errno(r, "Could not get timezone data from tzdata.zi, using zone1970.tab: %m");
                 r = get_timezones_from_zone1970_tab(&zones);
-                if (r == -ENOENT)
+                만약 (r == -ENOENT)
                         log_debug_errno(r, "Could not get timezone data from zone1970.tab, using UTC: %m");
         }
-        if (r < 0 && r != -ENOENT)
-                return r;
+        만약 (r < 0 && r != -ENOENT)
+                반환 r;
 
         /* Always include UTC */
         r = strv_extend(&zones, "UTC");
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         strv_sort_uniq(zones);
 
         *ret = TAKE_PTR(zones);
-        return 0;
+        반환 0;
 }
 
-int verify_timezone(const char *name, int log_level) {
+정수 verify_timezone(const char *name, 정수 log_level) {
         bool slash = false;
         const char *p, *t;
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ 정수 fd = -EBADF;
         char buf[4];
-        int r;
+        정수 r;
 
-        if (isempty(name))
-                return -EINVAL;
+        만약 (isempty(name))
+                반환 -EINVAL;
 
         /* Always accept "UTC" as valid timezone, since it's the fallback, even if user has no timezones installed. */
-        if (streq(name, "UTC"))
-                return 0;
+        만약 (streq(name, "UTC"))
+                반환 0;
 
-        if (name[0] == '/')
-                return -EINVAL;
+        만약 (name[0] == '/')
+                반환 -EINVAL;
 
-        for (p = name; *p; p++) {
-                if (!ascii_isdigit(*p) &&
+        위해 (p = name; *p; p++) {
+                만약 (!ascii_isdigit(*p) &&
                     !ascii_isalpha(*p) &&
                     !IN_SET(*p, '-', '_', '+', '/'))
-                        return -EINVAL;
+                        반환 -EINVAL;
 
-                if (*p == '/') {
+                만약 (*p == '/') {
 
-                        if (slash)
-                                return -EINVAL;
+                        만약 (slash)
+                                반환 -EINVAL;
 
                         slash = true;
-                } else
+                } 아니면
                         slash = false;
         }
 
-        if (slash)
-                return -EINVAL;
+        만약 (slash)
+                반환 -EINVAL;
 
-        if (p - name >= PATH_MAX)
-                return -ENAMETOOLONG;
+        만약 (p - name >= PATH_MAX)
+                반환 -ENAMETOOLONG;
 
         t = strjoina("/usr/share/zoneinfo/", name);
 
         fd = open(t, O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return log_full_errno(log_level, errno, "Failed to open timezone file '%s': %m", t);
+        만약 (fd < 0)
+                반환 log_full_errno(log_level, errno, "Failed to open timezone file '%s': %m", t);
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Timezone file '%s' is not a regular file: %m", t);
+        만약 (r < 0)
+                반환 log_full_errno(log_level, r, "Timezone file '%s' is not a regular file: %m", t);
 
         r = loop_read_exact(fd, buf, 4, false);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to read from timezone file '%s': %m", t);
+        만약 (r < 0)
+                반환 log_full_errno(log_level, r, "Failed to read from timezone file '%s': %m", t);
 
         /* Magic from tzfile(5) */
-        if (memcmp(buf, "TZif", 4) != 0)
-                return log_full_errno(log_level, SYNTHETIC_ERRNO(EBADMSG),
+        만약 (memcmp(buf, "TZif", 4) != 0)
+                반환 log_full_errno(log_level, SYNTHETIC_ERRNO(EBADMSG),
                                       "Timezone file '%s' has wrong magic bytes", t);
 
-        return 0;
+        반환 0;
 }
 
 void reset_timezonep(char **p) {
@@ -1664,14 +1664,14 @@ void reset_timezonep(char **p) {
 
 char* save_timezone(void) {
         const char *e = getenv("TZ");
-        if (!e)
-                return NULL;
+        만약 (!e)
+                반환 NULL;
 
         char *s = strdup(e);
-        if (!s)
+        만약 (!s)
                 log_debug("Failed to save $TZ=%s, unsetting the environment variable.", e);
 
-        return s;
+        반환 s;
 }
 
 bool clock_supported(clockid_t clock) {
@@ -1683,56 +1683,56 @@ bool clock_supported(clockid_t clock) {
         case CLOCK_REALTIME:
         case CLOCK_BOOTTIME:
                 /* These three are always available in our baseline, and work in timerfd, as of kernel 3.15 */
-                return true;
+                반환 true;
 
         default:
                 /* For everything else, check properly */
-                return clock_gettime(clock, &ts) >= 0;
+                반환 clock_gettime(clock, &ts) >= 0;
         }
 }
 
-int get_timezone(char **ret) {
+정수 get_timezone(char **ret) {
         _cleanup_free_ char *t = NULL;
-        int r;
+        정수 r;
 
         assert(ret);
 
         r = readlink_malloc(etc_localtime(), &t);
-        if (r == -ENOENT)
+        만약 (r == -ENOENT)
                 /* If the symlink does not exist, assume "UTC", like glibc does */
-                return strdup_to(ret, "UTC");
-        if (r < 0)
-                return r; /* Return EINVAL if not a symlink */
+                반환 strdup_to(ret, "UTC");
+        만약 (r < 0)
+                반환 r; /* Return EINVAL if not a symlink */
 
         const char *e = PATH_STARTSWITH_SET(t, "/usr/share/zoneinfo/", "../usr/share/zoneinfo/");
-        if (!e)
-                return -EINVAL;
-        if (!timezone_is_valid(e, LOG_DEBUG))
-                return -EINVAL;
+        만약 (!e)
+                반환 -EINVAL;
+        만약 (!timezone_is_valid(e, LOG_DEBUG))
+                반환 -EINVAL;
 
-        return strdup_to(ret, e);
+        반환 strdup_to(ret, e);
 }
 
-int get_timezone_prefer_env(char **ret) {
+정수 get_timezone_prefer_env(char **ret) {
         assert(ret);
 
         const char *e = getenv("TZ");
-        if (e && e[0] == ':' && timezone_is_valid(e + 1, LOG_DEBUG))
-                return strdup_to(ret, e + 1);
+        만약 (e && e[0] == ':' && timezone_is_valid(e + 1, LOG_DEBUG))
+                반환 strdup_to(ret, e + 1);
 
-        return get_timezone(ret);
+        반환 get_timezone(ret);
 }
 
 const char* etc_localtime(void) {
         static const char *cached = NULL;
 
-        if (!cached)
+        만약 (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_LOCALTIME") ?: "/etc/localtime";
 
-        return cached;
+        반환 cached;
 }
 
-int mktime_or_timegm_usec(
+정수 mktime_or_timegm_usec(
                 struct tm *tm, /* input + normalized output */
                 bool utc,
                 usec_t *ret) {
@@ -1741,10 +1741,10 @@ int mktime_or_timegm_usec(
 
         assert(tm);
 
-        if (tm->tm_year < 69) /* early check for negative (i.e. before 1970) time_t (Note that in some timezones the epoch is in the year 1969!) */
-                return -ERANGE;
-        if ((usec_t) tm->tm_year > CONST_MIN(USEC_INFINITY / USEC_PER_YEAR, (usec_t) TIME_T_MAX / (365U * 24U * 60U * 60U)) - 1900) /* early check for possible overrun of usec_t or time_t */
-                return -ERANGE;
+        만약 (tm->tm_year < 69) /* early check for negative (i.e. before 1970) time_t (Note that in some timezones the epoch is in the year 1969!) */
+                반환 -ERANGE;
+        만약 ((usec_t) tm->tm_year > CONST_MIN(USEC_INFINITY / USEC_PER_YEAR, (usec_t) TIME_T_MAX / (365U * 24U * 60U * 60U)) - 1900) /* early check for possible overrun of usec_t or time_t */
+                반환 -ERANGE;
 
         /* timegm()/mktime() is a bit weird to use, since it returns -1 in two cases: on error as well as a
          * valid time indicating one second before the UNIX epoch. Let's treat both cases the same here, and
@@ -1752,86 +1752,86 @@ int mktime_or_timegm_usec(
          * negative times anyway. */
 
         t = utc ? timegm(tm) : mktime(tm);
-        if (t < 0) /* Refuse negative times and errors */
-                return -ERANGE;
-        if ((usec_t) t >= USEC_INFINITY / USEC_PER_SEC) /* Never return USEC_INFINITY by accident (or overflow) */
-                return -ERANGE;
+        만약 (t < 0) /* Refuse negative times and errors */
+                반환 -ERANGE;
+        만약 ((usec_t) t >= USEC_INFINITY / USEC_PER_SEC) /* Never return USEC_INFINITY by accident (or overflow) */
+                반환 -ERANGE;
 
-        if (ret)
+        만약 (ret)
                 *ret = (usec_t) t * USEC_PER_SEC;
-        return 0;
+        반환 0;
 }
 
-int localtime_or_gmtime_usec(
+정수 localtime_or_gmtime_usec(
                 usec_t t,
                 bool utc,
                 struct tm *ret) {
 
         t /= USEC_PER_SEC; /* Round down */
-        if (t > (usec_t) TIME_T_MAX)
-                return -ERANGE;
+        만약 (t > (usec_t) TIME_T_MAX)
+                반환 -ERANGE;
         time_t sec = (time_t) t;
 
         struct tm buf = {};
-        if (!(utc ? gmtime_r(&sec, &buf) : localtime_r(&sec, &buf)))
-                return -EINVAL;
+        만약 (!(utc ? gmtime_r(&sec, &buf) : localtime_r(&sec, &buf)))
+                반환 -EINVAL;
 
-        if (ret)
+        만약 (ret)
                 *ret = buf;
 
-        return 0;
+        반환 0;
 }
 
 uint64_t sysconf_clock_ticks_cached(void) {
         static thread_local uint64_t hz = 0;
 
-        if (hz != 0)
-                return hz;
+        만약 (hz != 0)
+                반환 hz;
 
         long t = sysconf(_SC_CLK_TCK);
         assert(t > 0);
         hz = (uint64_t) t;
 
-        return hz;
+        반환 hz;
 }
 
 uint32_t usec_to_jiffies(usec_t u) {
         uint64_t hz = sysconf_clock_ticks_cached();
-        return DIV_ROUND_UP(u, USEC_PER_SEC / hz);
+        반환 DIV_ROUND_UP(u, USEC_PER_SEC / hz);
 }
 
 usec_t jiffies_to_usec(uint32_t j) {
         uint64_t hz = sysconf_clock_ticks_cached();
-        return DIV_ROUND_UP(j * USEC_PER_SEC, hz);
+        반환 DIV_ROUND_UP(j * USEC_PER_SEC, hz);
 }
 
 usec_t usec_shift_clock(usec_t x, clockid_t from, clockid_t to) {
         usec_t a, b;
 
-        if (x == USEC_INFINITY)
-                return USEC_INFINITY;
-        if (map_clock_id(from) == map_clock_id(to))
-                return x;
+        만약 (x == USEC_INFINITY)
+                반환 USEC_INFINITY;
+        만약 (map_clock_id(from) == map_clock_id(to))
+                반환 x;
 
         a = now(from);
         b = now(to);
 
-        if (x > a)
+        만약 (x > a)
                 /* x lies in the future */
-                return usec_add(b, usec_sub_unsigned(x, a));
-        else
+                반환 usec_add(b, usec_sub_unsigned(x, a));
+        아니면
                 /* x lies in the past */
-                return usec_sub_unsigned(b, usec_sub_unsigned(a, x));
+                반환 usec_sub_unsigned(b, usec_sub_unsigned(a, x));
 }
 
 bool in_utc_timezone(void) {
         tzset();
 
-        return timezone == 0 && daylight == 0;
+        반환 timezone == 0 && daylight == 0;
 }
 
-int usleep_safe(usec_t usec) {
-        int r;
+정수 usleep_safe(usec_t usec) {
+        정수 r;
 
         /* usleep() takes useconds_t that is (typically?) uint32_t. Also, usleep() may only support the
          * range [0, 1000000]. See usleep(3). Let's override usleep() with clock_nanosleep().
@@ -1839,48 +1839,48 @@ int usleep_safe(usec_t usec) {
          * ⚠️ Note we are not using plain nanosleep() here, since that operates on CLOCK_REALTIME, not
          *    CLOCK_MONOTONIC! */
 
-        if (usec == 0)
-                return 0;
+        만약 (usec == 0)
+                반환 0;
 
-        if (usec == USEC_INFINITY)
-                return RET_NERRNO(pause());
+        만약 (usec == USEC_INFINITY)
+                반환 RET_NERRNO(pause());
 
         struct timespec t;
         timespec_store(&t, usec);
 
-        for (;;) {
+        위해 (;;) {
                 struct timespec remaining;
 
                 /* `clock_nanosleep()` does not use `errno`, but returns positive error codes. */
                 r = -clock_nanosleep(CLOCK_MONOTONIC, /* flags= */ 0, &t, &remaining);
-                if (r == -EINTR) {
+                만약 (r == -EINTR) {
                         /* Interrupted. Continue sleeping for the remaining time. */
                         t = remaining;
                         continue;
                 }
 
-                return r;
+                반환 r;
         }
 }
 
-int time_change_fd(void) {
+정수 time_change_fd(void) {
 
         /* We only care for the cancellation event, hence we set the timeout to the latest possible value. */
         static const struct itimerspec its = {
                 .it_value.tv_sec = TIME_T_MAX,
         };
 
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ 정수 fd = -EBADF;
 
         /* Uses TFD_TIMER_CANCEL_ON_SET to get notifications whenever CLOCK_REALTIME makes a jump relative to
          * CLOCK_MONOTONIC. */
 
         fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK|TFD_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        만약 (fd < 0)
+                반환 -errno;
 
-        if (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its, NULL) >= 0)
-                return TAKE_FD(fd);
+        만약 (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its, NULL) >= 0)
+                반환 TAKE_FD(fd);
 
         /* So apparently there are systems where time_t is 64-bit, but the kernel actually doesn't support
          * 64-bit time_t. In that case configuring a timer to TIME_T_MAX will fail with EOPNOTSUPP or a
@@ -1892,18 +1892,18 @@ int time_change_fd(void) {
          *
          * See: https://github.com/systemd/systemd/issues/14362 */
 
-#if SIZEOF_TIME_T == 8 && ULONG_MAX < UINT64_MAX
-        if (ERRNO_IS_NOT_SUPPORTED(errno) || errno == EOVERFLOW) {
+#만약 SIZEOF_TIME_T == 8 && ULONG_MAX < UINT64_MAX
+        만약 (ERRNO_IS_NOT_SUPPORTED(errno) || errno == EOVERFLOW) {
                 static const struct itimerspec its32 = {
                         .it_value.tv_sec = INT32_MAX,
                 };
 
-                if (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its32, NULL) >= 0)
-                        return TAKE_FD(fd);
+                만약 (timerfd_settime(fd, TFD_TIMER_ABSTIME|TFD_TIMER_CANCEL_ON_SET, &its32, NULL) >= 0)
+                        반환 TAKE_FD(fd);
         }
 #endif
 
-        return -errno;
+        반환 -errno;
 }
 
 static const char* const timestamp_style_table[_TIMESTAMP_STYLE_MAX] = {
@@ -1922,53 +1922,53 @@ TimestampStyle timestamp_style_from_string(const char *s) {
         TimestampStyle t;
 
         t = (TimestampStyle) string_table_lookup_from_string(timestamp_style_table, ELEMENTSOF(timestamp_style_table), s);
-        if (t >= 0)
-                return t;
-        if (STRPTR_IN_SET(s, "µs", "μs")) /* accept both µ symbols in unicode, i.e. micro symbol + Greek small letter mu. */
-                return TIMESTAMP_US;
-        if (STRPTR_IN_SET(s, "µs+utc", "μs+utc"))
-                return TIMESTAMP_US_UTC;
-        return t;
+        만약 (t >= 0)
+                반환 t;
+        만약 (STRPTR_IN_SET(s, "µs", "μs")) /* accept both µ symbols in unicode, i.e. micro symbol + Greek small letter mu. */
+                반환 TIMESTAMP_US;
+        만약 (STRPTR_IN_SET(s, "µs+utc", "μs+utc"))
+                반환 TIMESTAMP_US_UTC;
+        반환 t;
 }
 
-int parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_usec, struct tm *ret_tm) {
+정수 parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_usec, struct tm *ret_tm) {
         struct tm parsed_tm = {}, copy_tm;
         const char *k;
-        int r;
+        정수 r;
 
         assert(s);
 
         k = strptime(s, "%Y-%m-%d", &parsed_tm);
-        if (!k || *k)
-                return -EINVAL;
+        만약 (!k || *k)
+                반환 -EINVAL;
 
         copy_tm = parsed_tm;
 
         usec_t usec = USEC_INFINITY;
 
-        if (allow_pre_epoch) {
+        만약 (allow_pre_epoch) {
                 /* For birth dates we use timegm() directly since we need to accept pre-epoch dates.
                  * timegm() returns (time_t) -1 both on error and for one second before the epoch.
                  * Initialize wday to -1 beforehand: if it remains -1 after the call, it's a genuine
                  * error; if timegm() changed it, the date was successfully normalized. */
                 copy_tm.tm_wday = -1;
-                if (timegm(&copy_tm) == (time_t) -1 && copy_tm.tm_wday == -1)
-                        return -EINVAL;
-        } else {
+                만약 (timegm(&copy_tm) == (time_t) -1 && copy_tm.tm_wday == -1)
+                        반환 -EINVAL;
+        } 아니면 {
                 r = mktime_or_timegm_usec(&copy_tm, /* utc= */ true, &usec);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
         }
 
         /* Refuse non-normalized dates, e.g. Feb 30 */
-        if (copy_tm.tm_mday != parsed_tm.tm_mday ||
+        만약 (copy_tm.tm_mday != parsed_tm.tm_mday ||
             copy_tm.tm_mon  != parsed_tm.tm_mon  ||
             copy_tm.tm_year != parsed_tm.tm_year)
-                return -EINVAL;
+                반환 -EINVAL;
 
-        if (ret_usec)
+        만약 (ret_usec)
                 *ret_usec = usec;
-        if (ret_tm) {
+        만약 (ret_tm) {
                 /* Reset to unset, then fill in only the date fields we parsed and validated */
                 *ret_tm = BIRTH_DATE_UNSET;
                 ret_tm->tm_mday = parsed_tm.tm_mday;
@@ -1976,5 +1976,5 @@ int parse_calendar_date_full(const char *s, bool allow_pre_epoch, usec_t *ret_us
                 ret_tm->tm_year = parsed_tm.tm_year;
         }
 
-        return 0;
+        반환 0;
 }

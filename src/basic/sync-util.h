@@ -3,11 +3,11 @@
 
 #include "forward.h"
 
-int fsync_directory_of_file(int fd);
-int fsync_full(int fd);
+정수 fsync_directory_of_file(정수 fd);
+정수 fsync_full(정수 fd);
 
-int fsync_path_at(int at_fd, const char *path);
-int fsync_parent_at(int at_fd, const char *path);
-int fsync_path_and_parent_at(int at_fd, const char *path);
+정수 fsync_path_at(정수 at_fd, const char *path);
+정수 fsync_parent_at(정수 at_fd, const char *path);
+정수 fsync_path_and_parent_at(정수 at_fd, const char *path);
 
-int syncfs_path(int at_fd, const char *path);
+정수 syncfs_path(정수 at_fd, const char *path);

@@ -5,10 +5,10 @@
 
 #include "forward.h"
 
-int reset_all_signal_handlers(void);
-int reset_signal_mask(void);
+정수 reset_all_signal_handlers(void);
+정수 reset_signal_mask(void);
 
-int sigaction_many_internal(const struct sigaction *sa, ...);
+정수 sigaction_many_internal(const struct sigaction *sa, ...);
 
 #define ignore_signals(...)                                             \
         sigaction_many_internal(                                        \
@@ -25,22 +25,22 @@ int sigaction_many_internal(const struct sigaction *sa, ...);
 #define sigaction_many(sa, ...)                                         \
         sigaction_many_internal(sa, __VA_ARGS__, -1)
 
-int sigset_add_many_internal(sigset_t *ss, ...);
+정수 sigset_add_many_internal(sigset_t *ss, ...);
 #define sigset_add_many(...) sigset_add_many_internal(__VA_ARGS__, -1)
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...);
+정수 sigprocmask_many_internal(정수 how, sigset_t *ret_old_mask, ...);
 #define sigprocmask_many(...) sigprocmask_many_internal(__VA_ARGS__, -1)
 
-DECLARE_STRING_TABLE_LOOKUP(signal, int);
-const char* signal_code_to_string(int signo, int code) _const_;
+DECLARE_STRING_TABLE_LOOKUP(signal, 정수);
+const char* signal_code_to_string(정수 signo, 정수 code) _const_;
 
-void nop_signal_handler(int sig);
+void nop_signal_handler(정수 sig);
 
 static inline void block_signals_reset(sigset_t **ss) {
         assert(ss);
 
-        if (!*ss)
-                return;
+        만약 (!*ss)
+                반환;
 
         assert_log(sigprocmask(SIG_SETMASK, *ss, NULL) >= 0);
 }
@@ -53,33 +53,33 @@ static inline void block_signals_reset(sigset_t **ss) {
 
 #define SIGNO_INVALID (-EINVAL)
 
-static inline bool SIGNAL_VALID(int signo) {
-        return signo > 0 && signo < _NSIG;
+static inline bool SIGNAL_VALID(정수 signo) {
+        반환 signo > 0 && signo < _NSIG;
 }
 
-static inline const char* signal_to_string_with_check(int n) {
-        if (!SIGNAL_VALID(n))
-                return NULL;
+static inline const char* signal_to_string_with_check(정수 n) {
+        만약 (!SIGNAL_VALID(n))
+                반환 NULL;
 
-        return signal_to_string(n);
+        반환 signal_to_string(n);
 }
 
-int signal_is_blocked(int sig);
+정수 signal_is_blocked(정수 sig);
 
-int autoreaping_enabled(void);
+정수 autoreaping_enabled(void);
 
-int pop_pending_signal_internal(int sig, ...);
+정수 pop_pending_signal_internal(정수 sig, ...);
 #define pop_pending_signal(...) pop_pending_signal_internal(__VA_ARGS__, -1)
 
-void propagate_signal(int sig, siginfo_t *siginfo);
+void propagate_signal(정수 sig, siginfo_t *siginfo);
 
 extern const struct sigaction sigaction_ignore;
 extern const struct sigaction sigaction_default;
 extern const struct sigaction sigaction_nop_nocldstop;
 
-int parse_signo(const char *s, int *ret);
+정수 parse_signo(const char *s, 정수 *ret);
 
-static inline bool si_code_from_process(int si_code) {
+static inline bool si_code_from_process(정수 si_code) {
         /* Returns true if the .si_code field of siginfo_t or the .ssi_code field of struct signalfd_siginfo
          * indicate that the signal originates from a userspace process, and hence the .si_pid/.ssi_pid field
          * is valid. This check is not obvious, since on one hand SI_USER/SI_QUEUE are supposed to be the
@@ -98,7 +98,7 @@ static inline bool si_code_from_process(int si_code) {
          *
          * From: https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html */
 
-        return si_code < 0 || IN_SET(si_code, SI_USER, SI_QUEUE);
+        반환 si_code < 0 || IN_SET(si_code, SI_USER, SI_QUEUE);
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext);
+void sigterm_process_group_handler(정수 signal, siginfo_t *info, void *ucontext);

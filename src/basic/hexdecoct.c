@@ -8,47 +8,47 @@
 #include "memory-util.h"
 #include "string-util.h"
 
-char octchar(int x) {
-        return '0' + (x & 7);
+char octchar(정수 x) {
+        반환 '0' + (x & 7);
 }
 
-int unoctchar(char c) {
+정수 unoctchar(char c) {
 
-        if (c >= '0' && c <= '7')
-                return c - '0';
+        만약 (c >= '0' && c <= '7')
+                반환 c - '0';
 
-        return -EINVAL;
+        반환 -EINVAL;
 }
 
-char decchar(int x) {
-        return '0' + (x % 10);
+char decchar(정수 x) {
+        반환 '0' + (x % 10);
 }
 
-int undecchar(char c) {
+정수 undecchar(char c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        만약 (c >= '0' && c <= '9')
+                반환 c - '0';
 
-        return -EINVAL;
+        반환 -EINVAL;
 }
 
-char hexchar(int x) {
+char hexchar(정수 x) {
         const char *table = LOWERCASE_HEXDIGITS;
-        return table[x & 15];
+        반환 table[x & 15];
 }
 
-int unhexchar(char c) {
+정수 unhexchar(char c) {
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        만약 (c >= '0' && c <= '9')
+                반환 c - '0';
 
-        if (c >= 'a' && c <= 'f')
-                return c - 'a' + 10;
+        만약 (c >= 'a' && c <= 'f')
+                반환 c - 'a' + 10;
 
-        if (c >= 'A' && c <= 'F')
-                return c - 'A' + 10;
+        만약 (c >= 'A' && c <= 'F')
+                반환 c - 'A' + 10;
 
-        return -EINVAL;
+        반환 -EINVAL;
 }
 
 char* hexmem(const void *p, size_t l) {
@@ -58,20 +58,20 @@ char* hexmem(const void *p, size_t l) {
         assert(p || l == 0);
 
         z = r = new(char, l * 2 + 1);
-        if (!r)
-                return NULL;
+        만약 (!r)
+                반환 NULL;
 
-        for (x = p; x && x < (const uint8_t*) p + l; x++) {
+        위해 (x = p; x && x < (const uint8_t*) p + l; x++) {
                 *(z++) = hexchar(*x >> 4);
                 *(z++) = hexchar(*x & 15);
         }
 
         *z = 0;
-        return r;
+        반환 r;
 }
 
-static int unhex_next(const char **p, size_t *l) {
-        int r;
+static 정수 unhex_next(const char **p, size_t *l) {
+        정수 r;
 
         assert(p);
         assert(l);
@@ -79,11 +79,11 @@ static int unhex_next(const char **p, size_t *l) {
         /* Find the next non-whitespace character, and decode it. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        위해 (;;) {
+                만약 (*l == 0)
+                        반환 -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
+                만약 (!strchr(WHITESPACE, **p))
                         break;
 
                 /* Skip leading whitespace */
@@ -91,22 +91,22 @@ static int unhex_next(const char **p, size_t *l) {
         }
 
         r = unhexchar(**p);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        for (;;) {
+        위해 (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0 || !strchr(WHITESPACE, **p))
+                만약 (*l == 0 || !strchr(WHITESPACE, **p))
                         break;
 
                 /* Skip following whitespace */
         }
 
-        return r;
+        반환 r;
 }
 
-int unhexmem_full(
+정수 unhexmem_full(
                 const char *p,
                 size_t l,
                 bool secure,
@@ -120,41 +120,41 @@ int unhexmem_full(
 
         assert(p || l == 0);
 
-        if (l == SIZE_MAX)
+        만약 (l == SIZE_MAX)
                 l = strlen(p);
 
         /* Note that the calculation of memory size is an upper boundary, as we ignore whitespace while decoding */
         buf_size = (l + 1) / 2 + 1;
         buf = malloc(buf_size);
-        if (!buf)
-                return -ENOMEM;
+        만약 (!buf)
+                반환 -ENOMEM;
 
         CLEANUP_ERASE_PTR(secure ? &buf : NULL, buf_size);
 
-        for (x = p, z = buf;;) {
-                int a, b;
+        위해 (x = p, z = buf;;) {
+                정수 a, b;
 
                 a = unhex_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
+                만약 (a == -EPIPE) /* End of string */
                         break;
-                if (a < 0)
-                        return a;
+                만약 (a < 0)
+                        반환 a;
 
                 b = unhex_next(&x, &l);
-                if (b < 0)
-                        return b;
+                만약 (b < 0)
+                        반환 b;
 
                 *(z++) = (uint8_t) a << 4 | (uint8_t) b;
         }
 
         *z = 0;
 
-        if (ret_size)
+        만약 (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        만약 (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        반환 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-6
@@ -163,23 +163,23 @@ int unhexmem_full(
  * order of the underlying data when compared as bytestrings, this is
  * useful when representing NSEC3 hashes, as one can then verify the
  * order of hashes directly from their representation. */
-char base32hexchar(int x) {
+char base32hexchar(정수 x) {
         const char *table = DIGITS "ABCDEFGHIJKLMNOPQRSTUV";
-        return table[x & 31];
+        반환 table[x & 31];
 }
 
-int unbase32hexchar(char c) {
+정수 unbase32hexchar(char c) {
         unsigned offset;
 
-        if (c >= '0' && c <= '9')
-                return c - '0';
+        만약 (c >= '0' && c <= '9')
+                반환 c - '0';
 
         offset = '9' - '0' + 1;
 
-        if (c >= 'A' && c <= 'V')
-                return c - 'A' + offset;
+        만약 (c >= 'A' && c <= 'V')
+                반환 c - 'A' + offset;
 
-        return -EINVAL;
+        반환 -EINVAL;
 }
 
 char* base32hexmem(const void *p, size_t l, bool padding) {
@@ -189,10 +189,10 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
 
         assert(p || l == 0);
 
-        if (padding)
+        만약 (padding)
                 /* five input bytes makes eight output bytes, padding is added so we must round up */
                 len = 8 * (l + 4) / 5;
-        else {
+        아니면 {
                 /* same, but round down as there is no padding */
                 len = 8 * l / 5;
 
@@ -213,10 +213,10 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return NULL;
+        만약 (!r)
+                반환 NULL;
 
-        for (x = p; x < (const uint8_t*) p + (l / 5) * 5; x += 5) {
+        위해 (x = p; x < (const uint8_t*) p + (l / 5) * 5; x += 5) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ
                  * x[3] == QQQQQQQQ; x[4] == WWWWWWWW */
                 *(z++) = base32hexchar(x[0] >> 3);                    /* 000XXXXX */
@@ -238,7 +238,7 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[2] & 15) << 1 | x[3] >> 7); /* 000ZZZZQ */
                 *(z++) = base32hexchar((x[3] & 127) >> 2);            /* 000QQQQQ */
                 *(z++) = base32hexchar((x[3] & 3) << 3);              /* 000QQ000 */
-                if (padding)
+                만약 (padding)
                         *(z++) = '=';
 
                 break;
@@ -249,7 +249,7 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4 | x[2] >> 4); /* 000YZZZZ */
                 *(z++) = base32hexchar((x[2] & 15) << 1);            /* 000ZZZZ0 */
-                if (padding) {
+                만약 (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
@@ -262,7 +262,7 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
                 *(z++) = base32hexchar((x[0] & 7) << 2 | x[1] >> 6); /* 000XXXYY */
                 *(z++) = base32hexchar((x[1] & 63) >> 1);            /* 000YYYYY */
                 *(z++) = base32hexchar((x[1] & 1) << 4);             /* 000Y0000 */
-                if (padding) {
+                만약 (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
@@ -274,7 +274,7 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
         case 1:
                 *(z++) = base32hexchar(x[0] >> 3);       /* 000XXXXX */
                 *(z++) = base32hexchar((x[0] & 7) << 2); /* 000XXX00 */
-                if (padding) {
+                만약 (padding) {
                         *(z++) = '=';
                         *(z++) = '=';
                         *(z++) = '=';
@@ -287,12 +287,12 @@ char* base32hexmem(const void *p, size_t l, bool padding) {
         }
 
         *z = 0;
-        return r;
+        반환 r;
 }
 
-int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_len) {
+정수 unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_len) {
         _cleanup_free_ uint8_t *r = NULL;
-        int a, b, c, d, e, f, g, h;
+        정수 a, b, c, d, e, f, g, h;
         uint8_t *z;
         const char *x;
         size_t len;
@@ -302,16 +302,16 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         assert(mem);
         assert(_len);
 
-        if (l == SIZE_MAX)
+        만약 (l == SIZE_MAX)
                 l = strlen(p);
 
         /* padding ensures any base32hex input has input divisible by 8 */
-        if (padding && l % 8 != 0)
-                return -EINVAL;
+        만약 (padding && l % 8 != 0)
+                반환 -EINVAL;
 
-        if (padding) {
+        만약 (padding) {
                 /* strip the padding */
-                while (l > 0 && p[l - 1] == '=' && pad < 7) {
+                동안 (l > 0 && p[l - 1] == '=' && pad < 7) {
                         pad++;
                         l--;
                 }
@@ -337,47 +337,47 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         case 0:
                 break;
         default:
-                return -EINVAL;
+                반환 -EINVAL;
         }
 
         z = r = malloc(len + 1);
-        if (!r)
-                return -ENOMEM;
+        만약 (!r)
+                반환 -ENOMEM;
 
-        for (x = p; x < p + (l / 8) * 8; x += 8) {
+        위해 (x = p; x < p + (l / 8) * 8; x += 8) {
                 /* a == 000XXXXX; b == 000YYYYY; c == 000ZZZZZ; d == 000WWWWW
                  * e == 000SSSSS; f == 000QQQQQ; g == 000VVVVV; h == 000RRRRR */
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                만약 (a < 0)
+                        반환 -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                만약 (b < 0)
+                        반환 -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                만약 (c < 0)
+                        반환 -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                만약 (d < 0)
+                        반환 -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                만약 (e < 0)
+                        반환 -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                만약 (f < 0)
+                        반환 -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                만약 (g < 0)
+                        반환 -EINVAL;
 
                 h = unbase32hexchar(x[7]);
-                if (h < 0)
-                        return -EINVAL;
+                만약 (h < 0)
+                        반환 -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -389,36 +389,36 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         switch (l % 8) {
         case 7:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                만약 (a < 0)
+                        반환 -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                만약 (b < 0)
+                        반환 -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                만약 (c < 0)
+                        반환 -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                만약 (d < 0)
+                        반환 -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                만약 (e < 0)
+                        반환 -EINVAL;
 
                 f = unbase32hexchar(x[5]);
-                if (f < 0)
-                        return -EINVAL;
+                만약 (f < 0)
+                        반환 -EINVAL;
 
                 g = unbase32hexchar(x[6]);
-                if (g < 0)
-                        return -EINVAL;
+                만약 (g < 0)
+                        반환 -EINVAL;
 
                 /* g == 000VV000 */
-                if (g & 7)
-                        return -EINVAL;
+                만약 (g & 7)
+                        반환 -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -428,28 +428,28 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
                 break;
         case 5:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                만약 (a < 0)
+                        반환 -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                만약 (b < 0)
+                        반환 -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                만약 (c < 0)
+                        반환 -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                만약 (d < 0)
+                        반환 -EINVAL;
 
                 e = unbase32hexchar(x[4]);
-                if (e < 0)
-                        return -EINVAL;
+                만약 (e < 0)
+                        반환 -EINVAL;
 
                 /* e == 000SSSS0 */
-                if (e & 1)
-                        return -EINVAL;
+                만약 (e & 1)
+                        반환 -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -458,24 +458,24 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
                 break;
         case 4:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                만약 (a < 0)
+                        반환 -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                만약 (b < 0)
+                        반환 -EINVAL;
 
                 c = unbase32hexchar(x[2]);
-                if (c < 0)
-                        return -EINVAL;
+                만약 (c < 0)
+                        반환 -EINVAL;
 
                 d = unbase32hexchar(x[3]);
-                if (d < 0)
-                        return -EINVAL;
+                만약 (d < 0)
+                        반환 -EINVAL;
 
                 /* d == 000W0000 */
-                if (d & 15)
-                        return -EINVAL;
+                만약 (d & 15)
+                        반환 -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2;                    /* XXXXXYYY */
                 *(z++) = (uint8_t) b << 6 | (uint8_t) c << 1 | (uint8_t) d >> 4; /* YYZZZZZW */
@@ -483,16 +483,16 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
                 break;
         case 2:
                 a = unbase32hexchar(x[0]);
-                if (a < 0)
-                        return -EINVAL;
+                만약 (a < 0)
+                        반환 -EINVAL;
 
                 b = unbase32hexchar(x[1]);
-                if (b < 0)
-                        return -EINVAL;
+                만약 (b < 0)
+                        반환 -EINVAL;
 
                 /* b == 000YYY00 */
-                if (b & 3)
-                        return -EINVAL;
+                만약 (b & 3)
+                        반환 -EINVAL;
 
                 *(z++) = (uint8_t) a << 3 | (uint8_t) b >> 2; /* XXXXXYYY */
 
@@ -500,7 +500,7 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         case 0:
                 break;
         default:
-                return -EINVAL;
+                반환 -EINVAL;
         }
 
         *z = 0;
@@ -508,50 +508,50 @@ int unbase32hexmem(const char *p, size_t l, bool padding, void **mem, size_t *_l
         *mem = TAKE_PTR(r);
         *_len = len;
 
-        return 0;
+        반환 0;
 }
 
 /* https://tools.ietf.org/html/rfc4648#section-4 */
-char base64char(int x) {
+char base64char(정수 x) {
         const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "+/";
-        return table[x & 63];
+        반환 table[x & 63];
 }
 
 /* This is almost base64char(), but not entirely, as it uses the "url and filename safe" alphabet,
  * since we don't want "/" appear in interface names (since interfaces appear in sysfs as filenames).
  * See section #5 of RFC 4648. */
-char urlsafe_base64char(int x) {
+char urlsafe_base64char(정수 x) {
         const char *table = UPPERCASE_LETTERS LOWERCASE_LETTERS DIGITS "-_";
-        return table[x & 63];
+        반환 table[x & 63];
 }
 
-int unbase64char(char c) {
+정수 unbase64char(char c) {
         unsigned offset;
 
-        if (c >= 'A' && c <= 'Z')
-                return c - 'A';
+        만약 (c >= 'A' && c <= 'Z')
+                반환 c - 'A';
 
         offset = 'Z' - 'A' + 1;
 
-        if (c >= 'a' && c <= 'z')
-                return c - 'a' + offset;
+        만약 (c >= 'a' && c <= 'z')
+                반환 c - 'a' + offset;
 
         offset += 'z' - 'a' + 1;
 
-        if (c >= '0' && c <= '9')
-                return c - '0' + offset;
+        만약 (c >= '0' && c <= '9')
+                반환 c - '0' + offset;
 
         offset += '9' - '0' + 1;
 
-        if (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
-                return offset;
+        만약 (IN_SET(c, '+', '-')) /* Support both the regular and the URL safe character set (see above) */
+                반환 offset;
 
         offset++;
 
-        if (IN_SET(c, '/', '_')) /* ditto */
-                return offset;
+        만약 (IN_SET(c, '/', '_')) /* ditto */
+                반환 offset;
 
-        return -EINVAL;
+        반환 -EINVAL;
 }
 
 static void maybe_line_break(char **x, char *start, size_t line_break) {
@@ -562,12 +562,12 @@ static void maybe_line_break(char **x, char *start, size_t line_break) {
         assert(start);
         assert(*x >= start);
 
-        if (line_break == SIZE_MAX)
-                return;
+        만약 (line_break == SIZE_MAX)
+                반환;
 
         n = *x - start;
 
-        if (n % (line_break + 1) == line_break)
+        만약 (n % (line_break + 1) == line_break)
                 *((*x)++) = '\n';
 }
 
@@ -587,14 +587,14 @@ ssize_t base64mem_full(
 
         /* three input bytes makes four output bytes, padding is added so we must round up */
         m = 4 * (l + 2) / 3 + 1;
-        if (line_break != SIZE_MAX)
+        만약 (line_break != SIZE_MAX)
                 m += m / line_break;
 
         z = b = malloc(m);
-        if (!b)
-                return -ENOMEM;
+        만약 (!b)
+                반환 -ENOMEM;
 
-        for (x = p; x && x < (const uint8_t*) p + (l / 3) * 3; x += 3) {
+        위해 (x = p; x && x < (const uint8_t*) p + (l / 3) * 3; x += 3) {
                 /* x[0] == XXXXXXXX; x[1] == YYYYYYYY; x[2] == ZZZZZZZZ */
                 maybe_line_break(&z, b, line_break);
                 *(z++) = base64char(x[0] >> 2);                    /* 00XXXXXX */
@@ -634,7 +634,7 @@ ssize_t base64mem_full(
         *ret = b;
 
         assert(z >= b); /* Let static analyzers know that the answer is non-negative. */
-        return z - b;
+        반환 z - b;
 }
 
 static ssize_t base64_append_width(
@@ -656,31 +656,31 @@ static ssize_t base64_append_width(
         assert(p || l == 0);
 
         len = base64mem(p, l, &x);
-        if (len < 0)
-                return len;
-        if (len == 0)
-                return plen;
+        만약 (len < 0)
+                반환 len;
+        만약 (len == 0)
+                반환 plen;
 
         lines = DIV_ROUND_UP(len, width);
 
-        if (plen >= SSIZE_MAX - 1 - 1 ||
+        만약 (plen >= SSIZE_MAX - 1 - 1 ||
             lines > (SSIZE_MAX - plen - 1 - 1) / (indent + width + 1))
-                return -ENOMEM;
+                반환 -ENOMEM;
 
         t = realloc(*prefix, plen + 1 + 1 + (indent + width + 1) * lines);
-        if (!t)
-                return -ENOMEM;
+        만약 (!t)
+                반환 -ENOMEM;
 
         s = t + plen;
-        for (size_t line = 0; line < lines; line++) {
+        위해 (size_t line = 0; line < lines; line++) {
                 size_t act = MIN(width, (size_t) len);
 
-                if (line > 0)
+                만약 (line > 0)
                         sep = '\n';
 
-                if (s > t) {
+                만약 (s > t) {
                         *s++ = sep;
-                        if (sep == '\n')
+                        만약 (sep == '\n')
                                 s = mempset(s, ' ', indent);
                 }
 
@@ -691,7 +691,7 @@ static ssize_t base64_append_width(
 
         *s = '\0';
         *prefix = t;
-        return s - t;
+        반환 s - t;
 }
 
 ssize_t base64_append(
@@ -702,16 +702,16 @@ ssize_t base64_append(
                 size_t indent,
                 size_t width) {
 
-        if (plen > width / 2 || plen + indent > width)
+        만약 (plen > width / 2 || plen + indent > width)
                 /* leave indent on the left, keep last column free */
-                return base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
-        else
+                반환 base64_append_width(prefix, plen, '\n', indent, p, l, width - indent);
+        아니면
                 /* leave plen on the left, keep last column free */
-                return base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
+                반환 base64_append_width(prefix, plen, ' ', plen + 1, p, l, width - plen - 1);
 }
 
-static int unbase64_next(const char **p, size_t *l) {
-        int ret;
+static 정수 unbase64_next(const char **p, size_t *l) {
+        정수 ret;
 
         assert(p);
         assert(l);
@@ -719,40 +719,40 @@ static int unbase64_next(const char **p, size_t *l) {
         /* Find the next non-whitespace character, and decode it. If we find padding, we return it as INT_MAX. We
          * greedily skip all preceding and all following whitespace. */
 
-        for (;;) {
-                if (*l == 0)
-                        return -EPIPE;
+        위해 (;;) {
+                만약 (*l == 0)
+                        반환 -EPIPE;
 
-                if (!strchr(WHITESPACE, **p))
+                만약 (!strchr(WHITESPACE, **p))
                         break;
 
                 /* Skip leading whitespace */
                 (*p)++, (*l)--;
         }
 
-        if (**p == '=')
+        만약 (**p == '=')
                 ret = INT_MAX; /* return padding as INT_MAX */
-        else {
+        아니면 {
                 ret = unbase64char(**p);
-                if (ret < 0)
-                        return ret;
+                만약 (ret < 0)
+                        반환 ret;
         }
 
-        for (;;) {
+        위해 (;;) {
                 (*p)++, (*l)--;
 
-                if (*l == 0)
+                만약 (*l == 0)
                         break;
-                if (!strchr(WHITESPACE, **p))
+                만약 (!strchr(WHITESPACE, **p))
                         break;
 
                 /* Skip following whitespace */
         }
 
-        return ret;
+        반환 ret;
 }
 
-int unbase64mem_full(
+정수 unbase64mem_full(
                 const char *p,
                 size_t l,
                 bool secure,
@@ -766,7 +766,7 @@ int unbase64mem_full(
 
         assert(p || l == 0);
 
-        if (l == SIZE_MAX)
+        만약 (l == SIZE_MAX)
                 l = strlen(p);
 
         /* A group of four input bytes needs three output bytes, in case of padding we need to add two or three extra
@@ -774,59 +774,59 @@ int unbase64mem_full(
         len = (l / 4) * 3 + (l % 4 != 0 ? (l % 4) - 1 : 0);
 
         buf = malloc(len + 1);
-        if (!buf)
-                return -ENOMEM;
+        만약 (!buf)
+                반환 -ENOMEM;
 
         CLEANUP_ERASE_PTR(secure ? &buf : NULL, len);
 
-        for (x = p, z = buf;;) {
-                int a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
+        위해 (x = p, z = buf;;) {
+                정수 a, b, c, d; /* a == 00XXXXXX; b == 00YYYYYY; c == 00ZZZZZZ; d == 00WWWWWW */
 
                 a = unbase64_next(&x, &l);
-                if (a == -EPIPE) /* End of string */
+                만약 (a == -EPIPE) /* End of string */
                         break;
-                if (a < 0)
-                        return a;
-                if (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
-                        return -EINVAL;
+                만약 (a < 0)
+                        반환 a;
+                만약 (a == INT_MAX) /* Padding is not allowed at the beginning of a 4ch block */
+                        반환 -EINVAL;
 
                 b = unbase64_next(&x, &l);
-                if (b < 0)
-                        return b;
-                if (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
-                        return -EINVAL;
+                만약 (b < 0)
+                        반환 b;
+                만약 (b == INT_MAX) /* Padding is not allowed at the second character of a 4ch block either */
+                        반환 -EINVAL;
 
                 c = unbase64_next(&x, &l);
-                if (c < 0)
-                        return c;
+                만약 (c < 0)
+                        반환 c;
 
                 d = unbase64_next(&x, &l);
-                if (d < 0)
-                        return d;
+                만약 (d < 0)
+                        반환 d;
 
-                if (c == INT_MAX) { /* Padding at the third character */
+                만약 (c == INT_MAX) { /* Padding at the third character */
 
-                        if (d != INT_MAX) /* If the third character is padding, the fourth must be too */
-                                return -EINVAL;
+                        만약 (d != INT_MAX) /* If the third character is padding, the fourth must be too */
+                                반환 -EINVAL;
 
                         /* b == 00YY0000 */
-                        if (b & 15)
-                                return -EINVAL;
+                        만약 (b & 15)
+                                반환 -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        만약 (l > 0) /* Trailing rubbish? */
+                                반환 -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) (b >> 4); /* XXXXXXYY */
                         break;
                 }
 
-                if (d == INT_MAX) {
+                만약 (d == INT_MAX) {
                         /* c == 00ZZZZ00 */
-                        if (c & 3)
-                                return -EINVAL;
+                        만약 (c & 3)
+                                반환 -EINVAL;
 
-                        if (l > 0) /* Trailing rubbish? */
-                                return -ENAMETOOLONG;
+                        만약 (l > 0) /* Trailing rubbish? */
+                                반환 -ENAMETOOLONG;
 
                         *(z++) = (uint8_t) a << 2 | (uint8_t) b >> 4; /* XXXXXXYY */
                         *(z++) = (uint8_t) b << 4 | (uint8_t) c >> 2; /* YYYYZZZZ */
@@ -842,12 +842,12 @@ int unbase64mem_full(
 
         assert((size_t) (z - buf) <= len);
 
-        if (ret_size)
+        만약 (ret_size)
                 *ret_size = (size_t) (z - buf);
-        if (ret_data)
+        만약 (ret_data)
                 *ret_data = TAKE_PTR(buf);
 
-        return 0;
+        반환 0;
 }
 
 void hexdump(FILE *f, const void *p, size_t s) {
@@ -856,41 +856,41 @@ void hexdump(FILE *f, const void *p, size_t s) {
 
         assert(b || s == 0);
 
-        if (s == SIZE_MAX)
+        만약 (s == SIZE_MAX)
                 s = strlen(p);
 
-        if (!f)
+        만약 (!f)
                 f = stdout;
 
-        while (s > 0) {
+        동안 (s > 0) {
                 size_t i;
 
                 fprintf(f, "%04x  ", n);
 
-                for (i = 0; i < 16; i++) {
+                위해 (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        만약 (i >= s)
                                 fputs("   ", f);
-                        else
+                        아니면
                                 fprintf(f, "%02x ", b[i]);
 
-                        if (i == 7)
+                        만약 (i == 7)
                                 fputc(' ', f);
                 }
 
                 fputc(' ', f);
 
-                for (i = 0; i < 16; i++) {
+                위해 (i = 0; i < 16; i++) {
 
-                        if (i >= s)
+                        만약 (i >= s)
                                 fputc(' ', f);
-                        else
+                        아니면
                                 fputc(isprint(b[i]) ? (char) b[i] : '.', f);
                 }
 
                 fputc('\n', f);
 
-                if (s < 16)
+                만약 (s < 16)
                         break;
 
                 n += 16;

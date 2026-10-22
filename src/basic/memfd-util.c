@@ -12,9 +12,9 @@
 #include "process-util.h"
 #include "string-util.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode) {
+정수 memfd_create_wrapper(const char *name, unsigned mode) {
         unsigned mode_compat;
-        int mfd;
+        정수 mfd;
 
         assert(name);
 
@@ -22,22 +22,22 @@ int memfd_create_wrapper(const char *name, unsigned mode) {
          * support MFD_EXEC/MFD_NOEXEC_SEAL. (kernel 6.3+) */
 
         mfd = RET_NERRNO(memfd_create(name, mode));
-        if (mfd != -EINVAL)
-                return mfd;
+        만약 (mfd != -EINVAL)
+                반환 mfd;
 
         mode_compat = mode & ~(MFD_EXEC | MFD_NOEXEC_SEAL);
 
-        if (mode == mode_compat)
-                return mfd;
+        만약 (mode == mode_compat)
+                반환 mfd;
 
-        return RET_NERRNO(memfd_create(name, mode_compat));
+        반환 RET_NERRNO(memfd_create(name, mode_compat));
 }
 
-int memfd_new_full(const char *name, unsigned extra_flags) {
+정수 memfd_new_full(const char *name, unsigned extra_flags) {
         _cleanup_free_ char *g = NULL;
-        int r;
+        정수 r;
 
-        if (!name) {
+        만약 (!name) {
 
                 /* If no name is specified we generate one. We include
                  * a hint indicating our library implementation, and
@@ -45,119 +45,119 @@ int memfd_new_full(const char *name, unsigned extra_flags) {
 
                 _cleanup_free_ char *comm = NULL;
                 r = pid_get_comm(/* pid= */ 0, &comm);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
 
-                if (isempty(comm))
+                만약 (isempty(comm))
                         name = "sd";
-                else {
+                아니면 {
                         g = strjoin("sd-", comm);
-                        if (!g)
-                                return -ENOMEM;
+                        만약 (!g)
+                                반환 -ENOMEM;
 
                         name = g;
                 }
         }
 
-        return memfd_create_wrapper(
+        반환 memfd_create_wrapper(
                         name,
                         MFD_CLOEXEC | MFD_NOEXEC_SEAL | extra_flags);
 }
 
-static int memfd_add_seals(int fd, unsigned seals) {
+static 정수 memfd_add_seals(정수 fd, unsigned seals) {
         assert(fd >= 0);
 
-        return RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
+        반환 RET_NERRNO(fcntl(fd, F_ADD_SEALS, seals));
 }
 
-static int memfd_get_seals(int fd, unsigned *ret_seals) {
-        int r;
+static 정수 memfd_get_seals(정수 fd, unsigned *ret_seals) {
+        정수 r;
 
         assert(fd >= 0);
 
         r = RET_NERRNO(fcntl(fd, F_GET_SEALS));
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        if (ret_seals)
+        만약 (ret_seals)
                 *ret_seals = r;
-        return 0;
+        반환 0;
 }
 
-int memfd_set_sealed(int fd) {
-        return memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+정수 memfd_set_sealed(정수 fd) {
+        반환 memfd_add_seals(fd, F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_get_sealed(int fd) {
+정수 memfd_get_sealed(정수 fd) {
         unsigned seals;
-        int r;
+        정수 r;
 
         r = memfd_get_seals(fd, &seals);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         /* We ignore F_SEAL_EXEC here to support older kernels.
          * It is supported since kernel v6.3 (6fd7353829cafc4067aad9eea0dc95da67e7df16). */
-        return FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
+        반환 FLAGS_SET(seals, F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE);
 }
 
-int memfd_set_sealed_gracefully(int fd) {
-        int r;
+정수 memfd_set_sealed_gracefully(정수 fd) {
+        정수 r;
 
         r = memfd_set_sealed(fd);
-        if (r != -EPERM)
-                return r;
+        만약 (r != -EPERM)
+                반환 r;
 
         /* Already sealed? Check if required seals are set. */
         r = memfd_get_sealed(fd);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EPERM; /* Propagate the original error. */
-        return 0;
+        만약 (r < 0)
+                반환 r;
+        만약 (r == 0)
+                반환 -EPERM; /* Propagate the original error. */
+        반환 0;
 }
 
-int memfd_get_size(int fd, uint64_t *ret) {
+정수 memfd_get_size(정수 fd, uint64_t *ret) {
         struct stat stat;
 
         assert(fd >= 0);
         assert(ret);
 
-        if (fstat(fd, &stat) < 0)
-                return -errno;
+        만약 (fstat(fd, &stat) < 0)
+                반환 -errno;
 
         *ret = stat.st_size;
-        return 0;
+        반환 0;
 }
 
-int memfd_set_size(int fd, uint64_t sz) {
+정수 memfd_set_size(정수 fd, uint64_t sz) {
         assert(fd >= 0);
 
-        return RET_NERRNO(ftruncate(fd, sz));
+        반환 RET_NERRNO(ftruncate(fd, sz));
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) {
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+정수 memfd_new_and_seal(const char *name, const void *data, size_t sz) {
+        _cleanup_close_ 정수 fd = -EBADF;
+        정수 r;
 
         assert(data || sz == 0);
 
-        if (sz == SIZE_MAX)
+        만약 (sz == SIZE_MAX)
                 sz = strlen(data);
 
         fd = memfd_new_full(name, MFD_ALLOW_SEALING);
-        if (fd < 0)
-                return fd;
+        만약 (fd < 0)
+                반환 fd;
 
-        if (sz > 0) {
+        만약 (sz > 0) {
                 r = pwrite_full(fd, data, sz, 0);
-                if (r < 0)
-                        return r;
+                만약 (r < 0)
+                        반환 r;
         }
 
         r = memfd_set_sealed(fd);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
-        return TAKE_FD(fd);
+        반환 TAKE_FD(fd);
 }

@@ -21,11 +21,11 @@ FILE* memstream_init(MemStream *m) {
         assert(!m->f);
 
         m->f = open_memstream_unlocked(&m->buf, &m->sz);
-        return m->f;
+        반환 m->f;
 }
 
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
-        int r;
+정수 memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
+        정수 r;
 
         assert(m);
         assert(m->f);
@@ -35,41 +35,41 @@ int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size) {
         fputc('\0', m->f);
 
         r = fflush_and_check(m->f);
-        if (r < 0)
-                return r;
+        만약 (r < 0)
+                반환 r;
 
         m->f = safe_fclose(m->f);
 
         /* On fclose(), the buffer may be reallocated, and may trigger OOM. */
-        if (!m->buf)
-                return -ENOMEM;
+        만약 (!m->buf)
+                반환 -ENOMEM;
 
         assert(m->sz > 0);
 
         *ret_buf = TAKE_PTR(m->buf);
-        if (ret_size)
+        만약 (ret_size)
                 *ret_size = m->sz - 1;
 
         m->sz = 0; /* For safety when the MemStream object will be reused later. */
-        return 0;
+        반환 0;
 }
 
-int memstream_dump_internal(
-                int level,
-                int error,
+정수 memstream_dump_internal(
+                정수 level,
+                정수 error,
                 const char *file,
-                int line,
+                정수 line,
                 const char *func,
                 MemStream *m) {
 
         _cleanup_free_ char *buf = NULL;
-        int r;
+        정수 r;
 
         assert(m);
 
         r = memstream_finalize(m, &buf, NULL);
-        if (r < 0)
-                return log_full_errno(level, r, "Failed to flush memstream: %m");
+        만약 (r < 0)
+                반환 log_full_errno(level, r, "Failed to flush memstream: %m");
 
-        return log_dump_internal(level, error, file, line, func, buf);
+        반환 log_dump_internal(level, error, file, line, func, buf);
 }

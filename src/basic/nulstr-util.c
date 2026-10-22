@@ -7,14 +7,14 @@
 #include "strv.h"
 
 const char* nulstr_get(const char *nulstr, const char *needle) {
-        if (!nulstr)
-                return NULL;
+        만약 (!nulstr)
+                반환 NULL;
 
         NULSTR_FOREACH(i, nulstr)
-                if (streq(i, needle))
-                        return i;
+                만약 (streq(i, needle))
+                        반환 i;
 
-        return NULL;
+        반환 NULL;
 }
 
 char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) {
@@ -31,35 +31,35 @@ char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) 
 
         assert(s || l <= 0);
 
-        if (drop_trailing_nuls)
-                while (l > 0 && s[l-1] == '\0')
+        만약 (drop_trailing_nuls)
+                동안 (l > 0 && s[l-1] == '\0')
                         l--;
 
-        if (l <= 0)
-                return new0(char*, 1);
+        만약 (l <= 0)
+                반환 new0(char*, 1);
 
-        for (const char *p = s; p < s + l; p++)
-                if (*p == 0)
+        위해 (const char *p = s; p < s + l; p++)
+                만약 (*p == 0)
                         c++;
 
-        if (s[l-1] != 0)
+        만약 (s[l-1] != 0)
                 c++;
 
         v = new0(char*, c+1);
-        if (!v)
-                return NULL;
+        만약 (!v)
+                반환 NULL;
 
-        for (const char *p = s; p < s + l;) {
+        위해 (const char *p = s; p < s + l;) {
                 const char *e;
 
                 e = memchr(p, 0, s + l - p);
 
                 v[i] = memdup_suffix0(p, e ? e - p : s + l - p);
-                if (!v[i])
-                        return NULL;
+                만약 (!v[i])
+                        반환 NULL;
                 i++;
 
-                if (!e)
+                만약 (!e)
                         break;
 
                 p = e + 1;
@@ -67,7 +67,7 @@ char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) 
 
         assert(i == c);
 
-        return TAKE_PTR(v);
+        반환 TAKE_PTR(v);
 }
 
 char** strv_split_nulstr(const char *s) {
@@ -79,13 +79,13 @@ char** strv_split_nulstr(const char *s) {
          * size to be specified) */
 
         NULSTR_FOREACH(i, s)
-                if (strv_extend(&l, i) < 0)
-                        return NULL;
+                만약 (strv_extend(&l, i) < 0)
+                        반환 NULL;
 
-        return l ? TAKE_PTR(l) : strv_new(NULL);
+        반환 l ? TAKE_PTR(l) : strv_new(NULL);
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
+정수 strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
         _cleanup_free_ char *m = NULL;
         size_t n = 0;
 
@@ -106,32 +106,32 @@ int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
 
                 z = strlen(*i) + 1;
 
-                if (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
-                        return -ENOMEM;
+                만약 (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
+                        반환 -ENOMEM;
 
                 memcpy(m + n, *i, z);
                 n += z;
         }
 
-        if (!m) {
+        만약 (!m) {
                 /* return a buffer with an extra NUL, so that the assumption that we always have two trailing NULs holds */
                 m = new0(char, 2);
-                if (!m)
-                        return -ENOMEM;
+                만약 (!m)
+                        반환 -ENOMEM;
 
                 n = 0;
-        } else
+        } 아니면
                 /* Extra NUL is not counted in size returned */
                 m[n] = '\0';
 
         *ret = TAKE_PTR(m);
-        if (ret_size)
+        만약 (ret_size)
                 *ret_size = n;
 
-        return 0;
+        반환 0;
 }
 
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
+정수 set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
         /* Use _cleanup_free_ instead of _cleanup_strv_free_ because we need to clean the strv only, not
          * the strings owned by the set. */
         _cleanup_free_ char **strv = NULL;
@@ -139,8 +139,8 @@ int set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
         assert(ret);
 
         strv = set_get_strv(s);
-        if (!strv)
-                return -ENOMEM;
+        만약 (!strv)
+                반환 -ENOMEM;
 
-        return strv_make_nulstr(strv, ret, ret_size);
+        반환 strv_make_nulstr(strv, ret, ret_size);
 }

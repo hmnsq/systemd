@@ -15,229 +15,229 @@ const char* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#만약 HAVE_PAM
         "+PAM"
-#else
+#아니면
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#만약 HAVE_AUDIT
         " +AUDIT"
-#else
+#아니면
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#만약 HAVE_SELINUX
         " +SELINUX"
-#else
+#아니면
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#만약 HAVE_APPARMOR
         " +APPARMOR"
-#else
+#아니면
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#만약 ENABLE_IMA
         " +IMA"
-#else
+#아니면
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#만약 ENABLE_IPE
         " +IPE"
-#else
+#아니면
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#만약 ENABLE_SMACK
         " +SMACK"
-#else
+#아니면
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#만약 HAVE_SECCOMP
         " +SECCOMP"
-#else
+#아니면
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#만약 HAVE_GNUTLS
         " +GNUTLS"
-#else
+#아니면
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#만약 HAVE_OPENSSL
         " +OPENSSL"
-#else
+#아니면
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#만약 HAVE_ACL
         " +ACL"
-#else
+#아니면
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#만약 HAVE_BLKID
         " +BLKID"
-#else
+#아니면
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#만약 HAVE_LIBCURL
         " +CURL"
-#else
+#아니면
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#만약 HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#아니면
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#만약 HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#아니면
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#만약 HAVE_LIBIDN2
         " +IDN2"
-#else
+#아니면
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#만약 HAVE_KMOD
         " +KMOD"
-#else
+#아니면
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#만약 HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#아니면
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#만약 HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#아니면
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#만약 HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#아니면
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#만약 HAVE_PCRE2
         " +PCRE2"
-#else
+#아니면
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#만약 HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#아니면
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#만약 HAVE_P11KIT
         " +P11KIT"
-#else
+#아니면
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#만약 HAVE_QRENCODE
         " +QRENCODE"
-#else
+#아니면
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#만약 HAVE_TPM2
         " +TPM2"
-#else
+#아니면
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#만약 HAVE_BZIP2
         " +BZIP2"
-#else
+#아니면
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#만약 HAVE_LZ4
         " +LZ4"
-#else
+#아니면
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#만약 HAVE_XZ
         " +XZ"
-#else
+#아니면
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#만약 HAVE_ZLIB
         " +ZLIB"
-#else
+#아니면
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#만약 HAVE_ZSTD
         " +ZSTD"
-#else
+#아니면
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#만약 BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#아니면
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#만약 HAVE_VMLINUX_H
         " +BTF"
-#else
+#아니면
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#만약 HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#아니면
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#만약 ENABLE_UTMP
         " +UTMP"
-#else
+#아니면
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#만약 HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#아니면
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#만약 EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#아니면
         " -EXPERIMENTAL"
 #endif
         ;
@@ -245,68 +245,68 @@ const char* const systemd_features =
 static char* systemd_features_with_color(void) {
         const char *p = systemd_features;
         _cleanup_free_ char *ret = NULL;
-        int r;
+        정수 r;
 
-        for (;;) {
+        위해 (;;) {
                 _cleanup_free_ char *word = NULL;
                 char *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                만약 (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        반환 NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                만약 (r == 0)
+                        반환 TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                만약 (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        반환 NULL;
                 }
 
-                if (word[0] == '+')
+                만약 (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                아니면 만약 (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                아니면
                         q = strextend(&ret, word);
-                if (!q) {
+                만약 (!q) {
                         log_oom_warning();
-                        return NULL;
+                        반환 NULL;
                 }
         }
 }
 
-int version(void) {
+정수 version(void) {
         _cleanup_free_ char *b = NULL;
 
-        if (colors_enabled())
+        만약 (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        반환 0;
 }
 
-int version_only(void) {
+정수 version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        반환 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#만약 EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        반환 false;
+#아니면
+        정수 r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        만약 (r >= 0)
+                반환 r;
+        만약 (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        반환 EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

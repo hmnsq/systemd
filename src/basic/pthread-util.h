@@ -7,10 +7,10 @@
 
 static inline pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
         assert_se(pthread_mutex_lock(mutex) == 0);
-        return mutex;
+        반환 mutex;
 }
 
 static inline void pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
-        if (*mutexp)
+        만약 (*mutexp)
                 assert_se(pthread_mutex_unlock(*mutexp) == 0);
 }

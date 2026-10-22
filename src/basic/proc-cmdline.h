@@ -15,19 +15,19 @@ typedef enum ProcCmdlineFlags {
                                                    * when the key is not present on the command line. */
 } ProcCmdlineFlags;
 
-typedef int (*proc_cmdline_parse_t)(const char *key, const char *value, void *data);
+typedef 정수 (*proc_cmdline_parse_t)(const char *key, const char *value, void *data);
 
-int proc_cmdline_filter_pid1_args(char **argv, char ***ret);
+정수 proc_cmdline_filter_pid1_args(char **argv, char ***ret);
 
-int proc_cmdline(char **ret);
-int proc_cmdline_strv(char ***ret);
+정수 proc_cmdline(char **ret);
+정수 proc_cmdline_strv(char ***ret);
 
-int proc_cmdline_parse(proc_cmdline_parse_t parse, void *userdata, ProcCmdlineFlags flags);
+정수 proc_cmdline_parse(proc_cmdline_parse_t parse, void *userdata, ProcCmdlineFlags flags);
 
-int proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value);
-int proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret);
+정수 proc_cmdline_get_key(const char *key, ProcCmdlineFlags flags, char **ret_value);
+정수 proc_cmdline_get_bool(const char *key, ProcCmdlineFlags flags, bool *ret);
 
-int proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...);
+정수 proc_cmdline_get_key_many_internal(ProcCmdlineFlags flags, ...);
 #define proc_cmdline_get_key_many(flags, ...) proc_cmdline_get_key_many_internal(flags, __VA_ARGS__, NULL)
 
 char* proc_cmdline_key_startswith(const char *s, const char *prefix);

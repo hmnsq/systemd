@@ -77,7 +77,7 @@ typedef enum CGroupMask {
 #define CGROUP_LIMIT_MAX UINT64_MAX
 
 static inline bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
-        return
+        반환
             x == CGROUP_WEIGHT_INVALID ||
             (x >= CGROUP_WEIGHT_MIN && x <= CGROUP_WEIGHT_MAX);
 }
@@ -106,7 +106,7 @@ void cgroup_io_limits_list(void);
 
 /* Convert the normal io.weight value to io.bfq.weight */
 static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
-        return
+        반환
             io_weight <= CGROUP_WEIGHT_DEFAULT ?
             CGROUP_BFQ_WEIGHT_DEFAULT - (CGROUP_WEIGHT_DEFAULT - io_weight) * (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) / (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) :
             CGROUP_BFQ_WEIGHT_DEFAULT + (io_weight - CGROUP_WEIGHT_DEFAULT) * (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT) / (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT);
@@ -119,12 +119,12 @@ static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
  * generate paths with multiple adjacent / removed.
  */
 
-int cg_is_available(void);
+정수 cg_is_available(void);
 
-int cg_path_open(const char *path);
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id);
+정수 cg_path_open(const char *path);
+정수 cg_cgroupid_open(정수 cgroupfs_fd, uint64_t id);
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret);
+정수 cg_path_from_cgroupid(정수 cgroupfs_fd, uint64_t id, char **ret);
 
 typedef enum CGroupFlags {
         CGROUP_SIGCONT            = 1 << 0,
@@ -132,108 +132,108 @@ typedef enum CGroupFlags {
         CGROUP_DONT_SKIP_UNMAPPED = 1 << 2,
 } CGroupFlags;
 
-int cg_enumerate_processes(const char *path, FILE **ret);
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
+정수 cg_enumerate_processes(const char *path, FILE **ret);
+정수 cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
+정수 cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
 
-int cg_enumerate_subgroups(const char *path, DIR **ret);
-int cg_read_subgroup(DIR *d, char **ret);
+정수 cg_enumerate_subgroups(const char *path, DIR **ret);
+정수 cg_read_subgroup(DIR *d, char **ret);
 
-typedef int (*cg_kill_log_func_t)(const PidRef *pid, int sig, void *userdata);
+typedef 정수 (*cg_kill_log_func_t)(const PidRef *pid, 정수 sig, void *userdata);
 
-int cg_kill(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed);
-int cg_kill_recursive(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+정수 cg_kill(const char *path, 정수 sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+정수 cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed);
+정수 cg_kill_recursive(const char *path, 정수 sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path);
+정수 cg_split_spec(const char *spec, char **ret_controller, char **ret_path);
 
-int cg_get_path(const char *path, const char *suffix, char **ret);
+정수 cg_get_path(const char *path, const char *suffix, char **ret);
 
-int cg_pid_get_path(pid_t pid, char **ret);
-int cg_pidref_get_path(const PidRef *pidref, char **ret);
+정수 cg_pid_get_path(pid_t pid, char **ret);
+정수 cg_pidref_get_path(const PidRef *pidref, char **ret);
 
-int cg_is_threaded(const char *path);
+정수 cg_is_threaded(const char *path);
 
-int cg_is_delegated(const char *path);
-int cg_is_delegated_fd(int fd);
+정수 cg_is_delegated(const char *path);
+정수 cg_is_delegated_fd(정수 fd);
 
-int cg_has_coredump_receive(const char *path);
+정수 cg_has_coredump_receive(const char *path);
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value);
-int cg_get_attribute(const char *path, const char *attribute, char **ret);
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
-int cg_get_attribute_as_bool(const char *path, const char *attribute);
+정수 cg_set_attribute(const char *path, const char *attribute, const char *value);
+정수 cg_get_attribute(const char *path, const char *attribute, char **ret);
+정수 cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
+정수 cg_get_attribute_as_bool(const char *path, const char *attribute);
 
-int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
+정수 cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
+정수 cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
 
-int cg_get_owner(const char *path, uid_t *ret_uid);
+정수 cg_get_owner(const char *path, uid_t *ret_uid);
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
+정수 cg_set_xattr(const char *path, const char *name, const void *value, size_t size, 정수 flags);
+정수 cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
 /* Returns negative on error, and 0 or 1 on success for the bool value */
-int cg_get_xattr_bool(const char *path, const char *name);
-int cg_remove_xattr(const char *path, const char *name);
+정수 cg_get_xattr_bool(const char *path, const char *name);
+정수 cg_remove_xattr(const char *path, const char *name);
 
-int cg_is_empty(const char *path);
+정수 cg_is_empty(const char *path);
 
-int cg_get_root_path(char **path);
+정수 cg_get_root_path(char **path);
 
-int cg_path_get_session(const char *path, char **ret_session);
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_unit(const char *path, char **ret_unit) {
-        return cg_path_get_unit_full(path, ret_unit, NULL);
+정수 cg_path_get_session(const char *path, char **ret_session);
+정수 cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
+정수 cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
+static inline 정수 cg_path_get_unit(const char *path, char **ret_unit) {
+        반환 cg_path_get_unit_full(path, ret_unit, NULL);
 }
-int cg_path_get_unit_path(const char *path, char **ret_unit);
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_user_unit(const char *path, char **ret_unit) {
-        return cg_path_get_user_unit_full(path, ret_unit, NULL);
+정수 cg_path_get_unit_path(const char *path, char **ret_unit);
+정수 cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
+static inline 정수 cg_path_get_user_unit(const char *path, char **ret_unit) {
+        반환 cg_path_get_user_unit_full(path, ret_unit, NULL);
 }
-int cg_path_get_machine_name(const char *path, char **ret_machine);
-int cg_path_get_slice(const char *path, char **ret_slice);
-int cg_path_get_user_slice(const char *path, char **ret_slice);
+정수 cg_path_get_machine_name(const char *path, char **ret_machine);
+정수 cg_path_get_slice(const char *path, char **ret_slice);
+정수 cg_path_get_user_slice(const char *path, char **ret_slice);
 
-int cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
-int cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
+정수 cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
+정수 cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
+정수 cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
 
-int cg_pid_get_session(pid_t pid, char **ret_session);
-int cg_pidref_get_session(const PidRef *pidref, char **ret);
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_unit_full(pid, ret_unit, NULL);
+정수 cg_pid_get_session(pid_t pid, char **ret_session);
+정수 cg_pidref_get_session(const PidRef *pidref, char **ret);
+정수 cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
+정수 cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
+정수 cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
+static inline 정수 cg_pid_get_unit(pid_t pid, char **ret_unit) {
+        반환 cg_pid_get_unit_full(pid, ret_unit, NULL);
 }
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_unit_full(pidref, ret_unit, NULL);
+정수 cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
+static inline 정수 cg_pidref_get_unit(const PidRef *pidref, char **ret_unit) {
+        반환 cg_pidref_get_unit_full(pidref, ret_unit, NULL);
 }
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_user_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_user_unit_full(pid, ret_unit, NULL);
+정수 cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
+static inline 정수 cg_pid_get_user_unit(pid_t pid, char **ret_unit) {
+        반환 cg_pid_get_user_unit_full(pid, ret_unit, NULL);
 }
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_user_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
+정수 cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
+static inline 정수 cg_pidref_get_user_unit(const PidRef *pidref, char **ret_unit) {
+        반환 cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
 }
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine);
-int cg_pid_get_slice(pid_t pid, char **ret_slice);
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice);
+정수 cg_pid_get_machine_name(pid_t pid, char **ret_machine);
+정수 cg_pid_get_slice(pid_t pid, char **ret_slice);
+정수 cg_pid_get_user_slice(pid_t pid, char **ret_slice);
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit);
+정수 cg_path_decode_unit(const char *cgroup, char **ret_unit);
 
 bool cg_needs_escape(const char *p) _pure_;
-int cg_escape(const char *p, char **ret);
+정수 cg_escape(const char *p, char **ret);
 char* cg_unescape(const char *p) _pure_;
 
-int cg_slice_to_path(const char *unit, char **ret);
+정수 cg_slice_to_path(const char *unit, char **ret);
 
-int cg_mask_supported(CGroupMask *ret);
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
-int cg_mask_from_string(const char *s, CGroupMask *ret);
-int cg_mask_to_string(CGroupMask mask, char **ret);
+정수 cg_mask_supported(CGroupMask *ret);
+정수 cg_mask_supported_subtree(const char *root, CGroupMask *ret);
+정수 cg_mask_from_string(const char *s, CGroupMask *ret);
+정수 cg_mask_to_string(CGroupMask mask, char **ret);
 
 bool cg_kill_supported(void);
 

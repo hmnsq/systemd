@@ -10,24 +10,24 @@ void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
                  comparison_userdata_fn_t compar, void *arg) {
         size_t l, u, idx;
         const void *p;
-        int comparison;
+        정수 comparison;
 
         assert(!size_multiply_overflow(nmemb, size));
 
         l = 0;
         u = nmemb;
-        while (l < u) {
+        동안 (l < u) {
                 idx = (l + u) / 2;
                 p = (const uint8_t*) base + idx * size;
                 comparison = compar(key, p, arg);
-                if (comparison < 0)
+                만약 (comparison < 0)
                         u = idx;
-                else if (comparison > 0)
+                아니면 만약 (comparison > 0)
                         l = idx + 1;
-                else
-                        return (void *)p;
+                아니면
+                        반환 (void *)p;
         }
-        return NULL;
+        반환 NULL;
 }
 
 void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
@@ -36,11 +36,11 @@ void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, siz
         * that only if nmemb > 0.
         */
 
-        if (nmemb <= 0)
-                return NULL;
+        만약 (nmemb <= 0)
+                반환 NULL;
 
         assert(base);
-        return (void*) bsearch(key, base, nmemb, size, compar);
+        반환 (void*) bsearch(key, base, nmemb, size, compar);
 }
 
 void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
@@ -49,44 +49,44 @@ void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
          * that only if nmemb > 0.
          */
 
-        if (nmemb <= 1)
-                return;
+        만약 (nmemb <= 1)
+                반환;
 
         assert(base);
         qsort(base, nmemb, size, compar);
 }
 
 void qsort_r_safe(void *base, size_t nmemb, size_t size, comparison_userdata_fn_t compar, void *userdata) {
-        if (nmemb <= 1)
-                return;
+        만약 (nmemb <= 1)
+                반환;
 
         assert(base);
         qsort_r(base, nmemb, size, compar, userdata);
 }
 
-int cmp_int(const int *a, const int *b) {
+정수 cmp_int(const 정수 *a, const 정수 *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        반환 CMP(*a, *b);
 }
 
-int cmp_uint16(const uint16_t *a, const uint16_t *b) {
+정수 cmp_uint16(const uint16_t *a, const uint16_t *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        반환 CMP(*a, *b);
 }
 
-int cmp_unsigned(const unsigned *a, const unsigned *b) {
+정수 cmp_unsigned(const unsigned *a, const unsigned *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        반환 CMP(*a, *b);
 }
