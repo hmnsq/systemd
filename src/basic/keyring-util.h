@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include <sys/keyctl.h>         /* IWYU pragma: export */
+#अन्तर्भाव <sys/keyctl.h>         /* IWYU pragma: export */
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 /* Like TAKE_PTR() but for key_serial_t, resetting them to -1 */
-#define TAKE_KEY_SERIAL(key_serial) TAKE_GENERIC(key_serial, key_serial_t, -1)
+#परिभाषय TAKE_कुञ्चिका_SERIAL(कुञ्चिका_serial) TAKE_GENERIC(कुञ्चिका_serial, कुञ्चिका_serial_t, -1)
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size);
-int keyring_describe(key_serial_t serial, char **ret);
+पूर्णाङ्क keyring_read(कुञ्चिका_serial_t serial, शून्य **ret, size_t *ret_आकार);
+पूर्णाङ्क keyring_describe(कुञ्चिका_serial_t serial, वर्ण **ret);

@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
-#include "stat-util.h"
+#अन्तर्भाव "forward.h"
+#अन्तर्भाव "stat-util.h"
 
-#define FILESYSTEM_MAGIC_MAX 10
+#परिभाषय FILESYSTEM_MAGIC_MAX 10
 
-typedef enum FilesystemGroups {
+प्रकारनिर्देश गणना FilesystemGroups {
         /* Please leave BASIC_API first and KNOWN last, but sort the rest alphabetically */
-        FILESYSTEM_SET_BASIC_API,
-        FILESYSTEM_SET_ANONYMOUS,
-        FILESYSTEM_SET_APPLICATION,
-        FILESYSTEM_SET_AUXILIARY_API,
-        FILESYSTEM_SET_COMMON_BLOCK,
-        FILESYSTEM_SET_HISTORICAL_BLOCK,
-        FILESYSTEM_SET_NETWORK,
-        FILESYSTEM_SET_PRIVILEGED_API,
-        FILESYSTEM_SET_SECURITY,
-        FILESYSTEM_SET_TEMPORARY,
-        FILESYSTEM_SET_KNOWN,
-        _FILESYSTEM_SET_MAX,
-        _FILESYSTEM_SET_INVALID = -EINVAL,
+        FILESYSTEM_समुच्चयः_BASIC_API,
+        FILESYSTEM_समुच्चयः_ANONYMOUS,
+        FILESYSTEM_समुच्चयः_APPLICATION,
+        FILESYSTEM_समुच्चयः_AUXILIARY_API,
+        FILESYSTEM_समुच्चयः_COMMON_खण्डम्,
+        FILESYSTEM_समुच्चयः_HISTORICAL_खण्डम्,
+        FILESYSTEM_समुच्चयः_जालम्,
+        FILESYSTEM_समुच्चयः_PRIVILEGED_API,
+        FILESYSTEM_समुच्चयः_SECURITY,
+        FILESYSTEM_समुच्चयः_TEMPORARY,
+        FILESYSTEM_समुच्चयः_ज्ञातम्,
+        FILESYSTEM_समुच्चयः_MAX,
+        FILESYSTEM_समुच्चयः_INVALID = -EINVAL,
 } FilesystemGroups;
 
-typedef struct FilesystemSet {
-        const char *name;
-        const char *help;
-        const char *value;
-} FilesystemSet;
+प्रकारनिर्देश संरचना Filesystem_समुच्चयः {
+        ध्रुव वर्ण *name;
+        ध्रुव वर्ण *help;
+        ध्रुव वर्ण *मानम्;
+} Filesystem_समुच्चयः;
 
-extern const FilesystemSet filesystem_sets[];
+बाह्य ध्रुव Filesystem_समुच्चयः filesystem_sets[];
 
-const FilesystemSet *filesystem_set_find(const char *name);
+ध्रुव Filesystem_समुच्चयः *filesystem_समुच्चयः_find(ध्रुव वर्ण *name);
 
-const char* fs_type_to_string(statfs_f_type_t magic);
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret);
-bool fs_in_group(const struct statfs *s, enum FilesystemGroups fs_group);
+ध्रुव वर्ण* fs_type_गन्तव्यम्_string(statfs_f_type_t magic);
+पूर्णाङ्क fs_type_from_string(ध्रुव वर्ण *name, ध्रुव statfs_f_type_t **ret);
+bool fs_अन्तर्_गणः(ध्रुव संरचना statfs *s, गणना FilesystemGroups fs_गणः);
 
 /* gperf prototypes */
-const struct FilesystemMagic* filesystems_gperf_lookup(const char *str, GPERF_LEN_TYPE length);
+ध्रुव संरचना FilesystemMagic* filesystems_gperf_lookup(ध्रुव वर्ण *str, GPERF_LEN_TYPE length);

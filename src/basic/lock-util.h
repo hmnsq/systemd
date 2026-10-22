@@ -1,48 +1,48 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
 /* Include here so consumers have LOCK_{EX,SH,NB} available. */
-#include <sys/file.h> /* IWYU pragma: export */
+#अन्तर्भाव <sys/file.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-typedef struct LockFile {
-        int dir_fd;
-        char *path;
-        int fd;
-        int operation;
-} LockFile;
+प्रकारनिर्देश संरचना तालकम्_File {
+        पूर्णाङ्क dir_fd;
+        वर्ण *मार्गः;
+        पूर्णाङ्क fd;
+        पूर्णाङ्क operation;
+} तालकम्_File;
 
-int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret);
-static inline int make_lock_file(const char *p, int operation, LockFile *ret) {
-        return make_lock_file_at(AT_FDCWD, p, operation, ret);
+पूर्णाङ्क make_तालकम्_file_at(पूर्णाङ्क dir_fd, ध्रुव वर्ण *p, पूर्णाङ्क operation, तालकम्_File *ret);
+स्थिर अन्तःस्थ पूर्णाङ्क make_तालकम्_file(ध्रुव वर्ण *p, पूर्णाङ्क operation, तालकम्_File *ret) {
+        प्रत्यागम make_तालकम्_file_at(AT_FDCWD, p, operation, ret);
 }
-int make_lock_file_for(const char *p, int operation, LockFile *ret);
-void release_lock_file(LockFile *f);
+पूर्णाङ्क make_तालकम्_file_for(ध्रुव वर्ण *p, पूर्णाङ्क operation, तालकम्_File *ret);
+शून्य release_तालकम्_file(तालकम्_File *f);
 
-#define LOCK_FILE_INIT (LockFile) { .dir_fd = -EBADF, .fd = -EBADF }
+#परिभाषय तालकम्_FILE_INIT (तालकम्_File) { .dir_fd = -EBADF, .fd = -EBADF }
 
 /* POSIX locks with the same interface as flock(). */
-int posix_lock(int fd, int operation);
-void posix_unlockpp(int **fd);
+पूर्णाङ्क posix_तालकम्(पूर्णाङ्क fd, पूर्णाङ्क operation);
+शून्य posix_unlockpp(पूर्णाङ्क **fd);
 
-#define CLEANUP_POSIX_UNLOCK(fd)                                   \
-        _cleanup_(posix_unlockpp) _unused_ int *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
+#परिभाषय CLEANUP_POSIX_UNLOCK(fd)                                   \
+        _cleanup_(posix_unlockpp) अप्रयुक्तम् पूर्णाङ्क *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
 
 /* Open File Description locks with the same interface as flock(). */
-int unposix_lock(int fd, int operation);
-void unposix_unlockpp(int **fd);
+पूर्णाङ्क unposix_तालकम्(पूर्णाङ्क fd, पूर्णाङ्क operation);
+शून्य unposix_unlockpp(पूर्णाङ्क **fd);
 
-#define CLEANUP_UNPOSIX_UNLOCK(fd)                                   \
-        _cleanup_(unposix_unlockpp) _unused_ int *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
+#परिभाषय CLEANUP_UNPOSIX_UNLOCK(fd)                                   \
+        _cleanup_(unposix_unlockpp) अप्रयुक्तम् पूर्णाङ्क *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
 
-typedef enum LockType {
-        LOCK_NONE, /* Don't lock the file descriptor. Useful if you need to conditionally lock a file. */
-        LOCK_BSD,
-        LOCK_POSIX,
-        LOCK_UNPOSIX,
-} LockType;
+प्रकारनिर्देश गणना तालकम्_Type {
+        तालकम्_NONE, /* Don't lock the file descriptor. Useful if you need to conditionally lock a file. */
+        तालकम्_BSD,
+        तालकम्_POSIX,
+        तालकम्_UNPOSIX,
+} तालकम्_Type;
 
-int lock_generic(int fd, LockType type, int operation);
+पूर्णाङ्क तालकम्_generic(पूर्णाङ्क fd, तालकम्_Type type, पूर्णाङ्क operation);
 
-int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeout);
+पूर्णाङ्क तालकम्_generic_with_timeout(पूर्णाङ्क fd, तालकम्_Type type, पूर्णाङ्क operation, usec_t timeout);

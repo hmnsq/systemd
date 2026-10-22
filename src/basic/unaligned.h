@@ -1,84 +1,84 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include <endian.h>
+#अन्तर्भाव <endian.h>
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-#include "../fundamental/unaligned.h" /* IWYU pragma: export */
+#अन्तर्भाव "../fundamental/unaligned.h" /* IWYU pragma: export */
 
 /* BE */
 
-static inline uint16_t unaligned_read_be16(const void *_u) {
-        const struct __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
+स्थिर अन्तःस्थ uint16_t unaligned_read_be16(ध्रुव शून्य *_u) {
+        ध्रुव संरचना __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
 
-        return be16toh(u->x);
+        प्रत्यागम be16toh(u->x);
 }
 
-static inline uint32_t unaligned_read_be32(const void *_u) {
-        const struct __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
+स्थिर अन्तःस्थ uint32_t unaligned_read_be32(ध्रुव शून्य *_u) {
+        ध्रुव संरचना __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
 
-        return be32toh(u->x);
+        प्रत्यागम be32toh(u->x);
 }
 
-static inline uint64_t unaligned_read_be64(const void *_u) {
-        const struct __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
+स्थिर अन्तःस्थ uint64_t unaligned_read_be64(ध्रुव शून्य *_u) {
+        ध्रुव संरचना __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
 
-        return be64toh(u->x);
+        प्रत्यागम be64toh(u->x);
 }
 
-static inline void unaligned_write_be16(void *_u, uint16_t a) {
-        struct __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
+स्थिर अन्तःस्थ शून्य unaligned_write_be16(शून्य *_u, uint16_t a) {
+        संरचना __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
 
         u->x = be16toh(a);
 }
 
-static inline void unaligned_write_be32(void *_u, uint32_t a) {
-        struct __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
+स्थिर अन्तःस्थ शून्य unaligned_write_be32(शून्य *_u, uint32_t a) {
+        संरचना __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
 
         u->x = be32toh(a);
 }
 
-static inline void unaligned_write_be64(void *_u, uint64_t a) {
-        struct __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
+स्थिर अन्तःस्थ शून्य unaligned_write_be64(शून्य *_u, uint64_t a) {
+        संरचना __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
 
         u->x = be64toh(a);
 }
 
 /* LE */
 
-static inline uint16_t unaligned_read_le16(const void *_u) {
-        const struct __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
+स्थिर अन्तःस्थ uint16_t unaligned_read_le16(ध्रुव शून्य *_u) {
+        ध्रुव संरचना __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
 
-        return le16toh(u->x);
+        प्रत्यागम le16toh(u->x);
 }
 
-static inline uint32_t unaligned_read_le32(const void *_u) {
-        const struct __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
+स्थिर अन्तःस्थ uint32_t unaligned_read_le32(ध्रुव शून्य *_u) {
+        ध्रुव संरचना __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
 
-        return le32toh(u->x);
+        प्रत्यागम le32toh(u->x);
 }
 
-static inline uint64_t unaligned_read_le64(const void *_u) {
-        const struct __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
+स्थिर अन्तःस्थ uint64_t unaligned_read_le64(ध्रुव शून्य *_u) {
+        ध्रुव संरचना __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
 
-        return le64toh(u->x);
+        प्रत्यागम le64toh(u->x);
 }
 
-static inline void unaligned_write_le16(void *_u, uint16_t a) {
-        struct __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
+स्थिर अन्तःस्थ शून्य unaligned_write_le16(शून्य *_u, uint16_t a) {
+        संरचना __attribute__((__packed__, __may_alias__)) { uint16_t x; } *u = _u;
 
         u->x = le16toh(a);
 }
 
-static inline void unaligned_write_le32(void *_u, uint32_t a) {
-        struct __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
+स्थिर अन्तःस्थ शून्य unaligned_write_le32(शून्य *_u, uint32_t a) {
+        संरचना __attribute__((__packed__, __may_alias__)) { uint32_t x; } *u = _u;
 
         u->x = le32toh(a);
 }
 
-static inline void unaligned_write_le64(void *_u, uint64_t a) {
-        struct __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
+स्थिर अन्तःस्थ शून्य unaligned_write_le64(शून्य *_u, uint64_t a) {
+        संरचना __attribute__((__packed__, __may_alias__)) { uint64_t x; } *u = _u;
 
         u->x = le64toh(a);
 }

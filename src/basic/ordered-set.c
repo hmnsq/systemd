@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <stdlib.h>
+#अन्तर्भाव <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#अन्तर्भाव "fileio.h"
+#अन्तर्भाव "ordered-set.h"
+#अन्तर्भाव "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+पूर्णाङ्क ordered_समुच्चयः_ensure_allocated(Ordered_समुच्चयः **s, ध्रुव संरचना hash_ops *ops) {
+        प्रतिज्ञा(s);
 
-        if (*s)
-                return 0;
+        यदि (*s)
+                प्रत्यागम 0;
 
-        *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        *s = ordered_समुच्चयः_new(ops);
+        यदि (!*s)
+                प्रत्यागम -ENOMEM;
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+पूर्णाङ्क ordered_समुच्चयः_ensure_put(Ordered_समुच्चयः **s, ध्रुव संरचना hash_ops *ops, शून्य *p) {
+        पूर्णाङ्क r;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
-        r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        r = ordered_समुच्चयः_ensure_allocated(s, ops);
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return ordered_set_put(*s, p);
+        प्रत्यागम ordered_समुच्चयः_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+पूर्णाङ्क ordered_समुच्चयः_consume(Ordered_समुच्चयः *s, शून्य *p) {
+        पूर्णाङ्क r;
 
-        r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        r = ordered_समुच्चयः_put(s, p);
+        यदि (r <= 0)
+                मुक्त(p);
 
-        return r;
+        प्रत्यागम r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+पूर्णाङ्क ordered_समुच्चयः_put_strdup_पूर्णम्(Ordered_समुच्चयः **s, ध्रुव संरचना hash_ops *hash_ops, ध्रुव वर्ण *p) {
+        वर्ण *c;
+        पूर्णाङ्क r;
 
-        assert(s);
-        assert(p);
+        प्रतिज्ञा(s);
+        प्रतिज्ञा(p);
 
-        r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        r = ordered_समुच्चयः_ensure_allocated(s, hash_ops);
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        यदि (ordered_समुच्चयः_अन्तर्भवति(*s, p))
+                प्रत्यागम 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        यदि (!c)
+                प्रत्यागम -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        प्रत्यागम ordered_समुच्चयः_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+पूर्णाङ्क ordered_समुच्चयः_put_strdupv_पूर्णम्(Ordered_समुच्चयः **s, ध्रुव संरचना hash_ops *hash_ops, वर्ण **l) {
+        पूर्णाङ्क r, ret = 0;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         STRV_FOREACH(i, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                r = ordered_समुच्चयः_put_strdup_पूर्णम्(s, hash_ops, *i);
+                यदि (r < 0)
+                        प्रत्यागम r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        प्रत्यागम ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+पूर्णाङ्क ordered_समुच्चयः_put_string_समुच्चयः_पूर्णम्(Ordered_समुच्चयः **s, ध्रुव संरचना hash_ops *hash_ops, Ordered_समुच्चयः *l) {
+        पूर्णाङ्क r, ret = 0;
+        वर्ण *p;
 
-        assert(s);
+        प्रतिज्ञा(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
-        ORDERED_SET_FOREACH(p, l) {
-                r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+        ORDERED_समुच्चयः_FOREACH(p, l) {
+                r = ordered_समुच्चयः_put_strdup_पूर्णम्(s, hash_ops, p);
+                यदि (r < 0)
+                        प्रत्यागम r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        प्रत्यागम ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+शून्य ordered_समुच्चयः_print(FILE *f, ध्रुव वर्ण *क्षेत्रम्, Ordered_समुच्चयः *s) {
         bool space = false;
-        char *p;
+        वर्ण *p;
 
-        assert(f);
-        assert(field);
+        प्रतिज्ञा(f);
+        प्रतिज्ञा(क्षेत्रम्);
 
-        if (ordered_set_isempty(s))
-                return;
+        यदि (ordered_समुच्चयः_isempty(s))
+                प्रत्यागम;
 
-        fputs(field, f);
+        fputs(क्षेत्रम्, f);
 
-        ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+        ORDERED_समुच्चयः_FOREACH(p, s)
+                fputs_with_separator(f, p, रिक्त, &space);
 
         fputc('\n', f);
 }

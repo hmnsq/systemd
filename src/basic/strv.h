@@ -1,228 +1,228 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-#include "../fundamental/strv.h"   /* IWYU pragma: export */
+#अन्तर्भाव "../fundamental/strv.h"   /* IWYU pragma: export */
 
-char* strv_find(char * const *l, const char *name) _pure_;
-char* strv_find_case(char * const *l, const char *name) _pure_;
-char* strv_find_prefix(char * const *l, const char *name) _pure_;
-char* strv_find_startswith(char * const *l, const char *name) _pure_;
-char* strv_find_closest(char * const *l, const char *name) _pure_;
+वर्ण* strv_find(वर्ण * ध्रुव *l, ध्रुव वर्ण *name) विशुद्धम्;
+वर्ण* strv_find_case(वर्ण * ध्रुव *l, ध्रुव वर्ण *name) विशुद्धम्;
+वर्ण* strv_find_उपसर्गः(वर्ण * ध्रुव *l, ध्रुव वर्ण *name) विशुद्धम्;
+वर्ण* strv_find_startswith(वर्ण * ध्रुव *l, ध्रुव वर्ण *name) विशुद्धम्;
+वर्ण* strv_find_closest(वर्ण * ध्रुव *l, ध्रुव वर्ण *name) विशुद्धम्;
 /* Given two vectors, the first a list of keys and the second a list of key-value pairs, returns the value
  * of the first key from the first vector that is found in the second vector. */
-char* strv_find_first_field(char * const *needles, char * const *haystack) _pure_;
+वर्ण* strv_find_first_क्षेत्रम्(वर्ण * ध्रुव *needles, वर्ण * ध्रुव *haystack) विशुद्धम्;
 
-#define strv_contains(l, s) (!!strv_find((l), (s)))
-#define strv_contains_case(l, s) (!!strv_find_case((l), (s)))
+#परिभाषय strv_अन्तर्भवति(l, s) (!!strv_find((l), (s)))
+#परिभाषय strv_अन्तर्भवति_case(l, s) (!!strv_find_case((l), (s)))
 
-char** strv_free(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free);
-#define _cleanup_strv_free_ _cleanup_(strv_freep)
+वर्ण** strv_free(वर्ण **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(वर्ण**, strv_free);
+#परिभाषय _cleanup_strv_free_ _cleanup_(strv_freep)
 
-char** strv_free_erase(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free_erase);
-#define _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
+वर्ण** strv_free_erase(वर्ण **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(वर्ण**, strv_free_erase);
+#परिभाषय _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
 
-void strv_free_many(char ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
+शून्य strv_free_many(वर्ण ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
 
-char** strv_copy_n(char * const *l, size_t n);
-static inline char** strv_copy(char * const *l) {
-        return strv_copy_n(l, SIZE_MAX);
+वर्ण** strv_copy_n(वर्ण * ध्रुव *l, size_t n);
+स्थिर अन्तःस्थ वर्ण** strv_copy(वर्ण * ध्रुव *l) {
+        प्रत्यागम strv_copy_n(l, SIZE_MAX);
 }
-int strv_copy_unless_empty(char * const *l, char ***ret);
+पूर्णाङ्क strv_copy_unless_रिक्तानि(वर्ण * ध्रुव *l, वर्ण ***ret);
 
-size_t strv_length(char * const *l) _pure_;
+size_t strv_दीर्घता(वर्ण * ध्रुव *l) विशुद्धम्;
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
+पूर्णाङ्क strv_extend_strv(वर्ण ***a, वर्ण * ध्रुव *b, bool filter_duplicates);
+पूर्णाङ्क strv_extend_strv_consume(वर्ण ***a, वर्ण **b, bool filter_duplicates);
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
-static inline int strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
-        return strv_extend_strv_biconcat(a, NULL, b, suffix);
+पूर्णाङ्क strv_extend_strv_biconcat(वर्ण ***a, ध्रुव वर्ण *उपसर्गः, ध्रुव वर्ण* ध्रुव *b, ध्रुव वर्ण *suffix);
+स्थिर अन्तःस्थ पूर्णाङ्क strv_extend_strv_concat(वर्ण ***a, ध्रुव वर्ण* ध्रुव *b, ध्रुव वर्ण *suffix) {
+        प्रत्यागम strv_extend_strv_biconcat(a, रिक्त, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+पूर्णाङ्क strv_prepend(वर्ण ***l, ध्रुव वर्ण *मानम्);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+पूर्णाङ्क strv_extend_with_आकार(वर्ण ***l, size_t *n, ध्रुव वर्ण *मानम्);
+स्थिर अन्तःस्थ पूर्णाङ्क strv_extend(वर्ण ***l, ध्रुव वर्ण *मानम्) {
+        प्रत्यागम strv_extend_with_आकार(l, रिक्त, मानम्);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
-#define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
+पूर्णाङ्क strv_extend_many_आन्तरिकम्(वर्ण ***l, ध्रुव वर्ण *मानम्, ...);
+#परिभाषय strv_extend_many(l, ...) strv_extend_many_आन्तरिकम्(l, __VA_ARGS__, POINTER_MAX)
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
-#define strv_extendf(l, ...) strv_extendf_with_size(l, NULL, __VA_ARGS__)
+पूर्णाङ्क strv_extendf_with_आकार(वर्ण ***l, size_t *n, ध्रुव वर्ण *format, ...) _printf_(3,4);
+#परिभाषय strv_extendf(l, ...) strv_extendf_with_आकार(l, रिक्त, __VA_ARGS__)
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
-#define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
-#define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
+पूर्णाङ्क strv_extend_joined_with_आकार_sentinel(वर्ण ***l, size_t *n, ...) _sentinel_;
+#परिभाषय strv_extend_joined_with_आकार(l, n, ...) strv_extend_joined_with_आकार_sentinel(l, n, __VA_ARGS__, रिक्त)
+#परिभाषय strv_extend_joined(l, ...) strv_extend_joined_with_आकार(l, रिक्त, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+पूर्णाङ्क strv_प्रक्षिप_with_आकार(वर्ण ***l, size_t *n, वर्ण *मानम्);
+स्थिर अन्तःस्थ पूर्णाङ्क strv_प्रक्षिप(वर्ण ***l, वर्ण *मानम्) {
+        प्रत्यागम strv_प्रक्षिप_with_आकार(l, रिक्त, मानम्);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+पूर्णाङ्क strv_प्रक्षिप_pair(वर्ण ***l, वर्ण *a, वर्ण *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+पूर्णाङ्क strv_निवेशय(वर्ण ***l, size_t position, वर्ण *मानम्);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
-}
-
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+स्थिर अन्तःस्थ पूर्णाङ्क strv_प्रक्षिप_prepend(वर्ण ***l, वर्ण *मानम्) {
+        प्रत्यागम strv_निवेशय(l, 0, मानम्);
 }
 
-int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
-
-char** strv_remove(char **l, const char *s);
-char** strv_remove_strv(char **l, char *const*ll);
-char** strv_uniq(char **l);
-bool strv_is_uniq(char * const *l) _pure_;
-
-int strv_compare(char * const *a, char * const *b) _pure_;
-static inline bool strv_equal(char * const *a, char * const *b) {
-        return strv_compare(a, b) == 0;
+पूर्णाङ्क strv_consume_with_आकार(वर्ण ***l, size_t *n, वर्ण *मानम्);
+स्थिर अन्तःस्थ पूर्णाङ्क strv_consume(वर्ण ***l, वर्ण *मानम्) {
+        प्रत्यागम strv_consume_with_आकार(l, रिक्त, मानम्);
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) _pure_;
+पूर्णाङ्क strv_consume_pair(वर्ण ***l, वर्ण *a, वर्ण *b);
+पूर्णाङ्क strv_consume_prepend(वर्ण ***l, वर्ण *मानम्);
 
-char** strv_new_internal(const char *x, ...) _sentinel_;
-char** strv_new_ap(const char *x, va_list ap);
-#define strv_new(...) strv_new_internal(__VA_ARGS__, NULL)
+वर्ण** strv_remove(वर्ण **l, ध्रुव वर्ण *s);
+वर्ण** strv_remove_strv(वर्ण **l, वर्ण *ध्रुव*ll);
+वर्ण** strv_uniq(वर्ण **l);
+bool strv_is_uniq(वर्ण * ध्रुव *l) विशुद्धम्;
 
-#define STRV_IGNORE ((const char *) POINTER_MAX)
-
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ?: STRV_IGNORE;
+पूर्णाङ्क strv_compare(वर्ण * ध्रुव *a, वर्ण * ध्रुव *b) विशुद्धम्;
+स्थिर अन्तःस्थ bool strv_equal(वर्ण * ध्रुव *a, वर्ण * ध्रुव *b) {
+        प्रत्यागम strv_compare(a, b) == 0;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
-char** strv_split(const char *s, const char *separators);
+bool strv_equal_ignore_क्रमः(वर्ण * ध्रुव *a, वर्ण * ध्रुव *b) विशुद्धम्;
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
+वर्ण** strv_new_आन्तरिकम्(ध्रुव वर्ण *x, ...) _sentinel_;
+वर्ण** strv_new_ap(ध्रुव वर्ण *x, va_list ap);
+#परिभाषय strv_new(...) strv_new_आन्तरिकम्(__VA_ARGS__, रिक्त)
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
-char** strv_split_newlines(const char *s);
+#परिभाषय STRV_IGNORE ((ध्रुव वर्ण *) POINTER_MAX)
+
+स्थिर अन्तःस्थ ध्रुव वर्ण* STRV_IFNOTNULL(ध्रुव वर्ण *x) {
+        प्रत्यागम x ?: STRV_IGNORE;
+}
+
+पूर्णाङ्क strv_विभज_पूर्णम्(वर्ण ***t, ध्रुव वर्ण *s, ध्रुव वर्ण *separators, ExtractFlags flags);
+वर्ण** strv_विभज(ध्रुव वर्ण *s, ध्रुव वर्ण *separators);
+
+पूर्णाङ्क strv_विभज_and_extend_पूर्णम्(वर्ण ***t, ध्रुव वर्ण *s, ध्रुव वर्ण *separators, bool filter_duplicates, ExtractFlags flags);
+पूर्णाङ्क strv_विभज_and_extend(वर्ण ***t, ध्रुव वर्ण *s, ध्रुव वर्ण *separators, bool filter_duplicates);
+
+पूर्णाङ्क strv_विभज_newlines_पूर्णम्(वर्ण ***ret, ध्रुव वर्ण *s, ExtractFlags flags);
+वर्ण** strv_विभज_newlines(ध्रुव वर्ण *s);
 
 /* Given a string containing white-space separated tuples of words themselves separated by ':',
  * returns a vector of strings. If the second element in a tuple is missing, the corresponding
  * string in the vector is an empty string. */
-int strv_split_colon_pairs(char ***t, const char *s);
+पूर्णाङ्क strv_विभज_colon_युग्मानि(वर्ण ***t, ध्रुव वर्ण *s);
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix);
-static inline char *strv_join(char * const *l, const char *separator) {
-        return strv_join_full(l, separator, NULL);
+वर्ण* strv_join_पूर्णम्(वर्ण * ध्रुव *l, ध्रुव वर्ण *separator, ध्रुव वर्ण *उपसर्गः);
+स्थिर अन्तःस्थ वर्ण *strv_join(वर्ण * ध्रुव *l, ध्रुव वर्ण *separator) {
+        प्रत्यागम strv_join_पूर्णम्(l, separator, रिक्त);
 }
 
-bool strv_overlap(char * const *a, char * const *b) _pure_;
+bool strv_overlap(वर्ण * ध्रुव *a, वर्ण * ध्रुव *b) विशुद्धम्;
 
-#define _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
-        for (typeof(*(l)) *s, *h = (l), *i = ({                         \
-                                size_t _len = strv_length(h);           \
-                                _len > 0 ? h + _len - 1 : NULL;         \
+#परिभाषय _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
+        प्रति (typeof(*(l)) *s, *h = (l), *i = ({                         \
+                                size_t _len = strv_दीर्घता(h);           \
+                                _len > 0 ? h + _len - 1 : रिक्त;         \
                         });                                             \
              (s = i);                                                   \
              i = PTR_SUB1(i, h))
 
-#define STRV_FOREACH_BACKWARDS(s, l)                                    \
+#परिभाषय STRV_FOREACH_BACKWARDS(s, l)                                    \
         _STRV_FOREACH_BACKWARDS(s, l, UNIQ_T(h, UNIQ), UNIQ_T(i, UNIQ))
 
-#define _STRV_FOREACH_PAIR(x, y, l, i)                          \
-        for (typeof(*(l)) *x, *y, *i = (l);                     \
+#परिभाषय _STRV_FOREACH_PAIR(x, y, l, i)                          \
+        प्रति (typeof(*(l)) *x, *y, *i = (l);                     \
              i && *(x = i) && *(y = i + 1);                     \
              i += 2)
 
-#define STRV_FOREACH_PAIR(x, y, l)                      \
+#परिभाषय STRV_FOREACH_PAIR(x, y, l)                      \
         _STRV_FOREACH_PAIR(x, y, l, UNIQ_T(i, UNIQ))
 
-char** strv_sort(char **l);
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
-char** strv_sort_uniq(char **l);
-void strv_print_full(char * const *l, const char *prefix);
-static inline void strv_print(char * const *l) {
-        strv_print_full(l, NULL);
+वर्ण** strv_क्रमय(वर्ण **l);
+वर्ण** strv_क्रमय_uniq_पूर्णम्(वर्ण **l, पूर्णाङ्क (*compare)(वर्ण * ध्रुव *a, वर्ण * ध्रुव *b));
+वर्ण** strv_क्रमय_uniq(वर्ण **l);
+शून्य strv_print_पूर्णम्(वर्ण * ध्रुव *l, ध्रुव वर्ण *उपसर्गः);
+स्थिर अन्तःस्थ शून्य strv_print(वर्ण * ध्रुव *l) {
+        strv_print_पूर्णम्(l, रिक्त);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l);
-#define startswith_strv(s, l) const_generic(s, startswith_strv_internal(s, l))
+वर्ण* startswith_strv_आन्तरिकम्(ध्रुव वर्ण *s, वर्ण * ध्रुव *l);
+#परिभाषय startswith_strv(s, l) const_generic(s, startswith_strv_आन्तरिकम्(s, l))
 
-#define STARTSWITH_SET(p, ...)                                  \
+#परिभाषय STARTSWITH_समुच्चयः(p, ...)                                  \
         startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-char* endswith_strv_internal(const char *s, char * const *l);
-#define endswith_strv(s, l) const_generic(s, endswith_strv_internal(s, l))
+वर्ण* endswith_strv_आन्तरिकम्(ध्रुव वर्ण *s, वर्ण * ध्रुव *l);
+#परिभाषय endswith_strv(s, l) const_generic(s, endswith_strv_आन्तरिकम्(s, l))
 
-#define ENDSWITH_SET(p, ...)                                    \
+#परिभाषय ENDSWITH_समुच्चयः(p, ...)                                    \
         endswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-#define STR_IN_SET(x, ...) strv_contains(STRV_MAKE(__VA_ARGS__), x)
-#define STRPTR_IN_SET(x, ...)                                    \
+#परिभाषय STR_अन्तर्_समुच्चयः(x, ...) strv_अन्तर्भवति(STRV_MAKE(__VA_ARGS__), x)
+#परिभाषय STRPTR_अन्तर्_समुच्चयः(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
-                _x && strv_contains(STRV_MAKE(__VA_ARGS__), _x); \
+                ध्रुव वर्ण* _x = (x);                            \
+                _x && strv_अन्तर्भवति(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
-#define STRCASE_IN_SET(x, ...) strv_contains_case(STRV_MAKE(__VA_ARGS__), x)
-#define STRCASEPTR_IN_SET(x, ...)                                    \
+#परिभाषय STRCASE_अन्तर्_समुच्चयः(x, ...) strv_अन्तर्भवति_case(STRV_MAKE(__VA_ARGS__), x)
+#परिभाषय STRCASEPTR_अन्तर्_समुच्चयः(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
-                _x && strv_contains_case(STRV_MAKE(__VA_ARGS__), _x); \
+                ध्रुव वर्ण* _x = (x);                            \
+                _x && strv_अन्तर्भवति_case(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
-#define _FOREACH_STRING(uniq, x, y, ...)                                \
-        for (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
+#परिभाषय _FOREACH_STRING(uniq, x, y, ...)                                \
+        प्रति (ध्रुव वर्ण *x, * ध्रुव*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
              x;                                                         \
              x = *(++UNIQ_T(l, uniq)))
 
-#define FOREACH_STRING(x, y, ...)                       \
+#परिभाषय FOREACH_STRING(x, y, ...)                       \
         _FOREACH_STRING(UNIQ, x, y, ##__VA_ARGS__)
 
-char** strv_reverse(char **l);
-char** strv_shell_escape(char **l, const char *bad);
+वर्ण** strv_reverse(वर्ण **l);
+वर्ण** strv_shell_escape(वर्ण **l, ध्रुव वर्ण *bad);
 
-bool strv_fnmatch_full(char* const* patterns, const char *s, int flags, size_t *ret_matched_pos);
-static inline bool strv_fnmatch(char* const* patterns, const char *s) {
-        return strv_fnmatch_full(patterns, s, 0, NULL);
+bool strv_fnmatch_पूर्णम्(वर्ण* ध्रुव* patterns, ध्रुव वर्ण *s, पूर्णाङ्क flags, size_t *ret_matched_pos);
+स्थिर अन्तःस्थ bool strv_fnmatch(वर्ण* ध्रुव* patterns, ध्रुव वर्ण *s) {
+        प्रत्यागम strv_fnmatch_पूर्णम्(patterns, s, 0, रिक्त);
 }
-static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, int flags) {
-        assert(s);
-        return strv_isempty(patterns) ||
-               strv_fnmatch_full(patterns, s, flags, NULL);
+स्थिर अन्तःस्थ bool strv_fnmatch_or_रिक्तानि(वर्ण* ध्रुव* patterns, ध्रुव वर्ण *s, पूर्णाङ्क flags) {
+        प्रतिज्ञा(s);
+        प्रत्यागम strv_isempty(patterns) ||
+               strv_fnmatch_पूर्णम्(patterns, s, flags, रिक्त);
 }
 
-char** strv_skip(char **l, size_t n);
+वर्ण** strv_skip(वर्ण **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+पूर्णाङ्क strv_extend_n(वर्ण ***l, ध्रुव वर्ण *मानम्, size_t n);
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
+पूर्णाङ्क strv_extend_assignment(वर्ण ***l, ध्रुव वर्ण *lhs, ध्रुव वर्ण *rhs);
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
+पूर्णाङ्क fputstrv(FILE *f, वर्ण * ध्रुव *l, ध्रुव वर्ण *separator, bool *space);
 
-#define strv_free_and_replace(a, b)             \
-        free_and_replace_full(a, b, strv_free)
+#परिभाषय strv_free_and_replace(a, b)             \
+        free_and_replace_पूर्णम्(a, b, strv_free)
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+शून्य string_strv_hashmap_remove(Hashmap *h, ध्रुव वर्ण *कुञ्चिका, ध्रुव वर्ण *मानम्);
+शून्य string_strv_ordered_hashmap_remove(OrderedHashmap *h, ध्रुव वर्ण *कुञ्चिका, ध्रुव वर्ण *मानम्);
+पूर्णाङ्क string_strv_hashmap_put(Hashmap **h, ध्रुव वर्ण *कुञ्चिका, ध्रुव वर्ण *मानम्);
+पूर्णाङ्क string_strv_ordered_hashmap_put(OrderedHashmap **h, ध्रुव वर्ण *कुञ्चिका, ध्रुव वर्ण *मानम्);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+पूर्णाङ्क strv_rebreak_पङ्क्तयः(वर्ण **l, size_t width, वर्ण ***ret);
 
-char** strv_filter_prefix(char * const *l, const char *prefix);
+वर्ण** strv_filter_उपसर्गः(वर्ण * ध्रुव *l, ध्रुव वर्ण *उपसर्गः);
 
 /* whenever we need to initialize something with a constant non-NULL, but empty strv, we can use this shared
  * one */
-extern const char* const strv_empty[1];
+बाह्य ध्रुव वर्ण* ध्रुव strv_रिक्तानि[1];
 
-#define STRV_EMPTY ((char**) strv_empty)
+#परिभाषय STRV_रिक्तानि ((वर्ण**) strv_रिक्तानि)

@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include <dlfcn.h>      /* IWYU pragma: export */
+#अन्तर्भाव <dlfcn.h>      /* IWYU pragma: export */
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-void* safe_dlclose(void *dl);
+शून्य* safe_dlclose(शून्य *dl);
 
-static inline void dlclosep(void **dlp) {
+स्थिर अन्तःस्थ शून्य dlclosep(शून्य **dlp) {
         safe_dlclose(*dlp);
 }
 
-int dlopen_verbose(void **dlp, const char *filename, int log_level);
-int dlsym_many_or_warn_sentinel(void *dl, int log_level, ...) _sentinel_;
-int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_level, ...) _sentinel_;
+पूर्णाङ्क dlopen_verbose(शून्य **dlp, ध्रुव वर्ण *filename, पूर्णाङ्क log_level);
+पूर्णाङ्क dlsym_many_or_warn_sentinel(शून्य *dl, पूर्णाङ्क log_level, ...) _sentinel_;
+पूर्णाङ्क dlopen_many_sym_or_warn_sentinel(शून्य **dlp, ध्रुव वर्ण *filename, पूर्णाङ्क log_level, ...) _sentinel_;
 
-#define dlsym_many_or_warn(dl, log_level, ...) \
-        dlsym_many_or_warn_sentinel(dl, log_level, __VA_ARGS__, NULL)
-#define dlopen_many_sym_or_warn(dlp, filename, log_level, ...) \
-        dlopen_many_sym_or_warn_sentinel(dlp, filename, log_level, __VA_ARGS__, NULL)
+#परिभाषय dlsym_many_or_warn(dl, log_level, ...) \
+        dlsym_many_or_warn_sentinel(dl, log_level, __VA_ARGS__, रिक्त)
+#परिभाषय dlopen_many_sym_or_warn(dlp, filename, log_level, ...) \
+        dlopen_many_sym_or_warn_sentinel(dlp, filename, log_level, __VA_ARGS__, रिक्त)
 
-#define DLSYM_PROTOTYPE(symbol)                \
-        typeof(symbol)* sym_##symbol
+#परिभाषय DLSYM_PROTOTYPE(चिह्नम्)                \
+        typeof(चिह्नम्)* sym_##symbol
 
 /* Macro useful for putting together variable/symbol name pairs when calling dlsym_many_or_warn(). Assumes
  * that each library symbol to resolve will be placed in a variable with the "sym_" prefix, i.e. a symbol
  * "foobar" is loaded into a variable "sym_foobar". */
-#define DLSYM_ARG(arg) \
+#परिभाषय DLSYM_ARG(arg) \
         ({ assert_cc(__builtin_types_compatible_p(typeof(sym_##arg), typeof(&arg))); &sym_##arg; }), STRINGIFY(arg)
 
 /* libbpf is a bit confused about type-safety and API compatibility. Provide a macro that can tape over that mess. Sad. */
-#define DLSYM_ARG_FORCE(arg) \
+#परिभाषय DLSYM_ARG_FORCE(arg) \
         &sym_##arg, STRINGIFY(arg)
 
 /* Resolve a single optional symbol from an already-opened library handle. The pointer variable is expected
@@ -39,17 +39,17 @@ int dlopen_many_sym_or_warn_sentinel(void **dlp, const char *filename, int log_l
  * cleared first so callers can distinguish "symbol not found" from "symbol's value is NULL" by checking
  * dlerror() after; for function symbols (which can never be NULL on success) the _v check below is
  * sufficient. */
-#define DLSYM_OPTIONAL(dl, name)                                                                \
+#परिभाषय DLSYM_OPTIONAL(dl, name)                                                                \
         ({                                                                                      \
-                (void) dlerror();                                                               \
+                (शून्य) dlerror();                                                               \
                 typeof(sym_##name) _v = (typeof(sym_##name)) dlsym((dl), #name);                \
-                if (_v) sym_##name = _v;                                                        \
+                यदि (_v) sym_##name = _v;                                                        \
         })
 
 /* If called dlopen_many_sym_or_warn() will fail with EPERM. This can be used to block lazy loading of shared
  * libs, if we transfer a process into a different namespace. Note that this does not work for all calls of
  * dlopen(), just those through our dlopen_safe() wrapper (which we use comprehensively in our
  * codebase). This hence has *no* effect on NSS. (Would be great if we could change that...) */
-void block_dlopen(void);
+शून्य खण्डम्_dlopen(शून्य);
 
-int dlopen_safe(const char *filename, void **ret, const char **reterr_dlerror);
+पूर्णाङ्क dlopen_safe(ध्रुव वर्ण *filename, शून्य **ret, ध्रुव वर्ण **reterr_dlerror);

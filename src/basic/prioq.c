@@ -10,121 +10,121 @@
  * The underlying algorithm used in this implementation is a Heap.
  */
 
-#include "alloc-util.h"
-#include "prioq.h"
+#अन्तर्भाव "alloc-util.h"
+#अन्तर्भाव "prioq.h"
 
-struct prioq_item {
-        void *data;
-        unsigned *idx;
+संरचना prioq_item {
+        शून्य *दत्त;
+        अचिह्नित *idx;
 };
 
-struct Prioq {
+संरचना Prioq {
         compare_func_t compare_func;
-        unsigned n_items;
-        struct prioq_item *items;
+        अचिह्नित n_वस्तूनि;
+        संरचना prioq_item *वस्तूनि;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        यदि (!q)
+                प्रत्यागम q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        प्रत्यागम q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        यदि (!q)
+                प्रत्यागम रिक्त;
 
         /* Invalidate the index fields of any remaining objects */
-        FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
+        FOREACH_ARRAY(item, q->वस्तूनि, q->n_वस्तूनि)
+                यदि (item->idx)
                         *(item->idx) = PRIOQ_IDX_NULL;
 
-        free(q->items);
-        return mfree(q);
+        मुक्त(q->वस्तूनि);
+        प्रत्यागम mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
-        assert(q);
+पूर्णाङ्क prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+        प्रतिज्ञा(q);
 
-        if (*q) {
-                assert((*q)->compare_func == compare_func);
-                return 0;
+        यदि (*q) {
+                प्रतिज्ञा((*q)->compare_func == compare_func);
+                प्रत्यागम 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        यदि (!*q)
+                प्रत्यागम -ENOMEM;
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-static void swap(Prioq *q, unsigned j, unsigned k) {
-        assert(q);
-        assert(j < q->n_items);
-        assert(k < q->n_items);
+स्थिर शून्य swap(Prioq *q, अचिह्नित j, अचिह्नित k) {
+        प्रतिज्ञा(q);
+        प्रतिज्ञा(j < q->n_वस्तूनि);
+        प्रतिज्ञा(k < q->n_वस्तूनि);
 
-        assert(!q->items[j].idx || *(q->items[j].idx) == j);
-        assert(!q->items[k].idx || *(q->items[k].idx) == k);
+        प्रतिज्ञा(!q->वस्तूनि[j].idx || *(q->वस्तूनि[j].idx) == j);
+        प्रतिज्ञा(!q->वस्तूनि[k].idx || *(q->वस्तूनि[k].idx) == k);
 
-        SWAP_TWO(q->items[j].data, q->items[k].data);
-        SWAP_TWO(q->items[j].idx, q->items[k].idx);
+        SWAP_TWO(q->वस्तूनि[j].दत्त, q->वस्तूनि[k].दत्त);
+        SWAP_TWO(q->वस्तूनि[j].idx, q->वस्तूनि[k].idx);
 
-        if (q->items[j].idx)
-                *q->items[j].idx = j;
+        यदि (q->वस्तूनि[j].idx)
+                *q->वस्तूनि[j].idx = j;
 
-        if (q->items[k].idx)
-                *q->items[k].idx = k;
+        यदि (q->वस्तूनि[k].idx)
+                *q->वस्तूनि[k].idx = k;
 }
 
-static unsigned shuffle_up(Prioq *q, unsigned idx) {
-        assert(q);
-        assert(idx < q->n_items);
+स्थिर अचिह्नित shuffle_ऊर्ध्वम्(Prioq *q, अचिह्नित idx) {
+        प्रतिज्ञा(q);
+        प्रतिज्ञा(idx < q->n_वस्तूनि);
 
-        while (idx > 0) {
-                unsigned k;
+        यावत् (idx > 0) {
+                अचिह्नित k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                यदि (q->compare_func(q->वस्तूनि[k].दत्त, q->वस्तूनि[idx].दत्त) <= 0)
+                        भङ्ग;
 
                 swap(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        प्रत्यागम idx;
 }
 
-static unsigned shuffle_down(Prioq *q, unsigned idx) {
-        assert(q);
+स्थिर अचिह्नित shuffle_अधस्तात्(Prioq *q, अचिह्नित idx) {
+        प्रतिज्ञा(q);
 
-        for (;;) {
-                unsigned j, k, s;
+        प्रति (;;) {
+                अचिह्नित j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                यदि (j >= q->n_वस्तूनि)
+                        भङ्ग;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                यदि (q->compare_func(q->वस्तूनि[j].दत्त, q->वस्तूनि[idx].दत्त) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                अन्यथा
                         s = idx;
 
-                if (k < q->n_items &&
-                    q->compare_func(q->items[k].data, q->items[s].data) < 0)
+                यदि (k < q->n_वस्तूनि &&
+                    q->compare_func(q->वस्तूनि[k].दत्त, q->वस्तूनि[s].दत्त) < 0)
 
                         /* So our right child is smaller than we are, let's
                          * remember this fact */
@@ -132,179 +132,179 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                यदि (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        भङ्ग;
 
                 swap(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        प्रत्यागम idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
-        unsigned k;
+पूर्णाङ्क prioq_put(Prioq *q, शून्य *दत्त, अचिह्नित *idx) {
+        अचिह्नित k;
 
-        assert(q);
+        प्रतिज्ञा(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        यदि (!GREEDY_REALLOC(q->वस्तूनि, MAX(q->n_वस्तूनि + 1, 16u)))
+                प्रत्यागम -ENOMEM;
 
-        k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
-                .data = data,
+        k = q->n_वस्तूनि++;
+        q->वस्तूनि[k] = (संरचना prioq_item) {
+                .दत्त = दत्त,
                 .idx = idx,
         };
 
-        if (idx)
+        यदि (idx)
                 *idx = k;
 
-        shuffle_up(q, k);
+        shuffle_ऊर्ध्वम्(q, k);
 
-        return 0;
+        प्रत्यागम 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+पूर्णाङ्क _prioq_ensure_put(Prioq **q, compare_func_t compare_func, शून्य *दत्त, अचिह्नित *idx) {
+        पूर्णाङ्क r;
 
-        assert(q);
+        प्रतिज्ञा(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        यदि (r < 0)
+                प्रत्यागम r;
 
-        return prioq_put(*q, data, idx);
+        प्रत्यागम prioq_put(*q, दत्त, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+स्थिर शून्य remove_item(Prioq *q, संरचना prioq_item *i) {
+        संरचना prioq_item *l;
 
-        assert(q);
-        assert(i);
+        प्रतिज्ञा(q);
+        प्रतिज्ञा(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        यदि (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
-        l = q->items + q->n_items - 1;
+        l = q->वस्तूनि + q->n_वस्तूनि - 1;
 
-        if (i == l)
+        यदि (i == l)
                 /* Last entry, let's just remove it */
-                q->n_items--;
-        else {
-                unsigned k;
+                q->n_वस्तूनि--;
+        अन्यथा {
+                अचिह्नित k;
 
                 /* Not last entry, let's replace the last entry with
                  * this one, and reshuffle */
 
-                assert(i >= q->items);
-                k = i - q->items;
+                प्रतिज्ञा(i >= q->वस्तूनि);
+                k = i - q->वस्तूनि;
 
-                i->data = l->data;
+                i->दत्त = l->दत्त;
                 i->idx = l->idx;
-                if (i->idx)
+                यदि (i->idx)
                         *i->idx = k;
-                q->n_items--;
+                q->n_वस्तूनि--;
 
-                k = shuffle_down(q, k);
-                shuffle_up(q, k);
+                k = shuffle_अधस्तात्(q, k);
+                shuffle_ऊर्ध्वम्(q, k);
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+स्थिर संरचना prioq_item* find_item(Prioq *q, शून्य *दत्त, अचिह्नित *idx) {
+        संरचना prioq_item *i;
 
-        assert(q);
+        प्रतिज्ञा(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        यदि (q->n_वस्तूनि <= 0)
+                प्रत्यागम रिक्त;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
-                    *idx >= q->n_items)
-                        return NULL;
+        यदि (idx) {
+                यदि (*idx == PRIOQ_IDX_NULL ||
+                    *idx >= q->n_वस्तूनि)
+                        प्रत्यागम रिक्त;
 
-                i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                i = q->वस्तूनि + *idx;
+                यदि (i->दत्त != दत्त)
+                        प्रत्यागम रिक्त;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                प्रत्यागम i;
+        } अन्यथा {
+                प्रति (i = q->वस्तूनि; i < q->वस्तूनि + q->n_वस्तूनि; i++)
+                        यदि (i->दत्त == दत्त)
+                                प्रत्यागम i;
+                प्रत्यागम रिक्त;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+पूर्णाङ्क prioq_remove(Prioq *q, शून्य *दत्त, अचिह्नित *idx) {
+        संरचना prioq_item *i;
 
-        if (!q)
-                return 0;
+        यदि (!q)
+                प्रत्यागम 0;
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        i = find_item(q, दत्त, idx);
+        यदि (!i)
+                प्रत्यागम 0;
 
         remove_item(q, i);
-        return 1;
+        प्रत्यागम 1;
 }
 
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
-        unsigned k;
+शून्य prioq_reshuffle(Prioq *q, शून्य *दत्त, अचिह्नित *idx) {
+        संरचना prioq_item *i;
+        अचिह्नित k;
 
-        assert(q);
+        प्रतिज्ञा(q);
 
-        i = find_item(q, data, idx);
-        if (!i)
-                return;
+        i = find_item(q, दत्त, idx);
+        यदि (!i)
+                प्रत्यागम;
 
-        assert(i >= q->items);
-        k = i - q->items;
-        k = shuffle_down(q, k);
-        shuffle_up(q, k);
+        प्रतिज्ञा(i >= q->वस्तूनि);
+        k = i - q->वस्तूनि;
+        k = shuffle_अधस्तात्(q, k);
+        shuffle_ऊर्ध्वम्(q, k);
 }
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+शून्य* prioq_peek_by_सूचकांक(Prioq *q, अचिह्नित idx) {
+        यदि (!q)
+                प्रत्यागम रिक्त;
 
-        if (idx >= q->n_items)
-                return NULL;
+        यदि (idx >= q->n_वस्तूनि)
+                प्रत्यागम रिक्त;
 
-        return q->items[idx].data;
+        प्रत्यागम q->वस्तूनि[idx].दत्त;
 }
 
-void* prioq_pop(Prioq *q) {
-        void *data;
+शून्य* prioq_निष्कासय(Prioq *q) {
+        शून्य *दत्त;
 
-        if (!q)
-                return NULL;
+        यदि (!q)
+                प्रत्यागम रिक्त;
 
-        if (q->n_items <= 0)
-                return NULL;
+        यदि (q->n_वस्तूनि <= 0)
+                प्रत्यागम रिक्त;
 
-        data = q->items[0].data;
-        remove_item(q, q->items);
-        return data;
+        दत्त = q->वस्तूनि[0].दत्त;
+        remove_item(q, q->वस्तूनि);
+        प्रत्यागम दत्त;
 }
 
-unsigned prioq_size(Prioq *q) {
+अचिह्नित prioq_आकार(Prioq *q) {
 
-        if (!q)
-                return 0;
+        यदि (!q)
+                प्रत्यागम 0;
 
-        return q->n_items;
+        प्रत्यागम q->n_वस्तूनि;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        यदि (!q)
+                प्रत्यागम true;
 
-        return q->n_items <= 0;
+        प्रत्यागम q->n_वस्तूनि <= 0;
 }

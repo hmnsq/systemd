@@ -11,135 +11,135 @@
  * occur outside of a loop where this is the preferred behavior.
  */
 
-#include <stdio.h>
-#include <string.h>
+#अन्तर्भाव <stdio.h>
+#अन्तर्भाव <string.h>
 
-#include "strxcpyx.h"
+#अन्तर्भाव "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+size_t strnpcpy_पूर्णम्(वर्ण **dest, size_t आकार, ध्रुव वर्ण *src, size_t len, bool *ret_truncated) {
         bool truncated = false;
 
-        assert(dest);
-        assert(src);
+        प्रतिज्ञा(dest);
+        प्रतिज्ञा(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        यदि (आकार == 0) {
+                यदि (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                प्रत्यागम 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
-                        *dest = mempcpy(*dest, src, size-1);
-                size = 0;
+        यदि (len >= आकार) {
+                यदि (आकार > 1)
+                        *dest = mempcpy(*dest, src, आकार-1);
+                आकार = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } अन्यथा यदि (len > 0) {
                 *dest = mempcpy(*dest, src, len);
-                size -= len;
+                आकार -= len;
         }
 
-        if (ret_truncated)
+        यदि (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        प्रत्यागम आकार;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strpcpy_पूर्णम्(वर्ण **dest, size_t आकार, ध्रुव वर्ण *src, bool *ret_truncated) {
+        प्रतिज्ञा(dest);
+        प्रतिज्ञा(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        प्रत्यागम strnpcpy_पूर्णम्(dest, आकार, src, वाक्यदैर्घ्यम्(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyf_पूर्णम्(वर्ण **dest, size_t आकार, bool *ret_truncated, ध्रुव वर्ण *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        पूर्णाङ्क i;
 
-        assert(dest);
-        assert(src);
+        प्रतिज्ञा(dest);
+        प्रतिज्ञा(src);
 
         va_start(va, src);
-        i = vsnprintf(*dest, size, src, va);
+        i = vsnprintf(*dest, आकार, src, va);
         va_end(va);
 
-        assert(i >= 0);
+        प्रतिज्ञा(i >= 0);
 
-        if (i < (int) size) {
+        यदि (i < (पूर्णाङ्क) आकार) {
                 *dest += i;
-                size -= i;
-        } else {
-                size = 0;
+                आकार -= i;
+        } अन्यथा {
+                आकार = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        यदि (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        प्रत्यागम आकार;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyl_पूर्णम्(वर्ण **dest, size_t आकार, bool *ret_truncated, ध्रुव वर्ण *src, ...) {
         bool truncated = false;
         va_list va;
 
-        assert(dest);
-        assert(src);
+        प्रतिज्ञा(dest);
+        प्रतिज्ञा(src);
 
         va_start(va, src);
-        do {
+        कुरु {
                 bool t;
 
-                size = strpcpy_full(dest, size, src, &t);
+                आकार = strpcpy_पूर्णम्(dest, आकार, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, वर्ण *);
+        } यावत् (src);
         va_end(va);
 
-        if (ret_truncated)
+        यदि (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        प्रत्यागम आकार;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+size_t strnscpy_पूर्णम्(वर्ण *dest, size_t आकार, ध्रुव वर्ण *src, size_t len, bool *ret_truncated) {
+        वर्ण *s;
 
-        assert(dest);
-        assert(src);
+        प्रतिज्ञा(dest);
+        प्रतिज्ञा(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        प्रत्यागम strnpcpy_पूर्णम्(&s, आकार, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
-        assert(dest);
-        assert(src);
+size_t strscpy_पूर्णम्(वर्ण *dest, size_t आकार, ध्रुव वर्ण *src, bool *ret_truncated) {
+        प्रतिज्ञा(dest);
+        प्रतिज्ञा(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        प्रत्यागम strnscpy_पूर्णम्(dest, आकार, src, वाक्यदैर्घ्यम्(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strscpyl_पूर्णम्(वर्ण *dest, size_t आकार, bool *ret_truncated, ध्रुव वर्ण *src, ...) {
         bool truncated = false;
         va_list va;
-        char *s;
+        वर्ण *s;
 
-        assert(dest);
-        assert(src);
+        प्रतिज्ञा(dest);
+        प्रतिज्ञा(src);
 
         va_start(va, src);
         s = dest;
-        do {
+        कुरु {
                 bool t;
 
-                size = strpcpy_full(&s, size, src, &t);
+                आकार = strpcpy_पूर्णम्(&s, आकार, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, वर्ण *);
+        } यावत् (src);
         va_end(va);
 
-        if (ret_truncated)
+        यदि (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        प्रत्यागम आकार;
 }

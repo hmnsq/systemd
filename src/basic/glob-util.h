@@ -1,22 +1,22 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include <glob.h>       /* IWYU pragma: export */
+#अन्तर्भाव <glob.h>       /* IWYU pragma: export */
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-typedef DIR* (*opendir_t)(const char *);
+प्रकारनिर्देश DIR* (*opendir_t)(ध्रुव वर्ण *);
 
-int safe_glob_full(const char *path, int flags, opendir_t opendir_func, char ***ret);
-static inline int safe_glob(const char *path, int flags, char ***ret) {
-        return safe_glob_full(path, flags, NULL, ret);
+पूर्णाङ्क safe_glob_पूर्णम्(ध्रुव वर्ण *मार्गः, पूर्णाङ्क flags, opendir_t opendir_func, वर्ण ***ret);
+स्थिर अन्तःस्थ पूर्णाङ्क safe_glob(ध्रुव वर्ण *मार्गः, पूर्णाङ्क flags, वर्ण ***ret) {
+        प्रत्यागम safe_glob_पूर्णम्(मार्गः, flags, रिक्त, ret);
 }
 
 /* Note: which match is returned depends on the implementation/system and not guaranteed to be stable */
-int glob_first(const char *path, char **ret);
-#define glob_exists(path) glob_first(path, NULL)
-int glob_extend(char ***strv, const char *path, int flags);
+पूर्णाङ्क glob_first(ध्रुव वर्ण *मार्गः, वर्ण **ret);
+#परिभाषय glob_exists(मार्गः) glob_first(मार्गः, रिक्त)
+पूर्णाङ्क glob_extend(वर्ण ***strv, ध्रुव वर्ण *मार्गः, पूर्णाङ्क flags);
 
-int glob_non_glob_prefix(const char *path, char **ret);
+पूर्णाङ्क glob_non_glob_उपसर्गः(ध्रुव वर्ण *मार्गः, वर्ण **ret);
 
-bool string_is_glob(const char *p) _pure_;
+bool string_is_glob(ध्रुव वर्ण *p) विशुद्धम्;

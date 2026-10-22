@@ -1,98 +1,98 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
 /* The head of the linked list. Use this in the structure that shall
  * contain the head of the linked list */
-#define LIST_HEAD(t,name)                                               \
+#परिभाषय LIST_शीर्ष(t,name)                                               \
         t *name
 
 /* The pointers in the linked list's items. Use this in the item structure */
-#define LIST_FIELDS(t,name)                                             \
+#परिभाषय LIST_FIELDS(t,name)                                             \
         t *name##_next, *name##_prev
 
 /* Initialize the list's head */
-#define LIST_HEAD_INIT(head)                                            \
-        do {                                                            \
-                (head) = NULL;                                          \
-        } while (false)
+#परिभाषय LIST_शीर्ष_INIT(शीर्ष)                                            \
+        कुरु {                                                            \
+                (शीर्ष) = रिक्त;                                          \
+        } यावत् (false)
 
 /* Initialize a list item */
-#define LIST_INIT(name,item)                                            \
-        do {                                                            \
+#परिभाषय LIST_INIT(name,item)                                            \
+        कुरु {                                                            \
                 typeof(*(item)) *_item = (item);                        \
-                assert(_item);                                          \
-                _item->name##_prev = _item->name##_next = NULL;         \
-        } while (false)
+                प्रतिज्ञा(_item);                                          \
+                _item->name##_prev = _item->name##_next = रिक्त;         \
+        } यावत् (false)
 
 /* Prepend an item to the list */
-#define LIST_PREPEND(name,head,item)                                    \
+#परिभाषय LIST_PREPEND(name,शीर्ष,item)                                    \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if ((_item->name##_next = *_head))                      \
+                typeof(*(शीर्ष)) **शीर्ष_2 = &(शीर्ष), *_item = (item);     \
+                प्रतिज्ञा(_item);                                          \
+                यदि ((_item->name##_next = *शीर्ष_2))                      \
                         _item->name##_next->name##_prev = _item;        \
-                _item->name##_prev = NULL;                              \
-                *_head = _item;                                         \
+                _item->name##_prev = रिक्त;                              \
+                *शीर्ष_2 = _item;                                         \
                 _item;                                                  \
         })
 
 /* Append an item to the list */
-#define LIST_APPEND(name,head,item)                                     \
+#परिभाषय LIST_APPEND(name,शीर्ष,item)                                     \
         ({                                                              \
-                typeof(*(head)) **_hhead = &(head), *_tail;             \
-                _tail = LIST_FIND_TAIL(name, *_hhead);                  \
-                LIST_INSERT_AFTER(name, *_hhead, _tail, item);          \
+                typeof(*(शीर्ष)) **_hhead = &(शीर्ष), *पुच्छ;             \
+                पुच्छ = LIST_FIND_पुच्छ(name, *_hhead);                  \
+                LIST_निवेशय_AFTER(name, *_hhead, पुच्छ, item);          \
         })
 
 /* Remove an item from the list */
-#define LIST_REMOVE(name,head,item)                                     \
+#परिभाषय LIST_REMOVE(name,शीर्ष,item)                                     \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_item = (item);     \
-                assert(_item);                                          \
-                if (_item->name##_next)                                 \
+                typeof(*(शीर्ष)) **शीर्ष_2 = &(शीर्ष), *_item = (item);     \
+                प्रतिज्ञा(_item);                                          \
+                यदि (_item->name##_next)                                 \
                         _item->name##_next->name##_prev = _item->name##_prev; \
-                if (_item->name##_prev)                                 \
+                यदि (_item->name##_prev)                                 \
                         _item->name##_prev->name##_next = _item->name##_next; \
-                else {                                                  \
-                        assert(*_head == _item);                        \
-                        *_head = _item->name##_next;                    \
+                अन्यथा {                                                  \
+                        प्रतिज्ञा(*शीर्ष_2 == _item);                        \
+                        *शीर्ष_2 = _item->name##_next;                    \
                 }                                                       \
-                _item->name##_next = _item->name##_prev = NULL;         \
+                _item->name##_next = _item->name##_prev = रिक्त;         \
                 _item;                                                  \
         })
 
 /* Find the head of the list */
-#define LIST_FIND_HEAD(name,item)                                       \
+#परिभाषय LIST_FIND_शीर्ष(name,item)                                       \
         ({                                                              \
                 typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_prev)                     \
+                यावत् (_item && _item->name##_prev)                     \
                         _item = _item->name##_prev;                     \
                 _item;                                                  \
         })
 
 /* Find the tail of the list */
-#define LIST_FIND_TAIL(name,item)                                       \
+#परिभाषय LIST_FIND_पुच्छ(name,item)                                       \
         ({                                                              \
                 typeof(*(item)) *_item = (item);                        \
-                while (_item && _item->name##_next)                     \
+                यावत् (_item && _item->name##_next)                     \
                         _item = _item->name##_next;                     \
                 _item;                                                  \
         })
 
 /* Insert an item after another one (a = where, b = what) */
-#define LIST_INSERT_AFTER(name,head,a,b)                                \
+#परिभाषय LIST_निवेशय_AFTER(name,शीर्ष,a,b)                                \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if ((_b->name##_next = *_head))                 \
+                typeof(*(शीर्ष)) **शीर्ष_2 = &(शीर्ष), *_a = (a), *_b = (b); \
+                प्रतिज्ञा(_b);                                             \
+                यदि (!_a) {                                              \
+                        यदि ((_b->name##_next = *शीर्ष_2))                 \
                                 _b->name##_next->name##_prev = _b;      \
-                        _b->name##_prev = NULL;                         \
-                        *_head = _b;                                    \
-                } else {                                                \
-                        if ((_b->name##_next = _a->name##_next))        \
+                        _b->name##_prev = रिक्त;                         \
+                        *शीर्ष_2 = _b;                                    \
+                } अन्यथा {                                                \
+                        यदि ((_b->name##_next = _a->name##_next))        \
                                 _b->name##_next->name##_prev = _b;      \
                         _b->name##_prev = _a;                           \
                         _a->name##_next = _b;                           \
@@ -101,35 +101,35 @@
         })
 
 /* Insert an item before another one (a = where, b = what) */
-#define LIST_INSERT_BEFORE(name,head,a,b)                               \
+#परिभाषय LIST_निवेशय_BEFORE(name,शीर्ष,a,b)                               \
         ({                                                              \
-                typeof(*(head)) **_head = &(head), *_a = (a), *_b = (b); \
-                assert(_b);                                             \
-                if (!_a) {                                              \
-                        if (!*_head) {                                  \
-                                _b->name##_next = NULL;                 \
-                                _b->name##_prev = NULL;                 \
-                                *_head = _b;                            \
-                        } else {                                        \
-                                typeof(*(head)) *_tail = (head);        \
-                                while (_tail->name##_next)              \
-                                        _tail = _tail->name##_next;     \
-                                _b->name##_next = NULL;                 \
-                                _b->name##_prev = _tail;                \
-                                _tail->name##_next = _b;                \
+                typeof(*(शीर्ष)) **शीर्ष_2 = &(शीर्ष), *_a = (a), *_b = (b); \
+                प्रतिज्ञा(_b);                                             \
+                यदि (!_a) {                                              \
+                        यदि (!*शीर्ष_2) {                                  \
+                                _b->name##_next = रिक्त;                 \
+                                _b->name##_prev = रिक्त;                 \
+                                *शीर्ष_2 = _b;                            \
+                        } अन्यथा {                                        \
+                                typeof(*(शीर्ष)) *पुच्छ = (शीर्ष);        \
+                                यावत् (पुच्छ->name##_next)              \
+                                        पुच्छ = पुच्छ->name##_next;     \
+                                _b->name##_next = रिक्त;                 \
+                                _b->name##_prev = पुच्छ;                \
+                                पुच्छ->name##_next = _b;                \
                         }                                               \
-                } else {                                                \
-                        if ((_b->name##_prev = _a->name##_prev))        \
+                } अन्यथा {                                                \
+                        यदि ((_b->name##_prev = _a->name##_prev))        \
                                 _b->name##_prev->name##_next = _b;      \
-                        else                                            \
-                                *_head = _b;                            \
+                        अन्यथा                                            \
+                                *शीर्ष_2 = _b;                            \
                         _b->name##_next = _a;                           \
                         _a->name##_prev = _b;                           \
                 }                                                       \
                 _b;                                                     \
         })
 
-#define LIST_JUST_US(name, item)                                        \
+#परिभाषय LIST_JUST_US(name, item)                                        \
         ({                                                              \
                 typeof(*(item)) *_item = (item);                        \
                 !(_item)->name##_prev && !(_item)->name##_next;         \
@@ -138,25 +138,25 @@
 /* The type of the iterator 'i' is automatically determined by the type of 'head', and declared in the
  * loop. Hence, do not declare the same variable in the outer scope. Sometimes, we set 'head' through
  * hashmap_get(). In that case, you need to explicitly cast the result. */
-#define LIST_FOREACH_WITH_NEXT(name,i,n,head)                           \
-        for (typeof(*(head)) *n, *i = (head); i && (n = i->name##_next, true); i = n)
+#परिभाषय LIST_FOREACH_WITH_अग्र(name,i,n,शीर्ष)                           \
+        प्रति (typeof(*(शीर्ष)) *n, *i = (शीर्ष); i && (n = i->name##_next, true); i = n)
 
-#define LIST_FOREACH(name,i,head)                                       \
-        LIST_FOREACH_WITH_NEXT(name, i, UNIQ_T(n, UNIQ), head)
+#परिभाषय LIST_FOREACH(name,i,शीर्ष)                                       \
+        LIST_FOREACH_WITH_अग्र(name, i, UNIQ_T(n, UNIQ), शीर्ष)
 
-#define _LIST_FOREACH_WITH_PREV(name,i,p,start)                         \
-        for (typeof(*(start)) *p, *i = (start); i && (p = i->name##_prev, true); i = p)
+#परिभाषय LIST_FOREACH_WITH_पूर्व(name,i,p,start)                         \
+        प्रति (typeof(*(start)) *p, *i = (start); i && (p = i->name##_prev, true); i = p)
 
-#define LIST_FOREACH_BACKWARDS(name,i,start)                            \
-        _LIST_FOREACH_WITH_PREV(name, i, UNIQ_T(p, UNIQ), start)
+#परिभाषय LIST_FOREACH_BACKWARDS(name,i,start)                            \
+        LIST_FOREACH_WITH_पूर्व(name, i, UNIQ_T(p, UNIQ), start)
 
 /* Iterate through all the members of the list p is included in, but skip over p */
-#define LIST_FOREACH_OTHERS(name,i,p)                                   \
-        for (typeof(*(p)) *_p = (p), *i = ({                            \
+#परिभाषय LIST_FOREACH_OTHERS(name,i,p)                                   \
+        प्रति (typeof(*(p)) *_p = (p), *i = ({                            \
                                 typeof(*_p) *_j = _p;                   \
-                                while (_j && _j->name##_prev)           \
+                                यावत् (_j && _j->name##_prev)           \
                                         _j = _j->name##_prev;           \
-                                if (_j == _p)                           \
+                                यदि (_j == _p)                           \
                                         _j = _p->name##_next;           \
                                 _j;                                     \
                         });                                             \
@@ -164,44 +164,44 @@
              i = i->name##_next == _p ? _p->name##_next : i->name##_next)
 
 /* Loop starting from p->next until p->prev. p can be adjusted meanwhile. */
-#define LIST_LOOP_BUT_ONE(name,i,head,p)                                \
-        for (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (head); \
+#परिभाषय LIST_LOOP_BUT_ONE(name,i,शीर्ष,p)                                \
+        प्रति (typeof(*(p)) *i = (p)->name##_next ? (p)->name##_next : (शीर्ष); \
              i != (p);                                                  \
-             i = i->name##_next ? i->name##_next : (head))
+             i = i->name##_next ? i->name##_next : (शीर्ष))
 
 /* Join two lists tail to head: a->b, c->d to a->b->c->d and de-initialise second list */
-#define LIST_JOIN(name,a,b)                                             \
+#परिभाषय LIST_JOIN(name,a,b)                                             \
         ({                                                              \
-                assert(b);                                              \
-                if (!(a))                                               \
+                प्रतिज्ञा(b);                                              \
+                यदि (!(a))                                               \
                         (a) = (b);                                      \
-                else {                                                  \
-                        typeof(*(a)) *_head = (b), *_tail;              \
-                        _tail = LIST_FIND_TAIL(name, (a));              \
-                        _tail->name##_next = _head;                     \
-                        _head->name##_prev = _tail;                     \
+                अन्यथा {                                                  \
+                        typeof(*(a)) *शीर्ष_2 = (b), *पुच्छ;              \
+                        पुच्छ = LIST_FIND_पुच्छ(name, (a));              \
+                        पुच्छ->name##_next = शीर्ष_2;                     \
+                        शीर्ष_2->name##_prev = पुच्छ;                     \
                 }                                                       \
-                (b) = NULL;                                             \
+                (b) = रिक्त;                                             \
                 a;                                                      \
         })
 
-#define LIST_POP(name, a)                                               \
+#परिभाषय LIST_निष्कासय(name, a)                                               \
         ({                                                              \
                 typeof(a)* _a = &(a);                                   \
                 typeof(a) _p = *_a;                                     \
-                if (_p)                                                 \
+                यदि (_p)                                                 \
                         LIST_REMOVE(name, *_a, _p);                     \
                 _p;                                                     \
         })
 
-#define LIST_CLEAR(name, head, free_func)       \
-        _LIST_CLEAR(name, head, free_func, UNIQ_T(elem, UNIQ))
+#परिभाषय LIST_CLEAR(name, शीर्ष, free_func)       \
+        _LIST_CLEAR(name, शीर्ष, free_func, UNIQ_T(elem, UNIQ))
 
 /* Clear the list, destroying each element with free_func */
-#define _LIST_CLEAR(name, head, free_func, elem)        \
+#परिभाषय _LIST_CLEAR(name, शीर्ष, free_func, elem)        \
         ({                                              \
-                typeof(head) elem;                      \
-                while ((elem = LIST_POP(name, head)))   \
+                typeof(शीर्ष) elem;                      \
+                यावत् ((elem = LIST_निष्कासय(name, शीर्ष)))   \
                         free_func(elem);                \
-                head;                                   \
+                शीर्ष;                                   \
         })

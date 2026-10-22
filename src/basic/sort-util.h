@@ -1,47 +1,47 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
-                 comparison_userdata_fn_t compar, void *arg);
+शून्य *xbsearch_r(ध्रुव शून्य *कुञ्चिका, ध्रुव शून्य *base, size_t nmemb, size_t आकार,
+                 comparison_userdata_fn_t compar, शून्य *arg);
 
-#define typesafe_bsearch_r(k, b, n, func, userdata)                     \
+#परिभाषय typesafe_bsearch_r(k, b, n, func, userdata)                     \
         ({                                                              \
-                const typeof((b)[0]) *_k = k;                           \
-                int (*_func_)(const typeof((b)[0])*, const typeof((b)[0])*, typeof(userdata)) = func; \
-                (typeof((b)[0])*) xbsearch_r((const void*) _k, (b), (n), sizeof((b)[0]), (comparison_userdata_fn_t) _func_, userdata); \
+                ध्रुव typeof((b)[0]) *_k = k;                           \
+                पूर्णाङ्क (*_func_)(ध्रुव typeof((b)[0])*, ध्रुव typeof((b)[0])*, typeof(userdata)) = func; \
+                (typeof((b)[0])*) xbsearch_r((ध्रुव शून्य*) _k, (b), (n), परिमाण((b)[0]), (comparison_userdata_fn_t) _func_, userdata); \
         })
 
-void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, size_t size, comparison_fn_t compar);
-#define bsearch_safe(key, base, nmemb, size, compar) \
-        const_generic((base), bsearch_safe_internal(key, base, nmemb, size, compar))
+शून्य* bsearch_safe_आन्तरिकम्(ध्रुव शून्य *कुञ्चिका, ध्रुव शून्य *base, size_t nmemb, size_t आकार, comparison_fn_t compar);
+#परिभाषय bsearch_safe(कुञ्चिका, base, nmemb, आकार, compar) \
+        const_generic((base), bsearch_safe_आन्तरिकम्(कुञ्चिका, base, nmemb, आकार, compar))
 
-#define typesafe_bsearch(k, b, n, func)                                 \
+#परिभाषय typesafe_bsearch(k, b, n, func)                                 \
         ({                                                              \
-                const typeof((b)[0]) *_k = k;                           \
-                int (*_func_)(const typeof((b)[0])*, const typeof((b)[0])*) = func; \
-                (typeof((b)[0])*) bsearch_safe((const void*) _k, (b), (n), sizeof((b)[0]), (comparison_fn_t) _func_); \
+                ध्रुव typeof((b)[0]) *_k = k;                           \
+                पूर्णाङ्क (*_func_)(ध्रुव typeof((b)[0])*, ध्रुव typeof((b)[0])*) = func; \
+                (typeof((b)[0])*) bsearch_safe((ध्रुव शून्य*) _k, (b), (n), परिमाण((b)[0]), (comparison_fn_t) _func_); \
         })
 
-void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar);
+शून्य qsort_safe(शून्य *base, size_t nmemb, size_t आकार, comparison_fn_t compar);
 
 /* A wrapper around the above, but that adds typesafety: the element size is automatically derived from the type and so
  * is the prototype for the comparison function */
-#define typesafe_qsort(p, n, func)                                      \
+#परिभाषय typesafe_qsort(p, n, func)                                      \
         ({                                                              \
-                int (*_func_)(const typeof((p)[0])*, const typeof((p)[0])*) = func; \
-                qsort_safe((p), (n), sizeof((p)[0]), (comparison_fn_t) _func_); \
+                पूर्णाङ्क (*_func_)(ध्रुव typeof((p)[0])*, ध्रुव typeof((p)[0])*) = func; \
+                qsort_safe((p), (n), परिमाण((p)[0]), (comparison_fn_t) _func_); \
         })
 
-void qsort_r_safe(void *base, size_t nmemb, size_t size, comparison_userdata_fn_t compar, void *userdata);
+शून्य qsort_r_safe(शून्य *base, size_t nmemb, size_t आकार, comparison_userdata_fn_t compar, शून्य *userdata);
 
-#define typesafe_qsort_r(p, n, func, userdata)                          \
+#परिभाषय typesafe_qsort_r(p, n, func, userdata)                          \
         ({                                                              \
-                int (*_func_)(const typeof((p)[0])*, const typeof((p)[0])*, typeof(userdata)) = func; \
-                qsort_r_safe((p), (n), sizeof((p)[0]), (comparison_userdata_fn_t) _func_, userdata); \
+                पूर्णाङ्क (*_func_)(ध्रुव typeof((p)[0])*, ध्रुव typeof((p)[0])*, typeof(userdata)) = func; \
+                qsort_r_safe((p), (n), परिमाण((p)[0]), (comparison_userdata_fn_t) _func_, userdata); \
         })
 
-int cmp_int(const int *a, const int *b);
-int cmp_uint16(const uint16_t *a, const uint16_t *b);
-int cmp_unsigned(const unsigned *a, const unsigned *b);
+पूर्णाङ्क cmp_int(ध्रुव पूर्णाङ्क *a, ध्रुव पूर्णाङ्क *b);
+पूर्णाङ्क cmp_uint16(ध्रुव uint16_t *a, ध्रुव uint16_t *b);
+पूर्णाङ्क cmp_unsigned(ध्रुव अचिह्नित *a, ध्रुव अचिह्नित *b);

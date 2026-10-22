@@ -4,13 +4,13 @@
  *  Copyright (C) 1999, 2000 Tom Tromey
  *  Copyright © 2000, 2005 Red Hat, Inc.
  */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-char *utf8_prev_char (const char *p);
+वर्ण *utf8_पूर्व_char (ध्रुव वर्ण *p);
 
-extern const char utf8_skip_data[256];
+बाह्य ध्रुव वर्ण utf8_skip_दत्त[256];
 
 /**
  * g_utf8_next_char:
@@ -23,6 +23,6 @@ extern const char utf8_skip_data[256];
  * Before using this macro, use g_utf8_validate() to validate strings
  * that may contain invalid UTF-8.
  */
-#define utf8_next_char(p) (char *)((p) + utf8_skip_data[*(const unsigned char *)(p)])
+#परिभाषय utf8_अग्र_char(p) (वर्ण *)((p) + utf8_skip_दत्त[*(ध्रुव अचिह्नित वर्ण *)(p)])
 
 bool unichar_iswide (uint32_t c);

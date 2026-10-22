@@ -1,60 +1,60 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-typedef enum ImageClass {
+प्रकारनिर्देश गणना ImageClass {
         IMAGE_MACHINE,
         IMAGE_PORTABLE,
         IMAGE_SYSEXT,
         _IMAGE_CLASS_EXTENSION_FIRST = IMAGE_SYSEXT,  /* First "extension" image type, so that we can easily generically iterate through them */
         IMAGE_CONFEXT,
-        _IMAGE_CLASS_EXTENSION_LAST = IMAGE_CONFEXT,  /* Last "extension image type */
+        IMAGE_CLASS_EXTENSION_चरमः = IMAGE_CONFEXT,  /* Last "extension image type */
         _IMAGE_CLASS_MAX,
         _IMAGE_CLASS_INVALID = -EINVAL,
 } ImageClass;
 
-DECLARE_STRING_TABLE_LOOKUP(image_class, ImageClass);
+DECLARE_STRING_सारणी_LOOKUP(image_class, ImageClass);
 
 /* The *_extension_release flavours will look for /usr/lib/extension-release/extension-release.NAME
  * for sysext images and for /etc/extension-release.d/extension-release.NAME for confext images
  * in accordance with the OS extension specification, rather than for /usr/lib/ or /etc/os-release. */
 
-bool image_name_is_valid(const char *s) _pure_;
-int path_extract_image_name(const char *path, char **ret);
+bool image_name_is_valid(ध्रुव वर्ण *s) विशुद्धम्;
+पूर्णाङ्क मार्गः_extract_image_name(ध्रुव वर्ण *मार्गः, वर्ण **ret);
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check);
-static inline int path_is_os_tree(const char *path) {
-        return path_is_extension_tree(_IMAGE_CLASS_INVALID, path, NULL, false);
+पूर्णाङ्क मार्गः_is_extension_वृक्षः(ImageClass image_class, ध्रुव वर्ण *मार्गः, ध्रुव वर्ण *extension, bool relax_extension_release_check);
+स्थिर अन्तःस्थ पूर्णाङ्क मार्गः_is_os_वृक्षः(ध्रुव वर्ण *मार्गः) {
+        प्रत्यागम मार्गः_is_extension_वृक्षः(_IMAGE_CLASS_INVALID, मार्गः, रिक्त, false);
 }
-int fd_is_os_tree(int fd);
+पूर्णाङ्क fd_is_os_वृक्षः(पूर्णाङ्क fd);
 
-int open_extension_release(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_extension_release_at(int rfd, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_os_release(const char *root, char **ret_path, int *ret_fd);
-int open_os_release_at(int rfd, char **ret_path, int *ret_fd);
+पूर्णाङ्क open_extension_release(ध्रुव वर्ण *मूलम्, ImageClass image_class, ध्रुव वर्ण *extension, bool relax_extension_release_check, वर्ण **ret_मार्गः, पूर्णाङ्क *ret_fd);
+पूर्णाङ्क open_extension_release_at(पूर्णाङ्क rfd, ImageClass image_class, ध्रुव वर्ण *extension, bool relax_extension_release_check, वर्ण **ret_मार्गः, पूर्णाङ्क *ret_fd);
+पूर्णाङ्क open_os_release(ध्रुव वर्ण *मूलम्, वर्ण **ret_मार्गः, पूर्णाङ्क *ret_fd);
+पूर्णाङ्क open_os_release_at(पूर्णाङ्क rfd, वर्ण **ret_मार्गः, पूर्णाङ्क *ret_fd);
 
-int parse_extension_release_sentinel(const char *root, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
-#define parse_extension_release(root, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_sentinel(root, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
-#define parse_os_release(root, ...)                                     \
-        parse_extension_release_sentinel(root, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+पूर्णाङ्क parse_extension_release_sentinel(ध्रुव वर्ण *मूलम्, ImageClass image_class, bool relax_extension_release_check, ध्रुव वर्ण *extension, ...) _sentinel_;
+#परिभाषय parse_extension_release(मूलम्, image_class, extension, relax_extension_release_check, ...) \
+        parse_extension_release_sentinel(मूलम्, image_class, relax_extension_release_check, extension, __VA_ARGS__, रिक्त)
+#परिभाषय parse_os_release(मूलम्, ...)                                     \
+        parse_extension_release_sentinel(मूलम्, _IMAGE_CLASS_INVALID, false, रिक्त, __VA_ARGS__, रिक्त)
 
-int parse_extension_release_at_sentinel(int rfd, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
-#define parse_extension_release_at(rfd, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
-#define parse_os_release_at(rfd, ...)                                     \
-        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+पूर्णाङ्क parse_extension_release_at_sentinel(पूर्णाङ्क rfd, ImageClass image_class, bool relax_extension_release_check, ध्रुव वर्ण *extension, ...) _sentinel_;
+#परिभाषय parse_extension_release_at(rfd, image_class, extension, relax_extension_release_check, ...) \
+        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, रिक्त)
+#परिभाषय parse_os_release_at(rfd, ...)                                     \
+        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, रिक्त, __VA_ARGS__, रिक्त)
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret);
-static inline int load_os_release_pairs(const char *root, char ***ret) {
-        return load_extension_release_pairs(root, _IMAGE_CLASS_INVALID, NULL, false, ret);
+पूर्णाङ्क आरोपय_extension_release_युग्मानि(ध्रुव वर्ण *मूलम्, ImageClass image_class, ध्रुव वर्ण *extension, bool relax_extension_release_check, वर्ण ***ret);
+स्थिर अन्तःस्थ पूर्णाङ्क आरोपय_os_release_युग्मानि(ध्रुव वर्ण *मूलम्, वर्ण ***ret) {
+        प्रत्यागम आरोपय_extension_release_युग्मानि(मूलम्, _IMAGE_CLASS_INVALID, रिक्त, false, ret);
 }
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret);
+पूर्णाङ्क आरोपय_os_release_युग्मानि_with_उपसर्गः(ध्रुव वर्ण *मूलम्, ध्रुव वर्ण *उपसर्गः, वर्ण ***ret);
 
-int os_release_support_ended(const char *support_end, bool quiet, usec_t *ret_eol);
+पूर्णाङ्क os_release_support_ended(ध्रुव वर्ण *support_अन्तः, bool quiet, usec_t *ret_eol);
 
-const char* os_release_pretty_name(const char *pretty_name, const char *name);
+ध्रुव वर्ण* os_release_pretty_name(ध्रुव वर्ण *pretty_name, ध्रुव वर्ण *name);
 
-bool use_fancy_name(const char *fancy_name);
-char *unescape_fancy_name(char **fancy_name);
+bool use_fancy_name(ध्रुव वर्ण *fancy_name);
+वर्ण *unescape_fancy_name(वर्ण **fancy_name);

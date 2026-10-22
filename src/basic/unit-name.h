@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-#define UNIT_NAME_MAX 256
+#परिभाषय UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+प्रकारनिर्देश गणना UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(ध्रुव वर्ण *n, UnitNameFlags flags) विशुद्धम्;
+bool unit_उपसर्गः_is_valid(ध्रुव वर्ण *p) विशुद्धम्;
+bool unit_instance_is_valid(ध्रुव वर्ण *i) विशुद्धम्;
+bool unit_suffix_is_valid(ध्रुव वर्ण *s) विशुद्धम्;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+पूर्णाङ्क unit_name_गन्तव्यम्_उपसर्गः(ध्रुव वर्ण *n, वर्ण **ret);
+UnitNameFlags unit_name_गन्तव्यम्_instance(ध्रुव वर्ण *n, वर्ण **ret);
+स्थिर अन्तःस्थ UnitNameFlags unit_name_classify(ध्रुव वर्ण *n) {
+        प्रत्यागम unit_name_गन्तव्यम्_instance(n, रिक्त);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+पूर्णाङ्क unit_name_गन्तव्यम्_उपसर्गः_and_instance(ध्रुव वर्ण *n, वर्ण **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_गन्तव्यम्_type(ध्रुव वर्ण *n) विशुद्धम्;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+पूर्णाङ्क unit_name_change_suffix(ध्रुव वर्ण *n, ध्रुव वर्ण *suffix, वर्ण **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+पूर्णाङ्क unit_name_build(ध्रुव वर्ण *उपसर्गः, ध्रुव वर्ण *instance, ध्रुव वर्ण *suffix, वर्ण **ret);
+पूर्णाङ्क unit_name_build_from_type(ध्रुव वर्ण *उपसर्गः, ध्रुव वर्ण *instance, UnitType type, वर्ण **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+वर्ण* unit_name_escape(ध्रुव वर्ण *f);
+पूर्णाङ्क unit_name_unescape(ध्रुव वर्ण *f, वर्ण **ret);
+पूर्णाङ्क unit_name_मार्गः_escape(ध्रुव वर्ण *f, वर्ण **ret);
+पूर्णाङ्क unit_name_मार्गः_unescape(ध्रुव वर्ण *f, वर्ण **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+पूर्णाङ्क unit_name_replace_instance_पूर्णम्(
+                ध्रुव वर्ण *original,
+                ध्रुव वर्ण *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                वर्ण **ret);
+स्थिर अन्तःस्थ पूर्णाङ्क unit_name_replace_instance(ध्रुव वर्ण *original, ध्रुव वर्ण *instance, वर्ण **ret) {
+        प्रत्यागम unit_name_replace_instance_पूर्णम्(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+पूर्णाङ्क unit_name_template(ध्रुव वर्ण *f, वर्ण **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+पूर्णाङ्क unit_name_hash_long(ध्रुव वर्ण *name, वर्ण **ret);
+bool unit_name_is_hashed(ध्रुव वर्ण *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+पूर्णाङ्क unit_name_from_मार्गः(ध्रुव वर्ण *मार्गः, ध्रुव वर्ण *suffix, वर्ण **ret);
+पूर्णाङ्क unit_name_from_मार्गः_instance(ध्रुव वर्ण *उपसर्गः, ध्रुव वर्ण *मार्गः, ध्रुव वर्ण *suffix, वर्ण **ret);
+पूर्णाङ्क unit_name_गन्तव्यम्_मार्गः(ध्रुव वर्ण *name, वर्ण **ret);
 
-typedef enum UnitNameMangle {
+प्रकारनिर्देश गणना UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+पूर्णाङ्क unit_name_mangle_with_suffix(ध्रुव वर्ण *name, ध्रुव वर्ण *operation, UnitNameMangle flags, ध्रुव वर्ण *suffix, वर्ण **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+स्थिर अन्तःस्थ पूर्णाङ्क unit_name_mangle(ध्रुव वर्ण *name, UnitNameMangle flags, वर्ण **ret) {
+        प्रत्यागम unit_name_mangle_with_suffix(name, रिक्त, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+पूर्णाङ्क खण्डिका_build_parent_खण्डिका(ध्रुव वर्ण *खण्डिका, वर्ण **ret);
+पूर्णाङ्क खण्डिका_build_subslice(ध्रुव वर्ण *खण्डिका, ध्रुव वर्ण *name, वर्ण **ret);
+bool खण्डिका_name_is_valid(ध्रुव वर्ण *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_उपसर्गः_equal(ध्रुव वर्ण *a, ध्रुव वर्ण *b);

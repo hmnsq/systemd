@@ -1,142 +1,142 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
 /* IWYU pragma: always_keep */
 
-#include <errno.h>                      /* IWYU pragma: export */
-#include <inttypes.h>                   /* IWYU pragma: export */
-#include <limits.h>                     /* IWYU pragma: export */
-#include <paths.h>                      /* IWYU pragma: export */
-#include <stdarg.h>                     /* IWYU pragma: export */
-#include <stdbool.h>                    /* IWYU pragma: export */
-#include <stddef.h>                     /* IWYU pragma: export */
-#include <stdint.h>                     /* IWYU pragma: export */
-#include <sys/types.h>                  /* IWYU pragma: export */
-#include <uchar.h>                      /* IWYU pragma: export */
+#अन्तर्भाव <errno.h>                      /* IWYU pragma: export */
+#अन्तर्भाव <inttypes.h>                   /* IWYU pragma: export */
+#अन्तर्भाव <limits.h>                     /* IWYU pragma: export */
+#अन्तर्भाव <paths.h>                      /* IWYU pragma: export */
+#अन्तर्भाव <stdarg.h>                     /* IWYU pragma: export */
+#अन्तर्भाव <stdbool.h>                    /* IWYU pragma: export */
+#अन्तर्भाव <stddef.h>                     /* IWYU pragma: export */
+#अन्तर्भाव <stdint.h>                     /* IWYU pragma: export */
+#अन्तर्भाव <sys/types.h>                  /* IWYU pragma: export */
+#अन्तर्भाव <uchar.h>                      /* IWYU pragma: export */
 
-#include "assert-util.h"                /* IWYU pragma: export */
-#include "cleanup-util.h"               /* IWYU pragma: export */
-#include "macro.h"                      /* IWYU pragma: export */
+#अन्तर्भाव "assert-util.h"                /* IWYU pragma: export */
+#अन्तर्भाव "cleanup-util.h"               /* IWYU pragma: export */
+#अन्तर्भाव "macro.h"                      /* IWYU pragma: export */
 
-#include "../fundamental/string-table.h"   /* IWYU pragma: export */
+#अन्तर्भाव "../fundamental/string-table.h"   /* IWYU pragma: export */
 
 /* Generic types */
 
-typedef uint64_t usec_t;
-typedef uint64_t nsec_t;
+प्रकारनिर्देश uint64_t usec_t;
+प्रकारनिर्देश uint64_t nsec_t;
 
 /* Libc/Linux forward declarations */
 
-struct __kernel_timespec;
-struct dirent;
-struct ether_addr;
-struct fiemap;
-struct file_handle;
-struct glob_t;
-struct group;
-struct icmp6_hdr;
-struct in_addr;
-struct in6_addr;
-struct inotify_event;
-struct iovec;
-struct mount_attr;
-struct msghdr;
-struct passwd;
-struct pollfd;
-struct rlimit;
-struct sgrp;
-struct shadow;
-struct signalfd_siginfo;
-struct siphash;
-struct sockaddr;
-struct spwd;
-struct stat;
-struct statfs;
-struct statx_timestamp;
-struct statx;
-struct termios;
-struct tm;
-struct ucred;
-struct unix_diag_msg;
+संरचना __kernel_timespec;
+संरचना dirent;
+संरचना ether_addr;
+संरचना fiemap;
+संरचना file_handle;
+संरचना glob_t;
+संरचना group;
+संरचना icmp6_hdr;
+संरचना in_addr;
+संरचना in6_addr;
+संरचना inotify_event;
+संरचना iovec;
+संरचना mount_attr;
+संरचना msghdr;
+संरचना passwd;
+संरचना pollfd;
+संरचना rlimit;
+संरचना sgrp;
+संरचना shadow;
+संरचना signalfd_siginfo;
+संरचना siphash;
+संरचना sockaddr;
+संरचना spwd;
+संरचना stat;
+संरचना statfs;
+संरचना statx_timestamp;
+संरचना statx;
+संरचना termios;
+संरचना tm;
+संरचना ucred;
+संरचना unix_diag_सन्देशः;
 
 /* To forward declare FILE and DIR, we have to declare the internal struct names for them. Since these are
  * used for C++ symbol name mangling, they're effectively part of the ABI and won't actually change. */
-typedef struct _IO_FILE FILE;
-typedef struct __dirstream DIR;
+प्रकारनिर्देश संरचना _IO_FILE FILE;
+प्रकारनिर्देश संरचना __dirstream DIR;
 
 /* 3rd-party library forward declarations */
 
-enum bpf_map_type;
+गणना bpf_map_type;
 
-struct fdisk_context;
-struct fdisk_table;
-struct crypt_device;
+संरचना fdisk_context;
+संरचना fdisk_सारणी;
+संरचना crypt_device;
 
-typedef struct buf_mem_st BUF_MEM;
-typedef struct evp_pkey_st EVP_PKEY;
-typedef struct evp_md_st EVP_MD;
-typedef struct evp_md_ctx_st EVP_MD_CTX;
-typedef struct ssl_st SSL;
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct ssl_session_st SSL_SESSION;
-typedef struct x509_st X509;
+प्रकारनिर्देश संरचना buf_mem_st BUF_MEM;
+प्रकारनिर्देश संरचना evp_pkey_st EVP_PKEY;
+प्रकारनिर्देश संरचना evp_md_st EVP_MD;
+प्रकारनिर्देश संरचना evp_md_ctx_st EVP_MD_CTX;
+प्रकारनिर्देश संरचना ssl_st SSL;
+प्रकारनिर्देश संरचना ssl_ctx_st SSL_CTX;
+प्रकारनिर्देश संरचना ssl_session_st SSL_SESSION;
+प्रकारनिर्देश संरचना x509_st X509;
 
 /* basic/ forward declarations */
 
-typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
-typedef compare_func_t comparison_fn_t;
-typedef int (*comparison_userdata_fn_t)(const void *, const void *, void *);
+प्रकारनिर्देश शून्य (*hash_func_t)(ध्रुव शून्य *p, संरचना siphash *state);
+प्रकारनिर्देश पूर्णाङ्क (*compare_func_t)(ध्रुव शून्य *a, ध्रुव शून्य *b);
+प्रकारनिर्देश compare_func_t comparison_fn_t;
+प्रकारनिर्देश पूर्णाङ्क (*comparison_userdata_fn_t)(ध्रुव शून्य *, ध्रुव शून्य *, शून्य *);
 
-struct hash_ops;
-struct hw_addr_data;
-struct in_addr_data;
-struct iovec_wrapper;
-union in_addr_union;
-union sockaddr_union;
+संरचना hash_ops;
+संरचना hw_addr_दत्त;
+संरचना अन्तर्_addr_दत्त;
+संरचना iovec_wrapper;
+सङ्घ अन्तर्_addr_union;
+सङ्घ sockaddr_union;
 
-typedef enum Architecture Architecture;
-typedef enum CGroupFlags CGroupFlags;
-typedef enum CGroupMask CGroupMask;
-typedef enum ChaseFlags ChaseFlags;
-typedef enum ConfFilesFlags ConfFilesFlags;
-typedef enum ExtractFlags ExtractFlags;
-typedef enum ForkFlags ForkFlags;
-typedef enum Glyph Glyph;
-typedef enum ImageClass ImageClass;
-typedef enum JobMode JobMode;
-typedef enum NamespaceEnterFlags NamespaceEnterFlags;
-typedef enum RuntimeScope RuntimeScope;
-typedef enum StringSafeFlags StringSafeFlags;
-typedef enum TimestampStyle TimestampStyle;
-typedef enum UnitActiveState UnitActiveState;
-typedef enum UnitDependency UnitDependency;
-typedef enum UnitNameMangle UnitNameMangle;
-typedef enum UnitType UnitType;
-typedef enum WaitFlags WaitFlags;
-typedef enum XOpenFlags XOpenFlags;
+प्रकारनिर्देश गणना Architecture Architecture;
+प्रकारनिर्देश गणना CGroupFlags CGroupFlags;
+प्रकारनिर्देश गणना CGroup_आवरणम् CGroup_आवरणम्;
+प्रकारनिर्देश गणना ChaseFlags ChaseFlags;
+प्रकारनिर्देश गणना ConfFilesFlags ConfFilesFlags;
+प्रकारनिर्देश गणना ExtractFlags ExtractFlags;
+प्रकारनिर्देश गणना ForkFlags ForkFlags;
+प्रकारनिर्देश गणना Glyph Glyph;
+प्रकारनिर्देश गणना ImageClass ImageClass;
+प्रकारनिर्देश गणना Job_बहुलकम् Job_बहुलकम्;
+प्रकारनिर्देश गणना NamespaceEnterFlags NamespaceEnterFlags;
+प्रकारनिर्देश गणना RuntimeScope RuntimeScope;
+प्रकारनिर्देश गणना StringSafeFlags StringSafeFlags;
+प्रकारनिर्देश गणना TimestampStyle TimestampStyle;
+प्रकारनिर्देश गणना Unit_सक्रिय_State Unit_सक्रिय_State;
+प्रकारनिर्देश गणना UnitDependency UnitDependency;
+प्रकारनिर्देश गणना UnitNameMangle UnitNameMangle;
+प्रकारनिर्देश गणना UnitType UnitType;
+प्रकारनिर्देश गणना WaitFlags WaitFlags;
+प्रकारनिर्देश गणना XOpenFlags XOpenFlags;
 
-typedef struct Fiber Fiber;
-typedef struct FiberOps FiberOps;
-typedef struct Hashmap Hashmap;
-typedef struct HashmapBase HashmapBase;
-typedef struct IteratedCache IteratedCache;
-typedef struct Iterator Iterator;
-typedef struct LogContext LogContext;
-typedef struct OrderedHashmap OrderedHashmap;
-typedef struct OrderedSet OrderedSet;
-typedef struct Set Set;
+प्रकारनिर्देश संरचना Fiber Fiber;
+प्रकारनिर्देश संरचना FiberOps FiberOps;
+प्रकारनिर्देश संरचना Hashmap Hashmap;
+प्रकारनिर्देश संरचना Hashmap_आधारः Hashmap_आधारः;
+प्रकारनिर्देश संरचना IteratedCache IteratedCache;
+प्रकारनिर्देश संरचना Iterator Iterator;
+प्रकारनिर्देश संरचना LogContext LogContext;
+प्रकारनिर्देश संरचना OrderedHashmap OrderedHashmap;
+प्रकारनिर्देश संरचना Ordered_समुच्चयः Ordered_समुच्चयः;
+प्रकारनिर्देश संरचना समुच्चयः_2 समुच्चयः_2;
 
-typedef struct dual_timestamp dual_timestamp;
-typedef struct triple_timestamp triple_timestamp;
-typedef struct Compressor Compressor;
-typedef struct ConfFile ConfFile;
-typedef struct LabelContext LabelContext;
-typedef struct LockFile LockFile;
-typedef struct PidRef PidRef;
-typedef struct Prioq Prioq;
-typedef struct RateLimit RateLimit;
-typedef struct SocketAddress SocketAddress;
+प्रकारनिर्देश संरचना dual_timestamp dual_timestamp;
+प्रकारनिर्देश संरचना triple_timestamp triple_timestamp;
+प्रकारनिर्देश संरचना Compressor Compressor;
+प्रकारनिर्देश संरचना ConfFile ConfFile;
+प्रकारनिर्देश संरचना LabelContext LabelContext;
+प्रकारनिर्देश संरचना तालकम्_File तालकम्_File;
+प्रकारनिर्देश संरचना PidRef PidRef;
+प्रकारनिर्देश संरचना Prioq Prioq;
+प्रकारनिर्देश संरचना दरः_सीमा दरः_सीमा;
+प्रकारनिर्देश संरचना Socket_स्थानाङ्कः Socket_स्थानाङ्कः;
 
 /* Constants */
 
@@ -144,26 +144,26 @@ typedef struct SocketAddress SocketAddress;
  * having to include the full header that provides these constants. */
 
 /* glibc defines AT_FDCWD as -100, but musl defines it as (-100). */
-#ifdef __GLIBC__
-#define AT_FDCWD                -100
-#else
-#define AT_FDCWD                (-100)
-#endif
-#define AT_EMPTY_PATH           0x1000
-#define AT_SYMLINK_FOLLOW       0x400
-#define AT_SYMLINK_NOFOLLOW     0x100
+#यदि_परिभाषितम् __GLIBC__
+#परिभाषय AT_FDCWD                -100
+#अन्यथा
+#परिभाषय AT_FDCWD                (-100)
+#यदि_अन्तः
+#परिभाषय AT_रिक्तानि_मार्गः           0x1000
+#परिभाषय AT_SYMLINK_FOLLOW       0x400
+#परिभाषय AT_SYMLINK_NOFOLLOW     0x100
 
-#define MODE_INVALID            ((mode_t) -1)
+#परिभाषय बहुलकम्_INVALID            ((mode_t) -1)
 
-#define UID_INVALID             ((uid_t) -1)
-#define GID_INVALID             ((gid_t) -1)
+#परिभाषय UID_INVALID             ((uid_t) -1)
+#परिभाषय GID_INVALID             ((gid_t) -1)
 
-#define USEC_INFINITY           ((usec_t) UINT64_MAX)
-#define NSEC_INFINITY           ((nsec_t) UINT64_MAX)
+#परिभाषय USEC_INFINITY           ((usec_t) UINT64_MAX)
+#परिभाषय NSEC_INFINITY           ((nsec_t) UINT64_MAX)
 
 /* MAX_ERRNO is defined as 4095 in linux/err.h. We use the same value here. */
-#define ERRNO_MAX               4095
+#परिभाषय ERRNO_MAX               4095
 
 /* This is MAX_ADDR_LEN as defined in linux/netdevice.h, but net/if_arp.h
  * defines a macro of the same name with a much lower size. */
-#define HW_ADDR_MAX_SIZE 32
+#परिभाषय HW_ADDR_MAX_आकार 32

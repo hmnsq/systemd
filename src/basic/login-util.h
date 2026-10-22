@@ -1,20 +1,20 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#निर्देशः once
 
-#include "forward.h"
+#अन्तर्भाव "forward.h"
 
-#define SD_LOGIND_ROOT_CHECK_INHIBITORS           (UINT64_C(1) << 0)
-#define SD_LOGIND_REBOOT_VIA_KEXEC                (UINT64_C(1) << 1)
-#define SD_LOGIND_SOFT_REBOOT                     (UINT64_C(1) << 2)
-#define SD_LOGIND_SOFT_REBOOT_IF_NEXTROOT_SET_UP  (UINT64_C(1) << 3)
-#define SD_LOGIND_SKIP_INHIBITORS                 (UINT64_C(1) << 4)
+#परिभाषय SD_LOGIND_मूलम्_CHECK_INHIBITORS           (UINT64_C(1) << 0)
+#परिभाषय SD_LOGIND_REBOOT_द्वारा_KEXEC                (UINT64_C(1) << 1)
+#परिभाषय SD_LOGIND_SOFT_REBOOT                     (UINT64_C(1) << 2)
+#परिभाषय SD_LOGIND_SOFT_REBOOT_IF_NEXTROOT_समुच्चयः_ऊर्ध्वम्  (UINT64_C(1) << 3)
+#परिभाषय SD_LOGIND_SKIP_INHIBITORS                 (UINT64_C(1) << 4)
 
 /* For internal use only */
-#define SD_LOGIND_INTERACTIVE                     (UINT64_C(1) << 63)
+#परिभाषय SD_LOGIND_INTERACTIVE                     (UINT64_C(1) << 63)
 
-#define SD_LOGIND_SHUTDOWN_AND_SLEEP_FLAGS_PUBLIC (SD_LOGIND_ROOT_CHECK_INHIBITORS|SD_LOGIND_REBOOT_VIA_KEXEC|SD_LOGIND_SOFT_REBOOT|SD_LOGIND_SOFT_REBOOT_IF_NEXTROOT_SET_UP|SD_LOGIND_SKIP_INHIBITORS)
-#define SD_LOGIND_SHUTDOWN_AND_SLEEP_FLAGS_ALL    (SD_LOGIND_SHUTDOWN_AND_SLEEP_FLAGS_PUBLIC|SD_LOGIND_INTERACTIVE)
+#परिभाषय SD_LOGIND_SHUTDOWN_AND_SLEEP_FLAGS_लौकिकम् (SD_LOGIND_मूलम्_CHECK_INHIBITORS|SD_LOGIND_REBOOT_द्वारा_KEXEC|SD_LOGIND_SOFT_REBOOT|SD_LOGIND_SOFT_REBOOT_IF_NEXTROOT_समुच्चयः_ऊर्ध्वम्|SD_LOGIND_SKIP_INHIBITORS)
+#परिभाषय SD_LOGIND_SHUTDOWN_AND_SLEEP_FLAGS_ALL    (SD_LOGIND_SHUTDOWN_AND_SLEEP_FLAGS_लौकिकम्|SD_LOGIND_INTERACTIVE)
 
-bool session_id_valid(const char *id) _pure_;
+bool session_id_valid(ध्रुव वर्ण *id) विशुद्धम्;
 
-bool logind_running(void);
+bool logind_running(शून्य);
