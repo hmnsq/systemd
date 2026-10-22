@@ -8,22 +8,22 @@
 #include "stat-util.h"
 #include "string-util.h"
 
-int dirent_ensure_type(int dir_fd, struct dirent *de) {
-        int r;
+ຈຳນວນເຕັມ dirent_ensure_type(ຈຳນວນເຕັມ dir_fd, sa_nracanaa dirent *de) {
+        ຈຳນວນເຕັມ r;
 
         assert(dir_fd >= 0);
         assert(de);
 
-        if (de->d_type != DT_UNKNOWN)
-                return 0;
+        ຖ້າ (de->d_type != DT_UNKNOWN)
+                ສົ່ງຄືນ 0;
 
-        if (dot_or_dot_dot(de->d_name)) {
+        ຖ້າ (dot_or_dot_dot(de->d_name)) {
                 de->d_type = DT_DIR;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
         /* Let's ask only for the type, nothing else. */
-        struct statx sx;
+        sa_nracanaa statx sx;
         r = xstatx_full(dir_fd,
                         de->d_name,
                         AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT,
@@ -32,81 +32,81 @@ int dirent_ensure_type(int dir_fd, struct dirent *de) {
                         /* optional_mask= */ STATX_INO,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         assert(FLAGS_SET(sx.stx_mask, STATX_TYPE));
         de->d_type = IFTODT(sx.stx_mode);
 
         /* If the inode is passed too, update the field, i.e. report most recent data */
-        if (FLAGS_SET(sx.stx_mask, STATX_INO))
+        ຖ້າ (FLAGS_SET(sx.stx_mask, STATX_INO))
                 de->d_ino = sx.stx_ino;
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-bool dirent_is_file(const struct dirent *de) {
+bool dirent_is_file(const sa_nracanaa dirent *de) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ຖ້າ (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ສົ່ງຄືນ false;
 
-        if (hidden_or_backup_file(de->d_name))
-                return false;
+        ຖ້າ (hidden_or_backup_file(de->d_name))
+                ສົ່ງຄືນ false;
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) {
+bool dirent_is_file_with_suffix(const sa_nracanaa dirent *de, const var_na *suffix) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        ຖ້າ (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ສົ່ງຄືນ false;
 
-        if (de->d_name[0] == '.')
-                return false;
+        ຖ້າ (de->d_name[0] == '.')
+                ສົ່ງຄືນ false;
 
-        if (!suffix)
-                return true;
+        ຖ້າ (!suffix)
+                ສົ່ງຄືນ true;
 
-        return endswith(de->d_name, suffix);
+        ສົ່ງຄືນ endswith(de->d_name, suffix);
 }
 
-struct dirent* readdir_ensure_type(DIR *d) {
-        int r;
+sa_nracanaa dirent* readdir_ensure_type(DIR *d) {
+        ຈຳນວນເຕັມ r;
 
         assert(d);
 
         /* Like readdir(), but fills in .d_type if it is DT_UNKNOWN */
 
-        for (;;) {
-                struct dirent *de;
+        ສຳລັບ (;;) {
+                sa_nracanaa dirent *de;
 
                 errno = 0;
                 de = readdir(d);
-                if (!de)
-                        return NULL;
+                ຖ້າ (!de)
+                        ສົ່ງຄືນ NULL;
 
                 r = dirent_ensure_type(dirfd(d), de);
-                if (r >= 0)
-                        return de;
-                if (r != -ENOENT) {
+                ຖ້າ (r >= 0)
+                        ສົ່ງຄືນ de;
+                ຖ້າ (r != -ENOENT) {
                         errno = -r; /* We want to be compatible with readdir(), hence propagate error via errno here */
-                        return NULL;
+                        ສົ່ງຄືນ NULL;
                 }
 
                 /* Vanished by now? Then skip immediately to next */
         }
 }
 
-struct dirent* readdir_no_dot(DIR *d) {
+sa_nracanaa dirent* readdir_no_dot(DIR *d) {
         assert(d);
 
-        for (;;) {
-                struct dirent *de;
+        ສຳລັບ (;;) {
+                sa_nracanaa dirent *de;
 
                 de = readdir_ensure_type(d);
-                if (!de || !dot_or_dot_dot(de->d_name))
-                        return de;
+                ຖ້າ (!de || !dot_or_dot_dot(de->d_name))
+                        ສົ່ງຄືນ de;
         }
 }

@@ -16,120 +16,120 @@
 #include "tmpfile-util.h"
 #include "umask-util.h"
 
-static int fopen_temporary_internal(int dir_fd, const char *path, FILE **ret_file) {
+static ຈຳນວນເຕັມ fopen_temporary_internal(ຈຳນວນເຕັມ dir_fd, const var_na *path, FILE **ret_file) {
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
+        ຈຳນວນເຕັມ r;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(path);
 
         fd = openat(dir_fd, path, O_CLOEXEC|O_NOCTTY|O_RDWR|O_CREAT|O_EXCL, 0600);
-        if (fd < 0)
-                return -errno;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ -errno;
 
         /* This assumes that returned FILE object is short-lived and used within the same single-threaded
          * context and never shared externally, hence locking is not necessary. */
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0) {
+        ຖ້າ (r < 0) {
                 (void) unlinkat(dir_fd, path, 0);
-                return r;
+                ສົ່ງຄືນ r;
         }
 
-        if (ret_file)
+        ຖ້າ (ret_file)
                 *ret_file = TAKE_PTR(f);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+ຈຳນວນເຕັມ fopen_temporary_at(ຈຳນວນເຕັມ dir_fd, const var_na *path, FILE **ret_file, var_na **ret_path) {
+        _cleanup_free_ var_na *t = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(path);
 
         r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (ret_path)
+        ຖ້າ (ret_path)
                 *ret_path = TAKE_PTR(t);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+ຈຳນວນເຕັມ fopen_temporary_child_at(ຈຳນວນເຕັມ dir_fd, const var_na *path, FILE **ret_file, var_na **ret_path) {
+        _cleanup_free_ var_na *t = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        if (!path) {
+        ຖ້າ (!path) {
                 r = tmp_dir(&path);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
         }
 
         r = tempfn_random_child(path, NULL, &t);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (ret_path)
+        ຖ້າ (ret_path)
                 *ret_path = TAKE_PTR(t);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
 /* This is much like mkostemp() but is subject to umask(). */
-int mkostemp_safe(char *pattern) {
+ຈຳນວນເຕັມ mkostemp_safe(var_na *pattern) {
         assert(pattern);
         BLOCK_WITH_UMASK(0077);
-        return RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
+        ສົ່ງຄືນ RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
 }
 
-int fmkostemp_safe(char *pattern, const char *mode, FILE **ret_f) {
-        _cleanup_close_ int fd = -EBADF;
+ຈຳນວນເຕັມ fmkostemp_safe(var_na *pattern, const var_na *mode, FILE **ret_f) {
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
         FILE *f;
 
         assert(ret_f);
 
         fd = mkostemp_safe(pattern);
-        if (fd < 0)
-                return fd;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ fd;
 
         f = take_fdopen(&fd, mode);
-        if (!f)
-                return -errno;
+        ຖ້າ (!f)
+                ສົ່ງຄືນ -errno;
 
         *ret_f = f;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-void unlink_tempfilep(char (*p)[]) {
+void unlink_tempfilep(var_na (*p)[]) {
         assert(p);
 
         /* If the file is created with mkstemp(), it will (almost always) change the suffix.
          * Treat this as a sign that the file was successfully created. We ignore both the rare case
          * where the original suffix is used and unlink failures. */
 
-        if (!endswith(*p, ".XXXXXX"))
+        ຖ້າ (!endswith(*p, ".XXXXXX"))
                 (void) unlink(*p);
 }
 
-static int tempfn_build(const char *p, const char *pre, const char *post, bool child, char **ret) {
-        _cleanup_free_ char *d = NULL, *fn = NULL, *nf = NULL, *result = NULL;
+static ຈຳນວນເຕັມ tempfn_build(const var_na *p, const var_na *pre, const var_na *post, bool child, var_na **ret) {
+        _cleanup_free_ var_na *d = NULL, *fn = NULL, *nf = NULL, *result = NULL;
         size_t len_pre, len_post, len_add;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         assert(p);
         assert(ret);
@@ -143,54 +143,54 @@ static int tempfn_build(const char *p, const char *pre, const char *post, bool c
          *         /foo/bar/.#<pre>waldo<post> (child == false)
          */
 
-        if (pre && strchr(pre, '/'))
-                return -EINVAL;
+        ຖ້າ (pre && strchr(pre, '/'))
+                ສົ່ງຄືນ -EINVAL;
 
-        if (post && strchr(post, '/'))
-                return -EINVAL;
+        ຖ້າ (post && strchr(post, '/'))
+                ສົ່ງຄືນ -EINVAL;
 
         len_pre = strlen_ptr(pre);
         len_post = strlen_ptr(post);
         /* NAME_MAX is counted *without* the trailing NUL byte. */
-        if (len_pre > NAME_MAX - STRLEN(".#") ||
+        ຖ້າ (len_pre > NAME_MAX - STRLEN(".#") ||
             len_post > NAME_MAX - STRLEN(".#") - len_pre)
-                return -EINVAL;
+                ສົ່ງຄືນ -EINVAL;
 
         len_add = len_pre + len_post + STRLEN(".#");
 
-        if (child) {
+        ຖ້າ (child) {
                 d = strdup(p);
-                if (!d)
-                        return -ENOMEM;
-        } else {
+                ຖ້າ (!d)
+                        ສົ່ງຄືນ -ENOMEM;
+        } ບໍ່ດັ່ງນັ້ນ {
                 r = path_split_prefix_filename(p, &d, &fn);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 /* Truncate the filename if it would become too long after mangling. */
                 strshorten(fn, NAME_MAX - len_add);
         }
 
         nf = strjoin(".#", strempty(pre), strempty(fn), strempty(post));
-        if (!nf)
-                return -ENOMEM;
+        ຖ້າ (!nf)
+                ສົ່ງຄືນ -ENOMEM;
 
-        if (d) {
-                if (!path_extend(&d, nf))
-                        return -ENOMEM;
+        ຖ້າ (d) {
+                ຖ້າ (!path_extend(&d, nf))
+                        ສົ່ງຄືນ -ENOMEM;
 
                 result = path_simplify(TAKE_PTR(d));
-        } else
+        } ບໍ່ດັ່ງນັ້ນ
                 result = TAKE_PTR(nf);
 
-        if (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
-                return -EINVAL;
+        ຖ້າ (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
+                ສົ່ງຄືນ -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
+ຈຳນວນເຕັມ tempfn_xxxxxx(const var_na *p, const var_na *extra, var_na **ret) {
         /*
          * Turns this:
          *         /foo/bar/waldo
@@ -199,11 +199,11 @@ int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldoXXXXXX
          */
 
-        return tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
+        ສົ່ງຄືນ tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
 }
 
-int tempfn_random(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
+ຈຳນວນເຕັມ tempfn_random(const var_na *p, const var_na *extra, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
 
         assert(p);
         assert(ret);
@@ -216,15 +216,15 @@ int tempfn_random(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldobaa2a261115984a9
          */
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        ຖ້າ (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                ສົ່ງຄືນ -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ false, ret);
+        ສົ່ງຄືນ tempfn_build(p, extra, s, /* child= */ false, ret);
 }
 
-int tempfn_random_child(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ຈຳນວນເຕັມ tempfn_random_child(const var_na *p, const var_na *extra, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(ret);
 
@@ -234,51 +234,51 @@ int tempfn_random_child(const char *p, const char *extra, char **ret) {
          *         /foo/bar/waldo/.#<extra>3c2b6219aa75d7d0
          */
 
-        if (!p) {
+        ຖ້າ (!p) {
                 r = tmp_dir(&p);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
         }
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        ຖ້າ (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                ສົ່ງຄືນ -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ true, ret);
+        ສົ່ງຄືນ tempfn_build(p, extra, s, /* child= */ true, ret);
 }
 
-int open_tmpfile_unlinkable(const char *directory, int flags) {
-        int r;
+ຈຳນວນເຕັມ open_tmpfile_unlinkable(const var_na *directory, ຈຳນວນເຕັມ flags) {
+        ຈຳນວນເຕັມ r;
 
-        if (!directory) {
+        ຖ້າ (!directory) {
                 r = tmp_dir(&directory);
-                if (r < 0)
-                        return r;
-        } else if (isempty(directory))
-                return -EINVAL;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (isempty(directory))
+                ສົ່ງຄືນ -EINVAL;
 
         /* Returns an unlinked temporary file that cannot be linked into the file system anymore */
 
         /* Try O_TMPFILE first, if it is supported */
-        int fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
-        if (fd >= 0)
-                return fd;
+        ຈຳນວນເຕັມ fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
+        ຖ້າ (fd >= 0)
+                ສົ່ງຄືນ fd;
 
         /* Fall back to unguessable name + unlinking */
-        _cleanup_free_ char *p = path_join(directory, "/systemd-tmp-XXXXXX");
-        if (!p)
-                return -ENOMEM;
+        _cleanup_free_ var_na *p = path_join(directory, "/systemd-tmp-XXXXXX");
+        ຖ້າ (!p)
+                ສົ່ງຄືນ -ENOMEM;
 
         fd = mkostemp_safe(p);
-        if (fd < 0)
-                return fd;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ fd;
 
         (void) unlink(p);
 
-        return fd;
+        ສົ່ງຄືນ fd;
 }
 
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path) {
-        int r;
+ຈຳນວນເຕັມ open_tmpfile_linkable_at(ຈຳນວນເຕັມ dir_fd, const var_na *target, ຈຳນວນເຕັມ flags, var_na **ret_path) {
+        ຈຳນວນເຕັມ r;
 
         assert(target);
         assert(ret_path);
@@ -290,53 +290,53 @@ int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **r
          * which case "ret_path" will be returned as NULL. If not possible the temporary path name used is returned in
          * "ret_path". Use link_tmpfile() below to rename the result after writing the file in full. */
 
-        int fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
-        if (fd >= 0) {
+        ຈຳນວນເຕັມ fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
+        ຖ້າ (fd >= 0) {
                 *ret_path = NULL;
-                return fd;
+                ສົ່ງຄືນ fd;
         }
 
-        if (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
+        ຖ້າ (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
                 log_debug_errno(fd, "Failed to use O_TMPFILE for %s: %m", target);
 
-        _cleanup_free_ char *tmp = NULL;
+        _cleanup_free_ var_na *tmp = NULL;
         r = tempfn_random(target, NULL, &tmp);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         fd = openat(dir_fd, tmp, O_CREAT|O_EXCL|O_NOFOLLOW|O_NOCTTY|flags, 0640);
-        if (fd < 0)
-                return -errno;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ -errno;
 
         *ret_path = TAKE_PTR(tmp);
 
-        return fd;
+        ສົ່ງຄືນ fd;
 }
 
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file) {
-        _cleanup_free_ char *path = NULL;
+ຈຳນວນເຕັມ fopen_tmpfile_linkable_at(ຈຳນວນເຕັມ dir_fd, const var_na *target, ຈຳນວນເຕັມ flags, var_na **ret_path, FILE **ret_file) {
+        _cleanup_free_ var_na *path = NULL;
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
 
         assert(target);
         assert(ret_file);
         assert(ret_path);
 
         fd = open_tmpfile_linkable_at(dir_fd, target, flags, &path);
-        if (fd < 0)
-                return fd;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ fd;
 
         f = take_fdopen(&fd, "w");
-        if (!f)
-                return -ENOMEM;
+        ຖ້າ (!f)
+                ສົ່ງຄືນ -ENOMEM;
 
         *ret_path = TAKE_PTR(path);
         *ret_file = TAKE_PTR(f);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int r;
+ຈຳນວນເຕັມ link_tmpfile_at(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ dir_fd, const var_na *path, const var_na *target, LinkTmpfileFlags flags) {
+        ຈຳນວນເຕັມ r;
 
         assert(fd >= 0);
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
@@ -346,104 +346,104 @@ int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, Li
          * an fd created with O_TMPFILE is assumed, and linkat() is used. Otherwise it is assumed O_TMPFILE
          * is not supported on the directory, and renameat2() is used instead. */
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
-                return -errno;
+        ຖ້າ (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (path) {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
+        ຖ້າ (path) {
+                ຖ້າ (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
                         r = RET_NERRNO(renameat(dir_fd, path, dir_fd, target));
-                else
+                ບໍ່ດັ່ງນັ້ນ
                         r = rename_noreplace(dir_fd, path, dir_fd, target);
-        } else {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
+        } ບໍ່ດັ່ງນັ້ນ {
+                ຖ້າ (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
                         r = linkat_replace(fd, /* oldpath= */ NULL, dir_fd, target);
-                else
+                ບໍ່ດັ່ງນັ້ນ
                         r = link_fd(fd, dir_fd, target);
         }
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
+        ຖ້າ (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
                 r = fsync_full(fd);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int fd, r;
+ຈຳນວນເຕັມ flink_tmpfile_at(FILE *f, ຈຳນວນເຕັມ dir_fd, const var_na *path, const var_na *target, LinkTmpfileFlags flags) {
+        ຈຳນວນເຕັມ fd, r;
 
         assert(f);
         assert(target);
 
         fd = fileno(f);
-        if (fd < 0) /* Not all FILE* objects encapsulate fds */
-                return -EBADF;
+        ຖ້າ (fd < 0) /* Not all FILE* objects encapsulate fds */
+                ສົ່ງຄືນ -EBADF;
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return link_tmpfile_at(fd, dir_fd, path, target, flags);
+        ສົ່ງຄືນ link_tmpfile_at(fd, dir_fd, path, target, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+ຈຳນວນເຕັມ mkdtemp_malloc(const var_na *template, var_na **ret) {
+        _cleanup_free_ var_na *p = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(ret);
 
-        if (template)
+        ຖ້າ (template)
                 p = strdup(template);
-        else {
-                const char *tmp;
+        ບໍ່ດັ່ງນັ້ນ {
+                const var_na *tmp;
 
                 r = tmp_dir(&tmp);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 p = path_join(tmp, "XXXXXX");
         }
-        if (!p)
-                return -ENOMEM;
+        ຖ້າ (!p)
+                ສົ່ງຄືນ -ENOMEM;
 
-        if (!mkdtemp(p))
-                return -errno;
+        ຖ້າ (!mkdtemp(p))
+                ສົ່ງຄືນ -errno;
 
         *ret = TAKE_PTR(p);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int mkdtemp_open(const char *template, int flags, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int fd, r;
+ຈຳນວນເຕັມ mkdtemp_open(const var_na *template, ຈຳນວນເຕັມ flags, var_na **ret) {
+        _cleanup_free_ var_na *p = NULL;
+        ຈຳນວນເຕັມ fd, r;
 
         r = mkdtemp_malloc(template, &p);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         fd = RET_NERRNO(open(p, O_DIRECTORY|O_CLOEXEC|flags));
-        if (fd < 0) {
+        ຖ້າ (fd < 0) {
                 (void) rmdir(p);
-                return fd;
+                ສົ່ງຄືນ fd;
         }
 
-        if (ret)
+        ຖ້າ (ret)
                 *ret = TAKE_PTR(p);
 
-        return fd;
+        ສົ່ງຄືນ fd;
 }
 
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d) {
+void cleanup_tmpfile_data_done(sa_nracanaa cleanup_tmpfile_data *d) {
         assert(d);
 
-        if (!d->dir_fd ||
+        ຖ້າ (!d->dir_fd ||
             (*d->dir_fd < 0 && *d->dir_fd != AT_FDCWD) ||
             !d->filename ||
             !*d->filename)
-                return;
+                ສົ່ງຄືນ;
 
         PROTECT_ERRNO;
 

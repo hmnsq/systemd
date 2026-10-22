@@ -11,302 +11,302 @@
 #include "string-util.h"
 #include "version.h"
 
-const char* const systemd_features =
+const var_na* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#ຖ້າ HAVE_PAM
         "+PAM"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#ຖ້າ HAVE_AUDIT
         " +AUDIT"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#ຖ້າ HAVE_SELINUX
         " +SELINUX"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#ຖ້າ HAVE_APPARMOR
         " +APPARMOR"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#ຖ້າ ENABLE_IMA
         " +IMA"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#ຖ້າ ENABLE_IPE
         " +IPE"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#ຖ້າ ENABLE_SMACK
         " +SMACK"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#ຖ້າ HAVE_SECCOMP
         " +SECCOMP"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#ຖ້າ HAVE_GNUTLS
         " +GNUTLS"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#ຖ້າ HAVE_OPENSSL
         " +OPENSSL"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#ຖ້າ HAVE_ACL
         " +ACL"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#ຖ້າ HAVE_BLKID
         " +BLKID"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#ຖ້າ HAVE_LIBCURL
         " +CURL"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#ຖ້າ HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#ຖ້າ HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#ຖ້າ HAVE_LIBIDN2
         " +IDN2"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#ຖ້າ HAVE_KMOD
         " +KMOD"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#ຖ້າ HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#ຖ້າ HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#ຖ້າ HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#ຖ້າ HAVE_PCRE2
         " +PCRE2"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#ຖ້າ HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#ຖ້າ HAVE_P11KIT
         " +P11KIT"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#ຖ້າ HAVE_QRENCODE
         " +QRENCODE"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#ຖ້າ HAVE_TPM2
         " +TPM2"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#ຖ້າ HAVE_BZIP2
         " +BZIP2"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#ຖ້າ HAVE_LZ4
         " +LZ4"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#ຖ້າ HAVE_XZ
         " +XZ"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#ຖ້າ HAVE_ZLIB
         " +ZLIB"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#ຖ້າ HAVE_ZSTD
         " +ZSTD"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#ຖ້າ BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#ຖ້າ HAVE_VMLINUX_H
         " +BTF"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#ຖ້າ HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#ຖ້າ ENABLE_UTMP
         " +UTMP"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#ຖ້າ HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#ຖ້າ EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#ບໍ່ດັ່ງນັ້ນ
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+static var_na* systemd_features_with_color(void) {
+        const var_na *p = systemd_features;
+        _cleanup_free_ var_na *ret = NULL;
+        ຈຳນວນເຕັມ r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        ສຳລັບ (;;) {
+                _cleanup_free_ var_na *word = NULL;
+                var_na *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                ຖ້າ (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        ສົ່ງຄືນ NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                ຖ້າ (r == 0)
+                        ສົ່ງຄືນ TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                ຖ້າ (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        ສົ່ງຄືນ NULL;
                 }
 
-                if (word[0] == '+')
+                ຖ້າ (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                ບໍ່ດັ່ງນັ້ນ ຖ້າ (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                ບໍ່ດັ່ງນັ້ນ
                         q = strextend(&ret, word);
-                if (!q) {
+                ຖ້າ (!q) {
                         log_oom_warning();
-                        return NULL;
+                        ສົ່ງຄືນ NULL;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+ຈຳນວນເຕັມ version(void) {
+        _cleanup_free_ var_na *b = NULL;
 
-        if (colors_enabled())
+        ຖ້າ (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int version_only(void) {
+ຈຳນວນເຕັມ version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#ຖ້າ EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        ສົ່ງຄືນ false;
+#ບໍ່ດັ່ງນັ້ນ
+        ຈຳນວນເຕັມ r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ຖ້າ (r >= 0)
+                ສົ່ງຄືນ r;
+        ຖ້າ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        ສົ່ງຄືນ EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

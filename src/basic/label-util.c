@@ -4,30 +4,30 @@
 
 static const LabelOps *label_ops = NULL;
 
-int label_ops_set(const LabelOps *ops) {
+ຈຳນວນເຕັມ label_ops_set(const LabelOps *ops) {
         assert(ops);
 
-        if (label_ops)
-                return -EBUSY;
+        ຖ້າ (label_ops)
+                ສົ່ງຄືນ -EBUSY;
 
         label_ops = ops;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
 void label_ops_reset(void) {
         label_ops = NULL;
 }
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context) {
-        if (!label_ops || !label_ops->pre)
-                return 0;
+ຈຳນວນເຕັມ label_ops_pre(ຈຳນວນເຕັມ dir_fd, const var_na *path, mode_t mode, LabelContext *label_context) {
+        ຖ້າ (!label_ops || !label_ops->pre)
+                ສົ່ງຄືນ 0;
 
-        return label_ops->pre(dir_fd, path, mode, label_context);
+        ສົ່ງຄືນ label_ops->pre(dir_fd, path, mode, label_context);
 }
 
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context) {
-        if (!label_ops || !label_ops->post)
-                return 0;
+ຈຳນວນເຕັມ label_ops_post(ຈຳນວນເຕັມ dir_fd, const var_na *path, bool created, LabelContext *label_context) {
+        ຖ້າ (!label_ops || !label_ops->post)
+                ສົ່ງຄືນ 0;
 
-        return label_ops->post(dir_fd, path, created, label_context);
+        ສົ່ງຄືນ label_ops->post(dir_fd, path, created, label_context);
 }

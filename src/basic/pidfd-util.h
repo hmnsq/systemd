@@ -5,20 +5,20 @@
 
 #include "forward.h"
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd);
+ຈຳນວນເຕັມ pidfd_get_namespace(ຈຳນວນເຕັມ fd, unsigned long ns_type_cmd);
 
-int pidfd_get_info(int fd, struct pidfd_info *info);
-int pidfd_info_mask_is_supported(uint64_t mask);
+ຈຳນວນເຕັມ pidfd_get_info(ຈຳນວນເຕັມ fd, sa_nracanaa pidfd_info *info);
+ຈຳນວນເຕັມ pidfd_info_mask_is_supported(uint64_t mask);
 
-int pidfd_get_pid(int fd, pid_t *ret);
-int pidfd_verify_pid(int pidfd, pid_t pid);
+ຈຳນວນເຕັມ pidfd_get_pid(ຈຳນວນເຕັມ fd, pid_t *ret);
+ຈຳນວນເຕັມ pidfd_verify_pid(ຈຳນວນເຕັມ pidfd, pid_t pid);
 
-int pidfd_get_ppid(int fd, pid_t *ret);
-int pidfd_get_uid(int fd, uid_t *ret);
-int pidfd_get_cgroupid(int fd, uint64_t *ret);
+ຈຳນວນເຕັມ pidfd_get_ppid(ຈຳນວນເຕັມ fd, pid_t *ret);
+ຈຳນວນເຕັມ pidfd_get_uid(ຈຳນວນເຕັມ fd, uid_t *ret);
+ຈຳນວນເຕັມ pidfd_get_cgroupid(ຈຳນວນເຕັມ fd, uint64_t *ret);
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret);
-int pidfd_get_inode_id(int fd, uint64_t *ret);
-int pidfd_get_inode_id_self_cached(uint64_t *ret);
+ຈຳນວນເຕັມ pidfd_get_inode_id_impl(ຈຳນວນເຕັມ fd, uint64_t *ret);
+ຈຳນວນເຕັມ pidfd_get_inode_id(ຈຳນວນເຕັມ fd, uint64_t *ret);
+ຈຳນວນເຕັມ pidfd_get_inode_id_self_cached(uint64_t *ret);
 
-int pidfd_check_pidfs(int pid_fd);
+ຈຳນວນເຕັມ pidfd_check_pidfs(ຈຳນວນເຕັມ pid_fd);

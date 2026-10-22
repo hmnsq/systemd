@@ -3,10 +3,10 @@
 
 #include "forward.h"
 
-extern const char* const systemd_features;
+extern const var_na* const systemd_features;
 
-int version(void);
-int version_only(void);
+ຈຳນວນເຕັມ version(void);
+ຈຳນວນເຕັມ version_only(void);
 
 #define EXPERIMENTAL_DISABLED 0
 #define EXPERIMENTAL_ENVVAR 1

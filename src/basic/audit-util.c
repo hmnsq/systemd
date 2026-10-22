@@ -10,78 +10,78 @@
 #include "user-util.h"
 #include "virt.h"
 
-static int audit_read_field(const PidRef *pid, const char *field, char **ret) {
-        int r;
+static ຈຳນວນເຕັມ audit_read_field(const PidRef *pid, const var_na *field, var_na **ret) {
+        ຈຳນວນເຕັມ r;
 
         assert(field);
         assert(ret);
 
-        if (!pidref_is_set(pid))
-                return -ESRCH;
+        ຖ້າ (!pidref_is_set(pid))
+                ສົ່ງຄືນ -ESRCH;
 
         /* Auditing is currently not virtualized for containers. Let's hence not use the audit session ID or
          * login UID for now, it will be leaked in from the host */
-        if (detect_container() > 0)
-                return -ENODATA;
+        ຖ້າ (detect_container() > 0)
+                ສົ່ງຄືນ -ENODATA;
 
-        const char *p = procfs_file_alloca(pid->pid, field);
+        const var_na *p = procfs_file_alloca(pid->pid, field);
 
-        _cleanup_free_ char *s = NULL;
+        _cleanup_free_ var_na *s = NULL;
         bool enoent = false;
         r = read_full_virtual_file(p, &s, /* ret_size= */ NULL);
-        if (r == -ENOENT) {
-                if (proc_mounted() == 0)
-                        return -ENOSYS;
+        ຖ້າ (r == -ENOENT) {
+                ຖ້າ (proc_mounted() == 0)
+                        ສົ່ງຄືນ -ENOSYS;
                 enoent = true;
-        } else if (r < 0)
-                return r;
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = pidref_verify(pid);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
+        ຖ້າ (enoent) /* We got ENOENT, but /proc/ was mounted and the PID still valid? In that case it appears
                      * auditing is not supported by the kernel. */
-                return -ENODATA;
+                ສົ່ງຄືນ -ENODATA;
 
         delete_trailing_chars(s, NEWLINE);
 
         *ret = TAKE_PTR(s);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ຈຳນວນເຕັມ audit_session_from_pid(const PidRef *pid, uint32_t *ret_id) {
+        _cleanup_free_ var_na *s = NULL;
+        ຈຳນວນເຕັມ r;
 
         r = audit_read_field(pid, "sessionid", &s);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         uint32_t u;
         r = safe_atou32(s, &u);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (!audit_session_is_valid(u))
-                return -ENODATA;
+        ຖ້າ (!audit_session_is_valid(u))
+                ສົ່ງຄືນ -ENODATA;
 
-        if (ret_id)
+        ຖ້າ (ret_id)
                 *ret_id = u;
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ຈຳນວນເຕັມ audit_loginuid_from_pid(const PidRef *pid, uid_t *ret_uid) {
+        _cleanup_free_ var_na *s = NULL;
+        ຈຳນວນເຕັມ r;
 
         r = audit_read_field(pid, "loginuid", &s);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
-                return -ENODATA;
+        ຖ້າ (streq(s, "4294967295")) /* loginuid as 4294967295 means not part of any session. */
+                ສົ່ງຄືນ -ENODATA;
 
-        return parse_uid(s, ret_uid);
+        ສົ່ງຄືນ parse_uid(s, ret_uid);
 }

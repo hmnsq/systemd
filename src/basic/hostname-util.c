@@ -12,44 +12,44 @@
 #include "strv.h"
 #include "user-util.h"
 
-char* get_default_hostname_raw(void) {
-        int r;
+var_na* get_default_hostname_raw(void) {
+        ຈຳນວນເຕັມ r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
-        const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        const var_na *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
+        ຖ້າ (e) {
+                ຖ້າ (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        ສົ່ງຄືນ strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
-        _cleanup_free_ char *f = NULL;
+        _cleanup_free_ var_na *f = NULL;
         r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        ຖ້າ (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ (f) {
+                ຖ້າ (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        ສົ່ງຄືນ TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        ສົ່ງຄືນ strdup(FALLBACK_HOSTNAME);
 }
 
-bool valid_ldh_char(char c) {
+bool valid_ldh_char(var_na c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        ສົ່ງຄືນ ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
+bool hostname_is_valid(const var_na *s, ValidHostnameFlags flags) {
         unsigned n_dots = 0;
-        const char *p;
+        const var_na *p;
         bool dot, hyphen;
 
         /* Check if s looks like a valid hostname or FQDN. This does not do full DNS validation, but only
@@ -60,95 +60,95 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        ຖ້າ (isempty(s))
+                ສົ່ງຄືນ false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        ຖ້າ (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                ສົ່ງຄືນ FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        ສຳລັບ (p = s, dot = hyphen = true; *p; p++)
+                ຖ້າ (*p == '.') {
+                        ຖ້າ (dot || hyphen)
+                                ສົ່ງຄືນ false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (*p == '-') {
+                        ຖ້າ (dot)
+                                ສົ່ງຄືນ false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
+                } ບໍ່ດັ່ງນັ້ນ {
+                        ຖ້າ (!valid_ldh_char(*p) &&
                             (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
                             (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                                ສົ່ງຄືນ false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        ຖ້າ (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                ສົ່ງຄືນ false;
+        ຖ້າ (hyphen)
+                ສົ່ງຄືນ false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        ຖ້າ (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                ສົ່ງຄືນ false;
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-char* hostname_cleanup(char *s) {
-        char *p, *d;
+var_na* hostname_cleanup(var_na *s) {
+        var_na *p, *d;
         bool dot, hyphen;
 
         assert(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
+        ສຳລັບ (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                ຖ້າ (*p == '.') {
+                        ຖ້າ (dot || hyphen)
                                 continue;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (*p == '-') {
+                        ຖ້າ (dot)
                                 continue;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        ໃນຂະນະທີ່ (d > s && IN_SET(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        ສົ່ງຄືນ s;
 }
 
-bool is_localhost(const char *hostname) {
+bool is_localhost(const var_na *hostname) {
         assert(hostname);
 
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        ສົ່ງຄືນ STRCASE_IN_SET(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -160,164 +160,164 @@ bool is_localhost(const char *hostname) {
                 endswith_no_case(hostname, ".localhost.localdomain.");
 }
 
-const char* etc_hostname(void) {
-        static const char *cached = NULL;
+const var_na* etc_hostname(void) {
+        static const var_na *cached = NULL;
 
-        if (!cached)
+        ຖ້າ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        ສົ່ງຄືນ cached;
 }
 
-const char* etc_machine_info(void) {
-        static const char *cached = NULL;
+const var_na* etc_machine_info(void) {
+        static const var_na *cached = NULL;
 
-        if (!cached)
+        ຖ້າ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        ສົ່ງຄືນ cached;
 }
 
-int get_pretty_hostname(char **ret) {
-        _cleanup_free_ char *n = NULL;
-        int r;
+ຈຳນວນເຕັມ get_pretty_hostname(var_na **ret) {
+        _cleanup_free_ var_na *n = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(ret);
 
         r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (isempty(n))
-                return -ENXIO;
+        ຖ້າ (isempty(n))
+                ສົ່ງຄືນ -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
+ຈຳນວນເຕັມ split_user_at_host(const var_na *s, var_na **ret_user, var_na **ret_host) {
+        _cleanup_free_ var_na *u = NULL, *h = NULL;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
          * each of the two return parameters if that part was left empty. */
 
         assert(s);
 
-        const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        const var_na *rhs = strchr(s, '@');
+        ຖ້າ (rhs) {
+                ຖ້າ (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        ຖ້າ (!u)
+                                ສົ່ງຄືນ -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                ຖ້າ (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        ຖ້າ (!h)
+                                ສົ່ງຄືນ -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } ບໍ່ດັ່ງນັ້ນ {
+                ຖ້າ (isempty(s))
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (ret_host) {
+                ຖ້າ (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        ຖ້າ (!h)
+                                ສົ່ງຄືນ -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        ຖ້າ (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        ຖ້າ (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        ສົ່ງຄືນ !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+ຈຳນວນເຕັມ machine_spec_valid(const var_na *s) {
+        _cleanup_free_ var_na *u = NULL, *h = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(s);
 
         r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        ຖ້າ (r == -EINVAL)
+                ສົ່ງຄືນ false;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        ຖ້າ (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                ສົ່ງຄືນ false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        ຖ້າ (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                ສົ່ງຄືນ false;
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-bool machine_tag_is_valid(const char *s) {
+bool machine_tag_is_valid(const var_na *s) {
         size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+        ຖ້າ (n <= 0 || n >= 256)
+                ສົ່ງຄືນ false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        ຖ້າ (strchr("-.=", s[0]))
+                ສົ່ງຄືນ false;
 
         /* We allow parameterization of tags, with a "=" as separator */
-        const char *eq = strchr(s, '=');
-        if (eq) {
+        const var_na *eq = strchr(s, '=');
+        ຖ້າ (eq) {
                 assert(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                ຖ້າ (strchr("-.", eq[-1]))
+                        ສົ່ງຄືນ false;
+        } ບໍ່ດັ່ງນັ້ນ {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                ຖ້າ (strchr("-.", s[n-1]))
+                        ສົ່ງຄືນ false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        ສົ່ງຄືນ in_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+ຈຳນວນເຕັມ machine_tag_list_is_valid(var_na **l) {
+        ຈຳນວນເຕັມ r;
 
         r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
         switch (r) {
-        case -EINVAL:
-        case -E2BIG:
-                return false;
-        case 0:
-                return true;
+        pak_sa -EINVAL:
+        pak_sa -E2BIG:
+                ສົ່ງຄືນ false;
+        pak_sa 0:
+                ສົ່ງຄືນ true;
         default:
-                return r;
+                ສົ່ງຄືນ r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
+ຈຳນວນເຕັມ machine_tags_from_string(const var_na *s, bool graceful, var_na ***ret) {
         assert(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
+        ຖ້າ (isempty(s)) {
                 *ret = NULL;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
-        _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ var_na **l = strv_split(s, ":");
+        ຖ້າ (!l)
+                ສົ່ງຄືນ -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        ສົ່ງຄືນ machine_tags_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+ຈຳນວນເຕັມ machine_tags_from_strv(var_na **l, bool graceful, var_na ***ret) {
+        ຈຳນວນເຕັມ r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -330,49 +330,49 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
          * name hence get distinct keys and may coexist. */
         _cleanup_hashmap_free_ Hashmap *h = NULL;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
+                ຖ້າ (!machine_tag_is_valid(*i)) {
+                        ຖ້າ (graceful)
                                 continue;
 
-                        return -EINVAL;
+                        ສົ່ງຄືນ -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                ຖ້າ (hashmap_size(h) >= MACHINE_TAGS_MAX)
+                        ສົ່ງຄືນ -E2BIG;
 
-                const char *eq = strchrnul(*i, '=');
-                _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                const var_na *eq = strchrnul(*i, '=');
+                _cleanup_free_ var_na *k = strndup(*i, (eq - *i) + (*eq == '='));
+                ຖ້າ (!k)
+                        ສົ່ງຄືນ -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
+                ຖ້າ (r == -EEXIST) {
+                        ຖ້າ (streq(hashmap_get(h, k), *i))
                                 continue;
-                        if (!graceful)
-                                return -EINVAL;
+                        ຖ້າ (!graceful)
+                                ສົ່ງຄືນ -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
+                ບໍ່ດັ່ງນັ້ນ ຖ້າ (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
-                _cleanup_strv_free_ char **cleaned = NULL;
+        ຖ້າ (ret) {
+                _cleanup_strv_free_ var_na **cleaned = NULL;
                 size_t n = 0;
-                char *v;
+                var_na *v;
                 HASHMAP_FOREACH(v, h) {
                         r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        ຖ້າ (r < 0)
+                                ສົ່ງຄືນ r;
                 }
 
                 strv_sort(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }

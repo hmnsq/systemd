@@ -40,13 +40,13 @@
 #include "user-util.h"
 #include "xattr-util.h"
 
-#if ENABLE_IDN
+#ຖ້າ ENABLE_IDN
 #  define IDN_FLAGS NI_IDN
-#else
+#ບໍ່ດັ່ງນັ້ນ
 #  define IDN_FLAGS 0
 #endif
 
-static const char* const socket_address_type_table[] = {
+static const var_na* const socket_address_type_table[] = {
         [SOCK_STREAM] =    "Stream",
         [SOCK_DGRAM] =     "Datagram",
         [SOCK_RAW] =       "Raw",
@@ -55,9 +55,9 @@ static const char* const socket_address_type_table[] = {
         [SOCK_DCCP] =      "DatagramCongestionControl",
 };
 
-DEFINE_STRING_TABLE_LOOKUP(socket_address_type, int);
+DEFINE_STRING_TABLE_LOOKUP(socket_address_type, ຈຳນວນເຕັມ);
 
-int socket_address_verify(const SocketAddress *a, bool strict) {
+ຈຳນວນເຕັມ socket_address_verify(const SocketAddress *a, bool strict) {
         assert(a);
 
         /* With 'strict' we enforce additional sanity constraints which are not set by the standard,
@@ -65,90 +65,90 @@ int socket_address_verify(const SocketAddress *a, bool strict) {
 
         switch (socket_address_family(a)) {
 
-        case AF_INET:
-                if (a->size != sizeof(struct sockaddr_in))
-                        return -EINVAL;
+        pak_sa AF_INET:
+                ຖ້າ (a->size != parimaa_na(sa_nracanaa sockaddr_in))
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (a->sockaddr.in.sin_port == 0)
-                        return -EINVAL;
+                ຖ້າ (a->sockaddr.in.sin_port == 0)
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                ຖ້າ (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        ສົ່ງຄືນ -EINVAL;
 
-                return 0;
+                ສົ່ງຄືນ 0;
 
-        case AF_INET6:
-                if (a->size != sizeof(struct sockaddr_in6))
-                        return -EINVAL;
+        pak_sa AF_INET6:
+                ຖ້າ (a->size != parimaa_na(sa_nracanaa sockaddr_in6))
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (a->sockaddr.in6.sin6_port == 0)
-                        return -EINVAL;
+                ຖ້າ (a->sockaddr.in6.sin6_port == 0)
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                ຖ້າ (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        ສົ່ງຄືນ -EINVAL;
 
-                return 0;
+                ສົ່ງຄືນ 0;
 
-        case AF_UNIX:
-                if (a->size < offsetof(struct sockaddr_un, sun_path))
-                        return -EINVAL;
-                if (a->size > sizeof(struct sockaddr_un) + !strict)
+        pak_sa AF_UNIX:
+                ຖ້າ (a->size < offsetof(sa_nracanaa sockaddr_un, sun_path))
+                        ສົ່ງຄືນ -EINVAL;
+                ຖ້າ (a->size > parimaa_na(sa_nracanaa sockaddr_un) + !strict)
                         /* If !strict, allow one extra byte, since getsockname() on Linux will append
                          * a NUL byte if we have path sockets that are above sun_path's full size. */
-                        return -EINVAL;
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (a->size > offsetof(struct sockaddr_un, sun_path) &&
+                ຖ້າ (a->size > offsetof(sa_nracanaa sockaddr_un, sun_path) &&
                     a->sockaddr.un.sun_path[0] != 0 &&
                     strict) {
                         /* Only validate file system sockets here, and only in strict mode */
-                        const char *e;
+                        const var_na *e;
 
-                        e = memchr(a->sockaddr.un.sun_path, 0, sizeof(a->sockaddr.un.sun_path));
-                        if (e) {
+                        e = memchr(a->sockaddr.un.sun_path, 0, parimaa_na(a->sockaddr.un.sun_path));
+                        ຖ້າ (e) {
                                 /* If there's an embedded NUL byte, make sure the size of the socket address matches it */
-                                if (a->size != offsetof(struct sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
-                                        return -EINVAL;
-                        } else {
+                                ຖ້າ (a->size != offsetof(sa_nracanaa sockaddr_un, sun_path) + (e - a->sockaddr.un.sun_path) + 1)
+                                        ສົ່ງຄືນ -EINVAL;
+                        } ບໍ່ດັ່ງນັ້ນ {
                                 /* If there's no embedded NUL byte, then the size needs to match the whole
                                  * structure or the structure with one extra NUL byte suffixed. (Yeah, Linux is awful,
                                  * and considers both equivalent: getsockname() even extends sockaddr_un beyond its
                                  * size if the path is non NUL terminated.) */
-                                if (!IN_SET(a->size, sizeof(a->sockaddr.un.sun_path), sizeof(a->sockaddr.un.sun_path)+1))
-                                        return -EINVAL;
+                                ຖ້າ (!IN_SET(a->size, parimaa_na(a->sockaddr.un.sun_path), parimaa_na(a->sockaddr.un.sun_path)+1))
+                                        ສົ່ງຄືນ -EINVAL;
                         }
                 }
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
-                        return -EINVAL;
+                ຖ້າ (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET))
+                        ສົ່ງຄືນ -EINVAL;
 
-                return 0;
+                ສົ່ງຄືນ 0;
 
-        case AF_NETLINK:
+        pak_sa AF_NETLINK:
 
-                if (a->size != sizeof(struct sockaddr_nl))
-                        return -EINVAL;
+                ຖ້າ (a->size != parimaa_na(sa_nracanaa sockaddr_nl))
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
-                        return -EINVAL;
+                ຖ້າ (!IN_SET(a->type, 0, SOCK_RAW, SOCK_DGRAM))
+                        ສົ່ງຄືນ -EINVAL;
 
-                return 0;
+                ສົ່ງຄືນ 0;
 
-        case AF_VSOCK:
-                if (a->size != sizeof(struct sockaddr_vm))
-                        return -EINVAL;
+        pak_sa AF_VSOCK:
+                ຖ້າ (a->size != parimaa_na(sa_nracanaa sockaddr_vm))
+                        ສົ່ງຄືນ -EINVAL;
 
-                if (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
-                        return -EINVAL;
+                ຖ້າ (!IN_SET(a->type, 0, SOCK_STREAM, SOCK_DGRAM))
+                        ສົ່ງຄືນ -EINVAL;
 
-                return 0;
+                ສົ່ງຄືນ 0;
 
         default:
-                return -EAFNOSUPPORT;
+                ສົ່ງຄືນ -EAFNOSUPPORT;
         }
 }
 
-int socket_address_print(const SocketAddress *a, char **ret) {
-        int r;
+ຈຳນວນເຕັມ socket_address_print(const SocketAddress *a, var_na **ret) {
+        ຈຳນວນເຕັມ r;
 
         assert(a);
         assert(ret);
@@ -157,30 +157,30 @@ int socket_address_print(const SocketAddress *a, char **ret) {
                                               * able to pretty-print any socket the kernel considers
                                               * valid. We still need to do validation to know if we
                                               * can meaningfully print the address. */
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (socket_address_family(a) == AF_NETLINK) {
-                _cleanup_free_ char *sfamily = NULL;
+        ຖ້າ (socket_address_family(a) == AF_NETLINK) {
+                _cleanup_free_ var_na *sfamily = NULL;
 
                 r = netlink_family_to_string_alloc(a->protocol, &sfamily);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 r = asprintf(ret, "%s %u", sfamily, a->sockaddr.nl.nl_groups);
-                if (r < 0)
-                        return -ENOMEM;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ -ENOMEM;
 
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
-        return sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
+        ສົ່ງຄືນ sockaddr_pretty(&a->sockaddr.sa, a->size, false, true, ret);
 }
 
 bool socket_address_can_accept(const SocketAddress *a) {
         assert(a);
 
-        return
+        ສົ່ງຄືນ
                 IN_SET(a->type, SOCK_STREAM, SOCK_SEQPACKET);
 }
 
@@ -189,179 +189,179 @@ bool socket_address_equal(const SocketAddress *a, const SocketAddress *b) {
         assert(b);
 
         /* Invalid addresses are unequal to all */
-        if (socket_address_verify(a, false) < 0 ||
+        ຖ້າ (socket_address_verify(a, false) < 0 ||
             socket_address_verify(b, false) < 0)
-                return false;
+                ສົ່ງຄືນ false;
 
-        if (a->type != b->type)
-                return false;
+        ຖ້າ (a->type != b->type)
+                ສົ່ງຄືນ false;
 
-        if (socket_address_family(a) != socket_address_family(b))
-                return false;
+        ຖ້າ (socket_address_family(a) != socket_address_family(b))
+                ສົ່ງຄືນ false;
 
         switch (socket_address_family(a)) {
 
-        case AF_INET:
-                if (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
-                        return false;
+        pak_sa AF_INET:
+                ຖ້າ (a->sockaddr.in.sin_addr.s_addr != b->sockaddr.in.sin_addr.s_addr)
+                        ສົ່ງຄືນ false;
 
-                if (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
-                        return false;
+                ຖ້າ (a->sockaddr.in.sin_port != b->sockaddr.in.sin_port)
+                        ສົ່ງຄືນ false;
 
-                break;
+                bha_nga;
 
-        case AF_INET6:
-                if (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, sizeof(a->sockaddr.in6.sin6_addr)) != 0)
-                        return false;
+        pak_sa AF_INET6:
+                ຖ້າ (memcmp(&a->sockaddr.in6.sin6_addr, &b->sockaddr.in6.sin6_addr, parimaa_na(a->sockaddr.in6.sin6_addr)) != 0)
+                        ສົ່ງຄືນ false;
 
-                if (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
-                        return false;
+                ຖ້າ (a->sockaddr.in6.sin6_port != b->sockaddr.in6.sin6_port)
+                        ສົ່ງຄືນ false;
 
-                break;
+                bha_nga;
 
-        case AF_UNIX:
-                if (a->size <= offsetof(struct sockaddr_un, sun_path) ||
-                    b->size <= offsetof(struct sockaddr_un, sun_path))
-                        return false;
+        pak_sa AF_UNIX:
+                ຖ້າ (a->size <= offsetof(sa_nracanaa sockaddr_un, sun_path) ||
+                    b->size <= offsetof(sa_nracanaa sockaddr_un, sun_path))
+                        ສົ່ງຄືນ false;
 
-                if ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
-                        return false;
+                ຖ້າ ((a->sockaddr.un.sun_path[0] == 0) != (b->sockaddr.un.sun_path[0] == 0))
+                        ສົ່ງຄືນ false;
 
-                if (a->sockaddr.un.sun_path[0]) {
-                        if (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
-                                return false;
-                } else {
-                        if (a->size != b->size)
-                                return false;
+                ຖ້າ (a->sockaddr.un.sun_path[0]) {
+                        ຖ້າ (!path_equal_or_inode_same(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, 0))
+                                ສົ່ງຄືນ false;
+                } ບໍ່ດັ່ງນັ້ນ {
+                        ຖ້າ (a->size != b->size)
+                                ສົ່ງຄືນ false;
 
-                        if (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
-                                return false;
+                        ຖ້າ (memcmp(a->sockaddr.un.sun_path, b->sockaddr.un.sun_path, a->size) != 0)
+                                ສົ່ງຄືນ false;
                 }
 
-                break;
+                bha_nga;
 
-        case AF_NETLINK:
-                if (a->protocol != b->protocol)
-                        return false;
+        pak_sa AF_NETLINK:
+                ຖ້າ (a->protocol != b->protocol)
+                        ສົ່ງຄືນ false;
 
-                if (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
-                        return false;
+                ຖ້າ (a->sockaddr.nl.nl_groups != b->sockaddr.nl.nl_groups)
+                        ສົ່ງຄືນ false;
 
-                break;
+                bha_nga;
 
-        case AF_VSOCK:
-                if (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
-                        return false;
+        pak_sa AF_VSOCK:
+                ຖ້າ (a->sockaddr.vm.svm_cid != b->sockaddr.vm.svm_cid)
+                        ສົ່ງຄືນ false;
 
-                if (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
-                        return false;
+                ຖ້າ (a->sockaddr.vm.svm_port != b->sockaddr.vm.svm_port)
+                        ສົ່ງຄືນ false;
 
-                break;
+                bha_nga;
 
         default:
                 /* Cannot compare, so we assume the addresses are different */
-                return false;
+                ສົ່ງຄືນ false;
         }
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-const char* socket_address_get_path(const SocketAddress *a) {
+const var_na* socket_address_get_path(const SocketAddress *a) {
         assert(a);
 
-        if (socket_address_family(a) != AF_UNIX)
-                return NULL;
+        ຖ້າ (socket_address_family(a) != AF_UNIX)
+                ສົ່ງຄືນ NULL;
 
-        if (a->sockaddr.un.sun_path[0] == 0)
-                return NULL;
+        ຖ້າ (a->sockaddr.un.sun_path[0] == 0)
+                ສົ່ງຄືນ NULL;
 
         /* Note that this is only safe because we know that there's an extra NUL byte after the sockaddr_un
          * structure. On Linux AF_UNIX file system socket addresses don't have to be NUL terminated if they take up the
          * full sun_path space. */
-        assert_cc(sizeof(union sockaddr_union) >= sizeof(struct sockaddr_un)+1);
-        return a->sockaddr.un.sun_path;
+        assert_cc(parimaa_na(sa_ngha sockaddr_union) >= parimaa_na(sa_nracanaa sockaddr_un)+1);
+        ສົ່ງຄືນ a->sockaddr.un.sun_path;
 }
 
 bool socket_ipv6_is_supported(void) {
-        static int cached = -1;
+        static ຈຳນວນເຕັມ cached = -1;
 
-        if (cached < 0) {
+        ຖ້າ (cached < 0) {
 
-                if (access("/proc/net/if_inet6", F_OK) < 0) {
+                ຖ້າ (access("/proc/net/if_inet6", F_OK) < 0) {
 
-                        if (errno != ENOENT) {
+                        ຖ້າ (errno != ENOENT) {
                                 log_debug_errno(errno, "Unexpected error when checking whether /proc/net/if_inet6 exists: %m");
-                                return false;
+                                ສົ່ງຄືນ false;
                         }
 
                         cached = false;
-                } else
+                } ບໍ່ດັ່ງນັ້ນ
                         cached = true;
         }
 
-        return cached;
+        ສົ່ງຄືນ cached;
 }
 
 bool socket_ipv6_is_enabled(void) {
-        _cleanup_free_ char *v = NULL;
-        int r;
+        _cleanup_free_ var_na *v = NULL;
+        ຈຳນວນເຕັມ r;
 
         /* Much like socket_ipv6_is_supported(), but also checks that the sysctl that disables IPv6 on all
          * interfaces isn't turned on */
 
-        if (!socket_ipv6_is_supported())
-                return false;
+        ຖ້າ (!socket_ipv6_is_supported())
+                ສົ່ງຄືນ false;
 
         r = sysctl_read_ip_property(AF_INET6, "all", "disable_ipv6", &v);
-        if (r < 0) {
+        ຖ້າ (r < 0) {
                 log_debug_errno(r, "Unexpected error reading 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                ສົ່ງຄືນ true;
         }
 
         r = parse_boolean(v);
-        if (r < 0) {
+        ຖ້າ (r < 0) {
                 log_debug_errno(r, "Failed to pare 'net.ipv6.conf.all.disable_ipv6' sysctl: %m");
-                return true;
+                ສົ່ງຄືນ true;
         }
 
-        return !r;
+        ສົ່ງຄືນ !r;
 }
 
-bool socket_address_matches_fd(const SocketAddress *a, int fd) {
+bool socket_address_matches_fd(const SocketAddress *a, ຈຳນວນເຕັມ fd) {
         SocketAddress b;
         socklen_t solen;
 
         assert(a);
         assert(fd >= 0);
 
-        b.size = sizeof(b.sockaddr);
-        if (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
-                return false;
+        b.size = parimaa_na(b.sockaddr);
+        ຖ້າ (getsockname(fd, &b.sockaddr.sa, &b.size) < 0)
+                ສົ່ງຄືນ false;
 
-        if (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
-                return false;
+        ຖ້າ (b.sockaddr.sa.sa_family != a->sockaddr.sa.sa_family)
+                ສົ່ງຄືນ false;
 
-        solen = sizeof(b.type);
-        if (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
-                return false;
+        solen = parimaa_na(b.type);
+        ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_TYPE, &b.type, &solen) < 0)
+                ສົ່ງຄືນ false;
 
-        if (b.type != a->type)
-                return false;
+        ຖ້າ (b.type != a->type)
+                ສົ່ງຄືນ false;
 
-        if (a->protocol != 0)  {
-                solen = sizeof(b.protocol);
-                if (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
-                        return false;
+        ຖ້າ (a->protocol != 0)  {
+                solen = parimaa_na(b.protocol);
+                ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_PROTOCOL, &b.protocol, &solen) < 0)
+                        ສົ່ງຄືນ false;
 
-                if (b.protocol != a->protocol)
-                        return false;
+                ຖ້າ (b.protocol != a->protocol)
+                        ສົ່ງຄືນ false;
         }
 
-        return socket_address_equal(a, &b);
+        ສົ່ງຄືນ socket_address_equal(a, &b);
 }
 
-int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
-        const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
+ຈຳນວນເຕັມ sockaddr_port(const sa_nracanaa sockaddr *_sa, unsigned *ret_port) {
+        const sa_ngha sockaddr_union *sa = (const sa_ngha sockaddr_union*) _sa;
 
         /* Note, this returns the port as 'unsigned' rather than 'uint16_t', as AF_VSOCK knows larger ports */
 
@@ -370,46 +370,46 @@ int sockaddr_port(const struct sockaddr *_sa, unsigned *ret_port) {
 
         switch (sa->sa.sa_family) {
 
-        case AF_INET:
+        pak_sa AF_INET:
                 *ret_port = be16toh(sa->in.sin_port);
-                return 0;
+                ສົ່ງຄືນ 0;
 
-        case AF_INET6:
+        pak_sa AF_INET6:
                 *ret_port = be16toh(sa->in6.sin6_port);
-                return 0;
+                ສົ່ງຄືນ 0;
 
-        case AF_VSOCK:
+        pak_sa AF_VSOCK:
                 *ret_port = sa->vm.svm_port;
-                return 0;
+                ສົ່ງຄືນ 0;
 
         default:
-                return -EAFNOSUPPORT;
+                ສົ່ງຄືນ -EAFNOSUPPORT;
         }
 }
 
-const union in_addr_union *sockaddr_in_addr(const struct sockaddr *_sa) {
-        const union sockaddr_union *sa = (const union sockaddr_union*) _sa;
+const sa_ngha in_addr_union *sockaddr_in_addr(const sa_nracanaa sockaddr *_sa) {
+        const sa_ngha sockaddr_union *sa = (const sa_ngha sockaddr_union*) _sa;
 
-        if (!sa)
-                return NULL;
+        ຖ້າ (!sa)
+                ສົ່ງຄືນ NULL;
 
         switch (sa->sa.sa_family) {
 
-        case AF_INET:
-                return (const union in_addr_union*) &sa->in.sin_addr;
+        pak_sa AF_INET:
+                ສົ່ງຄືນ (const sa_ngha in_addr_union*) &sa->in.sin_addr;
 
-        case AF_INET6:
-                return (const union in_addr_union*) &sa->in6.sin6_addr;
+        pak_sa AF_INET6:
+                ສົ່ງຄືນ (const sa_ngha in_addr_union*) &sa->in6.sin6_addr;
 
         default:
-                return NULL;
+                ສົ່ງຄືນ NULL;
         }
 }
 
-int sockaddr_set_in_addr(
-                union sockaddr_union *u,
-                int family,
-                const union in_addr_union *a,
+ຈຳນວນເຕັມ sockaddr_set_in_addr(
+                sa_ngha sockaddr_union *u,
+                ຈຳນວນເຕັມ family,
+                const sa_ngha in_addr_union *a,
                 uint16_t port) {
 
         assert(u);
@@ -417,243 +417,243 @@ int sockaddr_set_in_addr(
 
         switch (family) {
 
-        case AF_INET:
-                u->in = (struct sockaddr_in) {
+        pak_sa AF_INET:
+                u->in = (sa_nracanaa sockaddr_in) {
                         .sin_family = AF_INET,
                         .sin_addr = a->in,
                         .sin_port = htobe16(port),
                 };
 
-                return 0;
+                ສົ່ງຄືນ 0;
 
-        case AF_INET6:
-                u->in6 = (struct sockaddr_in6) {
+        pak_sa AF_INET6:
+                u->in6 = (sa_nracanaa sockaddr_in6) {
                         .sin6_family = AF_INET6,
                         .sin6_addr = a->in6,
                         .sin6_port = htobe16(port),
                 };
 
-                return 0;
+                ສົ່ງຄືນ 0;
 
         default:
-                return -EAFNOSUPPORT;
+                ສົ່ງຄືນ -EAFNOSUPPORT;
 
         }
 }
 
-int sockaddr_pretty(
-                const struct sockaddr *_sa,
+ຈຳນວນເຕັມ sockaddr_pretty(
+                const sa_nracanaa sockaddr *_sa,
                 socklen_t salen,
                 bool translate_ipv6,
                 bool include_port,
-                char **ret) {
+                var_na **ret) {
 
-        union sockaddr_union *sa = (union sockaddr_union*) _sa;
-        char *p;
-        int r;
+        sa_ngha sockaddr_union *sa = (sa_ngha sockaddr_union*) _sa;
+        var_na *p;
+        ຈຳນວນເຕັມ r;
 
         assert(sa);
-        assert(salen >= sizeof(sa->sa.sa_family));
+        assert(salen >= parimaa_na(sa->sa.sa_family));
         assert(ret);
 
         switch (sa->sa.sa_family) {
 
-        case AF_INET: {
+        pak_sa AF_INET: {
                 uint32_t a;
 
                 a = be32toh(sa->in.sin_addr.s_addr);
 
-                if (include_port)
+                ຖ້າ (include_port)
                         r = asprintf(&p,
                                      "%u.%u.%u.%u:%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF,
                                      be16toh(sa->in.sin_port));
-                else
+                ບໍ່ດັ່ງນັ້ນ
                         r = asprintf(&p,
                                      "%u.%u.%u.%u",
                                      a >> 24, (a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF);
-                if (r < 0)
-                        return -ENOMEM;
-                break;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ -ENOMEM;
+                bha_nga;
         }
 
-        case AF_INET6: {
-                static const unsigned char ipv4_prefix[] = {
+        pak_sa AF_INET6: {
+                static const unsigned var_na ipv4_prefix[] = {
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF
                 };
 
-                if (translate_ipv6 &&
-                    memcmp(&sa->in6.sin6_addr, ipv4_prefix, sizeof(ipv4_prefix)) == 0) {
+                ຖ້າ (translate_ipv6 &&
+                    memcmp(&sa->in6.sin6_addr, ipv4_prefix, parimaa_na(ipv4_prefix)) == 0) {
                         const uint8_t *a = sa->in6.sin6_addr.s6_addr+12;
-                        if (include_port)
+                        ຖ້າ (include_port)
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u:%u",
                                              a[0], a[1], a[2], a[3],
                                              be16toh(sa->in6.sin6_port));
-                        else
+                        ບໍ່ດັ່ງນັ້ນ
                                 r = asprintf(&p,
                                              "%u.%u.%u.%u",
                                              a[0], a[1], a[2], a[3]);
-                        if (r < 0)
-                                return -ENOMEM;
-                } else {
-                        const char *a = IN6_ADDR_TO_STRING(&sa->in6.sin6_addr);
+                        ຖ້າ (r < 0)
+                                ສົ່ງຄືນ -ENOMEM;
+                } ບໍ່ດັ່ງນັ້ນ {
+                        const var_na *a = IN6_ADDR_TO_STRING(&sa->in6.sin6_addr);
 
-                        if (include_port) {
-                                if (asprintf(&p,
+                        ຖ້າ (include_port) {
+                                ຖ້າ (asprintf(&p,
                                              "[%s]:%u%s%s",
                                              a,
                                              be16toh(sa->in6.sin6_port),
                                              sa->in6.sin6_scope_id != 0 ? "%" : "",
                                              FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX)) < 0)
-                                        return -ENOMEM;
-                        } else {
-                                if (sa->in6.sin6_scope_id != 0)
+                                        ສົ່ງຄືນ -ENOMEM;
+                        } ບໍ່ດັ່ງນັ້ນ {
+                                ຖ້າ (sa->in6.sin6_scope_id != 0)
                                         p = strjoin(a, "%", FORMAT_IFNAME_FULL(sa->in6.sin6_scope_id, FORMAT_IFNAME_IFINDEX));
-                                else
+                                ບໍ່ດັ່ງນັ້ນ
                                         p = strdup(a);
-                                if (!p)
-                                        return -ENOMEM;
+                                ຖ້າ (!p)
+                                        ສົ່ງຄືນ -ENOMEM;
                         }
                 }
 
-                break;
+                bha_nga;
         }
 
-        case AF_UNIX:
-                if (salen <= offsetof(struct sockaddr_un, sun_path) ||
-                    (sa->un.sun_path[0] == 0 && salen == offsetof(struct sockaddr_un, sun_path) + 1))
+        pak_sa AF_UNIX:
+                ຖ້າ (salen <= offsetof(sa_nracanaa sockaddr_un, sun_path) ||
+                    (sa->un.sun_path[0] == 0 && salen == offsetof(sa_nracanaa sockaddr_un, sun_path) + 1))
                         /* The name must have at least one character (and the leading NUL does not count) */
                         p = strdup("<unnamed>");
-                else {
+                ບໍ່ດັ່ງນັ້ນ {
                         /* Note that we calculate the path pointer here through the .un_buffer[] field, in order to
                          * outtrick bounds checking tools such as ubsan, which are too smart for their own good: on
                          * Linux the kernel may return sun_path[] data one byte longer than the declared size of the
                          * field. */
-                        char *path = (char*) sa->un_buffer + offsetof(struct sockaddr_un, sun_path);
-                        size_t path_len = salen - offsetof(struct sockaddr_un, sun_path);
+                        var_na *path = (var_na*) sa->un_buffer + offsetof(sa_nracanaa sockaddr_un, sun_path);
+                        size_t path_len = salen - offsetof(sa_nracanaa sockaddr_un, sun_path);
 
-                        if (path[0] == 0) {
+                        ຖ້າ (path[0] == 0) {
                                 /* Abstract socket. When parsing address information from, we
                                  * explicitly reject overly long paths and paths with embedded NULs.
                                  * But we might get such a socket from the outside. Let's return
                                  * something meaningful and printable in this case. */
 
-                                _cleanup_free_ char *e = NULL;
+                                _cleanup_free_ var_na *e = NULL;
 
                                 e = cescape_length(path + 1, path_len - 1);
-                                if (!e)
-                                        return -ENOMEM;
+                                ຖ້າ (!e)
+                                        ສົ່ງຄືນ -ENOMEM;
 
                                 p = strjoin("@", e);
-                        } else {
-                                if (path[path_len - 1] == '\0')
+                        } ບໍ່ດັ່ງນັ້ນ {
+                                ຖ້າ (path[path_len - 1] == '\0')
                                         /* We expect a terminating NUL and don't print it */
                                         path_len--;
 
                                 p = cescape_length(path, path_len);
                         }
                 }
-                if (!p)
-                        return -ENOMEM;
+                ຖ້າ (!p)
+                        ສົ່ງຄືນ -ENOMEM;
 
-                break;
+                bha_nga;
 
-        case AF_VSOCK:
-                if (include_port) {
-                        if (sa->vm.svm_cid == VMADDR_CID_ANY)
+        pak_sa AF_VSOCK:
+                ຖ້າ (include_port) {
+                        ຖ້າ (sa->vm.svm_cid == VMADDR_CID_ANY)
                                 r = asprintf(&p, "vsock::%u", sa->vm.svm_port);
-                        else
+                        ບໍ່ດັ່ງນັ້ນ
                                 r = asprintf(&p, "vsock:%u:%u", sa->vm.svm_cid, sa->vm.svm_port);
-                } else
+                } ບໍ່ດັ່ງນັ້ນ
                         r = asprintf(&p, "vsock:%u", sa->vm.svm_cid);
-                if (r < 0)
-                        return -ENOMEM;
-                break;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ -ENOMEM;
+                bha_nga;
 
         default:
-                return -EOPNOTSUPP;
+                ສົ່ງຄືນ -EOPNOTSUPP;
         }
 
         *ret = p;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int getpeername_pretty(int fd, bool include_port, char **ret) {
-        union sockaddr_union sa;
-        socklen_t salen = sizeof(sa);
-        int r;
+ຈຳນວນເຕັມ getpeername_pretty(ຈຳນວນເຕັມ fd, bool include_port, var_na **ret) {
+        sa_ngha sockaddr_union sa;
+        socklen_t salen = parimaa_na(sa);
+        ຈຳນວນເຕັມ r;
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getpeername(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        ຖ້າ (getpeername(fd, &sa.sa, &salen) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (sa.sa.sa_family == AF_UNIX) {
-                struct ucred ucred = UCRED_INVALID;
+        ຖ້າ (sa.sa.sa_family == AF_UNIX) {
+                sa_nracanaa ucred ucred = UCRED_INVALID;
 
                 /* UNIX connection sockets are anonymous, so let's use
                  * PID/UID as pretty credentials instead */
 
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
-                if (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
-                        return -ENOMEM;
+                ຖ້າ (asprintf(ret, "PID "PID_FMT"/UID "UID_FMT, ucred.pid, ucred.uid) < 0)
+                        ສົ່ງຄືນ -ENOMEM;
 
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
         /* For remote sockets we translate IPv6 addresses back to IPv4
          * if applicable, since that's nicer. */
 
-        return sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
+        ສົ່ງຄືນ sockaddr_pretty(&sa.sa, salen, true, include_port, ret);
 }
 
-int getsockname_pretty(int fd, char **ret) {
-        union sockaddr_union sa;
-        socklen_t salen = sizeof(sa);
+ຈຳນວນເຕັມ getsockname_pretty(ຈຳນວນເຕັມ fd, var_na **ret) {
+        sa_ngha sockaddr_union sa;
+        socklen_t salen = parimaa_na(sa);
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getsockname(fd, &sa.sa, &salen) < 0)
-                return -errno;
+        ຖ້າ (getsockname(fd, &sa.sa, &salen) < 0)
+                ສົ່ງຄືນ -errno;
 
         /* For local sockets we do not translate IPv6 addresses back
          * to IPv6 if applicable, since this is usually used for
          * listening sockets where the difference between IPv4 and
          * IPv6 matters. */
 
-        return sockaddr_pretty(&sa.sa, salen, false, true, ret);
+        ສົ່ງຄືນ sockaddr_pretty(&sa.sa, salen, false, true, ret);
 }
 
-int socknameinfo_pretty(const struct sockaddr *sa, socklen_t salen, char **ret) {
-        char host[NI_MAXHOST];
-        int r;
+ຈຳນວນເຕັມ socknameinfo_pretty(const sa_nracanaa sockaddr *sa, socklen_t salen, var_na **ret) {
+        var_na host[NI_MAXHOST];
+        ຈຳນວນເຕັມ r;
 
         assert(sa);
-        assert(salen >= sizeof(sa_family_t));
+        assert(salen >= parimaa_na(sa_family_t));
         assert(ret);
 
-        r = getnameinfo(sa, salen, host, sizeof(host), /* service= */ NULL, /* service_len= */ 0, IDN_FLAGS);
-        if (r != 0) {
-                if (r == EAI_MEMORY)
-                        return log_oom_debug();
-                if (r == EAI_SYSTEM)
+        r = getnameinfo(sa, salen, host, parimaa_na(host), /* service= */ NULL, /* service_len= */ 0, IDN_FLAGS);
+        ຖ້າ (r != 0) {
+                ຖ້າ (r == EAI_MEMORY)
+                        ສົ່ງຄືນ log_oom_debug();
+                ຖ້າ (r == EAI_SYSTEM)
                         log_debug_errno(errno, "getnameinfo() failed, ignoring: %m");
-                else
+                ບໍ່ດັ່ງນັ້ນ
                         log_debug("getnameinfo() failed, ignoring: %s", gai_strerror(r));
 
-                return sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
+                ສົ່ງຄືນ sockaddr_pretty(sa, salen, /* translate_ipv6= */ true, /* include_port= */ true, ret);
         }
 
-        return strdup_to(ret, host);
+        ສົ່ງຄືນ strdup_to(ret, host);
 }
 
-static const char* const netlink_family_table[] = {
+static const var_na* const netlink_family_table[] = {
         [NETLINK_ROUTE]          = "route",
         [NETLINK_FIREWALL]       = "firewall",
         [NETLINK_INET_DIAG]      = "inet-diag",
@@ -674,115 +674,115 @@ static const char* const netlink_family_table[] = {
         [NETLINK_RDMA]           = "rdma",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, int, INT_MAX);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(netlink_family, ຈຳນວນເຕັມ, INT_MAX);
 
-bool sockaddr_equal(const union sockaddr_union *a, const union sockaddr_union *b) {
+bool sockaddr_equal(const sa_ngha sockaddr_union *a, const sa_ngha sockaddr_union *b) {
         assert(a);
         assert(b);
 
-        if (a->sa.sa_family != b->sa.sa_family)
-                return false;
+        ຖ້າ (a->sa.sa_family != b->sa.sa_family)
+                ສົ່ງຄືນ false;
 
-        if (a->sa.sa_family == AF_INET)
-                return a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
+        ຖ້າ (a->sa.sa_family == AF_INET)
+                ສົ່ງຄືນ a->in.sin_addr.s_addr == b->in.sin_addr.s_addr;
 
-        if (a->sa.sa_family == AF_INET6)
-                return memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, sizeof(a->in6.sin6_addr)) == 0;
+        ຖ້າ (a->sa.sa_family == AF_INET6)
+                ສົ່ງຄືນ memcmp(&a->in6.sin6_addr, &b->in6.sin6_addr, parimaa_na(a->in6.sin6_addr)) == 0;
 
-        if (a->sa.sa_family == AF_VSOCK)
-                return a->vm.svm_cid == b->vm.svm_cid;
+        ຖ້າ (a->sa.sa_family == AF_VSOCK)
+                ສົ່ງຄືນ a->vm.svm_cid == b->vm.svm_cid;
 
-        return false;
+        ສົ່ງຄືນ false;
 }
 
-int fd_set_sndbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+ຈຳນວນເຕັມ fd_set_sndbuf(ຈຳນວນເຕັມ fd, size_t n, bool increase) {
+        ຈຳນວນເຕັມ r, value;
+        socklen_t l = parimaa_na(value);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        ຖ້າ (n > INT_MAX)
+                ສົ່ງຄືນ -ERANGE;
 
         r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        ຖ້າ (r >= 0 && l == parimaa_na(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                ສົ່ງຄືນ 0;
 
         /* First, try to set the buffer size with SO_SNDBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUF, n);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         /* SO_SNDBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
+        l = parimaa_na(value);
         r = getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        ຖ້າ (r >= 0 && l == parimaa_na(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                ສົ່ງຄືນ 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_SNDBUFFORCE, n);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return 1;
+        ສົ່ງຄືນ 1;
 }
 
-int fd_set_rcvbuf(int fd, size_t n, bool increase) {
-        int r, value;
-        socklen_t l = sizeof(value);
+ຈຳນວນເຕັມ fd_set_rcvbuf(ຈຳນວນເຕັມ fd, size_t n, bool increase) {
+        ຈຳນວນເຕັມ r, value;
+        socklen_t l = parimaa_na(value);
 
-        if (n > INT_MAX)
-                return -ERANGE;
+        ຖ້າ (n > INT_MAX)
+                ສົ່ງຄືນ -ERANGE;
 
         r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 0;
+        ຖ້າ (r >= 0 && l == parimaa_na(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                ສົ່ງຄືນ 0;
 
         /* First, try to set the buffer size with SO_RCVBUF. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUF, n);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         /* SO_RCVBUF above may set to the kernel limit, instead of the requested size.
          * So, we need to check the actual buffer size here. */
-        l = sizeof(value);
+        l = parimaa_na(value);
         r = getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &value, &l);
-        if (r >= 0 && l == sizeof(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
-                return 1;
+        ຖ້າ (r >= 0 && l == parimaa_na(value) && increase ? (size_t) value >= n*2 : (size_t) value == n*2)
+                ສົ່ງຄືນ 1;
 
         /* If we have the privileges we will ignore the kernel limit. */
         r = setsockopt_int(fd, SOL_SOCKET, SO_RCVBUFFORCE, n);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return 1;
+        ສົ່ງຄືນ 1;
 }
 
-static const char* const ip_tos_table[] = {
+static const var_na* const ip_tos_table[] = {
         [IPTOS_LOWDELAY]    = "low-delay",
         [IPTOS_THROUGHPUT]  = "throughput",
         [IPTOS_RELIABILITY] = "reliability",
         [IPTOS_LOWCOST]     = "low-cost",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, int, 0xff);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(ip_tos, ຈຳນວນເຕັມ, 0xff);
 
-bool ifname_valid_char(char a) {
-        if ((unsigned char) a >= 127U)
-                return false;
+bool ifname_valid_char(var_na a) {
+        ຖ້າ ((unsigned var_na) a >= 127U)
+                ສົ່ງຄືນ false;
 
-        if ((unsigned char) a <= 32U)
-                return false;
+        ຖ້າ ((unsigned var_na) a <= 32U)
+                ສົ່ງຄືນ false;
 
-        if (IN_SET(a,
+        ຖ້າ (IN_SET(a,
                    ':',  /* colons are used by the legacy "alias" interface logic */
                    '/',  /* slashes cannot work, since we need to use network interfaces in sysfs paths, and in paths slashes are separators */
                    '%')) /* %d is used in the kernel's weird foo%d format string naming feature which we really really don't want to ever run into by accident */
-                return false;
+                ສົ່ງຄືນ false;
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
+bool ifname_valid_full(const var_na *p, IfnameValidFlags flags) {
         bool numeric = true;
 
         /* Checks whether a network interface name is valid. This is inspired by dev_valid_name() in the kernel sources
@@ -791,206 +791,206 @@ bool ifname_valid_full(const char *p, IfnameValidFlags flags) {
 
         assert(!(flags & ~_IFNAME_VALID_ALL));
 
-        if (isempty(p))
-                return false;
+        ຖ້າ (isempty(p))
+                ສົ່ງຄືນ false;
 
         /* A valid ifindex? If so, it's valid iff IFNAME_VALID_NUMERIC is set */
-        if (parse_ifindex(p) >= 0)
-                return flags & IFNAME_VALID_NUMERIC;
+        ຖ້າ (parse_ifindex(p) >= 0)
+                ສົ່ງຄືນ flags & IFNAME_VALID_NUMERIC;
 
-        if (flags & IFNAME_VALID_ALTERNATIVE) {
-                if (strlen(p) >= ALTIFNAMSIZ)
-                        return false;
-        } else {
-                if (strlen(p) >= IFNAMSIZ)
-                        return false;
+        ຖ້າ (flags & IFNAME_VALID_ALTERNATIVE) {
+                ຖ້າ (strlen(p) >= ALTIFNAMSIZ)
+                        ສົ່ງຄືນ false;
+        } ບໍ່ດັ່ງນັ້ນ {
+                ຖ້າ (strlen(p) >= IFNAMSIZ)
+                        ສົ່ງຄືນ false;
         }
 
-        if (dot_or_dot_dot(p))
-                return false;
+        ຖ້າ (dot_or_dot_dot(p))
+                ສົ່ງຄືນ false;
 
         /* Let's refuse "all" and "default" as interface name, to avoid collisions with the special sysctl
          * directories /proc/sys/net/{ipv4,ipv6}/conf/{all,default} */
-        if (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
-                return false;
+        ຖ້າ (!FLAGS_SET(flags, IFNAME_VALID_SPECIAL) && STR_IN_SET(p, "all", "default"))
+                ສົ່ງຄືນ false;
 
-        for (const char *t = p; *t; t++) {
-                if (!ifname_valid_char(*t))
-                        return false;
+        ສຳລັບ (const var_na *t = p; *t; t++) {
+                ຖ້າ (!ifname_valid_char(*t))
+                        ສົ່ງຄືນ false;
 
                 numeric = numeric && ascii_isdigit(*t);
         }
 
         /* It's fully numeric but didn't parse as valid ifindex above? if so, it must be too large or zero or
          * so, let's refuse that. */
-        if (numeric)
-                return false;
+        ຖ້າ (numeric)
+                ສົ່ງຄືນ false;
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-bool address_label_valid(const char *p) {
+bool address_label_valid(const var_na *p) {
 
         POINTER_MAY_BE_NULL(p);
 
-        if (isempty(p))
-                return false;
+        ຖ້າ (isempty(p))
+                ສົ່ງຄືນ false;
 
-        if (strlen(p) >= IFNAMSIZ)
-                return false;
+        ຖ້າ (strlen(p) >= IFNAMSIZ)
+                ສົ່ງຄືນ false;
 
-        while (*p) {
-                if ((uint8_t) *p >= 127U)
-                        return false;
+        ໃນຂະນະທີ່ (*p) {
+                ຖ້າ ((uint8_t) *p >= 127U)
+                        ສົ່ງຄືນ false;
 
-                if ((uint8_t) *p <= 31U)
-                        return false;
+                ຖ້າ ((uint8_t) *p <= 31U)
+                        ສົ່ງຄືນ false;
                 p++;
         }
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-int getpeercred(int fd, struct ucred *ucred) {
-        socklen_t n = sizeof(struct ucred);
-        struct ucred u;
+ຈຳນວນເຕັມ getpeercred(ຈຳນວນເຕັມ fd, sa_nracanaa ucred *ucred) {
+        socklen_t n = parimaa_na(sa_nracanaa ucred);
+        sa_nracanaa ucred u;
 
         assert(fd >= 0);
         assert(ucred);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
-                return -errno;
+        ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_PEERCRED, &u, &n) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (n != sizeof(struct ucred))
-                return -EIO;
+        ຖ້າ (n != parimaa_na(sa_nracanaa ucred))
+                ສົ່ງຄືນ -EIO;
 
         /* Check if the data is actually useful and not suppressed due to namespacing issues */
-        if (!pid_is_valid(u.pid))
-                return -ENODATA;
+        ຖ້າ (!pid_is_valid(u.pid))
+                ສົ່ງຄືນ -ENODATA;
 
         /* Note that we don't check UID/GID here, as namespace translation works differently there: instead of
          * receiving in "invalid" user/group we get the overflow UID/GID. */
 
         *ucred = u;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int getpeersec(int fd, char **ret) {
-        _cleanup_free_ char *s = NULL;
+ຈຳນວນເຕັມ getpeersec(ຈຳນວນເຕັມ fd, var_na **ret) {
+        _cleanup_free_ var_na *s = NULL;
         socklen_t n = 64;
 
         assert(fd >= 0);
         assert(ret);
 
-        for (;;) {
-                s = new0(char, n+1);
-                if (!s)
-                        return -ENOMEM;
+        ສຳລັບ (;;) {
+                s = new0(var_na, n+1);
+                ຖ້າ (!s)
+                        ສົ່ງຄືນ -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
+                ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_PEERSEC, s, &n) >= 0) {
                         s[n] = 0;
-                        break;
+                        bha_nga;
                 }
 
-                if (errno != ERANGE)
-                        return -errno;
+                ຖ້າ (errno != ERANGE)
+                        ສົ່ງຄືນ -errno;
 
                 s = mfree(s);
         }
 
-        if (isempty(s))
-                return -EOPNOTSUPP;
+        ຖ້າ (isempty(s))
+                ສົ່ງຄືນ -EOPNOTSUPP;
 
         *ret = TAKE_PTR(s);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int getpeergroups(int fd, gid_t **ret) {
-        socklen_t n = sizeof(gid_t) * 64U;
+ຈຳນວນເຕັມ getpeergroups(ຈຳນວນເຕັມ fd, gid_t **ret) {
+        socklen_t n = parimaa_na(gid_t) * 64U;
         _cleanup_free_ gid_t *d = NULL;
 
         assert(fd >= 0);
         assert(ret);
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max > 0)
-                n = MAX(n, sizeof(gid_t) * (socklen_t) ngroups_max);
+        ຈຳນວນເຕັມ ngroups_max = sysconf_ngroups_max();
+        ຖ້າ (ngroups_max > 0)
+                n = MAX(n, parimaa_na(gid_t) * (socklen_t) ngroups_max);
 
-        for (;;) {
+        ສຳລັບ (;;) {
                 d = malloc(n);
-                if (!d)
-                        return -ENOMEM;
+                ຖ້າ (!d)
+                        ສົ່ງຄືນ -ENOMEM;
 
-                if (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
-                        break;
+                ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_PEERGROUPS, d, &n) >= 0)
+                        bha_nga;
 
-                if (errno != ERANGE)
-                        return -errno;
+                ຖ້າ (errno != ERANGE)
+                        ສົ່ງຄືນ -errno;
 
                 d = mfree(d);
         }
 
-        assert_se(n % sizeof(gid_t) == 0);
-        n /= sizeof(gid_t);
+        assert_se(n % parimaa_na(gid_t) == 0);
+        n /= parimaa_na(gid_t);
 
-        if (n > INT_MAX)
-                return -E2BIG;
+        ຖ້າ (n > INT_MAX)
+                ສົ່ງຄືນ -E2BIG;
 
         *ret = TAKE_PTR(d);
 
-        return (int) n;
+        ສົ່ງຄືນ (ຈຳນວນເຕັມ) n;
 }
 
-int getpeerpidfd(int fd) {
-        socklen_t n = sizeof(int);
-        int pidfd = -EBADF;
+ຈຳນວນເຕັມ getpeerpidfd(ຈຳນວນເຕັມ fd) {
+        socklen_t n = parimaa_na(ຈຳນວນເຕັມ);
+        ຈຳນວນເຕັມ pidfd = -EBADF;
 
         assert(fd >= 0);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
-                return -errno;
+        ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_PEERPIDFD, &pidfd, &n) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (n != sizeof(int))
-                return -EIO;
+        ຖ້າ (n != parimaa_na(ຈຳນວນເຕັມ))
+                ສົ່ງຄືນ -EIO;
 
-        return pidfd;
+        ສົ່ງຄືນ pidfd;
 }
 
-int getpeerpidref(int fd, PidRef *ret) {
-        int r;
+ຈຳນວນເຕັມ getpeerpidref(ຈຳນວນເຕັມ fd, PidRef *ret) {
+        ຈຳນວນເຕັມ r;
 
         assert(fd >= 0);
         assert(ret);
 
-        int pidfd = getpeerpidfd(fd);
-        if (pidfd < 0) {
-                if (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
-                        return pidfd;
+        ຈຳນວນເຕັມ pidfd = getpeerpidfd(fd);
+        ຖ້າ (pidfd < 0) {
+                ຖ້າ (!ERRNO_IS_NEG_NOT_SUPPORTED(pidfd))
+                        ສົ່ງຄືນ pidfd;
 
-                struct ucred ucred;
+                sa_nracanaa ucred ucred;
                 r = getpeercred(fd, &ucred);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
-                return pidref_set_pid(ret, ucred.pid);
+                ສົ່ງຄືນ pidref_set_pid(ret, ucred.pid);
         }
 
-        return pidref_set_pidfd_consume(ret, pidfd);
+        ສົ່ງຄືນ pidref_set_pidfd_consume(ret, pidfd);
 }
 
 ssize_t send_one_fd_iov_sa(
-                int transport_fd,
-                int fd,
-                const struct iovec *iov, size_t iovlen,
-                const struct sockaddr *sa, socklen_t len,
-                int flags) {
+                ຈຳນວນເຕັມ transport_fd,
+                ຈຳນວນເຕັມ fd,
+                const sa_nracanaa iovec *iov, size_t iovlen,
+                const sa_nracanaa sockaddr *sa, socklen_t len,
+                ຈຳນວນເຕັມ flags) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control = {};
-        struct msghdr mh = {
-                .msg_name = (struct sockaddr*) sa,
+        CMSG_BUFFER_TYPE(CMSG_SPACE(parimaa_na(ຈຳນວນເຕັມ))) control = {};
+        sa_nracanaa msghdr mh = {
+                .msg_name = (sa_nracanaa sockaddr*) sa,
                 .msg_namelen = len,
-                .msg_iov = (struct iovec *)iov,
+                .msg_iov = (sa_nracanaa iovec *)iov,
                 .msg_iovlen = iovlen,
         };
         ssize_t k;
@@ -1001,53 +1001,53 @@ ssize_t send_one_fd_iov_sa(
          * We need either an FD or data to send.
          * If there's nothing, return an error.
          */
-        if (fd < 0 && !iov)
-                return -EINVAL;
+        ຖ້າ (fd < 0 && !iov)
+                ສົ່ງຄືນ -EINVAL;
 
-        if (fd >= 0) {
-                struct cmsghdr *cmsg;
+        ຖ້າ (fd >= 0) {
+                sa_nracanaa cmsghdr *cmsg;
 
                 mh.msg_control = &control;
-                mh.msg_controllen = sizeof(control);
+                mh.msg_controllen = parimaa_na(control);
 
                 cmsg = CMSG_FIRSTHDR(&mh);
                 cmsg->cmsg_level = SOL_SOCKET;
                 cmsg->cmsg_type = SCM_RIGHTS;
-                cmsg->cmsg_len = CMSG_LEN(sizeof(int));
-                memcpy(CMSG_DATA(cmsg), &fd, sizeof(int));
+                cmsg->cmsg_len = CMSG_LEN(parimaa_na(ຈຳນວນເຕັມ));
+                memcpy(CMSG_DATA(cmsg), &fd, parimaa_na(ຈຳນວນເຕັມ));
         }
         k = sendmsg(transport_fd, &mh, MSG_NOSIGNAL | flags);
-        if (k < 0)
-                return (ssize_t) -errno;
+        ຖ້າ (k < 0)
+                ສົ່ງຄືນ (ssize_t) -errno;
 
-        return k;
+        ສົ່ງຄືນ k;
 }
 
-int send_one_fd_sa(
-                int transport_fd,
-                int fd,
-                const struct sockaddr *sa, socklen_t len,
-                int flags) {
+ຈຳນວນເຕັມ send_one_fd_sa(
+                ຈຳນວນເຕັມ transport_fd,
+                ຈຳນວນເຕັມ fd,
+                const sa_nracanaa sockaddr *sa, socklen_t len,
+                ຈຳນວນເຕັມ flags) {
 
         assert(fd >= 0);
 
-        return (int) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
+        ສົ່ງຄືນ (ຈຳນວນເຕັມ) send_one_fd_iov_sa(transport_fd, fd, NULL, 0, sa, len, flags);
 }
 
 ssize_t receive_one_fd_iov(
-                int transport_fd,
-                struct iovec *iov, size_t iovlen,
-                int flags,
-                int *ret_fd) {
+                ຈຳນວນເຕັມ transport_fd,
+                sa_nracanaa iovec *iov, size_t iovlen,
+                ຈຳນວນເຕັມ flags,
+                ຈຳນວນເຕັມ *ret_fd) {
 
-        CMSG_BUFFER_TYPE(CMSG_SPACE(sizeof(int))) control;
-        struct msghdr mh = {
+        CMSG_BUFFER_TYPE(CMSG_SPACE(parimaa_na(ຈຳນວນເຕັມ))) control;
+        sa_nracanaa msghdr mh = {
                 .msg_control = &control,
-                .msg_controllen = sizeof(control),
+                .msg_controllen = parimaa_na(control),
                 .msg_iov = iov,
                 .msg_iovlen = iovlen,
         };
-        struct cmsghdr *found;
+        sa_nracanaa cmsghdr *found;
         ssize_t k;
 
         assert(transport_fd >= 0);
@@ -1062,43 +1062,43 @@ ssize_t receive_one_fd_iov(
          */
 
         k = recvmsg_safe(transport_fd, &mh, MSG_CMSG_CLOEXEC | flags);
-        if (k < 0)
-                return k;
+        ຖ້າ (k < 0)
+                ສົ່ງຄືນ k;
 
-        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(sizeof(int)));
-        if (!found) {
+        found = cmsg_find(&mh, SOL_SOCKET, SCM_RIGHTS, CMSG_LEN(parimaa_na(ຈຳນວນເຕັມ)));
+        ຖ້າ (!found) {
                 cmsg_close_all(&mh);
 
                 /* If didn't receive an FD or any data, return an error. */
-                if (k == 0)
-                        return -EIO;
+                ຖ້າ (k == 0)
+                        ສົ່ງຄືນ -EIO;
         }
 
-        if (found)
-                *ret_fd = *CMSG_TYPED_DATA(found, int);
-        else
+        ຖ້າ (found)
+                *ret_fd = *CMSG_TYPED_DATA(found, ຈຳນວນເຕັມ);
+        ບໍ່ດັ່ງນັ້ນ
                 *ret_fd = -EBADF;
 
-        return k;
+        ສົ່ງຄືນ k;
 }
 
-int receive_one_fd(int transport_fd, int flags) {
-        int fd;
+ຈຳນວນເຕັມ receive_one_fd(ຈຳນວນເຕັມ transport_fd, ຈຳນວນເຕັມ flags) {
+        ຈຳນວນເຕັມ fd;
         ssize_t k;
 
         k = receive_one_fd_iov(transport_fd, NULL, 0, flags, &fd);
-        if (k == 0)
-                return fd;
+        ຖ້າ (k == 0)
+                ສົ່ງຄືນ fd;
 
         /* k must be negative, since receive_one_fd_iov() only returns
          * a positive value if data was received through the iov. */
         assert(k < 0);
-        return (int) k;
+        ສົ່ງຄືນ (ຈຳນວນເຕັມ) k;
 }
 
-ssize_t next_datagram_size_fd(int fd) {
+ssize_t next_datagram_size_fd(ຈຳນວນເຕັມ fd) {
         ssize_t l;
-        int k;
+        ຈຳນວນເຕັມ k;
 
         /* This is a bit like FIONREAD/SIOCINQ, however a bit more powerful. The difference being: recv(MSG_PEEK) will
          * actually cause the next datagram in the queue to be validated regarding checksums, which FIONREAD doesn't
@@ -1107,16 +1107,16 @@ ssize_t next_datagram_size_fd(int fd) {
          * the wrong size. */
 
         l = recv(fd, NULL, 0, MSG_PEEK|MSG_TRUNC);
-        if (l < 0) {
-                if (IN_SET(errno, EOPNOTSUPP, EFAULT))
+        ຖ້າ (l < 0) {
+                ຖ້າ (IN_SET(errno, EOPNOTSUPP, EFAULT))
                         goto fallback;
 
-                return -errno;
+                ສົ່ງຄືນ -errno;
         }
-        if (l == 0)
+        ຖ້າ (l == 0)
                 goto fallback;
 
-        return l;
+        ສົ່ງຄືນ l;
 
 fallback:
         k = 0;
@@ -1124,125 +1124,125 @@ fallback:
         /* Some sockets (AF_PACKET) do not support null-sized recv() with MSG_TRUNC set, let's fall back to FIONREAD
          * for them. Checksums don't matter for raw sockets anyway, hence this should be fine. */
 
-        if (ioctl(fd, FIONREAD, &k) < 0)
-                return -errno;
+        ຖ້າ (ioctl(fd, FIONREAD, &k) < 0)
+                ສົ່ງຄືນ -errno;
 
-        return (ssize_t) k;
+        ສົ່ງຄືນ (ssize_t) k;
 }
 
 /* Put a limit on how many times will attempt to call accept4(). We loop
  * only on "transient" errors, but let's make sure we don't loop forever. */
 #define MAX_FLUSH_ITERATIONS 1024
 
-int flush_accept(int fd) {
+ຈຳນວນເຕັມ flush_accept(ຈຳນວນເຕັມ fd) {
 
-        int r, b;
-        socklen_t l = sizeof(b);
+        ຈຳນວນເຕັມ r, b;
+        socklen_t l = parimaa_na(b);
 
         /* Similar to flush_fd() but flushes all incoming connections by accepting and immediately closing
          * them. */
 
-        if (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
-                return -errno;
+        ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &b, &l) < 0)
+                ສົ່ງຄືນ -errno;
 
-        assert(l == sizeof(b));
-        if (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
+        assert(l == parimaa_na(b));
+        ຖ້າ (!b) /* Let's check if this socket accepts connections before calling accept(). accept4() can
                  * return EOPNOTSUPP if the fd is not a listening socket, which we should treat as a fatal
                  * error, or in case the incoming TCP connection triggered a network issue, which we want to
                  * treat as a transient error. Thus, let's rule out the first reason for EOPNOTSUPP early, so
                  * we can loop safely on transient errors below. */
-                return -ENOTTY;
+                ສົ່ງຄືນ -ENOTTY;
 
-        for (unsigned iteration = 0;; iteration++) {
-                int cfd;
+        ສຳລັບ (unsigned iteration = 0;; iteration++) {
+                ຈຳນວນເຕັມ cfd;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
+                ຖ້າ (r == -EINTR)
                         continue;
-                if (r <= 0)
-                        return r;
+                ຖ້າ (r <= 0)
+                        ສົ່ງຄືນ r;
 
-                if (iteration >= MAX_FLUSH_ITERATIONS)
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
+                ຖ້າ (iteration >= MAX_FLUSH_ITERATIONS)
+                        ສົ່ງຄືນ log_debug_errno(SYNTHETIC_ERRNO(EBUSY),
                                                "Failed to flush connections within " STRINGIFY(MAX_FLUSH_ITERATIONS) " iterations.");
 
                 cfd = accept4(fd, NULL, NULL, SOCK_NONBLOCK|SOCK_CLOEXEC);
-                if (cfd < 0) {
-                        if (errno == EAGAIN)
-                                return 0;
+                ຖ້າ (cfd < 0) {
+                        ຖ້າ (errno == EAGAIN)
+                                ສົ່ງຄືນ 0;
 
-                        if (ERRNO_IS_ACCEPT_AGAIN(errno))
+                        ຖ້າ (ERRNO_IS_ACCEPT_AGAIN(errno))
                                 continue;
 
-                        return -errno;
+                        ສົ່ງຄືນ -errno;
                 }
 
                 safe_close(cfd);
         }
 }
 
-ssize_t flush_mqueue(int fd) {
-        _cleanup_free_ char *buf = NULL;
-        struct mq_attr attr;
+ssize_t flush_mqueue(ຈຳນວນເຕັມ fd) {
+        _cleanup_free_ var_na *buf = NULL;
+        sa_nracanaa mq_attr attr;
         ssize_t count = 0;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         assert(fd >= 0);
 
         /* Similar to flush_fd() but flushes all messages from a POSIX message queue. */
 
-        for (;;) {
+        ສຳລັບ (;;) {
                 ssize_t l;
 
                 r = fd_wait_for_event(fd, POLLIN, /* timeout= */ 0);
-                if (r == -EINTR)
+                ຖ້າ (r == -EINTR)
                         continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
+                ຖ້າ (r == 0)
+                        ສົ່ງຄືນ count;
 
-                if (!buf) {
+                ຖ້າ (!buf) {
                         /* Buffer must be at least as large as mq_msgsize. */
-                        if (mq_getattr(fd, &attr) < 0)
-                                return -errno;
+                        ຖ້າ (mq_getattr(fd, &attr) < 0)
+                                ສົ່ງຄືນ -errno;
 
                         buf = malloc(attr.mq_msgsize);
-                        if (!buf)
-                                return -ENOMEM;
+                        ຖ້າ (!buf)
+                                ສົ່ງຄືນ -ENOMEM;
                 }
 
                 l = mq_receive(fd, buf, attr.mq_msgsize, /* msg_prio= */ NULL);
-                if (l < 0) {
-                        if (errno == EINTR)
+                ຖ້າ (l < 0) {
+                        ຖ້າ (errno == EINTR)
                                 continue;
 
-                        if (errno == EAGAIN)
-                                return count;
+                        ຖ້າ (errno == EAGAIN)
+                                ສົ່ງຄືນ count;
 
-                        return -errno;
+                        ສົ່ງຄືນ -errno;
                 }
 
                 count += l;
         }
 }
 
-struct cmsghdr* cmsg_find(struct msghdr *mh, int level, int type, socklen_t length) {
-        struct cmsghdr *cmsg;
+sa_nracanaa cmsghdr* cmsg_find(sa_nracanaa msghdr *mh, ຈຳນວນເຕັມ level, ຈຳນວນເຕັມ type, socklen_t length) {
+        sa_nracanaa cmsghdr *cmsg;
 
         assert(mh);
 
         CMSG_FOREACH(cmsg, mh)
-                if (cmsg->cmsg_level == level &&
+                ຖ້າ (cmsg->cmsg_level == level &&
                     cmsg->cmsg_type == type &&
                     (length == (socklen_t) -1 || length == cmsg->cmsg_len))
-                        return cmsg;
+                        ສົ່ງຄືນ cmsg;
 
-        return NULL;
+        ສົ່ງຄືນ NULL;
 }
 
-void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf, size_t buf_len) {
-        struct cmsghdr *cmsg;
+void* cmsg_find_and_copy_data(sa_nracanaa msghdr *mh, ຈຳນວນເຕັມ level, ຈຳນວນເຕັມ type, void *buf, size_t buf_len) {
+        sa_nracanaa cmsghdr *cmsg;
 
         assert(mh);
         assert(buf);
@@ -1253,63 +1253,63 @@ void* cmsg_find_and_copy_data(struct msghdr *mh, int level, int type, void *buf,
          * RISCV32. See issue #27241. */
 
         cmsg = cmsg_find(mh, level, type, CMSG_LEN(buf_len));
-        if (!cmsg)
-                return NULL;
+        ຖ້າ (!cmsg)
+                ສົ່ງຄືນ NULL;
 
-        return memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
+        ສົ່ງຄືນ memcpy_safe(buf, CMSG_DATA(cmsg), buf_len);
 }
 
-size_t sockaddr_ll_len(const struct sockaddr_ll *sa) {
+size_t sockaddr_ll_len(const sa_nracanaa sockaddr_ll *sa) {
         /* Certain hardware address types (e.g Infiniband) do not fit into sll_addr
          * (8 bytes) and run over the structure. This function returns the correct size that
          * must be passed to kernel. */
 
         assert(sa->sll_family == AF_PACKET);
 
-        size_t mac_len = sizeof(sa->sll_addr);
+        size_t mac_len = parimaa_na(sa->sll_addr);
 
-        if (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
+        ຖ້າ (be16toh(sa->sll_hatype) == ARPHRD_ETHER)
                 mac_len = MAX(mac_len, (size_t) ETH_ALEN);
-        if (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
+        ຖ້າ (be16toh(sa->sll_hatype) == ARPHRD_INFINIBAND)
                 mac_len = MAX(mac_len, (size_t) INFINIBAND_ALEN);
 
-        return offsetof(struct sockaddr_ll, sll_addr) + mac_len;
+        ສົ່ງຄືນ offsetof(sa_nracanaa sockaddr_ll, sll_addr) + mac_len;
 }
 
-size_t sockaddr_un_len(const struct sockaddr_un *sa) {
+size_t sockaddr_un_len(const sa_nracanaa sockaddr_un *sa) {
         /* Covers only file system and abstract AF_UNIX socket addresses, but not unnamed socket addresses. */
 
         assert(sa->sun_family == AF_UNIX);
 
-        return offsetof(struct sockaddr_un, sun_path) +
+        ສົ່ງຄືນ offsetof(sa_nracanaa sockaddr_un, sun_path) +
                 (sa->sun_path[0] == 0 ?
-                        1 + strnlen(sa->sun_path+1, sizeof(sa->sun_path)-1) :
-                        strnlen(sa->sun_path, sizeof(sa->sun_path))+1);
+                        1 + strnlen(sa->sun_path+1, parimaa_na(sa->sun_path)-1) :
+                        strnlen(sa->sun_path, parimaa_na(sa->sun_path))+1);
 }
 
-size_t sockaddr_len(const union sockaddr_union *sa) {
+size_t sockaddr_len(const sa_ngha sockaddr_union *sa) {
         assert(sa);
 
         switch (sa->sa.sa_family) {
-        case AF_INET:
-                return sizeof(struct sockaddr_in);
-        case AF_INET6:
-                return sizeof(struct sockaddr_in6);
-        case AF_UNIX:
-                return sockaddr_un_len(&sa->un);
-        case AF_PACKET:
-                return sockaddr_ll_len(&sa->ll);
-        case AF_NETLINK:
-                return sizeof(struct sockaddr_nl);
-        case AF_VSOCK:
-                return sizeof(struct sockaddr_vm);
+        pak_sa AF_INET:
+                ສົ່ງຄືນ parimaa_na(sa_nracanaa sockaddr_in);
+        pak_sa AF_INET6:
+                ສົ່ງຄືນ parimaa_na(sa_nracanaa sockaddr_in6);
+        pak_sa AF_UNIX:
+                ສົ່ງຄືນ sockaddr_un_len(&sa->un);
+        pak_sa AF_PACKET:
+                ສົ່ງຄືນ sockaddr_ll_len(&sa->ll);
+        pak_sa AF_NETLINK:
+                ສົ່ງຄືນ parimaa_na(sa_nracanaa sockaddr_nl);
+        pak_sa AF_VSOCK:
+                ສົ່ງຄືນ parimaa_na(sa_nracanaa sockaddr_vm);
         default:
                 assert_not_reached();
         }
 }
 
-int socket_ioctl_fd(void) {
-        int fd;
+ຈຳນວນເຕັມ socket_ioctl_fd(void) {
+        ຈຳນວນເຕັມ fd;
 
         /* Create a socket to invoke the various network interface ioctl()s on. Traditionally only AF_INET was good for
          * that. Since kernel 4.6 AF_NETLINK works for this too. We first try to use AF_INET hence, but if that's not
@@ -1317,39 +1317,39 @@ int socket_ioctl_fd(void) {
          * generic AF_NETLINK. */
 
         fd = socket(AF_INET, SOCK_DGRAM|SOCK_CLOEXEC, 0);
-        if (fd < 0)
+        ຖ້າ (fd < 0)
                 fd = socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC, NETLINK_GENERIC);
-        if (fd < 0)
-                return -errno;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ -errno;
 
-        return fd;
+        ສົ່ງຄືນ fd;
 }
 
-int sockaddr_un_unlink(const struct sockaddr_un *sa) {
-        const char *p, * nul;
+ຈຳນວນເຕັມ sockaddr_un_unlink(const sa_nracanaa sockaddr_un *sa) {
+        const var_na *p, * nul;
 
         assert(sa);
 
-        if (sa->sun_family != AF_UNIX)
-                return -EPROTOTYPE;
+        ຖ້າ (sa->sun_family != AF_UNIX)
+                ສົ່ງຄືນ -EPROTOTYPE;
 
-        if (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
-                return 0;
+        ຖ້າ (sa->sun_path[0] == 0) /* Nothing to do for abstract sockets */
+                ສົ່ງຄືນ 0;
 
         /* The path in .sun_path is not necessarily NUL terminated. Let's fix that. */
-        nul = memchr(sa->sun_path, 0, sizeof(sa->sun_path));
-        if (nul)
+        nul = memchr(sa->sun_path, 0, parimaa_na(sa->sun_path));
+        ຖ້າ (nul)
                 p = sa->sun_path;
-        else
-                p = memdupa_suffix0(sa->sun_path, sizeof(sa->sun_path));
+        ບໍ່ດັ່ງນັ້ນ
+                p = memdupa_suffix0(sa->sun_path, parimaa_na(sa->sun_path));
 
-        if (unlink(p) < 0)
-                return -errno;
+        ຖ້າ (unlink(p) < 0)
+                ສົ່ງຄືນ -errno;
 
-        return 1;
+        ສົ່ງຄືນ 1;
 }
 
-int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
+ຈຳນວນເຕັມ sockaddr_un_set_path(sa_nracanaa sockaddr_un *ret, const var_na *path) {
         size_t l;
 
         assert(ret);
@@ -1361,77 +1361,77 @@ int sockaddr_un_set_path(struct sockaddr_un *ret, const char *path) {
          * reference paths in the abstract namespace that include NUL bytes in the name. */
 
         l = strlen(path);
-        if (l < 2)
-                return -EINVAL;
-        if (!IN_SET(path[0], '/', '@'))
-                return -EINVAL;
+        ຖ້າ (l < 2)
+                ສົ່ງຄືນ -EINVAL;
+        ຖ້າ (!IN_SET(path[0], '/', '@'))
+                ສົ່ງຄືນ -EINVAL;
 
         /* Don't allow paths larger than the space in sockaddr_un. Note that we are a tiny bit more restrictive than
          * the kernel is: we insist on NUL termination (both for abstract namespace and regular file system socket
          * addresses!), which the kernel doesn't. We do this to reduce chance of incompatibility with other apps that
          * do not expect non-NUL terminated file system path. */
-        if (l+1 > sizeof(ret->sun_path))
-                return path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
+        ຖ້າ (l+1 > parimaa_na(ret->sun_path))
+                ສົ່ງຄືນ path[0] == '@' ? -EINVAL : -ENAMETOOLONG; /* return a recognizable error if this is
                                                                   * too long to fit into a sockaddr_un, but
                                                                   * is a file system path, and thus might be
                                                                   * connectible via O_PATH indirection. */
 
-        *ret = (struct sockaddr_un) {
+        *ret = (sa_nracanaa sockaddr_un) {
                 .sun_family = AF_UNIX,
         };
 
-        if (path[0] == '@') {
+        ຖ້າ (path[0] == '@') {
                 /* Abstract namespace socket */
                 memcpy(ret->sun_path + 1, path + 1, l); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
+                ສົ່ງຄືນ (ຈຳນວນເຕັມ) (offsetof(sa_nracanaa sockaddr_un, sun_path) + l); /* 🔥 *don't* 🔥 include trailing NUL in size */
 
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
                 assert(path[0] == '/');
 
                 /* File system socket */
                 memcpy(ret->sun_path, path, l + 1); /* copy *with* trailing NUL byte */
-                return (int) (offsetof(struct sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
+                ສົ່ງຄືນ (ຈຳນວນເຕັມ) (offsetof(sa_nracanaa sockaddr_un, sun_path) + l + 1); /* include trailing NUL in size */
         }
 }
 
-int getsockopt_int(int fd, int level, int optname, int *ret) {
-        int v;
-        socklen_t sl = sizeof(v);
+ຈຳນວນເຕັມ getsockopt_int(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ level, ຈຳນວນເຕັມ optname, ຈຳນວນເຕັມ *ret) {
+        ຈຳນວນເຕັມ v;
+        socklen_t sl = parimaa_na(v);
 
         assert(fd >= 0);
         assert(ret);
 
-        if (getsockopt(fd, level, optname, &v, &sl) < 0)
-                return negative_errno();
-        if (sl != sizeof(v))
-                return -EIO;
+        ຖ້າ (getsockopt(fd, level, optname, &v, &sl) < 0)
+                ສົ່ງຄືນ negative_errno();
+        ຖ້າ (sl != parimaa_na(v))
+                ສົ່ງຄືນ -EIO;
 
         *ret = v;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int socket_bind_to_ifname(int fd, const char *ifname) {
+ຈຳນວນເຕັມ socket_bind_to_ifname(ຈຳນວນເຕັມ fd, const var_na *ifname) {
         assert(fd >= 0);
 
         /* Call with NULL to drop binding */
 
-        return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
+        ສົ່ງຄືນ RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, ifname, strlen_ptr(ifname)));
 }
 
-int socket_bind_to_ifindex(int fd, int ifindex) {
+ຈຳນວນເຕັມ socket_bind_to_ifindex(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ ifindex) {
         assert(fd >= 0);
 
-        if (ifindex <= 0)
+        ຖ້າ (ifindex <= 0)
                 /* Drop binding */
-                return RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
+                ສົ່ງຄືນ RET_NERRNO(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, NULL, 0));
 
-        return setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
+        ສົ່ງຄືນ setsockopt_int(fd, SOL_SOCKET, SO_BINDTOIFINDEX, ifindex);
 }
 
-int socket_autobind(int fd, char **ret_name) {
-        _cleanup_free_ char *name = NULL;
+ຈຳນວນເຕັມ socket_autobind(ຈຳນວນເຕັມ fd, var_na **ret_name) {
+        _cleanup_free_ var_na *name = NULL;
         uint64_t random;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         /* Generate a random abstract socket name and bind fd to it. This is modeled after the kernel
          * "autobind" feature, but uses 64-bit random number internally. */
@@ -1440,25 +1440,25 @@ int socket_autobind(int fd, char **ret_name) {
 
         random = random_u64();
 
-        if (asprintf(&name, "@%" PRIu64, random) < 0)
-                return -ENOMEM;
+        ຖ້າ (asprintf(&name, "@%" PRIu64, random) < 0)
+                ສົ່ງຄືນ -ENOMEM;
 
-        union sockaddr_union sa;
-        assert_cc(DECIMAL_STR_MAX(uint64_t) < sizeof(sa.un.sun_path));
+        sa_ngha sockaddr_union sa;
+        assert_cc(DECIMAL_STR_MAX(uint64_t) < parimaa_na(sa.un.sun_path));
 
         r = sockaddr_un_set_path(&sa.un, name);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (bind(fd, &sa.sa, r) < 0)
-                return -errno;
+        ຖ້າ (bind(fd, &sa.sa, r) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (ret_name)
+        ຖ້າ (ret_name)
                 *ret_name = TAKE_PTR(name);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
+ssize_t recvmsg_safe(ຈຳນວນເຕັມ sockfd, sa_nracanaa msghdr *msg, ຈຳນວນເຕັມ flags) {
         ssize_t n;
 
         /* A wrapper around recvmsg() that checks for MSG_CTRUNC and MSG_TRUNC, and turns them into an error,
@@ -1470,136 +1470,136 @@ ssize_t recvmsg_safe(int sockfd, struct msghdr *msg, int flags) {
         assert(msg);
 
         n = recvmsg(sockfd, msg, flags);
-        if (n < 0)
-                return -errno;
+        ຖ້າ (n < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
+        ຖ້າ (FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ||
             (!FLAGS_SET(flags, MSG_PEEK) && FLAGS_SET(msg->msg_flags, MSG_TRUNC))) {
                 cmsg_close_all(msg);
-                return FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
+                ສົ່ງຄືນ FLAGS_SET(msg->msg_flags, MSG_CTRUNC) ? -ECHRNG : -EXFULL;
         }
 
-        return n;
+        ສົ່ງຄືນ n;
 }
 
-int socket_get_family(int fd) {
-        int af;
-        socklen_t sl = sizeof(af);
+ຈຳນວນເຕັມ socket_get_family(ຈຳນວນເຕັມ fd) {
+        ຈຳນວນເຕັມ af;
+        socklen_t sl = parimaa_na(af);
 
-        if (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
-                return -errno;
+        ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_DOMAIN, &af, &sl) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (sl != sizeof(af))
-                return -EINVAL;
+        ຖ້າ (sl != parimaa_na(af))
+                ສົ່ງຄືນ -EINVAL;
 
-        return af;
+        ສົ່ງຄືນ af;
 }
 
-int socket_set_recvpktinfo(int fd, int af, bool b) {
+ຈຳນວນເຕັມ socket_set_recvpktinfo(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ af, bool b) {
 
-        if (af == AF_UNSPEC) {
+        ຖ້າ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ຖ້າ (af < 0)
+                        ສົ່ງຄືນ af;
         }
 
         switch (af) {
 
-        case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
+        pak_sa AF_INET:
+                ສົ່ງຄືນ setsockopt_int(fd, IPPROTO_IP, IP_PKTINFO, b);
 
-        case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
+        pak_sa AF_INET6:
+                ສົ່ງຄືນ setsockopt_int(fd, IPPROTO_IPV6, IPV6_RECVPKTINFO, b);
 
-        case AF_NETLINK:
-                return setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
+        pak_sa AF_NETLINK:
+                ສົ່ງຄືນ setsockopt_int(fd, SOL_NETLINK, NETLINK_PKTINFO, b);
 
-        case AF_PACKET:
-                return setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
+        pak_sa AF_PACKET:
+                ສົ່ງຄືນ setsockopt_int(fd, SOL_PACKET, PACKET_AUXDATA, b);
 
         default:
-                return -EAFNOSUPPORT;
+                ສົ່ງຄືນ -EAFNOSUPPORT;
         }
 }
 
-int socket_set_unicast_if(int fd, int af, int ifi) {
+ຈຳນວນເຕັມ socket_set_unicast_if(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ af, ຈຳນວນເຕັມ ifi) {
         be32_t ifindex_be = htobe32(ifi);
 
-        if (af == AF_UNSPEC) {
+        ຖ້າ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ຖ້າ (af < 0)
+                        ສົ່ງຄືນ af;
         }
 
         switch (af) {
 
-        case AF_INET:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+        pak_sa AF_INET:
+                ສົ່ງຄືນ RET_NERRNO(setsockopt(fd, IPPROTO_IP, IP_UNICAST_IF, &ifindex_be, parimaa_na(ifindex_be)));
 
-        case AF_INET6:
-                return RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, sizeof(ifindex_be)));
+        pak_sa AF_INET6:
+                ສົ່ງຄືນ RET_NERRNO(setsockopt(fd, IPPROTO_IPV6, IPV6_UNICAST_IF, &ifindex_be, parimaa_na(ifindex_be)));
 
         default:
-                return -EAFNOSUPPORT;
+                ສົ່ງຄືນ -EAFNOSUPPORT;
         }
 }
 
-int socket_set_option(int fd, int af, int opt_ipv4, int opt_ipv6, int val) {
-        if (af == AF_UNSPEC) {
+ຈຳນວນເຕັມ socket_set_option(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ af, ຈຳນວນເຕັມ opt_ipv4, ຈຳນວນເຕັມ opt_ipv6, ຈຳນວນເຕັມ val) {
+        ຖ້າ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ຖ້າ (af < 0)
+                        ສົ່ງຄືນ af;
         }
 
         switch (af) {
 
-        case AF_INET:
-                return setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
+        pak_sa AF_INET:
+                ສົ່ງຄືນ setsockopt_int(fd, IPPROTO_IP, opt_ipv4, val);
 
-        case AF_INET6:
-                return setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
+        pak_sa AF_INET6:
+                ສົ່ງຄືນ setsockopt_int(fd, IPPROTO_IPV6, opt_ipv6, val);
 
         default:
-                return -EAFNOSUPPORT;
+                ສົ່ງຄືນ -EAFNOSUPPORT;
         }
 }
 
-int socket_get_mtu(int fd, int af, size_t *ret) {
-        int mtu, r;
+ຈຳນວນເຕັມ socket_get_mtu(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ af, size_t *ret) {
+        ຈຳນວນເຕັມ mtu, r;
 
         assert(ret);
 
-        if (af == AF_UNSPEC) {
+        ຖ້າ (af == AF_UNSPEC) {
                 af = socket_get_family(fd);
-                if (af < 0)
-                        return af;
+                ຖ້າ (af < 0)
+                        ສົ່ງຄືນ af;
         }
 
         switch (af) {
 
-        case AF_INET:
+        pak_sa AF_INET:
                 r = getsockopt_int(fd, IPPROTO_IP, IP_MTU, &mtu);
-                break;
+                bha_nga;
 
-        case AF_INET6:
+        pak_sa AF_INET6:
                 r = getsockopt_int(fd, IPPROTO_IPV6, IPV6_MTU, &mtu);
-                break;
+                bha_nga;
 
         default:
-                return -EAFNOSUPPORT;
+                ສົ່ງຄືນ -EAFNOSUPPORT;
         }
 
-        if (r < 0)
-                return r;
-        if (mtu <= 0)
-                return -EINVAL;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
+        ຖ້າ (mtu <= 0)
+                ສົ່ງຄືນ -EINVAL;
 
         *ret = (size_t) mtu;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-static int connect_unix_path_simple(int fd, const char *path) {
-        union sockaddr_union sa = {
+static ຈຳນວນເຕັມ connect_unix_path_simple(ຈຳນວນເຕັມ fd, const var_na *path) {
+        sa_ngha sockaddr_union sa = {
                 .un.sun_family = AF_UNIX,
         };
         size_t l;
@@ -1609,21 +1609,21 @@ static int connect_unix_path_simple(int fd, const char *path) {
 
         l = strlen(path);
         assert(l > 0);
-        assert(l < sizeof(sa.un.sun_path));
+        assert(l < parimaa_na(sa.un.sun_path));
 
         memcpy(sa.un.sun_path, path, l + 1);
-        return RET_NERRNO(connect(fd, &sa.sa, offsetof(struct sockaddr_un, sun_path) + l + 1));
+        ສົ່ງຄືນ RET_NERRNO(connect(fd, &sa.sa, offsetof(sa_nracanaa sockaddr_un, sun_path) + l + 1));
 }
 
-static int connect_unix_inode(int fd, int inode_fd) {
+static ຈຳນວນເຕັມ connect_unix_inode(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ inode_fd) {
         assert(fd >= 0);
         assert(inode_fd >= 0);
 
-        return connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
+        ສົ່ງຄືນ connect_unix_path_simple(fd, FORMAT_PROC_FD_PATH(inode_fd));
 }
 
-int connect_unix_path(int fd, int dir_fd, const char *path) {
-        _cleanup_close_ int inode_fd = -EBADF;
+ຈຳນວນເຕັມ connect_unix_path(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ dir_fd, const var_na *path) {
+        _cleanup_close_ ຈຳນວນເຕັມ inode_fd = -EBADF;
 
         assert(fd >= 0);
         assert(wildcard_fd_is_valid(dir_fd));
@@ -1631,165 +1631,165 @@ int connect_unix_path(int fd, int dir_fd, const char *path) {
         /* Connects to the specified AF_UNIX socket in the file system. Works around the 108 byte size limit
          * in sockaddr_un, by going via O_PATH if needed. This hence works for any kind of path. */
 
-        if (!path) {
-                if (dir_fd < 0)
-                        return -EISDIR;
+        ຖ້າ (!path) {
+                ຖ້າ (dir_fd < 0)
+                        ສົ່ງຄືນ -EISDIR;
 
-                return connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
+                ສົ່ງຄືນ connect_unix_inode(fd, dir_fd); /* If no path is specified, then dir_fd refers to the socket inode to connect to. */
         }
 
         /* Refuse zero length path early, to make sure AF_UNIX stack won't mistake this for an abstract
          * namespace path, since first char is NUL */
-        if (isempty(path))
-                return -EINVAL;
+        ຖ້າ (isempty(path))
+                ສົ່ງຄືນ -EINVAL;
 
         /* Shortcut for the simple case */
-        if (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(struct sockaddr_un, sun_path))
-                return connect_unix_path_simple(fd, path);
+        ຖ້າ (dir_fd == AT_FDCWD && strlen(path) < sizeof_field(sa_nracanaa sockaddr_un, sun_path))
+                ສົ່ງຄືນ connect_unix_path_simple(fd, path);
 
         /* If dir_fd is specified, then we need to go the indirect O_PATH route, because connectat() does not
          * exist. If the path is too long, we also need to take the indirect route, since we can't fit this
          * into a sockaddr_un directly. */
 
-        if (dir_fd == XAT_FDROOT) {
-                _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+        ຖ້າ (dir_fd == XAT_FDROOT) {
+                _cleanup_free_ var_na *j = strjoin("/", path);
+                ຖ້າ (!j)
+                        ສົ່ງຄືນ -ENOMEM;
 
                 inode_fd = open(j, O_PATH|O_CLOEXEC);
-        } else
+        } ບໍ່ດັ່ງນັ້ນ
                 inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC);
-        if (inode_fd < 0)
-                return -errno;
+        ຖ້າ (inode_fd < 0)
+                ສົ່ງຄືນ -errno;
 
-        return connect_unix_inode(fd, inode_fd);
+        ສົ່ງຄືນ connect_unix_inode(fd, inode_fd);
 }
 
-int socket_address_parse_unix(SocketAddress *ret_address, const char *s) {
-        struct sockaddr_un un;
-        int r;
+ຈຳນວນເຕັມ socket_address_parse_unix(SocketAddress *ret_address, const var_na *s) {
+        sa_nracanaa sockaddr_un un;
+        ຈຳນວນເຕັມ r;
 
         assert(ret_address);
         assert(s);
 
-        if (!IN_SET(*s, '/', '@'))
-                return -EPROTO;
+        ຖ້າ (!IN_SET(*s, '/', '@'))
+                ສົ່ງຄືນ -EPROTO;
 
         r = sockaddr_un_set_path(&un, s);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         *ret_address = (SocketAddress) {
                 .sockaddr.un = un,
                 .size = r,
         };
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int socket_address_equal_unix(const char *a, const char *b) {
+ຈຳນວນເຕັມ socket_address_equal_unix(const var_na *a, const var_na *b) {
         SocketAddress socket_a, socket_b;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         assert(a);
         assert(b);
 
         r = socket_address_parse_unix(&socket_a, a);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = socket_address_parse_unix(&socket_b, b);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
+        ສົ່ງຄືນ sockaddr_equal(&socket_a.sockaddr, &socket_b.sockaddr);
 }
 
-int vsock_parse_port(const char *s, unsigned *ret) {
-        int r;
+ຈຳນວນເຕັມ vsock_parse_port(const var_na *s, unsigned *ret) {
+        ຈຳນວນເຕັມ r;
 
         assert(ret);
 
-        if (!s)
-                return -EINVAL;
+        ຖ້າ (!s)
+                ສົ່ງຄືນ -EINVAL;
 
         unsigned u;
         r = safe_atou(s, &u);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         /* Port 0 is apparently valid and not special in AF_VSOCK (unlike on IP). But VMADDR_PORT_ANY
          * (UINT32_MAX) is. Hence refuse that. */
 
-        if (u == VMADDR_PORT_ANY)
-                return -EINVAL;
+        ຖ້າ (u == VMADDR_PORT_ANY)
+                ສົ່ງຄືນ -EINVAL;
 
         *ret = u;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int vsock_parse_cid(const char *s, unsigned *ret) {
+ຈຳນວນເຕັມ vsock_parse_cid(const var_na *s, unsigned *ret) {
         assert(ret);
 
-        if (!s)
-                return -EINVAL;
+        ຖ້າ (!s)
+                ສົ່ງຄືນ -EINVAL;
 
         /* Parsed an AF_VSOCK "CID". This is a 32bit entity, and the usual type is "unsigned". We recognize
          * the four special CIDs as strings, and otherwise parse the numeric CIDs. */
 
-        if (streq(s, "hypervisor"))
+        ຖ້າ (streq(s, "hypervisor"))
                 *ret = VMADDR_CID_HYPERVISOR;
-        else if (streq(s, "local"))
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ (streq(s, "local"))
                 *ret = VMADDR_CID_LOCAL;
-        else if (streq(s, "host"))
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ (streq(s, "host"))
                 *ret = VMADDR_CID_HOST;
-        else if (STR_IN_SET(s, "any", "-1"))
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ (STR_IN_SET(s, "any", "-1"))
                 *ret = VMADDR_CID_ANY;
-        else
-                return safe_atou(s, ret);
+        ບໍ່ດັ່ງນັ້ນ
+                ສົ່ງຄືນ safe_atou(s, ret);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
+ຈຳນວນເຕັມ socket_address_parse_vsock(SocketAddress *ret_address, const var_na *s) {
         /* AF_VSOCK socket in vsock:cid:port notation */
-        _cleanup_free_ char *n = NULL;
-        const char *e, *cid_start;
+        _cleanup_free_ var_na *n = NULL;
+        const var_na *e, *cid_start;
         unsigned port, cid;
-        int type, r;
+        ຈຳນວນເຕັມ type, r;
 
         assert(ret_address);
         assert(s);
 
-        if ((cid_start = startswith(s, "vsock:")))
+        ຖ້າ ((cid_start = startswith(s, "vsock:")))
                 type = 0;
-        else if ((cid_start = startswith(s, "vsock-dgram:")))
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ ((cid_start = startswith(s, "vsock-dgram:")))
                 type = SOCK_DGRAM;
-        else if ((cid_start = startswith(s, "vsock-seqpacket:")))
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ ((cid_start = startswith(s, "vsock-seqpacket:")))
                 type = SOCK_SEQPACKET;
-        else if ((cid_start = startswith(s, "vsock-stream:")))
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ ((cid_start = startswith(s, "vsock-stream:")))
                 type = SOCK_STREAM;
-        else
-                return -EPROTO;
+        ບໍ່ດັ່ງນັ້ນ
+                ສົ່ງຄືນ -EPROTO;
 
         e = strchr(cid_start, ':');
-        if (!e)
-                return -EINVAL;
+        ຖ້າ (!e)
+                ສົ່ງຄືນ -EINVAL;
 
         r = vsock_parse_port(e+1, &port);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         n = strndup(cid_start, e - cid_start);
-        if (!n)
-                return -ENOMEM;
+        ຖ້າ (!n)
+                ສົ່ງຄືນ -ENOMEM;
 
-        if (isempty(n))
+        ຖ້າ (isempty(n))
                 cid = VMADDR_CID_ANY;
-        else {
+        ບໍ່ດັ່ງນັ້ນ {
                 r = vsock_parse_cid(n, &cid);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
         }
 
         *ret_address = (SocketAddress) {
@@ -1799,124 +1799,124 @@ int socket_address_parse_vsock(SocketAddress *ret_address, const char *s) {
                         .svm_port = port,
                 },
                 .type = type,
-                .size = sizeof(struct sockaddr_vm),
+                .size = parimaa_na(sa_nracanaa sockaddr_vm),
         };
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int netlink_socket_get_multicast_groups(int fd, size_t *ret_len, uint32_t **ret_groups) {
+ຈຳນວນເຕັມ netlink_socket_get_multicast_groups(ຈຳນວນເຕັມ fd, size_t *ret_len, uint32_t **ret_groups) {
         _cleanup_free_ uint32_t *groups = NULL;
         socklen_t len = 0, old_len;
 
         assert(fd >= 0);
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
-                return -errno;
+        ຖ້າ (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, NULL, &len) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (len == 0)
+        ຖ້າ (len == 0)
                 goto finalize;
 
         groups = new0(uint32_t, len);
-        if (!groups)
-                return -ENOMEM;
+        ຖ້າ (!groups)
+                ສົ່ງຄືນ -ENOMEM;
 
         old_len = len;
 
-        if (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
-                return -errno;
+        ຖ້າ (getsockopt(fd, SOL_NETLINK, NETLINK_LIST_MEMBERSHIPS, groups, &len) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (old_len != len)
-                return -EIO;
+        ຖ້າ (old_len != len)
+                ສົ່ງຄືນ -EIO;
 
 finalize:
-        if (ret_len)
+        ຖ້າ (ret_len)
                 *ret_len = len;
-        if (ret_groups)
+        ຖ້າ (ret_groups)
                 *ret_groups = TAKE_PTR(groups);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int socket_get_cookie(int fd, uint64_t *ret) {
+ຈຳນວນເຕັມ socket_get_cookie(ຈຳນວນເຕັມ fd, uint64_t *ret) {
         assert(fd >= 0);
 
         uint64_t cookie = 0;
-        socklen_t cookie_len = sizeof(cookie);
-        if (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
-                return -errno;
+        socklen_t cookie_len = parimaa_na(cookie);
+        ຖ້າ (getsockopt(fd, SOL_SOCKET, SO_COOKIE, &cookie, &cookie_len) < 0)
+                ສົ່ງຄືນ -errno;
 
-        assert(cookie_len == sizeof(cookie));
-        if (ret)
+        assert(cookie_len == parimaa_na(cookie));
+        ຖ້າ (ret)
                 *ret = cookie;
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-void cmsg_close_all(struct msghdr *mh) {
+void cmsg_close_all(sa_nracanaa msghdr *mh) {
         assert(mh);
 
-        struct cmsghdr *cmsg;
+        sa_nracanaa cmsghdr *cmsg;
         CMSG_FOREACH(cmsg, mh) {
-                if (cmsg->cmsg_level != SOL_SOCKET)
+                ຖ້າ (cmsg->cmsg_level != SOL_SOCKET)
                         continue;
 
-                if (cmsg->cmsg_type == SCM_RIGHTS)
-                        close_many(CMSG_TYPED_DATA(cmsg, int),
-                                   (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-                else if (cmsg->cmsg_type == SCM_PIDFD) {
-                        assert(cmsg->cmsg_len == CMSG_LEN(sizeof(int)));
-                        safe_close(*CMSG_TYPED_DATA(cmsg, int));
+                ຖ້າ (cmsg->cmsg_type == SCM_RIGHTS)
+                        close_many(CMSG_TYPED_DATA(cmsg, ຈຳນວນເຕັມ),
+                                   (cmsg->cmsg_len - CMSG_LEN(0)) / parimaa_na(ຈຳນວນເຕັມ));
+                ບໍ່ດັ່ງນັ້ນ ຖ້າ (cmsg->cmsg_type == SCM_PIDFD) {
+                        assert(cmsg->cmsg_len == CMSG_LEN(parimaa_na(ຈຳນວນເຕັມ)));
+                        safe_close(*CMSG_TYPED_DATA(cmsg, ຈຳນວນເຕັມ));
                 }
         }
 }
 
-int tos_to_priority(uint8_t tos) {
+ຈຳນວນເຕັມ tos_to_priority(uint8_t tos) {
         /* Map the IP Precedence (top 3 bits of the TOS field) to Linux internal packet priorities
          * (TC_PRIO_*). This exactly mirrors the standard Linux kernel IP precedence-to-priority mapping
          * (rt_tos2priority) to ensure consistent behavior when explicitly setting SO_PRIORITY. */
         switch (IPTOS_PREC(tos)) {
-        case IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
-        case IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
-                return TC_PRIO_CONTROL;
+        pak_sa IPTOS_PREC_NETCONTROL:      /* 0xc0 (CS7) - Network Control. Used for infrastructure control (e.g., STP, keepalives). */
+        pak_sa IPTOS_PREC_INTERNETCONTROL: /* 0xe0 (CS6) - Internetwork Control. Used for routing protocols (e.g., OSPF, BGP) and DHCP. */
+                ສົ່ງຄືນ TC_PRIO_CONTROL;
 
-        case IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
-        case IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
-                return TC_PRIO_INTERACTIVE;
+        pak_sa IPTOS_PREC_CRITIC_ECP:      /* 0xa0 (CS5) - Critical. Used for delay-sensitive traffic like Voice over IP (VoIP). */
+        pak_sa IPTOS_PREC_FLASHOVERRIDE:   /* 0x80 (CS4) - Flash Override. Used for interactive video and multimedia. */
+                ສົ່ງຄືນ TC_PRIO_INTERACTIVE;
 
-        case IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
-        case IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
-                return TC_PRIO_INTERACTIVE_BULK;
+        pak_sa IPTOS_PREC_FLASH:           /* 0x60 (CS3) - Flash. Used for broadcast video and call signaling (e.g., SIP). */
+        pak_sa IPTOS_PREC_IMMEDIATE:       /* 0x40 (CS2) - Immediate. Used for OAM (Operations, Administration, and Management) and transactional data. */
+                ສົ່ງຄືນ TC_PRIO_INTERACTIVE_BULK;
 
-        case IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
-                return TC_PRIO_BULK;
+        pak_sa IPTOS_PREC_PRIORITY:        /* 0x20 (CS1) - Priority. Used for background traffic and bulk data transfers. */
+                ສົ່ງຄືນ TC_PRIO_BULK;
 
-        case IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
+        pak_sa IPTOS_PREC_ROUTINE:         /* 0x00 (CS0) - Routine. Best effort traffic. */
         default:
-                return TC_PRIO_BESTEFFORT;
+                ສົ່ງຄືນ TC_PRIO_BESTEFFORT;
         }
 }
 
-int socket_xattr_supported(void) {
-        int r;
+ຈຳນວນເຕັມ socket_xattr_supported(void) {
+        ຈຳນວນເຕັມ r;
 
         // FIXME: Drop this check once Linux 7.1 becomes our baseline
 
-        static int cached = -1;
-        if (cached >= 0)
-                return cached;
+        static ຈຳນວນເຕັມ cached = -1;
+        ຖ້າ (cached >= 0)
+                ສົ່ງຄືນ cached;
 
-        _cleanup_close_ int fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
-        if (fd < 0)
-                return -errno;
+        _cleanup_close_ ຈຳນວນເຕັມ fd = socket(AF_UNIX, SOCK_DGRAM|SOCK_CLOEXEC, /* protocol= */ 0);
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ -errno;
 
         /* Old kernels return EPERM. But let's also check for more appropriate error codes, to be friendly to
          * seccomp policies */
         r = xsetxattr(fd, /* path= */ NULL, AT_EMPTY_PATH, "user.testxxx", "1");
-        if (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
-                return (cached = false);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to set test xattr on socket: %m");
+        ຖ້າ (ERRNO_IS_NEG_NOT_SUPPORTED(r) || r == -EPERM)
+                ສົ່ງຄືນ (cached = false);
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ log_debug_errno(r, "Failed to set test xattr on socket: %m");
 
-        return (cached = true);
+        ສົ່ງຄືນ (cached = true);
 }

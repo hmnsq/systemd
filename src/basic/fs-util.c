@@ -29,44 +29,44 @@
 #include "tmpfile-util.h"
 #include "umask-util.h"
 
-int rmdir_parents(const char *path, const char *stop) {
-        char *p;
-        int r;
+ຈຳນວນເຕັມ rmdir_parents(const var_na *path, const var_na *stop) {
+        var_na *p;
+        ຈຳນວນເຕັມ r;
 
         assert(path);
         assert(stop);
 
-        if (!path_is_safe(path))
-                return -EINVAL;
+        ຖ້າ (!path_is_safe(path))
+                ສົ່ງຄືນ -EINVAL;
 
-        if (!path_is_safe(stop))
-                return -EINVAL;
+        ຖ້າ (!path_is_safe(stop))
+                ສົ່ງຄືນ -EINVAL;
 
         p = strdupa_safe(path);
 
-        for (;;) {
-                char *slash = NULL;
+        ສຳລັບ (;;) {
+                var_na *slash = NULL;
 
                 /* skip the last component. */
-                r = path_find_last_component(p, /* accept_dot_dot= */ false, (const char **) &slash, NULL);
-                if (r <= 0)
-                        return r;
-                if (slash == p)
-                        return 0;
+                r = path_find_last_component(p, /* accept_dot_dot= */ false, (const var_na **) &slash, NULL);
+                ຖ້າ (r <= 0)
+                        ສົ່ງຄືນ r;
+                ຖ້າ (slash == p)
+                        ສົ່ງຄືນ 0;
 
                 assert(*slash == '/');
                 *slash = '\0';
 
-                if (path_startswith_full(stop, p, PATH_STARTSWITH_REFUSE_DOT_DOT))
-                        return 0;
+                ຖ້າ (path_startswith_full(stop, p, PATH_STARTSWITH_REFUSE_DOT_DOT))
+                        ສົ່ງຄືນ 0;
 
-                if (rmdir(p) < 0 && errno != ENOENT)
-                        return -errno;
+                ຖ້າ (rmdir(p) < 0 && errno != ENOENT)
+                        ສົ່ງຄືນ -errno;
         }
 }
 
-int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath) {
-        int r;
+ຈຳນວນເຕັມ rename_noreplace(ຈຳນວນເຕັມ olddirfd, const var_na *oldpath, ຈຳນວນເຕັມ newdirfd, const var_na *newpath) {
+        ຈຳນວນເຕັມ r;
 
         assert(olddirfd >= 0 || olddirfd == AT_FDCWD);
         assert(oldpath);
@@ -74,143 +74,143 @@ int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char
         assert(newpath);
 
         /* Try the ideal approach first */
-        if (renameat2(olddirfd, oldpath, newdirfd, newpath, RENAME_NOREPLACE) >= 0)
-                return 0;
+        ຖ້າ (renameat2(olddirfd, oldpath, newdirfd, newpath, RENAME_NOREPLACE) >= 0)
+                ສົ່ງຄືນ 0;
 
         /* renameat2() exists since Linux 3.15, btrfs and FAT added support for it later. If it is not implemented,
          * fall back to a different method. */
-        if (!ERRNO_IS_NOT_SUPPORTED(errno) && errno != EINVAL)
-                return -errno;
+        ຖ້າ (!ERRNO_IS_NOT_SUPPORTED(errno) && errno != EINVAL)
+                ສົ່ງຄືນ -errno;
 
         /* Let's try to use linkat()+unlinkat() as fallback. This doesn't work on directories and on some file systems
          * that do not support hard links (such as FAT, most prominently), but for files it's pretty close to what we
          * want — though not atomic (i.e. for a short period both the new and the old filename will exist). */
-        if (linkat(olddirfd, oldpath, newdirfd, newpath, 0) >= 0) {
+        ຖ້າ (linkat(olddirfd, oldpath, newdirfd, newpath, 0) >= 0) {
 
                 r = RET_NERRNO(unlinkat(olddirfd, oldpath, 0));
-                if (r < 0) {
+                ຖ້າ (r < 0) {
                         (void) unlinkat(newdirfd, newpath, 0);
-                        return r;
+                        ສົ່ງຄືນ r;
                 }
 
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
-        if (!ERRNO_IS_NOT_SUPPORTED(errno) && !IN_SET(errno, EINVAL, EPERM)) /* FAT returns EPERM on link()… */
-                return -errno;
+        ຖ້າ (!ERRNO_IS_NOT_SUPPORTED(errno) && !IN_SET(errno, EINVAL, EPERM)) /* FAT returns EPERM on link()… */
+                ສົ່ງຄືນ -errno;
 
         /* OK, neither RENAME_NOREPLACE nor linkat()+unlinkat() worked. Let's then fall back to the racy TOCTOU
          * vulnerable accessat(F_OK) check followed by classic, replacing renameat(), we have nothing better. */
 
-        if (faccessat(newdirfd, newpath, F_OK, AT_SYMLINK_NOFOLLOW) >= 0)
-                return -EEXIST;
-        if (errno != ENOENT)
-                return -errno;
+        ຖ້າ (faccessat(newdirfd, newpath, F_OK, AT_SYMLINK_NOFOLLOW) >= 0)
+                ສົ່ງຄືນ -EEXIST;
+        ຖ້າ (errno != ENOENT)
+                ສົ່ງຄືນ -errno;
 
-        return RET_NERRNO(renameat(olddirfd, oldpath, newdirfd, newpath));
+        ສົ່ງຄືນ RET_NERRNO(renameat(olddirfd, oldpath, newdirfd, newpath));
 }
 
-int readlinkat_malloc(int fd, const char *p, char **ret) {
+ຈຳນວນເຕັມ readlinkat_malloc(ຈຳນວນເຕັມ fd, const var_na *p, var_na **ret) {
         size_t l = PATH_MAX;
 
         assert(fd >= 0 || fd == AT_FDCWD);
 
-        if (fd < 0 && isempty(p))
-                return -EISDIR; /* In this case, the fd points to the current working directory, and is
+        ຖ້າ (fd < 0 && isempty(p))
+                ສົ່ງຄືນ -EISDIR; /* In this case, the fd points to the current working directory, and is
                                  * definitely not a symlink. Let's return earlier. */
 
-        for (;;) {
-                _cleanup_free_ char *c = NULL;
+        ສຳລັບ (;;) {
+                _cleanup_free_ var_na *c = NULL;
                 ssize_t n;
 
-                c = new(char, l+1);
-                if (!c)
-                        return -ENOMEM;
+                c = new(var_na, l+1);
+                ຖ້າ (!c)
+                        ສົ່ງຄືນ -ENOMEM;
 
                 n = readlinkat(fd, strempty(p), c, l);
-                if (n < 0)
-                        return -errno;
+                ຖ້າ (n < 0)
+                        ສົ່ງຄືນ -errno;
 
-                if ((size_t) n < l) {
+                ຖ້າ ((size_t) n < l) {
                         c[n] = 0;
 
-                        if (ret)
+                        ຖ້າ (ret)
                                 *ret = TAKE_PTR(c);
 
-                        return 0;
+                        ສົ່ງຄືນ 0;
                 }
 
-                if (l > (SSIZE_MAX-1)/2) /* readlinkat() returns an ssize_t, and we want an extra byte for a
+                ຖ້າ (l > (SSIZE_MAX-1)/2) /* readlinkat() returns an ssize_t, and we want an extra byte for a
                                           * trailing NUL, hence do an overflow check relative to SSIZE_MAX-1
                                           * here */
-                        return -EFBIG;
+                        ສົ່ງຄືນ -EFBIG;
 
                 l *= 2;
         }
 }
 
-int readlink_value(const char *p, char **ret) {
-        _cleanup_free_ char *link = NULL, *name = NULL;
-        int r;
+ຈຳນວນເຕັມ readlink_value(const var_na *p, var_na **ret) {
+        _cleanup_free_ var_na *link = NULL, *name = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(p);
         assert(ret);
 
         r = readlink_malloc(p, &link);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = path_extract_filename(link, &name);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY)
-                return -EINVAL;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
+        ຖ້າ (r == O_DIRECTORY)
+                ສົ່ງຄືນ -EINVAL;
 
         *ret = TAKE_PTR(name);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int readlink_and_make_absolute(const char *p, char **ret) {
-        _cleanup_free_ char *target = NULL;
-        int r;
+ຈຳນວນເຕັມ readlink_and_make_absolute(const var_na *p, var_na **ret) {
+        _cleanup_free_ var_na *target = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(p);
         assert(ret);
 
         r = readlink_malloc(p, &target);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return file_in_same_dir(p, target, ret);
+        ສົ່ງຄືນ file_in_same_dir(p, target, ret);
 }
 
-int chmod_and_chown_at(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid) {
-        _cleanup_close_ int fd = -EBADF;
+ຈຳນວນເຕັມ chmod_and_chown_at(ຈຳນວນເຕັມ dir_fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid) {
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        if (path) {
+        ຖ້າ (path) {
                 /* Let's acquire an O_PATH fd, as precaution to change mode/owner on the same file */
                 fd = openat(dir_fd, path, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-                if (fd < 0)
-                        return -errno;
+                ຖ້າ (fd < 0)
+                        ສົ່ງຄືນ -errno;
                 dir_fd = fd;
 
-        } else if (dir_fd == AT_FDCWD) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (dir_fd == AT_FDCWD) {
                 /* Let's acquire an O_PATH fd of the current directory */
                 fd = openat(dir_fd, ".", O_PATH|O_CLOEXEC|O_NOFOLLOW|O_DIRECTORY);
-                if (fd < 0)
-                        return -errno;
+                ຖ້າ (fd < 0)
+                        ສົ່ງຄືນ -errno;
                 dir_fd = fd;
         }
 
-        return fchmod_and_chown(dir_fd, mode, uid, gid);
+        ສົ່ງຄືນ fchmod_and_chown(dir_fd, mode, uid, gid);
 }
 
-int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t uid, gid_t gid) {
+ຈຳນວນເຕັມ fchmod_and_chown_with_fallback(ຈຳນວນເຕັມ fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid) {
         bool do_chown, do_chmod;
-        struct stat st;
-        int r;
+        sa_nracanaa stat st;
+        ຈຳນວນເຕັມ r;
 
         /* Change ownership and access mode of the specified fd. Tries to do so safely, ensuring that at no
          * point in time the access mode is above the old access mode under the old ownership or the new
@@ -224,8 +224,8 @@ int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t 
          * /proc will be mounted, but in certain improperly assembled environments it might not be. This is
          * less secure (potential TOCTOU), so should only be used after consideration. */
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ຖ້າ (fstat(fd, &st) < 0)
+                ສົ່ງຄືນ -errno;
 
         do_chown =
                 (uid != UID_INVALID && st.st_uid != uid) ||
@@ -237,53 +237,53 @@ int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t 
                  do_chown); /* If we change ownership, make sure we reset the mode afterwards, since chown()
                              * modifies the access mode too */
 
-        if (mode == MODE_INVALID)
+        ຖ້າ (mode == MODE_INVALID)
                 mode = st.st_mode; /* If we only shall do a chown(), save original mode, since chown() might break it. */
-        else if ((mode & S_IFMT) != 0 && ((mode ^ st.st_mode) & S_IFMT) != 0)
-                return -EINVAL; /* insist on the right file type if it was specified */
+        ບໍ່ດັ່ງນັ້ນ ຖ້າ ((mode & S_IFMT) != 0 && ((mode ^ st.st_mode) & S_IFMT) != 0)
+                ສົ່ງຄືນ -EINVAL; /* insist on the right file type if it was specified */
 
-        if (do_chown && do_chmod) {
+        ຖ້າ (do_chown && do_chmod) {
                 mode_t minimal = st.st_mode & mode; /* the subset of the old and the new mask */
 
-                if (((minimal ^ st.st_mode) & 07777) != 0) {
+                ຖ້າ (((minimal ^ st.st_mode) & 07777) != 0) {
                         r = fchmod_opath(fd, minimal & 07777);
-                        if (r < 0) {
-                                if (!path || r != -ENOSYS)
-                                        return r;
+                        ຖ້າ (r < 0) {
+                                ຖ້າ (!path || r != -ENOSYS)
+                                        ສົ່ງຄືນ r;
 
                                 /* Fallback path which doesn't use /proc/self/fd/. */
-                                if (chmod(path, minimal & 07777) < 0)
-                                        return -errno;
+                                ຖ້າ (chmod(path, minimal & 07777) < 0)
+                                        ສົ່ງຄືນ -errno;
                         }
                 }
         }
 
-        if (do_chown)
-                if (fchownat(fd, "", uid, gid, AT_EMPTY_PATH) < 0)
-                        return -errno;
+        ຖ້າ (do_chown)
+                ຖ້າ (fchownat(fd, "", uid, gid, AT_EMPTY_PATH) < 0)
+                        ສົ່ງຄືນ -errno;
 
-        if (do_chmod) {
+        ຖ້າ (do_chmod) {
                 r = fchmod_opath(fd, mode & 07777);
-                if (r < 0) {
-                        if (!path || r != -ENOSYS)
-                                return r;
+                ຖ້າ (r < 0) {
+                        ຖ້າ (!path || r != -ENOSYS)
+                                ສົ່ງຄືນ r;
 
                         /* Fallback path which doesn't use /proc/self/fd/. */
-                        if (chmod(path, mode & 07777) < 0)
-                                return -errno;
+                        ຖ້າ (chmod(path, mode & 07777) < 0)
+                                ສົ່ງຄືນ -errno;
                 }
         }
 
-        return do_chown || do_chmod;
+        ສົ່ງຄືນ do_chown || do_chmod;
 }
 
-int fchmod_umask(int fd, mode_t m) {
+ຈຳນວນເຕັມ fchmod_umask(ຈຳນວນເຕັມ fd, mode_t m) {
         _cleanup_umask_ mode_t u = umask(0777);
 
-        return RET_NERRNO(fchmod(fd, m & (~u)));
+        ສົ່ງຄືນ RET_NERRNO(fchmod(fd, m & (~u)));
 }
 
-int fchmod_opath(int fd, mode_t m) {
+ຈຳນວນເຕັມ fchmod_opath(ຈຳນວນເຕັມ fd, mode_t m) {
         /* This function operates also on fd that might have been opened with
          * O_PATH. The tool set we have is non-intuitive:
          * - fchmod(2) only operates on open files (i. e., fds with an open file description);
@@ -300,95 +300,95 @@ int fchmod_opath(int fd, mode_t m) {
 
         assert(fd >= 0);
 
-        if (fchmodat(fd, "", m, AT_EMPTY_PATH) >= 0)
-                return 0;
-        if (errno == EINVAL && fchmodat2(fd, "", m, AT_EMPTY_PATH) >= 0) /* glibc too old? */
-                return 0;
-        if (!IN_SET(errno, ENOSYS, EPERM)) /* Some container managers block unknown syscalls with EPERM */
-                return -errno;
+        ຖ້າ (fchmodat(fd, "", m, AT_EMPTY_PATH) >= 0)
+                ສົ່ງຄືນ 0;
+        ຖ້າ (errno == EINVAL && fchmodat2(fd, "", m, AT_EMPTY_PATH) >= 0) /* glibc too old? */
+                ສົ່ງຄືນ 0;
+        ຖ້າ (!IN_SET(errno, ENOSYS, EPERM)) /* Some container managers block unknown syscalls with EPERM */
+                ສົ່ງຄືນ -errno;
 
-        if (chmod(FORMAT_PROC_FD_PATH(fd), m) < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        ຖ້າ (chmod(FORMAT_PROC_FD_PATH(fd), m) < 0) {
+                ຖ້າ (errno != ENOENT)
+                        ສົ່ງຄືນ -errno;
 
-                return proc_fd_enoent_errno();
+                ສົ່ງຄືນ proc_fd_enoent_errno();
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int futimens_opath(int fd, const struct timespec ts[2]) {
+ຈຳນວນເຕັມ futimens_opath(ຈຳນວນເຕັມ fd, const sa_nracanaa timespec ts[2]) {
         /* Similar to fchmod_opath() but for futimens() */
 
         assert(fd >= 0);
 
-        return RET_NERRNO(utimensat(fd, "", ts, AT_EMPTY_PATH));
+        ສົ່ງຄືນ RET_NERRNO(utimensat(fd, "", ts, AT_EMPTY_PATH));
 }
 
-int stat_warn_permissions(const char *path, const struct stat *st) {
+ຈຳນວນເຕັມ stat_warn_permissions(const var_na *path, const sa_nracanaa stat *st) {
         assert(path);
         assert(st);
 
         /* Don't complain if we are reading something that is not a file, for example /dev/null */
-        if (!S_ISREG(st->st_mode))
-                return 0;
+        ຖ້າ (!S_ISREG(st->st_mode))
+                ສົ່ງຄືນ 0;
 
-        if (st->st_mode & 0111)
+        ຖ້າ (st->st_mode & 0111)
                 log_warning("Configuration file %s is marked executable. Please remove executable permission bits. Proceeding anyway.", path);
 
-        if (st->st_mode & 0002)
+        ຖ້າ (st->st_mode & 0002)
                 log_warning("Configuration file %s is marked world-writable. Please remove world writability permission bits. Proceeding anyway.", path);
 
-        if (getpid_cached() == 1 && (st->st_mode & 0044) != 0044)
+        ຖ້າ (getpid_cached() == 1 && (st->st_mode & 0044) != 0044)
                 log_warning("Configuration file %s is marked world-inaccessible. This has no effect as configuration data is accessible via APIs without restrictions. Proceeding anyway.", path);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int fd_warn_permissions(const char *path, int fd) {
-        struct stat st;
+ຈຳນວນເຕັມ fd_warn_permissions(const var_na *path, ຈຳນວນເຕັມ fd) {
+        sa_nracanaa stat st;
 
         assert(path);
         assert(fd >= 0);
 
-        if (fstat(fd, &st) < 0)
-                return -errno;
+        ຖ້າ (fstat(fd, &st) < 0)
+                ສົ່ງຄືນ -errno;
 
-        return stat_warn_permissions(path, &st);
+        ສົ່ງຄືນ stat_warn_permissions(path, &st);
 }
 
-int access_nofollow(const char *path, int mode) {
-        return RET_NERRNO(faccessat(AT_FDCWD, path, mode, AT_SYMLINK_NOFOLLOW));
+ຈຳນວນເຕັມ access_nofollow(const var_na *path, ຈຳນວນເຕັມ mode) {
+        ສົ່ງຄືນ RET_NERRNO(faccessat(AT_FDCWD, path, mode, AT_SYMLINK_NOFOLLOW));
 }
 
-int access_fd(int fd, int mode) {
+ຈຳນວນເຕັມ access_fd(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ mode) {
         /* Like access() but operates on an already open fd */
 
-        if (fd == AT_FDCWD)
-                return RET_NERRNO(access(".", mode));
-        if (fd == XAT_FDROOT)
-                return RET_NERRNO(access("/", mode));
+        ຖ້າ (fd == AT_FDCWD)
+                ສົ່ງຄືນ RET_NERRNO(access(".", mode));
+        ຖ້າ (fd == XAT_FDROOT)
+                ສົ່ງຄືນ RET_NERRNO(access("/", mode));
 
         assert(fd >= 0);
 
-        return RET_NERRNO(faccessat(fd, "", mode, AT_EMPTY_PATH));
+        ສົ່ງຄືນ RET_NERRNO(faccessat(fd, "", mode, AT_EMPTY_PATH));
 }
 
-int touch_fd(int fd, usec_t stamp) {
+ຈຳນວນເຕັມ touch_fd(ຈຳນວນເຕັມ fd, usec_t stamp) {
         assert(fd >= 0);
 
-        if (stamp == USEC_INFINITY)
-                return futimens_opath(fd, /* ts= */ NULL);
+        ຖ້າ (stamp == USEC_INFINITY)
+                ສົ່ງຄືນ futimens_opath(fd, /* ts= */ NULL);
 
-        struct timespec ts[2];
+        sa_nracanaa timespec ts[2];
         timespec_store(ts + 0, stamp);
         ts[1] = ts[0];
-        return futimens_opath(fd, ts);
+        ສົ່ງຄືນ futimens_opath(fd, ts);
 }
 
-int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode) {
-        _cleanup_close_ int fd = -EBADF;
-        int ret;
+ຈຳນວນເຕັມ touch_file(const var_na *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode) {
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
+        ຈຳນວນເຕັມ ret;
 
         assert(path);
 
@@ -397,22 +397,22 @@ int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gi
          *
          * Returns the first error we encounter, but tries to apply as much as possible. */
 
-        if (parents)
+        ຖ້າ (parents)
                 (void) mkdir_parents(path, 0755);
 
         /* Initially, we try to open the node with O_PATH, so that we get a reference to the node. This is useful in
          * case the path refers to an existing device or socket node, as we can open it successfully in all cases, and
          * won't trigger any driver magic or so. */
         fd = open(path, O_PATH|O_CLOEXEC|O_NOFOLLOW);
-        if (fd < 0) {
-                if (errno != ENOENT)
-                        return -errno;
+        ຖ້າ (fd < 0) {
+                ຖ້າ (errno != ENOENT)
+                        ສົ່ງຄືນ -errno;
 
                 /* if the node doesn't exist yet, we create it, but with O_EXCL, so that we only create a regular file
                  * here, and nothing else */
                 fd = open(path, O_WRONLY|O_CREAT|O_EXCL|O_CLOEXEC, IN_SET(mode, 0, MODE_INVALID) ? 0644 : mode);
-                if (fd < 0)
-                        return -errno;
+                ຖ້າ (fd < 0)
+                        ສົ່ງຄືນ -errno;
         }
 
         /* Let's make a path from the fd, and operate on that. With this logic, we can adjust the access mode,
@@ -420,138 +420,138 @@ int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gi
          * something fchown(), fchmod(), futimensat() don't allow. */
         ret = fchmod_and_chown(fd, mode, uid, gid);
 
-        return RET_GATHER(ret, touch_fd(fd, stamp));
+        ສົ່ງຄືນ RET_GATHER(ret, touch_fd(fd, stamp));
 }
 
-int touch(const char *path) {
-        return touch_file(path, false, USEC_INFINITY, UID_INVALID, GID_INVALID, MODE_INVALID);
+ຈຳນວນເຕັມ touch(const var_na *path) {
+        ສົ່ງຄືນ touch_file(path, false, USEC_INFINITY, UID_INVALID, GID_INVALID, MODE_INVALID);
 }
 
-int symlinkat_idempotent(const char *target, int atfd, const char *linkpath, bool make_relative) {
-        _cleanup_free_ char *relpath = NULL;
-        int r;
+ຈຳນວນເຕັມ symlinkat_idempotent(const var_na *target, ຈຳນວນເຕັມ atfd, const var_na *linkpath, bool make_relative) {
+        _cleanup_free_ var_na *relpath = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(target);
         assert(linkpath);
 
-        if (make_relative) {
+        ຖ້າ (make_relative) {
                 r = path_make_relative_parent(linkpath, target, &relpath);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 target = relpath;
         }
 
-        if (symlinkat(target, atfd, linkpath) < 0) {
-                _cleanup_free_ char *p = NULL;
+        ຖ້າ (symlinkat(target, atfd, linkpath) < 0) {
+                _cleanup_free_ var_na *p = NULL;
 
-                if (errno != EEXIST)
-                        return -errno;
+                ຖ້າ (errno != EEXIST)
+                        ສົ່ງຄືນ -errno;
 
                 r = readlinkat_malloc(atfd, linkpath, &p);
-                if (r == -EINVAL) /* Not a symlink? In that case return the original error we encountered: -EEXIST */
-                        return -EEXIST;
-                if (r < 0) /* Any other error? In that case propagate it as is */
-                        return r;
+                ຖ້າ (r == -EINVAL) /* Not a symlink? In that case return the original error we encountered: -EEXIST */
+                        ສົ່ງຄືນ -EEXIST;
+                ຖ້າ (r < 0) /* Any other error? In that case propagate it as is */
+                        ສົ່ງຄືນ r;
 
-                if (!streq(p, target)) /* Not the symlink we want it to be? In that case, propagate the original -EEXIST */
-                        return -EEXIST;
+                ຖ້າ (!streq(p, target)) /* Not the symlink we want it to be? In that case, propagate the original -EEXIST */
+                        ສົ່ງຄືນ -EEXIST;
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int symlinkat_atomic_full_label(const char *target, int atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context) {
-        int r;
+ຈຳນວນເຕັມ symlinkat_atomic_full_label(const var_na *target, ຈຳນວນເຕັມ atfd, const var_na *linkpath, SymlinkFlags flags, LabelContext *label_context) {
+        ຈຳນວນເຕັມ r;
 
         assert(target);
         assert(linkpath);
 
-        _cleanup_free_ char *relpath = NULL;
-        if (FLAGS_SET(flags, SYMLINK_MAKE_RELATIVE)) {
+        _cleanup_free_ var_na *relpath = NULL;
+        ຖ້າ (FLAGS_SET(flags, SYMLINK_MAKE_RELATIVE)) {
                 r = path_make_relative_parent(linkpath, target, &relpath);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 target = relpath;
         }
 
-        _cleanup_free_ char *t = NULL;
+        _cleanup_free_ var_na *t = NULL;
         r = tempfn_random(linkpath, NULL, &t);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, SYMLINK_LABEL)) {
+        ຖ້າ (FLAGS_SET(flags, SYMLINK_LABEL)) {
                 r = label_ops_pre(atfd, linkpath, S_IFLNK, label_context);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 call_label_ops_post = true;
         }
 
         r = RET_NERRNO(symlinkat(target, atfd, t));
-        if (call_label_ops_post)
+        ຖ້າ (call_label_ops_post)
                 RET_GATHER(r, label_ops_post(atfd, t, /* created= */ r >= 0, label_context));
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = RET_NERRNO(renameat(atfd, t, atfd, linkpath));
-        if (r < 0) {
+        ຖ້າ (r < 0) {
                 (void) unlinkat(atfd, t, 0);
-                return r;
+                ສົ່ງຄືນ r;
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int mknodat_atomic(int atfd, const char *path, mode_t mode, dev_t dev) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+ຈຳນວນເຕັມ mknodat_atomic(ຈຳນວນເຕັມ atfd, const var_na *path, mode_t mode, dev_t dev) {
+        _cleanup_free_ var_na *t = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(path);
 
         r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (mknodat(atfd, t, mode, dev) < 0)
-                return -errno;
+        ຖ້າ (mknodat(atfd, t, mode, dev) < 0)
+                ສົ່ງຄືນ -errno;
 
         r = RET_NERRNO(renameat(atfd, t, atfd, path));
-        if (r < 0) {
+        ຖ້າ (r < 0) {
                 (void) unlinkat(atfd, t, 0);
-                return r;
+                ສົ່ງຄືນ r;
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int mkfifoat_atomic(int dir_fd, const char *path, mode_t mode) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+ຈຳນວນເຕັມ mkfifoat_atomic(ຈຳນວນເຕັມ dir_fd, const var_na *path, mode_t mode) {
+        _cleanup_free_ var_na *t = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(path);
 
         /* We're only interested in the (random) filename.  */
         r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (mkfifoat(dir_fd, t, mode) < 0)
-                return -errno;
+        ຖ້າ (mkfifoat(dir_fd, t, mode) < 0)
+                ສົ່ງຄືນ -errno;
 
         r = RET_NERRNO(renameat(dir_fd, t, dir_fd, path));
-        if (r < 0) {
+        ຖ້າ (r < 0) {
                 (void) unlinkat(dir_fd, t, 0);
-                return r;
+                ສົ່ງຄືນ r;
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int get_files_in_directory(const char *path, char ***ret_list) {
-        _cleanup_strv_free_ char **l = NULL;
+ຈຳນວນເຕັມ get_files_in_directory(const var_na *path, var_na ***ret_list) {
+        _cleanup_strv_free_ var_na **l = NULL;
         _cleanup_closedir_ DIR *d = NULL;
         size_t n = 0;
 
@@ -562,103 +562,103 @@ int get_files_in_directory(const char *path, char ***ret_list) {
          * number. */
 
         d = opendir(path);
-        if (!d)
-                return -errno;
+        ຖ້າ (!d)
+                ສົ່ງຄືນ -errno;
 
-        FOREACH_DIRENT_ALL(de, d, return -errno) {
-                if (!dirent_is_file(de))
+        FOREACH_DIRENT_ALL(de, d, ສົ່ງຄືນ -errno) {
+                ຖ້າ (!dirent_is_file(de))
                         continue;
 
-                if (ret_list) {
+                ຖ້າ (ret_list) {
                         /* one extra slot is needed for the terminating NULL */
-                        if (!GREEDY_REALLOC(l, n + 2))
-                                return -ENOMEM;
+                        ຖ້າ (!GREEDY_REALLOC(l, n + 2))
+                                ສົ່ງຄືນ -ENOMEM;
 
                         l[n] = strdup(de->d_name);
-                        if (!l[n])
-                                return -ENOMEM;
+                        ຖ້າ (!l[n])
+                                ສົ່ງຄືນ -ENOMEM;
 
                         l[++n] = NULL;
-                } else
+                } ບໍ່ດັ່ງນັ້ນ
                         n++;
         }
 
-        if (ret_list)
+        ຖ້າ (ret_list)
                 *ret_list = TAKE_PTR(l);
 
-        return n;
+        ສົ່ງຄືນ n;
 }
 
-static int getenv_tmp_dir(const char **ret_path) {
-        int r, ret = 0;
+static ຈຳນວນເຕັມ getenv_tmp_dir(const var_na **ret_path) {
+        ຈຳນວນເຕັມ r, ret = 0;
 
         assert(ret_path);
 
         /* We use the same order of environment variables python uses in tempfile.gettempdir():
          * https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir */
         FOREACH_STRING(n, "TMPDIR", "TEMP", "TMP") {
-                const char *e;
+                const var_na *e;
 
                 e = secure_getenv(n);
-                if (!e)
+                ຖ້າ (!e)
                         continue;
-                if (!path_is_absolute(e)) {
+                ຖ້າ (!path_is_absolute(e)) {
                         r = -ENOTDIR;
                         goto next;
                 }
-                if (!path_is_normalized(e)) {
+                ຖ້າ (!path_is_normalized(e)) {
                         r = -EPERM;
                         goto next;
                 }
 
                 r = is_dir(e, true);
-                if (r < 0)
+                ຖ້າ (r < 0)
                         goto next;
-                if (r == 0) {
+                ຖ້າ (r == 0) {
                         r = -ENOTDIR;
                         goto next;
                 }
 
                 *ret_path = e;
-                return 1;
+                ສົ່ງຄືນ 1;
 
         next:
                 /* Remember first error, to make this more debuggable */
-                if (ret >= 0)
+                ຖ້າ (ret >= 0)
                         ret = r;
         }
 
-        if (ret < 0)
-                return ret;
+        ຖ້າ (ret < 0)
+                ສົ່ງຄືນ ret;
 
         *ret_path = NULL;
-        return ret;
+        ສົ່ງຄືນ ret;
 }
 
-static int tmp_dir_internal(const char *def, const char **ret) {
-        const char *e;
-        int r, k;
+static ຈຳນວນເຕັມ tmp_dir_internal(const var_na *def, const var_na **ret) {
+        const var_na *e;
+        ຈຳນວນເຕັມ r, k;
 
         assert(def);
         assert(ret);
 
         r = getenv_tmp_dir(&e);
-        if (r > 0) {
+        ຖ້າ (r > 0) {
                 *ret = e;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
         k = is_dir(def, /* follow= */ true);
-        if (k == 0)
+        ຖ້າ (k == 0)
                 k = -ENOTDIR;
-        if (k < 0)
-                return RET_GATHER(r, k);
+        ຖ້າ (k < 0)
+                ສົ່ງຄືນ RET_GATHER(r, k);
 
         *ret = def;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int var_tmp_dir(const char **ret) {
+ຈຳນວນເຕັມ var_tmp_dir(const var_na **ret) {
         assert(ret);
 
         /* Returns the location for "larger" temporary files, that is backed by physical storage if available, and thus
@@ -666,54 +666,54 @@ int var_tmp_dir(const char **ret) {
          * returned preferably however. Note that both this function and tmp_dir() below are affected by $TMPDIR,
          * making it a variable that overrides all temporary file storage locations. */
 
-        return tmp_dir_internal("/var/tmp", ret);
+        ສົ່ງຄືນ tmp_dir_internal("/var/tmp", ret);
 }
 
-int tmp_dir(const char **ret) {
+ຈຳນວນເຕັມ tmp_dir(const var_na **ret) {
         assert(ret);
 
         /* Similar to var_tmp_dir() above, but returns the location for "smaller" temporary files, which is usually
          * backed by an in-memory file system: /tmp. */
 
-        return tmp_dir_internal("/tmp", ret);
+        ສົ່ງຄືນ tmp_dir_internal("/tmp", ret);
 }
 
-int unlink_or_warn(const char *filename) {
+ຈຳນວນເຕັມ unlink_or_warn(const var_na *filename) {
         assert(filename);
 
-        if (unlink(filename) < 0 && errno != ENOENT)
+        ຖ້າ (unlink(filename) < 0 && errno != ENOENT)
                 /* If the file doesn't exist and the fs simply was read-only (in which
                  * case unlink() returns EROFS even if the file doesn't exist), don't
                  * complain */
-                if (errno != EROFS || access(filename, F_OK) >= 0)
-                        return log_error_errno(errno, "Failed to remove \"%s\": %m", filename);
+                ຖ້າ (errno != EROFS || access(filename, F_OK) >= 0)
+                        ສົ່ງຄືນ log_error_errno(errno, "Failed to remove \"%s\": %m", filename);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-char *rmdir_and_free(char *p) {
+var_na *rmdir_and_free(var_na *p) {
         PROTECT_ERRNO;
 
-        if (!p)
-                return NULL;
+        ຖ້າ (!p)
+                ສົ່ງຄືນ NULL;
 
         (void) rmdir(p);
-        return mfree(p);
+        ສົ່ງຄືນ mfree(p);
 }
 
-char* unlink_and_free(char *p) {
+var_na* unlink_and_free(var_na *p) {
         PROTECT_ERRNO;
 
-        if (!p)
-                return NULL;
+        ຖ້າ (!p)
+                ສົ່ງຄືນ NULL;
 
         (void) unlink(p);
-        return mfree(p);
+        ສົ່ງຄືນ mfree(p);
 }
 
-int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
-        _cleanup_close_ int truncate_fd = -EBADF;
-        struct stat st;
+ຈຳນວນເຕັມ unlinkat_deallocate(ຈຳນວນເຕັມ fd, const var_na *name, UnlinkDeallocateFlags flags) {
+        _cleanup_close_ ຈຳນວນເຕັມ truncate_fd = -EBADF;
+        sa_nracanaa stat st;
         off_t l, bs;
 
         assert(fd >= 0 || fd == AT_FDCWD);
@@ -736,39 +736,39 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
          * Note that we attempt deallocation, but failure to succeed with that is not considered fatal, as long as the
          * primary job – to delete the file – is accomplished. */
 
-        if (!FLAGS_SET(flags, UNLINK_REMOVEDIR)) {
+        ຖ້າ (!FLAGS_SET(flags, UNLINK_REMOVEDIR)) {
                 truncate_fd = openat(fd, name, O_WRONLY|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW|O_NONBLOCK);
-                if (truncate_fd < 0) {
+                ຖ້າ (truncate_fd < 0) {
 
                         /* If this failed because the file doesn't exist propagate the error right-away. Also,
                          * AT_REMOVEDIR wasn't set, and we tried to open the file for writing, which means EISDIR is
                          * returned when this is a directory but we are not supposed to delete those, hence propagate
                          * the error right-away too. */
-                        if (IN_SET(errno, ENOENT, EISDIR))
-                                return -errno;
+                        ຖ້າ (IN_SET(errno, ENOENT, EISDIR))
+                                ສົ່ງຄືນ -errno;
 
-                        if (errno != ELOOP) /* don't complain if this is a symlink */
+                        ຖ້າ (errno != ELOOP) /* don't complain if this is a symlink */
                                 log_debug_errno(errno, "Failed to open file '%s' for deallocation, ignoring: %m", name);
                 }
         }
 
-        if (unlinkat(fd, name, FLAGS_SET(flags, UNLINK_REMOVEDIR) ? AT_REMOVEDIR : 0) < 0)
-                return -errno;
+        ຖ້າ (unlinkat(fd, name, FLAGS_SET(flags, UNLINK_REMOVEDIR) ? AT_REMOVEDIR : 0) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (truncate_fd < 0) /* Don't have a file handle, can't do more ☹️ */
-                return 0;
+        ຖ້າ (truncate_fd < 0) /* Don't have a file handle, can't do more ☹️ */
+                ສົ່ງຄືນ 0;
 
-        if (fstat(truncate_fd, &st) < 0) {
+        ຖ້າ (fstat(truncate_fd, &st) < 0) {
                 log_debug_errno(errno, "Failed to stat file '%s' for deallocation, ignoring: %m", name);
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
-        if (!S_ISREG(st.st_mode))
-                return 0;
+        ຖ້າ (!S_ISREG(st.st_mode))
+                ສົ່ງຄືນ 0;
 
-        if (FLAGS_SET(flags, UNLINK_ERASE) && st.st_size > 0 && st.st_nlink == 0) {
+        ຖ້າ (FLAGS_SET(flags, UNLINK_ERASE) && st.st_size > 0 && st.st_nlink == 0) {
                 uint64_t left = st.st_size;
-                char buffer[64 * 1024];
+                var_na buffer[64 * 1024];
 
                 /* If erasing is requested, let's overwrite the file with random data once before deleting
                  * it. This isn't going to give you shred(1) semantics, but hopefully should be good enough
@@ -778,15 +778,15 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
                  * is still linked by someone else and we'll leave it to them to remove it securely
                  * eventually! */
 
-                random_bytes(buffer, sizeof(buffer));
+                random_bytes(buffer, parimaa_na(buffer));
 
-                while (left > 0) {
+                ໃນຂະນະທີ່ (left > 0) {
                         ssize_t n;
 
-                        n = write(truncate_fd, buffer, MIN(sizeof(buffer), left));
-                        if (n < 0) {
+                        n = write(truncate_fd, buffer, MIN(parimaa_na(buffer), left));
+                        ຖ້າ (n < 0) {
                                 log_debug_errno(errno, "Failed to erase data in file '%s', ignoring.", name);
-                                break;
+                                bha_nga;
                         }
 
                         assert(left >= (size_t) n);
@@ -794,15 +794,15 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
                 }
 
                 /* Let's refresh metadata */
-                if (fstat(truncate_fd, &st) < 0) {
+                ຖ້າ (fstat(truncate_fd, &st) < 0) {
                         log_debug_errno(errno, "Failed to stat file '%s' for deallocation, ignoring: %m", name);
-                        return 0;
+                        ສົ່ງຄືນ 0;
                 }
         }
 
         /* Don't deallocate if there's nothing to deallocate or if the file is linked elsewhere */
-        if (st.st_blocks == 0 || st.st_nlink > 0)
-                return 0;
+        ຖ້າ (st.st_blocks == 0 || st.st_nlink > 0)
+                ສົ່ງຄືນ 0;
 
         /* If this is a regular file, it actually took up space on disk and there are no other links it's time to
          * punch-hole/truncate this to release the disk space. */
@@ -810,52 +810,52 @@ int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags) {
         bs = MAX(st.st_blksize, 512);
         l = ROUND_UP(st.st_size, bs); /* Round up to next block size */
 
-        if (fallocate(truncate_fd, FALLOC_FL_PUNCH_HOLE|FALLOC_FL_KEEP_SIZE, 0, l) >= 0)
-                return 0; /* Successfully punched a hole! 😊 */
+        ຖ້າ (fallocate(truncate_fd, FALLOC_FL_PUNCH_HOLE|FALLOC_FL_KEEP_SIZE, 0, l) >= 0)
+                ສົ່ງຄືນ 0; /* Successfully punched a hole! 😊 */
 
         /* Fall back to truncation */
-        if (ftruncate(truncate_fd, 0) < 0) {
+        ຖ້າ (ftruncate(truncate_fd, 0) < 0) {
                 log_debug_errno(errno, "Failed to truncate file to 0, ignoring: %m");
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int open_parent_at(int dir_fd, const char *path, int flags, mode_t mode) {
-        _cleanup_free_ char *parent = NULL;
-        int r;
+ຈຳນວນເຕັມ open_parent_at(ຈຳນວນເຕັມ dir_fd, const var_na *path, ຈຳນວນເຕັມ flags, mode_t mode) {
+        _cleanup_free_ var_na *parent = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(path);
 
         r = path_extract_directory(path, &parent);
-        if (r == -EDESTADDRREQ) {
+        ຖ້າ (r == -EDESTADDRREQ) {
                 parent = strdup(".");
-                if (!parent)
-                        return -ENOMEM;
-        } else if (r == -EADDRNOTAVAIL) {
+                ຖ້າ (!parent)
+                        ສົ່ງຄືນ -ENOMEM;
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (r == -EADDRNOTAVAIL) {
                 parent = strdup(path);
-                if (!parent)
-                        return -ENOMEM;
-        } else if (r < 0)
-                return r;
+                ຖ້າ (!parent)
+                        ສົ່ງຄືນ -ENOMEM;
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         /* Let's insist on O_DIRECTORY since the parent of a file or directory is a directory. Except if we open an
          * O_TMPFILE file, because in that case we are actually create a regular file below the parent directory. */
 
-        if (!FLAGS_SET(flags, O_TMPFILE))
+        ຖ້າ (!FLAGS_SET(flags, O_TMPFILE))
                 flags |= O_DIRECTORY;
 
-        return RET_NERRNO(openat(dir_fd, parent, flags, mode));
+        ສົ່ງຄືນ RET_NERRNO(openat(dir_fd, parent, flags, mode));
 }
 
-int conservative_renameat(
-                int olddirfd, const char *oldpath,
-                int newdirfd, const char *newpath) {
+ຈຳນວນເຕັມ conservative_renameat(
+                ຈຳນວນເຕັມ olddirfd, const var_na *oldpath,
+                ຈຳນວນເຕັມ newdirfd, const var_na *newpath) {
 
-        _cleanup_close_ int old_fd = -EBADF, new_fd = -EBADF;
-        struct stat old_stat, new_stat;
+        _cleanup_close_ ຈຳນວນເຕັມ old_fd = -EBADF, new_fd = -EBADF;
+        sa_nracanaa stat old_stat, new_stat;
 
         /* Renames the old path to the new path, much like renameat() — except if both are regular files and
          * have the exact same contents and basic file attributes already. In that case remove the new file
@@ -865,189 +865,189 @@ int conservative_renameat(
          * events is an optimization only, not more. */
 
         old_fd = openat(olddirfd, oldpath, O_CLOEXEC|O_RDONLY|O_NOCTTY|O_NOFOLLOW);
-        if (old_fd < 0)
+        ຖ້າ (old_fd < 0)
                 goto do_rename;
 
         new_fd = openat(newdirfd, newpath, O_CLOEXEC|O_RDONLY|O_NOCTTY|O_NOFOLLOW);
-        if (new_fd < 0)
+        ຖ້າ (new_fd < 0)
                 goto do_rename;
 
-        if (fstat(old_fd, &old_stat) < 0)
+        ຖ້າ (fstat(old_fd, &old_stat) < 0)
                 goto do_rename;
 
-        if (!S_ISREG(old_stat.st_mode))
+        ຖ້າ (!S_ISREG(old_stat.st_mode))
                 goto do_rename;
 
-        if (fstat(new_fd, &new_stat) < 0)
+        ຖ້າ (fstat(new_fd, &new_stat) < 0)
                 goto do_rename;
 
-        if (stat_inode_same(&new_stat, &old_stat))
+        ຖ້າ (stat_inode_same(&new_stat, &old_stat))
                 goto is_same;
 
-        if (old_stat.st_mode != new_stat.st_mode ||
+        ຖ້າ (old_stat.st_mode != new_stat.st_mode ||
             old_stat.st_size != new_stat.st_size ||
             old_stat.st_uid != new_stat.st_uid ||
             old_stat.st_gid != new_stat.st_gid)
                 goto do_rename;
 
-        for (;;) {
+        ສຳລັບ (;;) {
                 uint8_t buf1[16*1024];
-                uint8_t buf2[sizeof(buf1)];
+                uint8_t buf2[parimaa_na(buf1)];
                 ssize_t l1, l2;
 
-                l1 = read(old_fd, buf1, sizeof(buf1));
-                if (l1 < 0)
+                l1 = read(old_fd, buf1, parimaa_na(buf1));
+                ຖ້າ (l1 < 0)
                         goto do_rename;
 
-                if (l1 == sizeof(buf1))
+                ຖ້າ (l1 == parimaa_na(buf1))
                         /* Read the full block, hence read a full block in the other file too */
 
                         l2 = read(new_fd, buf2, l1);
-                else {
-                        assert((size_t) l1 < sizeof(buf1));
+                ບໍ່ດັ່ງນັ້ນ {
+                        assert((size_t) l1 < parimaa_na(buf1));
 
                         /* Short read. This hence was the last block in the first file, and then came
                          * EOF. Read one byte more in the second file, so that we can verify we hit EOF there
                          * too. */
 
-                        assert((size_t) (l1 + 1) <= sizeof(buf2));
+                        assert((size_t) (l1 + 1) <= parimaa_na(buf2));
                         l2 = read(new_fd, buf2, l1 + 1);
                 }
-                if (l2 != l1)
+                ຖ້າ (l2 != l1)
                         goto do_rename;
 
-                if (memcmp(buf1, buf2, l1) != 0)
+                ຖ້າ (memcmp(buf1, buf2, l1) != 0)
                         goto do_rename;
 
-                if ((size_t) l1 < sizeof(buf1)) /* We hit EOF on the first file, and the second file too, hence exit
+                ຖ້າ ((size_t) l1 < parimaa_na(buf1)) /* We hit EOF on the first file, and the second file too, hence exit
                                                  * now. */
-                        break;
+                        bha_nga;
         }
 
 is_same:
         /* Everything matches? Then don't rename, instead remove the source file, and leave the existing
          * destination in place */
 
-        if (unlinkat(olddirfd, oldpath, 0) < 0)
+        ຖ້າ (unlinkat(olddirfd, oldpath, 0) < 0)
                 goto do_rename;
 
-        return 0;
+        ສົ່ງຄືນ 0;
 
 do_rename:
-        if (renameat(olddirfd, oldpath, newdirfd, newpath) < 0)
-                return -errno;
+        ຖ້າ (renameat(olddirfd, oldpath, newdirfd, newpath) < 0)
+                ສົ່ງຄືນ -errno;
 
-        return 1;
+        ສົ່ງຄືນ 1;
 }
 
-int posix_fallocate_loop(int fd, uint64_t offset, uint64_t size) {
+ຈຳນວນເຕັມ posix_fallocate_loop(ຈຳນວນເຕັມ fd, uint64_t offset, uint64_t size) {
         RateLimit rl;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         r = posix_fallocate(fd, offset, size); /* returns positive errnos on error */
-        if (r != EINTR)
-                return -r; /* Let's return negative errnos, like common in our codebase */
+        ຖ້າ (r != EINTR)
+                ສົ່ງຄືນ -r; /* Let's return negative errnos, like common in our codebase */
 
         /* On EINTR try a couple of times more, but protect against busy looping
          * (not more than 16 times per 10s) */
         rl = (const RateLimit) { 10 * USEC_PER_SEC, 16 };
-        while (ratelimit_below(&rl)) {
+        ໃນຂະນະທີ່ (ratelimit_below(&rl)) {
                 r = posix_fallocate(fd, offset, size);
-                if (r != EINTR)
-                        return -r;
+                ຖ້າ (r != EINTR)
+                        ສົ່ງຄືນ -r;
         }
 
-        return -EINTR;
+        ສົ່ງຄືນ -EINTR;
 }
 
-int parse_cifs_service(
-                const char *s,
-                char **ret_host,
-                char **ret_service,
-                char **ret_path) {
+ຈຳນວນເຕັມ parse_cifs_service(
+                const var_na *s,
+                var_na **ret_host,
+                var_na **ret_service,
+                var_na **ret_path) {
 
-        _cleanup_free_ char *h = NULL, *ss = NULL, *x = NULL;
-        const char *p, *e, *d;
-        char delimiter;
+        _cleanup_free_ var_na *h = NULL, *ss = NULL, *x = NULL;
+        const var_na *p, *e, *d;
+        var_na delimiter;
 
         /* Parses a CIFS service in form of //host/service/path… and splitting it in three parts. The last
          * part is optional, in which case NULL is returned there. To maximize compatibility syntax with
          * backslashes instead of slashes is accepted too. */
 
-        if (!s)
-                return -EINVAL;
+        ຖ້າ (!s)
+                ສົ່ງຄືນ -EINVAL;
 
         p = startswith(s, "//");
-        if (!p) {
+        ຖ້າ (!p) {
                 p = startswith(s, "\\\\");
-                if (!p)
-                        return -EINVAL;
+                ຖ້າ (!p)
+                        ສົ່ງຄືນ -EINVAL;
         }
 
         delimiter = s[0];
         e = strchr(p, delimiter);
-        if (!e)
-                return -EINVAL;
+        ຖ້າ (!e)
+                ສົ່ງຄືນ -EINVAL;
 
         h = strndup(p, e - p);
-        if (!h)
-                return -ENOMEM;
+        ຖ້າ (!h)
+                ສົ່ງຄືນ -ENOMEM;
 
-        if (!hostname_is_valid(h, 0))
-                return -EINVAL;
+        ຖ້າ (!hostname_is_valid(h, 0))
+                ສົ່ງຄືນ -EINVAL;
 
         e++;
 
         d = strchrnul(e, delimiter);
 
         ss = strndup(e, d - e);
-        if (!ss)
-                return -ENOMEM;
+        ຖ້າ (!ss)
+                ສົ່ງຄືນ -ENOMEM;
 
-        if (!filename_is_valid(ss))
-                return -EINVAL;
+        ຖ້າ (!filename_is_valid(ss))
+                ສົ່ງຄືນ -EINVAL;
 
-        if (!isempty(d)) {
+        ຖ້າ (!isempty(d)) {
                 x = strdup(skip_leading_chars(d, CHAR_TO_STR(delimiter)));
-                if (!x)
-                        return -EINVAL;
+                ຖ້າ (!x)
+                        ສົ່ງຄືນ -EINVAL;
 
                 /* Make sure to convert Windows-style "\" → Unix-style / */
-                for (char *i = x; *i; i++)
-                        if (*i == delimiter)
+                ສຳລັບ (var_na *i = x; *i; i++)
+                        ຖ້າ (*i == delimiter)
                                 *i = '/';
 
-                if (!path_is_valid(x))
-                        return -EINVAL;
+                ຖ້າ (!path_is_valid(x))
+                        ສົ່ງຄືນ -EINVAL;
 
                 path_simplify(x);
-                if (!path_is_normalized(x))
-                        return -EINVAL;
+                ຖ້າ (!path_is_normalized(x))
+                        ສົ່ງຄືນ -EINVAL;
         }
 
-        if (ret_host)
+        ຖ້າ (ret_host)
                 *ret_host = TAKE_PTR(h);
-        if (ret_service)
+        ຖ້າ (ret_service)
                 *ret_service = TAKE_PTR(ss);
-        if (ret_path)
+        ຖ້າ (ret_path)
                 *ret_path = TAKE_PTR(x);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
-        _cleanup_close_ int fd = -EBADF, parent_fd = -EBADF;
-        _cleanup_free_ char *fname = NULL, *parent = NULL;
-        int r;
+ຈຳນວນເຕັມ open_mkdir_at_full_label(ຈຳນວນເຕັມ dirfd, const var_na *path, ຈຳນວນເຕັມ flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF, parent_fd = -EBADF;
+        _cleanup_free_ var_na *fname = NULL, *parent = NULL;
+        ຈຳນວນເຕັມ r;
 
         /* Creates a directory with mkdirat() and then opens it, in the "most atomic" fashion we can
          * do. Guarantees that the returned fd refers to a directory. If O_EXCL is specified will fail if the
          * dir already exists. Otherwise will open an existing dir, but only if it is one.  */
 
-        if (flags & ~(O_RDONLY|O_CLOEXEC|O_DIRECTORY|O_EXCL|O_NOATIME|O_NOFOLLOW|O_PATH))
-                return -EINVAL;
-        if ((flags & O_ACCMODE_STRICT) != O_RDONLY)
-                return -EINVAL;
+        ຖ້າ (flags & ~(O_RDONLY|O_CLOEXEC|O_DIRECTORY|O_EXCL|O_NOATIME|O_NOFOLLOW|O_PATH))
+                ສົ່ງຄືນ -EINVAL;
+        ຖ້າ ((flags & O_ACCMODE_STRICT) != O_RDONLY)
+                ສົ່ງຄືນ -EINVAL;
 
         /* Note that O_DIRECTORY|O_NOFOLLOW is implied, but we allow specifying it anyway. The following
          * flags actually make sense to specify: O_CLOEXEC, O_EXCL, O_NOATIME, O_PATH */
@@ -1055,33 +1055,33 @@ int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags 
         /* If this is not a valid filename, it's a path. Let's open the parent directory then, so
          * that we can pin it, and operate below it. */
         r = path_extract_directory(path, &parent);
-        if (r < 0) {
-                if (!IN_SET(r, -EDESTADDRREQ, -EADDRNOTAVAIL))
-                        return r;
-        } else {
+        ຖ້າ (r < 0) {
+                ຖ້າ (!IN_SET(r, -EDESTADDRREQ, -EADDRNOTAVAIL))
+                        ສົ່ງຄືນ r;
+        } ບໍ່ດັ່ງນັ້ນ {
                 r = path_extract_filename(path, &fname);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 parent_fd = openat(dirfd, parent, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (parent_fd < 0)
-                        return -errno;
+                ຖ້າ (parent_fd < 0)
+                        ສົ່ງຄືນ -errno;
 
                 dirfd = parent_fd;
                 path = fname;
         }
 
         fd = xopenat_full_label(dirfd, path, flags|O_CREAT|O_DIRECTORY|O_NOFOLLOW, xopen_flags, mode, label_context);
-        if (IN_SET(fd, -ELOOP, -ENOTDIR))
-                return -EEXIST;
-        if (fd < 0)
-                return fd;
+        ຖ້າ (IN_SET(fd, -ELOOP, -ENOTDIR))
+                ສົ່ງຄືນ -EEXIST;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ fd;
 
-        return TAKE_FD(fd);
+        ສົ່ງຄືນ TAKE_FD(fd);
 }
 
-int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, bool *ret_newly_created) {
-        int fd;
+ຈຳນວນເຕັມ openat_report_new(ຈຳນວນເຕັມ dirfd, const var_na *pathname, ຈຳນວນເຕັມ flags, mode_t mode, bool *ret_newly_created) {
+        ຈຳນວນເຕັມ fd;
 
         /* Just like openat(), but adds one thing: optionally returns whether we created the file anew or if
          * it already existed before. This is only relevant if O_CREAT is set without O_EXCL, and thus will
@@ -1092,46 +1092,46 @@ int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, b
          * follow it when creating a new one (because that's a terrible UNIX misfeature and generally a
          * security hole). */
 
-        if (!FLAGS_SET(flags, O_CREAT) || FLAGS_SET(flags, O_EXCL)) {
+        ຖ້າ (!FLAGS_SET(flags, O_CREAT) || FLAGS_SET(flags, O_EXCL)) {
                 fd = openat(dirfd, pathname, flags, mode);
-                if (fd < 0)
-                        return -errno;
+                ຖ້າ (fd < 0)
+                        ສົ່ງຄືນ -errno;
 
-                if (ret_newly_created)
+                ຖ້າ (ret_newly_created)
                         *ret_newly_created = FLAGS_SET(flags, O_CREAT);
-                return fd;
+                ສົ່ງຄືນ fd;
         }
 
-        for (unsigned attempts = 7;;) {
+        ສຳລັບ (unsigned attempts = 7;;) {
                 /* First, attempt to open without O_CREAT/O_EXCL, i.e. open existing file */
                 fd = openat(dirfd, pathname, flags & ~(O_CREAT | O_EXCL), mode);
-                if (fd >= 0) {
-                        if (ret_newly_created)
+                ຖ້າ (fd >= 0) {
+                        ຖ້າ (ret_newly_created)
                                 *ret_newly_created = false;
-                        return fd;
+                        ສົ່ງຄືນ fd;
                 }
-                if (errno != ENOENT)
-                        return -errno;
+                ຖ້າ (errno != ENOENT)
+                        ສົ່ງຄືນ -errno;
 
                 /* So the file didn't exist yet, hence create it with O_CREAT/O_EXCL/O_NOFOLLOW. */
                 fd = openat(dirfd, pathname, flags | O_CREAT | O_EXCL | O_NOFOLLOW, mode);
-                if (fd >= 0) {
-                        if (ret_newly_created)
+                ຖ້າ (fd >= 0) {
+                        ຖ້າ (ret_newly_created)
                                 *ret_newly_created = true;
-                        return fd;
+                        ສົ່ງຄືນ fd;
                 }
-                if (errno != EEXIST)
-                        return -errno;
+                ຖ້າ (errno != EEXIST)
+                        ສົ່ງຄືນ -errno;
 
                 /* Hmm, so now we got EEXIST? Then someone might have created the file between the first and
                  * second call to openat(). Let's try again but with a limit so we don't spin forever. */
 
-                if (--attempts == 0) /* Give up eventually, somebody is playing with us */
-                        return -EEXIST;
+                ຖ້າ (--attempts == 0) /* Give up eventually, somebody is playing with us */
+                        ສົ່ງຄືນ -EEXIST;
         }
 }
 
-static int openat_with_automount(int dir_fd, const char *path, int open_flags, mode_t mode) {
+static ຈຳນວນເຕັມ openat_with_automount(ຈຳນວນເຕັມ dir_fd, const var_na *path, ຈຳນວນເຕັມ open_flags, mode_t mode) {
         /* When XO_TRIGGER_AUTOMOUNT is set we want to trigger automounts on the path. open() with O_PATH
          * does not do that, so we use open_tree() without OPEN_TREE_CLONE which is equivalent to open() with
          * O_PATH except that it does trigger automounts. Some sandboxes reject open_tree() with EPERM or
@@ -1145,36 +1145,36 @@ static int openat_with_automount(int dir_fd, const char *path, int open_flags, m
         assert(path);
         assert(FLAGS_SET(open_flags, O_PATH));
 
-        if (can_open_tree) {
-                int fd = RET_NERRNO(open_tree(dir_fd, path,
+        ຖ້າ (can_open_tree) {
+                ຈຳນວນເຕັມ fd = RET_NERRNO(open_tree(dir_fd, path,
                                               OPEN_TREE_CLOEXEC |
                                               (FLAGS_SET(open_flags, O_NOFOLLOW) ? AT_SYMLINK_NOFOLLOW : 0)));
-                if (fd >= 0) {
+                ຖ້າ (fd >= 0) {
                         /* open_tree() doesn't honor O_DIRECTORY, so enforce it ourselves to match
                          * the openat() fallback's behavior. */
-                        if (FLAGS_SET(open_flags, O_DIRECTORY)) {
-                                int q = fd_verify_directory(fd);
-                                if (q < 0) {
+                        ຖ້າ (FLAGS_SET(open_flags, O_DIRECTORY)) {
+                                ຈຳນວນເຕັມ q = fd_verify_directory(fd);
+                                ຖ້າ (q < 0) {
                                         safe_close(fd);
-                                        return q;
+                                        ສົ່ງຄືນ q;
                                 }
                         }
 
-                        return fd;
+                        ສົ່ງຄືນ fd;
                 }
-                if (fd != -EPERM && !ERRNO_IS_NEG_NOT_SUPPORTED(fd))
-                        return fd;
+                ຖ້າ (fd != -EPERM && !ERRNO_IS_NEG_NOT_SUPPORTED(fd))
+                        ສົ່ງຄືນ fd;
 
                 can_open_tree = false;
         }
 
-        return RET_NERRNO(openat(dir_fd, path, open_flags, mode));
+        ສົ່ງຄືນ RET_NERRNO(openat(dir_fd, path, open_flags, mode));
 }
 
-int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
-        _cleanup_close_ int fd = -EBADF;
+ຈຳນວນເຕັມ xopenat_full_label(ຈຳນວນເຕັມ dir_fd, const var_na *path, ຈຳນວນເຕັມ open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context) {
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
         bool made_dir = false, made_file = false;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         assert(wildcard_fd_is_valid(dir_fd));
 
@@ -1219,55 +1219,55 @@ int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags 
          *   • If XO_AUTO_RW_RO is specified and the file cannot be opened in O_RDWR mode due to EACCES/EROFS or similar, retry in O_RDONLY mode.
          */
 
-        if (mode == MODE_INVALID)
+        ຖ້າ (mode == MODE_INVALID)
                 mode = (open_flags & O_DIRECTORY) ? 0755 : 0644;
 
-        if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
-                if (open_flags & O_DIRECTORY) {
+        ຖ້າ (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                ຖ້າ (open_flags & O_DIRECTORY) {
                         /* Directories can only be opened in read-only mode */
                         xopen_flags &= ~XO_AUTO_RW_RO;
                         open_flags |= O_RDONLY;
-                } else if (open_flags & O_PATH)
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (open_flags & O_PATH)
                         /* O_PATH is incompatible with O_RDONLY/O_RDWR → fail */
-                        return -EINVAL;
+                        ສົ່ງຄືນ -EINVAL;
         }
 
-        if (isempty(path)) {
+        ຖ້າ (isempty(path)) {
                 assert(!FLAGS_SET(open_flags, O_CREAT|O_EXCL));
                 open_flags &= ~O_NOFOLLOW;
 
-                if (FLAGS_SET(xopen_flags, XO_REGULAR)) {
+                ຖ້າ (FLAGS_SET(xopen_flags, XO_REGULAR)) {
                         r = fd_verify_regular(dir_fd);
-                        if (r < 0)
-                                return r;
+                        ຖ້າ (r < 0)
+                                ສົ່ງຄືນ r;
                 }
 
-                if (FLAGS_SET(xopen_flags, XO_SOCKET)) {
+                ຖ້າ (FLAGS_SET(xopen_flags, XO_SOCKET)) {
                         r = fd_verify_socket(dir_fd);
-                        if (r < 0)
-                                return r;
+                        ຖ້າ (r < 0)
+                                ສົ່ງຄືນ r;
                 }
 
-                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                ຖ້າ (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                         /* First try: in r/w mode */
                         fd = fd_reopen(dir_fd, open_flags|O_RDWR);
-                        if (!ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) && fd != -EISDIR)
-                                return TAKE_FD(fd);
+                        ຖ້າ (!ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) && fd != -EISDIR)
+                                ສົ່ງຄືນ TAKE_FD(fd);
 
                         open_flags |= O_RDONLY;
                 }
 
-                return fd_reopen(dir_fd, open_flags);
+                ສົ່ງຄືນ fd_reopen(dir_fd, open_flags);
         }
 
-        _cleanup_close_ int _dir_fd = -EBADF;
-        if (dir_fd == XAT_FDROOT) {
-                if (path_is_absolute(path))
+        _cleanup_close_ ຈຳນວນເຕັມ _dir_fd = -EBADF;
+        ຖ້າ (dir_fd == XAT_FDROOT) {
+                ຖ້າ (path_is_absolute(path))
                         dir_fd = AT_FDCWD;
-                else {
+                ບໍ່ດັ່ງນັ້ນ {
                         _dir_fd = open("/", O_CLOEXEC|O_DIRECTORY|O_PATH);
-                        if (_dir_fd < 0)
-                                return -errno;
+                        ຖ້າ (_dir_fd < 0)
+                                ສົ່ງຄືນ -errno;
 
                         dir_fd = _dir_fd;
                 }
@@ -1275,74 +1275,74 @@ int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags 
 
         bool call_label_ops_post = false;
 
-        if (FLAGS_SET(open_flags, O_CREAT) && FLAGS_SET(xopen_flags, XO_LABEL)) {
+        ຖ້າ (FLAGS_SET(open_flags, O_CREAT) && FLAGS_SET(xopen_flags, XO_LABEL)) {
                 r = label_ops_pre(dir_fd, path, FLAGS_SET(open_flags, O_DIRECTORY) ? S_IFDIR : S_IFREG, label_context);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 call_label_ops_post = true;
         }
 
-        if (FLAGS_SET(open_flags, O_DIRECTORY|O_CREAT)) {
-                if (FLAGS_SET(xopen_flags, XO_SUBVOLUME))
+        ຖ້າ (FLAGS_SET(open_flags, O_DIRECTORY|O_CREAT)) {
+                ຖ້າ (FLAGS_SET(xopen_flags, XO_SUBVOLUME))
                         r = btrfs_subvol_make_fallback(dir_fd, path, mode);
-                else
+                ບໍ່ດັ່ງນັ້ນ
                         r = RET_NERRNO(mkdirat(dir_fd, path, mode));
-                if (r == -EEXIST) {
-                        if (FLAGS_SET(open_flags, O_EXCL))
-                                return -EEXIST;
-                } else if (r < 0)
-                        return r;
-                else
+                ຖ້າ (r == -EEXIST) {
+                        ຖ້າ (FLAGS_SET(open_flags, O_EXCL))
+                                ສົ່ງຄືນ -EEXIST;
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
+                ບໍ່ດັ່ງນັ້ນ
                         made_dir = true;
 
                 open_flags &= ~(O_EXCL|O_CREAT);
         }
 
-        if (FLAGS_SET(xopen_flags, XO_REGULAR)) {
+        ຖ້າ (FLAGS_SET(xopen_flags, XO_REGULAR)) {
                 /* Guarantee we return a regular fd only, and don't open the file unless we verified it
                  * first */
 
-                if (FLAGS_SET(open_flags, O_PATH)) {
+                ຖ້າ (FLAGS_SET(open_flags, O_PATH)) {
                         fd = FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT) ?
                                 openat_with_automount(dir_fd, path, open_flags, mode) :
                                 RET_NERRNO(openat(dir_fd, path, open_flags, mode));
-                        if (fd < 0) {
+                        ຖ້າ (fd < 0) {
                                 r = fd;
                                 goto error;
                         }
 
                         r = fd_verify_regular(fd);
-                        if (r < 0)
+                        ຖ້າ (r < 0)
                                 goto error;
 
-                } else if (FLAGS_SET(open_flags, O_CREAT|O_EXCL)) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (FLAGS_SET(open_flags, O_CREAT|O_EXCL)) {
                         /* In O_EXCL mode we can just create the thing, everything is dealt with for us */
 
-                        if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                        ຖ້າ (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                                 fd = RET_NERRNO(openat(dir_fd, path, open_flags|O_RDWR, mode));
-                                if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
+                                ຖ້າ (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
                                         open_flags |= O_RDONLY;
-                                else if (fd < 0) {
+                                ບໍ່ດັ່ງນັ້ນ ຖ້າ (fd < 0) {
                                         r = fd;
                                         goto error;
                                 }
                         }
 
-                        if (fd < 0) {
+                        ຖ້າ (fd < 0) {
                                 fd = openat(dir_fd, path, open_flags, mode);
-                                if (fd < 0) {
+                                ຖ້າ (fd < 0) {
                                         r = -errno;
                                         goto error;
                                 }
                         }
 
                         made_file = true;
-                } else {
+                } ບໍ່ດັ່ງນັ້ນ {
                         /* Otherwise pin the inode first via O_PATH */
-                        _cleanup_close_ int inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC|(open_flags & O_NOFOLLOW));
-                        if (inode_fd < 0) {
-                                if (errno != ENOENT || !FLAGS_SET(open_flags, O_CREAT)) {
+                        _cleanup_close_ ຈຳນວນເຕັມ inode_fd = openat(dir_fd, path, O_PATH|O_CLOEXEC|(open_flags & O_NOFOLLOW));
+                        ຖ້າ (inode_fd < 0) {
+                                ຖ້າ (errno != ENOENT || !FLAGS_SET(open_flags, O_CREAT)) {
                                         r = -errno;
                                         goto error;
                                 }
@@ -1350,161 +1350,161 @@ int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags 
                                 /* Doesn't exist yet, then try to create it */
                                 open_flags |= O_EXCL;
 
-                                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                                ຖ້າ (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                                         fd = RET_NERRNO(openat(dir_fd, path, open_flags|O_RDWR, mode));
-                                        if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
+                                        ຖ້າ (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
                                                 open_flags |= O_RDONLY;
-                                        else if (fd < 0) {
+                                        ບໍ່ດັ່ງນັ້ນ ຖ້າ (fd < 0) {
                                                 r = fd;
                                                 goto error;
                                         }
                                 }
 
-                                if (fd < 0) {
+                                ຖ້າ (fd < 0) {
                                         fd = openat(dir_fd, path, open_flags, mode);
-                                        if (fd < 0) {
+                                        ຖ້າ (fd < 0) {
                                                 r = -errno;
                                                 goto error;
                                         }
                                 }
 
                                 made_file = true;
-                        } else {
+                        } ບໍ່ດັ່ງນັ້ນ {
                                 /* OK, we pinned it. Now verify it's actually a regular file, and then reopen it */
                                 r = fd_verify_regular(inode_fd);
-                                if (r < 0)
+                                ຖ້າ (r < 0)
                                         goto error;
 
                                 open_flags &= ~(O_NOFOLLOW|O_CREAT);
 
-                                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                                ຖ້າ (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                                         fd = fd_reopen(inode_fd, open_flags|O_RDWR);
-                                        if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
+                                        ຖ້າ (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd))
                                                 open_flags |= O_RDONLY;
-                                        else if (fd < 0) {
+                                        ບໍ່ດັ່ງນັ້ນ ຖ້າ (fd < 0) {
                                                 r = fd;
                                                 goto error;
                                         }
                                 }
 
-                                if (fd < 0) {
+                                ຖ້າ (fd < 0) {
                                         fd = fd_reopen(inode_fd, open_flags);
-                                        if (fd < 0) {
+                                        ຖ້າ (fd < 0) {
                                                 r = fd;
                                                 goto error;
                                         }
                                 }
                         }
                 }
-        } else if (FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT)) {
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (FLAGS_SET(xopen_flags, XO_TRIGGER_AUTOMOUNT)) {
                 fd = openat_with_automount(dir_fd, path, open_flags, mode);
-                if (fd < 0) {
+                ຖ້າ (fd < 0) {
                         r = fd;
                         goto error;
                 }
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
                 /* XO_SOCKET also lands here: it requires O_PATH (see asserts above) so openat() pins
                  * the inode without connecting, and fd_verify_socket() below enforces the type. */
-                if (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
+                ຖ້າ (FLAGS_SET(xopen_flags, XO_AUTO_RW_RO)) {
                         fd = openat_report_new(dir_fd, path, O_RDWR|open_flags, mode, &made_file);
-                        if (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) || fd == -EISDIR)
+                        ຖ້າ (ERRNO_IS_NEG_FS_WRITE_REFUSED(fd) || fd == -EISDIR)
                                 open_flags |= O_RDONLY;
-                        else if (fd < 0) {
+                        ບໍ່ດັ່ງນັ້ນ ຖ້າ (fd < 0) {
                                 r = fd;
                                 goto error;
                         }
                 }
 
-                if (fd < 0) {
+                ຖ້າ (fd < 0) {
                         fd = openat_report_new(dir_fd, path, open_flags, mode, &made_file);
-                        if (fd < 0) {
+                        ຖ້າ (fd < 0) {
                                 r = fd;
                                 goto error;
                         }
                 }
         }
 
-        if (FLAGS_SET(xopen_flags, XO_SOCKET)) {
+        ຖ້າ (FLAGS_SET(xopen_flags, XO_SOCKET)) {
                 r = fd_verify_socket(fd);
-                if (r < 0)
+                ຖ້າ (r < 0)
                         goto error;
         }
 
-        if (call_label_ops_post) {
+        ຖ້າ (call_label_ops_post) {
                 call_label_ops_post = false;
 
                 r = label_ops_post(fd, /* path= */ NULL, made_file || made_dir, label_context);
-                if (r < 0)
+                ຖ້າ (r < 0)
                         goto error;
         }
 
-        if (xopen_flags & (XO_COW|XO_NOCOW)) {
+        ຖ້າ (xopen_flags & (XO_COW|XO_NOCOW)) {
                 r = chattr_fd(fd, FLAGS_SET(xopen_flags, XO_NOCOW) ? FS_NOCOW_FL : 0, FS_NOCOW_FL);
-                if (r < 0 && !ERRNO_IS_IOCTL_NOT_SUPPORTED(r))
+                ຖ້າ (r < 0 && !ERRNO_IS_IOCTL_NOT_SUPPORTED(r))
                         goto error;
         }
 
-        return TAKE_FD(fd);
+        ສົ່ງຄືນ TAKE_FD(fd);
 
 error:
-        if (call_label_ops_post)
+        ຖ້າ (call_label_ops_post)
                 (void) label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : path, made_dir || made_file, label_context);
 
-        if (made_dir || made_file)
+        ຖ້າ (made_dir || made_file)
                 (void) unlinkat(dir_fd, path, made_dir ? AT_REMOVEDIR : 0);
 
-        return r;
+        ສົ່ງຄືນ r;
 }
 
-int xopenat_lock_full_label(
-                int dir_fd,
-                const char *path,
-                int open_flags,
+ຈຳນວນເຕັມ xopenat_lock_full_label(
+                ຈຳນວນເຕັມ dir_fd,
+                const var_na *path,
+                ຈຳນວນເຕັມ open_flags,
                 XOpenFlags xopen_flags,
                 mode_t mode,
                 LockType locktype,
-                int operation,
+                ຈຳນວນເຕັມ operation,
                 LabelContext *label_context) {
 
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
+        ຈຳນວນເຕັມ r;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(IN_SET(operation & ~LOCK_NB, LOCK_EX, LOCK_SH));
 
         /* POSIX/UNPOSIX locks don't work on directories (errno is set to -EBADF so let's return early with
          * the same error here). */
-        if (FLAGS_SET(open_flags, O_DIRECTORY) && !IN_SET(locktype, LOCK_BSD, LOCK_NONE))
-                return -EBADF;
+        ຖ້າ (FLAGS_SET(open_flags, O_DIRECTORY) && !IN_SET(locktype, LOCK_BSD, LOCK_NONE))
+                ສົ່ງຄືນ -EBADF;
 
-        for (;;) {
-                struct stat st;
+        ສຳລັບ (;;) {
+                sa_nracanaa stat st;
 
                 fd = xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, label_context);
-                if (fd < 0)
-                        return fd;
+                ຖ້າ (fd < 0)
+                        ສົ່ງຄືນ fd;
 
                 r = lock_generic(fd, locktype, operation);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 /* If we acquired the lock, let's check if the file/directory still exists in the file
                  * system. If not, then the previous exclusive owner removed it and then closed it. In such a
                  * case our acquired lock is worthless, hence try again. */
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
-                if (st.st_nlink > 0)
-                        break;
+                ຖ້າ (fstat(fd, &st) < 0)
+                        ສົ່ງຄືນ -errno;
+                ຖ້າ (st.st_nlink > 0)
+                        bha_nga;
 
                 fd = safe_close(fd);
         }
 
-        return TAKE_FD(fd);
+        ສົ່ງຄືນ TAKE_FD(fd);
 }
 
-int link_fd(int fd, int newdirfd, const char *newpath) {
-        int r;
+ຈຳນວນເຕັມ link_fd(ຈຳນວນເຕັມ fd, ຈຳນວນເຕັມ newdirfd, const var_na *newpath) {
+        ຈຳນວນເຕັມ r;
 
         assert(fd >= 0);
         assert(newdirfd >= 0 || newdirfd == AT_FDCWD);
@@ -1515,19 +1515,19 @@ int link_fd(int fd, int newdirfd, const char *newpath) {
          *
          * See also: https://github.com/torvalds/linux/commit/42bd2af5950456d46fdaa91c3a8fb02e680f19f5 */
         r = RET_NERRNO(linkat(fd, "", newdirfd, newpath, AT_EMPTY_PATH));
-        if (r == -ENOENT) {
+        ຖ້າ (r == -ENOENT) {
                 r = RET_NERRNO(linkat(AT_FDCWD, FORMAT_PROC_FD_PATH(fd), newdirfd, newpath, AT_SYMLINK_FOLLOW));
-                if (r == -ENOENT && proc_mounted() == 0) /* No proc_fd_enoent_errno() here because we don't
+                ຖ້າ (r == -ENOENT && proc_mounted() == 0) /* No proc_fd_enoent_errno() here because we don't
                                                             know if it's the target path that's missing. */
-                        return -ENOSYS;
+                        ສົ່ງຄືນ -ENOSYS;
         }
 
-        return r;
+        ສົ່ງຄືນ r;
 }
 
-int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath) {
-        _cleanup_close_ int old_fd = -EBADF;
-        int r;
+ຈຳນວນເຕັມ linkat_replace(ຈຳນວນເຕັມ olddirfd, const var_na *oldpath, ຈຳນວນເຕັມ newdirfd, const var_na *newpath) {
+        _cleanup_close_ ຈຳນວນເຕັມ old_fd = -EBADF;
+        ຈຳນວນເຕັມ r;
 
         assert(olddirfd >= 0 || olddirfd == AT_FDCWD);
         assert(newdirfd >= 0 || newdirfd == AT_FDCWD);
@@ -1536,67 +1536,67 @@ int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *
         /* Like linkat() but replaces the target if needed. Is a NOP if source and target already share the
          * same inode. */
 
-        if (olddirfd == AT_FDCWD && isempty(oldpath)) /* Refuse operating on the cwd (which is a dir, and dirs can't be hardlinked) */
-                return -EISDIR;
+        ຖ້າ (olddirfd == AT_FDCWD && isempty(oldpath)) /* Refuse operating on the cwd (which is a dir, and dirs can't be hardlinked) */
+                ສົ່ງຄືນ -EISDIR;
 
-        if (path_implies_directory(oldpath)) /* Refuse these definite directories early */
-                return -EISDIR;
+        ຖ້າ (path_implies_directory(oldpath)) /* Refuse these definite directories early */
+                ສົ່ງຄືນ -EISDIR;
 
-        if (path_implies_directory(newpath))
-                return -EISDIR;
+        ຖ້າ (path_implies_directory(newpath))
+                ສົ່ງຄືນ -EISDIR;
 
         /* First, try to link this directly */
-        if (oldpath)
+        ຖ້າ (oldpath)
                 r = RET_NERRNO(linkat(olddirfd, oldpath, newdirfd, newpath, 0));
-        else
+        ບໍ່ດັ່ງນັ້ນ
                 r = link_fd(olddirfd, newdirfd, newpath);
-        if (r >= 0)
-                return 0;
-        if (r != -EEXIST)
-                return r;
+        ຖ້າ (r >= 0)
+                ສົ່ງຄືນ 0;
+        ຖ້າ (r != -EEXIST)
+                ສົ່ງຄືນ r;
 
         old_fd = xopenat(olddirfd, oldpath, O_PATH|O_CLOEXEC);
-        if (old_fd < 0)
-                return old_fd;
+        ຖ້າ (old_fd < 0)
+                ສົ່ງຄືນ old_fd;
 
-        struct stat old_st;
-        if (fstat(old_fd, &old_st) < 0)
-                return -errno;
+        sa_nracanaa stat old_st;
+        ຖ້າ (fstat(old_fd, &old_st) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (S_ISDIR(old_st.st_mode)) /* Don't bother if we are operating on a directory */
-                return -EISDIR;
+        ຖ້າ (S_ISDIR(old_st.st_mode)) /* Don't bother if we are operating on a directory */
+                ສົ່ງຄືນ -EISDIR;
 
-        struct stat new_st;
-        if (fstatat(newdirfd, newpath, &new_st, AT_SYMLINK_NOFOLLOW) < 0)
-                return -errno;
+        sa_nracanaa stat new_st;
+        ຖ້າ (fstatat(newdirfd, newpath, &new_st, AT_SYMLINK_NOFOLLOW) < 0)
+                ສົ່ງຄືນ -errno;
 
-        if (S_ISDIR(new_st.st_mode)) /* Refuse replacing directories */
-                return -EEXIST;
+        ຖ້າ (S_ISDIR(new_st.st_mode)) /* Refuse replacing directories */
+                ສົ່ງຄືນ -EEXIST;
 
-        if (stat_inode_same(&old_st, &new_st)) /* Already the same inode? Then shortcut this */
-                return 0;
+        ຖ້າ (stat_inode_same(&old_st, &new_st)) /* Already the same inode? Then shortcut this */
+                ສົ່ງຄືນ 0;
 
-        _cleanup_free_ char *tmp_path = NULL;
+        _cleanup_free_ var_na *tmp_path = NULL;
         r = tempfn_random(newpath, /* extra= */ NULL, &tmp_path);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = link_fd(old_fd, newdirfd, tmp_path);
-        if (r < 0) {
-                if (!ERRNO_IS_PRIVILEGE(r))
-                        return r;
+        ຖ້າ (r < 0) {
+                ຖ້າ (!ERRNO_IS_PRIVILEGE(r))
+                        ສົ່ງຄືນ r;
 
                 /* If that didn't work due to permissions then go via the path of the dentry */
                 r = RET_NERRNO(linkat(olddirfd, oldpath, newdirfd, tmp_path, 0));
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
         }
 
         r = RET_NERRNO(renameat(newdirfd, tmp_path, newdirfd, newpath));
-        if (r < 0) {
+        ຖ້າ (r < 0) {
                 (void) unlinkat(newdirfd, tmp_path, /* flags= */ 0);
-                return r;
+                ສົ່ງຄືນ r;
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }

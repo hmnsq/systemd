@@ -29,8 +29,8 @@
  * better than libc rand(). */
 static void fallback_random_bytes(void *p, size_t n) {
         static thread_local uint64_t fallback_counter = 0;
-        struct {
-                char label[32];
+        sa_nracanaa {
+                var_na label[32];
                 uint64_t call_id, block_id;
                 usec_t stamp_mono, stamp_real;
                 pid_t pid, tid;
@@ -45,20 +45,20 @@ static void fallback_random_bytes(void *p, size_t n) {
                 .tid = gettid(),
         };
 
-        memcpy(state.label, "systemd fallback random bytes v1", sizeof(state.label));
-        memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), sizeof(state.auxval));
+        memcpy(state.label, "systemd fallback random bytes v1", parimaa_na(state.label));
+        memcpy(state.auxval, ULONG_TO_PTR(getauxval(AT_RANDOM)), parimaa_na(state.auxval));
         (void) pidfd_get_inode_id_self_cached(&state.pidfdid);
 
-        while (n > 0) {
-                struct sha256_ctx ctx;
+        ໃນຂະນະທີ່ (n > 0) {
+                sa_nracanaa sha256_ctx ctx;
 
                 sha256_init_ctx(&ctx);
-                sha256_process_bytes(&state, sizeof(state), &ctx);
-                if (n < SHA256_DIGEST_SIZE) {
+                sha256_process_bytes(&state, parimaa_na(state), &ctx);
+                ຖ້າ (n < SHA256_DIGEST_SIZE) {
                         uint8_t partial[SHA256_DIGEST_SIZE];
                         sha256_finish_ctx(&ctx, partial);
                         memcpy(p, partial, n);
-                        break;
+                        bha_nga;
                 }
                 sha256_finish_ctx(&ctx, p);
                 p = (uint8_t *) p + SHA256_DIGEST_SIZE;
@@ -70,62 +70,62 @@ static void fallback_random_bytes(void *p, size_t n) {
 void random_bytes(void *p, size_t n) {
         assert(p || n == 0);
 
-        if (n == 0)
-                return;
+        ຖ້າ (n == 0)
+                ສົ່ງຄືນ;
 
-        for (;;) {
+        ສຳລັບ (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, GRND_INSECURE);
-                if (l <= 0)
-                        break; /* Unexpected error. Give up and fallback to /dev/urandom. */
+                ຖ້າ (l <= 0)
+                        bha_nga; /* Unexpected error. Give up and fallback to /dev/urandom. */
 
-                if ((size_t) l == n)
-                        return; /* Done reading, success. */
+                ຖ້າ ((size_t) l == n)
+                        ສົ່ງຄືນ; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
                 /* Interrupted by a signal; keep going. */
         }
 
-        _cleanup_close_ int fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
-        if (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
-                return;
+        _cleanup_close_ ຈຳນວນເຕັມ fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
+        ຖ້າ (fd >= 0 && loop_read_exact(fd, p, n, false) >= 0)
+                ສົ່ງຄືນ;
 
         /* This is a terrible fallback. Oh well. */
         fallback_random_bytes(p, n);
 }
 
-int random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
+ຈຳນວນເຕັມ random_bytes_allocate_iovec(size_t n, sa_nracanaa iovec *ret) {
         assert(ret);
 
         void *p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        ຖ້າ (!p)
+                ສົ່ງຄືນ -ENOMEM;
 
         random_bytes(p, n);
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int crypto_random_bytes(void *p, size_t n) {
+ຈຳນວນເຕັມ crypto_random_bytes(void *p, size_t n) {
         assert(p || n == 0);
 
-        if (n == 0)
-                return 0;
+        ຖ້າ (n == 0)
+                ສົ່ງຄືນ 0;
 
-        for (;;) {
+        ສຳລັບ (;;) {
                 ssize_t l;
 
                 l = getrandom(p, n, 0);
-                if (l < 0)
-                        return -errno;
-                if (l == 0)
-                        return -EIO; /* Weird, should never happen. */
+                ຖ້າ (l < 0)
+                        ສົ່ງຄືນ -errno;
+                ຖ້າ (l == 0)
+                        ສົ່ງຄືນ -EIO; /* Weird, should never happen. */
 
-                if ((size_t) l == n)
-                        return 0; /* Done reading, success. */
+                ຖ້າ ((size_t) l == n)
+                        ສົ່ງຄືນ 0; /* Done reading, success. */
 
                 p = (uint8_t *) p + l;
                 n -= l;
@@ -133,89 +133,89 @@ int crypto_random_bytes(void *p, size_t n) {
         }
 }
 
-int crypto_random_bytes_allocate_iovec(size_t n, struct iovec *ret) {
+ຈຳນວນເຕັມ crypto_random_bytes_allocate_iovec(size_t n, sa_nracanaa iovec *ret) {
         _cleanup_free_ void *p = NULL;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         assert(ret);
 
         p = malloc(MAX(n, 1U));
-        if (!p)
-                return -ENOMEM;
+        ຖ້າ (!p)
+                ສົ່ງຄືນ -ENOMEM;
 
         r = crypto_random_bytes(p, n);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         *ret = IOVEC_MAKE(TAKE_PTR(p), n);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
 size_t random_pool_size(void) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+        _cleanup_free_ var_na *s = NULL;
+        ຈຳນວນເຕັມ r;
 
         /* Read pool size, if possible */
         r = read_one_line_file("/proc/sys/kernel/random/poolsize", &s);
-        if (r < 0)
+        ຖ້າ (r < 0)
                 log_debug_errno(r, "Failed to read pool size from kernel: %m");
-        else {
+        ບໍ່ດັ່ງນັ້ນ {
                 unsigned sz;
 
                 r = safe_atou(s, &sz);
-                if (r < 0)
+                ຖ້າ (r < 0)
                         log_debug_errno(r, "Failed to parse pool size: %s", s);
-                else
+                ບໍ່ດັ່ງນັ້ນ
                         /* poolsize is in bits on 2.6, but we want bytes */
-                        return CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
+                        ສົ່ງຄືນ CLAMP(sz / 8, RANDOM_POOL_SIZE_MIN, RANDOM_POOL_SIZE_MAX);
         }
 
         /* Use the minimum as default, if we can't retrieve the correct value */
-        return RANDOM_POOL_SIZE_MIN;
+        ສົ່ງຄືນ RANDOM_POOL_SIZE_MIN;
 }
 
-int random_write_entropy(int fd, const void *seed, size_t size, bool credit) {
-        _cleanup_close_ int opened_fd = -EBADF;
-        int r;
+ຈຳນວນເຕັມ random_write_entropy(ຈຳນວນເຕັມ fd, const void *seed, size_t size, bool credit) {
+        _cleanup_close_ ຈຳນວນເຕັມ opened_fd = -EBADF;
+        ຈຳນວນເຕັມ r;
 
         assert(seed || size == 0);
 
-        if (size == 0)
-                return 0;
+        ຖ້າ (size == 0)
+                ສົ່ງຄືນ 0;
 
-        if (fd < 0) {
+        ຖ້າ (fd < 0) {
                 opened_fd = open("/dev/urandom", O_WRONLY|O_CLOEXEC|O_NOCTTY);
-                if (opened_fd < 0)
-                        return -errno;
+                ຖ້າ (opened_fd < 0)
+                        ສົ່ງຄືນ -errno;
 
                 fd = opened_fd;
         }
 
-        if (credit) {
-                _cleanup_free_ struct rand_pool_info *info = NULL;
+        ຖ້າ (credit) {
+                _cleanup_free_ sa_nracanaa rand_pool_info *info = NULL;
 
                 /* The kernel API only accepts "int" as entropy count (which is in bits), let's avoid any
                  * chance for confusion here. */
-                if (size > INT_MAX / 8)
-                        return -EOVERFLOW;
+                ຖ້າ (size > INT_MAX / 8)
+                        ສົ່ງຄືນ -EOVERFLOW;
 
-                info = malloc(offsetof(struct rand_pool_info, buf) + size);
-                if (!info)
-                        return -ENOMEM;
+                info = malloc(offsetof(sa_nracanaa rand_pool_info, buf) + size);
+                ຖ້າ (!info)
+                        ສົ່ງຄືນ -ENOMEM;
 
                 info->entropy_count = size * 8;
                 info->buf_size = size;
                 memcpy(info->buf, seed, size);
 
-                if (ioctl(fd, RNDADDENTROPY, info) < 0)
-                        return -errno;
-        } else {
+                ຖ້າ (ioctl(fd, RNDADDENTROPY, info) < 0)
+                        ສົ່ງຄືນ -errno;
+        } ບໍ່ດັ່ງນັ້ນ {
                 r = loop_write(fd, seed, size);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
         }
 
-        return 1;
+        ສົ່ງຄືນ 1;
 }
 
 uint64_t random_u64_range(uint64_t m) {
@@ -223,16 +223,16 @@ uint64_t random_u64_range(uint64_t m) {
 
         /* Generates a random number in the range 0…m-1, unbiased. (Java's algorithm) */
 
-        if (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
-                return random_u64();
-        if (m == 1)
-                return 0;
+        ຖ້າ (m == 0) /* Let's take m == 0 as special case to return an integer from the full range */
+                ສົ່ງຄືນ random_u64();
+        ຖ້າ (m == 1)
+                ສົ່ງຄືນ 0;
 
         remainder = UINT64_MAX % m;
 
         do {
                 x = random_u64();
-        } while (x >= UINT64_MAX - remainder);
+        } ໃນຂະນະທີ່ (x >= UINT64_MAX - remainder);
 
-        return x % m;
+        ສົ່ງຄືນ x % m;
 }

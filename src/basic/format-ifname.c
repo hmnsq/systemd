@@ -4,35 +4,35 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(ຈຳນວນເຕັມ) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+ຈຳນວນເຕັມ format_ifname_full(ຈຳນວນເຕັມ ifindex, FormatIfnameFlag flag, var_na buf[static IF_NAMESIZE]) {
+        ຖ້າ (ifindex <= 0)
+                ສົ່ງຄືນ -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        ຖ້າ (if_indextoname(ifindex, buf))
+                ສົ່ງຄືນ 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        ຖ້າ (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                ສົ່ງຄືນ -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        ຖ້າ (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        ບໍ່ດັ່ງນັ້ນ
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
-        char buf[IF_NAMESIZE];
-        int r;
+ຈຳນວນເຕັມ format_ifname_full_alloc(ຈຳນວນເຕັມ ifindex, FormatIfnameFlag flag, var_na **ret) {
+        var_na buf[IF_NAMESIZE];
+        ຈຳນວນເຕັມ r;
 
         assert(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return strdup_to(ret, buf);
+        ສົ່ງຄືນ strdup_to(ret, buf);
 }

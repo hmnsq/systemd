@@ -12,83 +12,83 @@
 #include "path-util.h"
 #include "string-util.h"
 
-int btrfs_validate_subvolume_name(const char *name) {
+ຈຳນວນເຕັມ btrfs_validate_subvolume_name(const var_na *name) {
 
-        if (!filename_is_valid(name))
-                return -EINVAL;
+        ຖ້າ (!filename_is_valid(name))
+                ສົ່ງຄືນ -EINVAL;
 
-        if (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
-                return -E2BIG;
+        ຖ້າ (strlen(name) > BTRFS_SUBVOL_NAME_MAX)
+                ສົ່ງຄືນ -E2BIG;
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-static int extract_subvolume_name(const char *path, char **ret) {
-        _cleanup_free_ char *fn = NULL;
-        int r;
+static ຈຳນວນເຕັມ extract_subvolume_name(const var_na *path, var_na **ret) {
+        _cleanup_free_ var_na *fn = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(path);
         assert(ret);
 
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = btrfs_validate_subvolume_name(fn);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         *ret = TAKE_PTR(fn);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int btrfs_subvol_make(int dir_fd, const char *path) {
-        struct btrfs_ioctl_vol_args args = {};
-        _cleanup_free_ char *subvolume = NULL, *parent = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+ຈຳນວນເຕັມ btrfs_subvol_make(ຈຳນວນເຕັມ dir_fd, const var_na *path) {
+        sa_nracanaa btrfs_ioctl_vol_args args = {};
+        _cleanup_free_ var_na *subvolume = NULL, *parent = NULL;
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
+        ຈຳນວນເຕັມ r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(!isempty(path));
 
         r = extract_subvolume_name(path, &subvolume);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = path_extract_directory(path, &parent);
-        if (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
-                return r;
+        ຖ້າ (r < 0 && r != -EDESTADDRREQ) /* Propagate error, unless only a filename was specified, which is OK */
+                ສົ່ງຄືນ r;
 
         fd = xopenat(dir_fd, parent ?: ".", O_DIRECTORY|O_RDONLY|O_CLOEXEC);
-        if (fd < 0)
-                return fd;
+        ຖ້າ (fd < 0)
+                ສົ່ງຄືນ fd;
 
-        strncpy(args.name, subvolume, sizeof(args.name)-1);
+        strncpy(args.name, subvolume, parimaa_na(args.name)-1);
 
-        return RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
+        ສົ່ງຄືນ RET_NERRNO(ioctl(fd, BTRFS_IOC_SUBVOL_CREATE, &args));
 }
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode) {
+ຈຳນວນເຕັມ btrfs_subvol_make_fallback(ຈຳນວນເຕັມ dir_fd, const var_na *path, mode_t mode) {
         mode_t old, combined;
-        int r;
+        ຈຳນວນເຕັມ r;
 
         assert(path);
 
         /* Let's work like mkdir(), i.e. take the specified mode, and mask it with the current umask. */
         old = umask(~mode);
         combined = old | ~mode;
-        if (combined != ~mode)
+        ຖ້າ (combined != ~mode)
                 umask(combined);
         r = btrfs_subvol_make(dir_fd, path);
         umask(old);
 
-        if (r >= 0)
-                return 1; /* subvol worked */
-        if (!ERRNO_IS_NOT_SUPPORTED(r))
-                return r;
+        ຖ້າ (r >= 0)
+                ສົ່ງຄືນ 1; /* subvol worked */
+        ຖ້າ (!ERRNO_IS_NOT_SUPPORTED(r))
+                ສົ່ງຄືນ r;
 
-        if (mkdirat(dir_fd, path, mode) < 0)
-                return -errno;
+        ຖ້າ (mkdirat(dir_fd, path, mode) < 0)
+                ສົ່ງຄືນ -errno;
 
-        return 0; /* plain directory */
+        ສົ່ງຄືນ 0; /* plain directory */
 }

@@ -18,65 +18,65 @@
 #include "string-util.h"
 #include "strv.h"
 
-bool is_path(const char *p) {
-        if (!p) /* A NULL pointer is definitely not a path */
-                return false;
+bool is_path(const var_na *p) {
+        ຖ້າ (!p) /* A NULL pointer is definitely not a path */
+                ສົ່ງຄືນ false;
 
-        return strchr(p, '/');
+        ສົ່ງຄືນ strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+ຈຳນວນເຕັມ path_split_and_make_absolute(const var_na *p, var_na ***ret) {
+        _cleanup_strv_free_ var_na **l = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(p);
         assert(ret);
 
         l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
+        ຖ້າ (!l)
+                ສົ່ງຄືນ -ENOMEM;
 
         r = path_strv_make_absolute_cwd(l);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         *ret = TAKE_PTR(l);
-        return r;
+        ສົ່ງຄືນ r;
 }
 
-char* path_make_absolute(const char *p, const char *prefix) {
+var_na* path_make_absolute(const var_na *p, const var_na *prefix) {
         assert(p);
 
         /* Makes every item in the list an absolute path by prepending
          * the prefix, if specified and necessary */
 
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
+        ຖ້າ (path_is_absolute(p) || isempty(prefix))
+                ສົ່ງຄືນ strdup(p);
 
-        return path_join(prefix, p);
+        ສົ່ງຄືນ path_join(prefix, p);
 }
 
-int safe_getcwd(char **ret) {
-        _cleanup_free_ char *cwd = NULL;
+ຈຳນວນເຕັມ safe_getcwd(var_na **ret) {
+        _cleanup_free_ var_na *cwd = NULL;
 
         cwd = get_current_dir_name();
-        if (!cwd)
-                return negative_errno();
+        ຖ້າ (!cwd)
+                ສົ່ງຄືນ negative_errno();
 
         /* Let's make sure the directory is really absolute, to protect us from the logic behind
          * CVE-2018-1000001 */
-        if (cwd[0] != '/')
-                return -ENOMEDIUM;
+        ຖ້າ (cwd[0] != '/')
+                ສົ່ງຄືນ -ENOMEDIUM;
 
-        if (ret)
+        ຖ້າ (ret)
                 *ret = TAKE_PTR(cwd);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int path_make_absolute_cwd(const char *p, char **ret) {
-        char *c;
-        int r;
+ຈຳນວນເຕັມ path_make_absolute_cwd(const var_na *p, var_na **ret) {
+        var_na *c;
+        ຈຳນວນເຕັມ r;
 
         assert(p);
         assert(ret);
@@ -84,30 +84,30 @@ int path_make_absolute_cwd(const char *p, char **ret) {
         /* Similar to path_make_absolute(), but prefixes with the
          * current working directory. */
 
-        if (path_is_absolute(p))
+        ຖ້າ (path_is_absolute(p))
                 c = strdup(p);
-        else {
-                _cleanup_free_ char *cwd = NULL;
+        ບໍ່ດັ່ງນັ້ນ {
+                _cleanup_free_ var_na *cwd = NULL;
 
                 r = safe_getcwd(&cwd);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 c = path_join(cwd, p);
         }
-        if (!c)
-                return -ENOMEM;
+        ຖ້າ (!c)
+                ສົ່ງຄືນ -ENOMEM;
 
         *ret = c;
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int path_make_relative(const char *from, const char *to, char **ret) {
-        _cleanup_free_ char *result = NULL;
+ຈຳນວນເຕັມ path_make_relative(const var_na *from, const var_na *to, var_na **ret) {
+        _cleanup_free_ var_na *result = NULL;
         unsigned n_parents;
-        const char *f, *t;
-        int r, k;
-        char *p;
+        const var_na *f, *t;
+        ຈຳນວນເຕັມ r, k;
+        var_na *p;
 
         assert(from);
         assert(to);
@@ -115,87 +115,87 @@ int path_make_relative(const char *from, const char *to, char **ret) {
 
         /* Strips the common part, and adds ".." elements as necessary. */
 
-        if (!path_is_absolute(from) || !path_is_absolute(to))
-                return -EINVAL;
+        ຖ້າ (!path_is_absolute(from) || !path_is_absolute(to))
+                ສົ່ງຄືນ -EINVAL;
 
-        for (;;) {
+        ສຳລັບ (;;) {
                 r = path_find_first_component(&from, true, &f);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 k = path_find_first_component(&to, true, &t);
-                if (k < 0)
-                        return k;
+                ຖ້າ (k < 0)
+                        ສົ່ງຄືນ k;
 
-                if (r == 0) {
+                ຖ້າ (r == 0) {
                         /* end of 'from' */
-                        if (k == 0) {
+                        ຖ້າ (k == 0) {
                                 /* from and to are equivalent. */
                                 result = strdup(".");
-                                if (!result)
-                                        return -ENOMEM;
-                        } else {
+                                ຖ້າ (!result)
+                                        ສົ່ງຄືນ -ENOMEM;
+                        } ບໍ່ດັ່ງນັ້ນ {
                                 /* 'to' is inside of 'from'. */
                                 r = path_simplify_alloc(t, &result);
-                                if (r < 0)
-                                        return r;
+                                ຖ້າ (r < 0)
+                                        ສົ່ງຄືນ r;
 
-                                if (!path_is_valid(result))
-                                        return -EINVAL;
+                                ຖ້າ (!path_is_valid(result))
+                                        ສົ່ງຄືນ -EINVAL;
                         }
 
                         *ret = TAKE_PTR(result);
-                        return 0;
+                        ສົ່ງຄືນ 0;
                 }
 
-                if (r != k || !strneq(f, t, r))
-                        break;
+                ຖ້າ (r != k || !strneq(f, t, r))
+                        bha_nga;
         }
 
         /* If we're here, then "from_dir" has one or more elements that need to
          * be replaced with "..". */
 
-        for (n_parents = 1;; n_parents++) {
+        ສຳລັບ (n_parents = 1;; n_parents++) {
                 /* If this includes ".." we can't do a simple series of "..". */
                 r = path_find_first_component(&from, false, &f);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
+                ຖ້າ (r == 0)
+                        bha_nga;
         }
 
-        if (isempty(t) && n_parents * 3 > PATH_MAX)
+        ຖ້າ (isempty(t) && n_parents * 3 > PATH_MAX)
                 /* PATH_MAX is counted *with* the trailing NUL byte */
-                return -EINVAL;
+                ສົ່ງຄືນ -EINVAL;
 
-        result = new(char, n_parents * 3 + !isempty(t) + strlen_ptr(t));
-        if (!result)
-                return -ENOMEM;
+        result = new(var_na, n_parents * 3 + !isempty(t) + strlen_ptr(t));
+        ຖ້າ (!result)
+                ສົ່ງຄືນ -ENOMEM;
 
-        for (p = result; n_parents > 0; n_parents--)
+        ສຳລັບ (p = result; n_parents > 0; n_parents--)
                 p = mempcpy(p, "../", 3);
 
-        if (isempty(t)) {
+        ຖ້າ (isempty(t)) {
                 /* Remove trailing slash and terminate string. */
                 *(--p) = '\0';
                 *ret = TAKE_PTR(result);
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
         strcpy(p, t);
 
         path_simplify(result);
 
-        if (!path_is_valid(result))
-                return -EINVAL;
+        ຖ້າ (!path_is_valid(result))
+                ສົ່ງຄືນ -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int path_make_relative_parent(const char *from_child, const char *to, char **ret) {
-        _cleanup_free_ char *from = NULL;
-        int r;
+ຈຳນວນເຕັມ path_make_relative_parent(const var_na *from_child, const var_na *to, var_na **ret) {
+        _cleanup_free_ var_na *from = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(from_child);
         assert(to);
@@ -215,64 +215,64 @@ int path_make_relative_parent(const char *from_child, const char *to, char **ret
          */
 
         r = path_extract_directory(from_child, &from);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return path_make_relative(from, to, ret);
+        ສົ່ງຄືນ path_make_relative(from, to, ret);
 }
 
-char* path_startswith_strv(const char *p, char * const *strv) {
+var_na* path_startswith_strv(const var_na *p, var_na * const *strv) {
         assert(p);
 
         STRV_FOREACH(s, strv) {
-                char *t;
+                var_na *t;
 
                 t = path_startswith(p, *s);
-                if (t)
-                        return t;
+                ຖ້າ (t)
+                        ສົ່ງຄືນ t;
         }
 
-        return NULL;
+        ສົ່ງຄືນ NULL;
 }
 
-int path_strv_make_absolute_cwd(char **l) {
-        int r;
+ຈຳນວນເຕັມ path_strv_make_absolute_cwd(var_na **l) {
+        ຈຳນວນເຕັມ r;
 
         /* Goes through every item in the string list and makes it
          * absolute. This works in place and won't rollback any
          * changes on failure. */
 
         STRV_FOREACH(s, l) {
-                char *t;
+                var_na *t;
 
                 r = path_make_absolute_cwd(*s, &t);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 path_simplify(t);
                 free_and_replace(*s, t);
         }
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-char** path_strv_resolve(char **l, const char *root) {
+var_na** path_strv_resolve(var_na **l, const var_na *root) {
         unsigned k = 0;
         bool enomem = false;
-        int r;
+        ຈຳນວນເຕັມ r;
 
-        if (strv_isempty(l))
-                return l;
+        ຖ້າ (strv_isempty(l))
+                ສົ່ງຄືນ l;
 
         /* Go through every item in the string list and canonicalize the path.
          * This works in place and doesn't roll back any changes on failure. */
 
         STRV_FOREACH(s, l) {
-                _cleanup_free_ char *orig = NULL;
-                char *t, *u;
+                _cleanup_free_ var_na *orig = NULL;
+                var_na *t, *u;
 
-                if (root) {
-                        if (!path_is_absolute(*s)) {
+                ຖ້າ (root) {
+                        ຖ້າ (!path_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
                                 free(*s);
                                 continue;
@@ -280,50 +280,50 @@ char** path_strv_resolve(char **l, const char *root) {
 
                         orig = *s;
                         t = path_join(root, orig);
-                        if (!t) {
+                        ຖ້າ (!t) {
                                 enomem = true;
                                 continue;
                         }
-                } else
+                } ບໍ່ດັ່ງນັ້ນ
                         t = *s;
 
                 r = chase(t, root, 0, &u, NULL);
-                if (r == -ENOENT) {
-                        if (root) {
+                ຖ້າ (r == -ENOENT) {
+                        ຖ້າ (root) {
                                 u = TAKE_PTR(orig);
                                 free(t);
-                        } else
+                        } ບໍ່ດັ່ງນັ້ນ
                                 u = t;
-                } else if (r < 0) {
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (r < 0) {
                         free(t);
 
-                        if (r == -ENOMEM)
+                        ຖ້າ (r == -ENOMEM)
                                 enomem = true;
 
                         continue;
-                } else if (root) {
-                        char *x;
+                } ບໍ່ດັ່ງນັ້ນ ຖ້າ (root) {
+                        var_na *x;
 
                         free(t);
                         x = path_startswith(u, root);
-                        if (x) {
+                        ຖ້າ (x) {
                                 /* restore the slash if it was lost */
-                                if (!startswith(x, "/"))
+                                ຖ້າ (!startswith(x, "/"))
                                         *(--x) = '/';
 
                                 t = strdup(x);
                                 free(u);
-                                if (!t) {
+                                ຖ້າ (!t) {
                                         enomem = true;
                                         continue;
                                 }
                                 u = t;
-                        } else {
+                        } ບໍ່ດັ່ງນັ້ນ {
                                 /* canonicalized path goes outside of
                                  * prefix, keep the original path instead */
                                 free_and_replace(u, orig);
                         }
-                } else
+                } ບໍ່ດັ່ງນັ້ນ
                         free(t);
 
                 l[k++] = u;
@@ -331,31 +331,31 @@ char** path_strv_resolve(char **l, const char *root) {
 
         l[k] = NULL;
 
-        if (enomem)
-                return NULL;
+        ຖ້າ (enomem)
+                ສົ່ງຄືນ NULL;
 
-        return l;
+        ສົ່ງຄືນ l;
 }
 
-char** path_strv_resolve_uniq(char **l, const char *root) {
+var_na** path_strv_resolve_uniq(var_na **l, const var_na *root) {
 
-        if (strv_isempty(l))
-                return l;
+        ຖ້າ (strv_isempty(l))
+                ສົ່ງຄືນ l;
 
-        if (!path_strv_resolve(l, root))
-                return NULL;
+        ຖ້າ (!path_strv_resolve(l, root))
+                ສົ່ງຄືນ NULL;
 
-        return strv_uniq(l);
+        ສົ່ງຄືນ strv_uniq(l);
 }
 
-char* skip_leading_slash(const char *p) {
-        return skip_leading_chars(p, "/");
+var_na* skip_leading_slash(const var_na *p) {
+        ສົ່ງຄືນ skip_leading_chars(p, "/");
 }
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags) {
+var_na* path_simplify_full(var_na *path, PathSimplifyFlags flags) {
         bool add_slash = false, keep_trailing_slash, absolute, beginning = true;
-        char *f = path;
-        int r;
+        var_na *f = path;
+        ຈຳນວນເຕັມ r;
 
         /* Removes redundant inner and trailing slashes. Also removes unnecessary dots.
          * Modifies the passed string in-place.
@@ -366,34 +366,34 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
          * /../foo/bar/..    becomes /foo/bar/..
          */
 
-        if (isempty(path))
-                return path;
+        ຖ້າ (isempty(path))
+                ສົ່ງຄືນ path;
 
         keep_trailing_slash = FLAGS_SET(flags, PATH_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(path, "/");
 
         absolute = path_is_absolute(path);
         f += absolute;  /* Keep leading /, if present. */
 
-        for (const char *p = f;;) {
-                const char *e;
+        ສຳລັບ (const var_na *p = f;;) {
+                const var_na *e;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        break;
+                ຖ້າ (r == 0)
+                        bha_nga;
 
-                if (r > 0 && absolute && beginning && path_startswith(e, ".."))
+                ຖ້າ (r > 0 && absolute && beginning && path_startswith(e, ".."))
                         /* If we're at the beginning of an absolute path, we can safely skip ".." */
                         continue;
 
                 beginning = false;
 
-                if (add_slash)
+                ຖ້າ (add_slash)
                         *f++ = '/';
 
-                if (r < 0) {
+                ຖ້າ (r < 0) {
                         /* if path is invalid, then refuse to simplify the remaining part. */
                         memmove(f, p, strlen(p) + 1);
-                        return path;
+                        ສົ່ງຄືນ path;
                 }
 
                 memmove(f, e, r);
@@ -403,33 +403,33 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         }
 
         /* Special rule, if we stripped everything, we need a "." for the current directory. */
-        if (f == path)
+        ຖ້າ (f == path)
                 *f++ = '.';
 
-        if (*(f-1) != '/' && keep_trailing_slash)
+        ຖ້າ (*(f-1) != '/' && keep_trailing_slash)
                 *f++ = '/';
 
         *f = '\0';
-        return path;
+        ສົ່ງຄືນ path;
 }
 
-int path_simplify_alloc(const char *path, char **ret) {
+ຈຳນວນເຕັມ path_simplify_alloc(const var_na *path, var_na **ret) {
         assert(ret);
 
-        if (!path) {
+        ຖ້າ (!path) {
                 *ret = NULL;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
-        char *t = strdup(path);
-        if (!t)
-                return -ENOMEM;
+        var_na *t = strdup(path);
+        ຖ້າ (!t)
+                ສົ່ງຄືນ -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-char* path_startswith_full(const char *original_path, const char *prefix, PathStartWithFlags flags) {
+var_na* path_startswith_full(const var_na *original_path, const var_na *prefix, PathStartWithFlags flags) {
         assert(original_path);
         assert(prefix);
 
@@ -443,147 +443,147 @@ char* path_startswith_full(const char *original_path, const char *prefix, PathSt
          * Returns NULL otherwise.
          */
 
-        const char *path = original_path;
+        const var_na *path = original_path;
 
-        if ((path[0] == '/') != (prefix[0] == '/'))
-                return NULL;
+        ຖ້າ ((path[0] == '/') != (prefix[0] == '/'))
+                ສົ່ງຄືນ NULL;
 
-        for (;;) {
-                const char *p, *q;
-                int m, n;
+        ສຳລັບ (;;) {
+                const var_na *p, *q;
+                ຈຳນວນເຕັມ m, n;
 
                 m = path_find_first_component(&path, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &p);
-                if (m < 0)
-                        return NULL;
+                ຖ້າ (m < 0)
+                        ສົ່ງຄືນ NULL;
 
                 n = path_find_first_component(&prefix, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &q);
-                if (n < 0)
-                        return NULL;
+                ຖ້າ (n < 0)
+                        ສົ່ງຄືນ NULL;
 
-                if (n == 0) {
-                        if (!p)
+                ຖ້າ (n == 0) {
+                        ຖ້າ (!p)
                                 p = path;
 
-                        if (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
+                        ຖ້າ (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
 
-                                if (p <= original_path)
-                                        return NULL;
+                                ຖ້າ (p <= original_path)
+                                        ສົ່ງຄືນ NULL;
 
                                 p--;
 
-                                if (*p != '/')
-                                        return NULL;
+                                ຖ້າ (*p != '/')
+                                        ສົ່ງຄືນ NULL;
                         }
 
-                        return (char*) p;
+                        ສົ່ງຄືນ (var_na*) p;
                 }
 
-                if (m != n)
-                        return NULL;
+                ຖ້າ (m != n)
+                        ສົ່ງຄືນ NULL;
 
-                if (!strneq(p, q, m))
-                        return NULL;
+                ຖ້າ (!strneq(p, q, m))
+                        ສົ່ງຄືນ NULL;
         }
 }
 
-int path_compare(const char *a, const char *b) {
-        int r;
+ຈຳນວນເຕັມ path_compare(const var_na *a, const var_na *b) {
+        ຈຳນວນເຕັມ r;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        ຖ້າ (r != 0)
+                ສົ່ງຄືນ r;
 
         /* A relative path and an absolute path must not compare as equal.
          * Which one is sorted before the other does not really matter.
          * Here a relative path is ordered before an absolute path. */
         r = CMP(path_is_absolute(a), path_is_absolute(b));
-        if (r != 0)
-                return r;
+        ຖ້າ (r != 0)
+                ສົ່ງຄືນ r;
 
-        for (;;) {
-                const char *aa, *bb;
-                int j, k;
+        ສຳລັບ (;;) {
+                const var_na *aa, *bb;
+                ຈຳນວນເຕັມ j, k;
 
                 j = path_find_first_component(&a, true, &aa);
                 k = path_find_first_component(&b, true, &bb);
 
-                if (j < 0 || k < 0) {
+                ຖ້າ (j < 0 || k < 0) {
                         /* When one of paths is invalid, order invalid path after valid one. */
                         r = CMP(j < 0, k < 0);
-                        if (r != 0)
-                                return r;
+                        ຖ້າ (r != 0)
+                                ສົ່ງຄືນ r;
 
                         /* fallback to use strcmp() if both paths are invalid. */
-                        return strcmp(a, b);
+                        ສົ່ງຄືນ strcmp(a, b);
                 }
 
                 /* Order prefixes first: "/foo" before "/foo/bar" */
-                if (j == 0) {
-                        if (k == 0)
-                                return 0;
-                        return -1;
+                ຖ້າ (j == 0) {
+                        ຖ້າ (k == 0)
+                                ສົ່ງຄືນ 0;
+                        ສົ່ງຄືນ -1;
                 }
-                if (k == 0)
-                        return 1;
+                ຖ້າ (k == 0)
+                        ສົ່ງຄືນ 1;
 
                 /* Alphabetical sort: "/foo/aaa" before "/foo/b" */
                 r = memcmp(aa, bb, MIN(j, k));
-                if (r != 0)
-                        return r;
+                ຖ້າ (r != 0)
+                        ສົ່ງຄືນ r;
 
                 /* Sort "/foo/a" before "/foo/aaa" */
                 r = CMP(j, k);
-                if (r != 0)
-                        return r;
+                ຖ້າ (r != 0)
+                        ສົ່ງຄືນ r;
         }
 }
 
-int path_compare_filename(const char *a, const char *b) {
-        _cleanup_free_ char *fa = NULL, *fb = NULL;
-        int r, j, k;
+ຈຳນວນເຕັມ path_compare_filename(const var_na *a, const var_na *b) {
+        _cleanup_free_ var_na *fa = NULL, *fb = NULL;
+        ຈຳນວນເຕັມ r, j, k;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        ຖ້າ (r != 0)
+                ສົ່ງຄືນ r;
 
         j = path_extract_filename(a, &fa);
         k = path_extract_filename(b, &fb);
 
         /* When one of paths is "." or root, then order it earlier. */
         r = CMP(j != -EADDRNOTAVAIL, k != -EADDRNOTAVAIL);
-        if (r != 0)
-                return r;
+        ຖ້າ (r != 0)
+                ສົ່ງຄືນ r;
 
         /* When one of paths is invalid (or we get OOM), order invalid path after valid one. */
         r = CMP(j < 0, k < 0);
-        if (r != 0)
-                return r;
+        ຖ້າ (r != 0)
+                ສົ່ງຄືນ r;
 
         /* fallback to use strcmp() if both paths are invalid. */
-        if (j < 0)
-                return strcmp(a, b);
+        ຖ້າ (j < 0)
+                ສົ່ງຄືນ strcmp(a, b);
 
-        return strcmp(fa, fb);
+        ສົ່ງຄືນ strcmp(fa, fb);
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags) {
+ຈຳນວນເຕັມ path_equal_or_inode_same_full(const var_na *a, const var_na *b, ຈຳນວນເຕັມ flags) {
         /* Returns true if paths are of the same entry, false if not, <0 on error. */
 
-        if (path_equal(a, b))
-                return 1;
+        ຖ້າ (path_equal(a, b))
+                ສົ່ງຄືນ 1;
 
-        if (!a || !b)
-                return 0;
+        ຖ້າ (!a || !b)
+                ສົ່ງຄືນ 0;
 
-        return inode_same(a, b, flags);
+        ສົ່ງຄືນ inode_same(a, b, flags);
 }
 
-char* path_extend_internal(char **x, ...) {
+var_na* path_extend_internal(var_na **x, ...) {
         size_t sz, old_sz;
-        char *q, *nx;
-        const char *p;
+        var_na *q, *nx;
+        const var_na *p;
         va_list ap;
         bool slash;
 
@@ -609,16 +609,16 @@ char* path_extend_internal(char **x, ...) {
 
         sz = old_sz = x ? strlen_ptr(*x) : 0;
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
+        ໃນຂະນະທີ່ ((p = va_arg(ap, var_na*)) != POINTER_MAX) {
                 size_t add;
 
-                if (isempty(p))
+                ຖ້າ (isempty(p))
                         continue;
 
                 add = 1 + strlen(p);
-                if (sz > SIZE_MAX - add) { /* overflow check */
+                ຖ້າ (sz > SIZE_MAX - add) { /* overflow check */
                         va_end(ap);
-                        return NULL;
+                        ສົ່ງຄືນ NULL;
                 }
 
                 sz += add;
@@ -626,14 +626,14 @@ char* path_extend_internal(char **x, ...) {
         va_end(ap);
 
         nx = realloc(x ? *x : NULL, GREEDY_ALLOC_ROUND_UP(sz+1));
-        if (!nx)
-                return NULL;
-        if (x)
+        ຖ້າ (!nx)
+                ສົ່ງຄືນ NULL;
+        ຖ້າ (x)
                 *x = nx;
 
-        if (old_sz > 0)
+        ຖ້າ (old_sz > 0)
                 slash = nx[old_sz-1] == '/';
-        else {
+        ບໍ່ດັ່ງນັ້ນ {
                 nx[old_sz] = 0;
                 slash = true; /* no need to generate a slash anymore */
         }
@@ -641,11 +641,11 @@ char* path_extend_internal(char **x, ...) {
         q = nx + old_sz;
 
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                if (isempty(p))
+        ໃນຂະນະທີ່ ((p = va_arg(ap, var_na*)) != POINTER_MAX) {
+                ຖ້າ (isempty(p))
                         continue;
 
-                if (!slash && p[0] != '/')
+                ຖ້າ (!slash && p[0] != '/')
                         *(q++) = '/';
 
                 q = stpcpy(q, p);
@@ -653,13 +653,13 @@ char* path_extend_internal(char **x, ...) {
         }
         va_end(ap);
 
-        return nx;
+        ສົ່ງຄືນ nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *resolved = NULL;
-        int r;
+ຈຳນວນເຕັມ open_and_check_executable(const var_na *name, const var_na *root, var_na **ret_path, ຈຳນວນເຕັມ *ret_fd) {
+        _cleanup_close_ ຈຳນວນເຕັມ fd = -EBADF;
+        _cleanup_free_ var_na *resolved = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(name);
 
@@ -667,187 +667,187 @@ int open_and_check_executable(const char *name, const char *root, char **ret_pat
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        ຖ້າ (root) {
                 /* prefix root to name in case full paths are not specified */
                 r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 name = resolved;
-        } else {
+        } ບໍ່ດັ່ງນັ້ນ {
                 /* We need to use O_PATH because there may be executables for which we have only exec permissions,
                  * but not read (usually suid executables). */
                 fd = open(name, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
+                ຖ້າ (fd < 0)
+                        ສົ່ງຄືນ -errno;
         }
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         r = access_fd(fd, X_OK);
-        if (r == -ENOSYS)
+        ຖ້າ (r == -ENOSYS)
                 /* /proc/ is not mounted. Fall back to access(). */
                 r = RET_NERRNO(access(name, X_OK));
-        if (r < 0)
-                return r;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        if (ret_path) {
-                if (resolved)
+        ຖ້າ (ret_path) {
+                ຖ້າ (resolved)
                         *ret_path = TAKE_PTR(resolved);
-                else {
+                ບໍ່ດັ່ງນັ້ນ {
                         r = path_make_absolute_cwd(name, ret_path);
-                        if (r < 0)
-                                return r;
+                        ຖ້າ (r < 0)
+                                ສົ່ງຄືນ r;
 
                         path_simplify(*ret_path);
                 }
         }
 
-        if (ret_fd)
+        ຖ້າ (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
+ຈຳນວນເຕັມ find_executable_full(
+                const var_na *name,
+                const var_na *root,
+                var_na * const *exec_search_path,
                 bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd) {
+                var_na **ret_filename,
+                ຈຳນວນເຕັມ *ret_fd) {
 
-        int last_error = -ENOENT, r = 0;
+        ຈຳນວນເຕັມ last_error = -ENOENT, r = 0;
 
         assert(name);
 
-        if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+        ຖ້າ (is_path(name))
+                ສົ່ງຄືນ open_and_check_executable(name, root, ret_filename, ret_fd);
 
-        if (exec_search_path) {
+        ຖ້າ (exec_search_path) {
                 STRV_FOREACH(element, exec_search_path) {
-                        _cleanup_free_ char *full_path = NULL;
+                        _cleanup_free_ var_na *full_path = NULL;
 
-                        if (!path_is_absolute(*element)) {
+                        ຖ້າ (!path_is_absolute(*element)) {
                                 log_debug("Exec search path '%s' isn't absolute, ignoring.", *element);
                                 continue;
                         }
 
                         full_path = path_join(*element, name);
-                        if (!full_path)
-                                return -ENOMEM;
+                        ຖ້າ (!full_path)
+                                ສົ່ງຄືນ -ENOMEM;
 
                         r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
-                        if (r >= 0)
-                                return 0;
-                        if (r != -EACCES)
+                        ຖ້າ (r >= 0)
+                                ສົ່ງຄືນ 0;
+                        ຖ້າ (r != -EACCES)
                                 last_error = r;
                 }
-                return last_error;
+                ສົ່ງຄືນ last_error;
         }
 
-        const char *p = NULL;
+        const var_na *p = NULL;
 
-        if (use_path_envvar)
+        ຖ້າ (use_path_envvar)
                 /* Plain getenv, not secure_getenv, because we want to actually allow the user to pick the
                  * binary. */
                 p = getenv("PATH");
-        if (!p)
+        ຖ້າ (!p)
                 p = default_PATH();
 
         /* Resolve a single-component name to a full path */
-        for (;;) {
-                _cleanup_free_ char *element = NULL;
+        ສຳລັບ (;;) {
+                _cleanup_free_ var_na *element = NULL;
 
                 r = extract_first_word(&p, &element, ":", EXTRACT_RELAX|EXTRACT_DONT_COALESCE_SEPARATORS);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
+                ຖ້າ (r == 0)
+                        bha_nga;
 
-                if (!path_is_absolute(element)) {
+                ຖ້າ (!path_is_absolute(element)) {
                         log_debug("Exec search path '%s' isn't absolute, ignoring.", element);
                         continue;
                 }
 
-                if (!path_extend(&element, name))
-                        return -ENOMEM;
+                ຖ້າ (!path_extend(&element, name))
+                        ສົ່ງຄືນ -ENOMEM;
 
                 r = open_and_check_executable(element, root, ret_filename, ret_fd);
-                if (r >= 0) /* Found it! */
-                        return 0;
+                ຖ້າ (r >= 0) /* Found it! */
+                        ສົ່ງຄືນ 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
-                if (r != -EACCES)
+                ຖ້າ (r != -EACCES)
                         last_error = r;
         }
 
-        return last_error;
+        ສົ່ງຄືນ last_error;
 }
 
-static int executable_is_good(const char *executable) {
-        _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
+static ຈຳນວນເຕັມ executable_is_good(const var_na *executable) {
+        _cleanup_free_ var_na *p = NULL, *d = NULL;
+        ຈຳນວນເຕັມ r;
 
         r = find_executable(executable, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
+        ຖ້າ (r == -ENOENT)
+                ສົ່ງຄືນ 0;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
         /* An fsck that is linked to /bin/true is a non-existent fsck */
 
         r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
+        ຖ້າ (r == -EINVAL) /* not a symlink */
+                ສົ່ງຄືນ 1;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
 
-        return !PATH_IN_SET(d, "true",
+        ສົ່ງຄືນ !PATH_IN_SET(d, "true",
                                "/bin/true",
                                "/usr/bin/true",
                                "/dev/null");
 }
 
-int fsck_exists(void) {
-        return executable_is_good("fsck");
+ຈຳນວນເຕັມ fsck_exists(void) {
+        ສົ່ງຄືນ executable_is_good("fsck");
 }
 
-int fsck_exists_for_fstype(const char *fstype) {
-        const char *checker;
-        int r;
+ຈຳນວນເຕັມ fsck_exists_for_fstype(const var_na *fstype) {
+        const var_na *checker;
+        ຈຳນວນເຕັມ r;
 
         assert(fstype);
 
-        if (streq(fstype, "auto"))
-                return -EINVAL;
+        ຖ້າ (streq(fstype, "auto"))
+                ສົ່ງຄືນ -EINVAL;
 
         r = fsck_exists();
-        if (r <= 0)
-                return r;
+        ຖ້າ (r <= 0)
+                ສົ່ງຄືນ r;
 
         checker = strjoina("fsck.", fstype);
-        return executable_is_good(checker);
+        ສົ່ງຄືນ executable_is_good(checker);
 }
 
-static const char* skip_slash_or_dot(const char *p) {
+static const var_na* skip_slash_or_dot(const var_na *p) {
         POINTER_MAY_BE_NULL(p);
 
-        for (; !isempty(p); p++) {
-                if (*p == '/')
+        ສຳລັບ (; !isempty(p); p++) {
+                ຖ້າ (*p == '/')
                         continue;
-                if (startswith(p, "./")) {
+                ຖ້າ (startswith(p, "./")) {
                         p++;
                         continue;
                 }
-                break;
+                bha_nga;
         }
-        return p;
+        ສົ່ງຄືນ p;
 }
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
-        const char *q, *first, *end_first, *next;
+ຈຳນວນເຕັມ path_find_first_component(const var_na **p, bool accept_dot_dot, const var_na **ret) {
+        const var_na *q, *first, *end_first, *next;
         size_t len;
 
         assert(p);
@@ -888,53 +888,53 @@ int path_find_first_component(const char **p, bool accept_dot_dot, const char **
         q = *p;
 
         first = skip_slash_or_dot(q);
-        if (isempty(first)) {
+        ຖ້າ (isempty(first)) {
                 *p = first;
-                if (ret)
+                ຖ້າ (ret)
                         *ret = NULL;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
-        if (streq(first, ".")) {
+        ຖ້າ (streq(first, ".")) {
                 *p = first + 1;
-                if (ret)
+                ຖ້າ (ret)
                         *ret = NULL;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
         end_first = strchrnul(first, '/');
         len = end_first - first;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
-                return -EINVAL;
+        ຖ້າ (len > NAME_MAX)
+                ສົ່ງຄືນ -EINVAL;
+        ຖ້າ (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
+                ສົ່ງຄືນ -EINVAL;
 
         next = skip_slash_or_dot(end_first);
 
         *p = next + streq(next, ".");
-        if (ret)
+        ຖ້າ (ret)
                 *ret = first;
-        return len;
+        ສົ່ງຄືນ len;
 }
 
-static const char* skip_slash_or_dot_backward(const char *path, const char *q) {
+static const var_na* skip_slash_or_dot_backward(const var_na *path, const var_na *q) {
         assert(path);
         assert(!q || q >= path);
 
-        for (; q; q = PTR_SUB1(q, path)) {
-                if (*q == '/')
+        ສຳລັບ (; q; q = PTR_SUB1(q, path)) {
+                ຖ້າ (*q == '/')
                         continue;
-                if (q > path && strneq(q - 1, "/.", 2))
+                ຖ້າ (q > path && strneq(q - 1, "/.", 2))
                         continue;
-                if (q == path && *q == '.')
+                ຖ້າ (q == path && *q == '.')
                         continue;
-                break;
+                bha_nga;
         }
-        return q;
+        ສົ່ງຄືນ q;
 }
 
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
-        const char *q, *last_end, *last_begin;
+ຈຳນວນເຕັມ path_find_last_component(const var_na *path, bool accept_dot_dot, const var_na **next, const var_na **ret) {
+        const var_na *q, *last_end, *last_begin;
         size_t len;
 
         POINTER_MAY_BE_NULL(next);
@@ -974,61 +974,61 @@ int path_find_last_component(const char *path, bool accept_dot_dot, const char *
         *   Output: return value: -EINVAL
         */
 
-        if (isempty(path)) {
-                if (next)
+        ຖ້າ (isempty(path)) {
+                ຖ້າ (next)
                         *next = path;
-                if (ret)
+                ຖ້າ (ret)
                         *ret = NULL;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
-        if (next && *next) {
-                if (*next < path || *next > path + strlen(path))
-                        return -EINVAL;
-                if (*next == path) {
-                        if (ret)
+        ຖ້າ (next && *next) {
+                ຖ້າ (*next < path || *next > path + strlen(path))
+                        ສົ່ງຄືນ -EINVAL;
+                ຖ້າ (*next == path) {
+                        ຖ້າ (ret)
                                 *ret = NULL;
-                        return 0;
+                        ສົ່ງຄືນ 0;
                 }
-                if (!IN_SET(**next, '\0', '/'))
-                        return -EINVAL;
+                ຖ້າ (!IN_SET(**next, '\0', '/'))
+                        ສົ່ງຄືນ -EINVAL;
                 q = *next - 1;
-        } else
+        } ບໍ່ດັ່ງນັ້ນ
                 q = path + strlen(path) - 1;
 
         q = skip_slash_or_dot_backward(path, q);
-        if (!q) { /* the root directory, "." or "./" */
-                if (next)
+        ຖ້າ (!q) { /* the root directory, "." or "./" */
+                ຖ້າ (next)
                         *next = path;
-                if (ret)
+                ຖ້າ (ret)
                         *ret = NULL;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
         last_end = q + 1;
 
-        while (q && *q != '/')
+        ໃນຂະນະທີ່ (q && *q != '/')
                 q = PTR_SUB1(q, path);
 
         last_begin = q ? q + 1 : path;
         len = last_end - last_begin;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
-                return -EINVAL;
+        ຖ້າ (len > NAME_MAX)
+                ສົ່ງຄືນ -EINVAL;
+        ຖ້າ (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
+                ສົ່ງຄືນ -EINVAL;
 
-        if (next) {
+        ຖ້າ (next) {
                 q = skip_slash_or_dot_backward(path, q);
                 *next = q ? q + 1 : path;
         }
 
-        if (ret)
+        ຖ້າ (ret)
                 *ret = last_begin;
-        return len;
+        ສົ່ງຄືນ len;
 }
 
-const char* last_path_component(const char *path) {
+const var_na* last_path_component(const var_na *path) {
 
         /* Finds the last component of the path, preserving the optional trailing slash that signifies a directory.
          *
@@ -1052,29 +1052,29 @@ const char* last_path_component(const char *path) {
 
         unsigned l, k;
 
-        if (!path)
-                return NULL;
+        ຖ້າ (!path)
+                ສົ່ງຄືນ NULL;
 
         l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
+        ຖ້າ (l == 0) /* special case — an empty string */
+                ສົ່ງຄືນ path;
 
-        while (k > 0 && path[k-1] == '/')
+        ໃນຂະນະທີ່ (k > 0 && path[k-1] == '/')
                 k--;
 
-        if (k == 0) /* the root directory */
-                return path + l - 1;
+        ຖ້າ (k == 0) /* the root directory */
+                ສົ່ງຄືນ path + l - 1;
 
-        while (k > 0 && path[k-1] != '/')
+        ໃນຂະນະທີ່ (k > 0 && path[k-1] != '/')
                 k--;
 
-        return path + k;
+        ສົ່ງຄືນ path + k;
 }
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
-        _cleanup_free_ char *d = NULL;
-        const char *c, *next = NULL;
-        int r;
+ຈຳນວນເຕັມ path_split_prefix_filename(const var_na *path, var_na **ret_dir, var_na **ret_filename) {
+        _cleanup_free_ var_na *d = NULL;
+        const var_na *c, *next = NULL;
+        ຈຳນວນເຕັມ r;
 
         POINTER_MAY_BE_NULL(path);
 
@@ -1092,119 +1092,119 @@ int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_file
          * This function guarantees to return a fully valid filename, i.e. one that passes
          * filename_is_valid() – this means "." and ".." are not accepted. */
 
-        if (isempty(path))
-                return -EINVAL;
+        ຖ້າ (isempty(path))
+                ສົ່ງຄືນ -EINVAL;
 
         r = path_find_last_component(path, /* accept_dot_dot = */ false, &next, &c);
-        if (r < 0)
-                return r;
-        if (r == 0) /* root directory or "." */
-                return -EADDRNOTAVAIL;
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
+        ຖ້າ (r == 0) /* root directory or "." */
+                ສົ່ງຄືນ -EADDRNOTAVAIL;
 
-        if (ret_dir) {
-                if (next == path) {
-                        if (*path != '/') { /* filename only */
-                                if (!ret_filename)
-                                        return -EDESTADDRREQ;
-                        } else {
+        ຖ້າ (ret_dir) {
+                ຖ້າ (next == path) {
+                        ຖ້າ (*path != '/') { /* filename only */
+                                ຖ້າ (!ret_filename)
+                                        ສົ່ງຄືນ -EDESTADDRREQ;
+                        } ບໍ່ດັ່ງນັ້ນ {
                                 d = strdup("/");
-                                if (!d)
-                                        return -ENOMEM;
+                                ຖ້າ (!d)
+                                        ສົ່ງຄືນ -ENOMEM;
                         }
-                } else {
+                } ບໍ່ດັ່ງນັ້ນ {
                         d = strndup(path, next - path);
-                        if (!d)
-                                return -ENOMEM;
+                        ຖ້າ (!d)
+                                ສົ່ງຄືນ -ENOMEM;
 
                         path_simplify(d);
 
-                        if (!path_is_valid(d))
-                                return -EINVAL;
+                        ຖ້າ (!path_is_valid(d))
+                                ສົ່ງຄືນ -EINVAL;
                 }
 
-        } else if (!path_is_valid(path))
+        } ບໍ່ດັ່ງນັ້ນ ຖ້າ (!path_is_valid(path))
                 /* We didn't validate the dir prefix, hence check if the whole path is valid now */
-                return -EINVAL;
+                ສົ່ງຄືນ -EINVAL;
 
-        if (ret_filename) {
-                char *fn = strndup(c, r);
-                if (!fn)
-                        return -ENOMEM;
+        ຖ້າ (ret_filename) {
+                var_na *fn = strndup(c, r);
+                ຖ້າ (!fn)
+                        ສົ່ງຄືນ -ENOMEM;
 
                 *ret_filename = fn;
         }
 
-        if (ret_dir)
+        ຖ້າ (ret_dir)
                 *ret_dir = TAKE_PTR(d);
 
-        return strlen(c) > (size_t) r ? O_DIRECTORY : 0;
+        ສົ່ງຄືນ strlen(c) > (size_t) r ? O_DIRECTORY : 0;
 }
 
-bool filename_part_is_valid(const char *p) {
-        const char *e;
+bool filename_part_is_valid(const var_na *p) {
+        const var_na *e;
 
         /* Checks f the specified string is OK to be *part* of a filename. This is different from
          * filename_is_valid() as "." and ".." and "" are OK by this call, but not by filename_is_valid(). */
 
-        if (!p)
-                return false;
+        ຖ້າ (!p)
+                ສົ່ງຄືນ false;
 
         e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
+        ຖ້າ (*e != 0)
+                ສົ່ງຄືນ false;
 
-        if (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
-                return false;
+        ຖ້າ (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
+                ສົ່ງຄືນ false;
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-bool filename_is_valid(const char *p) {
+bool filename_is_valid(const var_na *p) {
 
-        if (isempty(p))
-                return false;
+        ຖ້າ (isempty(p))
+                ສົ່ງຄືນ false;
 
-        if (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
-                return false;
+        ຖ້າ (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
+                ສົ່ງຄືນ false;
 
-        return filename_part_is_valid(p);
+        ສົ່ງຄືນ filename_part_is_valid(p);
 }
 
-bool path_is_valid_full(const char *p, bool accept_dot_dot) {
-        if (isempty(p))
-                return false;
+bool path_is_valid_full(const var_na *p, bool accept_dot_dot) {
+        ຖ້າ (isempty(p))
+                ສົ່ງຄືນ false;
 
-        for (const char *e = p;;) {
-                int r;
+        ສຳລັບ (const var_na *e = p;;) {
+                ຈຳນວນເຕັມ r;
 
                 r = path_find_first_component(&e, accept_dot_dot, NULL);
-                if (r < 0)
-                        return false;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ false;
 
-                if (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
+                ຖ້າ (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
                                         * *with* the trailing NUL byte) */
-                        return false;
-                if (*e == 0)           /* End of string? Yay! */
-                        return true;
+                        ສົ່ງຄືນ false;
+                ຖ້າ (*e == 0)           /* End of string? Yay! */
+                        ສົ່ງຄືນ true;
         }
 }
 
-bool path_is_normalized(const char *p) {
-        if (!path_is_safe(p))
-                return false;
+bool path_is_normalized(const var_na *p) {
+        ຖ້າ (!path_is_safe(p))
+                ສົ່ງຄືນ false;
 
-        if (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
+        ຖ້າ (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
+                ສົ່ງຄືນ false;
 
-        if (strstr(p, "//"))
-                return false;
+        ຖ້າ (strstr(p, "//"))
+                ສົ່ງຄືນ false;
 
-        return true;
+        ສົ່ງຄືນ true;
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret) {
-        _cleanup_free_ char *b = NULL;
-        int r;
+ຈຳນວນເຕັມ file_in_same_dir(const var_na *path, const var_na *filename, var_na **ret) {
+        _cleanup_free_ var_na *b = NULL;
+        ຈຳນວນເຕັມ r;
 
         assert(path);
         assert(filename);
@@ -1213,40 +1213,40 @@ int file_in_same_dir(const char *path, const char *filename, char **ret) {
         /* This removes the last component of path and appends filename, unless the latter is absolute anyway
          * or the former isn't */
 
-        if (path_is_absolute(filename))
+        ຖ້າ (path_is_absolute(filename))
                 b = strdup(filename);
-        else {
-                _cleanup_free_ char *dn = NULL;
+        ບໍ່ດັ່ງນັ້ນ {
+                _cleanup_free_ var_na *dn = NULL;
 
                 r = path_extract_directory(path, &dn);
-                if (r == -EDESTADDRREQ) /* no path prefix */
+                ຖ້າ (r == -EDESTADDRREQ) /* no path prefix */
                         b = strdup(filename);
-                else if (r < 0)
-                        return r;
-                else
+                ບໍ່ດັ່ງນັ້ນ ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
+                ບໍ່ດັ່ງນັ້ນ
                         b = path_join(dn, filename);
         }
-        if (!b)
-                return -ENOMEM;
+        ຖ້າ (!b)
+                ສົ່ງຄືນ -ENOMEM;
 
         *ret = TAKE_PTR(b);
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-bool hidden_or_backup_file(const char *filename) {
+bool hidden_or_backup_file(const var_na *filename) {
         assert(filename);
 
-        if (filename[0] == '.' ||
+        ຖ້າ (filename[0] == '.' ||
             STR_IN_SET(filename,
                        "lost+found",
                        "aquota.user",
                        "aquota.group") ||
             endswith(filename, "~"))
-                return true;
+                ສົ່ງຄືນ true;
 
-        const char *dot = strrchr(filename, '.');
-        if (!dot)
-                return false;
+        const var_na *dot = strrchr(filename, '.');
+        ຖ້າ (!dot)
+                ສົ່ງຄືນ false;
 
         /* Please, let's not add more entries to the list below. If external projects think it's a good idea
          * to come up with always new suffixes and that everybody else should just adjust to that, then it
@@ -1262,7 +1262,7 @@ bool hidden_or_backup_file(const char *filename) {
          * ".foopkg.old" or ".foopkg~" instead.
          */
 
-        return STR_IN_SET(dot + 1,
+        ສົ່ງຄືນ STR_IN_SET(dot + 1,
                           "ignore",
                           "rpmnew",
                           "rpmsave",
@@ -1283,7 +1283,7 @@ bool hidden_or_backup_file(const char *filename) {
                           "new");
 }
 
-bool is_device_path(const char *path) {
+bool is_device_path(const var_na *path) {
 
         /* Returns true for paths that likely refer to a device, either by path in sysfs or to something in
          * /dev. This accepts any path that starts with /dev/ or /sys/ and has something after that prefix.
@@ -1294,206 +1294,206 @@ bool is_device_path(const char *path) {
          * /../dev/sda, /dev, /sys, /usr/path, /usr/../dev/sda → no.
          */
 
-        const char *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
-        return !isempty(p);
+        const var_na *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
+        ສົ່ງຄືນ !isempty(p);
 }
 
-bool valid_device_node_path(const char *path) {
+bool valid_device_node_path(const var_na *path) {
 
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
 
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
+        ຖ້າ (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
+                ສົ່ງຄືນ false;
 
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
+        ຖ້າ (endswith(path, "/")) /* can't be a device node if it ends in a slash */
+                ສົ່ງຄືນ false;
 
-        return path_is_normalized(path);
+        ສົ່ງຄືນ path_is_normalized(path);
 }
 
-bool valid_device_allow_pattern(const char *path) {
+bool valid_device_allow_pattern(const var_na *path) {
         assert(path);
 
         /* Like valid_device_node_path(), but also allows full-subsystem expressions like those accepted by
          * DeviceAllow= and DeviceDeny=. */
 
-        if (STARTSWITH_SET(path, "block-", "char-"))
-                return true;
+        ຖ້າ (STARTSWITH_SET(path, "block-", "char-"))
+                ສົ່ງຄືນ true;
 
-        return valid_device_node_path(path);
+        ສົ່ງຄືນ valid_device_node_path(path);
 }
 
-bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
+bool dot_or_dot_dot(const var_na *path) {
+        ຖ້າ (!path)
+                ສົ່ງຄືນ false;
+        ຖ້າ (path[0] != '.')
+                ສົ່ງຄືນ false;
+        ຖ້າ (path[1] == 0)
+                ສົ່ງຄືນ true;
+        ຖ້າ (path[1] != '.')
+                ສົ່ງຄືນ false;
 
-        return path[2] == 0;
+        ສົ່ງຄືນ path[2] == 0;
 }
 
-bool path_implies_directory(const char *path) {
+bool path_implies_directory(const var_na *path) {
 
         /* Sometimes, if we look at a path we already know it must refer to a directory, because it is
          * suffixed with a slash, or its last component is "." or ".." */
 
-        if (!path)
-                return false;
+        ຖ້າ (!path)
+                ສົ່ງຄືນ false;
 
-        if (dot_or_dot_dot(path))
-                return true;
+        ຖ້າ (dot_or_dot_dot(path))
+                ສົ່ງຄືນ true;
 
-        return ENDSWITH_SET(path, "/", "/.", "/..");
+        ສົ່ງຄືນ ENDSWITH_SET(path, "/", "/.", "/..");
 }
 
-bool empty_or_root(const char *path) {
+bool empty_or_root(const var_na *path) {
 
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
 
-        if (isempty(path))
-                return true;
+        ຖ້າ (isempty(path))
+                ສົ່ງຄືນ true;
 
-        return path_equal(path, "/");
+        ສົ່ງຄືນ path_equal(path, "/");
 }
 
-const char* empty_to_root(const char *path) {
-        return isempty(path) ? "/" : path;
+const var_na* empty_to_root(const var_na *path) {
+        ສົ່ງຄືນ isempty(path) ? "/" : path;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
-        int r;
+ຈຳນວນເຕັມ empty_or_root_harder_to_null(const var_na **path) {
+        ຈຳນວນເຕັມ r;
 
         assert(path);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
+        ຖ້າ (empty_or_root(*path)) {
                 *path = NULL;
-                return 0;
+                ສົ່ງຄືນ 0;
         }
 
         r = path_is_root(*path);
-        if (r < 0)
-                return r;
-        if (r > 0)
+        ຖ້າ (r < 0)
+                ສົ່ງຄືນ r;
+        ຖ້າ (r > 0)
                 *path = NULL;
 
-        return 0;
+        ສົ່ງຄືນ 0;
 }
 
-bool path_strv_contains(char * const *l, const char *path) {
+bool path_strv_contains(var_na * const *l, const var_na *path) {
         assert(path);
 
         STRV_FOREACH(i, l)
-                if (path_equal(*i, path))
-                        return true;
+                ຖ້າ (path_equal(*i, path))
+                        ສົ່ງຄືນ true;
 
-        return false;
+        ສົ່ງຄືນ false;
 }
 
-bool prefixed_path_strv_contains(char * const *l, const char *path) {
+bool prefixed_path_strv_contains(var_na * const *l, const var_na *path) {
         assert(path);
 
         STRV_FOREACH(i, l) {
-                const char *j = *i;
+                const var_na *j = *i;
 
-                if (*j == '-')
+                ຖ້າ (*j == '-')
                         j++;
-                if (*j == '+')
+                ຖ້າ (*j == '+')
                         j++;
 
-                if (path_equal(j, path))
-                        return true;
+                ຖ້າ (path_equal(j, path))
+                        ສົ່ງຄືນ true;
         }
 
-        return false;
+        ສົ່ງຄືນ false;
 }
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
+ຈຳນວນເຕັມ path_glob_can_match(const var_na *pattern, const var_na *prefix, var_na **ret) {
         assert(pattern);
         assert(prefix);
 
-        for (const char *a = pattern, *b = prefix;;) {
-                _cleanup_free_ char *g = NULL, *h = NULL;
-                const char *p, *q;
-                int r, s;
+        ສຳລັບ (const var_na *a = pattern, *b = prefix;;) {
+                _cleanup_free_ var_na *g = NULL, *h = NULL;
+                const var_na *p, *q;
+                ຈຳນວນເຕັມ r, s;
 
                 r = path_find_first_component(&a, /* accept_dot_dot= */ false, &p);
-                if (r < 0)
-                        return r;
+                ຖ້າ (r < 0)
+                        ສົ່ງຄືນ r;
 
                 s = path_find_first_component(&b, /* accept_dot_dot= */ false, &q);
-                if (s < 0)
-                        return s;
+                ຖ້າ (s < 0)
+                        ສົ່ງຄືນ s;
 
-                if (s == 0) {
+                ຖ້າ (s == 0) {
                         /* The pattern matches the prefix. */
-                        if (ret) {
-                                char *t;
+                        ຖ້າ (ret) {
+                                var_na *t;
 
                                 t = path_join(prefix, p);
-                                if (!t)
-                                        return -ENOMEM;
+                                ຖ້າ (!t)
+                                        ສົ່ງຄືນ -ENOMEM;
 
                                 *ret = t;
                         }
-                        return true;
+                        ສົ່ງຄືນ true;
                 }
 
-                if (r == 0)
-                        break;
+                ຖ້າ (r == 0)
+                        bha_nga;
 
-                if (r == s && strneq(p, q, r))
+                ຖ້າ (r == s && strneq(p, q, r))
                         continue; /* common component. Check next. */
 
                 g = strndup(p, r);
-                if (!g)
-                        return -ENOMEM;
+                ຖ້າ (!g)
+                        ສົ່ງຄືນ -ENOMEM;
 
-                if (!string_is_glob(g))
-                        break;
+                ຖ້າ (!string_is_glob(g))
+                        bha_nga;
 
                 /* We found a glob component. Check if the glob pattern matches the prefix component. */
 
                 h = strndup(q, s);
-                if (!h)
-                        return -ENOMEM;
+                ຖ້າ (!h)
+                        ສົ່ງຄືນ -ENOMEM;
 
                 r = fnmatch(g, h, 0);
-                if (r == FNM_NOMATCH)
-                        break;
-                if (r != 0) /* Failure to process pattern? */
-                        return -EINVAL;
+                ຖ້າ (r == FNM_NOMATCH)
+                        bha_nga;
+                ຖ້າ (r != 0) /* Failure to process pattern? */
+                        ສົ່ງຄືນ -EINVAL;
         }
 
         /* The pattern does not match the prefix. */
-        if (ret)
+        ຖ້າ (ret)
                 *ret = NULL;
-        return false;
+        ສົ່ງຄືນ false;
 }
 
-#if HAVE_SPLIT_BIN
-static bool dir_is_split(const char *a, const char *b) {
-        int r;
+#ຖ້າ HAVE_SPLIT_BIN
+static bool dir_is_split(const var_na *a, const var_na *b) {
+        ຈຳນວນເຕັມ r;
 
         r = inode_same(a, b, AT_NO_AUTOMOUNT);
-        if (r < 0 && r != -ENOENT) {
+        ຖ້າ (r < 0 && r != -ENOENT) {
                 log_debug_errno(r, "Failed to compare \"%s\" and \"%s\", assuming split directories: %m", a, b);
-                return true;
+                ສົ່ງຄືນ true;
         }
-        return r == 0;
+        ສົ່ງຄືນ r == 0;
 }
 #endif
 
-const char* default_PATH(void) {
-#if HAVE_SPLIT_BIN
-        static const char *default_path = NULL;
+const var_na* default_PATH(void) {
+#ຖ້າ HAVE_SPLIT_BIN
+        static const var_na *default_path = NULL;
 
         /* Return one of the three sets of paths:
          * a) split /usr/s?bin, /usr/local/sbin doesn't matter.
@@ -1503,15 +1503,15 @@ const char* default_PATH(void) {
          * On error the fallback to the safe value with both directories as configured is returned.
          */
 
-        if (default_path)
-                return default_path;
+        ຖ້າ (default_path)
+                ສົ່ງຄືນ default_path;
 
-        if (dir_is_split("/usr/sbin", "/usr/bin"))
-                return (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
-        if (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
-                return (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
-        return (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
-#else
-        return DEFAULT_PATH_WITHOUT_SBIN;
+        ຖ້າ (dir_is_split("/usr/sbin", "/usr/bin"))
+                ສົ່ງຄືນ (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
+        ຖ້າ (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
+                ສົ່ງຄືນ (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
+        ສົ່ງຄືນ (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
+#ບໍ່ດັ່ງນັ້ນ
+        ສົ່ງຄືນ DEFAULT_PATH_WITHOUT_SBIN;
 #endif
 }
