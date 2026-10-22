@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-struct strbuf {
-        char *buf;
+بنية strbuf {
+        حرف *buf;
         size_t len;
-        struct strbuf_node *root;
+        بنية strbuf_ڳنڍ *پاڙ;
 
-        size_t nodes_count;
-        size_t in_count;
-        size_t in_len;
+        size_t nodes_ڳڻپ;
+        size_t اندريون_ڳڻپ;
+        size_t اندريون_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_ڳڻپ;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+بنية strbuf_ڳنڍ {
+        size_t قدر_off;
+        size_t قدر_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        بنية strbuf_ٻار_داخلا *children;
+        uint8_t children_ڳڻپ;
 };
 
-struct strbuf_child_entry {
+بنية strbuf_ٻار_داخلا {
         uint8_t c;
-        struct strbuf_node *child;
+        بنية strbuf_ڳنڍ *ٻار;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+بنية strbuf* strbuf_new(فراغ);
+ssize_t strbuf_جوڙيو_string_ڀريل(بنية strbuf *str, ثابت حرف *s, size_t len);
+ساكن مضمن ssize_t strbuf_جوڙيو_string(بنية strbuf *str, ثابت حرف *s) {
+        أرجع strbuf_جوڙيو_string_ڀريل(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+فراغ strbuf_complete(بنية strbuf *str);
+بنية strbuf* strbuf_free(بنية strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(بنية strbuf*, strbuf_free);

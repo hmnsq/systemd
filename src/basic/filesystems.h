@@ -1,41 +1,41 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
-#include "stat-util.h"
+#ضمن "forward.h"
+#ضمن "stat-util.h"
 
-#define FILESYSTEM_MAGIC_MAX 10
+#وصف_ڪريو FILESYSTEM_MAGIC_MAX 10
 
-typedef enum FilesystemGroups {
+تعريفنوع تعداد FilesystemGroups {
         /* Please leave BASIC_API first and KNOWN last, but sort the rest alphabetically */
-        FILESYSTEM_SET_BASIC_API,
-        FILESYSTEM_SET_ANONYMOUS,
-        FILESYSTEM_SET_APPLICATION,
-        FILESYSTEM_SET_AUXILIARY_API,
-        FILESYSTEM_SET_COMMON_BLOCK,
-        FILESYSTEM_SET_HISTORICAL_BLOCK,
-        FILESYSTEM_SET_NETWORK,
-        FILESYSTEM_SET_PRIVILEGED_API,
-        FILESYSTEM_SET_SECURITY,
-        FILESYSTEM_SET_TEMPORARY,
-        FILESYSTEM_SET_KNOWN,
-        _FILESYSTEM_SET_MAX,
-        _FILESYSTEM_SET_INVALID = -EINVAL,
+        FILESYSTEM_سيٽ_BASIC_API,
+        FILESYSTEM_سيٽ_ANONYMOUS,
+        FILESYSTEM_سيٽ_APPLICATION,
+        FILESYSTEM_سيٽ_AUXILIARY_API,
+        FILESYSTEM_سيٽ_COMMON_بلاڪ,
+        FILESYSTEM_سيٽ_HISTORICAL_بلاڪ,
+        FILESYSTEM_سيٽ_ڄار,
+        FILESYSTEM_سيٽ_PRIVILEGED_API,
+        FILESYSTEM_سيٽ_SECURITY,
+        FILESYSTEM_سيٽ_TEMPORARY,
+        FILESYSTEM_سيٽ_معلوم,
+        FILESYSTEM_سيٽ_MAX,
+        FILESYSTEM_سيٽ_INVALID = -EINVAL,
 } FilesystemGroups;
 
-typedef struct FilesystemSet {
-        const char *name;
-        const char *help;
-        const char *value;
-} FilesystemSet;
+تعريفنوع بنية Filesystem_سيٽ {
+        ثابت حرف *name;
+        ثابت حرف *help;
+        ثابت حرف *قدر;
+} Filesystem_سيٽ;
 
-extern const FilesystemSet filesystem_sets[];
+خارجي ثابت Filesystem_سيٽ filesystem_sets[];
 
-const FilesystemSet *filesystem_set_find(const char *name);
+ثابت Filesystem_سيٽ *filesystem_سيٽ_ڳوليو(ثابت حرف *name);
 
-const char* fs_type_to_string(statfs_f_type_t magic);
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret);
-bool fs_in_group(const struct statfs *s, enum FilesystemGroups fs_group);
+ثابت حرف* fs_type_منزل_string(statfs_f_type_t magic);
+صحيح fs_type_from_string(ثابت حرف *name, ثابت statfs_f_type_t **ret);
+bool fs_اندريون_گروهه(ثابت بنية statfs *s, تعداد FilesystemGroups fs_گروهه);
 
 /* gperf prototypes */
-const struct FilesystemMagic* filesystems_gperf_lookup(const char *str, GPERF_LEN_TYPE length);
+ثابت بنية FilesystemMagic* filesystems_gperf_lookup(ثابت حرف *str, GPERF_LEN_TYPE length);

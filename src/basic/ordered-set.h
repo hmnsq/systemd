@@ -1,87 +1,87 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
-#include "hashmap.h"
+#ضمن "forward.h"
+#ضمن "hashmap.h"
 
-typedef struct OrderedSet OrderedSet;
+تعريفنوع بنية Ordered_سيٽ Ordered_سيٽ;
 
-static inline OrderedSet* ordered_set_new(const struct hash_ops *ops) {
-        return (OrderedSet*) ordered_hashmap_new(ops);
+ساكن مضمن Ordered_سيٽ* ordered_سيٽ_new(ثابت بنية hash_ops *ops) {
+        أرجع (Ordered_سيٽ*) ordered_hashmap_new(ops);
 }
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops);
+صحيح ordered_سيٽ_ensure_allocated(Ordered_سيٽ **s, ثابت بنية hash_ops *ops);
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p);
+صحيح ordered_سيٽ_ensure_put(Ordered_سيٽ **s, ثابت بنية hash_ops *ops, فراغ *p);
 
-static inline void ordered_set_clear(OrderedSet *s) {
-        return ordered_hashmap_clear((OrderedHashmap*) s);
+ساكن مضمن فراغ ordered_سيٽ_clear(Ordered_سيٽ *s) {
+        أرجع ordered_hashmap_clear((OrderedHashmap*) s);
 }
 
-static inline OrderedSet* ordered_set_free(OrderedSet *s) {
-        return (OrderedSet*) ordered_hashmap_free((OrderedHashmap*) s);
+ساكن مضمن Ordered_سيٽ* ordered_سيٽ_free(Ordered_سيٽ *s) {
+        أرجع (Ordered_سيٽ*) ordered_hashmap_free((OrderedHashmap*) s);
 }
 
-static inline int ordered_set_contains(OrderedSet *s, const void *p) {
-        return ordered_hashmap_contains((OrderedHashmap*) s, p);
+ساكن مضمن صحيح ordered_سيٽ_شامل_آهي(Ordered_سيٽ *s, ثابت فراغ *p) {
+        أرجع ordered_hashmap_شامل_آهي((OrderedHashmap*) s, p);
 }
 
-static inline int ordered_set_put(OrderedSet *s, void *p) {
-        return ordered_hashmap_put((OrderedHashmap*) s, p, p);
+ساكن مضمن صحيح ordered_سيٽ_put(Ordered_سيٽ *s, فراغ *p) {
+        أرجع ordered_hashmap_put((OrderedHashmap*) s, p, p);
 }
 
-static inline void *ordered_set_get(OrderedSet *s, const void *p) {
-        return ordered_hashmap_get((OrderedHashmap*) s, p);
+ساكن مضمن فراغ *ordered_سيٽ_get(Ordered_سيٽ *s, ثابت فراغ *p) {
+        أرجع ordered_hashmap_get((OrderedHashmap*) s, p);
 }
 
-static inline unsigned ordered_set_size(OrderedSet *s) {
-        return ordered_hashmap_size((OrderedHashmap*) s);
+ساكن مضمن بنانشان ordered_سيٽ_سائيز(Ordered_سيٽ *s) {
+        أرجع ordered_hashmap_سائيز((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_isempty(OrderedSet *s) {
-        return ordered_hashmap_isempty((OrderedHashmap*) s);
+ساكن مضمن bool ordered_سيٽ_isempty(Ordered_سيٽ *s) {
+        أرجع ordered_hashmap_isempty((OrderedHashmap*) s);
 }
 
-static inline bool ordered_set_iterate(OrderedSet *s, Iterator *i, void **value) {
-        return ordered_hashmap_iterate((OrderedHashmap*) s, i, value, NULL);
+ساكن مضمن bool ordered_سيٽ_iterate(Ordered_سيٽ *s, Iterator *i, فراغ **قدر) {
+        أرجع ordered_hashmap_iterate((OrderedHashmap*) s, i, قدر, عدم);
 }
 
-static inline void* ordered_set_remove(OrderedSet *s, void *p) {
-        return ordered_hashmap_remove((OrderedHashmap*) s, p);
+ساكن مضمن فراغ* ordered_سيٽ_remove(Ordered_سيٽ *s, فراغ *p) {
+        أرجع ordered_hashmap_remove((OrderedHashmap*) s, p);
 }
 
-static inline void* ordered_set_first(OrderedSet *s) {
-        return ordered_hashmap_first((OrderedHashmap*) s);
+ساكن مضمن فراغ* ordered_سيٽ_پهريون(Ordered_سيٽ *s) {
+        أرجع ordered_hashmap_پهريون((OrderedHashmap*) s);
 }
 
-static inline void* ordered_set_steal_first(OrderedSet *s) {
-        return ordered_hashmap_steal_first((OrderedHashmap*) s);
+ساكن مضمن فراغ* ordered_سيٽ_steal_پهريون(Ordered_سيٽ *s) {
+        أرجع ordered_hashmap_steal_پهريون((OrderedHashmap*) s);
 }
 
-static inline char** ordered_set_get_strv(OrderedSet *s) {
-        return _hashmap_get_strv(HASHMAP_BASE((OrderedHashmap*) s));
+ساكن مضمن حرف** ordered_سيٽ_get_strv(Ordered_سيٽ *s) {
+        أرجع _hashmap_get_strv(HASHMAP_بنياد((OrderedHashmap*) s));
 }
 
-static inline int ordered_set_reserve(OrderedSet *s, unsigned entries_add) {
-        return ordered_hashmap_reserve((OrderedHashmap*) s, entries_add);
+ساكن مضمن صحيح ordered_سيٽ_reserve(Ordered_سيٽ *s, بنانشان entries_جوڙيو) {
+        أرجع ordered_hashmap_reserve((OrderedHashmap*) s, entries_جوڙيو);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p);
+صحيح ordered_سيٽ_consume(Ordered_سيٽ *s, فراغ *p);
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p);
-#define ordered_set_put_strdup(s, p) ordered_set_put_strdup_full(s, &string_hash_ops_free, p)
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l);
-#define ordered_set_put_strdupv(s, l) ordered_set_put_strdupv_full(s, &string_hash_ops_free, l)
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l);
-#define ordered_set_put_string_set(s, l) ordered_set_put_string_set_full(s, &string_hash_ops_free, l)
+صحيح ordered_سيٽ_put_strdup_ڀريل(Ordered_سيٽ **s, ثابت بنية hash_ops *hash_ops, ثابت حرف *p);
+#وصف_ڪريو ordered_سيٽ_put_strdup(s, p) ordered_سيٽ_put_strdup_ڀريل(s, &string_hash_ops_free, p)
+صحيح ordered_سيٽ_put_strdupv_ڀريل(Ordered_سيٽ **s, ثابت بنية hash_ops *hash_ops, حرف **l);
+#وصف_ڪريو ordered_سيٽ_put_strdupv(s, l) ordered_سيٽ_put_strdupv_ڀريل(s, &string_hash_ops_free, l)
+صحيح ordered_سيٽ_put_string_سيٽ_ڀريل(Ordered_سيٽ **s, ثابت بنية hash_ops *hash_ops, Ordered_سيٽ *l);
+#وصف_ڪريو ordered_سيٽ_put_string_سيٽ(s, l) ordered_سيٽ_put_string_سيٽ_ڀريل(s, &string_hash_ops_free, l)
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s);
+فراغ ordered_سيٽ_print(FILE *f, ثابت حرف *ميدان, Ordered_سيٽ *s);
 
-#define _ORDERED_SET_FOREACH(e, s, i) \
-        for (Iterator i = ITERATOR_FIRST; ordered_set_iterate((s), &i, (void**)&(e)); )
-#define ORDERED_SET_FOREACH(e, s) \
-        _ORDERED_SET_FOREACH(e, s, UNIQ_T(i, UNIQ))
+#وصف_ڪريو ORDERED_سيٽ_FOREACH_2(e, s, i) \
+        لكل (Iterator i = ITERATOR_پهريون; ordered_سيٽ_iterate((s), &i, (فراغ**)&(e)); )
+#وصف_ڪريو ORDERED_سيٽ_FOREACH(e, s) \
+        ORDERED_سيٽ_FOREACH_2(e, s, UNIQ_T(i, UNIQ))
 
-DEFINE_TRIVIAL_CLEANUP_FUNC(OrderedSet*, ordered_set_free);
+DEFINE_TRIVIAL_CLEANUP_FUNC(Ordered_سيٽ*, ordered_سيٽ_free);
 
-#define _cleanup_ordered_set_free_ _cleanup_(ordered_set_freep)
+#وصف_ڪريو cleanup_ordered_سيٽ_free _cleanup_(ordered_سيٽ_freep)

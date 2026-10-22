@@ -1,66 +1,66 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <unistd.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "hexdecoct.h"
-#include "sha256.h"
-#include "string-util.h"
+#ضمن "alloc-util.h"
+#ضمن "hexdecoct.h"
+#ضمن "sha256.h"
+#ضمن "string-util.h"
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        struct sha256_ctx ctx;
-        uint64_t total_size = 0;
+صحيح sha256_fd(صحيح fd, uint64_t max_سائيز, uint8_t ret[ساكن SHA256_DIGEST_سائيز]) {
+        بنية sha256_ctx ctx;
+        uint64_t ڪل_سائيز = 0;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         sha256_init_ctx(&ctx);
 
-        for (;;) {
-                uint8_t buffer[64 * 1024];
+        لكل (;;) {
+                uint8_t بفر[64 * 1024];
                 ssize_t n;
 
-                n = read(fd, buffer, sizeof(buffer));
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = اقرأ(fd, بفر, حجم(بفر));
+                إذا (n < 0)
+                        أرجع -errno;
+                إذا (n == 0)
+                        اكسر;
 
-                if (!INC_SAFE(&total_size, n) || total_size > max_size)
-                        return -EFBIG;
+                إذا (!INC_محفوظ(&ڪل_سائيز, n) || ڪل_سائيز > max_سائيز)
+                        أرجع -EFBIG;
 
-                sha256_process_bytes(buffer, n, &ctx);
+                sha256_process_بائيٽون(بفر, n, &ctx);
         }
 
-        sha256_finish_ctx(&ctx, ret);
-        return 0;
+        sha256_پڄاڻي_ctx(&ctx, ret);
+        أرجع 0;
 }
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        _cleanup_free_ uint8_t *data = NULL;
-        size_t size = 0;
-        int r;
+صحيح parse_sha256(ثابت حرف *s, uint8_t ret[ساكن SHA256_DIGEST_سائيز]) {
+        _cleanup_free_ uint8_t *معلومات = عدم;
+        size_t سائيز = 0;
+        صحيح r;
 
-        if (!sha256_is_valid(s))
-                return -EINVAL;
+        إذا (!sha256_is_valid(s))
+                أرجع -EINVAL;
 
-        r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (void**) &data, &size);
-        if (r < 0)
-                return r;
-        assert(size == SHA256_DIGEST_SIZE);
+        r = unhexmem_ڀريل(s, SHA256_DIGEST_سائيز * 2, false, (فراغ**) &معلومات, &سائيز);
+        إذا (r < 0)
+                أرجع r;
+        أكد(سائيز == SHA256_DIGEST_سائيز);
 
-        memcpy(ret, data, size);
-        return 0;
+        يادگيري_نقل(ret, معلومات, سائيز);
+        أرجع 0;
 }
 
-bool sha256_is_valid(const char *s) {
-        return s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
+bool sha256_is_valid(ثابت حرف *s) {
+        أرجع s && اندريون_charset(s, HEXDIGITS) && (لڙي_ڊيگهه(s) == SHA256_DIGEST_سائيز * 2);
 }
 
-char* sha256_direct_hex(const void *buffer, size_t sz) {
-        assert(buffer || sz == 0);
+حرف* sha256_سڌو_hex(ثابت فراغ *بفر, size_t sz) {
+        أكد(بفر || sz == 0);
 
-        if (sz == SIZE_MAX)
-                sz = strlen(buffer);
+        إذا (sz == SIZE_MAX)
+                sz = لڙي_ڊيگهه(بفر);
 
-        return hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
+        أرجع hexmem(SHA256_سڌو(بفر, sz), SHA256_DIGEST_سائيز);
 }

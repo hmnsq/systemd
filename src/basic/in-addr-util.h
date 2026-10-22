@@ -1,225 +1,225 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include <netinet/in.h>
+#ضمن <netinet/in.h>
 
-#include "forward.h"
+#ضمن "forward.h"
 
-union in_addr_union {
-        struct in_addr in;
-        struct in6_addr in6;
-        uint8_t bytes[CONST_MAX(sizeof(struct in_addr), sizeof(struct in6_addr))];
+اتحاد اندريون_addr_union {
+        بنية in_addr اندريون;
+        بنية in6_addr in6;
+        uint8_t بائيٽون[CONST_MAX(حجم(بنية in_addr), حجم(بنية in6_addr))];
 };
 
-struct in_addr_data {
-        int family;
-        union in_addr_union address;
+بنية اندريون_addr_معلومات {
+        صحيح family;
+        اتحاد اندريون_addr_union پتو;
 };
 
-bool in4_addr_is_null(const struct in_addr *a) _pure_;
-static inline bool in4_addr_is_set(const struct in_addr *a) {
-        return !in4_addr_is_null(a);
+bool in4_addr_is_null(ثابت بنية in_addr *a) خالص;
+ساكن مضمن bool in4_addr_is_سيٽ(ثابت بنية in_addr *a) {
+        أرجع !in4_addr_is_null(a);
 }
-bool in6_addr_is_null(const struct in6_addr *a) _pure_;
-static inline bool in6_addr_is_set(const struct in6_addr *a) {
-        return !in6_addr_is_null(a);
+bool in6_addr_is_null(ثابت بنية in6_addr *a) خالص;
+ساكن مضمن bool in6_addr_is_سيٽ(ثابت بنية in6_addr *a) {
+        أرجع !in6_addr_is_null(a);
 }
-int in_addr_is_null(int family, const union in_addr_union *u) _pure_;
-static inline bool in_addr_is_set(int family, const union in_addr_union *u) {
-        return in_addr_is_null(family, u) == 0;
+صحيح اندريون_addr_is_null(صحيح family, ثابت اتحاد اندريون_addr_union *u) خالص;
+ساكن مضمن bool اندريون_addr_is_سيٽ(صحيح family, ثابت اتحاد اندريون_addr_union *u) {
+        أرجع اندريون_addr_is_null(family, u) == 0;
 }
-static inline int in_addr_data_is_null(const struct in_addr_data *a) {
-        assert(a);
-        return in_addr_is_null(a->family, &a->address);
+ساكن مضمن صحيح اندريون_addr_معلومات_is_null(ثابت بنية اندريون_addr_معلومات *a) {
+        أكد(a);
+        أرجع اندريون_addr_is_null(a->family, &a->پتو);
 }
-static inline bool in_addr_data_is_set(const struct in_addr_data *a) {
-        return in_addr_data_is_null(a);
-}
-
-bool in4_addr_is_multicast(const struct in_addr *a) _pure_;
-bool in6_addr_is_multicast(const struct in6_addr *a) _pure_;
-int in_addr_is_multicast(int family, const union in_addr_union *u) _pure_;
-
-bool in4_addr_is_link_local(const struct in_addr *a) _pure_;
-bool in4_addr_is_link_local_dynamic(const struct in_addr *a) _pure_;
-bool in6_addr_is_link_local(const struct in6_addr *a) _pure_;
-int in_addr_is_link_local(int family, const union in_addr_union *u) _pure_;
-bool in6_addr_is_link_local_all_nodes(const struct in6_addr *a) _pure_;
-
-bool in4_addr_is_localhost(const struct in_addr *a) _pure_;
-int in_addr_is_localhost(int family, const union in_addr_union *u) _pure_;
-int in_addr_is_localhost_one(int family, const union in_addr_union *u) _pure_;
-
-bool in4_addr_is_local_multicast(const struct in_addr *a) _pure_;
-bool in4_addr_is_non_local(const struct in_addr *a) _pure_;
-bool in6_addr_is_ipv4_mapped_address(const struct in6_addr *a) _pure_;
-
-bool in4_addr_equal(const struct in_addr *a, const struct in_addr *b) _pure_;
-bool in6_addr_equal(const struct in6_addr *a, const struct in6_addr *b) _pure_;
-int in_addr_equal(int family, const union in_addr_union *a, const union in_addr_union *b) _pure_;
-bool in4_addr_prefix_intersect(
-                const struct in_addr *a,
-                unsigned aprefixlen,
-                const struct in_addr *b,
-                unsigned bprefixlen) _pure_;
-bool in6_addr_prefix_intersect(
-                const struct in6_addr *a,
-                unsigned aprefixlen,
-                const struct in6_addr *b,
-                unsigned bprefixlen) _pure_;
-int in_addr_prefix_intersect(
-                int family,
-                const union in_addr_union *a,
-                unsigned aprefixlen,
-                const union in_addr_union *b,
-                unsigned bprefixlen) _pure_;
-int in_addr_random_prefix(int family, union in_addr_union *u, unsigned prefixlen_fixed_part, unsigned prefixlen);
-int in_addr_prefix_range(
-                int family,
-                const union in_addr_union *in,
-                unsigned prefixlen,
-                union in_addr_union *ret_start,
-                union in_addr_union *ret_end);
-
-int in_addr_to_string(int family, const union in_addr_union *u, char **ret);
-static inline int in6_addr_to_string(const struct in6_addr *u, char **ret) {
-        return in_addr_to_string(AF_INET6, (const union in_addr_union*) u, ret);
+ساكن مضمن bool اندريون_addr_معلومات_is_سيٽ(ثابت بنية اندريون_addr_معلومات *a) {
+        أرجع اندريون_addr_معلومات_is_null(a);
 }
 
-const char* typesafe_inet_ntop(int family, const union in_addr_union *a, char *buf, size_t len);
-const char* typesafe_inet_ntop4(const struct in_addr *a, char *buf, size_t len);
-const char* typesafe_inet_ntop6(const struct in6_addr *a, char *buf, size_t len);
+bool in4_addr_is_multicast(ثابت بنية in_addr *a) خالص;
+bool in6_addr_is_multicast(ثابت بنية in6_addr *a) خالص;
+صحيح اندريون_addr_is_multicast(صحيح family, ثابت اتحاد اندريون_addr_union *u) خالص;
+
+bool in4_addr_is_link_local(ثابت بنية in_addr *a) خالص;
+bool in4_addr_is_link_local_dynamic(ثابت بنية in_addr *a) خالص;
+bool in6_addr_is_link_local(ثابت بنية in6_addr *a) خالص;
+صحيح اندريون_addr_is_link_local(صحيح family, ثابت اتحاد اندريون_addr_union *u) خالص;
+bool in6_addr_is_link_local_all_nodes(ثابت بنية in6_addr *a) خالص;
+
+bool in4_addr_is_localhost(ثابت بنية in_addr *a) خالص;
+صحيح اندريون_addr_is_localhost(صحيح family, ثابت اتحاد اندريون_addr_union *u) خالص;
+صحيح اندريون_addr_is_localhost_one(صحيح family, ثابت اتحاد اندريون_addr_union *u) خالص;
+
+bool in4_addr_is_local_multicast(ثابت بنية in_addr *a) خالص;
+bool in4_addr_is_non_local(ثابت بنية in_addr *a) خالص;
+bool in6_addr_is_ipv4_mapped_پتو(ثابت بنية in6_addr *a) خالص;
+
+bool in4_addr_equal(ثابت بنية in_addr *a, ثابت بنية in_addr *b) خالص;
+bool in6_addr_equal(ثابت بنية in6_addr *a, ثابت بنية in6_addr *b) خالص;
+صحيح اندريون_addr_equal(صحيح family, ثابت اتحاد اندريون_addr_union *a, ثابت اتحاد اندريون_addr_union *b) خالص;
+bool in4_addr_اڳياڙي_intersect(
+                ثابت بنية in_addr *a,
+                بنانشان aprefixlen,
+                ثابت بنية in_addr *b,
+                بنانشان bprefixlen) خالص;
+bool in6_addr_اڳياڙي_intersect(
+                ثابت بنية in6_addr *a,
+                بنانشان aprefixlen,
+                ثابت بنية in6_addr *b,
+                بنانشان bprefixlen) خالص;
+صحيح اندريون_addr_اڳياڙي_intersect(
+                صحيح family,
+                ثابت اتحاد اندريون_addr_union *a,
+                بنانشان aprefixlen,
+                ثابت اتحاد اندريون_addr_union *b,
+                بنانشان bprefixlen) خالص;
+صحيح اندريون_addr_random_اڳياڙي(صحيح family, اتحاد اندريون_addr_union *u, بنانشان prefixlen_fixed_part, بنانشان prefixlen);
+صحيح اندريون_addr_اڳياڙي_range(
+                صحيح family,
+                ثابت اتحاد اندريون_addr_union *اندريون,
+                بنانشان prefixlen,
+                اتحاد اندريون_addr_union *ret_شروعات,
+                اتحاد اندريون_addr_union *ret_پڇاڙي);
+
+صحيح اندريون_addr_منزل_string(صحيح family, ثابت اتحاد اندريون_addr_union *u, حرف **ret);
+ساكن مضمن صحيح in6_addr_منزل_string(ثابت بنية in6_addr *u, حرف **ret) {
+        أرجع اندريون_addr_منزل_string(AF_INET6, (ثابت اتحاد اندريون_addr_union*) u, ret);
+}
+
+ثابت حرف* typesafe_inet_ntop(صحيح family, ثابت اتحاد اندريون_addr_union *a, حرف *buf, size_t len);
+ثابت حرف* typesafe_inet_ntop4(ثابت بنية in_addr *a, حرف *buf, size_t len);
+ثابت حرف* typesafe_inet_ntop6(ثابت بنية in6_addr *a, حرف *buf, size_t len);
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
  * see C11 §6.5.2.5, and
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks */
-#define IN_ADDR_MAX CONST_MAX(INET_ADDRSTRLEN, INET6_ADDRSTRLEN)
-#define IN_ADDR_TO_STRING(family, addr) typesafe_inet_ntop(family, addr, (char[IN_ADDR_MAX]){}, IN_ADDR_MAX)
-#define IN4_ADDR_TO_STRING(addr) typesafe_inet_ntop4(addr, (char[INET_ADDRSTRLEN]){}, INET_ADDRSTRLEN)
-#define IN6_ADDR_TO_STRING(addr) typesafe_inet_ntop6(addr, (char[INET6_ADDRSTRLEN]){}, INET6_ADDRSTRLEN)
+#وصف_ڪريو اندريون_ADDR_MAX CONST_MAX(INET_ADDRSTRLEN, INET6_ADDRSTRLEN)
+#وصف_ڪريو اندريون_ADDR_منزل_STRING(family, addr) typesafe_inet_ntop(family, addr, (حرف[اندريون_ADDR_MAX]){}, اندريون_ADDR_MAX)
+#وصف_ڪريو IN4_ADDR_منزل_STRING(addr) typesafe_inet_ntop4(addr, (حرف[INET_ADDRSTRLEN]){}, INET_ADDRSTRLEN)
+#وصف_ڪريو IN6_ADDR_منزل_STRING(addr) typesafe_inet_ntop6(addr, (حرف[INET6_ADDRSTRLEN]){}, INET6_ADDRSTRLEN)
 
-int in_addr_prefix_to_string(
-                int family,
-                const union in_addr_union *u,
-                unsigned prefixlen,
-                char *buf,
+صحيح اندريون_addr_اڳياڙي_منزل_string(
+                صحيح family,
+                ثابت اتحاد اندريون_addr_union *u,
+                بنانشان prefixlen,
+                حرف *buf,
                 size_t buf_len);
 
-static inline const char* _in_addr_prefix_to_string(
-                int family,
-                const union in_addr_union *u,
-                unsigned prefixlen,
-                char *buf,
+ساكن مضمن ثابت حرف* اندريون_addr_اڳياڙي_منزل_string_2(
+                صحيح family,
+                ثابت اتحاد اندريون_addr_union *u,
+                بنانشان prefixlen,
+                حرف *buf,
                 size_t buf_len) {
         /* We assume that this is called with an appropriately sized buffer and can never fail. */
-        assert_se(in_addr_prefix_to_string(family, u, prefixlen, buf, buf_len) == 0);
-        return buf;
+        assert_se(اندريون_addr_اڳياڙي_منزل_string(family, u, prefixlen, buf, buf_len) == 0);
+        أرجع buf;
 }
-static inline const char* _in4_addr_prefix_to_string(const struct in_addr *a, unsigned prefixlen, char *buf, size_t buf_len) {
-        return _in_addr_prefix_to_string(AF_INET, (const union in_addr_union *) a, prefixlen, buf, buf_len);
+ساكن مضمن ثابت حرف* in4_addr_اڳياڙي_منزل_string(ثابت بنية in_addr *a, بنانشان prefixlen, حرف *buf, size_t buf_len) {
+        أرجع اندريون_addr_اڳياڙي_منزل_string_2(AF_INET, (ثابت اتحاد اندريون_addr_union *) a, prefixlen, buf, buf_len);
 }
-static inline const char* _in6_addr_prefix_to_string(const struct in6_addr *a, unsigned prefixlen, char *buf, size_t buf_len) {
-        return _in_addr_prefix_to_string(AF_INET6, (const union in_addr_union *) a, prefixlen, buf, buf_len);
+ساكن مضمن ثابت حرف* in6_addr_اڳياڙي_منزل_string(ثابت بنية in6_addr *a, بنانشان prefixlen, حرف *buf, size_t buf_len) {
+        أرجع اندريون_addr_اڳياڙي_منزل_string_2(AF_INET6, (ثابت اتحاد اندريون_addr_union *) a, prefixlen, buf, buf_len);
 }
 
-#define PREFIX_SUFFIX_MAX (1 + DECIMAL_STR_MAX(unsigned))
-#define IN_ADDR_PREFIX_TO_STRING(family, addr, prefixlen) \
-        _in_addr_prefix_to_string(family, addr, prefixlen, (char[IN_ADDR_MAX + PREFIX_SUFFIX_MAX]){}, IN_ADDR_MAX + PREFIX_SUFFIX_MAX)
-#define IN4_ADDR_PREFIX_TO_STRING(addr, prefixlen) \
-        _in4_addr_prefix_to_string(addr, prefixlen, (char[INET_ADDRSTRLEN + PREFIX_SUFFIX_MAX]){}, INET_ADDRSTRLEN + PREFIX_SUFFIX_MAX)
-#define IN6_ADDR_PREFIX_TO_STRING(addr, prefixlen) \
-        _in6_addr_prefix_to_string(addr, prefixlen, (char[INET6_ADDRSTRLEN + PREFIX_SUFFIX_MAX]){}, INET6_ADDRSTRLEN + PREFIX_SUFFIX_MAX)
+#وصف_ڪريو اڳياڙي_SUFFIX_MAX (1 + DECIMAL_STR_MAX(بنانشان))
+#وصف_ڪريو اندريون_ADDR_اڳياڙي_منزل_STRING(family, addr, prefixlen) \
+        اندريون_addr_اڳياڙي_منزل_string_2(family, addr, prefixlen, (حرف[اندريون_ADDR_MAX + اڳياڙي_SUFFIX_MAX]){}, اندريون_ADDR_MAX + اڳياڙي_SUFFIX_MAX)
+#وصف_ڪريو IN4_ADDR_اڳياڙي_منزل_STRING(addr, prefixlen) \
+        in4_addr_اڳياڙي_منزل_string(addr, prefixlen, (حرف[INET_ADDRSTRLEN + اڳياڙي_SUFFIX_MAX]){}, INET_ADDRSTRLEN + اڳياڙي_SUFFIX_MAX)
+#وصف_ڪريو IN6_ADDR_اڳياڙي_منزل_STRING(addr, prefixlen) \
+        in6_addr_اڳياڙي_منزل_string(addr, prefixlen, (حرف[INET6_ADDRSTRLEN + اڳياڙي_SUFFIX_MAX]){}, INET6_ADDRSTRLEN + اڳياڙي_SUFFIX_MAX)
 
-int in_addr_port_ifindex_name_to_string(int family, const union in_addr_union *u, uint16_t port, int ifindex, const char *server_name, char **ret);
-static inline int in_addr_ifindex_to_string(int family, const union in_addr_union *u, int ifindex, char **ret) {
-        return in_addr_port_ifindex_name_to_string(family, u, 0, ifindex, NULL, ret);
+صحيح اندريون_addr_پورٽ_ifindex_name_منزل_string(صحيح family, ثابت اتحاد اندريون_addr_union *u, uint16_t port, صحيح ifindex, ثابت حرف *server_name, حرف **ret);
+ساكن مضمن صحيح اندريون_addr_ifindex_منزل_string(صحيح family, ثابت اتحاد اندريون_addr_union *u, صحيح ifindex, حرف **ret) {
+        أرجع اندريون_addr_پورٽ_ifindex_name_منزل_string(family, u, 0, ifindex, عدم, ret);
 }
-static inline int in_addr_port_to_string(int family, const union in_addr_union *u, uint16_t port, char **ret) {
-        return in_addr_port_ifindex_name_to_string(family, u, port, 0, NULL, ret);
+ساكن مضمن صحيح اندريون_addr_پورٽ_منزل_string(صحيح family, ثابت اتحاد اندريون_addr_union *u, uint16_t port, حرف **ret) {
+        أرجع اندريون_addr_پورٽ_ifindex_name_منزل_string(family, u, port, 0, عدم, ret);
 }
-int in_addr_from_string(int family, const char *s, union in_addr_union *ret);
-int in_addr_from_string_auto(const char *s, int *ret_family, union in_addr_union *ret);
+صحيح اندريون_addr_from_string(صحيح family, ثابت حرف *s, اتحاد اندريون_addr_union *ret);
+صحيح اندريون_addr_from_string_auto(ثابت حرف *s, صحيح *ret_family, اتحاد اندريون_addr_union *ret);
 
-unsigned char in4_addr_netmask_to_prefixlen(const struct in_addr *addr);
-struct in_addr* in4_addr_prefixlen_to_netmask(struct in_addr *addr, unsigned char prefixlen);
-struct in6_addr* in6_addr_prefixlen_to_netmask(struct in6_addr *addr, unsigned char prefixlen);
-int in_addr_prefixlen_to_netmask(int family, union in_addr_union *addr, unsigned char prefixlen);
-int in4_addr_default_prefixlen(const struct in_addr *addr, unsigned char *prefixlen);
-int in4_addr_default_subnet_mask(const struct in_addr *addr, struct in_addr *mask);
-int in4_addr_mask(struct in_addr *addr, unsigned char prefixlen);
-int in6_addr_mask(struct in6_addr *addr, unsigned char prefixlen);
-int in_addr_mask(int family, union in_addr_union *addr, unsigned char prefixlen);
-int in4_addr_prefix_covers_full(const struct in_addr *prefix, unsigned char prefixlen, const struct in_addr *address, unsigned char address_prefixlen);
-int in6_addr_prefix_covers_full(const struct in6_addr *prefix, unsigned char prefixlen, const struct in6_addr *address, unsigned char address_prefixlen);
-int in_addr_prefix_covers_full(int family, const union in_addr_union *prefix, unsigned char prefixlen, const union in_addr_union *address, unsigned char address_prefixlen);
-static inline int in4_addr_prefix_covers(const struct in_addr *prefix, unsigned char prefixlen, const struct in_addr *address) {
-        return in4_addr_prefix_covers_full(prefix, prefixlen, address, 32);
+بنانشان حرف in4_addr_netmask_منزل_prefixlen(ثابت بنية in_addr *addr);
+بنية in_addr* in4_addr_prefixlen_منزل_netmask(بنية in_addr *addr, بنانشان حرف prefixlen);
+بنية in6_addr* in6_addr_prefixlen_منزل_netmask(بنية in6_addr *addr, بنانشان حرف prefixlen);
+صحيح اندريون_addr_prefixlen_منزل_netmask(صحيح family, اتحاد اندريون_addr_union *addr, بنانشان حرف prefixlen);
+صحيح in4_addr_default_prefixlen(ثابت بنية in_addr *addr, بنانشان حرف *prefixlen);
+صحيح in4_addr_default_subnet_نقاب(ثابت بنية in_addr *addr, بنية in_addr *نقاب_3);
+صحيح in4_addr_نقاب(بنية in_addr *addr, بنانشان حرف prefixlen);
+صحيح in6_addr_نقاب(بنية in6_addr *addr, بنانشان حرف prefixlen);
+صحيح اندريون_addr_نقاب(صحيح family, اتحاد اندريون_addr_union *addr, بنانشان حرف prefixlen);
+صحيح in4_addr_اڳياڙي_covers_ڀريل(ثابت بنية in_addr *اڳياڙي, بنانشان حرف prefixlen, ثابت بنية in_addr *پتو, بنانشان حرف پتو_prefixlen);
+صحيح in6_addr_اڳياڙي_covers_ڀريل(ثابت بنية in6_addr *اڳياڙي, بنانشان حرف prefixlen, ثابت بنية in6_addr *پتو, بنانشان حرف پتو_prefixlen);
+صحيح اندريون_addr_اڳياڙي_covers_ڀريل(صحيح family, ثابت اتحاد اندريون_addr_union *اڳياڙي, بنانشان حرف prefixlen, ثابت اتحاد اندريون_addr_union *پتو, بنانشان حرف پتو_prefixlen);
+ساكن مضمن صحيح in4_addr_اڳياڙي_covers(ثابت بنية in_addr *اڳياڙي, بنانشان حرف prefixlen, ثابت بنية in_addr *پتو) {
+        أرجع in4_addr_اڳياڙي_covers_ڀريل(اڳياڙي, prefixlen, پتو, 32);
 }
-static inline int in6_addr_prefix_covers(const struct in6_addr *prefix, unsigned char prefixlen, const struct in6_addr *address) {
-        return in6_addr_prefix_covers_full(prefix, prefixlen, address, 128);
+ساكن مضمن صحيح in6_addr_اڳياڙي_covers(ثابت بنية in6_addr *اڳياڙي, بنانشان حرف prefixlen, ثابت بنية in6_addr *پتو) {
+        أرجع in6_addr_اڳياڙي_covers_ڀريل(اڳياڙي, prefixlen, پتو, 128);
 }
-static inline int in_addr_prefix_covers(int family, const union in_addr_union *prefix, unsigned char prefixlen, const union in_addr_union *address) {
-        return in_addr_prefix_covers_full(family, prefix, prefixlen, address, family == AF_INET ? 32 : family == AF_INET6 ? 128 : 0);
+ساكن مضمن صحيح اندريون_addr_اڳياڙي_covers(صحيح family, ثابت اتحاد اندريون_addr_union *اڳياڙي, بنانشان حرف prefixlen, ثابت اتحاد اندريون_addr_union *پتو) {
+        أرجع اندريون_addr_اڳياڙي_covers_ڀريل(family, اڳياڙي, prefixlen, پتو, family == AF_INET ? 32 : family == AF_INET6 ? 128 : 0);
 }
-int in_addr_parse_prefixlen(int family, const char *p, unsigned char *ret);
-int in_addr_prefix_from_string(const char *p, int family, union in_addr_union *ret_prefix, unsigned char *ret_prefixlen);
+صحيح اندريون_addr_parse_prefixlen(صحيح family, ثابت حرف *p, بنانشان حرف *ret);
+صحيح اندريون_addr_اڳياڙي_from_string(ثابت حرف *p, صحيح family, اتحاد اندريون_addr_union *ret_اڳياڙي, بنانشان حرف *ret_prefixlen);
 
-typedef enum InAddrPrefixLenMode {
-        PREFIXLEN_FULL,   /* Default to prefixlen of address size, 32 for IPv4 or 128 for IPv6, if not specified. */
+تعريفنوع تعداد اندريون_Addr_اڳياڙي_Len_گهڻائي {
+        PREFIXLEN_ڀريل,   /* Default to prefixlen of address size, 32 for IPv4 or 128 for IPv6, if not specified. */
         PREFIXLEN_REFUSE, /* Fail with -ENOANO if prefixlen is not specified. */
-} InAddrPrefixLenMode;
+} اندريون_Addr_اڳياڙي_Len_گهڻائي;
 
-int in_addr_prefix_from_string_auto_full(const char *p, InAddrPrefixLenMode mode, int *ret_family, union in_addr_union *ret_prefix, unsigned char *ret_prefixlen);
-static inline int in_addr_prefix_from_string_auto(const char *p, int *ret_family, union in_addr_union *ret_prefix, unsigned char *ret_prefixlen) {
-        return in_addr_prefix_from_string_auto_full(p, PREFIXLEN_FULL, ret_family, ret_prefix, ret_prefixlen);
+صحيح اندريون_addr_اڳياڙي_from_string_auto_ڀريل(ثابت حرف *p, اندريون_Addr_اڳياڙي_Len_گهڻائي گهڻائي, صحيح *ret_family, اتحاد اندريون_addr_union *ret_اڳياڙي, بنانشان حرف *ret_prefixlen);
+ساكن مضمن صحيح اندريون_addr_اڳياڙي_from_string_auto(ثابت حرف *p, صحيح *ret_family, اتحاد اندريون_addr_union *ret_اڳياڙي, بنانشان حرف *ret_prefixlen) {
+        أرجع اندريون_addr_اڳياڙي_from_string_auto_ڀريل(p, PREFIXLEN_ڀريل, ret_family, ret_اڳياڙي, ret_prefixlen);
 }
 
-static inline size_t FAMILY_ADDRESS_SIZE(int family) {
-        switch (family) {
-                case AF_INET:
-                        return 4;
-                case AF_INET6:
-                        return 16;
-                default:
+ساكن مضمن size_t FAMILY_پتو_سائيز(صحيح family) {
+        بدل (family) {
+                حالة AF_INET:
+                        أرجع 4;
+                حالة AF_INET6:
+                        أرجع 16;
+                افتراضي:
                         assert_not_reached();
         }
 }
 
-#define FAMILY_ADDRESS_SIZE_SAFE(f)                                     \
+#وصف_ڪريو FAMILY_پتو_سائيز_محفوظ(f)                                     \
         ({                                                              \
-                int _f = (f);                                           \
-                _f == AF_INET ? sizeof(struct in_addr) :                \
-                _f == AF_INET6 ? sizeof(struct in6_addr) : 0;           \
+                صحيح _f = (f);                                           \
+                _f == AF_INET ? حجم(بنية in_addr) :                \
+                _f == AF_INET6 ? حجم(بنية in6_addr) : 0;           \
         })
 
 /* Workaround for clang, explicitly specify the maximum-size element here.
  * See also oss-fuzz#11344. */
-#define IN_ADDR_NULL ((union in_addr_union) { .in6 = {} })
+#وصف_ڪريو اندريون_ADDR_NULL ((اتحاد اندريون_addr_union) { .in6 = {} })
 
-void in_addr_hash_func(const union in_addr_union *u, int family, struct siphash *state);
-void in_addr_data_hash_func(const struct in_addr_data *a, struct siphash *state);
-int in_addr_data_compare_func(const struct in_addr_data *x, const struct in_addr_data *y);
-void in6_addr_hash_func(const struct in6_addr *addr, struct siphash *state);
-int in6_addr_compare_func(const struct in6_addr *a, const struct in6_addr *b);
+فراغ اندريون_addr_hash_func(ثابت اتحاد اندريون_addr_union *u, صحيح family, بنية siphash *state);
+فراغ اندريون_addr_معلومات_hash_func(ثابت بنية اندريون_addr_معلومات *a, بنية siphash *state);
+صحيح اندريون_addr_معلومات_compare_func(ثابت بنية اندريون_addr_معلومات *x, ثابت بنية اندريون_addr_معلومات *y);
+فراغ in6_addr_hash_func(ثابت بنية in6_addr *addr, بنية siphash *state);
+صحيح in6_addr_compare_func(ثابت بنية in6_addr *a, ثابت بنية in6_addr *b);
 
-extern const struct hash_ops in_addr_data_hash_ops;
-extern const struct hash_ops in_addr_data_hash_ops_free;
-extern const struct hash_ops in6_addr_hash_ops;
-extern const struct hash_ops in6_addr_hash_ops_free;
+خارجي ثابت بنية hash_ops اندريون_addr_معلومات_hash_ops;
+خارجي ثابت بنية hash_ops اندريون_addr_معلومات_hash_ops_free;
+خارجي ثابت بنية hash_ops in6_addr_hash_ops;
+خارجي ثابت بنية hash_ops in6_addr_hash_ops_free;
 
-static inline void PTR_TO_IN4_ADDR(const void *p, struct in_addr *ret) {
-        assert(ret);
+ساكن مضمن فراغ PTR_منزل_IN4_ADDR(ثابت فراغ *p, بنية in_addr *ret) {
+        أكد(ret);
         ret->s_addr = (uint32_t) ((uintptr_t) p);
 }
 
-static inline void* IN4_ADDR_TO_PTR(const struct in_addr *a) {
-        assert(a);
-        return (void*) ((uintptr_t) a->s_addr);
+ساكن مضمن فراغ* IN4_ADDR_منزل_PTR(ثابت بنية in_addr *a) {
+        أكد(a);
+        أرجع (فراغ*) ((uintptr_t) a->s_addr);
 }
 
-#define IPV4_ADDRESS_FMT_STR     "%u.%u.%u.%u"
-#define IPV4_ADDRESS_FMT_VAL(address)              \
-        be32toh((address).s_addr) >> 24,           \
-        (be32toh((address).s_addr) >> 16) & 0xFFu, \
-        (be32toh((address).s_addr) >> 8) & 0xFFu,  \
-        be32toh((address).s_addr) & 0xFFu
+#وصف_ڪريو IPV4_پتو_FMT_STR     "%u.%u.%u.%u"
+#وصف_ڪريو IPV4_پتو_FMT_VAL(پتو)              \
+        be32toh((پتو).s_addr) >> 24,           \
+        (be32toh((پتو).s_addr) >> 16) & 0xFFu, \
+        (be32toh((پتو).s_addr) >> 8) & 0xFFu,  \
+        be32toh((پتو).s_addr) & 0xFFu

@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include <signal.h>
+#ضمن <signal.h>
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* An embeddable structure carrying a reference to a process. Supposed to be used when tracking processes
  * continuously. This combines a PID, a modern Linux pidfd and the 64bit inode number of the pidfd into one
@@ -28,118 +28,118 @@
  *    process. Moreover, most operations will fail with -EREMOTE. Only PidRef structures that are not marked
  *    *unset* can be marked *remote*.
  */
-typedef struct PidRef {
+تعريفنوع بنية PidRef {
         pid_t pid;      /* > 0 if the PidRef is set, otherwise set to INT_MIN (PID_AUTOMATIC) if automatic
                          * mode is desired, or 0 otherwise. */
-        int fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
+        صحيح fd;         /* only valid if pidfd are available in the kernel, and we manage to get an fd. If we
                          * know that the PID is not from the local machine we set this to -EREMOTE, otherwise
                          * we use -EBADF as indicator the fd is invalid. */
         uint64_t fd_id; /* the inode number of pidfd. only useful in kernel 6.9+ where pidfds live in
                            their own pidfs and each process comes with a unique inode number */
 } PidRef;
 
-#define PIDREF_NULL (PidRef) { .fd = -EBADF }
+#وصف_ڪريو PIDREF_NULL (PidRef) { .fd = -EBADF }
 
 /* A special pidref value that we are using when a PID shall be automatically acquired from some surrounding
  * context, for example connection peer. Much like PIDREF_NULL it will be considered unset by
  * pidref_is_set(). */
-#define PIDREF_AUTOMATIC (const PidRef) { .pid = (pid_t) INT_MIN, .fd = -EBADF }
+#وصف_ڪريو PIDREF_AUTOMATIC (ثابت PidRef) { .pid = (pid_t) INT_MIN, .fd = -EBADF }
 
 /* Turns a pid_t into a PidRef structure on-the-fly *without* acquiring a pidfd for it. (As opposed to
  * pidref_set_pid() which does so *with* acquiring one, see below) */
-#define PIDREF_MAKE_FROM_PID(x) (PidRef) { .pid = (x), .fd = -EBADF }
+#وصف_ڪريو PIDREF_MAKE_FROM_PID(x) (PidRef) { .pid = (x), .fd = -EBADF }
 
-static inline bool pidref_is_set(const PidRef *pidref) {
-        return pidref && pidref->pid > 0;
+ساكن مضمن bool pidref_is_سيٽ(ثابت PidRef *pidref) {
+        أرجع pidref && pidref->pid > 0;
 }
 
-bool pidref_is_automatic(const PidRef *pidref);
+bool pidref_is_automatic(ثابت PidRef *pidref);
 
-static inline bool pidref_is_set_or_automatic(const PidRef *pidref) {
-        return pidref_is_set(pidref) || pidref_is_automatic(pidref);
+ساكن مضمن bool pidref_is_سيٽ_or_automatic(ثابت PidRef *pidref) {
+        أرجع pidref_is_سيٽ(pidref) || pidref_is_automatic(pidref);
 }
 
-static inline bool pidref_is_remote(const PidRef *pidref) {
+ساكن مضمن bool pidref_is_remote(ثابت PidRef *pidref) {
         /* If the fd is set to -EREMOTE we assume PidRef does not refer to a local PID, but on another
          * machine (and we just got the PidRef initialized due to deserialization of some RPC message) */
-        return pidref_is_set(pidref) && pidref->fd == -EREMOTE;
+        أرجع pidref_is_سيٽ(pidref) && pidref->fd == -EREMOTE;
 }
 
-int pidref_acquire_pidfd_id(PidRef *pidref);
+صحيح pidref_acquire_pidfd_id(PidRef *pidref);
 bool pidref_equal(PidRef *a, PidRef *b);
 
 /* This turns a pid_t into a PidRef structure, and acquires a pidfd for it, if possible. (As opposed to
  * PIDREF_MAKE_FROM_PID() above, which does not acquire a pidfd.) */
-int pidref_set_pid_full(PidRef *pidref, pid_t pid, unsigned flags);
-static inline int pidref_set_pid(PidRef *pidref, pid_t pid) {
-        return pidref_set_pid_full(pidref, pid, /* flags= */ 0);
+صحيح pidref_سيٽ_pid_ڀريل(PidRef *pidref, pid_t pid, بنانشان flags);
+ساكن مضمن صحيح pidref_سيٽ_pid(PidRef *pidref, pid_t pid) {
+        أرجع pidref_سيٽ_pid_ڀريل(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pidstr_full(PidRef *pidref, const char *pid, unsigned flags);
-static inline int pidref_set_pidstr(PidRef *pidref, const char *pid) {
-        return pidref_set_pidstr_full(pidref, pid, /* flags= */ 0);
+صحيح pidref_سيٽ_pidstr_ڀريل(PidRef *pidref, ثابت حرف *pid, بنانشان flags);
+ساكن مضمن صحيح pidref_سيٽ_pidstr(PidRef *pidref, ثابت حرف *pid) {
+        أرجع pidref_سيٽ_pidstr_ڀريل(pidref, pid, /* flags= */ 0);
 }
-int pidref_set_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
-int pidref_set_pidfd(PidRef *pidref, int fd);
-int pidref_set_pidfd_take(PidRef *pidref, int fd); /* takes ownership of the passed pidfd on success */
-int pidref_set_pidfd_consume(PidRef *pidref, int fd); /* takes ownership of the passed pidfd in both success and failure */
-int pidref_set_parent(PidRef *ret);
-static inline int pidref_set_self(PidRef *pidref) {
-        return pidref_set_pid(pidref, 0);
+صحيح pidref_سيٽ_pid_and_pidfd_id(PidRef *pidref, pid_t pid, uint64_t pidfd_id);
+صحيح pidref_سيٽ_pidfd(PidRef *pidref, صحيح fd);
+صحيح pidref_سيٽ_pidfd_take(PidRef *pidref, صحيح fd); /* takes ownership of the passed pidfd on success */
+صحيح pidref_سيٽ_pidfd_consume(PidRef *pidref, صحيح fd); /* takes ownership of the passed pidfd in both success and failure */
+صحيح pidref_سيٽ_والد(PidRef *ret);
+ساكن مضمن صحيح pidref_سيٽ_self(PidRef *pidref) {
+        أرجع pidref_سيٽ_pid(pidref, 0);
 }
 
 bool pidref_is_self(PidRef *pidref);
 
-void pidref_done(PidRef *pidref);
+فراغ pidref_پورو(PidRef *pidref);
 PidRef* pidref_free(PidRef *pidref);
 DEFINE_TRIVIAL_CLEANUP_FUNC(PidRef*, pidref_free);
 
-int pidref_copy(const PidRef *pidref, PidRef *ret);
-int pidref_dup(const PidRef *pidref, PidRef **ret);
+صحيح pidref_copy(ثابت PidRef *pidref, PidRef *ret);
+صحيح pidref_dup(ثابت PidRef *pidref, PidRef **ret);
 
-int pidref_new_from_pid(pid_t pid, PidRef **ret);
+صحيح pidref_new_from_pid(pid_t pid, PidRef **ret);
 
-int pidref_kill(const PidRef *pidref, int sig);
-int pidref_kill_and_sigcont(const PidRef *pidref, int sig);
-int pidref_sigqueue(const PidRef *pidref, int sig, int value);
+صحيح pidref_kill(ثابت PidRef *pidref, صحيح sig);
+صحيح pidref_kill_and_sigcont(ثابت PidRef *pidref, صحيح sig);
+صحيح pidref_sigqueue(ثابت PidRef *pidref, صحيح sig, صحيح قدر);
 
-int pidref_wait_for_terminate_full(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
-static inline int pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
-        return pidref_wait_for_terminate_full(pidref, USEC_INFINITY, ret_si);
+صحيح pidref_wait_for_terminate_ڀريل(PidRef *pidref, usec_t timeout, siginfo_t *ret_si);
+ساكن مضمن صحيح pidref_wait_for_terminate(PidRef *pidref, siginfo_t *ret_si) {
+        أرجع pidref_wait_for_terminate_ڀريل(pidref, USEC_INFINITY, ret_si);
 }
 
-static inline void pidref_done_sigterm_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+ساكن مضمن فراغ pidref_پورو_sigterm_wait(PidRef *pidref) {
+        إذا (!pidref_is_سيٽ(pidref))
+                أرجع;
 
-        (void) pidref_kill(pidref, SIGTERM);
-        (void) pidref_wait_for_terminate(pidref, NULL);
-        pidref_done(pidref);
+        (فراغ) pidref_kill(pidref, SIGTERM);
+        (فراغ) pidref_wait_for_terminate(pidref, عدم);
+        pidref_پورو(pidref);
 }
 
-static inline void pidref_done_sigkill_wait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+ساكن مضمن فراغ pidref_پورو_sigkill_wait(PidRef *pidref) {
+        إذا (!pidref_is_سيٽ(pidref))
+                أرجع;
 
-        (void) pidref_kill(pidref, SIGKILL);
-        (void) pidref_wait_for_terminate(pidref, NULL);
-        pidref_done(pidref);
+        (فراغ) pidref_kill(pidref, SIGKILL);
+        (فراغ) pidref_wait_for_terminate(pidref, عدم);
+        pidref_پورو(pidref);
 }
 
-static inline void pidref_done_sigkill_nowait(PidRef *pidref) {
-        if (!pidref_is_set(pidref))
-                return;
+ساكن مضمن فراغ pidref_پورو_sigkill_nowait(PidRef *pidref) {
+        إذا (!pidref_is_سيٽ(pidref))
+                أرجع;
 
-        (void) pidref_kill(pidref, SIGKILL);
-        pidref_done(pidref);
+        (فراغ) pidref_kill(pidref, SIGKILL);
+        pidref_پورو(pidref);
 }
 
-int pidref_verify(const PidRef *pidref);
+صحيح pidref_verify(ثابت PidRef *pidref);
 
-#define TAKE_PIDREF(p) TAKE_GENERIC((p), PidRef, PIDREF_NULL)
+#وصف_ڪريو TAKE_PIDREF(p) TAKE_GENERIC((p), PidRef, PIDREF_NULL)
 
-struct siphash;
-void pidref_hash_func(const PidRef *pidref, struct siphash *state);
-int pidref_compare_func(const PidRef *a, const PidRef *b);
+بنية siphash;
+فراغ pidref_hash_func(ثابت PidRef *pidref, بنية siphash *state);
+صحيح pidref_compare_func(ثابت PidRef *a, ثابت PidRef *b);
 
-extern const struct hash_ops pidref_hash_ops;
-extern const struct hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */
+خارجي ثابت بنية hash_ops pidref_hash_ops;
+خارجي ثابت بنية hash_ops pidref_hash_ops_free; /* Has destructor call for pidref_free(), i.e. expects heap allocated PidRef as keys */

@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
-#include "dlopen-note.h"
+#ضمن "forward.h"
+#ضمن "dlopen-note.h"
 
-typedef enum Compression {
+تعريفنوع تعداد Compression {
         COMPRESSION_NONE,
         COMPRESSION_XZ,
         COMPRESSION_LZ4,
@@ -15,17 +15,17 @@ typedef enum Compression {
         _COMPRESSION_INVALID = -EINVAL,
 } Compression;
 
-DECLARE_STRING_TABLE_LOOKUP(compression, Compression);
-DECLARE_STRING_TABLE_LOOKUP(compression_uppercase, Compression);
-DECLARE_STRING_TABLE_LOOKUP(compression_extension, Compression);
+DECLARE_STRING_جدول_LOOKUP(compression, Compression);
+DECLARE_STRING_جدول_LOOKUP(compression_uppercase, Compression);
+DECLARE_STRING_جدول_LOOKUP(compression_extension, Compression);
 
 /* Try the lowercase string table first, fall back to the uppercase one. Useful for parsing user input
  * where both forms (e.g. "xz" and "XZ") have historically been accepted. */
-Compression compression_from_string_harder(const char *s);
+Compression compression_from_string_harder(ثابت حرف *s);
 
 /* Derives the compression type from a filename's extension, defaulting to COMPRESSION_NONE if the
  * filename does not carry a recognized compression suffix. */
-Compression compression_from_filename(const char *filename);
+Compression compression_from_filename(ثابت حرف *filename);
 
 bool compression_supported_journal(Compression c);
 bool compression_supported(Compression c);
@@ -33,112 +33,112 @@ bool compression_supported(Compression c);
 /* Buffer size used by streaming compression APIs and pipeline stages that feed into them. Sized to
  * match the typical Linux pipe buffer so that pipeline stages don't lose throughput due to small
  * intermediate buffers. */
-#define COMPRESS_PIPE_BUFFER_SIZE (128U*1024U)
+#وصف_ڪريو COMPRESS_PIPE_بفر_سائيز (128U*1024U)
 
-#define COMPRESSION_MAGIC_BYTES_MAX 6U
-Compression compression_detect_from_magic(const uint8_t data[static COMPRESSION_MAGIC_BYTES_MAX]);
+#وصف_ڪريو COMPRESSION_MAGIC_بائيٽون_MAX 6U
+Compression compression_detect_from_magic(ثابت uint8_t معلومات[ساكن COMPRESSION_MAGIC_بائيٽون_MAX]);
 
 /* Compressor / Decompressor — opaque push-based streaming compression context */
 
-typedef struct Compressor Compressor;
-typedef Compressor Decompressor;
+تعريفنوع بنية Compressor Compressor;
+تعريفنوع Compressor Decompressor;
 
-typedef int (*DecompressorCallback)(const void *data, size_t size, void *userdata);
+تعريفنوع صحيح (*DecompressorCallback)(ثابت فراغ *معلومات, size_t سائيز, فراغ *userdata);
 
 Compressor* compressor_free(Compressor *c);
 DEFINE_TRIVIAL_CLEANUP_FUNC(Compressor*, compressor_free);
 
-int compressor_new(Compressor **ret, Compression type);
-int compressor_start(Compressor *c, const void *data, size_t size, void **buffer, size_t *buffer_size, size_t *buffer_allocated);
-int compressor_finish(Compressor *c, void **buffer, size_t *buffer_size, size_t *buffer_allocated);
+صحيح compressor_new(Compressor **ret, Compression type);
+صحيح compressor_شروعات(Compressor *c, ثابت فراغ *معلومات, size_t سائيز, فراغ **بفر, size_t *بفر_سائيز, size_t *بفر_allocated);
+صحيح compressor_پڄاڻي(Compressor *c, فراغ **بفر, size_t *بفر_سائيز, size_t *بفر_allocated);
 
-int decompressor_detect(Decompressor **decompressor, const void *data, size_t size);
-int decompressor_force(Decompressor **decompressor, Compression type);
-int decompressor_force_off(Decompressor **decompressor);
-int decompressor_push(Decompressor *c, const void *data, size_t size, DecompressorCallback callback, void *userdata);
+صحيح decompressor_detect(Decompressor **decompressor, ثابت فراغ *معلومات, size_t سائيز);
+صحيح decompressor_force(Decompressor **decompressor, Compression type);
+صحيح decompressor_force_off(Decompressor **decompressor);
+صحيح decompressor_ڌڪو(Decompressor *c, ثابت فراغ *معلومات, size_t سائيز, DecompressorCallback callback, فراغ *userdata);
 
-Compression compressor_type(const Compressor *c);
+Compression compressor_type(ثابت Compressor *c);
 
 /* Blob compression/decompression */
 
-int compress_blob_journal(
+صحيح compress_blob_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void *dst, size_t dst_alloc_size, size_t *dst_size, int level);
-int compress_blob(Compression compression,
-                  const void *src, uint64_t src_size,
-                  void *dst, size_t dst_alloc_size, size_t *dst_size, int level);
-int decompress_blob_journal(
+                ثابت فراغ *src, uint64_t src_سائيز,
+                فراغ *dst, size_t dst_alloc_سائيز, size_t *dst_سائيز, صحيح level);
+صحيح compress_blob(Compression compression,
+                  ثابت فراغ *src, uint64_t src_سائيز,
+                  فراغ *dst, size_t dst_alloc_سائيز, size_t *dst_سائيز, صحيح level);
+صحيح decompress_blob_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **dst, size_t *dst_size, size_t dst_max);
-int decompress_blob(Compression compression,
-                    const void *src, uint64_t src_size,
-                    void **dst, size_t *dst_size, size_t dst_max);
+                ثابت فراغ *src, uint64_t src_سائيز,
+                فراغ **dst, size_t *dst_سائيز, size_t dst_max);
+صحيح decompress_blob(Compression compression,
+                    ثابت فراغ *src, uint64_t src_سائيز,
+                    فراغ **dst, size_t *dst_سائيز, size_t dst_max);
 
-int decompress_blob_to_fd_journal(
+صحيح decompress_blob_منزل_fd_journal(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                ثابت فراغ *src,
+                uint64_t src_سائيز,
+                صحيح fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size);
-int decompress_blob_to_fd(
+                size_t *ret_سائيز);
+صحيح decompress_blob_منزل_fd(
                 Compression type,
-                const void *src,
-                uint64_t src_size,
-                int fdt,
+                ثابت فراغ *src,
+                uint64_t src_سائيز,
+                صحيح fdt,
                 uint64_t max_bytes,
                 uint64_t skip,
-                size_t *ret_size);
+                size_t *ret_سائيز);
 
-int decompress_zlib_raw(const void *src, uint64_t src_size,
-                        void *dst, size_t dst_size, int wbits);
+صحيح decompress_zlib_raw(ثابت فراغ *src, uint64_t src_سائيز,
+                        فراغ *dst, size_t dst_سائيز, صحيح wbits);
 
-int decompress_startswith_journal(
+صحيح decompress_startswith_journal(
                 Compression compression,
-                const void *src, uint64_t src_size,
-                void **buffer,
-                const void *prefix, size_t prefix_len,
+                ثابت فراغ *src, uint64_t src_سائيز,
+                فراغ **بفر,
+                ثابت فراغ *اڳياڙي, size_t اڳياڙي_len,
                 uint8_t extra);
-int decompress_startswith(Compression compression,
-                          const void *src, uint64_t src_size,
-                          void **buffer,
-                          const void *prefix, size_t prefix_len,
+صحيح decompress_startswith(Compression compression,
+                          ثابت فراغ *src, uint64_t src_سائيز,
+                          فراغ **بفر,
+                          ثابت فراغ *اڳياڙي, size_t اڳياڙي_len,
                           uint8_t extra);
 
 /* Stream compression/decompression (fd-to-fd) */
 
-int compress_stream(Compression type, int fdf, int fdt, uint64_t max_bytes, uint64_t *ret_uncompressed_size);
-typedef enum DecompressFlags {
+صحيح compress_وهڪرو(Compression type, صحيح fdf, صحيح fdt, uint64_t max_bytes, uint64_t *ret_uncompressed_سائيز);
+تعريفنوع تعداد DecompressFlags {
         DECOMPRESS_LEGACY_LZMA         = 1 << 0, /* With COMPRESSION_XZ, also accept the legacy .lzma format */
         DECOMPRESS_REFUSE_CONCATENATED = 1 << 1, /* With COMPRESSION_XZ, refuse the second and later stream */
 } DecompressFlags;
 
-int decompress_stream_full(Compression type, int fdf, int fdt, uint64_t max_bytes, DecompressFlags flags);
-static inline int decompress_stream(Compression type, int fdf, int fdt, uint64_t max_bytes) {
-        return decompress_stream_full(type, fdf, fdt, max_bytes, /* flags= */ 0);
+صحيح decompress_وهڪرو_ڀريل(Compression type, صحيح fdf, صحيح fdt, uint64_t max_bytes, DecompressFlags flags);
+ساكن مضمن صحيح decompress_وهڪرو(Compression type, صحيح fdf, صحيح fdt, uint64_t max_bytes) {
+        أرجع decompress_وهڪرو_ڀريل(type, fdf, fdt, max_bytes, /* flags= */ 0);
 }
-int decompress_stream_by_filename(const char *filename, int fdf, int fdt, uint64_t max_bytes);
+صحيح decompress_وهڪرو_by_filename(ثابت حرف *filename, صحيح fdf, صحيح fdt, uint64_t max_bytes);
 
-int dlopen_xz(int log_level) _dlopen_loader_;
-int dlopen_lz4(int log_level) _dlopen_loader_;
-int dlopen_zstd(int log_level) _dlopen_loader_;
-int dlopen_zlib(int log_level) _dlopen_loader_;
-int dlopen_bzip2(int log_level) _dlopen_loader_;
+صحيح dlopen_xz(صحيح log_level) _dlopen_loader_;
+صحيح dlopen_lz4(صحيح log_level) _dlopen_loader_;
+صحيح dlopen_zstd(صحيح log_level) _dlopen_loader_;
+صحيح dlopen_zlib(صحيح log_level) _dlopen_loader_;
+صحيح dlopen_bzip2(صحيح log_level) _dlopen_loader_;
 
-int dlopen_compress(Compression c, int log_level);
-int dlopen_compress_journal(Compression c, int log_level);
-static inline int dlopen_compress_default(int log_level) {
-        return dlopen_compress_journal(DEFAULT_COMPRESSION, log_level);
+صحيح dlopen_compress(Compression c, صحيح log_level);
+صحيح dlopen_compress_journal(Compression c, صحيح log_level);
+ساكن مضمن صحيح dlopen_compress_default(صحيح log_level) {
+        أرجع dlopen_compress_journal(DEFAULT_COMPRESSION, log_level);
 }
 
-static inline const char* default_compression_extension(void) {
-        return compression_extension_to_string(DEFAULT_COMPRESSION) ?: "";
+ساكن مضمن ثابت حرف* default_compression_extension(فراغ) {
+        أرجع compression_extension_منزل_string(DEFAULT_COMPRESSION) ?: "";
 }
 
 /* Returns ZSTD_DStreamOutSize() — the streaming decompressor's recommended output buffer size, which
  * decompress_blob() uses to size its initial buffer — or 0 if libzstd is unavailable. Exposed so tests
  * can line content up with the decoder's buffer boundary instead of hardcoding the value. */
-size_t zstd_dstream_out_size(void);
+size_t zstd_dstream_ٻاهريون_سائيز(فراغ);

@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated);
-static inline size_t strnpcpy(char **dest, size_t size, const char *src, size_t len) {
-        return strnpcpy_full(dest, size, src, len, NULL);
+size_t strnpcpy_ڀريل(حرف **dest, size_t سائيز, ثابت حرف *src, size_t len, bool *ret_truncated);
+ساكن مضمن size_t strnpcpy(حرف **dest, size_t سائيز, ثابت حرف *src, size_t len) {
+        أرجع strnpcpy_ڀريل(dest, سائيز, src, len, عدم);
 }
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated);
-static inline size_t strpcpy(char **dest, size_t size, const char *src) {
-        return strpcpy_full(dest, size, src, NULL);
+size_t strpcpy_ڀريل(حرف **dest, size_t سائيز, ثابت حرف *src, bool *ret_truncated);
+ساكن مضمن size_t strpcpy(حرف **dest, size_t سائيز, ثابت حرف *src) {
+        أرجع strpcpy_ڀريل(dest, سائيز, src, عدم);
 }
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) _printf_(4, 5);
-#define strpcpyf(dest, size, src, ...) \
-        strpcpyf_full((dest), (size), NULL, (src), ##__VA_ARGS__)
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) _sentinel_;
-#define strpcpyl(dest, size, src, ...) \
-        strpcpyl_full((dest), (size), NULL, (src), ##__VA_ARGS__)
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated);
-static inline size_t strnscpy(char *dest, size_t size, const char *src, size_t len) {
-        return strnscpy_full(dest, size, src, len, NULL);
+size_t strpcpyf_ڀريل(حرف **dest, size_t سائيز, bool *ret_truncated, ثابت حرف *src, ...) _printf_(4, 5);
+#وصف_ڪريو strpcpyf(dest, سائيز, src, ...) \
+        strpcpyf_ڀريل((dest), (سائيز), عدم, (src), ##__VA_ARGS__)
+size_t strpcpyl_ڀريل(حرف **dest, size_t سائيز, bool *ret_truncated, ثابت حرف *src, ...) _sentinel_;
+#وصف_ڪريو strpcpyl(dest, سائيز, src, ...) \
+        strpcpyl_ڀريل((dest), (سائيز), عدم, (src), ##__VA_ARGS__)
+size_t strnscpy_ڀريل(حرف *dest, size_t سائيز, ثابت حرف *src, size_t len, bool *ret_truncated);
+ساكن مضمن size_t strnscpy(حرف *dest, size_t سائيز, ثابت حرف *src, size_t len) {
+        أرجع strnscpy_ڀريل(dest, سائيز, src, len, عدم);
 }
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated);
-static inline size_t strscpy(char *dest, size_t size, const char *src) {
-        return strscpy_full(dest, size, src, NULL);
+size_t strscpy_ڀريل(حرف *dest, size_t سائيز, ثابت حرف *src, bool *ret_truncated);
+ساكن مضمن size_t strscpy(حرف *dest, size_t سائيز, ثابت حرف *src) {
+        أرجع strscpy_ڀريل(dest, سائيز, src, عدم);
 }
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) _sentinel_;
-#define strscpyl(dest, size, src, ...) \
-        strscpyl_full(dest, size, NULL, src, ##__VA_ARGS__)
+size_t strscpyl_ڀريل(حرف *dest, size_t سائيز, bool *ret_truncated, ثابت حرف *src, ...) _sentinel_;
+#وصف_ڪريو strscpyl(dest, سائيز, src, ...) \
+        strscpyl_ڀريل(dest, سائيز, عدم, src, ##__VA_ARGS__)

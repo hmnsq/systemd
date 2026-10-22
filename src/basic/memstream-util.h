@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef struct MemStream {
+تعريفنوع بنية Mem_وهڪرو {
         FILE *f;
-        char *buf;
+        حرف *buf;
         size_t sz;
-} MemStream;
+} Mem_وهڪرو;
 
-void memstream_done(MemStream *m);
-FILE* memstream_init(MemStream *m);
-int memstream_finalize(MemStream *m, char **ret_buf, size_t *ret_size);
+فراغ memstream_پورو(Mem_وهڪرو *m);
+FILE* memstream_init(Mem_وهڪرو *m);
+صحيح memstream_finalize(Mem_وهڪرو *m, حرف **ret_buf, size_t *ret_سائيز);
 
 /* This finalizes the passed memstream. */
-int memstream_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                MemStream *m);
-#define memstream_dump(level, m)                                        \
-        memstream_dump_internal(level, 0, PROJECT_FILE, __LINE__, __func__, m)
+صحيح memstream_dump_اندروني(
+                صحيح level,
+                صحيح error,
+                ثابت حرف *file,
+                صحيح سٽ,
+                ثابت حرف *func,
+                Mem_وهڪرو *m);
+#وصف_ڪريو memstream_dump(level, m)                                        \
+        memstream_dump_اندروني(level, 0, PROJECT_FILE, __LINE__, __func__, m)

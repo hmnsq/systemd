@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-const char* af_to_name(int id) _const_;
-int af_from_name(const char *name) _pure_;
+ثابت حرف* af_منزل_name(صحيح id) _const_;
+صحيح af_from_name(ثابت حرف *name) خالص;
 
-const char* af_to_name_short(int id) _const_;
+ثابت حرف* af_منزل_name_short(صحيح id) _const_;
 
-const char* af_to_ipv4_ipv6(int id) _const_;
-int af_from_ipv4_ipv6(const char *af) _pure_;
+ثابت حرف* af_منزل_ipv4_ipv6(صحيح id) _const_;
+صحيح af_from_ipv4_ipv6(ثابت حرف *af) خالص;
 
-int af_max(void) _const_;
+صحيح af_max(فراغ) _const_;

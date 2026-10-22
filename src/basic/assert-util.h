@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#ضمن "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(فراغ) _weak_ خالص;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+فراغ log_assert_failed_return(ثابت حرف *متن, ثابت حرف *file, صحيح سٽ, ثابت حرف *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#وصف_ڪريو assert_log(اظهار)                                                \
+        (_likely_(اظهار) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#وصف_ڪريو assert_return(اظهار, r)                                          \
+        افعل {                                                            \
+                إذا (!assert_log(اظهار))                                  \
+                        أرجع (r);                                     \
+        } طالما (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#وصف_ڪريو assert_return_errno(اظهار, r, err)                               \
+        افعل {                                                            \
+                إذا (!assert_log(اظهار)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        أرجع (r);                                     \
                 }                                                       \
-        } while (false)
+        } طالما (false)

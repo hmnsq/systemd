@@ -1,36 +1,36 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef struct Prioq Prioq;
+تعريفنوع بنية Prioq Prioq;
 
-#define PRIOQ_IDX_NULL (UINT_MAX)
+#وصف_ڪريو PRIOQ_IDX_NULL (UINT_MAX)
 
 Prioq* prioq_new(compare_func_t compare);
 Prioq* prioq_free(Prioq *q);
 DEFINE_TRIVIAL_CLEANUP_FUNC(Prioq*, prioq_free);
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
+صحيح prioq_ensure_allocated(Prioq **q, compare_func_t compare_func);
 
-int prioq_put(Prioq *q, void *data, unsigned *idx);
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx);
-#define prioq_ensure_put(q, compare_func, data, idx)                    \
+صحيح prioq_put(Prioq *q, فراغ *معلومات, بنانشان *idx);
+صحيح _prioq_ensure_put(Prioq **q, compare_func_t compare_func, فراغ *معلومات, بنانشان *idx);
+#وصف_ڪريو prioq_ensure_put(q, compare_func, معلومات, idx)                    \
         ({                                                              \
-                int (*_func_)(const typeof((data)[0])*, const typeof((data)[0])*) = compare_func; \
-                _prioq_ensure_put(q, (compare_func_t) _func_, data, idx); \
+                صحيح (*_func_)(ثابت typeof((معلومات)[0])*, ثابت typeof((معلومات)[0])*) = compare_func; \
+                _prioq_ensure_put(q, (compare_func_t) _func_, معلومات, idx); \
         })
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx);
-void prioq_reshuffle(Prioq *q, void *data, unsigned *idx);
+صحيح prioq_remove(Prioq *q, فراغ *معلومات, بنانشان *idx);
+فراغ prioq_reshuffle(Prioq *q, فراغ *معلومات, بنانشان *idx);
 
-void* prioq_peek_by_index(Prioq *q, unsigned idx) _pure_;
-static inline void *prioq_peek(Prioq *q) {
-        return prioq_peek_by_index(q, 0);
+فراغ* prioq_peek_by_اشاريو(Prioq *q, بنانشان idx) خالص;
+ساكن مضمن فراغ *prioq_peek(Prioq *q) {
+        أرجع prioq_peek_by_اشاريو(q, 0);
 }
-void* prioq_pop(Prioq *q);
+فراغ* prioq_ڪڍو(Prioq *q);
 
-#define PRIOQ_FOREACH_ITEM(q, p)                                \
-        for (unsigned _i = 0; (p = prioq_peek_by_index(q, _i)); _i++)
+#وصف_ڪريو PRIOQ_FOREACH_شي(q, p)                                \
+        لكل (بنانشان _i = 0; (p = prioq_peek_by_اشاريو(q, _i)); _i++)
 
-unsigned prioq_size(Prioq *q) _pure_;
-bool prioq_isempty(Prioq *q) _pure_;
+بنانشان prioq_سائيز(Prioq *q) خالص;
+bool prioq_isempty(Prioq *q) خالص;

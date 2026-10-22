@@ -1,59 +1,59 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-int getxattr_at_malloc(int fd, const char *path, const char *name, int at_flags, char **ret, size_t *ret_size);
-static inline int getxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, AT_SYMLINK_FOLLOW, ret, ret_size);
+صحيح getxattr_at_malloc(صحيح fd, ثابت حرف *رستو, ثابت حرف *name, صحيح at_flags, حرف **ret, size_t *ret_سائيز);
+ساكن مضمن صحيح getxattr_malloc(ثابت حرف *رستو, ثابت حرف *name, حرف **ret, size_t *ret_سائيز) {
+        أرجع getxattr_at_malloc(AT_FDCWD, رستو, name, AT_SYMLINK_FOLLOW, ret, ret_سائيز);
 }
-static inline int lgetxattr_malloc(const char *path, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(AT_FDCWD, path, name, 0, ret, ret_size);
+ساكن مضمن صحيح lgetxattr_malloc(ثابت حرف *رستو, ثابت حرف *name, حرف **ret, size_t *ret_سائيز) {
+        أرجع getxattr_at_malloc(AT_FDCWD, رستو, name, 0, ret, ret_سائيز);
 }
-static inline int fgetxattr_malloc(int fd, const char *name, char **ret, size_t *ret_size) {
-        return getxattr_at_malloc(fd, NULL, name, AT_EMPTY_PATH, ret, ret_size);
-}
-
-int getxattr_at_bool(int fd, const char *path, const char *name, int at_flags);
-int getxattr_at_strv(int fd, const char *path, const char *name, int at_flags, char ***ret_strv);
-
-int listxattr_at_malloc(int fd, const char *path, int at_flags, char **ret);
-static inline int listxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, AT_SYMLINK_FOLLOW, ret);
-}
-static inline int llistxattr_malloc(const char *path, char **ret) {
-        return listxattr_at_malloc(AT_FDCWD, path, 0, ret);
-}
-static inline int flistxattr_malloc(int fd, char **ret) {
-        return listxattr_at_malloc(fd, NULL, AT_EMPTY_PATH, ret);
+ساكن مضمن صحيح fgetxattr_malloc(صحيح fd, ثابت حرف *name, حرف **ret, size_t *ret_سائيز) {
+        أرجع getxattr_at_malloc(fd, عدم, name, AT_خالي_جايون_رستو, ret, ret_سائيز);
 }
 
-int xsetxattr_full(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value,
-                size_t size,
-                int xattr_flags);
-static inline int xsetxattr(
-                int fd,
-                const char *path,
-                int at_flags,
-                const char *name,
-                const char *value) {
-        return xsetxattr_full(fd, path, at_flags, name, value, SIZE_MAX, 0);
+صحيح getxattr_at_bool(صحيح fd, ثابت حرف *رستو, ثابت حرف *name, صحيح at_flags);
+صحيح getxattr_at_strv(صحيح fd, ثابت حرف *رستو, ثابت حرف *name, صحيح at_flags, حرف ***ret_strv);
+
+صحيح listxattr_at_malloc(صحيح fd, ثابت حرف *رستو, صحيح at_flags, حرف **ret);
+ساكن مضمن صحيح listxattr_malloc(ثابت حرف *رستو, حرف **ret) {
+        أرجع listxattr_at_malloc(AT_FDCWD, رستو, AT_SYMLINK_FOLLOW, ret);
+}
+ساكن مضمن صحيح llistxattr_malloc(ثابت حرف *رستو, حرف **ret) {
+        أرجع listxattr_at_malloc(AT_FDCWD, رستو, 0, ret);
+}
+ساكن مضمن صحيح flistxattr_malloc(صحيح fd, حرف **ret) {
+        أرجع listxattr_at_malloc(fd, عدم, AT_خالي_جايون_رستو, ret);
 }
 
-int xsetxattr_strv(int fd, const char *path, int at_flags, const char *name, char * const *l);
-
-int xremovexattr(int fd, const char *path, int at_flags, const char *name);
-
-int fd_setcrtime(int fd, usec_t usec);
-int getcrtime_at(int fd, const char *path, int at_flags, usec_t *ret);
-static inline int fd_getcrtime(int fd, usec_t *ret) {
-        return getcrtime_at(fd, NULL, 0, ret);
+صحيح xsetxattr_ڀريل(
+                صحيح fd,
+                ثابت حرف *رستو,
+                صحيح at_flags,
+                ثابت حرف *name,
+                ثابت حرف *قدر,
+                size_t سائيز,
+                صحيح xattr_flags);
+ساكن مضمن صحيح xsetxattr(
+                صحيح fd,
+                ثابت حرف *رستو,
+                صحيح at_flags,
+                ثابت حرف *name,
+                ثابت حرف *قدر) {
+        أرجع xsetxattr_ڀريل(fd, رستو, at_flags, name, قدر, SIZE_MAX, 0);
 }
 
-bool xattr_is_acl(const char *name);
-bool xattr_is_selinux(const char *name);
+صحيح xsetxattr_strv(صحيح fd, ثابت حرف *رستو, صحيح at_flags, ثابت حرف *name, حرف * ثابت *l);
+
+صحيح xremovexattr(صحيح fd, ثابت حرف *رستو, صحيح at_flags, ثابت حرف *name);
+
+صحيح fd_setcrtime(صحيح fd, usec_t usec);
+صحيح getcrtime_at(صحيح fd, ثابت حرف *رستو, صحيح at_flags, usec_t *ret);
+ساكن مضمن صحيح fd_getcrtime(صحيح fd, usec_t *ret) {
+        أرجع getcrtime_at(fd, عدم, 0, ret);
+}
+
+bool xattr_is_acl(ثابت حرف *name);
+bool xattr_is_selinux(ثابت حرف *name);

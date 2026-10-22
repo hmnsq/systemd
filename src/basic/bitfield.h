@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
 /* Bit index (0-based) to mask of specified type. Assertion failure if index is out of range. */
-#define _INDEX_TO_MASK(type, i, uniq)                                   \
+#وصف_ڪريو اشاريو_منزل_نقاب(type, i, uniq)                                   \
         ({                                                              \
-                int UNIQ_T(_i, uniq) = (i);                             \
-                assert(UNIQ_T(_i, uniq) >= 0);                          \
-                assert(UNIQ_T(_i, uniq) < (int)sizeof(type) * 8);       \
+                صحيح UNIQ_T(_i, uniq) = (i);                             \
+                أكد(UNIQ_T(_i, uniq) >= 0);                          \
+                أكد(UNIQ_T(_i, uniq) < (صحيح)حجم(type) * 8);       \
                 ((type)1) << UNIQ_T(_i, uniq);                          \
         })
-#define INDEX_TO_MASK(type, i)                                          \
+#وصف_ڪريو اشاريو_منزل_نقاب_2(type, i)                                          \
         ({                                                              \
-                assert_cc(sizeof(type) <= sizeof(unsigned long long));  \
-                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (int)(sizeof(type) * 8)); \
+                assert_cc(حجم(type) <= حجم(بنانشان ڊگهو ڊگهو));  \
+                assert_cc(__builtin_choose_expr(__builtin_constant_p(i), i, 0) < (صحيح)(حجم(type) * 8)); \
                 __builtin_choose_expr(__builtin_constant_p(i),          \
                                       ((type)1) << (i),                 \
-                                      _INDEX_TO_MASK(type, i, UNIQ));   \
+                                      اشاريو_منزل_نقاب(type, i, UNIQ));   \
         })
 
 /* Builds a mask of specified type with multiple bits set. Note the result will not be constant, even if all
  * indexes are constant. */
-#define INDEXES_TO_MASK(type, ...)                              \
-        UNIQ_INDEXES_TO_MASK(type, UNIQ, ##__VA_ARGS__)
-#define UNIQ_INDEXES_TO_MASK(type, uniq, ...)                           \
+#وصف_ڪريو INDEXES_منزل_نقاب(type, ...)                              \
+        UNIQ_INDEXES_منزل_نقاب(type, UNIQ, ##__VA_ARGS__)
+#وصف_ڪريو UNIQ_INDEXES_منزل_نقاب(type, uniq, ...)                           \
         ({                                                              \
-                typeof(type) UNIQ_T(_mask, uniq) = (type)0;             \
-                int UNIQ_T(_i, uniq);                                   \
-                FOREACH_ARGUMENT(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
-                        UNIQ_T(_mask, uniq) |= INDEX_TO_MASK(type, UNIQ_T(_i, uniq)); \
-                UNIQ_T(_mask, uniq);                                    \
+                typeof(type) UNIQ_T(نقاب_2, uniq) = (type)0;             \
+                صحيح UNIQ_T(_i, uniq);                                   \
+                FOREACH_دليل(UNIQ_T(_i, uniq), ##__VA_ARGS__)       \
+                        UNIQ_T(نقاب_2, uniq) |= اشاريو_منزل_نقاب_2(type, UNIQ_T(_i, uniq)); \
+                UNIQ_T(نقاب_2, uniq);                                    \
         })
 
 /* Same as the FLAG macros, but accept a 0-based bit index instead of a mask. Results in assertion failure if
  * index is out of range for the type. */
-#define SET_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), true)
-#define CLEAR_BIT(bits, i) SET_FLAG(bits, INDEX_TO_MASK(typeof(bits), i), false)
-#define BIT_SET(bits, i) FLAGS_SET(bits, INDEX_TO_MASK(typeof(bits), i))
+#وصف_ڪريو سيٽ_ٻٽو_انگ(بٽ, i) سيٽ_FLAG(بٽ, اشاريو_منزل_نقاب_2(typeof(بٽ), i), true)
+#وصف_ڪريو CLEAR_ٻٽو_انگ(بٽ, i) سيٽ_FLAG(بٽ, اشاريو_منزل_نقاب_2(typeof(بٽ), i), false)
+#وصف_ڪريو ٻٽو_انگ_سيٽ(بٽ, i) FLAGS_سيٽ(بٽ, اشاريو_منزل_نقاب_2(typeof(بٽ), i))
 
 /* As above, but accepts multiple indexes. Note the result will not be constant, even if all indexes are
  * constant. */
-#define SET_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), true)
-#define CLEAR_BITS(bits, ...) SET_FLAG(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__), false)
-#define BITS_SET(bits, ...) FLAGS_SET(bits, INDEXES_TO_MASK(typeof(bits), ##__VA_ARGS__))
+#وصف_ڪريو سيٽ_بٽ(بٽ, ...) سيٽ_FLAG(بٽ, INDEXES_منزل_نقاب(typeof(بٽ), ##__VA_ARGS__), true)
+#وصف_ڪريو CLEAR_بٽ(بٽ, ...) سيٽ_FLAG(بٽ, INDEXES_منزل_نقاب(typeof(بٽ), ##__VA_ARGS__), false)
+#وصف_ڪريو بٽ_سيٽ(بٽ, ...) FLAGS_سيٽ(بٽ, INDEXES_منزل_نقاب(typeof(بٽ), ##__VA_ARGS__))
 
 /* Iterate through each set bit. Index is 0-based and type int. */
-#define BIT_FOREACH(index, bits) _BIT_FOREACH(index, bits, UNIQ)
-#define _BIT_FOREACH(index, bits, uniq)                                 \
-        for (int UNIQ_T(_last, uniq) = -1, index;                       \
-             (index = BIT_NEXT_SET(bits, UNIQ_T(_last, uniq))) >= 0;    \
-             UNIQ_T(_last, uniq) = index)
+#وصف_ڪريو ٻٽو_انگ_FOREACH(index, بٽ) ٻٽو_انگ_FOREACH_2(index, بٽ, UNIQ)
+#وصف_ڪريو ٻٽو_انگ_FOREACH_2(index, بٽ, uniq)                                 \
+        لكل (صحيح UNIQ_T(آخري, uniq) = -1, index;                       \
+             (index = ٻٽو_انگ_ايندڙ_سيٽ(بٽ, UNIQ_T(آخري, uniq))) >= 0;    \
+             UNIQ_T(آخري, uniq) = index)
 
 /* Find the next set bit after 0-based index 'prev'. Result is 0-based index of next set bit, or -1 if no
  * more bits are set. */
-#define BIT_FIRST_SET(bits) BIT_NEXT_SET(bits, -1)
-#define BIT_NEXT_SET(bits, prev)                        \
-        UNIQ_BIT_NEXT_SET(bits, prev, UNIQ)
-#define UNIQ_BIT_NEXT_SET(bits, prev, uniq)                             \
+#وصف_ڪريو ٻٽو_انگ_پهريون_سيٽ(بٽ) ٻٽو_انگ_ايندڙ_سيٽ(بٽ, -1)
+#وصف_ڪريو ٻٽو_انگ_ايندڙ_سيٽ(بٽ, prev)                        \
+        UNIQ_ٻٽو_انگ_ايندڙ_سيٽ(بٽ, prev, UNIQ)
+#وصف_ڪريو UNIQ_ٻٽو_انگ_ايندڙ_سيٽ(بٽ, prev, uniq)                             \
         ({                                                              \
-                typeof(bits) UNIQ_T(_bits, uniq) = (bits);              \
-                int UNIQ_T(_prev, uniq) = (prev);                       \
-                int UNIQ_T(_next, uniq);                                \
-                _BIT_NEXT_SET(UNIQ_T(_bits, uniq),                      \
+                typeof(بٽ) UNIQ_T(بٽ_2, uniq) = (بٽ);              \
+                صحيح UNIQ_T(_prev, uniq) = (prev);                       \
+                صحيح UNIQ_T(ايندڙ, uniq);                                \
+                ٻٽو_انگ_ايندڙ_سيٽ_2(UNIQ_T(بٽ_2, uniq),                      \
                               UNIQ_T(_prev, uniq),                      \
-                              UNIQ_T(_next, uniq));                     \
+                              UNIQ_T(ايندڙ, uniq));                     \
         })
-#define _BIT_NEXT_SET(bits, prev, next)                                 \
-        ((int)(prev + 1) == (int)sizeof(bits) * 8                       \
+#وصف_ڪريو ٻٽو_انگ_ايندڙ_سيٽ_2(بٽ, prev, ايندڙ_2)                                 \
+        ((صحيح)(prev + 1) == (صحيح)حجم(بٽ) * 8                       \
          ? -1 /* Prev index was msb. */                                 \
-         : ((next = __builtin_ffsll(((unsigned long long)(bits)) >> (prev + 1))) == 0 \
+         : ((ايندڙ_2 = __builtin_ffsll(((بنانشان ڊگهو ڊگهو)(بٽ)) >> (prev + 1))) == 0 \
             ? -1 /* No more bits set. */                                \
-            : prev + next))
+            : prev + ايندڙ_2))

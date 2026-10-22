@@ -1,21 +1,21 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <poll.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/epoll.h>          /* IWYU pragma: keep */
-#include <time.h>
-#include <unistd.h>
+#ضمن <fcntl.h>
+#ضمن <poll.h>
+#ضمن <stdio.h>
+#ضمن <string.h>
+#ضمن <sys/epoll.h>          /* IWYU pragma: keep */
+#ضمن <time.h>
+#ضمن <unistd.h>
 
-#include "errno-util.h"
-#include "fiber-ops.h"
-#include "io-util.h"
-#include "iovec-util.h"
-#include "time-util.h"
+#ضمن "errno-util.h"
+#ضمن "fiber-ops.h"
+#ضمن "io-util.h"
+#ضمن "iovec-util.h"
+#ضمن "time-util.h"
 
-uint32_t poll_events_to_epoll(uint32_t events) {
-        return (events & POLLIN    ? EPOLLIN    : 0) |
+uint32_t poll_events_منزل_epoll(uint32_t events) {
+        أرجع (events & POLLIN    ? EPOLLIN    : 0) |
                (events & POLLOUT   ? EPOLLOUT   : 0) |
                (events & POLLPRI   ? EPOLLPRI   : 0) |
                (events & POLLERR   ? EPOLLERR   : 0) |
@@ -23,8 +23,8 @@ uint32_t poll_events_to_epoll(uint32_t events) {
                (events & POLLRDHUP ? EPOLLRDHUP : 0);
 }
 
-uint32_t epoll_events_to_poll(uint32_t events) {
-        return (events & EPOLLIN    ? POLLIN    : 0) |
+uint32_t epoll_events_منزل_poll(uint32_t events) {
+        أرجع (events & EPOLLIN    ? POLLIN    : 0) |
                (events & EPOLLOUT   ? POLLOUT   : 0) |
                (events & EPOLLPRI   ? POLLPRI   : 0) |
                (events & EPOLLERR   ? POLLERR   : 0) |
@@ -32,139 +32,139 @@ uint32_t epoll_events_to_poll(uint32_t events) {
                (events & EPOLLRDHUP ? POLLRDHUP : 0);
 }
 
-int flush_fd(int fd) {
-        int count = 0;
+صحيح flush_fd(صحيح fd) {
+        صحيح ڳڻپ = 0;
 
         /* Read from the specified file descriptor, until POLLIN is not set anymore, throwing away everything
          * read. Note that some file descriptors (notable IP sockets) will trigger POLLIN even when no data can be read
          * (due to IP packet checksum mismatches), hence this function is only safe to be non-blocking if the fd used
          * was set to non-blocking too. */
 
-        for (;;) {
-                char buf[LINE_MAX];
+        لكل (;;) {
+                حرف buf[LINE_MAX];
                 ssize_t l;
-                int r;
+                صحيح r;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
-                        continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                إذا (r == -EINTR)
+                        استمر;
+                إذا (r < 0)
+                        أرجع r;
+                إذا (r == 0)
+                        أرجع ڳڻپ;
 
-                l = read(fd, buf, sizeof(buf));
-                if (l < 0) {
-                        if (errno == EINTR)
-                                continue;
-                        if (errno == EAGAIN)
-                                return count;
+                l = اقرأ(fd, buf, حجم(buf));
+                إذا (l < 0) {
+                        إذا (errno == EINTR)
+                                استمر;
+                        إذا (errno == EAGAIN)
+                                أرجع ڳڻپ;
 
-                        return -errno;
-                } else if (l == 0)
-                        return count;
+                        أرجع -errno;
+                } وإلا إذا (l == 0)
+                        أرجع ڳڻپ;
 
-                if (l > INT_MAX-count) /* On overflow terminate */
-                        return INT_MAX;
+                إذا (l > وڌ_کان_وڌ_عدد-ڳڻپ) /* On overflow terminate */
+                        أرجع وڌ_کان_وڌ_عدد;
 
-                count += (int) l;
+                ڳڻپ += (صحيح) l;
         }
 }
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
+ssize_t loop_read(صحيح fd, فراغ *buf, size_t nbytes, bool do_poll) {
         uint8_t *p = ASSERT_PTR(buf);
         ssize_t n = 0;
 
-        assert(fd >= 0);
+        أكد(fd >= 0);
 
         /* If called with nbytes == 0, let's call read() at least once, to validate the operation */
 
-        if (nbytes > (size_t) SSIZE_MAX)
-                return -EINVAL;
+        إذا (nbytes > (size_t) SSIZE_MAX)
+                أرجع -EINVAL;
 
         /* do_poll == false means "don't wait, return what we have if EAGAIN". If the fd is already
          * non-blocking, read() can't block the thread, so the non-fiber path satisfies that semantic
          * correctly even from a fiber. Only use the fiber path when the fd is blocking (where read()
          * would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && !do_poll) {
+        صحيح flags = 0;
+        إذا (fiber_ops_is_سيٽ() && !do_poll) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                إذا (flags < 0)
+                        أرجع -errno;
         }
 
-        do {
+        افعل {
                 ssize_t k;
 
-                if (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
+                إذا (fiber_ops_is_سيٽ() && (do_poll || !FLAGS_سيٽ(flags, O_NONBLOCK))) {
                         /* On a fiber the read op suspends on EAGAIN until data is available, so we don't
                          * need a separate poll step or the do_poll knob. */
                         k = fiber_ops_read(fd, p, nbytes);
-                        if (k < 0)
-                                return n > 0 ? n : k;
-                } else {
-                        k = read(fd, p, nbytes);
-                        if (k < 0) {
-                                if (errno == EINTR)
-                                        continue;
+                        إذا (k < 0)
+                                أرجع n > 0 ? n : k;
+                } وإلا {
+                        k = اقرأ(fd, p, nbytes);
+                        إذا (k < 0) {
+                                إذا (errno == EINTR)
+                                        استمر;
 
-                                if (errno == EAGAIN && do_poll) {
+                                إذا (errno == EAGAIN && do_poll) {
 
                                         /* We knowingly ignore any return value here,
                                          * and expect that any error/EOF is reported
                                          * via read() */
 
-                                        (void) fd_wait_for_event(fd, POLLIN, USEC_INFINITY);
-                                        continue;
+                                        (فراغ) fd_wait_for_event(fd, POLLIN, USEC_INFINITY);
+                                        استمر;
                                 }
 
-                                return n > 0 ? n : -errno;
+                                أرجع n > 0 ? n : -errno;
                         }
                 }
 
-                if (k == 0)
-                        return n;
+                إذا (k == 0)
+                        أرجع n;
 
-                assert((size_t) k <= nbytes);
-                assert(k <= SSIZE_MAX - n);
+                أكد((size_t) k <= nbytes);
+                أكد(k <= SSIZE_MAX - n);
 
                 p += k;
                 nbytes -= k;
                 n += k;
-        } while (nbytes > 0);
+        } طالما (nbytes > 0);
 
-        return n;
+        أرجع n;
 }
 
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll) {
+صحيح loop_read_exact(صحيح fd, فراغ *buf, size_t nbytes, bool do_poll) {
         ssize_t n;
 
         n = loop_read(fd, buf, nbytes, do_poll);
-        if (n < 0)
-                return (int) n;
-        if ((size_t) n != nbytes)
-                return -EIO;
+        إذا (n < 0)
+                أرجع (صحيح) n;
+        إذا ((size_t) n != nbytes)
+                أرجع -EIO;
 
-        return 0;
+        أرجع 0;
 }
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
-        const uint8_t *p;
-        usec_t end;
-        int r;
+صحيح loop_write_ڀريل(صحيح fd, ثابت فراغ *buf, size_t nbytes, usec_t timeout) {
+        ثابت uint8_t *p;
+        usec_t پڇاڙي;
+        صحيح r;
 
-        assert(fd >= 0);
-        assert(buf || nbytes == 0);
+        أكد(fd >= 0);
+        أكد(buf || nbytes == 0);
 
-        if (nbytes == 0) {
-                static const dummy_t dummy[0];
-                assert_cc(sizeof(dummy) == 0);
-                p = (const void*) dummy; /* Some valid pointer, in case NULL was specified */
-        } else {
-                if (nbytes == SIZE_MAX)
-                        nbytes = strlen(buf);
-                else if (_unlikely_(nbytes > (size_t) SSIZE_MAX))
-                        return -EINVAL;
+        إذا (nbytes == 0) {
+                ساكن ثابت dummy_t dummy[0];
+                assert_cc(حجم(dummy) == 0);
+                p = (ثابت فراغ*) dummy; /* Some valid pointer, in case NULL was specified */
+        } وإلا {
+                إذا (nbytes == SIZE_MAX)
+                        nbytes = لڙي_ڊيگهه(buf);
+                وإلا إذا (_unlikely_(nbytes > (size_t) SSIZE_MAX))
+                        أرجع -EINVAL;
 
                 p = buf;
         }
@@ -173,146 +173,146 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
          * non-blocking, write() can't block the thread, so the non-fiber path satisfies that
          * semantic correctly even from a fiber. Only use the fiber path when the fd is blocking
          * (where write() would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && timeout == 0) {
+        صحيح flags = 0;
+        إذا (fiber_ops_is_سيٽ() && timeout == 0) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                إذا (flags < 0)
+                        أرجع -errno;
         }
 
-        if (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
+        إذا (fiber_ops_is_سيٽ() && !FLAGS_سيٽ(flags, O_NONBLOCK)) {
                 /* On a fiber the write op suspends on EAGAIN until the fd is writable; honor the
                  * caller's timeout via a deadline scope. */
-                FIBER_OPS_TIMEOUT(timestamp_is_set(timeout) ? timeout : USEC_INFINITY);
+                FIBER_OPS_TIMEOUT(timestamp_is_سيٽ(timeout) ? timeout : USEC_INFINITY);
 
-                while (nbytes > 0) {
+                طالما (nbytes > 0) {
                         ssize_t k = fiber_ops_write(fd, p, nbytes);
-                        if (k < 0)
-                                return (int) k;
-                        if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                                return -EIO;
+                        إذا (k < 0)
+                                أرجع (صحيح) k;
+                        إذا (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                                أرجع -EIO;
 
-                        assert((size_t) k <= nbytes);
+                        أكد((size_t) k <= nbytes);
                         p += k;
                         nbytes -= k;
                 }
 
-                return 0;
+                أرجع 0;
         }
 
         /* When timeout is 0 or USEC_INFINITY this is not used. But we initialize it to a sensible value. */
-        end = timestamp_is_set(timeout) ? usec_add(now(CLOCK_MONOTONIC), timeout) : USEC_INFINITY;
+        پڇاڙي = timestamp_is_سيٽ(timeout) ? usec_جوڙيو(now(CLOCK_MONOTONIC), timeout) : USEC_INFINITY;
 
-        do {
+        افعل {
                 ssize_t k;
 
-                k = write(fd, p, nbytes);
-                if (k < 0) {
-                        if (errno == EINTR)
-                                continue;
+                k = اكتب(fd, p, nbytes);
+                إذا (k < 0) {
+                        إذا (errno == EINTR)
+                                استمر;
 
-                        if (errno != EAGAIN || timeout == 0)
-                                return -errno;
+                        إذا (errno != EAGAIN || timeout == 0)
+                                أرجع -errno;
 
                         usec_t wait_for;
 
-                        if (timeout == USEC_INFINITY)
+                        إذا (timeout == USEC_INFINITY)
                                 wait_for = USEC_INFINITY;
-                        else {
+                        وإلا {
                                 usec_t t = now(CLOCK_MONOTONIC);
-                                if (t >= end)
-                                        return -ETIME;
+                                إذا (t >= پڇاڙي)
+                                        أرجع -ETIME;
 
-                                wait_for = usec_sub_unsigned(end, t);
+                                wait_for = usec_sub_unsigned(پڇاڙي, t);
                         }
 
                         r = fd_wait_for_event(fd, POLLOUT, wait_for);
-                        if (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
+                        إذا (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
                                 /* If timeout == USEC_INFINITY we knowingly ignore any return value
                                  * here, and expect that any error/EOF is reported via write() */
-                                continue;
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIME;
-                        continue;
+                                استمر;
+                        إذا (r < 0)
+                                أرجع r;
+                        إذا (r == 0)
+                                أرجع -ETIME;
+                        استمر;
                 }
 
-                if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                        return -EIO;
+                إذا (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                        أرجع -EIO;
 
-                assert((size_t) k <= nbytes);
+                أكد((size_t) k <= nbytes);
 
                 p += k;
                 nbytes -= k;
-        } while (nbytes > 0);
+        } طالما (nbytes > 0);
 
-        return 0;
+        أرجع 0;
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
+صحيح pwritev_ڀريل(صحيح fd, بنية iovec *iovec, size_t n, uint64_t وٿي, uint64_t *ret_written) {
         uint64_t written = 0;
-        int r = 0;
+        صحيح r = 0;
 
-        assert(fd >= 0);
-        assert(iovec || n == 0);
+        أكد(fd >= 0);
+        أكد(iovec || n == 0);
 
         /* Writes all of the iovecs at the offset. The iovecs are advanced past what was written, and
          * 'ret_written' tells how much that was, also if the write fails halfway. */
 
-        for (size_t i = 0;;) {
+        لكل (size_t i = 0;;) {
                 size_t m;
                 ssize_t k;
 
-                while (i < n && !iovec_is_set(iovec + i))
+                طالما (i < n && !iovec_is_سيٽ(iovec + i))
                         i++;
-                if (i >= n)
-                        break;
+                إذا (i >= n)
+                        اكسر;
 
                 m = MIN(n - i, (size_t) IOV_MAX);
-                k = pwritev(fd, iovec + i, m, offset + written);
-                if (k < 0) {
-                        if (errno == EINTR)
-                                continue;
+                k = pwritev(fd, iovec + i, m, وٿي + written);
+                إذا (k < 0) {
+                        إذا (errno == EINTR)
+                                استمر;
 
                         r = -errno;
-                        break;
+                        اكسر;
                 }
-                if (k == 0) {
+                إذا (k == 0) {
                         r = -EIO;
-                        break;
+                        اكسر;
                 }
 
                 written += k;
-                (void) iovec_inc_many(iovec + i, m, k);
+                (فراغ) iovec_inc_many(iovec + i, m, k);
         }
 
-        if (ret_written)
+        إذا (ret_written)
                 *ret_written = written;
-        return r;
+        أرجع r;
 }
 
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) {
-        assert(fd >= 0);
-        assert(buf || nbytes == 0);
+صحيح pwrite_ڀريل(صحيح fd, ثابت فراغ *buf, size_t nbytes, uint64_t وٿي) {
+        أكد(fd >= 0);
+        أكد(buf || nbytes == 0);
 
-        return pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
+        أرجع pwritev_ڀريل(fd, &IOVEC_MAKE((فراغ*) buf, nbytes), 1, وٿي, /* ret_written= */ عدم);
 }
 
-int pipe_eof(int fd) {
-        int r;
+صحيح pipe_eof(صحيح fd) {
+        صحيح r;
 
         r = fd_wait_for_event(fd, POLLIN, 0);
-        if (r <= 0)
-                return r;
+        إذا (r <= 0)
+                أرجع r;
 
-        return !!(r & POLLHUP);
+        أرجع !!(r & POLLHUP);
 }
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
-        int r;
+صحيح ppoll_usec_ڀريل(بنية pollfd *fds, size_t n_fds, usec_t timeout, ثابت sigset_t *ss) {
+        صحيح r;
 
-        assert(fds || n_fds == 0);
+        أكد(fds || n_fds == 0);
 
         /* This is a wrapper around ppoll() that does primarily two things:
          *
@@ -329,101 +329,101 @@ int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigs
          *  to handle signals, such as signalfd() or signal handlers. ⚠️ ⚠️ ⚠️
          */
 
-        if (n_fds == 0 && timeout == 0)
-                return 0;
+        إذا (n_fds == 0 && timeout == 0)
+                أرجع 0;
 
-        r = fiber_ops_ppoll(fds, n_fds, timeout == USEC_INFINITY ? NULL : TIMESPEC_STORE(timeout), ss);
-        if (r <= 0)
-                return r;
+        r = fiber_ops_ppoll(fds, n_fds, timeout == USEC_INFINITY ? عدم : TIMESPEC_STORE(timeout), ss);
+        إذا (r <= 0)
+                أرجع r;
 
-        for (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
-                if (fds[i].revents == 0)
-                        continue;
-                if (fds[i].revents & POLLNVAL)
-                        return -EBADF;
+        لكل (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
+                إذا (fds[i].revents == 0)
+                        استمر;
+                إذا (fds[i].revents & POLLNVAL)
+                        أرجع -EBADF;
                 n--;
         }
 
-        return r;
+        أرجع r;
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout) {
-        struct pollfd pollfd = {
+صحيح fd_wait_for_event(صحيح fd, صحيح event, usec_t timeout) {
+        بنية pollfd pollfd = {
                 .fd = fd,
                 .events = event,
         };
-        int r;
+        صحيح r;
 
         /* ⚠️ ⚠️ ⚠️ Keep in mind you almost certainly want to handle -EINTR gracefully in the caller, see
          * ppoll_usec() above! ⚠️ ⚠️ ⚠️ */
 
         r = ppoll_usec(&pollfd, 1, timeout);
-        if (r <= 0)
-                return r;
+        إذا (r <= 0)
+                أرجع r;
 
-        return pollfd.revents;
+        أرجع pollfd.revents;
 }
 
-static size_t nul_length(const uint8_t *p, size_t sz) {
+ساكن size_t nul_ڊيگهائي(ثابت uint8_t *p, size_t sz) {
         size_t n = 0;
 
-        assert(p);
+        أكد(p);
 
-        while (sz > 0) {
-                if (*p != 0)
-                        break;
+        طالما (sz > 0) {
+                إذا (*p != 0)
+                        اكسر;
 
                 n++;
                 p++;
                 sz--;
         }
 
-        return n;
+        أرجع n;
 }
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
-        const uint8_t *q, *w, *e;
+ssize_t sparse_write(صحيح fd, ثابت فراغ *p, size_t sz, size_t لاڳيتو_ڊيگهائي) {
+        ثابت uint8_t *q, *w, *e;
         ssize_t l;
 
         q = w = p;
         e = q + sz;
-        while (q < e) {
+        طالما (q < e) {
                 size_t n;
 
-                n = nul_length(q, e - q);
+                n = nul_ڊيگهائي(q, e - q);
 
                 /* If there are more than the specified run length of
                  * NUL bytes, or if this is the beginning or the end
                  * of the buffer, then seek instead of write */
-                if ((n > run_length) ||
+                إذا ((n > لاڳيتو_ڊيگهائي) ||
                     (n > 0 && q == p) ||
                     (n > 0 && q + n >= e)) {
-                        if (q > w) {
-                                l = write(fd, w, q - w);
-                                if (l < 0)
-                                        return -errno;
-                                if (l != q -w)
-                                        return -EIO;
+                        إذا (q > w) {
+                                l = اكتب(fd, w, q - w);
+                                إذا (l < 0)
+                                        أرجع -errno;
+                                إذا (l != q -w)
+                                        أرجع -EIO;
                         }
 
-                        if (lseek(fd, n, SEEK_CUR) < 0)
-                                return -errno;
+                        إذا (lseek(fd, n, SEEK_CUR) < 0)
+                                أرجع -errno;
 
                         q += n;
                         w = q;
-                } else if (n > 0)
+                } وإلا إذا (n > 0)
                         q += n;
-                else
+                وإلا
                         q++;
         }
 
-        if (q > w) {
-                l = write(fd, w, q - w);
-                if (l < 0)
-                        return -errno;
-                if (l != q - w)
-                        return -EIO;
+        إذا (q > w) {
+                l = اكتب(fd, w, q - w);
+                إذا (l < 0)
+                        أرجع -errno;
+                إذا (l != q - w)
+                        أرجع -EIO;
         }
 
-        return q - (const uint8_t*) p;
+        أرجع q - (ثابت uint8_t*) p;
 }

@@ -1,142 +1,142 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
 /* IWYU pragma: always_keep */
 
-#include <errno.h>                      /* IWYU pragma: export */
-#include <inttypes.h>                   /* IWYU pragma: export */
-#include <limits.h>                     /* IWYU pragma: export */
-#include <paths.h>                      /* IWYU pragma: export */
-#include <stdarg.h>                     /* IWYU pragma: export */
-#include <stdbool.h>                    /* IWYU pragma: export */
-#include <stddef.h>                     /* IWYU pragma: export */
-#include <stdint.h>                     /* IWYU pragma: export */
-#include <sys/types.h>                  /* IWYU pragma: export */
-#include <uchar.h>                      /* IWYU pragma: export */
+#ضمن <errno.h>                      /* IWYU pragma: export */
+#ضمن <inttypes.h>                   /* IWYU pragma: export */
+#ضمن <limits.h>                     /* IWYU pragma: export */
+#ضمن <paths.h>                      /* IWYU pragma: export */
+#ضمن <stdarg.h>                     /* IWYU pragma: export */
+#ضمن <stdbool.h>                    /* IWYU pragma: export */
+#ضمن <stddef.h>                     /* IWYU pragma: export */
+#ضمن <stdint.h>                     /* IWYU pragma: export */
+#ضمن <sys/types.h>                  /* IWYU pragma: export */
+#ضمن <uchar.h>                      /* IWYU pragma: export */
 
-#include "assert-util.h"                /* IWYU pragma: export */
-#include "cleanup-util.h"               /* IWYU pragma: export */
-#include "macro.h"                      /* IWYU pragma: export */
+#ضمن "assert-util.h"                /* IWYU pragma: export */
+#ضمن "cleanup-util.h"               /* IWYU pragma: export */
+#ضمن "macro.h"                      /* IWYU pragma: export */
 
-#include "../fundamental/string-table.h"   /* IWYU pragma: export */
+#ضمن "../fundamental/string-table.h"   /* IWYU pragma: export */
 
 /* Generic types */
 
-typedef uint64_t usec_t;
-typedef uint64_t nsec_t;
+تعريفنوع uint64_t usec_t;
+تعريفنوع uint64_t nsec_t;
 
 /* Libc/Linux forward declarations */
 
-struct __kernel_timespec;
-struct dirent;
-struct ether_addr;
-struct fiemap;
-struct file_handle;
-struct glob_t;
-struct group;
-struct icmp6_hdr;
-struct in_addr;
-struct in6_addr;
-struct inotify_event;
-struct iovec;
-struct mount_attr;
-struct msghdr;
-struct passwd;
-struct pollfd;
-struct rlimit;
-struct sgrp;
-struct shadow;
-struct signalfd_siginfo;
-struct siphash;
-struct sockaddr;
-struct spwd;
-struct stat;
-struct statfs;
-struct statx_timestamp;
-struct statx;
-struct termios;
-struct tm;
-struct ucred;
-struct unix_diag_msg;
+بنية __kernel_timespec;
+بنية dirent;
+بنية ether_addr;
+بنية fiemap;
+بنية file_handle;
+بنية glob_t;
+بنية group;
+بنية icmp6_hdr;
+بنية in_addr;
+بنية in6_addr;
+بنية inotify_event;
+بنية iovec;
+بنية mount_attr;
+بنية msghdr;
+بنية passwd;
+بنية pollfd;
+بنية rlimit;
+بنية sgrp;
+بنية shadow;
+بنية signalfd_siginfo;
+بنية siphash;
+بنية sockaddr;
+بنية spwd;
+بنية stat;
+بنية statfs;
+بنية statx_timestamp;
+بنية statx;
+بنية termios;
+بنية tm;
+بنية ucred;
+بنية unix_diag_نياپو;
 
 /* To forward declare FILE and DIR, we have to declare the internal struct names for them. Since these are
  * used for C++ symbol name mangling, they're effectively part of the ABI and won't actually change. */
-typedef struct _IO_FILE FILE;
-typedef struct __dirstream DIR;
+تعريفنوع بنية _IO_FILE FILE;
+تعريفنوع بنية __dirstream DIR;
 
 /* 3rd-party library forward declarations */
 
-enum bpf_map_type;
+تعداد bpf_map_type;
 
-struct fdisk_context;
-struct fdisk_table;
-struct crypt_device;
+بنية fdisk_context;
+بنية fdisk_جدول;
+بنية crypt_device;
 
-typedef struct buf_mem_st BUF_MEM;
-typedef struct evp_pkey_st EVP_PKEY;
-typedef struct evp_md_st EVP_MD;
-typedef struct evp_md_ctx_st EVP_MD_CTX;
-typedef struct ssl_st SSL;
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct ssl_session_st SSL_SESSION;
-typedef struct x509_st X509;
+تعريفنوع بنية buf_mem_st BUF_MEM;
+تعريفنوع بنية evp_pkey_st EVP_PKEY;
+تعريفنوع بنية evp_md_st EVP_MD;
+تعريفنوع بنية evp_md_ctx_st EVP_MD_CTX;
+تعريفنوع بنية ssl_st SSL;
+تعريفنوع بنية ssl_ctx_st SSL_CTX;
+تعريفنوع بنية ssl_session_st SSL_SESSION;
+تعريفنوع بنية x509_st X509;
 
 /* basic/ forward declarations */
 
-typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
-typedef compare_func_t comparison_fn_t;
-typedef int (*comparison_userdata_fn_t)(const void *, const void *, void *);
+تعريفنوع فراغ (*hash_func_t)(ثابت فراغ *p, بنية siphash *state);
+تعريفنوع صحيح (*compare_func_t)(ثابت فراغ *a, ثابت فراغ *b);
+تعريفنوع compare_func_t comparison_fn_t;
+تعريفنوع صحيح (*comparison_userdata_fn_t)(ثابت فراغ *, ثابت فراغ *, فراغ *);
 
-struct hash_ops;
-struct hw_addr_data;
-struct in_addr_data;
-struct iovec_wrapper;
-union in_addr_union;
-union sockaddr_union;
+بنية hash_ops;
+بنية hw_addr_معلومات;
+بنية اندريون_addr_معلومات;
+بنية iovec_wrapper;
+اتحاد اندريون_addr_union;
+اتحاد sockaddr_union;
 
-typedef enum Architecture Architecture;
-typedef enum CGroupFlags CGroupFlags;
-typedef enum CGroupMask CGroupMask;
-typedef enum ChaseFlags ChaseFlags;
-typedef enum ConfFilesFlags ConfFilesFlags;
-typedef enum ExtractFlags ExtractFlags;
-typedef enum ForkFlags ForkFlags;
-typedef enum Glyph Glyph;
-typedef enum ImageClass ImageClass;
-typedef enum JobMode JobMode;
-typedef enum NamespaceEnterFlags NamespaceEnterFlags;
-typedef enum RuntimeScope RuntimeScope;
-typedef enum StringSafeFlags StringSafeFlags;
-typedef enum TimestampStyle TimestampStyle;
-typedef enum UnitActiveState UnitActiveState;
-typedef enum UnitDependency UnitDependency;
-typedef enum UnitNameMangle UnitNameMangle;
-typedef enum UnitType UnitType;
-typedef enum WaitFlags WaitFlags;
-typedef enum XOpenFlags XOpenFlags;
+تعريفنوع تعداد Architecture Architecture;
+تعريفنوع تعداد CGroupFlags CGroupFlags;
+تعريفنوع تعداد CGroup_نقاب CGroup_نقاب;
+تعريفنوع تعداد ChaseFlags ChaseFlags;
+تعريفنوع تعداد ConfFilesFlags ConfFilesFlags;
+تعريفنوع تعداد ڪڍو_Flags ڪڍو_Flags;
+تعريفنوع تعداد ForkFlags ForkFlags;
+تعريفنوع تعداد Glyph Glyph;
+تعريفنوع تعداد ImageClass ImageClass;
+تعريفنوع تعداد ڪم_گهڻائي ڪم_گهڻائي;
+تعريفنوع تعداد NamespaceEnterFlags NamespaceEnterFlags;
+تعريفنوع تعداد RuntimeScope RuntimeScope;
+تعريفنوع تعداد String_محفوظ_Flags String_محفوظ_Flags;
+تعريفنوع تعداد TimestampStyle TimestampStyle;
+تعريفنوع تعداد Unit_سرگرم_State Unit_سرگرم_State;
+تعريفنوع تعداد UnitDependency UnitDependency;
+تعريفنوع تعداد UnitNameMangle UnitNameMangle;
+تعريفنوع تعداد UnitType UnitType;
+تعريفنوع تعداد WaitFlags WaitFlags;
+تعريفنوع تعداد XOpenFlags XOpenFlags;
 
-typedef struct Fiber Fiber;
-typedef struct FiberOps FiberOps;
-typedef struct Hashmap Hashmap;
-typedef struct HashmapBase HashmapBase;
-typedef struct IteratedCache IteratedCache;
-typedef struct Iterator Iterator;
-typedef struct LogContext LogContext;
-typedef struct OrderedHashmap OrderedHashmap;
-typedef struct OrderedSet OrderedSet;
-typedef struct Set Set;
+تعريفنوع بنية Fiber Fiber;
+تعريفنوع بنية FiberOps FiberOps;
+تعريفنوع بنية Hashmap Hashmap;
+تعريفنوع بنية Hashmap_بنياد Hashmap_بنياد;
+تعريفنوع بنية IteratedCache IteratedCache;
+تعريفنوع بنية Iterator Iterator;
+تعريفنوع بنية LogContext LogContext;
+تعريفنوع بنية OrderedHashmap OrderedHashmap;
+تعريفنوع بنية Ordered_سيٽ Ordered_سيٽ;
+تعريفنوع بنية سيٽ_2 سيٽ_2;
 
-typedef struct dual_timestamp dual_timestamp;
-typedef struct triple_timestamp triple_timestamp;
-typedef struct Compressor Compressor;
-typedef struct ConfFile ConfFile;
-typedef struct LabelContext LabelContext;
-typedef struct LockFile LockFile;
-typedef struct PidRef PidRef;
-typedef struct Prioq Prioq;
-typedef struct RateLimit RateLimit;
-typedef struct SocketAddress SocketAddress;
+تعريفنوع بنية dual_timestamp dual_timestamp;
+تعريفنوع بنية triple_timestamp triple_timestamp;
+تعريفنوع بنية Compressor Compressor;
+تعريفنوع بنية ConfFile ConfFile;
+تعريفنوع بنية LabelContext LabelContext;
+تعريفنوع بنية تالو_File تالو_File;
+تعريفنوع بنية PidRef PidRef;
+تعريفنوع بنية Prioq Prioq;
+تعريفنوع بنية شرح_حد_بندي شرح_حد_بندي;
+تعريفنوع بنية Socket_پتو Socket_پتو;
 
 /* Constants */
 
@@ -144,26 +144,26 @@ typedef struct SocketAddress SocketAddress;
  * having to include the full header that provides these constants. */
 
 /* glibc defines AT_FDCWD as -100, but musl defines it as (-100). */
-#ifdef __GLIBC__
-#define AT_FDCWD                -100
-#else
-#define AT_FDCWD                (-100)
-#endif
-#define AT_EMPTY_PATH           0x1000
-#define AT_SYMLINK_FOLLOW       0x400
-#define AT_SYMLINK_NOFOLLOW     0x100
+#جيڪڏهن_وصف_ٿيل __GLIBC__
+#وصف_ڪريو AT_FDCWD                -100
+#وإلا
+#وصف_ڪريو AT_FDCWD                (-100)
+#جيڪڏهن_پورو
+#وصف_ڪريو AT_خالي_جايون_رستو           0x1000
+#وصف_ڪريو AT_SYMLINK_FOLLOW       0x400
+#وصف_ڪريو AT_SYMLINK_NOFOLLOW     0x100
 
-#define MODE_INVALID            ((mode_t) -1)
+#وصف_ڪريو گهڻائي_INVALID            ((mode_t) -1)
 
-#define UID_INVALID             ((uid_t) -1)
-#define GID_INVALID             ((gid_t) -1)
+#وصف_ڪريو UID_INVALID             ((uid_t) -1)
+#وصف_ڪريو GID_INVALID             ((gid_t) -1)
 
-#define USEC_INFINITY           ((usec_t) UINT64_MAX)
-#define NSEC_INFINITY           ((nsec_t) UINT64_MAX)
+#وصف_ڪريو USEC_INFINITY           ((usec_t) UINT64_MAX)
+#وصف_ڪريو NSEC_INFINITY           ((nsec_t) UINT64_MAX)
 
 /* MAX_ERRNO is defined as 4095 in linux/err.h. We use the same value here. */
-#define ERRNO_MAX               4095
+#وصف_ڪريو ERRNO_MAX               4095
 
 /* This is MAX_ADDR_LEN as defined in linux/netdevice.h, but net/if_arp.h
  * defines a macro of the same name with a much lower size. */
-#define HW_ADDR_MAX_SIZE 32
+#وصف_ڪريو HW_ADDR_MAX_سائيز 32

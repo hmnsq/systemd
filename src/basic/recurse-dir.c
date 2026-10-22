@@ -1,74 +1,74 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <sys/stat.h>
-#include <unistd.h>
+#ضمن <sys/stat.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "dirent-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "log.h"
-#include "mountpoint-util.h"
-#include "path-util.h"
-#include "recurse-dir.h"
-#include "sort-util.h"
+#ضمن "alloc-util.h"
+#ضمن "dirent-util.h"
+#ضمن "fd-util.h"
+#ضمن "fs-util.h"
+#ضمن "log.h"
+#ضمن "mountpoint-util.h"
+#ضمن "path-util.h"
+#ضمن "recurse-dir.h"
+#ضمن "sort-util.h"
 
-#define DEFAULT_RECURSION_MAX 100
+#وصف_ڪريو DEFAULT_RECURSION_MAX 100
 
-static int sort_func(struct dirent * const *a, struct dirent * const *b) {
-        assert(a);
-        assert(b);
+ساكن صحيح ترتيب_ڏيو_func(بنية dirent * ثابت *a, بنية dirent * ثابت *b) {
+        أكد(a);
+        أكد(b);
 
-        return strcmp((*a)->d_name, (*b)->d_name);
+        أرجع strcmp((*a)->d_name, (*b)->d_name);
 }
 
-static bool ignore_dirent(const struct dirent *de, RecurseDirFlags flags) {
-        assert(de);
+ساكن bool ignore_dirent(ثابت بنية dirent *de, RecurseDirFlags flags) {
+        أكد(de);
 
         /* Depending on flag either ignore everything starting with ".", or just "." itself and ".." */
 
-        if ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) {
+        إذا ((flags & RECURSE_DIR_MUST_BE_نقاب) != 0) {
                 RecurseDirFlags f;
 
-                switch (de->d_type) {
+                بدل (de->d_type) {
 
-                case DT_DIR:
+                حالة DT_DIR:
                         f = RECURSE_DIR_MUST_BE_DIRECTORY;
-                        break;
+                        اكسر;
 
-                case DT_REG:
+                حالة DT_REG:
                         f = RECURSE_DIR_MUST_BE_REGULAR;
-                        break;
+                        اكسر;
 
-                case DT_LNK:
+                حالة DT_LNK:
                         f = RECURSE_DIR_MUST_BE_SYMLINK;
-                        break;
+                        اكسر;
 
-                case DT_SOCK:
+                حالة DT_SOCK:
                         f = RECURSE_DIR_MUST_BE_SOCKET;
-                        break;
+                        اكسر;
 
-                default:
-                        return true;
+                افتراضي:
+                        أرجع true;
                 }
 
-                if (!FLAGS_SET(flags, f))
-                        return true;
+                إذا (!FLAGS_سيٽ(flags, f))
+                        أرجع true;
         }
 
-        return FLAGS_SET(flags, RECURSE_DIR_IGNORE_DOT) ?
+        أرجع FLAGS_سيٽ(flags, RECURSE_DIR_IGNORE_DOT) ?
                 de->d_name[0] == '.' :
                 dot_or_dot_dot(de->d_name);
 }
 
-int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
-        _cleanup_free_ DirectoryEntries *de = NULL;
+صحيح readdir_all(صحيح dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
+        _cleanup_free_ DirectoryEntries *de = عدم;
         DirectoryEntries *nde;
-        int r;
+        صحيح r;
 
-        assert(dir_fd >= 0);
+        أكد(dir_fd >= 0);
 
-        if ((flags & _RECURSE_DIR_MUST_BE_MASK) != 0) /* We need the type to validate it */
+        إذا ((flags & RECURSE_DIR_MUST_BE_نقاب) != 0) /* We need the type to validate it */
                 flags |= RECURSE_DIR_ENSURE_TYPE;
 
         /* Returns an array with pointers to "struct dirent" directory entries, optionally sorted.
@@ -77,169 +77,169 @@ int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret) {
          * 8 will cover most cases comprehensively. (Note that most likely a lot more entries will actually
          * fit in the buffer, given we calculate maximum file name length here.) */
         /* Silence static analyzers */
-        assert_cc(offsetof(DirectoryEntries, buffer) <= SIZE_MAX - DIRENT_SIZE_MAX * 8);
-        de = malloc(offsetof(DirectoryEntries, buffer) + DIRENT_SIZE_MAX * 8);
-        if (!de)
-                return -ENOMEM;
+        assert_cc(offsetof(DirectoryEntries, بفر) <= SIZE_MAX - DIRENT_سائيز_MAX * 8);
+        de = يادگيري_ڏيو(offsetof(DirectoryEntries, بفر) + DIRENT_سائيز_MAX * 8);
+        إذا (!de)
+                أرجع -ENOMEM;
 
-        de->buffer_size = 0;
-        for (;;) {
+        de->بفر_سائيز = 0;
+        لكل (;;) {
                 size_t bs;
                 ssize_t n;
 
                 /* Silence static analyzers, MALLOC_SIZEOF_SAFE is at least as large as the allocation */
-                assert(MALLOC_SIZEOF_SAFE(de) >= offsetof(DirectoryEntries, buffer));
-                bs = MIN(MALLOC_SIZEOF_SAFE(de) - offsetof(DirectoryEntries, buffer), (size_t) SSIZE_MAX);
-                assert(bs > de->buffer_size);
+                أكد(MALLOC_SIZEOF_محفوظ(de) >= offsetof(DirectoryEntries, بفر));
+                bs = MIN(MALLOC_SIZEOF_محفوظ(de) - offsetof(DirectoryEntries, بفر), (size_t) SSIZE_MAX);
+                أكد(bs > de->بفر_سائيز);
 
-                n = getdents64(dir_fd, (struct dirent*) ((uint8_t*) de->buffer + de->buffer_size), bs - de->buffer_size);
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = getdents64(dir_fd, (بنية dirent*) ((uint8_t*) de->بفر + de->بفر_سائيز), bs - de->بفر_سائيز);
+                إذا (n < 0)
+                        أرجع -errno;
+                إذا (n == 0)
+                        اكسر;
 
-                msan_unpoison((uint8_t*) de->buffer + de->buffer_size, n);
+                msan_unpoison((uint8_t*) de->بفر + de->بفر_سائيز, n);
 
-                de->buffer_size += n;
+                de->بفر_سائيز += n;
 
-                if (de->buffer_size < bs - DIRENT_SIZE_MAX) /* Still room for one more entry, then try to
+                إذا (de->بفر_سائيز < bs - DIRENT_سائيز_MAX) /* Still room for one more entry, then try to
                                                              * fill it up without growing the structure. */
-                        continue;
+                        استمر;
 
-                if (bs >= SSIZE_MAX - offsetof(DirectoryEntries, buffer))
-                        return -EFBIG;
-                bs = bs >= (SSIZE_MAX - offsetof(DirectoryEntries, buffer))/2 ? SSIZE_MAX - offsetof(DirectoryEntries, buffer) : bs * 2;
+                إذا (bs >= SSIZE_MAX - offsetof(DirectoryEntries, بفر))
+                        أرجع -EFBIG;
+                bs = bs >= (SSIZE_MAX - offsetof(DirectoryEntries, بفر))/2 ? SSIZE_MAX - offsetof(DirectoryEntries, بفر) : bs * 2;
 
                 nde = realloc(de, bs);
-                if (!nde)
-                        return -ENOMEM;
+                إذا (!nde)
+                        أرجع -ENOMEM;
                 de = nde;
         }
 
         de->n_entries = 0;
-        struct dirent *entry;
-        FOREACH_DIRENT_IN_BUFFER(entry, de->buffer, de->buffer_size) {
-                if (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE)) {
-                        r = dirent_ensure_type(dir_fd, entry);
-                        if (r == -ENOENT)
+        بنية dirent *داخلا;
+        FOREACH_DIRENT_اندريون_بفر(داخلا, de->بفر, de->بفر_سائيز) {
+                إذا (FLAGS_سيٽ(flags, RECURSE_DIR_ENSURE_TYPE)) {
+                        r = dirent_ensure_type(dir_fd, داخلا);
+                        إذا (r == -ENOENT)
                                 /* dentry gone by now? no problem, let's just suppress it */
-                                continue;
-                        if (r < 0)
-                                return r;
+                                استمر;
+                        إذا (r < 0)
+                                أرجع r;
                 }
 
-                if (ignore_dirent(entry, flags))
-                        continue;
+                إذا (ignore_dirent(داخلا, flags))
+                        استمر;
 
                 de->n_entries++;
         }
 
         size_t sz, j;
 
-        sz = ALIGN(offsetof(DirectoryEntries, buffer) + de->buffer_size);
-        if (!INC_SAFE(&sz, sizeof(struct dirent*) * de->n_entries))
-                return -ENOMEM;
+        sz = ALIGN(offsetof(DirectoryEntries, بفر) + de->بفر_سائيز);
+        إذا (!INC_محفوظ(&sz, حجم(بنية dirent*) * de->n_entries))
+                أرجع -ENOMEM;
 
         nde = realloc(de, sz);
-        if (!nde)
-                return -ENOMEM;
+        إذا (!nde)
+                أرجع -ENOMEM;
         de = nde;
 
-        de->entries = (struct dirent**) ((uint8_t*) de + ALIGN(offsetof(DirectoryEntries, buffer) + de->buffer_size));
+        de->entries = (بنية dirent**) ((uint8_t*) de + ALIGN(offsetof(DirectoryEntries, بفر) + de->بفر_سائيز));
 
         j = 0;
-        FOREACH_DIRENT_IN_BUFFER(entry, de->buffer, de->buffer_size) {
+        FOREACH_DIRENT_اندريون_بفر(داخلا, de->بفر, de->بفر_سائيز) {
                 /* If d_type == DT_UNKNOWN that means we failed to ensure the type in the earlier loop and
                  * didn't include the dentry in de->n_entries and as such should skip it here as well. */
-                if (FLAGS_SET(flags, RECURSE_DIR_ENSURE_TYPE) && entry->d_type == DT_UNKNOWN)
-                        continue;
+                إذا (FLAGS_سيٽ(flags, RECURSE_DIR_ENSURE_TYPE) && داخلا->d_type == DT_UNKNOWN)
+                        استمر;
 
-                if (ignore_dirent(entry, flags))
-                        continue;
+                إذا (ignore_dirent(داخلا, flags))
+                        استمر;
 
-                de->entries[j++] = entry;
+                de->entries[j++] = داخلا;
         }
-        assert(j == de->n_entries);
+        أكد(j == de->n_entries);
 
-        if (FLAGS_SET(flags, RECURSE_DIR_SORT))
-                typesafe_qsort(de->entries, de->n_entries, sort_func);
+        إذا (FLAGS_سيٽ(flags, RECURSE_DIR_ترتيب_ڏيو))
+                typesafe_qsort(de->entries, de->n_entries, ترتيب_ڏيو_func);
 
-        if (ret)
+        إذا (ret)
                 *ret = TAKE_PTR(de);
 
-        return 0;
+        أرجع 0;
 }
 
-int readdir_all_at(int fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret) {
-        _cleanup_close_ int dir_fd = -EBADF;
+صحيح readdir_all_at(صحيح fd, ثابت حرف *رستو, RecurseDirFlags flags, DirectoryEntries **ret) {
+        _cleanup_close_ صحيح dir_fd = -EBADF;
 
-        assert(fd >= 0 || fd == AT_FDCWD);
+        أكد(fd >= 0 || fd == AT_FDCWD);
 
-        dir_fd = xopenat(fd, path, O_DIRECTORY|O_CLOEXEC);
-        if (dir_fd < 0)
-                return dir_fd;
+        dir_fd = xopenat(fd, رستو, O_DIRECTORY|O_CLOEXEC);
+        إذا (dir_fd < 0)
+                أرجع dir_fd;
 
-        return readdir_all(dir_fd, flags, ret);
+        أرجع readdir_all(dir_fd, flags, ret);
 }
 
-int recurse_dir(
-                int dir_fd,
-                const char *path,
-                unsigned statx_mask,
-                unsigned n_depth_max,
+صحيح recurse_dir(
+                صحيح dir_fd,
+                ثابت حرف *رستو,
+                بنانشان statx_نقاب,
+                بنانشان n_اونهائي_max,
                 RecurseDirFlags flags,
                 recurse_dir_func_t func,
-                void *userdata) {
+                فراغ *userdata) {
 
-        _cleanup_free_ DirectoryEntries *de = NULL;
-        struct statx root_sx;
-        int r;
+        _cleanup_free_ DirectoryEntries *de = عدم;
+        بنية statx پاڙ_sx;
+        صحيح r;
 
-        assert(dir_fd >= 0);
-        assert(func);
+        أكد(dir_fd >= 0);
+        أكد(func);
 
         /* We cannot descend into dirs if we are supposed to ignore them */
-        assert((flags & _RECURSE_DIR_MUST_BE_MASK) == 0 || FLAGS_SET(flags, RECURSE_DIR_MUST_BE_DIRECTORY));
+        أكد((flags & RECURSE_DIR_MUST_BE_نقاب) == 0 || FLAGS_سيٽ(flags, RECURSE_DIR_MUST_BE_DIRECTORY));
 
         /* This is a lot like ftw()/nftw(), but a lot more modern, i.e. built around openat()/statx()/O_PATH,
          * and under the assumption that fds are not as 'expensive' as they used to be. */
 
-        if (n_depth_max == 0)
-                return -EOVERFLOW;
-        if (n_depth_max == UINT_MAX) /* special marker for "default" */
-                n_depth_max = DEFAULT_RECURSION_MAX;
+        إذا (n_اونهائي_max == 0)
+                أرجع -EOVERFLOW;
+        إذا (n_اونهائي_max == UINT_MAX) /* special marker for "default" */
+                n_اونهائي_max = DEFAULT_RECURSION_MAX;
 
-        if (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
-                if (statx_mask != 0) {
-                        if (statx(dir_fd, "", AT_EMPTY_PATH, statx_mask, &root_sx) < 0)
-                                return -errno;
+        إذا (FLAGS_سيٽ(flags, RECURSE_DIR_TOPLEVEL)) {
+                إذا (statx_نقاب != 0) {
+                        إذا (statx(dir_fd, "", AT_خالي_جايون_رستو, statx_نقاب, &پاڙ_sx) < 0)
+                                أرجع -errno;
                 }
 
                 r = func(RECURSE_DIR_ENTER,
-                         path,
+                         رستو,
                          -EBADF, /* we have no parent fd */
                          dir_fd,
-                         NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         عدم, /* we have no dirent */
+                         statx_نقاب != 0 ? &پاڙ_sx : عدم,
                          userdata);
-                if (IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY))
-                        return 0;
-                if (r != RECURSE_DIR_CONTINUE)
-                        return r;
+                إذا (اندريون_سيٽ(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_داخلا))
+                        أرجع 0;
+                إذا (r != RECURSE_DIR_CONTINUE)
+                        أرجع r;
         }
 
         /* Mask out RECURSE_DIR_ENSURE_TYPE so we can do it ourselves and avoid an extra statx() call. */
         r = readdir_all(dir_fd, flags & ~RECURSE_DIR_ENSURE_TYPE, &de);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        FOREACH_ARRAY(entry, de->entries, de->n_entries) {
-                struct dirent *i = *entry;
-                _cleanup_close_ int inode_fd = -EBADF, subdir_fd = -EBADF;
-                _cleanup_free_ char *joined = NULL;
-                struct statx sx;
+        FOREACH_ARRAY(داخلا, de->entries, de->n_entries) {
+                بنية dirent *i = *داخلا;
+                _cleanup_close_ صحيح inode_fd = -EBADF, subdir_fd = -EBADF;
+                _cleanup_free_ حرف *joined = عدم;
+                بنية statx sx;
                 bool sx_valid = false;
-                const char *p;
+                ثابت حرف *p;
 
                 /* For each directory entry we'll do one of the following:
                  *
@@ -248,138 +248,138 @@ int recurse_dir(
                  * 3) Otherwise, we'll statx() the directory entry via the directory fd we are currently looking at (if requested)
                  */
 
-                if (path) {
-                        joined = path_join(path, i->d_name);
-                        if (!joined)
-                                return -ENOMEM;
+                إذا (رستو) {
+                        joined = رستو_join(رستو, i->d_name);
+                        إذا (!joined)
+                                أرجع -ENOMEM;
 
                         p = joined;
-                } else
+                } وإلا
                         p = i->d_name;
 
-                if (IN_SET(i->d_type, DT_UNKNOWN, DT_DIR)) {
+                إذا (اندريون_سيٽ(i->d_type, DT_UNKNOWN, DT_DIR)) {
                         subdir_fd = openat(dir_fd, i->d_name, O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC);
-                        if (subdir_fd < 0) {
-                                if (errno == ENOENT) /* Vanished by now, go for next file immediately */
-                                        continue;
+                        إذا (subdir_fd < 0) {
+                                إذا (errno == ENOENT) /* Vanished by now, go for next file immediately */
+                                        استمر;
 
                                 /* If it is a subdir but we failed to open it, then fail */
-                                if (!IN_SET(errno, ENOTDIR, ELOOP)) {
+                                إذا (!اندريون_سيٽ(errno, ENOTDIR, ELOOP)) {
                                         log_debug_errno(errno, "Failed to open directory '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_OPEN_DIR_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE);
+                                        أكد(errno <= RECURSE_DIR_SKIP_OPEN_DIR_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_DIR_ERROR_بنياد);
 
-                                        r = func(RECURSE_DIR_SKIP_OPEN_DIR_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_OPEN_DIR_ERROR_بنياد + errno,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ عدم,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        إذا (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                اكسر;
+                                        إذا (!اندريون_سيٽ(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_داخلا))
+                                                أرجع r;
 
-                                        continue;
+                                        استمر;
                                 }
 
                                 /* If it's not a subdir, then let's handle it like a regular inode below */
 
-                        } else {
+                        } وإلا {
                                 /* If we managed to get a DIR* off the inode, it's definitely a directory. */
                                 i->d_type = DT_DIR;
 
-                                if (statx_mask != 0 || (flags & RECURSE_DIR_SAME_MOUNT)) {
-                                        if (statx(subdir_fd, "", AT_EMPTY_PATH, statx_mask, &sx) < 0)
-                                                return -errno;
+                                إذا (statx_نقاب != 0 || (flags & RECURSE_DIR_SAME_MOUNT)) {
+                                        إذا (statx(subdir_fd, "", AT_خالي_جايون_رستو, statx_نقاب, &sx) < 0)
+                                                أرجع -errno;
 
                                         sx_valid = true;
                                 }
                         }
                 }
 
-                if (subdir_fd < 0) {
+                إذا (subdir_fd < 0) {
                         /* It's not a subdirectory. */
 
-                        if (flags & RECURSE_DIR_INODE_FD) {
+                        إذا (flags & RECURSE_DIR_INODE_FD) {
 
-                                inode_fd = openat(dir_fd, i->d_name, O_PATH|O_NOFOLLOW|O_CLOEXEC);
-                                if (inode_fd < 0) {
-                                        if (errno == ENOENT) /* Vanished by now, go for next file immediately */
-                                                continue;
+                                inode_fd = openat(dir_fd, i->d_name, O_رستو|O_NOFOLLOW|O_CLOEXEC);
+                                إذا (inode_fd < 0) {
+                                        إذا (errno == ENOENT) /* Vanished by now, go for next file immediately */
+                                                استمر;
 
                                         log_debug_errno(errno, "Failed to open directory entry '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_OPEN_INODE_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE);
+                                        أكد(errno <= RECURSE_DIR_SKIP_OPEN_INODE_ERROR_MAX - RECURSE_DIR_SKIP_OPEN_INODE_ERROR_بنياد);
 
-                                        r = func(RECURSE_DIR_SKIP_OPEN_INODE_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_OPEN_INODE_ERROR_بنياد + errno,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ عدم,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        إذا (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                اكسر;
+                                        إذا (!اندريون_سيٽ(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_داخلا))
+                                                أرجع r;
 
-                                        continue;
+                                        استمر;
                                 }
 
                                 /* If we open the inode, then verify it's actually a non-directory, like we
                                  * assume. Let's guarantee that we never pass statx data of a directory where
                                  * caller expects a non-directory */
 
-                                if (statx(inode_fd, "", AT_EMPTY_PATH, statx_mask | STATX_TYPE, &sx) < 0)
-                                        return -errno;
+                                إذا (statx(inode_fd, "", AT_خالي_جايون_رستو, statx_نقاب | STATX_TYPE, &sx) < 0)
+                                        أرجع -errno;
 
-                                assert(sx.stx_mask & STATX_TYPE);
+                                أكد(sx.stx_نقاب & STATX_TYPE);
                                 sx_valid = true;
 
-                                if (S_ISDIR(sx.stx_mode)) {
+                                إذا (S_ISDIR(sx.stx_گهڻائي)) {
                                         /* What? It's a directory now? Then someone must have quickly
                                          * replaced it. Let's handle that gracefully: convert it to a
                                          * directory fd — which should be riskless now that we pinned the
                                          * inode. */
 
                                         subdir_fd = fd_reopen(inode_fd, O_DIRECTORY|O_CLOEXEC);
-                                        if (subdir_fd < 0)
-                                                return subdir_fd;
+                                        إذا (subdir_fd < 0)
+                                                أرجع subdir_fd;
 
-                                        inode_fd = safe_close(inode_fd);
+                                        inode_fd = محفوظ_close(inode_fd);
                                 }
 
-                        } else if (statx_mask != 0 || (i->d_type == DT_UNKNOWN && (flags & RECURSE_DIR_ENSURE_TYPE))) {
+                        } وإلا إذا (statx_نقاب != 0 || (i->d_type == DT_UNKNOWN && (flags & RECURSE_DIR_ENSURE_TYPE))) {
 
-                                if (statx(dir_fd, i->d_name, AT_SYMLINK_NOFOLLOW, statx_mask | STATX_TYPE, &sx) < 0) {
-                                        if (errno == ENOENT) /* Vanished by now? Go for next file immediately */
-                                                continue;
+                                إذا (statx(dir_fd, i->d_name, AT_SYMLINK_NOFOLLOW, statx_نقاب | STATX_TYPE, &sx) < 0) {
+                                        إذا (errno == ENOENT) /* Vanished by now? Go for next file immediately */
+                                                استمر;
 
                                         log_debug_errno(errno, "Failed to stat directory entry '%s': %m", p);
 
-                                        assert(errno <= RECURSE_DIR_SKIP_STAT_INODE_ERROR_MAX - RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE);
+                                        أكد(errno <= RECURSE_DIR_SKIP_STAT_INODE_ERROR_MAX - RECURSE_DIR_SKIP_STAT_INODE_ERROR_بنياد);
 
-                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE + errno,
+                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_بنياد + errno,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ عدم,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        إذا (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                اكسر;
+                                        إذا (!اندريون_سيٽ(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_داخلا))
+                                                أرجع r;
 
-                                        continue;
+                                        استمر;
                                 }
 
-                                assert(sx.stx_mask & STATX_TYPE);
+                                أكد(sx.stx_نقاب & STATX_TYPE);
                                 sx_valid = true;
 
-                                if (S_ISDIR(sx.stx_mode)) {
+                                إذا (S_ISDIR(sx.stx_گهڻائي)) {
                                         /* So it suddenly is a directory, but we couldn't open it as such
                                          * earlier?  That is weird, and probably means somebody is racing
                                          * against us. We could of course retry and open it as a directory
@@ -391,81 +391,81 @@ int recurse_dir(
 
                                         log_debug("Non-directory entry '%s' suddenly became a directory.", p);
 
-                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_BASE + EISDIR,
+                                        r = func(RECURSE_DIR_SKIP_STAT_INODE_ERROR_بنياد + EISDIR,
                                                  p,
                                                  dir_fd,
                                                  /* inode_fd= */ -EBADF,
                                                  i,
-                                                 /* sx= */ NULL,
+                                                 /* sx= */ عدم,
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        إذا (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                اكسر;
+                                        إذا (!اندريون_سيٽ(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_داخلا))
+                                                أرجع r;
 
-                                        continue;
+                                        استمر;
                                 }
                         }
                 }
 
-                if (sx_valid) {
+                إذا (sx_valid) {
                         /* Copy over the data we acquired through statx() if we acquired any */
-                        if (sx.stx_mask & STATX_TYPE) {
-                                assert((subdir_fd < 0) == !S_ISDIR(sx.stx_mode));
-                                i->d_type = IFTODT(sx.stx_mode);
+                        إذا (sx.stx_نقاب & STATX_TYPE) {
+                                أكد((subdir_fd < 0) == !S_ISDIR(sx.stx_گهڻائي));
+                                i->d_type = IFTODT(sx.stx_گهڻائي);
                         }
 
-                        if (sx.stx_mask & STATX_INO)
+                        إذا (sx.stx_نقاب & STATX_INO)
                                 i->d_ino = sx.stx_ino;
                 }
 
-                if (subdir_fd >= 0) {
-                        if (FLAGS_SET(flags, RECURSE_DIR_SAME_MOUNT)) {
+                إذا (subdir_fd >= 0) {
+                        إذا (FLAGS_سيٽ(flags, RECURSE_DIR_SAME_MOUNT)) {
                                 bool is_mount;
 
-                                if (sx_valid && FLAGS_SET(sx.stx_attributes_mask, STATX_ATTR_MOUNT_ROOT))
-                                        is_mount = FLAGS_SET(sx.stx_attributes, STATX_ATTR_MOUNT_ROOT);
-                                else {
-                                        r = is_mount_point_at(dir_fd, i->d_name, /* flags= */ 0);
-                                        if (r < 0)
+                                إذا (sx_valid && FLAGS_سيٽ(sx.stx_خاصيتون_نقاب, STATX_ATTR_MOUNT_پاڙ))
+                                        is_mount = FLAGS_سيٽ(sx.stx_خاصيتون, STATX_ATTR_MOUNT_پاڙ);
+                                وإلا {
+                                        r = is_mount_نقطو_at(dir_fd, i->d_name, /* flags= */ 0);
+                                        إذا (r < 0)
                                                 log_debug_errno(r, "Failed to determine whether %s is a submount, assuming not: %m", p);
 
                                         is_mount = r > 0;
                                 }
 
-                                if (is_mount) {
+                                إذا (is_mount) {
                                         r = func(RECURSE_DIR_SKIP_MOUNT,
                                                  p,
                                                  dir_fd,
                                                  subdir_fd,
                                                  i,
-                                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                                 statx_نقاب != 0 ? &sx : عدم, /* only pass sx if user asked for it */
                                                  userdata);
-                                        if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                                break;
-                                        if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                                return r;
+                                        إذا (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                                اكسر;
+                                        إذا (!اندريون_سيٽ(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_داخلا))
+                                                أرجع r;
 
-                                        continue;
+                                        استمر;
                                 }
                         }
 
-                        if (n_depth_max <= 1) {
+                        إذا (n_اونهائي_max <= 1) {
                                 /* When we reached max depth, generate a special event */
 
-                                r = func(RECURSE_DIR_SKIP_DEPTH,
+                                r = func(RECURSE_DIR_SKIP_اونهائي,
                                          p,
                                          dir_fd,
                                          subdir_fd,
                                          i,
-                                         statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                         statx_نقاب != 0 ? &sx : عدم, /* only pass sx if user asked for it */
                                          userdata);
-                                if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                                        break;
-                                if (!IN_SET(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_ENTRY))
-                                        return r;
+                                إذا (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                                        اكسر;
+                                إذا (!اندريون_سيٽ(r, RECURSE_DIR_CONTINUE, RECURSE_DIR_SKIP_داخلا))
+                                        أرجع r;
 
-                                continue;
+                                استمر;
                         }
 
                         r = func(RECURSE_DIR_ENTER,
@@ -473,90 +473,90 @@ int recurse_dir(
                                  dir_fd,
                                  subdir_fd,
                                  i,
-                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                 statx_نقاب != 0 ? &sx : عدم, /* only pass sx if user asked for it */
                                  userdata);
-                        if (r == RECURSE_DIR_CONTINUE) {
+                        إذا (r == RECURSE_DIR_CONTINUE) {
                                 r = recurse_dir(subdir_fd,
                                                 p,
-                                                statx_mask,
-                                                n_depth_max - 1,
+                                                statx_نقاب,
+                                                n_اونهائي_max - 1,
                                                 flags & ~RECURSE_DIR_TOPLEVEL, /* we already called the callback for this entry */
                                                 func,
                                                 userdata);
-                                if (r != 0)
-                                        return r;
+                                إذا (r != 0)
+                                        أرجع r;
 
                                 r = func(RECURSE_DIR_LEAVE,
                                          p,
                                          dir_fd,
                                          subdir_fd,
                                          i,
-                                         statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                         statx_نقاب != 0 ? &sx : عدم, /* only pass sx if user asked for it */
                                          userdata);
                         }
-                } else
+                } وإلا
                         /* Non-directory inode */
-                        r = func(RECURSE_DIR_ENTRY,
+                        r = func(RECURSE_DIR_داخلا,
                                  p,
                                  dir_fd,
                                  inode_fd,
                                  i,
-                                 statx_mask != 0 ? &sx : NULL, /* only pass sx if user asked for it */
+                                 statx_نقاب != 0 ? &sx : عدم, /* only pass sx if user asked for it */
                                  userdata);
 
-                if (r == RECURSE_DIR_LEAVE_DIRECTORY)
-                        break;
+                إذا (r == RECURSE_DIR_LEAVE_DIRECTORY)
+                        اكسر;
 
-                if (IN_SET(r, RECURSE_DIR_UNLINK, RECURSE_DIR_UNLINK_GRACEFUL)) {
-                        int f = subdir_fd >= 0 ? AT_REMOVEDIR : 0;
+                إذا (اندريون_سيٽ(r, RECURSE_DIR_UNLINK, RECURSE_DIR_UNLINK_GRACEFUL)) {
+                        صحيح f = subdir_fd >= 0 ? AT_REMOVEDIR : 0;
 
                         /* Close inodes before we try to delete them */
-                        subdir_fd = safe_close(subdir_fd);
-                        inode_fd = safe_close(inode_fd);
+                        subdir_fd = محفوظ_close(subdir_fd);
+                        inode_fd = محفوظ_close(inode_fd);
 
-                        if (unlinkat(dir_fd, i->d_name, f) < 0) {
-                                if (r != RECURSE_DIR_UNLINK_GRACEFUL)
-                                        return -errno;
+                        إذا (unlinkat(dir_fd, i->d_name, f) < 0) {
+                                إذا (r != RECURSE_DIR_UNLINK_GRACEFUL)
+                                        أرجع -errno;
 
                                 log_debug_errno(errno, "Unable to remove '%s', ignoring: %m", p);
                         }
-                } else if (!IN_SET(r, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
-                        return r;
+                } وإلا إذا (!اندريون_سيٽ(r, RECURSE_DIR_SKIP_داخلا, RECURSE_DIR_CONTINUE))
+                        أرجع r;
         }
 
-        if (FLAGS_SET(flags, RECURSE_DIR_TOPLEVEL)) {
+        إذا (FLAGS_سيٽ(flags, RECURSE_DIR_TOPLEVEL)) {
 
                 r = func(RECURSE_DIR_LEAVE,
-                         path,
+                         رستو,
                          -EBADF, /* we have no parent fd */
                          dir_fd,
-                         NULL, /* we have no dirent */
-                         statx_mask != 0 ? &root_sx : NULL,
+                         عدم, /* we have no dirent */
+                         statx_نقاب != 0 ? &پاڙ_sx : عدم,
                          userdata);
-                if (!IN_SET(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_ENTRY, RECURSE_DIR_CONTINUE))
-                        return r;
+                إذا (!اندريون_سيٽ(r, RECURSE_DIR_LEAVE_DIRECTORY, RECURSE_DIR_SKIP_داخلا, RECURSE_DIR_CONTINUE))
+                        أرجع r;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int recurse_dir_at(
-                int atfd,
-                const char *path,
-                unsigned statx_mask,
-                unsigned n_depth_max,
+صحيح recurse_dir_at(
+                صحيح atfd,
+                ثابت حرف *رستو,
+                بنانشان statx_نقاب,
+                بنانشان n_اونهائي_max,
                 RecurseDirFlags flags,
                 recurse_dir_func_t func,
-                void *userdata) {
+                فراغ *userdata) {
 
-        _cleanup_close_ int fd = -EBADF;
+        _cleanup_close_ صحيح fd = -EBADF;
 
-        assert(atfd >= 0 || atfd == AT_FDCWD);
-        assert(func);
+        أكد(atfd >= 0 || atfd == AT_FDCWD);
+        أكد(func);
 
-        fd = openat(atfd, path ?: ".", O_DIRECTORY|O_CLOEXEC);
-        if (fd < 0)
-                return -errno;
+        fd = openat(atfd, رستو ?: ".", O_DIRECTORY|O_CLOEXEC);
+        إذا (fd < 0)
+                أرجع -errno;
 
-        return recurse_dir(fd, path, statx_mask, n_depth_max, flags, func, userdata);
+        أرجع recurse_dir(fd, رستو, statx_نقاب, n_اونهائي_max, flags, func, userdata);
 }

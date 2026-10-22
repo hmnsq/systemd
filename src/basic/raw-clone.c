@@ -4,13 +4,13 @@
   Copyright © 2016 Michael Karcher
 ***/
 
-#include <errno.h>                      /* IWYU pragma: keep */
-#include <sched.h>
-#include <sys/syscall.h>                /* IWYU pragma: keep */
-#include <unistd.h>
+#ضمن <errno.h>                      /* IWYU pragma: keep */
+#ضمن <sched.h>
+#ضمن <sys/syscall.h>                /* IWYU pragma: keep */
+#ضمن <unistd.h>
 
-#include "process-util.h"
-#include "raw-clone.h"
+#ضمن "process-util.h"
+#ضمن "raw-clone.h"
 
 /**
  * raw_clone() - uses clone to create a new process with clone flags
@@ -34,15 +34,15 @@
  *
  * Returns: 0 in the child process and the child process id in the parent.
  */
-pid_t raw_clone(unsigned long flags) {
+pid_t raw_clone(بنانشان ڊگهو flags) {
         pid_t ret;
 
-        assert((flags & (CLONE_VM|CLONE_PARENT_SETTID|CLONE_CHILD_SETTID|CLONE_CHILD_CLEARTID|CLONE_SETTLS|CLONE_PIDFD)) == 0);
-#if defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
+        أكد((flags & (CLONE_VM|CLONE_والد_SETTID|CLONE_ٻار_SETTID|CLONE_ٻار_CLEARTID|CLONE_SETTLS|CLONE_PIDFD)) == 0);
+#إذا defined(__s390x__) || defined(__s390__) || defined(__CRIS__)
         /* On s390/s390x and cris the order of the first and second arguments
          * of the raw clone() system call is reversed. */
-        ret = (pid_t) syscall(__NR_clone, NULL, flags);
-#elif defined(__sparc__)
+        ret = (pid_t) syscall(__NR_clone, عدم, flags);
+#وإلاإذا defined(__sparc__)
         {
                 /**
                  * sparc always returns the other process id in %o0, and
@@ -50,35 +50,35 @@ pid_t raw_clone(unsigned long flags) {
                  * %o1. Inline assembly is needed to get the flag returned
                  * in %o1.
                  */
-                int in_child, child_pid, error;
+                صحيح اندريون_ٻار, ٻار_pid, error;
 
-                asm volatile("mov %3, %%g1\n\t"
+                asm متطاير("mov %3, %%g1\n\t"
                              "mov %4, %%o0\n\t"
                              "mov 0 , %%o1\n\t"
-#if defined(__arch64__)
+#إذا defined(__arch64__)
                              "t 0x6d\n\t"
-#else
+#وإلا
                              "t 0x10\n\t"
-#endif
+#جيڪڏهن_پورو
                              "addx %%g0, 0, %2\n\t"
                              "mov %%o1, %0\n\t"
                              "mov %%o0, %1" :
-                             "=r"(in_child), "=r"(child_pid), "=r"(error) :
+                             "=r"(اندريون_ٻار), "=r"(ٻار_pid), "=r"(error) :
                              "i"(__NR_clone), "r"(flags) :
                              "%o1", "%o0", "%g1", "cc" );
 
-                if (error) {
-                        errno = child_pid;
+                إذا (error) {
+                        errno = ٻار_pid;
                         ret = -1;
-                } else
-                        ret = in_child ? 0 : child_pid;
+                } وإلا
+                        ret = اندريون_ٻار ? 0 : ٻار_pid;
         }
-#else
-        ret = (pid_t) syscall(__NR_clone, flags, NULL);
-#endif
+#وإلا
+        ret = (pid_t) syscall(__NR_clone, flags, عدم);
+#جيڪڏهن_پورو
 
-        if (ret == 0)
+        إذا (ret == 0)
                 reset_cached_pid();
 
-        return ret;
+        أرجع ret;
 }

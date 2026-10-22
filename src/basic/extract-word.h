@@ -1,25 +1,25 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef enum ExtractFlags {
-        EXTRACT_RELAX                    = 1 << 0, /* Allow unbalanced quote and eat up trailing backslash. */
-        EXTRACT_CUNESCAPE                = 1 << 1, /* Unescape known escape sequences. */
-        EXTRACT_UNESCAPE_RELAX           = 1 << 2, /* Allow and keep unknown escape sequences, allow and keep trailing backslash. */
-        EXTRACT_UNESCAPE_SEPARATORS      = 1 << 3, /* Unescape separators (those specified, or whitespace by default). */
-        EXTRACT_KEEP_QUOTE               = 1 << 4, /* Ignore separators in quoting with "" and ''. */
-        EXTRACT_UNQUOTE                  = 1 << 5, /* Ignore separators in quoting with "" and '', and remove the quotes. */
-        EXTRACT_DONT_COALESCE_SEPARATORS = 1 << 6, /* Don't treat multiple adjacent separators as one */
-        EXTRACT_RETAIN_ESCAPE            = 1 << 7, /* Treat escape character '\' as any other character without special meaning */
-        EXTRACT_RETAIN_SEPARATORS        = 1 << 8, /* Do not advance the original string pointer past the separator(s) */
+تعريفنوع تعداد ڪڍو_Flags {
+        ڪڍو_RELAX                    = 1 << 0, /* Allow unbalanced quote and eat up trailing backslash. */
+        ڪڍو_CUNESCAPE                = 1 << 1, /* Unescape known escape sequences. */
+        ڪڍو_UNESCAPE_RELAX           = 1 << 2, /* Allow and keep unknown escape sequences, allow and keep trailing backslash. */
+        ڪڍو_UNESCAPE_SEPARATORS      = 1 << 3, /* Unescape separators (those specified, or whitespace by default). */
+        ڪڍو_KEEP_QUOTE               = 1 << 4, /* Ignore separators in quoting with "" and ''. */
+        ڪڍو_UNQUOTE                  = 1 << 5, /* Ignore separators in quoting with "" and '', and remove the quotes. */
+        ڪڍو_DONT_COALESCE_SEPARATORS = 1 << 6, /* Don't treat multiple adjacent separators as one */
+        ڪڍو_RETAIN_ESCAPE            = 1 << 7, /* Treat escape character '\' as any other character without special meaning */
+        ڪڍو_RETAIN_SEPARATORS        = 1 << 8, /* Do not advance the original string pointer past the separator(s) */
 
         /* Note that if no flags are specified, escaped escape characters will be silently stripped. */
-} ExtractFlags;
+} ڪڍو_Flags;
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags);
-int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned line, const char *rvalue);
+صحيح ڪڍو_پهريون_لفظ(ثابت حرف **p, حرف **ret, ثابت حرف *separators, ڪڍو_Flags flags);
+صحيح ڪڍو_پهريون_لفظ_and_warn(ثابت حرف **p, حرف **ret, ثابت حرف *separators, ڪڍو_Flags flags, ثابت حرف *unit, ثابت حرف *filename, بنانشان سٽ, ثابت حرف *rvalue);
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
-#define extract_many_words(p, separators, flags, ...) \
-        extract_many_words_internal(p, separators, flags, ##__VA_ARGS__, NULL)
+صحيح ڪڍو_many_لفظ_اندروني(ثابت حرف **p, ثابت حرف *separators, بنانشان flags, ...) _sentinel_;
+#وصف_ڪريو ڪڍو_many_لفظ(p, separators, flags, ...) \
+        ڪڍو_many_لفظ_اندروني(p, separators, flags, ##__VA_ARGS__, عدم)

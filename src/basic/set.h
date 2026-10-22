@@ -1,125 +1,125 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
-#include "hashmap.h"
+#ضمن "forward.h"
+#ضمن "hashmap.h"
 
-#define set_free_and_replace(a, b)              \
-        free_and_replace_full(a, b, set_free)
+#وصف_ڪريو سيٽ_free_and_replace(a, b)              \
+        free_and_replace_ڀريل(a, b, سيٽ_free)
 
-Set* set_new(const struct hash_ops *hash_ops);
+سيٽ_2* سيٽ_new(ثابت بنية hash_ops *hash_ops);
 
-static inline Set* set_free(Set *s) {
-        return (Set*) _hashmap_free(HASHMAP_BASE(s));
+ساكن مضمن سيٽ_2* سيٽ_free(سيٽ_2 *s) {
+        أرجع (سيٽ_2*) _hashmap_free(HASHMAP_بنياد(s));
 }
 
-#define set_copy(s) ((Set*) _hashmap_copy(HASHMAP_BASE(s)))
+#وصف_ڪريو سيٽ_copy(s) ((سيٽ_2*) _hashmap_copy(HASHMAP_بنياد(s)))
 
-int set_ensure_allocated(Set **s, const struct hash_ops *hash_ops);
+صحيح سيٽ_ensure_allocated(سيٽ_2 **s, ثابت بنية hash_ops *hash_ops);
 
-int set_put(Set *s, const void *key);
+صحيح سيٽ_put(سيٽ_2 *s, ثابت فراغ *ڪنجي);
 /* no set_update */
 /* no set_replace */
-static inline void *set_get(const Set *s, const void *key) {
-        return _hashmap_get(HASHMAP_BASE((Set *) s), key);
+ساكن مضمن فراغ *سيٽ_get(ثابت سيٽ_2 *s, ثابت فراغ *ڪنجي) {
+        أرجع _hashmap_get(HASHMAP_بنياد((سيٽ_2 *) s), ڪنجي);
 }
 /* no set_get2 */
 
-static inline bool set_contains(const Set *s, const void *key) {
-        return _hashmap_contains(HASHMAP_BASE((Set *) s), key);
+ساكن مضمن bool سيٽ_شامل_آهي(ثابت سيٽ_2 *s, ثابت فراغ *ڪنجي) {
+        أرجع hashmap_شامل_آهي_2(HASHMAP_بنياد((سيٽ_2 *) s), ڪنجي);
 }
 
-static inline void *set_remove(Set *s, const void *key) {
-        return _hashmap_remove(HASHMAP_BASE(s), key);
+ساكن مضمن فراغ *سيٽ_remove(سيٽ_2 *s, ثابت فراغ *ڪنجي) {
+        أرجع _hashmap_remove(HASHMAP_بنياد(s), ڪنجي);
 }
 
 /* no set_remove2 */
 /* no set_remove_value */
-int set_remove_and_put(Set *s, const void *old_key, const void *new_key);
+صحيح سيٽ_remove_and_put(سيٽ_2 *s, ثابت فراغ *old_ڪنجي, ثابت فراغ *new_ڪنجي);
 /* no set_remove_and_replace */
-int set_merge(Set *s, Set *other);
+صحيح سيٽ_ملايو(سيٽ_2 *s, سيٽ_2 *other);
 
-static inline int set_reserve(Set *h, unsigned entries_add) {
-        return _hashmap_reserve(HASHMAP_BASE(h), entries_add);
+ساكن مضمن صحيح سيٽ_reserve(سيٽ_2 *h, بنانشان entries_جوڙيو) {
+        أرجع _hashmap_reserve(HASHMAP_بنياد(h), entries_جوڙيو);
 }
 
-static inline int set_move(Set *s, Set *other) {
-        return _hashmap_move(HASHMAP_BASE(s), HASHMAP_BASE(other));
+ساكن مضمن صحيح سيٽ_move(سيٽ_2 *s, سيٽ_2 *other) {
+        أرجع _hashmap_move(HASHMAP_بنياد(s), HASHMAP_بنياد(other));
 }
 
-static inline int set_move_one(Set *s, Set *other, const void *key) {
-        return _hashmap_move_one(HASHMAP_BASE(s), HASHMAP_BASE(other), key);
+ساكن مضمن صحيح سيٽ_move_one(سيٽ_2 *s, سيٽ_2 *other, ثابت فراغ *ڪنجي) {
+        أرجع _hashmap_move_one(HASHMAP_بنياد(s), HASHMAP_بنياد(other), ڪنجي);
 }
 
-static inline unsigned set_size(const Set *s) {
-        return _hashmap_size(HASHMAP_BASE((Set *) s));
+ساكن مضمن بنانشان سيٽ_سائيز(ثابت سيٽ_2 *s) {
+        أرجع hashmap_سائيز(HASHMAP_بنياد((سيٽ_2 *) s));
 }
 
-static inline bool set_isempty(const Set *s) {
-        return set_size(s) == 0;
+ساكن مضمن bool سيٽ_isempty(ثابت سيٽ_2 *s) {
+        أرجع سيٽ_سائيز(s) == 0;
 }
 
-static inline unsigned set_buckets(const Set *s) {
-        return _hashmap_buckets(HASHMAP_BASE((Set *) s));
+ساكن مضمن بنانشان سيٽ_buckets(ثابت سيٽ_2 *s) {
+        أرجع _hashmap_buckets(HASHMAP_بنياد((سيٽ_2 *) s));
 }
 
-static inline bool set_iterate(const Set *s, Iterator *i, void **value) {
-        return _hashmap_iterate(HASHMAP_BASE((Set*) s), i, value, NULL);
+ساكن مضمن bool سيٽ_iterate(ثابت سيٽ_2 *s, Iterator *i, فراغ **قدر) {
+        أرجع _hashmap_iterate(HASHMAP_بنياد((سيٽ_2*) s), i, قدر, عدم);
 }
 
-static inline void set_clear(Set *s) {
-        _hashmap_clear(HASHMAP_BASE(s));
+ساكن مضمن فراغ سيٽ_clear(سيٽ_2 *s) {
+        _hashmap_clear(HASHMAP_بنياد(s));
 }
 
-static inline void *set_steal_first(Set *s) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE(s), true, NULL);
+ساكن مضمن فراغ *سيٽ_steal_پهريون(سيٽ_2 *s) {
+        أرجع hashmap_پهريون_ڪنجي_and_قدر(HASHMAP_بنياد(s), true, عدم);
 }
 
 /* no set_steal_first_key */
 /* no set_first_key */
 
-static inline void *set_first(const Set *s) {
-        return _hashmap_first_key_and_value(HASHMAP_BASE((Set *) s), false, NULL);
+ساكن مضمن فراغ *سيٽ_پهريون(ثابت سيٽ_2 *s) {
+        أرجع hashmap_پهريون_ڪنجي_and_قدر(HASHMAP_بنياد((سيٽ_2 *) s), false, عدم);
 }
 
 /* no set_next */
 
-static inline char **set_get_strv(Set *s) {
-        return _hashmap_get_strv(HASHMAP_BASE(s));
+ساكن مضمن حرف **سيٽ_get_strv(سيٽ_2 *s) {
+        أرجع _hashmap_get_strv(HASHMAP_بنياد(s));
 }
 
-char** set_to_strv(Set **s);
+حرف** سيٽ_منزل_strv(سيٽ_2 **s);
 
-int set_ensure_put(Set **s, const struct hash_ops *hash_ops, const void *key);
+صحيح سيٽ_ensure_put(سيٽ_2 **s, ثابت بنية hash_ops *hash_ops, ثابت فراغ *ڪنجي);
 
-int set_ensure_consume(Set **s, const struct hash_ops *hash_ops, void *key);
+صحيح سيٽ_ensure_consume(سيٽ_2 **s, ثابت بنية hash_ops *hash_ops, فراغ *ڪنجي);
 
-int set_consume(Set *s, void *value);
+صحيح سيٽ_consume(سيٽ_2 *s, فراغ *قدر);
 
-int set_put_strndup_full(Set **s, const struct hash_ops *hash_ops, const char *p, size_t n);
-#define set_put_strdup_full(s, hash_ops, p) set_put_strndup_full(s, hash_ops, p, SIZE_MAX)
-#define set_put_strndup(s, p, n) set_put_strndup_full(s, &string_hash_ops_free, p, n)
-#define set_put_strdup(s, p) set_put_strndup(s, p, SIZE_MAX)
+صحيح سيٽ_put_strndup_ڀريل(سيٽ_2 **s, ثابت بنية hash_ops *hash_ops, ثابت حرف *p, size_t n);
+#وصف_ڪريو سيٽ_put_strdup_ڀريل(s, hash_ops, p) سيٽ_put_strndup_ڀريل(s, hash_ops, p, SIZE_MAX)
+#وصف_ڪريو سيٽ_put_strndup(s, p, n) سيٽ_put_strndup_ڀريل(s, &string_hash_ops_free, p, n)
+#وصف_ڪريو سيٽ_put_strdup(s, p) سيٽ_put_strndup(s, p, SIZE_MAX)
 
-int set_put_strdupv_full(Set **s, const struct hash_ops *hash_ops, char **l);
-#define set_put_strdupv(s, l) set_put_strdupv_full(s, &string_hash_ops_free, l)
+صحيح سيٽ_put_strdupv_ڀريل(سيٽ_2 **s, ثابت بنية hash_ops *hash_ops, حرف **l);
+#وصف_ڪريو سيٽ_put_strdupv(s, l) سيٽ_put_strdupv_ڀريل(s, &string_hash_ops_free, l)
 
-int set_put_strsplit(Set *s, const char *v, const char *separators, ExtractFlags flags);
+صحيح سيٽ_put_strsplit(سيٽ_2 *s, ثابت حرف *v, ثابت حرف *separators, ڪڍو_Flags flags);
 
-#define _SET_FOREACH(e, s, i) \
-        for (Iterator i = ITERATOR_FIRST; set_iterate((s), &i, (void**)&(e)); )
-#define SET_FOREACH(e, s) \
-        _SET_FOREACH(e, s, UNIQ_T(i, UNIQ))
+#وصف_ڪريو سيٽ_FOREACH_2(e, s, i) \
+        لكل (Iterator i = ITERATOR_پهريون; سيٽ_iterate((s), &i, (فراغ**)&(e)); )
+#وصف_ڪريو سيٽ_FOREACH(e, s) \
+        سيٽ_FOREACH_2(e, s, UNIQ_T(i, UNIQ))
 
-#define SET_FOREACH_MOVE(e, d, s)                                       \
-        for (; ({ e = set_first(s); assert_se(!e || set_move_one(d, s, e) >= 0); e; }); )
+#وصف_ڪريو سيٽ_FOREACH_MOVE(e, d, s)                                       \
+        لكل (; ({ e = سيٽ_پهريون(s); assert_se(!e || سيٽ_move_one(d, s, e) >= 0); e; }); )
 
-DEFINE_TRIVIAL_CLEANUP_FUNC(Set*, set_free);
+DEFINE_TRIVIAL_CLEANUP_FUNC(سيٽ_2*, سيٽ_free);
 
-#define _cleanup_set_free_ _cleanup_(set_freep)
+#وصف_ڪريو cleanup_سيٽ_free _cleanup_(سيٽ_freep)
 
-int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **ret);
+صحيح سيٽ_strjoin(سيٽ_2 *s, ثابت حرف *separator, bool wrap_with_separator, حرف **ret);
 
-bool set_equal(Set *a, Set *b);
+bool سيٽ_equal(سيٽ_2 *a, سيٽ_2 *b);
 
-bool set_fnmatch(Set *include_patterns, Set *exclude_patterns, const char *needle);
+bool سيٽ_fnmatch(سيٽ_2 *include_patterns, سيٽ_2 *exclude_patterns, ثابت حرف *needle);

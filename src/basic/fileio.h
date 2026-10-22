@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
-#pragma once
+#هدايت once
 
-#include "forward.h"
+#ضمن "forward.h"
 
-#define LONG_LINE_MAX (1U*1024U*1024U)
+#وصف_ڪريو LONG_سٽ_MAX (1U*1024U*1024U)
 
-typedef enum {
+تعريفنوع تعداد {
         WRITE_STRING_FILE_CREATE                     = 1 << 0,
         WRITE_STRING_FILE_TRUNCATE                   = 1 << 1,
         WRITE_STRING_FILE_ATOMIC                     = 1 << 2,
@@ -13,168 +13,168 @@ typedef enum {
         WRITE_STRING_FILE_VERIFY_ON_FAILURE          = 1 << 4,
         WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE      = 1 << 5,
         WRITE_STRING_FILE_SYNC                       = 1 << 6,
-        WRITE_STRING_FILE_DISABLE_BUFFER             = 1 << 7,
+        WRITE_STRING_FILE_DISABLE_بفر             = 1 << 7,
         WRITE_STRING_FILE_NOFOLLOW                   = 1 << 8,
         WRITE_STRING_FILE_MKDIR_0755                 = 1 << 9,
-        WRITE_STRING_FILE_MODE_0600                  = 1 << 10,
-        WRITE_STRING_FILE_MODE_0444                  = 1 << 11,
+        WRITE_STRING_FILE_گهڻائي_0600                  = 1 << 10,
+        WRITE_STRING_FILE_گهڻائي_0444                  = 1 << 11,
         WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL = 1 << 12,
         WRITE_STRING_FILE_LABEL                      = 1 << 13,
         WRITE_STRING_FILE_OPEN_NONBLOCKING           = 1 << 14,
 } WriteStringFileFlags;
 
-typedef enum {
-        READ_FULL_FILE_SECURE              = 1 << 0, /* erase any buffers we employ internally, after use */
-        READ_FULL_FILE_UNBASE64            = 1 << 1, /* base64 decode what we read */
-        READ_FULL_FILE_UNHEX               = 1 << 2, /* hex decode what we read */
-        READ_FULL_FILE_WARN_WORLD_READABLE = 1 << 3, /* if regular file, log at LOG_WARNING level if access mode above 0700 */
-        READ_FULL_FILE_CONNECT_SOCKET      = 1 << 4, /* if socket inode, connect to it and read off it */
-        READ_FULL_FILE_FAIL_WHEN_LARGER    = 1 << 5, /* fail loading if file is larger than specified size */
-        READ_FULL_FILE_VERIFY_REGULAR      = 1 << 6, /* before reading, verify this is a regular file */
-} ReadFullFileFlags;
+تعريفنوع تعداد {
+        READ_ڀريل_FILE_SECURE              = 1 << 0, /* erase any buffers we employ internally, after use */
+        READ_ڀريل_FILE_UNBASE64            = 1 << 1, /* base64 decode what we read */
+        READ_ڀريل_FILE_UNHEX               = 1 << 2, /* hex decode what we read */
+        READ_ڀريل_FILE_WARN_WORLD_READABLE = 1 << 3, /* if regular file, log at LOG_WARNING level if access mode above 0700 */
+        READ_ڀريل_FILE_CONNECT_SOCKET      = 1 << 4, /* if socket inode, connect to it and read off it */
+        READ_ڀريل_FILE_FAIL_WHEN_LARGER    = 1 << 5, /* fail loading if file is larger than specified size */
+        READ_ڀريل_FILE_VERIFY_REGULAR      = 1 << 6, /* before reading, verify this is a regular file */
+} Read_ڀريل_File_Flags;
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret);
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret);
-FILE* take_fdopen(int *fd, const char *options);
-DIR* take_fdopendir(int *dfd);
-FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc);
-FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode);
+صحيح fdopen_unlocked(صحيح fd, ثابت حرف *options, FILE **ret);
+صحيح take_fdopen_unlocked(صحيح *fd, ثابت حرف *options, FILE **ret);
+FILE* take_fdopen(صحيح *fd, ثابت حرف *options);
+DIR* take_fdopendir(صحيح *dfd);
+FILE* open_memstream_unlocked(حرف **ptr, size_t *sizeloc);
+FILE* fmemopen_unlocked(فراغ *buf, size_t سائيز, ثابت حرف *گهڻائي);
 
-int write_string_stream_full(FILE *f, const char *line, WriteStringFileFlags flags, const struct timespec *ts);
-static inline int write_string_stream(FILE *f, const char *line, WriteStringFileFlags flags) {
-        return write_string_stream_full(f, line, flags, NULL);
-}
-
-int write_string_file_full_label(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn, LabelContext *label_context);
-static inline int write_string_file_full(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags, const struct timespec *ts, const char *label_fn) {
-        return write_string_file_full_label(dir_fd, fn, line, flags, ts, label_fn, /* label_context= */ NULL);
-}
-static inline int write_string_file_at(int dir_fd, const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_full(dir_fd, fn, line, flags, NULL, NULL);
-}
-static inline int write_string_file_fd(int dir_fd, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(dir_fd, NULL, line, flags);
-}
-static inline int write_string_file(const char *fn, const char *line, WriteStringFileFlags flags) {
-        return write_string_file_at(AT_FDCWD, fn, line, flags);
-}
-int write_string_filef(const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(3, 4);
-int write_string_filef_at(int dir_fd, const char *fn, WriteStringFileFlags flags, const char *format, ...) _printf_(4, 5);
-
-int write_base64_file_at(int dir_fd, const char *fn, const struct iovec *data, WriteStringFileFlags flags);
-
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret);
-static inline int read_one_line_file(const char *filename, char **ret) {
-        return read_one_line_file_at(AT_FDCWD, filename, ret);
-}
-int read_boolean_file_at(int dir_fd, const char *filename);
-static inline int read_boolean_file(const char *filename) {
-        return read_boolean_file_at(AT_FDCWD, filename);
-}
-int read_full_file_full(int dir_fd, const char *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, const char *bind_name, char **ret_contents, size_t *ret_size);
-static inline int read_full_file_at(int dir_fd, const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_full_file_full(dir_fd, filename, UINT64_MAX, SIZE_MAX, 0, NULL, ret_contents, ret_size);
-}
-static inline int read_full_file(const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_full_file_full(AT_FDCWD, filename, UINT64_MAX, SIZE_MAX, 0, NULL, ret_contents, ret_size);
+صحيح write_string_وهڪرو_ڀريل(FILE *f, ثابت حرف *سٽ, WriteStringFileFlags flags, ثابت بنية timespec *ts);
+ساكن مضمن صحيح write_string_وهڪرو(FILE *f, ثابت حرف *سٽ, WriteStringFileFlags flags) {
+        أرجع write_string_وهڪرو_ڀريل(f, سٽ, flags, عدم);
 }
 
-int read_virtual_file_at(int dir_fd, const char *filename, size_t max_size, char **ret_contents, size_t *ret_size);
-static inline int read_virtual_file_fd(int fd, size_t max_size, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file_at(fd, NULL, max_size, ret_contents, ret_size);
+صحيح write_string_file_ڀريل_label(صحيح dir_fd, ثابت حرف *fn, ثابت حرف *سٽ, WriteStringFileFlags flags, ثابت بنية timespec *ts, ثابت حرف *label_fn, LabelContext *label_context);
+ساكن مضمن صحيح write_string_file_ڀريل(صحيح dir_fd, ثابت حرف *fn, ثابت حرف *سٽ, WriteStringFileFlags flags, ثابت بنية timespec *ts, ثابت حرف *label_fn) {
+        أرجع write_string_file_ڀريل_label(dir_fd, fn, سٽ, flags, ts, label_fn, /* label_context= */ عدم);
 }
-static inline int read_virtual_file(const char *filename, size_t max_size, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file_at(AT_FDCWD, filename, max_size, ret_contents, ret_size);
+ساكن مضمن صحيح write_string_file_at(صحيح dir_fd, ثابت حرف *fn, ثابت حرف *سٽ, WriteStringFileFlags flags) {
+        أرجع write_string_file_ڀريل(dir_fd, fn, سٽ, flags, عدم, عدم);
 }
-static inline int read_full_virtual_file(const char *filename, char **ret_contents, size_t *ret_size) {
-        return read_virtual_file(filename, SIZE_MAX, ret_contents, ret_size);
+ساكن مضمن صحيح write_string_file_fd(صحيح dir_fd, ثابت حرف *سٽ, WriteStringFileFlags flags) {
+        أرجع write_string_file_at(dir_fd, عدم, سٽ, flags);
+}
+ساكن مضمن صحيح write_string_file(ثابت حرف *fn, ثابت حرف *سٽ, WriteStringFileFlags flags) {
+        أرجع write_string_file_at(AT_FDCWD, fn, سٽ, flags);
+}
+صحيح write_string_filef(ثابت حرف *fn, WriteStringFileFlags flags, ثابت حرف *format, ...) _printf_(3, 4);
+صحيح write_string_filef_at(صحيح dir_fd, ثابت حرف *fn, WriteStringFileFlags flags, ثابت حرف *format, ...) _printf_(4, 5);
+
+صحيح write_base64_file_at(صحيح dir_fd, ثابت حرف *fn, ثابت بنية iovec *معلومات, WriteStringFileFlags flags);
+
+صحيح read_one_سٽ_file_at(صحيح dir_fd, ثابت حرف *filename, حرف **ret);
+ساكن مضمن صحيح read_one_سٽ_file(ثابت حرف *filename, حرف **ret) {
+        أرجع read_one_سٽ_file_at(AT_FDCWD, filename, ret);
+}
+صحيح read_boolean_file_at(صحيح dir_fd, ثابت حرف *filename);
+ساكن مضمن صحيح read_boolean_file(ثابت حرف *filename) {
+        أرجع read_boolean_file_at(AT_FDCWD, filename);
+}
+صحيح read_ڀريل_file_ڀريل(صحيح dir_fd, ثابت حرف *filename, uint64_t وٿي, size_t سائيز, Read_ڀريل_File_Flags flags, ثابت حرف *bind_name, حرف **ret_contents, size_t *ret_سائيز);
+ساكن مضمن صحيح read_ڀريل_file_at(صحيح dir_fd, ثابت حرف *filename, حرف **ret_contents, size_t *ret_سائيز) {
+        أرجع read_ڀريل_file_ڀريل(dir_fd, filename, UINT64_MAX, SIZE_MAX, 0, عدم, ret_contents, ret_سائيز);
+}
+ساكن مضمن صحيح read_ڀريل_file(ثابت حرف *filename, حرف **ret_contents, size_t *ret_سائيز) {
+        أرجع read_ڀريل_file_ڀريل(AT_FDCWD, filename, UINT64_MAX, SIZE_MAX, 0, عدم, ret_contents, ret_سائيز);
 }
 
-int read_full_stream_full(FILE *f, const char *filename, uint64_t offset, size_t size, ReadFullFileFlags flags, char **ret_contents, size_t *ret_size);
-static inline int read_full_stream(FILE *f, char **ret_contents, size_t *ret_size) {
-        return read_full_stream_full(f, NULL, UINT64_MAX, SIZE_MAX, 0, ret_contents, ret_size);
+صحيح read_virtual_file_at(صحيح dir_fd, ثابت حرف *filename, size_t max_سائيز, حرف **ret_contents, size_t *ret_سائيز);
+ساكن مضمن صحيح read_virtual_file_fd(صحيح fd, size_t max_سائيز, حرف **ret_contents, size_t *ret_سائيز) {
+        أرجع read_virtual_file_at(fd, عدم, max_سائيز, ret_contents, ret_سائيز);
+}
+ساكن مضمن صحيح read_virtual_file(ثابت حرف *filename, size_t max_سائيز, حرف **ret_contents, size_t *ret_سائيز) {
+        أرجع read_virtual_file_at(AT_FDCWD, filename, max_سائيز, ret_contents, ret_سائيز);
+}
+ساكن مضمن صحيح read_ڀريل_virtual_file(ثابت حرف *filename, حرف **ret_contents, size_t *ret_سائيز) {
+        أرجع read_virtual_file(filename, SIZE_MAX, ret_contents, ret_سائيز);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl);
+صحيح read_ڀريل_وهڪرو_ڀريل(FILE *f, ثابت حرف *filename, uint64_t وٿي, size_t سائيز, Read_ڀريل_File_Flags flags, حرف **ret_contents, size_t *ret_سائيز);
+ساكن مضمن صحيح read_ڀريل_وهڪرو(FILE *f, حرف **ret_contents, size_t *ret_سائيز) {
+        أرجع read_ڀريل_وهڪرو_ڀريل(f, عدم, UINT64_MAX, SIZE_MAX, 0, ret_contents, ret_سائيز);
+}
 
-int script_get_shebang_interpreter(const char *path, char **ret);
+صحيح verify_file_at(صحيح dir_fd, ثابت حرف *fn, ثابت حرف *blob, bool accept_extra_nl);
 
-int get_proc_field(const char *path, const char *key, char **ret);
+صحيح script_get_shebang_interpreter(ثابت حرف *رستو, حرف **ret);
 
-DIR* xopendirat(int dir_fd, const char *path, int flags);
+صحيح get_proc_ميدان(ثابت حرف *رستو, ثابت حرف *ڪنجي, حرف **ret);
 
-typedef enum XfopenFlags {
+DIR* xopendirat(صحيح dir_fd, ثابت حرف *رستو, صحيح flags);
+
+تعريفنوع تعداد XfopenFlags {
         XFOPEN_UNLOCKED = 1 << 0, /* call __fsetlocking(FSETLOCKING_BYCALLER) after opened */
         XFOPEN_SOCKET   = 1 << 1, /* also try to open unix socket */
 } XfopenFlags;
 
-int xfopenat_full(
-                int dir_fd,
-                const char *path,
-                const char *mode,
-                int open_flags,
+صحيح xfopenat_ڀريل(
+                صحيح dir_fd,
+                ثابت حرف *رستو,
+                ثابت حرف *گهڻائي,
+                صحيح open_flags,
                 XfopenFlags flags,
-                const char *bind_name,
+                ثابت حرف *bind_name,
                 FILE **ret);
-static inline int xfopenat(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
-        return xfopenat_full(dir_fd, path, mode, open_flags, 0, NULL, ret);
+ساكن مضمن صحيح xfopenat(صحيح dir_fd, ثابت حرف *رستو, ثابت حرف *گهڻائي, صحيح open_flags, FILE **ret) {
+        أرجع xfopenat_ڀريل(dir_fd, رستو, گهڻائي, open_flags, 0, عدم, ret);
 }
-static inline int fopen_unlocked_at(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
-        return xfopenat_full(dir_fd, path, mode, open_flags, XFOPEN_UNLOCKED, NULL, ret);
+ساكن مضمن صحيح fopen_unlocked_at(صحيح dir_fd, ثابت حرف *رستو, ثابت حرف *گهڻائي, صحيح open_flags, FILE **ret) {
+        أرجع xfopenat_ڀريل(dir_fd, رستو, گهڻائي, open_flags, XFOPEN_UNLOCKED, عدم, ret);
 }
-static inline int fopen_unlocked(const char *path, const char *mode, FILE **ret) {
-        return fopen_unlocked_at(AT_FDCWD, path, mode, 0, ret);
-}
-
-int fdopen_independent(int fd, const char *mode, FILE **ret);
-
-int search_and_open(const char *path, int mode, const char *root, char **search, int *ret_fd, char **ret_path);
-static inline int search_and_access(const char *path, int mode, const char *root, char**search, char **ret_path) {
-        return search_and_open(path, mode, root, search, NULL, ret_path);
-}
-int search_and_fopen(const char *path, const char *mode, const char *root, const char **search, FILE **ret_file, char **ret_path);
-int search_and_fopen_nulstr(const char *path, const char *mode, const char *root, const char *search, FILE **ret_file, char **ret_path);
-
-int fflush_and_check(FILE *f);
-int fflush_sync_and_check(FILE *f);
-
-int write_timestamp_file_atomic(const char *fn, usec_t n);
-int read_timestamp_file(const char *fn, usec_t *ret);
-
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space);
-int fputs_with_newline(FILE *f, const char *s);
-
-typedef enum ReadLineFlags {
-        READ_LINE_ONLY_NUL  = 1 << 0,
-        READ_LINE_IS_A_TTY  = 1 << 1,
-        READ_LINE_NOT_A_TTY = 1 << 2,
-} ReadLineFlags;
-
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret);
-static inline int read_line(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, 0, ret);
-}
-static inline int read_nul_string(FILE *f, size_t limit, char **ret) {
-        return read_line_full(f, limit, READ_LINE_ONLY_NUL, ret);
+ساكن مضمن صحيح fopen_unlocked(ثابت حرف *رستو, ثابت حرف *گهڻائي, FILE **ret) {
+        أرجع fopen_unlocked_at(AT_FDCWD, رستو, گهڻائي, 0, ret);
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret);
+صحيح fdopen_independent(صحيح fd, ثابت حرف *گهڻائي, FILE **ret);
 
-static inline bool file_offset_beyond_memory_size(off_t x) {
-        if (x < 0) /* off_t is signed, filter that out */
-                return false;
-        return (uint64_t) x > (uint64_t) SIZE_MAX;
+صحيح ڳولا_and_open(ثابت حرف *رستو, صحيح گهڻائي, ثابت حرف *پاڙ, حرف **ڳولا, صحيح *ret_fd, حرف **ret_رستو);
+ساكن مضمن صحيح ڳولا_and_access(ثابت حرف *رستو, صحيح گهڻائي, ثابت حرف *پاڙ, حرف**ڳولا, حرف **ret_رستو) {
+        أرجع ڳولا_and_open(رستو, گهڻائي, پاڙ, ڳولا, عدم, ret_رستو);
+}
+صحيح ڳولا_and_fopen(ثابت حرف *رستو, ثابت حرف *گهڻائي, ثابت حرف *پاڙ, ثابت حرف **ڳولا, FILE **ret_file, حرف **ret_رستو);
+صحيح ڳولا_and_fopen_nulstr(ثابت حرف *رستو, ثابت حرف *گهڻائي, ثابت حرف *پاڙ, ثابت حرف *ڳولا, FILE **ret_file, حرف **ret_رستو);
+
+صحيح fflush_and_check(FILE *f);
+صحيح fflush_sync_and_check(FILE *f);
+
+صحيح write_timestamp_file_atomic(ثابت حرف *fn, usec_t n);
+صحيح read_timestamp_file(ثابت حرف *fn, usec_t *ret);
+
+صحيح fputs_with_separator(FILE *f, ثابت حرف *s, ثابت حرف *separator, bool *space);
+صحيح fputs_with_newline(FILE *f, ثابت حرف *s);
+
+تعريفنوع تعداد Read_سٽ_Flags {
+        READ_سٽ_ONLY_NUL  = 1 << 0,
+        READ_سٽ_IS_A_TTY  = 1 << 1,
+        READ_سٽ_NOT_A_TTY = 1 << 2,
+} Read_سٽ_Flags;
+
+صحيح read_سٽ_ڀريل(FILE *f, size_t limit, Read_سٽ_Flags flags, حرف **ret);
+ساكن مضمن صحيح read_سٽ(FILE *f, size_t limit, حرف **ret) {
+        أرجع read_سٽ_ڀريل(f, limit, 0, ret);
+}
+ساكن مضمن صحيح read_nul_string(FILE *f, size_t limit, حرف **ret) {
+        أرجع read_سٽ_ڀريل(f, limit, READ_سٽ_ONLY_NUL, ret);
 }
 
-int safe_fgetc(FILE *f, char *ret);
+صحيح read_stripped_سٽ(FILE *f, size_t limit, حرف **ret);
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line);
+ساكن مضمن bool file_وٿي_beyond_يادگيري_سائيز(off_t x) {
+        إذا (x < 0) /* off_t is signed, filter that out */
+                أرجع false;
+        أرجع (uint64_t) x > (uint64_t) SIZE_MAX;
+}
 
-int fopen_mode_to_flags(const char *mode);
+صحيح محفوظ_fgetc(FILE *f, حرف *ret);
 
-typedef enum WriteDataFileFlags {
-        WRITE_DATA_FILE_MKDIR_0755 = 1 << 0,
-        WRITE_DATA_FILE_MODE_0400  = 1 << 1,
-} WriteDataFileFlags;
+صحيح warn_file_is_world_accessible(ثابت حرف *filename, بنية stat *st, ثابت حرف *unit, بنانشان سٽ);
 
-int write_data_file_atomic_at(int dir_fd, const char *path, const struct iovec *iovec, WriteDataFileFlags flags);
+صحيح fopen_گهڻائي_منزل_flags(ثابت حرف *گهڻائي);
+
+تعريفنوع تعداد Write_معلومات_File_Flags {
+        WRITE_معلومات_FILE_MKDIR_0755 = 1 << 0,
+        WRITE_معلومات_FILE_گهڻائي_0400  = 1 << 1,
+} Write_معلومات_File_Flags;
+
+صحيح write_معلومات_file_atomic_at(صحيح dir_fd, ثابت حرف *رستو, ثابت بنية iovec *iovec, Write_معلومات_File_Flags flags);
