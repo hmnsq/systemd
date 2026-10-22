@@ -1,45 +1,45 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/file.h>
-#include <unistd.h>
+#অন্তর্ভাৱ <fcntl.h>
+#অন্তর্ভাৱ <stdio.h>
+#অন্তর্ভাৱ <stdlib.h>
+#অন্তর্ভাৱ <string.h>
+#অন্তর্ভাৱ <sys/file.h>
+#অন্তর্ভাৱ <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "lock-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "pidref.h"
-#include "process-util.h"
-#include "string-util.h"
-#include "time-util.h"
+#অন্তর্ভাৱ "alloc-util.h"
+#অন্তর্ভাৱ "errno-util.h"
+#অন্তর্ভাৱ "fd-util.h"
+#অন্তর্ভাৱ "fs-util.h"
+#অন্তর্ভাৱ "lock-util.h"
+#অন্তর্ভাৱ "log.h"
+#অন্তর্ভাৱ "path-util.h"
+#অন্তর্ভাৱ "pidref.h"
+#অন্তর্ভাৱ "process-util.h"
+#অন্তর্ভাৱ "string-util.h"
+#অন্তর্ভাৱ "time-util.h"
 
-int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret) {
-        _cleanup_close_ int fd = -EBADF, dfd = -EBADF;
-        _cleanup_free_ char *t = NULL;
+পূর্ণাঙ্ক make_lock_file_at(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *p, পূর্ণাঙ্ক operation, LockFile *ret) {
+        _cleanup_close_ পূর্ণাঙ্ক fd = -EBADF, dfd = -EBADF;
+        _cleanup_free_ ৱর্ণ *t = রিক্ত;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(p);
-        assert(IN_SET(operation & ~LOCK_NB, LOCK_EX, LOCK_SH));
-        assert(ret);
+        প্রতিজ্ঞা(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        প্রতিজ্ঞা(p);
+        প্রতিজ্ঞা(IN_SET(operation & ~LOCK_NB, LOCK_EX, LOCK_SH));
+        প্রতিজ্ঞা(ret);
 
-        if (isempty(p))
-                return -EINVAL;
+        যদি (isempty(p))
+                ঘূৰাই -EINVAL;
 
         /* We use UNPOSIX locks as they have nice semantics, and are mostly compatible with NFS. */
 
         dfd = fd_reopen(dir_fd, O_CLOEXEC|O_PATH|O_DIRECTORY);
-        if (dfd < 0)
-                return dfd;
+        যদি (dfd < 0)
+                ঘূৰাই dfd;
 
         t = strdup(p);
-        if (!t)
-                return -ENOMEM;
+        যদি (!t)
+                ঘূৰাই -ENOMEM;
 
         fd = xopenat_lock_full(dfd,
                                p,
@@ -48,8 +48,8 @@ int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret) {
                                0600,
                                LOCK_UNPOSIX,
                                operation);
-        if (fd < 0)
-                return fd == -EAGAIN ? -EBUSY : fd;
+        যদি (fd < 0)
+                ঘূৰাই fd == -EAGAIN ? -EBUSY : fd;
 
         *ret = (LockFile) {
                 .dir_fd = TAKE_FD(dfd),
@@ -58,47 +58,47 @@ int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret) {
                 .operation = operation,
         };
 
-        return 0;
+        ঘূৰাই 0;
 }
 
-int make_lock_file_for(const char *p, int operation, LockFile *ret) {
-        _cleanup_free_ char *fn = NULL, *dn = NULL, *t = NULL;
-        int r;
+পূর্ণাঙ্ক make_lock_file_for(ধ্রুৱ ৱর্ণ *p, পূর্ণাঙ্ক operation, LockFile *ret) {
+        _cleanup_free_ ৱর্ণ *fn = রিক্ত, *dn = রিক্ত, *t = রিক্ত;
+        পূর্ণাঙ্ক r;
 
-        assert(p);
-        assert(ret);
+        প্রতিজ্ঞা(p);
+        প্রতিজ্ঞা(ret);
 
         r = path_split_prefix_filename(p, &dn, &fn);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ঘূৰাই r;
 
-        if (dn)
+        যদি (dn)
                 t = strjoin(dn, "/.#", fn, ".lck");
-        else
+        অন্যথা
                 t = strjoin(".#", fn, ".lck");
-        if (!t)
-                return -ENOMEM;
+        যদি (!t)
+                ঘূৰাই -ENOMEM;
 
-        return make_lock_file(t, operation, ret);
+        ঘূৰাই make_lock_file(t, operation, ret);
 }
 
-void release_lock_file(LockFile *f) {
-        if (!f)
-                return;
+শূন্য release_lock_file(LockFile *f) {
+        যদি (!f)
+                ঘূৰাই;
 
-        if (f->path) {
+        যদি (f->path) {
 
                 /* If we are the exclusive owner we can safely delete
                  * the lock file itself. If we are not the exclusive
                  * owner, we can try becoming it. */
 
-                if (f->fd >= 0 &&
+                যদি (f->fd >= 0 &&
                     (f->operation & ~LOCK_NB) == LOCK_SH &&
                     unposix_lock(f->fd, LOCK_EX|LOCK_NB) >= 0)
                         f->operation = LOCK_EX|LOCK_NB;
 
-                if ((f->operation & ~LOCK_NB) == LOCK_EX)
-                        (void) unlinkat(f->dir_fd, f->path, 0);
+                যদি ((f->operation & ~LOCK_NB) == LOCK_EX)
+                        (শূন্য) unlinkat(f->dir_fd, f->path, 0);
 
                 f->path = mfree(f->path);
         }
@@ -108,31 +108,31 @@ void release_lock_file(LockFile *f) {
         f->operation = 0;
 }
 
-static int fcntl_lock(int fd, int operation, bool ofd) {
-        int cmd, type, r;
+স্থির পূর্ণাঙ্ক fcntl_lock(পূর্ণাঙ্ক fd, পূর্ণাঙ্ক operation, bool ofd) {
+        পূর্ণাঙ্ক cmd, type, r;
 
-        assert(fd >= 0);
+        প্রতিজ্ঞা(fd >= 0);
 
-        if (ofd)
+        যদি (ofd)
                 cmd = (operation & LOCK_NB) ? F_OFD_SETLK : F_OFD_SETLKW;
-        else
+        অন্যথা
                 cmd = (operation & LOCK_NB) ? F_SETLK : F_SETLKW;
 
-        switch (operation & ~LOCK_NB) {
-                case LOCK_EX:
+        ৱিকল্প (operation & ~LOCK_NB) {
+                পক্ষ LOCK_EX:
                         type = F_WRLCK;
-                        break;
-                case LOCK_SH:
+                        ভঙ্গ;
+                পক্ষ LOCK_SH:
                         type = F_RDLCK;
-                        break;
-                case LOCK_UN:
+                        ভঙ্গ;
+                পক্ষ LOCK_UN:
                         type = F_UNLCK;
-                        break;
-                default:
+                        ভঙ্গ;
+                স্ৱভাৱ:
                         assert_not_reached();
         }
 
-        r = RET_NERRNO(fcntl(fd, cmd, &(struct flock) {
+        r = RET_NERRNO(fcntl(fd, cmd, &(সংরচনা flock) {
                 .l_type = type,
                 .l_whence = SEEK_SET,
                 .l_start = 0,
@@ -146,61 +146,61 @@ static int fcntl_lock(int fd, int operation, bool ofd) {
          * F_SETLK that might return EACCES on some platforms (although the Linux implementation doesn't
          * seem to), as F_SETLKW and F_OFD_SETLKW block so this is not an issue, and F_OFD_SETLK is documented
          * to only return EAGAIN if the lock is already held. */
-        if ((operation & LOCK_NB) && r == -EACCES)
+        যদি ((operation & LOCK_NB) && r == -EACCES)
                 r = -EAGAIN;
 
-        return r;
+        ঘূৰাই r;
 }
 
-int posix_lock(int fd, int operation) {
-        return fcntl_lock(fd, operation, /* ofd= */ false);
+পূর্ণাঙ্ক posix_lock(পূর্ণাঙ্ক fd, পূর্ণাঙ্ক operation) {
+        ঘূৰাই fcntl_lock(fd, operation, /* ofd= */ false);
 }
 
-int unposix_lock(int fd, int operation) {
-        return fcntl_lock(fd, operation, /* ofd= */ true);
+পূর্ণাঙ্ক unposix_lock(পূর্ণাঙ্ক fd, পূর্ণাঙ্ক operation) {
+        ঘূৰাই fcntl_lock(fd, operation, /* ofd= */ true);
 }
 
-void posix_unlockpp(int **fd) {
-        assert(fd);
+শূন্য posix_unlockpp(পূর্ণাঙ্ক **fd) {
+        প্রতিজ্ঞা(fd);
 
-        if (!*fd || **fd < 0)
-                return;
+        যদি (!*fd || **fd < 0)
+                ঘূৰাই;
 
-        (void) fcntl_lock(**fd, LOCK_UN, /* ofd= */ false);
-        *fd = NULL;
+        (শূন্য) fcntl_lock(**fd, LOCK_UN, /* ofd= */ false);
+        *fd = রিক্ত;
 }
 
-void unposix_unlockpp(int **fd) {
-        assert(fd);
+শূন্য unposix_unlockpp(পূর্ণাঙ্ক **fd) {
+        প্রতিজ্ঞা(fd);
 
-        if (!*fd || **fd < 0)
-                return;
+        যদি (!*fd || **fd < 0)
+                ঘূৰাই;
 
-        (void) fcntl_lock(**fd, LOCK_UN, /* ofd= */ true);
-        *fd = NULL;
+        (শূন্য) fcntl_lock(**fd, LOCK_UN, /* ofd= */ true);
+        *fd = রিক্ত;
 }
 
-int lock_generic(int fd, LockType type, int operation) {
-        assert(fd >= 0);
+পূর্ণাঙ্ক lock_generic(পূর্ণাঙ্ক fd, LockType type, পূর্ণাঙ্ক operation) {
+        প্রতিজ্ঞা(fd >= 0);
 
-        switch (type) {
-        case LOCK_NONE:
-                return 0;
-        case LOCK_BSD:
-                return RET_NERRNO(flock(fd, operation));
-        case LOCK_POSIX:
-                return posix_lock(fd, operation);
-        case LOCK_UNPOSIX:
-                return unposix_lock(fd, operation);
-        default:
+        ৱিকল্প (type) {
+        পক্ষ LOCK_NONE:
+                ঘূৰাই 0;
+        পক্ষ LOCK_BSD:
+                ঘূৰাই RET_NERRNO(flock(fd, operation));
+        পক্ষ LOCK_POSIX:
+                ঘূৰাই posix_lock(fd, operation);
+        পক্ষ LOCK_UNPOSIX:
+                ঘূৰাই unposix_lock(fd, operation);
+        স্ৱভাৱ:
                 assert_not_reached();
         }
 }
 
-int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeout) {
-        int r;
+পূর্ণাঙ্ক lock_generic_with_timeout(পূর্ণাঙ্ক fd, LockType type, পূর্ণাঙ্ক operation, usec_t timeout) {
+        পূর্ণাঙ্ক r;
 
-        assert(fd >= 0);
+        প্রতিজ্ঞা(fd >= 0);
 
         /* A version of lock_generic(), but with a timeout. We do this in a child process, since the kernel
          * APIs natively don't support a timeout. We set a SIGALRM timer that will kill the child after the
@@ -210,23 +210,23 @@ int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeo
          * from any process that has access to the fd. POSIX locks OTOH are process-bound, and hence if we'd
          * acquire them in a child process they'd remain unlocked in the parent. */
 
-        if (type == LOCK_NONE)
-                return 0;
-        if (!IN_SET(type, LOCK_BSD, LOCK_UNPOSIX)) /* Not for POSIX locks, see above. */
-                return -EOPNOTSUPP;
+        যদি (type == LOCK_NONE)
+                ঘূৰাই 0;
+        যদি (!IN_SET(type, LOCK_BSD, LOCK_UNPOSIX)) /* Not for POSIX locks, see above. */
+                ঘূৰাই -EOPNOTSUPP;
 
         /* First, try without forking anything off */
         r = lock_generic(fd, type, operation | (timeout == USEC_INFINITY ? 0 : LOCK_NB));
-        if (r != -EAGAIN || timeout == 0 || FLAGS_SET(operation, LOCK_NB))
-                return r;
+        যদি (r != -EAGAIN || timeout == 0 || FLAGS_SET(operation, LOCK_NB))
+                ঘূৰাই r;
 
         /* If that didn't work, try with a child */
         _cleanup_(pidref_done_sigkill_wait) PidRef pidref = PIDREF_NULL;
         r = pidref_safe_fork("(sd-flock)", FORK_RESET_SIGNALS|FORK_DEATHSIG_SIGKILL, &pidref);
-        if (r < 0)
-                return log_error_errno(r, "Failed to flock block device in child process: %m");
-        if (r == 0) {
-                if (lock_generic(fd, type, operation) < 0) {
+        যদি (r < 0)
+                ঘূৰাই log_error_errno(r, "Failed to flock block device in child process: %m");
+        যদি (r == 0) {
+                যদি (lock_generic(fd, type, operation) < 0) {
                         log_error_errno(errno, "Unable to get an exclusive lock on the device: %m");
                         _exit(EXIT_FAILURE);
                 }
@@ -236,24 +236,24 @@ int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeo
 
         siginfo_t status;
         r = pidref_wait_for_terminate_full(&pidref, timeout, &status);
-        if (r < 0)
-                return r;
+        যদি (r < 0)
+                ঘূৰাই r;
 
         pidref_done(&pidref);
 
-        switch (status.si_code) {
+        ৱিকল্প (status.si_code) {
 
-        case CLD_EXITED:
-                if (status.si_status != EXIT_SUCCESS)
-                        return -EPROTO;
+        পক্ষ CLD_EXITED:
+                যদি (status.si_status != EXIT_SUCCESS)
+                        ঘূৰাই -EPROTO;
 
-                return 0;
+                ঘূৰাই 0;
 
-        case CLD_KILLED:
-        case CLD_DUMPED:
-                return -EPROTO;
+        পক্ষ CLD_KILLED:
+        পক্ষ CLD_DUMPED:
+                ঘূৰাই -EPROTO;
 
-        default:
+        স্ৱভাৱ:
                 assert_not_reached();
         }
 }

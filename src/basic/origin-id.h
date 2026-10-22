@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <pthread.h>
+#অন্তর্ভাৱ <pthread.h>
 
-#include "process-util.h"
-#include "random-util.h"
+#অন্তর্ভাৱ "process-util.h"
+#অন্তর্ভাৱ "random-util.h"
 
 /* This pattern needs to be repeated exactly in multiple modules, so macro it.
  * To ensure an object is not passed into a different module (e.g.: when two shared objects statically
@@ -13,25 +13,25 @@
  * (mixed with PID, so that we can also check for reuse after fork) that is stored in the object and
  * checked by public API on use. */
 #define _DEFINE_ORIGIN_ID_HELPERS(type, name, scope)                  \
-static uint64_t origin_id;                                            \
+স্থির uint64_t origin_id;                                            \
                                                                       \
-static void origin_id_initialize(void) {                              \
+স্থির শূন্য origin_id_initialize(শূন্য) {                              \
         origin_id = random_u64();                                     \
 }                                                                     \
                                                                       \
-static uint64_t origin_id_query(void) {                               \
-        static pthread_once_t once = PTHREAD_ONCE_INIT;               \
+স্থির uint64_t origin_id_query(শূন্য) {                               \
+        স্থির pthread_once_t once = PTHREAD_ONCE_INIT;               \
         assert_se(pthread_once(&once, origin_id_initialize) == 0);    \
-        return origin_id ^ getpid_cached();                           \
+        ঘূৰাই origin_id ^ getpid_cached();                           \
 }                                                                     \
                                                                       \
 scope bool name##_origin_changed(type *p) {                           \
-        assert(p);                                                    \
-        return p->origin_id != origin_id_query();                     \
+        প্রতিজ্ঞা(p);                                                    \
+        ঘূৰাই p->origin_id != origin_id_query();                     \
 }
 
 #define DEFINE_ORIGIN_ID_HELPERS(type, name)                          \
         _DEFINE_ORIGIN_ID_HELPERS(type, name,);
 
 #define DEFINE_PRIVATE_ORIGIN_ID_HELPERS(type, name)                  \
-        _DEFINE_ORIGIN_ID_HELPERS(type, name, static);
+        _DEFINE_ORIGIN_ID_HELPERS(type, name, স্থির);

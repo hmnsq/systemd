@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
-typedef void (*free_func_t)(void *p);
+প্রকারনির্দেশ শূন্য (*free_func_t)(শূন্য *p);
 
 /* A framework for registering static variables that shall be freed on shutdown of a process. It's a bit like gcc's
  * destructor attribute, but allows us to precisely schedule when we want to free the variables. This is supposed to
@@ -24,40 +24,40 @@ typedef void (*free_func_t)(void *p);
          * packed next to each other so that we can enumerate it. */    \
         _variable_no_sanitize_address_
 
-typedef enum StaticDestructorType {
+প্রকারনির্দেশ গণনা StaticDestructorType {
         STATIC_DESTRUCTOR_SIMPLE,
         STATIC_DESTRUCTOR_ARRAY,
         _STATIC_DESTRUCTOR_TYPE_MAX,
         _STATIC_DESTRUCTOR_INVALID = -EINVAL,
 } StaticDestructorType;
 
-typedef struct SimpleCleanup {
-        void *data;
+প্রকারনির্দেশ সংরচনা SimpleCleanup {
+        শূন্য *data;
         free_func_t destroy;
 } SimpleCleanup;
 
 /* Note: see the comment on struct Option in options.h for why _alignptr_ is required here. */
-typedef struct _alignptr_ StaticDestructor {
+প্রকারনির্দেশ সংরচনা _alignptr_ StaticDestructor {
         StaticDestructorType type;
-        union {
+        সঙ্ঘ {
                 SimpleCleanup simple;
                 ArrayCleanup array;
         };
 } StaticDestructor;
 
-assert_cc(sizeof(StaticDestructor) % sizeof(void*) == 0);
+assert_cc(পরিমাণ(StaticDestructor) % পরিমাণ(শূন্য*) == 0);
 
 #define STATIC_DESTRUCTOR_REGISTER(variable, func) \
         _STATIC_DESTRUCTOR_REGISTER(UNIQ, variable, func)
 
 #define _STATIC_DESTRUCTOR_REGISTER(uq, variable, func)                 \
         /* Type-safe destructor */                                      \
-        static void UNIQ_T(static_destructor_wrapper, uq)(void *p) {    \
+        স্থির শূন্য UNIQ_T(static_destructor_wrapper, uq)(শূন্য *p) {    \
                 typeof(variable) *q = p;                                \
                 func(q);                                                \
         }                                                               \
         _common_static_destruct_attrs_                                  \
-        static const StaticDestructor UNIQ_T(static_destructor_entry, uq) = { \
+        স্থির ধ্রুৱ StaticDestructor UNIQ_T(static_destructor_entry, uq) = { \
                 .type = STATIC_DESTRUCTOR_SIMPLE,                       \
                 .simple.data = &(variable),                             \
                 .simple.destroy = UNIQ_T(static_destructor_wrapper, uq), \
@@ -68,24 +68,24 @@ assert_cc(sizeof(StaticDestructor) % sizeof(void*) == 0);
 
 #define _STATIC_ARRAY_DESTRUCTOR_REGISTER(uq, a, n, func)               \
         /* Type-safety check */                                         \
-        _unused_ static void (* UNIQ_T(static_destructor_wrapper, uq))(typeof(a[0]) *x, size_t y) = (func); \
+        _unused_ স্থির শূন্য (* UNIQ_T(static_destructor_wrapper, uq))(typeof(a[0]) *x, size_t y) = (func); \
         _common_static_destruct_attrs_                                  \
-        static const StaticDestructor UNIQ_T(static_destructor_entry, uq) = { \
+        স্থির ধ্রুৱ StaticDestructor UNIQ_T(static_destructor_entry, uq) = { \
                 .type = STATIC_DESTRUCTOR_ARRAY,                        \
-                .array.parray = (void**) &(a),                          \
+                .array.parray = (শূন্য**) &(a),                          \
                 .array.pn = &(n),                                       \
                 .array.pfunc = (free_array_func_t) (func),              \
         };
 
 /* Beginning and end of our section listing the destructors. We define these as weak as we want this to work
  * even if no destructors are defined and the section is missing. */
-extern const StaticDestructor _weak_ __start_SYSTEMD_STATIC_DESTRUCT[];
-extern const StaticDestructor _weak_ __stop_SYSTEMD_STATIC_DESTRUCT[];
+বাহ্য ধ্রুৱ StaticDestructor _weak_ __start_SYSTEMD_STATIC_DESTRUCT[];
+বাহ্য ধ্রুৱ StaticDestructor _weak_ __stop_SYSTEMD_STATIC_DESTRUCT[];
 
-void static_destruct_impl(const StaticDestructor *start, const StaticDestructor *end);
+শূন্য static_destruct_impl(ধ্রুৱ StaticDestructor *start, ধ্রুৱ StaticDestructor *end);
 
 /* The function to destroy everything. (Note that this must be static inline, as it's key that it remains in
  * the same linking unit as the variables we want to destroy.) */
-static inline void static_destruct(void) {
-        return static_destruct_impl(__start_SYSTEMD_STATIC_DESTRUCT, __stop_SYSTEMD_STATIC_DESTRUCT);
+স্থির অন্তঃস্থ শূন্য static_destruct(শূন্য) {
+        ঘূৰাই static_destruct_impl(__start_SYSTEMD_STATIC_DESTRUCT, __stop_SYSTEMD_STATIC_DESTRUCT);
 }

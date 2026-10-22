@@ -1,116 +1,116 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/stat.h>           /* IWYU pragma: export */
-#include <sys/statfs.h>         /* IWYU pragma: export */
+#অন্তর্ভাৱ <sys/stat.h>           /* IWYU pragma: export */
+#অন্তর্ভাৱ <sys/statfs.h>         /* IWYU pragma: export */
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
-int stat_verify_regular(const struct stat *st);
-int statx_verify_regular(const struct statx *stx);
-int verify_regular_at(int fd, const char *path, bool follow);
-int fd_verify_regular(int fd);
+পূর্ণাঙ্ক stat_verify_regular(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক statx_verify_regular(ধ্রুৱ সংরচনা statx *stx);
+পূর্ণাঙ্ক verify_regular_at(পূর্ণাঙ্ক fd, ধ্রুৱ ৱর্ণ *path, bool follow);
+পূর্ণাঙ্ক fd_verify_regular(পূর্ণাঙ্ক fd);
 
-int stat_verify_directory(const struct stat *st);
-int statx_verify_directory(const struct statx *stx);
-int fd_verify_directory(int fd);
-int is_dir_at(int fd, const char *path, bool follow);
-int is_dir(const char *path, bool follow);
+পূর্ণাঙ্ক stat_verify_directory(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক statx_verify_directory(ধ্রুৱ সংরচনা statx *stx);
+পূর্ণাঙ্ক fd_verify_directory(পূর্ণাঙ্ক fd);
+পূর্ণাঙ্ক is_dir_at(পূর্ণাঙ্ক fd, ধ্রুৱ ৱর্ণ *path, bool follow);
+পূর্ণাঙ্ক is_dir(ধ্রুৱ ৱর্ণ *path, bool follow);
 
-int stat_verify_symlink(const struct stat *st);
-int fd_verify_symlink(int fd);
-int is_symlink(const char *path);
+পূর্ণাঙ্ক stat_verify_symlink(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক fd_verify_symlink(পূর্ণাঙ্ক fd);
+পূর্ণাঙ্ক is_symlink(ধ্রুৱ ৱর্ণ *path);
 
-int stat_verify_socket(const struct stat *st);
-int statx_verify_socket(const struct statx *stx);
-int fd_verify_socket(int fd);
-int is_socket(const char *path);
+পূর্ণাঙ্ক stat_verify_socket(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক statx_verify_socket(ধ্রুৱ সংরচনা statx *stx);
+পূর্ণাঙ্ক fd_verify_socket(পূর্ণাঙ্ক fd);
+পূর্ণাঙ্ক is_socket(ধ্রুৱ ৱর্ণ *path);
 
-int stat_verify_linked(const struct stat *st);
-int fd_verify_linked(int fd);
+পূর্ণাঙ্ক stat_verify_linked(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক fd_verify_linked(পূর্ণাঙ্ক fd);
 
-int stat_verify_block(const struct stat *st);
-int fd_verify_block(int fd);
+পূর্ণাঙ্ক stat_verify_block(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক fd_verify_block(পূর্ণাঙ্ক fd);
 
-int stat_verify_char(const struct stat *st);
+পূর্ণাঙ্ক stat_verify_char(ধ্রুৱ সংরচনা stat *st);
 
-int stat_verify_device_node(const struct stat *st);
-int is_device_node(const char *path);
+পূর্ণাঙ্ক stat_verify_device_গ্ৰন্থি(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক is_device_গ্ৰন্থি(ধ্রুৱ ৱর্ণ *path);
 
-int stat_verify_regular_or_block(const struct stat *st);
-int fd_verify_regular_or_block(int fd);
+পূর্ণাঙ্ক stat_verify_regular_or_block(ধ্রুৱ সংরচনা stat *st);
+পূর্ণাঙ্ক fd_verify_regular_or_block(পূর্ণাঙ্ক fd);
 
-int dir_is_empty_at(int dir_fd, const char *path, bool ignore_hidden_or_backup);
-static inline int dir_is_empty(const char *path, bool ignore_hidden_or_backup) {
-        return dir_is_empty_at(AT_FDCWD, path, ignore_hidden_or_backup);
+পূর্ণাঙ্ক dir_is_empty_at(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, bool ignore_hidden_or_backup);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক dir_is_empty(ধ্রুৱ ৱর্ণ *path, bool ignore_hidden_or_backup) {
+        ঘূৰাই dir_is_empty_at(AT_FDCWD, path, ignore_hidden_or_backup);
 }
 
-bool stat_may_be_dev_null(struct stat *st) _pure_;
-bool stat_is_empty(struct stat *st) _pure_;
-static inline bool null_or_empty(struct stat *st) {
-        return stat_may_be_dev_null(st) || stat_is_empty(st);
+bool stat_may_be_dev_null(সংরচনা stat *st) _pure_;
+bool stat_is_empty(সংরচনা stat *st) _pure_;
+স্থির অন্তঃস্থ bool null_or_empty(সংরচনা stat *st) {
+        ঘূৰাই stat_may_be_dev_null(st) || stat_is_empty(st);
 }
-int null_or_empty_path_with_root(const char *fn, const char *root);
+পূর্ণাঙ্ক null_or_empty_path_with_মূল(ধ্রুৱ ৱর্ণ *fn, ধ্রুৱ ৱর্ণ *মূল);
 
-static inline int null_or_empty_path(const char *fn) {
-        return null_or_empty_path_with_root(fn, NULL);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক null_or_empty_path(ধ্রুৱ ৱর্ণ *fn) {
+        ঘূৰাই null_or_empty_path_with_মূল(fn, রিক্ত);
 }
 
-typedef enum XStatXFlags {
+প্রকারনির্দেশ গণনা XStatXFlags {
         XSTATX_MNT_ID_BEST = 1 << 0, /* Like STATX_MNT_ID_UNIQUE if available, STATX_MNT_ID otherwise */
 } XStatXFlags;
 
-int xstatx_full(int fd,
-                const char *path,
-                int statx_flags,
+পূর্ণাঙ্ক xstatx_full(পূর্ণাঙ্ক fd,
+                ধ্রুৱ ৱর্ণ *path,
+                পূর্ণাঙ্ক statx_flags,
                 XStatXFlags xstatx_flags,
                 unsigned mandatory_mask,
                 unsigned optional_mask,
                 uint64_t mandatory_attributes,
-                struct statx *ret);
+                সংরচনা statx *ret);
 
-static inline int xstatx(
-                int fd,
-                const char *path,
-                int statx_flags,
+স্থির অন্তঃস্থ পূর্ণাঙ্ক xstatx(
+                পূর্ণাঙ্ক fd,
+                ধ্রুৱ ৱর্ণ *path,
+                পূর্ণাঙ্ক statx_flags,
                 unsigned mandatory_mask,
-                struct statx *ret) {
+                সংরচনা statx *ret) {
 
-        return xstatx_full(fd, path, statx_flags, 0, mandatory_mask, 0, 0, ret);
+        ঘূৰাই xstatx_full(fd, path, statx_flags, 0, mandatory_mask, 0, 0, ret);
 }
 
-int fd_is_read_only_fs(int fd);
-int path_is_read_only_fs(const char *path);
+পূর্ণাঙ্ক fd_is_read_only_fs(পূর্ণাঙ্ক fd);
+পূর্ণাঙ্ক path_is_read_only_fs(ধ্রুৱ ৱর্ণ *path);
 
-int inode_same_at(int fda, const char *filea, int fdb, const char *fileb, int flags);
-static inline int inode_same(const char *filea, const char *fileb, int flags) {
-        return inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
+পূর্ণাঙ্ক inode_same_at(পূর্ণাঙ্ক fda, ধ্রুৱ ৱর্ণ *filea, পূর্ণাঙ্ক fdb, ধ্রুৱ ৱর্ণ *fileb, পূর্ণাঙ্ক flags);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক inode_same(ধ্রুৱ ৱর্ণ *filea, ধ্রুৱ ৱর্ণ *fileb, পূর্ণাঙ্ক flags) {
+        ঘূৰাই inode_same_at(AT_FDCWD, filea, AT_FDCWD, fileb, flags);
 }
-static inline int fd_inode_same(int fda, int fdb) {
-        return inode_same_at(fda, NULL, fdb, NULL, AT_EMPTY_PATH);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক fd_inode_same(পূর্ণাঙ্ক fda, পূর্ণাঙ্ক fdb) {
+        ঘূৰাই inode_same_at(fda, রিক্ত, fdb, রিক্ত, AT_EMPTY_PATH);
 }
 
 /* The .f_type field of struct statfs is really weird defined on
  * different archs. Let's give its type a name. */
-typedef typeof_field(struct statfs, f_type) statfs_f_type_t;
+প্রকারনির্দেশ typeof_field(সংরচনা statfs, f_type) statfs_f_type_t;
 
-bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) _pure_;
-int is_fs_type_at(int dir_fd, const char *path, statfs_f_type_t magic_value);
-static inline int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
-        return is_fs_type_at(fd, NULL, magic_value);
+bool is_fs_type(ধ্রুৱ সংরচনা statfs *s, statfs_f_type_t magic_মান) _pure_;
+পূর্ণাঙ্ক is_fs_type_at(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, statfs_f_type_t magic_মান);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক fd_is_fs_type(পূর্ণাঙ্ক fd, statfs_f_type_t magic_মান) {
+        ঘূৰাই is_fs_type_at(fd, রিক্ত, magic_মান);
 }
-static inline int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
-        return is_fs_type_at(AT_FDCWD, path, magic_value);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক path_is_fs_type(ধ্রুৱ ৱর্ণ *path, statfs_f_type_t magic_মান) {
+        ঘূৰাই is_fs_type_at(AT_FDCWD, path, magic_মান);
 }
 
-bool is_temporary_fs(const struct statfs *s) _pure_;
-bool is_network_fs(const struct statfs *s) _pure_;
+bool is_temporary_fs(ধ্রুৱ সংরচনা statfs *s) _pure_;
+bool is_network_fs(ধ্রুৱ সংরচনা statfs *s) _pure_;
 
-int fd_is_temporary_fs(int fd);
-int fd_is_network_fs(int fd);
+পূর্ণাঙ্ক fd_is_temporary_fs(পূর্ণাঙ্ক fd);
+পূর্ণাঙ্ক fd_is_network_fs(পূর্ণাঙ্ক fd);
 
-int path_is_temporary_fs(const char *path);
-int path_is_network_fs(const char *path);
+পূর্ণাঙ্ক path_is_temporary_fs(ধ্রুৱ ৱর্ণ *path);
+পূর্ণাঙ্ক path_is_network_fs(ধ্রুৱ ৱর্ণ *path);
 
 /* Because statfs.t_type can be int on some architectures, we have to cast
  * the const magic to the type, otherwise the compiler warns about
@@ -118,29 +118,29 @@ int path_is_network_fs(const char *path);
  */
 #define F_TYPE_EQUAL(a, b) (a == (typeof(a)) b)
 
-int proc_mounted(void);
+পূর্ণাঙ্ক proc_mounted(শূন্য);
 
-bool stat_inode_same(const struct stat *a, const struct stat *b);
-bool stat_inode_unmodified(const struct stat *a, const struct stat *b);
+bool stat_inode_same(ধ্রুৱ সংরচনা stat *a, ধ্রুৱ সংরচনা stat *b);
+bool stat_inode_unmodified(ধ্রুৱ সংরচনা stat *a, ধ্রুৱ সংরচনা stat *b);
 
-bool statx_inode_same(const struct statx *a, const struct statx *b);
-int statx_mount_same(const struct statx *a, const struct statx *b);
+bool statx_inode_same(ধ্রুৱ সংরচনা statx *a, ধ্রুৱ সংরচনা statx *b);
+পূর্ণাঙ্ক statx_mount_same(ধ্রুৱ সংরচনা statx *a, ধ্রুৱ সংরচনা statx *b);
 
-int xstatfsat(int dir_fd, const char *path, struct statfs *ret);
+পূর্ণাঙ্ক xstatfsat(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, সংরচনা statfs *ret);
 
-usec_t statx_timestamp_load(const struct statx_timestamp *ts) _pure_;
-nsec_t statx_timestamp_load_nsec(const struct statx_timestamp *ts) _pure_;
+usec_t statx_timestamp_load(ধ্রুৱ সংরচনা statx_timestamp *ts) _pure_;
+nsec_t statx_timestamp_load_nsec(ধ্রুৱ সংরচনা statx_timestamp *ts) _pure_;
 
 /* This compares inode number, backing device and inode type, but not modification info */
-void inode_hash_func(const struct stat *q, struct siphash *state);
-int inode_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_hash_ops;
+শূন্য inode_hash_func(ধ্রুৱ সংরচনা stat *q, সংরচনা siphash *state);
+পূর্ণাঙ্ক inode_compare_func(ধ্রুৱ সংরচনা stat *a, ধ্রুৱ সংরচনা stat *b);
+বাহ্য ধ্রুৱ সংরচনা hash_ops inode_hash_ops;
 
 /* This is a more thorough version of the above, and also checks the mtimes, the size, and the rdev. It does
  * not check "external" attributes such as access mode or ownership. */
-void inode_unmodified_hash_func(const struct stat *q, struct siphash *state);
-int inode_unmodified_compare_func(const struct stat *a, const struct stat *b);
-extern const struct hash_ops inode_unmodified_hash_ops;
+শূন্য inode_unmodified_hash_func(ধ্রুৱ সংরচনা stat *q, সংরচনা siphash *state);
+পূর্ণাঙ্ক inode_unmodified_compare_func(ধ্রুৱ সংরচনা stat *a, ধ্রুৱ সংরচনা stat *b);
+বাহ্য ধ্রুৱ সংরচনা hash_ops inode_unmodified_hash_ops;
 
 DECLARE_STRING_TABLE_LOOKUP(inode_type, mode_t);
 
@@ -149,21 +149,21 @@ DECLARE_STRING_TABLE_LOOKUP(inode_type, mode_t);
  * to its originating superblock, regardless if the fs is block based or virtual (we also check for .st_mode
  * being MODE_INVALID, since we use that as an invalid marker for separate mode_t fields). For "struct statx"
  * we use the .stx_mask field, which must be non-zero if any of the fields have already been initialized. */
-static inline bool stat_is_set(const struct stat *st) {
-        return st && st->st_dev != 0 && st->st_mode != MODE_INVALID;
+স্থির অন্তঃস্থ bool stat_is_set(ধ্রুৱ সংরচনা stat *st) {
+        ঘূৰাই st && st->st_dev != 0 && st->st_mode != MODE_INVALID;
 }
-static inline bool statx_is_set(const struct statx *sx) {
-        return sx && sx->stx_mask != 0;
+স্থির অন্তঃস্থ bool statx_is_set(ধ্রুৱ সংরচনা statx *sx) {
+        ঘূৰাই sx && sx->stx_mask != 0;
 }
-static inline bool statfs_is_set(const struct statfs *sfs) {
-        return sfs && sfs->f_type != 0;
+স্থির অন্তঃস্থ bool statfs_is_set(ধ্রুৱ সংরচনা statfs *sfs) {
+        ঘূৰাই sfs && sfs->f_type != 0;
 }
 
-static inline bool inode_type_can_hardlink(mode_t m) {
+স্থির অন্তঃস্থ bool inode_type_can_hardlink(mode_t m) {
         /* returns true for all inode types that support hardlinks on linux. Note this is effectively all
          * inode types except for directories (and those weird misc fds such as eventfds() that have no inode
          * type). */
-        return IN_SET(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
+        ঘূৰাই IN_SET(m & S_IFMT, S_IFSOCK, S_IFLNK, S_IFREG, S_IFBLK, S_IFCHR, S_IFIFO);
 }
 
-int vfs_free_bytes(int fd, uint64_t *ret);
+পূর্ণাঙ্ক vfs_free_bytes(পূর্ণাঙ্ক fd, uint64_t *ret);

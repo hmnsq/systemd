@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
 #define UNIT_NAME_MAX 256
 
-typedef enum UnitNameFlags {
+প্রকারনির্দেশ গণনা UnitNameFlags {
         UNIT_NAME_PLAIN    = 1 << 0, /* Allow foo.service */
         UNIT_NAME_TEMPLATE = 1 << 1, /* Allow foo@.service */
         UNIT_NAME_INSTANCE = 1 << 2, /* Allow foo@bar.service */
@@ -13,62 +13,62 @@ typedef enum UnitNameFlags {
         _UNIT_NAME_INVALID = -EINVAL,
 } UnitNameFlags;
 
-bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
-bool unit_prefix_is_valid(const char *p) _pure_;
-bool unit_instance_is_valid(const char *i) _pure_;
-bool unit_suffix_is_valid(const char *s) _pure_;
+bool unit_name_is_valid(ধ্রুৱ ৱর্ণ *n, UnitNameFlags flags) _pure_;
+bool unit_prefix_is_valid(ধ্রুৱ ৱর্ণ *p) _pure_;
+bool unit_instance_is_valid(ধ্রুৱ ৱর্ণ *i) _pure_;
+bool unit_suffix_is_valid(ধ্রুৱ ৱর্ণ *s) _pure_;
 
-int unit_name_to_prefix(const char *n, char **ret);
-UnitNameFlags unit_name_to_instance(const char *n, char **ret);
-static inline UnitNameFlags unit_name_classify(const char *n) {
-        return unit_name_to_instance(n, NULL);
+পূর্ণাঙ্ক unit_name_to_prefix(ধ্রুৱ ৱর্ণ *n, ৱর্ণ **ret);
+UnitNameFlags unit_name_to_instance(ধ্রুৱ ৱর্ণ *n, ৱর্ণ **ret);
+স্থির অন্তঃস্থ UnitNameFlags unit_name_classify(ধ্রুৱ ৱর্ণ *n) {
+        ঘূৰাই unit_name_to_instance(n, রিক্ত);
 }
-int unit_name_to_prefix_and_instance(const char *n, char **ret);
+পূর্ণাঙ্ক unit_name_to_prefix_and_instance(ধ্রুৱ ৱর্ণ *n, ৱর্ণ **ret);
 
-UnitType unit_name_to_type(const char *n) _pure_;
+UnitType unit_name_to_type(ধ্রুৱ ৱর্ণ *n) _pure_;
 
-int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+পূর্ণাঙ্ক unit_name_change_suffix(ধ্রুৱ ৱর্ণ *n, ধ্রুৱ ৱর্ণ *suffix, ৱর্ণ **ret);
 
-int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
-int unit_name_build_from_type(const char *prefix, const char *instance, UnitType type, char **ret);
+পূর্ণাঙ্ক unit_name_build(ধ্রুৱ ৱর্ণ *prefix, ধ্রুৱ ৱর্ণ *instance, ধ্রুৱ ৱর্ণ *suffix, ৱর্ণ **ret);
+পূর্ণাঙ্ক unit_name_build_from_type(ধ্রুৱ ৱর্ণ *prefix, ধ্রুৱ ৱর্ণ *instance, UnitType type, ৱর্ণ **ret);
 
-char* unit_name_escape(const char *f);
-int unit_name_unescape(const char *f, char **ret);
-int unit_name_path_escape(const char *f, char **ret);
-int unit_name_path_unescape(const char *f, char **ret);
+ৱর্ণ* unit_name_escape(ধ্রুৱ ৱর্ণ *f);
+পূর্ণাঙ্ক unit_name_unescape(ধ্রুৱ ৱর্ণ *f, ৱর্ণ **ret);
+পূর্ণাঙ্ক unit_name_path_escape(ধ্রুৱ ৱর্ণ *f, ৱর্ণ **ret);
+পূর্ণাঙ্ক unit_name_path_unescape(ধ্রুৱ ৱর্ণ *f, ৱর্ণ **ret);
 
-int unit_name_replace_instance_full(
-                const char *original,
-                const char *instance,
+পূর্ণাঙ্ক unit_name_replace_instance_full(
+                ধ্রুৱ ৱর্ণ *original,
+                ধ্রুৱ ৱর্ণ *instance,
                 bool accept_glob,
-                char **ret);
-static inline int unit_name_replace_instance(const char *original, const char *instance, char **ret) {
-        return unit_name_replace_instance_full(original, instance, false, ret);
+                ৱর্ণ **ret);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক unit_name_replace_instance(ধ্রুৱ ৱর্ণ *original, ধ্রুৱ ৱর্ণ *instance, ৱর্ণ **ret) {
+        ঘূৰাই unit_name_replace_instance_full(original, instance, false, ret);
 }
 
-int unit_name_template(const char *f, char **ret);
+পূর্ণাঙ্ক unit_name_template(ধ্রুৱ ৱর্ণ *f, ৱর্ণ **ret);
 
-int unit_name_hash_long(const char *name, char **ret);
-bool unit_name_is_hashed(const char *name);
+পূর্ণাঙ্ক unit_name_hash_long(ধ্রুৱ ৱর্ণ *name, ৱর্ণ **ret);
+bool unit_name_is_hashed(ধ্রুৱ ৱর্ণ *name);
 
-int unit_name_from_path(const char *path, const char *suffix, char **ret);
-int unit_name_from_path_instance(const char *prefix, const char *path, const char *suffix, char **ret);
-int unit_name_to_path(const char *name, char **ret);
+পূর্ণাঙ্ক unit_name_from_path(ধ্রুৱ ৱর্ণ *path, ধ্রুৱ ৱর্ণ *suffix, ৱর্ণ **ret);
+পূর্ণাঙ্ক unit_name_from_path_instance(ধ্রুৱ ৱর্ণ *prefix, ধ্রুৱ ৱর্ণ *path, ধ্রুৱ ৱর্ণ *suffix, ৱর্ণ **ret);
+পূর্ণাঙ্ক unit_name_to_path(ধ্রুৱ ৱর্ণ *name, ৱর্ণ **ret);
 
-typedef enum UnitNameMangle {
+প্রকারনির্দেশ গণনা UnitNameMangle {
         UNIT_NAME_MANGLE_GLOB   = 1 << 0,
         UNIT_NAME_MANGLE_WARN   = 1 << 1,
         UNIT_NAME_MANGLE_STRICT = 1 << 2, /* Refuse if the resolved unit type doesn't match the requested suffix */
 } UnitNameMangle;
 
-int unit_name_mangle_with_suffix(const char *name, const char *operation, UnitNameMangle flags, const char *suffix, char **ret);
+পূর্ণাঙ্ক unit_name_mangle_with_suffix(ধ্রুৱ ৱর্ণ *name, ধ্রুৱ ৱর্ণ *operation, UnitNameMangle flags, ধ্রুৱ ৱর্ণ *suffix, ৱর্ণ **ret);
 
-static inline int unit_name_mangle(const char *name, UnitNameMangle flags, char **ret) {
-        return unit_name_mangle_with_suffix(name, NULL, flags, ".service", ret);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক unit_name_mangle(ধ্রুৱ ৱর্ণ *name, UnitNameMangle flags, ৱর্ণ **ret) {
+        ঘূৰাই unit_name_mangle_with_suffix(name, রিক্ত, flags, ".service", ret);
 }
 
-int slice_build_parent_slice(const char *slice, char **ret);
-int slice_build_subslice(const char *slice, const char *name, char **ret);
-bool slice_name_is_valid(const char *name);
+পূর্ণাঙ্ক slice_build_parent_slice(ধ্রুৱ ৱর্ণ *slice, ৱর্ণ **ret);
+পূর্ণাঙ্ক slice_build_subslice(ধ্রুৱ ৱর্ণ *slice, ধ্রুৱ ৱর্ণ *name, ৱর্ণ **ret);
+bool slice_name_is_valid(ধ্রুৱ ৱর্ণ *name);
 
-bool unit_name_prefix_equal(const char *a, const char *b);
+bool unit_name_prefix_equal(ধ্রুৱ ৱর্ণ *a, ধ্রুৱ ৱর্ণ *b);

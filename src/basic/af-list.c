@@ -1,67 +1,67 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <string.h>
-#include <sys/socket.h>
+#অন্তর্ভাৱ <string.h>
+#অন্তর্ভাৱ <sys/socket.h>
 
-#include "af-list.h"
-#include "string-util.h"
+#অন্তর্ভাৱ "af-list.h"
+#অন্তর্ভাৱ "string-util.h"
 
-static const struct af_name* lookup_af(register const char *str, register GPERF_LEN_TYPE len);
+স্থির ধ্রুৱ সংরচনা af_name* lookup_af(পঞ্জিকা ধ্রুৱ ৱর্ণ *str, পঞ্জিকা GPERF_LEN_TYPE len);
 
-#include "af-from-name.inc"
-#include "af-to-name.inc"
+#অন্তর্ভাৱ "af-from-name.inc"
+#অন্তর্ভাৱ "af-to-name.inc"
 
-const char* af_to_name(int id) {
+ধ্রুৱ ৱর্ণ* af_to_name(পূর্ণাঙ্ক id) {
 
-        if (id <= 0)
-                return NULL;
+        যদি (id <= 0)
+                ঘূৰাই রিক্ত;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        যদি ((size_t) id >= ELEMENTSOF(af_names))
+                ঘূৰাই রিক্ত;
 
-        return af_names[id];
+        ঘূৰাই af_names[id];
 }
 
-const char* af_to_name_short(int id) {
-        const char *f;
+ধ্রুৱ ৱর্ণ* af_to_name_short(পূর্ণাঙ্ক id) {
+        ধ্রুৱ ৱর্ণ *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        যদি (id == AF_UNSPEC)
+                ঘূৰাই "*";
 
         f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        যদি (!f)
+                ঘূৰাই "unknown";
 
-        assert(startswith(f, "AF_"));
-        return f + 3;
+        প্রতিজ্ঞা(startswith(f, "AF_"));
+        ঘূৰাই f + 3;
 }
 
-int af_from_name(const char *name) {
+পূর্ণাঙ্ক af_from_name(ধ্রুৱ ৱর্ণ *name) {
         size_t len = strlen(ASSERT_PTR(name));
 
-        const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
-                const char *t = strjoina("AF_", name);
+        ধ্রুৱ সংরচনা af_name *sc = lookup_af(name, len);
+        যদি (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
+                ধ্রুৱ ৱর্ণ *t = strjoina("AF_", name);
                 sc = lookup_af(t, strlen("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        যদি (!sc)
+                ঘূৰাই -EINVAL;
 
-        return sc->id;
+        ঘূৰাই sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+পূর্ণাঙ্ক af_max(শূন্য) {
+        ঘূৰাই ELEMENTSOF(af_names);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+ধ্রুৱ ৱর্ণ* af_to_ipv4_ipv6(পূর্ণাঙ্ক id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
-                id == AF_INET6 ? "ipv6" : NULL;
+        ঘূৰাই id == AF_INET ? "ipv4" :
+                id == AF_INET6 ? "ipv6" : রিক্ত;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+পূর্ণাঙ্ক af_from_ipv4_ipv6(ধ্রুৱ ৱর্ণ *af) {
+        ঘূৰাই streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

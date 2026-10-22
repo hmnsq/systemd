@@ -1,76 +1,76 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "replace-var.h"
-#include "string-util.h"
+#অন্তর্ভাৱ "alloc-util.h"
+#অন্তর্ভাৱ "replace-var.h"
+#অন্তর্ভাৱ "string-util.h"
 
 /*
  * Generic infrastructure for replacing @FOO@ style variables in
  * strings. Will call a callback for each replacement.
  */
 
-static int get_variable(const char *b, char **r) {
+স্থির পূর্ণাঙ্ক get_variable(ধ্রুৱ ৱর্ণ *b, ৱর্ণ **r) {
         size_t k;
-        char *t;
+        ৱর্ণ *t;
 
-        assert(b);
-        assert(r);
+        প্রতিজ্ঞা(b);
+        প্রতিজ্ঞা(r);
 
-        if (*b != '@')
-                return 0;
+        যদি (*b != '@')
+                ঘূৰাই 0;
 
         k = strspn(b + 1, UPPERCASE_LETTERS "_");
-        if (k <= 0 || b[k+1] != '@')
-                return 0;
+        যদি (k <= 0 || b[k+1] != '@')
+                ঘূৰাই 0;
 
         t = strndup(b + 1, k);
-        if (!t)
-                return -ENOMEM;
+        যদি (!t)
+                ঘূৰাই -ENOMEM;
 
         *r = t;
-        return 1;
+        ঘূৰাই 1;
 }
 
-char* replace_var(const char *text, char *(*lookup)(const char *variable, void *userdata), void *userdata) {
-        char *r, *t;
-        const char *f;
+ৱর্ণ* replace_var(ধ্রুৱ ৱর্ণ *text, ৱর্ণ *(*lookup)(ধ্রুৱ ৱর্ণ *variable, শূন্য *userdata), শূন্য *userdata) {
+        ৱর্ণ *r, *t;
+        ধ্রুৱ ৱর্ণ *f;
         size_t l;
 
-        assert(text);
-        assert(lookup);
+        প্রতিজ্ঞা(text);
+        প্রতিজ্ঞা(lookup);
 
         l = strlen(text);
-        r = new(char, l+1);
-        if (!r)
-                return NULL;
+        r = new(ৱর্ণ, l+1);
+        যদি (!r)
+                ঘূৰাই রিক্ত;
 
         f = text;
         t = r;
-        while (*f) {
-                _cleanup_free_ char *v = NULL, *n = NULL;
-                char *a;
-                int k;
+        যেতিয়ালৈ (*f) {
+                _cleanup_free_ ৱর্ণ *v = রিক্ত, *n = রিক্ত;
+                ৱর্ণ *a;
+                পূর্ণাঙ্ক k;
                 size_t skip, d, nl;
 
                 k = get_variable(f, &v);
-                if (k < 0)
-                        goto oom;
-                if (k == 0) {
+                যদি (k < 0)
+                        গচ্ছ oom;
+                যদি (k == 0) {
                         *(t++) = *(f++);
-                        continue;
+                        অনুৱর্ত;
                 }
 
                 n = lookup(v, userdata);
-                if (!n)
-                        goto oom;
+                যদি (!n)
+                        গচ্ছ oom;
 
                 skip = strlen(v) + 2;
 
                 d = t - r;
                 nl = l - skip + strlen(n);
                 a = realloc(r, nl + 1);
-                if (!a)
-                        goto oom;
+                যদি (!a)
+                        গচ্ছ oom;
 
                 l = nl;
                 r = a;
@@ -81,8 +81,8 @@ char* replace_var(const char *text, char *(*lookup)(const char *variable, void *
         }
 
         *t = 0;
-        return r;
+        ঘূৰাই r;
 
 oom:
-        return mfree(r);
+        ঘূৰাই mfree(r);
 }

@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <linux/capability.h>   /* IWYU pragma: export */
+#অন্তর্ভাৱ <linux/capability.h>   /* IWYU pragma: export */
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
 /* Special marker used when storing a capabilities mask as "unset". This would need to be updated as soon as
  * Linux learns more than 63 caps. */
@@ -21,7 +21,7 @@ assert_cc(CAP_LAST_CAP <= CAP_LIMIT);
  * order to avoid complaints about shifting a signed int left by 31 bits, which would make it negative. */
 #define CAP_TO_MASK_CORRECTED(x) (1U << ((x) & 31U))
 
-typedef struct CapabilityQuintet {
+প্রকারনির্দেশ সংরচনা CapabilityQuintet {
         /* Stores all five types of capabilities in one go. */
         uint64_t effective;
         uint64_t bounding;
@@ -31,7 +31,7 @@ typedef struct CapabilityQuintet {
 } CapabilityQuintet;
 
 #define CAPABILITY_QUINTET_NULL         \
-        (const CapabilityQuintet) {     \
+        (ধ্রুৱ CapabilityQuintet) {     \
                 CAP_MASK_UNSET,         \
                 CAP_MASK_UNSET,         \
                 CAP_MASK_UNSET,         \
@@ -39,52 +39,52 @@ typedef struct CapabilityQuintet {
                 CAP_MASK_UNSET,         \
         }
 
-static inline bool capability_is_set(uint64_t v) {
-        return v != CAP_MASK_UNSET;
+স্থির অন্তঃস্থ bool capability_is_set(uint64_t v) {
+        ঘূৰাই v != CAP_MASK_UNSET;
 }
 
-int capability_get(CapabilityQuintet *ret);
+পূর্ণাঙ্ক capability_get(CapabilityQuintet *ret);
 
-unsigned cap_last_cap(void);
-int have_effective_cap(unsigned cap);
-int have_inheritable_cap(unsigned cap);
-int capability_gain_cap_setpcap(void);
-int capability_bounding_set_drop(uint64_t keep, bool right_now);
-int capability_bounding_set_drop_usermode(uint64_t keep);
+unsigned cap_last_cap(শূন্য);
+পূর্ণাঙ্ক have_effective_cap(unsigned cap);
+পূর্ণাঙ্ক have_inheritable_cap(unsigned cap);
+পূর্ণাঙ্ক capability_gain_cap_setpcap(শূন্য);
+পূর্ণাঙ্ক capability_bounding_set_drop(uint64_t keep, bool ডান_now);
+পূর্ণাঙ্ক capability_bounding_set_drop_usermode(uint64_t keep);
 
-int capability_ambient_set_apply(uint64_t set, bool also_inherit);
+পূর্ণাঙ্ক capability_ambient_set_apply(uint64_t set, bool also_inherit);
 
-int drop_privileges(uid_t uid, gid_t gid, uint64_t keep_capabilities);
+পূর্ণাঙ্ক drop_privileges(uid_t uid, gid_t gid, uint64_t keep_capabilities);
 
-int drop_capability(unsigned cap);
-int keep_capability(unsigned cap);
+পূর্ণাঙ্ক drop_capability(unsigned cap);
+পূর্ণাঙ্ক keep_capability(unsigned cap);
 
-static inline uint64_t all_capabilities(void) {
-        return UINT64_MAX >> (63 - cap_last_cap());
+স্থির অন্তঃস্থ uint64_t all_capabilities(শূন্য) {
+        ঘূৰাই UINT64_MAX >> (63 - cap_last_cap());
 }
 
-static inline bool cap_test_all(uint64_t caps) {
-        return FLAGS_SET(caps, all_capabilities());
+স্থির অন্তঃস্থ bool cap_test_all(uint64_t caps) {
+        ঘূৰাই FLAGS_SET(caps, all_capabilities());
 }
 
-static inline bool capability_quintet_is_set(const CapabilityQuintet *q) {
-        return capability_is_set(q->effective) ||
+স্থির অন্তঃস্থ bool capability_quintet_is_set(ধ্রুৱ CapabilityQuintet *q) {
+        ঘূৰাই capability_is_set(q->effective) ||
                 capability_is_set(q->bounding) ||
                 capability_is_set(q->inheritable) ||
                 capability_is_set(q->permitted) ||
                 capability_is_set(q->ambient);
 }
 
-static inline bool capability_quintet_is_fully_set(const CapabilityQuintet *q) {
-        return capability_is_set(q->effective) &&
+স্থির অন্তঃস্থ bool capability_quintet_is_fully_set(ধ্রুৱ CapabilityQuintet *q) {
+        ঘূৰাই capability_is_set(q->effective) &&
                 capability_is_set(q->bounding) &&
                 capability_is_set(q->inheritable) &&
                 capability_is_set(q->permitted) &&
                 capability_is_set(q->ambient);
 }
 
-static inline bool capability_quintet_equal(const CapabilityQuintet *a, const CapabilityQuintet *b) {
-        return a->effective == b->effective &&
+স্থির অন্তঃস্থ bool capability_quintet_equal(ধ্রুৱ CapabilityQuintet *a, ধ্রুৱ CapabilityQuintet *b) {
+        ঘূৰাই a->effective == b->effective &&
                 a->bounding == b->bounding &&
                 a->inheritable == b->inheritable &&
                 a->permitted == b->permitted &&
@@ -96,8 +96,8 @@ static inline bool capability_quintet_equal(const CapabilityQuintet *a, const Ca
  * Returns true if the quintet was modified. */
 bool capability_quintet_mangle(CapabilityQuintet *q);
 
-int capability_quintet_enforce(const CapabilityQuintet *q);
+পূর্ণাঙ্ক capability_quintet_enforce(ধ্রুৱ CapabilityQuintet *q);
 
-int capability_get_ambient(uint64_t *ret);
+পূর্ণাঙ্ক capability_get_ambient(uint64_t *ret);
 
-int pidref_get_capability(const PidRef *pidref, CapabilityQuintet *ret);
+পূর্ণাঙ্ক pidref_get_capability(ধ্রুৱ PidRef *pidref, CapabilityQuintet *ret);

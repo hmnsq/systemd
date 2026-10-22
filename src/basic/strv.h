@@ -1,136 +1,136 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
-#include "../fundamental/strv.h"   /* IWYU pragma: export */
+#অন্তর্ভাৱ "../fundamental/strv.h"   /* IWYU pragma: export */
 
-char* strv_find(char * const *l, const char *name) _pure_;
-char* strv_find_case(char * const *l, const char *name) _pure_;
-char* strv_find_prefix(char * const *l, const char *name) _pure_;
-char* strv_find_startswith(char * const *l, const char *name) _pure_;
-char* strv_find_closest(char * const *l, const char *name) _pure_;
+ৱর্ণ* strv_find(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *name) _pure_;
+ৱর্ণ* strv_find_case(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *name) _pure_;
+ৱর্ণ* strv_find_prefix(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *name) _pure_;
+ৱর্ণ* strv_find_startswith(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *name) _pure_;
+ৱর্ণ* strv_find_closest(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *name) _pure_;
 /* Given two vectors, the first a list of keys and the second a list of key-value pairs, returns the value
  * of the first key from the first vector that is found in the second vector. */
-char* strv_find_first_field(char * const *needles, char * const *haystack) _pure_;
+ৱর্ণ* strv_find_first_field(ৱর্ণ * ধ্রুৱ *needles, ৱর্ণ * ধ্রুৱ *haystack) _pure_;
 
 #define strv_contains(l, s) (!!strv_find((l), (s)))
 #define strv_contains_case(l, s) (!!strv_find_case((l), (s)))
 
-char** strv_free(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free);
+ৱর্ণ** strv_free(ৱর্ণ **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ৱর্ণ**, strv_free);
 #define _cleanup_strv_free_ _cleanup_(strv_freep)
 
-char** strv_free_erase(char **l);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char**, strv_free_erase);
+ৱর্ণ** strv_free_erase(ৱর্ণ **l);
+DEFINE_TRIVIAL_CLEANUP_FUNC(ৱর্ণ**, strv_free_erase);
 #define _cleanup_strv_free_erase_ _cleanup_(strv_free_erasep)
 
-void strv_free_many(char ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
+শূন্য strv_free_many(ৱর্ণ ***strvs, size_t n) _nonnull_if_nonzero_(1, 2);
 
-char** strv_copy_n(char * const *l, size_t n);
-static inline char** strv_copy(char * const *l) {
-        return strv_copy_n(l, SIZE_MAX);
+ৱর্ণ** strv_copy_n(ৱর্ণ * ধ্রুৱ *l, size_t n);
+স্থির অন্তঃস্থ ৱর্ণ** strv_copy(ৱর্ণ * ধ্রুৱ *l) {
+        ঘূৰাই strv_copy_n(l, SIZE_MAX);
 }
-int strv_copy_unless_empty(char * const *l, char ***ret);
+পূর্ণাঙ্ক strv_copy_unless_empty(ৱর্ণ * ধ্রুৱ *l, ৱর্ণ ***ret);
 
-size_t strv_length(char * const *l) _pure_;
+size_t strv_length(ৱর্ণ * ধ্রুৱ *l) _pure_;
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates);
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates);
+পূর্ণাঙ্ক strv_extend_strv(ৱর্ণ ***a, ৱর্ণ * ধ্রুৱ *b, bool filter_duplicates);
+পূর্ণাঙ্ক strv_extend_strv_consume(ৱর্ণ ***a, ৱর্ণ **b, bool filter_duplicates);
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix);
-static inline int strv_extend_strv_concat(char ***a, const char* const *b, const char *suffix) {
-        return strv_extend_strv_biconcat(a, NULL, b, suffix);
+পূর্ণাঙ্ক strv_extend_strv_biconcat(ৱর্ণ ***a, ধ্রুৱ ৱর্ণ *prefix, ধ্রুৱ ৱর্ণ* ধ্রুৱ *b, ধ্রুৱ ৱর্ণ *suffix);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক strv_extend_strv_concat(ৱর্ণ ***a, ধ্রুৱ ৱর্ণ* ধ্রুৱ *b, ধ্রুৱ ৱর্ণ *suffix) {
+        ঘূৰাই strv_extend_strv_biconcat(a, রিক্ত, b, suffix);
 }
 
-int strv_prepend(char ***l, const char *value);
+পূর্ণাঙ্ক strv_prepend(ৱর্ণ ***l, ধ্রুৱ ৱর্ণ *মান);
 
 /* _with_size() are lower-level functions where the size can be provided externally,
  * which allows us to skip iterating over the strv to find the end, which saves
  * a bit of time and reduces the complexity of appending from O(n²) to O(n). */
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value);
-static inline int strv_extend(char ***l, const char *value) {
-        return strv_extend_with_size(l, NULL, value);
+পূর্ণাঙ্ক strv_extend_with_size(ৱর্ণ ***l, size_t *n, ধ্রুৱ ৱর্ণ *মান);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক strv_extend(ৱর্ণ ***l, ধ্রুৱ ৱর্ণ *মান) {
+        ঘূৰাই strv_extend_with_size(l, রিক্ত, মান);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...);
+পূর্ণাঙ্ক strv_extend_many_internal(ৱর্ণ ***l, ধ্রুৱ ৱর্ণ *মান, ...);
 #define strv_extend_many(l, ...) strv_extend_many_internal(l, __VA_ARGS__, POINTER_MAX)
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) _printf_(3,4);
-#define strv_extendf(l, ...) strv_extendf_with_size(l, NULL, __VA_ARGS__)
+পূর্ণাঙ্ক strv_extendf_with_size(ৱর্ণ ***l, size_t *n, ধ্রুৱ ৱর্ণ *format, ...) _printf_(3,4);
+#define strv_extendf(l, ...) strv_extendf_with_size(l, রিক্ত, __VA_ARGS__)
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) _sentinel_;
-#define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, NULL)
-#define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, NULL, __VA_ARGS__)
+পূর্ণাঙ্ক strv_extend_joined_with_size_sentinel(ৱর্ণ ***l, size_t *n, ...) _sentinel_;
+#define strv_extend_joined_with_size(l, n, ...) strv_extend_joined_with_size_sentinel(l, n, __VA_ARGS__, রিক্ত)
+#define strv_extend_joined(l, ...) strv_extend_joined_with_size(l, রিক্ত, __VA_ARGS__)
 
-int strv_push_with_size(char ***l, size_t *n, char *value);
-static inline int strv_push(char ***l, char *value) {
-        return strv_push_with_size(l, NULL, value);
+পূর্ণাঙ্ক strv_ঠেলো_with_size(ৱর্ণ ***l, size_t *n, ৱর্ণ *মান);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক strv_ঠেলো(ৱর্ণ ***l, ৱর্ণ *মান) {
+        ঘূৰাই strv_ঠেলো_with_size(l, রিক্ত, মান);
 }
-int strv_push_pair(char ***l, char *a, char *b);
+পূর্ণাঙ্ক strv_ঠেলো_pair(ৱর্ণ ***l, ৱর্ণ *a, ৱর্ণ *b);
 
-int strv_insert(char ***l, size_t position, char *value);
+পূর্ণাঙ্ক strv_ঢোকাও(ৱর্ণ ***l, size_t position, ৱর্ণ *মান);
 
-static inline int strv_push_prepend(char ***l, char *value) {
-        return strv_insert(l, 0, value);
-}
-
-int strv_consume_with_size(char ***l, size_t *n, char *value);
-static inline int strv_consume(char ***l, char *value) {
-        return strv_consume_with_size(l, NULL, value);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক strv_ঠেলো_prepend(ৱর্ণ ***l, ৱর্ণ *মান) {
+        ঘূৰাই strv_ঢোকাও(l, 0, মান);
 }
 
-int strv_consume_pair(char ***l, char *a, char *b);
-int strv_consume_prepend(char ***l, char *value);
-
-char** strv_remove(char **l, const char *s);
-char** strv_remove_strv(char **l, char *const*ll);
-char** strv_uniq(char **l);
-bool strv_is_uniq(char * const *l) _pure_;
-
-int strv_compare(char * const *a, char * const *b) _pure_;
-static inline bool strv_equal(char * const *a, char * const *b) {
-        return strv_compare(a, b) == 0;
+পূর্ণাঙ্ক strv_consume_with_size(ৱর্ণ ***l, size_t *n, ৱর্ণ *মান);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক strv_consume(ৱর্ণ ***l, ৱর্ণ *মান) {
+        ঘূৰাই strv_consume_with_size(l, রিক্ত, মান);
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) _pure_;
+পূর্ণাঙ্ক strv_consume_pair(ৱর্ণ ***l, ৱর্ণ *a, ৱর্ণ *b);
+পূর্ণাঙ্ক strv_consume_prepend(ৱর্ণ ***l, ৱর্ণ *মান);
 
-char** strv_new_internal(const char *x, ...) _sentinel_;
-char** strv_new_ap(const char *x, va_list ap);
-#define strv_new(...) strv_new_internal(__VA_ARGS__, NULL)
+ৱর্ণ** strv_remove(ৱর্ণ **l, ধ্রুৱ ৱর্ণ *s);
+ৱর্ণ** strv_remove_strv(ৱর্ণ **l, ৱর্ণ *ধ্রুৱ*ll);
+ৱর্ণ** strv_uniq(ৱর্ণ **l);
+bool strv_is_uniq(ৱর্ণ * ধ্রুৱ *l) _pure_;
 
-#define STRV_IGNORE ((const char *) POINTER_MAX)
-
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ?: STRV_IGNORE;
+পূর্ণাঙ্ক strv_compare(ৱর্ণ * ধ্রুৱ *a, ৱর্ণ * ধ্রুৱ *b) _pure_;
+স্থির অন্তঃস্থ bool strv_equal(ৱর্ণ * ধ্রুৱ *a, ৱর্ণ * ধ্রুৱ *b) {
+        ঘূৰাই strv_compare(a, b) == 0;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags);
-char** strv_split(const char *s, const char *separators);
+bool strv_equal_ignore_order(ৱর্ণ * ধ্রুৱ *a, ৱর্ণ * ধ্রুৱ *b) _pure_;
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags);
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates);
+ৱর্ণ** strv_new_internal(ধ্রুৱ ৱর্ণ *x, ...) _sentinel_;
+ৱর্ণ** strv_new_ap(ধ্রুৱ ৱর্ণ *x, va_list ap);
+#define strv_new(...) strv_new_internal(__VA_ARGS__, রিক্ত)
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags);
-char** strv_split_newlines(const char *s);
+#define STRV_IGNORE ((ধ্রুৱ ৱর্ণ *) POINTER_MAX)
+
+স্থির অন্তঃস্থ ধ্রুৱ ৱর্ণ* STRV_IFNOTNULL(ধ্রুৱ ৱর্ণ *x) {
+        ঘূৰাই x ?: STRV_IGNORE;
+}
+
+পূর্ণাঙ্ক strv_split_full(ৱর্ণ ***t, ধ্রুৱ ৱর্ণ *s, ধ্রুৱ ৱর্ণ *separators, ExtractFlags flags);
+ৱর্ণ** strv_split(ধ্রুৱ ৱর্ণ *s, ধ্রুৱ ৱর্ণ *separators);
+
+পূর্ণাঙ্ক strv_split_and_extend_full(ৱর্ণ ***t, ধ্রুৱ ৱর্ণ *s, ধ্রুৱ ৱর্ণ *separators, bool filter_duplicates, ExtractFlags flags);
+পূর্ণাঙ্ক strv_split_and_extend(ৱর্ণ ***t, ধ্রুৱ ৱর্ণ *s, ধ্রুৱ ৱর্ণ *separators, bool filter_duplicates);
+
+পূর্ণাঙ্ক strv_split_newlines_full(ৱর্ণ ***ret, ধ্রুৱ ৱর্ণ *s, ExtractFlags flags);
+ৱর্ণ** strv_split_newlines(ধ্রুৱ ৱর্ণ *s);
 
 /* Given a string containing white-space separated tuples of words themselves separated by ':',
  * returns a vector of strings. If the second element in a tuple is missing, the corresponding
  * string in the vector is an empty string. */
-int strv_split_colon_pairs(char ***t, const char *s);
+পূর্ণাঙ্ক strv_split_colon_pairs(ৱর্ণ ***t, ধ্রুৱ ৱর্ণ *s);
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix);
-static inline char *strv_join(char * const *l, const char *separator) {
-        return strv_join_full(l, separator, NULL);
+ৱর্ণ* strv_join_full(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *separator, ধ্রুৱ ৱর্ণ *prefix);
+স্থির অন্তঃস্থ ৱর্ণ *strv_join(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *separator) {
+        ঘূৰাই strv_join_full(l, separator, রিক্ত);
 }
 
-bool strv_overlap(char * const *a, char * const *b) _pure_;
+bool strv_overlap(ৱর্ণ * ধ্রুৱ *a, ৱর্ণ * ধ্রুৱ *b) _pure_;
 
 #define _STRV_FOREACH_BACKWARDS(s, l, h, i)                             \
-        for (typeof(*(l)) *s, *h = (l), *i = ({                         \
+        বাবে (typeof(*(l)) *s, *h = (l), *i = ({                         \
                                 size_t _len = strv_length(h);           \
-                                _len > 0 ? h + _len - 1 : NULL;         \
+                                _len > 0 ? h + _len - 1 : রিক্ত;         \
                         });                                             \
              (s = i);                                                   \
              i = PTR_SUB1(i, h))
@@ -139,28 +139,28 @@ bool strv_overlap(char * const *a, char * const *b) _pure_;
         _STRV_FOREACH_BACKWARDS(s, l, UNIQ_T(h, UNIQ), UNIQ_T(i, UNIQ))
 
 #define _STRV_FOREACH_PAIR(x, y, l, i)                          \
-        for (typeof(*(l)) *x, *y, *i = (l);                     \
+        বাবে (typeof(*(l)) *x, *y, *i = (l);                     \
              i && *(x = i) && *(y = i + 1);                     \
              i += 2)
 
 #define STRV_FOREACH_PAIR(x, y, l)                      \
         _STRV_FOREACH_PAIR(x, y, l, UNIQ_T(i, UNIQ))
 
-char** strv_sort(char **l);
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b));
-char** strv_sort_uniq(char **l);
-void strv_print_full(char * const *l, const char *prefix);
-static inline void strv_print(char * const *l) {
-        strv_print_full(l, NULL);
+ৱর্ণ** strv_sort(ৱর্ণ **l);
+ৱর্ণ** strv_sort_uniq_full(ৱর্ণ **l, পূর্ণাঙ্ক (*compare)(ৱর্ণ * ধ্রুৱ *a, ৱর্ণ * ধ্রুৱ *b));
+ৱর্ণ** strv_sort_uniq(ৱর্ণ **l);
+শূন্য strv_print_full(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *prefix);
+স্থির অন্তঃস্থ শূন্য strv_print(ৱর্ণ * ধ্রুৱ *l) {
+        strv_print_full(l, রিক্ত);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l);
+ৱর্ণ* startswith_strv_internal(ধ্রুৱ ৱর্ণ *s, ৱর্ণ * ধ্রুৱ *l);
 #define startswith_strv(s, l) const_generic(s, startswith_strv_internal(s, l))
 
 #define STARTSWITH_SET(p, ...)                                  \
         startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-char* endswith_strv_internal(const char *s, char * const *l);
+ৱর্ণ* endswith_strv_internal(ধ্রুৱ ৱর্ণ *s, ৱর্ণ * ধ্রুৱ *l);
 #define endswith_strv(s, l) const_generic(s, endswith_strv_internal(s, l))
 
 #define ENDSWITH_SET(p, ...)                                    \
@@ -169,60 +169,60 @@ char* endswith_strv_internal(const char *s, char * const *l);
 #define STR_IN_SET(x, ...) strv_contains(STRV_MAKE(__VA_ARGS__), x)
 #define STRPTR_IN_SET(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
+                ধ্রুৱ ৱর্ণ* _x = (x);                            \
                 _x && strv_contains(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
 #define STRCASE_IN_SET(x, ...) strv_contains_case(STRV_MAKE(__VA_ARGS__), x)
 #define STRCASEPTR_IN_SET(x, ...)                                    \
         ({                                                       \
-                const char* _x = (x);                            \
+                ধ্রুৱ ৱর্ণ* _x = (x);                            \
                 _x && strv_contains_case(STRV_MAKE(__VA_ARGS__), _x); \
         })
 
 #define _FOREACH_STRING(uniq, x, y, ...)                                \
-        for (const char *x, * const*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
+        বাবে (ধ্রুৱ ৱর্ণ *x, * ধ্রুৱ*UNIQ_T(l, uniq) = STRV_MAKE_CONST(({ x = y; }), ##__VA_ARGS__); \
              x;                                                         \
              x = *(++UNIQ_T(l, uniq)))
 
 #define FOREACH_STRING(x, y, ...)                       \
         _FOREACH_STRING(UNIQ, x, y, ##__VA_ARGS__)
 
-char** strv_reverse(char **l);
-char** strv_shell_escape(char **l, const char *bad);
+ৱর্ণ** strv_reverse(ৱর্ণ **l);
+ৱর্ণ** strv_shell_escape(ৱর্ণ **l, ধ্রুৱ ৱর্ণ *bad);
 
-bool strv_fnmatch_full(char* const* patterns, const char *s, int flags, size_t *ret_matched_pos);
-static inline bool strv_fnmatch(char* const* patterns, const char *s) {
-        return strv_fnmatch_full(patterns, s, 0, NULL);
+bool strv_fnmatch_full(ৱর্ণ* ধ্রুৱ* patterns, ধ্রুৱ ৱর্ণ *s, পূর্ণাঙ্ক flags, size_t *ret_matched_pos);
+স্থির অন্তঃস্থ bool strv_fnmatch(ৱর্ণ* ধ্রুৱ* patterns, ধ্রুৱ ৱর্ণ *s) {
+        ঘূৰাই strv_fnmatch_full(patterns, s, 0, রিক্ত);
 }
-static inline bool strv_fnmatch_or_empty(char* const* patterns, const char *s, int flags) {
-        assert(s);
-        return strv_isempty(patterns) ||
-               strv_fnmatch_full(patterns, s, flags, NULL);
+স্থির অন্তঃস্থ bool strv_fnmatch_or_empty(ৱর্ণ* ধ্রুৱ* patterns, ধ্রুৱ ৱর্ণ *s, পূর্ণাঙ্ক flags) {
+        প্রতিজ্ঞা(s);
+        ঘূৰাই strv_isempty(patterns) ||
+               strv_fnmatch_full(patterns, s, flags, রিক্ত);
 }
 
-char** strv_skip(char **l, size_t n);
+ৱর্ণ** strv_skip(ৱর্ণ **l, size_t n);
 
-int strv_extend_n(char ***l, const char *value, size_t n);
+পূর্ণাঙ্ক strv_extend_n(ৱর্ণ ***l, ধ্রুৱ ৱর্ণ *মান, size_t n);
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs);
+পূর্ণাঙ্ক strv_extend_assignment(ৱর্ণ ***l, ধ্রুৱ ৱর্ণ *lhs, ধ্রুৱ ৱর্ণ *rhs);
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space);
+পূর্ণাঙ্ক fputstrv(FILE *f, ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *separator, bool *space);
 
 #define strv_free_and_replace(a, b)             \
         free_and_replace_full(a, b, strv_free)
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value);
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value);
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value);
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value);
+শূন্য string_strv_hashmap_remove(Hashmap *h, ধ্রুৱ ৱর্ণ *চাবি, ধ্রুৱ ৱর্ণ *মান);
+শূন্য string_strv_ordered_hashmap_remove(OrderedHashmap *h, ধ্রুৱ ৱর্ণ *চাবি, ধ্রুৱ ৱর্ণ *মান);
+পূর্ণাঙ্ক string_strv_hashmap_put(Hashmap **h, ধ্রুৱ ৱর্ণ *চাবি, ধ্রুৱ ৱর্ণ *মান);
+পূর্ণাঙ্ক string_strv_ordered_hashmap_put(OrderedHashmap **h, ধ্রুৱ ৱর্ণ *চাবি, ধ্রুৱ ৱর্ণ *মান);
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret);
+পূর্ণাঙ্ক strv_rebreak_সাৰিগুলি(ৱর্ণ **l, size_t width, ৱর্ণ ***ret);
 
-char** strv_filter_prefix(char * const *l, const char *prefix);
+ৱর্ণ** strv_filter_prefix(ৱর্ণ * ধ্রুৱ *l, ধ্রুৱ ৱর্ণ *prefix);
 
 /* whenever we need to initialize something with a constant non-NULL, but empty strv, we can use this shared
  * one */
-extern const char* const strv_empty[1];
+বাহ্য ধ্রুৱ ৱর্ণ* ধ্রুৱ strv_empty[1];
 
-#define STRV_EMPTY ((char**) strv_empty)
+#define STRV_EMPTY ((ৱর্ণ**) strv_empty)

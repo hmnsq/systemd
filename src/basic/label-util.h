@@ -1,15 +1,15 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
-typedef struct LabelOps {
-        int (*pre)(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-        int (*post)(int dir_fd, const char *path, bool created, LabelContext *label_context);
+প্রকারনির্দেশ সংরচনা LabelOps {
+        পূর্ণাঙ্ক (*pre)(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, mode_t mode, LabelContext *label_context);
+        পূর্ণাঙ্ক (*post)(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, bool created, LabelContext *label_context);
 } LabelOps;
 
-int label_ops_set(const LabelOps *label_ops);
-void label_ops_reset(void);
+পূর্ণাঙ্ক label_ops_set(ধ্রুৱ LabelOps *label_ops);
+শূন্য label_ops_reset(শূন্য);
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context);
+পূর্ণাঙ্ক label_ops_pre(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, mode_t mode, LabelContext *label_context);
+পূর্ণাঙ্ক label_ops_post(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, bool created, LabelContext *label_context);

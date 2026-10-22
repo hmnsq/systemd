@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
-typedef enum BtrfsSubvolFlags {
+প্রকারনির্দেশ গণনা BtrfsSubvolFlags {
         BTRFS_SUBVOL_RO               = 1 << 0,
         BTRFS_SUBVOL_NODATACOW        = 1 << 1,
         _BTRFS_SUBVOL_FLAGS_MASK      = BTRFS_SUBVOL_NODATACOW|BTRFS_SUBVOL_RO,
@@ -11,8 +11,8 @@ typedef enum BtrfsSubvolFlags {
         _BTRFS_SUBVOL_FLAGS_ERRNO_MAX = -ERRNO_MAX, /* Ensure the whole errno range fits into this enum */
 } BtrfsSubvolFlags;
 
-int btrfs_validate_subvolume_name(const char *name);
+পূর্ণাঙ্ক btrfs_validate_subvolume_name(ধ্রুৱ ৱর্ণ *name);
 
-int btrfs_subvol_make(int dir_fd, const char *path);
+পূর্ণাঙ্ক btrfs_subvol_make(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path);
 
-int btrfs_subvol_make_fallback(int dir_fd, const char *path, mode_t mode);
+পূর্ণাঙ্ক btrfs_subvol_make_fallback(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *path, mode_t mode);

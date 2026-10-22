@@ -1,30 +1,30 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "filesystems-gperf.h"
-#include "stat-util.h"
-#include "string-util.h"
+#অন্তর্ভাৱ "filesystems-gperf.h"
+#অন্তর্ভাৱ "stat-util.h"
+#অন্তর্ভাৱ "string-util.h"
 
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret) {
-        const struct FilesystemMagic *fs_magic;
+পূর্ণাঙ্ক fs_type_from_string(ধ্রুৱ ৱর্ণ *name, ধ্রুৱ statfs_f_type_t **ret) {
+        ধ্রুৱ সংরচনা FilesystemMagic *fs_magic;
 
-        assert(name);
-        assert(ret);
+        প্রতিজ্ঞা(name);
+        প্রতিজ্ঞা(ret);
 
         fs_magic = filesystems_gperf_lookup(name, strlen(name));
-        if (!fs_magic)
-                return -EINVAL;
+        যদি (!fs_magic)
+                ঘূৰাই -EINVAL;
 
         *ret = fs_magic->magic;
-        return 0;
+        ঘূৰাই 0;
 }
 
-const FilesystemSet* filesystem_set_find(const char *name) {
-        if (isempty(name) || name[0] != '@')
-                return NULL;
+ধ্রুৱ FilesystemSet* filesystem_set_find(ধ্রুৱ ৱর্ণ *name) {
+        যদি (isempty(name) || name[0] != '@')
+                ঘূৰাই রিক্ত;
 
-        for (FilesystemGroups i = 0; i < _FILESYSTEM_SET_MAX; i++)
-                if (streq(filesystem_sets[i].name, name))
-                        return filesystem_sets + i;
+        বাবে (FilesystemGroups i = 0; i < _FILESYSTEM_SET_MAX; i++)
+                যদি (streq(filesystem_sets[i].name, name))
+                        ঘূৰাই filesystem_sets + i;
 
-        return NULL;
+        ঘূৰাই রিক্ত;
 }

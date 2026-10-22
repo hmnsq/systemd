@@ -1,37 +1,37 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "ansi-seq.h"
-#include "string-util.h"
+#অন্তর্ভাৱ "alloc-util.h"
+#অন্তর্ভাৱ "ansi-seq.h"
+#অন্তর্ভাৱ "string-util.h"
 
-void ansi_seq_parser_done(AnsiSeqParser *p) {
-        assert(p);
+শূন্য ansi_seq_parser_done(AnsiSeqParser *p) {
+        প্রতিজ্ঞা(p);
 
         p->string = mfree(p->string);
         p->string_len = 0;
 }
 
-static void ansi_seq_parser_begin_string(AnsiSeqParser *p, char introducer) {
-        assert(p);
+স্থির শূন্য ansi_seq_parser_begin_string(AnsiSeqParser *p, ৱর্ণ introducer) {
+        প্রতিজ্ঞা(p);
 
         p->string_len = 0;
-        if (p->string)
+        যদি (p->string)
                 p->string[0] = 0;
         p->bad = false;
         p->introducer = introducer;
 }
 
-static int ansi_seq_parser_push_string(AnsiSeqParser *p, char c) {
-        assert(p);
-        assert(!p->bad); /* only ever set together with a reset to the ground state, hence never seen here */
+স্থির পূর্ণাঙ্ক ansi_seq_parser_ঠেলো_string(AnsiSeqParser *p, ৱর্ণ c) {
+        প্রতিজ্ঞা(p);
+        প্রতিজ্ঞা(!p->bad); /* only ever set together with a reset to the ground state, hence never seen here */
 
         /* Safety check: don't capture unbounded string sequences */
-        if (p->string_len >= ANSI_SEQ_STRING_MAX)
-                return 0; /* too long */
+        যদি (p->string_len >= ANSI_SEQ_STRING_MAX)
+                ঘূৰাই 0; /* too long */
 
-        if (p->capture) {
-                if (!GREEDY_REALLOC(p->string, p->string_len + 2))
-                        return -ENOMEM;
+        যদি (p->capture) {
+                যদি (!GREEDY_REALLOC(p->string, p->string_len + 2))
+                        ঘূৰাই -ENOMEM;
 
                 p->string[p->string_len+0] = c;
                 p->string[p->string_len+1] = 0;
@@ -39,184 +39,184 @@ static int ansi_seq_parser_push_string(AnsiSeqParser *p, char c) {
 
         p->string_len++;
 
-        return 1; /* added */
+        ঘূৰাই 1; /* added */
 }
 
-static int ansi_seq_parser_bad(AnsiSeqParser *p) {
-        assert(p);
+স্থির পূর্ণাঙ্ক ansi_seq_parser_bad(AnsiSeqParser *p) {
+        প্রতিজ্ঞা(p);
 
         /* A bad sequence has been received, reset state to ground, and remember this */
 
         p->state = ANSI_SEQ_STATE_GROUND;
         p->bad = true;
-        return ANSI_SEQ_EVENT_ABORT;
+        ঘূৰাই ANSI_SEQ_EVENT_ABORT;
 }
 
-int ansi_seq_parser_feed(AnsiSeqParser *p, char c) {
+পূর্ণাঙ্ক ansi_seq_parser_feed(AnsiSeqParser *p, ৱর্ণ c) {
         uint8_t u = (uint8_t) c;
-        int r;
+        পূর্ণাঙ্ক r;
 
-        assert(p);
+        প্রতিজ্ঞা(p);
 
-        switch (p->state) {
+        ৱিকল্প (p->state) {
 
-        case ANSI_SEQ_STATE_GROUND:
-                if (c == 0x1B) { /* ESC */
+        পক্ষ ANSI_SEQ_STATE_GROUND:
+                যদি (c == 0x1B) { /* ESC */
                         p->state = ANSI_SEQ_STATE_ESC;
                         ansi_seq_parser_begin_string(p, /* introducer= */ 0);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
                 }
 
-                return ANSI_SEQ_EVENT_TEXT;
+                ঘূৰাই ANSI_SEQ_EVENT_TEXT;
 
-        case ANSI_SEQ_STATE_ESC:
-                switch (c) {
+        পক্ষ ANSI_SEQ_STATE_ESC:
+                ৱিকল্প (c) {
 
-                case '[': /* CSI sequence */
+                পক্ষ '[': /* CSI sequence */
                         p->state = ANSI_SEQ_STATE_CSI;
                         ansi_seq_parser_begin_string(p, c);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
 
-                case ']': /* OSC */
-                case 'P': /* DCS */
-                case 'X': /* SOS */
-                case '^': /* PM */
-                case '_': /* APC */
+                পক্ষ ']': /* OSC */
+                পক্ষ 'P': /* DCS */
+                পক্ষ 'X': /* SOS */
+                পক্ষ '^': /* PM */
+                পক্ষ '_': /* APC */
                         p->state = ANSI_SEQ_STATE_STRING;
                         ansi_seq_parser_begin_string(p, c);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
 
-                case 0x40 ... 0x4f: /* Fe sequence, i.e. the 7-bit form of the C1 controls (e.g. ESC M = RI),
+                পক্ষ 0x40 ... 0x4f: /* Fe sequence, i.e. the 7-bit form of the C1 controls (e.g. ESC M = RI),
                                      * except for those introducing CSI/string sequences, handled above */
-                case 0x51 ... 0x57:
-                case 0x59 ... 0x5a:
-                case 0x5c:
-                case 0x60 ... 0x7e: /* Fs sequence */
-                case 0x30 ... 0x3f: /* Fp sequence */
+                পক্ষ 0x51 ... 0x57:
+                পক্ষ 0x59 ... 0x5a:
+                পক্ষ 0x5c:
+                পক্ষ 0x60 ... 0x7e: /* Fs sequence */
+                পক্ষ 0x30 ... 0x3f: /* Fp sequence */
                         p->state = ANSI_SEQ_STATE_GROUND;
                         p->introducer = c;
-                        return ANSI_SEQ_EVENT_END;
+                        ঘূৰাই ANSI_SEQ_EVENT_END;
 
-                case 0x20 ... 0x2f: /* nF sequence */
+                পক্ষ 0x20 ... 0x2f: /* nF sequence */
                         p->state = ANSI_SEQ_STATE_NF;
                         ansi_seq_parser_begin_string(p, c);
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
 
-                default:
+                স্ৱভাৱ:
                         /* Anything else is not a valid escape sequence, give up on it */
-                        return ansi_seq_parser_bad(p);
+                        ঘূৰাই ansi_seq_parser_bad(p);
                 }
 
-        case ANSI_SEQ_STATE_CSI:
-                if (u >= 0x40 && u <= 0x7E) { /* final byte, the sequence is complete */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return ansi_seq_parser_bad(p);
+        পক্ষ ANSI_SEQ_STATE_CSI:
+                যদি (u >= 0x40 && u <= 0x7E) { /* final byte, the sequence is complete */
+                        r = ansi_seq_parser_ঠেলো_string(p, c);
+                        যদি (r < 0)
+                                ঘূৰাই r;
+                        যদি (r == 0)
+                                ঘূৰাই ansi_seq_parser_bad(p);
 
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        ঘূৰাই ANSI_SEQ_EVENT_END;
                 }
 
-                if (u >= 0x20 && u <= 0x3F) {
+                যদি (u >= 0x20 && u <= 0x3F) {
                         /* parameter or intermediate byte, the sequence continues */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return ANSI_SEQ_EVENT_SEQUENCE;
+                        r = ansi_seq_parser_ঠেলো_string(p, c);
+                        যদি (r < 0)
+                                ঘূৰাই r;
+                        যদি (r > 0)
+                                ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
 
                         /* fall through on too long */
                 }
 
                 /* Anything else is not a valid escape sequence, give up on it */
-                return ansi_seq_parser_bad(p);
+                ঘূৰাই ansi_seq_parser_bad(p);
 
-        case ANSI_SEQ_STATE_STRING:
-                if (c == 0x07) { /* BEL, the single character ST */
+        পক্ষ ANSI_SEQ_STATE_STRING:
+                যদি (c == 0x07) { /* BEL, the single character ST */
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        ঘূৰাই ANSI_SEQ_EVENT_END;
                 }
 
-                if (c == 0x1B) { /* Presumably the beginning of the two character ST. Note that we do not
+                যদি (c == 0x1B) { /* Presumably the beginning of the two character ST. Note that we do not
                                   * support the C1 encoding of ST (0x9C), since that's a valid UTF-8
                                   * codepoint and would hence be ambiguous. */
                         p->state = ANSI_SEQ_STATE_STRING_ESC;
-                        return ANSI_SEQ_EVENT_SEQUENCE;
+                        ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
                 }
 
-                if (u >= 0x20U) { /* regular payload */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return ANSI_SEQ_EVENT_SEQUENCE;
+                যদি (u >= 0x20U) { /* regular payload */
+                        r = ansi_seq_parser_ঠেলো_string(p, c);
+                        যদি (r < 0)
+                                ঘূৰাই r;
+                        যদি (r > 0)
+                                ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
 
                         /* fall through on too long */
                 }
 
                 /* Any other control character: give up on this sequence */
-                return ansi_seq_parser_bad(p);
+                ঘূৰাই ansi_seq_parser_bad(p);
 
-        case ANSI_SEQ_STATE_STRING_ESC:
-                if (c == '\\') { /* ST is complete, and so is the string sequence */
+        পক্ষ ANSI_SEQ_STATE_STRING_ESC:
+                যদি (c == '\\') { /* ST is complete, and so is the string sequence */
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        ঘূৰাই ANSI_SEQ_EVENT_END;
                 }
 
-                return ansi_seq_parser_bad(p);
+                ঘূৰাই ansi_seq_parser_bad(p);
 
-        case ANSI_SEQ_STATE_NF:
-                if (u >= 0x30 && u <= 0x7E) { /* final byte, the sequence is complete */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return ansi_seq_parser_bad(p);
+        পক্ষ ANSI_SEQ_STATE_NF:
+                যদি (u >= 0x30 && u <= 0x7E) { /* final byte, the sequence is complete */
+                        r = ansi_seq_parser_ঠেলো_string(p, c);
+                        যদি (r < 0)
+                                ঘূৰাই r;
+                        যদি (r == 0)
+                                ঘূৰাই ansi_seq_parser_bad(p);
 
                         p->state = ANSI_SEQ_STATE_GROUND;
-                        return ANSI_SEQ_EVENT_END;
+                        ঘূৰাই ANSI_SEQ_EVENT_END;
                 }
 
-                if (u >= 0x20 && u <= 0x2F) {
+                যদি (u >= 0x20 && u <= 0x2F) {
                         /* parameter or intermediate byte, the sequence continues */
-                        r = ansi_seq_parser_push_string(p, c);
-                        if (r < 0)
-                                return r;
-                        if (r > 0)
-                                return ANSI_SEQ_EVENT_SEQUENCE;
+                        r = ansi_seq_parser_ঠেলো_string(p, c);
+                        যদি (r < 0)
+                                ঘূৰাই r;
+                        যদি (r > 0)
+                                ঘূৰাই ANSI_SEQ_EVENT_SEQUENCE;
 
                         /* fall through on too long */
                 }
 
                 /* Anything else is not a valid escape sequence, give up on it */
-                return ansi_seq_parser_bad(p);
+                ঘূৰাই ansi_seq_parser_bad(p);
 
-        default:
+        স্ৱভাৱ:
                 assert_not_reached();
         }
 }
 
-int ansi_seq_parser_feed_harder(AnsiSeqParser *p, char c) {
-        int r;
+পূর্ণাঙ্ক ansi_seq_parser_feed_harder(AnsiSeqParser *p, ৱর্ণ c) {
+        পূর্ণাঙ্ক r;
 
-        assert(p);
+        প্রতিজ্ঞা(p);
 
         /* Just like ansi_seq_parser_feed(), but automatically eat up abort events, and resubmit the bad character. */
 
-        do {
+        কৰা {
                 r = ansi_seq_parser_feed(p, c);
-        } while (r == ANSI_SEQ_EVENT_ABORT);
+        } যেতিয়ালৈ (r == ANSI_SEQ_EVENT_ABORT);
 
-        return r;
+        ঘূৰাই r;
 }
 
-const char* ansi_seq_parser_string(const AnsiSeqParser *p) {
-        assert(p);
+ধ্রুৱ ৱর্ণ* ansi_seq_parser_string(ধ্রুৱ AnsiSeqParser *p) {
+        প্রতিজ্ঞা(p);
 
-        if (!p->capture || p->bad || p->introducer == 0)
-                return NULL;
+        যদি (!p->capture || p->bad || p->introducer == 0)
+                ঘূৰাই রিক্ত;
 
-        return strempty(p->string);
+        ঘূৰাই strempty(p->string);
 }

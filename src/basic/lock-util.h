@@ -2,47 +2,47 @@
 #pragma once
 
 /* Include here so consumers have LOCK_{EX,SH,NB} available. */
-#include <sys/file.h> /* IWYU pragma: export */
+#অন্তর্ভাৱ <sys/file.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
-typedef struct LockFile {
-        int dir_fd;
-        char *path;
-        int fd;
-        int operation;
+প্রকারনির্দেশ সংরচনা LockFile {
+        পূর্ণাঙ্ক dir_fd;
+        ৱর্ণ *path;
+        পূর্ণাঙ্ক fd;
+        পূর্ণাঙ্ক operation;
 } LockFile;
 
-int make_lock_file_at(int dir_fd, const char *p, int operation, LockFile *ret);
-static inline int make_lock_file(const char *p, int operation, LockFile *ret) {
-        return make_lock_file_at(AT_FDCWD, p, operation, ret);
+পূর্ণাঙ্ক make_lock_file_at(পূর্ণাঙ্ক dir_fd, ধ্রুৱ ৱর্ণ *p, পূর্ণাঙ্ক operation, LockFile *ret);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক make_lock_file(ধ্রুৱ ৱর্ণ *p, পূর্ণাঙ্ক operation, LockFile *ret) {
+        ঘূৰাই make_lock_file_at(AT_FDCWD, p, operation, ret);
 }
-int make_lock_file_for(const char *p, int operation, LockFile *ret);
-void release_lock_file(LockFile *f);
+পূর্ণাঙ্ক make_lock_file_for(ধ্রুৱ ৱর্ণ *p, পূর্ণাঙ্ক operation, LockFile *ret);
+শূন্য release_lock_file(LockFile *f);
 
 #define LOCK_FILE_INIT (LockFile) { .dir_fd = -EBADF, .fd = -EBADF }
 
 /* POSIX locks with the same interface as flock(). */
-int posix_lock(int fd, int operation);
-void posix_unlockpp(int **fd);
+পূর্ণাঙ্ক posix_lock(পূর্ণাঙ্ক fd, পূর্ণাঙ্ক operation);
+শূন্য posix_unlockpp(পূর্ণাঙ্ক **fd);
 
 #define CLEANUP_POSIX_UNLOCK(fd)                                   \
-        _cleanup_(posix_unlockpp) _unused_ int *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
+        _cleanup_(posix_unlockpp) _unused_ পূর্ণাঙ্ক *CONCATENATE(_cleanup_posix_unlock_, UNIQ) = &(fd)
 
 /* Open File Description locks with the same interface as flock(). */
-int unposix_lock(int fd, int operation);
-void unposix_unlockpp(int **fd);
+পূর্ণাঙ্ক unposix_lock(পূর্ণাঙ্ক fd, পূর্ণাঙ্ক operation);
+শূন্য unposix_unlockpp(পূর্ণাঙ্ক **fd);
 
 #define CLEANUP_UNPOSIX_UNLOCK(fd)                                   \
-        _cleanup_(unposix_unlockpp) _unused_ int *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
+        _cleanup_(unposix_unlockpp) _unused_ পূর্ণাঙ্ক *CONCATENATE(_cleanup_unposix_unlock_, UNIQ) = &(fd)
 
-typedef enum LockType {
+প্রকারনির্দেশ গণনা LockType {
         LOCK_NONE, /* Don't lock the file descriptor. Useful if you need to conditionally lock a file. */
         LOCK_BSD,
         LOCK_POSIX,
         LOCK_UNPOSIX,
 } LockType;
 
-int lock_generic(int fd, LockType type, int operation);
+পূর্ণাঙ্ক lock_generic(পূর্ণাঙ্ক fd, LockType type, পূর্ণাঙ্ক operation);
 
-int lock_generic_with_timeout(int fd, LockType type, int operation, usec_t timeout);
+পূর্ণাঙ্ক lock_generic_with_timeout(পূর্ণাঙ্ক fd, LockType type, পূর্ণাঙ্ক operation, usec_t timeout);

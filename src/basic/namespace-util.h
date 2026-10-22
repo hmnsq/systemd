@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#অন্তর্ভাৱ "forward.h"
 
-typedef enum NamespaceType {
+প্রকারনির্দেশ গণনা NamespaceType {
         NAMESPACE_CGROUP,
         NAMESPACE_IPC,
         NAMESPACE_NET,
@@ -16,102 +16,102 @@ typedef enum NamespaceType {
         _NAMESPACE_TYPE_INVALID = -EINVAL,
 } NamespaceType;
 
-extern const struct namespace_info {
-        const char *proc_name;
-        const char *proc_path;
+বাহ্য ধ্রুৱ সংরচনা namespace_info {
+        ধ্রুৱ ৱর্ণ *proc_name;
+        ধ্রুৱ ৱর্ণ *proc_path;
         unsigned long clone_flag;
         unsigned long pidfd_get_ns_ioctl_cmd;
-        ino_t root_inode;
+        ino_t মূল_inode;
 } namespace_info[_NAMESPACE_TYPE_MAX + 1];
 
 NamespaceType clone_flag_to_namespace_type(unsigned long clone_flag);
 
 bool namespace_type_supported(NamespaceType type);
 
-int pidref_namespace_open_by_type(const PidRef *pidref, NamespaceType type);
-int namespace_open_by_type(NamespaceType type);
+পূর্ণাঙ্ক pidref_namespace_open_by_type(ধ্রুৱ PidRef *pidref, NamespaceType type);
+পূর্ণাঙ্ক namespace_open_by_type(NamespaceType type);
 
-int pidref_namespace_open(
-                const PidRef *pidref,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
-int namespace_open(
+পূর্ণাঙ্ক pidref_namespace_open(
+                ধ্রুৱ PidRef *pidref,
+                পূর্ণাঙ্ক *ret_pidns_fd,
+                পূর্ণাঙ্ক *ret_mntns_fd,
+                পূর্ণাঙ্ক *ret_netns_fd,
+                পূর্ণাঙ্ক *ret_userns_fd,
+                পূর্ণাঙ্ক *ret_মূল_fd);
+পূর্ণাঙ্ক namespace_open(
                 pid_t pid,
-                int *ret_pidns_fd,
-                int *ret_mntns_fd,
-                int *ret_netns_fd,
-                int *ret_userns_fd,
-                int *ret_root_fd);
+                পূর্ণাঙ্ক *ret_pidns_fd,
+                পূর্ণাঙ্ক *ret_mntns_fd,
+                পূর্ণাঙ্ক *ret_netns_fd,
+                পূর্ণাঙ্ক *ret_userns_fd,
+                পূর্ণাঙ্ক *ret_মূল_fd);
 
-typedef enum NamespaceEnterFlags {
+প্রকারনির্দেশ গণনা NamespaceEnterFlags {
         /* If root is not mapped in the user namespace, keep our UID/GID instead of failing. The caller must
          * ensure that retaining its original identity is appropriate in that case. Entering still fails
          * with -ENODATA if the namespace has no mappings at all yet, since root might still get mapped. */
-        NAMESPACE_ENTER_KEEP_UID_GID_IF_ROOT_UNMAPPED = 1 << 0,
+        NAMESPACE_ENTER_KEEP_UID_GID_IF_মূল_UNMAPPED = 1 << 0,
 } NamespaceEnterFlags;
 
 /* If a user namespace is entered we become root in it, and fail if that's not possible. */
-int namespace_enter_full(
-                int pidns_fd,
-                int mntns_fd,
-                int netns_fd,
-                int userns_fd,
-                int root_fd,
+পূর্ণাঙ্ক namespace_enter_full(
+                পূর্ণাঙ্ক pidns_fd,
+                পূর্ণাঙ্ক mntns_fd,
+                পূর্ণাঙ্ক netns_fd,
+                পূর্ণাঙ্ক userns_fd,
+                পূর্ণাঙ্ক মূল_fd,
                 NamespaceEnterFlags flags);
 
-static inline int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd) {
-        return namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, root_fd, /* flags= */ 0);
+স্থির অন্তঃস্থ পূর্ণাঙ্ক namespace_enter(পূর্ণাঙ্ক pidns_fd, পূর্ণাঙ্ক mntns_fd, পূর্ণাঙ্ক netns_fd, পূর্ণাঙ্ক userns_fd, পূর্ণাঙ্ক মূল_fd) {
+        ঘূৰাই namespace_enter_full(pidns_fd, mntns_fd, netns_fd, userns_fd, মূল_fd, /* flags= */ 0);
 }
 
-int fd_is_namespace(int fd, NamespaceType type);
-int is_our_namespace(int fd, NamespaceType type);
-int are_our_namespaces(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
+পূর্ণাঙ্ক fd_is_namespace(পূর্ণাঙ্ক fd, NamespaceType type);
+পূর্ণাঙ্ক is_our_namespace(পূর্ণাঙ্ক fd, NamespaceType type);
+পূর্ণাঙ্ক are_our_namespaces(পূর্ণাঙ্ক pidns_fd, পূর্ণাঙ্ক mntns_fd, পূর্ণাঙ্ক netns_fd, পূর্ণাঙ্ক userns_fd, পূর্ণাঙ্ক মূল_fd);
 
-int network_namespace_is_init(int socket_fd);
-int namespace_is_init(NamespaceType type);
+পূর্ণাঙ্ক network_namespace_is_init(পূর্ণাঙ্ক socket_fd);
+পূর্ণাঙ্ক namespace_is_init(NamespaceType type);
 
-int pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
-int in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
+পূর্ণাঙ্ক pidref_in_same_namespace(PidRef *pid1, PidRef *pid2, NamespaceType type);
+পূর্ণাঙ্ক in_same_namespace(pid_t pid1, pid_t pid2, NamespaceType type);
 
-int namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
+পূর্ণাঙ্ক namespace_get_leader(PidRef *pidref, NamespaceType type, PidRef *ret);
 
-int detach_mount_namespace(void);
-int detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
-int detach_mount_namespace_userns(int userns_fd);
+পূর্ণাঙ্ক detach_mount_namespace(শূন্য);
+পূর্ণাঙ্ক detach_mount_namespace_harder(uid_t target_uid, gid_t target_gid);
+পূর্ণাঙ্ক detach_mount_namespace_userns(পূর্ণাঙ্ক userns_fd);
 
-static inline bool userns_shift_range_valid(uid_t shift, uid_t range) {
+স্থির অন্তঃস্থ bool userns_shift_range_valid(uid_t shift, uid_t range) {
         /* Checks that the specified userns range makes sense, i.e. contains at least one UID, and the end
          * doesn't overflow uid_t. */
 
         assert_cc((uid_t) -1 > 0); /* verify that uid_t is unsigned */
 
-        if (range <= 0)
-                return false;
+        যদি (range <= 0)
+                ঘূৰাই false;
 
-        if (shift > (uid_t) -1 - range)
-                return false;
+        যদি (shift > (uid_t) -1 - range)
+                ঘূৰাই false;
 
-        return true;
+        ঘূৰাই true;
 }
 
-int parse_userns_uid_range(const char *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
+পূর্ণাঙ্ক parse_userns_uid_range(ধ্রুৱ ৱর্ণ *s, uid_t *ret_uid_shift, uid_t *ret_uid_range);
 
-int userns_acquire_empty(void);
-int userns_acquire(const char *uid_map, const char *gid_map, bool setgroups_deny);
-int userns_acquire_self_root(void);
-int userns_enter_and_pin(int userns_fd, PidRef *ret);
-bool userns_supported(void);
+পূর্ণাঙ্ক userns_acquire_empty(শূন্য);
+পূর্ণাঙ্ক userns_acquire(ধ্রুৱ ৱর্ণ *uid_map, ধ্রুৱ ৱর্ণ *gid_map, bool setgroups_deny);
+পূর্ণাঙ্ক userns_acquire_self_মূল(শূন্য);
+পূর্ণাঙ্ক userns_enter_and_pin(পূর্ণাঙ্ক userns_fd, PidRef *ret);
+bool userns_supported(শূন্য);
 
-int userns_get_base_uid(int userns_fd, uid_t *ret_uid, gid_t *ret_gid);
-int userns_has_root_mapping(int userns_fd);
+পূর্ণাঙ্ক userns_get_base_uid(পূর্ণাঙ্ক userns_fd, uid_t *ret_uid, gid_t *ret_gid);
+পূর্ণাঙ্ক userns_has_মূল_mapping(পূর্ণাঙ্ক userns_fd);
 
-int namespace_open_by_id(uint64_t ns_id);
+পূর্ণাঙ্ক namespace_open_by_id(uint64_t ns_id);
 
-int process_is_owned_by_uid(const PidRef *pidref, uid_t uid);
+পূর্ণাঙ্ক process_is_owned_by_uid(ধ্রুৱ PidRef *pidref, uid_t uid);
 
-int is_idmapping_supported(const char *path);
+পূর্ণাঙ্ক is_idmapping_supported(ধ্রুৱ ৱর্ণ *path);
 
-int netns_acquire(void);
+পূর্ণাঙ্ক netns_acquire(শূন্য);
