@@ -1,138 +1,138 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdlib.h>
-#include <unistd.h>
+#ضمن <stdlib.h>
+#ضمن <unistd.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "random-util.h"
-#include "string-util.h"
-#include "sync-util.h"
-#include "tmpfile-util.h"
-#include "umask-util.h"
+#ضمن "alloc-util.h"
+#ضمن "errno-util.h"
+#ضمن "fd-util.h"
+#ضمن "fileio.h"
+#ضمن "fs-util.h"
+#ضمن "log.h"
+#ضمن "path-util.h"
+#ضمن "random-util.h"
+#ضمن "string-util.h"
+#ضمن "sync-util.h"
+#ضمن "tmpfile-util.h"
+#ضمن "umask-util.h"
 
-static int fopen_temporary_internal(int dir_fd, const char *path, FILE **ret_file) {
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+ساكن صحيح fopen_temporary_internal(صحيح dir_fd, ثابت حرف *path, FILE **ret_file) {
+        _cleanup_fclose_ FILE *f = عدم;
+        _cleanup_close_ صحيح fd = -EBADF;
+        صحيح r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(path);
 
         fd = openat(dir_fd, path, O_CLOEXEC|O_NOCTTY|O_RDWR|O_CREAT|O_EXCL, 0600);
-        if (fd < 0)
-                return -errno;
+        إذا (fd < 0)
+                أرجع -errno;
 
         /* This assumes that returned FILE object is short-lived and used within the same single-threaded
          * context and never shared externally, hence locking is not necessary. */
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0) {
-                (void) unlinkat(dir_fd, path, 0);
-                return r;
+        إذا (r < 0) {
+                (فراغ) unlinkat(dir_fd, path, 0);
+                أرجع r;
         }
 
-        if (ret_file)
+        إذا (ret_file)
                 *ret_file = TAKE_PTR(f);
 
-        return 0;
+        أرجع 0;
 }
 
-int fopen_temporary_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+صحيح fopen_temporary_at(صحيح dir_fd, ثابت حرف *path, FILE **ret_file, حرف **ret_path) {
+        _cleanup_free_ حرف *t = عدم;
+        صحيح r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(path);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(path);
 
-        r = tempfn_random(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random(path, عدم, &t);
+        إذا (r < 0)
+                أرجع r;
 
         r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (ret_path)
+        إذا (ret_path)
                 *ret_path = TAKE_PTR(t);
 
-        return 0;
+        أرجع 0;
 }
 
-int fopen_temporary_child_at(int dir_fd, const char *path, FILE **ret_file, char **ret_path) {
-        _cleanup_free_ char *t = NULL;
-        int r;
+صحيح fopen_temporary_child_at(صحيح dir_fd, ثابت حرف *path, FILE **ret_file, حرف **ret_path) {
+        _cleanup_free_ حرف *t = عدم;
+        صحيح r;
 
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
 
-        if (!path) {
+        إذا (!path) {
                 r = tmp_dir(&path);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        r = tempfn_random_child(path, NULL, &t);
-        if (r < 0)
-                return r;
+        r = tempfn_random_child(path, عدم, &t);
+        إذا (r < 0)
+                أرجع r;
 
         r = fopen_temporary_internal(dir_fd, t, ret_file);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (ret_path)
+        إذا (ret_path)
                 *ret_path = TAKE_PTR(t);
 
-        return 0;
+        أرجع 0;
 }
 
 /* This is much like mkostemp() but is subject to umask(). */
-int mkostemp_safe(char *pattern) {
-        assert(pattern);
+صحيح mkostemp_safe(حرف *pattern) {
+        أكد(pattern);
         BLOCK_WITH_UMASK(0077);
-        return RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
+        أرجع RET_NERRNO(mkostemp(pattern, O_CLOEXEC));
 }
 
-int fmkostemp_safe(char *pattern, const char *mode, FILE **ret_f) {
-        _cleanup_close_ int fd = -EBADF;
+صحيح fmkostemp_safe(حرف *pattern, ثابت حرف *mode, FILE **ret_f) {
+        _cleanup_close_ صحيح fd = -EBADF;
         FILE *f;
 
-        assert(ret_f);
+        أكد(ret_f);
 
         fd = mkostemp_safe(pattern);
-        if (fd < 0)
-                return fd;
+        إذا (fd < 0)
+                أرجع fd;
 
         f = take_fdopen(&fd, mode);
-        if (!f)
-                return -errno;
+        إذا (!f)
+                أرجع -errno;
 
         *ret_f = f;
-        return 0;
+        أرجع 0;
 }
 
-void unlink_tempfilep(char (*p)[]) {
-        assert(p);
+فراغ unlink_tempfilep(حرف (*p)[]) {
+        أكد(p);
 
         /* If the file is created with mkstemp(), it will (almost always) change the suffix.
          * Treat this as a sign that the file was successfully created. We ignore both the rare case
          * where the original suffix is used and unlink failures. */
 
-        if (!endswith(*p, ".XXXXXX"))
-                (void) unlink(*p);
+        إذا (!endswith(*p, ".XXXXXX"))
+                (فراغ) unlink(*p);
 }
 
-static int tempfn_build(const char *p, const char *pre, const char *post, bool child, char **ret) {
-        _cleanup_free_ char *d = NULL, *fn = NULL, *nf = NULL, *result = NULL;
+ساكن صحيح tempfn_build(ثابت حرف *p, ثابت حرف *pre, ثابت حرف *post, bool child, حرف **ret) {
+        _cleanup_free_ حرف *d = عدم, *fn = عدم, *nf = عدم, *result = عدم;
         size_t len_pre, len_post, len_add;
-        int r;
+        صحيح r;
 
-        assert(p);
-        assert(ret);
+        أكد(p);
+        أكد(ret);
 
         /*
          * Turns this:
@@ -143,54 +143,54 @@ static int tempfn_build(const char *p, const char *pre, const char *post, bool c
          *         /foo/bar/.#<pre>waldo<post> (child == false)
          */
 
-        if (pre && strchr(pre, '/'))
-                return -EINVAL;
+        إذا (pre && strchr(pre, '/'))
+                أرجع -EINVAL;
 
-        if (post && strchr(post, '/'))
-                return -EINVAL;
+        إذا (post && strchr(post, '/'))
+                أرجع -EINVAL;
 
         len_pre = strlen_ptr(pre);
         len_post = strlen_ptr(post);
         /* NAME_MAX is counted *without* the trailing NUL byte. */
-        if (len_pre > NAME_MAX - STRLEN(".#") ||
+        إذا (len_pre > NAME_MAX - STRLEN(".#") ||
             len_post > NAME_MAX - STRLEN(".#") - len_pre)
-                return -EINVAL;
+                أرجع -EINVAL;
 
         len_add = len_pre + len_post + STRLEN(".#");
 
-        if (child) {
+        إذا (child) {
                 d = strdup(p);
-                if (!d)
-                        return -ENOMEM;
-        } else {
+                إذا (!d)
+                        أرجع -ENOMEM;
+        } وإلا {
                 r = path_split_prefix_filename(p, &d, &fn);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
                 /* Truncate the filename if it would become too long after mangling. */
                 strshorten(fn, NAME_MAX - len_add);
         }
 
         nf = strjoin(".#", strempty(pre), strempty(fn), strempty(post));
-        if (!nf)
-                return -ENOMEM;
+        إذا (!nf)
+                أرجع -ENOMEM;
 
-        if (d) {
-                if (!path_extend(&d, nf))
-                        return -ENOMEM;
+        إذا (d) {
+                إذا (!path_extend(&d, nf))
+                        أرجع -ENOMEM;
 
                 result = path_simplify(TAKE_PTR(d));
-        } else
+        } وإلا
                 result = TAKE_PTR(nf);
 
-        if (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
-                return -EINVAL;
+        إذا (!path_is_valid(result)) /* New path is not valid? (Maybe because too long?) Refuse. */
+                أرجع -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        أرجع 0;
 }
 
-int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
+صحيح tempfn_xxxxxx(ثابت حرف *p, ثابت حرف *extra, حرف **ret) {
         /*
          * Turns this:
          *         /foo/bar/waldo
@@ -199,14 +199,14 @@ int tempfn_xxxxxx(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldoXXXXXX
          */
 
-        return tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
+        أرجع tempfn_build(p, extra, "XXXXXX", /* child= */ false, ret);
 }
 
-int tempfn_random(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
+صحيح tempfn_random(ثابت حرف *p, ثابت حرف *extra, حرف **ret) {
+        _cleanup_free_ حرف *s = عدم;
 
-        assert(p);
-        assert(ret);
+        أكد(p);
+        أكد(ret);
 
         /*
          * Turns this:
@@ -216,17 +216,17 @@ int tempfn_random(const char *p, const char *extra, char **ret) {
          *         /foo/bar/.#<extra>waldobaa2a261115984a9
          */
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        إذا (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                أرجع -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ false, ret);
+        أرجع tempfn_build(p, extra, s, /* child= */ false, ret);
 }
 
-int tempfn_random_child(const char *p, const char *extra, char **ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+صحيح tempfn_random_child(ثابت حرف *p, ثابت حرف *extra, حرف **ret) {
+        _cleanup_free_ حرف *s = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
         /* Turns this:
          *         /foo/bar/waldo
@@ -234,220 +234,220 @@ int tempfn_random_child(const char *p, const char *extra, char **ret) {
          *         /foo/bar/waldo/.#<extra>3c2b6219aa75d7d0
          */
 
-        if (!p) {
+        إذا (!p) {
                 r = tmp_dir(&p);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        if (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
-                return -ENOMEM;
+        إذا (asprintf(&s, "%016" PRIx64, random_u64()) < 0)
+                أرجع -ENOMEM;
 
-        return tempfn_build(p, extra, s, /* child= */ true, ret);
+        أرجع tempfn_build(p, extra, s, /* child= */ true, ret);
 }
 
-int open_tmpfile_unlinkable(const char *directory, int flags) {
-        int r;
+صحيح open_tmpfile_unlinkable(ثابت حرف *directory, صحيح flags) {
+        صحيح r;
 
-        if (!directory) {
+        إذا (!directory) {
                 r = tmp_dir(&directory);
-                if (r < 0)
-                        return r;
-        } else if (isempty(directory))
-                return -EINVAL;
+                إذا (r < 0)
+                        أرجع r;
+        } وإلا إذا (isempty(directory))
+                أرجع -EINVAL;
 
         /* Returns an unlinked temporary file that cannot be linked into the file system anymore */
 
         /* Try O_TMPFILE first, if it is supported */
-        int fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
-        if (fd >= 0)
-                return fd;
+        صحيح fd = open(directory, flags|O_TMPFILE|O_EXCL, S_IRUSR|S_IWUSR);
+        إذا (fd >= 0)
+                أرجع fd;
 
         /* Fall back to unguessable name + unlinking */
-        _cleanup_free_ char *p = path_join(directory, "/systemd-tmp-XXXXXX");
-        if (!p)
-                return -ENOMEM;
+        _cleanup_free_ حرف *p = path_join(directory, "/systemd-tmp-XXXXXX");
+        إذا (!p)
+                أرجع -ENOMEM;
 
         fd = mkostemp_safe(p);
-        if (fd < 0)
-                return fd;
+        إذا (fd < 0)
+                أرجع fd;
 
-        (void) unlink(p);
+        (فراغ) unlink(p);
 
-        return fd;
+        أرجع fd;
 }
 
-int open_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path) {
-        int r;
+صحيح open_tmpfile_linkable_at(صحيح dir_fd, ثابت حرف *target, صحيح flags, حرف **ret_path) {
+        صحيح r;
 
-        assert(target);
-        assert(ret_path);
+        أكد(target);
+        أكد(ret_path);
 
         /* Don't allow O_EXCL, as that has a special meaning for O_TMPFILE */
-        assert((flags & O_EXCL) == 0);
+        أكد((flags & O_EXCL) == 0);
 
         /* Creates a temporary file, that shall be renamed to "target" later. If possible, this uses O_TMPFILE – in
          * which case "ret_path" will be returned as NULL. If not possible the temporary path name used is returned in
          * "ret_path". Use link_tmpfile() below to rename the result after writing the file in full. */
 
-        int fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
-        if (fd >= 0) {
-                *ret_path = NULL;
-                return fd;
+        صحيح fd = open_parent_at(dir_fd, target, O_TMPFILE|flags, 0640);
+        إذا (fd >= 0) {
+                *ret_path = عدم;
+                أرجع fd;
         }
 
-        if (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
+        إذا (!ERRNO_IS_NEG_NOT_SUPPORTED(fd))
                 log_debug_errno(fd, "Failed to use O_TMPFILE for %s: %m", target);
 
-        _cleanup_free_ char *tmp = NULL;
-        r = tempfn_random(target, NULL, &tmp);
-        if (r < 0)
-                return r;
+        _cleanup_free_ حرف *tmp = عدم;
+        r = tempfn_random(target, عدم, &tmp);
+        إذا (r < 0)
+                أرجع r;
 
         fd = openat(dir_fd, tmp, O_CREAT|O_EXCL|O_NOFOLLOW|O_NOCTTY|flags, 0640);
-        if (fd < 0)
-                return -errno;
+        إذا (fd < 0)
+                أرجع -errno;
 
         *ret_path = TAKE_PTR(tmp);
 
-        return fd;
+        أرجع fd;
 }
 
-int fopen_tmpfile_linkable_at(int dir_fd, const char *target, int flags, char **ret_path, FILE **ret_file) {
-        _cleanup_free_ char *path = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
+صحيح fopen_tmpfile_linkable_at(صحيح dir_fd, ثابت حرف *target, صحيح flags, حرف **ret_path, FILE **ret_file) {
+        _cleanup_free_ حرف *path = عدم;
+        _cleanup_fclose_ FILE *f = عدم;
+        _cleanup_close_ صحيح fd = -EBADF;
 
-        assert(target);
-        assert(ret_file);
-        assert(ret_path);
+        أكد(target);
+        أكد(ret_file);
+        أكد(ret_path);
 
         fd = open_tmpfile_linkable_at(dir_fd, target, flags, &path);
-        if (fd < 0)
-                return fd;
+        إذا (fd < 0)
+                أرجع fd;
 
         f = take_fdopen(&fd, "w");
-        if (!f)
-                return -ENOMEM;
+        إذا (!f)
+                أرجع -ENOMEM;
 
         *ret_path = TAKE_PTR(path);
         *ret_file = TAKE_PTR(f);
-        return 0;
+        أرجع 0;
 }
 
-int link_tmpfile_at(int fd, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int r;
+صحيح link_tmpfile_at(صحيح fd, صحيح dir_fd, ثابت حرف *path, ثابت حرف *target, LinkTmpfileFlags flags) {
+        صحيح r;
 
-        assert(fd >= 0);
-        assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
-        assert(target);
+        أكد(fd >= 0);
+        أكد(dir_fd >= 0 || dir_fd == AT_FDCWD);
+        أكد(target);
 
         /* Moves a temporary file created with open_tmpfile() above into its final place. If "path" is NULL
          * an fd created with O_TMPFILE is assumed, and linkat() is used. Otherwise it is assumed O_TMPFILE
          * is not supported on the directory, and renameat2() is used instead. */
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
-                return -errno;
+        إذا (FLAGS_SET(flags, LINK_TMPFILE_SYNC) && fsync(fd) < 0)
+                أرجع -errno;
 
-        if (path) {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
+        إذا (path) {
+                إذا (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
                         r = RET_NERRNO(renameat(dir_fd, path, dir_fd, target));
-                else
+                وإلا
                         r = rename_noreplace(dir_fd, path, dir_fd, target);
-        } else {
-                if (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
-                        r = linkat_replace(fd, /* oldpath= */ NULL, dir_fd, target);
-                else
+        } وإلا {
+                إذا (FLAGS_SET(flags, LINK_TMPFILE_REPLACE))
+                        r = linkat_replace(fd, /* oldpath= */ عدم, dir_fd, target);
+                وإلا
                         r = link_fd(fd, dir_fd, target);
         }
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        if (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
+        إذا (FLAGS_SET(flags, LINK_TMPFILE_SYNC)) {
                 r = fsync_full(fd);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
         }
 
-        return 0;
+        أرجع 0;
 }
 
-int flink_tmpfile_at(FILE *f, int dir_fd, const char *path, const char *target, LinkTmpfileFlags flags) {
-        int fd, r;
+صحيح flink_tmpfile_at(FILE *f, صحيح dir_fd, ثابت حرف *path, ثابت حرف *target, LinkTmpfileFlags flags) {
+        صحيح fd, r;
 
-        assert(f);
-        assert(target);
+        أكد(f);
+        أكد(target);
 
         fd = fileno(f);
-        if (fd < 0) /* Not all FILE* objects encapsulate fds */
-                return -EBADF;
+        إذا (fd < 0) /* Not all FILE* objects encapsulate fds */
+                أرجع -EBADF;
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
-        return link_tmpfile_at(fd, dir_fd, path, target, flags);
+        أرجع link_tmpfile_at(fd, dir_fd, path, target, flags);
 }
 
-int mkdtemp_malloc(const char *template, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int r;
+صحيح mkdtemp_malloc(ثابت حرف *template, حرف **ret) {
+        _cleanup_free_ حرف *p = عدم;
+        صحيح r;
 
-        assert(ret);
+        أكد(ret);
 
-        if (template)
+        إذا (template)
                 p = strdup(template);
-        else {
-                const char *tmp;
+        وإلا {
+                ثابت حرف *tmp;
 
                 r = tmp_dir(&tmp);
-                if (r < 0)
-                        return r;
+                إذا (r < 0)
+                        أرجع r;
 
                 p = path_join(tmp, "XXXXXX");
         }
-        if (!p)
-                return -ENOMEM;
+        إذا (!p)
+                أرجع -ENOMEM;
 
-        if (!mkdtemp(p))
-                return -errno;
+        إذا (!mkdtemp(p))
+                أرجع -errno;
 
         *ret = TAKE_PTR(p);
-        return 0;
+        أرجع 0;
 }
 
-int mkdtemp_open(const char *template, int flags, char **ret) {
-        _cleanup_free_ char *p = NULL;
-        int fd, r;
+صحيح mkdtemp_open(ثابت حرف *template, صحيح flags, حرف **ret) {
+        _cleanup_free_ حرف *p = عدم;
+        صحيح fd, r;
 
         r = mkdtemp_malloc(template, &p);
-        if (r < 0)
-                return r;
+        إذا (r < 0)
+                أرجع r;
 
         fd = RET_NERRNO(open(p, O_DIRECTORY|O_CLOEXEC|flags));
-        if (fd < 0) {
-                (void) rmdir(p);
-                return fd;
+        إذا (fd < 0) {
+                (فراغ) rmdir(p);
+                أرجع fd;
         }
 
-        if (ret)
+        إذا (ret)
                 *ret = TAKE_PTR(p);
 
-        return fd;
+        أرجع fd;
 }
 
-void cleanup_tmpfile_data_done(struct cleanup_tmpfile_data *d) {
-        assert(d);
+فراغ cleanup_tmpfile_data_done(بنية cleanup_tmpfile_data *d) {
+        أكد(d);
 
-        if (!d->dir_fd ||
+        إذا (!d->dir_fd ||
             (*d->dir_fd < 0 && *d->dir_fd != AT_FDCWD) ||
             !d->filename ||
             !*d->filename)
-                return;
+                أرجع;
 
         PROTECT_ERRNO;
 
-        (void) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
-        d->dir_fd = NULL;
-        d->filename = NULL;
+        (فراغ) unlinkat(*d->dir_fd, *d->filename, /* flags= */ 0);
+        d->dir_fd = عدم;
+        d->filename = عدم;
 }
