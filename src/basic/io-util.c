@@ -15,7 +15,7 @@
 #include "time-util.h"
 
 uint32_t poll_events_to_epoll(uint32_t events) {
-        return (events & POLLIN    ? EPOLLIN    : 0) |
+        戻る (events & POLLIN    ? EPOLLIN    : 0) |
                (events & POLLOUT   ? EPOLLOUT   : 0) |
                (events & POLLPRI   ? EPOLLPRI   : 0) |
                (events & POLLERR   ? EPOLLERR   : 0) |
@@ -24,7 +24,7 @@ uint32_t poll_events_to_epoll(uint32_t events) {
 }
 
 uint32_t epoll_events_to_poll(uint32_t events) {
-        return (events & EPOLLIN    ? POLLIN    : 0) |
+        戻る (events & EPOLLIN    ? POLLIN    : 0) |
                (events & EPOLLOUT   ? POLLOUT   : 0) |
                (events & EPOLLPRI   ? POLLPRI   : 0) |
                (events & EPOLLERR   ? POLLERR   : 0) |
@@ -32,46 +32,46 @@ uint32_t epoll_events_to_poll(uint32_t events) {
                (events & EPOLLRDHUP ? POLLRDHUP : 0);
 }
 
-int flush_fd(int fd) {
-        int count = 0;
+整数 flush_fd(整数 fd) {
+        整数 count = 0;
 
         /* Read from the specified file descriptor, until POLLIN is not set anymore, throwing away everything
          * read. Note that some file descriptors (notable IP sockets) will trigger POLLIN even when no data can be read
          * (due to IP packet checksum mismatches), hence this function is only safe to be non-blocking if the fd used
          * was set to non-blocking too. */
 
-        for (;;) {
+        ために (;;) {
                 char buf[LINE_MAX];
                 ssize_t l;
-                int r;
+                整数 r;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
+                もし (r == -EINTR)
                         continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                もし (r < 0)
+                        戻る r;
+                もし (r == 0)
+                        戻る count;
 
                 l = read(fd, buf, sizeof(buf));
-                if (l < 0) {
-                        if (errno == EINTR)
+                もし (l < 0) {
+                        もし (errno == EINTR)
                                 continue;
-                        if (errno == EAGAIN)
-                                return count;
+                        もし (errno == EAGAIN)
+                                戻る count;
 
-                        return -errno;
-                } else if (l == 0)
-                        return count;
+                        戻る -errno;
+                } 否则 もし (l == 0)
+                        戻る count;
 
-                if (l > INT_MAX-count) /* On overflow terminate */
-                        return INT_MAX;
+                もし (l > INT_MAX-count) /* On overflow terminate */
+                        戻る INT_MAX;
 
-                count += (int) l;
+                count += (整数) l;
         }
 }
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
+ssize_t loop_read(整数 fd, void *buf, size_t nbytes, bool do_poll) {
         uint8_t *p = ASSERT_PTR(buf);
         ssize_t n = 0;
 
@@ -79,36 +79,36 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
 
         /* If called with nbytes == 0, let's call read() at least once, to validate the operation */
 
-        if (nbytes > (size_t) SSIZE_MAX)
-                return -EINVAL;
+        もし (nbytes > (size_t) SSIZE_MAX)
+                戻る -EINVAL;
 
         /* do_poll == false means "don't wait, return what we have if EAGAIN". If the fd is already
          * non-blocking, read() can't block the thread, so the non-fiber path satisfies that semantic
          * correctly even from a fiber. Only use the fiber path when the fd is blocking (where read()
          * would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && !do_poll) {
+        整数 flags = 0;
+        もし (fiber_ops_is_set() && !do_poll) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                もし (flags < 0)
+                        戻る -errno;
         }
 
         do {
                 ssize_t k;
 
-                if (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
+                もし (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
                         /* On a fiber the read op suspends on EAGAIN until data is available, so we don't
                          * need a separate poll step or the do_poll knob. */
                         k = fiber_ops_read(fd, p, nbytes);
-                        if (k < 0)
-                                return n > 0 ? n : k;
-                } else {
+                        もし (k < 0)
+                                戻る n > 0 ? n : k;
+                } 否则 {
                         k = read(fd, p, nbytes);
-                        if (k < 0) {
-                                if (errno == EINTR)
+                        もし (k < 0) {
+                                もし (errno == EINTR)
                                         continue;
 
-                                if (errno == EAGAIN && do_poll) {
+                                もし (errno == EAGAIN && do_poll) {
 
                                         /* We knowingly ignore any return value here,
                                          * and expect that any error/EOF is reported
@@ -118,12 +118,12 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
                                         continue;
                                 }
 
-                                return n > 0 ? n : -errno;
+                                戻る n > 0 ? n : -errno;
                         }
                 }
 
-                if (k == 0)
-                        return n;
+                もし (k == 0)
+                        戻る n;
 
                 assert((size_t) k <= nbytes);
                 assert(k <= SSIZE_MAX - n);
@@ -131,40 +131,40 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
                 p += k;
                 nbytes -= k;
                 n += k;
-        } while (nbytes > 0);
+        } ながら (nbytes > 0);
 
-        return n;
+        戻る n;
 }
 
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll) {
+整数 loop_read_exact(整数 fd, void *buf, size_t nbytes, bool do_poll) {
         ssize_t n;
 
         n = loop_read(fd, buf, nbytes, do_poll);
-        if (n < 0)
-                return (int) n;
-        if ((size_t) n != nbytes)
-                return -EIO;
+        もし (n < 0)
+                戻る (整数) n;
+        もし ((size_t) n != nbytes)
+                戻る -EIO;
 
-        return 0;
+        戻る 0;
 }
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
+整数 loop_write_full(整数 fd, const void *buf, size_t nbytes, usec_t timeout) {
         const uint8_t *p;
         usec_t end;
-        int r;
+        整数 r;
 
         assert(fd >= 0);
         assert(buf || nbytes == 0);
 
-        if (nbytes == 0) {
+        もし (nbytes == 0) {
                 static const dummy_t dummy[0];
                 assert_cc(sizeof(dummy) == 0);
                 p = (const void*) dummy; /* Some valid pointer, in case NULL was specified */
-        } else {
-                if (nbytes == SIZE_MAX)
+        } 否则 {
+                もし (nbytes == SIZE_MAX)
                         nbytes = strlen(buf);
-                else if (_unlikely_(nbytes > (size_t) SSIZE_MAX))
-                        return -EINVAL;
+                否则 もし (_unlikely_(nbytes > (size_t) SSIZE_MAX))
+                        戻る -EINVAL;
 
                 p = buf;
         }
@@ -173,31 +173,31 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
          * non-blocking, write() can't block the thread, so the non-fiber path satisfies that
          * semantic correctly even from a fiber. Only use the fiber path when the fd is blocking
          * (where write() would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && timeout == 0) {
+        整数 flags = 0;
+        もし (fiber_ops_is_set() && timeout == 0) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                もし (flags < 0)
+                        戻る -errno;
         }
 
-        if (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
+        もし (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
                 /* On a fiber the write op suspends on EAGAIN until the fd is writable; honor the
                  * caller's timeout via a deadline scope. */
                 FIBER_OPS_TIMEOUT(timestamp_is_set(timeout) ? timeout : USEC_INFINITY);
 
-                while (nbytes > 0) {
+                ながら (nbytes > 0) {
                         ssize_t k = fiber_ops_write(fd, p, nbytes);
-                        if (k < 0)
-                                return (int) k;
-                        if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                                return -EIO;
+                        もし (k < 0)
+                                戻る (整数) k;
+                        もし (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                                戻る -EIO;
 
                         assert((size_t) k <= nbytes);
                         p += k;
                         nbytes -= k;
                 }
 
-                return 0;
+                戻る 0;
         }
 
         /* When timeout is 0 or USEC_INFINITY this is not used. But we initialize it to a sensible value. */
@@ -207,52 +207,52 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
                 ssize_t k;
 
                 k = write(fd, p, nbytes);
-                if (k < 0) {
-                        if (errno == EINTR)
+                もし (k < 0) {
+                        もし (errno == EINTR)
                                 continue;
 
-                        if (errno != EAGAIN || timeout == 0)
-                                return -errno;
+                        もし (errno != EAGAIN || timeout == 0)
+                                戻る -errno;
 
                         usec_t wait_for;
 
-                        if (timeout == USEC_INFINITY)
+                        もし (timeout == USEC_INFINITY)
                                 wait_for = USEC_INFINITY;
-                        else {
+                        否则 {
                                 usec_t t = now(CLOCK_MONOTONIC);
-                                if (t >= end)
-                                        return -ETIME;
+                                もし (t >= end)
+                                        戻る -ETIME;
 
                                 wait_for = usec_sub_unsigned(end, t);
                         }
 
                         r = fd_wait_for_event(fd, POLLOUT, wait_for);
-                        if (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
+                        もし (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
                                 /* If timeout == USEC_INFINITY we knowingly ignore any return value
                                  * here, and expect that any error/EOF is reported via write() */
                                 continue;
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIME;
+                        もし (r < 0)
+                                戻る r;
+                        もし (r == 0)
+                                戻る -ETIME;
                         continue;
                 }
 
-                if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                        return -EIO;
+                もし (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                        戻る -EIO;
 
                 assert((size_t) k <= nbytes);
 
                 p += k;
                 nbytes -= k;
-        } while (nbytes > 0);
+        } ながら (nbytes > 0);
 
-        return 0;
+        戻る 0;
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
+整数 pwritev_full(整数 fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
         uint64_t written = 0;
-        int r = 0;
+        整数 r = 0;
 
         assert(fd >= 0);
         assert(iovec || n == 0);
@@ -260,25 +260,25 @@ int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_
         /* Writes all of the iovecs at the offset. The iovecs are advanced past what was written, and
          * 'ret_written' tells how much that was, also if the write fails halfway. */
 
-        for (size_t i = 0;;) {
+        ために (size_t i = 0;;) {
                 size_t m;
                 ssize_t k;
 
-                while (i < n && !iovec_is_set(iovec + i))
+                ながら (i < n && !iovec_is_set(iovec + i))
                         i++;
-                if (i >= n)
+                もし (i >= n)
                         break;
 
                 m = MIN(n - i, (size_t) IOV_MAX);
                 k = pwritev(fd, iovec + i, m, offset + written);
-                if (k < 0) {
-                        if (errno == EINTR)
+                もし (k < 0) {
+                        もし (errno == EINTR)
                                 continue;
 
                         r = -errno;
                         break;
                 }
-                if (k == 0) {
+                もし (k == 0) {
                         r = -EIO;
                         break;
                 }
@@ -287,30 +287,30 @@ int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_
                 (void) iovec_inc_many(iovec + i, m, k);
         }
 
-        if (ret_written)
+        もし (ret_written)
                 *ret_written = written;
-        return r;
+        戻る r;
 }
 
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) {
+整数 pwrite_full(整数 fd, const void *buf, size_t nbytes, uint64_t offset) {
         assert(fd >= 0);
         assert(buf || nbytes == 0);
 
-        return pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
+        戻る pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
 }
 
-int pipe_eof(int fd) {
-        int r;
+整数 pipe_eof(整数 fd) {
+        整数 r;
 
         r = fd_wait_for_event(fd, POLLIN, 0);
-        if (r <= 0)
-                return r;
+        もし (r <= 0)
+                戻る r;
 
-        return !!(r & POLLHUP);
+        戻る !!(r & POLLHUP);
 }
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
-        int r;
+整数 ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
+        整数 r;
 
         assert(fds || n_fds == 0);
 
@@ -329,39 +329,39 @@ int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigs
          *  to handle signals, such as signalfd() or signal handlers. ⚠️ ⚠️ ⚠️
          */
 
-        if (n_fds == 0 && timeout == 0)
-                return 0;
+        もし (n_fds == 0 && timeout == 0)
+                戻る 0;
 
         r = fiber_ops_ppoll(fds, n_fds, timeout == USEC_INFINITY ? NULL : TIMESPEC_STORE(timeout), ss);
-        if (r <= 0)
-                return r;
+        もし (r <= 0)
+                戻る r;
 
-        for (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
-                if (fds[i].revents == 0)
+        ために (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
+                もし (fds[i].revents == 0)
                         continue;
-                if (fds[i].revents & POLLNVAL)
-                        return -EBADF;
+                もし (fds[i].revents & POLLNVAL)
+                        戻る -EBADF;
                 n--;
         }
 
-        return r;
+        戻る r;
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout) {
+整数 fd_wait_for_event(整数 fd, 整数 event, usec_t timeout) {
         struct pollfd pollfd = {
                 .fd = fd,
                 .events = event,
         };
-        int r;
+        整数 r;
 
         /* ⚠️ ⚠️ ⚠️ Keep in mind you almost certainly want to handle -EINTR gracefully in the caller, see
          * ppoll_usec() above! ⚠️ ⚠️ ⚠️ */
 
         r = ppoll_usec(&pollfd, 1, timeout);
-        if (r <= 0)
-                return r;
+        もし (r <= 0)
+                戻る r;
 
-        return pollfd.revents;
+        戻る pollfd.revents;
 }
 
 static size_t nul_length(const uint8_t *p, size_t sz) {
@@ -369,8 +369,8 @@ static size_t nul_length(const uint8_t *p, size_t sz) {
 
         assert(p);
 
-        while (sz > 0) {
-                if (*p != 0)
+        ながら (sz > 0) {
+                もし (*p != 0)
                         break;
 
                 n++;
@@ -378,16 +378,16 @@ static size_t nul_length(const uint8_t *p, size_t sz) {
                 sz--;
         }
 
-        return n;
+        戻る n;
 }
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
+ssize_t sparse_write(整数 fd, const void *p, size_t sz, size_t run_length) {
         const uint8_t *q, *w, *e;
         ssize_t l;
 
         q = w = p;
         e = q + sz;
-        while (q < e) {
+        ながら (q < e) {
                 size_t n;
 
                 n = nul_length(q, e - q);
@@ -395,35 +395,35 @@ ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
                 /* If there are more than the specified run length of
                  * NUL bytes, or if this is the beginning or the end
                  * of the buffer, then seek instead of write */
-                if ((n > run_length) ||
+                もし ((n > run_length) ||
                     (n > 0 && q == p) ||
                     (n > 0 && q + n >= e)) {
-                        if (q > w) {
+                        もし (q > w) {
                                 l = write(fd, w, q - w);
-                                if (l < 0)
-                                        return -errno;
-                                if (l != q -w)
-                                        return -EIO;
+                                もし (l < 0)
+                                        戻る -errno;
+                                もし (l != q -w)
+                                        戻る -EIO;
                         }
 
-                        if (lseek(fd, n, SEEK_CUR) < 0)
-                                return -errno;
+                        もし (lseek(fd, n, SEEK_CUR) < 0)
+                                戻る -errno;
 
                         q += n;
                         w = q;
-                } else if (n > 0)
+                } 否则 もし (n > 0)
                         q += n;
-                else
+                否则
                         q++;
         }
 
-        if (q > w) {
+        もし (q > w) {
                 l = write(fd, w, q - w);
-                if (l < 0)
-                        return -errno;
-                if (l != q - w)
-                        return -EIO;
+                もし (l < 0)
+                        戻る -errno;
+                もし (l != q - w)
+                        戻る -EIO;
         }
 
-        return q - (const uint8_t*) p;
+        戻る q - (const uint8_t*) p;
 }

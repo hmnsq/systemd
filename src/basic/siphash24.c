@@ -33,7 +33,7 @@
 static inline _always_inline_ uint64_t rotate_left(uint64_t x, uint8_t b) {
         assert(b < 64);
 
-        return (x << b) | (x >> (64 - b));
+        戻る (x << b) | (x >> (64 - b));
 }
 
 static inline _always_inline_ void sipround(struct siphash *state) {
@@ -97,15 +97,15 @@ static inline _always_inline_ void siphash24_compress_inline(
         state->inlen += inlen;
 
         /* If padding exists, fill it out */
-        if (left > 0) {
-                for ( ; in < end && left < 8; in ++, left ++)
+        もし (left > 0) {
+                ために ( ; in < end && left < 8; in ++, left ++)
                         state->padding |= ((uint64_t) *in) << (left * 8);
 
-                if (in == end && left < 8)
+                もし (in == end && left < 8)
                         /* We did not have enough input to fill out the padding completely */
-                        return;
+                        戻る;
 
-#if ENABLE_DEBUG_SIPHASH
+#もし ENABLE_DEBUG_SIPHASH
                 printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
                 printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
                 printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -123,9 +123,9 @@ static inline _always_inline_ void siphash24_compress_inline(
 
         end -= (state->inlen % sizeof(uint64_t));
 
-        for ( ; in < end; in += 8) {
+        ために ( ; in < end; in += 8) {
                 m = unaligned_read_le64(in);
-#if ENABLE_DEBUG_SIPHASH
+#もし ENABLE_DEBUG_SIPHASH
                 printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
                 printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
                 printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -178,8 +178,8 @@ void siphash24_compress_iovec(const struct iovec *iov, struct siphash *state) {
         assert(iovec_is_valid(iov));
         assert(state);
 
-        if (!iovec_is_set(iov))
-                return;
+        もし (!iovec_is_set(iov))
+                戻る;
 
         siphash24_compress(iov->iov_base, iov->iov_len, state);
 }
@@ -191,7 +191,7 @@ static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash 
 
         b = state->padding | (((uint64_t) state->inlen) << 56);
 
-#if ENABLE_DEBUG_SIPHASH
+#もし ENABLE_DEBUG_SIPHASH
         printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
         printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
         printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -204,7 +204,7 @@ static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash 
         sipround(state);
         state->v0 ^= b;
 
-#if ENABLE_DEBUG_SIPHASH
+#もし ENABLE_DEBUG_SIPHASH
         printf("(%3zu) v0 %08x %08x\n", state->inlen, (uint32_t) (state->v0 >> 32), (uint32_t) state->v0);
         printf("(%3zu) v1 %08x %08x\n", state->inlen, (uint32_t) (state->v1 >> 32), (uint32_t) state->v1);
         printf("(%3zu) v2 %08x %08x\n", state->inlen, (uint32_t) (state->v2 >> 32), (uint32_t) state->v2);
@@ -217,11 +217,11 @@ static inline _always_inline_ uint64_t siphash24_finalize_inline(struct siphash 
         sipround(state);
         sipround(state);
 
-        return state->v0 ^ state->v1 ^ state->v2  ^ state->v3;
+        戻る state->v0 ^ state->v1 ^ state->v2  ^ state->v3;
 }
 
 uint64_t siphash24_finalize(struct siphash *state) {
-        return siphash24_finalize_inline(state);
+        戻る siphash24_finalize_inline(state);
 }
 
 uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]) {
@@ -234,7 +234,7 @@ uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[static 16]) {
         siphash24_init_inline(&state, k);
         siphash24_compress_inline(in, inlen, &state);
 
-        return siphash24_finalize_inline(&state);
+        戻る siphash24_finalize_inline(&state);
 }
 
 uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]) {
@@ -264,9 +264,9 @@ uint64_t siphash24_uint64(uint64_t in, const uint8_t k[static 16]) {
         sipround(&state);
         sipround(&state);
 
-        return state.v0 ^ state.v1 ^ state.v2 ^ state.v3;
+        戻る state.v0 ^ state.v1 ^ state.v2 ^ state.v3;
 }
 
 uint64_t siphash24_string(const char *s, const uint8_t k[static 16]) {
-        return siphash24(s, strlen(s) + 1, k);
+        戻る siphash24(s, strlen(s) + 1, k);
 }

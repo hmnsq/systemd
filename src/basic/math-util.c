@@ -2,7 +2,7 @@
 
 #include "math-util.h"
 
-double xexp10i(int n) {
+double xexp10i(整数 n) {
         /* Powers of 10 up to 10^22 are exact in IEEE-754 binary64. */
         static const double table[] = {
                 1e0,  1e1,  1e2,  1e3,  1e4,  1e5,  1e6,  1e7,  1e8,  1e9,  1e10, 1e11,
@@ -17,8 +17,8 @@ double xexp10i(int n) {
         /* 10^309 already overflows binary64 to +Inf; anything beyond just stays there. */
         k = MIN(k, 309u);
         double r = k < ELEMENTSOF(table) ? table[k] : table[ELEMENTSOF(table) - 1];
-        for (unsigned i = ELEMENTSOF(table) - 1; i < k; i++)
+        ために (unsigned i = ELEMENTSOF(table) - 1; i < k; i++)
                 r *= 10.0;
 
-        return negative ? 1.0 / r : r;
+        戻る negative ? 1.0 / r : r;
 }

@@ -5,8 +5,8 @@
 
 extern const char* const systemd_features;
 
-int version(void);
-int version_only(void);
+整数 version(void);
+整数 version_only(void);
 
 #define EXPERIMENTAL_DISABLED 0
 #define EXPERIMENTAL_ENVVAR 1

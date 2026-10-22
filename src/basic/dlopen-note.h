@@ -9,9 +9,9 @@
  * This ensures that their specific symbols remain intact in the final executable, allowing the developer
  * test utility to verify that the functions corresponding to the dlopen ELF notes are actually invoked.
  * This is restricted to BUILD_MODE_DEVELOPER to avoid degrading production performance. */
-#if BUILD_MODE_DEVELOPER
+#もし BUILD_MODE_DEVELOPER
 #  define _dlopen_loader_ _noclone_ _noinline_
-#else
+#否则
 #  define _dlopen_loader_
 #endif
 
@@ -30,58 +30,58 @@
                         STRINGIFY(priority),                            \
                         __VA_ARGS__)
 
-#if HAVE_BZIP2
+#もし HAVE_BZIP2
 #  define LIBBZ2_NOTE(priority)                                         \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         bzip2,                                          \
                         "Support bzip2 compression and decompression",  \
                         priority,                                       \
                         "libbz2.so.1")
-#else
+#否则
 #  define LIBBZ2_NOTE(priority)
 #endif
 
-#if HAVE_LZ4
+#もし HAVE_LZ4
 #  define LIBLZ4_NOTE(priority)                                         \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         lz4,                                            \
                         "Support lz4 compression in journal and coredump files", \
                         priority,                                       \
                         "liblz4.so.1")
-#else
+#否则
 #  define LIBLZ4_NOTE(priority)
 #endif
 
-#if HAVE_XZ
+#もし HAVE_XZ
 #  define LIBLZMA_NOTE(priority)                                        \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         lzma,                                           \
                         "Support lzma compression in journal and coredump files", \
                         priority,                                       \
                         "liblzma.so.5")
-#else
+#否则
 #  define LIBLZMA_NOTE(priority)
 #endif
 
-#if HAVE_ZLIB
+#もし HAVE_ZLIB
 #  define LIBZ_NOTE(priority)                                           \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         zlib,                                           \
                         "Support gzip compression and decompression",   \
                         priority,                                       \
                         "libz.so.1")
-#else
+#否则
 #  define LIBZ_NOTE(priority)
 #endif
 
-#if HAVE_ZSTD
+#もし HAVE_ZSTD
 #  define LIBZSTD_NOTE(priority)                                        \
         ELF_NOTE_DLOPEN_ANCHORED(                                       \
                         zstd,                                           \
                         "Support zstd compression in journal and coredump files", \
                         priority,                                       \
                         "libzstd.so.1")
-#else
+#否则
 #  define LIBZSTD_NOTE(priority)
 #endif
 

@@ -43,24 +43,24 @@ void path_hash_func(const char *p, struct siphash *state) {
          * which begin in a slash or not) will hash differently though. */
 
         /* if path is absolute, add one "/" to the hash. */
-        if (path_is_absolute(p))
+        もし (path_is_absolute(p))
                 siphash24_compress_byte('/', state);
 
-        for (;;) {
+        ために (;;) {
                 const char *e;
-                int r;
+                整数 r;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        return;
+                もし (r == 0)
+                        戻る;
 
-                if (add_slash)
+                もし (add_slash)
                         siphash24_compress_byte('/', state);
 
-                if (r < 0) {
+                もし (r < 0) {
                         /* if a component is invalid, then add remaining part as a string. */
                         string_hash_func(p, state);
-                        return;
+                        戻る;
                 }
 
                 /* Add this component to the hash. */
@@ -84,8 +84,8 @@ void trivial_hash_func(const void *p, struct siphash *state) {
         siphash24_compress_typesafe(p, state);
 }
 
-int trivial_compare_func(const void *a, const void *b) {
-        return CMP(a, b);
+整数 trivial_compare_func(const void *a, const void *b) {
+        戻る CMP(a, b);
 }
 
 DEFINE_HASH_OPS(trivial_hash_ops,
@@ -108,11 +108,11 @@ void uint64_hash_func(const uint64_t *p, struct siphash *state) {
         siphash24_compress_typesafe(*p, state);
 }
 
-int uint64_compare_func(const uint64_t *a, const uint64_t *b) {
+整数 uint64_compare_func(const uint64_t *a, const uint64_t *b) {
         assert(a);
         assert(b);
 
-        return CMP(*a, *b);
+        戻る CMP(*a, *b);
 }
 
 DEFINE_HASH_OPS(uint64_hash_ops,
@@ -122,7 +122,7 @@ DEFINE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
                 uint64_t, uint64_hash_func, uint64_compare_func,
                 void, free);
 
-#if SIZEOF_DEV_T != 8
+#もし SIZEOF_DEV_T != 8
 void devt_hash_func(const dev_t *p, struct siphash *state) {
         assert(p);
 
@@ -130,17 +130,17 @@ void devt_hash_func(const dev_t *p, struct siphash *state) {
 }
 #endif
 
-int devt_compare_func(const dev_t *a, const dev_t *b) {
-        int r;
+整数 devt_compare_func(const dev_t *a, const dev_t *b) {
+        整数 r;
 
         assert(a);
         assert(b);
 
         r = CMP(major(*a), major(*b));
-        if (r != 0)
-                return r;
+        もし (r != 0)
+                戻る r;
 
-        return CMP(minor(*a), minor(*b));
+        戻る CMP(minor(*a), minor(*b));
 }
 
 DEFINE_HASH_OPS(devt_hash_ops, dev_t, devt_hash_func, devt_compare_func);

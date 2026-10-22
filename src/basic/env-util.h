@@ -17,12 +17,12 @@ typedef enum ReplaceEnvFlags {
         REPLACE_ENV_ALLOW_EXTENDED  = 1 << 2,
 } ReplaceEnvFlags;
 
-int replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
-static inline int replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
-        return replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
+整数 replace_env_full(const char *format, size_t length, char **env, ReplaceEnvFlags flags, char **ret, char ***ret_unset_variables, char ***ret_bad_variables);
+static inline 整数 replace_env(const char *format, char **env, ReplaceEnvFlags flags, char **ret) {
+        戻る replace_env_full(format, SIZE_MAX, env, flags, ret, NULL, NULL);
 }
 
-int replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
+整数 replace_env_argv(char **argv, char **env, char ***ret, char ***ret_unset_variables, char ***ret_bad_variables);
 
 bool strv_env_is_valid(char * const *e);
 bool strv_env_name_is_valid(char * const *l);
@@ -38,40 +38,40 @@ char** strv_env_delete(char **x, size_t n_lists, ...); /* New copy */
 char** strv_env_unset(char **l, const char *p); /* In place ... */
 char** strv_env_unset_many_internal(char **l, ...) _sentinel_;
 #define strv_env_unset_many(l, ...) strv_env_unset_many_internal(l, __VA_ARGS__, NULL)
-int strv_env_replace_consume(char ***l, char *p); /* In place ... */
-int strv_env_replace_strdup(char ***l, const char *assignment);
-int strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
-int strv_env_assign(char ***l, const char *key, const char *value);
-int strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
-int _strv_env_assign_many(char ***l, ...) _sentinel_;
+整数 strv_env_replace_consume(char ***l, char *p); /* In place ... */
+整数 strv_env_replace_strdup(char ***l, const char *assignment);
+整数 strv_env_replace_strdup_passthrough(char ***l, const char *assignment);
+整数 strv_env_assign(char ***l, const char *key, const char *value);
+整数 strv_env_assignf(char ***l, const char *key, const char *valuef, ...) _printf_(3, 4);
+整数 _strv_env_assign_many(char ***l, ...) _sentinel_;
 #define strv_env_assign_many(l, ...) _strv_env_assign_many(l, __VA_ARGS__, NULL)
 
 char* strv_env_get_n(char * const *l, const char *name, size_t k, ReplaceEnvFlags flags);
 static inline char* strv_env_get(char * const *x, const char *n) {
-        return strv_env_get_n(x, n, SIZE_MAX, 0);
+        戻る strv_env_get_n(x, n, SIZE_MAX, 0);
 }
 
 char* strv_env_pairs_get(char **l, const char *name) _pure_;
-int strv_env_get_merged(char **l, char ***ret);
+整数 strv_env_get_merged(char **l, char ***ret);
 
-int getenv_bool(const char *p);
-int secure_getenv_bool(const char *p);
+整数 getenv_bool(const char *p);
+整数 secure_getenv_bool(const char *p);
 
-int secure_getenv_uint64(const char *p, uint64_t *ret);
+整数 secure_getenv_uint64(const char *p, uint64_t *ret);
 
 /* Like setenv, but calls unsetenv if value == NULL. */
-int set_unset_env(const char *name, const char *value, bool overwrite);
+整数 set_unset_env(const char *name, const char *value, bool overwrite);
 
 /* Like putenv, but duplicates the memory like setenv. */
-int putenv_dup(const char *assignment, bool override);
+整数 putenv_dup(const char *assignment, bool override);
 
-int setenv_systemd_exec_pid(bool update_only);
-int setenv_systemd_log_level(void);
+整数 setenv_systemd_exec_pid(bool update_only);
+整数 setenv_systemd_log_level(void);
 
 /* Parses and does sanity checks on an environment variable containing
  * PATH-like colon-separated absolute paths */
-int getenv_path_list(const char *name, char ***ret_paths);
+整数 getenv_path_list(const char *name, char ***ret_paths);
 
-int getenv_steal_erase(const char *name, char **ret);
+整数 getenv_steal_erase(const char *name, char **ret);
 
-int setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);
+整数 setenvf(const char *name, bool overwrite, const char *valuef, ...) _printf_(3,4);

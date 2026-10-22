@@ -24,53 +24,53 @@ char* first_word(const char *s, const char *word) {
         /* Checks if the string starts with the specified word, either followed by NUL or by whitespace.
          * Returns a pointer to the NUL or the first character after the whitespace. */
 
-        if (isempty(word))
-                return (char*) s;
+        もし (isempty(word))
+                戻る (char*) s;
 
         const char *p = startswith(s, word);
-        if (!p)
-                return NULL;
-        if (*p == '\0')
-                return (char*) p;
+        もし (!p)
+                戻る NULL;
+        もし (*p == '\0')
+                戻る (char*) p;
 
         const char *nw = skip_leading_chars(p, WHITESPACE);
-        if (p == nw)
-                return NULL;
+        もし (p == nw)
+                戻る NULL;
 
-        return (char*) nw;
+        戻る (char*) nw;
 }
 
 char* strextendn(char **x, const char *s, size_t l) {
         assert(x);
         assert(s || l == 0);
 
-        if (l > 0)
+        もし (l > 0)
                 l = strnlen(s, l); /* ignore trailing noise */
 
-        if (l > 0 || !*x) {
+        もし (l > 0 || !*x) {
                 size_t q;
                 char *m;
 
                 q = strlen_ptr(*x);
                 m = realloc(*x, q + l + 1);
-                if (!m)
-                        return NULL;
+                もし (!m)
+                        戻る NULL;
 
                 *mempcpy_typesafe(m + q, s, l) = 0;
 
                 *x = m;
         }
 
-        return *x;
+        戻る *x;
 }
 
 char* strstrip(char *s) {
-        if (!s)
-                return NULL;
+        もし (!s)
+                戻る NULL;
 
         /* Drops trailing whitespace. Modifies the string in place. Returns pointer to first non-space character */
 
-        return delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
+        戻る delete_trailing_chars(skip_leading_chars(s, WHITESPACE), WHITESPACE);
 }
 
 char* delete_chars(char *s, const char *bad) {
@@ -78,14 +78,14 @@ char* delete_chars(char *s, const char *bad) {
 
         /* Drops all specified bad characters, regardless where in the string */
 
-        if (!s)
-                return NULL;
+        もし (!s)
+                戻る NULL;
 
-        if (!bad)
+        もし (!bad)
                 bad = WHITESPACE;
 
-        for (f = s, t = s; *f; f++) {
-                if (strchr(bad, *f))
+        ために (f = s, t = s; *f; f++) {
+                もし (strchr(bad, *f))
                         continue;
 
                 *(t++) = *f;
@@ -93,7 +93,7 @@ char* delete_chars(char *s, const char *bad) {
 
         *t = 0;
 
-        return s;
+        戻る s;
 }
 
 char* delete_trailing_chars(char *s, const char *bad) {
@@ -101,19 +101,19 @@ char* delete_trailing_chars(char *s, const char *bad) {
 
         /* Drops all specified bad characters, at the end of the string */
 
-        if (!s)
-                return NULL;
+        もし (!s)
+                戻る NULL;
 
-        if (!bad)
+        もし (!bad)
                 bad = WHITESPACE;
 
-        for (char *p = s; *p; p++)
-                if (!strchr(bad, *p))
+        ために (char *p = s; *p; p++)
+                もし (!strchr(bad, *p))
                         c = p + 1;
 
         *c = 0;
 
-        return s;
+        戻る s;
 }
 
 char* truncate_nl_full(char *s, size_t *ret_len) {
@@ -123,92 +123,92 @@ char* truncate_nl_full(char *s, size_t *ret_len) {
 
         n = strcspn(s, NEWLINE);
         s[n] = '\0';
-        if (ret_len)
+        もし (ret_len)
                 *ret_len = n;
-        return s;
+        戻る s;
 }
 
 char ascii_tolower(char x) {
 
-        if (x >= 'A' && x <= 'Z')
-                return x - 'A' + 'a';
+        もし (x >= 'A' && x <= 'Z')
+                戻る x - 'A' + 'a';
 
-        return x;
+        戻る x;
 }
 
 char ascii_toupper(char x) {
 
-        if (x >= 'a' && x <= 'z')
-                return x - 'a' + 'A';
+        もし (x >= 'a' && x <= 'z')
+                戻る x - 'a' + 'A';
 
-        return x;
+        戻る x;
 }
 
 char* ascii_strlower(char *s) {
         assert(s);
 
-        for (char *p = s; *p; p++)
+        ために (char *p = s; *p; p++)
                 *p = ascii_tolower(*p);
 
-        return s;
+        戻る s;
 }
 
 char* ascii_strupper(char *s) {
         assert(s);
 
-        for (char *p = s; *p; p++)
+        ために (char *p = s; *p; p++)
                 *p = ascii_toupper(*p);
 
-        return s;
+        戻る s;
 }
 
 char* ascii_strlower_n(char *s, size_t n) {
         assert(n <= 0 || s);
 
-        if (n <= 0)
-                return s;
+        もし (n <= 0)
+                戻る s;
 
-        for (size_t i = 0; i < n; i++)
+        ために (size_t i = 0; i < n; i++)
                 s[i] = ascii_tolower(s[i]);
 
-        return s;
+        戻る s;
 }
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n) {
+整数 ascii_strcasecmp_n(const char *a, const char *b, size_t n) {
 
         assert(a);
         assert(b);
 
-        for (; n > 0; a++, b++, n--) {
-                int x, y;
+        ために (; n > 0; a++, b++, n--) {
+                整数 x, y;
 
-                x = (int) (uint8_t) ascii_tolower(*a);
-                y = (int) (uint8_t) ascii_tolower(*b);
+                x = (整数) (uint8_t) ascii_tolower(*a);
+                y = (整数) (uint8_t) ascii_tolower(*b);
 
-                if (x != y)
-                        return x - y;
+                もし (x != y)
+                        戻る x - y;
         }
 
-        return 0;
+        戻る 0;
 }
 
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m) {
-        int r;
+整数 ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m) {
+        整数 r;
 
         r = ascii_strcasecmp_n(a, b, MIN(n, m));
-        if (r != 0)
-                return r;
+        もし (r != 0)
+                戻る r;
 
-        return CMP(n, m);
+        戻る CMP(n, m);
 }
 
 bool chars_intersect(const char *a, const char *b) {
         /* Returns true if any of the chars in a are in b. */
-        for (const char *p = a; *p; p++)
-                if (strchr(b, *p))
-                        return true;
+        ために (const char *p = a; *p; p++)
+                もし (strchr(b, *p))
+                        戻る true;
 
-        return false;
+        戻る false;
 }
 
 bool string_has_cc(const char *p, const char *ok) {
@@ -220,64 +220,64 @@ bool string_has_cc(const char *p, const char *ok) {
          * considered OK.
          */
 
-        for (const char *t = p; *t; t++) {
-                if (ok && strchr(ok, *t))
+        ために (const char *t = p; *t; t++) {
+                もし (ok && strchr(ok, *t))
                         continue;
 
-                if (char_is_cc(*t))
-                        return true;
+                もし (char_is_cc(*t))
+                        戻る true;
         }
 
-        return false;
+        戻る false;
 }
 
-static int write_ellipsis(char *buf, bool unicode) {
+static 整数 write_ellipsis(char *buf, bool unicode) {
         const char *s = glyph_full(GLYPH_ELLIPSIS, unicode);
         assert(strlen(s) == 3);
         memcpy(buf, s, 3);
-        return 3;
+        戻る 3;
 }
 
 static size_t ansi_sequence_length(const char *s, size_t len) {
         assert(s);
 
-        if (len < 2)
-                return 0;
+        もし (len < 2)
+                戻る 0;
 
-        if (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
-                return 0;  /* Not the start of a sequence */
+        もし (s[0] != 0x1B)  /* ASCII 27, aka ESC, aka Ctrl-[ */
+                戻る 0;  /* Not the start of a sequence */
 
-        if (s[1] == 0x5B) { /* [, start of CSI sequence */
+        もし (s[1] == 0x5B) { /* [, start of CSI sequence */
                 size_t i = 2;
 
-                if (i == len)
-                        return 0;
+                もし (i == len)
+                        戻る 0;
 
-                while (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
-                        if (++i == len)
-                                return 0;
-                while (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
-                        if (++i == len)
-                                return 0;
-                if (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
-                        return i + 1;
-                return 0;  /* Bad sequence */
+                ながら (s[i] >= 0x30 && s[i] <= 0x3F) /* Parameter bytes */
+                        もし (++i == len)
+                                戻る 0;
+                ながら (s[i] >= 0x20 && s[i] <= 0x2F) /* Intermediate bytes */
+                        もし (++i == len)
+                                戻る 0;
+                もし (s[i] >= 0x40 && s[i] <= 0x7E) /* Final byte */
+                        戻る i + 1;
+                戻る 0;  /* Bad sequence */
 
-        } else if (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
-                return 2;
+        } 否则 もし (s[1] >= 0x40 && s[1] <= 0x5F) /* other non-CSI Fe sequence */
+                戻る 2;
 
-        return 0;  /* Bad escape? */
+        戻る 0;  /* Bad escape? */
 }
 
 static bool string_has_ansi_sequence(const char *s, size_t len) {
         const char *t = s;
 
-        while ((t = memchr(t, 0x1B, len - (t - s)))) {
-                if (ansi_sequence_length(t, len - (t - s)) > 0)
-                        return true;
+        ながら ((t = memchr(t, 0x1B, len - (t - s)))) {
+                もし (ansi_sequence_length(t, len - (t - s)) > 0)
+                        戻る true;
                 t++;
         }
-        return false;
+        戻る false;
 }
 
 static size_t previous_ansi_sequence(const char *s, size_t length, const char **ret_where) {
@@ -287,25 +287,25 @@ static size_t previous_ansi_sequence(const char *s, size_t length, const char **
 
         /* Locate the previous ANSI sequence and save its start in *ret_where and return length. */
 
-        if (length < 2) {
+        もし (length < 2) {
                 /* Need at least two bytes for an ANSI sequence */
                 *ret_where = NULL;
-                return 0;
+                戻る 0;
         }
 
-        for (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
+        ために (size_t i = length - 2;; i--) {  /* -2 because at least two bytes are needed */
                 size_t slen = ansi_sequence_length(s + i, length - i);
-                if (slen > 0) {
+                もし (slen > 0) {
                         *ret_where = s + i;
-                        return slen;
+                        戻る slen;
                 }
 
-                if (i == 0)
+                もし (i == 0)
                         break;
         }
 
         *ret_where = NULL;
-        return 0;
+        戻る 0;
 }
 
 static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
@@ -316,24 +316,24 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
         assert(percent <= 100);
         assert(new_length != SIZE_MAX);
 
-        if (old_length <= new_length)
-                return strndup(s, old_length);
+        もし (old_length <= new_length)
+                戻る strndup(s, old_length);
 
         /* Special case short ellipsations */
         switch (new_length) {
 
         case 0:
-                return strdup("");
+                戻る strdup("");
 
         case 1:
-                if (is_locale_utf8())
-                        return strdup("…");
-                else
-                        return strdup(".");
+                もし (is_locale_utf8())
+                        戻る strdup("…");
+                否则
+                        戻る strdup(".");
 
         case 2:
-                if (!is_locale_utf8())
-                        return strdup("..");
+                もし (!is_locale_utf8())
+                        戻る strdup("..");
                 break;
         }
 
@@ -343,8 +343,8 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
         need_space = is_locale_utf8() ? 1 : 3;
 
         t = new(char, new_length+3);
-        if (!t)
-                return NULL;
+        もし (!t)
+                戻る NULL;
 
         assert(new_length >= need_space);
 
@@ -356,7 +356,7 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
         memcpy(t + x + 3, s + old_length - suffix_len, suffix_len);
         *(t + x + 3 + suffix_len) = '\0';
 
-        return t;
+        戻る t;
 }
 
 /* Walk backwards from 'end' (exclusive) to the start of the last complete UTF-8 character, without
@@ -364,32 +364,32 @@ static char *ascii_ellipsize_mem(const char *s, size_t old_length, size_t new_le
  * into *ret_c. Returns NULL on a truncated or otherwise malformed sequence. */
 static const char* find_previous_unichar(const char *start, const char *end, char32_t *ret_c) {
         const char *p;
-        int r;
+        整数 r;
 
         assert(start);
         assert(end);
         assert(end > start);
 
-        for (p = end; p > start; ) {
+        ために (p = end; p > start; ) {
                 p--;
-                if (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
+                もし (((uint8_t) *p & 0xc0) != 0x80) /* Found a non-continuation byte, i.e. a character start. */
                         break;
         }
 
         r = utf8_encoded_valid_unichar(p, end - p);
-        if (r < 0 || p + r != end)
-                return NULL;
+        もし (r < 0 || p + r != end)
+                戻る NULL;
 
-        if (ret_c)
+        もし (ret_c)
                 assert_se(utf8_encoded_to_unichar(p, ret_c) == r);
 
-        return p;
+        戻る p;
 }
 
 char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigned percent) {
         size_t x, k, len, len2;
         const char *i, *j;
-        int r;
+        整数 r;
 
         /* Note that 'old_length' refers to bytes in the string, while 'new_length' refers to character cells taken up
          * on screen. This distinction doesn't matter for ASCII strings, but it does matter for non-ASCII UTF-8
@@ -406,40 +406,40 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         assert(s);
         assert(percent <= 100);
 
-        if (new_length == SIZE_MAX)
-                return strndup(s, old_length);
+        もし (new_length == SIZE_MAX)
+                戻る strndup(s, old_length);
 
-        if (new_length == 0)
-                return strdup("");
+        もし (new_length == 0)
+                戻る strdup("");
 
         bool has_ansi_seq = string_has_ansi_sequence(s, old_length);
 
         /* If no multibyte characters or ANSI sequences, use ascii_ellipsize_mem for speed. It equates
          * bytes with character cells, which holds for ASCII except for the tab, which
          * unichar_console_width() counts as 8 cells. */
-        if (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
-                return ascii_ellipsize_mem(s, old_length, new_length, percent);
+        もし (!has_ansi_seq && ascii_is_valid_n(s, old_length) && !memchr(s, '\t', old_length))
+                戻る ascii_ellipsize_mem(s, old_length, new_length, percent);
 
         x = (new_length - 1) * percent / 100;
         assert(x <= new_length - 1);
 
         k = 0;
-        for (i = s; i < s + old_length; ) {
+        ために (i = s; i < s + old_length; ) {
                 size_t slen = has_ansi_seq ? ansi_sequence_length(i, old_length - (i - s)) : 0;
-                if (slen > 0) {
+                もし (slen > 0) {
                         i += slen;
                         continue;  /* ANSI sequences don't take up any space in output */
                 }
 
                 r = utf8_encoded_valid_unichar(i, s + old_length - i);
-                if (r < 0)
-                        return NULL;
+                もし (r < 0)
+                        戻る NULL;
 
                 char32_t c;
                 assert_se(utf8_encoded_to_unichar(i, &c) == r);
 
-                int w = unichar_console_width(c);
-                if (k + w > x)
+                整数 w = unichar_console_width(c);
+                もし (k + w > x)
                         break;
 
                 k += w;
@@ -449,28 +449,28 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         const char *ansi_start = s + old_length;
         size_t ansi_len = 0;
 
-        for (const char *t = j = s + old_length; t > i && k < new_length; ) {
+        ために (const char *t = j = s + old_length; t > i && k < new_length; ) {
                 char32_t c;
-                int w;
+                整数 w;
                 const char *tt;
 
-                if (has_ansi_seq && ansi_start >= t)
+                もし (has_ansi_seq && ansi_start >= t)
                         /* Figure out the previous ANSI sequence, if any */
                         ansi_len = previous_ansi_sequence(s, t - s, &ansi_start);
 
                 /* If the sequence extends all the way to the current position, skip it. */
-                if (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
+                もし (has_ansi_seq && ansi_len > 0 && ansi_start + ansi_len == t) {
                         t = ansi_start;
                         continue;
                 }
 
                 /* Find the previous complete UTF-8 character inside the retained suffix. */
                 tt = find_previous_unichar(i, t, &c);
-                if (!tt)
-                        return NULL;
+                もし (!tt)
+                        戻る NULL;
 
                 w = unichar_console_width(c);
-                if (k + w > new_length)
+                もし (k + w > new_length)
                         break;
 
                 k += w;
@@ -478,24 +478,24 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         }
 
         /* We don't actually need to ellipsize */
-        if (i >= j)
-                return memdup_suffix0(s, old_length);
+        もし (i >= j)
+                戻る memdup_suffix0(s, old_length);
 
-        if (k >= new_length) {
+        もし (k >= new_length) {
                 /* Make space for ellipsis, if required and possible. We know that the edge character is not
                  * part of an ANSI sequence (because then we'd skip it). If the last character we looked at
                  * was wide, we don't need to make space.
                  * Move the edge by one complete UTF-8 character within the input slice. */
-                if (j < s + old_length) {
+                もし (j < s + old_length) {
                         r = utf8_encoded_valid_unichar(j, s + old_length - j);
-                        if (r < 0)
-                                return NULL;
+                        もし (r < 0)
+                                戻る NULL;
 
                         j += r;
-                } else if (i > s) {
+                } 否则 もし (i > s) {
                         const char *tt = find_previous_unichar(s, i, NULL);
-                        if (!tt)
-                                return NULL;
+                        もし (!tt)
+                                戻る NULL;
 
                         i = tt;
                 }
@@ -510,29 +510,29 @@ char* ellipsize_mem(const char *s, size_t old_length, size_t new_length, unsigne
         size_t alloc_len = has_ansi_seq ? old_length + 3 + 1 : len + 3 + len2 + 1;
 
         char *e = new(char, alloc_len);
-        if (!e)
-                return NULL;
+        もし (!e)
+                戻る NULL;
 
         memcpy_safe(e, s, len);
         write_ellipsis(e + len, /* unicode= */ true);
 
         char *dst = e + len + 3;
 
-        if (has_ansi_seq)
+        もし (has_ansi_seq)
                 /* Copy over any ANSI sequences in full */
-                for (const char *p = s + len; p < j; ) {
+                ために (const char *p = s + len; p < j; ) {
                         size_t slen = ansi_sequence_length(p, j - p);
-                        if (slen > 0) {
+                        もし (slen > 0) {
                                 dst = mempcpy(dst, p, slen);
                                 p += slen;
-                        } else
+                        } 否则
                                 p = utf8_next_char(p);
                 }
 
         memcpy_safe(dst, j, len2);
         dst[len2] = '\0';
 
-        return e;
+        戻る e;
 }
 
 char* cellescape(char *buf, size_t len, const char *s) {
@@ -554,15 +554,15 @@ char* cellescape(char *buf, size_t len, const char *s) {
         assert(len > 0); /* at least a terminating NUL */
         assert(s);
 
-        for (;;) {
+        ために (;;) {
                 char four[4];
-                int w;
+                整数 w;
 
-                if (*s == 0) /* terminating NUL detected? then we are done! */
+                もし (*s == 0) /* terminating NUL detected? then we are done! */
                         goto done;
 
                 w = cescape_char(*s, four);
-                if (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
+                もし (i + w + 1 > len) /* This character doesn't fit into the buffer anymore? In that case let's
                                       * ellipsize at the previous location */
                         break;
 
@@ -579,66 +579,66 @@ char* cellescape(char *buf, size_t len, const char *s) {
 
         /* Ellipsation is necessary. This means we might need to truncate the string again to make space for 4
          * characters ideally, but the buffer is shorter than that in the first place take what we can get */
-        for (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
+        ために (size_t j = 0; j < ELEMENTSOF(last_char_width); j++) {
 
-                if (i + 4 <= len) /* nice, we reached our space goal */
+                もし (i + 4 <= len) /* nice, we reached our space goal */
                         break;
 
                 k = k == 0 ? 3 : k - 1;
-                if (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
+                もし (last_char_width[k] == 0) /* bummer, we reached the beginning of the strings */
                         break;
 
                 assert(i >= last_char_width[k]);
                 i -= last_char_width[k];
         }
 
-        if (i + 4 <= len) /* yay, enough space */
+        もし (i + 4 <= len) /* yay, enough space */
                 i += write_ellipsis(buf + i, /* unicode= */ false);
-        else if (i + 3 <= len) { /* only space for ".." */
+        否则 もし (i + 3 <= len) { /* only space for ".." */
                 buf[i++] = '.';
                 buf[i++] = '.';
-        } else if (i + 2 <= len) /* only space for a single "." */
+        } 否则 もし (i + 2 <= len) /* only space for a single "." */
                 buf[i++] = '.';
-        else
+        否则
                 assert(i + 1 <= len);
 
 done:
         buf[i] = '\0';
-        return buf;
+        戻る buf;
 }
 
 char* strshorten(char *s, size_t l) {
         assert(s);
 
-        if (l >= SIZE_MAX-1) /* Would not change anything */
-                return s;
+        もし (l >= SIZE_MAX-1) /* Would not change anything */
+                戻る s;
 
-        if (strnlen(s, l+1) > l)
+        もし (strnlen(s, l+1) > l)
                 s[l] = 0;
 
-        return s;
+        戻る s;
 }
 
-int strgrowpad0(char **s, size_t l) {
+整数 strgrowpad0(char **s, size_t l) {
         size_t sz;
 
         assert(s);
 
-        if (*s) {
+        もし (*s) {
                 sz = strlen(*s) + 1;
-                if (sz >= l) /* never shrink */
-                        return 0;
-        } else
+                もし (sz >= l) /* never shrink */
+                        戻る 0;
+        } 否则
                 sz = 0;
 
         char *q = realloc(*s, l);
-        if (!q)
-                return -ENOMEM;
+        もし (!q)
+                戻る -ENOMEM;
 
         *s = q;
 
         memzero(*s + sz, l - sz);
-        return 0;
+        戻る 0;
 }
 
 char* strreplace(const char *text, const char *old_string, const char *new_string) {
@@ -649,22 +649,22 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
         assert(old_string);
         assert(new_string);
 
-        if (!text)
-                return NULL;
+        もし (!text)
+                戻る NULL;
 
         old_len = strlen(old_string);
         new_len = strlen(new_string);
 
         l = strlen(text);
-        if (!GREEDY_REALLOC(ret, l+1))
-                return NULL;
+        もし (!GREEDY_REALLOC(ret, l+1))
+                戻る NULL;
 
         f = text;
         t = ret;
-        while (*f) {
+        ながら (*f) {
                 size_t d, nl;
 
-                if (!startswith(f, old_string)) {
+                もし (!startswith(f, old_string)) {
                         *(t++) = *(f++);
                         continue;
                 }
@@ -672,8 +672,8 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
                 d = t - ret;
                 nl = l - old_len + new_len;
 
-                if (!GREEDY_REALLOC(ret, nl + 1))
-                        return mfree(ret);
+                もし (!GREEDY_REALLOC(ret, nl + 1))
+                        戻る mfree(ret);
 
                 l = nl;
                 t = ret + d;
@@ -683,7 +683,7 @@ char* strreplace(const char *text, const char *old_string, const char *new_strin
         }
 
         *t = 0;
-        return ret;
+        戻る ret;
 }
 
 static void advance_offsets(
@@ -692,14 +692,14 @@ static void advance_offsets(
                 size_t shift[static 2],
                 size_t size) {
 
-        if (!offsets)
-                return;
+        もし (!offsets)
+                戻る;
 
         assert(shift);
 
-        if ((size_t) diff < offsets[0])
+        もし ((size_t) diff < offsets[0])
                 shift[0] += size;
-        if ((size_t) diff < offsets[1])
+        もし ((size_t) diff < offsets[1])
                 shift[1] += size;
 }
 
@@ -714,14 +714,14 @@ static void retract_offsets(
          * arithmetic, which is fine as the sum of all shifts applied to an offset is never negative: at most
          * as many bytes can be dropped before an offset as there are bytes before it. */
 
-        if (!offsets)
-                return;
+        もし (!offsets)
+                戻る;
 
         assert(shift);
         assert(begin <= end);
 
-        for (size_t k = 0; k < 2; k++)
-                if (offsets[k] > begin)
+        ために (size_t k = 0; k < 2; k++)
+                もし (offsets[k] > begin)
                         shift[k] -= MIN(offsets[k], end) - begin;
 }
 
@@ -753,23 +753,23 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
         /* Note we turn off internal locking on f for performance reasons. It's safe to do so since we
          * created f here and it doesn't leave our scope. */
         f = memstream_init(&m);
-        if (!f)
-                return NULL;
+        もし (!f)
+                戻る NULL;
 
-        for (const char *i = *ibuf; i < *ibuf + isz; i++) {
-                int e;
+        ために (const char *i = *ibuf; i < *ibuf + isz; i++) {
+                整数 e;
 
-                for (;;) {
+                ために (;;) {
                         e = ansi_seq_parser_feed(&parser, *i);
-                        if (e < 0)
-                                return NULL;
-                        if (e != ANSI_SEQ_EVENT_ABORT)
+                        もし (e < 0)
+                                戻る NULL;
+                        もし (e != ANSI_SEQ_EVENT_ABORT)
                                 break;
 
                         /* Eat up bogus sequences. The aborted sequence is over (and dropped, up to but
                          * excluding the current character, which is fed again), hence forget about it, so
                          * that the next sequence flushes pending carriage returns again. */
-                        if (begin) {
+                        もし (begin) {
                                 retract_offsets(begin - *ibuf, i - *ibuf, highlight, shift);
                                 begin = NULL;
                         }
@@ -778,11 +778,11 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
                 switch (e) {
 
                 case ANSI_SEQ_EVENT_TEXT:
-                        if (*i == '\r') {
+                        もし (*i == '\r') {
                                 n_carriage_returns++;
                                 continue;
                         }
-                        if (*i == '\n') {
+                        もし (*i == '\n') {
                                 /* Ignore carriage returns before new line. They are dropped from the output,
                                  * hence the offsets need to account for them. (Note that pending carriage
                                  * returns always immediately precede the current character, since anything
@@ -794,21 +794,21 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
                                                 shift);
                                 n_carriage_returns = 0;
                         }
-                        for (; n_carriage_returns > 0; n_carriage_returns--)
+                        ために (; n_carriage_returns > 0; n_carriage_returns--)
                                 fputc('\r', f);
 
-                        if (*i == '\t') {
+                        もし (*i == '\t') {
                                 fputs("        ", f);
                                 advance_offsets(i - *ibuf, highlight, shift, 7);
-                        } else
+                        } 否则
                                 fputc(*i, f);
 
                         break;
 
                 case ANSI_SEQ_EVENT_SEQUENCE:
-                        if (!begin) {
+                        もし (!begin) {
                                 /* This starts a new sequence, flush any pending carriage returns first */
-                                for (; n_carriage_returns > 0; n_carriage_returns--)
+                                ために (; n_carriage_returns > 0; n_carriage_returns--)
                                         fputc('\r', f);
 
                                 begin = i;
@@ -829,24 +829,24 @@ char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]) {
 
         /* If the input ends in the middle of a sequence the truncated sequence is dropped as well, hence
          * the offsets need to account for it, too. */
-        if (begin)
+        もし (begin)
                 retract_offsets(begin - *ibuf, isz, highlight, shift);
 
         /* Trailing carriage returns are dropped, too */
         retract_offsets(isz - n_carriage_returns, isz, highlight, shift);
 
         char *obuf;
-        if (memstream_finalize(&m, &obuf, _isz) < 0)
-                return NULL;
+        もし (memstream_finalize(&m, &obuf, _isz) < 0)
+                戻る NULL;
 
         free_and_replace(*ibuf, obuf);
 
-        if (highlight) {
+        もし (highlight) {
                 highlight[0] += shift[0];
                 highlight[1] += shift[1];
         }
 
-        return *ibuf;
+        戻る *ibuf;
 }
 
 char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
@@ -855,7 +855,7 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         bool need_separator;
         char *nr, *p;
 
-        if (!x)
+        もし (!x)
                 x = &buffer;
 
         l = f = strlen_ptr(*x);
@@ -865,23 +865,23 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
 
         va_list aq;
         va_copy(aq, ap);
-        for (const char *t;;) {
+        ために (const char *t;;) {
                 size_t n;
 
                 t = va_arg(aq, const char *);
-                if (!t)
+                もし (!t)
                         break;
-                if (t == POINTER_MAX)
+                もし (t == POINTER_MAX)
                         continue;
 
                 n = strlen(t);
 
-                if (need_separator)
+                もし (need_separator)
                         n += l_separator;
 
-                if (n >= SIZE_MAX - l) {
+                もし (n >= SIZE_MAX - l) {
                         va_end(aq);
-                        return NULL;
+                        戻る NULL;
                 }
 
                 l += n;
@@ -892,22 +892,22 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         need_separator = !isempty(*x);
 
         nr = realloc(*x, GREEDY_ALLOC_ROUND_UP(l+1));
-        if (!nr)
-                return NULL;
+        もし (!nr)
+                戻る NULL;
 
         *x = nr;
         p = nr + f;
 
-        for (;;) {
+        ために (;;) {
                 const char *t;
 
                 t = va_arg(ap, const char *);
-                if (!t)
+                もし (!t)
                         break;
-                if (t == POINTER_MAX)
+                もし (t == POINTER_MAX)
                         continue;
 
-                if (need_separator && separator)
+                もし (need_separator && separator)
                         p = stpcpy(p, separator);
 
                 p = stpcpy(p, t);
@@ -919,11 +919,11 @@ char* strextendv_with_separator(char **x, const char *separator, va_list ap) {
         *p = 0;
 
         /* If no buffer to extend was passed in return the start of the buffer */
-        if (buffer)
-                return TAKE_PTR(buffer);
+        もし (buffer)
+                戻る TAKE_PTR(buffer);
 
         /* Otherwise we extended the buffer: return the end */
-        return p;
+        戻る p;
 }
 
 char* strextend_with_separator_internal(char **x, const char *separator, ...) {
@@ -934,13 +934,13 @@ char* strextend_with_separator_internal(char **x, const char *separator, ...) {
         ret = strextendv_with_separator(x, separator, ap);
         va_end(ap);
 
-        return ret;
+        戻る ret;
 }
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) {
+整数 strextendf_with_separator(char **x, const char *separator, const char *format, ...) {
         size_t m, a, l_separator;
         va_list ap;
-        int l;
+        整数 l;
 
         /* Appends a formatted string to the specified string. Don't use this in inner loops, since then
          * we'll spend a tonload of time in determining the length of the string passed in, over and over
@@ -952,24 +952,24 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
         l_separator = isempty(*x) ? 0 : strlen_ptr(separator);
 
         /* Let's try to use the allocated buffer, if there's room at the end still. Otherwise let's extend by 64 chars. */
-        if (*x) {
+        もし (*x) {
                 m = strlen(*x);
                 a = MALLOC_SIZEOF_SAFE(*x);
                 assert(a >= m + 1);
-        } else
+        } 否则
                 m = a = 0;
 
-        if (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
+        もし (a - m < 17 + l_separator) { /* if there's less than 16 chars space, then enlarge the buffer first */
                 char *n;
 
-                if (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
-                        return -ENOMEM;
-                if (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
-                        return -ENOMEM;
+                もし (_unlikely_(l_separator > SIZE_MAX - 64)) /* overflow check #1 */
+                        戻る -ENOMEM;
+                もし (_unlikely_(m > SIZE_MAX - 64 - l_separator)) /* overflow check #2 */
+                        戻る -ENOMEM;
 
                 n = realloc(*x, m + 64 + l_separator);
-                if (!n)
-                        return -ENOMEM;
+                もし (!n)
+                        戻る -ENOMEM;
 
                 *x = n;
                 a = MALLOC_SIZEOF_SAFE(*x);
@@ -983,28 +983,28 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
 
         assert(l >= 0);
 
-        if ((size_t) l < a - m - l_separator) {
+        もし ((size_t) l < a - m - l_separator) {
                 char *n;
 
                 /* Nice! This worked. We are done. But first, let's return the extra space we don't
                  * need. This should be a cheap operation, since we only lower the allocation size here,
                  * never increase. */
                 n = realloc(*x, m + (size_t) l + l_separator + 1);
-                if (n)
+                もし (n)
                         *x = n;
-        } else {
+        } 否则 {
                 char *n;
 
                 /* Wasn't enough. Then let's allocate exactly what we need. */
 
-                if (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
+                もし (_unlikely_((size_t) l > SIZE_MAX - (l_separator + 1))) /* overflow check #1 */
                         goto oom;
-                if (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
+                もし (_unlikely_(m > SIZE_MAX - ((size_t) l + l_separator + 1))) /* overflow check #2 */
                         goto oom;
 
                 a = m + (size_t) l + l_separator + 1;
                 n = realloc(*x, a);
-                if (!n)
+                もし (!n)
                         goto oom;
                 *x = n;
 
@@ -1015,12 +1015,12 @@ int strextendf_with_separator(char **x, const char *separator, const char *forma
                 assert((size_t) l < a - m - l_separator);
         }
 
-        return 0;
+        戻る 0;
 
 oom:
         /* truncate the bytes added after memcpy_safe() again */
         (*x)[m] = 0;
-        return -ENOMEM;
+        戻る -ENOMEM;
 }
 
 char* strrep(const char *s, size_t n) {
@@ -1030,52 +1030,52 @@ char* strrep(const char *s, size_t n) {
         assert(s);
 
         l = strlen(s);
-        if (!MUL_ASSIGN_SAFE(&l, n))
-                return NULL;
-        if (!INC_SAFE(&l, 1))
-                return NULL;
+        もし (!MUL_ASSIGN_SAFE(&l, n))
+                戻る NULL;
+        もし (!INC_SAFE(&l, 1))
+                戻る NULL;
 
         p = ret = malloc(l);
-        if (!ret)
-                return NULL;
+        もし (!ret)
+                戻る NULL;
 
-        for (size_t i = 0; i < n; i++)
+        ために (size_t i = 0; i < n; i++)
                 p = stpcpy(p, s);
 
         *p = 0;
-        return ret;
+        戻る ret;
 }
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second) {
+整数 split_pair(const char *s, const char *sep, char **ret_first, char **ret_second) {
         assert(s);
         assert(!isempty(sep));
 
         const char *x = strstr(s, sep);
-        if (!x)
-                return -EINVAL;
+        もし (!x)
+                戻る -EINVAL;
 
         _cleanup_free_ char *a = NULL;
-        if (ret_first) {
+        もし (ret_first) {
                 a = strndup(s, x - s);
-                if (!a)
-                        return -ENOMEM;
+                もし (!a)
+                        戻る -ENOMEM;
         }
 
         _cleanup_free_ char *b = NULL;
-        if (ret_second) {
+        もし (ret_second) {
                 b = strdup(x + strlen(sep));
-                if (!b)
-                        return -ENOMEM;
+                もし (!b)
+                        戻る -ENOMEM;
         }
 
-        if (ret_first)
+        もし (ret_first)
                 *ret_first = TAKE_PTR(a);
-        if (ret_second)
+        もし (ret_second)
                 *ret_second = TAKE_PTR(b);
-        return 0;
+        戻る 0;
 }
 
-int free_and_strdup(char **p, const char *s) {
+整数 free_and_strdup(char **p, const char *s) {
         char *t;
 
         assert(p);
@@ -1083,31 +1083,31 @@ int free_and_strdup(char **p, const char *s) {
         /* Replaces a string pointer with a strdup()ed new string,
          * possibly freeing the old one. */
 
-        if (streq_ptr(*p, s))
-                return 0;
+        もし (streq_ptr(*p, s))
+                戻る 0;
 
-        if (s) {
+        もし (s) {
                 t = strdup(s);
-                if (!t)
-                        return -ENOMEM;
-        } else
+                もし (!t)
+                        戻る -ENOMEM;
+        } 否则
                 t = NULL;
 
         free_and_replace(*p, t);
 
-        return 1;
+        戻る 1;
 }
 
-int free_and_strdup_warn(char **p, const char *s) {
-        int r;
+整数 free_and_strdup_warn(char **p, const char *s) {
+        整数 r;
 
         r = free_and_strdup(p, s);
-        if (r < 0)
-                return log_oom();
-        return r;
+        もし (r < 0)
+                戻る log_oom();
+        戻る r;
 }
 
-int free_and_strndup(char **p, const char *s, size_t l) {
+整数 free_and_strndup(char **p, const char *s, size_t l) {
         char *t;
 
         assert(p);
@@ -1116,38 +1116,38 @@ int free_and_strndup(char **p, const char *s, size_t l) {
         /* Replaces a string pointer with a strndup()ed new string,
          * freeing the old one. */
 
-        if (!*p && !s)
-                return 0;
+        もし (!*p && !s)
+                戻る 0;
 
-        if (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
-                return 0;
+        もし (*p && s && strneq(*p, s, l) && (l > strlen(*p) || (*p)[l] == '\0'))
+                戻る 0;
 
-        if (s) {
+        もし (s) {
                 t = strndup(s, l);
-                if (!t)
-                        return -ENOMEM;
-        } else
+                もし (!t)
+                        戻る -ENOMEM;
+        } 否则
                 t = NULL;
 
         free_and_replace(*p, t);
-        return 1;
+        戻る 1;
 }
 
-int strdup_to_full(char **ret, const char *src) {
-        if (!src) {
-                if (ret)
+整数 strdup_to_full(char **ret, const char *src) {
+        もし (!src) {
+                もし (ret)
                         *ret = NULL;
 
-                return 0;
-        } else {
-                if (ret) {
+                戻る 0;
+        } 否则 {
+                もし (ret) {
                         char *t = strdup(src);
-                        if (!t)
-                                return -ENOMEM;
+                        もし (!t)
+                                戻る -ENOMEM;
                         *ret = t;
                 }
 
-                return 1;
+                戻る 1;
         }
 };
 
@@ -1158,65 +1158,65 @@ bool string_is_safe(const char *p, StringSafeFlags flags) {
          *   • UTF-8 valid (well, technically we skip this test if STRING_ASCII is set, since that is a tighter test)
          */
 
-        if (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
-                return false;
+        もし (FLAGS_SET(flags, STRING_ALLOW_EMPTY) ? !p : isempty(p))
+                戻る false;
 
-        if (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
-                return false;
+        もし (!FLAGS_SET(flags, STRING_ASCII) && !utf8_is_valid(p))
+                戻る false;
 
-        for (const char *t = p; *t; t++) {
+        ために (const char *t = p; *t; t++) {
                 /* never allow control characters, except for new line */
-                if ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
-                        return false;
+                もし ((*t > 0 && *t < ' ' && *t != '\n') || *t == 0x7f)
+                        戻る false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
-                        return false;
+                もし (!FLAGS_SET(flags, STRING_ALLOW_NEWLINES) && *t == '\n')
+                        戻る false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
-                        return false;
+                もし (!FLAGS_SET(flags, STRING_ALLOW_BACKSLASHES) && *t == '\\')
+                        戻る false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
-                        return false;
+                もし (!FLAGS_SET(flags, STRING_ALLOW_QUOTES) && strchr(QUOTES, *t))
+                        戻る false;
 
-                if (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
-                        return false;
+                もし (!FLAGS_SET(flags, STRING_ALLOW_GLOBS) && strchr(GLOB_CHARS, *t))
+                        戻る false;
 
-                if (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
-                        return false;
+                もし (FLAGS_SET(flags, STRING_DISALLOW_WHITESPACE) && strchr(WHITESPACE, *t))
+                        戻る false;
 
-                if (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
-                        return false;
+                もし (FLAGS_SET(flags, STRING_ASCII) && (uint8_t) *t >= 0x80)
+                        戻る false;
         }
 
-        if (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
-                return false;
+        もし (FLAGS_SET(flags, STRING_FILENAME) && !filename_is_valid(p))
+                戻る false;
 
-        if (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
-                return false;
+        もし (FLAGS_SET(flags, STRING_FILENAME_PART) && !filename_part_is_valid(p))
+                戻る false;
 
-        return true;
+        戻る true;
 }
 
 char* str_realloc(char *p) {
         /* Reallocate *p to actual size. Ignore failure, and return the original string on error. */
 
-        if (!p)
-                return NULL;
+        もし (!p)
+                戻る NULL;
 
-        return realloc(p, strlen(p) + 1) ?: p;
+        戻る realloc(p, strlen(p) + 1) ?: p;
 }
 
 char* string_erase(char *x) {
-        if (!x)
-                return NULL;
+        もし (!x)
+                戻る NULL;
 
         /* A delicious drop of snake-oil! To be called on memory where we stored passphrases or so, after we
          * used them. */
         explicit_bzero_safe(x, strlen(x));
-        return x;
+        戻る x;
 }
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
+整数 string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         const char *p = s, *e = s;
         bool truncation_applied = false;
         char *copy;
@@ -1229,16 +1229,16 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
          * there were fewer lines in the string anyway. Trailing newlines on input are ignored, and not
          * generated either. */
 
-        for (;;) {
+        ために (;;) {
                 size_t k;
 
                 k = strcspn(p, "\n");
 
-                if (p[k] == 0) {
-                        if (k == 0) /* final empty line */
+                もし (p[k] == 0) {
+                        もし (k == 0) /* final empty line */
                                 break;
 
-                        if (n >= n_lines) /* above threshold */
+                        もし (n >= n_lines) /* above threshold */
                                 break;
 
                         e = p + k; /* last line to include */
@@ -1247,10 +1247,10 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
 
                 assert(p[k] == '\n');
 
-                if (n >= n_lines)
+                もし (n >= n_lines)
                         break;
 
-                if (k > 0)
+                もし (k > 0)
                         e = p + k;
 
                 p += k + 1;
@@ -1258,23 +1258,23 @@ int string_truncate_lines(const char *s, size_t n_lines, char **ret) {
         }
 
         /* e points after the last character we want to keep */
-        if (isempty(e))
+        もし (isempty(e))
                 copy = strdup(s);
-        else {
-                if (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
+        否则 {
+                もし (!in_charset(e, "\n")) /* We only consider things truncated if we remove something that
                                            * isn't a new-line or a series of them */
                         truncation_applied = true;
 
                 copy = strndup(s, e - s);
         }
-        if (!copy)
-                return -ENOMEM;
+        もし (!copy)
+                戻る -ENOMEM;
 
         *ret = copy;
-        return truncation_applied;
+        戻る truncation_applied;
 }
 
-int string_extract_line(const char *s, size_t i, char **ret) {
+整数 string_extract_line(const char *s, size_t i, char **ret) {
         const char *p = s;
         size_t c = 0;
 
@@ -1286,75 +1286,75 @@ int string_extract_line(const char *s, size_t i, char **ret) {
          * NULL, indicating the input string should be used as is, and avoid a memory allocation for a very
          * common case. */
 
-        for (;;) {
+        ために (;;) {
                 const char *q;
 
                 q = strchr(p, '\n');
-                if (i == c) {
+                もし (i == c) {
                         /* The line we are looking for! */
 
-                        if (q) {
+                        もし (q) {
                                 char *m;
 
                                 m = strndup(p, q - p);
-                                if (!m)
-                                        return -ENOMEM;
+                                もし (!m)
+                                        戻る -ENOMEM;
 
                                 *ret = m;
-                                return !isempty(q + 1); /* More coming? */
-                        } else
+                                戻る !isempty(q + 1); /* More coming? */
+                        } 否则
                                 /* Tell the caller to use the input string if equal */
-                                return strdup_to(ret, p != s ? p : NULL);
+                                戻る strdup_to(ret, p != s ? p : NULL);
                 }
 
-                if (!q)
+                もし (!q)
                         /* No more lines, return empty line */
-                        return strdup_to(ret, "");
+                        戻る strdup_to(ret, "");
 
                 p = q + 1;
                 c++;
         }
 }
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
+整数 string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word) {
         /* In the default mode with no separators specified, we split on whitespace and coalesce separators. */
         const ExtractFlags flags = separators ? EXTRACT_DONT_COALESCE_SEPARATORS : 0;
         const char *found = NULL;
-        int r;
+        整数 r;
 
-        for (;;) {
+        ために (;;) {
                 _cleanup_free_ char *w = NULL;
 
                 r = extract_first_word(&string, &w, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                もし (r < 0)
+                        戻る r;
+                もし (r == 0)
                         break;
 
                 found = strv_find(words, w);
-                if (found)
+                もし (found)
                         break;
         }
 
-        if (ret_word)
+        もし (ret_word)
                 *ret_word = found;
-        return !!found;
+        戻る !!found;
 }
 
 bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok) {
-        if (!s1 && !s2)
-                return true;
-        if (!s1 || !s2)
-                return false;
+        もし (!s1 && !s2)
+                戻る true;
+        もし (!s1 || !s2)
+                戻る false;
 
-        if (!ok)
+        もし (!ok)
                 ok = WHITESPACE;
 
-        for (; *s1 && *s2; s1++, s2++)
-                if (*s1 != *s2)
+        ために (; *s1 && *s2; s1++, s2++)
+                もし (*s1 != *s2)
                         break;
 
-        return in_charset(s1, ok) && in_charset(s2, ok);
+        戻る in_charset(s1, ok) && in_charset(s2, ok);
 }
 
 char* string_replace_char(char *str, char old_char, char new_char) {
@@ -1363,13 +1363,13 @@ char* string_replace_char(char *str, char old_char, char new_char) {
         assert(new_char != '\0');
         assert(old_char != new_char);
 
-        for (char *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
+        ために (char *p = strchr(str, old_char); p; p = strchr(p + 1, old_char))
                 *p = new_char;
 
-        return str;
+        戻る str;
 }
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
+整数 make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
         char *b;
 
         assert(s || n == 0);
@@ -1379,52 +1379,52 @@ int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret) {
         /* Converts a sized character buffer into a NUL-terminated NUL string, refusing if there are embedded
          * NUL bytes. Whether to expect a trailing NUL byte can be specified via 'mode' */
 
-        if (n == 0) {
-                if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+        もし (n == 0) {
+                もし (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        戻る -EINVAL;
 
-                if (!ret)
-                        return 0;
+                もし (!ret)
+                        戻る 0;
 
                 b = new0(char, 1);
-        } else {
+        } 否则 {
                 const uint8_t *nul;
 
                 nul = memchr(s, 0, n);
-                if (nul) {
-                        if (nul < (const uint8_t*) s + n - 1 || /* embedded NUL? */
+                もし (nul) {
+                        もし (nul < (const uint8_t*) s + n - 1 || /* embedded NUL? */
                             mode == MAKE_CSTRING_REFUSE_TRAILING_NUL)
-                                return -EINVAL;
+                                戻る -EINVAL;
 
                         n--;
-                } else if (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
-                        return -EINVAL;
+                } 否则 もし (mode == MAKE_CSTRING_REQUIRE_TRAILING_NUL)
+                        戻る -EINVAL;
 
-                if (!ret)
-                        return 0;
+                もし (!ret)
+                        戻る 0;
 
                 b = memdup_suffix0(s, n);
         }
-        if (!b)
-                return -ENOMEM;
+        もし (!b)
+                戻る -ENOMEM;
 
         *ret = b;
-        return 0;
+        戻る 0;
 }
 
 size_t strspn_from_end(const char *str, const char *accept) {
         size_t n = 0;
 
-        if (isempty(str))
-                return 0;
+        もし (isempty(str))
+                戻る 0;
 
-        if (isempty(accept))
-                return 0;
+        もし (isempty(accept))
+                戻る 0;
 
-        for (const char *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
+        ために (const char *p = str + strlen(str); p > str && strchr(accept, p[-1]); p--)
                 n++;
 
-        return n;
+        戻る n;
 }
 
 size_t strnspn(const char *str, const char *accept, size_t n) {
@@ -1438,26 +1438,26 @@ size_t strnspn(const char *str, const char *accept, size_t n) {
         assert(str || n == 0);
         assert(accept);
 
-        for (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
+        ために (i = 0; i < n && str[i] != '\0' && strchr(accept, str[i]); i++)
                 ;
 
-        return i;
+        戻る i;
 }
 
 char* strdupspn(const char *a, const char *accept) {
-        if (isempty(a) || isempty(accept))
-                return strdup("");
+        もし (isempty(a) || isempty(accept))
+                戻る strdup("");
 
-        return strndup(a, strspn(a, accept));
+        戻る strndup(a, strspn(a, accept));
 }
 
 char* strdupcspn(const char *a, const char *reject) {
-        if (isempty(a))
-                return strdup("");
-        if (isempty(reject))
-                return strdup(a);
+        もし (isempty(a))
+                戻る strdup("");
+        もし (isempty(reject))
+                戻る strdup(a);
 
-        return strndup(a, strcspn(a, reject));
+        戻る strndup(a, strcspn(a, reject));
 }
 
 char* find_line_startswith_internal(const char *haystack, const char *needle) {
@@ -1468,17 +1468,17 @@ char* find_line_startswith_internal(const char *haystack, const char *needle) {
          * first character after it */
 
         char *p = (char*) strstr(haystack, needle);
-        if (!p)
-                return NULL;
+        もし (!p)
+                戻る NULL;
 
-        if (p > haystack)
-                while (p[-1] != '\n') {
+        もし (p > haystack)
+                ながら (p[-1] != '\n') {
                         p = strstr(p + 1, needle);
-                        if (!p)
-                                return NULL;
+                        もし (!p)
+                                戻る NULL;
                 }
 
-        return p + strlen(needle);
+        戻る p + strlen(needle);
 }
 
 char* find_line_internal(const char *haystack, const char *needle) {
@@ -1489,13 +1489,13 @@ char* find_line_internal(const char *haystack, const char *needle) {
          * beginning of the line */
 
         char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        もし (!p)
+                戻る NULL;
 
-        if (*p == 0 || strchr(NEWLINE, *p))
-                return p - strlen(needle);
+        もし (*p == 0 || strchr(NEWLINE, *p))
+                戻る p - strlen(needle);
 
-        return NULL;
+        戻る NULL;
 }
 
 char* find_line_after_internal(const char *haystack, const char *needle) {
@@ -1506,15 +1506,15 @@ char* find_line_after_internal(const char *haystack, const char *needle) {
          * next line after it */
 
         char *p = (char*) find_line_startswith(haystack, needle);
-        if (!p)
-                return NULL;
+        もし (!p)
+                戻る NULL;
 
-        if (*p == 0)
-                return p;
-        if (strchr(NEWLINE, *p))
-                return p + 1;
+        もし (*p == 0)
+                戻る p;
+        もし (strchr(NEWLINE, *p))
+                戻る p + 1;
 
-        return NULL;
+        戻る NULL;
 }
 
 bool version_is_valid(const char *s, VersionFlags flags) {
@@ -1522,11 +1522,11 @@ bool version_is_valid(const char *s, VersionFlags flags) {
         /* Validates a version string superficially. This does not process the version string in any
          * semantical way, it mostly just validates that its charset is reasonable. */
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
-                return false;
+        もし (FLAGS_SET(flags, VERSION_ALLOW_EMPTY) ? !s : isempty(s))
+                戻る false;
 
-        if (!filename_part_is_valid(s))
-                return false;
+        もし (!filename_part_is_valid(s))
+                戻る false;
 
         /* We always allow all characters specified by the UAPI.10 Version Specification, i.e. 0-9, a-z, A-Z,
          * ".", "-", "~", "^".
@@ -1552,12 +1552,12 @@ bool version_is_valid(const char *s, VersionFlags flags) {
         char charset[] = ALPHANUMERICAL ".-~^" /* plus room for the two chars below: */ "\0\0";
         size_t l = strlen(charset);
 
-        if (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
+        もし (FLAGS_SET(flags, VERSION_ALLOW_UNDERSCORE))
                 charset[l++] = '_';
-        if (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
+        もし (FLAGS_SET(flags, VERSION_ALLOW_PLUS))
                 charset[l++] = '+';
 
-        return in_charset(s, charset);
+        戻る in_charset(s, charset);
 }
 
 ssize_t strlevenshtein(const char *x, const char *y) {
@@ -1566,52 +1566,52 @@ ssize_t strlevenshtein(const char *x, const char *y) {
 
         /* This is inspired from the Linux kernel's Levenshtein implementation */
 
-        if (streq_ptr(x, y))
-                return 0;
+        もし (streq_ptr(x, y))
+                戻る 0;
 
         xl = strlen_ptr(x);
-        if (xl > SSIZE_MAX)
-                return -E2BIG;
+        もし (xl > SSIZE_MAX)
+                戻る -E2BIG;
 
         yl = strlen_ptr(y);
-        if (yl > SSIZE_MAX)
-                return -E2BIG;
+        もし (yl > SSIZE_MAX)
+                戻る -E2BIG;
 
-        if (isempty(x))
-                return yl;
-        if (isempty(y))
-                return xl;
+        もし (isempty(x))
+                戻る yl;
+        もし (isempty(y))
+                戻る xl;
 
         t0 = new0(size_t, yl + 1);
-        if (!t0)
-                return -ENOMEM;
+        もし (!t0)
+                戻る -ENOMEM;
         t1 = new0(size_t, yl + 1);
-        if (!t1)
-                return -ENOMEM;
+        もし (!t1)
+                戻る -ENOMEM;
         t2 = new0(size_t, yl + 1);
-        if (!t2)
-                return -ENOMEM;
+        もし (!t2)
+                戻る -ENOMEM;
 
-        for (size_t i = 0; i <= yl; i++)
+        ために (size_t i = 0; i <= yl; i++)
                 t1[i] = i;
 
-        for (size_t i = 0; i < xl; i++) {
+        ために (size_t i = 0; i < xl; i++) {
                 t2[0] = i + 1;
 
-                for (size_t j = 0; j < yl; j++) {
+                ために (size_t j = 0; j < yl; j++) {
                         /* Substitution */
                         t2[j+1] = t1[j] + (x[i] != y[j]);
 
                         /* Swap */
-                        if (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
+                        もし (i > 0 && j > 0 && x[i-1] == y[j] && x[i] == y[j-1] && t2[j+1] > t0[j-1] + 1)
                                 t2[j+1] = t0[j-1] + 1;
 
                         /* Deletion */
-                        if (t2[j+1] > t1[j+1] + 1)
+                        もし (t2[j+1] > t1[j+1] + 1)
                                 t2[j+1] = t1[j+1] + 1;
 
                         /* Insertion */
-                        if (t2[j+1] > t2[j] + 1)
+                        もし (t2[j+1] > t2[j] + 1)
                                 t2[j+1] = t2[j] + 1;
                 }
 
@@ -1621,41 +1621,41 @@ ssize_t strlevenshtein(const char *x, const char *y) {
                 t2 = dummy;
         }
 
-        return t1[yl];
+        戻る t1[yl];
 }
 
 char* strrstr_internal(const char *haystack, const char *needle) {
         /* Like strstr() but returns the last rather than the first occurrence of "needle" in "haystack". */
 
-        if (!haystack || !needle)
-                return NULL;
+        もし (!haystack || !needle)
+                戻る NULL;
 
         /* Special case: for the empty string we return the very last possible occurrence, i.e. *after* the
          * last char, not before. */
-        if (needle[0] == 0)
-                return (char*) strchr(haystack, 0);
+        もし (needle[0] == 0)
+                戻る (char*) strchr(haystack, 0);
 
         /* Special case: for single character strings, just use optimized strrchr() */
-        if (needle[1] == 0)
-                return (char*) strrchr(haystack, needle[0]);
+        もし (needle[1] == 0)
+                戻る (char*) strrchr(haystack, needle[0]);
 
-        for (const char *p = strstr(haystack, needle), *q; p; p = q) {
+        ために (const char *p = strstr(haystack, needle), *q; p; p = q) {
                 q = strstr(p + 1, needle);
-                if (!q)
-                        return (char*) p;
+                もし (!q)
+                        戻る (char*) p;
         }
-        return NULL;
+        戻る NULL;
 }
 
 char* strrstr_no_case_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
+        もし (!haystack || !needle)
+                戻る NULL;
 
-        for (const char *p = strchr(haystack, 0); p > haystack; p--)
-                if (startswith_no_case(p, needle))
-                        return (char*) p;
+        ために (const char *p = strchr(haystack, 0); p > haystack; p--)
+                もし (startswith_no_case(p, needle))
+                        戻る (char*) p;
 
-        return startswith_no_case(haystack, needle) ? (char*) haystack : NULL;
+        戻る startswith_no_case(haystack, needle) ? (char*) haystack : NULL;
 }
 
 size_t str_common_prefix(const char *a, const char *b) {
@@ -1665,11 +1665,11 @@ size_t str_common_prefix(const char *a, const char *b) {
         /* Returns the length of the common prefix of the two specified strings, or SIZE_MAX in case the
          * strings are fully identical. */
 
-        for (size_t n = 0;; n++) {
+        ために (size_t n = 0;; n++) {
                 char c = a[n];
-                if (c != b[n])
-                        return n;
-                if (c == 0)
-                        return SIZE_MAX;
+                もし (c != b[n])
+                        戻る n;
+                もし (c == 0)
+                        戻る SIZE_MAX;
         }
 }

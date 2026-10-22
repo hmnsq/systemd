@@ -48,127 +48,127 @@
  * can detect EOFs. */
 #define READ_VIRTUAL_BYTES_MAX (4U * U64_MB - UINT64_C(2))
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret) {
+整数 fdopen_unlocked(整数 fd, const char *options, FILE **ret) {
         assert(ret);
 
         FILE *f = fdopen(fd, options);
-        if (!f)
-                return -errno;
+        もし (!f)
+                戻る -errno;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        戻る 0;
 }
 
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret) {
-        int r;
+整数 take_fdopen_unlocked(整数 *fd, const char *options, FILE **ret) {
+        整数 r;
 
         assert(fd);
 
         r = fdopen_unlocked(*fd, options, ret);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         *fd = -EBADF;
 
-        return 0;
+        戻る 0;
 }
 
-FILE* take_fdopen(int *fd, const char *options) {
+FILE* take_fdopen(整数 *fd, const char *options) {
         assert(fd);
 
         FILE *f = fdopen(*fd, options);
-        if (!f)
-                return NULL;
+        もし (!f)
+                戻る NULL;
 
         *fd = -EBADF;
 
-        return f;
+        戻る f;
 }
 
-DIR* take_fdopendir(int *dfd) {
+DIR* take_fdopendir(整数 *dfd) {
         assert(dfd);
 
         DIR *d = fdopendir(*dfd);
-        if (!d)
-                return NULL;
+        もし (!d)
+                戻る NULL;
 
         *dfd = -EBADF;
 
-        return d;
+        戻る d;
 }
 
 FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc) {
         FILE *f = open_memstream(ptr, sizeloc);
-        if (!f)
-                return NULL;
+        もし (!f)
+                戻る NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        戻る f;
 }
 
 FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
         FILE *f = fmemopen(buf, size, mode);
-        if (!f)
-                return NULL;
+        もし (!f)
+                戻る NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        戻る f;
 }
 
-int write_string_stream_full(
+整数 write_string_stream_full(
                 FILE *f,
                 const char *line,
                 WriteStringFileFlags flags,
                 const struct timespec *ts) {
 
         bool needs_nl;
-        int r, fd = -EBADF;
+        整数 r, fd = -EBADF;
 
         assert(f);
         assert(line);
 
-        if (ferror(f))
-                return -EIO;
+        もし (ferror(f))
+                戻る -EIO;
 
-        if (ts) {
+        もし (ts) {
                 /* If we shall set the timestamp we need the fd. But fmemopen() streams generally don't have
                  * an fd. Let's fail early in that case. */
                 fd = fileno(f);
-                if (fd < 0)
-                        return -EBADF;
+                もし (fd < 0)
+                        戻る -EBADF;
         }
 
-        if (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
+        もし (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
                 _cleanup_free_ char *t = NULL;
 
                 /* If value to be written is same as that of the existing value, then suppress the write. */
 
-                if (fd < 0) {
+                もし (fd < 0) {
                         fd = fileno(f);
-                        if (fd < 0)
-                                return -EBADF;
+                        もし (fd < 0)
+                                戻る -EBADF;
                 }
 
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
+                もし (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
                     streq_skip_trailing_chars(line, t, NEWLINE)) {
                         log_debug("No change in value '%s', suppressing write", line);
-                        return 0;
+                        戻る 0;
                 }
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                もし (lseek(fd, 0, SEEK_SET) < 0)
+                        戻る -errno;
         }
 
         needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
 
-        if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
+        もし (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
@@ -176,29 +176,29 @@ int write_string_stream_full(
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
-                return -errno;
+        もし (fputs(line, f) == EOF)
+                戻る -errno;
 
-        if (needs_nl)
-                if (fputc('\n', f) == EOF)
-                        return -errno;
+        もし (needs_nl)
+                もし (fputc('\n', f) == EOF)
+                        戻る -errno;
 
-        if (flags & WRITE_STRING_FILE_SYNC)
+        もし (flags & WRITE_STRING_FILE_SYNC)
                 r = fflush_sync_and_check(f);
-        else
+        否则
                 r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (ts) {
+        もし (ts) {
                 const struct timespec twice[2] = {*ts, *ts};
 
                 assert(fd >= 0);
-                if (futimens(fd, twice) < 0)
-                        return -errno;
+                もし (futimens(fd, twice) < 0)
+                        戻る -errno;
         }
 
-        return 0;
+        戻る 0;
 }
 
 static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
@@ -210,12 +210,12 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
          *     → 0644 (i.e. writable for root, readable for everyone else)
          */
 
-        return FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
+        戻る FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
                 FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0444) ? 0444 : 0644;
 }
 
-static int write_string_file_atomic_at(
-                int dir_fd,
+static 整数 write_string_file_atomic_at(
+                整数 dir_fd,
                 const char *fn,
                 const char *line,
                 WriteStringFileFlags flags,
@@ -224,7 +224,7 @@ static int write_string_file_atomic_at(
 
         _cleanup_fclose_ FILE *f = NULL;
         _cleanup_free_ char *p = NULL;
-        int r;
+        整数 r;
 
         assert(fn);
         assert(line);
@@ -235,50 +235,50 @@ static int write_string_file_atomic_at(
         mode_t mode = write_string_file_flags_to_mode(flags);
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
+        もし (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fn, mode, label_context);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
                 call_label_ops_post = true;
         }
 
         r = fopen_temporary_at(dir_fd, fn, &f, &p);
-        int k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
+        整数 k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
         /* If fopen_temporary_at() failed in the above, propagate the error code, and ignore failures in
          * label_ops_post(). */
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
         CLEANUP_TMPFILE_AT(dir_fd, p);
-        if (k < 0)
-                return k;
+        もし (k < 0)
+                戻る k;
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         r = fchmod_umask(fileno(f), mode);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         r = RET_NERRNO(renameat(dir_fd, p, dir_fd, fn));
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
+        もし (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
                 /* Sync the rename, too */
                 r = fsync_directory_of_file(fileno(f));
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        return 0;
+        戻る 0;
 }
 
-int write_string_file_full_label(
-                int dir_fd,
+整数 write_string_file_full_label(
+                整数 dir_fd,
                 const char *fn,
                 const char *line,
                 WriteStringFileFlags flags,
@@ -288,8 +288,8 @@ int write_string_file_full_label(
 
         bool made_file = false;
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ 整数 fd = -EBADF;
+        整数 r;
 
         assert(dir_fd == AT_FDCWD || dir_fd >= 0);
         assert(line);
@@ -297,39 +297,39 @@ int write_string_file_full_label(
         /* We don't know how to verify whether the file contents was already on-disk. */
         assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
 
-        if (flags & WRITE_STRING_FILE_MKDIR_0755) {
+        もし (flags & WRITE_STRING_FILE_MKDIR_0755) {
                 assert(fn);
 
                 r = mkdirat_parents(dir_fd, fn, 0755);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        if (flags & WRITE_STRING_FILE_ATOMIC) {
+        もし (flags & WRITE_STRING_FILE_ATOMIC) {
                 assert(fn);
                 assert(flags & WRITE_STRING_FILE_CREATE);
 
                 r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
-                if (r < 0)
+                もし (r < 0)
                         goto fail;
 
-                return r;
+                戻る r;
         }
 
         /* We manually build our own version of fopen(..., "we") that works without O_CREAT and with O_NOFOLLOW if needed. */
-        if (isempty(fn))
+        もし (isempty(fn))
                 r = fd = fd_reopen(
                                 ASSERT_FD(dir_fd), O_CLOEXEC | O_NOCTTY |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
-        else {
+        否则 {
                 mode_t mode = write_string_file_flags_to_mode(flags);
                 bool call_label_ops_post = false;
 
-                if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
+                もし (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
                         r = label_ops_pre(dir_fd, label_fn ?: fn, mode, label_context);
-                        if (r < 0)
+                        もし (r < 0)
                                 goto fail;
 
                         call_label_ops_post = true;
@@ -344,86 +344,86 @@ int write_string_file_full_label(
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
                                 mode,
                                 &made_file);
-                if (call_label_ops_post)
+                もし (call_label_ops_post)
                         /* If openat_report_new() failed in the above, propagate the error code, and ignore
                          * failures in label_ops_post(). */
                         RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : fn, made_file, label_context));
         }
-        if (r < 0)
+        もし (r < 0)
                 goto fail;
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0)
+        もし (r < 0)
                 goto fail;
 
-        if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
+        もし (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
                 setvbuf(f, NULL, _IONBF, 0);
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
+        もし (r < 0)
                 goto fail;
 
-        return 0;
+        戻る 0;
 
 fail:
-        if (made_file)
+        もし (made_file)
                 (void) unlinkat(dir_fd, fn, 0);
 
-        if (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
-                return r;
+        もし (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
+                戻る r;
 
         f = safe_fclose(f);
         fd = safe_close(fd);
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
-                return 0;
+        もし (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+                戻る 0;
 
-        return r;
+        戻る r;
 }
 
-int write_string_filef(
+整数 write_string_filef(
                 const char *fn,
                 WriteStringFileFlags flags,
                 const char *format, ...) {
 
         _cleanup_free_ char *p = NULL;
         va_list ap;
-        int r;
+        整数 r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        もし (r < 0)
+                戻る -ENOMEM;
 
-        return write_string_file(fn, p, flags);
+        戻る write_string_file(fn, p, flags);
 }
 
-int write_string_filef_at(
-                int dir_fd,
+整数 write_string_filef_at(
+                整数 dir_fd,
                 const char *fn,
                 WriteStringFileFlags flags,
                 const char *format, ...) {
 
         _cleanup_free_ char *p = NULL;
         va_list ap;
-        int r;
+        整数 r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        もし (r < 0)
+                戻る -ENOMEM;
 
-        return write_string_file_at(dir_fd, fn, p, flags);
+        戻る write_string_file_at(dir_fd, fn, p, flags);
 }
 
-int write_base64_file_at(
-                int dir_fd,
+整数 write_base64_file_at(
+                整数 dir_fd,
                 const char *fn,
                 const struct iovec *data,
                 WriteStringFileFlags flags) {
@@ -432,80 +432,80 @@ int write_base64_file_at(
         ssize_t n;
 
         n = base64mem_full(data ? data->iov_base : NULL, data ? data->iov_len : 0, 79, &encoded);
-        if (n < 0)
-                return n;
+        もし (n < 0)
+                戻る n;
 
-        return write_string_file_at(dir_fd, fn, encoded, flags);
+        戻る write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
+整数 read_one_line_file_at(整数 dir_fd, const char *filename, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        整数 r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
         assert(ret);
 
         r = fopen_unlocked_at(dir_fd, filename, "re", /* open_flags= */ 0, &f);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        戻る read_line(f, LONG_LINE_MAX, ret);
 }
 
-int read_boolean_file_at(int dir_fd, const char *filename) {
+整数 read_boolean_file_at(整数 dir_fd, const char *filename) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        整数 r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
 
         r = read_one_line_file_at(dir_fd, filename, &s);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return parse_boolean(s);
+        戻る parse_boolean(s);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
+整数 verify_file_at(整数 dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
         _cleanup_fclose_ FILE *f = NULL;
         _cleanup_free_ char *buf = NULL;
         size_t l, k;
-        int r;
+        整数 r;
 
         assert(blob);
 
         l = strlen(blob);
 
-        if (accept_extra_nl && endswith(blob, "\n"))
+        もし (accept_extra_nl && endswith(blob, "\n"))
                 accept_extra_nl = false;
 
         buf = malloc(l + accept_extra_nl + 1);
-        if (!buf)
-                return -ENOMEM;
+        もし (!buf)
+                戻る -ENOMEM;
 
         r = fopen_unlocked_at(dir_fd, strempty(fn), "re", 0, &f);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         /* We try to read one byte more than we need, so that we know whether we hit eof */
         errno = 0;
         k = fread(buf, 1, l + accept_extra_nl + 1, f);
-        if (ferror(f))
-                return errno_or_else(EIO);
+        もし (ferror(f))
+                戻る errno_or_else(EIO);
 
-        if (k != l && k != l + accept_extra_nl)
-                return 0;
-        if (memcmp(buf, blob, l) != 0)
-                return 0;
-        if (k > l && buf[l] != '\n')
-                return 0;
+        もし (k != l && k != l + accept_extra_nl)
+                戻る 0;
+        もし (memcmp(buf, blob, l) != 0)
+                戻る 0;
+        もし (k > l && buf[l] != '\n')
+                戻る 0;
 
-        return 1;
+        戻る 1;
 }
 
-int read_virtual_file_at(
-                int dir_fd,
+整数 read_virtual_file_at(
+                整数 dir_fd,
                 const char *filename,
                 size_t max_size,
                 char **ret_contents,
@@ -513,7 +513,7 @@ int read_virtual_file_at(
 
         _cleanup_free_ char *buf = NULL;
         size_t n, size;
-        int n_retries;
+        整数 n_retries;
         bool truncated = false;
 
         /* Virtual filesystems such as sysfs or procfs use kernfs, and kernfs can work with two sorts of
@@ -536,81 +536,81 @@ int read_virtual_file_at(
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
 
-        _cleanup_close_ int fd = -EBADF;
-        if (isempty(filename))
+        _cleanup_close_ 整数 fd = -EBADF;
+        もし (isempty(filename))
                 fd = fd_reopen(ASSERT_FD(dir_fd), O_RDONLY | O_NOCTTY | O_CLOEXEC);
-        else
+        否则
                 fd = RET_NERRNO(openat(dir_fd, filename, O_RDONLY | O_NOCTTY | O_CLOEXEC));
-        if (fd < 0)
-                return fd;
+        もし (fd < 0)
+                戻る fd;
 
         /* Limit the number of attempts to read the number of bytes returned by fstat(). */
         n_retries = 3;
 
-        for (;;) {
+        ために (;;) {
                 struct stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                もし (fstat(fd, &st) < 0)
+                        戻る -errno;
 
-                if (!S_ISREG(st.st_mode))
-                        return -EBADF;
+                もし (!S_ISREG(st.st_mode))
+                        戻る -EBADF;
 
                 /* Be prepared for files from /proc which generally report a file size of 0. */
                 assert_cc(READ_VIRTUAL_BYTES_MAX < SSIZE_MAX);
-                if (st.st_size > 0 && n_retries > 1) {
+                もし (st.st_size > 0 && n_retries > 1) {
                         /* Let's use the file size if we have more than 1 attempt left. On the last attempt
                          * we'll ignore the file size */
 
-                        if (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
+                        もし (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
 
-                                if (max_size == SIZE_MAX)
-                                        return -EFBIG;
+                                もし (max_size == SIZE_MAX)
+                                        戻る -EFBIG;
 
                                 size = max_size;
-                        } else {
+                        } 否则 {
                                 size = MIN((size_t) st.st_size, max_size);
 
-                                if (size > READ_VIRTUAL_BYTES_MAX)
-                                        return -EFBIG;
+                                もし (size > READ_VIRTUAL_BYTES_MAX)
+                                        戻る -EFBIG;
                         }
 
                         n_retries--;
-                } else if (n_retries > 1) {
+                } 否则 もし (n_retries > 1) {
                         /* Files in /proc are generally smaller than the page size so let's start with
                          * a page size buffer from malloc and only use the max buffer on the final try. */
                         size = MIN3(page_size() - 1, READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 1;
-                } else {
+                } 否则 {
                         size = MIN(READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 0;
                 }
 
                 buf = malloc(size + 1);
-                if (!buf)
-                        return -ENOMEM;
+                もし (!buf)
+                        戻る -ENOMEM;
 
                 /* Use a bigger allocation if we got it anyway, but not more than the limit. */
                 size = MIN3(MALLOC_SIZEOF_SAFE(buf) - 1, max_size, READ_VIRTUAL_BYTES_MAX);
 
-                for (;;) {
+                ために (;;) {
                         ssize_t k;
 
                         /* Read one more byte so we can detect whether the content of the
                          * file has already changed or the guessed size for files from /proc
                          * wasn't large enough . */
                         k = read(fd, buf, size + 1);
-                        if (k >= 0) {
+                        もし (k >= 0) {
                                 n = k;
                                 break;
                         }
 
-                        if (errno != EINTR)
-                                return -errno;
+                        もし (errno != EINTR)
+                                戻る -errno;
                 }
 
                 /* Consider a short read as EOF */
-                if (n <= size)
+                もし (n <= size)
                         break;
 
                 /* If a maximum size is specified and we already read more we know the file is larger, and
@@ -618,7 +618,7 @@ int read_virtual_file_at(
                  * maximum size then this doesn't mean truncation, the file might or might not end on that
                  * byte. We need to rerun the loop in that case, with a larger buffer size, so that we read
                  * at least one more byte to be able to distinguish EOF from truncation. */
-                if (max_size != SIZE_MAX && n > max_size) {
+                もし (max_size != SIZE_MAX && n > max_size) {
                         n = size; /* Make sure we never use more than what we sized the buffer for (so that
                                    * we have one free byte in it for the trailing NUL we add below). */
                         truncated = true;
@@ -626,34 +626,34 @@ int read_virtual_file_at(
                 }
 
                 /* We have no further attempts left? Then the file is apparently larger than our limits. Give up. */
-                if (n_retries <= 0)
-                        return -EFBIG;
+                もし (n_retries <= 0)
+                        戻る -EFBIG;
 
                 /* Hmm... either we read too few bytes from /proc or less likely the content of the file
                  * might have been changed (and is now bigger) while we were processing, let's try again
                  * either with the new file size. */
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                もし (lseek(fd, 0, SEEK_SET) < 0)
+                        戻る -errno;
 
                 buf = mfree(buf);
         }
 
-        if (ret_contents) {
+        もし (ret_contents) {
 
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
-                if (!ret_size && memchr(buf, 0, n))
-                        return -EBADMSG;
+                もし (!ret_size && memchr(buf, 0, n))
+                        戻る -EBADMSG;
 
-                if (n < size) {
+                もし (n < size) {
                         char *p;
 
                         /* Return rest of the buffer to libc */
                         p = realloc(buf, n + 1);
-                        if (!p)
-                                return -ENOMEM;
+                        もし (!p)
+                                戻る -ENOMEM;
                         buf = p;
                 }
 
@@ -661,13 +661,13 @@ int read_virtual_file_at(
                 *ret_contents = TAKE_PTR(buf);
         }
 
-        if (ret_size)
+        もし (ret_size)
                 *ret_size = n;
 
-        return !truncated;
+        戻る !truncated;
 }
 
-int read_full_stream_full(
+整数 read_full_stream_full(
                 FILE *f,
                 const char *filename,
                 uint64_t offset,
@@ -678,38 +678,38 @@ int read_full_stream_full(
 
         _cleanup_free_ char *buf = NULL;
         size_t n, n_next = 0, l, expected_decoded_size = size;
-        int fd, r;
+        整数 fd, r;
 
         assert(f);
         assert(ret_contents);
         assert(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
         assert(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
 
-        if (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
-                return -ERANGE;
+        もし (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
+                戻る -ERANGE;
 
-        if ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
-                if (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
+        もし ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
+                もし (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
                         size *= READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
-                else
+                否则
                         size = SIZE_MAX;
         }
 
         fd = fileno(f);
-        if (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
+        もし (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
                         * fmemopen()), let's optimize our buffering */
                 struct stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                もし (fstat(fd, &st) < 0)
+                        戻る -errno;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
+                もし (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return r;
+                        もし (r < 0)
+                                戻る r;
                 }
 
-                if (S_ISREG(st.st_mode)) {
+                もし (S_ISREG(st.st_mode)) {
 
                         /* Try to start with the right file size if we shall read the file in full. Note
                          * that we increase the size to read here by one, so that the first read attempt
@@ -717,59 +717,59 @@ int read_full_stream_full(
                          * avoid this logic however, since quite likely it might be a virtual file in procfs
                          * that all report a zero file size. */
 
-                        if (st.st_size > 0 &&
+                        もし (st.st_size > 0 &&
                             (size == SIZE_MAX || FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER))) {
 
                                 uint64_t rsize =
                                         LESS_BY((uint64_t) st.st_size, offset == UINT64_MAX ? 0 : offset);
 
-                                if (rsize < SIZE_MAX) /* overflow check */
+                                もし (rsize < SIZE_MAX) /* overflow check */
                                         n_next = rsize + 1;
                         }
 
-                        if (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
+                        もし (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
                                 (void) warn_file_is_world_accessible(filename, &st, NULL, 0);
                 }
-        } else if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
-                return -EBADFD;
+        } 否则 もし (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
+                戻る -EBADFD;
 
         /* If we don't know how much to read, figure it out now. If we shall read a part of the file, then
          * allocate the requested size. If we shall load the full file start with LINE_MAX. Note that if
          * READ_FULL_FILE_FAIL_WHEN_LARGER we consider the specified size a safety limit, and thus also start
          * with LINE_MAX, under assumption the file is most likely much shorter. */
-        if (n_next == 0)
+        もし (n_next == 0)
                 n_next = size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) ? size : LINE_MAX;
 
         /* Never read more than we need to determine that our own limit is hit */
-        if (n_next > READ_FULL_BYTES_MAX)
+        もし (n_next > READ_FULL_BYTES_MAX)
                 n_next = READ_FULL_BYTES_MAX + 1;
 
-        if (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
-                return -errno;
+        もし (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
+                戻る -errno;
 
         n = l = 0;
-        for (;;) {
+        ために (;;) {
                 char *t;
                 size_t k;
 
                 /* If we shall fail when reading overly large data, then read exactly one byte more than the
                  * specified size at max, since that'll tell us if there's anymore data beyond the limit. */
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
+                もし (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
                         n_next = size + 1;
 
-                if (flags & READ_FULL_FILE_SECURE) {
+                もし (flags & READ_FULL_FILE_SECURE) {
                         t = malloc(n_next + 1);
-                        if (!t) {
+                        もし (!t) {
                                 r = -ENOMEM;
                                 goto finalize;
                         }
                         memcpy_safe(t, buf, n);
                         explicit_bzero_safe(buf, n);
                         free(buf);
-                } else {
+                } 否则 {
                         t = realloc(buf, n_next + 1);
-                        if (!t)
-                                return -ENOMEM;
+                        もし (!t)
+                                戻る -ENOMEM;
                 }
 
                 buf = t;
@@ -783,14 +783,14 @@ int read_full_stream_full(
                 assert(k <= n - l);
                 l += k;
 
-                if (ferror(f)) {
+                もし (ferror(f)) {
                         r = errno_or_else(EIO);
                         goto finalize;
                 }
-                if (feof(f))
+                もし (feof(f))
                         break;
 
-                if (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
+                もし (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
                         /* If we got asked to read some specific size, we already sized the buffer right,
                          * hence leave. */
                         assert(l == size);
@@ -799,12 +799,12 @@ int read_full_stream_full(
 
                 assert(k > 0); /* we can't have read zero bytes because that would have been EOF */
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
+                もし (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
                         r = -E2BIG;
                         goto finalize;
                 }
 
-                if (n >= READ_FULL_BYTES_MAX) {
+                もし (n >= READ_FULL_BYTES_MAX) {
                         r = -E2BIG;
                         goto finalize;
                 }
@@ -812,35 +812,35 @@ int read_full_stream_full(
                 n_next = MIN(n * 2, READ_FULL_BYTES_MAX);
         }
 
-        if (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
+        もし (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
                 _cleanup_free_ void *decoded = NULL;
                 size_t decoded_size;
 
                 buf[l++] = 0;
-                if (flags & READ_FULL_FILE_UNBASE64)
+                もし (flags & READ_FULL_FILE_UNBASE64)
                         r = unbase64mem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                else
+                否则
                         r = unhexmem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                if (r < 0)
+                もし (r < 0)
                         goto finalize;
 
-                if (flags & READ_FULL_FILE_SECURE)
+                もし (flags & READ_FULL_FILE_SECURE)
                         explicit_bzero_safe(buf, n);
                 free_and_replace(buf, decoded);
                 n = l = decoded_size;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
+                もし (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
                         r = -E2BIG;
                         goto finalize;
                 }
         }
 
-        if (!ret_size) {
+        もし (!ret_size) {
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
 
-                if (memchr(buf, 0, l)) {
+                もし (memchr(buf, 0, l)) {
                         r = -EBADMSG;
                         goto finalize;
                 }
@@ -849,20 +849,20 @@ int read_full_stream_full(
         buf[l] = 0;
         *ret_contents = TAKE_PTR(buf);
 
-        if (ret_size)
+        もし (ret_size)
                 *ret_size = l;
 
-        return 0;
+        戻る 0;
 
 finalize:
-        if (flags & READ_FULL_FILE_SECURE)
+        もし (flags & READ_FULL_FILE_SECURE)
                 explicit_bzero_safe(buf, n);
 
-        return r;
+        戻る r;
 }
 
-int read_full_file_full(
-                int dir_fd,
+整数 read_full_file_full(
+                整数 dir_fd,
                 const char *filename,
                 uint64_t offset,
                 size_t size,
@@ -873,69 +873,69 @@ int read_full_file_full(
 
         _cleanup_fclose_ FILE *f = NULL;
         XfopenFlags xflags = XFOPEN_UNLOCKED;
-        int r;
+        整数 r;
 
         assert(ret_contents);
 
-        if (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
+        もし (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
             offset == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
                 xflags |= XFOPEN_SOCKET;
 
         r = xfopenat_full(dir_fd, filename, "re", 0, xflags, bind_name, &f);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
+        戻る read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
 }
 
-int script_get_shebang_interpreter(const char *path, char **ret) {
+整数 script_get_shebang_interpreter(const char *path, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        整数 r;
 
         assert(path);
 
         f = fopen(path, "re");
-        if (!f)
-                return -errno;
+        もし (!f)
+                戻る -errno;
 
         char c;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '#')
-                return -EMEDIUMTYPE;
+        もし (r < 0)
+                戻る r;
+        もし (r == 0)
+                戻る -EBADMSG;
+        もし (c != '#')
+                戻る -EMEDIUMTYPE;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '!')
-                return -EMEDIUMTYPE;
+        もし (r < 0)
+                戻る r;
+        もし (r == 0)
+                戻る -EBADMSG;
+        もし (c != '!')
+                戻る -EMEDIUMTYPE;
 
         _cleanup_free_ char *line = NULL;
         r = read_line(f, LONG_LINE_MAX, &line);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         _cleanup_free_ char *p = NULL;
         const char *s = line;
 
         r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENOEXEC;
+        もし (r < 0)
+                戻る r;
+        もし (r == 0)
+                戻る -ENOEXEC;
 
-        if (ret)
+        もし (ret)
                 *ret = TAKE_PTR(p);
-        return 0;
+        戻る 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
+整数 get_proc_field(const char *path, const char *key, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        整数 r;
 
         /* Retrieve one field from a file like /proc/self/status. "key" matches the beginning of the line
          * and should not include whitespace or the delimiter (':').
@@ -946,79 +946,79 @@ int get_proc_field(const char *path, const char *key, char **ret) {
         assert(key);
 
         r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT && proc_mounted() == 0)
-                return -ENOSYS;
-        if (r < 0)
-                return r;
+        もし (r == -ENOENT && proc_mounted() == 0)
+                戻る -ENOSYS;
+        もし (r < 0)
+                戻る r;
 
-        for (;;) {
+        ために (;;) {
                  _cleanup_free_ char *line = NULL;
 
                  r = read_line(f, LONG_LINE_MAX, &line);
-                 if (r < 0)
-                         return r;
-                 if (r == 0)
-                         return -ENODATA;
+                 もし (r < 0)
+                         戻る r;
+                 もし (r == 0)
+                         戻る -ENODATA;
 
                  char *l = startswith(line, key);
-                 if (l && *l == ':') {
-                         if (ret) {
+                 もし (l && *l == ':') {
+                         もし (ret) {
                                  char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
-                                 if (!s)
-                                         return -ENOMEM;
+                                 もし (!s)
+                                         戻る -ENOMEM;
 
                                  *ret = s;
                          }
 
-                         return 0;
+                         戻る 0;
                  }
         }
 }
 
-DIR* xopendirat(int dir_fd, const char *path, int flags) {
-        _cleanup_close_ int fd = -EBADF;
+DIR* xopendirat(整数 dir_fd, const char *path, 整数 flags) {
+        _cleanup_close_ 整数 fd = -EBADF;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(!(flags & (O_CREAT|O_TMPFILE)));
 
-        if ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
+        もし ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
             (flags &~ O_DIRECTORY) == 0)
-                return opendir(path);
+                戻る opendir(path);
 
-        if (isempty(path)) {
+        もし (isempty(path)) {
                 path = ".";
                 flags |= O_NOFOLLOW;
         }
 
         fd = openat(dir_fd, path, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
-        if (fd < 0)
-                return NULL;
+        もし (fd < 0)
+                戻る NULL;
 
-        return take_fdopendir(&fd);
+        戻る take_fdopendir(&fd);
 }
 
-int fopen_mode_to_flags(const char *mode) {
+整数 fopen_mode_to_flags(const char *mode) {
         const char *p;
-        int flags;
+        整数 flags;
 
         assert(mode);
 
-        if ((p = startswith(mode, "r+")))
+        もし ((p = startswith(mode, "r+")))
                 flags = O_RDWR;
-        else if ((p = startswith(mode, "r")))
+        否则 もし ((p = startswith(mode, "r")))
                 flags = O_RDONLY;
-        else if ((p = startswith(mode, "w+")))
+        否则 もし ((p = startswith(mode, "w+")))
                 flags = O_RDWR|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "w")))
+        否则 もし ((p = startswith(mode, "w")))
                 flags = O_WRONLY|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "a+")))
+        否则 もし ((p = startswith(mode, "a+")))
                 flags = O_RDWR|O_CREAT|O_APPEND;
-        else if ((p = startswith(mode, "a")))
+        否则 もし ((p = startswith(mode, "a")))
                 flags = O_WRONLY|O_CREAT|O_APPEND;
-        else
-                return -EINVAL;
+        否则
+                戻る -EINVAL;
 
-        for (; *p != 0; p++) {
+        ために (; *p != 0; p++) {
 
                 switch (*p) {
 
@@ -1036,14 +1036,14 @@ int fopen_mode_to_flags(const char *mode) {
 
                 case 'c': /* not sure what to do about this one */
                 default:
-                        return -EINVAL;
+                        戻る -EINVAL;
                 }
         }
 
-        return flags;
+        戻る flags;
 }
 
-static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
+static 整数 xfopenat_regular(整数 dir_fd, const char *path, const char *mode, 整数 open_flags, FILE **ret) {
         FILE *f;
 
         /* A combination of fopen() with openat() */
@@ -1052,122 +1052,122 @@ static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int 
         assert(mode);
         assert(ret);
 
-        if (dir_fd == AT_FDCWD && path && open_flags == 0)
+        もし (dir_fd == AT_FDCWD && path && open_flags == 0)
                 f = fopen(path, mode);
-        else if (dir_fd == XAT_FDROOT && path && open_flags == 0) {
+        否则 もし (dir_fd == XAT_FDROOT && path && open_flags == 0) {
                 _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+                もし (!j)
+                        戻る -ENOMEM;
 
                 f = fopen(j, mode);
-        } else {
-                _cleanup_close_ int fd = -EBADF;
-                int mode_flags;
+        } 否则 {
+                _cleanup_close_ 整数 fd = -EBADF;
+                整数 mode_flags;
 
                 mode_flags = fopen_mode_to_flags(mode);
-                if (mode_flags < 0)
-                        return mode_flags;
+                もし (mode_flags < 0)
+                        戻る mode_flags;
 
-                if (path) {
+                もし (path) {
                         fd = openat(dir_fd, path, mode_flags | open_flags);
-                        if (fd < 0)
-                                return -errno;
-                } else {
-                        if (dir_fd == AT_FDCWD)
-                                return -EBADF;
+                        もし (fd < 0)
+                                戻る -errno;
+                } 否则 {
+                        もし (dir_fd == AT_FDCWD)
+                                戻る -EBADF;
 
                         fd = fd_reopen(dir_fd, (mode_flags | open_flags) & ~O_NOFOLLOW);
-                        if (fd < 0)
-                                return fd;
+                        もし (fd < 0)
+                                戻る fd;
                 }
 
                 f = take_fdopen(&fd, mode);
         }
-        if (!f)
-                return -errno;
+        もし (!f)
+                戻る -errno;
 
         *ret = f;
-        return 0;
+        戻る 0;
 }
 
-static int xfopenat_unix_socket(int dir_fd, const char *path, const char *bind_name, FILE **ret) {
-        _cleanup_close_ int sk = -EBADF;
+static 整数 xfopenat_unix_socket(整数 dir_fd, const char *path, const char *bind_name, FILE **ret) {
+        _cleanup_close_ 整数 sk = -EBADF;
         FILE *f;
-        int r;
+        整数 r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(ret);
 
         sk = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-        if (sk < 0)
-                return -errno;
+        もし (sk < 0)
+                戻る -errno;
 
-        if (bind_name) {
+        もし (bind_name) {
                 /* If the caller specified a socket name to bind to, do so before connecting. This is
                  * useful to communicate some minor, short meta-information token from the client to
                  * the server. */
                 union sockaddr_union bsa;
 
                 r = sockaddr_un_set_path(&bsa.un, bind_name);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
-                if (bind(sk, &bsa.sa, r) < 0)
-                        return -errno;
+                もし (bind(sk, &bsa.sa, r) < 0)
+                        戻る -errno;
         }
 
         r = connect_unix_path(sk, dir_fd, path);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (shutdown(sk, SHUT_WR) < 0)
-                return -errno;
+        もし (shutdown(sk, SHUT_WR) < 0)
+                戻る -errno;
 
         f = take_fdopen(&sk, "r");
-        if (!f)
-                return -errno;
+        もし (!f)
+                戻る -errno;
 
         *ret = f;
-        return 0;
+        戻る 0;
 }
 
-int xfopenat_full(
-                int dir_fd,
+整数 xfopenat_full(
+                整数 dir_fd,
                 const char *path,
                 const char *mode,
-                int open_flags,
+                整数 open_flags,
                 XfopenFlags flags,
                 const char *bind_name,
                 FILE **ret) {
 
         FILE *f = NULL;  /* avoid false maybe-uninitialized warning */
-        int r;
+        整数 r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(mode);
         assert(ret);
 
         r = xfopenat_regular(dir_fd, path, mode, open_flags, &f);
-        if (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
+        もし (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
                 /* ENXIO is what Linux returns if we open a node that is an AF_UNIX socket */
                 r = xfopenat_unix_socket(dir_fd, path, bind_name, &f);
-                if (IN_SET(r, -ENOTSOCK, -EINVAL))
-                        return -ENXIO; /* propagate original error if this is not a socket after all */
+                もし (IN_SET(r, -ENOTSOCK, -EINVAL))
+                        戻る -ENXIO; /* propagate original error if this is not a socket after all */
         }
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (FLAGS_SET(flags, XFOPEN_UNLOCKED))
+        もし (FLAGS_SET(flags, XFOPEN_UNLOCKED))
                 (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        戻る 0;
 }
 
-int fdopen_independent(int fd, const char *mode, FILE **ret) {
-        _cleanup_close_ int copy_fd = -EBADF;
+整数 fdopen_independent(整数 fd, const char *mode, FILE **ret) {
+        _cleanup_close_ 整数 copy_fd = -EBADF;
         _cleanup_fclose_ FILE *f = NULL;
-        int mode_flags;
+        整数 mode_flags;
 
         assert(fd >= 0);
         assert(mode);
@@ -1177,98 +1177,98 @@ int fdopen_independent(int fd, const char *mode, FILE **ret) {
          * returns a FILE* for it */
 
         mode_flags = fopen_mode_to_flags(mode);
-        if (mode_flags < 0)
-                return mode_flags;
+        もし (mode_flags < 0)
+                戻る mode_flags;
 
         /* Flags returned by fopen_mode_to_flags might contain O_CREAT, but it doesn't make sense for fd_reopen
          * since we're working on an existing fd anyway. Let's drop it here to avoid triggering assertion. */
         copy_fd = fd_reopen(fd, mode_flags & ~O_CREAT);
-        if (copy_fd < 0)
-                return copy_fd;
+        もし (copy_fd < 0)
+                戻る copy_fd;
 
         f = take_fdopen(&copy_fd, mode);
-        if (!f)
-                return -errno;
+        もし (!f)
+                戻る -errno;
 
         *ret = TAKE_PTR(f);
-        return 0;
+        戻る 0;
 }
 
-static int search_and_open_internal(
+static 整数 search_and_open_internal(
                 const char *path,
-                int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
+                整数 mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
                 const char *root,
                 char **search,
-                int *ret_fd,
+                整数 *ret_fd,
                 char **ret_path) {
 
-        int r;
+        整数 r;
 
         assert(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
         assert(path);
 
-        if (path_is_absolute(path)) {
-                _cleanup_close_ int fd = -EBADF;
+        もし (path_is_absolute(path)) {
+                _cleanup_close_ 整数 fd = -EBADF;
 
-                if (ret_fd)
+                もし (ret_fd)
                         /* We only specify 0777 here to appease static analyzers, it's never used since we
                          * don't support O_CREAT here */
                         r = fd = RET_NERRNO(open(path, mode, 0777));
-                else
+                否则
                         r = RET_NERRNO(access(path, mode));
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
-                if (ret_path) {
+                もし (ret_path) {
                         r = path_simplify_alloc(path, ret_path);
-                        if (r < 0)
-                                return r;
+                        もし (r < 0)
+                                戻る r;
                 }
 
-                if (ret_fd)
+                もし (ret_fd)
                         *ret_fd = TAKE_FD(fd);
 
-                return 0;
+                戻る 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
-                return -ENOMEM;
+        もし (!path_strv_resolve_uniq(search, root))
+                戻る -ENOMEM;
 
         STRV_FOREACH(i, search) {
-                _cleanup_close_ int fd = -EBADF;
+                _cleanup_close_ 整数 fd = -EBADF;
                 _cleanup_free_ char *p = NULL;
 
                 p = path_join(root, *i, path);
-                if (!p)
-                        return -ENOMEM;
+                もし (!p)
+                        戻る -ENOMEM;
 
-                if (ret_fd)
+                もし (ret_fd)
                         /* as above, 0777 is static analyzer appeasement */
                         r = fd = RET_NERRNO(open(p, mode, 0777));
-                else
+                否则
                         r = RET_NERRNO(access(p, F_OK));
-                if (r >= 0) {
-                        if (ret_path)
+                もし (r >= 0) {
+                        もし (ret_path)
                                 *ret_path = path_simplify(TAKE_PTR(p));
 
-                        if (ret_fd)
+                        もし (ret_fd)
                                 *ret_fd = TAKE_FD(fd);
 
-                        return 0;
+                        戻る 0;
                 }
-                if (r != -ENOENT)
-                        return r;
+                もし (r != -ENOENT)
+                        戻る r;
         }
 
-        return -ENOENT;
+        戻る -ENOENT;
 }
 
-int search_and_open(
+整数 search_and_open(
                 const char *path,
-                int mode,
+                整数 mode,
                 const char *root,
                 char **search,
-                int *ret_fd,
+                整数 *ret_fd,
                 char **ret_path) {
 
         _cleanup_strv_free_ char **copy = NULL;
@@ -1276,13 +1276,13 @@ int search_and_open(
         assert(path);
 
         copy = strv_copy(search);
-        if (!copy)
-                return -ENOMEM;
+        もし (!copy)
+                戻る -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        戻る search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
 }
 
-static int search_and_fopen_internal(
+static 整数 search_and_fopen_internal(
                 const char *path,
                 const char *mode,
                 const char *root,
@@ -1291,8 +1291,8 @@ static int search_and_fopen_internal(
                 char **ret_path) {
 
         _cleanup_free_ char *found_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ 整数 fd = -EBADF;
+        整数 r;
 
         assert(path);
         assert(mode || !ret_file);
@@ -1304,24 +1304,24 @@ static int search_and_fopen_internal(
                         search,
                         ret_file ? &fd : NULL,
                         ret_path ? &found_path : NULL);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (ret_file) {
+        もし (ret_file) {
                 FILE *f = take_fdopen(&fd, mode);
-                if (!f)
-                        return -errno;
+                もし (!f)
+                        戻る -errno;
 
                 *ret_file = f;
         }
 
-        if (ret_path)
+        もし (ret_path)
                 *ret_path = TAKE_PTR(found_path);
 
-        return 0;
+        戻る 0;
 }
 
-int search_and_fopen(
+整数 search_and_fopen(
                 const char *path,
                 const char *mode,
                 const char *root,
@@ -1335,13 +1335,13 @@ int search_and_fopen(
         assert(mode || !ret_file);
 
         copy = strv_copy((char**) search);
-        if (!copy)
-                return -ENOMEM;
+        もし (!copy)
+                戻る -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        戻る search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
 }
 
-int search_and_fopen_nulstr(
+整数 search_and_fopen_nulstr(
                 const char *path,
                 const char *mode,
                 const char *root,
@@ -1355,83 +1355,83 @@ int search_and_fopen_nulstr(
         assert(mode || !ret_file);
 
         l = strv_split_nulstr(search);
-        if (!l)
-                return -ENOMEM;
+        もし (!l)
+                戻る -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        戻る search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
 }
 
-int fflush_and_check(FILE *f) {
+整数 fflush_and_check(FILE *f) {
         assert(f);
 
         errno = 0;
         fflush(f);
 
-        if (ferror(f))
-                return errno_or_else(EIO);
+        もし (ferror(f))
+                戻る errno_or_else(EIO);
 
-        return 0;
+        戻る 0;
 }
 
-int fflush_sync_and_check(FILE *f) {
-        int r, fd;
+整数 fflush_sync_and_check(FILE *f) {
+        整数 r, fd;
 
         assert(f);
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         /* Not all file streams have an fd associated (think: fmemopen()), let's handle this gracefully and
          * assume that in that case we need no explicit syncing */
         fd = fileno(f);
-        if (fd < 0)
-                return 0;
+        もし (fd < 0)
+                戻る 0;
 
         r = fsync_full(fd);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return 0;
+        戻る 0;
 }
 
-int write_timestamp_file_atomic(const char *fn, usec_t n) {
+整数 write_timestamp_file_atomic(const char *fn, usec_t n) {
         char ln[DECIMAL_STR_MAX(n)+2];
 
         /* Creates a "timestamp" file, that contains nothing but a
          * usec_t timestamp, formatted in ASCII. */
 
-        if (!timestamp_is_set(n))
-                return -ERANGE;
+        もし (!timestamp_is_set(n))
+                戻る -ERANGE;
 
         xsprintf(ln, USEC_FMT "\n", n);
 
-        return write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
+        戻る write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
 }
 
-int read_timestamp_file(const char *fn, usec_t *ret) {
+整数 read_timestamp_file(const char *fn, usec_t *ret) {
         _cleanup_free_ char *ln = NULL;
         uint64_t t;
-        int r;
+        整数 r;
 
         assert(ret);
 
         r = read_one_line_file(fn, &ln);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         r = safe_atou64(ln, &t);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (!timestamp_is_set(t))
-                return -ERANGE;
+        もし (!timestamp_is_set(t))
+                戻る -ERANGE;
 
         *ret = (usec_t) t;
-        return 0;
+        戻る 0;
 }
 
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
+整数 fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
         assert(s);
         assert(space);
 
@@ -1440,45 +1440,45 @@ int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *sp
          * to false. It is set to true after the first invocation. This call is supposed to be use in loops,
          * where a separator shall be inserted between each element, but not before the first one. */
 
-        if (!f)
+        もし (!f)
                 f = stdout;
 
-        if (!separator)
+        もし (!separator)
                 separator = " ";
 
-        if (*space)
-                if (fputs(separator, f) < 0)
-                        return -EIO;
+        もし (*space)
+                もし (fputs(separator, f) < 0)
+                        戻る -EIO;
 
         *space = true;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        もし (fputs(s, f) < 0)
+                戻る -EIO;
 
-        return 0;
+        戻る 0;
 }
 
-int fputs_with_newline(FILE *f, const char *s) {
+整数 fputs_with_newline(FILE *f, const char *s) {
 
         /* This is like fputs() but outputs a trailing newline char, but only if the string isn't empty
          * and doesn't end in a newline already. Returns 0 in case we didn't append a newline, > 0 otherwise. */
 
-        if (isempty(s))
-                return 0;
+        もし (isempty(s))
+                戻る 0;
 
-        if (!f)
+        もし (!f)
                 f = stdout;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        もし (fputs(s, f) < 0)
+                戻る -EIO;
 
-        if (endswith(s, "\n"))
-                return 0;
+        もし (endswith(s, "\n"))
+                戻る 0;
 
-        if (fputc('\n', f) < 0)
-                return -EIO;
+        もし (fputc('\n', f) < 0)
+                戻る -EIO;
 
-        return 1;
+        戻る 1;
 }
 
 /* A bitmask of the EOL markers we know */
@@ -1491,25 +1491,25 @@ typedef enum EndOfLineMarker {
 
 static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
-                if (c == '\n')
-                        return EOL_TEN;
-                if (c == '\r')
-                        return EOL_THIRTEEN;
+        もし (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
+                もし (c == '\n')
+                        戻る EOL_TEN;
+                もし (c == '\r')
+                        戻る EOL_THIRTEEN;
         }
 
-        if (c == '\0')
-                return EOL_ZERO;
+        もし (c == '\0')
+                戻る EOL_ZERO;
 
-        return EOL_NONE;
+        戻る EOL_NONE;
 }
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
+整数 read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
         _cleanup_free_ char *buffer = NULL;
         size_t n = 0, count = 0;
-        int r;
+        整数 r;
 
         assert(f);
 
@@ -1537,9 +1537,9 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
          *
          * If a line shall be skipped ret may be initialized as NULL. */
 
-        if (ret) {
-                if (!GREEDY_REALLOC(buffer, 1))
-                        return -ENOMEM;
+        もし (ret) {
+                もし (!GREEDY_REALLOC(buffer, 1))
+                        戻る -ENOMEM;
         }
 
         {
@@ -1547,25 +1547,25 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 EndOfLineMarker previous_eol = EOL_NONE;
                 flockfile(f);
 
-                for (;;) {
+                ために (;;) {
                         EndOfLineMarker eol;
                         char c;
 
-                        if (n >= limit)
-                                return -ENOBUFS;
+                        もし (n >= limit)
+                                戻る -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
-                                return -ENOBUFS;
+                        もし (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
+                                戻る -ENOBUFS;
 
                         r = safe_fgetc(f, &c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) /* EOF is definitely EOL */
+                        もし (r < 0)
+                                戻る r;
+                        もし (r == 0) /* EOF is definitely EOL */
                                 break;
 
                         eol = categorize_eol(c, flags);
 
-                        if (FLAGS_SET(previous_eol, EOL_ZERO) ||
+                        もし (FLAGS_SET(previous_eol, EOL_ZERO) ||
                             (eol == EOL_NONE && previous_eol != EOL_NONE) ||
                             (eol != EOL_NONE && (previous_eol & eol) != 0)) {
                                 /* Previous char was a NUL? This is not an EOL, but the previous char was? This type of
@@ -1583,35 +1583,35 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
 
                         count++;
 
-                        if (eol != EOL_NONE) {
+                        もし (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
                                  * generally means waiting for the user, interactively. In the case of a TTY
                                  * we expect only \n as the single EOL marker, so we are in the lucky
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
-                                        int fd;
+                                もし ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
+                                        整数 fd;
 
                                         fd = fileno(f);
-                                        if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
+                                        もし (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
                                                 flags |= READ_LINE_NOT_A_TTY;
-                                        else
+                                        否则
                                                 flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
+                                もし (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
                                         break;
                         }
 
-                        if (eol != EOL_NONE) {
+                        もし (eol != EOL_NONE) {
                                 previous_eol |= eol;
                                 continue;
                         }
 
-                        if (ret) {
-                                if (!GREEDY_REALLOC(buffer, n + 2))
-                                        return -ENOMEM;
+                        もし (ret) {
+                                もし (!GREEDY_REALLOC(buffer, n + 2))
+                                        戻る -ENOMEM;
 
                                 buffer[n] = c;
                         }
@@ -1620,41 +1620,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 }
         }
 
-        if (ret) {
+        もし (ret) {
                 buffer[n] = 0;
 
                 *ret = TAKE_PTR(buffer);
         }
 
-        return (int) count;
+        戻る (整数) count;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
+整数 read_stripped_line(FILE *f, size_t limit, char **ret) {
         _cleanup_free_ char *s = NULL;
-        int r, k;
+        整数 r, k;
 
         assert(f);
 
         r = read_line(f, limit, ret ? &s : NULL);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (ret) {
+        もし (ret) {
                 const char *p = strstrip(s);
-                if (p == s)
+                もし (p == s)
                         *ret = TAKE_PTR(s);
-                else {
+                否则 {
                         k = strdup_to(ret, p);
-                        if (k < 0)
-                                return k;
+                        もし (k < 0)
+                                戻る k;
                 }
         }
 
-        return r > 0;          /* Return 1 if something was read. */
+        戻る r > 0;          /* Return 1 if something was read. */
 }
 
-int safe_fgetc(FILE *f, char *ret) {
-        int k;
+整数 safe_fgetc(FILE *f, char *ret) {
+        整数 k;
 
         assert(f);
 
@@ -1664,54 +1664,54 @@ int safe_fgetc(FILE *f, char *ret) {
 
         errno = 0;
         k = fgetc(f);
-        if (k == EOF) {
-                if (ferror(f))
-                        return errno_or_else(EIO);
+        もし (k == EOF) {
+                もし (ferror(f))
+                        戻る errno_or_else(EIO);
 
-                if (ret)
+                もし (ret)
                         *ret = 0;
 
-                return 0;
+                戻る 0;
         }
 
-        if (ret)
+        もし (ret)
                 *ret = k;
 
-        return 1;
+        戻る 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
+整数 warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
         struct stat _st;
 
-        if (!filename)
-                return 0;
+        もし (!filename)
+                戻る 0;
 
-        if (!st) {
-                if (stat(filename, &_st) < 0)
-                        return -errno;
+        もし (!st) {
+                もし (stat(filename, &_st) < 0)
+                        戻る -errno;
                 st = &_st;
         }
 
-        if ((st->st_mode & S_IRWXO) == 0)
-                return 0;
+        もし ((st->st_mode & S_IRWXO) == 0)
+                戻る 0;
 
-        if (unit)
+        もし (unit)
                 log_syntax(unit, LOG_WARNING, filename, line, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
-        else
+        否则
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                             filename, st->st_mode & 07777);
-        return 0;
+        戻る 0;
 }
 
-int write_data_file_atomic_at(
-                int dir_fd,
+整数 write_data_file_atomic_at(
+                整数 dir_fd,
                 const char *path,
                 const struct iovec *iovec,
                 WriteDataFileFlags flags) {
 
-        int r;
+        整数 r;
 
         assert(wildcard_fd_is_valid(dir_fd));
 
@@ -1720,13 +1720,13 @@ int write_data_file_atomic_at(
 
         _cleanup_free_ char *dn = NULL, *fn = NULL;
         r = path_split_prefix_filename(path, &dn, &fn);
-        if (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
-                return -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
-        if (r < 0)
-                return r;
+        もし (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
+                戻る -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
+        もし (r < 0)
+                戻る r;
 
-        _cleanup_close_ int mfd = -EBADF;
-        if (dn) {
+        _cleanup_close_ 整数 mfd = -EBADF;
+        もし (dn) {
                 /* If there's a directory component, readjust our position */
                 r = chaseat(XAT_FDROOT,
                             dir_fd,
@@ -1734,33 +1734,33 @@ int write_data_file_atomic_at(
                             FLAGS_SET(flags, WRITE_DATA_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
                             /* ret_path= */ NULL,
                             &mfd);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
                 dir_fd = mfd;
         }
 
         _cleanup_free_ char *t = NULL;
-        _cleanup_close_ int fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
-        if (fd < 0)
-                return fd;
+        _cleanup_close_ 整数 fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
+        もし (fd < 0)
+                戻る fd;
 
         CLEANUP_TMPFILE_AT(dir_fd, t);
 
-        if (iovec_is_set(iovec)) {
+        もし (iovec_is_set(iovec)) {
                 r = loop_write(fd, iovec->iov_base, iovec->iov_len);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
         r = fchmod_umask(fd, FLAGS_SET(flags, WRITE_DATA_FILE_MODE_0400) ? 0400 : 0644);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         r = link_tmpfile_at(fd, dir_fd, t, fn, LINK_TMPFILE_REPLACE);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         t = mfree(t); /* disarm CLEANUP_TMPFILE_AT */
-        return 0;
+        戻る 0;
 }

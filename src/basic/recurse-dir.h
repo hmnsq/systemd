@@ -29,8 +29,8 @@ typedef struct DirectoryEntries {
         struct dirent buffer[];
 } DirectoryEntries;
 
-int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
-int readdir_all_at(int fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret);
+整数 readdir_all(整数 dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
+整数 readdir_all_at(整数 fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret);
 
 typedef enum RecurseDirEvent {
         RECURSE_DIR_ENTER,      /* only for dir inodes */
@@ -73,14 +73,14 @@ assert_cc(RECURSE_DIR_SKIP_ENTRY < -ERRNO_MAX);
  * others                        → terminate iteration entirely, return the specified value (idea is that
  *                                 < 0 indicates errors and > 0 indicates various forms of success)
  */
-typedef int (*recurse_dir_func_t)(
+typedef 整数 (*recurse_dir_func_t)(
                 RecurseDirEvent event,
                 const char *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
-                int dir_fd,              /* fd of the current dir */
-                int inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
+                整数 dir_fd,              /* fd of the current dir */
+                整数 inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
                 const struct dirent *de, /* directory entry (always valid) */
                 const struct statx *sx,  /* statx data (only if statx_mask was non-zero) */
                 void *userdata);
 
-int recurse_dir(int dir_fd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
-int recurse_dir_at(int atfd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
+整数 recurse_dir(整数 dir_fd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
+整数 recurse_dir_at(整数 atfd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);

@@ -10,35 +10,35 @@
 bool http_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        もし (isempty(url))
+                戻る false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        もし (!p)
+                戻る false;
 
-        if (isempty(p))
-                return false;
+        もし (isempty(p))
+                戻る false;
 
-        return ascii_is_valid(p);
+        戻る ascii_is_valid(p);
 }
 
 bool file_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        もし (isempty(url))
+                戻る false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        もし (isempty(p))
+                戻る false;
 
-        return ascii_is_valid(p);
+        戻る ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
+整数 provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
         const char *p, *e;
-        int r;
+        整数 r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        もし (isempty(url))
+                戻る -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        もし (!p)
+                戻る -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        もし (!e || e == p)
+                戻る -EINVAL;
+        もし (e[1] != '/')
+                戻る -EINVAL;
 
         _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        もし (!s)
+                戻る -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        もし (!path_is_absolute(s) || !path_is_normalized(s))
+                戻る -EINVAL;
 
         const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        もし (isempty(resource))
+                戻る -EINVAL;
+        もし (path_is_absolute(resource) || !path_is_normalized(resource))
+                戻る -EINVAL;
+        もし (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
+                戻る -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (ret_socket)
+        もし (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        戻る 0;
 }
 
 bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+        戻る provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
 }
 
 bool documentation_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        もし (isempty(url))
+                戻る false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        もし (http_url_is_valid(url) || file_url_is_valid(url))
+                戻る true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        もし (isempty(p))
+                戻る false;
 
-        return ascii_is_valid(p);
+        戻る ascii_is_valid(p);
 }
 
 bool http_header_valid(const char *header) {
-        return header &&
+        戻る header &&
                 ascii_is_valid(header) &&
                 !string_has_cc(header, /* ok= */ NULL) &&
                 strchr(header, ':');
 }
 
 bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+        もし (isempty(etag))
+                戻る false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        もし (!endswith(etag, "\""))
+                戻る false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        もし (!STARTSWITH_SET(etag, "\"", "W/\""))
+                戻る false;
 
-        return true;
+        戻る true;
 }

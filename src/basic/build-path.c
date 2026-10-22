@@ -13,7 +13,7 @@
 #include "string-util.h"
 #include "unistd.h"
 
-static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
+static 整数 get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const char **ret) {
         size_t runpath_index = SIZE_MAX, rpath_index = SIZE_MAX;
         const char *strtab = NULL;
 
@@ -21,7 +21,7 @@ static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const c
 
         /* Iterates through the PT_DYNAMIC section to find the DT_RUNPATH/DT_RPATH entries */
 
-        for (; d->d_tag != DT_NULL; d++) {
+        ために (; d->d_tag != DT_NULL; d++) {
 
                 switch (d->d_tag) {
 
@@ -36,9 +36,9 @@ static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const c
                 case DT_STRTAB:
                         /* On MIPS, RISC-V, or with musl, DT_STRTAB records an offset, not a valid address,
                          * so it has to be adjusted using the bias calculated earlier. */
-                        if (d->d_un.d_val != 0)
+                        もし (d->d_un.d_val != 0)
                                 strtab = (const char *) ((uintptr_t) d->d_un.d_val
-#if defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
+#もし defined(__mips__) || defined(__riscv) || !defined(__GLIBC__)
                                          + bias
 #endif
                                 );
@@ -46,61 +46,61 @@ static int get_runpath_from_dynamic(const ElfW(Dyn) *d, ElfW(Addr) bias, const c
                 }
 
                 /* runpath wins, hence if we have the table and runpath we can exit the loop early */
-                if (strtab && runpath_index != SIZE_MAX)
+                もし (strtab && runpath_index != SIZE_MAX)
                         break;
         }
 
-        if (!strtab)
-                return -ENOTRECOVERABLE;
+        もし (!strtab)
+                戻る -ENOTRECOVERABLE;
 
         /* According to ld.so runpath wins if both runpath and rpath are defined. */
-        if (runpath_index != SIZE_MAX) {
-                if (ret)
+        もし (runpath_index != SIZE_MAX) {
+                もし (ret)
                         *ret = strtab + runpath_index;
-                return 1;
+                戻る 1;
         }
 
-        if (rpath_index != SIZE_MAX) {
-                if (ret)
+        もし (rpath_index != SIZE_MAX) {
+                もし (ret)
                         *ret = strtab + rpath_index;
-                return 1;
+                戻る 1;
         }
 
-        if (ret)
+        もし (ret)
                 *ret = NULL;
 
-        return 0;
+        戻る 0;
 }
 
-static int get_runpath(const char **ret) {
+static 整数 get_runpath(const char **ret) {
         unsigned long phdr, phent, phnum;
 
         /* Finds the rpath/runpath in the program headers of the main executable we are running in */
 
         phdr = getauxval(AT_PHDR);      /* Start offset of phdr */
-        if (phdr == 0)
-                return -ENOTRECOVERABLE;
+        もし (phdr == 0)
+                戻る -ENOTRECOVERABLE;
 
         phnum = getauxval(AT_PHNUM);    /* Number of entries in phdr */
-        if (phnum == 0)
-                return -ENOTRECOVERABLE;
+        もし (phnum == 0)
+                戻る -ENOTRECOVERABLE;
 
         phent = getauxval(AT_PHENT);    /* Size of entries in phdr */
-        if (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
-                return -ENOTRECOVERABLE;
+        もし (phent < sizeof(ElfW(Phdr))) /* Safety check, that our idea of the structure matches the file */
+                戻る -ENOTRECOVERABLE;
 
         ElfW(Addr) bias = 0, dyn = 0;
         bool found_bias = false, found_dyn = false;
 
         /* Iterate through the Phdr structures to find the PT_PHDR and PT_DYNAMIC sections */
-        for (unsigned long i = 0; i < phnum; i++) {
+        ために (unsigned long i = 0; i < phnum; i++) {
                 const ElfW(Phdr) *p = (const ElfW(Phdr)*) (phdr + (i * phent));
 
                 switch (p->p_type) {
 
                 case PT_PHDR:
-                        if (p->p_vaddr > phdr) /* safety overflow check */
-                                return -ENOTRECOVERABLE;
+                        もし (p->p_vaddr > phdr) /* safety overflow check */
+                                戻る -ENOTRECOVERABLE;
 
                         bias = (ElfW(Addr)) phdr - p->p_vaddr;
                         found_bias = true;
@@ -112,18 +112,18 @@ static int get_runpath(const char **ret) {
                         break;
                 }
 
-                if (found_bias && found_dyn)
+                もし (found_bias && found_dyn)
                         break;
         }
 
-        if (!found_dyn)
-                return -ENOTRECOVERABLE;
+        もし (!found_dyn)
+                戻る -ENOTRECOVERABLE;
 
-        return get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
+        戻る get_runpath_from_dynamic((const ElfW(Dyn)*) (bias + dyn), bias, ret);
 }
 
-int get_build_exec_dir(char **ret) {
-        int r;
+整数 get_build_exec_dir(char **ret) {
+        整数 r;
 
         /* Returns the build execution directory if we are invoked in a build environment. Specifically, this
          * checks if the main program binary has an rpath/runpath set (i.e. an explicit directory where to
@@ -151,49 +151,49 @@ int get_build_exec_dir(char **ret) {
          *     -NOTRECOVERABLE  → Dynamic binary information missing?
          */
 
-        static int runpath_cached = -ERRNO_MAX-1;
-        if (runpath_cached == -ERRNO_MAX-1) {
+        static 整数 runpath_cached = -ERRNO_MAX-1;
+        もし (runpath_cached == -ERRNO_MAX-1) {
                 const char *runpath = NULL;
 
                 runpath_cached = get_runpath(&runpath);
 
                 /* We only care if the runpath starts with $ORIGIN/ */
-                if (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
+                もし (runpath_cached > 0 && !startswith(runpath, "$ORIGIN/"))
                         runpath_cached = 0;
         }
-        if (runpath_cached < 0)
-                return runpath_cached;
-        if (runpath_cached == 0)
-                return -ENOEXEC;
+        もし (runpath_cached < 0)
+                戻る runpath_cached;
+        もし (runpath_cached == 0)
+                戻る -ENOEXEC;
 
         _cleanup_free_ char *exe = NULL;
         r = get_process_exe(0, &exe);
-        if (r < 0)
-                return runpath_cached = r;
+        もし (r < 0)
+                戻る runpath_cached = r;
 
-        return path_extract_directory(exe, ret);
+        戻る path_extract_directory(exe, ret);
 }
 
-static int find_build_dir_binary(const char *fn, char **ret) {
-        int r;
+static 整数 find_build_dir_binary(const char *fn, char **ret) {
+        整数 r;
 
         assert(fn);
         assert(ret);
 
         _cleanup_free_ char *build_dir = NULL;
         r = get_build_exec_dir(&build_dir);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         _cleanup_free_ char *np = path_join(build_dir, fn);
-        if (!np)
-                return -ENOMEM;
+        もし (!np)
+                戻る -ENOMEM;
 
         *ret = TAKE_PTR(np);
-        return 0;
+        戻る 0;
 }
 
-static int find_environment_binary(const char *fn, const char **ret) {
+static 整数 find_environment_binary(const char *fn, const char **ret) {
 
         assert(ret);
 
@@ -201,26 +201,26 @@ static int find_environment_binary(const char *fn, const char **ret) {
          * environment variable SYSTEMD_FOOBAR_PATH and return it if set. */
 
         _cleanup_free_ char *s = strdup(fn);
-        if (!s)
-                return -ENOMEM;
+        もし (!s)
+                戻る -ENOMEM;
 
         ascii_strupper(s);
         string_replace_char(s, '-', '_');
 
-        if (!strextend(&s, "_PATH"))
-                return -ENOMEM;
+        もし (!strextend(&s, "_PATH"))
+                戻る -ENOMEM;
 
         const char *e;
         e = secure_getenv(s);
-        if (!e)
-                return -ENXIO;
+        もし (!e)
+                戻る -ENXIO;
 
         *ret = e;
-        return 0;
+        戻る 0;
 }
 
-int invoke_callout_binary(const char *path, char *const argv[]) {
-        int r;
+整数 invoke_callout_binary(const char *path, char *const argv[]) {
+        整数 r;
 
         assert(path);
 
@@ -228,28 +228,28 @@ int invoke_callout_binary(const char *path, char *const argv[]) {
 
         _cleanup_free_ char *fn = NULL;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        もし (r < 0)
+                戻る r;
+        もし (r == O_DIRECTORY) /* Uh? */
+                戻る -EISDIR;
 
         const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        もし (find_environment_binary(fn, &e) >= 0) {
                 /* If there's an explicit environment variable set for this binary, prefer it */
                 execv(e, argv);
-                return -errno; /* The environment variable counts, let's fail otherwise */
+                戻る -errno; /* The environment variable counts, let's fail otherwise */
         }
 
         _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0)
+        もし (find_build_dir_binary(fn, &np) >= 0)
                 execv(np, argv);
 
         execvp(path, argv);
-        return -errno;
+        戻る -errno;
 }
 
-int pin_callout_binary(const char *path, char **ret_path) {
-        int r, fd;
+整数 pin_callout_binary(const char *path, char **ret_path) {
+        整数 r, fd;
 
         assert(path);
 
@@ -258,33 +258,33 @@ int pin_callout_binary(const char *path, char **ret_path) {
 
         _cleanup_free_ char *fn = NULL;
         r = path_extract_filename(path, &fn);
-        if (r < 0)
-                return r;
-        if (r == O_DIRECTORY) /* Uh? */
-                return -EISDIR;
+        もし (r < 0)
+                戻る r;
+        もし (r == O_DIRECTORY) /* Uh? */
+                戻る -EISDIR;
 
         const char *e;
-        if (find_environment_binary(fn, &e) >= 0) {
+        もし (find_environment_binary(fn, &e) >= 0) {
                 /* The environment variable counts. We'd fail if the executable is not available/invalid. */
                 r = open_and_check_executable(e, /* root= */ NULL, ret_path, &fd);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
-                return fd;
+                戻る fd;
         }
 
         _cleanup_free_ char *np = NULL;
-        if (find_build_dir_binary(fn, &np) >= 0) {
+        もし (find_build_dir_binary(fn, &np) >= 0) {
                 r = open_and_check_executable(np, /* root= */ NULL, ret_path, &fd);
-                if (r >= 0)
-                        return fd;
+                もし (r >= 0)
+                        戻る fd;
         }
 
         r = find_executable_full(path, /* root= */ NULL,
                                  /* exec_search_path= */ NULL, /* use_path_envvar= */ true,
                                  ret_path, &fd);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return fd;
+        戻る fd;
 }

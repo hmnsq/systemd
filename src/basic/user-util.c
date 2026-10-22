@@ -30,18 +30,18 @@
 
 #define DEFINE_STRERROR_ACCOUNT(type)                                   \
         const char* strerror_##type(                                    \
-                        int errnum,                                     \
+                        整数 errnum,                                     \
                         char *buf,                                      \
                         size_t buflen) {                                \
                                                                         \
                 errnum = ABS(errnum);                                   \
                 switch (errnum) {                                       \
                 case ESRCH:                                             \
-                        return "Unknown " STRINGIFY(type);              \
+                        戻る "Unknown " STRINGIFY(type);              \
                 case ENOEXEC:                                           \
-                        return "Not a system " STRINGIFY(type);         \
+                        戻る "Not a system " STRINGIFY(type);         \
                 default:                                                \
-                        return strerror_r(errnum, buf, buflen);         \
+                        戻る strerror_r(errnum, buf, buflen);         \
                 }                                                       \
         }
 
@@ -53,19 +53,19 @@ bool uid_is_valid(uid_t uid) {
         /* Also see POSIX IEEE Std 1003.1-2008, 2016 Edition, 3.436. */
 
         /* Some libc APIs use UID_INVALID as special placeholder */
-        if (uid == (uid_t) UINT32_C(0xFFFFFFFF))
-                return false;
+        もし (uid == (uid_t) UINT32_C(0xFFFFFFFF))
+                戻る false;
 
         /* A long time ago UIDs where 16 bit, hence explicitly avoid the 16-bit -1 too */
-        if (uid == (uid_t) UINT32_C(0xFFFF))
-                return false;
+        もし (uid == (uid_t) UINT32_C(0xFFFF))
+                戻る false;
 
-        return true;
+        戻る true;
 }
 
-int parse_uid(const char *s, uid_t *ret) {
+整数 parse_uid(const char *s, uid_t *ret) {
         uint32_t uid = 0;
-        int r;
+        整数 r;
 
         assert(s);
 
@@ -79,85 +79,85 @@ int parse_uid(const char *s, uid_t *ret) {
                              | SAFE_ATO_REFUSE_PLUS_MINUS
                              | SAFE_ATO_REFUSE_LEADING_ZERO
                              | SAFE_ATO_REFUSE_LEADING_WHITESPACE, &uid);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (!uid_is_valid(uid))
-                return -ENXIO; /* we return ENXIO instead of EINVAL
+        もし (!uid_is_valid(uid))
+                戻る -ENXIO; /* we return ENXIO instead of EINVAL
                                 * here, to make it easy to distinguish
                                 * invalid numeric uids from invalid
                                 * strings. */
 
-        if (ret)
+        もし (ret)
                 *ret = uid;
 
-        return 0;
+        戻る 0;
 }
 
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper) {
+整数 parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper) {
         _cleanup_free_ char *word = NULL;
         uid_t l, u;
-        int r;
+        整数 r;
 
         assert(s);
         assert(ret_lower);
         assert(ret_upper);
 
         r = extract_first_word(&s, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        もし (r < 0)
+                戻る r;
+        もし (r == 0)
+                戻る -EINVAL;
 
         r = parse_uid(word, &l);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!s)
+        もし (!s)
                 /* Single number with no dash. */
                 u = l;
-        else if (!*s)
+        否则 もし (!*s)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                戻る -EINVAL;
+        否则 {
                 r = parse_uid(s, &u);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
-                if (l > u)
-                        return -EINVAL;
+                もし (l > u)
+                        戻る -EINVAL;
         }
 
         *ret_lower = l;
         *ret_upper = u;
-        return 0;
+        戻る 0;
 }
 
 char* getlogname_malloc(void) {
         uid_t uid;
         struct stat st;
 
-        if (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
+        もし (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
                 uid = st.st_uid;
-        else
+        否则
                 uid = getuid();
 
-        return uid_to_name(uid);
+        戻る uid_to_name(uid);
 }
 
 char* getusername_malloc(void) {
         const char *e;
 
         e = secure_getenv("USER");
-        if (e)
-                return strdup(e);
+        もし (e)
+                戻る strdup(e);
 
-        return uid_to_name(getuid());
+        戻る uid_to_name(getuid());
 }
 
 bool is_nologin_shell(const char *shell) {
-        return PATH_IN_SET(shell,
+        戻る PATH_IN_SET(shell,
                            /* 'nologin' is the friendliest way to disable logins for a user account. It prints a nice
                             * message and exits. Different distributions place the binary at different places though,
                             * hence let's list them all. */
@@ -175,36 +175,36 @@ bool is_nologin_shell(const char *shell) {
 }
 
 bool shell_is_placeholder(const char *shell) {
-        return isempty(shell) || is_nologin_shell(shell);
+        戻る isempty(shell) || is_nologin_shell(shell);
 }
 
-const char* default_root_shell_at(int rfd) {
+const char* default_root_shell_at(整数 rfd) {
         /* We want to use the preferred shell, i.e. DEFAULT_USER_SHELL, which usually
          * will be /bin/bash. Fall back to /bin/sh if DEFAULT_USER_SHELL is not found,
          * or any access errors. */
 
         assert(rfd >= 0 || rfd == AT_FDCWD);
 
-        int r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, NULL, NULL);
-        if (r < 0 && r != -ENOENT)
+        整数 r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, NULL, NULL);
+        もし (r < 0 && r != -ENOENT)
                 log_debug_errno(r, "Failed to look up shell '%s': %m", DEFAULT_USER_SHELL);
-        if (r > 0)
-                return DEFAULT_USER_SHELL;
+        もし (r > 0)
+                戻る DEFAULT_USER_SHELL;
 
-        return "/bin/sh";
+        戻る "/bin/sh";
 }
 
 const char* default_root_shell(const char *root) {
-        _cleanup_close_ int rfd = -EBADF;
+        _cleanup_close_ 整数 rfd = -EBADF;
 
         rfd = open(empty_to_root(root), O_CLOEXEC | O_DIRECTORY | O_PATH);
-        if (rfd < 0)
-                return "/bin/sh";
+        もし (rfd < 0)
+                戻る "/bin/sh";
 
-        return default_root_shell_at(rfd);
+        戻る default_root_shell_at(rfd);
 }
 
-static int return_user_creds(
+static 整数 return_user_creds(
                 const char *username,
                 uid_t uid, gid_t gid,
                 const char *home,
@@ -216,40 +216,40 @@ static int return_user_creds(
         /* Helper function to help with the strdups and atomic setting of return params. */
 
         _cleanup_free_ char *s1 = NULL, *s2 = NULL, *s3 = NULL;
-        int r;
+        整数 r;
 
-        if (ret_username) {
+        もし (ret_username) {
                 r = strdup_to(&s1, username);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        if (ret_home) {
+        もし (ret_home) {
                 r = strdup_to(&s2, home);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        if (ret_shell) {
+        もし (ret_shell) {
                 r = strdup_to(&s3, shell);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        if (ret_username)
+        もし (ret_username)
                 *ret_username = TAKE_PTR(s1);
-        if (ret_uid)
+        もし (ret_uid)
                 *ret_uid = uid;
-        if (ret_gid)
+        もし (ret_gid)
                 *ret_gid = gid;
-        if (ret_home)
+        もし (ret_home)
                 *ret_home = TAKE_PTR(s2);
-        if (ret_shell)
+        もし (ret_shell)
                 *ret_shell = TAKE_PTR(s3);
-        return 0;
+        戻る 0;
 }
 
-static int synthesize_user_creds(
+static 整数 synthesize_user_creds(
                 const char *username,
                 UserCredsFlags flags,
                 char **ret_username,
@@ -260,8 +260,8 @@ static int synthesize_user_creds(
 
         /* We enforce some special rules for uid=0 and uid=65534: in order to avoid nss lookups for root we
          * hardcode their user record data. */
-        if (STR_IN_SET(username, "root", "0"))
-                return return_user_creds("root", 0, 0,
+        もし (STR_IN_SET(username, "root", "0"))
+                戻る return_user_creds("root", 0, 0,
                                          "/root",
                                          ret_shell ? default_root_shell(NULL) : NULL,
                                          ret_username,
@@ -269,9 +269,9 @@ static int synthesize_user_creds(
                                          ret_home,
                                          ret_shell);
 
-        if (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
+        もし (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
             synthesize_nobody())
-                return return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
+                戻る return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
                                          FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : "/",
                                          FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : NOLOGIN,
                                          ret_username,
@@ -279,10 +279,10 @@ static int synthesize_user_creds(
                                          ret_home,
                                          ret_shell);
 
-        return -ENOMEDIUM;
+        戻る -ENOMEDIUM;
 }
 
-int get_user_creds(
+整数 get_user_creds(
                 const char *username,
                 UserCredsFlags flags,
                 char **ret_username,
@@ -292,12 +292,12 @@ int get_user_creds(
 
         uid_t u = UID_INVALID;
         _cleanup_free_ struct passwd *pw = NULL;
-        int r;
+        整数 r;
 
         assert(username);
         assert((ret_home || ret_shell) || !(flags & (USER_CREDS_SUPPRESS_PLACEHOLDER|USER_CREDS_CLEAN)));
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
+        もし (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
             (!ret_home && !ret_shell)) {
 
                 /* So here's the deal: normally, we'll try to synthesize all records we can synthesize, and override
@@ -310,48 +310,48 @@ int get_user_creds(
                  * support. */
 
                 r = synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a username we can synthesize */
-                        return r;
+                もし (r >= 0)
+                        戻る 0;
+                もし (r != -ENOMEDIUM) /* not a username we can synthesize */
+                        戻る r;
         }
 
-        if (parse_uid(username, &u) >= 0) {
+        もし (parse_uid(username, &u) >= 0) {
                 r = getpwuid_malloc(u, &pw);
 
                 /* If there are multiple users with the same id, make sure to leave $USER to the configured value
                  * instead of the first occurrence in the database. However if the uid was configured by a numeric uid,
                  * then let's pick the real username from /etc/passwd. */
-                if (r >= 0)
+                もし (r >= 0)
                         username = pw->pw_name;
 
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
+                否则 もし (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
                         /* If the specified user is a numeric UID and it isn't in the user database, and the caller
                          * passed USER_CREDS_ALLOW_MISSING and was only interested in the UID, then just return that
                          * and don't complain. */
-                        if (ret_username)
+                        もし (ret_username)
                                 *ret_username = NULL;
-                        if (ret_uid)
+                        もし (ret_uid)
                                 *ret_uid = u;
-                        return 0;
+                        戻る 0;
                 }
-        } else
+        } 否则
                 r = getpwnam_malloc(username, &pw);
 
-        if (r < 0) {
+        もし (r < 0) {
                 /* If the user requested that we only synthesize as fallback, do so now */
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+                もし (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell) >= 0)
-                        return 0;
+                        戻る 0;
 
-                return r;
+                戻る r;
         }
 
-        if (ret_uid && !uid_is_valid(pw->pw_uid))
-                return -EBADMSG;
+        もし (ret_uid && !uid_is_valid(pw->pw_uid))
+                戻る -EBADMSG;
 
-        if (ret_gid && !gid_is_valid(pw->pw_gid))
-                return -EBADMSG;
+        もし (ret_gid && !gid_is_valid(pw->pw_gid))
+                戻る -EBADMSG;
 
         /* Note: we don't insist on normalized paths, since there are setups that have /./ in the path */
         const char *h =
@@ -364,332 +364,332 @@ int get_user_creds(
                 (FLAGS_SET(flags, USER_CREDS_CLEAN) && (!path_is_valid(pw->pw_shell) || !path_is_absolute(pw->pw_shell)))
                 ? NULL : pw->pw_shell;
 
-        return return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
+        戻る return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
                                  ret_username, ret_uid, ret_gid, ret_home, ret_shell);
 }
 
-static int synthesize_group_creds(const char *groupname, char **ret_name, gid_t *ret_gid) {
+static 整数 synthesize_group_creds(const char *groupname, char **ret_name, gid_t *ret_gid) {
         assert(groupname);
 
         gid_t id;
         const char *n;
-        int r;
+        整数 r;
 
-        if (STR_IN_SET(groupname, "root", "0")) {
+        もし (STR_IN_SET(groupname, "root", "0")) {
                 id = 0;
                 n = "root";
-        } else if (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
+        } 否则 もし (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
                    synthesize_nobody()) {
                 id = GID_NOBODY;
                 n = NOBODY_GROUP_NAME;
-        } else
-                return -ENOMEDIUM;
+        } 否则
+                戻る -ENOMEDIUM;
 
         r = strdup_to_full(ret_name, n);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        もし (r < 0)
+                戻る r;
+        もし (ret_gid)
                 *ret_gid = id;
-        return 0;
+        戻る 0;
 }
 
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid) {
+整数 get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid) {
         _cleanup_free_ struct group *gr = NULL;
         gid_t id;
-        int r;
+        整数 r;
 
         assert(groupname);
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
+        もし (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
                 r = synthesize_group_creds(groupname, ret_name, ret_gid);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a groupname we can synthesize */
-                        return r;
+                もし (r >= 0)
+                        戻る 0;
+                もし (r != -ENOMEDIUM) /* not a groupname we can synthesize */
+                        戻る r;
         }
 
-        if (parse_gid(groupname, &id) >= 0) {
+        もし (parse_gid(groupname, &id) >= 0) {
                 r = getgrgid_malloc(id, &gr);
-                if (r >= 0)
+                もし (r >= 0)
                         groupname = gr->gr_name;
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
-                        if (ret_gid)
+                否则 もし (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
+                        もし (ret_gid)
                                 *ret_gid = id;
-                        if (ret_name)
+                        もし (ret_name)
                                 *ret_name = NULL;
-                        return 0;
+                        戻る 0;
                 }
-        } else
+        } 否则
                 r = getgrnam_malloc(groupname, &gr);
 
-        if (r < 0) {
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+        もし (r < 0) {
+                もし (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_group_creds(groupname, ret_name, ret_gid) >= 0)
-                        return 0;
-                return r;
+                        戻る 0;
+                戻る r;
         }
 
-        if (ret_gid && !gid_is_valid(gr->gr_gid))
-                return -EBADMSG;
+        もし (ret_gid && !gid_is_valid(gr->gr_gid))
+                戻る -EBADMSG;
 
         r = strdup_to_full(ret_name, groupname);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        もし (r < 0)
+                戻る r;
+        もし (ret_gid)
                 *ret_gid = gr->gr_gid;
-        return 0;
+        戻る 0;
 }
 
 char* uid_to_name(uid_t uid) {
         char *ret;
-        int r;
+        整数 r;
 
         /* Shortcut things to avoid NSS lookups */
-        if (uid == 0)
-                return strdup("root");
-        if (uid == UID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_USER_NAME);
+        もし (uid == 0)
+                戻る strdup("root");
+        もし (uid == UID_NOBODY && synthesize_nobody())
+                戻る strdup(NOBODY_USER_NAME);
 
-        if (uid_is_valid(uid)) {
+        もし (uid_is_valid(uid)) {
                 _cleanup_free_ struct passwd *pw = NULL;
 
                 r = getpwuid_malloc(uid, &pw);
-                if (r >= 0)
-                        return strdup(pw->pw_name);
+                もし (r >= 0)
+                        戻る strdup(pw->pw_name);
         }
 
-        if (asprintf(&ret, UID_FMT, uid) < 0)
-                return NULL;
+        もし (asprintf(&ret, UID_FMT, uid) < 0)
+                戻る NULL;
 
-        return ret;
+        戻る ret;
 }
 
 char* gid_to_name(gid_t gid) {
         char *ret;
-        int r;
+        整数 r;
 
-        if (gid == 0)
-                return strdup("root");
-        if (gid == GID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_GROUP_NAME);
+        もし (gid == 0)
+                戻る strdup("root");
+        もし (gid == GID_NOBODY && synthesize_nobody())
+                戻る strdup(NOBODY_GROUP_NAME);
 
-        if (gid_is_valid(gid)) {
+        もし (gid_is_valid(gid)) {
                 _cleanup_free_ struct group *gr = NULL;
 
                 r = getgrgid_malloc(gid, &gr);
-                if (r >= 0)
-                        return strdup(gr->gr_name);
+                もし (r >= 0)
+                        戻る strdup(gr->gr_name);
         }
 
-        if (asprintf(&ret, GID_FMT, gid) < 0)
-                return NULL;
+        もし (asprintf(&ret, GID_FMT, gid) < 0)
+                戻る NULL;
 
-        return ret;
+        戻る ret;
 }
 
 static bool gid_list_has(const gid_t *list, size_t size, gid_t val) {
         assert(list || size == 0);
 
         FOREACH_ARRAY(i, list, size)
-                if (*i == val)
-                        return true;
+                もし (*i == val)
+                        戻る true;
 
-        return false;
+        戻る false;
 }
 
-int in_gid(gid_t gid) {
+整数 in_gid(gid_t gid) {
         _cleanup_free_ gid_t *gids = NULL;
-        int ngroups;
+        整数 ngroups;
 
-        if (getgid() == gid)
-                return 1;
+        もし (getgid() == gid)
+                戻る 1;
 
-        if (getegid() == gid)
-                return 1;
+        もし (getegid() == gid)
+                戻る 1;
 
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+        もし (!gid_is_valid(gid))
+                戻る -EINVAL;
 
         ngroups = getgroups_alloc(&gids);
-        if (ngroups < 0)
-                return ngroups;
+        もし (ngroups < 0)
+                戻る ngroups;
 
-        return gid_list_has(gids, ngroups, gid);
+        戻る gid_list_has(gids, ngroups, gid);
 }
 
-int in_group(const char *name) {
-        int r;
+整数 in_group(const char *name) {
+        整数 r;
         gid_t gid;
 
         r = get_group_creds(name, /* flags= */ 0, /* ret_name= */ NULL, &gid);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return in_gid(gid);
+        戻る in_gid(gid);
 }
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret) {
+整数 merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret) {
         size_t nresult = 0;
 
         assert(size1 == 0 || list1);
         assert(size2 == 0 || list2);
         assert(ret);
 
-        if (size2 > INT_MAX - size1)
-                return -ENOBUFS;
+        もし (size2 > INT_MAX - size1)
+                戻る -ENOBUFS;
 
         gid_t *buf = new(gid_t, size1 + size2);
-        if (!buf)
-                return -ENOMEM;
+        もし (!buf)
+                戻る -ENOMEM;
 
         /* Duplicates need to be skipped on merging, otherwise they'll be passed on and stored in the kernel. */
-        for (size_t i = 0; i < size1; i++)
-                if (!gid_list_has(buf, nresult, list1[i]))
+        ために (size_t i = 0; i < size1; i++)
+                もし (!gid_list_has(buf, nresult, list1[i]))
                         buf[nresult++] = list1[i];
-        for (size_t i = 0; i < size2; i++)
-                if (!gid_list_has(buf, nresult, list2[i]))
+        ために (size_t i = 0; i < size2; i++)
+                もし (!gid_list_has(buf, nresult, list2[i]))
                         buf[nresult++] = list2[i];
         *ret = buf;
-        return (int)nresult;
+        戻る (整数)nresult;
 }
 
-int getgroups_alloc(gid_t **ret) {
-        int ngroups = 8;
+整数 getgroups_alloc(gid_t **ret) {
+        整数 ngroups = 8;
 
         assert(ret);
 
-        for (unsigned attempt = 0;;) {
+        ために (unsigned attempt = 0;;) {
                 _cleanup_free_ gid_t *p = NULL;
 
                 p = new(gid_t, ngroups);
-                if (!p)
-                        return -ENOMEM;
+                もし (!p)
+                        戻る -ENOMEM;
 
                 ngroups = getgroups(ngroups, p);
-                if (ngroups > 0) {
+                もし (ngroups > 0) {
                         *ret = TAKE_PTR(p);
-                        return ngroups;
+                        戻る ngroups;
                 }
-                if (ngroups == 0)
+                もし (ngroups == 0)
                         break;
-                if (errno != EINVAL)
-                        return -errno;
+                もし (errno != EINVAL)
+                        戻る -errno;
 
                 /* Give up eventually */
-                if (attempt++ > 10)
-                        return -EINVAL;
+                もし (attempt++ > 10)
+                        戻る -EINVAL;
 
                 /* Get actual size needed, and size the array explicitly. Note that this is potentially racy
                  * to use (in multi-threaded programs), hence let's call this in a loop. */
                 ngroups = getgroups(0, NULL);
-                if (ngroups < 0)
-                        return -errno;
-                if (ngroups == 0)
+                もし (ngroups < 0)
+                        戻る -errno;
+                もし (ngroups == 0)
                         break;
         }
 
         *ret = NULL;
-        return 0;
+        戻る 0;
 }
 
-int get_home_dir(char **ret) {
+整数 get_home_dir(char **ret) {
         _cleanup_free_ struct passwd *p = NULL;
         const char *e;
         uid_t u;
-        int r;
+        整数 r;
 
         assert(ret);
 
         /* Take the user specified one */
         e = secure_getenv("HOME");
-        if (e && path_is_valid(e) && path_is_absolute(e))
+        もし (e && path_is_valid(e) && path_is_absolute(e))
                 goto found;
 
         /* Hardcode home directory for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
+        もし (u == 0) {
                 e = "/root";
                 goto found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        もし (u == UID_NOBODY && synthesize_nobody()) {
                 e = "/";
                 goto found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         e = p->pw_dir;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        もし (!path_is_valid(e) || !path_is_absolute(e))
+                戻る -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        戻る path_simplify_alloc(e, ret);
 }
 
-int get_shell(char **ret) {
+整数 get_shell(char **ret) {
         _cleanup_free_ struct passwd *p = NULL;
         const char *e;
         uid_t u;
-        int r;
+        整数 r;
 
         assert(ret);
 
         /* Take the user specified one */
         e = secure_getenv("SHELL");
-        if (e && path_is_valid(e) && path_is_absolute(e))
+        もし (e && path_is_valid(e) && path_is_absolute(e))
                 goto found;
 
         /* Hardcode shell for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
+        もし (u == 0) {
                 e = default_root_shell(NULL);
                 goto found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        もし (u == UID_NOBODY && synthesize_nobody()) {
                 e = NOLOGIN;
                 goto found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         e = p->pw_shell;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        もし (!path_is_valid(e) || !path_is_absolute(e))
+                戻る -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        戻る path_simplify_alloc(e, ret);
 }
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids) {
-        int r;
+整数 fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids) {
+        整数 r;
 
         assert(supplementary_gids || n_supplementary_gids == 0);
 
         /* Sets all UIDs and all GIDs to the specified ones. Drops all auxiliary GIDs */
 
         r = maybe_setgroups(n_supplementary_gids, supplementary_gids);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (gid_is_valid(gid))
-                if (setresgid(gid, gid, gid) < 0)
-                        return -errno;
+        もし (gid_is_valid(gid))
+                もし (setresgid(gid, gid, gid) < 0)
+                        戻る -errno;
 
-        if (uid_is_valid(uid))
-                if (setresuid(uid, uid, uid) < 0)
-                        return -errno;
+        もし (uid_is_valid(uid))
+                もし (setresuid(uid, uid, uid) < 0)
+                        戻る -errno;
 
-        return 0;
+        戻る 0;
 }
 
-int take_etc_passwd_lock(const char *root) {
-        int r;
+整数 take_etc_passwd_lock(const char *root) {
+        整数 r;
 
         /* This is roughly the same as lckpwdf(), but not as awful. We don't want to use alarm() and signals,
          * hence we implement our own trivial version of this.
@@ -699,20 +699,20 @@ int take_etc_passwd_lock(const char *root) {
          * The per-database locks are awfully racy, and thus we just won't do them. */
 
         _cleanup_free_ char *path = path_join(root, ETC_PASSWD_LOCK_PATH);
-        if (!path)
-                return log_oom_debug();
+        もし (!path)
+                戻る log_oom_debug();
 
         (void) mkdir_parents(path, 0755);
 
-        _cleanup_close_ int fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
-        if (fd < 0)
-                return log_debug_errno(errno, "Cannot open %s: %m", path);
+        _cleanup_close_ 整数 fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
+        もし (fd < 0)
+                戻る log_debug_errno(errno, "Cannot open %s: %m", path);
 
         r = unposix_lock(fd, LOCK_EX);
-        if (r < 0)
-                return log_debug_errno(r, "Locking %s failed: %m", path);
+        もし (r < 0)
+                戻る log_debug_errno(r, "Locking %s failed: %m", path);
 
-        return TAKE_FD(fd);
+        戻る TAKE_FD(fd);
 }
 
 bool valid_user_group_name(const char *u, ValidUserFlags flags) {
@@ -725,14 +725,14 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
          * Whenever we synthesize users ourselves we should use the strict mode. But when we process users
          * created by other stuff, let's be more liberal. */
 
-        if (isempty(u)) /* An empty user name is never valid */
-                return false;
+        もし (isempty(u)) /* An empty user name is never valid */
+                戻る false;
 
-        if (parse_uid(u, NULL) >= 0) /* Something that parses as numeric UID string is valid exactly when the
+        もし (parse_uid(u, NULL) >= 0) /* Something that parses as numeric UID string is valid exactly when the
                                       * flag for it is set */
-                return FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
+                戻る FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
 
-        if (FLAGS_SET(flags, VALID_USER_RELAX)) {
+        もし (FLAGS_SET(flags, VALID_USER_RELAX)) {
 
                 /* In relaxed mode we just check very superficially. Apparently SSSD and other stuff is
                  * extremely liberal (way too liberal if you ask me, even inserting "@" in user names, which
@@ -745,52 +745,52 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * outside of POSIX' bounds any day, but I must say in this case I probably wouldn't
                  * have...) */
 
-                if (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
+                もし (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
                                                              * at front and back (accept in the middle, since
                                                              * that's apparently a thing on Windows). Note
                                                              * that this also blocks usernames consisting of
                                                              * whitespace only. */
-                        return false;
+                        戻る false;
 
-                if (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
-                        return false;
+                もし (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
+                        戻る false;
 
-                if (string_has_cc(u, NULL)) /* CC characters are just dangerous (and \n in particular is the
+                もし (string_has_cc(u, NULL)) /* CC characters are just dangerous (and \n in particular is the
                                              * record separator in /etc/passwd), so we can't allow that. */
-                        return false;
+                        戻る false;
 
-                if (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
+                もし (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
                                        * that. Slashes are special to file systems paths and user names
                                        * typically show up in the file system as home directories, hence
                                        * don't allow slashes. */
-                        return false;
+                        戻る false;
 
-                if (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
+                もし (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
                                             * UIDs (note that this test is more broad than the parse_uid()
                                             * test above, as it will cover more than the 32-bit range, and it
                                             * will detect 65535 (which is in invalid UID, even though in the
                                             * unsigned 32 bit range) */
-                        return false;
+                        戻る false;
 
-                if (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
+                もし (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
                                                                * either. After all some people write 65535 as
                                                                * -1 (even though that's not even true on
                                                                * 32-bit uid_t anyway) */
-                        return false;
+                        戻る false;
 
-                if (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
+                もし (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
                                         * special in that context, don't allow that. */
-                        return false;
+                        戻る false;
 
                 /* Compare with strict result and warn if result doesn't match */
-                if (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
+                もし (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
                         log_struct(LOG_NOTICE,
                                    LOG_MESSAGE("Accepting user/group name '%s', which does not match strict user/group name rules.", u),
                                    LOG_ITEM("USER_GROUP_NAME=%s", u),
                                    LOG_MESSAGE_ID(SD_MESSAGE_UNSAFE_USER_NAME_STR));
 
                 /* Note that we make no restrictions on the length in relaxed mode! */
-        } else {
+        } 否则 {
                 long sz;
                 size_t l;
 
@@ -805,48 +805,48 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * Note that other systems are even more restrictive, and don't permit underscores or uppercase characters.
                  */
 
-                if (!ascii_isalpha(u[0]) &&
+                もし (!ascii_isalpha(u[0]) &&
                     u[0] != '_')
-                        return false;
+                        戻る false;
 
-                for (i = u+1; *i; i++)
-                        if (!ascii_isalpha(*i) &&
+                ために (i = u+1; *i; i++)
+                        もし (!ascii_isalpha(*i) &&
                             !ascii_isdigit(*i) &&
                             !IN_SET(*i, '_', '-'))
-                                return false;
+                                戻る false;
 
                 l = i - u;
 
                 sz = sysconf(_SC_LOGIN_NAME_MAX);
                 assert_se(sz > 0);
 
-                if (l > (size_t) sz) /* glibc: 256 */
-                        return false;
-                if (l > NAME_MAX) /* must fit in a filename: 255 */
-                        return false;
-                if (l > sizeof_field(struct utmpx, ut_user) - 1) /* must fit in utmp: 31 */
-                        return false;
+                もし (l > (size_t) sz) /* glibc: 256 */
+                        戻る false;
+                もし (l > NAME_MAX) /* must fit in a filename: 255 */
+                        戻る false;
+                もし (l > sizeof_field(struct utmpx, ut_user) - 1) /* must fit in utmp: 31 */
+                        戻る false;
         }
 
-        return true;
+        戻る true;
 }
 
 bool valid_gecos(const char *d) {
 
-        if (!d)
-                return false;
+        もし (!d)
+                戻る false;
 
-        if (!utf8_is_valid(d))
-                return false;
+        もし (!utf8_is_valid(d))
+                戻る false;
 
-        if (string_has_cc(d, NULL))
-                return false;
+        もし (string_has_cc(d, NULL))
+                戻る false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(d, ':'))
-                return false;
+        もし (strchr(d, ':'))
+                戻る false;
 
-        return true;
+        戻る true;
 }
 
 char* mangle_gecos(const char *d) {
@@ -857,19 +857,19 @@ char* mangle_gecos(const char *d) {
          * UTF-8 */
 
         mangled = strdup(d);
-        if (!mangled)
-                return NULL;
+        もし (!mangled)
+                戻る NULL;
 
-        for (char *i = mangled; *i; i++) {
-                int len;
+        ために (char *i = mangled; *i; i++) {
+                整数 len;
 
-                if ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
+                もし ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
                         *i = ' ';
                         continue;
                 }
 
                 len = utf8_encoded_valid_unichar(i, SIZE_MAX);
-                if (len < 0) {
+                もし (len < 0) {
                         *i = ' ';
                         continue;
                 }
@@ -877,33 +877,33 @@ char* mangle_gecos(const char *d) {
                 i += len - 1;
         }
 
-        return mangled;
+        戻る mangled;
 }
 
 bool valid_home(const char *p) {
         /* Note that this function is also called by valid_shell(), any
          * changes must account for that. */
 
-        if (isempty(p))
-                return false;
+        もし (isempty(p))
+                戻る false;
 
-        if (!utf8_is_valid(p))
-                return false;
+        もし (!utf8_is_valid(p))
+                戻る false;
 
-        if (string_has_cc(p, NULL))
-                return false;
+        もし (string_has_cc(p, NULL))
+                戻る false;
 
-        if (!path_is_absolute(p))
-                return false;
+        もし (!path_is_absolute(p))
+                戻る false;
 
-        if (!path_is_normalized(p))
-                return false;
+        もし (!path_is_normalized(p))
+                戻る false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(p, ':'))
-                return false;
+        もし (strchr(p, ':'))
+                戻る false;
 
-        return true;
+        戻る true;
 }
 
 bool valid_shell(const char *p) {
@@ -911,45 +911,45 @@ bool valid_shell(const char *p) {
          *
          * Let's ignore /etc/shells because this is only applicable to real and not system users. It is also
          * incompatible with the idea of empty /etc/. */
-        if (!valid_home(p))
-                return false;
+        もし (!valid_home(p))
+                戻る false;
 
-        return !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
+        戻る !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
 }
 
-int maybe_setgroups(size_t size, const gid_t *list) {
-        int r;
+整数 maybe_setgroups(size_t size, const gid_t *list) {
+        整数 r;
 
         /* Check if setgroups is allowed before we try to drop all the auxiliary groups */
-        if (size == 0) { /* Dropping all aux groups? */
+        もし (size == 0) { /* Dropping all aux groups? */
 
                 /* The kernel refuses setgroups() if there are no GID mappings in the current
                  * user namespace, so check that beforehand and don't try to setgroups() if
                  * there are no GID mappings. */
                 _cleanup_fclose_ FILE *f = fopen("/proc/self/gid_map", "re");
-                if (!f && errno != ENOENT)
-                        return -errno;
-                if (f) {
+                もし (!f && errno != ENOENT)
+                        戻る -errno;
+                もし (f) {
                         r = safe_fgetc(f, /* ret= */ NULL);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) {
+                        もし (r < 0)
+                                戻る r;
+                        もし (r == 0) {
                                 log_debug("Skipping setgroups(), /proc/self/gid_map is empty");
-                                return 0;
+                                戻る 0;
                         }
                 }
 
                 _cleanup_free_ char *setgroups_content = NULL;
                 r = read_one_line_file("/proc/self/setgroups", &setgroups_content);
-                if (r < 0 && r != -ENOENT)
-                        return r;
-                if (r > 0 && streq(setgroups_content, "deny")) {
+                もし (r < 0 && r != -ENOENT)
+                        戻る r;
+                もし (r > 0 && streq(setgroups_content, "deny")) {
                         log_debug("Skipping setgroups(), /proc/self/setgroups is set to 'deny'");
-                        return 0;
+                        戻る 0;
                 }
         }
 
-        return RET_NERRNO(setgroups(size, list));
+        戻る RET_NERRNO(setgroups(size, list));
 }
 
 bool synthesize_nobody(void) {
@@ -960,137 +960,137 @@ bool synthesize_nobody(void) {
          * Note that we do not employ any kind of synchronization on the following caching variable. If the variable is
          * accessed in multi-threaded programs in the worst case it might happen that we initialize twice, but that
          * shouldn't matter as each initialization should come to the same result. */
-        static int cache = -1;
+        static 整数 cache = -1;
 
-        if (cache < 0)
+        もし (cache < 0)
                 cache = access("/etc/systemd/dont-synthesize-nobody", F_OK) < 0;
 
-        return cache;
+        戻る cache;
 }
 
-int putpwent_sane(const struct passwd *pw, FILE *stream) {
+整数 putpwent_sane(const struct passwd *pw, FILE *stream) {
         assert(pw);
         assert(stream);
 
         errno = 0;
-        if (putpwent(pw, stream) != 0)
-                return errno_or_else(EIO);
+        もし (putpwent(pw, stream) != 0)
+                戻る errno_or_else(EIO);
 
-        return 0;
+        戻る 0;
 }
 
-int putspent_sane(const struct spwd *sp, FILE *stream) {
+整数 putspent_sane(const struct spwd *sp, FILE *stream) {
         assert(sp);
         assert(stream);
 
         errno = 0;
-        if (putspent(sp, stream) != 0)
-                return errno_or_else(EIO);
+        もし (putspent(sp, stream) != 0)
+                戻る errno_or_else(EIO);
 
-        return 0;
+        戻る 0;
 }
 
-int putgrent_sane(const struct group *gr, FILE *stream) {
+整数 putgrent_sane(const struct group *gr, FILE *stream) {
         assert(gr);
         assert(stream);
 
         errno = 0;
-        if (putgrent(gr, stream) != 0)
-                return errno_or_else(EIO);
+        もし (putgrent(gr, stream) != 0)
+                戻る errno_or_else(EIO);
 
-        return 0;
+        戻る 0;
 }
 
-#if ENABLE_GSHADOW
-int putsgent_sane(const struct sgrp *sg, FILE *stream) {
+#もし ENABLE_GSHADOW
+整数 putsgent_sane(const struct sgrp *sg, FILE *stream) {
         assert(sg);
         assert(stream);
 
         errno = 0;
-        if (putsgent(sg, stream) != 0)
-                return errno_or_else(EIO);
+        もし (putsgent(sg, stream) != 0)
+                戻る errno_or_else(EIO);
 
-        return 0;
+        戻る 0;
 }
 #endif
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw) {
+整数 fgetpwent_sane(FILE *stream, struct passwd **pw) {
         assert(stream);
         assert(pw);
 
         errno = 0;
         struct passwd *p = fgetpwent(stream);
-        if (!p && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        もし (!p && !IN_SET(errno, 0, ENOENT))
+                戻る -errno;
 
         *pw = p;
-        return !!p;
+        戻る !!p;
 }
 
-int fgetspent_sane(FILE *stream, struct spwd **sp) {
+整数 fgetspent_sane(FILE *stream, struct spwd **sp) {
         assert(stream);
         assert(sp);
 
         errno = 0;
         struct spwd *s = fgetspent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        もし (!s && !IN_SET(errno, 0, ENOENT))
+                戻る -errno;
 
         *sp = s;
-        return !!s;
+        戻る !!s;
 }
 
-int fgetgrent_sane(FILE *stream, struct group **gr) {
+整数 fgetgrent_sane(FILE *stream, struct group **gr) {
         assert(stream);
         assert(gr);
 
         errno = 0;
         struct group *g = fgetgrent(stream);
-        if (!g && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        もし (!g && !IN_SET(errno, 0, ENOENT))
+                戻る -errno;
 
         *gr = g;
-        return !!g;
+        戻る !!g;
 }
 
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg) {
+#もし ENABLE_GSHADOW
+整数 fgetsgent_sane(FILE *stream, struct sgrp **sg) {
         assert(stream);
         assert(sg);
 
         errno = 0;
         struct sgrp *s = fgetsgent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        もし (!s && !IN_SET(errno, 0, ENOENT))
+                戻る -errno;
 
         *sg = s;
-        return !!s;
+        戻る !!s;
 }
 #endif
 
-int is_this_me(const char *username) {
+整数 is_this_me(const char *username) {
         uid_t uid;
-        int r;
+        整数 r;
 
         /* Checks if the specified username is our current one. Passed string might be a UID or a user name. */
 
         r = get_user_creds(username, /* flags= */ USER_CREDS_ALLOW_MISSING, NULL, &uid, NULL, NULL, NULL);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return uid == getuid();
+        戻る uid == getuid();
 }
 
 const char* get_home_root(void) {
         /* For debug purposes allow overriding where we look for home dirs */
         const char *e = secure_getenv("SYSTEMD_HOME_ROOT");
-        if (e && path_is_absolute(e) && path_is_normalized(e))
-                return e;
+        もし (e && path_is_absolute(e) && path_is_normalized(e))
+                戻る e;
 
-        return "/home";
+        戻る "/home";
 }
 
-static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
+static 整数 copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
         assert(pw);
         assert(ret);
 
@@ -1102,8 +1102,8 @@ static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
                 + strlen_ptr(pw->pw_shell) + 1;
 
         char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        もし (!buf)
+                戻る -ENOMEM;
 
         struct passwd *newpw = (struct passwd *) buf;
 
@@ -1130,18 +1130,18 @@ static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
         p = stpcpy(p, strempty(pw->pw_shell)) + 1;
 
         *ret = newpw;
-        return 0;
+        戻る 0;
 }
 
 /* Iterate the given list of passwd-format files looking for an entry matching the predicate (by
  * name if 'name' is non-NULL and by 'uid' if valid). Returns -ESRCH if no entry is found. */
-int lookup_pwent_in_files(
+整数 lookup_pwent_in_files(
                 char * const *files,
                 const char *name,
                 uid_t uid,
                 struct passwd **ret) {
 
-        int r;
+        整数 r;
 
         assert(files);
         assert(name || uid_is_valid(uid));
@@ -1151,143 +1151,143 @@ int lookup_pwent_in_files(
                 struct passwd *pw;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                もし (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
-                while ((r = fgetpwent_sane(f, &pw)) > 0) {
-                        if (name && !streq_ptr(pw->pw_name, name))
+                ながら ((r = fgetpwent_sane(f, &pw)) > 0) {
+                        もし (name && !streq_ptr(pw->pw_name, name))
                                 continue;
-                        if (uid_is_valid(uid) && pw->pw_uid != uid)
+                        もし (uid_is_valid(uid) && pw->pw_uid != uid)
                                 continue;
-                        if (ret)
-                                return copy_struct_passwd(pw, ret);
-                        return 0;
+                        もし (ret)
+                                戻る copy_struct_passwd(pw, ret);
+                        戻る 0;
                 }
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        return -ESRCH;
+        戻る -ESRCH;
 }
 
-#if !BUILD_STATIC
+#もし !BUILD_STATIC
 
 static size_t getpw_buffer_size(void) {
         long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        戻る bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
-static bool errno_is_user_doesnt_exist(int error) {
+static bool errno_is_user_doesnt_exist(整数 error) {
         /* See getpwnam(3) and getgrnam(3): those codes and others can be returned if the user or group are
          * not found. */
-        return IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
+        戻る IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
 }
 
 #endif
 
-int getpwnam_malloc(const char *name, struct passwd **ret) {
+整数 getpwnam_malloc(const char *name, struct passwd **ret) {
         /* For static builds use a very simplistic implementation that looks at 'passwd' in /etc/
          * and /usr/lib/, and for non-static builds use NSS. The first matching entry wins. The
          * same logic is implemented in getpwnam_malloc, getpwuid_malloc, getgrnam_malloc, and
          * getgrgid_malloc. */
 
-        if (isempty(name))
-                return -EINVAL;
+        もし (isempty(name))
+                戻る -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
-#else
+#もし BUILD_STATIC
+        戻る lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
+#否则
         size_t bufsize = getpw_buffer_size();
-        int r;
+        整数 r;
 
         /* A wrapper around getpwnam_r() that allocates the necessary buffer on the heap. The caller must
          * free() the returned structure! */
 
-        for (;;) {
+        ために (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
                 buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                もし (!buf)
+                        戻る -ENOMEM;
 
                 struct passwd *pw = NULL;
                 r = getpwnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                もし (r == 0) {
+                        もし (pw) {
+                                もし (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                戻る 0;
                         }
 
-                        return -ESRCH;
+                        戻る -ESRCH;
                 }
 
                 assert(r > 0);
 
                 /* getpwnam() may fail with ENOENT if /etc/passwd is missing.  For us that is equivalent to
                  * the name not being defined. */
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                もし (errno_is_user_doesnt_exist(r))
+                        戻る -ESRCH;
+                もし (r != ERANGE)
+                        戻る -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                もし (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
+                        戻る -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret) {
-        if (!uid_is_valid(uid))
-                return -EINVAL;
+整数 getpwuid_malloc(uid_t uid, struct passwd **ret) {
+        もし (!uid_is_valid(uid))
+                戻る -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, /* name= */ NULL, uid, ret);
-#else
+#もし BUILD_STATIC
+        戻る lookup_pwent_in_files(PASSWD_FILES, /* name= */ NULL, uid, ret);
+#否则
         size_t bufsize = getpw_buffer_size();
-        int r;
+        整数 r;
 
-        for (;;) {
+        ために (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
                 buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                もし (!buf)
+                        戻る -ENOMEM;
 
                 struct passwd *pw = NULL;
                 r = getpwuid_r(uid, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                もし (r == 0) {
+                        もし (pw) {
+                                もし (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                戻る 0;
                         }
 
-                        return -ESRCH;
+                        戻る -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                もし (errno_is_user_doesnt_exist(r))
+                        戻る -ESRCH;
+                もし (r != ERANGE)
+                        戻る -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                もし (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
+                        戻る -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-static int copy_struct_group(const struct group *gr, struct group **ret) {
+static 整数 copy_struct_group(const struct group *gr, struct group **ret) {
         assert(gr);
         assert(ret);
 
@@ -1302,8 +1302,8 @@ static int copy_struct_group(const struct group *gr, struct group **ret) {
         need_bytes += sizeof(char*);  /* NULL terminator for gr_mem */
 
         char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        もし (!buf)
+                戻る -ENOMEM;
 
         struct group *newgr = (struct group *) buf;
 
@@ -1323,24 +1323,24 @@ static int copy_struct_group(const struct group *gr, struct group **ret) {
         newgr->gr_gid = gr->gr_gid;
 
         newgr->gr_mem = (char**) (buf + sizeof(struct group));
-        for (size_t i = 0; i < n_mem; i++) {
+        ために (size_t i = 0; i < n_mem; i++) {
                 newgr->gr_mem[i] = p;
                 p = stpcpy(p, gr->gr_mem[i]) + 1;
         }
         newgr->gr_mem[n_mem] = NULL;
 
         *ret = newgr;
-        return 0;
+        戻る 0;
 }
 
 /* See lookup_pwent_in_files() for the analogous passwd-file version. */
-int lookup_grent_in_files(
+整数 lookup_grent_in_files(
                 char * const *files,
                 const char *name,
                 gid_t gid,
                 struct group **ret) {
 
-        int r;
+        整数 r;
 
         assert(files);
         assert(name || gid_is_valid(gid));
@@ -1350,38 +1350,38 @@ int lookup_grent_in_files(
                 struct group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                もし (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (name && !streq_ptr(gr->gr_name, name))
+                ながら ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        もし (name && !streq_ptr(gr->gr_name, name))
                                 continue;
-                        if (gid_is_valid(gid) && gr->gr_gid != gid)
+                        もし (gid_is_valid(gid) && gr->gr_gid != gid)
                                 continue;
-                        if (ret)
-                                return copy_struct_group(gr, ret);
-                        return 0;
+                        もし (ret)
+                                戻る copy_struct_group(gr, ret);
+                        戻る 0;
                 }
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        return -ESRCH;
+        戻る -ESRCH;
 }
 
-int sysconf_ngroups_max(void) {
+整数 sysconf_ngroups_max(void) {
         /* Query sysconf _SC_NGROUPS_MAX. Returns an int because the expected value is 64k
          * and later on this is used as an int with various glibc consumers. */
 
         errno = 0;
         long ngroups_max = sysconf(_SC_NGROUPS_MAX);
-        if (ngroups_max <= 0)
-                return errno_or_else(EOPNOTSUPP);
-        if (ngroups_max > INT_MAX)
-                return -ERANGE;
-        return ngroups_max;
+        もし (ngroups_max <= 0)
+                戻る errno_or_else(EOPNOTSUPP);
+        もし (ngroups_max > INT_MAX)
+                戻る -ERANGE;
+        戻る ngroups_max;
 }
 
 ssize_t lookup_groups_in_files(
@@ -1392,18 +1392,18 @@ ssize_t lookup_groups_in_files(
 
         _cleanup_free_ gid_t *arr = NULL;
         ssize_t n_arr = 0;
-        int r;
+        整数 r;
 
         assert(files);
         assert(name);
         assert(gid_is_valid(gid));
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+        整数 ngroups_max = sysconf_ngroups_max();
+        もし (ngroups_max < 0)
+                戻る ngroups_max;
 
-        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                return -ENOMEM;
+        もし (!GREEDY_REALLOC(arr, n_arr + 1))
+                戻る -ENOMEM;
         arr[n_arr++] = gid;
 
         STRV_FOREACH(fname, files) {
@@ -1411,178 +1411,178 @@ ssize_t lookup_groups_in_files(
                 struct group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                もし (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (gid == gr->gr_gid)
+                ながら ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        もし (gid == gr->gr_gid)
                                 continue;
 
                         /* Deduplicate groups, in case the group is doubly defined in the same or
                          * different files. */
-                        if (gid_list_has(arr, n_arr, gr->gr_gid))
+                        もし (gid_list_has(arr, n_arr, gr->gr_gid))
                                 continue;
 
-                        if (!strv_contains(gr->gr_mem, name))
+                        もし (!strv_contains(gr->gr_mem, name))
                                 continue;
 
                         /* Do not allow more than _SC_NGROUPS_MAX. */
-                        if (n_arr >= ngroups_max)
-                                return -ENOBUFS;
+                        もし (n_arr >= ngroups_max)
+                                戻る -ENOBUFS;
 
-                        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                                return -ENOMEM;
+                        もし (!GREEDY_REALLOC(arr, n_arr + 1))
+                                戻る -ENOMEM;
                         arr[n_arr++] = gr->gr_gid;
                 }
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
         }
 
-        if (ret)
+        もし (ret)
                 *ret = TAKE_PTR(arr);
-        return n_arr;
+        戻る n_arr;
 }
 
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret) {
-#if BUILD_STATIC
-        return lookup_groups_in_files(GROUP_FILES, user, gid, ret);
-#else
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+整数 getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret) {
+#もし BUILD_STATIC
+        戻る lookup_groups_in_files(GROUP_FILES, user, gid, ret);
+#否则
+        整数 ngroups_max = sysconf_ngroups_max();
+        もし (ngroups_max < 0)
+                戻る ngroups_max;
 
         _cleanup_free_ gid_t *gids = new(gid_t, ngroups_max);
-        if (!gids)
-                return -ENOMEM;
+        もし (!gids)
+                戻る -ENOMEM;
 
-        int k = ngroups_max;
-        if (getgrouplist(user, gid, gids, &k) < 0)
-                return -EIO;  /* getgrouplist does not set errno */
+        整数 k = ngroups_max;
+        もし (getgrouplist(user, gid, gids, &k) < 0)
+                戻る -EIO;  /* getgrouplist does not set errno */
 
-        if (ret)
+        もし (ret)
                 *ret = TAKE_PTR(gids);
-        return k;
+        戻る k;
 #endif
 }
 
-int initgroups_wrapper(const char *user, gid_t gid) {
-#if BUILD_STATIC
+整数 initgroups_wrapper(const char *user, gid_t gid) {
+#もし BUILD_STATIC
         _cleanup_free_ gid_t *groups = NULL;
-        int r, n_groups;
+        整数 r, n_groups;
 
         n_groups = getgrouplist_malloc(user, gid, &groups);
-        if (n_groups <= 0)
-                return n_groups;
+        もし (n_groups <= 0)
+                戻る n_groups;
 
         /* Try to set the maximum number of groups the kernel can handle. This is what glibc does. */
-        for (; n_groups > 0; n_groups--) {
+        ために (; n_groups > 0; n_groups--) {
                 r = RET_NERRNO(setgroups(n_groups, groups));
-                if (r != -EINVAL)
+                もし (r != -EINVAL)
                         break;
         }
 
-        return r;
-#else
-        return RET_NERRNO(initgroups(user, gid));
+        戻る r;
+#否则
+        戻る RET_NERRNO(initgroups(user, gid));
 #endif
 }
 
-#if !BUILD_STATIC
+#もし !BUILD_STATIC
 
 static size_t getgr_buffer_size(void) {
         long bufsize = sysconf(_SC_GETGR_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        戻る bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
 #endif
 
-int getgrnam_malloc(const char *name, struct group **ret) {
-        if (isempty(name))
-                return -EINVAL;
+整数 getgrnam_malloc(const char *name, struct group **ret) {
+        もし (isempty(name))
+                戻る -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
-#else
+#もし BUILD_STATIC
+        戻る lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
+#否则
         size_t bufsize = getgr_buffer_size();
-        int r;
+        整数 r;
 
-        for (;;) {
+        ために (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
                 buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                もし (!buf)
+                        戻る -ENOMEM;
 
                 struct group *gr = NULL;
                 r = getgrnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                もし (r == 0) {
+                        もし (gr) {
+                                もし (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                戻る 0;
                         }
 
-                        return -ESRCH;
+                        戻る -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                もし (errno_is_user_doesnt_exist(r))
+                        戻る -ESRCH;
+                もし (r != ERANGE)
+                        戻る -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                もし (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
+                        戻る -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getgrgid_malloc(gid_t gid, struct group **ret) {
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+整数 getgrgid_malloc(gid_t gid, struct group **ret) {
+        もし (!gid_is_valid(gid))
+                戻る -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, /* name= */ NULL, gid, ret);
-#else
+#もし BUILD_STATIC
+        戻る lookup_grent_in_files(GROUP_FILES, /* name= */ NULL, gid, ret);
+#否则
         size_t bufsize = getgr_buffer_size();
-        int r;
+        整数 r;
 
-        for (;;) {
+        ために (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
                 buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                もし (!buf)
+                        戻る -ENOMEM;
 
                 struct group *gr = NULL;
                 r = getgrgid_r(gid, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                もし (r == 0) {
+                        もし (gr) {
+                                もし (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                戻る 0;
                         }
 
-                        return -ESRCH;
+                        戻る -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                もし (errno_is_user_doesnt_exist(r))
+                        戻る -ESRCH;
+                もし (r != ERANGE)
+                        戻る -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                もし (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
+                        戻る -ENOMEM;
                 bufsize *= 2;
         }
 #endif

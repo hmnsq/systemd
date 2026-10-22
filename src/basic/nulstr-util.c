@@ -7,14 +7,14 @@
 #include "strv.h"
 
 const char* nulstr_get(const char *nulstr, const char *needle) {
-        if (!nulstr)
-                return NULL;
+        もし (!nulstr)
+                戻る NULL;
 
         NULSTR_FOREACH(i, nulstr)
-                if (streq(i, needle))
-                        return i;
+                もし (streq(i, needle))
+                        戻る i;
 
-        return NULL;
+        戻る NULL;
 }
 
 char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) {
@@ -31,35 +31,35 @@ char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) 
 
         assert(s || l <= 0);
 
-        if (drop_trailing_nuls)
-                while (l > 0 && s[l-1] == '\0')
+        もし (drop_trailing_nuls)
+                ながら (l > 0 && s[l-1] == '\0')
                         l--;
 
-        if (l <= 0)
-                return new0(char*, 1);
+        もし (l <= 0)
+                戻る new0(char*, 1);
 
-        for (const char *p = s; p < s + l; p++)
-                if (*p == 0)
+        ために (const char *p = s; p < s + l; p++)
+                もし (*p == 0)
                         c++;
 
-        if (s[l-1] != 0)
+        もし (s[l-1] != 0)
                 c++;
 
         v = new0(char*, c+1);
-        if (!v)
-                return NULL;
+        もし (!v)
+                戻る NULL;
 
-        for (const char *p = s; p < s + l;) {
+        ために (const char *p = s; p < s + l;) {
                 const char *e;
 
                 e = memchr(p, 0, s + l - p);
 
                 v[i] = memdup_suffix0(p, e ? e - p : s + l - p);
-                if (!v[i])
-                        return NULL;
+                もし (!v[i])
+                        戻る NULL;
                 i++;
 
-                if (!e)
+                もし (!e)
                         break;
 
                 p = e + 1;
@@ -67,7 +67,7 @@ char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls) 
 
         assert(i == c);
 
-        return TAKE_PTR(v);
+        戻る TAKE_PTR(v);
 }
 
 char** strv_split_nulstr(const char *s) {
@@ -79,13 +79,13 @@ char** strv_split_nulstr(const char *s) {
          * size to be specified) */
 
         NULSTR_FOREACH(i, s)
-                if (strv_extend(&l, i) < 0)
-                        return NULL;
+                もし (strv_extend(&l, i) < 0)
+                        戻る NULL;
 
-        return l ? TAKE_PTR(l) : strv_new(NULL);
+        戻る l ? TAKE_PTR(l) : strv_new(NULL);
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
+整数 strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
         _cleanup_free_ char *m = NULL;
         size_t n = 0;
 
@@ -106,32 +106,32 @@ int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size) {
 
                 z = strlen(*i) + 1;
 
-                if (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
-                        return -ENOMEM;
+                もし (!GREEDY_REALLOC(m, n + z + 1)) /* One extra NUL at the end as marker */
+                        戻る -ENOMEM;
 
                 memcpy(m + n, *i, z);
                 n += z;
         }
 
-        if (!m) {
+        もし (!m) {
                 /* return a buffer with an extra NUL, so that the assumption that we always have two trailing NULs holds */
                 m = new0(char, 2);
-                if (!m)
-                        return -ENOMEM;
+                もし (!m)
+                        戻る -ENOMEM;
 
                 n = 0;
-        } else
+        } 否则
                 /* Extra NUL is not counted in size returned */
                 m[n] = '\0';
 
         *ret = TAKE_PTR(m);
-        if (ret_size)
+        もし (ret_size)
                 *ret_size = n;
 
-        return 0;
+        戻る 0;
 }
 
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
+整数 set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
         /* Use _cleanup_free_ instead of _cleanup_strv_free_ because we need to clean the strv only, not
          * the strings owned by the set. */
         _cleanup_free_ char **strv = NULL;
@@ -139,8 +139,8 @@ int set_make_nulstr(Set *s, char **ret, size_t *ret_size) {
         assert(ret);
 
         strv = set_get_strv(s);
-        if (!strv)
-                return -ENOMEM;
+        もし (!strv)
+                戻る -ENOMEM;
 
-        return strv_make_nulstr(strv, ret, ret_size);
+        戻る strv_make_nulstr(strv, ret, ret_size);
 }

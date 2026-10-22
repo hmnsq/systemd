@@ -11,81 +11,81 @@
 #include "string-util.h"
 #include "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+整数 allow_listed_char_for_devnode(char c, const char *additional) {
+        戻る
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
                 strchr("#+-.:=@_", c) ||
                 (additional && strchr(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
+整数 encode_devnode_name(const char *str, char *str_enc, size_t len) {
         size_t i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        もし (!str || !str_enc)
+                戻る -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        ために (i = 0, j = 0; str[i] != '\0'; i++) {
+                整数 seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                もし (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        もし (len-j < (size_t) seqlen)
+                                戻る -EINVAL;
 
                         memcpy(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } 否则 もし (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        もし (len-j < 5)
+                                戻る -EINVAL;
 
                         assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } 否则 {
+                        もし (len-j < 1)
+                                戻る -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        もし (len-j < 1)
+                戻る -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        戻る 0;
 }
 
-int devnode_same(const char *a, const char *b) {
+整数 devnode_same(const char *a, const char *b) {
         struct stat sa, sb;
-        int r;
+        整数 r;
 
         assert(a);
         assert(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        もし (!valid_device_node_path(a) || !valid_device_node_path(b))
+                戻る -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
+        もし (stat(a, &sa) < 0)
+                戻る -errno;
         r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
+        もし (stat(b, &sb) < 0)
+                戻る -errno;
         r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        もし (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                戻る false;
 
-        return sa.st_rdev == sb.st_rdev;
+        戻る sa.st_rdev == sb.st_rdev;
 }

@@ -3,7 +3,7 @@
 
 #include "forward.h"
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len);
-int allow_listed_char_for_devnode(char c, const char *additional);
+整数 encode_devnode_name(const char *str, char *str_enc, size_t len);
+整数 allow_listed_char_for_devnode(char c, const char *additional);
 
-int devnode_same(const char *a, const char *b);
+整数 devnode_same(const char *a, const char *b);

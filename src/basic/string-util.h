@@ -9,9 +9,9 @@
 #include "../fundamental/string-util.h" /* IWYU pragma: export */
 
 static inline char* strstr_ptr_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
-        return (char*) strstr(haystack, needle);
+        もし (!haystack || !needle)
+                戻る NULL;
+        戻る (char*) strstr(haystack, needle);
 }
 
 #define strstr_ptr(haystack, needle) \
@@ -21,41 +21,41 @@ static inline char* strstrafter_internal(const char *haystack, const char *needl
         /* Returns NULL if not found, or pointer to first character after needle if found */
 
         char *p = (char*) strstr_ptr(haystack, needle);
-        if (!p)
-                return NULL;
+        もし (!p)
+                戻る NULL;
 
-        return p + strlen(needle);
+        戻る p + strlen(needle);
 }
 
 #define strstrafter(haystack, needle) \
         const_generic(haystack, strstrafter_internal(haystack, needle))
 
 static inline const char* strnull(const char *s) {
-        return s ?: "(null)";
+        戻る s ?: "(null)";
 }
 
 static inline const char* strna(const char *s) {
-        return s ?: "n/a";
+        戻る s ?: "n/a";
 }
 
 static inline const char* true_false(bool b) {
-        return b ? "true" : "false";
+        戻る b ? "true" : "false";
 }
 
 static inline const char* plus_minus(bool b) {
-        return b ? "+" : "-";
+        戻る b ? "+" : "-";
 }
 
 static inline const char* one_zero(bool b) {
-        return b ? "1" : "0";
+        戻る b ? "1" : "0";
 }
 
 static inline const char* enable_disable(bool b) {
-        return b ? "enable" : "disable";
+        戻る b ? "enable" : "disable";
 }
 
 static inline const char* enabled_disabled(bool b) {
-        return b ? "enabled" : "disabled";
+        戻る b ? "enabled" : "disabled";
 }
 
 /* This macro's return pointer will have the "const" qualifier set or unset the same way as the input
@@ -67,21 +67,21 @@ static inline const char* enabled_disabled(bool b) {
         })
 
 static inline const char* empty_to_na(const char *p) {
-        return isempty(p) ? "n/a" : p;
+        戻る isempty(p) ? "n/a" : p;
 }
 
 static inline const char* empty_to_dash(const char *str) {
-        return isempty(str) ? "-" : str;
+        戻る isempty(str) ? "-" : str;
 }
 
 static inline bool empty_or_dash(const char *str) {
-        return !str ||
+        戻る !str ||
                 str[0] == 0 ||
                 (str[0] == '-' && str[1] == 0);
 }
 
 static inline const char* empty_or_dash_to_null(const char *p) {
-        return empty_or_dash(p) ? NULL : p;
+        戻る empty_or_dash(p) ? NULL : p;
 }
 #define empty_or_dash_to_null(p)                                \
         ({                                                      \
@@ -101,10 +101,10 @@ char* strextendn(char **x, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
                 char *_d_, *_p_;                                        \
                 size_t _len_ = 0;                                       \
                 size_t _i_;                                             \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                ために (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _len_ += strlen(_appendees_[_i_]);              \
                 _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                ために (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _p_ = stpcpy(_p_, _appendees_[_i_]);            \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
@@ -115,17 +115,17 @@ char* delete_chars(char *s, const char *bad);
 char* delete_trailing_chars(char *s, const char *bad);
 char* truncate_nl_full(char *s, size_t *ret_len);
 static inline char* truncate_nl(char *s) {
-        return truncate_nl_full(s, NULL);
+        戻る truncate_nl_full(s, NULL);
 }
 
 static inline char* skip_leading_chars(const char *s, const char *bad) {
-        if (!s)
-                return NULL;
+        もし (!s)
+                戻る NULL;
 
-        if (!bad)
+        もし (!bad)
                 bad = WHITESPACE;
 
-        return (char*) s + strspn(s, bad);
+        戻る (char*) s + strspn(s, bad);
 }
 
 char ascii_tolower(char x) _const_;
@@ -135,15 +135,15 @@ char* ascii_strlower_n(char *s, size_t n);
 char ascii_toupper(char x) _const_;
 char* ascii_strupper(char *s);
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n);
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m);
+整数 ascii_strcasecmp_n(const char *a, const char *b, size_t n);
+整数 ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m);
 
 bool chars_intersect(const char *a, const char *b) _pure_;
 
 static inline bool _pure_ in_charset(const char *s, const char *charset) {
         assert(s);
         assert(charset);
-        return s[strspn(s, charset)] == '\0';
+        戻る s[strspn(s, charset)] == '\0';
 }
 
 static inline bool char_is_cc(char p) {
@@ -152,13 +152,13 @@ static inline bool char_is_cc(char p) {
          * that the cast in the right hand side is redundant, as according to the C standard, compilers
          * automatically cast a signed value to unsigned when comparing with an unsigned variable. Just
          * for safety and readability. */
-        return (uint8_t) p < (uint8_t) ' ' || p == 127;
+        戻る (uint8_t) p < (uint8_t) ' ' || p == 127;
 }
 bool string_has_cc(const char *p, const char *ok) _pure_;
 
 char* ellipsize_mem(const char *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
 static inline char* ellipsize(const char *s, size_t length, unsigned percent) {
-        return ellipsize_mem(s, strlen(s), length, percent);
+        戻る ellipsize_mem(s, strlen(s), length, percent);
 }
 
 char* cellescape(char *buf, size_t len, const char *s);
@@ -168,7 +168,7 @@ char* cellescape(char *buf, size_t len, const char *s);
 
 char* strshorten(char *s, size_t l);
 
-int strgrowpad0(char **s, size_t l);
+整数 strgrowpad0(char **s, size_t l);
 
 char* strreplace(const char *text, const char *old_string, const char *new_string);
 
@@ -179,14 +179,14 @@ char* strextend_with_separator_internal(char **x, const char *separator, ...) _s
 #define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, NULL)
 #define strextend(x, ...) strextend_with_separator_internal(x, NULL, __VA_ARGS__, NULL)
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) _printf_(3,4);
+整数 strextendf_with_separator(char **x, const char *separator, const char *format, ...) _printf_(3,4);
 #define strextendf(x, ...) strextendf_with_separator(x, NULL, __VA_ARGS__)
 
 #define strprepend_with_separator(x, separator, ...)                            \
         ({                                                                      \
                 char **_p_ = ASSERT_PTR(x), *_s_;                               \
                 _s_ = strextend_with_separator_internal(NULL, (separator), __VA_ARGS__, empty_to_null(*_p_), NULL); \
-                if (_s_) {                                                      \
+                もし (_s_) {                                                      \
                         free(*_p_);                                             \
                         *_p_ = _s_;                                             \
                 }                                                               \
@@ -203,22 +203,22 @@ char* strrep(const char *s, size_t n);
                 assert_se(MUL_ASSIGN_SAFE(&_len_, _nnn_));              \
                 char *_d_, *_p_;                                        \
                 _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
+                ために (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
                         _p_ = stpcpy(_p_, _sss_);                       \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second);
+整数 split_pair(const char *s, const char *sep, char **ret_first, char **ret_second);
 
-int free_and_strdup(char **p, const char *s);
-int free_and_strdup_warn(char **p, const char *s);
-int free_and_strndup(char **p, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+整数 free_and_strdup(char **p, const char *s);
+整数 free_and_strdup_warn(char **p, const char *s);
+整数 free_and_strndup(char **p, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-int strdup_to_full(char **ret, const char *src);
-static inline int strdup_to(char **ret, const char *src) {
-        int r = strdup_to_full(ASSERT_PTR(ret), src);
-        return r < 0 ? r : 0;  /* Suppress return value of 1. */
+整数 strdup_to_full(char **ret, const char *src);
+static inline 整数 strdup_to(char **ret, const char *src) {
+        整数 r = strdup_to_full(ASSERT_PTR(ret), src);
+        戻る r < 0 ? r : 0;  /* Suppress return value of 1. */
 }
 
 typedef enum StringSafeFlags {
@@ -248,27 +248,27 @@ static inline void* memory_startswith_no_case(const void *p, size_t sz, const ch
         assert(token);
 
         size_t n = strlen(token);
-        if (sz < n)
-                return NULL;
+        もし (sz < n)
+                戻る NULL;
 
         assert(p);
 
-        for (size_t i = 0; i < n; i++)
-                if (ascii_tolower(((char *)p)[i]) != ascii_tolower(token[i]))
-                        return NULL;
+        ために (size_t i = 0; i < n; i++)
+                もし (ascii_tolower(((char *)p)[i]) != ascii_tolower(token[i]))
+                        戻る NULL;
 
-        return (uint8_t*) p + n;
+        戻る (uint8_t*) p + n;
 }
 
 char* str_realloc(char *p);
 char* string_erase(char *x);
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret);
-int string_extract_line(const char *s, size_t i, char **ret);
+整数 string_truncate_lines(const char *s, size_t n_lines, char **ret);
+整数 string_extract_line(const char *s, size_t i, char **ret);
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
-static inline int string_contains_word(const char *string, const char *separators, const char *word) {
-        return string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
+整数 string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
+static inline 整数 string_contains_word(const char *string, const char *separators, const char *word) {
+        戻る string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
 }
 
 bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok);
@@ -283,7 +283,7 @@ typedef enum MakeCStringMode {
         _MAKE_CSTRING_MODE_INVALID = -1,
 } MakeCStringMode;
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret);
+整数 make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret);
 
 size_t strspn_from_end(const char *str, const char *accept) _pure_;
 size_t strnspn(const char *str, const char *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);

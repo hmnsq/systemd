@@ -7,7 +7,7 @@
 
 bool log_get_assert_return_is_critical(void) _weak_ _pure_;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+void log_assert_failed_return(const char *text, const char *file, 整数 line, const char *func);
 
 #define assert_log(expr)                                                \
         (_likely_(expr) ?                                               \
@@ -16,14 +16,14 @@ void log_assert_failed_return(const char *text, const char *file, int line, cons
 
 #define assert_return(expr, r)                                          \
         do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+                もし (!assert_log(expr))                                  \
+                        戻る (r);                                     \
+        } ながら (false)
 
 #define assert_return_errno(expr, r, err)                               \
         do {                                                            \
-                if (!assert_log(expr)) {                                \
+                もし (!assert_log(expr)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        戻る (r);                                     \
                 }                                                       \
-        } while (false)
+        } ながら (false)

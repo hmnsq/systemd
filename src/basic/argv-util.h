@@ -3,15 +3,15 @@
 
 #include "forward.h"
 
-extern int saved_argc;
+extern 整数 saved_argc;
 extern char **saved_argv;
 
-void save_argc_argv(int argc, char **argv);
+void save_argc_argv(整数 argc, char **argv);
 
 bool invoked_as(char *argv[], const char *token);
 bool invoked_by_systemd(void) _const_;
 
-int rename_process_full(const char *comm, const char *invocation);
-static inline int rename_process(const char *name) {
-        return rename_process_full(name, name);
+整数 rename_process_full(const char *comm, const char *invocation);
+static inline 整数 rename_process(const char *name) {
+        戻る rename_process_full(name, name);
 }

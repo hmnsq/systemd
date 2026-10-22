@@ -6,14 +6,14 @@
 #include "string-util.h"
 #include "user-util.h"
 
-int capsule_name_is_valid(const char *name) {
+整数 capsule_name_is_valid(const char *name) {
 
-        if (!filename_is_valid(name))
-                return false;
+        もし (!filename_is_valid(name))
+                戻る false;
 
         _cleanup_free_ char *prefixed = strjoin("c-", name);
-        if (!prefixed)
-                return -ENOMEM;
+        もし (!prefixed)
+                戻る -ENOMEM;
 
-        return valid_user_group_name(prefixed, /* flags= */ 0);
+        戻る valid_user_group_name(prefixed, /* flags= */ 0);
 }

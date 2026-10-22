@@ -22,12 +22,12 @@ static void origin_id_initialize(void) {                              \
 static uint64_t origin_id_query(void) {                               \
         static pthread_once_t once = PTHREAD_ONCE_INIT;               \
         assert_se(pthread_once(&once, origin_id_initialize) == 0);    \
-        return origin_id ^ getpid_cached();                           \
+        戻る origin_id ^ getpid_cached();                           \
 }                                                                     \
                                                                       \
 scope bool name##_origin_changed(type *p) {                           \
         assert(p);                                                    \
-        return p->origin_id != origin_id_query();                     \
+        戻る p->origin_id != origin_id_query();                     \
 }
 
 #define DEFINE_ORIGIN_ID_HELPERS(type, name)                          \

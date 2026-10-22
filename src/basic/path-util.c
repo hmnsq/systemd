@@ -19,29 +19,29 @@
 #include "strv.h"
 
 bool is_path(const char *p) {
-        if (!p) /* A NULL pointer is definitely not a path */
-                return false;
+        もし (!p) /* A NULL pointer is definitely not a path */
+                戻る false;
 
-        return strchr(p, '/');
+        戻る strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
+整数 path_split_and_make_absolute(const char *p, char ***ret) {
         _cleanup_strv_free_ char **l = NULL;
-        int r;
+        整数 r;
 
         assert(p);
         assert(ret);
 
         l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
+        もし (!l)
+                戻る -ENOMEM;
 
         r = path_strv_make_absolute_cwd(l);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         *ret = TAKE_PTR(l);
-        return r;
+        戻る r;
 }
 
 char* path_make_absolute(const char *p, const char *prefix) {
@@ -50,33 +50,33 @@ char* path_make_absolute(const char *p, const char *prefix) {
         /* Makes every item in the list an absolute path by prepending
          * the prefix, if specified and necessary */
 
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
+        もし (path_is_absolute(p) || isempty(prefix))
+                戻る strdup(p);
 
-        return path_join(prefix, p);
+        戻る path_join(prefix, p);
 }
 
-int safe_getcwd(char **ret) {
+整数 safe_getcwd(char **ret) {
         _cleanup_free_ char *cwd = NULL;
 
         cwd = get_current_dir_name();
-        if (!cwd)
-                return negative_errno();
+        もし (!cwd)
+                戻る negative_errno();
 
         /* Let's make sure the directory is really absolute, to protect us from the logic behind
          * CVE-2018-1000001 */
-        if (cwd[0] != '/')
-                return -ENOMEDIUM;
+        もし (cwd[0] != '/')
+                戻る -ENOMEDIUM;
 
-        if (ret)
+        もし (ret)
                 *ret = TAKE_PTR(cwd);
 
-        return 0;
+        戻る 0;
 }
 
-int path_make_absolute_cwd(const char *p, char **ret) {
+整数 path_make_absolute_cwd(const char *p, char **ret) {
         char *c;
-        int r;
+        整数 r;
 
         assert(p);
         assert(ret);
@@ -84,29 +84,29 @@ int path_make_absolute_cwd(const char *p, char **ret) {
         /* Similar to path_make_absolute(), but prefixes with the
          * current working directory. */
 
-        if (path_is_absolute(p))
+        もし (path_is_absolute(p))
                 c = strdup(p);
-        else {
+        否则 {
                 _cleanup_free_ char *cwd = NULL;
 
                 r = safe_getcwd(&cwd);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
                 c = path_join(cwd, p);
         }
-        if (!c)
-                return -ENOMEM;
+        もし (!c)
+                戻る -ENOMEM;
 
         *ret = c;
-        return 0;
+        戻る 0;
 }
 
-int path_make_relative(const char *from, const char *to, char **ret) {
+整数 path_make_relative(const char *from, const char *to, char **ret) {
         _cleanup_free_ char *result = NULL;
         unsigned n_parents;
         const char *f, *t;
-        int r, k;
+        整数 r, k;
         char *p;
 
         assert(from);
@@ -115,87 +115,87 @@ int path_make_relative(const char *from, const char *to, char **ret) {
 
         /* Strips the common part, and adds ".." elements as necessary. */
 
-        if (!path_is_absolute(from) || !path_is_absolute(to))
-                return -EINVAL;
+        もし (!path_is_absolute(from) || !path_is_absolute(to))
+                戻る -EINVAL;
 
-        for (;;) {
+        ために (;;) {
                 r = path_find_first_component(&from, true, &f);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
                 k = path_find_first_component(&to, true, &t);
-                if (k < 0)
-                        return k;
+                もし (k < 0)
+                        戻る k;
 
-                if (r == 0) {
+                もし (r == 0) {
                         /* end of 'from' */
-                        if (k == 0) {
+                        もし (k == 0) {
                                 /* from and to are equivalent. */
                                 result = strdup(".");
-                                if (!result)
-                                        return -ENOMEM;
-                        } else {
+                                もし (!result)
+                                        戻る -ENOMEM;
+                        } 否则 {
                                 /* 'to' is inside of 'from'. */
                                 r = path_simplify_alloc(t, &result);
-                                if (r < 0)
-                                        return r;
+                                もし (r < 0)
+                                        戻る r;
 
-                                if (!path_is_valid(result))
-                                        return -EINVAL;
+                                もし (!path_is_valid(result))
+                                        戻る -EINVAL;
                         }
 
                         *ret = TAKE_PTR(result);
-                        return 0;
+                        戻る 0;
                 }
 
-                if (r != k || !strneq(f, t, r))
+                もし (r != k || !strneq(f, t, r))
                         break;
         }
 
         /* If we're here, then "from_dir" has one or more elements that need to
          * be replaced with "..". */
 
-        for (n_parents = 1;; n_parents++) {
+        ために (n_parents = 1;; n_parents++) {
                 /* If this includes ".." we can't do a simple series of "..". */
                 r = path_find_first_component(&from, false, &f);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                もし (r < 0)
+                        戻る r;
+                もし (r == 0)
                         break;
         }
 
-        if (isempty(t) && n_parents * 3 > PATH_MAX)
+        もし (isempty(t) && n_parents * 3 > PATH_MAX)
                 /* PATH_MAX is counted *with* the trailing NUL byte */
-                return -EINVAL;
+                戻る -EINVAL;
 
         result = new(char, n_parents * 3 + !isempty(t) + strlen_ptr(t));
-        if (!result)
-                return -ENOMEM;
+        もし (!result)
+                戻る -ENOMEM;
 
-        for (p = result; n_parents > 0; n_parents--)
+        ために (p = result; n_parents > 0; n_parents--)
                 p = mempcpy(p, "../", 3);
 
-        if (isempty(t)) {
+        もし (isempty(t)) {
                 /* Remove trailing slash and terminate string. */
                 *(--p) = '\0';
                 *ret = TAKE_PTR(result);
-                return 0;
+                戻る 0;
         }
 
         strcpy(p, t);
 
         path_simplify(result);
 
-        if (!path_is_valid(result))
-                return -EINVAL;
+        もし (!path_is_valid(result))
+                戻る -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        戻る 0;
 }
 
-int path_make_relative_parent(const char *from_child, const char *to, char **ret) {
+整数 path_make_relative_parent(const char *from_child, const char *to, char **ret) {
         _cleanup_free_ char *from = NULL;
-        int r;
+        整数 r;
 
         assert(from_child);
         assert(to);
@@ -215,10 +215,10 @@ int path_make_relative_parent(const char *from_child, const char *to, char **ret
          */
 
         r = path_extract_directory(from_child, &from);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return path_make_relative(from, to, ret);
+        戻る path_make_relative(from, to, ret);
 }
 
 char* path_startswith_strv(const char *p, char * const *strv) {
@@ -228,15 +228,15 @@ char* path_startswith_strv(const char *p, char * const *strv) {
                 char *t;
 
                 t = path_startswith(p, *s);
-                if (t)
-                        return t;
+                もし (t)
+                        戻る t;
         }
 
-        return NULL;
+        戻る NULL;
 }
 
-int path_strv_make_absolute_cwd(char **l) {
-        int r;
+整数 path_strv_make_absolute_cwd(char **l) {
+        整数 r;
 
         /* Goes through every item in the string list and makes it
          * absolute. This works in place and won't rollback any
@@ -246,23 +246,23 @@ int path_strv_make_absolute_cwd(char **l) {
                 char *t;
 
                 r = path_make_absolute_cwd(*s, &t);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
                 path_simplify(t);
                 free_and_replace(*s, t);
         }
 
-        return 0;
+        戻る 0;
 }
 
 char** path_strv_resolve(char **l, const char *root) {
         unsigned k = 0;
         bool enomem = false;
-        int r;
+        整数 r;
 
-        if (strv_isempty(l))
-                return l;
+        もし (strv_isempty(l))
+                戻る l;
 
         /* Go through every item in the string list and canonicalize the path.
          * This works in place and doesn't roll back any changes on failure. */
@@ -271,8 +271,8 @@ char** path_strv_resolve(char **l, const char *root) {
                 _cleanup_free_ char *orig = NULL;
                 char *t, *u;
 
-                if (root) {
-                        if (!path_is_absolute(*s)) {
+                もし (root) {
+                        もし (!path_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
                                 free(*s);
                                 continue;
@@ -280,50 +280,50 @@ char** path_strv_resolve(char **l, const char *root) {
 
                         orig = *s;
                         t = path_join(root, orig);
-                        if (!t) {
+                        もし (!t) {
                                 enomem = true;
                                 continue;
                         }
-                } else
+                } 否则
                         t = *s;
 
                 r = chase(t, root, 0, &u, NULL);
-                if (r == -ENOENT) {
-                        if (root) {
+                もし (r == -ENOENT) {
+                        もし (root) {
                                 u = TAKE_PTR(orig);
                                 free(t);
-                        } else
+                        } 否则
                                 u = t;
-                } else if (r < 0) {
+                } 否则 もし (r < 0) {
                         free(t);
 
-                        if (r == -ENOMEM)
+                        もし (r == -ENOMEM)
                                 enomem = true;
 
                         continue;
-                } else if (root) {
+                } 否则 もし (root) {
                         char *x;
 
                         free(t);
                         x = path_startswith(u, root);
-                        if (x) {
+                        もし (x) {
                                 /* restore the slash if it was lost */
-                                if (!startswith(x, "/"))
+                                もし (!startswith(x, "/"))
                                         *(--x) = '/';
 
                                 t = strdup(x);
                                 free(u);
-                                if (!t) {
+                                もし (!t) {
                                         enomem = true;
                                         continue;
                                 }
                                 u = t;
-                        } else {
+                        } 否则 {
                                 /* canonicalized path goes outside of
                                  * prefix, keep the original path instead */
                                 free_and_replace(u, orig);
                         }
-                } else
+                } 否则
                         free(t);
 
                 l[k++] = u;
@@ -331,31 +331,31 @@ char** path_strv_resolve(char **l, const char *root) {
 
         l[k] = NULL;
 
-        if (enomem)
-                return NULL;
+        もし (enomem)
+                戻る NULL;
 
-        return l;
+        戻る l;
 }
 
 char** path_strv_resolve_uniq(char **l, const char *root) {
 
-        if (strv_isempty(l))
-                return l;
+        もし (strv_isempty(l))
+                戻る l;
 
-        if (!path_strv_resolve(l, root))
-                return NULL;
+        もし (!path_strv_resolve(l, root))
+                戻る NULL;
 
-        return strv_uniq(l);
+        戻る strv_uniq(l);
 }
 
 char* skip_leading_slash(const char *p) {
-        return skip_leading_chars(p, "/");
+        戻る skip_leading_chars(p, "/");
 }
 
 char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         bool add_slash = false, keep_trailing_slash, absolute, beginning = true;
         char *f = path;
-        int r;
+        整数 r;
 
         /* Removes redundant inner and trailing slashes. Also removes unnecessary dots.
          * Modifies the passed string in-place.
@@ -366,34 +366,34 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
          * /../foo/bar/..    becomes /foo/bar/..
          */
 
-        if (isempty(path))
-                return path;
+        もし (isempty(path))
+                戻る path;
 
         keep_trailing_slash = FLAGS_SET(flags, PATH_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(path, "/");
 
         absolute = path_is_absolute(path);
         f += absolute;  /* Keep leading /, if present. */
 
-        for (const char *p = f;;) {
+        ために (const char *p = f;;) {
                 const char *e;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
+                もし (r == 0)
                         break;
 
-                if (r > 0 && absolute && beginning && path_startswith(e, ".."))
+                もし (r > 0 && absolute && beginning && path_startswith(e, ".."))
                         /* If we're at the beginning of an absolute path, we can safely skip ".." */
                         continue;
 
                 beginning = false;
 
-                if (add_slash)
+                もし (add_slash)
                         *f++ = '/';
 
-                if (r < 0) {
+                もし (r < 0) {
                         /* if path is invalid, then refuse to simplify the remaining part. */
                         memmove(f, p, strlen(p) + 1);
-                        return path;
+                        戻る path;
                 }
 
                 memmove(f, e, r);
@@ -403,30 +403,30 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         }
 
         /* Special rule, if we stripped everything, we need a "." for the current directory. */
-        if (f == path)
+        もし (f == path)
                 *f++ = '.';
 
-        if (*(f-1) != '/' && keep_trailing_slash)
+        もし (*(f-1) != '/' && keep_trailing_slash)
                 *f++ = '/';
 
         *f = '\0';
-        return path;
+        戻る path;
 }
 
-int path_simplify_alloc(const char *path, char **ret) {
+整数 path_simplify_alloc(const char *path, char **ret) {
         assert(ret);
 
-        if (!path) {
+        もし (!path) {
                 *ret = NULL;
-                return 0;
+                戻る 0;
         }
 
         char *t = strdup(path);
-        if (!t)
-                return -ENOMEM;
+        もし (!t)
+                戻る -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        戻る 0;
 }
 
 char* path_startswith_full(const char *original_path, const char *prefix, PathStartWithFlags flags) {
@@ -445,139 +445,139 @@ char* path_startswith_full(const char *original_path, const char *prefix, PathSt
 
         const char *path = original_path;
 
-        if ((path[0] == '/') != (prefix[0] == '/'))
-                return NULL;
+        もし ((path[0] == '/') != (prefix[0] == '/'))
+                戻る NULL;
 
-        for (;;) {
+        ために (;;) {
                 const char *p, *q;
-                int m, n;
+                整数 m, n;
 
                 m = path_find_first_component(&path, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &p);
-                if (m < 0)
-                        return NULL;
+                もし (m < 0)
+                        戻る NULL;
 
                 n = path_find_first_component(&prefix, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &q);
-                if (n < 0)
-                        return NULL;
+                もし (n < 0)
+                        戻る NULL;
 
-                if (n == 0) {
-                        if (!p)
+                もし (n == 0) {
+                        もし (!p)
                                 p = path;
 
-                        if (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
+                        もし (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
 
-                                if (p <= original_path)
-                                        return NULL;
+                                もし (p <= original_path)
+                                        戻る NULL;
 
                                 p--;
 
-                                if (*p != '/')
-                                        return NULL;
+                                もし (*p != '/')
+                                        戻る NULL;
                         }
 
-                        return (char*) p;
+                        戻る (char*) p;
                 }
 
-                if (m != n)
-                        return NULL;
+                もし (m != n)
+                        戻る NULL;
 
-                if (!strneq(p, q, m))
-                        return NULL;
+                もし (!strneq(p, q, m))
+                        戻る NULL;
         }
 }
 
-int path_compare(const char *a, const char *b) {
-        int r;
+整数 path_compare(const char *a, const char *b) {
+        整数 r;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        もし (r != 0)
+                戻る r;
 
         /* A relative path and an absolute path must not compare as equal.
          * Which one is sorted before the other does not really matter.
          * Here a relative path is ordered before an absolute path. */
         r = CMP(path_is_absolute(a), path_is_absolute(b));
-        if (r != 0)
-                return r;
+        もし (r != 0)
+                戻る r;
 
-        for (;;) {
+        ために (;;) {
                 const char *aa, *bb;
-                int j, k;
+                整数 j, k;
 
                 j = path_find_first_component(&a, true, &aa);
                 k = path_find_first_component(&b, true, &bb);
 
-                if (j < 0 || k < 0) {
+                もし (j < 0 || k < 0) {
                         /* When one of paths is invalid, order invalid path after valid one. */
                         r = CMP(j < 0, k < 0);
-                        if (r != 0)
-                                return r;
+                        もし (r != 0)
+                                戻る r;
 
                         /* fallback to use strcmp() if both paths are invalid. */
-                        return strcmp(a, b);
+                        戻る strcmp(a, b);
                 }
 
                 /* Order prefixes first: "/foo" before "/foo/bar" */
-                if (j == 0) {
-                        if (k == 0)
-                                return 0;
-                        return -1;
+                もし (j == 0) {
+                        もし (k == 0)
+                                戻る 0;
+                        戻る -1;
                 }
-                if (k == 0)
-                        return 1;
+                もし (k == 0)
+                        戻る 1;
 
                 /* Alphabetical sort: "/foo/aaa" before "/foo/b" */
                 r = memcmp(aa, bb, MIN(j, k));
-                if (r != 0)
-                        return r;
+                もし (r != 0)
+                        戻る r;
 
                 /* Sort "/foo/a" before "/foo/aaa" */
                 r = CMP(j, k);
-                if (r != 0)
-                        return r;
+                もし (r != 0)
+                        戻る r;
         }
 }
 
-int path_compare_filename(const char *a, const char *b) {
+整数 path_compare_filename(const char *a, const char *b) {
         _cleanup_free_ char *fa = NULL, *fb = NULL;
-        int r, j, k;
+        整数 r, j, k;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        もし (r != 0)
+                戻る r;
 
         j = path_extract_filename(a, &fa);
         k = path_extract_filename(b, &fb);
 
         /* When one of paths is "." or root, then order it earlier. */
         r = CMP(j != -EADDRNOTAVAIL, k != -EADDRNOTAVAIL);
-        if (r != 0)
-                return r;
+        もし (r != 0)
+                戻る r;
 
         /* When one of paths is invalid (or we get OOM), order invalid path after valid one. */
         r = CMP(j < 0, k < 0);
-        if (r != 0)
-                return r;
+        もし (r != 0)
+                戻る r;
 
         /* fallback to use strcmp() if both paths are invalid. */
-        if (j < 0)
-                return strcmp(a, b);
+        もし (j < 0)
+                戻る strcmp(a, b);
 
-        return strcmp(fa, fb);
+        戻る strcmp(fa, fb);
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags) {
+整数 path_equal_or_inode_same_full(const char *a, const char *b, 整数 flags) {
         /* Returns true if paths are of the same entry, false if not, <0 on error. */
 
-        if (path_equal(a, b))
-                return 1;
+        もし (path_equal(a, b))
+                戻る 1;
 
-        if (!a || !b)
-                return 0;
+        もし (!a || !b)
+                戻る 0;
 
-        return inode_same(a, b, flags);
+        戻る inode_same(a, b, flags);
 }
 
 char* path_extend_internal(char **x, ...) {
@@ -609,16 +609,16 @@ char* path_extend_internal(char **x, ...) {
 
         sz = old_sz = x ? strlen_ptr(*x) : 0;
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
+        ながら ((p = va_arg(ap, char*)) != POINTER_MAX) {
                 size_t add;
 
-                if (isempty(p))
+                もし (isempty(p))
                         continue;
 
                 add = 1 + strlen(p);
-                if (sz > SIZE_MAX - add) { /* overflow check */
+                もし (sz > SIZE_MAX - add) { /* overflow check */
                         va_end(ap);
-                        return NULL;
+                        戻る NULL;
                 }
 
                 sz += add;
@@ -626,14 +626,14 @@ char* path_extend_internal(char **x, ...) {
         va_end(ap);
 
         nx = realloc(x ? *x : NULL, GREEDY_ALLOC_ROUND_UP(sz+1));
-        if (!nx)
-                return NULL;
-        if (x)
+        もし (!nx)
+                戻る NULL;
+        もし (x)
                 *x = nx;
 
-        if (old_sz > 0)
+        もし (old_sz > 0)
                 slash = nx[old_sz-1] == '/';
-        else {
+        否则 {
                 nx[old_sz] = 0;
                 slash = true; /* no need to generate a slash anymore */
         }
@@ -641,11 +641,11 @@ char* path_extend_internal(char **x, ...) {
         q = nx + old_sz;
 
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                if (isempty(p))
+        ながら ((p = va_arg(ap, char*)) != POINTER_MAX) {
+                もし (isempty(p))
                         continue;
 
-                if (!slash && p[0] != '/')
+                もし (!slash && p[0] != '/')
                         *(q++) = '/';
 
                 q = stpcpy(q, p);
@@ -653,13 +653,13 @@ char* path_extend_internal(char **x, ...) {
         }
         va_end(ap);
 
-        return nx;
+        戻る nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int fd = -EBADF;
+整数 open_and_check_executable(const char *name, const char *root, char **ret_path, 整数 *ret_fd) {
+        _cleanup_close_ 整数 fd = -EBADF;
         _cleanup_free_ char *resolved = NULL;
-        int r;
+        整数 r;
 
         assert(name);
 
@@ -667,186 +667,186 @@ int open_and_check_executable(const char *name, const char *root, char **ret_pat
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        もし (root) {
                 /* prefix root to name in case full paths are not specified */
                 r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
                 name = resolved;
-        } else {
+        } 否则 {
                 /* We need to use O_PATH because there may be executables for which we have only exec permissions,
                  * but not read (usually suid executables). */
                 fd = open(name, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
+                もし (fd < 0)
+                        戻る -errno;
         }
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
         r = access_fd(fd, X_OK);
-        if (r == -ENOSYS)
+        もし (r == -ENOSYS)
                 /* /proc/ is not mounted. Fall back to access(). */
                 r = RET_NERRNO(access(name, X_OK));
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        if (ret_path) {
-                if (resolved)
+        もし (ret_path) {
+                もし (resolved)
                         *ret_path = TAKE_PTR(resolved);
-                else {
+                否则 {
                         r = path_make_absolute_cwd(name, ret_path);
-                        if (r < 0)
-                                return r;
+                        もし (r < 0)
+                                戻る r;
 
                         path_simplify(*ret_path);
                 }
         }
 
-        if (ret_fd)
+        もし (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        戻る 0;
 }
 
-int find_executable_full(
+整数 find_executable_full(
                 const char *name,
                 const char *root,
                 char * const *exec_search_path,
                 bool use_path_envvar,
                 char **ret_filename,
-                int *ret_fd) {
+                整数 *ret_fd) {
 
-        int last_error = -ENOENT, r = 0;
+        整数 last_error = -ENOENT, r = 0;
 
         assert(name);
 
-        if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+        もし (is_path(name))
+                戻る open_and_check_executable(name, root, ret_filename, ret_fd);
 
-        if (exec_search_path) {
+        もし (exec_search_path) {
                 STRV_FOREACH(element, exec_search_path) {
                         _cleanup_free_ char *full_path = NULL;
 
-                        if (!path_is_absolute(*element)) {
+                        もし (!path_is_absolute(*element)) {
                                 log_debug("Exec search path '%s' isn't absolute, ignoring.", *element);
                                 continue;
                         }
 
                         full_path = path_join(*element, name);
-                        if (!full_path)
-                                return -ENOMEM;
+                        もし (!full_path)
+                                戻る -ENOMEM;
 
                         r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
-                        if (r >= 0)
-                                return 0;
-                        if (r != -EACCES)
+                        もし (r >= 0)
+                                戻る 0;
+                        もし (r != -EACCES)
                                 last_error = r;
                 }
-                return last_error;
+                戻る last_error;
         }
 
         const char *p = NULL;
 
-        if (use_path_envvar)
+        もし (use_path_envvar)
                 /* Plain getenv, not secure_getenv, because we want to actually allow the user to pick the
                  * binary. */
                 p = getenv("PATH");
-        if (!p)
+        もし (!p)
                 p = default_PATH();
 
         /* Resolve a single-component name to a full path */
-        for (;;) {
+        ために (;;) {
                 _cleanup_free_ char *element = NULL;
 
                 r = extract_first_word(&p, &element, ":", EXTRACT_RELAX|EXTRACT_DONT_COALESCE_SEPARATORS);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                もし (r < 0)
+                        戻る r;
+                もし (r == 0)
                         break;
 
-                if (!path_is_absolute(element)) {
+                もし (!path_is_absolute(element)) {
                         log_debug("Exec search path '%s' isn't absolute, ignoring.", element);
                         continue;
                 }
 
-                if (!path_extend(&element, name))
-                        return -ENOMEM;
+                もし (!path_extend(&element, name))
+                        戻る -ENOMEM;
 
                 r = open_and_check_executable(element, root, ret_filename, ret_fd);
-                if (r >= 0) /* Found it! */
-                        return 0;
+                もし (r >= 0) /* Found it! */
+                        戻る 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
-                if (r != -EACCES)
+                もし (r != -EACCES)
                         last_error = r;
         }
 
-        return last_error;
+        戻る last_error;
 }
 
-static int executable_is_good(const char *executable) {
+static 整数 executable_is_good(const char *executable) {
         _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
+        整数 r;
 
         r = find_executable(executable, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
+        もし (r == -ENOENT)
+                戻る 0;
+        もし (r < 0)
+                戻る r;
 
         /* An fsck that is linked to /bin/true is a non-existent fsck */
 
         r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
+        もし (r == -EINVAL) /* not a symlink */
+                戻る 1;
+        もし (r < 0)
+                戻る r;
 
-        return !PATH_IN_SET(d, "true",
+        戻る !PATH_IN_SET(d, "true",
                                "/bin/true",
                                "/usr/bin/true",
                                "/dev/null");
 }
 
-int fsck_exists(void) {
-        return executable_is_good("fsck");
+整数 fsck_exists(void) {
+        戻る executable_is_good("fsck");
 }
 
-int fsck_exists_for_fstype(const char *fstype) {
+整数 fsck_exists_for_fstype(const char *fstype) {
         const char *checker;
-        int r;
+        整数 r;
 
         assert(fstype);
 
-        if (streq(fstype, "auto"))
-                return -EINVAL;
+        もし (streq(fstype, "auto"))
+                戻る -EINVAL;
 
         r = fsck_exists();
-        if (r <= 0)
-                return r;
+        もし (r <= 0)
+                戻る r;
 
         checker = strjoina("fsck.", fstype);
-        return executable_is_good(checker);
+        戻る executable_is_good(checker);
 }
 
 static const char* skip_slash_or_dot(const char *p) {
         POINTER_MAY_BE_NULL(p);
 
-        for (; !isempty(p); p++) {
-                if (*p == '/')
+        ために (; !isempty(p); p++) {
+                もし (*p == '/')
                         continue;
-                if (startswith(p, "./")) {
+                もし (startswith(p, "./")) {
                         p++;
                         continue;
                 }
                 break;
         }
-        return p;
+        戻る p;
 }
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
+整数 path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
         const char *q, *first, *end_first, *next;
         size_t len;
 
@@ -888,52 +888,52 @@ int path_find_first_component(const char **p, bool accept_dot_dot, const char **
         q = *p;
 
         first = skip_slash_or_dot(q);
-        if (isempty(first)) {
+        もし (isempty(first)) {
                 *p = first;
-                if (ret)
+                もし (ret)
                         *ret = NULL;
-                return 0;
+                戻る 0;
         }
-        if (streq(first, ".")) {
+        もし (streq(first, ".")) {
                 *p = first + 1;
-                if (ret)
+                もし (ret)
                         *ret = NULL;
-                return 0;
+                戻る 0;
         }
 
         end_first = strchrnul(first, '/');
         len = end_first - first;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
-                return -EINVAL;
+        もし (len > NAME_MAX)
+                戻る -EINVAL;
+        もし (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
+                戻る -EINVAL;
 
         next = skip_slash_or_dot(end_first);
 
         *p = next + streq(next, ".");
-        if (ret)
+        もし (ret)
                 *ret = first;
-        return len;
+        戻る len;
 }
 
 static const char* skip_slash_or_dot_backward(const char *path, const char *q) {
         assert(path);
         assert(!q || q >= path);
 
-        for (; q; q = PTR_SUB1(q, path)) {
-                if (*q == '/')
+        ために (; q; q = PTR_SUB1(q, path)) {
+                もし (*q == '/')
                         continue;
-                if (q > path && strneq(q - 1, "/.", 2))
+                もし (q > path && strneq(q - 1, "/.", 2))
                         continue;
-                if (q == path && *q == '.')
+                もし (q == path && *q == '.')
                         continue;
                 break;
         }
-        return q;
+        戻る q;
 }
 
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
+整数 path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
         const char *q, *last_end, *last_begin;
         size_t len;
 
@@ -974,58 +974,58 @@ int path_find_last_component(const char *path, bool accept_dot_dot, const char *
         *   Output: return value: -EINVAL
         */
 
-        if (isempty(path)) {
-                if (next)
+        もし (isempty(path)) {
+                もし (next)
                         *next = path;
-                if (ret)
+                もし (ret)
                         *ret = NULL;
-                return 0;
+                戻る 0;
         }
 
-        if (next && *next) {
-                if (*next < path || *next > path + strlen(path))
-                        return -EINVAL;
-                if (*next == path) {
-                        if (ret)
+        もし (next && *next) {
+                もし (*next < path || *next > path + strlen(path))
+                        戻る -EINVAL;
+                もし (*next == path) {
+                        もし (ret)
                                 *ret = NULL;
-                        return 0;
+                        戻る 0;
                 }
-                if (!IN_SET(**next, '\0', '/'))
-                        return -EINVAL;
+                もし (!IN_SET(**next, '\0', '/'))
+                        戻る -EINVAL;
                 q = *next - 1;
-        } else
+        } 否则
                 q = path + strlen(path) - 1;
 
         q = skip_slash_or_dot_backward(path, q);
-        if (!q) { /* the root directory, "." or "./" */
-                if (next)
+        もし (!q) { /* the root directory, "." or "./" */
+                もし (next)
                         *next = path;
-                if (ret)
+                もし (ret)
                         *ret = NULL;
-                return 0;
+                戻る 0;
         }
 
         last_end = q + 1;
 
-        while (q && *q != '/')
+        ながら (q && *q != '/')
                 q = PTR_SUB1(q, path);
 
         last_begin = q ? q + 1 : path;
         len = last_end - last_begin;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
-                return -EINVAL;
+        もし (len > NAME_MAX)
+                戻る -EINVAL;
+        もし (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
+                戻る -EINVAL;
 
-        if (next) {
+        もし (next) {
                 q = skip_slash_or_dot_backward(path, q);
                 *next = q ? q + 1 : path;
         }
 
-        if (ret)
+        もし (ret)
                 *ret = last_begin;
-        return len;
+        戻る len;
 }
 
 const char* last_path_component(const char *path) {
@@ -1052,29 +1052,29 @@ const char* last_path_component(const char *path) {
 
         unsigned l, k;
 
-        if (!path)
-                return NULL;
+        もし (!path)
+                戻る NULL;
 
         l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
+        もし (l == 0) /* special case — an empty string */
+                戻る path;
 
-        while (k > 0 && path[k-1] == '/')
+        ながら (k > 0 && path[k-1] == '/')
                 k--;
 
-        if (k == 0) /* the root directory */
-                return path + l - 1;
+        もし (k == 0) /* the root directory */
+                戻る path + l - 1;
 
-        while (k > 0 && path[k-1] != '/')
+        ながら (k > 0 && path[k-1] != '/')
                 k--;
 
-        return path + k;
+        戻る path + k;
 }
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
+整数 path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
         _cleanup_free_ char *d = NULL;
         const char *c, *next = NULL;
-        int r;
+        整数 r;
 
         POINTER_MAY_BE_NULL(path);
 
@@ -1092,52 +1092,52 @@ int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_file
          * This function guarantees to return a fully valid filename, i.e. one that passes
          * filename_is_valid() – this means "." and ".." are not accepted. */
 
-        if (isempty(path))
-                return -EINVAL;
+        もし (isempty(path))
+                戻る -EINVAL;
 
         r = path_find_last_component(path, /* accept_dot_dot = */ false, &next, &c);
-        if (r < 0)
-                return r;
-        if (r == 0) /* root directory or "." */
-                return -EADDRNOTAVAIL;
+        もし (r < 0)
+                戻る r;
+        もし (r == 0) /* root directory or "." */
+                戻る -EADDRNOTAVAIL;
 
-        if (ret_dir) {
-                if (next == path) {
-                        if (*path != '/') { /* filename only */
-                                if (!ret_filename)
-                                        return -EDESTADDRREQ;
-                        } else {
+        もし (ret_dir) {
+                もし (next == path) {
+                        もし (*path != '/') { /* filename only */
+                                もし (!ret_filename)
+                                        戻る -EDESTADDRREQ;
+                        } 否则 {
                                 d = strdup("/");
-                                if (!d)
-                                        return -ENOMEM;
+                                もし (!d)
+                                        戻る -ENOMEM;
                         }
-                } else {
+                } 否则 {
                         d = strndup(path, next - path);
-                        if (!d)
-                                return -ENOMEM;
+                        もし (!d)
+                                戻る -ENOMEM;
 
                         path_simplify(d);
 
-                        if (!path_is_valid(d))
-                                return -EINVAL;
+                        もし (!path_is_valid(d))
+                                戻る -EINVAL;
                 }
 
-        } else if (!path_is_valid(path))
+        } 否则 もし (!path_is_valid(path))
                 /* We didn't validate the dir prefix, hence check if the whole path is valid now */
-                return -EINVAL;
+                戻る -EINVAL;
 
-        if (ret_filename) {
+        もし (ret_filename) {
                 char *fn = strndup(c, r);
-                if (!fn)
-                        return -ENOMEM;
+                もし (!fn)
+                        戻る -ENOMEM;
 
                 *ret_filename = fn;
         }
 
-        if (ret_dir)
+        もし (ret_dir)
                 *ret_dir = TAKE_PTR(d);
 
-        return strlen(c) > (size_t) r ? O_DIRECTORY : 0;
+        戻る strlen(c) > (size_t) r ? O_DIRECTORY : 0;
 }
 
 bool filename_part_is_valid(const char *p) {
@@ -1146,65 +1146,65 @@ bool filename_part_is_valid(const char *p) {
         /* Checks f the specified string is OK to be *part* of a filename. This is different from
          * filename_is_valid() as "." and ".." and "" are OK by this call, but not by filename_is_valid(). */
 
-        if (!p)
-                return false;
+        もし (!p)
+                戻る false;
 
         e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
+        もし (*e != 0)
+                戻る false;
 
-        if (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
-                return false;
+        もし (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
+                戻る false;
 
-        return true;
+        戻る true;
 }
 
 bool filename_is_valid(const char *p) {
 
-        if (isempty(p))
-                return false;
+        もし (isempty(p))
+                戻る false;
 
-        if (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
-                return false;
+        もし (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
+                戻る false;
 
-        return filename_part_is_valid(p);
+        戻る filename_part_is_valid(p);
 }
 
 bool path_is_valid_full(const char *p, bool accept_dot_dot) {
-        if (isempty(p))
-                return false;
+        もし (isempty(p))
+                戻る false;
 
-        for (const char *e = p;;) {
-                int r;
+        ために (const char *e = p;;) {
+                整数 r;
 
                 r = path_find_first_component(&e, accept_dot_dot, NULL);
-                if (r < 0)
-                        return false;
+                もし (r < 0)
+                        戻る false;
 
-                if (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
+                もし (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
                                         * *with* the trailing NUL byte) */
-                        return false;
-                if (*e == 0)           /* End of string? Yay! */
-                        return true;
+                        戻る false;
+                もし (*e == 0)           /* End of string? Yay! */
+                        戻る true;
         }
 }
 
 bool path_is_normalized(const char *p) {
-        if (!path_is_safe(p))
-                return false;
+        もし (!path_is_safe(p))
+                戻る false;
 
-        if (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
+        もし (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
+                戻る false;
 
-        if (strstr(p, "//"))
-                return false;
+        もし (strstr(p, "//"))
+                戻る false;
 
-        return true;
+        戻る true;
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret) {
+整数 file_in_same_dir(const char *path, const char *filename, char **ret) {
         _cleanup_free_ char *b = NULL;
-        int r;
+        整数 r;
 
         assert(path);
         assert(filename);
@@ -1213,40 +1213,40 @@ int file_in_same_dir(const char *path, const char *filename, char **ret) {
         /* This removes the last component of path and appends filename, unless the latter is absolute anyway
          * or the former isn't */
 
-        if (path_is_absolute(filename))
+        もし (path_is_absolute(filename))
                 b = strdup(filename);
-        else {
+        否则 {
                 _cleanup_free_ char *dn = NULL;
 
                 r = path_extract_directory(path, &dn);
-                if (r == -EDESTADDRREQ) /* no path prefix */
+                もし (r == -EDESTADDRREQ) /* no path prefix */
                         b = strdup(filename);
-                else if (r < 0)
-                        return r;
-                else
+                否则 もし (r < 0)
+                        戻る r;
+                否则
                         b = path_join(dn, filename);
         }
-        if (!b)
-                return -ENOMEM;
+        もし (!b)
+                戻る -ENOMEM;
 
         *ret = TAKE_PTR(b);
-        return 0;
+        戻る 0;
 }
 
 bool hidden_or_backup_file(const char *filename) {
         assert(filename);
 
-        if (filename[0] == '.' ||
+        もし (filename[0] == '.' ||
             STR_IN_SET(filename,
                        "lost+found",
                        "aquota.user",
                        "aquota.group") ||
             endswith(filename, "~"))
-                return true;
+                戻る true;
 
         const char *dot = strrchr(filename, '.');
-        if (!dot)
-                return false;
+        もし (!dot)
+                戻る false;
 
         /* Please, let's not add more entries to the list below. If external projects think it's a good idea
          * to come up with always new suffixes and that everybody else should just adjust to that, then it
@@ -1262,7 +1262,7 @@ bool hidden_or_backup_file(const char *filename) {
          * ".foopkg.old" or ".foopkg~" instead.
          */
 
-        return STR_IN_SET(dot + 1,
+        戻る STR_IN_SET(dot + 1,
                           "ignore",
                           "rpmnew",
                           "rpmsave",
@@ -1295,7 +1295,7 @@ bool is_device_path(const char *path) {
          */
 
         const char *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
-        return !isempty(p);
+        戻る !isempty(p);
 }
 
 bool valid_device_node_path(const char *path) {
@@ -1303,13 +1303,13 @@ bool valid_device_node_path(const char *path) {
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
 
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
+        もし (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
+                戻る false;
 
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
+        もし (endswith(path, "/")) /* can't be a device node if it ends in a slash */
+                戻る false;
 
-        return path_is_normalized(path);
+        戻る path_is_normalized(path);
 }
 
 bool valid_device_allow_pattern(const char *path) {
@@ -1318,23 +1318,23 @@ bool valid_device_allow_pattern(const char *path) {
         /* Like valid_device_node_path(), but also allows full-subsystem expressions like those accepted by
          * DeviceAllow= and DeviceDeny=. */
 
-        if (STARTSWITH_SET(path, "block-", "char-"))
-                return true;
+        もし (STARTSWITH_SET(path, "block-", "char-"))
+                戻る true;
 
-        return valid_device_node_path(path);
+        戻る valid_device_node_path(path);
 }
 
 bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
+        もし (!path)
+                戻る false;
+        もし (path[0] != '.')
+                戻る false;
+        もし (path[1] == 0)
+                戻る true;
+        もし (path[1] != '.')
+                戻る false;
 
-        return path[2] == 0;
+        戻る path[2] == 0;
 }
 
 bool path_implies_directory(const char *path) {
@@ -1342,13 +1342,13 @@ bool path_implies_directory(const char *path) {
         /* Sometimes, if we look at a path we already know it must refer to a directory, because it is
          * suffixed with a slash, or its last component is "." or ".." */
 
-        if (!path)
-                return false;
+        もし (!path)
+                戻る false;
 
-        if (dot_or_dot_dot(path))
-                return true;
+        もし (dot_or_dot_dot(path))
+                戻る true;
 
-        return ENDSWITH_SET(path, "/", "/.", "/..");
+        戻る ENDSWITH_SET(path, "/", "/.", "/..");
 }
 
 bool empty_or_root(const char *path) {
@@ -1356,45 +1356,45 @@ bool empty_or_root(const char *path) {
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
 
-        if (isempty(path))
-                return true;
+        もし (isempty(path))
+                戻る true;
 
-        return path_equal(path, "/");
+        戻る path_equal(path, "/");
 }
 
 const char* empty_to_root(const char *path) {
-        return isempty(path) ? "/" : path;
+        戻る isempty(path) ? "/" : path;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
-        int r;
+整数 empty_or_root_harder_to_null(const char **path) {
+        整数 r;
 
         assert(path);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
+        もし (empty_or_root(*path)) {
                 *path = NULL;
-                return 0;
+                戻る 0;
         }
 
         r = path_is_root(*path);
-        if (r < 0)
-                return r;
-        if (r > 0)
+        もし (r < 0)
+                戻る r;
+        もし (r > 0)
                 *path = NULL;
 
-        return 0;
+        戻る 0;
 }
 
 bool path_strv_contains(char * const *l, const char *path) {
         assert(path);
 
         STRV_FOREACH(i, l)
-                if (path_equal(*i, path))
-                        return true;
+                もし (path_equal(*i, path))
+                        戻る true;
 
-        return false;
+        戻る false;
 }
 
 bool prefixed_path_strv_contains(char * const *l, const char *path) {
@@ -1403,96 +1403,96 @@ bool prefixed_path_strv_contains(char * const *l, const char *path) {
         STRV_FOREACH(i, l) {
                 const char *j = *i;
 
-                if (*j == '-')
+                もし (*j == '-')
                         j++;
-                if (*j == '+')
+                もし (*j == '+')
                         j++;
 
-                if (path_equal(j, path))
-                        return true;
+                もし (path_equal(j, path))
+                        戻る true;
         }
 
-        return false;
+        戻る false;
 }
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
+整数 path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
         assert(pattern);
         assert(prefix);
 
-        for (const char *a = pattern, *b = prefix;;) {
+        ために (const char *a = pattern, *b = prefix;;) {
                 _cleanup_free_ char *g = NULL, *h = NULL;
                 const char *p, *q;
-                int r, s;
+                整数 r, s;
 
                 r = path_find_first_component(&a, /* accept_dot_dot= */ false, &p);
-                if (r < 0)
-                        return r;
+                もし (r < 0)
+                        戻る r;
 
                 s = path_find_first_component(&b, /* accept_dot_dot= */ false, &q);
-                if (s < 0)
-                        return s;
+                もし (s < 0)
+                        戻る s;
 
-                if (s == 0) {
+                もし (s == 0) {
                         /* The pattern matches the prefix. */
-                        if (ret) {
+                        もし (ret) {
                                 char *t;
 
                                 t = path_join(prefix, p);
-                                if (!t)
-                                        return -ENOMEM;
+                                もし (!t)
+                                        戻る -ENOMEM;
 
                                 *ret = t;
                         }
-                        return true;
+                        戻る true;
                 }
 
-                if (r == 0)
+                もし (r == 0)
                         break;
 
-                if (r == s && strneq(p, q, r))
+                もし (r == s && strneq(p, q, r))
                         continue; /* common component. Check next. */
 
                 g = strndup(p, r);
-                if (!g)
-                        return -ENOMEM;
+                もし (!g)
+                        戻る -ENOMEM;
 
-                if (!string_is_glob(g))
+                もし (!string_is_glob(g))
                         break;
 
                 /* We found a glob component. Check if the glob pattern matches the prefix component. */
 
                 h = strndup(q, s);
-                if (!h)
-                        return -ENOMEM;
+                もし (!h)
+                        戻る -ENOMEM;
 
                 r = fnmatch(g, h, 0);
-                if (r == FNM_NOMATCH)
+                もし (r == FNM_NOMATCH)
                         break;
-                if (r != 0) /* Failure to process pattern? */
-                        return -EINVAL;
+                もし (r != 0) /* Failure to process pattern? */
+                        戻る -EINVAL;
         }
 
         /* The pattern does not match the prefix. */
-        if (ret)
+        もし (ret)
                 *ret = NULL;
-        return false;
+        戻る false;
 }
 
-#if HAVE_SPLIT_BIN
+#もし HAVE_SPLIT_BIN
 static bool dir_is_split(const char *a, const char *b) {
-        int r;
+        整数 r;
 
         r = inode_same(a, b, AT_NO_AUTOMOUNT);
-        if (r < 0 && r != -ENOENT) {
+        もし (r < 0 && r != -ENOENT) {
                 log_debug_errno(r, "Failed to compare \"%s\" and \"%s\", assuming split directories: %m", a, b);
-                return true;
+                戻る true;
         }
-        return r == 0;
+        戻る r == 0;
 }
 #endif
 
 const char* default_PATH(void) {
-#if HAVE_SPLIT_BIN
+#もし HAVE_SPLIT_BIN
         static const char *default_path = NULL;
 
         /* Return one of the three sets of paths:
@@ -1503,15 +1503,15 @@ const char* default_PATH(void) {
          * On error the fallback to the safe value with both directories as configured is returned.
          */
 
-        if (default_path)
-                return default_path;
+        もし (default_path)
+                戻る default_path;
 
-        if (dir_is_split("/usr/sbin", "/usr/bin"))
-                return (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
-        if (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
-                return (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
-        return (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
-#else
-        return DEFAULT_PATH_WITHOUT_SBIN;
+        もし (dir_is_split("/usr/sbin", "/usr/bin"))
+                戻る (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
+        もし (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
+                戻る (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
+        戻る (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
+#否则
+        戻る DEFAULT_PATH_WITHOUT_SBIN;
 #endif
 }

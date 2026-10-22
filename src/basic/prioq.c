@@ -28,42 +28,42 @@ Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        もし (!q)
+                戻る q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        戻る q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        もし (!q)
+                戻る NULL;
 
         /* Invalidate the index fields of any remaining objects */
         FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
+                もし (item->idx)
                         *(item->idx) = PRIOQ_IDX_NULL;
 
         free(q->items);
-        return mfree(q);
+        戻る mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+整数 prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
         assert(q);
 
-        if (*q) {
+        もし (*q) {
                 assert((*q)->compare_func == compare_func);
-                return 0;
+                戻る 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        もし (!*q)
+                戻る -ENOMEM;
 
-        return 0;
+        戻る 0;
 }
 
 static void swap(Prioq *q, unsigned j, unsigned k) {
@@ -77,10 +77,10 @@ static void swap(Prioq *q, unsigned j, unsigned k) {
         SWAP_TWO(q->items[j].data, q->items[k].data);
         SWAP_TWO(q->items[j].idx, q->items[k].idx);
 
-        if (q->items[j].idx)
+        もし (q->items[j].idx)
                 *q->items[j].idx = j;
 
-        if (q->items[k].idx)
+        もし (q->items[k].idx)
                 *q->items[k].idx = k;
 }
 
@@ -88,42 +88,42 @@ static unsigned shuffle_up(Prioq *q, unsigned idx) {
         assert(q);
         assert(idx < q->n_items);
 
-        while (idx > 0) {
+        ながら (idx > 0) {
                 unsigned k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
+                もし (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
                         break;
 
                 swap(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        戻る idx;
 }
 
 static unsigned shuffle_down(Prioq *q, unsigned idx) {
         assert(q);
 
-        for (;;) {
+        ために (;;) {
                 unsigned j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
+                もし (j >= q->n_items)
                         break;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                もし (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                否则
                         s = idx;
 
-                if (k < q->n_items &&
+                もし (k < q->n_items &&
                     q->compare_func(q->items[k].data, q->items[s].data) < 0)
 
                         /* So our right child is smaller than we are, let's
@@ -132,7 +132,7 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                もし (s == idx)
                         /* No swap necessary, we're done */
                         break;
 
@@ -140,16 +140,16 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
                 idx = s;
         }
 
-        return idx;
+        戻る idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
+整数 prioq_put(Prioq *q, void *data, unsigned *idx) {
         unsigned k;
 
         assert(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        もし (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
+                戻る -ENOMEM;
 
         k = q->n_items++;
         q->items[k] = (struct prioq_item) {
@@ -157,24 +157,24 @@ int prioq_put(Prioq *q, void *data, unsigned *idx) {
                 .idx = idx,
         };
 
-        if (idx)
+        もし (idx)
                 *idx = k;
 
         shuffle_up(q, k);
 
-        return 0;
+        戻る 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+整数 _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
+        整数 r;
 
         assert(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        もし (r < 0)
+                戻る r;
 
-        return prioq_put(*q, data, idx);
+        戻る prioq_put(*q, data, idx);
 }
 
 static void remove_item(Prioq *q, struct prioq_item *i) {
@@ -185,15 +185,15 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        もし (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
         l = q->items + q->n_items - 1;
 
-        if (i == l)
+        もし (i == l)
                 /* Last entry, let's just remove it */
                 q->n_items--;
-        else {
+        否则 {
                 unsigned k;
 
                 /* Not last entry, let's replace the last entry with
@@ -204,7 +204,7 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
 
                 i->data = l->data;
                 i->idx = l->idx;
-                if (i->idx)
+                もし (i->idx)
                         *i->idx = k;
                 q->n_items--;
 
@@ -218,39 +218,39 @@ static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
 
         assert(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        もし (q->n_items <= 0)
+                戻る NULL;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
+        もし (idx) {
+                もし (*idx == PRIOQ_IDX_NULL ||
                     *idx >= q->n_items)
-                        return NULL;
+                        戻る NULL;
 
                 i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                もし (i->data != data)
+                        戻る NULL;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                戻る i;
+        } 否则 {
+                ために (i = q->items; i < q->items + q->n_items; i++)
+                        もし (i->data == data)
+                                戻る i;
+                戻る NULL;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
+整数 prioq_remove(Prioq *q, void *data, unsigned *idx) {
         struct prioq_item *i;
 
-        if (!q)
-                return 0;
+        もし (!q)
+                戻る 0;
 
         i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        もし (!i)
+                戻る 0;
 
         remove_item(q, i);
-        return 1;
+        戻る 1;
 }
 
 void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
@@ -260,8 +260,8 @@ void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
         assert(q);
 
         i = find_item(q, data, idx);
-        if (!i)
-                return;
+        もし (!i)
+                戻る;
 
         assert(i >= q->items);
         k = i - q->items;
@@ -270,41 +270,41 @@ void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
 }
 
 void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+        もし (!q)
+                戻る NULL;
 
-        if (idx >= q->n_items)
-                return NULL;
+        もし (idx >= q->n_items)
+                戻る NULL;
 
-        return q->items[idx].data;
+        戻る q->items[idx].data;
 }
 
 void* prioq_pop(Prioq *q) {
         void *data;
 
-        if (!q)
-                return NULL;
+        もし (!q)
+                戻る NULL;
 
-        if (q->n_items <= 0)
-                return NULL;
+        もし (q->n_items <= 0)
+                戻る NULL;
 
         data = q->items[0].data;
         remove_item(q, q->items);
-        return data;
+        戻る data;
 }
 
 unsigned prioq_size(Prioq *q) {
 
-        if (!q)
-                return 0;
+        もし (!q)
+                戻る 0;
 
-        return q->n_items;
+        戻る q->n_items;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        もし (!q)
+                戻る true;
 
-        return q->n_items <= 0;
+        戻る q->n_items <= 0;
 }

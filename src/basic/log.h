@@ -33,7 +33,7 @@ assert_cc(LOG_NULL == -1);
 
 /* The callback function to be invoked when syntax warnings are seen
  * in the unit files. */
-typedef void (*log_syntax_callback_t)(const char *unit, int level, void *userdata);
+typedef void (*log_syntax_callback_t)(const char *unit, 整数 level, void *userdata);
 void set_log_syntax_callback(log_syntax_callback_t cb, void *userdata);
 
 static inline void clear_log_syntax_callback(dummy_t *dummy) {
@@ -43,17 +43,17 @@ static inline void clear_log_syntax_callback(dummy_t *dummy) {
 DECLARE_STRING_TABLE_LOOKUP(log_target, LogTarget);
 void log_set_target(LogTarget target);
 void log_set_target_and_open(LogTarget target);
-int log_set_target_from_string(const char *e);
+整数 log_set_target_from_string(const char *e);
 LogTarget log_get_target(void) _pure_;
 void log_settle_target(void);
 
-int log_set_max_level(int level);
-int log_set_max_level_from_string(const char *e);
-int log_get_max_level(void) _pure_;
-int log_get_target_max_level(LogTarget target);
-int log_max_levels_to_string(int level, char **ret);
+整数 log_set_max_level(整数 level);
+整数 log_set_max_level_from_string(const char *e);
+整数 log_get_max_level(void) _pure_;
+整数 log_get_target_max_level(LogTarget target);
+整数 log_max_levels_to_string(整数 level, char **ret);
 
-void log_set_facility(int facility);
+void log_set_facility(整数 facility);
 
 void log_show_color(bool b);
 bool log_get_show_color(void) _pure_;
@@ -66,29 +66,29 @@ bool log_get_show_tid(void) _pure_;
 void log_show_executable(bool b);
 bool log_get_show_executable(void) _pure_;
 
-int log_show_color_from_string(const char *e);
-int log_show_location_from_string(const char *e);
-int log_show_time_from_string(const char *e);
-int log_show_tid_from_string(const char *e);
-int log_show_executable_from_string(const char *e);
+整数 log_show_color_from_string(const char *e);
+整数 log_show_location_from_string(const char *e);
+整数 log_show_time_from_string(const char *e);
+整数 log_show_tid_from_string(const char *e);
+整数 log_show_executable_from_string(const char *e);
 
 /* Functions below that open and close logs or configure logging based on the
  * environment should not be called from library code — this is always a job
  * for the application itself. */
 
 bool stderr_is_journal(void);
-int log_open(void);
+整数 log_open(void);
 void log_close(void);
 void log_forget_fds(void);
 
 void log_parse_environment_variables(void);
 void log_parse_environment(void);
 
-int log_dispatch_internal(
-                int level,
-                int error,
+整数 log_dispatch_internal(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -96,28 +96,28 @@ int log_dispatch_internal(
                 const char *extra,
                 char *buffer);
 
-int log_internal(
-                int level,
-                int error,
+整数 log_internal(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *format, ...) _printf_(6,7);
 
-int log_internalv(
-                int level,
-                int error,
+整数 log_internalv(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *format,
                 va_list ap) _printf_(6,0);
 
-int log_object_internalv(
-                int level,
-                int error,
+整数 log_object_internalv(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -126,11 +126,11 @@ int log_object_internalv(
                 const char *format,
                 va_list ap) _printf_(10,0);
 
-int log_object_internal(
-                int level,
-                int error,
+整数 log_object_internal(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *object_field,
                 const char *object,
@@ -138,44 +138,44 @@ int log_object_internal(
                 const char *extra,
                 const char *format, ...) _printf_(10,11);
 
-int log_struct_internal(
-                int level,
-                int error,
+整数 log_struct_internal(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *format, ...) _sentinel_;
 
-int log_oom_internal(
-                int level,
+整数 log_oom_internal(
+                整数 level,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func);
 
-int log_format_iovec(
+整数 log_format_iovec(
                 struct iovec *iovec,
                 size_t iovec_len,
                 size_t *n,
                 bool newline_separator,
-                int error,
+                整数 error,
                 const char *format,
                 va_list ap) _printf_(6, 0);
 
-int log_struct_iovec_internal(
-                int level,
-                int error,
+整数 log_struct_iovec_internal(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const struct iovec *input_iovec,
                 size_t n_input_iovec);
 
 /* This modifies the buffer passed! */
-int log_dump_internal(
-                int level,
-                int error,
+整数 log_dump_internal(
+                整数 level,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 char *buffer);
 
@@ -185,17 +185,17 @@ int log_dump_internal(
 /* Logging with level */
 #define log_full_errno_zerook(level, error, ...)                        \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                整数 _level = (level), _e = (error);                     \
                 _e = (log_get_max_level() >= LOG_PRI(_level))           \
                         ? log_internal(_level, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
                         : -ERRNO_VALUE(_e);                             \
                 _e < 0 ? _e : -ESTRPIPE;                                \
         })
 
-#if BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
+#もし BUILD_MODE_DEVELOPER && !defined(TEST_CODE)
 #  define ASSERT_NON_ZERO(x) assert((x) != 0)
 #  define ASSERT_UNDERFLOW(x) assert((x) >= INT_MIN)
-#else
+#否则
 #  define ASSERT_NON_ZERO(x)
 #  define ASSERT_UNDERFLOW(x)
 #endif
@@ -208,17 +208,17 @@ int log_dump_internal(
                 int64_t _error = (error);                               \
                 ASSERT_UNDERFLOW(_error);                               \
                 ASSERT_NON_ZERO(_error);                                \
-                log_full_errno_zerook(level, (int)_error, __VA_ARGS__); \
+                log_full_errno_zerook(level, (整数)_error, __VA_ARGS__); \
         })
 
 #define log_full(level, fmt, ...)                                      \
         ({                                                             \
-                if (BUILD_MODE_DEVELOPER)                              \
+                もし (BUILD_MODE_DEVELOPER)                              \
                         assert(!strstr(fmt, "%m"));                    \
                 (void) log_full_errno_zerook(level, 0, fmt, ##__VA_ARGS__); \
         })
 
-int log_emergency_level(void);
+整数 log_emergency_level(void);
 
 /* Normal logging */
 #define log_debug(...)     log_full(LOG_DEBUG,   __VA_ARGS__)
@@ -241,29 +241,29 @@ int log_emergency_level(void);
  * time it is called. */
 #define log_once(level, ...)                                             \
         ({                                                               \
-                if (ONCE)                                                \
+                もし (ONCE)                                                \
                         log_full(level, __VA_ARGS__);                    \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                否则 もし (LOG_PRI(level) != LOG_DEBUG)                    \
                         log_debug(__VA_ARGS__);                          \
         })
 
 #define log_once_errno(level, error, ...)                                \
         ({                                                               \
-                int _err = (error);                                      \
-                if (ONCE)                                                \
+                整数 _err = (error);                                      \
+                もし (ONCE)                                                \
                         _err = log_full_errno(level, _err, __VA_ARGS__); \
-                else if (LOG_PRI(level) != LOG_DEBUG)                    \
+                否则 もし (LOG_PRI(level) != LOG_DEBUG)                    \
                         _err = log_debug_errno(_err, __VA_ARGS__);       \
-                else                                                     \
+                否则                                                     \
                         _err = -ERRNO_VALUE(_err);                       \
                 _err;                                                    \
         })
 
-#if LOG_TRACE
+#もし LOG_TRACE
 #  define log_trace(...)          log_debug(__VA_ARGS__)
 #  define log_trace_errno(...)    log_debug_errno(__VA_ARGS__)
-#else
-#  define log_trace(...)          do {} while (0)
+#否则
+#  define log_trace(...)          do {} ながら (0)
 #  define log_trace_errno(e, ...) (-ERRNO_VALUE(e))
 #endif
 
@@ -279,9 +279,9 @@ int log_emergency_level(void);
 /* Like log_struct(), but with log_once() semantics */
 #define log_struct_once(level, ...)                                     \
         ({                                                              \
-                if (ONCE)                                               \
+                もし (ONCE)                                               \
                         log_struct(level, __VA_ARGS__);                 \
-                else if (LOG_PRI(level) != LOG_DEBUG)                   \
+                否则 もし (LOG_PRI(level) != LOG_DEBUG)                   \
                         log_struct(LOG_DEBUG, __VA_ARGS__);             \
         })
 
@@ -307,14 +307,14 @@ bool log_on_console(void) _pure_;
  * message. The variable will never be set to true, but we don't tell the compiler that :) */
 extern bool _log_message_dummy;
 #  define LOG_ITEM(fmt, ...) "%.0d" fmt, (_log_message_dummy && printf(fmt, ##__VA_ARGS__)), ##__VA_ARGS__
-#else
+#否则
 #  define LOG_ITEM(fmt, ...) fmt, ##__VA_ARGS__
 #endif
 
 #define LOG_MESSAGE(fmt, ...) LOG_ITEM("MESSAGE=" fmt, ##__VA_ARGS__)
 #define LOG_MESSAGE_ID(id)    LOG_ITEM("MESSAGE_ID=" id)
 
-void log_received_signal(int level, const struct signalfd_siginfo *si);
+void log_received_signal(整数 level, const struct signalfd_siginfo *si);
 
 /* If turned on, any requests for a log target involving "syslog" will be implicitly upgraded to the equivalent journal target */
 void log_set_upgrade_syslog_to_journal(bool b);
@@ -330,44 +330,44 @@ void log_set_open_when_needed(bool b);
  * stderr, the console or kmsg */
 void log_set_prohibit_ipc(bool b);
 
-int log_dup_console(void);
+整数 log_dup_console(void);
 
-int log_syntax_internal(
+整数 log_syntax_internal(
                 const char *unit,
-                int level,
+                整数 level,
                 const char *config_file,
                 unsigned config_line,
-                int error,
+                整数 error,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *format, ...) _printf_(9, 10);
 
-int log_syntax_invalid_utf8_internal(
+整数 log_syntax_invalid_utf8_internal(
                 const char *unit,
-                int level,
+                整数 level,
                 const char *config_file,
                 unsigned config_line,
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *rvalue);
 
-int log_syntax_parse_error_internal(
+整数 log_syntax_parse_error_internal(
                 const char *unit,
                 const char *config_file,
                 unsigned config_line,
-                int error,
+                整数 error,
                 bool critical, /* When true, propagate the passed error, otherwise this always returns 0. */
                 const char *file,
-                int line,
+                整数 line,
                 const char *func,
                 const char *lvalue,
                 const char *rvalue);
 
 #define log_syntax(unit, level, config_file, config_line, error, ...)   \
         ({                                                              \
-                int _level = (level), _e = (error);                     \
+                整数 _level = (level), _e = (error);                     \
                 (log_get_max_level() >= LOG_PRI(_level))                \
                         ? log_syntax_internal(unit, _level, config_file, config_line, _e, PROJECT_FILE, __LINE__, __func__, __VA_ARGS__) \
                         : -ERRNO_VALUE(_e);                             \
@@ -375,7 +375,7 @@ int log_syntax_parse_error_internal(
 
 #define log_syntax_invalid_utf8(unit, level, config_file, config_line, rvalue) \
         ({                                                              \
-                int _level = (level);                                   \
+                整数 _level = (level);                                   \
                 (log_get_max_level() >= LOG_PRI(_level))                \
                         ? log_syntax_invalid_utf8_internal(unit, _level, config_file, config_line, PROJECT_FILE, __LINE__, __func__, rvalue) \
                         : -EINVAL;                                      \
@@ -397,7 +397,7 @@ void log_prefix_swap(const char **prefix);
 static inline const char* _log_unset_prefixp(const char **p) {
         assert(p);
         _log_set_prefix(*p, true);
-        return NULL;
+        戻る NULL;
 }
 
 #define LOG_SET_PREFIX(prefix) \
