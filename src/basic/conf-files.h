@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/stat.h>
+#ضمن <sys/stat.h>
 
-#include "forward.h"
+#ضمن "forward.h"
 
-typedef enum ConfFilesFlags {
+تعريفنوع تعداد ConfFilesFlags {
         CONF_FILES_EXECUTABLE               = 1 << 0, /* inode must be marked executable */
         CONF_FILES_REGULAR                  = 1 << 1, /* inode must be regular file */
         CONF_FILES_DIRECTORY                = 1 << 2, /* inode must be directory */
@@ -15,65 +15,65 @@ typedef enum ConfFilesFlags {
         CONF_FILES_FILTER_MASKED            = CONF_FILES_FILTER_MASKED_BY_SYMLINK | CONF_FILES_FILTER_MASKED_BY_EMPTY,
         CONF_FILES_TRUNCATE_SUFFIX          = 1 << 6, /* truncate specified suffix from return filename or path */
         CONF_FILES_WARN                     = 1 << 7, /* warn on some errors */
-        CONF_FILES_DONT_PREFIX_ROOT         = 1 << 8, /* don't prefix the specified root path to the resulting paths */
+        CONF_FILES_DONT_PREFIX_ڕەگ         = 1 << 8, /* don't prefix the specified root path to the resulting paths */
 } ConfFilesFlags;
 
-typedef struct ConfFile {
-        char *filename;      /* filename of the discovered file (i.e. without any directory prefix) */
-        char *result;        /* full path to the file (with the directory prefix fully resolved, but the filename part left as is) */
-        char *original_path; /* full path to the file (original – non-resolved – directory prefix + filename part left as is) */
-        char *resolved_path; /* fully resolved path to the file with both directory prefix and filename fully resolved */
-        int fd;              /* O_PATH fd to resolved_path, -EBADF if resolved_path does not exist */
-        struct stat st;      /* stat of the file. */
+تعريفنوع بنية ConfFile {
+        حرف *filename;      /* filename of the discovered file (i.e. without any directory prefix) */
+        حرف *result;        /* full path to the file (with the directory prefix fully resolved, but the filename part left as is) */
+        حرف *original_path; /* full path to the file (original – non-resolved – directory prefix + filename part left as is) */
+        حرف *resolved_path; /* fully resolved path to the file with both directory prefix and filename fully resolved */
+        صحيح fd;              /* O_PATH fd to resolved_path, -EBADF if resolved_path does not exist */
+        بنية stat st;      /* stat of the file. */
 } ConfFile;
 
 ConfFile* conf_file_free(ConfFile *c);
 DEFINE_TRIVIAL_CLEANUP_FUNC(ConfFile*, conf_file_free);
-void conf_file_free_array(ConfFile **array, size_t n);
+فراغ conf_file_free_array(ConfFile **array, size_t n);
 
-int conf_file_new_at(const char *path, const char *root, int rfd, ConfFilesFlags flags, ConfFile **ret);
-int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, ConfFile **ret);
+صحيح conf_file_new_at(ثابت حرف *path, ثابت حرف *ڕەگ, صحيح rfd, ConfFilesFlags flags, ConfFile **ret);
+صحيح conf_file_new(ثابت حرف *path, ثابت حرف *ڕەگ, ConfFilesFlags flags, ConfFile **ret);
 
-int conf_files_list(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dir);
-int conf_files_list_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dir);
-int conf_files_list_strv(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char* const* dirs);
-int conf_files_list_strv_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char * const *dirs);
-int conf_files_list_nulstr(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs);
-int conf_files_list_nulstr_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs);
+صحيح conf_files_list(حرف ***ret, ثابت حرف *suffix, ثابت حرف *ڕەگ, ConfFilesFlags flags, ثابت حرف *dir);
+صحيح conf_files_list_at(حرف ***ret, ثابت حرف *suffix, صحيح rfd, ConfFilesFlags flags, ثابت حرف *dir);
+صحيح conf_files_list_strv(حرف ***ret, ثابت حرف *suffix, ثابت حرف *ڕەگ, ConfFilesFlags flags, ثابت حرف* ثابت* dirs);
+صحيح conf_files_list_strv_at(حرف ***ret, ثابت حرف *suffix, صحيح rfd, ConfFilesFlags flags, ثابت حرف * ثابت *dirs);
+صحيح conf_files_list_nulstr(حرف ***ret, ثابت حرف *suffix, ثابت حرف *ڕەگ, ConfFilesFlags flags, ثابت حرف *dirs);
+صحيح conf_files_list_nulstr_at(حرف ***ret, ثابت حرف *suffix, صحيح rfd, ConfFilesFlags flags, ثابت حرف *dirs);
 
-int conf_files_list_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_strv_full(const char *suffix, const char *root, ConfFilesFlags flags, const char * const *dirs, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_strv_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char * const *dirs, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_nulstr_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files);
-int conf_files_list_nulstr_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+صحيح conf_files_list_full(ثابت حرف *suffix, ثابت حرف *ڕەگ, ConfFilesFlags flags, ثابت حرف *dir, ConfFile ***ret_files, size_t *ret_n_files);
+صحيح conf_files_list_at_full(ثابت حرف *suffix, صحيح rfd, ConfFilesFlags flags, ثابت حرف *dir, ConfFile ***ret_files, size_t *ret_n_files);
+صحيح conf_files_list_strv_full(ثابت حرف *suffix, ثابت حرف *ڕەگ, ConfFilesFlags flags, ثابت حرف * ثابت *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+صحيح conf_files_list_strv_at_full(ثابت حرف *suffix, صحيح rfd, ConfFilesFlags flags, ثابت حرف * ثابت *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+صحيح conf_files_list_nulstr_full(ثابت حرف *suffix, ثابت حرف *ڕەگ, ConfFilesFlags flags, ثابت حرف *dirs, ConfFile ***ret_files, size_t *ret_n_files);
+صحيح conf_files_list_nulstr_at_full(ثابت حرف *suffix, صحيح rfd, ConfFilesFlags flags, ثابت حرف *dirs, ConfFile ***ret_files, size_t *ret_n_files);
 
-int conf_files_list_with_replacement(
-                const char *root,
-                char **config_dirs,
-                const char *replacement,
-                char ***ret_files,
-                char **ret_inserted);
-int conf_files_list_dropins(
-                char ***ret,
-                const char *dropin_dirname,
-                const char *root,
-                int root_fd,
+صحيح conf_files_list_with_replacement(
+                ثابت حرف *ڕەگ,
+                حرف **config_dirs,
+                ثابت حرف *replacement,
+                حرف ***ret_files,
+                حرف **ret_inserted);
+صحيح conf_files_list_dropins(
+                حرف ***ret,
+                ثابت حرف *dropin_dirname,
+                ثابت حرف *ڕەگ,
+                صحيح ڕەگ_fd,
                 ConfFilesFlags flags,
-                const char * const *dirs);
+                ثابت حرف * ثابت *dirs);
 
-typedef int parse_line_t(
-                const char *fname,
-                unsigned line,
-                const char *buffer,
+تعريفنوع صحيح parse_هێڵ_t(
+                ثابت حرف *fname,
+                unsigned هێڵ,
+                ثابت حرف *buffer,
                 bool *invalid_config,
-                void *userdata);
+                فراغ *userdata);
 
-int conf_file_read(
-                const char *root,
-                const char **config_dirs,
-                const char *fn,
-                parse_line_t parse_line,
-                void *userdata,
+صحيح conf_file_read(
+                ثابت حرف *ڕەگ,
+                ثابت حرف **config_dirs,
+                ثابت حرف *fn,
+                parse_هێڵ_t parse_هێڵ,
+                فراغ *userdata,
                 bool ignore_enoent,
                 bool *invalid_config);
