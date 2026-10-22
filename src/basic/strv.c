@@ -21,30 +21,30 @@ char* strv_find(char * const *l, const char *name) {
         assert(name);
 
         STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
+                ако (streq(*i, name))
+                        върни *i;
 
-        return NULL;
+        върни NULL;
 }
 
 char* strv_find_case(char * const *l, const char *name) {
         assert(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                ако (strcaseeq(*i, name))
+                        върни *i;
 
-        return NULL;
+        върни NULL;
 }
 
 char* strv_find_prefix(char * const *l, const char *name) {
         assert(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                ако (startswith(*i, name))
+                        върни *i;
 
-        return NULL;
+        върни NULL;
 }
 
 char* strv_find_startswith(char * const *l, const char *name) {
@@ -57,11 +57,11 @@ char* strv_find_startswith(char * const *l, const char *name) {
                 char *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                ако (e)
+                        върни e;
         }
 
-        return NULL;
+        върни NULL;
 }
 
 static char* strv_find_closest_prefix(char * const *l, const char *name) {
@@ -72,17 +72,17 @@ static char* strv_find_closest_prefix(char * const *l, const char *name) {
 
         STRV_FOREACH(s, l) {
                 char *e = startswith(*s, name);
-                if (!e)
+                ако (!e)
                         continue;
 
                 size_t n = strlen(e);
-                if (n < best_distance) {
+                ако (n < best_distance) {
                         best_distance = n;
                         best = *s;
                 }
         }
 
-        return best;
+        върни best;
 }
 
 static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
@@ -95,21 +95,21 @@ static char* strv_find_closest_by_levenshtein(char * const *l, const char *name)
                 ssize_t distance;
 
                 distance = strlevenshtein(*i, name);
-                if (distance < 0) {
+                ако (distance < 0) {
                         log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                        върни NULL;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                ако (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
                         continue;
 
-                if (distance < best_distance) {
+                ако (distance < best_distance) {
                         best_distance = distance;
                         best = *i;
                 }
         }
 
-        return best;
+        върни best;
 }
 
 char* strv_find_closest(char * const *l, const char *name) {
@@ -120,34 +120,34 @@ char* strv_find_closest(char * const *l, const char *name) {
          * word distance based match. */
 
         char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        ако (found)
+                върни found;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        върни strv_find_closest_by_levenshtein(l, name);
 }
 
 char* strv_find_first_field(char * const *needles, char * const *haystack) {
         STRV_FOREACH(k, needles) {
                 char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                ако (value)
+                        върни value;
         }
 
-        return NULL;
+        върни NULL;
 }
 
 char** strv_free(char **l) {
         STRV_FOREACH(k, l)
                 free(*k);
 
-        return mfree(l);
+        върни mfree(l);
 }
 
 char** strv_free_erase(char **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        върни mfree(l);
 }
 
 void strv_free_many(char ***strvs, size_t n) {
@@ -164,41 +164,41 @@ char** strv_copy_n(char * const *l, size_t n) {
         char **k;
 
         result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        ако (!result)
+                върни NULL;
 
         k = result;
         STRV_FOREACH(i, l) {
-                if (n == 0)
+                ако (n == 0)
                         break;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                ако (!*k)
+                        върни NULL;
                 k++;
 
-                if (n != SIZE_MAX)
+                ако (n != SIZE_MAX)
                         n--;
         }
 
         *k = NULL;
-        return TAKE_PTR(result);
+        върни TAKE_PTR(result);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
+цяло strv_copy_unless_empty(char * const *l, char ***ret) {
         assert(ret);
 
-        if (strv_isempty(l)) {
+        ако (strv_isempty(l)) {
                 *ret = NULL;
-                return 0;
+                върни 0;
         }
 
         char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        ако (!copy)
+                върни -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        върни 1;
 }
 
 size_t strv_length(char * const *l) {
@@ -207,7 +207,7 @@ size_t strv_length(char * const *l) {
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        върни n;
 }
 
 char** strv_new_ap(const char *x, va_list ap) {
@@ -221,8 +221,8 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
+        за (const char *s = x; s; s = va_arg(aq, const char*)) {
+                ако (s == STRV_IGNORE)
                         continue;
 
                 n++;
@@ -230,23 +230,23 @@ char** strv_new_ap(const char *x, va_list ap) {
         va_end(aq);
 
         a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        ако (!a)
+                върни NULL;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
+        за (const char *s = x; s; s = va_arg(ap, const char*)) {
+                ако (s == STRV_IGNORE)
                         continue;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                ако (!a[i])
+                        върни NULL;
 
                 i++;
         }
 
         a[i] = NULL;
 
-        return TAKE_PTR(a);
+        върни TAKE_PTR(a);
 }
 
 char** strv_new_internal(const char *x, ...) {
@@ -257,35 +257,35 @@ char** strv_new_internal(const char *x, ...) {
         r = strv_new_ap(x, ap);
         va_end(ap);
 
-        return r;
+        върни r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
+цяло strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
         size_t p, q, i = 0;
 
         assert(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        ако (q == 0)
+                върни 0;
 
         p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        ако (p >= SIZE_MAX - q)
+                върни -ENOMEM;
 
         char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        ако (!t)
+                върни -ENOMEM;
 
         t[p] = NULL;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
+                ако (filter_duplicates && strv_contains(t, *s))
                         continue;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
+                ако (!t[p+i])
                         goto rollback;
 
                 i++;
@@ -294,52 +294,52 @@ int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
 
         assert(i <= q);
 
-        return (int) i;
+        върни (цяло) i;
 
 rollback:
         free_many_charp(t + p, i);
         t[p] = NULL;
-        return -ENOMEM;
+        върни -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
+цяло strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
         _cleanup_strv_free_ char **b_consume = b;
         size_t p, q, i;
 
         assert(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        ако (q == 0)
+                върни 0;
 
         p = strv_length(*a);
-        if (p == 0) {
+        ако (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                ако (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                върни strv_length(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        ако (p >= SIZE_MAX - q)
+                върни -ENOMEM;
 
         char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        ако (!t)
+                върни -ENOMEM;
 
         t[p] = NULL;
         *a = t;
 
-        if (!filter_duplicates) {
+        ако (!filter_duplicates) {
                 *mempcpy_typesafe(t + p, b, q) = NULL;
                 i = q;
-        } else {
+        } иначе {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
+                        ако (strv_contains(t, *s)) {
                                 free(*s);
                                 continue;
                         }
@@ -355,11 +355,11 @@ int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        върни (цяло) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+цяло strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
+        цяло r;
 
         assert(a);
 
@@ -367,21 +367,21 @@ int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *
                 char *v;
 
                 v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                ако (!v)
+                        върни -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
         }
 
-        return 0;
+        върни 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
+цяло strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
         _cleanup_strv_free_ char **l = NULL;
         size_t n;
-        int r;
+        цяло r;
 
         assert(ret);
         assert(s);
@@ -390,128 +390,128 @@ int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
          * suppresses an empty string at the end. */
 
         r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
         n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        ако (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        върни n;
 }
 
 char** strv_split_newlines(const char *s) {
         char **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        ако (strv_split_newlines_full(&ret, s, 0) < 0)
+                върни NULL;
 
-        return ret;
+        върни ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
+цяло strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
         _cleanup_strv_free_ char **l = NULL;
         size_t n = 0;
-        int r;
+        цяло r;
 
         assert(t);
         assert(s);
 
-        for (;;) {
+        за (;;) {
                 _cleanup_free_ char *word = NULL;
 
                 r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                ако (r < 0)
+                        върни r;
+                ако (r == 0)
                         break;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                ако (!GREEDY_REALLOC(l, n + 2))
+                        върни -ENOMEM;
 
                 l[n++] = TAKE_PTR(word);
                 l[n] = NULL;
         }
 
-        if (!l) {
+        ако (!l) {
                 l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+                ако (!l)
+                        върни -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        върни (цяло) n;
 }
 
 char** strv_split(const char *s, const char *separators) {
         char **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        ако (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
+                върни NULL;
 
-        return ret;
+        върни ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
+цяло strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
         char **l;
-        int r;
+        цяло r;
 
         assert(t);
         assert(s);
 
         r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        return (int) strv_length(*t);
+        върни (цяло) strv_length(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+цяло strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
+        върни strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
+цяло strv_split_colon_pairs(char ***t, const char *s) {
         _cleanup_strv_free_ char **l = NULL;
         size_t n = 0;
-        int r;
+        цяло r;
 
         assert(t);
         assert(s);
 
-        for (;;) {
+        за (;;) {
                 _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
 
                 r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                ако (r < 0)
+                        върни r;
+                ако (r == 0)
                         break;
 
                 const char *p = tuple;
                 r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                ако (r < 0)
+                        върни r;
+                ако (r == 0)
                         continue;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                ако (!isempty(p))
+                        върни -EINVAL;
 
                 second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                ако (!second_or_empty)
+                        върни -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                ако (!GREEDY_REALLOC(l, n + 3))
+                        върни -ENOMEM;
 
                 l[n++] = TAKE_PTR(first);
                 l[n++] = TAKE_PTR(second_or_empty);
@@ -519,22 +519,22 @@ int strv_split_colon_pairs(char ***t, const char *s) {
                 l[n] = NULL;
         }
 
-        if (!l) {
+        ако (!l) {
                 l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+                ако (!l)
+                        върни -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        върни (цяло) n;
 }
 
 char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
         char *r, *e;
         size_t n, k, m;
 
-        if (!separator)
+        ако (!separator)
                 separator = " ";
 
         k = strlen(separator);
@@ -542,22 +542,22 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                ако (s != l)
                         n += k;
 
                 n += m + strlen(*s);
         }
 
         r = new(char, n+1);
-        if (!r)
-                return NULL;
+        ако (!r)
+                върни NULL;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                ако (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
+                ако (prefix)
                         e = stpcpy(e, prefix);
 
                 e = stpcpy(e, *s);
@@ -565,10 +565,10 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         *e = 0;
 
-        return r;
+        върни r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+цяло strv_push_with_size(char ***l, size_t *n, char *value) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
@@ -577,153 +577,153 @@ int strv_push_with_size(char ***l, size_t *n, char *value) {
         assert(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        ако (!value)
+                върни 0;
 
         size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
+        ако (size == SIZE_MAX)
                 size = strv_length(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        ако (size > SIZE_MAX-2)
+                върни -ENOMEM;
 
         char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        ако (!c)
+                върни -ENOMEM;
 
         c[size] = value;
         c[size+1] = NULL;
 
         *l = c;
-        if (n)
+        ако (n)
                 *n = size + 1;
-        return 0;
+        върни 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
+цяло strv_push_pair(char ***l, char *a, char *b) {
         char **c;
         size_t n;
 
         assert(l);
 
-        if (!a && !b)
-                return 0;
+        ако (!a && !b)
+                върни 0;
 
         n = strv_length(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        ако (n > SIZE_MAX-3)
+                върни -ENOMEM;
 
         /* increase and check for overflow */
         c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        ако (!c)
+                върни -ENOMEM;
 
-        if (a)
+        ако (a)
                 c[n++] = a;
-        if (b)
+        ако (b)
                 c[n++] = b;
         c[n] = NULL;
 
         *l = c;
-        return 0;
+        върни 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
+цяло strv_insert(char ***l, size_t position, char *value) {
         char **c;
         size_t n, m;
 
         assert(l);
 
-        if (!value)
-                return 0;
+        ако (!value)
+                върни 0;
 
         n = strv_length(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        ако (n > SIZE_MAX - 2)
+                върни -ENOMEM;
         m = n + 2;
 
         c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        ако (!c)
+                върни -ENOMEM;
 
-        if (n > position)
+        ако (n > position)
                 memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
 
         c[position] = value;
         c[n + 1] = NULL;
 
         *l = c;
-        return 0;
+        върни 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+цяло strv_consume_with_size(char ***l, size_t *n, char *value) {
+        цяло r;
 
         r = strv_push_with_size(l, n, value);
-        if (r < 0)
+        ако (r < 0)
                 free(value);
 
-        return r;
+        върни r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+цяло strv_consume_pair(char ***l, char *a, char *b) {
+        цяло r;
 
         r = strv_push_pair(l, a, b);
-        if (r < 0) {
+        ако (r < 0) {
                 free(a);
                 free(b);
         }
 
-        return r;
+        върни r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+цяло strv_consume_prepend(char ***l, char *value) {
+        цяло r;
 
         r = strv_push_prepend(l, value);
-        if (r < 0)
+        ако (r < 0)
                 free(value);
 
-        return r;
+        върни r;
 }
 
-int strv_prepend(char ***l, const char *value) {
+цяло strv_prepend(char ***l, const char *value) {
         char *v;
 
-        if (!value)
-                return 0;
+        ако (!value)
+                върни 0;
 
         v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        ако (!v)
+                върни -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        върни strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
+цяло strv_extend_with_size(char ***l, size_t *n, const char *value) {
         char *v;
 
-        if (!value)
-                return 0;
+        ако (!value)
+                върни 0;
 
         v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        ако (!v)
+                върни -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        върни strv_consume_with_size(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+цяло strv_extend_many_internal(char ***l, const char *value, ...) {
         va_list ap;
         size_t n, m;
-        int r;
+        цяло r;
 
         assert(l);
 
@@ -731,11 +731,11 @@ int strv_extend_many_internal(char ***l, const char *value, ...) {
 
         r = 0;
         va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
+        за (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
+                ако (!s)
                         continue;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                ако (m > SIZE_MAX-1) { /* overflow */
                         r = -ENOMEM;
                         break;
                 }
@@ -743,25 +743,25 @@ int strv_extend_many_internal(char ***l, const char *value, ...) {
         }
         va_end(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        ако (r < 0)
+                върни r;
+        ако (m > SIZE_MAX-1)
+                върни -ENOMEM;
 
         char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        ако (!c)
+                върни -ENOMEM;
         *l = c;
 
         r = 0;
         size_t i = n;
         va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
+        за (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
+                ако (!s)
                         continue;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                ако (!c[i]) {
                         r = -ENOMEM;
                         break;
                 }
@@ -769,15 +769,15 @@ int strv_extend_many_internal(char ***l, const char *value, ...) {
         }
         va_end(ap);
 
-        if (r < 0) {
+        ако (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                за (size_t j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                върни r;
         }
 
         c[i] = NULL;
-        return 0;
+        върни 0;
 }
 
 char** strv_uniq(char **l) {
@@ -787,45 +787,45 @@ char** strv_uniq(char **l) {
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        върни l;
 }
 
 bool strv_is_uniq(char * const *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                ако (strv_contains(i+1, *i))
+                        върни false;
 
-        return true;
+        върни true;
 }
 
 char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+        ако (!l)
+                върни NULL;
 
         assert(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
         char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
+        за (f = t = l; *f; f++)
+                ако (streq(*f, s))
                         free(*f);
-                else
+                иначе
                         *(t++) = *f;
 
         *t = NULL;
-        return l;
+        върни l;
 }
 
 char** strv_remove_strv(char **l, char *const*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        ако (strv_isempty(l))
+                върни l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        върни l;
 }
 
 bool strv_overlap(char * const *a, char * const *b) {
@@ -833,31 +833,31 @@ bool strv_overlap(char * const *a, char * const *b) {
         POINTER_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                ако (strv_contains(b, *i))
+                        върни true;
 
-        return false;
+        върни false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+static цяло str_compare(char * const *a, char * const *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        върни strcmp(*a, *b);
 }
 
 char** strv_sort(char **l) {
         typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+        върни l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
+char** strv_sort_uniq_full(char **l, цяло (*compare)(char * const *a, char * const *b)) {
         assert(compare);
 
-        if (strv_isempty(l))
-                return l;
+        ако (strv_isempty(l))
+                върни l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
@@ -866,42 +866,42 @@ char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * cons
 
         char **tail = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
+                ако (compare(i, tail - 1) == 0)
                         free(*i);
-                else
+                иначе
                         *(tail++) = *i;
 
         *tail = NULL;
-        return l;
+        върни l;
 }
 
 char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+        върни strv_sort_uniq_full(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+цяло strv_compare(char * const *a, char * const *b) {
+        цяло r;
 
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        ако (strv_isempty(a)) {
+                ако (strv_isempty(b))
+                        върни 0;
+                иначе
+                        върни -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        ако (strv_isempty(b))
+                върни 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        за ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                ако (r != 0)
+                        върни r;
         }
 
-        return 0;
+        върни 0;
 }
 
 bool strv_equal_ignore_order(char * const *a, char * const *b) {
@@ -910,18 +910,18 @@ bool strv_equal_ignore_order(char * const *a, char * const *b) {
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        ако (a == b)
+                върни true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                ако (!strv_contains(b, *i))
+                        върни false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                ако (!strv_contains(a, *i))
+                        върни false;
 
-        return true;
+        върни true;
 }
 
 void strv_print_full(char * const *l, const char *prefix) {
@@ -929,64 +929,64 @@ void strv_print_full(char * const *l, const char *prefix) {
                 printf("%s%s\n", strempty(prefix), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
+цяло strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
         va_list ap;
         char *x;
-        int r;
+        цяло r;
 
         va_start(ap, format);
         r = vasprintf(&x, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        ако (r < 0)
+                върни -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        върни strv_consume_with_size(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
+цяло strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
         va_list ap;
 
         va_start(ap, n);
         char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
         va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        ако (!x)
+                върни -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        върни strv_consume_with_size(l, n, x);
 }
 
 char* startswith_strv_internal(const char *s, char * const *l) {
         STRV_FOREACH(i, l) {
                 char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                ако (found)
+                        върни found;
         }
 
-        return NULL;
+        върни NULL;
 }
 
 char* endswith_strv_internal(const char *s, char * const *l) {
         STRV_FOREACH(i, l) {
                 char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                ако (found)
+                        върни found;
         }
 
-        return NULL;
+        върни NULL;
 }
 
 char** strv_reverse(char **l) {
         size_t n;
 
         n = strv_length(l);
-        if (n <= 1)
-                return l;
+        ако (n <= 1)
+                върни l;
 
-        for (size_t i = 0; i < n / 2; i++)
+        за (size_t i = 0; i < n / 2; i++)
                 SWAP_TWO(l[i], l[n-1-i]);
 
-        return l;
+        върни l;
 }
 
 char** strv_shell_escape(char **l, const char *bad) {
@@ -997,140 +997,140 @@ char** strv_shell_escape(char **l, const char *bad) {
                 char *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                ако (!v)
+                        върни NULL;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        върни l;
 }
 
 bool strv_fnmatch_full(
                 char* const* patterns,
                 const char *s,
-                int flags,
+                цяло flags,
                 size_t *ret_matched_pos) {
 
         assert(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        ако (patterns)
+                за (size_t i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        ако (fnmatch(patterns[i], s, flags) == 0) {
+                                ако (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                върни true;
                         }
 
-        if (ret_matched_pos)
+        ако (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        върни false;
 }
 
 char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+        докато (n > 0) {
+                ако (strv_isempty(l))
+                        върни NULL;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        ако (strv_isempty(l))
+                върни NULL;
+        върни l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+цяло strv_extend_n(char ***l, const char *value, size_t n) {
         size_t i, k;
         char **nl;
 
         assert(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        ако (!value)
+                върни 0;
+        ако (n == 0)
+                върни 0;
 
         /* Adds the value n times to l */
 
         k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        ако (n >= SIZE_MAX - k)
+                върни -ENOMEM;
 
         nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        ако (!nl)
+                върни -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
+        за (i = k; i < k + n; i++) {
                 nl[i] = strdup(value);
-                if (!nl[i])
+                ако (!nl[i])
                         goto rollback;
         }
         nl[i] = NULL;
 
-        return 0;
+        върни 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
+        за (size_t j = k; j < i; j++)
                 free(nl[j]);
         nl[k] = NULL;
 
-        return -ENOMEM;
+        върни -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
+цяло strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
         char *j;
 
         assert(l);
         assert(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        ако (!rhs) /* value is optional, in which case we suppress the field */
+                върни 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        ако (!j)
+                върни -ENOMEM;
 
-        return strv_consume(l, j);
+        върни strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+цяло fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
         bool b = false;
-        int r;
+        цяло r;
 
         assert(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        ако (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
         }
 
-        return 0;
+        върни 0;
 }
 
 void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
         assert(key);
 
-        if (value) {
+        ако (value) {
                 char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+                ако (!l)
+                        върни;
 
                 strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                ако (!strv_isempty(l))
+                        върни;
         }
 
         _unused_ _cleanup_free_ char *key_free = NULL;
@@ -1141,78 +1141,78 @@ void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, cons
         string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
+static цяло string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
         char **l;
-        int r;
+        цяло r;
 
         assert(h);
         assert(key);
         assert(value);
 
         l = hashmap_get(h, key);
-        if (l) {
+        ако (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                ако (strv_contains(l, value))
+                        върни 0;
 
                 r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
 
                 assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+        } иначе {
                 /* No list for this key exists yet, create one */
                 _cleanup_strv_free_ char **l2 = NULL;
                 _cleanup_free_ char *t = NULL;
 
                 t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                ако (!t)
+                        върни -ENOMEM;
 
                 r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        върни 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+цяло string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
+        цяло r;
 
         assert(h);
         assert(key);
         assert(value);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        върни string_strv_hashmap_put_internal(*h, key, value);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+цяло string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
+        цяло r;
 
         assert(h);
         assert(key);
         assert(value);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        върни string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
 }
 
-static int rebreak_flush_line(
+static цяло rebreak_flush_line(
                 char ***broken,
                 const char *start,
                 const char *end,
@@ -1224,22 +1224,22 @@ static int rebreak_flush_line(
         assert(start);
         assert(end >= start);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        ако (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
+                върни strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
+        ако (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
                 end = whitespace_begin;
 
         _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        ако (!truncated)
+                върни -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        върни strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
+цяло strv_rebreak_lines(char **l, size_t width, char ***ret) {
         _cleanup_strv_free_ char **broken = NULL;
-        int r;
+        цяло r;
 
         assert(ret);
 
@@ -1250,13 +1250,13 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        ако (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                ако (!broken)
+                        върни -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                върни 0;
         }
 
         STRV_FOREACH(i, l) {
@@ -1265,14 +1265,14 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
                 size_t w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                за (const char *p = start; *p != 0; ) {
+                        ако (strchr(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
                                 r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                ако (r < 0)
+                                        върни r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
                                 start = p;
@@ -1281,13 +1281,13 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                                 whitespace_begin = whitespace_end = NULL;
                                 w = 0;
                                 continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                        } иначе ако (strchr(WHITESPACE, *p)) {
+                                ако (!in_prefix && (!whitespace_begin || whitespace_end)) {
                                         whitespace_begin = p;
                                         whitespace_end = NULL;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
+                        } иначе {
+                                ако (whitespace_begin && !whitespace_end)
                                         whitespace_end = p;
 
                                 in_prefix = false;
@@ -1298,22 +1298,22 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        цяло cw = utf8_char_console_width(p);
+                        ако (cw < 0)
+                                върни log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
+                        ако (w > width && whitespace_begin && whitespace_end) {
                                 _cleanup_free_ char *truncated = NULL;
 
                                 truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                ако (!truncated)
+                                        върни -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                ако (r < 0)
+                                        върни r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
@@ -1332,37 +1332,37 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
                 assert(start);
-                if (after_newline && in_prefix)
+                ако (after_newline && in_prefix)
                         continue;
 
                 r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        върни 0;
 }
 
 char** strv_filter_prefix(char * const *l, const char *prefix) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        ако (isempty(prefix))
+                върни strv_copy(l);
 
         _cleanup_strv_free_ char **f = NULL;
         size_t sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
+                ако (!startswith(*i, prefix))
                         continue;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                ако (strv_extend_with_size(&f, &sz, *i) < 0)
+                        върни NULL;
         }
 
-        return TAKE_PTR(f);
+        върни TAKE_PTR(f);
 }
 
 const char* const strv_empty[] = { NULL };

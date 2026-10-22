@@ -19,39 +19,39 @@ bool uid_is_system(uid_t uid);
 bool gid_is_system(gid_t gid);
 
 static inline bool uid_is_greeter(uid_t uid) {
-        return GREETER_UID_MIN <= uid && uid <= GREETER_UID_MAX;
+        върни GREETER_UID_MIN <= uid && uid <= GREETER_UID_MAX;
 }
 
 static inline bool uid_is_dynamic(uid_t uid) {
-        return DYNAMIC_UID_MIN <= uid && uid <= DYNAMIC_UID_MAX;
+        върни DYNAMIC_UID_MIN <= uid && uid <= DYNAMIC_UID_MAX;
 }
 
 static inline bool gid_is_dynamic(gid_t gid) {
-        return uid_is_dynamic((uid_t) gid);
+        върни uid_is_dynamic((uid_t) gid);
 }
 
 static inline bool uid_is_container(uid_t uid) {
-        return CONTAINER_UID_MIN <= uid && uid <= CONTAINER_UID_MAX;
+        върни CONTAINER_UID_MIN <= uid && uid <= CONTAINER_UID_MAX;
 }
 
 static inline bool gid_is_container(gid_t gid) {
-        return uid_is_container((uid_t) gid);
+        върни uid_is_container((uid_t) gid);
 }
 
 static inline bool uid_is_foreign(uid_t uid) {
-        return FOREIGN_UID_MIN <= uid && uid <= FOREIGN_UID_MAX;
+        върни FOREIGN_UID_MIN <= uid && uid <= FOREIGN_UID_MAX;
 }
 
 static inline bool gid_is_foreign(gid_t gid) {
-        return uid_is_foreign((uid_t) gid);
+        върни uid_is_foreign((uid_t) gid);
 }
 
 static inline bool uid_is_transient(uid_t uid) {
-        return uid_is_container(uid) || uid_is_dynamic(uid);
+        върни uid_is_container(uid) || uid_is_dynamic(uid);
 }
 
 static inline bool gid_is_transient(gid_t gid) {
-        return uid_is_container((uid_t) gid) || uid_is_dynamic((uid_t) gid);
+        върни uid_is_container((uid_t) gid) || uid_is_dynamic((uid_t) gid);
 }
 
 typedef struct UGIDAllocationRange {
@@ -61,7 +61,7 @@ typedef struct UGIDAllocationRange {
         gid_t system_gid_max;
 } UGIDAllocationRange;
 
-int read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char *root);
+цяло read_login_defs(UGIDAllocationRange *ret_defs, const char *path, const char *root);
 const UGIDAllocationRange *acquire_ugid_allocation_range(void);
 
 bool uid_for_system_journal(uid_t uid);

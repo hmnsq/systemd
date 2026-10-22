@@ -48,20 +48,20 @@ typedef enum Virtualization {
 } Virtualization;
 
 static inline bool VIRTUALIZATION_IS_VM(Virtualization x) {
-        return x >= VIRTUALIZATION_VM_FIRST && x <= VIRTUALIZATION_VM_LAST;
+        върни x >= VIRTUALIZATION_VM_FIRST && x <= VIRTUALIZATION_VM_LAST;
 }
 
 static inline bool VIRTUALIZATION_IS_CONTAINER(Virtualization x) {
-        return x >= VIRTUALIZATION_CONTAINER_FIRST && x <= VIRTUALIZATION_CONTAINER_LAST;
+        върни x >= VIRTUALIZATION_CONTAINER_FIRST && x <= VIRTUALIZATION_CONTAINER_LAST;
 }
 
 Virtualization detect_vm(void);
 Virtualization detect_container(void);
 Virtualization detect_virtualization(void);
 
-int running_in_userns(void);
-int running_in_chroot(void);
+цяло running_in_userns(void);
+цяло running_in_chroot(void);
 
 DECLARE_STRING_TABLE_LOOKUP(virtualization, Virtualization);
 bool has_cpu_with_flag(const char *flag);
-int cpu_known_features(char ***ret);
+цяло cpu_known_features(char ***ret);

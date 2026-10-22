@@ -25,33 +25,33 @@ bool is_localhost(const char *hostname);
 
 static inline bool is_gateway_hostname(const char *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "gateway" host. */
-        return STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
+        върни STRCASE_IN_SET(hostname, "_gateway", "_gateway.");
 }
 
 static inline bool is_outbound_hostname(const char *hostname) {
         /* This tries to identify the valid syntaxes for the our synthetic "outbound" host. */
-        return STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
+        върни STRCASE_IN_SET(hostname, "_outbound", "_outbound.");
 }
 
 static inline bool is_dns_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
+        върни STRCASE_IN_SET(hostname, "_localdnsstub", "_localdnsstub.");
 }
 
 static inline bool is_dns_proxy_stub_hostname(const char *hostname) {
-        return STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
+        върни STRCASE_IN_SET(hostname, "_localdnsproxy", "_localdnsproxy.");
 }
 
 const char* etc_hostname(void);
 const char* etc_machine_info(void);
 
-int get_pretty_hostname(char **ret);
+цяло get_pretty_hostname(char **ret);
 
-int machine_spec_valid(const char *s);
-int split_user_at_host(const char *s, char **ret_user, char **ret_host);
+цяло machine_spec_valid(const char *s);
+цяло split_user_at_host(const char *s, char **ret_user, char **ret_host);
 
 #define MACHINE_TAGS_MAX 1024U
 
 bool machine_tag_is_valid(const char *s);
-int machine_tag_list_is_valid(char **l);
-int machine_tags_from_string(const char *s, bool graceful, char ***ret);
-int machine_tags_from_strv(char **l, bool graceful, char ***ret);
+цяло machine_tag_list_is_valid(char **l);
+цяло machine_tags_from_string(const char *s, bool graceful, char ***ret);
+цяло machine_tags_from_strv(char **l, bool graceful, char ***ret);

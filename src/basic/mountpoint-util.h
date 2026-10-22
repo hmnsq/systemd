@@ -32,31 +32,31 @@
 #define TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
 #define TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
 
-bool is_name_to_handle_at_fatal_error(int err);
+bool is_name_to_handle_at_fatal_error(цяло err);
 
-int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_try_fid(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_u64(int fd, const char *path, uint64_t *ret);
-static inline int path_to_handle_u64(const char *path, uint64_t *ret) {
-        return name_to_handle_at_u64(AT_FDCWD, path, ret);
+цяло name_to_handle_at_loop(цяло fd, const char *path, struct file_handle **ret_handle, цяло *ret_mnt_id, uint64_t *ret_unique_mnt_id, цяло flags);
+цяло name_to_handle_at_try_fid(цяло fd, const char *path, struct file_handle **ret_handle, цяло *ret_mnt_id, uint64_t *ret_unique_mnt_id, цяло flags);
+цяло name_to_handle_at_u64(цяло fd, const char *path, uint64_t *ret);
+static inline цяло path_to_handle_u64(const char *path, uint64_t *ret) {
+        върни name_to_handle_at_u64(AT_FDCWD, path, ret);
 }
-static inline int fd_to_handle_u64(int fd, uint64_t *ret) {
-        return name_to_handle_at_u64(fd, NULL, ret);
+static inline цяло fd_to_handle_u64(цяло fd, uint64_t *ret) {
+        върни name_to_handle_at_u64(fd, NULL, ret);
 }
 
 bool file_handle_equal(const struct file_handle *a, const struct file_handle *b);
 struct file_handle* file_handle_dup(const struct file_handle *fh);
 
-int path_get_mnt_id_at(int dir_fd, const char *path, int *ret);
-static inline int path_get_mnt_id(const char *path, int *ret) {
-        return path_get_mnt_id_at(AT_FDCWD, path, ret);
+цяло path_get_mnt_id_at(цяло dir_fd, const char *path, цяло *ret);
+static inline цяло path_get_mnt_id(const char *path, цяло *ret) {
+        върни path_get_mnt_id_at(AT_FDCWD, path, ret);
 }
-int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
+цяло path_get_unique_mnt_id_at(цяло dir_fd, const char *path, uint64_t *ret);
 
-int is_mount_point_at(int dir_fd, const char *path, int flags);
-int path_is_mount_point_full(const char *path, const char *root, int flags);
-static inline int path_is_mount_point(const char *path) {
-        return path_is_mount_point_full(path, NULL, 0);
+цяло is_mount_point_at(цяло dir_fd, const char *path, цяло flags);
+цяло path_is_mount_point_full(const char *path, const char *root, цяло flags);
+static inline цяло path_is_mount_point(const char *path) {
+        върни path_is_mount_point_full(path, NULL, 0);
 }
 
 bool fstype_is_network(const char *fstype);
@@ -72,9 +72,9 @@ bool fstype_can_fmask_dmask(const char *fstype);
 
 const char* fstype_norecovery_option(const char *fstype);
 
-int dev_is_devtmpfs(void);
+цяло dev_is_devtmpfs(void);
 
-int mount_nofollow(
+цяло mount_nofollow(
                 const char *source,
                 const char *target,
                 const char *filesystemtype,
@@ -82,11 +82,11 @@ int mount_nofollow(
                 const void *data);
 
 const char* mount_propagation_flag_to_string(unsigned long flags);
-int mount_propagation_flag_from_string(const char *name, unsigned long *ret);
+цяло mount_propagation_flag_from_string(const char *name, unsigned long *ret);
 bool mount_propagation_flag_is_valid(unsigned long flag);
 
 bool mount_new_api_supported(void);
 
-int mount_option_supported(const char *fstype, const char *key, const char *value);
+цяло mount_option_supported(const char *fstype, const char *key, const char *value);
 
 bool path_below_api_vfs(const char *p);

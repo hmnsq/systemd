@@ -34,20 +34,20 @@ typedef enum ShellEscapeFlags {
         SHELL_ESCAPE_EMPTY = 1 << 2, /* Format empty arguments as "". */
 } ShellEscapeFlags;
 
-int cescape_char(char c, char *buf);
+цяло cescape_char(char c, char *buf);
 char* cescape_length(const char *s, size_t n) _nonnull_if_nonzero_(1, 2);
 static inline char* cescape(const char *s) {
-        return cescape_length(s, SIZE_MAX);
+        върни cescape_length(s, SIZE_MAX);
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
+цяло cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul);
 
 ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret);
 static inline ssize_t cunescape_length(const char *s, size_t length, UnescapeFlags flags, char **ret) {
-        return cunescape_length_with_prefix(s, length, NULL, flags, ret);
+        върни cunescape_length_with_prefix(s, length, NULL, flags, ret);
 }
 static inline ssize_t cunescape(const char *s, UnescapeFlags flags, char **ret) {
-        return cunescape_length(s, SIZE_MAX, flags, ret);
+        върни cunescape_length(s, SIZE_MAX, flags, ret);
 }
 
 typedef enum XEscapeFlags {
@@ -57,11 +57,11 @@ typedef enum XEscapeFlags {
 
 char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags);
 static inline char* xescape(const char *s, const char *bad) {
-        return xescape_full(s, bad, SIZE_MAX, 0);
+        върни xescape_full(s, bad, SIZE_MAX, 0);
 }
 char* octescape_full(const char *s, size_t len, const char *bad);
 static inline char* octescape(const char *s, size_t len) {
-        return octescape_full(s, len, NULL);
+        върни octescape_full(s, len, NULL);
 }
 char* decescape(const char *s, size_t len, const char *bad) _nonnull_if_nonzero_(1, 2);
 char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags);

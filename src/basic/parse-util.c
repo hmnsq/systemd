@@ -20,76 +20,76 @@
 #include "string-util.h"
 #include "strv.h"
 
-int parse_boolean(const char *v) {
-        if (!v)
-                return -EINVAL;
+цяло parse_boolean(const char *v) {
+        ако (!v)
+                върни -EINVAL;
 
-        if (STRCASE_IN_SET(v,
+        ако (STRCASE_IN_SET(v,
                            "1",
                            "yes",
                            "y",
                            "true",
                            "t",
                            "on"))
-                return 1;
+                върни 1;
 
-        if (STRCASE_IN_SET(v,
+        ако (STRCASE_IN_SET(v,
                            "0",
                            "no",
                            "n",
                            "false",
                            "f",
                            "off"))
-                return 0;
+                върни 0;
 
-        return -EINVAL;
+        върни -EINVAL;
 }
 
-int parse_tristate_full(const char *v, const char *third, int *ret) {
-        int r;
+цяло parse_tristate_full(const char *v, const char *third, цяло *ret) {
+        цяло r;
 
-        if (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
-                if (ret)
+        ако (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
+                ако (ret)
                         *ret = -1;
-        } else {
+        } иначе {
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
 
-                if (ret)
+                ако (ret)
                         *ret = r;
         }
 
-        return 0;
+        върни 0;
 }
 
-int parse_pid(const char *s, pid_t *ret) {
+цяло parse_pid(const char *s, pid_t *ret) {
         unsigned long ul = 0;
         pid_t pid;
-        int r;
+        цяло r;
 
         assert(s);
 
         r = safe_atolu(s, &ul);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
         pid = (pid_t) ul;
 
-        if ((unsigned long) pid != ul)
-                return -ERANGE;
+        ако ((unsigned long) pid != ul)
+                върни -ERANGE;
 
-        if (!pid_is_valid(pid))
-                return -ERANGE;
+        ако (!pid_is_valid(pid))
+                върни -ERANGE;
 
-        if (ret)
+        ако (ret)
                 *ret = pid;
-        return 0;
+        върни 0;
 }
 
-int parse_mode(const char *s, mode_t *ret) {
+цяло parse_mode(const char *s, mode_t *ret) {
         unsigned m;
-        int r;
+        цяло r;
 
         assert(s);
 
@@ -99,42 +99,42 @@ int parse_mode(const char *s, mode_t *ret) {
                                                         * so, but this parser doesn't allow that, so let's
                                                         * better be safe. */
                            &m);
-        if (r < 0)
-                return r;
-        if (m > 07777)
-                return -ERANGE;
+        ако (r < 0)
+                върни r;
+        ако (m > 07777)
+                върни -ERANGE;
 
-        if (ret)
+        ако (ret)
                 *ret = m;
-        return 0;
+        върни 0;
 }
 
-int parse_ifindex(const char *s) {
-        int ifi, r;
+цяло parse_ifindex(const char *s) {
+        цяло ifi, r;
 
         assert(s);
 
         r = safe_atoi(s, &ifi);
-        if (r < 0)
-                return r;
-        if (ifi <= 0)
-                return -EINVAL;
+        ако (r < 0)
+                върни r;
+        ако (ifi <= 0)
+                върни -EINVAL;
 
-        return ifi;
+        върни ifi;
 }
 
-int parse_mtu(int family, const char *s, uint32_t *ret) {
+цяло parse_mtu(цяло family, const char *s, uint32_t *ret) {
         uint64_t u, m;
-        int r;
+        цяло r;
 
         assert(ret);
 
         r = parse_size(s, 1024, &u);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (u > UINT32_MAX)
-                return -ERANGE;
+        ако (u > UINT32_MAX)
+                върни -ERANGE;
 
         switch (family) {
         case AF_INET:
@@ -147,14 +147,14 @@ int parse_mtu(int family, const char *s, uint32_t *ret) {
                 m = 0;
         }
 
-        if (u < m)
-                return -ERANGE;
+        ако (u < m)
+                върни -ERANGE;
 
         *ret = (uint32_t) u;
-        return 0;
+        върни 0;
 }
 
-int parse_size(const char *t, uint64_t base, uint64_t *size) {
+цяло parse_size(const char *t, uint64_t base, uint64_t *size) {
 
         /* Soo, sometimes we want to parse IEC binary suffixes, and
          * sometimes SI decimal suffixes. This function can parse
@@ -206,10 +206,10 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
         assert(IN_SET(base, 1000, 1024));
         assert(size);
 
-        if (base == 1000) {
+        ако (base == 1000) {
                 table = si;
                 n_entries = ELEMENTSOF(si);
-        } else {
+        } иначе {
                 table = iec;
                 n_entries = ELEMENTSOF(iec);
         }
@@ -225,65 +225,65 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
 
                 errno = 0;
                 l = strtoull(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (e == p)
-                        return -EINVAL;
-                if (*p == '-')
-                        return -ERANGE;
+                ако (errno > 0)
+                        върни -errno;
+                ако (e == p)
+                        върни -EINVAL;
+                ако (*p == '-')
+                        върни -ERANGE;
 
-                if (*e == '.') {
+                ако (*e == '.') {
                         e++;
 
                         /* strtoull() itself would accept space/+/- */
-                        if (ascii_isdigit(*e)) {
+                        ако (ascii_isdigit(*e)) {
                                 unsigned long long l2;
                                 char *e2;
 
                                 l2 = strtoull(e, &e2, 10);
-                                if (errno > 0)
-                                        return -errno;
+                                ако (errno > 0)
+                                        върни -errno;
 
                                 /* Ignore failure. E.g. 10.M is valid */
                                 frac = l2;
-                                for (; e < e2; e++)
+                                за (; e < e2; e++)
                                         frac /= 10;
                         }
                 }
 
                 e += strspn(e, WHITESPACE);
 
-                for (i = start_pos; i < n_entries; i++)
-                        if (startswith(e, table[i].suffix))
+                за (i = start_pos; i < n_entries; i++)
+                        ако (startswith(e, table[i].suffix))
                                 break;
 
-                if (i >= n_entries)
-                        return -EINVAL;
+                ако (i >= n_entries)
+                        върни -EINVAL;
 
-                if (l + (frac > 0) > ULLONG_MAX / table[i].factor)
-                        return -ERANGE;
+                ако (l + (frac > 0) > ULLONG_MAX / table[i].factor)
+                        върни -ERANGE;
 
                 tmp = l * table[i].factor + (unsigned long long) (frac * table[i].factor);
-                if (tmp > ULLONG_MAX - r)
-                        return -ERANGE;
+                ако (tmp > ULLONG_MAX - r)
+                        върни -ERANGE;
 
                 r += tmp;
-                if ((unsigned long long) (uint64_t) r != r)
-                        return -ERANGE;
+                ако ((unsigned long long) (uint64_t) r != r)
+                        върни -ERANGE;
 
                 p = e + strlen(table[i].suffix);
 
                 start_pos = i + 1;
 
-        } while (*p);
+        } докато (*p);
 
         *size = r;
 
-        return 0;
+        върни 0;
 }
 
-int parse_sector_size(const char *t, uint64_t *ret) {
-        int r;
+цяло parse_sector_size(const char *t, uint64_t *ret) {
+        цяло r;
 
         assert(t);
         assert(ret);
@@ -291,113 +291,113 @@ int parse_sector_size(const char *t, uint64_t *ret) {
         uint64_t ss;
 
         r = safe_atou64(t, &ss);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse sector size parameter %s", t);
-        if (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
-                return log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
-        if (!ISPOWEROF2(ss))
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
+        ако (r < 0)
+                върни log_error_errno(r, "Failed to parse sector size parameter %s", t);
+        ако (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
+                върни log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
+        ако (!ISPOWEROF2(ss))
+                върни log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
 
         *ret = ss;
-        return 0;
+        върни 0;
 }
 
-int parse_range(const char *t, unsigned *lower, unsigned *upper) {
+цяло parse_range(const char *t, unsigned *lower, unsigned *upper) {
         _cleanup_free_ char *word = NULL;
         unsigned l, u;
-        int r;
+        цяло r;
 
         assert(lower);
         assert(upper);
 
         /* Extract the lower bound. */
         r = extract_first_word(&t, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        ако (r < 0)
+                върни r;
+        ако (r == 0)
+                върни -EINVAL;
 
         r = safe_atou(word, &l);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!t)
+        ако (!t)
                 /* Single number with no dashes. */
                 u = l;
-        else if (!*t)
+        иначе ако (!*t)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                върни -EINVAL;
+        иначе {
                 r = safe_atou(t, &u);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
         }
 
         *lower = l;
         *upper = u;
-        return 0;
+        върни 0;
 }
 
-int parse_errno(const char *t) {
-        int r, e;
+цяло parse_errno(const char *t) {
+        цяло r, e;
 
         assert(t);
 
         r = errno_from_name(t);
-        if (r > 0)
-                return r;
+        ако (r > 0)
+                върни r;
 
         r = safe_atoi(t, &e);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
         /* 0 is also allowed here */
-        if (!errno_is_valid(e) && e != 0)
-                return -ERANGE;
+        ако (!errno_is_valid(e) && e != 0)
+                върни -ERANGE;
 
-        return e;
+        върни e;
 }
 
-int parse_fd(const char *t) {
-        int r, fd;
+цяло parse_fd(const char *t) {
+        цяло r, fd;
 
         assert(t);
 
         r = safe_atoi(t, &fd);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (fd < 0)
-                return -EBADF;
+        ако (fd < 0)
+                върни -EBADF;
 
-        return fd;
+        върни fd;
 }
 
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
+цяло parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
         char *sh;
-        int r;
+        цяло r;
 
         assert(ret_sh);
         assert(ret_copy);
 
-        if (path_is_absolute(s) && path_is_normalized(s)) {
+        ако (path_is_absolute(s) && path_is_normalized(s)) {
                 sh = strdup(s);
-                if (!sh)
-                        return -ENOMEM;
+                ако (!sh)
+                        върни -ENOMEM;
 
                 *ret_sh = sh;
                 *ret_copy = false;
-        } else {
+        } иначе {
                 r = parse_boolean(s);
-                if (r < 0)
-                        return r;
+                ако (r < 0)
+                        върни r;
 
                 *ret_sh = NULL;
                 *ret_copy = r;
         }
 
-        return 0;
+        върни 0;
 }
 
 static const char *mangle_base(const char *s, unsigned *base) {
@@ -407,26 +407,26 @@ static const char *mangle_base(const char *s, unsigned *base) {
         assert(base);
 
         /* Base already explicitly specified, then don't do anything. */
-        if (SAFE_ATO_MASK_FLAGS(*base) != 0)
-                return s;
+        ако (SAFE_ATO_MASK_FLAGS(*base) != 0)
+                върни s;
 
         /* Support Python 3 style "0b" and 0x" prefixes, because they truly make sense, much more than C's "0" prefix for octal. */
         k = STARTSWITH_SET(s, "0b", "0B");
-        if (k) {
+        ако (k) {
                 *base = 2 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                върни k;
         }
 
         k = STARTSWITH_SET(s, "0o", "0O");
-        if (k) {
+        ако (k) {
                 *base = 8 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                върни k;
         }
 
-        return s;
+        върни s;
 }
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
+цяло safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
         char *x = NULL;
         unsigned long l;
 
@@ -438,23 +438,23 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
          * generate an error. But let's do so only after strtoul() validated that the string is clean
          * otherwise, so that we return EINVAL preferably over ERANGE. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        ако (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                върни -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        ако (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
+                върни -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
                                  * different error. I.e. if the SAFE_ATO_REFUSE_PLUS_MINUS flag is set we
                                  * blanket refuse +/- prefixed integers, while if it is missing we'll just
                                  * return ERANGE, because the string actually parses correctly, but doesn't
                                  * fit in the return type. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        ако (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && !streq(s, "0"))
-                return -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
+                върни -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
                                  * notation and assumed-to-be-decimal integers with a leading zero. */
 
         s = mangle_base(s, &base);
@@ -462,39 +462,39 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
         errno = 0;
         l = strtoul(s, &x, SAFE_ATO_MASK_FLAGS(base) /* Let's mask off the flags bits so that only the actual
                                                       * base is left */);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
-        if ((unsigned long) (unsigned) l != l)
-                return -ERANGE;
+        ако (errno > 0)
+                върни -errno;
+        ако (!x || x == s || *x != 0)
+                върни -EINVAL;
+        ако (l != 0 && s[0] == '-')
+                върни -ERANGE;
+        ако ((unsigned long) (unsigned) l != l)
+                върни -ERANGE;
 
-        if (ret_u)
+        ако (ret_u)
                 *ret_u = (unsigned) l;
 
-        return 0;
+        върни 0;
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
+цяло safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
         unsigned v;
-        int r;
+        цяло r;
 
         assert(ret);
 
         r = safe_atou(s, &v);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (v < min || v > max)
-                return -ERANGE;
+        ако (v < min || v > max)
+                върни -ERANGE;
 
         *ret = v;
-        return 0;
+        върни 0;
 }
 
-int safe_atoi(const char *s, int *ret_i) {
+цяло safe_atoi(const char *s, цяло *ret_i) {
         unsigned base = 0;
         char *x = NULL;
         long l;
@@ -506,58 +506,58 @@ int safe_atoi(const char *s, int *ret_i) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int) l != l)
-                return -ERANGE;
+        ако (errno > 0)
+                върни -errno;
+        ако (!x || x == s || *x != 0)
+                върни -EINVAL;
+        ако ((long) (цяло) l != l)
+                върни -ERANGE;
 
-        if (ret_i)
-                *ret_i = (int) l;
+        ако (ret_i)
+                *ret_i = (цяло) l;
 
-        return 0;
+        върни 0;
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
+цяло safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
         char *x = NULL;
         unsigned long long l;
 
         assert(s);
         assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        ако (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                върни -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        ако (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL;
+                върни -EINVAL;
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        ако (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && s[1] != 0)
-                return -EINVAL;
+                върни -EINVAL;
 
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtoull(s, &x, SAFE_ATO_MASK_FLAGS(base));
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
+        ако (errno > 0)
+                върни -errno;
+        ако (!x || x == s || *x != 0)
+                върни -EINVAL;
+        ако (l != 0 && s[0] == '-')
+                върни -ERANGE;
 
-        if (ret_llu)
+        ако (ret_llu)
                 *ret_llu = l;
 
-        return 0;
+        върни 0;
 }
 
-int safe_atolli(const char *s, long long *ret_lli) {
+цяло safe_atolli(const char *s, long long *ret_lli) {
         unsigned base = 0;
         char *x = NULL;
         long long l;
@@ -569,50 +569,50 @@ int safe_atolli(const char *s, long long *ret_lli) {
 
         errno = 0;
         l = strtoll(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        ако (errno > 0)
+                върни -errno;
+        ако (!x || x == s || *x != 0)
+                върни -EINVAL;
 
-        if (ret_lli)
+        ако (ret_lli)
                 *ret_lli = l;
 
-        return 0;
+        върни 0;
 }
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
+цяло safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
         unsigned u;
-        int r;
+        цяло r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT8_MAX)
-                return -ERANGE;
+        ако (r < 0)
+                върни r;
+        ако (u > UINT8_MAX)
+                върни -ERANGE;
 
         *ret = (uint8_t) u;
-        return 0;
+        върни 0;
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
+цяло safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
         unsigned u;
-        int r;
+        цяло r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT16_MAX)
-                return -ERANGE;
+        ако (r < 0)
+                върни r;
+        ако (u > UINT16_MAX)
+                върни -ERANGE;
 
         *ret = (uint16_t) u;
-        return 0;
+        върни 0;
 }
 
-int safe_atoi16(const char *s, int16_t *ret) {
+цяло safe_atoi16(const char *s, int16_t *ret) {
         unsigned base = 0;
         char *x = NULL;
         long l;
@@ -624,20 +624,20 @@ int safe_atoi16(const char *s, int16_t *ret) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int16_t) l != l)
-                return -ERANGE;
+        ако (errno > 0)
+                върни -errno;
+        ако (!x || x == s || *x != 0)
+                върни -EINVAL;
+        ако ((long) (int16_t) l != l)
+                върни -ERANGE;
 
-        if (ret)
+        ако (ret)
                 *ret = (int16_t) l;
 
-        return 0;
+        върни 0;
 }
 
-int safe_atod(const char *s, double *ret_d) {
+цяло safe_atod(const char *s, double *ret_d) {
         _cleanup_(freelocalep) locale_t loc = (locale_t) 0;
         char *x = NULL;
         double d = 0;
@@ -645,23 +645,23 @@ int safe_atod(const char *s, double *ret_d) {
         assert(s);
 
         loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return -errno;
+        ако (loc == (locale_t) 0)
+                върни -errno;
 
         errno = 0;
         d = strtod_l(s, &x, loc);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        ако (errno > 0)
+                върни -errno;
+        ако (!x || x == s || *x != 0)
+                върни -EINVAL;
 
-        if (ret_d)
+        ако (ret_d)
                 *ret_d = d;
 
-        return 0;
+        върни 0;
 }
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
+цяло parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         unsigned val = 0;
         const char *s;
 
@@ -671,13 +671,13 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         s = *p;
 
         /* accept any number of digits, strtoull is limited to 19 */
-        for (size_t i = 0; i < digits; i++, s++) {
-                if (!ascii_isdigit(*s)) {
-                        if (i == 0)
-                                return -EINVAL;
+        за (size_t i = 0; i < digits; i++, s++) {
+                ако (!ascii_isdigit(*s)) {
+                        ако (i == 0)
+                                върни -EINVAL;
 
                         /* too few digits, pad with 0 */
-                        for (; i < digits; i++)
+                        за (; i < digits; i++)
                                 val *= 10;
 
                         break;
@@ -688,7 +688,7 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         }
 
         /* maybe round up */
-        if (*s >= '5' && *s <= '9')
+        ако (*s >= '5' && *s <= '9')
                 val++;
 
         s += strspn(s, DIGITS);
@@ -696,176 +696,176 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         *p = s;
         *res = val;
 
-        return 0;
+        върни 0;
 }
 
-int parse_nice(const char *s, int *ret) {
-        int n, r;
+цяло parse_nice(const char *s, цяло *ret) {
+        цяло n, r;
 
         assert(ret);
 
         r = safe_atoi(s, &n);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (!nice_is_valid(n))
-                return -ERANGE;
+        ако (!nice_is_valid(n))
+                върни -ERANGE;
 
         *ret = n;
-        return 0;
+        върни 0;
 }
 
-int parse_ip_port(const char *s, uint16_t *ret) {
+цяло parse_ip_port(const char *s, uint16_t *ret) {
         uint16_t l;
-        int r;
+        цяло r;
 
         assert(ret);
 
         r = safe_atou16_full(s, SAFE_ATO_REFUSE_LEADING_WHITESPACE, &l);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (l == 0)
-                return -EINVAL;
+        ако (l == 0)
+                върни -EINVAL;
 
         *ret = l;
 
-        return 0;
+        върни 0;
 }
 
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
+цяло parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
         unsigned l, h;
-        int r;
+        цяло r;
 
         assert(low);
         assert(high);
 
         r = parse_range(s, &l, &h);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (l > 65535 || h > 65535)
-                return -EINVAL;
+        ако (l > 65535 || h > 65535)
+                върни -EINVAL;
 
-        if (!allow_zero && (l == 0 || h == 0))
-                return -EINVAL;
+        ако (!allow_zero && (l == 0 || h == 0))
+                върни -EINVAL;
 
-        if (h < l)
-                return -EINVAL;
+        ако (h < l)
+                върни -EINVAL;
 
         *low = l;
         *high = h;
 
-        return 0;
+        върни 0;
 }
 
-int parse_oom_score_adjust(const char *s, int *ret) {
-        int r, v;
+цяло parse_oom_score_adjust(const char *s, цяло *ret) {
+        цяло r, v;
 
         assert(s);
         assert(ret);
 
         r = safe_atoi(s, &v);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (!oom_score_adjust_is_valid(v))
-                return -ERANGE;
+        ако (!oom_score_adjust_is_valid(v))
+                върни -ERANGE;
 
         *ret = v;
-        return 0;
+        върни 0;
 }
 
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
+цяло store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
         assert(ret);
 
         /* Validate both parts *before* shifting them, so that the shifts themselves cannot overflow.
          * Rejecting f >= 100 is equivalent to the old check of the shifted value against
          * LOADAVG_FIXED_POINT_1_0, since DIV_ROUND_UP(99 << 11, 100) == 2028 and
          * DIV_ROUND_UP(100 << 11, 100) == 2048. */
-        if (i > (~0UL >> LOADAVG_PRECISION_BITS))
-                return -ERANGE;
+        ако (i > (~0UL >> LOADAVG_PRECISION_BITS))
+                върни -ERANGE;
 
-        if (f >= 100)
-                return -ERANGE;
+        ако (f >= 100)
+                върни -ERANGE;
 
         *ret = (i << LOADAVG_PRECISION_BITS) | DIV_ROUND_UP(f << LOADAVG_PRECISION_BITS, 100);
-        return 0;
+        върни 0;
 }
 
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
+цяло parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
         const char *d, *f_str, *i_str;
         unsigned long i, f;
-        int r;
+        цяло r;
 
         assert(s);
         assert(ret);
 
         d = strchr(s, '.');
-        if (!d)
-                return -EINVAL;
+        ако (!d)
+                върни -EINVAL;
 
         i_str = strndupa_safe(s, d - s);
         f_str = d + 1;
 
         r = safe_atolu_full(i_str, 10, &i);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
         r = safe_atolu_full(f_str, 10, &f);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        return store_loadavg_fixed_point(i, f, ret);
+        върни store_loadavg_fixed_point(i, f, ret);
 }
 
 /* Limitations are described in https://www.netfilter.org/projects/nftables/manpage.html and
  * https://bugzilla.netfilter.org/show_bug.cgi?id=1175 */
 bool nft_identifier_valid(const char *id) {
-        if (isempty(id))
-                return false;
+        ако (isempty(id))
+                върни false;
 
-        if (strlen(id) >= NFT_NAME_MAXLEN)
-                return false;
+        ако (strlen(id) >= NFT_NAME_MAXLEN)
+                върни false;
 
-        if (!ascii_isalpha(id[0]))
-                return false;
+        ако (!ascii_isalpha(id[0]))
+                върни false;
 
-        return in_charset(id + 1, ALPHANUMERICAL "/\\_.");
+        върни in_charset(id + 1, ALPHANUMERICAL "/\\_.");
 }
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
-        int r;
+цяло parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
+        цяло r;
 
         assert(s);
         assert(current);
 
-        if (isempty(s)) {
+        ако (isempty(s)) {
                 *current = CAP_MASK_UNSET;
-                return 1;
+                върни 1;
         }
 
         bool invert = false;
-        if (s[0] == '~') {
+        ако (s[0] == '~') {
                 invert = true;
                 s++;
         }
 
         uint64_t parsed;
         r = capability_set_from_string(s, &parsed);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        if (parsed == 0 || *current == initial)
+        ако (parsed == 0 || *current == initial)
                 /* "~" or uninitialized data -> replace */
                 *current = invert ? all_capabilities() & ~parsed : parsed;
-        else {
+        иначе {
                 /* previous data -> merge */
-                if (invert)
+                ако (invert)
                         *current &= ~parsed;
-                else
+                иначе
                         *current |= parsed;
         }
 
-        return r;
+        върни r;
 }

@@ -10,24 +10,24 @@ void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
                  comparison_userdata_fn_t compar, void *arg) {
         size_t l, u, idx;
         const void *p;
-        int comparison;
+        цяло comparison;
 
         assert(!size_multiply_overflow(nmemb, size));
 
         l = 0;
         u = nmemb;
-        while (l < u) {
+        докато (l < u) {
                 idx = (l + u) / 2;
                 p = (const uint8_t*) base + idx * size;
                 comparison = compar(key, p, arg);
-                if (comparison < 0)
+                ако (comparison < 0)
                         u = idx;
-                else if (comparison > 0)
+                иначе ако (comparison > 0)
                         l = idx + 1;
-                else
-                        return (void *)p;
+                иначе
+                        върни (void *)p;
         }
-        return NULL;
+        върни NULL;
 }
 
 void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
@@ -36,11 +36,11 @@ void* bsearch_safe_internal(const void *key, const void *base, size_t nmemb, siz
         * that only if nmemb > 0.
         */
 
-        if (nmemb <= 0)
-                return NULL;
+        ако (nmemb <= 0)
+                върни NULL;
 
         assert(base);
-        return (void*) bsearch(key, base, nmemb, size, compar);
+        върни (void*) bsearch(key, base, nmemb, size, compar);
 }
 
 void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
@@ -49,44 +49,44 @@ void qsort_safe(void *base, size_t nmemb, size_t size, comparison_fn_t compar) {
          * that only if nmemb > 0.
          */
 
-        if (nmemb <= 1)
-                return;
+        ако (nmemb <= 1)
+                върни;
 
         assert(base);
         qsort(base, nmemb, size, compar);
 }
 
 void qsort_r_safe(void *base, size_t nmemb, size_t size, comparison_userdata_fn_t compar, void *userdata) {
-        if (nmemb <= 1)
-                return;
+        ако (nmemb <= 1)
+                върни;
 
         assert(base);
         qsort_r(base, nmemb, size, compar, userdata);
 }
 
-int cmp_int(const int *a, const int *b) {
+цяло cmp_int(const цяло *a, const цяло *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        върни CMP(*a, *b);
 }
 
-int cmp_uint16(const uint16_t *a, const uint16_t *b) {
+цяло cmp_uint16(const uint16_t *a, const uint16_t *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        върни CMP(*a, *b);
 }
 
-int cmp_unsigned(const unsigned *a, const unsigned *b) {
+цяло cmp_unsigned(const unsigned *a, const unsigned *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return CMP(*a, *b);
+        върни CMP(*a, *b);
 }

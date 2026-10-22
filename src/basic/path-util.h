@@ -19,27 +19,27 @@ const char* default_PATH(void);
 
 static inline const char* default_user_PATH(void) {
 #ifdef DEFAULT_USER_PATH
-        return DEFAULT_USER_PATH EXTRA_EXEC_SEARCH_PATH_SUFFIX;
-#else
-        return default_PATH();
+        върни DEFAULT_USER_PATH EXTRA_EXEC_SEARCH_PATH_SUFFIX;
+#иначе
+        върни default_PATH();
 #endif
 }
 
 bool is_path(const char *p) _pure_;
 
 static inline bool path_is_absolute(const char *p) {
-        if (!p) /* A NULL pointer is definitely not an absolute path */
-                return false;
+        ако (!p) /* A NULL pointer is definitely not an absolute path */
+                върни false;
 
-        return p[0] == '/';
+        върни p[0] == '/';
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret);
+цяло path_split_and_make_absolute(const char *p, char ***ret);
 char* path_make_absolute(const char *p, const char *prefix);
-int safe_getcwd(char **ret);
-int path_make_absolute_cwd(const char *p, char **ret);
-int path_make_relative(const char *from, const char *to, char **ret);
-int path_make_relative_parent(const char *from_child, const char *to, char **ret);
+цяло safe_getcwd(char **ret);
+цяло path_make_absolute_cwd(const char *p, char **ret);
+цяло path_make_relative(const char *from, const char *to, char **ret);
+цяло path_make_relative_parent(const char *from_child, const char *to, char **ret);
 
 typedef enum PathStartWithFlags {
         PATH_STARTSWITH_REFUSE_DOT_DOT       = 1U << 0,
@@ -48,22 +48,22 @@ typedef enum PathStartWithFlags {
 
 char* path_startswith_full(const char *path, const char *prefix, PathStartWithFlags flags) _pure_;
 static inline char* path_startswith(const char *path, const char *prefix) {
-        return path_startswith_full(path, prefix, 0);
+        върни path_startswith_full(path, prefix, 0);
 }
 
-int path_compare(const char *a, const char *b) _pure_;
+цяло path_compare(const char *a, const char *b) _pure_;
 static inline bool path_equal(const char *a, const char *b) {
-        return path_compare(a, b) == 0;
+        върни path_compare(a, b) == 0;
 }
 
-int path_compare_filename(const char *a, const char *b);
+цяло path_compare_filename(const char *a, const char *b);
 static inline bool path_equal_filename(const char *a, const char *b) {
-        return path_compare_filename(a, b) == 0;
+        върни path_compare_filename(a, b) == 0;
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags);
-static inline bool path_equal_or_inode_same(const char *a, const char *b, int flags) {
-        return path_equal_or_inode_same_full(a, b, flags) > 0;
+цяло path_equal_or_inode_same_full(const char *a, const char *b, цяло flags);
+static inline bool path_equal_or_inode_same(const char *a, const char *b, цяло flags) {
+        върни path_equal_or_inode_same_full(a, b, flags) > 0;
 }
 
 char* path_extend_internal(char **x, ...);
@@ -78,10 +78,10 @@ typedef enum PathSimplifyFlags {
 
 char* path_simplify_full(char *path, PathSimplifyFlags flags);
 static inline char* path_simplify(char *path) {
-        return path_simplify_full(path, 0);
+        върни path_simplify_full(path, 0);
 }
 
-int path_simplify_alloc(const char *path, char **ret);
+цяло path_simplify_alloc(const char *path, char **ret);
 
 /* Note: the search terminates on the first NULL item. */
 #define PATH_IN_SET(p, ...) path_strv_contains(STRV_MAKE(__VA_ARGS__), p)
@@ -89,30 +89,30 @@ int path_simplify_alloc(const char *path, char **ret);
 char* path_startswith_strv(const char *p, char * const *strv);
 #define PATH_STARTSWITH_SET(p, ...) path_startswith_strv(p, STRV_MAKE(__VA_ARGS__))
 
-int path_strv_make_absolute_cwd(char **l);
+цяло path_strv_make_absolute_cwd(char **l);
 char** path_strv_resolve(char **l, const char *root);
 char** path_strv_resolve_uniq(char **l, const char *root);
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd);
-int find_executable_full(
+цяло open_and_check_executable(const char *name, const char *root, char **ret_path, цяло *ret_fd);
+цяло find_executable_full(
                 const char *name,
                 const char *root,
                 char * const *exec_search_path,
                 bool use_path_envvar,
                 char **ret_filename,
-                int *ret_fd);
-static inline int find_executable(const char *name, char **ret_filename) {
-        return find_executable_full(name, /* root= */ NULL, NULL, true, ret_filename, NULL);
+                цяло *ret_fd);
+static inline цяло find_executable(const char *name, char **ret_filename) {
+        върни find_executable_full(name, /* root= */ NULL, NULL, true, ret_filename, NULL);
 }
 
-int fsck_exists(void);
-int fsck_exists_for_fstype(const char *fstype);
+цяло fsck_exists(void);
+цяло fsck_exists_for_fstype(const char *fstype);
 
 /* Iterates through the path prefixes of the specified path, going up
  * the tree, to root. Also returns "" (and not "/"!) for the root
  * directory. Excludes the specified directory itself */
 #define PATH_FOREACH_PREFIX(prefix, path)                               \
-        for (char *_slash = ({                                          \
+        за (char *_slash = ({                                          \
                                 path_simplify(strcpy(prefix, path));    \
                                 streq(prefix, "/") ? NULL : strrchr(prefix, '/'); \
                         });                                             \
@@ -121,46 +121,46 @@ int fsck_exists_for_fstype(const char *fstype);
 
 /* Same as PATH_FOREACH_PREFIX but also includes the specified path itself */
 #define PATH_FOREACH_PREFIX_MORE(prefix, path)                          \
-        for (char *_slash = ({                                          \
+        за (char *_slash = ({                                          \
                                 path_simplify(strcpy(prefix, path));    \
-                                if (streq(prefix, "/"))                 \
+                                ако (streq(prefix, "/"))                 \
                                         prefix[0] = 0;                  \
                                 strrchr(prefix, 0);                     \
                         });                                             \
              _slash && ((*_slash = 0), true);                           \
              _slash = strrchr((prefix), '/'))
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret);
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret);
+цяло path_find_first_component(const char **p, bool accept_dot_dot, const char **ret);
+цяло path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret);
 const char* last_path_component(const char *path);
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename);
-static inline int path_extract_filename(const char *path, char **ret) {
-        return path_split_prefix_filename(path, NULL, ret);
+цяло path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename);
+static inline цяло path_extract_filename(const char *path, char **ret) {
+        върни path_split_prefix_filename(path, NULL, ret);
 }
-static inline int path_extract_directory(const char *path, char **ret) {
-        int r = path_split_prefix_filename(path, ret, NULL);
-        return r < 0 ? r : 0; /* suppress O_DIRECTORY */
+static inline цяло path_extract_directory(const char *path, char **ret) {
+        цяло r = path_split_prefix_filename(path, ret, NULL);
+        върни r < 0 ? r : 0; /* suppress O_DIRECTORY */
 }
 
 bool filename_part_is_valid(const char *p) _pure_;
 bool filename_is_valid(const char *p) _pure_;
 bool path_is_valid_full(const char *p, bool accept_dot_dot) _pure_;
 static inline bool path_is_valid(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ true);
+        върни path_is_valid_full(p, /* accept_dot_dot= */ true);
 }
 static inline bool path_is_safe(const char *p) {
-        return path_is_valid_full(p, /* accept_dot_dot= */ false);
+        върни path_is_valid_full(p, /* accept_dot_dot= */ false);
 }
 bool path_is_normalized(const char *p) _pure_;
 static inline bool filename_or_absolute_path_is_valid(const char *p) {
-        if (path_is_absolute(p))
-                return path_is_valid(p);
+        ако (path_is_absolute(p))
+                върни path_is_valid(p);
 
-        return filename_is_valid(p);
+        върни filename_is_valid(p);
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret);
+цяло file_in_same_dir(const char *path, const char *filename, char **ret);
 
 bool hidden_or_backup_file(const char *filename) _pure_;
 
@@ -180,14 +180,14 @@ static inline const char* skip_dev_prefix(const char *p) {
 
         e = path_startswith(p, "/dev/");
 
-        return e ?: p;
+        върни e ?: p;
 }
 
 bool empty_or_root(const char *path) _pure_;
 const char* empty_to_root(const char *path) _pure_;
-int empty_or_root_harder_to_null(const char **path);
+цяло empty_or_root_harder_to_null(const char **path);
 
 bool path_strv_contains(char * const *l, const char *path);
 bool prefixed_path_strv_contains(char * const *l, const char *path);
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret);
+цяло path_glob_can_match(const char *pattern, const char *prefix, char **ret);

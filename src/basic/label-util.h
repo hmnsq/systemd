@@ -4,12 +4,12 @@
 #include "forward.h"
 
 typedef struct LabelOps {
-        int (*pre)(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-        int (*post)(int dir_fd, const char *path, bool created, LabelContext *label_context);
+        цяло (*pre)(цяло dir_fd, const char *path, mode_t mode, LabelContext *label_context);
+        цяло (*post)(цяло dir_fd, const char *path, bool created, LabelContext *label_context);
 } LabelOps;
 
-int label_ops_set(const LabelOps *label_ops);
+цяло label_ops_set(const LabelOps *label_ops);
 void label_ops_reset(void);
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context);
+цяло label_ops_pre(цяло dir_fd, const char *path, mode_t mode, LabelContext *label_context);
+цяло label_ops_post(цяло dir_fd, const char *path, bool created, LabelContext *label_context);

@@ -4,35 +4,35 @@
 #include "stdio-util.h"
 #include "string-util.h"
 
-assert_cc(STRLEN("%") + DECIMAL_STR_MAX(int) <= IF_NAMESIZE);
+assert_cc(STRLEN("%") + DECIMAL_STR_MAX(цяло) <= IF_NAMESIZE);
 
-int format_ifname_full(int ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
-        if (ifindex <= 0)
-                return -EINVAL;
+цяло format_ifname_full(цяло ifindex, FormatIfnameFlag flag, char buf[static IF_NAMESIZE]) {
+        ако (ifindex <= 0)
+                върни -EINVAL;
 
-        if (if_indextoname(ifindex, buf))
-                return 0;
+        ако (if_indextoname(ifindex, buf))
+                върни 0;
 
-        if (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
-                return -errno;
+        ако (!FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX))
+                върни -errno;
 
-        if (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
+        ако (FLAGS_SET(flag, FORMAT_IFNAME_IFINDEX_WITH_PERCENT))
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%%%d", ifindex));
-        else
+        иначе
                 assert_se(snprintf_ok(buf, IF_NAMESIZE, "%d", ifindex));
 
-        return 0;
+        върни 0;
 }
 
-int format_ifname_full_alloc(int ifindex, FormatIfnameFlag flag, char **ret) {
+цяло format_ifname_full_alloc(цяло ifindex, FormatIfnameFlag flag, char **ret) {
         char buf[IF_NAMESIZE];
-        int r;
+        цяло r;
 
         assert(ret);
 
         r = format_ifname_full(ifindex, flag, buf);
-        if (r < 0)
-                return r;
+        ако (r < 0)
+                върни r;
 
-        return strdup_to(ret, buf);
+        върни strdup_to(ret, buf);
 }

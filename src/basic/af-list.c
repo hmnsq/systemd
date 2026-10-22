@@ -11,57 +11,57 @@ static const struct af_name* lookup_af(register const char *str, register GPERF_
 #include "af-from-name.inc"
 #include "af-to-name.inc"
 
-const char* af_to_name(int id) {
+const char* af_to_name(цяло id) {
 
-        if (id <= 0)
-                return NULL;
+        ако (id <= 0)
+                върни NULL;
 
-        if ((size_t) id >= ELEMENTSOF(af_names))
-                return NULL;
+        ако ((size_t) id >= ELEMENTSOF(af_names))
+                върни NULL;
 
-        return af_names[id];
+        върни af_names[id];
 }
 
-const char* af_to_name_short(int id) {
+const char* af_to_name_short(цяло id) {
         const char *f;
 
-        if (id == AF_UNSPEC)
-                return "*";
+        ако (id == AF_UNSPEC)
+                върни "*";
 
         f = af_to_name(id);
-        if (!f)
-                return "unknown";
+        ако (!f)
+                върни "unknown";
 
         assert(startswith(f, "AF_"));
-        return f + 3;
+        върни f + 3;
 }
 
-int af_from_name(const char *name) {
+цяло af_from_name(const char *name) {
         size_t len = strlen(ASSERT_PTR(name));
 
         const struct af_name *sc = lookup_af(name, len);
-        if (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
+        ако (!sc && len + strlen("AF_") <= MAX_WORD_LENGTH) {
                 const char *t = strjoina("AF_", name);
                 sc = lookup_af(t, strlen("AF_") + len);
         }
-        if (!sc)
-                return -EINVAL;
+        ако (!sc)
+                върни -EINVAL;
 
-        return sc->id;
+        върни sc->id;
 }
 
-int af_max(void) {
-        return ELEMENTSOF(af_names);
+цяло af_max(void) {
+        върни ELEMENTSOF(af_names);
 }
 
-const char* af_to_ipv4_ipv6(int id) {
+const char* af_to_ipv4_ipv6(цяло id) {
         /* Pretty often we want to map the address family to the typically used protocol name for IPv4 +
          * IPv6. Let's add special helpers for that. */
-        return id == AF_INET ? "ipv4" :
+        върни id == AF_INET ? "ipv4" :
                 id == AF_INET6 ? "ipv6" : NULL;
 }
 
-int af_from_ipv4_ipv6(const char *af) {
-        return streq_ptr(af, "ipv4") ? AF_INET :
+цяло af_from_ipv4_ipv6(const char *af) {
+        върни streq_ptr(af, "ipv4") ? AF_INET :
                 streq_ptr(af, "ipv6") ? AF_INET6 : AF_UNSPEC;
 }

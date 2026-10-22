@@ -5,21 +5,21 @@
 
 #include "forward.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode);
+цяло memfd_create_wrapper(const char *name, unsigned mode);
 
-int memfd_new_full(const char *name, unsigned extra_flags);
-static inline int memfd_new(const char *name) {
-        return memfd_new_full(name, 0);
+цяло memfd_new_full(const char *name, unsigned extra_flags);
+static inline цяло memfd_new(const char *name) {
+        върни memfd_new_full(name, 0);
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
-static inline int memfd_new_and_seal_string(const char *name, const char *s) {
-        return memfd_new_and_seal(name, s, SIZE_MAX);
+цяло memfd_new_and_seal(const char *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
+static inline цяло memfd_new_and_seal_string(const char *name, const char *s) {
+        върни memfd_new_and_seal(name, s, SIZE_MAX);
 }
 
-int memfd_set_sealed(int fd);
-int memfd_get_sealed(int fd);
-int memfd_set_sealed_gracefully(int fd);
+цяло memfd_set_sealed(цяло fd);
+цяло memfd_get_sealed(цяло fd);
+цяло memfd_set_sealed_gracefully(цяло fd);
 
-int memfd_get_size(int fd, uint64_t *ret);
-int memfd_set_size(int fd, uint64_t sz);
+цяло memfd_get_size(цяло fd, uint64_t *ret);
+цяло memfd_set_size(цяло fd, uint64_t sz);

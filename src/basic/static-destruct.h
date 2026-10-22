@@ -87,5 +87,5 @@ void static_destruct_impl(const StaticDestructor *start, const StaticDestructor 
 /* The function to destroy everything. (Note that this must be static inline, as it's key that it remains in
  * the same linking unit as the variables we want to destroy.) */
 static inline void static_destruct(void) {
-        return static_destruct_impl(__start_SYSTEMD_STATIC_DESTRUCT, __stop_SYSTEMD_STATIC_DESTRUCT);
+        върни static_destruct_impl(__start_SYSTEMD_STATIC_DESTRUCT, __stop_SYSTEMD_STATIC_DESTRUCT);
 }
