@@ -6,112 +6,112 @@
 
 /* The following macros add 1 when converting things, since 0 is a valid mode, while the pointer
  * NULL is special */
-static inline mode_t PTR_TO_MODE(void *p) {
-        return p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
+static anta_hstha mode_t PTR_TO_MODE(void *p) {
+        ပြန်ပေး p ? (mode_t) ((uintptr_t) p - 1) : MODE_INVALID;
 }
-static inline void* MODE_TO_PTR(mode_t m) {
-        return m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
-}
-
-int rmdir_parents(const char *path, const char *stop);
-
-int rename_noreplace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-
-int readlinkat_malloc(int fd, const char *p, char **ret);
-static inline int readlink_malloc(const char *p, char **ret) {
-        return readlinkat_malloc(AT_FDCWD, p, ret);
-}
-int readlink_value(const char *p, char **ret);
-int readlink_and_make_absolute(const char *p, char **ret);
-
-int chmod_and_chown_at(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int chmod_and_chown(const char *path, mode_t mode, uid_t uid, gid_t gid) {
-        return chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
-}
-int fchmod_and_chown_with_fallback(int fd, const char *path, mode_t mode, uid_t uid, gid_t gid);
-static inline int fchmod_and_chown(int fd, mode_t mode, uid_t uid, gid_t gid) {
-        return fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
+static anta_hstha void* MODE_TO_PTR(mode_t m) {
+        ပြန်ပေး m == MODE_INVALID ? NULL : (void *) ((uintptr_t) m + 1);
 }
 
-int fchmod_umask(int fd, mode_t mode);
-int fchmod_opath(int fd, mode_t m);
+ကိန်းပြည့် rmdir_parents(const var_na *path, const var_na *stop);
 
-int futimens_opath(int fd, const struct timespec ts[2]);
+ကိန်းပြည့် rename_noreplace(ကိန်းပြည့် olddirfd, const var_na *oldpath, ကိန်းပြည့် newdirfd, const var_na *newpath);
 
-int fd_warn_permissions(const char *path, int fd);
-int stat_warn_permissions(const char *path, const struct stat *st);
+ကိန်းပြည့် readlinkat_malloc(ကိန်းပြည့် fd, const var_na *p, var_na **ret);
+static anta_hstha ကိန်းပြည့် readlink_malloc(const var_na *p, var_na **ret) {
+        ပြန်ပေး readlinkat_malloc(AT_FDCWD, p, ret);
+}
+ကိန်းပြည့် readlink_value(const var_na *p, var_na **ret);
+ကိန်းပြည့် readlink_and_make_absolute(const var_na *p, var_na **ret);
 
-int access_nofollow(const char *path, int mode);
-int access_fd(int fd, int mode);
-
-int touch_fd(int fd, usec_t stamp);
-int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
-int touch(const char *path);
-
-int symlinkat_idempotent(const char *target, int atfd, const char *linkpath, bool make_relative);
-static inline int symlink_idempotent(const char *target, const char *linkpath, bool make_relative) {
-        return symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+ကိန်းပြည့် chmod_and_chown_at(ကိန်းပြည့် dir_fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid);
+static anta_hstha ကိန်းပြည့် chmod_and_chown(const var_na *path, mode_t mode, uid_t uid, gid_t gid) {
+        ပြန်ပေး chmod_and_chown_at(AT_FDCWD, path, mode, uid, gid);
+}
+ကိန်းပြည့် fchmod_and_chown_with_fallback(ကိန်းပြည့် fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid);
+static anta_hstha ကိန်းပြည့် fchmod_and_chown(ကိန်းပြည့် fd, mode_t mode, uid_t uid, gid_t gid) {
+        ပြန်ပေး fchmod_and_chown_with_fallback(fd, NULL, mode, uid, gid); /* no fallback */
 }
 
-typedef enum SymlinkFlags {
+ကိန်းပြည့် fchmod_umask(ကိန်းပြည့် fd, mode_t mode);
+ကိန်းပြည့် fchmod_opath(ကိန်းပြည့် fd, mode_t m);
+
+ကိန်းပြည့် futimens_opath(ကိန်းပြည့် fd, const sa_nracanaa timespec ts[2]);
+
+ကိန်းပြည့် fd_warn_permissions(const var_na *path, ကိန်းပြည့် fd);
+ကိန်းပြည့် stat_warn_permissions(const var_na *path, const sa_nracanaa stat *st);
+
+ကိန်းပြည့် access_nofollow(const var_na *path, ကိန်းပြည့် mode);
+ကိန်းပြည့် access_fd(ကိန်းပြည့် fd, ကိန်းပြည့် mode);
+
+ကိန်းပြည့် touch_fd(ကိန်းပြည့် fd, usec_t stamp);
+ကိန်းပြည့် touch_file(const var_na *path, bool parents, usec_t stamp, uid_t uid, gid_t gid, mode_t mode);
+ကိန်းပြည့် touch(const var_na *path);
+
+ကိန်းပြည့် symlinkat_idempotent(const var_na *target, ကိန်းပြည့် atfd, const var_na *linkpath, bool make_relative);
+static anta_hstha ကိန်းပြည့် symlink_idempotent(const var_na *target, const var_na *linkpath, bool make_relative) {
+        ပြန်ပေး symlinkat_idempotent(target, AT_FDCWD, linkpath, make_relative);
+}
+
+typedef ga_nanaa SymlinkFlags {
         SYMLINK_MAKE_RELATIVE = 1 << 0,
         SYMLINK_LABEL         = 1 << 1,
 } SymlinkFlags;
 
-int symlinkat_atomic_full_label(const char *target, int atfd, const char *linkpath, SymlinkFlags flags, LabelContext *label_context);
-static inline int symlinkat_atomic_full(const char *target, int atfd, const char *linkpath, SymlinkFlags flags) {
-        return symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
+ကိန်းပြည့် symlinkat_atomic_full_label(const var_na *target, ကိန်းပြည့် atfd, const var_na *linkpath, SymlinkFlags flags, LabelContext *label_context);
+static anta_hstha ကိန်းပြည့် symlinkat_atomic_full(const var_na *target, ကိန်းပြည့် atfd, const var_na *linkpath, SymlinkFlags flags) {
+        ပြန်ပေး symlinkat_atomic_full_label(target, atfd, linkpath, flags, /* label_context= */ NULL);
 }
-static inline int symlink_atomic(const char *target, const char *linkpath) {
-        return symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
-}
-
-int mknodat_atomic(int atfd, const char *path, mode_t mode, dev_t dev);
-static inline int mknod_atomic(const char *path, mode_t mode, dev_t dev) {
-        return mknodat_atomic(AT_FDCWD, path, mode, dev);
+static anta_hstha ကိန်းပြည့် symlink_atomic(const var_na *target, const var_na *linkpath) {
+        ပြန်ပေး symlinkat_atomic_full(target, AT_FDCWD, linkpath, 0);
 }
 
-int mkfifoat_atomic(int dir_fd, const char *path, mode_t mode);
-static inline int mkfifo_atomic(const char *path, mode_t mode) {
-        return mkfifoat_atomic(AT_FDCWD, path, mode);
+ကိန်းပြည့် mknodat_atomic(ကိန်းပြည့် atfd, const var_na *path, mode_t mode, dev_t dev);
+static anta_hstha ကိန်းပြည့် mknod_atomic(const var_na *path, mode_t mode, dev_t dev) {
+        ပြန်ပေး mknodat_atomic(AT_FDCWD, path, mode, dev);
 }
 
-int get_files_in_directory(const char *path, char ***list);
+ကိန်းပြည့် mkfifoat_atomic(ကိန်းပြည့် dir_fd, const var_na *path, mode_t mode);
+static anta_hstha ကိန်းပြည့် mkfifo_atomic(const var_na *path, mode_t mode) {
+        ပြန်ပေး mkfifoat_atomic(AT_FDCWD, path, mode);
+}
 
-int tmp_dir(const char **ret);
-int var_tmp_dir(const char **ret);
+ကိန်းပြည့် get_files_in_directory(const var_na *path, var_na ***list);
 
-int unlink_or_warn(const char *filename);
+ကိန်းပြည့် tmp_dir(const var_na **ret);
+ကိန်းပြည့် var_tmp_dir(const var_na **ret);
+
+ကိန်းပြည့် unlink_or_warn(const var_na *filename);
 
 /* Useful for usage with _cleanup_(), removes a directory and frees the pointer */
-char *rmdir_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, rmdir_and_free);
+var_na *rmdir_and_free(var_na *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(var_na*, rmdir_and_free);
 
-char* unlink_and_free(char *p);
-DEFINE_TRIVIAL_CLEANUP_FUNC(char*, unlink_and_free);
+var_na* unlink_and_free(var_na *p);
+DEFINE_TRIVIAL_CLEANUP_FUNC(var_na*, unlink_and_free);
 
-typedef enum UnlinkDeallocateFlags {
+typedef ga_nanaa UnlinkDeallocateFlags {
         UNLINK_REMOVEDIR = 1 << 0,
         UNLINK_ERASE     = 1 << 1,
 } UnlinkDeallocateFlags;
 
-int unlinkat_deallocate(int fd, const char *name, UnlinkDeallocateFlags flags);
+ကိန်းပြည့် unlinkat_deallocate(ကိန်းပြည့် fd, const var_na *name, UnlinkDeallocateFlags flags);
 
-int open_parent_at(int dir_fd, const char *path, int flags, mode_t mode);
-static inline int open_parent(const char *path, int flags, mode_t mode) {
-        return open_parent_at(AT_FDCWD, path, flags, mode);
+ကိန်းပြည့် open_parent_at(ကိန်းပြည့် dir_fd, const var_na *path, ကိန်းပြည့် flags, mode_t mode);
+static anta_hstha ကိန်းပြည့် open_parent(const var_na *path, ကိန်းပြည့် flags, mode_t mode) {
+        ပြန်ပေး open_parent_at(AT_FDCWD, path, flags, mode);
 }
 
-int conservative_renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
-static inline int conservative_rename(const char *oldpath, const char *newpath) {
-        return conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
+ကိန်းပြည့် conservative_renameat(ကိန်းပြည့် olddirfd, const var_na *oldpath, ကိန်းပြည့် newdirfd, const var_na *newpath);
+static anta_hstha ကိန်းပြည့် conservative_rename(const var_na *oldpath, const var_na *newpath) {
+        ပြန်ပေး conservative_renameat(AT_FDCWD, oldpath, AT_FDCWD, newpath);
 }
 
-int posix_fallocate_loop(int fd, uint64_t offset, uint64_t size);
+ကိန်းပြည့် posix_fallocate_loop(ကိန်းပြည့် fd, uint64_t offset, uint64_t size);
 
-int parse_cifs_service(const char *s, char **ret_host, char **ret_service, char **ret_path);
+ကိန်းပြည့် parse_cifs_service(const var_na *s, var_na **ret_host, var_na **ret_service, var_na **ret_path);
 
-typedef enum XOpenFlags {
+typedef ga_nanaa XOpenFlags {
         XO_LABEL             = 1 << 0, /* When creating: relabel */
         XO_SUBVOLUME         = 1 << 1, /* When creating as directory: make it a subvolume */
         XO_NOCOW             = 1 << 2, /* Enable NOCOW mode after opening */
@@ -122,53 +122,53 @@ typedef enum XOpenFlags {
         XO_AUTO_RW_RO        = 1 << 7, /* Open in O_RDWR mode if possible, O_RDONLY if not */
 } XOpenFlags;
 
-int open_mkdir_at_full_label(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int open_mkdir_at_full(int dirfd, const char *path, int flags, XOpenFlags xopen_flags, mode_t mode) {
-        return open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
+ကိန်းပြည့် open_mkdir_at_full_label(ကိန်းပြည့် dirfd, const var_na *path, ကိန်းပြည့် flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+static anta_hstha ကိန်းပြည့် open_mkdir_at_full(ကိန်းပြည့် dirfd, const var_na *path, ကိန်းပြည့် flags, XOpenFlags xopen_flags, mode_t mode) {
+        ပြန်ပေး open_mkdir_at_full_label(dirfd, path, flags, xopen_flags, mode, /* label_context= */ NULL);
 }
-static inline int open_mkdir_at(int dirfd, const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(dirfd, path, flags, 0, mode);
+static anta_hstha ကိန်းပြည့် open_mkdir_at(ကိန်းပြည့် dirfd, const var_na *path, ကိန်းပြည့် flags, mode_t mode) {
+        ပြန်ပေး open_mkdir_at_full(dirfd, path, flags, 0, mode);
 }
-static inline int open_mkdir(const char *path, int flags, mode_t mode) {
-        return open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
-}
-
-int openat_report_new(int dirfd, const char *pathname, int flags, mode_t mode, bool *ret_newly_created);
-
-int xopenat_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
-static inline int xopenat_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode) {
-        return xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
-}
-static inline int xopenat(int dir_fd, const char *path, int open_flags) {
-        return xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
+static anta_hstha ကိန်းပြည့် open_mkdir(const var_na *path, ကိန်းပြည့် flags, mode_t mode) {
+        ပြန်ပေး open_mkdir_at_full(AT_FDCWD, path, flags, 0, mode);
 }
 
-int xopenat_lock_full_label(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation, LabelContext *label_context);
-static inline int xopenat_lock_full(int dir_fd, const char *path, int open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, int operation) {
-        return xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+ကိန်းပြည့် openat_report_new(ကိန်းပြည့် dirfd, const var_na *pathname, ကိန်းပြည့် flags, mode_t mode, bool *ret_newly_created);
+
+ကိန်းပြည့် xopenat_full_label(ကိန်းပြည့် dir_fd, const var_na *path, ကိန်းပြည့် open_flags, XOpenFlags xopen_flags, mode_t mode, LabelContext *label_context);
+static anta_hstha ကိန်းပြည့် xopenat_full(ကိန်းပြည့် dir_fd, const var_na *path, ကိန်းပြည့် open_flags, XOpenFlags xopen_flags, mode_t mode) {
+        ပြန်ပေး xopenat_full_label(dir_fd, path, open_flags, xopen_flags, mode, /* label_context= */ NULL);
 }
-static inline int xopenat_lock(int dir_fd, const char *path, int open_flags, LockType locktype, int operation) {
-        return xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+static anta_hstha ကိန်းပြည့် xopenat(ကိန်းပြည့် dir_fd, const var_na *path, ကိန်းပြည့် open_flags) {
+        ပြန်ပေး xopenat_full(dir_fd, path, open_flags, 0, MODE_INVALID);
 }
 
-int link_fd(int fd, int newdirfd, const char *newpath);
+ကိန်းပြည့် xopenat_lock_full_label(ကိန်းပြည့် dir_fd, const var_na *path, ကိန်းပြည့် open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, ကိန်းပြည့် operation, LabelContext *label_context);
+static anta_hstha ကိန်းပြည့် xopenat_lock_full(ကိန်းပြည့် dir_fd, const var_na *path, ကိန်းပြည့် open_flags, XOpenFlags xopen_flags, mode_t mode, LockType locktype, ကိန်းပြည့် operation) {
+        ပြန်ပေး xopenat_lock_full_label(dir_fd, path, open_flags, xopen_flags, mode, locktype, operation, /* label_context= */ NULL);
+}
+static anta_hstha ကိန်းပြည့် xopenat_lock(ကိန်းပြည့် dir_fd, const var_na *path, ကိန်းပြည့် open_flags, LockType locktype, ကိန်းပြည့် operation) {
+        ပြန်ပေး xopenat_lock_full(dir_fd, path, open_flags, 0, 0, locktype, operation);
+}
 
-int linkat_replace(int olddirfd, const char *oldpath, int newdirfd, const char *newpath);
+ကိန်းပြည့် link_fd(ကိန်းပြည့် fd, ကိန်းပြည့် newdirfd, const var_na *newpath);
 
-static inline int at_flags_normalize_nofollow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
+ကိန်းပြည့် linkat_replace(ကိန်းပြည့် olddirfd, const var_na *oldpath, ကိန်းပြည့် newdirfd, const var_na *newpath);
+
+static anta_hstha ကိန်းပြည့် at_flags_normalize_nofollow(ကိန်းပြည့် flags) {
+        အကယ်၍ (FLAGS_SET(flags, AT_SYMLINK_FOLLOW)) {
                 assert(!FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW));
                 flags &= ~AT_SYMLINK_FOLLOW;
-        } else
+        } မဟုတ်ပါက
                 flags |= AT_SYMLINK_NOFOLLOW;
-        return flags;
+        ပြန်ပေး flags;
 }
 
-static inline int at_flags_normalize_follow(int flags) {
-        if (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
+static anta_hstha ကိန်းပြည့် at_flags_normalize_follow(ကိန်းပြည့် flags) {
+        အကယ်၍ (FLAGS_SET(flags, AT_SYMLINK_NOFOLLOW)) {
                 assert(!FLAGS_SET(flags, AT_SYMLINK_FOLLOW));
                 flags &= ~AT_SYMLINK_NOFOLLOW;
-        } else
+        } မဟုတ်ပါက
                 flags |= AT_SYMLINK_FOLLOW;
-        return flags;
+        ပြန်ပေး flags;
 }

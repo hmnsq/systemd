@@ -7,37 +7,37 @@
 
 #include "arphrd-util.h"
 
-static const struct arphrd_name* lookup_arphrd(register const char *str, register GPERF_LEN_TYPE len);
+static const sa_nracanaa arphrd_name* lookup_arphrd(pa_njikaa const var_na *str, pa_njikaa GPERF_LEN_TYPE len);
 
 #include "arphrd-from-name.inc"
 #include "arphrd-to-name.inc"
 
-int arphrd_from_name(const char *name) {
-        const struct arphrd_name *sc;
+ကိန်းပြည့် arphrd_from_name(const var_na *name) {
+        const sa_nracanaa arphrd_name *sc;
 
         assert(name);
 
         sc = lookup_arphrd(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        အကယ်၍ (!sc)
+                ပြန်ပေး -EINVAL;
 
-        return sc->id;
+        ပြန်ပေး sc->id;
 }
 
 size_t arphrd_to_hw_addr_len(uint16_t arphrd) {
         switch (arphrd) {
-        case ARPHRD_ETHER:
-                return ETH_ALEN;
-        case ARPHRD_INFINIBAND:
-                return INFINIBAND_ALEN;
-        case ARPHRD_TUNNEL:
-        case ARPHRD_SIT:
-        case ARPHRD_IPGRE:
-                return sizeof(struct in_addr);
-        case ARPHRD_TUNNEL6:
-        case ARPHRD_IP6GRE:
-                return sizeof(struct in6_addr);
+        pak_sa ARPHRD_ETHER:
+                ပြန်ပေး ETH_ALEN;
+        pak_sa ARPHRD_INFINIBAND:
+                ပြန်ပေး INFINIBAND_ALEN;
+        pak_sa ARPHRD_TUNNEL:
+        pak_sa ARPHRD_SIT:
+        pak_sa ARPHRD_IPGRE:
+                ပြန်ပေး parimaa_na(sa_nracanaa in_addr);
+        pak_sa ARPHRD_TUNNEL6:
+        pak_sa ARPHRD_IP6GRE:
+                ပြန်ပေး parimaa_na(sa_nracanaa in6_addr);
         default:
-                return 0;
+                ပြန်ပေး 0;
         }
 }

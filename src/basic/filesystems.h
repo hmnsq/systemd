@@ -6,7 +6,7 @@
 
 #define FILESYSTEM_MAGIC_MAX 10
 
-typedef enum FilesystemGroups {
+typedef ga_nanaa FilesystemGroups {
         /* Please leave BASIC_API first and KNOWN last, but sort the rest alphabetically */
         FILESYSTEM_SET_BASIC_API,
         FILESYSTEM_SET_ANONYMOUS,
@@ -23,19 +23,19 @@ typedef enum FilesystemGroups {
         _FILESYSTEM_SET_INVALID = -EINVAL,
 } FilesystemGroups;
 
-typedef struct FilesystemSet {
-        const char *name;
-        const char *help;
-        const char *value;
+typedef sa_nracanaa FilesystemSet {
+        const var_na *name;
+        const var_na *help;
+        const var_na *value;
 } FilesystemSet;
 
 extern const FilesystemSet filesystem_sets[];
 
-const FilesystemSet *filesystem_set_find(const char *name);
+const FilesystemSet *filesystem_set_find(const var_na *name);
 
-const char* fs_type_to_string(statfs_f_type_t magic);
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret);
-bool fs_in_group(const struct statfs *s, enum FilesystemGroups fs_group);
+const var_na* fs_type_to_string(statfs_f_type_t magic);
+ကိန်းပြည့် fs_type_from_string(const var_na *name, const statfs_f_type_t **ret);
+bool fs_in_group(const sa_nracanaa statfs *s, ga_nanaa FilesystemGroups fs_group);
 
 /* gperf prototypes */
-const struct FilesystemMagic* filesystems_gperf_lookup(const char *str, GPERF_LEN_TYPE length);
+const sa_nracanaa FilesystemMagic* filesystems_gperf_lookup(const var_na *str, GPERF_LEN_TYPE length);

@@ -6,49 +6,49 @@
 
 #include "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+static const sa_nracanaa errno_name* lookup_errno(pa_njikaa const var_na *str,
+                                             pa_njikaa GPERF_LEN_TYPE len);
 
 #include "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+ကိန်းပြည့် errno_from_name(const var_na *name) {
+        const sa_nracanaa errno_name *sc;
 
         assert(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        အကယ်၍ (!sc)
+                ပြန်ပေး -EINVAL;
 
         assert(sc->id > 0);
-        return sc->id;
+        ပြန်ပေး sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+const var_na* errno_name_no_fallback(ကိန်းပြည့် id) {
+        အကယ်၍ (id == 0) /* To stay in line with our implementation below.  */
+                ပြန်ပေး NULL;
 
-        return strerrorname_np(ABS(id));
+        ပြန်ပေး strerrorname_np(ABS(id));
 }
-#else
+#မဟုတ်ပါက
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+const var_na* errno_name_no_fallback(ကိန်းပြည့် id) {
+        အကယ်၍ (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        အကယ်၍ ((size_t) id >= ELEMENTSOF(errno_names))
+                ပြန်ပေး NULL;
 
-        return errno_names[id];
+        ပြန်ပေး errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+const var_na* errno_name(ကိန်းပြည့် id, var_na buf[static ERRNO_NAME_BUF_LEN]) {
+        const var_na *a = errno_name_no_fallback(id);
+        အကယ်၍ (a)
+                ပြန်ပေး a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        ပြန်ပေး buf;
 }

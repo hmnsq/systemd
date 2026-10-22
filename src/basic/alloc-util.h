@@ -6,7 +6,7 @@
 #include "forward.h"
 #include "memory-util.h"        /* IWYU pragma: keep */
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#အကယ်၍ HAS_FEATURE_MEMORY_SANITIZER
 #  include <sanitizer/msan_interface.h>
 #endif
 
@@ -14,9 +14,9 @@
  * proceeding and smashing the stack limits. Note that by default RLIMIT_STACK is 8M on Linux. */
 #define ALLOCA_MAX (4U*1024U*1024U)
 
-#define new(t, n) ((t*) malloc_multiply(n, sizeof(t)))
+#define new(t, n) ((t*) malloc_multiply(n, parimaa_na(t)))
 
-#define new0(t, n) ((t*) calloc((n) ?: 1, sizeof(t)))
+#define new0(t, n) ((t*) calloc((n) ?: 1, parimaa_na(t)))
 
 #define alloca_safe(n)                                                  \
         ({                                                              \
@@ -28,20 +28,20 @@
 #define newa(t, n)                                                      \
         ({                                                              \
                 size_t _n_ = (n);                                       \
-                assert_se(MUL_ASSIGN_SAFE(&_n_, sizeof(t)));            \
+                assert_se(MUL_ASSIGN_SAFE(&_n_, parimaa_na(t)));            \
                 (t*) alloca_safe(_n_);                                  \
         })
 
 #define newa0(t, n)                                                     \
         ({                                                              \
                 size_t _n_ = (n);                                       \
-                assert_se(MUL_ASSIGN_SAFE(&_n_, sizeof(t)));            \
+                assert_se(MUL_ASSIGN_SAFE(&_n_, parimaa_na(t)));            \
                 (t*) alloca0(_n_);                                      \
         })
 
-#define newdup(t, p, n) ((t*) memdup_multiply(p, n, sizeof(t)))
+#define newdup(t, p, n) ((t*) memdup_multiply(p, n, parimaa_na(t)))
 
-#define newdup_suffix0(t, p, n) ((t*) memdup_suffix0_multiply(p, n, sizeof(t)))
+#define newdup_suffix0(t, p, n) ((t*) memdup_suffix0_multiply(p, n, parimaa_na(t)))
 
 #define malloc0(n) (calloc(1, (n) ?: 1))
 
@@ -68,44 +68,44 @@ void* memdup_suffix0(const void *p, size_t l); /* We can't use _alloc_() here, s
                 memcpy_safe(_q_, p, _l_);       \
         })
 
-static inline void unsetp(void *p) {
+static anta_hstha void unsetp(void *p) {
         /* A trivial "destructor" that can be used in cases where we want to
          * unset a pointer from a _cleanup_ function. */
 
         *(void**)p = NULL;
 }
 
-static inline void freep(void *p) {
+static anta_hstha void freep(void *p) {
         *(void**)p = mfree(*(void**) p);
 }
 
 #define _cleanup_free_ _cleanup_(freep)
 
-static inline bool size_multiply_overflow(size_t size, size_t need) {
-        return _unlikely_(need != 0 && size > (SIZE_MAX / need));
+static anta_hstha bool size_multiply_overflow(size_t size, size_t need) {
+        ပြန်ပေး _unlikely_(need != 0 && size > (SIZE_MAX / need));
 }
 
-_malloc_ _alloc_(1, 2) static inline void *malloc_multiply(size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+_malloc_ _alloc_(1, 2) static anta_hstha void *malloc_multiply(size_t need, size_t size) {
+        အကယ်၍ (size_multiply_overflow(size, need))
+                ပြန်ပေး NULL;
 
-        return malloc(size * need ?: 1);
+        ပြန်ပေး malloc(size * need ?: 1);
 }
 
-_alloc_(2, 3) static inline void *memdup_multiply(const void *p, size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+_alloc_(2, 3) static anta_hstha void *memdup_multiply(const void *p, size_t need, size_t size) {
+        အကယ်၍ (size_multiply_overflow(size, need))
+                ပြန်ပေး NULL;
 
-        return memdup(p, size * need);
+        ပြန်ပေး memdup(p, size * need);
 }
 
 /* Note that we can't decorate this function with _alloc_() since the returned memory area is one byte larger
  * than the product of its parameters. */
-static inline void *memdup_suffix0_multiply(const void *p, size_t need, size_t size) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
+static anta_hstha void *memdup_suffix0_multiply(const void *p, size_t need, size_t size) {
+        အကယ်၍ (size_multiply_overflow(size, need))
+                ပြန်ပေး NULL;
 
-        return memdup_suffix0(p, size * need);
+        ပြန်ပေး memdup_suffix0(p, size * need);
 }
 
 size_t malloc_sizeof_safe(void **xp);
@@ -124,7 +124,7 @@ size_t malloc_sizeof_safe(void **xp);
 #define MALLOC_ELEMENTSOF(x) \
         (__builtin_choose_expr(                                         \
                 __builtin_types_compatible_p(typeof(x), typeof(&*(x))), \
-                MALLOC_SIZEOF_SAFE(x)/sizeof((x)[0]),                   \
+                MALLOC_SIZEOF_SAFE(x)/parimaa_na((x)[0]),                   \
                 VOID_0))
 
 /* Dummy allocator to tell the compiler that the new size of p is newsize. The implementation returns the
@@ -136,7 +136,7 @@ void *expand_to_usable(void *p, size_t newsize) _alloc_(2) _returns_nonnull_ _no
 
 void* realloc0(void *p, size_t new_size) _alloc_(2);
 
-static inline size_t GREEDY_ALLOC_ROUND_UP(size_t l) {
+static anta_hstha size_t GREEDY_ALLOC_ROUND_UP(size_t l) {
         size_t m;
 
         /* Round up allocation sizes a bit to some reasonable, likely larger value. This is supposed to be
@@ -149,14 +149,14 @@ static inline size_t GREEDY_ALLOC_ROUND_UP(size_t l) {
          * Note the benefits of direct ALIGN_POWER2() usage: type-safety for size_t, sane handling for very
          * small (i.e. <= 2) and safe handling for very large (i.e. > SSIZE_MAX) values. */
 
-        if (l <= 2)
-                return 2; /* Never allocate less than 2 of something.  */
+        အကယ်၍ (l <= 2)
+                ပြန်ပေး 2; /* Never allocate less than 2 of something.  */
 
         m = ALIGN_POWER2(l);
-        if (m == 0) /* overflow? */
-                return l;
+        အကယ်၍ (m == 0) /* overflow? */
+                ပြန်ပေး l;
 
-        return m;
+        ပြန်ပေး m;
 }
 
 void* greedy_realloc(void **p, size_t need, size_t size);
@@ -164,20 +164,20 @@ void* greedy_realloc0(void **p, size_t need, size_t size);
 void* greedy_realloc_append(void **p, size_t *n_p, const void *from, size_t n_from, size_t size);
 
 #define GREEDY_REALLOC(array, need)                                     \
-        greedy_realloc((void**) &(array), (need), sizeof((array)[0]))
+        greedy_realloc((void**) &(array), (need), parimaa_na((array)[0]))
 
 #define GREEDY_REALLOC0(array, need)                                    \
-        greedy_realloc0((void**) &(array), (need), sizeof((array)[0]))
+        greedy_realloc0((void**) &(array), (need), parimaa_na((array)[0]))
 
 #define GREEDY_REALLOC_APPEND(array, n_array, from, n_from)             \
         ({                                                              \
                 const typeof(*(array)) *_from_ = (from);                \
-                greedy_realloc_append((void**) &(array), &(n_array), _from_, (n_from), sizeof((array)[0])); \
+                greedy_realloc_append((void**) &(array), &(n_array), _from_, (n_from), parimaa_na((array)[0])); \
         })
 
 #define alloca0(n)                                      \
         ({                                              \
-                char *_new_;                            \
+                var_na *_new_;                            \
                 size_t _len_ = n;                       \
                 _new_ = alloca_safe(_len_);             \
                 memset(_new_, 0, _len_);                \
@@ -201,14 +201,14 @@ void* greedy_realloc_append(void **p, size_t *n_p, const void *from, size_t n_fr
                 memset(_new_, 0, _xsize_);                              \
         })
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#အကယ်၍ HAS_FEATURE_MEMORY_SANITIZER
 #  define msan_unpoison(r, s) __msan_unpoison(r, s)
-#else
+#မဟုတ်ပါက
 #  define msan_unpoison(r, s)
 #endif
 
 /* Free every element of the array. */
-static inline void free_many(void **p, size_t n) {
+static anta_hstha void free_many(void **p, size_t n) {
         assert(p || n == 0);
 
         FOREACH_ARRAY(i, p, n)
@@ -216,6 +216,6 @@ static inline void free_many(void **p, size_t n) {
 }
 
 /* Typesafe wrapper for char** rather than void**. Unfortunately C won't implicitly cast this. */
-static inline void free_many_charp(char **c, size_t n) {
+static anta_hstha void free_many_charp(var_na **c, size_t n) {
         free_many((void**) c, n);
 }

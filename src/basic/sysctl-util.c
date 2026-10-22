@@ -13,8 +13,8 @@
 #include "string-util.h"
 #include "sysctl-util.h"
 
-char* sysctl_normalize(char *s) {
-        char *n;
+var_na* sysctl_normalize(var_na *s) {
+        var_na *n;
 
         assert(s);
 
@@ -24,62 +24,62 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        အကယ်၍ (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
                 do {
-                        if (*n == '.')
+                        အကယ်၍ (*n == '.')
                                 *n = '/';
-                        else
+                        မဟုတ်ပါက
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } နေစဉ် (n);
 
         path_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
+        အကယ်၍ (s[0] == '/' && s[1] != 0)
                 memmove(s, s+1, strlen(s));
 
-        return s;
+        ပြန်ပေး s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
-        _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+static ကိန်းပြည့် shadow_update(Hashmap **shadow, const var_na *property, const var_na *value) {
+        _cleanup_free_ var_na *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
+        ကိန်းပြည့် r;
 
         assert(property);
         assert(value);
 
-        if (!shadow)
-                return 0;
+        အကယ်၍ (!shadow)
+                ပြန်ပေး 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        အကယ်၍ (!k)
+                ပြန်ပေး -ENOMEM;
 
         v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        အကယ်၍ (!v)
+                ပြန်ပေး -ENOMEM;
 
         cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
 
         r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
+        အကယ်၍ (r < 0) {
                 assert(r != -EEXIST);
 
-                return r;
+                ပြန်ပေး r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        ပြန်ပေး 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
-        char *p;
-        int r;
+ကိန်းပြည့် sysctl_write_full(const var_na *property, const var_na *value, Hashmap **shadow) {
+        var_na *p;
+        ကိန်းပြည့် r;
 
         assert(property);
         assert(value);
@@ -87,35 +87,35 @@ int sysctl_write_full(const char *property, const char *value, Hashmap **shadow)
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        အကယ်၍ (!path_is_normalized(p))
+                ပြန်ပေး -EINVAL;
 
         log_debug("Setting '%s' to '%s'", p, value);
 
         r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        ပြန်ပေး write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
-        _cleanup_free_ char *v = NULL;
+ကိန်းပြည့် sysctl_writef(const var_na *property, const var_na *format, ...) {
+        _cleanup_free_ var_na *v = NULL;
         va_list ap;
-        int r;
+        ကိန်းပြည့် r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး -ENOMEM;
 
-        return sysctl_write(property, v);
+        ပြန်ပေး sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+ကိန်းပြည့် sysctl_write_verify(const var_na *property, const var_na *value) {
+        ကိန်းပြည့် r;
 
         assert(property);
         assert(value);
@@ -126,18 +126,18 @@ int sysctl_write_verify(const char *property, const char *value) {
          * 304aa560385720baf3660fe8500f6dd425b63ea9 (v6.17.5). Let's first save the original value, and
          * restore to the saved value if the new value is refused. */
 
-        _cleanup_free_ char *original = NULL;
+        _cleanup_free_ var_na *original = NULL;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        အကယ်၍ (r >= 0 && streq(original, value))
+                ပြန်ပေး 0; /* Already set. */
 
         r = sysctl_write(property, value);
-        if (r >= 0) {
-                _cleanup_free_ char *current = NULL;
+        အကယ်၍ (r >= 0) {
+                _cleanup_free_ var_na *current = NULL;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                အကယ်၍ (r >= 0) {
+                        အကယ်၍ (streq(current, value))
+                                ပြန်ပေး 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
+        အကယ်၍ (original)
                 (void) sysctl_write(property, original);
 
-        return r;
+        ပြန်ပေး r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+static const var_na* af_to_sysctl_dir(ကိန်းပြည့် af) {
+        အကယ်၍ (af == AF_MPLS)
+                ပြန်ပေး "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        ပြန်ပေး af_to_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+ကိန်းပြည့် sysctl_write_ip_property(ကိန်းပြည့် af, const var_na *ifname, const var_na *property, const var_na *value, Hashmap **shadow) {
+        const var_na *p;
 
         assert(property);
         assert(value);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        အကယ်၍ (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                ပြန်ပေး -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        အကယ်၍ (ifname) {
+                အကယ်၍ (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        ပြန်ပေး -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } မဟုတ်ပါက
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        ပြန်ပေး sysctl_write_full(p, value, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+ကိန်းပြည့် sysctl_write_ip_property_boolean(ကိန်းပြည့် af, const var_na *ifname, const var_na *property, bool value, Hashmap **shadow) {
+        ပြန်ပေး sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
-        const char *p;
+ကိန်းပြည့် sysctl_write_ip_neighbor_property(ကိန်းပြည့် af, const var_na *ifname, const var_na *property, const var_na *value, Hashmap **shadow) {
+        const var_na *p;
 
         assert(property);
         assert(value);
         assert(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        အကယ်၍ (!IN_SET(af, AF_INET, AF_INET6))
+                ပြန်ပေး -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        အကယ်၍ (ifname) {
+                အကယ်၍ (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        ပြန်ပေး -EINVAL;
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
+        } မဟုတ်ပါက
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        ပြန်ပေး sysctl_write_full(p, value, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
-        char buf[DECIMAL_STR_MAX(uint32_t)];
+ကိန်းပြည့် sysctl_write_ip_neighbor_property_uint32(ကိန်းပြည့် af, const var_na *ifname, const var_na *property, uint32_t value, Hashmap **shadow) {
+        var_na buf[DECIMAL_STR_MAX(uint32_t)];
         xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+        ပြန်ပေး sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
-        char *p;
-        int r;
+ကိန်းပြည့် sysctl_read(const var_na *property, var_na **ret) {
+        var_na *p;
+        ကိန်းပြည့် r;
 
         assert(property);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        အကယ်၍ (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                ပြန်ပေး -EINVAL;
 
         r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
+        အကယ်၍ (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        ပြန်ပေး r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
-        const char *p;
+ကိန်းပြည့် sysctl_read_ip_property(ကိန်းပြည့် af, const var_na *ifname, const var_na *property, var_na **ret) {
+        const var_na *p;
 
         assert(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        အကယ်၍ (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                ပြန်ပေး -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        အကယ်၍ (ifname) {
+                အကယ်၍ (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        ပြန်ပေး -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } မဟုတ်ပါက
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        ပြန်ပေး sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ကိန်းပြည့် sysctl_read_ip_property_int(ကိန်းပြည့် af, const var_na *ifname, const var_na *property, ကိန်းပြည့် *ret) {
+        _cleanup_free_ var_na *s = NULL;
+        ကိန်းပြည့် r;
 
         assert(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
-        return safe_atoi(s, ret);
+        ပြန်ပေး safe_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
-        _cleanup_free_ char *s = NULL;
-        int r;
+ကိန်းပြည့် sysctl_read_ip_property_uint32(ကိန်းပြည့် af, const var_na *ifname, const var_na *property, uint32_t *ret) {
+        _cleanup_free_ var_na *s = NULL;
+        ကိန်းပြည့် r;
 
         assert(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
-        return safe_atou32(s, ret);
+        ပြန်ပေး safe_atou32(s, ret);
 }

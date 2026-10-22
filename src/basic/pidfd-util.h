@@ -5,20 +5,20 @@
 
 #include "forward.h"
 
-int pidfd_get_namespace(int fd, unsigned long ns_type_cmd);
+ကိန်းပြည့် pidfd_get_namespace(ကိန်းပြည့် fd, unsigned long ns_type_cmd);
 
-int pidfd_get_info(int fd, struct pidfd_info *info);
-int pidfd_info_mask_is_supported(uint64_t mask);
+ကိန်းပြည့် pidfd_get_info(ကိန်းပြည့် fd, sa_nracanaa pidfd_info *info);
+ကိန်းပြည့် pidfd_info_mask_is_supported(uint64_t mask);
 
-int pidfd_get_pid(int fd, pid_t *ret);
-int pidfd_verify_pid(int pidfd, pid_t pid);
+ကိန်းပြည့် pidfd_get_pid(ကိန်းပြည့် fd, pid_t *ret);
+ကိန်းပြည့် pidfd_verify_pid(ကိန်းပြည့် pidfd, pid_t pid);
 
-int pidfd_get_ppid(int fd, pid_t *ret);
-int pidfd_get_uid(int fd, uid_t *ret);
-int pidfd_get_cgroupid(int fd, uint64_t *ret);
+ကိန်းပြည့် pidfd_get_ppid(ကိန်းပြည့် fd, pid_t *ret);
+ကိန်းပြည့် pidfd_get_uid(ကိန်းပြည့် fd, uid_t *ret);
+ကိန်းပြည့် pidfd_get_cgroupid(ကိန်းပြည့် fd, uint64_t *ret);
 
-int pidfd_get_inode_id_impl(int fd, uint64_t *ret);
-int pidfd_get_inode_id(int fd, uint64_t *ret);
-int pidfd_get_inode_id_self_cached(uint64_t *ret);
+ကိန်းပြည့် pidfd_get_inode_id_impl(ကိန်းပြည့် fd, uint64_t *ret);
+ကိန်းပြည့် pidfd_get_inode_id(ကိန်းပြည့် fd, uint64_t *ret);
+ကိန်းပြည့် pidfd_get_inode_id_self_cached(uint64_t *ret);
 
-int pidfd_check_pidfs(int pid_fd);
+ကိန်းပြည့် pidfd_check_pidfs(ကိန်းပြည့် pid_fd);

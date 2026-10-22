@@ -11,302 +11,302 @@
 #include "string-util.h"
 #include "version.h"
 
-const char* const systemd_features =
+const var_na* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#အကယ်၍ HAVE_PAM
         "+PAM"
-#else
+#မဟုတ်ပါက
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#အကယ်၍ HAVE_AUDIT
         " +AUDIT"
-#else
+#မဟုတ်ပါက
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#အကယ်၍ HAVE_SELINUX
         " +SELINUX"
-#else
+#မဟုတ်ပါက
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#အကယ်၍ HAVE_APPARMOR
         " +APPARMOR"
-#else
+#မဟုတ်ပါက
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#အကယ်၍ ENABLE_IMA
         " +IMA"
-#else
+#မဟုတ်ပါက
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#အကယ်၍ ENABLE_IPE
         " +IPE"
-#else
+#မဟုတ်ပါက
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#အကယ်၍ ENABLE_SMACK
         " +SMACK"
-#else
+#မဟုတ်ပါက
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#အကယ်၍ HAVE_SECCOMP
         " +SECCOMP"
-#else
+#မဟုတ်ပါက
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#အကယ်၍ HAVE_GNUTLS
         " +GNUTLS"
-#else
+#မဟုတ်ပါက
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#အကယ်၍ HAVE_OPENSSL
         " +OPENSSL"
-#else
+#မဟုတ်ပါက
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#အကယ်၍ HAVE_ACL
         " +ACL"
-#else
+#မဟုတ်ပါက
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#အကယ်၍ HAVE_BLKID
         " +BLKID"
-#else
+#မဟုတ်ပါက
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#အကယ်၍ HAVE_LIBCURL
         " +CURL"
-#else
+#မဟုတ်ပါက
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#အကယ်၍ HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#မဟုတ်ပါက
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#အကယ်၍ HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#မဟုတ်ပါက
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#အကယ်၍ HAVE_LIBIDN2
         " +IDN2"
-#else
+#မဟုတ်ပါက
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#အကယ်၍ HAVE_KMOD
         " +KMOD"
-#else
+#မဟုတ်ပါက
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#အကယ်၍ HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#မဟုတ်ပါက
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#အကယ်၍ HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#မဟုတ်ပါက
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#အကယ်၍ HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#မဟုတ်ပါက
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#အကယ်၍ HAVE_PCRE2
         " +PCRE2"
-#else
+#မဟုတ်ပါက
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#အကယ်၍ HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#မဟုတ်ပါက
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#အကယ်၍ HAVE_P11KIT
         " +P11KIT"
-#else
+#မဟုတ်ပါက
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#အကယ်၍ HAVE_QRENCODE
         " +QRENCODE"
-#else
+#မဟုတ်ပါက
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#အကယ်၍ HAVE_TPM2
         " +TPM2"
-#else
+#မဟုတ်ပါက
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#အကယ်၍ HAVE_BZIP2
         " +BZIP2"
-#else
+#မဟုတ်ပါက
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#အကယ်၍ HAVE_LZ4
         " +LZ4"
-#else
+#မဟုတ်ပါက
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#အကယ်၍ HAVE_XZ
         " +XZ"
-#else
+#မဟုတ်ပါက
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#အကယ်၍ HAVE_ZLIB
         " +ZLIB"
-#else
+#မဟုတ်ပါက
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#အကယ်၍ HAVE_ZSTD
         " +ZSTD"
-#else
+#မဟုတ်ပါက
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#အကယ်၍ BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#မဟုတ်ပါက
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#အကယ်၍ HAVE_VMLINUX_H
         " +BTF"
-#else
+#မဟုတ်ပါက
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#အကယ်၍ HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#မဟုတ်ပါက
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#အကယ်၍ ENABLE_UTMP
         " +UTMP"
-#else
+#မဟုတ်ပါက
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#အကယ်၍ HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#မဟုတ်ပါက
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#အကယ်၍ EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#မဟုတ်ပါက
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+static var_na* systemd_features_with_color(void) {
+        const var_na *p = systemd_features;
+        _cleanup_free_ var_na *ret = NULL;
+        ကိန်းပြည့် r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        အတွက် (;;) {
+                _cleanup_free_ var_na *word = NULL;
+                var_na *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                အကယ်၍ (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        ပြန်ပေး NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                အကယ်၍ (r == 0)
+                        ပြန်ပေး TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                အကယ်၍ (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        ပြန်ပေး NULL;
                 }
 
-                if (word[0] == '+')
+                အကယ်၍ (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                မဟုတ်ပါက အကယ်၍ (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                မဟုတ်ပါက
                         q = strextend(&ret, word);
-                if (!q) {
+                အကယ်၍ (!q) {
                         log_oom_warning();
-                        return NULL;
+                        ပြန်ပေး NULL;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+ကိန်းပြည့် version(void) {
+        _cleanup_free_ var_na *b = NULL;
 
-        if (colors_enabled())
+        အကယ်၍ (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        ပြန်ပေး 0;
 }
 
-int version_only(void) {
+ကိန်းပြည့် version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        ပြန်ပေး 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#အကယ်၍ EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        ပြန်ပေး false;
+#မဟုတ်ပါက
+        ကိန်းပြည့် r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        အကယ်၍ (r >= 0)
+                ပြန်ပေး r;
+        အကယ်၍ (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        ပြန်ပေး EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

@@ -37,56 +37,56 @@
 #define EFIVAR_PATH(variable) "/sys/firmware/efi/efivars/" variable
 #define EFIVAR_CACHE_PATH(variable) "/run/systemd/efivars/" variable
 
-#if ENABLE_EFI
+#အကယ်၍ ENABLE_EFI
 
-int efi_get_variable(const char *variable, uint32_t *attribute, void **ret_value, size_t *ret_size);
-int efi_get_variable_string(const char *variable, char **ret);
-int efi_get_variable_path(const char *variable, char **ret);
-int efi_set_variable(const char *variable, const void *value, size_t size) _nonnull_if_nonzero_(2, 3);
-int efi_set_variable_string(const char *variable, const char *value);
+ကိန်းပြည့် efi_get_variable(const var_na *variable, uint32_t *attribute, void **ret_value, size_t *ret_size);
+ကိန်းပြည့် efi_get_variable_string(const var_na *variable, var_na **ret);
+ကိန်းပြည့် efi_get_variable_path(const var_na *variable, var_na **ret);
+ကိန်းပြည့် efi_set_variable(const var_na *variable, const void *value, size_t size) _nonnull_if_nonzero_(2, 3);
+ကိန်းပြည့် efi_set_variable_string(const var_na *variable, const var_na *value);
 
 bool set_efi_boot(bool b);
 bool is_efi_boot(void);
 bool is_efi_secure_boot(void);
 SecureBootMode efi_get_secure_boot_mode(void);
 
-#else
+#မဟုတ်ပါက
 
-static inline int efi_get_variable(const char *variable, uint32_t *attribute, void **value, size_t *size) {
-        return -EOPNOTSUPP;
+static anta_hstha ကိန်းပြည့် efi_get_variable(const var_na *variable, uint32_t *attribute, void **value, size_t *size) {
+        ပြန်ပေး -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_string(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+static anta_hstha ကိန်းပြည့် efi_get_variable_string(const var_na *variable, var_na **ret) {
+        ပြန်ပေး -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_path(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+static anta_hstha ကိန်းပြည့် efi_get_variable_path(const var_na *variable, var_na **ret) {
+        ပြန်ပေး -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable(const char *variable, const void *value, size_t size) {
-        return -EOPNOTSUPP;
+static anta_hstha ကိန်းပြည့် efi_set_variable(const var_na *variable, const void *value, size_t size) {
+        ပြန်ပေး -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable_string(const char *variable, const char *p) {
-        return -EOPNOTSUPP;
+static anta_hstha ကိန်းပြည့် efi_set_variable_string(const var_na *variable, const var_na *p) {
+        ပြန်ပေး -EOPNOTSUPP;
 }
 
-static inline bool set_efi_boot(bool b) {
-        return false;
+static anta_hstha bool set_efi_boot(bool b) {
+        ပြန်ပေး false;
 }
 
-static inline bool is_efi_boot(void) {
-        return false;
+static anta_hstha bool is_efi_boot(void) {
+        ပြန်ပေး false;
 }
 
-static inline bool is_efi_secure_boot(void) {
-        return false;
+static anta_hstha bool is_efi_secure_boot(void) {
+        ပြန်ပေး false;
 }
 
-static inline SecureBootMode efi_get_secure_boot_mode(void) {
-        return SECURE_BOOT_UNKNOWN;
+static anta_hstha SecureBootMode efi_get_secure_boot_mode(void) {
+        ပြန်ပေး SECURE_BOOT_UNKNOWN;
 }
 #endif
 
-char *efi_tilt_backslashes(char *s);
+var_na *efi_tilt_backslashes(var_na *s);

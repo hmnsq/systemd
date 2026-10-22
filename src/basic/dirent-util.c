@@ -8,22 +8,22 @@
 #include "stat-util.h"
 #include "string-util.h"
 
-int dirent_ensure_type(int dir_fd, struct dirent *de) {
-        int r;
+ကိန်းပြည့် dirent_ensure_type(ကိန်းပြည့် dir_fd, sa_nracanaa dirent *de) {
+        ကိန်းပြည့် r;
 
         assert(dir_fd >= 0);
         assert(de);
 
-        if (de->d_type != DT_UNKNOWN)
-                return 0;
+        အကယ်၍ (de->d_type != DT_UNKNOWN)
+                ပြန်ပေး 0;
 
-        if (dot_or_dot_dot(de->d_name)) {
+        အကယ်၍ (dot_or_dot_dot(de->d_name)) {
                 de->d_type = DT_DIR;
-                return 0;
+                ပြန်ပေး 0;
         }
 
         /* Let's ask only for the type, nothing else. */
-        struct statx sx;
+        sa_nracanaa statx sx;
         r = xstatx_full(dir_fd,
                         de->d_name,
                         AT_SYMLINK_NOFOLLOW|AT_NO_AUTOMOUNT,
@@ -32,81 +32,81 @@ int dirent_ensure_type(int dir_fd, struct dirent *de) {
                         /* optional_mask= */ STATX_INO,
                         /* mandatory_attributes= */ 0,
                         &sx);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
         assert(FLAGS_SET(sx.stx_mask, STATX_TYPE));
         de->d_type = IFTODT(sx.stx_mode);
 
         /* If the inode is passed too, update the field, i.e. report most recent data */
-        if (FLAGS_SET(sx.stx_mask, STATX_INO))
+        အကယ်၍ (FLAGS_SET(sx.stx_mask, STATX_INO))
                 de->d_ino = sx.stx_ino;
 
-        return 0;
+        ပြန်ပေး 0;
 }
 
-bool dirent_is_file(const struct dirent *de) {
+bool dirent_is_file(const sa_nracanaa dirent *de) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        အကယ်၍ (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ပြန်ပေး false;
 
-        if (hidden_or_backup_file(de->d_name))
-                return false;
+        အကယ်၍ (hidden_or_backup_file(de->d_name))
+                ပြန်ပေး false;
 
-        return true;
+        ပြန်ပေး true;
 }
 
-bool dirent_is_file_with_suffix(const struct dirent *de, const char *suffix) {
+bool dirent_is_file_with_suffix(const sa_nracanaa dirent *de, const var_na *suffix) {
         assert(de);
 
-        if (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
-                return false;
+        အကယ်၍ (!IN_SET(de->d_type, DT_REG, DT_LNK, DT_UNKNOWN))
+                ပြန်ပေး false;
 
-        if (de->d_name[0] == '.')
-                return false;
+        အကယ်၍ (de->d_name[0] == '.')
+                ပြန်ပေး false;
 
-        if (!suffix)
-                return true;
+        အကယ်၍ (!suffix)
+                ပြန်ပေး true;
 
-        return endswith(de->d_name, suffix);
+        ပြန်ပေး endswith(de->d_name, suffix);
 }
 
-struct dirent* readdir_ensure_type(DIR *d) {
-        int r;
+sa_nracanaa dirent* readdir_ensure_type(DIR *d) {
+        ကိန်းပြည့် r;
 
         assert(d);
 
         /* Like readdir(), but fills in .d_type if it is DT_UNKNOWN */
 
-        for (;;) {
-                struct dirent *de;
+        အတွက် (;;) {
+                sa_nracanaa dirent *de;
 
                 errno = 0;
                 de = readdir(d);
-                if (!de)
-                        return NULL;
+                အကယ်၍ (!de)
+                        ပြန်ပေး NULL;
 
                 r = dirent_ensure_type(dirfd(d), de);
-                if (r >= 0)
-                        return de;
-                if (r != -ENOENT) {
+                အကယ်၍ (r >= 0)
+                        ပြန်ပေး de;
+                အကယ်၍ (r != -ENOENT) {
                         errno = -r; /* We want to be compatible with readdir(), hence propagate error via errno here */
-                        return NULL;
+                        ပြန်ပေး NULL;
                 }
 
                 /* Vanished by now? Then skip immediately to next */
         }
 }
 
-struct dirent* readdir_no_dot(DIR *d) {
+sa_nracanaa dirent* readdir_no_dot(DIR *d) {
         assert(d);
 
-        for (;;) {
-                struct dirent *de;
+        အတွက် (;;) {
+                sa_nracanaa dirent *de;
 
                 de = readdir_ensure_type(d);
-                if (!de || !dot_or_dot_dot(de->d_name))
-                        return de;
+                အကယ်၍ (!de || !dot_or_dot_dot(de->d_name))
+                        ပြန်ပေး de;
         }
 }

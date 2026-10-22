@@ -3,4 +3,4 @@
 
 #include "forward.h"
 
-int capsule_name_is_valid(const char *name);
+ကိန်းပြည့် capsule_name_is_valid(const var_na *name);

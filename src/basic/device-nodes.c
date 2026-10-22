@@ -11,81 +11,81 @@
 #include "string-util.h"
 #include "utf8.h"
 
-int allow_listed_char_for_devnode(char c, const char *additional) {
-        return
+ကိန်းပြည့် allow_listed_char_for_devnode(var_na c, const var_na *additional) {
+        ပြန်ပေး
                 ascii_isdigit(c) ||
                 ascii_isalpha(c) ||
                 strchr("#+-.:=@_", c) ||
                 (additional && strchr(additional, c));
 }
 
-int encode_devnode_name(const char *str, char *str_enc, size_t len) {
+ကိန်းပြည့် encode_devnode_name(const var_na *str, var_na *str_enc, size_t len) {
         size_t i, j;
 
-        if (!str || !str_enc)
-                return -EINVAL;
+        အကယ်၍ (!str || !str_enc)
+                ပြန်ပေး -EINVAL;
 
-        for (i = 0, j = 0; str[i] != '\0'; i++) {
-                int seqlen;
+        အတွက် (i = 0, j = 0; str[i] != '\0'; i++) {
+                ကိန်းပြည့် seqlen;
 
                 seqlen = utf8_encoded_valid_unichar(str + i, SIZE_MAX);
-                if (seqlen > 1) {
+                အကယ်၍ (seqlen > 1) {
 
-                        if (len-j < (size_t) seqlen)
-                                return -EINVAL;
+                        အကယ်၍ (len-j < (size_t) seqlen)
+                                ပြန်ပေး -EINVAL;
 
                         memcpy(&str_enc[j], &str[i], seqlen);
                         j += seqlen;
                         i += (seqlen-1);
 
-                } else if (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
+                } မဟုတ်ပါက အကယ်၍ (str[i] == '\\' || !allow_listed_char_for_devnode(str[i], NULL)) {
 
-                        if (len-j < 5)
-                                return -EINVAL;
+                        အကယ်၍ (len-j < 5)
+                                ပြန်ပေး -EINVAL;
 
-                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned char) str[i]));
+                        assert_se(snprintf_ok(&str_enc[j], 5, "\\x%02x", (unsigned var_na) str[i]));
                         j += 4;
 
-                } else {
-                        if (len-j < 1)
-                                return -EINVAL;
+                } မဟုတ်ပါက {
+                        အကယ်၍ (len-j < 1)
+                                ပြန်ပေး -EINVAL;
 
                         str_enc[j] = str[i];
                         j++;
                 }
         }
 
-        if (len-j < 1)
-                return -EINVAL;
+        အကယ်၍ (len-j < 1)
+                ပြန်ပေး -EINVAL;
 
         str_enc[j] = '\0';
-        return 0;
+        ပြန်ပေး 0;
 }
 
-int devnode_same(const char *a, const char *b) {
-        struct stat sa, sb;
-        int r;
+ကိန်းပြည့် devnode_same(const var_na *a, const var_na *b) {
+        sa_nracanaa stat sa, sb;
+        ကိန်းပြည့် r;
 
         assert(a);
         assert(b);
 
-        if (!valid_device_node_path(a) || !valid_device_node_path(b))
-                return -EINVAL;
+        အကယ်၍ (!valid_device_node_path(a) || !valid_device_node_path(b))
+                ပြန်ပေး -EINVAL;
 
-        if (stat(a, &sa) < 0)
-                return -errno;
+        အကယ်၍ (stat(a, &sa) < 0)
+                ပြန်ပေး -errno;
         r = stat_verify_device_node(&sa);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
-        if (stat(b, &sb) < 0)
-                return -errno;
+        အကယ်၍ (stat(b, &sb) < 0)
+                ပြန်ပေး -errno;
         r = stat_verify_device_node(&sb);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
-        if (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
-                return false;
+        အကယ်၍ (((sa.st_mode ^ sb.st_mode) & S_IFMT) != 0) /* both inode same device node type? */
+                ပြန်ပေး false;
 
-        return sa.st_rdev == sb.st_rdev;
+        ပြန်ပေး sa.st_rdev == sb.st_rdev;
 }

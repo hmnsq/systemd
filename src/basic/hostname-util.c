@@ -12,44 +12,44 @@
 #include "strv.h"
 #include "user-util.h"
 
-char* get_default_hostname_raw(void) {
-        int r;
+var_na* get_default_hostname_raw(void) {
+        ကိန်းပြည့် r;
 
         /* Returns the default hostname, and leaves any ??? in place. */
 
-        const char *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
-        if (e) {
-                if (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return strdup(e);
+        const var_na *e = secure_getenv("SYSTEMD_DEFAULT_HOSTNAME");
+        အကယ်၍ (e) {
+                အကယ်၍ (hostname_is_valid(e, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        ပြန်ပေး strdup(e);
 
                 log_debug("Invalid hostname in $SYSTEMD_DEFAULT_HOSTNAME, ignoring: %s", e);
         }
 
-        _cleanup_free_ char *f = NULL;
+        _cleanup_free_ var_na *f = NULL;
         r = parse_os_release(NULL, "DEFAULT_HOSTNAME", &f);
-        if (r < 0)
+        အကယ်၍ (r < 0)
                 log_debug_errno(r, "Failed to parse os-release, ignoring: %m");
-        else if (f) {
-                if (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
-                        return TAKE_PTR(f);
+        မဟုတ်ပါက အကယ်၍ (f) {
+                အကယ်၍ (hostname_is_valid(f, VALID_HOSTNAME_QUESTION_MARK|VALID_HOSTNAME_WORD_TOKEN))
+                        ပြန်ပေး TAKE_PTR(f);
 
                 log_debug("Invalid hostname in os-release, ignoring: %s", f);
         }
 
-        return strdup(FALLBACK_HOSTNAME);
+        ပြန်ပေး strdup(FALLBACK_HOSTNAME);
 }
 
-bool valid_ldh_char(char c) {
+bool valid_ldh_char(var_na c) {
         /* "LDH" → "Letters, digits, hyphens", as per RFC 5890, Section 2.3.1 */
 
-        return ascii_isalpha(c) ||
+        ပြန်ပေး ascii_isalpha(c) ||
                 ascii_isdigit(c) ||
                 c == '-';
 }
 
-bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
+bool hostname_is_valid(const var_na *s, ValidHostnameFlags flags) {
         unsigned n_dots = 0;
-        const char *p;
+        const var_na *p;
         bool dot, hyphen;
 
         /* Check if s looks like a valid hostname or FQDN. This does not do full DNS validation, but only
@@ -60,95 +60,95 @@ bool hostname_is_valid(const char *s, ValidHostnameFlags flags) {
          * dns_name_is_valid(). Doesn't accept empty hostnames, hostnames with leading dots, and hostnames
          * with multiple dots in a sequence. Doesn't allow hyphens at the beginning or end of label. */
 
-        if (isempty(s))
-                return false;
+        အကယ်၍ (isempty(s))
+                ပြန်ပေး false;
 
-        if (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
-                return FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
+        အကယ်၍ (streq(s, ".host")) /* Used by the container logic to denote the "root container" */
+                ပြန်ပေး FLAGS_SET(flags, VALID_HOSTNAME_DOT_HOST);
 
-        for (p = s, dot = hyphen = true; *p; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
-                                return false;
+        အတွက် (p = s, dot = hyphen = true; *p; p++)
+                အကယ်၍ (*p == '.') {
+                        အကယ်၍ (dot || hyphen)
+                                ပြန်ပေး false;
 
                         dot = true;
                         hyphen = false;
                         n_dots++;
 
-                } else if (*p == '-') {
-                        if (dot)
-                                return false;
+                } မဟုတ်ပါက အကယ်၍ (*p == '-') {
+                        အကယ်၍ (dot)
+                                ပြန်ပေး false;
 
                         dot = false;
                         hyphen = true;
 
-                } else {
-                        if (!valid_ldh_char(*p) &&
+                } မဟုတ်ပါက {
+                        အကယ်၍ (!valid_ldh_char(*p) &&
                             (*p != '?' || !FLAGS_SET(flags, VALID_HOSTNAME_QUESTION_MARK)) &&
                             (*p != '$' || !FLAGS_SET(flags, VALID_HOSTNAME_WORD_TOKEN)))
-                                return false;
+                                ပြန်ပေး false;
 
                         dot = false;
                         hyphen = false;
                 }
 
-        if (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
-                return false;
-        if (hyphen)
-                return false;
+        အကယ်၍ (dot && (n_dots < 2 || !FLAGS_SET(flags, VALID_HOSTNAME_TRAILING_DOT)))
+                ပြန်ပေး false;
+        အကယ်၍ (hyphen)
+                ပြန်ပေး false;
 
         /* Note that host name max is 64 on Linux, but DNS allows domain names up to 255 characters. */
-        if (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
-                return false;
+        အကယ်၍ (p - s > (ssize_t) LINUX_HOST_NAME_MAX)
+                ပြန်ပေး false;
 
-        return true;
+        ပြန်ပေး true;
 }
 
-char* hostname_cleanup(char *s) {
-        char *p, *d;
+var_na* hostname_cleanup(var_na *s) {
+        var_na *p, *d;
         bool dot, hyphen;
 
         assert(s);
 
-        for (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
-                if (*p == '.') {
-                        if (dot || hyphen)
+        အတွက် (p = s, d = s, dot = hyphen = true; *p && d - s < (ssize_t) LINUX_HOST_NAME_MAX; p++)
+                အကယ်၍ (*p == '.') {
+                        အကယ်၍ (dot || hyphen)
                                 continue;
 
                         *(d++) = '.';
                         dot = true;
                         hyphen = false;
 
-                } else if (*p == '-') {
-                        if (dot)
+                } မဟုတ်ပါက အကယ်၍ (*p == '-') {
+                        အကယ်၍ (dot)
                                 continue;
 
                         *(d++) = '-';
                         dot = false;
                         hyphen = true;
 
-                } else if (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
+                } မဟုတ်ပါက အကယ်၍ (valid_ldh_char(*p) || IN_SET(*p, '?', '$')) {
                         *(d++) = *p;
                         dot = false;
                         hyphen = false;
                 }
 
-        while (d > s && IN_SET(d[-1], '-', '.'))
+        နေစဉ် (d > s && IN_SET(d[-1], '-', '.'))
                 /* The dot can occur at most once, but we might have multiple
                  * hyphens, hence the loop */
                 d--;
         *d = 0;
 
-        return s;
+        ပြန်ပေး s;
 }
 
-bool is_localhost(const char *hostname) {
+bool is_localhost(const var_na *hostname) {
         assert(hostname);
 
         /* This tries to identify local host and domain names
          * described in RFC6761 plus the redhatism of localdomain */
 
-        return STRCASE_IN_SET(
+        ပြန်ပေး STRCASE_IN_SET(
                         hostname,
                         "localhost",
                         "localhost.",
@@ -160,164 +160,164 @@ bool is_localhost(const char *hostname) {
                 endswith_no_case(hostname, ".localhost.localdomain.");
 }
 
-const char* etc_hostname(void) {
-        static const char *cached = NULL;
+const var_na* etc_hostname(void) {
+        static const var_na *cached = NULL;
 
-        if (!cached)
+        အကယ်၍ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_HOSTNAME") ?: "/etc/hostname";
 
-        return cached;
+        ပြန်ပေး cached;
 }
 
-const char* etc_machine_info(void) {
-        static const char *cached = NULL;
+const var_na* etc_machine_info(void) {
+        static const var_na *cached = NULL;
 
-        if (!cached)
+        အကယ်၍ (!cached)
                 cached = secure_getenv("SYSTEMD_ETC_MACHINE_INFO") ?: "/etc/machine-info";
 
-        return cached;
+        ပြန်ပေး cached;
 }
 
-int get_pretty_hostname(char **ret) {
-        _cleanup_free_ char *n = NULL;
-        int r;
+ကိန်းပြည့် get_pretty_hostname(var_na **ret) {
+        _cleanup_free_ var_na *n = NULL;
+        ကိန်းပြည့် r;
 
         assert(ret);
 
         r = parse_env_file(NULL, etc_machine_info(), "PRETTY_HOSTNAME", &n);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
-        if (isempty(n))
-                return -ENXIO;
+        အကယ်၍ (isempty(n))
+                ပြန်ပေး -ENXIO;
 
         *ret = TAKE_PTR(n);
-        return 0;
+        ပြန်ပေး 0;
 }
 
-int split_user_at_host(const char *s, char **ret_user, char **ret_host) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
+ကိန်းပြည့် split_user_at_host(const var_na *s, var_na **ret_user, var_na **ret_host) {
+        _cleanup_free_ var_na *u = NULL, *h = NULL;
 
         /* Splits a user@host expression (one of those we accept on --machine= and similar). Returns NULL in
          * each of the two return parameters if that part was left empty. */
 
         assert(s);
 
-        const char *rhs = strchr(s, '@');
-        if (rhs) {
-                if (ret_user && rhs > s) {
+        const var_na *rhs = strchr(s, '@');
+        အကယ်၍ (rhs) {
+                အကယ်၍ (ret_user && rhs > s) {
                         u = strndup(s, rhs - s);
-                        if (!u)
-                                return -ENOMEM;
+                        အကယ်၍ (!u)
+                                ပြန်ပေး -ENOMEM;
                 }
 
-                if (ret_host && rhs[1] != 0) {
+                အကယ်၍ (ret_host && rhs[1] != 0) {
                         h = strdup(rhs + 1);
-                        if (!h)
-                                return -ENOMEM;
+                        အကယ်၍ (!h)
+                                ပြန်ပေး -ENOMEM;
                 }
 
-        } else {
-                if (isempty(s))
-                        return -EINVAL;
+        } မဟုတ်ပါက {
+                အကယ်၍ (isempty(s))
+                        ပြန်ပေး -EINVAL;
 
-                if (ret_host) {
+                အကယ်၍ (ret_host) {
                         h = strdup(s);
-                        if (!h)
-                                return -ENOMEM;
+                        အကယ်၍ (!h)
+                                ပြန်ပေး -ENOMEM;
                 }
         }
 
-        if (ret_user)
+        အကယ်၍ (ret_user)
                 *ret_user = TAKE_PTR(u);
-        if (ret_host)
+        အကယ်၍ (ret_host)
                 *ret_host = TAKE_PTR(h);
 
-        return !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
+        ပြန်ပေး !!rhs; /* return > 0 if '@' was specified, 0 otherwise */
 }
 
-int machine_spec_valid(const char *s) {
-        _cleanup_free_ char *u = NULL, *h = NULL;
-        int r;
+ကိန်းပြည့် machine_spec_valid(const var_na *s) {
+        _cleanup_free_ var_na *u = NULL, *h = NULL;
+        ကိန်းပြည့် r;
 
         assert(s);
 
         r = split_user_at_host(s, &u, &h);
-        if (r == -EINVAL)
-                return false;
-        if (r < 0)
-                return r;
+        အကယ်၍ (r == -EINVAL)
+                ပြန်ပေး false;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
 
-        if (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
-                return false;
+        အကယ်၍ (u && !valid_user_group_name(u, VALID_USER_RELAX | VALID_USER_ALLOW_NUMERIC))
+                ပြန်ပေး false;
 
-        if (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
-                return false;
+        အကယ်၍ (h && !hostname_is_valid(h, VALID_HOSTNAME_DOT_HOST))
+                ပြန်ပေး false;
 
-        return true;
+        ပြန်ပေး true;
 }
 
-bool machine_tag_is_valid(const char *s) {
+bool machine_tag_is_valid(const var_na *s) {
         size_t n = strlen_ptr(s);
-        if (n <= 0 || n >= 256)
-                return false;
+        အကယ်၍ (n <= 0 || n >= 256)
+                ပြန်ပေး false;
 
         /* Don't allow "-" and "." as first char. (This is load-bearing, we want that "+"/"-" can be used as
          * prefix for adding/removing tags from the list). */
-        if (strchr("-.=", s[0]))
-                return false;
+        အကယ်၍ (strchr("-.=", s[0]))
+                ပြန်ပေး false;
 
         /* We allow parameterization of tags, with a "=" as separator */
-        const char *eq = strchr(s, '=');
-        if (eq) {
+        const var_na *eq = strchr(s, '=');
+        အကယ်၍ (eq) {
                 assert(eq > s);
 
                 /* If there is an '=', then make the same restrictions as for the first char on the last char before it */
-                if (strchr("-.", eq[-1]))
-                        return false;
-        } else {
+                အကယ်၍ (strchr("-.", eq[-1]))
+                        ပြန်ပေး false;
+        } မဟုတ်ပါက {
                 /* If there's no '=', then make the restriction on the very last character */
-                if (strchr("-.", s[n-1]))
-                        return false;
+                အကယ်၍ (strchr("-.", s[n-1]))
+                        ပြန်ပေး false;
         }
 
-        return in_charset(s, ALPHANUMERICAL "-.=");
+        ပြန်ပေး in_charset(s, ALPHANUMERICAL "-.=");
 }
 
-int machine_tag_list_is_valid(char **l) {
-        int r;
+ကိန်းပြည့် machine_tag_list_is_valid(var_na **l) {
+        ကိန်းပြည့် r;
 
         r = machine_tags_from_strv(l, /* graceful= */ false, /* ret= */ NULL);
         switch (r) {
-        case -EINVAL:
-        case -E2BIG:
-                return false;
-        case 0:
-                return true;
+        pak_sa -EINVAL:
+        pak_sa -E2BIG:
+                ပြန်ပေး false;
+        pak_sa 0:
+                ပြန်ပေး true;
         default:
-                return r;
+                ပြန်ပေး r;
         }
 }
 
-int machine_tags_from_string(const char *s, bool graceful, char ***ret) {
+ကိန်းပြည့် machine_tags_from_string(const var_na *s, bool graceful, var_na ***ret) {
         assert(ret);
 
         /* Parse the colon-separated TAGS= machine-info field into a sorted, deduplicated strv. */
 
-        if (isempty(s)) {
+        အကယ်၍ (isempty(s)) {
                 *ret = NULL;
-                return 0;
+                ပြန်ပေး 0;
         }
 
-        _cleanup_strv_free_ char **l = strv_split(s, ":");
-        if (!l)
-                return -ENOMEM;
+        _cleanup_strv_free_ var_na **l = strv_split(s, ":");
+        အကယ်၍ (!l)
+                ပြန်ပေး -ENOMEM;
 
-        return machine_tags_from_strv(l, graceful, ret);
+        ပြန်ပေး machine_tags_from_strv(l, graceful, ret);
 }
 
-int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
-        int r;
+ကိန်းပြည့် machine_tags_from_strv(var_na **l, bool graceful, var_na ***ret) {
+        ကိန်းပြည့် r;
 
         /* Go through a list of tags and verify each tag. Invalid tags are silently dropped if 'graceful',
          * and -EINVAL is returned otherwise. The same valueless tag may specified more than once. If the
@@ -330,49 +330,49 @@ int machine_tags_from_strv(char **l, bool graceful, char ***ret) {
          * name hence get distinct keys and may coexist. */
         _cleanup_hashmap_free_ Hashmap *h = NULL;
         STRV_FOREACH(i, l) {
-                if (!machine_tag_is_valid(*i)) {
-                        if (graceful)
+                အကယ်၍ (!machine_tag_is_valid(*i)) {
+                        အကယ်၍ (graceful)
                                 continue;
 
-                        return -EINVAL;
+                        ပြန်ပေး -EINVAL;
                 }
 
-                if (hashmap_size(h) >= MACHINE_TAGS_MAX)
-                        return -E2BIG;
+                အကယ်၍ (hashmap_size(h) >= MACHINE_TAGS_MAX)
+                        ပြန်ပေး -E2BIG;
 
-                const char *eq = strchrnul(*i, '=');
-                _cleanup_free_ char *k = strndup(*i, (eq - *i) + (*eq == '='));
-                if (!k)
-                        return -ENOMEM;
+                const var_na *eq = strchrnul(*i, '=');
+                _cleanup_free_ var_na *k = strndup(*i, (eq - *i) + (*eq == '='));
+                အကယ်၍ (!k)
+                        ပြန်ပေး -ENOMEM;
 
                 r = hashmap_ensure_put(&h, &string_hash_ops_free, k, *i);
-                if (r == -EEXIST) {
-                        if (streq(hashmap_get(h, k), *i))
+                အကယ်၍ (r == -EEXIST) {
+                        အကယ်၍ (streq(hashmap_get(h, k), *i))
                                 continue;
-                        if (!graceful)
-                                return -EINVAL;
+                        အကယ်၍ (!graceful)
+                                ပြန်ပေး -EINVAL;
 
                         /* when graceful, update to the later value */
                         assert_se(hashmap_update(h, k, *i) >= 0);
-                } else if (r < 0)
-                        return r;
-                else if (r > 0)
+                } မဟုတ်ပါက အကယ်၍ (r < 0)
+                        ပြန်ပေး r;
+                မဟုတ်ပါက အကယ်၍ (r > 0)
                         TAKE_PTR(k);   /* successfully added the new value */
         }
 
-        if (ret) {
-                _cleanup_strv_free_ char **cleaned = NULL;
+        အကယ်၍ (ret) {
+                _cleanup_strv_free_ var_na **cleaned = NULL;
                 size_t n = 0;
-                char *v;
+                var_na *v;
                 HASHMAP_FOREACH(v, h) {
                         r = strv_extend_with_size(&cleaned, &n, v);
-                        if (r < 0)
-                                return r;
+                        အကယ်၍ (r < 0)
+                                ပြန်ပေး r;
                 }
 
                 strv_sort(cleaned);
                 *ret = TAKE_PTR(cleaned);
         }
 
-        return 0;
+        ပြန်ပေး 0;
 }

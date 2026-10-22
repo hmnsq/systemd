@@ -5,181 +5,181 @@
 
 #include "forward.h"
 
-union in_addr_union {
-        struct in_addr in;
-        struct in6_addr in6;
-        uint8_t bytes[CONST_MAX(sizeof(struct in_addr), sizeof(struct in6_addr))];
+sa_ngha in_addr_union {
+        sa_nracanaa in_addr in;
+        sa_nracanaa in6_addr in6;
+        uint8_t bytes[CONST_MAX(parimaa_na(sa_nracanaa in_addr), parimaa_na(sa_nracanaa in6_addr))];
 };
 
-struct in_addr_data {
-        int family;
-        union in_addr_union address;
+sa_nracanaa in_addr_data {
+        ကိန်းပြည့် family;
+        sa_ngha in_addr_union address;
 };
 
-bool in4_addr_is_null(const struct in_addr *a) _pure_;
-static inline bool in4_addr_is_set(const struct in_addr *a) {
-        return !in4_addr_is_null(a);
+bool in4_addr_is_null(const sa_nracanaa in_addr *a) _pure_;
+static anta_hstha bool in4_addr_is_set(const sa_nracanaa in_addr *a) {
+        ပြန်ပေး !in4_addr_is_null(a);
 }
-bool in6_addr_is_null(const struct in6_addr *a) _pure_;
-static inline bool in6_addr_is_set(const struct in6_addr *a) {
-        return !in6_addr_is_null(a);
+bool in6_addr_is_null(const sa_nracanaa in6_addr *a) _pure_;
+static anta_hstha bool in6_addr_is_set(const sa_nracanaa in6_addr *a) {
+        ပြန်ပေး !in6_addr_is_null(a);
 }
-int in_addr_is_null(int family, const union in_addr_union *u) _pure_;
-static inline bool in_addr_is_set(int family, const union in_addr_union *u) {
-        return in_addr_is_null(family, u) == 0;
+ကိန်းပြည့် in_addr_is_null(ကိန်းပြည့် family, const sa_ngha in_addr_union *u) _pure_;
+static anta_hstha bool in_addr_is_set(ကိန်းပြည့် family, const sa_ngha in_addr_union *u) {
+        ပြန်ပေး in_addr_is_null(family, u) == 0;
 }
-static inline int in_addr_data_is_null(const struct in_addr_data *a) {
+static anta_hstha ကိန်းပြည့် in_addr_data_is_null(const sa_nracanaa in_addr_data *a) {
         assert(a);
-        return in_addr_is_null(a->family, &a->address);
+        ပြန်ပေး in_addr_is_null(a->family, &a->address);
 }
-static inline bool in_addr_data_is_set(const struct in_addr_data *a) {
-        return in_addr_data_is_null(a);
+static anta_hstha bool in_addr_data_is_set(const sa_nracanaa in_addr_data *a) {
+        ပြန်ပေး in_addr_data_is_null(a);
 }
 
-bool in4_addr_is_multicast(const struct in_addr *a) _pure_;
-bool in6_addr_is_multicast(const struct in6_addr *a) _pure_;
-int in_addr_is_multicast(int family, const union in_addr_union *u) _pure_;
+bool in4_addr_is_multicast(const sa_nracanaa in_addr *a) _pure_;
+bool in6_addr_is_multicast(const sa_nracanaa in6_addr *a) _pure_;
+ကိန်းပြည့် in_addr_is_multicast(ကိန်းပြည့် family, const sa_ngha in_addr_union *u) _pure_;
 
-bool in4_addr_is_link_local(const struct in_addr *a) _pure_;
-bool in4_addr_is_link_local_dynamic(const struct in_addr *a) _pure_;
-bool in6_addr_is_link_local(const struct in6_addr *a) _pure_;
-int in_addr_is_link_local(int family, const union in_addr_union *u) _pure_;
-bool in6_addr_is_link_local_all_nodes(const struct in6_addr *a) _pure_;
+bool in4_addr_is_link_local(const sa_nracanaa in_addr *a) _pure_;
+bool in4_addr_is_link_local_dynamic(const sa_nracanaa in_addr *a) _pure_;
+bool in6_addr_is_link_local(const sa_nracanaa in6_addr *a) _pure_;
+ကိန်းပြည့် in_addr_is_link_local(ကိန်းပြည့် family, const sa_ngha in_addr_union *u) _pure_;
+bool in6_addr_is_link_local_all_nodes(const sa_nracanaa in6_addr *a) _pure_;
 
-bool in4_addr_is_localhost(const struct in_addr *a) _pure_;
-int in_addr_is_localhost(int family, const union in_addr_union *u) _pure_;
-int in_addr_is_localhost_one(int family, const union in_addr_union *u) _pure_;
+bool in4_addr_is_localhost(const sa_nracanaa in_addr *a) _pure_;
+ကိန်းပြည့် in_addr_is_localhost(ကိန်းပြည့် family, const sa_ngha in_addr_union *u) _pure_;
+ကိန်းပြည့် in_addr_is_localhost_one(ကိန်းပြည့် family, const sa_ngha in_addr_union *u) _pure_;
 
-bool in4_addr_is_local_multicast(const struct in_addr *a) _pure_;
-bool in4_addr_is_non_local(const struct in_addr *a) _pure_;
-bool in6_addr_is_ipv4_mapped_address(const struct in6_addr *a) _pure_;
+bool in4_addr_is_local_multicast(const sa_nracanaa in_addr *a) _pure_;
+bool in4_addr_is_non_local(const sa_nracanaa in_addr *a) _pure_;
+bool in6_addr_is_ipv4_mapped_address(const sa_nracanaa in6_addr *a) _pure_;
 
-bool in4_addr_equal(const struct in_addr *a, const struct in_addr *b) _pure_;
-bool in6_addr_equal(const struct in6_addr *a, const struct in6_addr *b) _pure_;
-int in_addr_equal(int family, const union in_addr_union *a, const union in_addr_union *b) _pure_;
+bool in4_addr_equal(const sa_nracanaa in_addr *a, const sa_nracanaa in_addr *b) _pure_;
+bool in6_addr_equal(const sa_nracanaa in6_addr *a, const sa_nracanaa in6_addr *b) _pure_;
+ကိန်းပြည့် in_addr_equal(ကိန်းပြည့် family, const sa_ngha in_addr_union *a, const sa_ngha in_addr_union *b) _pure_;
 bool in4_addr_prefix_intersect(
-                const struct in_addr *a,
+                const sa_nracanaa in_addr *a,
                 unsigned aprefixlen,
-                const struct in_addr *b,
+                const sa_nracanaa in_addr *b,
                 unsigned bprefixlen) _pure_;
 bool in6_addr_prefix_intersect(
-                const struct in6_addr *a,
+                const sa_nracanaa in6_addr *a,
                 unsigned aprefixlen,
-                const struct in6_addr *b,
+                const sa_nracanaa in6_addr *b,
                 unsigned bprefixlen) _pure_;
-int in_addr_prefix_intersect(
-                int family,
-                const union in_addr_union *a,
+ကိန်းပြည့် in_addr_prefix_intersect(
+                ကိန်းပြည့် family,
+                const sa_ngha in_addr_union *a,
                 unsigned aprefixlen,
-                const union in_addr_union *b,
+                const sa_ngha in_addr_union *b,
                 unsigned bprefixlen) _pure_;
-int in_addr_random_prefix(int family, union in_addr_union *u, unsigned prefixlen_fixed_part, unsigned prefixlen);
-int in_addr_prefix_range(
-                int family,
-                const union in_addr_union *in,
+ကိန်းပြည့် in_addr_random_prefix(ကိန်းပြည့် family, sa_ngha in_addr_union *u, unsigned prefixlen_fixed_part, unsigned prefixlen);
+ကိန်းပြည့် in_addr_prefix_range(
+                ကိန်းပြည့် family,
+                const sa_ngha in_addr_union *in,
                 unsigned prefixlen,
-                union in_addr_union *ret_start,
-                union in_addr_union *ret_end);
+                sa_ngha in_addr_union *ret_start,
+                sa_ngha in_addr_union *ret_end);
 
-int in_addr_to_string(int family, const union in_addr_union *u, char **ret);
-static inline int in6_addr_to_string(const struct in6_addr *u, char **ret) {
-        return in_addr_to_string(AF_INET6, (const union in_addr_union*) u, ret);
+ကိန်းပြည့် in_addr_to_string(ကိန်းပြည့် family, const sa_ngha in_addr_union *u, var_na **ret);
+static anta_hstha ကိန်းပြည့် in6_addr_to_string(const sa_nracanaa in6_addr *u, var_na **ret) {
+        ပြန်ပေး in_addr_to_string(AF_INET6, (const sa_ngha in_addr_union*) u, ret);
 }
 
-const char* typesafe_inet_ntop(int family, const union in_addr_union *a, char *buf, size_t len);
-const char* typesafe_inet_ntop4(const struct in_addr *a, char *buf, size_t len);
-const char* typesafe_inet_ntop6(const struct in6_addr *a, char *buf, size_t len);
+const var_na* typesafe_inet_ntop(ကိန်းပြည့် family, const sa_ngha in_addr_union *a, var_na *buf, size_t len);
+const var_na* typesafe_inet_ntop4(const sa_nracanaa in_addr *a, var_na *buf, size_t len);
+const var_na* typesafe_inet_ntop6(const sa_nracanaa in6_addr *a, var_na *buf, size_t len);
 
 /* Note: the lifetime of the compound literal is the immediately surrounding block,
  * see C11 §6.5.2.5, and
  * https://stackoverflow.com/questions/34880638/compound-literal-lifetime-and-if-blocks */
 #define IN_ADDR_MAX CONST_MAX(INET_ADDRSTRLEN, INET6_ADDRSTRLEN)
-#define IN_ADDR_TO_STRING(family, addr) typesafe_inet_ntop(family, addr, (char[IN_ADDR_MAX]){}, IN_ADDR_MAX)
-#define IN4_ADDR_TO_STRING(addr) typesafe_inet_ntop4(addr, (char[INET_ADDRSTRLEN]){}, INET_ADDRSTRLEN)
-#define IN6_ADDR_TO_STRING(addr) typesafe_inet_ntop6(addr, (char[INET6_ADDRSTRLEN]){}, INET6_ADDRSTRLEN)
+#define IN_ADDR_TO_STRING(family, addr) typesafe_inet_ntop(family, addr, (var_na[IN_ADDR_MAX]){}, IN_ADDR_MAX)
+#define IN4_ADDR_TO_STRING(addr) typesafe_inet_ntop4(addr, (var_na[INET_ADDRSTRLEN]){}, INET_ADDRSTRLEN)
+#define IN6_ADDR_TO_STRING(addr) typesafe_inet_ntop6(addr, (var_na[INET6_ADDRSTRLEN]){}, INET6_ADDRSTRLEN)
 
-int in_addr_prefix_to_string(
-                int family,
-                const union in_addr_union *u,
+ကိန်းပြည့် in_addr_prefix_to_string(
+                ကိန်းပြည့် family,
+                const sa_ngha in_addr_union *u,
                 unsigned prefixlen,
-                char *buf,
+                var_na *buf,
                 size_t buf_len);
 
-static inline const char* _in_addr_prefix_to_string(
-                int family,
-                const union in_addr_union *u,
+static anta_hstha const var_na* _in_addr_prefix_to_string(
+                ကိန်းပြည့် family,
+                const sa_ngha in_addr_union *u,
                 unsigned prefixlen,
-                char *buf,
+                var_na *buf,
                 size_t buf_len) {
         /* We assume that this is called with an appropriately sized buffer and can never fail. */
         assert_se(in_addr_prefix_to_string(family, u, prefixlen, buf, buf_len) == 0);
-        return buf;
+        ပြန်ပေး buf;
 }
-static inline const char* _in4_addr_prefix_to_string(const struct in_addr *a, unsigned prefixlen, char *buf, size_t buf_len) {
-        return _in_addr_prefix_to_string(AF_INET, (const union in_addr_union *) a, prefixlen, buf, buf_len);
+static anta_hstha const var_na* _in4_addr_prefix_to_string(const sa_nracanaa in_addr *a, unsigned prefixlen, var_na *buf, size_t buf_len) {
+        ပြန်ပေး _in_addr_prefix_to_string(AF_INET, (const sa_ngha in_addr_union *) a, prefixlen, buf, buf_len);
 }
-static inline const char* _in6_addr_prefix_to_string(const struct in6_addr *a, unsigned prefixlen, char *buf, size_t buf_len) {
-        return _in_addr_prefix_to_string(AF_INET6, (const union in_addr_union *) a, prefixlen, buf, buf_len);
+static anta_hstha const var_na* _in6_addr_prefix_to_string(const sa_nracanaa in6_addr *a, unsigned prefixlen, var_na *buf, size_t buf_len) {
+        ပြန်ပေး _in_addr_prefix_to_string(AF_INET6, (const sa_ngha in_addr_union *) a, prefixlen, buf, buf_len);
 }
 
 #define PREFIX_SUFFIX_MAX (1 + DECIMAL_STR_MAX(unsigned))
 #define IN_ADDR_PREFIX_TO_STRING(family, addr, prefixlen) \
-        _in_addr_prefix_to_string(family, addr, prefixlen, (char[IN_ADDR_MAX + PREFIX_SUFFIX_MAX]){}, IN_ADDR_MAX + PREFIX_SUFFIX_MAX)
+        _in_addr_prefix_to_string(family, addr, prefixlen, (var_na[IN_ADDR_MAX + PREFIX_SUFFIX_MAX]){}, IN_ADDR_MAX + PREFIX_SUFFIX_MAX)
 #define IN4_ADDR_PREFIX_TO_STRING(addr, prefixlen) \
-        _in4_addr_prefix_to_string(addr, prefixlen, (char[INET_ADDRSTRLEN + PREFIX_SUFFIX_MAX]){}, INET_ADDRSTRLEN + PREFIX_SUFFIX_MAX)
+        _in4_addr_prefix_to_string(addr, prefixlen, (var_na[INET_ADDRSTRLEN + PREFIX_SUFFIX_MAX]){}, INET_ADDRSTRLEN + PREFIX_SUFFIX_MAX)
 #define IN6_ADDR_PREFIX_TO_STRING(addr, prefixlen) \
-        _in6_addr_prefix_to_string(addr, prefixlen, (char[INET6_ADDRSTRLEN + PREFIX_SUFFIX_MAX]){}, INET6_ADDRSTRLEN + PREFIX_SUFFIX_MAX)
+        _in6_addr_prefix_to_string(addr, prefixlen, (var_na[INET6_ADDRSTRLEN + PREFIX_SUFFIX_MAX]){}, INET6_ADDRSTRLEN + PREFIX_SUFFIX_MAX)
 
-int in_addr_port_ifindex_name_to_string(int family, const union in_addr_union *u, uint16_t port, int ifindex, const char *server_name, char **ret);
-static inline int in_addr_ifindex_to_string(int family, const union in_addr_union *u, int ifindex, char **ret) {
-        return in_addr_port_ifindex_name_to_string(family, u, 0, ifindex, NULL, ret);
+ကိန်းပြည့် in_addr_port_ifindex_name_to_string(ကိန်းပြည့် family, const sa_ngha in_addr_union *u, uint16_t port, ကိန်းပြည့် ifindex, const var_na *server_name, var_na **ret);
+static anta_hstha ကိန်းပြည့် in_addr_ifindex_to_string(ကိန်းပြည့် family, const sa_ngha in_addr_union *u, ကိန်းပြည့် ifindex, var_na **ret) {
+        ပြန်ပေး in_addr_port_ifindex_name_to_string(family, u, 0, ifindex, NULL, ret);
 }
-static inline int in_addr_port_to_string(int family, const union in_addr_union *u, uint16_t port, char **ret) {
-        return in_addr_port_ifindex_name_to_string(family, u, port, 0, NULL, ret);
+static anta_hstha ကိန်းပြည့် in_addr_port_to_string(ကိန်းပြည့် family, const sa_ngha in_addr_union *u, uint16_t port, var_na **ret) {
+        ပြန်ပေး in_addr_port_ifindex_name_to_string(family, u, port, 0, NULL, ret);
 }
-int in_addr_from_string(int family, const char *s, union in_addr_union *ret);
-int in_addr_from_string_auto(const char *s, int *ret_family, union in_addr_union *ret);
+ကိန်းပြည့် in_addr_from_string(ကိန်းပြည့် family, const var_na *s, sa_ngha in_addr_union *ret);
+ကိန်းပြည့် in_addr_from_string_auto(const var_na *s, ကိန်းပြည့် *ret_family, sa_ngha in_addr_union *ret);
 
-unsigned char in4_addr_netmask_to_prefixlen(const struct in_addr *addr);
-struct in_addr* in4_addr_prefixlen_to_netmask(struct in_addr *addr, unsigned char prefixlen);
-struct in6_addr* in6_addr_prefixlen_to_netmask(struct in6_addr *addr, unsigned char prefixlen);
-int in_addr_prefixlen_to_netmask(int family, union in_addr_union *addr, unsigned char prefixlen);
-int in4_addr_default_prefixlen(const struct in_addr *addr, unsigned char *prefixlen);
-int in4_addr_default_subnet_mask(const struct in_addr *addr, struct in_addr *mask);
-int in4_addr_mask(struct in_addr *addr, unsigned char prefixlen);
-int in6_addr_mask(struct in6_addr *addr, unsigned char prefixlen);
-int in_addr_mask(int family, union in_addr_union *addr, unsigned char prefixlen);
-int in4_addr_prefix_covers_full(const struct in_addr *prefix, unsigned char prefixlen, const struct in_addr *address, unsigned char address_prefixlen);
-int in6_addr_prefix_covers_full(const struct in6_addr *prefix, unsigned char prefixlen, const struct in6_addr *address, unsigned char address_prefixlen);
-int in_addr_prefix_covers_full(int family, const union in_addr_union *prefix, unsigned char prefixlen, const union in_addr_union *address, unsigned char address_prefixlen);
-static inline int in4_addr_prefix_covers(const struct in_addr *prefix, unsigned char prefixlen, const struct in_addr *address) {
-        return in4_addr_prefix_covers_full(prefix, prefixlen, address, 32);
+unsigned var_na in4_addr_netmask_to_prefixlen(const sa_nracanaa in_addr *addr);
+sa_nracanaa in_addr* in4_addr_prefixlen_to_netmask(sa_nracanaa in_addr *addr, unsigned var_na prefixlen);
+sa_nracanaa in6_addr* in6_addr_prefixlen_to_netmask(sa_nracanaa in6_addr *addr, unsigned var_na prefixlen);
+ကိန်းပြည့် in_addr_prefixlen_to_netmask(ကိန်းပြည့် family, sa_ngha in_addr_union *addr, unsigned var_na prefixlen);
+ကိန်းပြည့် in4_addr_default_prefixlen(const sa_nracanaa in_addr *addr, unsigned var_na *prefixlen);
+ကိန်းပြည့် in4_addr_default_subnet_mask(const sa_nracanaa in_addr *addr, sa_nracanaa in_addr *mask);
+ကိန်းပြည့် in4_addr_mask(sa_nracanaa in_addr *addr, unsigned var_na prefixlen);
+ကိန်းပြည့် in6_addr_mask(sa_nracanaa in6_addr *addr, unsigned var_na prefixlen);
+ကိန်းပြည့် in_addr_mask(ကိန်းပြည့် family, sa_ngha in_addr_union *addr, unsigned var_na prefixlen);
+ကိန်းပြည့် in4_addr_prefix_covers_full(const sa_nracanaa in_addr *prefix, unsigned var_na prefixlen, const sa_nracanaa in_addr *address, unsigned var_na address_prefixlen);
+ကိန်းပြည့် in6_addr_prefix_covers_full(const sa_nracanaa in6_addr *prefix, unsigned var_na prefixlen, const sa_nracanaa in6_addr *address, unsigned var_na address_prefixlen);
+ကိန်းပြည့် in_addr_prefix_covers_full(ကိန်းပြည့် family, const sa_ngha in_addr_union *prefix, unsigned var_na prefixlen, const sa_ngha in_addr_union *address, unsigned var_na address_prefixlen);
+static anta_hstha ကိန်းပြည့် in4_addr_prefix_covers(const sa_nracanaa in_addr *prefix, unsigned var_na prefixlen, const sa_nracanaa in_addr *address) {
+        ပြန်ပေး in4_addr_prefix_covers_full(prefix, prefixlen, address, 32);
 }
-static inline int in6_addr_prefix_covers(const struct in6_addr *prefix, unsigned char prefixlen, const struct in6_addr *address) {
-        return in6_addr_prefix_covers_full(prefix, prefixlen, address, 128);
+static anta_hstha ကိန်းပြည့် in6_addr_prefix_covers(const sa_nracanaa in6_addr *prefix, unsigned var_na prefixlen, const sa_nracanaa in6_addr *address) {
+        ပြန်ပေး in6_addr_prefix_covers_full(prefix, prefixlen, address, 128);
 }
-static inline int in_addr_prefix_covers(int family, const union in_addr_union *prefix, unsigned char prefixlen, const union in_addr_union *address) {
-        return in_addr_prefix_covers_full(family, prefix, prefixlen, address, family == AF_INET ? 32 : family == AF_INET6 ? 128 : 0);
+static anta_hstha ကိန်းပြည့် in_addr_prefix_covers(ကိန်းပြည့် family, const sa_ngha in_addr_union *prefix, unsigned var_na prefixlen, const sa_ngha in_addr_union *address) {
+        ပြန်ပေး in_addr_prefix_covers_full(family, prefix, prefixlen, address, family == AF_INET ? 32 : family == AF_INET6 ? 128 : 0);
 }
-int in_addr_parse_prefixlen(int family, const char *p, unsigned char *ret);
-int in_addr_prefix_from_string(const char *p, int family, union in_addr_union *ret_prefix, unsigned char *ret_prefixlen);
+ကိန်းပြည့် in_addr_parse_prefixlen(ကိန်းပြည့် family, const var_na *p, unsigned var_na *ret);
+ကိန်းပြည့် in_addr_prefix_from_string(const var_na *p, ကိန်းပြည့် family, sa_ngha in_addr_union *ret_prefix, unsigned var_na *ret_prefixlen);
 
-typedef enum InAddrPrefixLenMode {
+typedef ga_nanaa InAddrPrefixLenMode {
         PREFIXLEN_FULL,   /* Default to prefixlen of address size, 32 for IPv4 or 128 for IPv6, if not specified. */
         PREFIXLEN_REFUSE, /* Fail with -ENOANO if prefixlen is not specified. */
 } InAddrPrefixLenMode;
 
-int in_addr_prefix_from_string_auto_full(const char *p, InAddrPrefixLenMode mode, int *ret_family, union in_addr_union *ret_prefix, unsigned char *ret_prefixlen);
-static inline int in_addr_prefix_from_string_auto(const char *p, int *ret_family, union in_addr_union *ret_prefix, unsigned char *ret_prefixlen) {
-        return in_addr_prefix_from_string_auto_full(p, PREFIXLEN_FULL, ret_family, ret_prefix, ret_prefixlen);
+ကိန်းပြည့် in_addr_prefix_from_string_auto_full(const var_na *p, InAddrPrefixLenMode mode, ကိန်းပြည့် *ret_family, sa_ngha in_addr_union *ret_prefix, unsigned var_na *ret_prefixlen);
+static anta_hstha ကိန်းပြည့် in_addr_prefix_from_string_auto(const var_na *p, ကိန်းပြည့် *ret_family, sa_ngha in_addr_union *ret_prefix, unsigned var_na *ret_prefixlen) {
+        ပြန်ပေး in_addr_prefix_from_string_auto_full(p, PREFIXLEN_FULL, ret_family, ret_prefix, ret_prefixlen);
 }
 
-static inline size_t FAMILY_ADDRESS_SIZE(int family) {
+static anta_hstha size_t FAMILY_ADDRESS_SIZE(ကိန်းပြည့် family) {
         switch (family) {
-                case AF_INET:
-                        return 4;
-                case AF_INET6:
-                        return 16;
+                pak_sa AF_INET:
+                        ပြန်ပေး 4;
+                pak_sa AF_INET6:
+                        ပြန်ပေး 16;
                 default:
                         assert_not_reached();
         }
@@ -187,34 +187,34 @@ static inline size_t FAMILY_ADDRESS_SIZE(int family) {
 
 #define FAMILY_ADDRESS_SIZE_SAFE(f)                                     \
         ({                                                              \
-                int _f = (f);                                           \
-                _f == AF_INET ? sizeof(struct in_addr) :                \
-                _f == AF_INET6 ? sizeof(struct in6_addr) : 0;           \
+                ကိန်းပြည့် _f = (f);                                           \
+                _f == AF_INET ? parimaa_na(sa_nracanaa in_addr) :                \
+                _f == AF_INET6 ? parimaa_na(sa_nracanaa in6_addr) : 0;           \
         })
 
 /* Workaround for clang, explicitly specify the maximum-size element here.
  * See also oss-fuzz#11344. */
-#define IN_ADDR_NULL ((union in_addr_union) { .in6 = {} })
+#define IN_ADDR_NULL ((sa_ngha in_addr_union) { .in6 = {} })
 
-void in_addr_hash_func(const union in_addr_union *u, int family, struct siphash *state);
-void in_addr_data_hash_func(const struct in_addr_data *a, struct siphash *state);
-int in_addr_data_compare_func(const struct in_addr_data *x, const struct in_addr_data *y);
-void in6_addr_hash_func(const struct in6_addr *addr, struct siphash *state);
-int in6_addr_compare_func(const struct in6_addr *a, const struct in6_addr *b);
+void in_addr_hash_func(const sa_ngha in_addr_union *u, ကိန်းပြည့် family, sa_nracanaa siphash *state);
+void in_addr_data_hash_func(const sa_nracanaa in_addr_data *a, sa_nracanaa siphash *state);
+ကိန်းပြည့် in_addr_data_compare_func(const sa_nracanaa in_addr_data *x, const sa_nracanaa in_addr_data *y);
+void in6_addr_hash_func(const sa_nracanaa in6_addr *addr, sa_nracanaa siphash *state);
+ကိန်းပြည့် in6_addr_compare_func(const sa_nracanaa in6_addr *a, const sa_nracanaa in6_addr *b);
 
-extern const struct hash_ops in_addr_data_hash_ops;
-extern const struct hash_ops in_addr_data_hash_ops_free;
-extern const struct hash_ops in6_addr_hash_ops;
-extern const struct hash_ops in6_addr_hash_ops_free;
+extern const sa_nracanaa hash_ops in_addr_data_hash_ops;
+extern const sa_nracanaa hash_ops in_addr_data_hash_ops_free;
+extern const sa_nracanaa hash_ops in6_addr_hash_ops;
+extern const sa_nracanaa hash_ops in6_addr_hash_ops_free;
 
-static inline void PTR_TO_IN4_ADDR(const void *p, struct in_addr *ret) {
+static anta_hstha void PTR_TO_IN4_ADDR(const void *p, sa_nracanaa in_addr *ret) {
         assert(ret);
         ret->s_addr = (uint32_t) ((uintptr_t) p);
 }
 
-static inline void* IN4_ADDR_TO_PTR(const struct in_addr *a) {
+static anta_hstha void* IN4_ADDR_TO_PTR(const sa_nracanaa in_addr *a) {
         assert(a);
-        return (void*) ((uintptr_t) a->s_addr);
+        ပြန်ပေး (void*) ((uintptr_t) a->s_addr);
 }
 
 #define IPV4_ADDRESS_FMT_STR     "%u.%u.%u.%u"

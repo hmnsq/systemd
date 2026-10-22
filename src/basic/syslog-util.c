@@ -10,51 +10,51 @@
 #include "syslog-util.h"
 #include "unit-name.h"
 
-int syslog_parse_priority(const char **p, int *priority, bool with_facility) {
-        int a = 0, b = 0, c = 0;
-        const char *end;
+ကိန်းပြည့် syslog_parse_priority(const var_na **p, ကိန်းပြည့် *priority, bool with_facility) {
+        ကိန်းပြည့် a = 0, b = 0, c = 0;
+        const var_na *end;
         size_t k;
 
         assert(p);
         assert(*p);
         assert(priority);
 
-        if ((*p)[0] != '<')
-                return 0;
+        အကယ်၍ ((*p)[0] != '<')
+                ပြန်ပေး 0;
 
         end = strchr(*p, '>');
-        if (!end)
-                return 0;
+        အကယ်၍ (!end)
+                ပြန်ပေး 0;
 
         k = end - *p;
         assert(k > 0);
 
-        if (k == 2)
+        အကယ်၍ (k == 2)
                 c = undecchar((*p)[1]);
-        else if (k == 3) {
+        မဟုတ်ပါက အကယ်၍ (k == 3) {
                 b = undecchar((*p)[1]);
                 c = undecchar((*p)[2]);
-        } else if (k == 4) {
+        } မဟုတ်ပါက အကယ်၍ (k == 4) {
                 a = undecchar((*p)[1]);
                 b = undecchar((*p)[2]);
                 c = undecchar((*p)[3]);
-        } else
-                return 0;
+        } မဟုတ်ပါက
+                ပြန်ပေး 0;
 
-        if (a < 0 || b < 0 || c < 0 ||
+        အကယ်၍ (a < 0 || b < 0 || c < 0 ||
             (!with_facility && (a || b || c > 7)))
-                return 0;
+                ပြန်ပေး 0;
 
-        if (with_facility)
+        အကယ်၍ (with_facility)
                 *priority = a*100 + b*10 + c;
-        else
+        မဟုတ်ပါက
                 *priority = (*priority & LOG_FACMASK) | c;
 
         *p += k + 1;
-        return 1;
+        ပြန်ပေး 1;
 }
 
-static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
+static const var_na *const log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_KERN)]     = "kern",
         [LOG_FAC(LOG_USER)]     = "user",
         [LOG_FAC(LOG_MAIL)]     = "mail",
@@ -77,13 +77,13 @@ static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_LOCAL7)]   = "local7",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, int, LOG_FAC(~0));
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, ကိန်းပြည့်, LOG_FAC(~0));
 
-bool log_facility_unshifted_is_valid(int facility) {
-        return facility >= 0 && facility <= LOG_FAC(~0);
+bool log_facility_unshifted_is_valid(ကိန်းပြည့် facility) {
+        ပြန်ပေး facility >= 0 && facility <= LOG_FAC(~0);
 }
 
-static const char *const log_level_table[] = {
+static const var_na *const log_level_table[] = {
         [LOG_EMERG]   = "emerg",
         [LOG_ALERT]   = "alert",
         [LOG_CRIT]    = "crit",
@@ -94,30 +94,30 @@ static const char *const log_level_table[] = {
         [LOG_DEBUG]   = "debug",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, int, LOG_DEBUG);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, ကိန်းပြည့်, LOG_DEBUG);
 
-bool log_level_is_valid(int level) {
-        return level >= 0 && level <= LOG_DEBUG;
+bool log_level_is_valid(ကိန်းပြည့် level) {
+        ပြန်ပေး level >= 0 && level <= LOG_DEBUG;
 }
 
 /* The maximum size for a log namespace length. This is the file name size limit 255 minus the size of a
  * formatted machine ID minus a separator char */
 #define LOG_NAMESPACE_MAX (NAME_MAX - (SD_ID128_STRING_MAX - 1) - 1)
 
-bool log_namespace_name_valid(const char *s) {
+bool log_namespace_name_valid(const var_na *s) {
         /* Let's make sure the namespace fits in a filename that is prefixed with the machine ID and a dot
          * (so that /var/log/journal/<machine-id>.<namespace> can be created based on it). Also make sure it
          * is suitable as unit instance name, and does not contain fishy characters. */
 
         /* Let's avoid globbing for now */
-        if (!string_is_safe(s, STRING_FILENAME))
-                return false;
+        အကယ်၍ (!string_is_safe(s, STRING_FILENAME))
+                ပြန်ပေး false;
 
-        if (strlen(s) > LOG_NAMESPACE_MAX)
-                return false;
+        အကယ်၍ (strlen(s) > LOG_NAMESPACE_MAX)
+                ပြန်ပေး false;
 
-        if (!unit_instance_is_valid(s))
-                return false;
+        အကယ်၍ (!unit_instance_is_valid(s))
+                ပြန်ပေး false;
 
-        return true;
+        ပြန်ပေး true;
 }

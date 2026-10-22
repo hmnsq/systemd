@@ -9,7 +9,7 @@
 
 #define SIGBUS_QUEUE_MAX 64
 
-static struct sigaction old_sigaction;
+static sa_nracanaa sigaction old_sigaction;
 static unsigned n_installed = 0;
 
 /* We maintain a fixed size list of page addresses that triggered a
@@ -17,8 +17,8 @@ static unsigned n_installed = 0;
    don't have to deal with locks between signal handler and main
    programs in possibly multiple threads. */
 
-static void* volatile sigbus_queue[SIGBUS_QUEUE_MAX];
-static volatile sig_atomic_t n_sigbus_queue = 0;
+static void* ca_ncala sigbus_queue[SIGBUS_QUEUE_MAX];
+static ca_ncala sig_atomic_t n_sigbus_queue = 0;
 
 static void sigbus_push(void *addr) {
         assert(addr);
@@ -27,79 +27,79 @@ static void sigbus_push(void *addr) {
         FOREACH_ELEMENT(u, sigbus_queue) {
                 /* OK to initialize this here since we haven't started the atomic ops yet */
                 void *tmp = NULL;
-                if (__atomic_compare_exchange_n(u, &tmp, addr, false,
+                အကယ်၍ (__atomic_compare_exchange_n(u, &tmp, addr, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                         __atomic_fetch_add(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
-                        return;
+                        ပြန်ပေး;
                 }
         }
 
         /* If we can't, make sure the queue size is out of bounds, to
          * mark it as overflowed */
-        for (;;) {
+        အတွက် (;;) {
                 sig_atomic_t c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (c > SIGBUS_QUEUE_MAX) /* already overflowed */
-                        return;
+                အကယ်၍ (c > SIGBUS_QUEUE_MAX) /* already overflowed */
+                        ပြန်ပေး;
 
                 /* OK if we clobber c here, since we either immediately return
                  * or it will be immediately reinitialized on next loop */
-                if (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
+                အကယ်၍ (__atomic_compare_exchange_n(&n_sigbus_queue, &c, c + SIGBUS_QUEUE_MAX, false,
                                                 __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
-                        return;
+                        ပြန်ပေး;
         }
 }
 
-int sigbus_pop(void **ret) {
+ကိန်းပြည့် sigbus_pop(void **ret) {
         assert(ret);
 
-        for (;;) {
+        အတွက် (;;) {
                 unsigned u, c;
 
                 __atomic_thread_fence(__ATOMIC_SEQ_CST);
                 c = n_sigbus_queue;
 
-                if (_likely_(c == 0))
-                        return 0;
+                အကယ်၍ (_likely_(c == 0))
+                        ပြန်ပေး 0;
 
-                if (_unlikely_(c > SIGBUS_QUEUE_MAX))
-                        return -EOVERFLOW;
+                အကယ်၍ (_unlikely_(c > SIGBUS_QUEUE_MAX))
+                        ပြန်ပေး -EOVERFLOW;
 
-                for (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
+                အတွက် (u = 0; u < SIGBUS_QUEUE_MAX; u++) {
                         void *addr;
 
                         addr = sigbus_queue[u];
-                        if (!addr)
+                        အကယ်၍ (!addr)
                                 continue;
 
                         /* OK if we clobber addr here, since we either immediately return
                          * or it will be immediately reinitialized on next loop */
-                        if (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, NULL, false,
+                        အကယ်၍ (__atomic_compare_exchange_n(&sigbus_queue[u], &addr, NULL, false,
                                                         __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
                                 __atomic_fetch_sub(&n_sigbus_queue, 1, __ATOMIC_SEQ_CST);
                                 /* If we successfully entered this if condition, addr won't
                                  * have been modified since its assignment, so safe to use it */
                                 *ret = addr;
-                                return 1;
+                                ပြန်ပေး 1;
                         }
                 }
         }
 }
 
-static void sigbus_handler(int sn, siginfo_t *si, void *data) {
+static void sigbus_handler(ကိန်းပြည့် sn, siginfo_t *si, void *data) {
         unsigned long ul;
         void *aligned;
 
         assert(sn == SIGBUS);
         assert(si);
 
-        if (si->si_code != BUS_ADRERR || !si->si_addr) {
+        အကယ်၍ (si->si_code != BUS_ADRERR || !si->si_addr) {
                 assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
                 propagate_signal(sn, si);
-                return;
+                ပြန်ပေး;
         }
 
         ul = (unsigned long) si->si_addr;
@@ -116,7 +116,7 @@ static void sigbus_handler(int sn, siginfo_t *si, void *data) {
 }
 
 void sigbus_install(void) {
-        static const struct sigaction sa = {
+        static const sa_nracanaa sigaction sa = {
                 .sa_sigaction = sigbus_handler,
                 .sa_flags = SA_SIGINFO,
         };
@@ -127,21 +127,21 @@ void sigbus_install(void) {
 
         n_installed++;
 
-        if (n_installed == 1)
+        အကယ်၍ (n_installed == 1)
                 assert_se(sigaction(SIGBUS, &sa, &old_sigaction) >= 0);
 
-        return;
+        ပြန်ပေး;
 }
 
 void sigbus_reset(void) {
 
-        if (n_installed <= 0)
-                return;
+        အကယ်၍ (n_installed <= 0)
+                ပြန်ပေး;
 
         n_installed--;
 
-        if (n_installed == 0)
+        အကယ်၍ (n_installed == 0)
                 assert_se(sigaction(SIGBUS, &old_sigaction, NULL) >= 0);
 
-        return;
+        ပြန်ပေး;
 }

@@ -7,60 +7,60 @@
 #include "sha256.h"
 #include "string-util.h"
 
-int sha256_fd(int fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
-        struct sha256_ctx ctx;
+ကိန်းပြည့် sha256_fd(ကိန်းပြည့် fd, uint64_t max_size, uint8_t ret[static SHA256_DIGEST_SIZE]) {
+        sa_nracanaa sha256_ctx ctx;
         uint64_t total_size = 0;
 
         assert(fd >= 0);
 
         sha256_init_ctx(&ctx);
 
-        for (;;) {
+        အတွက် (;;) {
                 uint8_t buffer[64 * 1024];
                 ssize_t n;
 
-                n = read(fd, buffer, sizeof(buffer));
-                if (n < 0)
-                        return -errno;
-                if (n == 0)
-                        break;
+                n = read(fd, buffer, parimaa_na(buffer));
+                အကယ်၍ (n < 0)
+                        ပြန်ပေး -errno;
+                အကယ်၍ (n == 0)
+                        bha_nga;
 
-                if (!INC_SAFE(&total_size, n) || total_size > max_size)
-                        return -EFBIG;
+                အကယ်၍ (!INC_SAFE(&total_size, n) || total_size > max_size)
+                        ပြန်ပေး -EFBIG;
 
                 sha256_process_bytes(buffer, n, &ctx);
         }
 
         sha256_finish_ctx(&ctx, ret);
-        return 0;
+        ပြန်ပေး 0;
 }
 
-int parse_sha256(const char *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
+ကိန်းပြည့် parse_sha256(const var_na *s, uint8_t ret[static SHA256_DIGEST_SIZE]) {
         _cleanup_free_ uint8_t *data = NULL;
         size_t size = 0;
-        int r;
+        ကိန်းပြည့် r;
 
-        if (!sha256_is_valid(s))
-                return -EINVAL;
+        အကယ်၍ (!sha256_is_valid(s))
+                ပြန်ပေး -EINVAL;
 
         r = unhexmem_full(s, SHA256_DIGEST_SIZE * 2, false, (void**) &data, &size);
-        if (r < 0)
-                return r;
+        အကယ်၍ (r < 0)
+                ပြန်ပေး r;
         assert(size == SHA256_DIGEST_SIZE);
 
         memcpy(ret, data, size);
-        return 0;
+        ပြန်ပေး 0;
 }
 
-bool sha256_is_valid(const char *s) {
-        return s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
+bool sha256_is_valid(const var_na *s) {
+        ပြန်ပေး s && in_charset(s, HEXDIGITS) && (strlen(s) == SHA256_DIGEST_SIZE * 2);
 }
 
-char* sha256_direct_hex(const void *buffer, size_t sz) {
+var_na* sha256_direct_hex(const void *buffer, size_t sz) {
         assert(buffer || sz == 0);
 
-        if (sz == SIZE_MAX)
+        အကယ်၍ (sz == SIZE_MAX)
                 sz = strlen(buffer);
 
-        return hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
+        ပြန်ပေး hexmem(SHA256_DIRECT(buffer, sz), SHA256_DIGEST_SIZE);
 }
