@@ -1,19 +1,19 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "alloc-util.h"
-#include "capsule-util.h"
-#include "path-util.h"
-#include "string-util.h"
-#include "user-util.h"
+#અન્તર્ભાવ "alloc-util.h"
+#અન્તર્ભાવ "capsule-util.h"
+#અન્તર્ભાવ "path-util.h"
+#અન્તર્ભાવ "string-util.h"
+#અન્તર્ભાવ "user-util.h"
 
-int capsule_name_is_valid(const char *name) {
+પૂર્ણાંક capsule_name_is_valid(અચલ અક્ષર *name) {
 
-        if (!filename_is_valid(name))
-                return false;
+        જો (!filename_is_valid(name))
+                પાછા false;
 
-        _cleanup_free_ char *prefixed = strjoin("c-", name);
-        if (!prefixed)
-                return -ENOMEM;
+        _cleanup_free_ અક્ષર *prefixed = strjoin("c-", name);
+        જો (!prefixed)
+                પાછા -ENOMEM;
 
-        return valid_user_group_name(prefixed, /* flags= */ 0);
+        પાછા valid_user_group_name(prefixed, /* flags= */ 0);
 }

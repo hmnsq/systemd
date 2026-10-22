@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
 #define SYSTEMD_CGROUP_CONTROLLER "_systemd"
 
 /* An enum of well known cgroup controllers */
-typedef enum CGroupController {
+પ્રકારવ્યાખ્યા ગણના CGroupController {
         /* Original cgroup controllers */
         CGROUP_CONTROLLER_CPU,
         CGROUP_CONTROLLER_CPUACCT,    /* v1 only */
@@ -35,7 +35,7 @@ typedef enum CGroupController {
 #define CGROUP_CONTROLLER_TO_MASK(c) (1U << (c))
 
 /* A bit mask of well known cgroup controllers */
-typedef enum CGroupMask {
+પ્રકારવ્યાખ્યા ગણના CGroupMask {
         CGROUP_MASK_CPU = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPU),
         CGROUP_MASK_CPUACCT = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUACCT),
         CGROUP_MASK_CPUSET = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUSET),
@@ -76,14 +76,14 @@ typedef enum CGroupMask {
 #define CGROUP_LIMIT_MIN UINT64_C(0)
 #define CGROUP_LIMIT_MAX UINT64_MAX
 
-static inline bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
-        return
+સ્થિર અંતઃરેખ bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
+        પાછા
             x == CGROUP_WEIGHT_INVALID ||
             (x >= CGROUP_WEIGHT_MIN && x <= CGROUP_WEIGHT_MAX);
 }
 
 /* IO limits on unified hierarchy */
-typedef enum CGroupIOLimitType {
+પ્રકારવ્યાખ્યા ગણના CGroupIOLimitType {
         CGROUP_IO_RBPS_MAX,
         CGROUP_IO_WBPS_MAX,
         CGROUP_IO_RIOPS_MAX,
@@ -93,10 +93,10 @@ typedef enum CGroupIOLimitType {
         _CGROUP_IO_LIMIT_TYPE_INVALID = -EINVAL,
 } CGroupIOLimitType;
 
-extern const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
+બાહ્ય અચલ uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX];
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_io_limit_type, CGroupIOLimitType);
-void cgroup_io_limits_list(void);
+શૂન્ય cgroup_io_limits_list(શૂન્ય);
 
 /* Special values for the io.bfq.weight attribute */
 #define CGROUP_BFQ_WEIGHT_INVALID UINT64_MAX
@@ -105,8 +105,8 @@ void cgroup_io_limits_list(void);
 #define CGROUP_BFQ_WEIGHT_DEFAULT UINT64_C(100)
 
 /* Convert the normal io.weight value to io.bfq.weight */
-static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
-        return
+સ્થિર અંતઃરેખ uint64_t BFQ_WEIGHT(uint64_t io_weight) {
+        પાછા
             io_weight <= CGROUP_WEIGHT_DEFAULT ?
             CGROUP_BFQ_WEIGHT_DEFAULT - (CGROUP_WEIGHT_DEFAULT - io_weight) * (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) / (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) :
             CGROUP_BFQ_WEIGHT_DEFAULT + (io_weight - CGROUP_WEIGHT_DEFAULT) * (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT) / (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT);
@@ -119,127 +119,127 @@ static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
  * generate paths with multiple adjacent / removed.
  */
 
-int cg_is_available(void);
+પૂર્ણાંક cg_is_available(શૂન્ય);
 
-int cg_path_open(const char *path);
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id);
+પૂર્ણાંક cg_path_open(અચલ અક્ષર *path);
+પૂર્ણાંક cg_cgroupid_open(પૂર્ણાંક cgroupfs_fd, uint64_t id);
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret);
+પૂર્ણાંક cg_path_from_cgroupid(પૂર્ણાંક cgroupfs_fd, uint64_t id, અક્ષર **ret);
 
-typedef enum CGroupFlags {
+પ્રકારવ્યાખ્યા ગણના CGroupFlags {
         CGROUP_SIGCONT            = 1 << 0,
         CGROUP_IGNORE_SELF        = 1 << 1,
         CGROUP_DONT_SKIP_UNMAPPED = 1 << 2,
 } CGroupFlags;
 
-int cg_enumerate_processes(const char *path, FILE **ret);
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
+પૂર્ણાંક cg_enumerate_processes(અચલ અક્ષર *path, FILE **ret);
+પૂર્ણાંક cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
+પૂર્ણાંક cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
 
-int cg_enumerate_subgroups(const char *path, DIR **ret);
-int cg_read_subgroup(DIR *d, char **ret);
+પૂર્ણાંક cg_enumerate_subgroups(અચલ અક્ષર *path, DIR **ret);
+પૂર્ણાંક cg_read_subgroup(DIR *d, અક્ષર **ret);
 
-typedef int (*cg_kill_log_func_t)(const PidRef *pid, int sig, void *userdata);
+પ્રકારવ્યાખ્યા પૂર્ણાંક (*cg_kill_log_func_t)(અચલ PidRef *pid, પૂર્ણાંક sig, શૂન્ય *userdata);
 
-int cg_kill(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed);
-int cg_kill_recursive(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+પૂર્ણાંક cg_kill(અચલ અક્ષર *path, પૂર્ણાંક sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, શૂન્ય *userdata);
+પૂર્ણાંક cg_kill_kernel_sigkill(અચલ અક્ષર *path, uint64_t *ret_n_pids_killed);
+પૂર્ણાંક cg_kill_recursive(અચલ અક્ષર *path, પૂર્ણાંક sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, શૂન્ય *userdata);
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path);
+પૂર્ણાંક cg_split_spec(અચલ અક્ષર *spec, અક્ષર **ret_controller, અક્ષર **ret_path);
 
-int cg_get_path(const char *path, const char *suffix, char **ret);
+પૂર્ણાંક cg_get_path(અચલ અક્ષર *path, અચલ અક્ષર *suffix, અક્ષર **ret);
 
-int cg_pid_get_path(pid_t pid, char **ret);
-int cg_pidref_get_path(const PidRef *pidref, char **ret);
+પૂર્ણાંક cg_pid_get_path(pid_t pid, અક્ષર **ret);
+પૂર્ણાંક cg_pidref_get_path(અચલ PidRef *pidref, અક્ષર **ret);
 
-int cg_is_threaded(const char *path);
+પૂર્ણાંક cg_is_threaded(અચલ અક્ષર *path);
 
-int cg_is_delegated(const char *path);
-int cg_is_delegated_fd(int fd);
+પૂર્ણાંક cg_is_delegated(અચલ અક્ષર *path);
+પૂર્ણાંક cg_is_delegated_fd(પૂર્ણાંક fd);
 
-int cg_has_coredump_receive(const char *path);
+પૂર્ણાંક cg_has_coredump_receive(અચલ અક્ષર *path);
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value);
-int cg_get_attribute(const char *path, const char *attribute, char **ret);
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
-int cg_get_attribute_as_bool(const char *path, const char *attribute);
+પૂર્ણાંક cg_set_attribute(અચલ અક્ષર *path, અચલ અક્ષર *attribute, અચલ અક્ષર *કિંમત);
+પૂર્ણાંક cg_get_attribute(અચલ અક્ષર *path, અચલ અક્ષર *attribute, અક્ષર **ret);
+પૂર્ણાંક cg_get_attribute_as_uint64(અચલ અક્ષર *path, અચલ અક્ષર *attribute, uint64_t *ret);
+પૂર્ણાંક cg_get_attribute_as_bool(અચલ અક્ષર *path, અચલ અક્ષર *attribute);
 
-int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
+પૂર્ણાંક cg_get_keyed_attribute(અચલ અક્ષર *path, અચલ અક્ષર *attribute, અક્ષર * અચલ *ચાવીઓ, અક્ષર **values);
+પૂર્ણાંક cg_get_keyed_attribute_uint64(અચલ અક્ષર *path, અચલ અક્ષર *attribute, અચલ અક્ષર *ચાવી, uint64_t *ret);
 
-int cg_get_owner(const char *path, uid_t *ret_uid);
+પૂર્ણાંક cg_get_owner(અચલ અક્ષર *path, uid_t *ret_uid);
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
+પૂર્ણાંક cg_set_xattr(અચલ અક્ષર *path, અચલ અક્ષર *name, અચલ શૂન્ય *કિંમત, size_t size, પૂર્ણાંક flags);
+પૂર્ણાંક cg_get_xattr(અચલ અક્ષર *path, અચલ અક્ષર *name, અક્ષર **ret, size_t *ret_size);
 /* Returns negative on error, and 0 or 1 on success for the bool value */
-int cg_get_xattr_bool(const char *path, const char *name);
-int cg_remove_xattr(const char *path, const char *name);
+પૂર્ણાંક cg_get_xattr_bool(અચલ અક્ષર *path, અચલ અક્ષર *name);
+પૂર્ણાંક cg_remove_xattr(અચલ અક્ષર *path, અચલ અક્ષર *name);
 
-int cg_is_empty(const char *path);
+પૂર્ણાંક cg_is_empty(અચલ અક્ષર *path);
 
-int cg_get_root_path(char **path);
+પૂર્ણાંક cg_get_મૂળ_path(અક્ષર **path);
 
-int cg_path_get_session(const char *path, char **ret_session);
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_unit(const char *path, char **ret_unit) {
-        return cg_path_get_unit_full(path, ret_unit, NULL);
+પૂર્ણાંક cg_path_get_session(અચલ અક્ષર *path, અક્ષર **ret_session);
+પૂર્ણાંક cg_path_get_owner_uid(અચલ અક્ષર *path, uid_t *ret_uid);
+પૂર્ણાંક cg_path_get_unit_full(અચલ અક્ષર *path, અક્ષર **ret_unit, અક્ષર **ret_subgroup);
+સ્થિર અંતઃરેખ પૂર્ણાંક cg_path_get_unit(અચલ અક્ષર *path, અક્ષર **ret_unit) {
+        પાછા cg_path_get_unit_full(path, ret_unit, ખાલી);
 }
-int cg_path_get_unit_path(const char *path, char **ret_unit);
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_user_unit(const char *path, char **ret_unit) {
-        return cg_path_get_user_unit_full(path, ret_unit, NULL);
+પૂર્ણાંક cg_path_get_unit_path(અચલ અક્ષર *path, અક્ષર **ret_unit);
+પૂર્ણાંક cg_path_get_user_unit_full(અચલ અક્ષર *path, અક્ષર **ret_unit, અક્ષર **ret_subgroup);
+સ્થિર અંતઃરેખ પૂર્ણાંક cg_path_get_user_unit(અચલ અક્ષર *path, અક્ષર **ret_unit) {
+        પાછા cg_path_get_user_unit_full(path, ret_unit, ખાલી);
 }
-int cg_path_get_machine_name(const char *path, char **ret_machine);
-int cg_path_get_slice(const char *path, char **ret_slice);
-int cg_path_get_user_slice(const char *path, char **ret_slice);
+પૂર્ણાંક cg_path_get_machine_name(અચલ અક્ષર *path, અક્ષર **ret_machine);
+પૂર્ણાંક cg_path_get_slice(અચલ અક્ષર *path, અક્ષર **ret_slice);
+પૂર્ણાંક cg_path_get_user_slice(અચલ અક્ષર *path, અક્ષર **ret_slice);
 
-int cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
-int cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
+પૂર્ણાંક cg_shift_path(અચલ અક્ષર *cgroup, અચલ અક્ષર *cached_મૂળ, અચલ અક્ષર **ret_shifted);
+પૂર્ણાંક cg_pid_get_path_shifted(pid_t pid, અચલ અક્ષર *cached_મૂળ, અક્ષર **ret_cgroup);
+પૂર્ણાંક cg_pidref_get_path_shifted(અચલ PidRef *pidref, અચલ અક્ષર *cached_મૂળ, અક્ષર **ret_cgroup);
 
-int cg_pid_get_session(pid_t pid, char **ret_session);
-int cg_pidref_get_session(const PidRef *pidref, char **ret);
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_unit_full(pid, ret_unit, NULL);
+પૂર્ણાંક cg_pid_get_session(pid_t pid, અક્ષર **ret_session);
+પૂર્ણાંક cg_pidref_get_session(અચલ PidRef *pidref, અક્ષર **ret);
+પૂર્ણાંક cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
+પૂર્ણાંક cg_pidref_get_owner_uid(અચલ PidRef *pidref, uid_t *ret);
+પૂર્ણાંક cg_pid_get_unit_full(pid_t pid, અક્ષર **ret_unit, અક્ષર **ret_subgroup);
+સ્થિર અંતઃરેખ પૂર્ણાંક cg_pid_get_unit(pid_t pid, અક્ષર **ret_unit) {
+        પાછા cg_pid_get_unit_full(pid, ret_unit, ખાલી);
 }
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_unit_full(pidref, ret_unit, NULL);
+પૂર્ણાંક cg_pidref_get_unit_full(અચલ PidRef *pidref, અક્ષર **ret_unit, અક્ષર **ret_subgroup);
+સ્થિર અંતઃરેખ પૂર્ણાંક cg_pidref_get_unit(અચલ PidRef *pidref, અક્ષર **ret_unit) {
+        પાછા cg_pidref_get_unit_full(pidref, ret_unit, ખાલી);
 }
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_user_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_user_unit_full(pid, ret_unit, NULL);
+પૂર્ણાંક cg_pid_get_user_unit_full(pid_t pid, અક્ષર **ret_unit, અક્ષર **ret_subgroup);
+સ્થિર અંતઃરેખ પૂર્ણાંક cg_pid_get_user_unit(pid_t pid, અક્ષર **ret_unit) {
+        પાછા cg_pid_get_user_unit_full(pid, ret_unit, ખાલી);
 }
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_user_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
+પૂર્ણાંક cg_pidref_get_user_unit_full(અચલ PidRef *pidref, અક્ષર **ret_unit, અક્ષર **ret_subgroup);
+સ્થિર અંતઃરેખ પૂર્ણાંક cg_pidref_get_user_unit(અચલ PidRef *pidref, અક્ષર **ret_unit) {
+        પાછા cg_pidref_get_user_unit_full(pidref, ret_unit, ખાલી);
 }
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine);
-int cg_pid_get_slice(pid_t pid, char **ret_slice);
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice);
+પૂર્ણાંક cg_pid_get_machine_name(pid_t pid, અક્ષર **ret_machine);
+પૂર્ણાંક cg_pid_get_slice(pid_t pid, અક્ષર **ret_slice);
+પૂર્ણાંક cg_pid_get_user_slice(pid_t pid, અક્ષર **ret_slice);
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit);
+પૂર્ણાંક cg_path_decode_unit(અચલ અક્ષર *cgroup, અક્ષર **ret_unit);
 
-bool cg_needs_escape(const char *p) _pure_;
-int cg_escape(const char *p, char **ret);
-char* cg_unescape(const char *p) _pure_;
+bool cg_needs_escape(અચલ અક્ષર *p) _pure_;
+પૂર્ણાંક cg_escape(અચલ અક્ષર *p, અક્ષર **ret);
+અક્ષર* cg_unescape(અચલ અક્ષર *p) _pure_;
 
-int cg_slice_to_path(const char *unit, char **ret);
+પૂર્ણાંક cg_slice_to_path(અચલ અક્ષર *unit, અક્ષર **ret);
 
-int cg_mask_supported(CGroupMask *ret);
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
-int cg_mask_from_string(const char *s, CGroupMask *ret);
-int cg_mask_to_string(CGroupMask mask, char **ret);
+પૂર્ણાંક cg_mask_supported(CGroupMask *ret);
+પૂર્ણાંક cg_mask_supported_subtree(અચલ અક્ષર *મૂળ, CGroupMask *ret);
+પૂર્ણાંક cg_mask_from_string(અચલ અક્ષર *s, CGroupMask *ret);
+પૂર્ણાંક cg_mask_to_string(CGroupMask mask, અક્ષર **ret);
 
-bool cg_kill_supported(void);
+bool cg_kill_supported(શૂન્ય);
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
 
-typedef enum ManagedOOMMode {
+પ્રકારવ્યાખ્યા ગણના ManagedOOMMode {
         MANAGED_OOM_AUTO,
         MANAGED_OOM_KILL,
         _MANAGED_OOM_MODE_MAX,
@@ -248,7 +248,7 @@ typedef enum ManagedOOMMode {
 
 DECLARE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
 
-typedef enum ManagedOOMPreference {
+પ્રકારવ્યાખ્યા ગણના ManagedOOMPreference {
         MANAGED_OOM_PREFERENCE_NONE = 0,
         MANAGED_OOM_PREFERENCE_AVOID = 1,
         MANAGED_OOM_PREFERENCE_OMIT = 2,

@@ -1,118 +1,118 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <string.h>
 
-#include "fileio.h"
-#include "ordered-set.h"
-#include "strv.h"
+#અન્તર્ભાવ "fileio.h"
+#અન્તર્ભાવ "ordered-set.h"
+#અન્તર્ભાવ "strv.h"
 
-int ordered_set_ensure_allocated(OrderedSet **s, const struct hash_ops *ops) {
-        assert(s);
+પૂર્ણાંક ordered_set_ensure_allocated(OrderedSet **s, અચલ સંરચના hash_ops *ops) {
+        પ્રતિજ્ઞા(s);
 
-        if (*s)
-                return 0;
+        જો (*s)
+                પાછા 0;
 
         *s = ordered_set_new(ops);
-        if (!*s)
-                return -ENOMEM;
+        જો (!*s)
+                પાછા -ENOMEM;
 
-        return 0;
+        પાછા 0;
 }
 
-int ordered_set_ensure_put(OrderedSet **s, const struct hash_ops *ops, void *p) {
-        int r;
+પૂર્ણાંક ordered_set_ensure_put(OrderedSet **s, અચલ સંરચના hash_ops *ops, શૂન્ય *p) {
+        પૂર્ણાંક r;
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
         r = ordered_set_ensure_allocated(s, ops);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        return ordered_set_put(*s, p);
+        પાછા ordered_set_put(*s, p);
 }
 
-int ordered_set_consume(OrderedSet *s, void *p) {
-        int r;
+પૂર્ણાંક ordered_set_consume(OrderedSet *s, શૂન્ય *p) {
+        પૂર્ણાંક r;
 
         r = ordered_set_put(s, p);
-        if (r <= 0)
-                free(p);
+        જો (r <= 0)
+                મુક્ત(p);
 
-        return r;
+        પાછા r;
 }
 
-int ordered_set_put_strdup_full(OrderedSet **s, const struct hash_ops *hash_ops, const char *p) {
-        char *c;
-        int r;
+પૂર્ણાંક ordered_set_put_strdup_full(OrderedSet **s, અચલ સંરચના hash_ops *hash_ops, અચલ અક્ષર *p) {
+        અક્ષર *c;
+        પૂર્ણાંક r;
 
-        assert(s);
-        assert(p);
+        પ્રતિજ્ઞા(s);
+        પ્રતિજ્ઞા(p);
 
         r = ordered_set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        if (ordered_set_contains(*s, p))
-                return 0;
+        જો (ordered_set_contains(*s, p))
+                પાછા 0;
 
         c = strdup(p);
-        if (!c)
-                return -ENOMEM;
+        જો (!c)
+                પાછા -ENOMEM;
 
-        return ordered_set_consume(*s, c);
+        પાછા ordered_set_consume(*s, c);
 }
 
-int ordered_set_put_strdupv_full(OrderedSet **s, const struct hash_ops *hash_ops, char **l) {
-        int r, ret = 0;
+પૂર્ણાંક ordered_set_put_strdupv_full(OrderedSet **s, અચલ સંરચના hash_ops *hash_ops, અક્ષર **l) {
+        પૂર્ણાંક r, ret = 0;
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
         STRV_FOREACH(i, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, *i);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        પાછા ret;
 }
 
-int ordered_set_put_string_set_full(OrderedSet **s, const struct hash_ops *hash_ops, OrderedSet *l) {
-        int r, ret = 0;
-        char *p;
+પૂર્ણાંક ordered_set_put_string_set_full(OrderedSet **s, અચલ સંરચના hash_ops *hash_ops, OrderedSet *l) {
+        પૂર્ણાંક r, ret = 0;
+        અક્ષર *p;
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
         /* Like ordered_set_put_strv, but for an OrderedSet of strings */
 
         ORDERED_SET_FOREACH(p, l) {
                 r = ordered_set_put_strdup_full(s, hash_ops, p);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
 
                 ret = ret || r > 0;
         }
 
-        return ret;
+        પાછા ret;
 }
 
-void ordered_set_print(FILE *f, const char *field, OrderedSet *s) {
+શૂન્ય ordered_set_print(FILE *f, અચલ અક્ષર *field, OrderedSet *s) {
         bool space = false;
-        char *p;
+        અક્ષર *p;
 
-        assert(f);
-        assert(field);
+        પ્રતિજ્ઞા(f);
+        પ્રતિજ્ઞા(field);
 
-        if (ordered_set_isempty(s))
-                return;
+        જો (ordered_set_isempty(s))
+                પાછા;
 
         fputs(field, f);
 
         ORDERED_SET_FOREACH(p, s)
-                fputs_with_separator(f, p, NULL, &space);
+                fputs_with_separator(f, p, ખાલી, &space);
 
         fputc('\n', f);
 }

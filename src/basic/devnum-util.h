@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/sysmacros.h>
+#અન્તર્ભાવ <sys/sysmacros.h>
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-int parse_devnum(const char *s, dev_t *ret);
+પૂર્ણાંક parse_devnum(અચલ અક્ષર *s, dev_t *ret);
 
 #define DEVNUM_MAJOR_MAX ((UINT32_C(1) << 12) - 1U)
 #define DEVNUM_MINOR_MAX ((UINT32_C(1) << 20) - 1U)
@@ -29,15 +29,15 @@ int parse_devnum(const char *s, dev_t *ret);
                 _x >= _y && _x <= DEVNUM_MINOR_MAX;                     \
         })
 
-int device_path_make_major_minor(mode_t mode, dev_t devnum, char **ret);
-int device_path_make_inaccessible(mode_t mode, char **ret);
-int device_path_make_canonical(mode_t mode, dev_t devnum, char **ret);
-int device_path_parse_major_minor(const char *path, mode_t *ret_mode, dev_t *ret_devnum);
+પૂર્ણાંક device_path_make_major_minor(mode_t mode, dev_t devnum, અક્ષર **ret);
+પૂર્ણાંક device_path_make_inaccessible(mode_t mode, અક્ષર **ret);
+પૂર્ણાંક device_path_make_canonical(mode_t mode, dev_t devnum, અક્ષર **ret);
+પૂર્ણાંક device_path_parse_major_minor(અચલ અક્ષર *path, mode_t *ret_mode, dev_t *ret_devnum);
 
-static inline bool devnum_set_and_equal(dev_t a, dev_t b) {
+સ્થિર અંતઃરેખ bool devnum_set_and_equal(dev_t a, dev_t b) {
         /* Returns true if a and b definitely refer to the same device. If either is zero, this means "don't
          * know" and we'll return false */
-        return a == b && a != 0;
+        પાછા a == b && a != 0;
 }
 
 /* Maximum string length for a major:minor string. (Note that DECIMAL_STR_MAX includes space for a trailing NUL) */
@@ -46,15 +46,15 @@ static inline bool devnum_set_and_equal(dev_t a, dev_t b) {
 #define DEVNUM_FORMAT_STR "%u:%u"
 #define DEVNUM_FORMAT_VAL(d) major(d), minor(d)
 
-char *format_devnum(dev_t d, char buf[static DEVNUM_STR_MAX]);
+અક્ષર *format_devnum(dev_t d, અક્ષર buf[સ્થિર DEVNUM_STR_MAX]);
 
-#define FORMAT_DEVNUM(d) format_devnum((d), (char[DEVNUM_STR_MAX]) {})
+#define FORMAT_DEVNUM(d) format_devnum((d), (અક્ષર[DEVNUM_STR_MAX]) {})
 
-static inline bool devnum_is_zero(dev_t d) {
-        return major(d) == 0 && minor(d) == 0;
+સ્થિર અંતઃરેખ bool devnum_is_zero(dev_t d) {
+        પાછા major(d) == 0 && minor(d) == 0;
 }
 
-#define DEVNUM_TO_PTR(u) ((void*) (uintptr_t) (u))
+#define DEVNUM_TO_PTR(u) ((શૂન્ય*) (uintptr_t) (u))
 #define PTR_TO_DEVNUM(p) ((dev_t) ((uintptr_t) (p)))
 
 /* Convert a userspace dev_t (as returned by stat()) to the kernel's internal dev_t encoding. stat() returns

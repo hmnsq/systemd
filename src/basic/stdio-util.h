@@ -1,72 +1,72 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <printf.h>
-#include <stdio.h>
+#અન્તર્ભાવ <printf.h>
+#અન્તર્ભાવ <stdio.h>
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
 _printf_(3, 4)
-static inline char* snprintf_ok(char *buf, size_t len, const char *format, ...) {
+સ્થિર અંતઃરેખ અક્ષર* snprintf_ok(અક્ષર *buf, size_t len, અચલ અક્ષર *format, ...) {
         va_list ap;
-        int r;
+        પૂર્ણાંક r;
 
         va_start(ap, format);
         r = vsnprintf(buf, len, format, ap);
         va_end(ap);
 
-        return r >= 0 && (size_t) r < len ? buf : NULL;
+        પાછા r >= 0 && (size_t) r < len ? buf : ખાલી;
 }
 
 #define xsprintf(buf, fmt, ...) \
         assert_message_se(snprintf_ok(buf, ELEMENTSOF(buf), fmt, ##__VA_ARGS__), "xsprintf: buffer too small")
 
-char* asprintf_safe(const char *restrict fmt, ...) _printf_(1, 2);
+અક્ષર* asprintf_safe(અચલ અક્ષર *restrict fmt, ...) _printf_(1, 2);
 
 #define VA_FORMAT_ADVANCE(format, ap)                                   \
-do {                                                                    \
-        int _argtypes[128];                                             \
+કરો {                                                                    \
+        પૂર્ણાંક _argtypes[128];                                             \
         size_t _i, _k;                                                  \
         /* See https://github.com/google/sanitizers/issues/992 */       \
-        if (HAS_FEATURE_MEMORY_SANITIZER)                               \
-                memset(_argtypes, 0, sizeof(_argtypes));                \
+        જો (HAS_FEATURE_MEMORY_SANITIZER)                               \
+                memset(_argtypes, 0, કદ(_argtypes));                \
         _k = parse_printf_format((format), ELEMENTSOF(_argtypes), _argtypes); \
-        assert(_k < ELEMENTSOF(_argtypes));                             \
-        for (_i = 0; _i < _k; _i++) {                                   \
-                if (_argtypes[_i] & PA_FLAG_PTR)  {                     \
-                        (void) va_arg(ap, void*);                       \
-                        continue;                                       \
+        પ્રતિજ્ઞા(_k < ELEMENTSOF(_argtypes));                             \
+        માટે (_i = 0; _i < _k; _i++) {                                   \
+                જો (_argtypes[_i] & PA_FLAG_PTR)  {                     \
+                        (શૂન્ય) va_arg(ap, શૂન્ય*);                       \
+                        ચાલુ;                                       \
                 }                                                       \
                                                                         \
-                switch (_argtypes[_i]) {                                \
-                case PA_INT:                                            \
-                case PA_INT|PA_FLAG_SHORT:                              \
-                case PA_CHAR:                                           \
-                        (void) va_arg(ap, int);                         \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG:                               \
-                        (void) va_arg(ap, long int);                    \
-                        break;                                          \
-                case PA_INT|PA_FLAG_LONG_LONG:                          \
-                        (void) va_arg(ap, long long int);               \
-                        break;                                          \
-                case PA_WCHAR:                                          \
-                        (void) va_arg(ap, wchar_t);                     \
-                        break;                                          \
-                case PA_WSTRING:                                        \
-                case PA_STRING:                                         \
-                case PA_POINTER:                                        \
-                        (void) va_arg(ap, void*);                       \
-                        break;                                          \
-                case PA_FLOAT:                                          \
-                case PA_DOUBLE:                                         \
-                        (void) va_arg(ap, double);                      \
-                        break;                                          \
-                case PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
-                        (void) va_arg(ap, long double);                 \
-                        break;                                          \
-                default:                                                \
+                પસંદગી (_argtypes[_i]) {                                \
+                સ્થિતિ PA_INT:                                            \
+                સ્થિતિ PA_INT|PA_FLAG_SHORT:                              \
+                સ્થિતિ PA_CHAR:                                           \
+                        (શૂન્ય) va_arg(ap, પૂર્ણાંક);                         \
+                        તોડો;                                          \
+                સ્થિતિ PA_INT|PA_FLAG_LONG:                               \
+                        (શૂન્ય) va_arg(ap, long પૂર્ણાંક);                    \
+                        તોડો;                                          \
+                સ્થિતિ PA_INT|PA_FLAG_LONG_LONG:                          \
+                        (શૂન્ય) va_arg(ap, long long પૂર્ણાંક);               \
+                        તોડો;                                          \
+                સ્થિતિ PA_WCHAR:                                          \
+                        (શૂન્ય) va_arg(ap, wchar_t);                     \
+                        તોડો;                                          \
+                સ્થિતિ PA_WSTRING:                                        \
+                સ્થિતિ PA_STRING:                                         \
+                સ્થિતિ PA_POINTER:                                        \
+                        (શૂન્ય) va_arg(ap, શૂન્ય*);                       \
+                        તોડો;                                          \
+                સ્થિતિ PA_FLOAT:                                          \
+                સ્થિતિ PA_DOUBLE:                                         \
+                        (શૂન્ય) va_arg(ap, દ્વિગુણ);                      \
+                        તોડો;                                          \
+                સ્થિતિ PA_DOUBLE|PA_FLAG_LONG_DOUBLE:                     \
+                        (શૂન્ય) va_arg(ap, long દ્વિગુણ);                 \
+                        તોડો;                                          \
+                મૂળભૂત:                                                \
                         assert_not_reached();                           \
                 }                                                       \
         }                                                               \
-} while (false)
+} જ્યારે (false)

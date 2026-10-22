@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
 /* The enum order is used to order unit jobs in the job queue
  * when other criteria (cpu weight, nice level) are identical.
  * In this case service units have the highest priority. */
-typedef enum UnitType {
+પ્રકારવ્યાખ્યા ગણના UnitType {
         UNIT_SERVICE,
         UNIT_MOUNT,
         UNIT_SWAP,
@@ -23,7 +23,7 @@ typedef enum UnitType {
         _UNIT_TYPE_ERRNO_MAX = -ERRNO_MAX, /* Ensure the whole errno range fits into this enum */
 } UnitType;
 
-typedef enum UnitLoadState {
+પ્રકારવ્યાખ્યા ગણના UnitLoadState {
         UNIT_STUB,
         UNIT_LOADED,
         UNIT_NOT_FOUND,    /* error condition #1: unit file not found */
@@ -35,7 +35,7 @@ typedef enum UnitLoadState {
         _UNIT_LOAD_STATE_INVALID = -EINVAL,
 } UnitLoadState;
 
-typedef enum UnitActiveState {
+પ્રકારવ્યાખ્યા ગણના UnitActiveState {
         UNIT_ACTIVE,
         UNIT_RELOADING,
         UNIT_INACTIVE,
@@ -48,7 +48,7 @@ typedef enum UnitActiveState {
         _UNIT_ACTIVE_STATE_INVALID = -EINVAL,
 } UnitActiveState;
 
-typedef enum FreezerState {
+પ્રકારવ્યાખ્યા ગણના FreezerState {
         FREEZER_RUNNING,
         FREEZER_FREEZING, /* freezing due to user request */
         FREEZER_FROZEN,
@@ -59,7 +59,7 @@ typedef enum FreezerState {
         _FREEZER_STATE_INVALID = -EINVAL,
 } FreezerState;
 
-typedef enum UnitMarker {
+પ્રકારવ્યાખ્યા ગણના UnitMarker {
         UNIT_MARKER_NEEDS_RELOAD,
         UNIT_MARKER_NEEDS_RESTART,
         UNIT_MARKER_NEEDS_STOP,
@@ -68,7 +68,7 @@ typedef enum UnitMarker {
         _UNIT_MARKER_INVALID = -EINVAL,
 } UnitMarker;
 
-typedef enum AutomountState {
+પ્રકારવ્યાખ્યા ગણના AutomountState {
         AUTOMOUNT_DEAD,
         AUTOMOUNT_WAITING,
         AUTOMOUNT_RUNNING,
@@ -79,7 +79,7 @@ typedef enum AutomountState {
 
 /* We simply watch devices, we cannot plug/unplug them. That
  * simplifies the state engine greatly */
-typedef enum DeviceState {
+પ્રકારવ્યાખ્યા ગણના DeviceState {
         DEVICE_DEAD,
         DEVICE_TENTATIVE, /* mounted or swapped, but not (yet) announced by udev */
         DEVICE_PLUGGED,   /* announced by udev */
@@ -87,7 +87,7 @@ typedef enum DeviceState {
         _DEVICE_STATE_INVALID = -EINVAL,
 } DeviceState;
 
-typedef enum MountState {
+પ્રકારવ્યાખ્યા ગણના MountState {
         MOUNT_DEAD,
         MOUNT_MOUNTING,               /* /usr/bin/mount is running, but the mount is not done yet. */
         MOUNT_MOUNTING_DONE,          /* /usr/bin/mount is running, and the mount is done. */
@@ -104,7 +104,7 @@ typedef enum MountState {
         _MOUNT_STATE_INVALID = -EINVAL,
 } MountState;
 
-typedef enum PathState {
+પ્રકારવ્યાખ્યા ગણના PathState {
         PATH_DEAD,
         PATH_WAITING,
         PATH_RUNNING,
@@ -113,7 +113,7 @@ typedef enum PathState {
         _PATH_STATE_INVALID = -EINVAL,
 } PathState;
 
-typedef enum ScopeState {
+પ્રકારવ્યાખ્યા ગણના ScopeState {
         SCOPE_DEAD,
         SCOPE_START_CHOWN,
         SCOPE_RUNNING,
@@ -125,7 +125,7 @@ typedef enum ScopeState {
         _SCOPE_STATE_INVALID = -EINVAL,
 } ScopeState;
 
-typedef enum ServiceState {
+પ્રકારવ્યાખ્યા ગણના ServiceState {
         SERVICE_DEAD,
         SERVICE_CONDITION,
         SERVICE_START_PRE,
@@ -160,14 +160,14 @@ typedef enum ServiceState {
         _SERVICE_STATE_INVALID = -EINVAL,
 } ServiceState;
 
-typedef enum SliceState {
+પ્રકારવ્યાખ્યા ગણના SliceState {
         SLICE_DEAD,
         SLICE_ACTIVE,
         _SLICE_STATE_MAX,
         _SLICE_STATE_INVALID = -EINVAL,
 } SliceState;
 
-typedef enum SocketState {
+પ્રકારવ્યાખ્યા ગણના SocketState {
         SOCKET_DEAD,
         SOCKET_START_PRE,
         SOCKET_START_OPEN,
@@ -188,7 +188,7 @@ typedef enum SocketState {
         _SOCKET_STATE_INVALID = -EINVAL,
 } SocketState;
 
-typedef enum SwapState {
+પ્રકારવ્યાખ્યા ગણના SwapState {
         SWAP_DEAD,
         SWAP_ACTIVATING,               /* /sbin/swapon is running, but the swap not yet enabled. */
         SWAP_ACTIVATING_DONE,          /* /sbin/swapon is running, and the swap is done. */
@@ -202,14 +202,14 @@ typedef enum SwapState {
         _SWAP_STATE_INVALID = -EINVAL,
 } SwapState;
 
-typedef enum TargetState {
+પ્રકારવ્યાખ્યા ગણના TargetState {
         TARGET_DEAD,
         TARGET_ACTIVE,
         _TARGET_STATE_MAX,
         _TARGET_STATE_INVALID = -EINVAL,
 } TargetState;
 
-typedef enum TimerState {
+પ્રકારવ્યાખ્યા ગણના TimerState {
         TIMER_DEAD,
         TIMER_WAITING,
         TIMER_RUNNING,
@@ -219,7 +219,7 @@ typedef enum TimerState {
         _TIMER_STATE_INVALID = -EINVAL,
 } TimerState;
 
-typedef enum UnitDependency {
+પ્રકારવ્યાખ્યા ગણના UnitDependency {
         /* Positive dependencies */
         UNIT_REQUIRES,
         UNIT_REQUISITE,
@@ -277,7 +277,7 @@ typedef enum UnitDependency {
         _UNIT_DEPENDENCY_INVALID = -EINVAL,
 } UnitDependency;
 
-typedef enum NotifyAccess {
+પ્રકારવ્યાખ્યા ગણના NotifyAccess {
         NOTIFY_NONE,
         NOTIFY_ALL,
         NOTIFY_MAIN,
@@ -286,7 +286,7 @@ typedef enum NotifyAccess {
         _NOTIFY_ACCESS_INVALID = -EINVAL,
 } NotifyAccess;
 
-typedef enum JobMode {
+પ્રકારવ્યાખ્યા ગણના JobMode {
         JOB_FAIL,                 /* Fail if a conflicting job is already queued */
         JOB_LENIENT,              /* Fail if any conflicting unit is active (even weaker than JOB_FAIL) */
         JOB_REPLACE,              /* Replace an existing conflicting job */
@@ -301,7 +301,7 @@ typedef enum JobMode {
         _JOB_MODE_INVALID = -EINVAL,
 } JobMode;
 
-typedef enum ExecDirectoryType {
+પ્રકારવ્યાખ્યા ગણના ExecDirectoryType {
         EXEC_DIRECTORY_RUNTIME,
         EXEC_DIRECTORY_STATE,
         EXEC_DIRECTORY_CACHE,
@@ -311,18 +311,18 @@ typedef enum ExecDirectoryType {
         _EXEC_DIRECTORY_TYPE_INVALID = -EINVAL,
 } ExecDirectoryType;
 
-char* unit_dbus_path_from_name(const char *name);
-int unit_name_from_dbus_path(const char *path, char **name);
+અક્ષર* unit_dbus_path_from_name(અચલ અક્ષર *name);
+પૂર્ણાંક unit_name_from_dbus_path(અચલ અક્ષર *path, અક્ષર **name);
 
-const char* unit_dbus_interface_from_type(UnitType t);
-const char* unit_dbus_interface_from_name(const char *name);
+અચલ અક્ષર* unit_dbus_interface_from_type(UnitType t);
+અચલ અક્ષર* unit_dbus_interface_from_name(અચલ અક્ષર *name);
 
 DECLARE_STRING_TABLE_LOOKUP(unit_type, UnitType);
-void unit_types_list(void);
+શૂન્ય unit_types_list(શૂન્ય);
 
 DECLARE_STRING_TABLE_LOOKUP(unit_load_state, UnitLoadState);
 DECLARE_STRING_TABLE_LOOKUP(unit_active_state, UnitActiveState);
-const char* unit_type_to_capitalized_string(UnitType t);
+અચલ અક્ષર* unit_type_to_capitalized_string(UnitType t);
 
 DECLARE_STRING_TABLE_LOOKUP(freezer_state, FreezerState);
 FreezerState freezer_state_finish(FreezerState state) _const_;

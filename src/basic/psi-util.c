@@ -1,106 +1,106 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <threads.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <threads.h>
 
-#include "alloc-util.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "parse-util.h"
-#include "psi-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
+#અન્તર્ભાવ "alloc-util.h"
+#અન્તર્ભાવ "errno-util.h"
+#અન્તર્ભાવ "extract-word.h"
+#અન્તર્ભાવ "fd-util.h"
+#અન્તર્ભાવ "fileio.h"
+#અન્તર્ભાવ "parse-util.h"
+#અન્તર્ભાવ "psi-util.h"
+#અન્તર્ભાવ "string-table.h"
+#અન્તર્ભાવ "string-util.h"
+#અન્તર્ભાવ "strv.h"
 
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret) {
-        _cleanup_free_ char *line = NULL;
-        _cleanup_fclose_ FILE *f = NULL;
+પૂર્ણાંક read_resource_pressure(અચલ અક્ષર *path, PressureType type, ResourcePressure *ret) {
+        _cleanup_free_ અક્ષર *લીટી = ખાલી;
+        _cleanup_fclose_ FILE *f = ખાલી;
         unsigned field_filled = 0;
         ResourcePressure rp = {};
-        const char *cline;
-        char *word;
-        int r;
+        અચલ અક્ષર *cline;
+        અક્ષર *word;
+        પૂર્ણાંક r;
 
-        assert(path);
-        assert(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
-        assert(ret);
+        પ્રતિજ્ઞા(path);
+        પ્રતિજ્ઞા(IN_SET(type, PRESSURE_TYPE_SOME, PRESSURE_TYPE_FULL));
+        પ્રતિજ્ઞા(ret);
 
-        const char *t = ASSERT_PTR(pressure_type_to_string(type));
+        અચલ અક્ષર *t = ASSERT_PTR(pressure_type_to_string(type));
 
         r = fopen_unlocked(path, "re", &f);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        for (;;) {
-                _cleanup_free_ char *l = NULL;
-                char *w;
+        માટે (;;) {
+                _cleanup_free_ અક્ષર *l = ખાલી;
+                અક્ષર *w;
 
-                r = read_line(f, LONG_LINE_MAX, &l);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = read_લીટી(f, LONG_લીટી_MAX, &l);
+                જો (r < 0)
+                        પાછા r;
+                જો (r == 0)
+                        તોડો;
 
                 w = first_word(l, t);
-                if (w) {
-                        line = TAKE_PTR(l);
+                જો (w) {
+                        લીટી = TAKE_PTR(l);
                         cline = w;
-                        break;
+                        તોડો;
                 }
         }
 
-        if (!line)
-                return -ENODATA;
+        જો (!લીટી)
+                પાછા -ENODATA;
 
         /* extracts either avgX=Y.Z or total=X */
-        while ((r = extract_first_word(&cline, &word, NULL, 0)) > 0) {
-                _cleanup_free_ char *w = word;
-                const char *v;
+        જ્યારે ((r = extract_first_word(&cline, &word, ખાલી, 0)) > 0) {
+                _cleanup_free_ અક્ષર *w = word;
+                અચલ અક્ષર *v;
 
-                if ((v = startswith(w, "avg10="))) {
-                        if (field_filled & (1U << 0))
-                                return -EINVAL;
+                જો ((v = startswith(w, "avg10="))) {
+                        જો (field_filled & (1U << 0))
+                                પાછા -EINVAL;
 
                         field_filled |= 1U << 0;
                         r = parse_loadavg_fixed_point(v, &rp.avg10);
-                } else if ((v = startswith(w, "avg60="))) {
-                        if (field_filled & (1U << 1))
-                                return -EINVAL;
+                } નહીંતર જો ((v = startswith(w, "avg60="))) {
+                        જો (field_filled & (1U << 1))
+                                પાછા -EINVAL;
 
                         field_filled |= 1U << 1;
                         r = parse_loadavg_fixed_point(v, &rp.avg60);
-                } else if ((v = startswith(w, "avg300="))) {
-                        if (field_filled & (1U << 2))
-                                return -EINVAL;
+                } નહીંતર જો ((v = startswith(w, "avg300="))) {
+                        જો (field_filled & (1U << 2))
+                                પાછા -EINVAL;
 
                         field_filled |= 1U << 2;
                         r = parse_loadavg_fixed_point(v, &rp.avg300);
-                } else if ((v = startswith(w, "total="))) {
-                        if (field_filled & (1U << 3))
-                                return -EINVAL;
+                } નહીંતર જો ((v = startswith(w, "total="))) {
+                        જો (field_filled & (1U << 3))
+                                પાછા -EINVAL;
 
                         field_filled |= 1U << 3;
                         r = safe_atou64(v, &rp.total);
-                } else
-                        continue;
+                } નહીંતર
+                        ચાલુ;
 
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
         }
 
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        if (field_filled != 15U)
-                return -EINVAL;
+        જો (field_filled != 15U)
+                પાછા -EINVAL;
 
         *ret = rp;
-        return 0;
+        પાછા 0;
 }
 
-const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
+અચલ PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         [PRESSURE_MEMORY] = {
                 .name      = "memory",
                 .env_watch = "MEMORY_PRESSURE_WATCH",
@@ -118,7 +118,7 @@ const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX] = {
         },
 };
 
-static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
+સ્થિર અચલ અક્ષર* અચલ pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
         [PRESSURE_MEMORY] = "memory",
         [PRESSURE_CPU]    = "cpu",
         [PRESSURE_IO]     = "io",
@@ -126,30 +126,30 @@ static const char* const pressure_resource_table[_PRESSURE_RESOURCE_MAX] = {
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);
 
-static const char* const pressure_type_table[_PRESSURE_TYPE_MAX] = {
+સ્થિર અચલ અક્ષર* અચલ pressure_type_table[_PRESSURE_TYPE_MAX] = {
         [PRESSURE_TYPE_SOME] = "some",
         [PRESSURE_TYPE_FULL] = "full",
 };
 
 DEFINE_STRING_TABLE_LOOKUP(pressure_type, PressureType);
 
-int is_pressure_supported(void) {
-        static thread_local int cached = -1;
-        int r;
+પૂર્ણાંક is_pressure_supported(શૂન્ય) {
+        સ્થિર thread_local પૂર્ણાંક cached = -1;
+        પૂર્ણાંક r;
 
         /* The pressure files, both under /proc/ and in cgroups, will exist even if the kernel has PSI
          * support disabled; we have to read the file to make sure it doesn't return -EOPNOTSUPP */
 
-        if (cached >= 0)
-                return cached;
+        જો (cached >= 0)
+                પાછા cached;
 
         FOREACH_STRING(p, "/proc/pressure/cpu", "/proc/pressure/io", "/proc/pressure/memory") {
-                r = read_virtual_file(p, 0, NULL, NULL);
-                if (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
-                        return (cached = false);
-                if (r < 0)
-                        return r;
+                r = read_virtual_file(p, 0, ખાલી, ખાલી);
+                જો (r == -ENOENT || ERRNO_IS_NEG_NOT_SUPPORTED(r))
+                        પાછા (cached = false);
+                જો (r < 0)
+                        પાછા r;
         }
 
-        return (cached = true);
+        પાછા (cached = true);
 }

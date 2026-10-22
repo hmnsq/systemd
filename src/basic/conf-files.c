@@ -1,251 +1,251 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "conf-files.h"
-#include "dirent-util.h"
-#include "errno-util.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "glyph-util.h"
-#include "hashmap.h"
-#include "log.h"
-#include "nulstr-util.h"
-#include "path-util.h"
-#include "set.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
+#અન્તર્ભાવ "alloc-util.h"
+#અન્તર્ભાવ "chase.h"
+#અન્તર્ભાવ "conf-files.h"
+#અન્તર્ભાવ "dirent-util.h"
+#અન્તર્ભાવ "errno-util.h"
+#અન્તર્ભાવ "fd-util.h"
+#અન્તર્ભાવ "fileio.h"
+#અન્તર્ભાવ "glyph-util.h"
+#અન્તર્ભાવ "hashmap.h"
+#અન્તર્ભાવ "log.h"
+#અન્તર્ભાવ "nulstr-util.h"
+#અન્તર્ભાવ "path-util.h"
+#અન્તર્ભાવ "set.h"
+#અન્તર્ભાવ "stat-util.h"
+#અન્તર્ભાવ "string-util.h"
+#અન્તર્ભાવ "strv.h"
 
 ConfFile* conf_file_free(ConfFile *c) {
-        if (!c)
-                return NULL;
+        જો (!c)
+                પાછા ખાલી;
 
-        free(c->filename);
-        free(c->result);
-        free(c->original_path);
-        free(c->resolved_path);
+        મુક્ત(c->filename);
+        મુક્ત(c->result);
+        મુક્ત(c->original_path);
+        મુક્ત(c->resolved_path);
         safe_close(c->fd);
 
-        return mfree(c);
+        પાછા mfree(c);
 }
 
 DEFINE_POINTER_ARRAY_FREE_FUNC(ConfFile*, conf_file_free);
 
-static int conf_files_log_level(ConfFilesFlags flags) {
-        return FLAGS_SET(flags, CONF_FILES_WARN) ? LOG_WARNING : LOG_DEBUG;
+સ્થિર પૂર્ણાંક conf_files_log_level(ConfFilesFlags flags) {
+        પાછા FLAGS_SET(flags, CONF_FILES_WARN) ? LOG_WARNING : LOG_DEBUG;
 }
 
-static int prepare_dirs(
-                const char *root,
+સ્થિર પૂર્ણાંક prepare_dirs(
+                અચલ અક્ષર *મૂળ,
                 ConfFilesFlags flags,
-                char * const *dirs,
-                char **ret_root,
-                int *ret_rfd,
-                char ***ret_dirs) {
+                અક્ષર * અચલ *dirs,
+                અક્ષર **ret_મૂળ,
+                પૂર્ણાંક *ret_rfd,
+                અક્ષર ***ret_dirs) {
 
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        int r;
+        _cleanup_free_ અક્ષર *મૂળ_abs = ખાલી;
+        _cleanup_strv_free_ અક્ષર **dirs_abs = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(ret_root);
-        assert(ret_rfd);
-        assert(ret_dirs || strv_isempty(dirs));
+        પ્રતિજ્ઞા(ret_મૂળ);
+        પ્રતિજ્ઞા(ret_rfd);
+        પ્રતિજ્ઞા(ret_dirs || strv_isempty(dirs));
 
-        int log_level = conf_files_log_level(flags);
+        પૂર્ણાંક log_level = conf_files_log_level(flags);
 
-        r = empty_or_root_harder_to_null(&root);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to determine if '%s' points to the root directory: %m", strempty(root));
+        r = empty_or_મૂળ_harder_to_null(&મૂળ);
+        જો (r < 0)
+                પાછા log_full_errno(log_level, r, "Failed to determine if '%s' points to the root directory: %m", strempty(મૂળ));
 
-        if (ret_dirs) {
+        જો (ret_dirs) {
                 dirs_abs = strv_copy(dirs);
-                if (!dirs_abs)
-                        return log_oom_full(log_level);
+                જો (!dirs_abs)
+                        પાછા log_oom_full(log_level);
         }
 
-        _cleanup_close_ int rfd = XAT_FDROOT;
-        if (root) {
+        _cleanup_close_ પૂર્ણાંક rfd = XAT_FDROOT;
+        જો (મૂળ) {
                 /* When a non-trivial root is specified, we will prefix the result later. Hence, it is not
                  * necessary to modify each config directories here. but needs to normalize the root directory. */
-                r = path_make_absolute_cwd(root, &root_abs);
-                if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to make '%s' absolute: %m", root);
+                r = path_make_absolute_cwd(મૂળ, &મૂળ_abs);
+                જો (r < 0)
+                        પાછા log_full_errno(log_level, r, "Failed to make '%s' absolute: %m", મૂળ);
 
-                path_simplify(root_abs);
+                path_simplify(મૂળ_abs);
 
-                rfd = open(root, O_CLOEXEC|O_DIRECTORY|O_PATH);
-                if (rfd < 0)
-                        return log_full_errno(log_level, errno, "Failed to open '%s': %m", root_abs);
+                rfd = open(મૂળ, O_CLOEXEC|O_DIRECTORY|O_PATH);
+                જો (rfd < 0)
+                        પાછા log_full_errno(log_level, errno, "Failed to open '%s': %m", મૂળ_abs);
 
-        } else if (ret_dirs) {
+        } નહીંતર જો (ret_dirs) {
                 /* When an empty root or "/" is specified, we will open "/" below, hence we need to make
                  * each config directory absolute if relative. */
                 r = path_strv_make_absolute_cwd(dirs_abs);
-                if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to make directories absolute: %m");
+                જો (r < 0)
+                        પાછા log_full_errno(log_level, r, "Failed to make directories absolute: %m");
         }
 
-        *ret_root = TAKE_PTR(root_abs);
+        *ret_મૂળ = TAKE_PTR(મૂળ_abs);
         *ret_rfd = TAKE_FD(rfd);
-        if (ret_dirs)
+        જો (ret_dirs)
                 *ret_dirs = TAKE_PTR(dirs_abs);
-        return 0;
+        પાછા 0;
 }
 
-static int conf_file_prefix_root(ConfFile *c, const char *root, ConfFilesFlags flags) {
-        char *p;
-        int r;
+સ્થિર પૂર્ણાંક conf_file_prefix_મૂળ(ConfFile *c, અચલ અક્ષર *મૂળ, ConfFilesFlags flags) {
+        અક્ષર *p;
+        પૂર્ણાંક r;
 
-        assert(c);
+        પ્રતિજ્ઞા(c);
 
-        if (FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_ROOT))
-                return 0;
+        જો (FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_મૂળ))
+                પાછા 0;
 
-        int log_level = conf_files_log_level(flags);
+        પૂર્ણાંક log_level = conf_files_log_level(flags);
 
-        r = chaseat_prefix_root(c->result, root, &p);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, root);
+        r = chaseat_prefix_મૂળ(c->result, મૂળ, &p);
+        જો (r < 0)
+                પાછા log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, મૂળ);
         free_and_replace(c->result, p);
 
-        r = chaseat_prefix_root(c->resolved_path, root, &p);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->resolved_path, root);
+        r = chaseat_prefix_મૂળ(c->resolved_path, મૂળ, &p);
+        જો (r < 0)
+                પાછા log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->resolved_path, મૂળ);
         free_and_replace(c->resolved_path, p);
 
         /* Do not use chaseat_prefix_root(), as it is for the result of chaseat(), but the path is not chased. */
-        p = path_join(empty_to_root(root), skip_leading_slash(c->original_path));
-        if (!p)
-                return log_oom_full(log_level);
+        p = path_join(empty_to_મૂળ(મૂળ), skip_leading_slash(c->original_path));
+        જો (!p)
+                પાછા log_oom_full(log_level);
 
         path_simplify(p);
-        return free_and_replace(c->original_path, p);
+        પાછા free_and_replace(c->original_path, p);
 }
 
-static bool conf_files_need_stat(ConfFilesFlags flags) {
-        return (flags & (CONF_FILES_FILTER_MASKED | CONF_FILES_REGULAR | CONF_FILES_DIRECTORY | CONF_FILES_EXECUTABLE)) != 0;
+સ્થિર bool conf_files_need_stat(ConfFilesFlags flags) {
+        પાછા (flags & (CONF_FILES_FILTER_MASKED | CONF_FILES_REGULAR | CONF_FILES_DIRECTORY | CONF_FILES_EXECUTABLE)) != 0;
 }
 
-static ChaseFlags conf_files_chase_flags(ConfFilesFlags flags) {
+સ્થિર ChaseFlags conf_files_chase_flags(ConfFilesFlags flags) {
         ChaseFlags chase_flags = 0;
 
-        if (!conf_files_need_stat(flags) || FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK))
+        જો (!conf_files_need_stat(flags) || FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK))
                 /* Even if no verification is requested, let's unconditionally call chaseat(),
                  * to drop unsafe symlinks. */
                 chase_flags |= CHASE_NONEXISTENT;
 
-        return chase_flags;
+        પાછા chase_flags;
 }
 
-static int conf_file_chase_and_verify(
-                const char *root,          /* for logging, can be NULL */
-                int rfd,
-                const char *original_path, /* for logging */
-                const char *path,
-                const char *name,
+સ્થિર પૂર્ણાંક conf_file_chase_and_verify(
+                અચલ અક્ષર *મૂળ,          /* for logging, can be NULL */
+                પૂર્ણાંક rfd,
+                અચલ અક્ષર *original_path, /* for logging */
+                અચલ અક્ષર *path,
+                અચલ અક્ષર *name,
                 Set **masked,              /* optional */
                 ConfFilesFlags flags,
-                char **ret_path,
-                int *ret_fd,
-                struct stat *ret_stat) {
+                અક્ષર **ret_path,
+                પૂર્ણાંક *ret_fd,
+                સંરચના stat *ret_stat) {
 
-        _cleanup_free_ char *resolved_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        struct stat st = {};
-        int r;
+        _cleanup_free_ અક્ષર *resolved_path = ખાલી;
+        _cleanup_close_ પૂર્ણાંક fd = -EBADF;
+        સંરચના stat st = {};
+        પૂર્ણાંક r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(original_path);
-        assert(path);
-        assert(name);
+        પ્રતિજ્ઞા(wildcard_fd_is_valid(rfd));
+        પ્રતિજ્ઞા(original_path);
+        પ્રતિજ્ઞા(path);
+        પ્રતિજ્ઞા(name);
 
-        int log_level = conf_files_log_level(flags);
+        પૂર્ણાંક log_level = conf_files_log_level(flags);
 
-        root = empty_to_root(root);
+        મૂળ = empty_to_મૂળ(મૂળ);
 
         r = chaseat(rfd, rfd, path, conf_files_chase_flags(flags), &resolved_path, &fd);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to chase '%s%s': %m",
-                                      root, skip_leading_slash(original_path));
-        if (r == 0) {
-                if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK)) {
+        જો (r < 0)
+                પાછા log_full_errno(log_level, r, "Failed to chase '%s%s': %m",
+                                      મૂળ, skip_leading_slash(original_path));
+        જો (r == 0) {
+                જો (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK)) {
                         /* If the path points to /dev/null in a image or so, then the device node may not exist. */
-                        if (path_equal(skip_leading_slash(resolved_path), "dev/null")) {
-                                if (masked) {
+                        જો (path_equal(skip_leading_slash(resolved_path), "dev/null")) {
+                                જો (masked) {
                                         /* Mark this one as masked */
                                         r = set_put_strdup(masked, name);
-                                        if (r < 0)
-                                                return log_oom_full(log_level);
+                                        જો (r < 0)
+                                                પાછા log_oom_full(log_level);
                                 }
 
-                                return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
+                                પાછા log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                                        "File '%s%s' is a mask (symlink to /dev/null).",
-                                                       root, skip_leading_slash(original_path));
+                                                       મૂળ, skip_leading_slash(original_path));
                         }
                 }
 
-                if (conf_files_need_stat(flags))
+                જો (conf_files_need_stat(flags))
                         /* If we need to have stat, skip the entry. */
-                        return log_full_errno(log_level, SYNTHETIC_ERRNO(ENOENT), "Failed to chase '%s%s': %m",
-                                              root, skip_leading_slash(original_path));
+                        પાછા log_full_errno(log_level, SYNTHETIC_ERRNO(ENOENT), "Failed to chase '%s%s': %m",
+                                              મૂળ, skip_leading_slash(original_path));
         }
 
         /* Even if we do not need stat, let's take stat now. The caller may use the info later. */
-        if (fd >= 0 && fstat(fd, &st) < 0)
-                return log_full_errno(log_level, errno, "Failed to stat '%s%s': %m",
-                                      root, skip_leading_slash(original_path));
+        જો (fd >= 0 && fstat(fd, &st) < 0)
+                પાછા log_full_errno(log_level, errno, "Failed to stat '%s%s': %m",
+                                      મૂળ, skip_leading_slash(original_path));
 
         /* Is this a masking entry? */
-        if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK) && stat_may_be_dev_null(&st)) {
-                if (masked) {
+        જો (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_SYMLINK) && stat_may_be_dev_null(&st)) {
+                જો (masked) {
                         /* Mark this one as masked */
                         r = set_put_strdup(masked, name);
-                        if (r < 0)
-                                return log_oom_full(log_level);
+                        જો (r < 0)
+                                પાછા log_oom_full(log_level);
                 }
 
-                return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
+                પાછા log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                        "File '%s%s' is a mask (symlink to /dev/null).",
-                                       root, skip_leading_slash(original_path));
+                                       મૂળ, skip_leading_slash(original_path));
         }
 
-        if (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_EMPTY) && stat_is_empty(&st)) {
-                if (masked) {
+        જો (FLAGS_SET(flags, CONF_FILES_FILTER_MASKED_BY_EMPTY) && stat_is_empty(&st)) {
+                જો (masked) {
                         /* Mark this one as masked */
                         r = set_put_strdup(masked, name);
-                        if (r < 0)
-                                return log_oom_full(log_level);
+                        જો (r < 0)
+                                પાછા log_oom_full(log_level);
                 }
 
-                return log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
+                પાછા log_debug_errno(SYNTHETIC_ERRNO(ERFKILL),
                                        "File '%s%s' is a mask (an empty file).",
-                                       root, skip_leading_slash(original_path));
+                                       મૂળ, skip_leading_slash(original_path));
         }
 
-        if (FLAGS_SET(flags, CONF_FILES_REGULAR|CONF_FILES_DIRECTORY)) {
-                if (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
-                        return log_debug_errno(SYNTHETIC_ERRNO(EBADFD),
+        જો (FLAGS_SET(flags, CONF_FILES_REGULAR|CONF_FILES_DIRECTORY)) {
+                જો (!S_ISREG(st.st_mode) && !S_ISDIR(st.st_mode))
+                        પાછા log_debug_errno(SYNTHETIC_ERRNO(EBADFD),
                                                "File '%s%s' is neither a regular file or directory.",
-                                               root, skip_leading_slash(original_path));
-        } else {
+                                               મૂળ, skip_leading_slash(original_path));
+        } નહીંતર {
                 /* Is this node a regular file? */
-                if (FLAGS_SET(flags, CONF_FILES_REGULAR)) {
+                જો (FLAGS_SET(flags, CONF_FILES_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return log_debug_errno(r, "File '%s%s' is not a regular file: %m",
-                                                       root, skip_leading_slash(original_path));
+                        જો (r < 0)
+                                પાછા log_debug_errno(r, "File '%s%s' is not a regular file: %m",
+                                                       મૂળ, skip_leading_slash(original_path));
                 }
 
                 /* Is this node a directory? */
-                if (FLAGS_SET(flags, CONF_FILES_DIRECTORY)) {
+                જો (FLAGS_SET(flags, CONF_FILES_DIRECTORY)) {
                         r = stat_verify_directory(&st);
-                        if (r < 0)
-                                return log_debug_errno(r, "File '%s%s' is not a directory: %m",
-                                                       root, skip_leading_slash(original_path));
+                        જો (r < 0)
+                                પાછા log_debug_errno(r, "File '%s%s' is not a directory: %m",
+                                                       મૂળ, skip_leading_slash(original_path));
                 }
         }
 
@@ -253,188 +253,188 @@ static int conf_file_chase_and_verify(
          * As requested: check if the file is marked executable. Note that we don't check access(X_OK) here,
          * as we care about whether the file is marked executable at all, and not whether it is executable
          * for us, because if so, such errors are stuff we should log about. */
-        if (FLAGS_SET(flags, CONF_FILES_EXECUTABLE) && (st.st_mode & 0111) == 0)
-                return log_debug_errno(SYNTHETIC_ERRNO(ENOEXEC),
+        જો (FLAGS_SET(flags, CONF_FILES_EXECUTABLE) && (st.st_mode & 0111) == 0)
+                પાછા log_debug_errno(SYNTHETIC_ERRNO(ENOEXEC),
                                        "File '%s%s' is not marked executable.",
-                                       root, skip_leading_slash(original_path));
+                                       મૂળ, skip_leading_slash(original_path));
 
-        if (ret_path)
+        જો (ret_path)
                 *ret_path = TAKE_PTR(resolved_path);
-        if (ret_fd)
+        જો (ret_fd)
                 *ret_fd = TAKE_FD(fd);
-        if (ret_stat)
+        જો (ret_stat)
                 *ret_stat = st;
 
-        return 0;
+        પાછા 0;
 }
 
-int conf_file_new_at(
-                const char *path,
-                const char *root,
-                int rfd,
+પૂર્ણાંક conf_file_new_at(
+                અચલ અક્ષર *path,
+                અચલ અક્ષર *મૂળ,
+                પૂર્ણાંક rfd,
                 ConfFilesFlags flags,
                 ConfFile **ret) {
-        int r;
+        પૂર્ણાંક r;
 
-        assert(path);
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret);
+        પ્રતિજ્ઞા(path);
+        પ્રતિજ્ઞા(wildcard_fd_is_valid(rfd));
+        પ્રતિજ્ઞા(ret);
 
-        int log_level = conf_files_log_level(flags);
+        પૂર્ણાંક log_level = conf_files_log_level(flags);
 
-        _cleanup_free_ char *_root = NULL;
-        if (DEBUG_LOGGING && !root) {
-                (void) fd_get_path(rfd, &_root);
-                root = _root;
+        _cleanup_free_ અક્ષર *મૂળ_2 = ખાલી;
+        જો (DEBUG_LOGGING && !મૂળ) {
+                (શૂન્ય) fd_get_path(rfd, &મૂળ_2);
+                મૂળ = મૂળ_2;
         }
 
         _cleanup_(conf_file_freep) ConfFile *c = new(ConfFile, 1);
-        if (!c)
-                return log_oom_full(log_level);
+        જો (!c)
+                પાછા log_oom_full(log_level);
 
         *c = (ConfFile) {
                 .original_path = strdup(path),
                 .fd = -EBADF,
         };
 
-        if (!c->original_path)
-                return log_oom_full(log_level);
+        જો (!c->original_path)
+                પાછા log_oom_full(log_level);
 
         r = path_extract_filename(path, &c->filename);
-        if (r < 0)
-                return log_full_errno(log_level, r, "Failed to extract filename from '%s': %m", path);
+        જો (r < 0)
+                પાછા log_full_errno(log_level, r, "Failed to extract filename from '%s': %m", path);
 
-        _cleanup_free_ char *dirpath = NULL, *resolved_dirpath = NULL;
+        _cleanup_free_ અક્ષર *dirpath = ખાલી, *resolved_dirpath = ખાલી;
         r = path_extract_directory(path, &dirpath);
-        if (r < 0 && r != -EDESTADDRREQ)
-                return log_full_errno(log_level, r, "Failed to extract directory from '%s': %m", path);
-        if (r >= 0) {
+        જો (r < 0 && r != -EDESTADDRREQ)
+                પાછા log_full_errno(log_level, r, "Failed to extract directory from '%s': %m", path);
+        જો (r >= 0) {
                 r = chaseat(rfd, rfd, dirpath,
                             CHASE_MUST_BE_DIRECTORY | conf_files_chase_flags(flags),
-                            &resolved_dirpath, /* ret_fd= */ NULL);
-                if (r < 0)
-                        return log_full_errno(log_level, r, "Failed to chase '%s%s': %m", empty_to_root(root), skip_leading_slash(dirpath));
+                            &resolved_dirpath, /* ret_fd= */ ખાલી);
+                જો (r < 0)
+                        પાછા log_full_errno(log_level, r, "Failed to chase '%s%s': %m", empty_to_મૂળ(મૂળ), skip_leading_slash(dirpath));
         }
 
         c->result = path_join(resolved_dirpath, c->filename);
-        if (!c->result)
-                return log_oom_full(log_level);
+        જો (!c->result)
+                પાછા log_oom_full(log_level);
 
         r = conf_file_chase_and_verify(
-                        root,
+                        મૂળ,
                         rfd,
                         c->original_path,
                         c->result,
                         c->filename,
-                        /* masked= */ NULL,
+                        /* masked= */ ખાલી,
                         flags,
                         &c->resolved_path,
                         &c->fd,
                         &c->st);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
         *ret = TAKE_PTR(c);
-        return 0;
+        પાછા 0;
 }
 
-int conf_file_new(const char *path, const char *root, ConfFilesFlags flags, ConfFile **ret) {
-        int r;
+પૂર્ણાંક conf_file_new(અચલ અક્ષર *path, અચલ અક્ષર *મૂળ, ConfFilesFlags flags, ConfFile **ret) {
+        પૂર્ણાંક r;
 
-        assert(path);
-        assert(ret);
+        પ્રતિજ્ઞા(path);
+        પ્રતિજ્ઞા(ret);
 
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_close_ int rfd = -EBADF;
-        r = prepare_dirs(root, flags, /* dirs= */ NULL, &root_abs, &rfd, /* ret_dirs= */ NULL);
-        if (r < 0)
-                return r;
+        _cleanup_free_ અક્ષર *મૂળ_abs = ખાલી;
+        _cleanup_close_ પૂર્ણાંક rfd = -EBADF;
+        r = prepare_dirs(મૂળ, flags, /* dirs= */ ખાલી, &મૂળ_abs, &rfd, /* ret_dirs= */ ખાલી);
+        જો (r < 0)
+                પાછા r;
 
-        _cleanup_free_ char *path_abs = NULL;
-        if (!root_abs) {
+        _cleanup_free_ અક્ષર *path_abs = ખાલી;
+        જો (!મૂળ_abs) {
                 r = path_make_absolute_cwd(path, &path_abs);
-                if (r < 0)
-                        return log_full_errno(conf_files_log_level(flags), r, "Failed to make '%s' absolute: %m", path);
+                જો (r < 0)
+                        પાછા log_full_errno(conf_files_log_level(flags), r, "Failed to make '%s' absolute: %m", path);
 
                 path = path_abs;
         }
 
-        _cleanup_(conf_file_freep) ConfFile *c = NULL;
-        r = conf_file_new_at(path, root_abs, rfd, flags, &c);
-        if (r < 0)
-                return r;
+        _cleanup_(conf_file_freep) ConfFile *c = ખાલી;
+        r = conf_file_new_at(path, મૂળ_abs, rfd, flags, &c);
+        જો (r < 0)
+                પાછા r;
 
-        r = conf_file_prefix_root(c, root_abs, flags);
-        if (r < 0)
-                return r;
+        r = conf_file_prefix_મૂળ(c, મૂળ_abs, flags);
+        જો (r < 0)
+                પાછા r;
 
         *ret = TAKE_PTR(c);
-        return 0;
+        પાછા 0;
 }
 
-DEFINE_PRIVATE_HASH_OPS_WITH_VALUE_DESTRUCTOR(
+DEFINE_PRIVATE_HASH_OPS_WITH_કિંમત_DESTRUCTOR(
                 conf_file_hash_ops,
-                char, string_hash_func, string_compare_func,
+                અક્ષર, string_hash_func, string_compare_func,
                 ConfFile, conf_file_free);
 
-static int files_add(
+સ્થિર પૂર્ણાંક files_add(
                 DIR *dir,
-                const char *original_dirpath,
-                const char *resolved_dirpath,
-                const char *root, /* for logging, can be NULL */
-                int rfd,
+                અચલ અક્ષર *original_dirpath,
+                અચલ અક્ષર *resolved_dirpath,
+                અચલ અક્ષર *મૂળ, /* for logging, can be NULL */
+                પૂર્ણાંક rfd,
                 Hashmap **files,
                 Set **masked,
-                const char *suffix,
+                અચલ અક્ષર *suffix,
                 ConfFilesFlags flags) {
 
-        int r;
+        પૂર્ણાંક r;
 
-        assert(dir);
-        assert(original_dirpath);
-        assert(resolved_dirpath);
-        assert(wildcard_fd_is_valid(rfd));
-        assert(files);
-        assert(masked);
+        પ્રતિજ્ઞા(dir);
+        પ્રતિજ્ઞા(original_dirpath);
+        પ્રતિજ્ઞા(resolved_dirpath);
+        પ્રતિજ્ઞા(wildcard_fd_is_valid(rfd));
+        પ્રતિજ્ઞા(files);
+        પ્રતિજ્ઞા(masked);
 
-        int log_level = conf_files_log_level(flags);
+        પૂર્ણાંક log_level = conf_files_log_level(flags);
 
-        root = empty_to_root(root);
+        મૂળ = empty_to_મૂળ(મૂળ);
 
-        FOREACH_DIRENT(de, dir, return log_full_errno(log_level, errno, "Failed to read directory '%s%s': %m",
-                                                      root, skip_leading_slash(original_dirpath))) {
+        FOREACH_DIRENT(de, dir, પાછા log_full_errno(log_level, errno, "Failed to read directory '%s%s': %m",
+                                                      મૂળ, skip_leading_slash(original_dirpath))) {
 
-                _cleanup_free_ char *original_path = path_join(original_dirpath, de->d_name);
-                if (!original_path)
-                        return log_oom_full(log_level);
+                _cleanup_free_ અક્ષર *original_path = path_join(original_dirpath, de->d_name);
+                જો (!original_path)
+                        પાછા log_oom_full(log_level);
 
                 /* Does this match the suffix? */
-                if (suffix && !endswith(de->d_name, suffix)) {
-                        log_debug("Skipping file '%s%s', suffix is not '%s'.", root, skip_leading_slash(original_path), suffix);
-                        continue;
+                જો (suffix && !endswith(de->d_name, suffix)) {
+                        log_debug("Skipping file '%s%s', suffix is not '%s'.", મૂળ, skip_leading_slash(original_path), suffix);
+                        ચાલુ;
                 }
 
                 /* Has this file already been found in an earlier directory? */
-                if (hashmap_contains(*files, de->d_name)) {
-                        log_debug("Skipping overridden file '%s%s'.", root, skip_leading_slash(original_path));
-                        continue;
+                જો (hashmap_contains(*files, de->d_name)) {
+                        log_debug("Skipping overridden file '%s%s'.", મૂળ, skip_leading_slash(original_path));
+                        ચાલુ;
                 }
 
                 /* Has this been masked in an earlier directory? */
-                if ((flags & CONF_FILES_FILTER_MASKED) != 0 && set_contains(*masked, de->d_name)) {
-                        log_debug("File '%s%s' is masked by previous entry.", root, skip_leading_slash(original_path));
-                        continue;
+                જો ((flags & CONF_FILES_FILTER_MASKED) != 0 && set_contains(*masked, de->d_name)) {
+                        log_debug("File '%s%s' is masked by previous entry.", મૂળ, skip_leading_slash(original_path));
+                        ચાલુ;
                 }
 
-                _cleanup_free_ char *p = path_join(resolved_dirpath, de->d_name);
-                if (!p)
-                        return log_oom_full(log_level);
+                _cleanup_free_ અક્ષર *p = path_join(resolved_dirpath, de->d_name);
+                જો (!p)
+                        પાછા log_oom_full(log_level);
 
-                _cleanup_free_ char *resolved_path = NULL;
-                _cleanup_close_ int fd = -EBADF;
-                struct stat st;
+                _cleanup_free_ અક્ષર *resolved_path = ખાલી;
+                _cleanup_close_ પૂર્ણાંક fd = -EBADF;
+                સંરચના stat st;
                 r = conf_file_chase_and_verify(
-                                root,
+                                મૂળ,
                                 rfd,
                                 original_path,
                                 p,
@@ -444,14 +444,14 @@ static int files_add(
                                 &resolved_path,
                                 &fd,
                                 &st);
-                if (r == -ENOMEM)
-                        return r;
-                if (r < 0)
-                        continue;
+                જો (r == -ENOMEM)
+                        પાછા r;
+                જો (r < 0)
+                        ચાલુ;
 
                 _cleanup_(conf_file_freep) ConfFile *c = new(ConfFile, 1);
-                if (!c)
-                        return log_oom_full(log_level);
+                જો (!c)
+                        પાછા log_oom_full(log_level);
 
                 *c = (ConfFile) {
                         .filename = strdup(de->d_name),
@@ -462,454 +462,454 @@ static int files_add(
                         .st = st,
                 };
 
-                if (!c->filename)
-                        return log_oom_full(log_level);
+                જો (!c->filename)
+                        પાછા log_oom_full(log_level);
 
                 r = hashmap_ensure_put(files, &conf_file_hash_ops, c->filename, c);
-                if (r < 0) {
-                        assert(r == -ENOMEM);
-                        return log_oom_full(log_level);
+                જો (r < 0) {
+                        પ્રતિજ્ઞા(r == -ENOMEM);
+                        પાછા log_oom_full(log_level);
                 }
-                assert(r > 0);
+                પ્રતિજ્ઞા(r > 0);
 
                 TAKE_PTR(c);
         }
 
-        return 0;
+        પાછા 0;
 }
 
-static int dump_files(Hashmap *fh, const char *root, ConfFilesFlags flags, ConfFile ***ret_files, size_t *ret_n_files) {
-        ConfFile **files = NULL;
+સ્થિર પૂર્ણાંક dump_files(Hashmap *fh, અચલ અક્ષર *મૂળ, ConfFilesFlags flags, ConfFile ***ret_files, size_t *ret_n_files) {
+        ConfFile **files = ખાલી;
         size_t n_files = 0;
-        int r;
+        પૂર્ણાંક r;
 
         CLEANUP_ARRAY(files, n_files, conf_file_free_array);
 
-        assert(ret_files);
-        assert(ret_n_files);
+        પ્રતિજ્ઞા(ret_files);
+        પ્રતિજ્ઞા(ret_n_files);
 
         /* The entries in the array given by hashmap_dump_sorted() are still owned by the hashmap. */
-        r = hashmap_dump_sorted(fh, (void***) &files, &n_files);
-        if (r < 0)
-                return log_oom_full(conf_files_log_level(flags));
+        r = hashmap_dump_sorted(fh, (શૂન્ય***) &files, &n_files);
+        જો (r < 0)
+                પાછા log_oom_full(conf_files_log_level(flags));
 
         /* Hence, we need to remove them from the hashmap. */
         FOREACH_ARRAY(i, files, n_files)
                 assert_se(hashmap_remove(fh, (*i)->filename) == *i);
 
-        if (root)
+        જો (મૂળ)
                 FOREACH_ARRAY(i, files, n_files) {
-                        r = conf_file_prefix_root(*i, root, flags);
-                        if (r < 0)
-                                return r;
+                        r = conf_file_prefix_મૂળ(*i, મૂળ, flags);
+                        જો (r < 0)
+                                પાછા r;
                 }
 
         *ret_files = TAKE_PTR(files);
         *ret_n_files = n_files;
-        return 0;
+        પાછા 0;
 }
 
-static int copy_and_sort_files_from_hashmap(
+સ્થિર પૂર્ણાંક copy_and_sort_files_from_hashmap(
                 Hashmap *fh,
-                const char *suffix,
-                const char *root,
+                અચલ અક્ષર *suffix,
+                અચલ અક્ષર *મૂળ,
                 ConfFilesFlags flags,
-                char ***ret) {
+                અક્ષર ***ret) {
 
-        _cleanup_strv_free_ char **results = NULL;
-        _cleanup_free_ ConfFile **files = NULL;
+        _cleanup_strv_free_ અક્ષર **results = ખાલી;
+        _cleanup_free_ ConfFile **files = ખાલી;
         size_t n_files = 0, n_results = 0;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(ret);
+        પ્રતિજ્ઞા(ret);
 
-        int log_level = conf_files_log_level(flags);
+        પૂર્ણાંક log_level = conf_files_log_level(flags);
 
         /* The entries in the array given by hashmap_dump_sorted() are still owned by the hashmap.
          * Hence, do not use conf_file_free_array() for 'entries' */
-        r = hashmap_dump_sorted(fh, (void***) &files, &n_files);
-        if (r < 0)
-                return log_oom_full(log_level);
+        r = hashmap_dump_sorted(fh, (શૂન્ય***) &files, &n_files);
+        જો (r < 0)
+                પાછા log_oom_full(log_level);
 
         FOREACH_ARRAY(i, files, n_files) {
                 ConfFile *c = *i;
-                const char *add = NULL;
+                અચલ અક્ષર *add = ખાલી;
 
-                if (FLAGS_SET(flags, CONF_FILES_BASENAME))
+                જો (FLAGS_SET(flags, CONF_FILES_BASENAME))
                         add = c->filename;
-                else if (root && !FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_ROOT)) {
-                        _cleanup_free_ char *p = NULL;
+                નહીંતર જો (મૂળ && !FLAGS_SET(flags, CONF_FILES_DONT_PREFIX_મૂળ)) {
+                        _cleanup_free_ અક્ષર *p = ખાલી;
 
-                        r = chaseat_prefix_root(c->result, root, &p);
-                        if (r < 0)
-                                return log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, root);
+                        r = chaseat_prefix_મૂળ(c->result, મૂળ, &p);
+                        જો (r < 0)
+                                પાછા log_full_errno(log_level, r, "Failed to prefix '%s' with root '%s': %m", c->result, મૂળ);
 
-                        if (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX) && suffix) {
-                                char *e = endswith(p, suffix);
-                                if (!e)
-                                        continue;
+                        જો (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX) && suffix) {
+                                અક્ષર *e = endswith(p, suffix);
+                                જો (!e)
+                                        ચાલુ;
 
                                 *e = 0;
                         }
 
-                        if (strv_consume_with_size(&results, &n_results, TAKE_PTR(p)) < 0)
-                                return log_oom_full(log_level);
+                        જો (strv_consume_with_size(&results, &n_results, TAKE_PTR(p)) < 0)
+                                પાછા log_oom_full(log_level);
 
-                        continue;
-                } else
+                        ચાલુ;
+                } નહીંતર
                         add = c->result;
 
-                if (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX)) {
-                        const char *e = endswith(add, suffix);
-                        if (!e)
-                                continue;
+                જો (FLAGS_SET(flags, CONF_FILES_TRUNCATE_SUFFIX)) {
+                        અચલ અક્ષર *e = endswith(add, suffix);
+                        જો (!e)
+                                ચાલુ;
 
-                        _cleanup_free_ char *n = strndup(add, e - add);
-                        if (!n)
-                                return log_oom_full(log_level);
+                        _cleanup_free_ અક્ષર *n = strndup(add, e - add);
+                        જો (!n)
+                                પાછા log_oom_full(log_level);
 
                         r = strv_consume_with_size(&results, &n_results, TAKE_PTR(n));
-                } else
+                } નહીંતર
                         r = strv_extend_with_size(&results, &n_results, add);
-                if (r < 0)
-                        return log_oom_full(log_level);
+                જો (r < 0)
+                        પાછા log_oom_full(log_level);
         }
 
         *ret = TAKE_PTR(results);
-        return 0;
+        પાછા 0;
 }
 
-static int insert_replacement(Hashmap **fh, ConfFile *replacement, ConfFilesFlags flags, const ConfFile **ret) {
+સ્થિર પૂર્ણાંક ઉમેરો_replacement(Hashmap **fh, ConfFile *replacement, ConfFilesFlags flags, અચલ ConfFile **ret) {
         _cleanup_(conf_file_freep) ConfFile *c = ASSERT_PTR(replacement);
-        int r;
+        પૂર્ણાંક r;
 
-        assert(fh);
-        assert(ret);
+        પ્રતિજ્ઞા(fh);
+        પ્રતિજ્ઞા(ret);
 
         /* This consumes the input ConfFile. */
 
         ConfFile *existing = hashmap_get(*fh, c->filename);
-        if (existing) {
+        જો (existing) {
                 log_debug("An entry with higher priority '%s' -> '%s' already exists, ignoring the replacement: %s",
                           existing->filename, existing->result, c->original_path);
-                *ret = NULL;
-                return 0;
+                *ret = ખાલી;
+                પાછા 0;
         }
 
         r = hashmap_ensure_put(fh, &conf_file_hash_ops, c->filename, c);
-        if (r < 0) {
-                assert(r == -ENOMEM);
-                return log_oom_full(conf_files_log_level(flags));
+        જો (r < 0) {
+                પ્રતિજ્ઞા(r == -ENOMEM);
+                પાછા log_oom_full(conf_files_log_level(flags));
         }
-        assert(r > 0);
+        પ્રતિજ્ઞા(r > 0);
 
         log_debug("Inserted replacement: '%s' -> '%s'", c->filename, c->result);
 
         *ret = TAKE_PTR(c);
-        return 0;
+        પાછા 0;
 }
 
-static int conf_files_list_impl(
-                const char *suffix,
-                const char *root, /* for logging, can be NULL */
-                int rfd,
+સ્થિર પૂર્ણાંક conf_files_list_impl(
+                અચલ અક્ષર *suffix,
+                અચલ અક્ષર *મૂળ, /* for logging, can be NULL */
+                પૂર્ણાંક rfd,
                 ConfFilesFlags flags,
-                const char * const *dirs,
-                const char *replacement,
+                અચલ અક્ષર * અચલ *dirs,
+                અચલ અક્ષર *replacement,
                 Hashmap **ret,
-                const ConfFile **ret_inserted) {
+                અચલ ConfFile **ret_inserted) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_set_free_ Set *masked = NULL;
-        _cleanup_(conf_file_freep) ConfFile *c = NULL;
-        const ConfFile *inserted = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ખાલી;
+        _cleanup_set_free_ Set *masked = ખાલી;
+        _cleanup_(conf_file_freep) ConfFile *c = ખાલી;
+        અચલ ConfFile *inserted = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret);
+        પ્રતિજ્ઞા(wildcard_fd_is_valid(rfd));
+        પ્રતિજ્ઞા(ret);
 
-        root = empty_to_root(root);
+        મૂળ = empty_to_મૂળ(મૂળ);
 
-        if (replacement) {
-                r = conf_file_new_at(replacement, root, rfd, flags & CONF_FILES_WARN, &c);
-                if (r < 0)
-                        return r;
+        જો (replacement) {
+                r = conf_file_new_at(replacement, મૂળ, rfd, flags & CONF_FILES_WARN, &c);
+                જો (r < 0)
+                        પાછા r;
         }
 
         STRV_FOREACH(p, dirs) {
-                _cleanup_closedir_ DIR *dir = NULL;
-                _cleanup_free_ char *path = NULL;
+                _cleanup_closedir_ DIR *dir = ખાલી;
+                _cleanup_free_ અક્ષર *path = ખાલી;
 
                 r = chase_and_opendirat(rfd, rfd, *p, 0, &path, &dir);
-                if (r < 0) {
-                        if (r != -ENOENT)
+                જો (r < 0) {
+                        જો (r != -ENOENT)
                                 log_full_errno(conf_files_log_level(flags), r,
                                                "Failed to chase and open directory '%s%s', ignoring: %m",
-                                               root, skip_leading_slash(*p));
-                        continue;
+                                               મૂળ, skip_leading_slash(*p));
+                        ચાલુ;
                 }
 
-                if (c && streq_ptr(path_startswith(c->result, path), c->filename)) {
-                        r = insert_replacement(&fh, TAKE_PTR(c), flags, &inserted);
-                        if (r < 0)
-                                return r;
+                જો (c && streq_ptr(path_startswith(c->result, path), c->filename)) {
+                        r = ઉમેરો_replacement(&fh, TAKE_PTR(c), flags, &inserted);
+                        જો (r < 0)
+                                પાછા r;
                 }
 
-                r = files_add(dir, *p, path, root, rfd, &fh, &masked, suffix, flags);
-                if (r == -ENOMEM)
-                        return r;
+                r = files_add(dir, *p, path, મૂળ, rfd, &fh, &masked, suffix, flags);
+                જો (r == -ENOMEM)
+                        પાછા r;
         }
 
-        if (c) {
-                r = insert_replacement(&fh, TAKE_PTR(c), flags, &inserted);
-                if (r < 0)
-                        return r;
+        જો (c) {
+                r = ઉમેરો_replacement(&fh, TAKE_PTR(c), flags, &inserted);
+                જો (r < 0)
+                        પાછા r;
         }
 
         *ret = TAKE_PTR(fh);
-        if (ret_inserted)
+        જો (ret_inserted)
                 *ret_inserted = inserted;
-        return 0;
+        પાછા 0;
 }
 
-int conf_files_list_strv(
-                char ***ret,
-                const char *suffix,
-                const char *root,
+પૂર્ણાંક conf_files_list_strv(
+                અક્ષર ***ret,
+                અચલ અક્ષર *suffix,
+                અચલ અક્ષર *મૂળ,
                 ConfFilesFlags flags,
-                const char * const *dirs) {
+                અચલ અક્ષર * અચલ *dirs) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ખાલી;
+        _cleanup_close_ પૂર્ણાંક rfd = -EBADF;
+        _cleanup_free_ અક્ષર *મૂળ_abs = ખાલી;
+        _cleanup_strv_free_ અક્ષર **dirs_abs = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(ret);
+        પ્રતિજ્ઞા(ret);
 
-        r = prepare_dirs(root, flags, (char**) dirs, &root_abs, &rfd, &dirs_abs);
-        if (r < 0)
-                return r;
+        r = prepare_dirs(મૂળ, flags, (અક્ષર**) dirs, &મૂળ_abs, &rfd, &dirs_abs);
+        જો (r < 0)
+                પાછા r;
 
-        r = conf_files_list_impl(suffix, root_abs, rfd, flags, (const char * const *) dirs_abs,
-                                 /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, મૂળ_abs, rfd, flags, (અચલ અક્ષર * અચલ *) dirs_abs,
+                                 /* replacement= */ ખાલી, &fh, /* ret_inserted= */ ખાલી);
+        જો (r < 0)
+                પાછા r;
 
-        return copy_and_sort_files_from_hashmap(fh, suffix, empty_to_root(root_abs), flags, ret);
+        પાછા copy_and_sort_files_from_hashmap(fh, suffix, empty_to_મૂળ(મૂળ_abs), flags, ret);
 }
 
-int conf_files_list_strv_full(
-                const char *suffix,
-                const char *root,
+પૂર્ણાંક conf_files_list_strv_full(
+                અચલ અક્ષર *suffix,
+                અચલ અક્ષર *મૂળ,
                 ConfFilesFlags flags,
-                const char * const *dirs,
+                અચલ અક્ષર * અચલ *dirs,
                 ConfFile ***ret_files,
                 size_t *ret_n_files) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ખાલી;
+        _cleanup_close_ પૂર્ણાંક rfd = -EBADF;
+        _cleanup_free_ અક્ષર *મૂળ_abs = ખાલી;
+        _cleanup_strv_free_ અક્ષર **dirs_abs = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(ret_files);
-        assert(ret_n_files);
+        પ્રતિજ્ઞા(ret_files);
+        પ્રતિજ્ઞા(ret_n_files);
 
-        r = prepare_dirs(root, flags, (char**) dirs, &root_abs, &rfd, &dirs_abs);
-        if (r < 0)
-                return r;
+        r = prepare_dirs(મૂળ, flags, (અક્ષર**) dirs, &મૂળ_abs, &rfd, &dirs_abs);
+        જો (r < 0)
+                પાછા r;
 
-        r = conf_files_list_impl(suffix, root_abs, rfd, flags, (const char * const *) dirs_abs,
-                                 /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, મૂળ_abs, rfd, flags, (અચલ અક્ષર * અચલ *) dirs_abs,
+                                 /* replacement= */ ખાલી, &fh, /* ret_inserted= */ ખાલી);
+        જો (r < 0)
+                પાછા r;
 
-        return dump_files(fh, empty_to_root(root_abs), flags, ret_files, ret_n_files);
+        પાછા dump_files(fh, empty_to_મૂળ(મૂળ_abs), flags, ret_files, ret_n_files);
 }
 
-int conf_files_list_strv_at(
-                char ***ret,
-                const char *suffix,
-                int rfd,
+પૂર્ણાંક conf_files_list_strv_at(
+                અક્ષર ***ret,
+                અચલ અક્ષર *suffix,
+                પૂર્ણાંક rfd,
                 ConfFilesFlags flags,
-                const char * const *dirs) {
+                અચલ અક્ષર * અચલ *dirs) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *root = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ખાલી;
+        _cleanup_free_ અક્ષર *મૂળ = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret);
+        પ્રતિજ્ઞા(wildcard_fd_is_valid(rfd));
+        પ્રતિજ્ઞા(ret);
 
-        if (DEBUG_LOGGING)
-                (void) fd_get_path(rfd, &root); /* for logging */
+        જો (DEBUG_LOGGING)
+                (શૂન્ય) fd_get_path(rfd, &મૂળ); /* for logging */
 
-        r = conf_files_list_impl(suffix, root, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, મૂળ, rfd, flags, dirs, /* replacement= */ ખાલી, &fh, /* ret_inserted= */ ખાલી);
+        જો (r < 0)
+                પાછા r;
 
-        return copy_and_sort_files_from_hashmap(fh, suffix, /* root= */ NULL, flags, ret);
+        પાછા copy_and_sort_files_from_hashmap(fh, suffix, /* root= */ ખાલી, flags, ret);
 }
 
-int conf_files_list_strv_at_full(
-                const char *suffix,
-                int rfd,
+પૂર્ણાંક conf_files_list_strv_at_full(
+                અચલ અક્ષર *suffix,
+                પૂર્ણાંક rfd,
                 ConfFilesFlags flags,
-                const char * const *dirs,
+                અચલ અક્ષર * અચલ *dirs,
                 ConfFile ***ret_files,
                 size_t *ret_n_files) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *root = NULL;
-        int r;
+        _cleanup_hashmap_free_ Hashmap *fh = ખાલી;
+        _cleanup_free_ અક્ષર *મૂળ = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(wildcard_fd_is_valid(rfd));
-        assert(ret_files);
-        assert(ret_n_files);
+        પ્રતિજ્ઞા(wildcard_fd_is_valid(rfd));
+        પ્રતિજ્ઞા(ret_files);
+        પ્રતિજ્ઞા(ret_n_files);
 
-        if (DEBUG_LOGGING)
-                (void) fd_get_path(rfd, &root); /* for logging */
+        જો (DEBUG_LOGGING)
+                (શૂન્ય) fd_get_path(rfd, &મૂળ); /* for logging */
 
-        r = conf_files_list_impl(suffix, root, rfd, flags, dirs, /* replacement= */ NULL, &fh, /* ret_inserted= */ NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(suffix, મૂળ, rfd, flags, dirs, /* replacement= */ ખાલી, &fh, /* ret_inserted= */ ખાલી);
+        જો (r < 0)
+                પાછા r;
 
-        return dump_files(fh, /* root= */ NULL, flags, ret_files, ret_n_files);
+        પાછા dump_files(fh, /* root= */ ખાલી, flags, ret_files, ret_n_files);
 }
 
-int conf_files_list(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dir) {
-        return conf_files_list_strv(ret, suffix, root, flags, STRV_MAKE_CONST(dir));
+પૂર્ણાંક conf_files_list(અક્ષર ***ret, અચલ અક્ષર *suffix, અચલ અક્ષર *મૂળ, ConfFilesFlags flags, અચલ અક્ષર *dir) {
+        પાછા conf_files_list_strv(ret, suffix, મૂળ, flags, STRV_MAKE_CONST(dir));
 }
 
-int conf_files_list_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files) {
-        return conf_files_list_strv_full(suffix, root, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
+પૂર્ણાંક conf_files_list_full(અચલ અક્ષર *suffix, અચલ અક્ષર *મૂળ, ConfFilesFlags flags, અચલ અક્ષર *dir, ConfFile ***ret_files, size_t *ret_n_files) {
+        પાછા conf_files_list_strv_full(suffix, મૂળ, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
 }
 
-int conf_files_list_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dir) {
-        return conf_files_list_strv_at(ret, suffix, rfd, flags, STRV_MAKE_CONST(dir));
+પૂર્ણાંક conf_files_list_at(અક્ષર ***ret, અચલ અક્ષર *suffix, પૂર્ણાંક rfd, ConfFilesFlags flags, અચલ અક્ષર *dir) {
+        પાછા conf_files_list_strv_at(ret, suffix, rfd, flags, STRV_MAKE_CONST(dir));
 }
 
-int conf_files_list_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dir, ConfFile ***ret_files, size_t *ret_n_files) {
-        return conf_files_list_strv_at_full(suffix, rfd, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
+પૂર્ણાંક conf_files_list_at_full(અચલ અક્ષર *suffix, પૂર્ણાંક rfd, ConfFilesFlags flags, અચલ અક્ષર *dir, ConfFile ***ret_files, size_t *ret_n_files) {
+        પાછા conf_files_list_strv_at_full(suffix, rfd, flags, STRV_MAKE_CONST(dir), ret_files, ret_n_files);
 }
 
-int conf_files_list_nulstr(char ***ret, const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs) {
-        _cleanup_strv_free_ char **d = NULL;
+પૂર્ણાંક conf_files_list_nulstr(અક્ષર ***ret, અચલ અક્ષર *suffix, અચલ અક્ષર *મૂળ, ConfFilesFlags flags, અચલ અક્ષર *dirs) {
+        _cleanup_strv_free_ અક્ષર **d = ખાલી;
 
-        assert(ret);
+        પ્રતિજ્ઞા(ret);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        જો (!d)
+                પાછા log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv(ret, suffix, root, flags, (const char**) d);
+        પાછા conf_files_list_strv(ret, suffix, મૂળ, flags, (અચલ અક્ષર**) d);
 }
 
-int conf_files_list_nulstr_full(const char *suffix, const char *root, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
-        _cleanup_strv_free_ char **d = NULL;
+પૂર્ણાંક conf_files_list_nulstr_full(અચલ અક્ષર *suffix, અચલ અક્ષર *મૂળ, ConfFilesFlags flags, અચલ અક્ષર *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
+        _cleanup_strv_free_ અક્ષર **d = ખાલી;
 
-        assert(ret_files);
-        assert(ret_n_files);
+        પ્રતિજ્ઞા(ret_files);
+        પ્રતિજ્ઞા(ret_n_files);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        જો (!d)
+                પાછા log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_full(suffix, root, flags, (const char**) d, ret_files, ret_n_files);
+        પાછા conf_files_list_strv_full(suffix, મૂળ, flags, (અચલ અક્ષર**) d, ret_files, ret_n_files);
 }
 
-int conf_files_list_nulstr_at(char ***ret, const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs) {
-        _cleanup_strv_free_ char **d = NULL;
+પૂર્ણાંક conf_files_list_nulstr_at(અક્ષર ***ret, અચલ અક્ષર *suffix, પૂર્ણાંક rfd, ConfFilesFlags flags, અચલ અક્ષર *dirs) {
+        _cleanup_strv_free_ અક્ષર **d = ખાલી;
 
-        assert(ret);
+        પ્રતિજ્ઞા(ret);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        જો (!d)
+                પાછા log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_at(ret, suffix, rfd, flags, (const char**) d);
+        પાછા conf_files_list_strv_at(ret, suffix, rfd, flags, (અચલ અક્ષર**) d);
 }
 
-int conf_files_list_nulstr_at_full(const char *suffix, int rfd, ConfFilesFlags flags, const char *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
-        _cleanup_strv_free_ char **d = NULL;
+પૂર્ણાંક conf_files_list_nulstr_at_full(અચલ અક્ષર *suffix, પૂર્ણાંક rfd, ConfFilesFlags flags, અચલ અક્ષર *dirs, ConfFile ***ret_files, size_t *ret_n_files) {
+        _cleanup_strv_free_ અક્ષર **d = ખાલી;
 
-        assert(ret_files);
-        assert(ret_n_files);
+        પ્રતિજ્ઞા(ret_files);
+        પ્રતિજ્ઞા(ret_n_files);
 
         d = strv_split_nulstr(dirs);
-        if (!d)
-                return log_oom_full(conf_files_log_level(flags));
+        જો (!d)
+                પાછા log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_at_full(suffix, rfd, flags, (const char**) d, ret_files, ret_n_files);
+        પાછા conf_files_list_strv_at_full(suffix, rfd, flags, (અચલ અક્ષર**) d, ret_files, ret_n_files);
 }
 
-int conf_files_list_with_replacement(
-                const char *root,
-                char **config_dirs,
-                const char *replacement,
-                char ***ret_files,
-                char **ret_inserted) {
+પૂર્ણાંક conf_files_list_with_replacement(
+                અચલ અક્ષર *મૂળ,
+                અક્ષર **config_dirs,
+                અચલ અક્ષર *replacement,
+                અક્ષર ***ret_files,
+                અક્ષર **ret_inserted) {
 
-        _cleanup_hashmap_free_ Hashmap *fh = NULL;
-        _cleanup_free_ char *inserted = NULL;
+        _cleanup_hashmap_free_ Hashmap *fh = ખાલી;
+        _cleanup_free_ અક્ષર *inserted = ખાલી;
         ConfFilesFlags flags = CONF_FILES_REGULAR | CONF_FILES_FILTER_MASKED_BY_SYMLINK | CONF_FILES_WARN;
-        _cleanup_close_ int rfd = -EBADF;
-        _cleanup_free_ char *root_abs = NULL;
-        _cleanup_strv_free_ char **dirs_abs = NULL;
-        const ConfFile *c = NULL;
-        int r;
+        _cleanup_close_ પૂર્ણાંક rfd = -EBADF;
+        _cleanup_free_ અક્ષર *મૂળ_abs = ખાલી;
+        _cleanup_strv_free_ અક્ષર **dirs_abs = ખાલી;
+        અચલ ConfFile *c = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(ret_files);
+        પ્રતિજ્ઞા(ret_files);
 
-        r = prepare_dirs(root, flags, config_dirs, &root_abs, &rfd, &dirs_abs);
-        if (r < 0)
-                return r;
+        r = prepare_dirs(મૂળ, flags, config_dirs, &મૂળ_abs, &rfd, &dirs_abs);
+        જો (r < 0)
+                પાછા r;
 
-        r = conf_files_list_impl(".conf", root_abs, rfd, flags, (const char * const *) dirs_abs,
-                                 replacement, &fh, ret_inserted ? &c : NULL);
-        if (r < 0)
-                return r;
+        r = conf_files_list_impl(".conf", મૂળ_abs, rfd, flags, (અચલ અક્ષર * અચલ *) dirs_abs,
+                                 replacement, &fh, ret_inserted ? &c : ખાલી);
+        જો (r < 0)
+                પાછા r;
 
-        if (c) {
-                r = chaseat_prefix_root(c->result, root_abs, &inserted);
-                if (r < 0)
-                        return log_full_errno(conf_files_log_level(flags), r,
+        જો (c) {
+                r = chaseat_prefix_મૂળ(c->result, મૂળ_abs, &inserted);
+                જો (r < 0)
+                        પાછા log_full_errno(conf_files_log_level(flags), r,
                                               "Failed to prefix '%s' with root '%s': %m",
-                                              c->result, empty_to_root(root_abs));
+                                              c->result, empty_to_મૂળ(મૂળ_abs));
         }
 
-        r = copy_and_sort_files_from_hashmap(fh, ".conf", empty_to_root(root_abs), flags, ret_files);
-        if (r < 0)
-                return r;
+        r = copy_and_sort_files_from_hashmap(fh, ".conf", empty_to_મૂળ(મૂળ_abs), flags, ret_files);
+        જો (r < 0)
+                પાછા r;
 
-        if (ret_inserted)
+        જો (ret_inserted)
                 *ret_inserted = TAKE_PTR(inserted);
-        return 0;
+        પાછા 0;
 }
 
-int conf_files_list_dropins(
-                char ***ret,
-                const char *dropin_dirname,
-                const char *root,
-                int root_fd,
+પૂર્ણાંક conf_files_list_dropins(
+                અક્ષર ***ret,
+                અચલ અક્ષર *dropin_dirname,
+                અચલ અક્ષર *મૂળ,
+                પૂર્ણાંક મૂળ_fd,
                 ConfFilesFlags flags,
-                const char * const *dirs) {
+                અચલ અક્ષર * અચલ *dirs) {
 
-        _cleanup_strv_free_ char **dropin_dirs = NULL;
-        const char *suffix;
-        int r;
+        _cleanup_strv_free_ અક્ષર **dropin_dirs = ખાલી;
+        અચલ અક્ષર *suffix;
+        પૂર્ણાંક r;
 
-        assert(ret);
-        assert(dropin_dirname);
-        assert(dirs);
+        પ્રતિજ્ઞા(ret);
+        પ્રતિજ્ઞા(dropin_dirname);
+        પ્રતિજ્ઞા(dirs);
 
         suffix = strjoina("/", dropin_dirname);
         r = strv_extend_strv_concat(&dropin_dirs, dirs, suffix);
-        if (r < 0)
-                return log_oom_full(conf_files_log_level(flags));
+        જો (r < 0)
+                પાછા log_oom_full(conf_files_log_level(flags));
 
-        return conf_files_list_strv_at(ret, ".conf", root_fd, flags, (const char* const*) dropin_dirs);
+        પાછા conf_files_list_strv_at(ret, ".conf", મૂળ_fd, flags, (અચલ અક્ષર* અચલ*) dropin_dirs);
 }
 
 /**
@@ -922,86 +922,86 @@ int conf_files_list_dropins(
  *
  * This method is only suitable for configuration files which have a flat layout without dropins.
  */
-int conf_file_read(
-                const char *root,
-                const char **config_dirs,
-                const char *fn,
-                parse_line_t parse_line,
-                void *userdata,
+પૂર્ણાંક conf_file_read(
+                અચલ અક્ષર *મૂળ,
+                અચલ અક્ષર **config_dirs,
+                અચલ અક્ષર *fn,
+                parse_લીટી_t parse_લીટી,
+                શૂન્ય *userdata,
                 bool ignore_enoent,
                 bool *invalid_config) {
 
-        _cleanup_fclose_ FILE *_f = NULL;
-        _cleanup_free_ char *_fn = NULL;
+        _cleanup_fclose_ FILE *_f = ખાલી;
+        _cleanup_free_ અક્ષર *_fn = ખાલી;
         unsigned v = 0;
         FILE *f;
-        int r = 0;
+        પૂર્ણાંક r = 0;
 
-        assert(fn);
+        પ્રતિજ્ઞા(fn);
 
-        if (streq(fn, "-")) {
+        જો (streq(fn, "-")) {
                 f = stdin;
                 fn = "<stdin>";
 
                 log_debug("Reading config from stdin%s", glyph(GLYPH_ELLIPSIS));
 
-        } else if (is_path(fn)) {
+        } નહીંતર જો (is_path(fn)) {
                 r = path_make_absolute_cwd(fn, &_fn);
-                if (r < 0)
-                        return log_error_errno(r, "Failed to make path absolute: %m");
+                જો (r < 0)
+                        પાછા log_error_errno(r, "Failed to make path absolute: %m");
                 fn = _fn;
 
                 f = _f = fopen(fn, "re");
-                if (!_f)
+                જો (!_f)
                         r = -errno;
-                else
+                નહીંતર
                         log_debug("Reading config file \"%s\"%s", fn, glyph(GLYPH_ELLIPSIS));
 
-        } else {
-                r = search_and_fopen(fn, "re", root, config_dirs, &_f, &_fn);
-                if (r >= 0) {
+        } નહીંતર {
+                r = શોધ_and_fopen(fn, "re", મૂળ, config_dirs, &_f, &_fn);
+                જો (r >= 0) {
                         f = _f;
                         fn = _fn;
                         log_debug("Reading config file \"%s\"%s", fn, glyph(GLYPH_ELLIPSIS));
                 }
         }
 
-        if (r == -ENOENT && ignore_enoent) {
+        જો (r == -ENOENT && ignore_enoent) {
                 log_debug_errno(r, "Failed to open \"%s\", ignoring: %m", fn);
-                return 0; /* No error, but nothing happened. */
+                પાછા 0; /* No error, but nothing happened. */
         }
-        if (r < 0)
-                return log_error_errno(r, "Failed to read '%s': %m", fn);
+        જો (r < 0)
+                પાછા log_error_errno(r, "Failed to read '%s': %m", fn);
 
         r = 1;  /* We entered the part where we may modify state. */
 
-        for (;;) {
-                _cleanup_free_ char *line = NULL;
-                bool invalid_line = false;
-                int k;
+        માટે (;;) {
+                _cleanup_free_ અક્ષર *લીટી = ખાલી;
+                bool invalid_લીટી = false;
+                પૂર્ણાંક k;
 
-                k = read_stripped_line(f, LONG_LINE_MAX, &line);
-                if (k < 0)
-                        return log_error_errno(k, "Failed to read '%s': %m", fn);
-                if (k == 0)
-                        break;
+                k = read_stripped_લીટી(f, LONG_લીટી_MAX, &લીટી);
+                જો (k < 0)
+                        પાછા log_error_errno(k, "Failed to read '%s': %m", fn);
+                જો (k == 0)
+                        તોડો;
 
                 v++;
 
-                if (IN_SET(line[0], 0, '#'))
-                        continue;
+                જો (IN_SET(લીટી[0], 0, '#'))
+                        ચાલુ;
 
-                k = parse_line(fn, v, line, invalid_config ? &invalid_line : NULL, userdata);
-                if (k < 0 && invalid_line)
+                k = parse_લીટી(fn, v, લીટી, invalid_config ? &invalid_લીટી : ખાલી, userdata);
+                જો (k < 0 && invalid_લીટી)
                         /* Allow reporting with a special code if the caller requested this. */
                         *invalid_config = true;
-                else
+                નહીંતર
                         /* The first error, if any, becomes our return value. */
                         RET_GATHER(r, k);
         }
 
-        if (ferror(f))
+        જો (ferror(f))
                 RET_GATHER(r, log_error_errno(SYNTHETIC_ERRNO(EIO), "Failed to read from file %s.", fn));
 
-        return r;
+        પાછા r;
 }

@@ -1,17 +1,17 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "parse-util.h"
+#અન્તર્ભાવ "forward.h"
+#અન્તર્ભાવ "parse-util.h"
 
-typedef enum PressureType {
+પ્રકારવ્યાખ્યા ગણના PressureType {
         PRESSURE_TYPE_SOME,
         PRESSURE_TYPE_FULL,
         _PRESSURE_TYPE_MAX,
         _PRESSURE_TYPE_INVALID = -EINVAL,
 } PressureType;
 
-typedef enum PressureResource {
+પ્રકારવ્યાખ્યા ગણના PressureResource {
         PRESSURE_MEMORY,
         PRESSURE_CPU,
         PRESSURE_IO,
@@ -20,7 +20,7 @@ typedef enum PressureResource {
 } PressureResource;
 
 /* Averages are stored in fixed-point with 11 bit fractions */
-typedef struct ResourcePressure {
+પ્રકારવ્યાખ્યા સંરચના ResourcePressure {
         loadavg_t avg10;
         loadavg_t avg60;
         loadavg_t avg300;
@@ -32,23 +32,23 @@ typedef struct ResourcePressure {
  *  some avg10=0.22 avg60=0.17 avg300=1.11 total=58761459
  *  full avg10=0.23 avg60=0.16 avg300=1.08 total=58464525
  */
-int read_resource_pressure(const char *path, PressureType type, ResourcePressure *ret);
+પૂર્ણાંક read_resource_pressure(અચલ અક્ષર *path, PressureType type, ResourcePressure *ret);
 
 /* Was the kernel compiled with CONFIG_PSI=y? 1 if yes, 0 if not, negative on error. */
-int is_pressure_supported(void);
+પૂર્ણાંક is_pressure_supported(શૂન્ય);
 
 /* Metadata for each pressure resource type, for use in sd-event and PID 1 */
-typedef struct PressureResourceInfo {
-        const char *name;       /* "memory", "cpu", "io" */
-        const char *env_watch;  /* "MEMORY_PRESSURE_WATCH", etc. */
-        const char *env_write;  /* "MEMORY_PRESSURE_WRITE", etc. */
+પ્રકારવ્યાખ્યા સંરચના PressureResourceInfo {
+        અચલ અક્ષર *name;       /* "memory", "cpu", "io" */
+        અચલ અક્ષર *env_watch;  /* "MEMORY_PRESSURE_WATCH", etc. */
+        અચલ અક્ષર *env_write;  /* "MEMORY_PRESSURE_WRITE", etc. */
 } PressureResourceInfo;
 
-extern const PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX];
+બાહ્ય અચલ PressureResourceInfo pressure_resource_info[_PRESSURE_RESOURCE_MAX];
 
-static inline const PressureResourceInfo* pressure_resource_get_info(PressureResource resource) {
-        assert(resource >= 0 && resource < _PRESSURE_RESOURCE_MAX);
-        return &pressure_resource_info[resource];
+સ્થિર અંતઃરેખ અચલ PressureResourceInfo* pressure_resource_get_info(PressureResource resource) {
+        પ્રતિજ્ઞા(resource >= 0 && resource < _PRESSURE_RESOURCE_MAX);
+        પાછા &pressure_resource_info[resource];
 }
 
 DECLARE_STRING_TABLE_LOOKUP(pressure_resource, PressureResource);

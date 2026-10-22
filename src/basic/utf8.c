@@ -7,28 +7,28 @@
  * Copyright (C) 2000 Red Hat, Inc.
  */
 
-#include "alloc-util.h"
-#include "gunicode.h"
-#include "hexdecoct.h"
-#include "string-util.h"
-#include "unaligned.h"
-#include "utf8.h"
+#અન્તર્ભાવ "alloc-util.h"
+#અન્તર્ભાવ "gunicode.h"
+#અન્તર્ભાવ "hexdecoct.h"
+#અન્તર્ભાવ "string-util.h"
+#અન્તર્ભાવ "unaligned.h"
+#અન્તર્ભાવ "utf8.h"
 
 bool unichar_is_valid(char32_t ch) {
 
-        if (ch >= 0x110000) /* End of unicode space */
-                return false;
-        if ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
-                return false;
-        if ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
-                return false;
-        if ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
-                return false;
+        જો (ch >= 0x110000) /* End of unicode space */
+                પાછા false;
+        જો ((ch & 0xFFFFF800) == 0xD800) /* Reserved area for UTF-16 */
+                પાછા false;
+        જો ((ch >= 0xFDD0) && (ch <= 0xFDEF)) /* Reserved */
+                પાછા false;
+        જો ((ch & 0xFFFE) == 0xFFFE) /* BOM (Byte Order Mark) */
+                પાછા false;
 
-        return true;
+        પાછા true;
 }
 
-static bool unichar_is_control(char32_t ch) {
+સ્થિર bool unichar_is_control(char32_t ch) {
 
         /*
           0 to ' '-1 is the C0 range.
@@ -36,71 +36,71 @@ static bool unichar_is_control(char32_t ch) {
           '\t' is in C0 range, but more or less harmless and commonly used.
         */
 
-        return (ch < ' ' && !IN_SET(ch, '\t', '\n')) ||
+        પાછા (ch < ' ' && !IN_SET(ch, '\t', '\n')) ||
                 (0x7F <= ch && ch <= 0x9F);
 }
 
 /* count of characters used to encode one unicode char */
-static size_t utf8_encoded_expected_len(uint8_t c) {
-        if (c < 0x80)
-                return 1;
-        if ((c & 0xe0) == 0xc0)
-                return 2;
-        if ((c & 0xf0) == 0xe0)
-                return 3;
-        if ((c & 0xf8) == 0xf0)
-                return 4;
-        if ((c & 0xfc) == 0xf8)
-                return 5;
-        if ((c & 0xfe) == 0xfc)
-                return 6;
+સ્થિર size_t utf8_encoded_expected_len(uint8_t c) {
+        જો (c < 0x80)
+                પાછા 1;
+        જો ((c & 0xe0) == 0xc0)
+                પાછા 2;
+        જો ((c & 0xf0) == 0xe0)
+                પાછા 3;
+        જો ((c & 0xf8) == 0xf0)
+                પાછા 4;
+        જો ((c & 0xfc) == 0xf8)
+                પાછા 5;
+        જો ((c & 0xfe) == 0xfc)
+                પાછા 6;
 
-        return 0;
+        પાછા 0;
 }
 
 /* decode one unicode char */
-int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
+પૂર્ણાંક utf8_encoded_to_unichar(અચલ અક્ષર *str, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
 
-        assert(str);
-        assert(ret_unichar);
+        પ્રતિજ્ઞા(str);
+        પ્રતિજ્ઞા(ret_unichar);
 
         len = utf8_encoded_expected_len(str[0]);
 
-        switch (len) {
-        case 1:
+        પસંદગી (len) {
+        સ્થિતિ 1:
                 *ret_unichar = (char32_t)str[0];
-                return 1;
-        case 2:
+                પાછા 1;
+        સ્થિતિ 2:
                 unichar = str[0] & 0x1f;
-                break;
-        case 3:
+                તોડો;
+        સ્થિતિ 3:
                 unichar = (char32_t)str[0] & 0x0f;
-                break;
-        case 4:
+                તોડો;
+        સ્થિતિ 4:
                 unichar = (char32_t)str[0] & 0x07;
-                break;
-        case 5:
+                તોડો;
+        સ્થિતિ 5:
                 unichar = (char32_t)str[0] & 0x03;
-                break;
-        case 6:
+                તોડો;
+        સ્થિતિ 6:
                 unichar = (char32_t)str[0] & 0x01;
-                break;
-        default:
-                return -EINVAL;
+                તોડો;
+        મૂળભૂત:
+                પાછા -EINVAL;
         }
 
-        for (size_t i = 1; i < len; i++) {
-                if (((char32_t)str[i] & 0xc0) != 0x80)
-                        return -EINVAL;
+        માટે (size_t i = 1; i < len; i++) {
+                જો (((char32_t)str[i] & 0xc0) != 0x80)
+                        પાછા -EINVAL;
 
                 unichar <<= 6;
                 unichar |= (char32_t)str[i] & 0x3f;
         }
 
         *ret_unichar = unichar;
-        return len;
+        પાછા len;
 }
 
 /* Tests whether all eight bytes of a word are plain printable ASCII, i.e. within 0x20…0x7e. The three
@@ -108,41 +108,41 @@ int utf8_encoded_to_unichar(const char *str, char32_t *ret_unichar) {
  * lane, but the converse does not hold: the two subtractions are whole-word ones, so a borrow out of
  * a failing lane also flags bytes above it. Only the aggregate test is meaningful, the mask is not a
  * per-byte map of which bytes failed. */
-static bool is_printable_fastpath_u64(uint64_t w) {
+સ્થિર bool is_printable_fastpath_u64(uint64_t w) {
         uint64_t x = w ^ UINT64_C(0x7f7f7f7f7f7f7f7f);
 
-        return (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
+        પાછા (((w & UINT64_C(0x8080808080808080)) |                                  /* >= 0x80 */
                  ((w - UINT64_C(0x2020202020202020)) & ~w) |                           /* < 0x20 */
                  ((x - UINT64_C(0x0101010101010101)) & ~x)) &                          /* == 0x7f */
                 UINT64_C(0x8080808080808080)) == 0;
 }
 
-bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newline) {
-        assert(str);
+bool utf8_is_printable_newline(અચલ અક્ષર* str, size_t length, bool allow_newline) {
+        પ્રતિજ્ઞા(str);
 
-        for (const char *p = str; length > 0;) {
-                int encoded_len;
+        માટે (અચલ અક્ષર *p = str; length > 0;) {
+                પૂર્ણાંક encoded_len;
                 char32_t val;
 
                 /* Bulk fast path: almost everything we are asked about is plain printable ASCII, so
                  * test eight bytes of it at once. Anything else falls through to the per-character
                  * path below, which handles it as before. A remainder of less than eight bytes is
                  * copied into a word padded with spaces, so that it can be tested the same way. */
-                while (length > 0) {
+                જ્યારે (length > 0) {
                         uint64_t w;
                         size_t n;
 
-                        if (length < sizeof(uint64_t)) {
+                        જો (length < કદ(uint64_t)) {
                                 n = length;
                                 w = UINT64_C(0x2020202020202020);
                                 memcpy(&w, p, n);
-                        } else {
-                                n = sizeof(uint64_t);
+                        } નહીંતર {
+                                n = કદ(uint64_t);
                                 w = unaligned_read_ne64(p);
                         }
 
-                        if (!is_printable_fastpath_u64(w))
-                                break;
+                        જો (!is_printable_fastpath_u64(w))
+                                તોડો;
 
                         length -= n;
                         p += n;
@@ -150,157 +150,157 @@ bool utf8_is_printable_newline(const char* str, size_t length, bool allow_newlin
 
                 /* Note that this is not redundant with the loop condition above: the fast path may
                  * have consumed the remainder of the string, and then there's nothing left to decode. */
-                if (length == 0)
-                        break;
+                જો (length == 0)
+                        તોડો;
 
                 encoded_len = utf8_encoded_valid_unichar_full(p, length, &val);
-                if (encoded_len < 0)
-                        return false;
-                assert(encoded_len > 0 && (size_t) encoded_len <= length);
+                જો (encoded_len < 0)
+                        પાછા false;
+                પ્રતિજ્ઞા(encoded_len > 0 && (size_t) encoded_len <= length);
 
-                if (unichar_is_control(val) || (!allow_newline && val == '\n'))
-                        return false;
+                જો (unichar_is_control(val) || (!allow_newline && val == '\n'))
+                        પાછા false;
 
                 length -= encoded_len;
                 p += encoded_len;
         }
 
-        return true;
+        પાછા true;
 }
 
-char* utf8_is_valid_n(const char *str, size_t len_bytes) {
+અક્ષર* utf8_is_valid_n(અચલ અક્ષર *str, size_t len_bytes) {
         /* Check if the string is composed of valid utf8 characters. If length len_bytes is given, stop after
          * len_bytes. Otherwise, stop at NUL. */
 
-        assert(str);
+        પ્રતિજ્ઞા(str);
 
-        for (size_t i = 0; len_bytes != SIZE_MAX ? i < len_bytes : str[i] != '\0'; ) {
-                int len;
+        માટે (size_t i = 0; len_bytes != SIZE_MAX ? i < len_bytes : str[i] != '\0'; ) {
+                પૂર્ણાંક len;
 
-                if (_unlikely_(str[i] == '\0'))
-                        return NULL; /* embedded NUL */
+                જો (_unlikely_(str[i] == '\0'))
+                        પાછા ખાલી; /* embedded NUL */
 
                 len = utf8_encoded_valid_unichar(str + i,
                                                  len_bytes != SIZE_MAX ? len_bytes - i : SIZE_MAX);
-                if (_unlikely_(len < 0))
-                        return NULL; /* invalid character */
+                જો (_unlikely_(len < 0))
+                        પાછા ખાલી; /* invalid character */
 
                 i += len;
         }
 
-        return (char*) str;
+        પાછા (અક્ષર*) str;
 }
 
-char* utf8_escape_invalid(const char *str) {
-        char *p, *s;
+અક્ષર* utf8_escape_invalid(અચલ અક્ષર *str) {
+        અક્ષર *p, *s;
 
-        assert(str);
+        પ્રતિજ્ઞા(str);
 
         p = s = malloc(strlen(str) * 4 + 1);
-        if (!p)
-                return NULL;
+        જો (!p)
+                પાછા ખાલી;
 
-        while (*str) {
-                int len;
+        જ્યારે (*str) {
+                પૂર્ણાંક len;
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
+                જો (len > 0) {
                         s = mempcpy(s, str, len);
                         str += len;
-                } else {
+                } નહીંતર {
                         s = stpcpy(s, UTF8_REPLACEMENT_CHARACTER);
                         str += 1;
                 }
         }
 
         *s = '\0';
-        return str_realloc(p);
+        પાછા str_realloc(p);
 }
 
-int utf8_char_console_width(const char *str) {
+પૂર્ણાંક utf8_char_console_width(અચલ અક્ષર *str) {
         char32_t c;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(str);
+        પ્રતિજ્ઞા(str);
 
         /* Validate the same way utf8_is_valid() does. utf8_encoded_to_unichar() on its own accepts
          * overlong encodings, surrogates, noncharacters and the obsolete 5 and 6 byte forms, which would
          * make our idea of how wide a string is disagree with our idea of whether it is valid UTF-8 in
          * the first place. */
         r = utf8_encoded_valid_unichar(str, SIZE_MAX);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
         assert_se(utf8_encoded_to_unichar(str, &c) == r);
 
-        return unichar_console_width(c);
+        પાછા unichar_console_width(c);
 }
 
-int unichar_console_width(char32_t c) {
-        if (c == '\t')
-                return 8; /* Assume a tab width of 8 */
+પૂર્ણાંક unichar_console_width(char32_t c) {
+        જો (c == '\t')
+                પાછા 8; /* Assume a tab width of 8 */
 
         /* TODO: we should detect combining characters */
 
-        return unichar_iswide(c) ? 2 : 1;
+        પાછા unichar_iswide(c) ? 2 : 1;
 }
 
-char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool force_ellipsis) {
-        char *p, *s, *prev_s;
+અક્ષર* utf8_escape_non_printable_full(અચલ અક્ષર *str, size_t console_width, bool force_ellipsis) {
+        અક્ષર *p, *s, *prev_s;
         size_t n = 0; /* estimated print width */
 
-        assert(str);
+        પ્રતિજ્ઞા(str);
 
-        if (console_width == 0)
-                return strdup("");
+        જો (console_width == 0)
+                પાછા strdup("");
 
         size_t body = strlen(str) * 4;
         p = s = prev_s = malloc(body + STRLEN("…") + 1);
-        if (!p)
-                return NULL;
+        જો (!p)
+                પાછા ખાલી;
 
-        for (;;) {
-                int len;
-                char *saved_s = s;
+        માટે (;;) {
+                પૂર્ણાંક len;
+                અક્ષર *saved_s = s;
 
-                if (!*str) { /* done! */
-                        if (force_ellipsis)
-                                goto truncation;
-                        else
-                                goto finish;
+                જો (!*str) { /* done! */
+                        જો (force_ellipsis)
+                                જાઓ truncation;
+                        નહીંતર
+                                જાઓ finish;
                 }
 
                 len = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (len > 0) {
-                        if (utf8_is_printable(str, len)) {
-                                int w;
+                જો (len > 0) {
+                        જો (utf8_is_printable(str, len)) {
+                                પૂર્ણાંક w;
 
                                 w = utf8_char_console_width(str);
-                                assert(w >= 0);
-                                if (n + w > console_width)
-                                        goto truncation;
+                                પ્રતિજ્ઞા(w >= 0);
+                                જો (n + w > console_width)
+                                        જાઓ truncation;
 
                                 s = mempcpy(s, str, len);
                                 str += len;
                                 n += w;
 
-                        } else {
-                                for (; len > 0; len--) {
-                                        if (n + 4 > console_width)
-                                                goto truncation;
+                        } નહીંતર {
+                                માટે (; len > 0; len--) {
+                                        જો (n + 4 > console_width)
+                                                જાઓ truncation;
 
                                         *(s++) = '\\';
                                         *(s++) = 'x';
-                                        *(s++) = hexchar((int) *str >> 4);
-                                        *(s++) = hexchar((int) *str);
+                                        *(s++) = hexchar((પૂર્ણાંક) *str >> 4);
+                                        *(s++) = hexchar((પૂર્ણાંક) *str);
 
                                         str += 1;
                                         n += 4;
                                 }
                         }
-                } else {
-                        if (n + 1 > console_width)
-                                goto truncation;
+                } નહીંતર {
+                        જો (n + 1 > console_width)
+                                જાઓ truncation;
 
                         s = mempcpy(s, UTF8_REPLACEMENT_CHARACTER, strlen(UTF8_REPLACEMENT_CHARACTER));
                         str += 1;
@@ -312,52 +312,52 @@ char* utf8_escape_non_printable_full(const char *str, size_t console_width, bool
 
  truncation:
         /* Try to go back one if we don't have enough space for the ellipsis */
-        if (n + 1 > console_width)
+        જો (n + 1 > console_width)
                 s = prev_s;
 
         s = mempcpy(s, "…", strlen("…"));
 
  finish:
         *s = '\0';
-        return str_realloc(p);
+        પાછા str_realloc(p);
 }
 
-char* ascii_is_valid_n(const char *str, size_t len) {
+અક્ષર* ascii_is_valid_n(અચલ અક્ષર *str, size_t len) {
         /* Check whether the string consists of valid ASCII bytes, i.e values between 1 and 127, inclusive.
          * Stops at len, or NUL byte if len is SIZE_MAX. */
 
-        assert(str);
+        પ્રતિજ્ઞા(str);
 
-        for (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
-                if ((unsigned char) str[i] >= 128 || str[i] == '\0')
-                        return NULL;
+        માટે (size_t i = 0; len != SIZE_MAX ? i < len : str[i] != '\0'; i++)
+                જો ((unsigned અક્ષર) str[i] >= 128 || str[i] == '\0')
+                        પાછા ખાલી;
 
-        return (char*) str;
+        પાછા (અક્ષર*) str;
 }
 
-int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
+પૂર્ણાંક utf8_to_ascii(અચલ અક્ષર *str, અક્ષર replacement_char, અક્ષર **ret) {
         /* Convert to a string that has only ASCII chars, replacing anything that is not ASCII
          * by replacement_char. */
 
-        assert(str);
-        assert(ret);
+        પ્રતિજ્ઞા(str);
+        પ્રતિજ્ઞા(ret);
 
-        _cleanup_free_ char *ans = new(char, strlen(str) + 1);
-        if (!ans)
-                return -ENOMEM;
+        _cleanup_free_ અક્ષર *ans = new(અક્ષર, strlen(str) + 1);
+        જો (!ans)
+                પાછા -ENOMEM;
 
-        char *q = ans;
+        અક્ષર *q = ans;
 
-        for (const char *p = str; *p; q++) {
-                int l;
+        માટે (અચલ અક્ષર *p = str; *p; q++) {
+                પૂર્ણાંક l;
 
                 l = utf8_encoded_valid_unichar(p, SIZE_MAX);
-                if (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
-                        return l;
+                જો (l < 0)  /* Non-UTF-8, let's not even try to propagate the garbage */
+                        પાછા l;
 
-                if (l == 1)
+                જો (l == 1)
                         *q = *p;
-                else
+                નહીંતર
                         /* non-ASCII, we need to replace it */
                         *q = replacement_char;
 
@@ -366,7 +366,7 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
         *q = '\0';
 
         *ret = TAKE_PTR(ans);
-        return 0;
+        પાછા 0;
 }
 
 /**
@@ -381,69 +381,69 @@ int utf8_to_ascii(const char *str, char replacement_char, char **ret) {
  * Returns: The length in bytes that the UTF-8 representation does or would
  *          occupy.
  */
-size_t utf8_encode_unichar(char *out_utf8, char32_t g) {
+size_t utf8_encode_unichar(અક્ષર *out_utf8, char32_t g) {
 
-        if (g < (1 << 7)) {
-                if (out_utf8)
+        જો (g < (1 << 7)) {
+                જો (out_utf8)
                         out_utf8[0] = g & 0x7f;
-                return 1;
-        } else if (g < (1 << 11)) {
-                if (out_utf8) {
+                પાછા 1;
+        } નહીંતર જો (g < (1 << 11)) {
+                જો (out_utf8) {
                         out_utf8[0] = 0xc0 | ((g >> 6) & 0x1f);
                         out_utf8[1] = 0x80 | (g & 0x3f);
                 }
-                return 2;
-        } else if (g < (1 << 16)) {
-                if (out_utf8) {
+                પાછા 2;
+        } નહીંતર જો (g < (1 << 16)) {
+                જો (out_utf8) {
                         out_utf8[0] = 0xe0 | ((g >> 12) & 0x0f);
                         out_utf8[1] = 0x80 | ((g >> 6) & 0x3f);
                         out_utf8[2] = 0x80 | (g & 0x3f);
                 }
-                return 3;
-        } else if (g < (1 << 21)) {
-                if (out_utf8) {
+                પાછા 3;
+        } નહીંતર જો (g < (1 << 21)) {
+                જો (out_utf8) {
                         out_utf8[0] = 0xf0 | ((g >> 18) & 0x07);
                         out_utf8[1] = 0x80 | ((g >> 12) & 0x3f);
                         out_utf8[2] = 0x80 | ((g >> 6) & 0x3f);
                         out_utf8[3] = 0x80 | (g & 0x3f);
                 }
-                return 4;
+                પાછા 4;
         }
 
-        return 0;
+        પાછા 0;
 }
 
-char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
-        const uint8_t *f;
-        char *r, *t;
+અક્ષર* utf16_to_utf8(અચલ char16_t *s, size_t length /* bytes! */) {
+        અચલ uint8_t *f;
+        અક્ષર *r, *t;
 
-        if (length == 0)
-                return new0(char, 1);
+        જો (length == 0)
+                પાછા new0(અક્ષર, 1);
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
-        if (length == SIZE_MAX) {
+        જો (length == SIZE_MAX) {
                 length = char16_strlen(s);
 
-                if (length > SIZE_MAX/2)
-                        return NULL; /* overflow */
+                જો (length > SIZE_MAX/2)
+                        પાછા ખાલી; /* overflow */
 
                 length *= 2;
         }
 
         /* Input length is in bytes, i.e. the shortest possible character takes 2 bytes. Each unicode character may
          * take up to 4 bytes in UTF-8. Let's also account for a trailing NUL byte. */
-        if (length > (SIZE_MAX - 1) / 2)
-                return NULL; /* overflow */
+        જો (length > (SIZE_MAX - 1) / 2)
+                પાછા ખાલી; /* overflow */
 
-        r = new(char, length * 2 + 1);
-        if (!r)
-                return NULL;
+        r = new(અક્ષર, length * 2 + 1);
+        જો (!r)
+                પાછા ખાલી;
 
-        f = (const uint8_t*) s;
+        f = (અચલ uint8_t*) s;
         t = r;
 
-        while (f + 1 < (const uint8_t*) s + length) {
+        જ્યારે (f + 1 < (અચલ uint8_t*) s + length) {
                 char16_t w1, w2;
 
                 /* see RFC 2781 section 2.2 */
@@ -451,250 +451,250 @@ char* utf16_to_utf8(const char16_t *s, size_t length /* bytes! */) {
                 w1 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_surrogate(w1)) {
+                જો (!utf16_is_surrogate(w1)) {
                         t += utf8_encode_unichar(t, w1);
-                        continue;
+                        ચાલુ;
                 }
 
-                if (utf16_is_trailing_surrogate(w1))
-                        continue; /* spurious trailing surrogate, ignore */
+                જો (utf16_is_trailing_surrogate(w1))
+                        ચાલુ; /* spurious trailing surrogate, ignore */
 
-                if (f + 1 >= (const uint8_t*) s + length)
-                        break;
+                જો (f + 1 >= (અચલ uint8_t*) s + length)
+                        તોડો;
 
                 w2 = f[1] << 8 | f[0];
                 f += 2;
 
-                if (!utf16_is_trailing_surrogate(w2)) {
+                જો (!utf16_is_trailing_surrogate(w2)) {
                         f -= 2;
-                        continue; /* surrogate missing its trailing surrogate, ignore */
+                        ચાલુ; /* surrogate missing its trailing surrogate, ignore */
                 }
 
                 t += utf8_encode_unichar(t, utf16_surrogate_pair_to_unichar(w1, w2));
         }
 
         *t = 0;
-        return r;
+        પાછા r;
 }
 
 size_t utf16_encode_unichar(char16_t *out, char32_t c) {
-        assert(out);
+        પ્રતિજ્ઞા(out);
 
         /* Note that this encodes as little-endian. */
 
-        switch (c) {
+        પસંદગી (c) {
 
-        case 0 ... 0xd7ffU:
-        case 0xe000U ... 0xffffU:
+        સ્થિતિ 0 ... 0xd7ffU:
+        સ્થિતિ 0xe000U ... 0xffffU:
                 out[0] = htole16(c);
-                return 1;
+                પાછા 1;
 
-        case 0x10000U ... 0x10ffffU:
+        સ્થિતિ 0x10000U ... 0x10ffffU:
                 c -= 0x10000U;
                 out[0] = htole16((c >> 10) + 0xd800U);
                 out[1] = htole16((c & 0x3ffU) + 0xdc00U);
-                return 2;
+                પાછા 2;
 
-        default: /* A surrogate (invalid) */
-                return 0;
+        મૂળભૂત: /* A surrogate (invalid) */
+                પાછા 0;
         }
 }
 
-char16_t *utf8_to_utf16(const char *s, size_t length) {
+char16_t *utf8_to_utf16(અચલ અક્ષર *s, size_t length) {
         char16_t *n, *p;
-        int r;
+        પૂર્ણાંક r;
 
-        if (length == 0)
-                return new0(char16_t, 1);
+        જો (length == 0)
+                પાછા new0(char16_t, 1);
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
-        if (length == SIZE_MAX)
+        જો (length == SIZE_MAX)
                 length = strlen(s);
 
-        if (length > SIZE_MAX - 1)
-                return NULL; /* overflow */
+        જો (length > SIZE_MAX - 1)
+                પાછા ખાલી; /* overflow */
 
         n = new(char16_t, length + 1);
-        if (!n)
-                return NULL;
+        જો (!n)
+                પાછા ખાલી;
 
         p = n;
 
-        for (size_t i = 0; i < length;) {
+        માટે (size_t i = 0; i < length;) {
                 char32_t unichar;
                 size_t e;
 
                 e = utf8_encoded_expected_len(s[i]);
-                if (e <= 1) /* Invalid and single byte characters are copied as they are */
-                        goto copy;
+                જો (e <= 1) /* Invalid and single byte characters are copied as they are */
+                        જાઓ copy;
 
-                if (i + e > length) /* sequence longer than input buffer, then copy as-is */
-                        goto copy;
+                જો (i + e > length) /* sequence longer than input buffer, then copy as-is */
+                        જાઓ copy;
 
                 r = utf8_encoded_to_unichar(s + i, &unichar);
-                if (r < 0) /* sequence invalid, then copy as-is */
-                        goto copy;
+                જો (r < 0) /* sequence invalid, then copy as-is */
+                        જાઓ copy;
 
                 p += utf16_encode_unichar(p, unichar);
                 i += e;
-                continue;
+                ચાલુ;
 
         copy:
                 *(p++) = htole16(s[i++]);
         }
 
         *p = 0;
-        return n;
+        પાછા n;
 }
 
-size_t char16_strlen(const char16_t *s) {
+size_t char16_strlen(અચલ char16_t *s) {
         size_t n = 0;
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
-        while (*s != 0)
+        જ્યારે (*s != 0)
                 n++, s++;
 
-        return n;
+        પાછા n;
 }
 
-size_t char16_strsize(const char16_t *s) {
+size_t char16_strsize(અચલ char16_t *s) {
         POINTER_MAY_BE_NULL(s);
 
-        return s ? (char16_strlen(s) + 1) * sizeof(*s) : 0;
+        પાછા s ? (char16_strlen(s) + 1) * કદ(*s) : 0;
 }
 
 /* expected size used to encode one unicode char */
-static int utf8_unichar_to_encoded_len(char32_t unichar) {
+સ્થિર પૂર્ણાંક utf8_unichar_to_encoded_len(char32_t unichar) {
 
-        if (unichar < 0x80)
-                return 1;
-        if (unichar < 0x800)
-                return 2;
-        if (unichar < 0x10000)
-                return 3;
-        if (unichar < 0x200000)
-                return 4;
-        if (unichar < 0x4000000)
-                return 5;
+        જો (unichar < 0x80)
+                પાછા 1;
+        જો (unichar < 0x800)
+                પાછા 2;
+        જો (unichar < 0x10000)
+                પાછા 3;
+        જો (unichar < 0x200000)
+                પાછા 4;
+        જો (unichar < 0x4000000)
+                પાછા 5;
 
-        return 6;
+        પાછા 6;
 }
 
 /* validate one encoded unicode char and return its length */
-int utf8_encoded_valid_unichar_full(const char *str, size_t length /* bytes */, char32_t *ret_unichar) {
+પૂર્ણાંક utf8_encoded_valid_unichar_full(અચલ અક્ષર *str, size_t length /* bytes */, char32_t *ret_unichar) {
         char32_t unichar;
         size_t len;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(str);
-        assert(length > 0);
+        પ્રતિજ્ઞા(str);
+        પ્રતિજ્ઞા(length > 0);
 
         /* We read until NUL, at most length bytes. SIZE_MAX may be used to disable the length check.
          * If ret_unichar is non-NULL the decoded character is returned in it, so that callers
          * interested in both validity and value needn't decode the character a second time. */
 
         len = utf8_encoded_expected_len(str[0]);
-        if (len == 0)
-                return -EINVAL;
+        જો (len == 0)
+                પાછા -EINVAL;
 
         /* Do we have a truncated multi-byte character? */
-        if (len > length)
-                return -EINVAL;
+        જો (len > length)
+                પાછા -EINVAL;
 
         /* ascii is valid */
-        if (len == 1) {
-                if (ret_unichar)
+        જો (len == 1) {
+                જો (ret_unichar)
                         *ret_unichar = (char32_t) (uint8_t) str[0];
-                return 1;
+                પાછા 1;
         }
 
         /* check if expected encoded chars are available */
-        for (size_t i = 0; i < len; i++)
-                if ((str[i] & 0x80) != 0x80)
-                        return -EINVAL;
+        માટે (size_t i = 0; i < len; i++)
+                જો ((str[i] & 0x80) != 0x80)
+                        પાછા -EINVAL;
 
         r = utf8_encoded_to_unichar(str, &unichar);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
         /* check if encoded length matches encoded value */
-        if (utf8_unichar_to_encoded_len(unichar) != (int) len)
-                return -EINVAL;
+        જો (utf8_unichar_to_encoded_len(unichar) != (પૂર્ણાંક) len)
+                પાછા -EINVAL;
 
         /* check if value has valid range */
-        if (!unichar_is_valid(unichar))
-                return -EINVAL;
+        જો (!unichar_is_valid(unichar))
+                પાછા -EINVAL;
 
-        if (ret_unichar)
+        જો (ret_unichar)
                 *ret_unichar = unichar;
 
-        return (int) len;
+        પાછા (પૂર્ણાંક) len;
 }
 
-size_t utf8_n_codepoints(const char *str) {
+size_t utf8_n_codepoints(અચલ અક્ષર *str) {
         size_t n = 0;
 
-        assert(str);
+        પ્રતિજ્ઞા(str);
 
         /* Returns the number of UTF-8 codepoints in this string, or SIZE_MAX if the string is not valid UTF-8. */
 
-        while (*str != 0) {
-                int k;
+        જ્યારે (*str != 0) {
+                પૂર્ણાંક k;
 
                 k = utf8_encoded_valid_unichar(str, SIZE_MAX);
-                if (k < 0)
-                        return SIZE_MAX;
+                જો (k < 0)
+                        પાછા SIZE_MAX;
 
                 str += k;
                 n++;
         }
 
-        return n;
+        પાછા n;
 }
 
-size_t utf8_console_width(const char *str) {
+size_t utf8_console_width(અચલ અક્ષર *str) {
         POINTER_MAY_BE_NULL(str);
 
-        if (isempty(str))
-                return 0;
+        જો (isempty(str))
+                પાછા 0;
 
         /* Returns the approximate width a string will take on screen when printed on a character cell
          * terminal/console. */
 
         size_t n = 0;
-        while (*str) {
-                int w;
+        જ્યારે (*str) {
+                પૂર્ણાંક w;
 
                 w = utf8_char_console_width(str);
-                if (w < 0)
-                        return SIZE_MAX;
+                જો (w < 0)
+                        પાછા SIZE_MAX;
 
                 n += w;
                 str = utf8_next_char(str);
         }
 
-        return n;
+        પાછા n;
 }
 
-size_t utf8_last_length(const char *s, size_t n) {
-        int r;
+size_t utf8_last_length(અચલ અક્ષર *s, size_t n) {
+        પૂર્ણાંક r;
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
-        if (n == SIZE_MAX)
+        જો (n == SIZE_MAX)
                 n = strlen(s);
 
         /* Determines length in bytes of last UTF-8 codepoint in string. If the string is empty, returns
          * zero. Treats invalid UTF-8 codepoints as 1 sized ones. */
 
-        for (size_t last = 0;;) {
-                if (n == 0)
-                        return last;
+        માટે (size_t last = 0;;) {
+                જો (n == 0)
+                        પાછા last;
 
                 r = utf8_encoded_valid_unichar(s, n);
-                if (r <= 0)
+                જો (r <= 0)
                         r = 1; /* treat invalid UTF-8 as byte-wide */
 
                 s += r;

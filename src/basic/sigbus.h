@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-void sigbus_install(void);
-void sigbus_reset(void);
+શૂન્ય sigbus_install(શૂન્ય);
+શૂન્ય sigbus_reset(શૂન્ય);
 
-int sigbus_pop(void **ret);
+પૂર્ણાંક sigbus_કાઢો(શૂન્ય **ret);

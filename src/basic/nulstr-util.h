@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
+#અન્તર્ભાવ <string.h>
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
 #define NULSTR_FOREACH(i, l)                                    \
-        for (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
+        માટે (typeof(*(l)) *(i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
 
 #define NULSTR_FOREACH_PAIR(i, j, l)                             \
-        for (typeof(*(l)) *(i) = (l), *(j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
+        માટે (typeof(*(l)) *(i) = (l), *(j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
 
-const char* nulstr_get(const char *nulstr, const char *needle);
-static inline bool nulstr_contains(const char *nulstr, const char *needle) {
-        return nulstr_get(nulstr, needle);
+અચલ અક્ષર* nulstr_get(અચલ અક્ષર *nulstr, અચલ અક્ષર *needle);
+સ્થિર અંતઃરેખ bool nulstr_contains(અચલ અક્ષર *nulstr, અચલ અક્ષર *needle) {
+        પાછા nulstr_get(nulstr, needle);
 }
 
-char** strv_parse_nulstr_full(const char *s, size_t l, bool drop_trailing_nuls);
-static inline char** strv_parse_nulstr(const char *s, size_t l) {
-        return strv_parse_nulstr_full(s, l, false);
+અક્ષર** strv_parse_nulstr_full(અચલ અક્ષર *s, size_t l, bool drop_trailing_nuls);
+સ્થિર અંતઃરેખ અક્ષર** strv_parse_nulstr(અચલ અક્ષર *s, size_t l) {
+        પાછા strv_parse_nulstr_full(s, l, false);
 }
-char** strv_split_nulstr(const char *s);
-static inline int strv_from_nulstr(char ***ret, const char *nulstr) {
-        char **t;
+અક્ષર** strv_split_nulstr(અચલ અક્ષર *s);
+સ્થિર અંતઃરેખ પૂર્ણાંક strv_from_nulstr(અક્ષર ***ret, અચલ અક્ષર *nulstr) {
+        અક્ષર **t;
 
-        assert(ret);
+        પ્રતિજ્ઞા(ret);
 
         t = strv_split_nulstr(nulstr);
-        if (!t)
-                return -ENOMEM;
+        જો (!t)
+                પાછા -ENOMEM;
 
         *ret = t;
-        return 0;
+        પાછા 0;
 }
 
-int strv_make_nulstr(char * const *l, char **ret, size_t *ret_size);
-int set_make_nulstr(Set *s, char **ret, size_t *ret_size);
+પૂર્ણાંક strv_make_nulstr(અક્ષર * અચલ *l, અક્ષર **ret, size_t *ret_size);
+પૂર્ણાંક set_make_nulstr(Set *s, અક્ષર **ret, size_t *ret_size);

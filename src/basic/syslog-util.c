@@ -1,60 +1,60 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <syslog.h>
+#અન્તર્ભાવ <syslog.h>
 
-#include "sd-id128.h"
+#અન્તર્ભાવ "sd-id128.h"
 
-#include "hexdecoct.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "syslog-util.h"
-#include "unit-name.h"
+#અન્તર્ભાવ "hexdecoct.h"
+#અન્તર્ભાવ "string-table.h"
+#અન્તર્ભાવ "string-util.h"
+#અન્તર્ભાવ "syslog-util.h"
+#અન્તર્ભાવ "unit-name.h"
 
-int syslog_parse_priority(const char **p, int *priority, bool with_facility) {
-        int a = 0, b = 0, c = 0;
-        const char *end;
+પૂર્ણાંક syslog_parse_priority(અચલ અક્ષર **p, પૂર્ણાંક *priority, bool with_facility) {
+        પૂર્ણાંક a = 0, b = 0, c = 0;
+        અચલ અક્ષર *end;
         size_t k;
 
-        assert(p);
-        assert(*p);
-        assert(priority);
+        પ્રતિજ્ઞા(p);
+        પ્રતિજ્ઞા(*p);
+        પ્રતિજ્ઞા(priority);
 
-        if ((*p)[0] != '<')
-                return 0;
+        જો ((*p)[0] != '<')
+                પાછા 0;
 
         end = strchr(*p, '>');
-        if (!end)
-                return 0;
+        જો (!end)
+                પાછા 0;
 
         k = end - *p;
-        assert(k > 0);
+        પ્રતિજ્ઞા(k > 0);
 
-        if (k == 2)
+        જો (k == 2)
                 c = undecchar((*p)[1]);
-        else if (k == 3) {
+        નહીંતર જો (k == 3) {
                 b = undecchar((*p)[1]);
                 c = undecchar((*p)[2]);
-        } else if (k == 4) {
+        } નહીંતર જો (k == 4) {
                 a = undecchar((*p)[1]);
                 b = undecchar((*p)[2]);
                 c = undecchar((*p)[3]);
-        } else
-                return 0;
+        } નહીંતર
+                પાછા 0;
 
-        if (a < 0 || b < 0 || c < 0 ||
+        જો (a < 0 || b < 0 || c < 0 ||
             (!with_facility && (a || b || c > 7)))
-                return 0;
+                પાછા 0;
 
-        if (with_facility)
+        જો (with_facility)
                 *priority = a*100 + b*10 + c;
-        else
+        નહીંતર
                 *priority = (*priority & LOG_FACMASK) | c;
 
         *p += k + 1;
-        return 1;
+        પાછા 1;
 }
 
-static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
+સ્થિર અચલ અક્ષર *અચલ log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_KERN)]     = "kern",
         [LOG_FAC(LOG_USER)]     = "user",
         [LOG_FAC(LOG_MAIL)]     = "mail",
@@ -77,13 +77,13 @@ static const char *const log_facility_unshifted_table[LOG_NFACILITIES] = {
         [LOG_FAC(LOG_LOCAL7)]   = "local7",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, int, LOG_FAC(~0));
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_facility_unshifted, પૂર્ણાંક, LOG_FAC(~0));
 
-bool log_facility_unshifted_is_valid(int facility) {
-        return facility >= 0 && facility <= LOG_FAC(~0);
+bool log_facility_unshifted_is_valid(પૂર્ણાંક facility) {
+        પાછા facility >= 0 && facility <= LOG_FAC(~0);
 }
 
-static const char *const log_level_table[] = {
+સ્થિર અચલ અક્ષર *અચલ log_level_table[] = {
         [LOG_EMERG]   = "emerg",
         [LOG_ALERT]   = "alert",
         [LOG_CRIT]    = "crit",
@@ -94,30 +94,30 @@ static const char *const log_level_table[] = {
         [LOG_DEBUG]   = "debug",
 };
 
-DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, int, LOG_DEBUG);
+DEFINE_STRING_TABLE_LOOKUP_WITH_FALLBACK(log_level, પૂર્ણાંક, LOG_DEBUG);
 
-bool log_level_is_valid(int level) {
-        return level >= 0 && level <= LOG_DEBUG;
+bool log_level_is_valid(પૂર્ણાંક level) {
+        પાછા level >= 0 && level <= LOG_DEBUG;
 }
 
 /* The maximum size for a log namespace length. This is the file name size limit 255 minus the size of a
  * formatted machine ID minus a separator char */
 #define LOG_NAMESPACE_MAX (NAME_MAX - (SD_ID128_STRING_MAX - 1) - 1)
 
-bool log_namespace_name_valid(const char *s) {
+bool log_namespace_name_valid(અચલ અક્ષર *s) {
         /* Let's make sure the namespace fits in a filename that is prefixed with the machine ID and a dot
          * (so that /var/log/journal/<machine-id>.<namespace> can be created based on it). Also make sure it
          * is suitable as unit instance name, and does not contain fishy characters. */
 
         /* Let's avoid globbing for now */
-        if (!string_is_safe(s, STRING_FILENAME))
-                return false;
+        જો (!string_is_safe(s, STRING_FILENAME))
+                પાછા false;
 
-        if (strlen(s) > LOG_NAMESPACE_MAX)
-                return false;
+        જો (strlen(s) > LOG_NAMESPACE_MAX)
+                પાછા false;
 
-        if (!unit_instance_is_valid(s))
-                return false;
+        જો (!unit_instance_is_valid(s))
+                પાછા false;
 
-        return true;
+        પાછા true;
 }

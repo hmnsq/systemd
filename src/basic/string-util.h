@@ -1,227 +1,227 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <string.h>
+#અન્તર્ભાવ <string.h>
 
-#include "alloc-util.h"
-#include "forward.h"
+#અન્તર્ભાવ "alloc-util.h"
+#અન્તર્ભાવ "forward.h"
 
-#include "../fundamental/string-util.h" /* IWYU pragma: export */
+#અન્તર્ભાવ "../fundamental/string-util.h" /* IWYU pragma: export */
 
-static inline char* strstr_ptr_internal(const char *haystack, const char *needle) {
-        if (!haystack || !needle)
-                return NULL;
-        return (char*) strstr(haystack, needle);
+સ્થિર અંતઃરેખ અક્ષર* strstr_ptr_internal(અચલ અક્ષર *haystack, અચલ અક્ષર *needle) {
+        જો (!haystack || !needle)
+                પાછા ખાલી;
+        પાછા (અક્ષર*) strstr(haystack, needle);
 }
 
 #define strstr_ptr(haystack, needle) \
         const_generic(haystack, strstr_ptr_internal(haystack, needle))
 
-static inline char* strstrafter_internal(const char *haystack, const char *needle) {
+સ્થિર અંતઃરેખ અક્ષર* strstrafter_internal(અચલ અક્ષર *haystack, અચલ અક્ષર *needle) {
         /* Returns NULL if not found, or pointer to first character after needle if found */
 
-        char *p = (char*) strstr_ptr(haystack, needle);
-        if (!p)
-                return NULL;
+        અક્ષર *p = (અક્ષર*) strstr_ptr(haystack, needle);
+        જો (!p)
+                પાછા ખાલી;
 
-        return p + strlen(needle);
+        પાછા p + strlen(needle);
 }
 
 #define strstrafter(haystack, needle) \
         const_generic(haystack, strstrafter_internal(haystack, needle))
 
-static inline const char* strnull(const char *s) {
-        return s ?: "(null)";
+સ્થિર અંતઃરેખ અચલ અક્ષર* strnull(અચલ અક્ષર *s) {
+        પાછા s ?: "(null)";
 }
 
-static inline const char* strna(const char *s) {
-        return s ?: "n/a";
+સ્થિર અંતઃરેખ અચલ અક્ષર* strna(અચલ અક્ષર *s) {
+        પાછા s ?: "n/a";
 }
 
-static inline const char* true_false(bool b) {
-        return b ? "true" : "false";
+સ્થિર અંતઃરેખ અચલ અક્ષર* true_false(bool b) {
+        પાછા b ? "true" : "false";
 }
 
-static inline const char* plus_minus(bool b) {
-        return b ? "+" : "-";
+સ્થિર અંતઃરેખ અચલ અક્ષર* plus_minus(bool b) {
+        પાછા b ? "+" : "-";
 }
 
-static inline const char* one_zero(bool b) {
-        return b ? "1" : "0";
+સ્થિર અંતઃરેખ અચલ અક્ષર* one_zero(bool b) {
+        પાછા b ? "1" : "0";
 }
 
-static inline const char* enable_disable(bool b) {
-        return b ? "enable" : "disable";
+સ્થિર અંતઃરેખ અચલ અક્ષર* enable_disable(bool b) {
+        પાછા b ? "enable" : "disable";
 }
 
-static inline const char* enabled_disabled(bool b) {
-        return b ? "enabled" : "disabled";
+સ્થિર અંતઃરેખ અચલ અક્ષર* enabled_disabled(bool b) {
+        પાછા b ? "enabled" : "disabled";
 }
 
 /* This macro's return pointer will have the "const" qualifier set or unset the same way as the input
  * pointer. */
 #define empty_to_null(p)                                \
         ({                                              \
-                const char *_p = (p);                   \
-                (typeof(p)) (isempty(_p) ? NULL : _p);  \
+                અચલ અક્ષર *_p = (p);                   \
+                (typeof(p)) (isempty(_p) ? ખાલી : _p);  \
         })
 
-static inline const char* empty_to_na(const char *p) {
-        return isempty(p) ? "n/a" : p;
+સ્થિર અંતઃરેખ અચલ અક્ષર* empty_to_na(અચલ અક્ષર *p) {
+        પાછા isempty(p) ? "n/a" : p;
 }
 
-static inline const char* empty_to_dash(const char *str) {
-        return isempty(str) ? "-" : str;
+સ્થિર અંતઃરેખ અચલ અક્ષર* empty_to_dash(અચલ અક્ષર *str) {
+        પાછા isempty(str) ? "-" : str;
 }
 
-static inline bool empty_or_dash(const char *str) {
-        return !str ||
+સ્થિર અંતઃરેખ bool empty_or_dash(અચલ અક્ષર *str) {
+        પાછા !str ||
                 str[0] == 0 ||
                 (str[0] == '-' && str[1] == 0);
 }
 
-static inline const char* empty_or_dash_to_null(const char *p) {
-        return empty_or_dash(p) ? NULL : p;
+સ્થિર અંતઃરેખ અચલ અક્ષર* empty_or_dash_to_null(અચલ અક્ષર *p) {
+        પાછા empty_or_dash(p) ? ખાલી : p;
 }
 #define empty_or_dash_to_null(p)                                \
         ({                                                      \
-                const char *_p = (p);                           \
-                (typeof(p)) (empty_or_dash(_p) ? NULL : _p);    \
+                અચલ અક્ષર *_p = (p);                           \
+                (typeof(p)) (empty_or_dash(_p) ? ખાલી : _p);    \
         })
 
-char* first_word(const char *s, const char *word) _pure_;
+અક્ષર* first_word(અચલ અક્ષર *s, અચલ અક્ષર *word) _pure_;
 
-char* strextendn(char **x, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+અક્ષર* strextendn(અક્ષર **x, અચલ અક્ષર *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-#define strjoin(a, ...) strextend_with_separator_internal(NULL, NULL, a, __VA_ARGS__, NULL)
+#define strjoin(a, ...) strextend_with_separator_internal(ખાલી, ખાલી, a, __VA_ARGS__, ખાલી)
 
 #define strjoina(a, ...)                                                \
         ({                                                              \
-                const char *_appendees_[] = { a, __VA_ARGS__ };         \
-                char *_d_, *_p_;                                        \
+                અચલ અક્ષર *_appendees_[] = { a, __VA_ARGS__ };         \
+                અક્ષર *_d_, *_p_;                                        \
                 size_t _len_ = 0;                                       \
                 size_t _i_;                                             \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                માટે (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _len_ += strlen(_appendees_[_i_]);              \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
+                _p_ = _d_ = newa(અક્ષર, _len_ + 1);                      \
+                માટે (_i_ = 0; _i_ < ELEMENTSOF(_appendees_) && _appendees_[_i_]; _i_++) \
                         _p_ = stpcpy(_p_, _appendees_[_i_]);            \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-char* strstrip(char *s);
-char* delete_chars(char *s, const char *bad);
-char* delete_trailing_chars(char *s, const char *bad);
-char* truncate_nl_full(char *s, size_t *ret_len);
-static inline char* truncate_nl(char *s) {
-        return truncate_nl_full(s, NULL);
+અક્ષર* strstrip(અક્ષર *s);
+અક્ષર* delete_chars(અક્ષર *s, અચલ અક્ષર *bad);
+અક્ષર* delete_trailing_chars(અક્ષર *s, અચલ અક્ષર *bad);
+અક્ષર* truncate_nl_full(અક્ષર *s, size_t *ret_len);
+સ્થિર અંતઃરેખ અક્ષર* truncate_nl(અક્ષર *s) {
+        પાછા truncate_nl_full(s, ખાલી);
 }
 
-static inline char* skip_leading_chars(const char *s, const char *bad) {
-        if (!s)
-                return NULL;
+સ્થિર અંતઃરેખ અક્ષર* skip_leading_chars(અચલ અક્ષર *s, અચલ અક્ષર *bad) {
+        જો (!s)
+                પાછા ખાલી;
 
-        if (!bad)
+        જો (!bad)
                 bad = WHITESPACE;
 
-        return (char*) s + strspn(s, bad);
+        પાછા (અક્ષર*) s + strspn(s, bad);
 }
 
-char ascii_tolower(char x) _const_;
-char* ascii_strlower(char *s);
-char* ascii_strlower_n(char *s, size_t n);
+અક્ષર ascii_tolower(અક્ષર x) _const_;
+અક્ષર* ascii_strlower(અક્ષર *s);
+અક્ષર* ascii_strlower_n(અક્ષર *s, size_t n);
 
-char ascii_toupper(char x) _const_;
-char* ascii_strupper(char *s);
+અક્ષર ascii_toupper(અક્ષર x) _const_;
+અક્ષર* ascii_strupper(અક્ષર *s);
 
-int ascii_strcasecmp_n(const char *a, const char *b, size_t n);
-int ascii_strcasecmp_nn(const char *a, size_t n, const char *b, size_t m);
+પૂર્ણાંક ascii_strcasecmp_n(અચલ અક્ષર *a, અચલ અક્ષર *b, size_t n);
+પૂર્ણાંક ascii_strcasecmp_nn(અચલ અક્ષર *a, size_t n, અચલ અક્ષર *b, size_t m);
 
-bool chars_intersect(const char *a, const char *b) _pure_;
+bool chars_intersect(અચલ અક્ષર *a, અચલ અક્ષર *b) _pure_;
 
-static inline bool _pure_ in_charset(const char *s, const char *charset) {
-        assert(s);
-        assert(charset);
-        return s[strspn(s, charset)] == '\0';
+સ્થિર અંતઃરેખ bool _pure_ in_charset(અચલ અક્ષર *s, અચલ અક્ષર *charset) {
+        પ્રતિજ્ઞા(s);
+        પ્રતિજ્ઞા(charset);
+        પાછા s[strspn(s, charset)] == '\0';
 }
 
-static inline bool char_is_cc(char p) {
+સ્થિર અંતઃરેખ bool char_is_cc(અક્ષર p) {
         /* char is unsigned on some architectures, e.g. aarch64. So, compiler may warn the condition
          * p >= 0 is always true. See #19543. Hence, let's cast to unsigned before the comparison. Note
          * that the cast in the right hand side is redundant, as according to the C standard, compilers
          * automatically cast a signed value to unsigned when comparing with an unsigned variable. Just
          * for safety and readability. */
-        return (uint8_t) p < (uint8_t) ' ' || p == 127;
+        પાછા (uint8_t) p < (uint8_t) ' ' || p == 127;
 }
-bool string_has_cc(const char *p, const char *ok) _pure_;
+bool string_has_cc(અચલ અક્ષર *p, અચલ અક્ષર *ok) _pure_;
 
-char* ellipsize_mem(const char *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
-static inline char* ellipsize(const char *s, size_t length, unsigned percent) {
-        return ellipsize_mem(s, strlen(s), length, percent);
+અક્ષર* ellipsize_mem(અચલ અક્ષર *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
+સ્થિર અંતઃરેખ અક્ષર* ellipsize(અચલ અક્ષર *s, size_t length, unsigned percent) {
+        પાછા ellipsize_mem(s, strlen(s), length, percent);
 }
 
-char* cellescape(char *buf, size_t len, const char *s);
+અક્ષર* cellescape(અક્ષર *buf, size_t len, અચલ અક્ષર *s);
 
 /* This limit is arbitrary, enough to give some idea what the string contains */
 #define CELLESCAPE_DEFAULT_LENGTH 64
 
-char* strshorten(char *s, size_t l);
+અક્ષર* strshorten(અક્ષર *s, size_t l);
 
-int strgrowpad0(char **s, size_t l);
+પૂર્ણાંક strgrowpad0(અક્ષર **s, size_t l);
 
-char* strreplace(const char *text, const char *old_string, const char *new_string);
+અક્ષર* strreplace(અચલ અક્ષર *text, અચલ અક્ષર *old_string, અચલ અક્ષર *new_string);
 
-char* strip_tab_ansi(char **ibuf, size_t *_isz, size_t highlight[2]);
+અક્ષર* strip_tab_ansi(અક્ષર **ibuf, size_t *_isz, size_t highlight[2]);
 
-char* strextendv_with_separator(char **x, const char *separator, va_list ap);
-char* strextend_with_separator_internal(char **x, const char *separator, ...) _sentinel_;
-#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, NULL)
-#define strextend(x, ...) strextend_with_separator_internal(x, NULL, __VA_ARGS__, NULL)
+અક્ષર* strextendv_with_separator(અક્ષર **x, અચલ અક્ષર *separator, va_list ap);
+અક્ષર* strextend_with_separator_internal(અક્ષર **x, અચલ અક્ષર *separator, ...) _sentinel_;
+#define strextend_with_separator(x, separator, ...) strextend_with_separator_internal(x, separator, __VA_ARGS__, ખાલી)
+#define strextend(x, ...) strextend_with_separator_internal(x, ખાલી, __VA_ARGS__, ખાલી)
 
-int strextendf_with_separator(char **x, const char *separator, const char *format, ...) _printf_(3,4);
-#define strextendf(x, ...) strextendf_with_separator(x, NULL, __VA_ARGS__)
+પૂર્ણાંક strextendf_with_separator(અક્ષર **x, અચલ અક્ષર *separator, અચલ અક્ષર *format, ...) _printf_(3,4);
+#define strextendf(x, ...) strextendf_with_separator(x, ખાલી, __VA_ARGS__)
 
 #define strprepend_with_separator(x, separator, ...)                            \
         ({                                                                      \
-                char **_p_ = ASSERT_PTR(x), *_s_;                               \
-                _s_ = strextend_with_separator_internal(NULL, (separator), __VA_ARGS__, empty_to_null(*_p_), NULL); \
-                if (_s_) {                                                      \
-                        free(*_p_);                                             \
+                અક્ષર **_p_ = ASSERT_PTR(x), *_s_;                               \
+                _s_ = strextend_with_separator_internal(ખાલી, (separator), __VA_ARGS__, empty_to_null(*_p_), ખાલી); \
+                જો (_s_) {                                                      \
+                        મુક્ત(*_p_);                                             \
                         *_p_ = _s_;                                             \
                 }                                                               \
                 _s_;                                                            \
         })
-#define strprepend(x, ...) strprepend_with_separator(x, NULL, __VA_ARGS__)
+#define strprepend(x, ...) strprepend_with_separator(x, ખાલી, __VA_ARGS__)
 
-char* strrep(const char *s, size_t n);
+અક્ષર* strrep(અચલ અક્ષર *s, size_t n);
 
 #define strrepa(s, n)                                                   \
         ({                                                              \
-                const char *_sss_ = (s);                                \
+                અચલ અક્ષર *_sss_ = (s);                                \
                 size_t _nnn_ = (n), _len_ = strlen(_sss_);              \
                 assert_se(MUL_ASSIGN_SAFE(&_len_, _nnn_));              \
-                char *_d_, *_p_;                                        \
-                _p_ = _d_ = newa(char, _len_ + 1);                      \
-                for (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
+                અક્ષર *_d_, *_p_;                                        \
+                _p_ = _d_ = newa(અક્ષર, _len_ + 1);                      \
+                માટે (size_t _i_ = 0; _i_ < _nnn_; _i_++)                \
                         _p_ = stpcpy(_p_, _sss_);                       \
                 *_p_ = 0;                                               \
                 _d_;                                                    \
         })
 
-int split_pair(const char *s, const char *sep, char **ret_first, char **ret_second);
+પૂર્ણાંક split_pair(અચલ અક્ષર *s, અચલ અક્ષર *sep, અક્ષર **ret_first, અક્ષર **ret_second);
 
-int free_and_strdup(char **p, const char *s);
-int free_and_strdup_warn(char **p, const char *s);
-int free_and_strndup(char **p, const char *s, size_t l) _nonnull_if_nonzero_(2, 3);
+પૂર્ણાંક free_and_strdup(અક્ષર **p, અચલ અક્ષર *s);
+પૂર્ણાંક free_and_strdup_warn(અક્ષર **p, અચલ અક્ષર *s);
+પૂર્ણાંક free_and_strndup(અક્ષર **p, અચલ અક્ષર *s, size_t l) _nonnull_if_nonzero_(2, 3);
 
-int strdup_to_full(char **ret, const char *src);
-static inline int strdup_to(char **ret, const char *src) {
-        int r = strdup_to_full(ASSERT_PTR(ret), src);
-        return r < 0 ? r : 0;  /* Suppress return value of 1. */
+પૂર્ણાંક strdup_to_full(અક્ષર **ret, અચલ અક્ષર *src);
+સ્થિર અંતઃરેખ પૂર્ણાંક strdup_to(અક્ષર **ret, અચલ અક્ષર *src) {
+        પૂર્ણાંક r = strdup_to_full(ASSERT_PTR(ret), src);
+        પાછા r < 0 ? r : 0;  /* Suppress return value of 1. */
 }
 
-typedef enum StringSafeFlags {
+પ્રકારવ્યાખ્યા ગણના StringSafeFlags {
         STRING_ASCII               = 1 << 0, /* Verify string is 7-Bit ASCII (rather than just UTF-8) */
         STRING_ALLOW_EMPTY         = 1 << 1, /* Allow empty strings */
         STRING_ALLOW_NEWLINES      = 1 << 2, /* Allow newlines (\n) */
@@ -233,10 +233,10 @@ typedef enum StringSafeFlags {
         STRING_DISALLOW_WHITESPACE = 1 << 8, /* Refuse whitespace (space, tab, newline, …) */
 } StringSafeFlags;
 
-bool string_is_safe(const char *p, StringSafeFlags flags) _pure_;
+bool string_is_safe(અચલ અક્ષર *p, StringSafeFlags flags) _pure_;
 
 DISABLE_WARNING_STRINGOP_TRUNCATION;
-static inline void strncpy_exact(char *buf, const char *src, size_t buf_len) {
+સ્થિર અંતઃરેખ શૂન્ય strncpy_exact(અક્ષર *buf, અચલ અક્ષર *src, size_t buf_len) {
         strncpy(buf, src, buf_len);
 }
 REENABLE_WARNING;
@@ -244,38 +244,38 @@ REENABLE_WARNING;
 /* Like startswith_no_case(), but operates on arbitrary memory blocks.
  * It works only for ASCII strings.
  */
-static inline void* memory_startswith_no_case(const void *p, size_t sz, const char *token) {
-        assert(token);
+સ્થિર અંતઃરેખ શૂન્ય* memory_startswith_no_case(અચલ શૂન્ય *p, size_t sz, અચલ અક્ષર *token) {
+        પ્રતિજ્ઞા(token);
 
         size_t n = strlen(token);
-        if (sz < n)
-                return NULL;
+        જો (sz < n)
+                પાછા ખાલી;
 
-        assert(p);
+        પ્રતિજ્ઞા(p);
 
-        for (size_t i = 0; i < n; i++)
-                if (ascii_tolower(((char *)p)[i]) != ascii_tolower(token[i]))
-                        return NULL;
+        માટે (size_t i = 0; i < n; i++)
+                જો (ascii_tolower(((અક્ષર *)p)[i]) != ascii_tolower(token[i]))
+                        પાછા ખાલી;
 
-        return (uint8_t*) p + n;
+        પાછા (uint8_t*) p + n;
 }
 
-char* str_realloc(char *p);
-char* string_erase(char *x);
+અક્ષર* str_realloc(અક્ષર *p);
+અક્ષર* string_erase(અક્ષર *x);
 
-int string_truncate_lines(const char *s, size_t n_lines, char **ret);
-int string_extract_line(const char *s, size_t i, char **ret);
+પૂર્ણાંક string_truncate_લીટીઓ(અચલ અક્ષર *s, size_t n_લીટીઓ, અક્ષર **ret);
+પૂર્ણાંક string_extract_લીટી(અચલ અક્ષર *s, size_t i, અક્ષર **ret);
 
-int string_contains_word_strv(const char *string, const char *separators, char * const *words, const char **ret_word);
-static inline int string_contains_word(const char *string, const char *separators, const char *word) {
-        return string_contains_word_strv(string, separators, STRV_MAKE(word), NULL);
+પૂર્ણાંક string_contains_word_strv(અચલ અક્ષર *string, અચલ અક્ષર *separators, અક્ષર * અચલ *શબ્દો, અચલ અક્ષર **ret_word);
+સ્થિર અંતઃરેખ પૂર્ણાંક string_contains_word(અચલ અક્ષર *string, અચલ અક્ષર *separators, અચલ અક્ષર *word) {
+        પાછા string_contains_word_strv(string, separators, STRV_MAKE(word), ખાલી);
 }
 
-bool streq_skip_trailing_chars(const char *s1, const char *s2, const char *ok);
+bool streq_skip_trailing_chars(અચલ અક્ષર *s1, અચલ અક્ષર *s2, અચલ અક્ષર *ok);
 
-char* string_replace_char(char *str, char old_char, char new_char);
+અક્ષર* string_replace_char(અક્ષર *str, અક્ષર old_char, અક્ષર new_char);
 
-typedef enum MakeCStringMode {
+પ્રકારવ્યાખ્યા ગણના MakeCStringMode {
         MAKE_CSTRING_REFUSE_TRAILING_NUL,
         MAKE_CSTRING_ALLOW_TRAILING_NUL,
         MAKE_CSTRING_REQUIRE_TRAILING_NUL,
@@ -283,55 +283,55 @@ typedef enum MakeCStringMode {
         _MAKE_CSTRING_MODE_INVALID = -1,
 } MakeCStringMode;
 
-int make_cstring(const void *s, size_t n, MakeCStringMode mode, char **ret);
+પૂર્ણાંક make_cstring(અચલ શૂન્ય *s, size_t n, MakeCStringMode mode, અક્ષર **ret);
 
-size_t strspn_from_end(const char *str, const char *accept) _pure_;
-size_t strnspn(const char *str, const char *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
+size_t strspn_from_end(અચલ અક્ષર *str, અચલ અક્ષર *accept) _pure_;
+size_t strnspn(અચલ અક્ષર *str, અચલ અક્ષર *accept, size_t n) _pure_ _nonnull_if_nonzero_(1, 3);
 
-char* strdupspn(const char *a, const char *accept);
-char* strdupcspn(const char *a, const char *reject);
+અક્ષર* strdupspn(અચલ અક્ષર *a, અચલ અક્ષર *accept);
+અક્ષર* strdupcspn(અચલ અક્ષર *a, અચલ અક્ષર *reject);
 
 /* These are like strdupa()/strndupa(), but honour ALLOCA_MAX */
 #define strdupa_safe(s)                                                 \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strlen(_t));                \
+                અચલ અક્ષર *_t = (s);                                   \
+                (અક્ષર*) memdupa_suffix0(_t, strlen(_t));                \
         })
 
 #define strndupa_safe(s, n)                                             \
         ({                                                              \
-                const char *_t = (s);                                   \
-                (char*) memdupa_suffix0(_t, strnlen(_t, n));            \
+                અચલ અક્ષર *_t = (s);                                   \
+                (અક્ષર*) memdupa_suffix0(_t, strnlen(_t, n));            \
         })
 
-char* find_line_startswith_internal(const char *haystack, const char *needle);
-#define find_line_startswith(haystack, needle) \
-        const_generic(haystack, find_line_startswith_internal(haystack, needle))
+અક્ષર* find_લીટી_startswith_internal(અચલ અક્ષર *haystack, અચલ અક્ષર *needle);
+#define find_લીટી_startswith(haystack, needle) \
+        const_generic(haystack, find_લીટી_startswith_internal(haystack, needle))
 
-char* find_line_internal(const char *haystack, const char *needle);
-#define find_line(haystack, needle) \
-        const_generic(haystack, find_line_internal(haystack, needle))
+અક્ષર* find_લીટી_internal(અચલ અક્ષર *haystack, અચલ અક્ષર *needle);
+#define find_લીટી(haystack, needle) \
+        const_generic(haystack, find_લીટી_internal(haystack, needle))
 
-char* find_line_after_internal(const char *haystack, const char *needle);
-#define find_line_after(haystack, needle) \
-        const_generic(haystack, find_line_after_internal(haystack, needle))
+અક્ષર* find_લીટી_after_internal(અચલ અક્ષર *haystack, અચલ અક્ષર *needle);
+#define find_લીટી_after(haystack, needle) \
+        const_generic(haystack, find_લીટી_after_internal(haystack, needle))
 
-typedef enum VersionFlags {
+પ્રકારવ્યાખ્યા ગણના VersionFlags {
         VERSION_ALLOW_EMPTY      = 1 << 0,
         VERSION_ALLOW_UNDERSCORE = 1 << 1, /* Allow "_" as separator (recommended separator) */
         VERSION_ALLOW_PLUS       = 1 << 2, /* Allow "+" as separator (sometimes used as separator for boot attempt counters) */
 } VersionFlags;
 
-bool version_is_valid(const char *s, VersionFlags flags) _pure_;
+bool version_is_valid(અચલ અક્ષર *s, VersionFlags flags) _pure_;
 
-ssize_t strlevenshtein(const char *x, const char *y);
+ssize_t strlevenshtein(અચલ અક્ષર *x, અચલ અક્ષર *y);
 
-char* strrstr_internal(const char *haystack, const char *needle) _pure_;
+અક્ષર* strrstr_internal(અચલ અક્ષર *haystack, અચલ અક્ષર *needle) _pure_;
 #define strrstr(haystack, needle) \
         const_generic(haystack, strrstr_internal(haystack, needle))
 
-char* strrstr_no_case_internal(const char *haystack, const char *needle) _pure_;
+અક્ષર* strrstr_no_case_internal(અચલ અક્ષર *haystack, અચલ અક્ષર *needle) _pure_;
 #define strrstr_no_case(haystack, needle) \
         const_generic(haystack, strrstr_no_case_internal(haystack, needle))
 
-size_t str_common_prefix(const char *a, const char *b) _pure_;
+size_t str_common_prefix(અચલ અક્ષર *a, અચલ અક્ષર *b) _pure_;

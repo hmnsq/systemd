@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <sys/uio.h>                /* IWYU pragma: export */
+#અન્તર્ભાવ <sys/uio.h>                /* IWYU pragma: export */
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-#include "../fundamental/iovec-util.h" /* IWYU pragma: export */
+#અન્તર્ભાવ "../fundamental/iovec-util.h" /* IWYU pragma: export */
 
-extern const struct iovec iovec_nul_byte; /* Points to a single NUL byte */
-extern const struct iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
+બાહ્ય અચલ સંરચના iovec iovec_nul_byte; /* Points to a single NUL byte */
+બાહ્ય અચલ સંરચના iovec iovec_empty;    /* Points to an empty, but valid (i.e. non-NULL) pointer */
 
-int iovec_alloc(size_t n, struct iovec *ret);
+પૂર્ણાંક iovec_alloc(size_t n, સંરચના iovec *ret);
 
-size_t iovec_total_size(const struct iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
+size_t iovec_total_size(અચલ સંરચના iovec *iovec, size_t n) _nonnull_if_nonzero_(1, 2);
 
-bool iovec_inc_many(struct iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
+bool iovec_inc_many(સંરચના iovec *iovec, size_t n, size_t k) _nonnull_if_nonzero_(1, 2);
 
-struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
+સંરચના iovec* iovec_make_string(સંરચના iovec *iovec, અચલ અક્ષર *s);
 
 #define IOVEC_MAKE_STRING(s) \
-        *iovec_make_string(&(struct iovec) {}, s)
+        *iovec_make_string(&(સંરચના iovec) {}, s)
 
 #define CONST_IOVEC_MAKE_STRING(s)              \
-        (const struct iovec) {                  \
-                .iov_base = (char*) s,          \
+        (અચલ સંરચના iovec) {                  \
+                .iov_base = (અક્ષર*) s,          \
                 .iov_len = STRLEN(s),           \
         }
 
 #define IOVEC_MAKE_BYTE(c)                                      \
-        (const struct iovec) {                                  \
-                .iov_base = (char*) ((const char[]) { (c) }),   \
+        (અચલ સંરચના iovec) {                                  \
+                .iov_base = (અક્ષર*) ((અચલ અક્ષર[]) { (c) }),   \
                 .iov_len = 1,                                   \
         }
 
@@ -39,22 +39,22 @@ struct iovec* iovec_make_string(struct iovec *iovec, const char *s);
                 IOVEC_MAKE(alloca_safe(_n_), _n_);   \
         })
 
-void iovec_erase(struct iovec *iovec);
-void iovec_done_erase(struct iovec *iovec);
+શૂન્ય iovec_erase(સંરચના iovec *iovec);
+શૂન્ય iovec_done_erase(સંરચના iovec *iovec);
 
-char* set_iovec_string_field(struct iovec *iovec, size_t *n_iovec, const char *field, const char *value);
-char* set_iovec_string_field_free(struct iovec *iovec, size_t *n_iovec, const char *field, char *value);
+અક્ષર* set_iovec_string_field(સંરચના iovec *iovec, size_t *n_iovec, અચલ અક્ષર *field, અચલ અક્ષર *કિંમત);
+અક્ષર* set_iovec_string_field_free(સંરચના iovec *iovec, size_t *n_iovec, અચલ અક્ષર *field, અક્ષર *કિંમત);
 
-void iovec_array_free(struct iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
+શૂન્ય iovec_array_free(સંરચના iovec *iovec, size_t n_iovec) _nonnull_if_nonzero_(1, 2);
 
-int iovec_memcmp(const struct iovec *a, const struct iovec *b) _pure_;
-static inline bool iovec_equal(const struct iovec *a, const struct iovec *b) {
-        return iovec_memcmp(a, b) == 0;
+પૂર્ણાંક iovec_memcmp(અચલ સંરચના iovec *a, અચલ સંરચના iovec *b) _pure_;
+સ્થિર અંતઃરેખ bool iovec_equal(અચલ સંરચના iovec *a, અચલ સંરચના iovec *b) {
+        પાછા iovec_memcmp(a, b) == 0;
 }
 
-struct iovec* iovec_memdup(const struct iovec *source, struct iovec *ret);
-int iovec_done_and_memdup(struct iovec *iovec, const struct iovec *source);
+સંરચના iovec* iovec_memdup(અચલ સંરચના iovec *source, સંરચના iovec *ret);
+પૂર્ણાંક iovec_done_and_memdup(સંરચના iovec *iovec, અચલ સંરચના iovec *source);
 
-struct iovec* iovec_append(struct iovec *iovec, const struct iovec *append);
+સંરચના iovec* iovec_append(સંરચના iovec *iovec, અચલ સંરચના iovec *append);
 
-struct iovec* iovec_consume(struct iovec *iovec, size_t n);
+સંરચના iovec* iovec_consume(સંરચના iovec *iovec, size_t n);

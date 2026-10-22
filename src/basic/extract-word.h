@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-typedef enum ExtractFlags {
+પ્રકારવ્યાખ્યા ગણના ExtractFlags {
         EXTRACT_RELAX                    = 1 << 0, /* Allow unbalanced quote and eat up trailing backslash. */
         EXTRACT_CUNESCAPE                = 1 << 1, /* Unescape known escape sequences. */
         EXTRACT_UNESCAPE_RELAX           = 1 << 2, /* Allow and keep unknown escape sequences, allow and keep trailing backslash. */
@@ -17,9 +17,9 @@ typedef enum ExtractFlags {
         /* Note that if no flags are specified, escaped escape characters will be silently stripped. */
 } ExtractFlags;
 
-int extract_first_word(const char **p, char **ret, const char *separators, ExtractFlags flags);
-int extract_first_word_and_warn(const char **p, char **ret, const char *separators, ExtractFlags flags, const char *unit, const char *filename, unsigned line, const char *rvalue);
+પૂર્ણાંક extract_first_word(અચલ અક્ષર **p, અક્ષર **ret, અચલ અક્ષર *separators, ExtractFlags flags);
+પૂર્ણાંક extract_first_word_and_warn(અચલ અક્ષર **p, અક્ષર **ret, અચલ અક્ષર *separators, ExtractFlags flags, અચલ અક્ષર *unit, અચલ અક્ષર *filename, unsigned લીટી, અચલ અક્ષર *rvalue);
 
-int extract_many_words_internal(const char **p, const char *separators, unsigned flags, ...) _sentinel_;
-#define extract_many_words(p, separators, flags, ...) \
-        extract_many_words_internal(p, separators, flags, ##__VA_ARGS__, NULL)
+પૂર્ણાંક extract_many_શબ્દો_internal(અચલ અક્ષર **p, અચલ અક્ષર *separators, unsigned flags, ...) _sentinel_;
+#define extract_many_શબ્દો(p, separators, flags, ...) \
+        extract_many_શબ્દો_internal(p, separators, flags, ##__VA_ARGS__, ખાલી)

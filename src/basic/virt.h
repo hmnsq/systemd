@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-typedef enum Virtualization {
+પ્રકારવ્યાખ્યા ગણના Virtualization {
         VIRTUALIZATION_NONE = 0,
 
         VIRTUALIZATION_VM_FIRST,
@@ -47,21 +47,21 @@ typedef enum Virtualization {
         _VIRTUALIZATION_ERRNO_MAX = -ERRNO_MAX, /* ensure full range of errno fits into this enum */
 } Virtualization;
 
-static inline bool VIRTUALIZATION_IS_VM(Virtualization x) {
-        return x >= VIRTUALIZATION_VM_FIRST && x <= VIRTUALIZATION_VM_LAST;
+સ્થિર અંતઃરેખ bool VIRTUALIZATION_IS_VM(Virtualization x) {
+        પાછા x >= VIRTUALIZATION_VM_FIRST && x <= VIRTUALIZATION_VM_LAST;
 }
 
-static inline bool VIRTUALIZATION_IS_CONTAINER(Virtualization x) {
-        return x >= VIRTUALIZATION_CONTAINER_FIRST && x <= VIRTUALIZATION_CONTAINER_LAST;
+સ્થિર અંતઃરેખ bool VIRTUALIZATION_IS_CONTAINER(Virtualization x) {
+        પાછા x >= VIRTUALIZATION_CONTAINER_FIRST && x <= VIRTUALIZATION_CONTAINER_LAST;
 }
 
-Virtualization detect_vm(void);
-Virtualization detect_container(void);
-Virtualization detect_virtualization(void);
+Virtualization detect_vm(શૂન્ય);
+Virtualization detect_container(શૂન્ય);
+Virtualization detect_virtualization(શૂન્ય);
 
-int running_in_userns(void);
-int running_in_chroot(void);
+પૂર્ણાંક running_in_userns(શૂન્ય);
+પૂર્ણાંક running_in_chroot(શૂન્ય);
 
 DECLARE_STRING_TABLE_LOOKUP(virtualization, Virtualization);
-bool has_cpu_with_flag(const char *flag);
-int cpu_known_features(char ***ret);
+bool has_cpu_with_flag(અચલ અક્ષર *flag);
+પૂર્ણાંક cpu_known_features(અક્ષર ***ret);

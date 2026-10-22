@@ -6,11 +6,11 @@
  */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-char *utf8_prev_char (const char *p);
+અક્ષર *utf8_prev_char (અચલ અક્ષર *p);
 
-extern const char utf8_skip_data[256];
+બાહ્ય અચલ અક્ષર utf8_skip_data[256];
 
 /**
  * g_utf8_next_char:
@@ -23,6 +23,6 @@ extern const char utf8_skip_data[256];
  * Before using this macro, use g_utf8_validate() to validate strings
  * that may contain invalid UTF-8.
  */
-#define utf8_next_char(p) (char *)((p) + utf8_skip_data[*(const unsigned char *)(p)])
+#define utf8_next_char(p) (અક્ષર *)((p) + utf8_skip_data[*(અચલ unsigned અક્ષર *)(p)])
 
 bool unichar_iswide (uint32_t c);

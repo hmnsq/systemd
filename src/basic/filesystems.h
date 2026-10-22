@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
-#include "stat-util.h"
+#અન્તર્ભાવ "forward.h"
+#અન્તર્ભાવ "stat-util.h"
 
 #define FILESYSTEM_MAGIC_MAX 10
 
-typedef enum FilesystemGroups {
+પ્રકારવ્યાખ્યા ગણના FilesystemGroups {
         /* Please leave BASIC_API first and KNOWN last, but sort the rest alphabetically */
         FILESYSTEM_SET_BASIC_API,
         FILESYSTEM_SET_ANONYMOUS,
@@ -23,19 +23,19 @@ typedef enum FilesystemGroups {
         _FILESYSTEM_SET_INVALID = -EINVAL,
 } FilesystemGroups;
 
-typedef struct FilesystemSet {
-        const char *name;
-        const char *help;
-        const char *value;
+પ્રકારવ્યાખ્યા સંરચના FilesystemSet {
+        અચલ અક્ષર *name;
+        અચલ અક્ષર *help;
+        અચલ અક્ષર *કિંમત;
 } FilesystemSet;
 
-extern const FilesystemSet filesystem_sets[];
+બાહ્ય અચલ FilesystemSet filesystem_sets[];
 
-const FilesystemSet *filesystem_set_find(const char *name);
+અચલ FilesystemSet *filesystem_set_find(અચલ અક્ષર *name);
 
-const char* fs_type_to_string(statfs_f_type_t magic);
-int fs_type_from_string(const char *name, const statfs_f_type_t **ret);
-bool fs_in_group(const struct statfs *s, enum FilesystemGroups fs_group);
+અચલ અક્ષર* fs_type_to_string(statfs_f_type_t magic);
+પૂર્ણાંક fs_type_from_string(અચલ અક્ષર *name, અચલ statfs_f_type_t **ret);
+bool fs_in_group(અચલ સંરચના statfs *s, ગણના FilesystemGroups fs_group);
 
 /* gperf prototypes */
-const struct FilesystemMagic* filesystems_gperf_lookup(const char *str, GPERF_LEN_TYPE length);
+અચલ સંરચના FilesystemMagic* filesystems_gperf_lookup(અચલ અક્ષર *str, GPERF_LEN_TYPE length);

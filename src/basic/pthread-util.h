@@ -1,16 +1,16 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include <pthread.h> /* IWYU pragma: export */
+#અન્તર્ભાવ <pthread.h> /* IWYU pragma: export */
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-static inline pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
+સ્થિર અંતઃરેખ pthread_mutex_t* pthread_mutex_lock_assert(pthread_mutex_t *mutex) {
         assert_se(pthread_mutex_lock(mutex) == 0);
-        return mutex;
+        પાછા mutex;
 }
 
-static inline void pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
-        if (*mutexp)
+સ્થિર અંતઃરેખ શૂન્ય pthread_mutex_unlock_assertp(pthread_mutex_t **mutexp) {
+        જો (*mutexp)
                 assert_se(pthread_mutex_unlock(*mutexp) == 0);
 }

@@ -3,140 +3,140 @@
 
 /* IWYU pragma: always_keep */
 
-#include <errno.h>                      /* IWYU pragma: export */
-#include <inttypes.h>                   /* IWYU pragma: export */
-#include <limits.h>                     /* IWYU pragma: export */
-#include <paths.h>                      /* IWYU pragma: export */
-#include <stdarg.h>                     /* IWYU pragma: export */
-#include <stdbool.h>                    /* IWYU pragma: export */
-#include <stddef.h>                     /* IWYU pragma: export */
-#include <stdint.h>                     /* IWYU pragma: export */
-#include <sys/types.h>                  /* IWYU pragma: export */
-#include <uchar.h>                      /* IWYU pragma: export */
+#અન્તર્ભાવ <errno.h>                      /* IWYU pragma: export */
+#અન્તર્ભાવ <inttypes.h>                   /* IWYU pragma: export */
+#અન્તર્ભાવ <limits.h>                     /* IWYU pragma: export */
+#અન્તર્ભાવ <paths.h>                      /* IWYU pragma: export */
+#અન્તર્ભાવ <stdarg.h>                     /* IWYU pragma: export */
+#અન્તર્ભાવ <stdbool.h>                    /* IWYU pragma: export */
+#અન્તર્ભાવ <stddef.h>                     /* IWYU pragma: export */
+#અન્તર્ભાવ <stdint.h>                     /* IWYU pragma: export */
+#અન્તર્ભાવ <sys/types.h>                  /* IWYU pragma: export */
+#અન્તર્ભાવ <uchar.h>                      /* IWYU pragma: export */
 
-#include "assert-util.h"                /* IWYU pragma: export */
-#include "cleanup-util.h"               /* IWYU pragma: export */
-#include "macro.h"                      /* IWYU pragma: export */
+#અન્તર્ભાવ "assert-util.h"                /* IWYU pragma: export */
+#અન્તર્ભાવ "cleanup-util.h"               /* IWYU pragma: export */
+#અન્તર્ભાવ "macro.h"                      /* IWYU pragma: export */
 
-#include "../fundamental/string-table.h"   /* IWYU pragma: export */
+#અન્તર્ભાવ "../fundamental/string-table.h"   /* IWYU pragma: export */
 
 /* Generic types */
 
-typedef uint64_t usec_t;
-typedef uint64_t nsec_t;
+પ્રકારવ્યાખ્યા uint64_t usec_t;
+પ્રકારવ્યાખ્યા uint64_t nsec_t;
 
 /* Libc/Linux forward declarations */
 
-struct __kernel_timespec;
-struct dirent;
-struct ether_addr;
-struct fiemap;
-struct file_handle;
-struct glob_t;
-struct group;
-struct icmp6_hdr;
-struct in_addr;
-struct in6_addr;
-struct inotify_event;
-struct iovec;
-struct mount_attr;
-struct msghdr;
-struct passwd;
-struct pollfd;
-struct rlimit;
-struct sgrp;
-struct shadow;
-struct signalfd_siginfo;
-struct siphash;
-struct sockaddr;
-struct spwd;
-struct stat;
-struct statfs;
-struct statx_timestamp;
-struct statx;
-struct termios;
-struct tm;
-struct ucred;
-struct unix_diag_msg;
+સંરચના __kernel_timespec;
+સંરચના dirent;
+સંરચના ether_addr;
+સંરચના fiemap;
+સંરચના file_handle;
+સંરચના glob_t;
+સંરચના group;
+સંરચના icmp6_hdr;
+સંરચના in_addr;
+સંરચના in6_addr;
+સંરચના inotify_event;
+સંરચના iovec;
+સંરચના mount_attr;
+સંરચના msghdr;
+સંરચના passwd;
+સંરચના pollfd;
+સંરચના rlimit;
+સંરચના sgrp;
+સંરચના shadow;
+સંરચના signalfd_siginfo;
+સંરચના siphash;
+સંરચના sockaddr;
+સંરચના spwd;
+સંરચના stat;
+સંરચના statfs;
+સંરચના statx_timestamp;
+સંરચના statx;
+સંરચના termios;
+સંરચના tm;
+સંરચના ucred;
+સંરચના unix_diag_સંદેશ;
 
 /* To forward declare FILE and DIR, we have to declare the internal struct names for them. Since these are
  * used for C++ symbol name mangling, they're effectively part of the ABI and won't actually change. */
-typedef struct _IO_FILE FILE;
-typedef struct __dirstream DIR;
+પ્રકારવ્યાખ્યા સંરચના _IO_FILE FILE;
+પ્રકારવ્યાખ્યા સંરચના __dirstream DIR;
 
 /* 3rd-party library forward declarations */
 
-enum bpf_map_type;
+ગણના bpf_map_type;
 
-struct fdisk_context;
-struct fdisk_table;
-struct crypt_device;
+સંરચના fdisk_context;
+સંરચના fdisk_table;
+સંરચના crypt_device;
 
-typedef struct buf_mem_st BUF_MEM;
-typedef struct evp_pkey_st EVP_PKEY;
-typedef struct evp_md_st EVP_MD;
-typedef struct evp_md_ctx_st EVP_MD_CTX;
-typedef struct ssl_st SSL;
-typedef struct ssl_ctx_st SSL_CTX;
-typedef struct ssl_session_st SSL_SESSION;
-typedef struct x509_st X509;
+પ્રકારવ્યાખ્યા સંરચના buf_mem_st BUF_MEM;
+પ્રકારવ્યાખ્યા સંરચના evp_pkey_st EVP_PKEY;
+પ્રકારવ્યાખ્યા સંરચના evp_md_st EVP_MD;
+પ્રકારવ્યાખ્યા સંરચના evp_md_ctx_st EVP_MD_CTX;
+પ્રકારવ્યાખ્યા સંરચના ssl_st SSL;
+પ્રકારવ્યાખ્યા સંરચના ssl_ctx_st SSL_CTX;
+પ્રકારવ્યાખ્યા સંરચના ssl_session_st SSL_SESSION;
+પ્રકારવ્યાખ્યા સંરચના x509_st X509;
 
 /* basic/ forward declarations */
 
-typedef void (*hash_func_t)(const void *p, struct siphash *state);
-typedef int (*compare_func_t)(const void *a, const void *b);
-typedef compare_func_t comparison_fn_t;
-typedef int (*comparison_userdata_fn_t)(const void *, const void *, void *);
+પ્રકારવ્યાખ્યા શૂન્ય (*hash_func_t)(અચલ શૂન્ય *p, સંરચના siphash *state);
+પ્રકારવ્યાખ્યા પૂર્ણાંક (*compare_func_t)(અચલ શૂન્ય *a, અચલ શૂન્ય *b);
+પ્રકારવ્યાખ્યા compare_func_t comparison_fn_t;
+પ્રકારવ્યાખ્યા પૂર્ણાંક (*comparison_userdata_fn_t)(અચલ શૂન્ય *, અચલ શૂન્ય *, શૂન્ય *);
 
-struct hash_ops;
-struct hw_addr_data;
-struct in_addr_data;
-struct iovec_wrapper;
-union in_addr_union;
-union sockaddr_union;
+સંરચના hash_ops;
+સંરચના hw_addr_data;
+સંરચના in_addr_data;
+સંરચના iovec_wrapper;
+સંઘ in_addr_union;
+સંઘ sockaddr_union;
 
-typedef enum Architecture Architecture;
-typedef enum CGroupFlags CGroupFlags;
-typedef enum CGroupMask CGroupMask;
-typedef enum ChaseFlags ChaseFlags;
-typedef enum ConfFilesFlags ConfFilesFlags;
-typedef enum ExtractFlags ExtractFlags;
-typedef enum ForkFlags ForkFlags;
-typedef enum Glyph Glyph;
-typedef enum ImageClass ImageClass;
-typedef enum JobMode JobMode;
-typedef enum NamespaceEnterFlags NamespaceEnterFlags;
-typedef enum RuntimeScope RuntimeScope;
-typedef enum StringSafeFlags StringSafeFlags;
-typedef enum TimestampStyle TimestampStyle;
-typedef enum UnitActiveState UnitActiveState;
-typedef enum UnitDependency UnitDependency;
-typedef enum UnitNameMangle UnitNameMangle;
-typedef enum UnitType UnitType;
-typedef enum WaitFlags WaitFlags;
-typedef enum XOpenFlags XOpenFlags;
+પ્રકારવ્યાખ્યા ગણના Architecture Architecture;
+પ્રકારવ્યાખ્યા ગણના CGroupFlags CGroupFlags;
+પ્રકારવ્યાખ્યા ગણના CGroupMask CGroupMask;
+પ્રકારવ્યાખ્યા ગણના ChaseFlags ChaseFlags;
+પ્રકારવ્યાખ્યા ગણના ConfFilesFlags ConfFilesFlags;
+પ્રકારવ્યાખ્યા ગણના ExtractFlags ExtractFlags;
+પ્રકારવ્યાખ્યા ગણના ForkFlags ForkFlags;
+પ્રકારવ્યાખ્યા ગણના Glyph Glyph;
+પ્રકારવ્યાખ્યા ગણના ImageClass ImageClass;
+પ્રકારવ્યાખ્યા ગણના JobMode JobMode;
+પ્રકારવ્યાખ્યા ગણના NamespaceEnterFlags NamespaceEnterFlags;
+પ્રકારવ્યાખ્યા ગણના RuntimeScope RuntimeScope;
+પ્રકારવ્યાખ્યા ગણના StringSafeFlags StringSafeFlags;
+પ્રકારવ્યાખ્યા ગણના TimestampStyle TimestampStyle;
+પ્રકારવ્યાખ્યા ગણના UnitActiveState UnitActiveState;
+પ્રકારવ્યાખ્યા ગણના UnitDependency UnitDependency;
+પ્રકારવ્યાખ્યા ગણના UnitNameMangle UnitNameMangle;
+પ્રકારવ્યાખ્યા ગણના UnitType UnitType;
+પ્રકારવ્યાખ્યા ગણના WaitFlags WaitFlags;
+પ્રકારવ્યાખ્યા ગણના XOpenFlags XOpenFlags;
 
-typedef struct Fiber Fiber;
-typedef struct FiberOps FiberOps;
-typedef struct Hashmap Hashmap;
-typedef struct HashmapBase HashmapBase;
-typedef struct IteratedCache IteratedCache;
-typedef struct Iterator Iterator;
-typedef struct LogContext LogContext;
-typedef struct OrderedHashmap OrderedHashmap;
-typedef struct OrderedSet OrderedSet;
-typedef struct Set Set;
+પ્રકારવ્યાખ્યા સંરચના Fiber Fiber;
+પ્રકારવ્યાખ્યા સંરચના FiberOps FiberOps;
+પ્રકારવ્યાખ્યા સંરચના Hashmap Hashmap;
+પ્રકારવ્યાખ્યા સંરચના HashmapBase HashmapBase;
+પ્રકારવ્યાખ્યા સંરચના IteratedCache IteratedCache;
+પ્રકારવ્યાખ્યા સંરચના Iterator Iterator;
+પ્રકારવ્યાખ્યા સંરચના LogContext LogContext;
+પ્રકારવ્યાખ્યા સંરચના OrderedHashmap OrderedHashmap;
+પ્રકારવ્યાખ્યા સંરચના OrderedSet OrderedSet;
+પ્રકારવ્યાખ્યા સંરચના Set Set;
 
-typedef struct dual_timestamp dual_timestamp;
-typedef struct triple_timestamp triple_timestamp;
-typedef struct Compressor Compressor;
-typedef struct ConfFile ConfFile;
-typedef struct LabelContext LabelContext;
-typedef struct LockFile LockFile;
-typedef struct PidRef PidRef;
-typedef struct Prioq Prioq;
-typedef struct RateLimit RateLimit;
-typedef struct SocketAddress SocketAddress;
+પ્રકારવ્યાખ્યા સંરચના dual_timestamp dual_timestamp;
+પ્રકારવ્યાખ્યા સંરચના triple_timestamp triple_timestamp;
+પ્રકારવ્યાખ્યા સંરચના Compressor Compressor;
+પ્રકારવ્યાખ્યા સંરચના ConfFile ConfFile;
+પ્રકારવ્યાખ્યા સંરચના LabelContext LabelContext;
+પ્રકારવ્યાખ્યા સંરચના LockFile LockFile;
+પ્રકારવ્યાખ્યા સંરચના PidRef PidRef;
+પ્રકારવ્યાખ્યા સંરચના Prioq Prioq;
+પ્રકારવ્યાખ્યા સંરચના RateLimit RateLimit;
+પ્રકારવ્યાખ્યા સંરચના SocketAddress SocketAddress;
 
 /* Constants */
 
@@ -146,7 +146,7 @@ typedef struct SocketAddress SocketAddress;
 /* glibc defines AT_FDCWD as -100, but musl defines it as (-100). */
 #ifdef __GLIBC__
 #define AT_FDCWD                -100
-#else
+#નહીંતર
 #define AT_FDCWD                (-100)
 #endif
 #define AT_EMPTY_PATH           0x1000

@@ -1,64 +1,64 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include "ratelimit.h"
-#include "time-util.h"
+#અન્તર્ભાવ "ratelimit.h"
+#અન્તર્ભાવ "time-util.h"
 
 /* Modelled after Linux' lib/ratelimit.c by Dave Young
  * <hidave.darkstar@gmail.com>, which is licensed GPLv2. */
 
 bool ratelimit_below_at(RateLimit *rl, usec_t ts) {
-        assert(rl);
+        પ્રતિજ્ઞા(rl);
 
-        if (!ratelimit_configured(rl))
-                return true;
+        જો (!ratelimit_configured(rl))
+                પાછા true;
 
-        if (rl->begin <= 0 ||
+        જો (rl->begin <= 0 ||
             usec_sub_unsigned(ts, rl->begin) > rl->interval) {
                 rl->begin = ts;  /* Start a new time window */
-                rl->num = 1;     /* Reset counter */
-                return true;
+                rl->અંક = 1;     /* Reset counter */
+                પાછા true;
         }
 
-        if (_unlikely_(rl->num == UINT_MAX))
-                return false;
+        જો (_unlikely_(rl->અંક == UINT_MAX))
+                પાછા false;
 
-        rl->num++;
-        return rl->num <= rl->burst;
+        rl->અંક++;
+        પાછા rl->અંક <= rl->burst;
 }
 
 bool ratelimit_below(RateLimit *rl) {
-        assert(rl);
+        પ્રતિજ્ઞા(rl);
 
-        if (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
+        જો (!ratelimit_configured(rl)) /* Keep this check here too: the argument below is evaluated
                                         * before the callee could short-circuit on it. */
-                return true;
+                પાછા true;
 
-        return ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
+        પાછા ratelimit_below_at(rl, now(CLOCK_BOOTTIME));
 }
 
-unsigned ratelimit_num_dropped(const RateLimit *rl) {
-        assert(rl);
+unsigned ratelimit_અંક_dropped(અચલ RateLimit *rl) {
+        પ્રતિજ્ઞા(rl);
 
-        if (rl->num == UINT_MAX) /* overflow, return as special case */
-                return UINT_MAX;
+        જો (rl->અંક == UINT_MAX) /* overflow, return as special case */
+                પાછા UINT_MAX;
 
-        return LESS_BY(rl->num, rl->burst);
+        પાછા LESS_BY(rl->અંક, rl->burst);
 }
 
-usec_t ratelimit_end(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_end(અચલ RateLimit *rl) {
+        પ્રતિજ્ઞા(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        જો (rl->begin == 0)
+                પાછા 0;
 
-        return usec_add(rl->begin, rl->interval);
+        પાછા usec_add(rl->begin, rl->interval);
 }
 
-usec_t ratelimit_left(const RateLimit *rl) {
-        assert(rl);
+usec_t ratelimit_ડાબું(અચલ RateLimit *rl) {
+        પ્રતિજ્ઞા(rl);
 
-        if (rl->begin == 0)
-                return 0;
+        જો (rl->begin == 0)
+                પાછા 0;
 
-        return usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
+        પાછા usec_sub_unsigned(ratelimit_end(rl), now(CLOCK_BOOTTIME));
 }

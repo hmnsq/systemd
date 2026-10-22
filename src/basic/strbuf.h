@@ -1,38 +1,38 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-struct strbuf {
-        char *buf;
+સંરચના strbuf {
+        અક્ષર *buf;
         size_t len;
-        struct strbuf_node *root;
+        સંરચના strbuf_ગાંઠ *મૂળ;
 
-        size_t nodes_count;
-        size_t in_count;
+        size_t nodes_ગણતરી;
+        size_t in_ગણતરી;
         size_t in_len;
         size_t dedup_len;
-        size_t dedup_count;
+        size_t dedup_ગણતરી;
 };
 
-struct strbuf_node {
-        size_t value_off;
-        size_t value_len;
+સંરચના strbuf_ગાંઠ {
+        size_t કિંમત_off;
+        size_t કિંમત_len;
 
-        struct strbuf_child_entry *children;
-        uint8_t children_count;
+        સંરચના strbuf_child_entry *children;
+        uint8_t children_ગણતરી;
 };
 
-struct strbuf_child_entry {
+સંરચના strbuf_child_entry {
         uint8_t c;
-        struct strbuf_node *child;
+        સંરચના strbuf_ગાંઠ *child;
 };
 
-struct strbuf* strbuf_new(void);
-ssize_t strbuf_add_string_full(struct strbuf *str, const char *s, size_t len);
-static inline ssize_t strbuf_add_string(struct strbuf *str, const char *s) {
-        return strbuf_add_string_full(str, s, SIZE_MAX);
+સંરચના strbuf* strbuf_new(શૂન્ય);
+ssize_t strbuf_add_string_full(સંરચના strbuf *str, અચલ અક્ષર *s, size_t len);
+સ્થિર અંતઃરેખ ssize_t strbuf_add_string(સંરચના strbuf *str, અચલ અક્ષર *s) {
+        પાછા strbuf_add_string_full(str, s, SIZE_MAX);
 }
-void strbuf_complete(struct strbuf *str);
-struct strbuf* strbuf_free(struct strbuf *str);
-DEFINE_TRIVIAL_CLEANUP_FUNC(struct strbuf*, strbuf_free);
+શૂન્ય strbuf_complete(સંરચના strbuf *str);
+સંરચના strbuf* strbuf_free(સંરચના strbuf *str);
+DEFINE_TRIVIAL_CLEANUP_FUNC(સંરચના strbuf*, strbuf_free);

@@ -1,205 +1,205 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#અન્તર્ભાવ <fnmatch.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <unistd.h>
 
-#include "alloc-util.h"
-#include "chase.h"
-#include "errno-util.h"
-#include "extract-word.h"
-#include "fd-util.h"
-#include "fs-util.h"
-#include "glob-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
+#અન્તર્ભાવ "alloc-util.h"
+#અન્તર્ભાવ "chase.h"
+#અન્તર્ભાવ "errno-util.h"
+#અન્તર્ભાવ "extract-word.h"
+#અન્તર્ભાવ "fd-util.h"
+#અન્તર્ભાવ "fs-util.h"
+#અન્તર્ભાવ "glob-util.h"
+#અન્તર્ભાવ "log.h"
+#અન્તર્ભાવ "path-util.h"
+#અન્તર્ભાવ "stat-util.h"
+#અન્તર્ભાવ "string-util.h"
+#અન્તર્ભાવ "strv.h"
 
-bool is_path(const char *p) {
-        if (!p) /* A NULL pointer is definitely not a path */
-                return false;
+bool is_path(અચલ અક્ષર *p) {
+        જો (!p) /* A NULL pointer is definitely not a path */
+                પાછા false;
 
-        return strchr(p, '/');
+        પાછા strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
-        _cleanup_strv_free_ char **l = NULL;
-        int r;
+પૂર્ણાંક path_split_and_make_absolute(અચલ અક્ષર *p, અક્ષર ***ret) {
+        _cleanup_strv_free_ અક્ષર **l = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(p);
-        assert(ret);
+        પ્રતિજ્ઞા(p);
+        પ્રતિજ્ઞા(ret);
 
         l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
+        જો (!l)
+                પાછા -ENOMEM;
 
         r = path_strv_make_absolute_cwd(l);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
         *ret = TAKE_PTR(l);
-        return r;
+        પાછા r;
 }
 
-char* path_make_absolute(const char *p, const char *prefix) {
-        assert(p);
+અક્ષર* path_make_absolute(અચલ અક્ષર *p, અચલ અક્ષર *prefix) {
+        પ્રતિજ્ઞા(p);
 
         /* Makes every item in the list an absolute path by prepending
          * the prefix, if specified and necessary */
 
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
+        જો (path_is_absolute(p) || isempty(prefix))
+                પાછા strdup(p);
 
-        return path_join(prefix, p);
+        પાછા path_join(prefix, p);
 }
 
-int safe_getcwd(char **ret) {
-        _cleanup_free_ char *cwd = NULL;
+પૂર્ણાંક safe_getcwd(અક્ષર **ret) {
+        _cleanup_free_ અક્ષર *cwd = ખાલી;
 
         cwd = get_current_dir_name();
-        if (!cwd)
-                return negative_errno();
+        જો (!cwd)
+                પાછા negative_errno();
 
         /* Let's make sure the directory is really absolute, to protect us from the logic behind
          * CVE-2018-1000001 */
-        if (cwd[0] != '/')
-                return -ENOMEDIUM;
+        જો (cwd[0] != '/')
+                પાછા -ENOMEDIUM;
 
-        if (ret)
+        જો (ret)
                 *ret = TAKE_PTR(cwd);
 
-        return 0;
+        પાછા 0;
 }
 
-int path_make_absolute_cwd(const char *p, char **ret) {
-        char *c;
-        int r;
+પૂર્ણાંક path_make_absolute_cwd(અચલ અક્ષર *p, અક્ષર **ret) {
+        અક્ષર *c;
+        પૂર્ણાંક r;
 
-        assert(p);
-        assert(ret);
+        પ્રતિજ્ઞા(p);
+        પ્રતિજ્ઞા(ret);
 
         /* Similar to path_make_absolute(), but prefixes with the
          * current working directory. */
 
-        if (path_is_absolute(p))
+        જો (path_is_absolute(p))
                 c = strdup(p);
-        else {
-                _cleanup_free_ char *cwd = NULL;
+        નહીંતર {
+                _cleanup_free_ અક્ષર *cwd = ખાલી;
 
                 r = safe_getcwd(&cwd);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
 
                 c = path_join(cwd, p);
         }
-        if (!c)
-                return -ENOMEM;
+        જો (!c)
+                પાછા -ENOMEM;
 
         *ret = c;
-        return 0;
+        પાછા 0;
 }
 
-int path_make_relative(const char *from, const char *to, char **ret) {
-        _cleanup_free_ char *result = NULL;
+પૂર્ણાંક path_make_relative(અચલ અક્ષર *from, અચલ અક્ષર *to, અક્ષર **ret) {
+        _cleanup_free_ અક્ષર *result = ખાલી;
         unsigned n_parents;
-        const char *f, *t;
-        int r, k;
-        char *p;
+        અચલ અક્ષર *f, *t;
+        પૂર્ણાંક r, k;
+        અક્ષર *p;
 
-        assert(from);
-        assert(to);
-        assert(ret);
+        પ્રતિજ્ઞા(from);
+        પ્રતિજ્ઞા(to);
+        પ્રતિજ્ઞા(ret);
 
         /* Strips the common part, and adds ".." elements as necessary. */
 
-        if (!path_is_absolute(from) || !path_is_absolute(to))
-                return -EINVAL;
+        જો (!path_is_absolute(from) || !path_is_absolute(to))
+                પાછા -EINVAL;
 
-        for (;;) {
+        માટે (;;) {
                 r = path_find_first_component(&from, true, &f);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
 
                 k = path_find_first_component(&to, true, &t);
-                if (k < 0)
-                        return k;
+                જો (k < 0)
+                        પાછા k;
 
-                if (r == 0) {
+                જો (r == 0) {
                         /* end of 'from' */
-                        if (k == 0) {
+                        જો (k == 0) {
                                 /* from and to are equivalent. */
                                 result = strdup(".");
-                                if (!result)
-                                        return -ENOMEM;
-                        } else {
+                                જો (!result)
+                                        પાછા -ENOMEM;
+                        } નહીંતર {
                                 /* 'to' is inside of 'from'. */
                                 r = path_simplify_alloc(t, &result);
-                                if (r < 0)
-                                        return r;
+                                જો (r < 0)
+                                        પાછા r;
 
-                                if (!path_is_valid(result))
-                                        return -EINVAL;
+                                જો (!path_is_valid(result))
+                                        પાછા -EINVAL;
                         }
 
                         *ret = TAKE_PTR(result);
-                        return 0;
+                        પાછા 0;
                 }
 
-                if (r != k || !strneq(f, t, r))
-                        break;
+                જો (r != k || !strneq(f, t, r))
+                        તોડો;
         }
 
         /* If we're here, then "from_dir" has one or more elements that need to
          * be replaced with "..". */
 
-        for (n_parents = 1;; n_parents++) {
+        માટે (n_parents = 1;; n_parents++) {
                 /* If this includes ".." we can't do a simple series of "..". */
                 r = path_find_first_component(&from, false, &f);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                જો (r < 0)
+                        પાછા r;
+                જો (r == 0)
+                        તોડો;
         }
 
-        if (isempty(t) && n_parents * 3 > PATH_MAX)
+        જો (isempty(t) && n_parents * 3 > PATH_MAX)
                 /* PATH_MAX is counted *with* the trailing NUL byte */
-                return -EINVAL;
+                પાછા -EINVAL;
 
-        result = new(char, n_parents * 3 + !isempty(t) + strlen_ptr(t));
-        if (!result)
-                return -ENOMEM;
+        result = new(અક્ષર, n_parents * 3 + !isempty(t) + strlen_ptr(t));
+        જો (!result)
+                પાછા -ENOMEM;
 
-        for (p = result; n_parents > 0; n_parents--)
+        માટે (p = result; n_parents > 0; n_parents--)
                 p = mempcpy(p, "../", 3);
 
-        if (isempty(t)) {
+        જો (isempty(t)) {
                 /* Remove trailing slash and terminate string. */
                 *(--p) = '\0';
                 *ret = TAKE_PTR(result);
-                return 0;
+                પાછા 0;
         }
 
         strcpy(p, t);
 
         path_simplify(result);
 
-        if (!path_is_valid(result))
-                return -EINVAL;
+        જો (!path_is_valid(result))
+                પાછા -EINVAL;
 
         *ret = TAKE_PTR(result);
-        return 0;
+        પાછા 0;
 }
 
-int path_make_relative_parent(const char *from_child, const char *to, char **ret) {
-        _cleanup_free_ char *from = NULL;
-        int r;
+પૂર્ણાંક path_make_relative_parent(અચલ અક્ષર *from_child, અચલ અક્ષર *to, અક્ષર **ret) {
+        _cleanup_free_ અક્ષર *from = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(from_child);
-        assert(to);
-        assert(ret);
+        પ્રતિજ્ઞા(from_child);
+        પ્રતિજ્ઞા(to);
+        પ્રતિજ્ઞા(ret);
 
         /* Similar to path_make_relative(), but provides the relative path from the parent directory of
          * 'from_child'. This may be useful when creating relative symlink.
@@ -215,147 +215,147 @@ int path_make_relative_parent(const char *from_child, const char *to, char **ret
          */
 
         r = path_extract_directory(from_child, &from);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        return path_make_relative(from, to, ret);
+        પાછા path_make_relative(from, to, ret);
 }
 
-char* path_startswith_strv(const char *p, char * const *strv) {
-        assert(p);
+અક્ષર* path_startswith_strv(અચલ અક્ષર *p, અક્ષર * અચલ *strv) {
+        પ્રતિજ્ઞા(p);
 
         STRV_FOREACH(s, strv) {
-                char *t;
+                અક્ષર *t;
 
                 t = path_startswith(p, *s);
-                if (t)
-                        return t;
+                જો (t)
+                        પાછા t;
         }
 
-        return NULL;
+        પાછા ખાલી;
 }
 
-int path_strv_make_absolute_cwd(char **l) {
-        int r;
+પૂર્ણાંક path_strv_make_absolute_cwd(અક્ષર **l) {
+        પૂર્ણાંક r;
 
         /* Goes through every item in the string list and makes it
          * absolute. This works in place and won't rollback any
          * changes on failure. */
 
         STRV_FOREACH(s, l) {
-                char *t;
+                અક્ષર *t;
 
                 r = path_make_absolute_cwd(*s, &t);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
 
                 path_simplify(t);
                 free_and_replace(*s, t);
         }
 
-        return 0;
+        પાછા 0;
 }
 
-char** path_strv_resolve(char **l, const char *root) {
+અક્ષર** path_strv_resolve(અક્ષર **l, અચલ અક્ષર *મૂળ) {
         unsigned k = 0;
         bool enomem = false;
-        int r;
+        પૂર્ણાંક r;
 
-        if (strv_isempty(l))
-                return l;
+        જો (strv_isempty(l))
+                પાછા l;
 
         /* Go through every item in the string list and canonicalize the path.
          * This works in place and doesn't roll back any changes on failure. */
 
         STRV_FOREACH(s, l) {
-                _cleanup_free_ char *orig = NULL;
-                char *t, *u;
+                _cleanup_free_ અક્ષર *orig = ખાલી;
+                અક્ષર *t, *u;
 
-                if (root) {
-                        if (!path_is_absolute(*s)) {
+                જો (મૂળ) {
+                        જો (!path_is_absolute(*s)) {
                                 log_debug("Ignoring non-absolute search path '%s'.", *s);
-                                free(*s);
-                                continue;
+                                મુક્ત(*s);
+                                ચાલુ;
                         }
 
                         orig = *s;
-                        t = path_join(root, orig);
-                        if (!t) {
+                        t = path_join(મૂળ, orig);
+                        જો (!t) {
                                 enomem = true;
-                                continue;
+                                ચાલુ;
                         }
-                } else
+                } નહીંતર
                         t = *s;
 
-                r = chase(t, root, 0, &u, NULL);
-                if (r == -ENOENT) {
-                        if (root) {
+                r = chase(t, મૂળ, 0, &u, ખાલી);
+                જો (r == -ENOENT) {
+                        જો (મૂળ) {
                                 u = TAKE_PTR(orig);
-                                free(t);
-                        } else
+                                મુક્ત(t);
+                        } નહીંતર
                                 u = t;
-                } else if (r < 0) {
-                        free(t);
+                } નહીંતર જો (r < 0) {
+                        મુક્ત(t);
 
-                        if (r == -ENOMEM)
+                        જો (r == -ENOMEM)
                                 enomem = true;
 
-                        continue;
-                } else if (root) {
-                        char *x;
+                        ચાલુ;
+                } નહીંતર જો (મૂળ) {
+                        અક્ષર *x;
 
-                        free(t);
-                        x = path_startswith(u, root);
-                        if (x) {
+                        મુક્ત(t);
+                        x = path_startswith(u, મૂળ);
+                        જો (x) {
                                 /* restore the slash if it was lost */
-                                if (!startswith(x, "/"))
+                                જો (!startswith(x, "/"))
                                         *(--x) = '/';
 
                                 t = strdup(x);
-                                free(u);
-                                if (!t) {
+                                મુક્ત(u);
+                                જો (!t) {
                                         enomem = true;
-                                        continue;
+                                        ચાલુ;
                                 }
                                 u = t;
-                        } else {
+                        } નહીંતર {
                                 /* canonicalized path goes outside of
                                  * prefix, keep the original path instead */
                                 free_and_replace(u, orig);
                         }
-                } else
-                        free(t);
+                } નહીંતર
+                        મુક્ત(t);
 
                 l[k++] = u;
         }
 
-        l[k] = NULL;
+        l[k] = ખાલી;
 
-        if (enomem)
-                return NULL;
+        જો (enomem)
+                પાછા ખાલી;
 
-        return l;
+        પાછા l;
 }
 
-char** path_strv_resolve_uniq(char **l, const char *root) {
+અક્ષર** path_strv_resolve_uniq(અક્ષર **l, અચલ અક્ષર *મૂળ) {
 
-        if (strv_isempty(l))
-                return l;
+        જો (strv_isempty(l))
+                પાછા l;
 
-        if (!path_strv_resolve(l, root))
-                return NULL;
+        જો (!path_strv_resolve(l, મૂળ))
+                પાછા ખાલી;
 
-        return strv_uniq(l);
+        પાછા strv_uniq(l);
 }
 
-char* skip_leading_slash(const char *p) {
-        return skip_leading_chars(p, "/");
+અક્ષર* skip_leading_slash(અચલ અક્ષર *p) {
+        પાછા skip_leading_chars(p, "/");
 }
 
-char* path_simplify_full(char *path, PathSimplifyFlags flags) {
+અક્ષર* path_simplify_full(અક્ષર *path, PathSimplifyFlags flags) {
         bool add_slash = false, keep_trailing_slash, absolute, beginning = true;
-        char *f = path;
-        int r;
+        અક્ષર *f = path;
+        પૂર્ણાંક r;
 
         /* Removes redundant inner and trailing slashes. Also removes unnecessary dots.
          * Modifies the passed string in-place.
@@ -366,34 +366,34 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
          * /../foo/bar/..    becomes /foo/bar/..
          */
 
-        if (isempty(path))
-                return path;
+        જો (isempty(path))
+                પાછા path;
 
         keep_trailing_slash = FLAGS_SET(flags, PATH_SIMPLIFY_KEEP_TRAILING_SLASH) && endswith(path, "/");
 
         absolute = path_is_absolute(path);
         f += absolute;  /* Keep leading /, if present. */
 
-        for (const char *p = f;;) {
-                const char *e;
+        માટે (અચલ અક્ષર *p = f;;) {
+                અચલ અક્ષર *e;
 
                 r = path_find_first_component(&p, true, &e);
-                if (r == 0)
-                        break;
+                જો (r == 0)
+                        તોડો;
 
-                if (r > 0 && absolute && beginning && path_startswith(e, ".."))
+                જો (r > 0 && absolute && beginning && path_startswith(e, ".."))
                         /* If we're at the beginning of an absolute path, we can safely skip ".." */
-                        continue;
+                        ચાલુ;
 
                 beginning = false;
 
-                if (add_slash)
+                જો (add_slash)
                         *f++ = '/';
 
-                if (r < 0) {
+                જો (r < 0) {
                         /* if path is invalid, then refuse to simplify the remaining part. */
                         memmove(f, p, strlen(p) + 1);
-                        return path;
+                        પાછા path;
                 }
 
                 memmove(f, e, r);
@@ -403,35 +403,35 @@ char* path_simplify_full(char *path, PathSimplifyFlags flags) {
         }
 
         /* Special rule, if we stripped everything, we need a "." for the current directory. */
-        if (f == path)
+        જો (f == path)
                 *f++ = '.';
 
-        if (*(f-1) != '/' && keep_trailing_slash)
+        જો (*(f-1) != '/' && keep_trailing_slash)
                 *f++ = '/';
 
         *f = '\0';
-        return path;
+        પાછા path;
 }
 
-int path_simplify_alloc(const char *path, char **ret) {
-        assert(ret);
+પૂર્ણાંક path_simplify_alloc(અચલ અક્ષર *path, અક્ષર **ret) {
+        પ્રતિજ્ઞા(ret);
 
-        if (!path) {
-                *ret = NULL;
-                return 0;
+        જો (!path) {
+                *ret = ખાલી;
+                પાછા 0;
         }
 
-        char *t = strdup(path);
-        if (!t)
-                return -ENOMEM;
+        અક્ષર *t = strdup(path);
+        જો (!t)
+                પાછા -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        પાછા 0;
 }
 
-char* path_startswith_full(const char *original_path, const char *prefix, PathStartWithFlags flags) {
-        assert(original_path);
-        assert(prefix);
+અક્ષર* path_startswith_full(અચલ અક્ષર *original_path, અચલ અક્ષર *prefix, PathStartWithFlags flags) {
+        પ્રતિજ્ઞા(original_path);
+        પ્રતિજ્ઞા(prefix);
 
         /* Returns a pointer to the start of the first component after the parts matched by
          * the prefix, iff
@@ -443,147 +443,147 @@ char* path_startswith_full(const char *original_path, const char *prefix, PathSt
          * Returns NULL otherwise.
          */
 
-        const char *path = original_path;
+        અચલ અક્ષર *path = original_path;
 
-        if ((path[0] == '/') != (prefix[0] == '/'))
-                return NULL;
+        જો ((path[0] == '/') != (prefix[0] == '/'))
+                પાછા ખાલી;
 
-        for (;;) {
-                const char *p, *q;
-                int m, n;
+        માટે (;;) {
+                અચલ અક્ષર *p, *q;
+                પૂર્ણાંક m, n;
 
                 m = path_find_first_component(&path, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &p);
-                if (m < 0)
-                        return NULL;
+                જો (m < 0)
+                        પાછા ખાલી;
 
                 n = path_find_first_component(&prefix, !FLAGS_SET(flags, PATH_STARTSWITH_REFUSE_DOT_DOT), &q);
-                if (n < 0)
-                        return NULL;
+                જો (n < 0)
+                        પાછા ખાલી;
 
-                if (n == 0) {
-                        if (!p)
+                જો (n == 0) {
+                        જો (!p)
                                 p = path;
 
-                        if (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
+                        જો (FLAGS_SET(flags, PATH_STARTSWITH_RETURN_LEADING_SLASH)) {
 
-                                if (p <= original_path)
-                                        return NULL;
+                                જો (p <= original_path)
+                                        પાછા ખાલી;
 
                                 p--;
 
-                                if (*p != '/')
-                                        return NULL;
+                                જો (*p != '/')
+                                        પાછા ખાલી;
                         }
 
-                        return (char*) p;
+                        પાછા (અક્ષર*) p;
                 }
 
-                if (m != n)
-                        return NULL;
+                જો (m != n)
+                        પાછા ખાલી;
 
-                if (!strneq(p, q, m))
-                        return NULL;
+                જો (!strneq(p, q, m))
+                        પાછા ખાલી;
         }
 }
 
-int path_compare(const char *a, const char *b) {
-        int r;
+પૂર્ણાંક path_compare(અચલ અક્ષર *a, અચલ અક્ષર *b) {
+        પૂર્ણાંક r;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        જો (r != 0)
+                પાછા r;
 
         /* A relative path and an absolute path must not compare as equal.
          * Which one is sorted before the other does not really matter.
          * Here a relative path is ordered before an absolute path. */
         r = CMP(path_is_absolute(a), path_is_absolute(b));
-        if (r != 0)
-                return r;
+        જો (r != 0)
+                પાછા r;
 
-        for (;;) {
-                const char *aa, *bb;
-                int j, k;
+        માટે (;;) {
+                અચલ અક્ષર *aa, *bb;
+                પૂર્ણાંક j, k;
 
                 j = path_find_first_component(&a, true, &aa);
                 k = path_find_first_component(&b, true, &bb);
 
-                if (j < 0 || k < 0) {
+                જો (j < 0 || k < 0) {
                         /* When one of paths is invalid, order invalid path after valid one. */
                         r = CMP(j < 0, k < 0);
-                        if (r != 0)
-                                return r;
+                        જો (r != 0)
+                                પાછા r;
 
                         /* fallback to use strcmp() if both paths are invalid. */
-                        return strcmp(a, b);
+                        પાછા strcmp(a, b);
                 }
 
                 /* Order prefixes first: "/foo" before "/foo/bar" */
-                if (j == 0) {
-                        if (k == 0)
-                                return 0;
-                        return -1;
+                જો (j == 0) {
+                        જો (k == 0)
+                                પાછા 0;
+                        પાછા -1;
                 }
-                if (k == 0)
-                        return 1;
+                જો (k == 0)
+                        પાછા 1;
 
                 /* Alphabetical sort: "/foo/aaa" before "/foo/b" */
                 r = memcmp(aa, bb, MIN(j, k));
-                if (r != 0)
-                        return r;
+                જો (r != 0)
+                        પાછા r;
 
                 /* Sort "/foo/a" before "/foo/aaa" */
                 r = CMP(j, k);
-                if (r != 0)
-                        return r;
+                જો (r != 0)
+                        પાછા r;
         }
 }
 
-int path_compare_filename(const char *a, const char *b) {
-        _cleanup_free_ char *fa = NULL, *fb = NULL;
-        int r, j, k;
+પૂર્ણાંક path_compare_filename(અચલ અક્ષર *a, અચલ અક્ષર *b) {
+        _cleanup_free_ અક્ષર *fa = ખાલી, *fb = ખાલી;
+        પૂર્ણાંક r, j, k;
 
         /* Order NULL before non-NULL */
         r = CMP(!!a, !!b);
-        if (r != 0)
-                return r;
+        જો (r != 0)
+                પાછા r;
 
         j = path_extract_filename(a, &fa);
         k = path_extract_filename(b, &fb);
 
         /* When one of paths is "." or root, then order it earlier. */
         r = CMP(j != -EADDRNOTAVAIL, k != -EADDRNOTAVAIL);
-        if (r != 0)
-                return r;
+        જો (r != 0)
+                પાછા r;
 
         /* When one of paths is invalid (or we get OOM), order invalid path after valid one. */
         r = CMP(j < 0, k < 0);
-        if (r != 0)
-                return r;
+        જો (r != 0)
+                પાછા r;
 
         /* fallback to use strcmp() if both paths are invalid. */
-        if (j < 0)
-                return strcmp(a, b);
+        જો (j < 0)
+                પાછા strcmp(a, b);
 
-        return strcmp(fa, fb);
+        પાછા strcmp(fa, fb);
 }
 
-int path_equal_or_inode_same_full(const char *a, const char *b, int flags) {
+પૂર્ણાંક path_equal_or_inode_same_full(અચલ અક્ષર *a, અચલ અક્ષર *b, પૂર્ણાંક flags) {
         /* Returns true if paths are of the same entry, false if not, <0 on error. */
 
-        if (path_equal(a, b))
-                return 1;
+        જો (path_equal(a, b))
+                પાછા 1;
 
-        if (!a || !b)
-                return 0;
+        જો (!a || !b)
+                પાછા 0;
 
-        return inode_same(a, b, flags);
+        પાછા inode_same(a, b, flags);
 }
 
-char* path_extend_internal(char **x, ...) {
+અક્ષર* path_extend_internal(અક્ષર **x, ...) {
         size_t sz, old_sz;
-        char *q, *nx;
-        const char *p;
+        અક્ષર *q, *nx;
+        અચલ અક્ષર *p;
         va_list ap;
         bool slash;
 
@@ -609,31 +609,31 @@ char* path_extend_internal(char **x, ...) {
 
         sz = old_sz = x ? strlen_ptr(*x) : 0;
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
+        જ્યારે ((p = va_arg(ap, અક્ષર*)) != POINTER_MAX) {
                 size_t add;
 
-                if (isempty(p))
-                        continue;
+                જો (isempty(p))
+                        ચાલુ;
 
                 add = 1 + strlen(p);
-                if (sz > SIZE_MAX - add) { /* overflow check */
+                જો (sz > SIZE_MAX - add) { /* overflow check */
                         va_end(ap);
-                        return NULL;
+                        પાછા ખાલી;
                 }
 
                 sz += add;
         }
         va_end(ap);
 
-        nx = realloc(x ? *x : NULL, GREEDY_ALLOC_ROUND_UP(sz+1));
-        if (!nx)
-                return NULL;
-        if (x)
+        nx = realloc(x ? *x : ખાલી, GREEDY_ALLOC_ROUND_UP(sz+1));
+        જો (!nx)
+                પાછા ખાલી;
+        જો (x)
                 *x = nx;
 
-        if (old_sz > 0)
+        જો (old_sz > 0)
                 slash = nx[old_sz-1] == '/';
-        else {
+        નહીંતર {
                 nx[old_sz] = 0;
                 slash = true; /* no need to generate a slash anymore */
         }
@@ -641,11 +641,11 @@ char* path_extend_internal(char **x, ...) {
         q = nx + old_sz;
 
         va_start(ap, x);
-        while ((p = va_arg(ap, char*)) != POINTER_MAX) {
-                if (isempty(p))
-                        continue;
+        જ્યારે ((p = va_arg(ap, અક્ષર*)) != POINTER_MAX) {
+                જો (isempty(p))
+                        ચાલુ;
 
-                if (!slash && p[0] != '/')
+                જો (!slash && p[0] != '/')
                         *(q++) = '/';
 
                 q = stpcpy(q, p);
@@ -653,204 +653,204 @@ char* path_extend_internal(char **x, ...) {
         }
         va_end(ap);
 
-        return nx;
+        પાછા nx;
 }
 
-int open_and_check_executable(const char *name, const char *root, char **ret_path, int *ret_fd) {
-        _cleanup_close_ int fd = -EBADF;
-        _cleanup_free_ char *resolved = NULL;
-        int r;
+પૂર્ણાંક open_and_check_executable(અચલ અક્ષર *name, અચલ અક્ષર *મૂળ, અક્ષર **ret_path, પૂર્ણાંક *ret_fd) {
+        _cleanup_close_ પૂર્ણાંક fd = -EBADF;
+        _cleanup_free_ અક્ષર *resolved = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(name);
+        પ્રતિજ્ઞા(name);
 
         /* Function chase() is invoked only when root is not NULL, as using it regardless of
          * root value would alter the behavior of existing callers for example: /bin/sleep would become
          * /usr/bin/sleep when find_executables is called. Hence, this function should be invoked when
          * needed to avoid unforeseen regression or other complicated changes. */
-        if (root) {
+        જો (મૂળ) {
                 /* prefix root to name in case full paths are not specified */
-                r = chase(name, root, CHASE_PREFIX_ROOT, &resolved, &fd);
-                if (r < 0)
-                        return r;
+                r = chase(name, મૂળ, CHASE_PREFIX_મૂળ, &resolved, &fd);
+                જો (r < 0)
+                        પાછા r;
 
                 name = resolved;
-        } else {
+        } નહીંતર {
                 /* We need to use O_PATH because there may be executables for which we have only exec permissions,
                  * but not read (usually suid executables). */
                 fd = open(name, O_PATH|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
+                જો (fd < 0)
+                        પાછા -errno;
         }
 
         r = fd_verify_regular(fd);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
         r = access_fd(fd, X_OK);
-        if (r == -ENOSYS)
+        જો (r == -ENOSYS)
                 /* /proc/ is not mounted. Fall back to access(). */
                 r = RET_NERRNO(access(name, X_OK));
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        if (ret_path) {
-                if (resolved)
+        જો (ret_path) {
+                જો (resolved)
                         *ret_path = TAKE_PTR(resolved);
-                else {
+                નહીંતર {
                         r = path_make_absolute_cwd(name, ret_path);
-                        if (r < 0)
-                                return r;
+                        જો (r < 0)
+                                પાછા r;
 
                         path_simplify(*ret_path);
                 }
         }
 
-        if (ret_fd)
+        જો (ret_fd)
                 *ret_fd = TAKE_FD(fd);
 
-        return 0;
+        પાછા 0;
 }
 
-int find_executable_full(
-                const char *name,
-                const char *root,
-                char * const *exec_search_path,
+પૂર્ણાંક find_executable_full(
+                અચલ અક્ષર *name,
+                અચલ અક્ષર *મૂળ,
+                અક્ષર * અચલ *exec_શોધ_path,
                 bool use_path_envvar,
-                char **ret_filename,
-                int *ret_fd) {
+                અક્ષર **ret_filename,
+                પૂર્ણાંક *ret_fd) {
 
-        int last_error = -ENOENT, r = 0;
+        પૂર્ણાંક last_error = -ENOENT, r = 0;
 
-        assert(name);
+        પ્રતિજ્ઞા(name);
 
-        if (is_path(name))
-                return open_and_check_executable(name, root, ret_filename, ret_fd);
+        જો (is_path(name))
+                પાછા open_and_check_executable(name, મૂળ, ret_filename, ret_fd);
 
-        if (exec_search_path) {
-                STRV_FOREACH(element, exec_search_path) {
-                        _cleanup_free_ char *full_path = NULL;
+        જો (exec_શોધ_path) {
+                STRV_FOREACH(element, exec_શોધ_path) {
+                        _cleanup_free_ અક્ષર *full_path = ખાલી;
 
-                        if (!path_is_absolute(*element)) {
+                        જો (!path_is_absolute(*element)) {
                                 log_debug("Exec search path '%s' isn't absolute, ignoring.", *element);
-                                continue;
+                                ચાલુ;
                         }
 
                         full_path = path_join(*element, name);
-                        if (!full_path)
-                                return -ENOMEM;
+                        જો (!full_path)
+                                પાછા -ENOMEM;
 
-                        r = open_and_check_executable(full_path, root, ret_filename, ret_fd);
-                        if (r >= 0)
-                                return 0;
-                        if (r != -EACCES)
+                        r = open_and_check_executable(full_path, મૂળ, ret_filename, ret_fd);
+                        જો (r >= 0)
+                                પાછા 0;
+                        જો (r != -EACCES)
                                 last_error = r;
                 }
-                return last_error;
+                પાછા last_error;
         }
 
-        const char *p = NULL;
+        અચલ અક્ષર *p = ખાલી;
 
-        if (use_path_envvar)
+        જો (use_path_envvar)
                 /* Plain getenv, not secure_getenv, because we want to actually allow the user to pick the
                  * binary. */
                 p = getenv("PATH");
-        if (!p)
+        જો (!p)
                 p = default_PATH();
 
         /* Resolve a single-component name to a full path */
-        for (;;) {
-                _cleanup_free_ char *element = NULL;
+        માટે (;;) {
+                _cleanup_free_ અક્ષર *element = ખાલી;
 
                 r = extract_first_word(&p, &element, ":", EXTRACT_RELAX|EXTRACT_DONT_COALESCE_SEPARATORS);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                જો (r < 0)
+                        પાછા r;
+                જો (r == 0)
+                        તોડો;
 
-                if (!path_is_absolute(element)) {
+                જો (!path_is_absolute(element)) {
                         log_debug("Exec search path '%s' isn't absolute, ignoring.", element);
-                        continue;
+                        ચાલુ;
                 }
 
-                if (!path_extend(&element, name))
-                        return -ENOMEM;
+                જો (!path_extend(&element, name))
+                        પાછા -ENOMEM;
 
-                r = open_and_check_executable(element, root, ret_filename, ret_fd);
-                if (r >= 0) /* Found it! */
-                        return 0;
+                r = open_and_check_executable(element, મૂળ, ret_filename, ret_fd);
+                જો (r >= 0) /* Found it! */
+                        પાછા 0;
                 /* PATH entries which we don't have access to are ignored, as per tradition. */
-                if (r != -EACCES)
+                જો (r != -EACCES)
                         last_error = r;
         }
 
-        return last_error;
+        પાછા last_error;
 }
 
-static int executable_is_good(const char *executable) {
-        _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
+સ્થિર પૂર્ણાંક executable_is_good(અચલ અક્ષર *executable) {
+        _cleanup_free_ અક્ષર *p = ખાલી, *d = ખાલી;
+        પૂર્ણાંક r;
 
         r = find_executable(executable, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
+        જો (r == -ENOENT)
+                પાછા 0;
+        જો (r < 0)
+                પાછા r;
 
         /* An fsck that is linked to /bin/true is a non-existent fsck */
 
         r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
+        જો (r == -EINVAL) /* not a symlink */
+                પાછા 1;
+        જો (r < 0)
+                પાછા r;
 
-        return !PATH_IN_SET(d, "true",
+        પાછા !PATH_IN_SET(d, "true",
                                "/bin/true",
                                "/usr/bin/true",
                                "/dev/null");
 }
 
-int fsck_exists(void) {
-        return executable_is_good("fsck");
+પૂર્ણાંક fsck_exists(શૂન્ય) {
+        પાછા executable_is_good("fsck");
 }
 
-int fsck_exists_for_fstype(const char *fstype) {
-        const char *checker;
-        int r;
+પૂર્ણાંક fsck_exists_for_fstype(અચલ અક્ષર *fstype) {
+        અચલ અક્ષર *checker;
+        પૂર્ણાંક r;
 
-        assert(fstype);
+        પ્રતિજ્ઞા(fstype);
 
-        if (streq(fstype, "auto"))
-                return -EINVAL;
+        જો (streq(fstype, "auto"))
+                પાછા -EINVAL;
 
         r = fsck_exists();
-        if (r <= 0)
-                return r;
+        જો (r <= 0)
+                પાછા r;
 
         checker = strjoina("fsck.", fstype);
-        return executable_is_good(checker);
+        પાછા executable_is_good(checker);
 }
 
-static const char* skip_slash_or_dot(const char *p) {
+સ્થિર અચલ અક્ષર* skip_slash_or_dot(અચલ અક્ષર *p) {
         POINTER_MAY_BE_NULL(p);
 
-        for (; !isempty(p); p++) {
-                if (*p == '/')
-                        continue;
-                if (startswith(p, "./")) {
+        માટે (; !isempty(p); p++) {
+                જો (*p == '/')
+                        ચાલુ;
+                જો (startswith(p, "./")) {
                         p++;
-                        continue;
+                        ચાલુ;
                 }
-                break;
+                તોડો;
         }
-        return p;
+        પાછા p;
 }
 
-int path_find_first_component(const char **p, bool accept_dot_dot, const char **ret) {
-        const char *q, *first, *end_first, *next;
+પૂર્ણાંક path_find_first_component(અચલ અક્ષર **p, bool accept_dot_dot, અચલ અક્ષર **ret) {
+        અચલ અક્ષર *q, *first, *end_first, *next;
         size_t len;
 
-        assert(p);
+        પ્રતિજ્ઞા(p);
 
         /* When a path is input, then returns the pointer to the first component and its length, and
          * move the input pointer to the next component or nul. This skips both over any '/'
@@ -888,53 +888,53 @@ int path_find_first_component(const char **p, bool accept_dot_dot, const char **
         q = *p;
 
         first = skip_slash_or_dot(q);
-        if (isempty(first)) {
+        જો (isempty(first)) {
                 *p = first;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                જો (ret)
+                        *ret = ખાલી;
+                પાછા 0;
         }
-        if (streq(first, ".")) {
+        જો (streq(first, ".")) {
                 *p = first + 1;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                જો (ret)
+                        *ret = ખાલી;
+                પાછા 0;
         }
 
         end_first = strchrnul(first, '/');
         len = end_first - first;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
-                return -EINVAL;
+        જો (len > NAME_MAX)
+                પાછા -EINVAL;
+        જો (!accept_dot_dot && len == 2 && first[0] == '.' && first[1] == '.')
+                પાછા -EINVAL;
 
         next = skip_slash_or_dot(end_first);
 
         *p = next + streq(next, ".");
-        if (ret)
+        જો (ret)
                 *ret = first;
-        return len;
+        પાછા len;
 }
 
-static const char* skip_slash_or_dot_backward(const char *path, const char *q) {
-        assert(path);
-        assert(!q || q >= path);
+સ્થિર અચલ અક્ષર* skip_slash_or_dot_backward(અચલ અક્ષર *path, અચલ અક્ષર *q) {
+        પ્રતિજ્ઞા(path);
+        પ્રતિજ્ઞા(!q || q >= path);
 
-        for (; q; q = PTR_SUB1(q, path)) {
-                if (*q == '/')
-                        continue;
-                if (q > path && strneq(q - 1, "/.", 2))
-                        continue;
-                if (q == path && *q == '.')
-                        continue;
-                break;
+        માટે (; q; q = PTR_SUB1(q, path)) {
+                જો (*q == '/')
+                        ચાલુ;
+                જો (q > path && strneq(q - 1, "/.", 2))
+                        ચાલુ;
+                જો (q == path && *q == '.')
+                        ચાલુ;
+                તોડો;
         }
-        return q;
+        પાછા q;
 }
 
-int path_find_last_component(const char *path, bool accept_dot_dot, const char **next, const char **ret) {
-        const char *q, *last_end, *last_begin;
+પૂર્ણાંક path_find_last_component(અચલ અક્ષર *path, bool accept_dot_dot, અચલ અક્ષર **next, અચલ અક્ષર **ret) {
+        અચલ અક્ષર *q, *last_end, *last_begin;
         size_t len;
 
         POINTER_MAY_BE_NULL(next);
@@ -974,61 +974,61 @@ int path_find_last_component(const char *path, bool accept_dot_dot, const char *
         *   Output: return value: -EINVAL
         */
 
-        if (isempty(path)) {
-                if (next)
+        જો (isempty(path)) {
+                જો (next)
                         *next = path;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                જો (ret)
+                        *ret = ખાલી;
+                પાછા 0;
         }
 
-        if (next && *next) {
-                if (*next < path || *next > path + strlen(path))
-                        return -EINVAL;
-                if (*next == path) {
-                        if (ret)
-                                *ret = NULL;
-                        return 0;
+        જો (next && *next) {
+                જો (*next < path || *next > path + strlen(path))
+                        પાછા -EINVAL;
+                જો (*next == path) {
+                        જો (ret)
+                                *ret = ખાલી;
+                        પાછા 0;
                 }
-                if (!IN_SET(**next, '\0', '/'))
-                        return -EINVAL;
+                જો (!IN_SET(**next, '\0', '/'))
+                        પાછા -EINVAL;
                 q = *next - 1;
-        } else
+        } નહીંતર
                 q = path + strlen(path) - 1;
 
         q = skip_slash_or_dot_backward(path, q);
-        if (!q) { /* the root directory, "." or "./" */
-                if (next)
+        જો (!q) { /* the root directory, "." or "./" */
+                જો (next)
                         *next = path;
-                if (ret)
-                        *ret = NULL;
-                return 0;
+                જો (ret)
+                        *ret = ખાલી;
+                પાછા 0;
         }
 
         last_end = q + 1;
 
-        while (q && *q != '/')
+        જ્યારે (q && *q != '/')
                 q = PTR_SUB1(q, path);
 
         last_begin = q ? q + 1 : path;
         len = last_end - last_begin;
 
-        if (len > NAME_MAX)
-                return -EINVAL;
-        if (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
-                return -EINVAL;
+        જો (len > NAME_MAX)
+                પાછા -EINVAL;
+        જો (!accept_dot_dot && len == 2 && strneq(last_begin, "..", 2))
+                પાછા -EINVAL;
 
-        if (next) {
+        જો (next) {
                 q = skip_slash_or_dot_backward(path, q);
                 *next = q ? q + 1 : path;
         }
 
-        if (ret)
+        જો (ret)
                 *ret = last_begin;
-        return len;
+        પાછા len;
 }
 
-const char* last_path_component(const char *path) {
+અચલ અક્ષર* last_path_component(અચલ અક્ષર *path) {
 
         /* Finds the last component of the path, preserving the optional trailing slash that signifies a directory.
          *
@@ -1052,29 +1052,29 @@ const char* last_path_component(const char *path) {
 
         unsigned l, k;
 
-        if (!path)
-                return NULL;
+        જો (!path)
+                પાછા ખાલી;
 
         l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
+        જો (l == 0) /* special case — an empty string */
+                પાછા path;
 
-        while (k > 0 && path[k-1] == '/')
+        જ્યારે (k > 0 && path[k-1] == '/')
                 k--;
 
-        if (k == 0) /* the root directory */
-                return path + l - 1;
+        જો (k == 0) /* the root directory */
+                પાછા path + l - 1;
 
-        while (k > 0 && path[k-1] != '/')
+        જ્યારે (k > 0 && path[k-1] != '/')
                 k--;
 
-        return path + k;
+        પાછા path + k;
 }
 
-int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_filename) {
-        _cleanup_free_ char *d = NULL;
-        const char *c, *next = NULL;
-        int r;
+પૂર્ણાંક path_split_prefix_filename(અચલ અક્ષર *path, અક્ષર **ret_dir, અક્ષર **ret_filename) {
+        _cleanup_free_ અક્ષર *d = ખાલી;
+        અચલ અક્ષર *c, *next = ખાલી;
+        પૂર્ણાંક r;
 
         POINTER_MAY_BE_NULL(path);
 
@@ -1092,161 +1092,161 @@ int path_split_prefix_filename(const char *path, char **ret_dir, char **ret_file
          * This function guarantees to return a fully valid filename, i.e. one that passes
          * filename_is_valid() – this means "." and ".." are not accepted. */
 
-        if (isempty(path))
-                return -EINVAL;
+        જો (isempty(path))
+                પાછા -EINVAL;
 
         r = path_find_last_component(path, /* accept_dot_dot = */ false, &next, &c);
-        if (r < 0)
-                return r;
-        if (r == 0) /* root directory or "." */
-                return -EADDRNOTAVAIL;
+        જો (r < 0)
+                પાછા r;
+        જો (r == 0) /* root directory or "." */
+                પાછા -EADDRNOTAVAIL;
 
-        if (ret_dir) {
-                if (next == path) {
-                        if (*path != '/') { /* filename only */
-                                if (!ret_filename)
-                                        return -EDESTADDRREQ;
-                        } else {
+        જો (ret_dir) {
+                જો (next == path) {
+                        જો (*path != '/') { /* filename only */
+                                જો (!ret_filename)
+                                        પાછા -EDESTADDRREQ;
+                        } નહીંતર {
                                 d = strdup("/");
-                                if (!d)
-                                        return -ENOMEM;
+                                જો (!d)
+                                        પાછા -ENOMEM;
                         }
-                } else {
+                } નહીંતર {
                         d = strndup(path, next - path);
-                        if (!d)
-                                return -ENOMEM;
+                        જો (!d)
+                                પાછા -ENOMEM;
 
                         path_simplify(d);
 
-                        if (!path_is_valid(d))
-                                return -EINVAL;
+                        જો (!path_is_valid(d))
+                                પાછા -EINVAL;
                 }
 
-        } else if (!path_is_valid(path))
+        } નહીંતર જો (!path_is_valid(path))
                 /* We didn't validate the dir prefix, hence check if the whole path is valid now */
-                return -EINVAL;
+                પાછા -EINVAL;
 
-        if (ret_filename) {
-                char *fn = strndup(c, r);
-                if (!fn)
-                        return -ENOMEM;
+        જો (ret_filename) {
+                અક્ષર *fn = strndup(c, r);
+                જો (!fn)
+                        પાછા -ENOMEM;
 
                 *ret_filename = fn;
         }
 
-        if (ret_dir)
+        જો (ret_dir)
                 *ret_dir = TAKE_PTR(d);
 
-        return strlen(c) > (size_t) r ? O_DIRECTORY : 0;
+        પાછા strlen(c) > (size_t) r ? O_DIRECTORY : 0;
 }
 
-bool filename_part_is_valid(const char *p) {
-        const char *e;
+bool filename_part_is_valid(અચલ અક્ષર *p) {
+        અચલ અક્ષર *e;
 
         /* Checks f the specified string is OK to be *part* of a filename. This is different from
          * filename_is_valid() as "." and ".." and "" are OK by this call, but not by filename_is_valid(). */
 
-        if (!p)
-                return false;
+        જો (!p)
+                પાછા false;
 
         e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
+        જો (*e != 0)
+                પાછા false;
 
-        if (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
-                return false;
+        જો (e - p > NAME_MAX) /* NAME_MAX is counted *without* the trailing NUL byte */
+                પાછા false;
 
-        return true;
+        પાછા true;
 }
 
-bool filename_is_valid(const char *p) {
+bool filename_is_valid(અચલ અક્ષર *p) {
 
-        if (isempty(p))
-                return false;
+        જો (isempty(p))
+                પાછા false;
 
-        if (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
-                return false;
+        જો (dot_or_dot_dot(p)) /* Yes, in this context we consider "." and ".." invalid */
+                પાછા false;
 
-        return filename_part_is_valid(p);
+        પાછા filename_part_is_valid(p);
 }
 
-bool path_is_valid_full(const char *p, bool accept_dot_dot) {
-        if (isempty(p))
-                return false;
+bool path_is_valid_full(અચલ અક્ષર *p, bool accept_dot_dot) {
+        જો (isempty(p))
+                પાછા false;
 
-        for (const char *e = p;;) {
-                int r;
+        માટે (અચલ અક્ષર *e = p;;) {
+                પૂર્ણાંક r;
 
-                r = path_find_first_component(&e, accept_dot_dot, NULL);
-                if (r < 0)
-                        return false;
+                r = path_find_first_component(&e, accept_dot_dot, ખાલી);
+                જો (r < 0)
+                        પાછા false;
 
-                if (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
+                જો (e - p >= PATH_MAX) /* Already reached the maximum length for a path? (PATH_MAX is counted
                                         * *with* the trailing NUL byte) */
-                        return false;
-                if (*e == 0)           /* End of string? Yay! */
-                        return true;
+                        પાછા false;
+                જો (*e == 0)           /* End of string? Yay! */
+                        પાછા true;
         }
 }
 
-bool path_is_normalized(const char *p) {
-        if (!path_is_safe(p))
-                return false;
+bool path_is_normalized(અચલ અક્ષર *p) {
+        જો (!path_is_safe(p))
+                પાછા false;
 
-        if (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
+        જો (streq(p, ".") || startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
+                પાછા false;
 
-        if (strstr(p, "//"))
-                return false;
+        જો (strstr(p, "//"))
+                પાછા false;
 
-        return true;
+        પાછા true;
 }
 
-int file_in_same_dir(const char *path, const char *filename, char **ret) {
-        _cleanup_free_ char *b = NULL;
-        int r;
+પૂર્ણાંક file_in_same_dir(અચલ અક્ષર *path, અચલ અક્ષર *filename, અક્ષર **ret) {
+        _cleanup_free_ અક્ષર *b = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(path);
-        assert(filename);
-        assert(ret);
+        પ્રતિજ્ઞા(path);
+        પ્રતિજ્ઞા(filename);
+        પ્રતિજ્ઞા(ret);
 
         /* This removes the last component of path and appends filename, unless the latter is absolute anyway
          * or the former isn't */
 
-        if (path_is_absolute(filename))
+        જો (path_is_absolute(filename))
                 b = strdup(filename);
-        else {
-                _cleanup_free_ char *dn = NULL;
+        નહીંતર {
+                _cleanup_free_ અક્ષર *dn = ખાલી;
 
                 r = path_extract_directory(path, &dn);
-                if (r == -EDESTADDRREQ) /* no path prefix */
+                જો (r == -EDESTADDRREQ) /* no path prefix */
                         b = strdup(filename);
-                else if (r < 0)
-                        return r;
-                else
+                નહીંતર જો (r < 0)
+                        પાછા r;
+                નહીંતર
                         b = path_join(dn, filename);
         }
-        if (!b)
-                return -ENOMEM;
+        જો (!b)
+                પાછા -ENOMEM;
 
         *ret = TAKE_PTR(b);
-        return 0;
+        પાછા 0;
 }
 
-bool hidden_or_backup_file(const char *filename) {
-        assert(filename);
+bool hidden_or_backup_file(અચલ અક્ષર *filename) {
+        પ્રતિજ્ઞા(filename);
 
-        if (filename[0] == '.' ||
+        જો (filename[0] == '.' ||
             STR_IN_SET(filename,
                        "lost+found",
                        "aquota.user",
                        "aquota.group") ||
             endswith(filename, "~"))
-                return true;
+                પાછા true;
 
-        const char *dot = strrchr(filename, '.');
-        if (!dot)
-                return false;
+        અચલ અક્ષર *dot = strrchr(filename, '.');
+        જો (!dot)
+                પાછા false;
 
         /* Please, let's not add more entries to the list below. If external projects think it's a good idea
          * to come up with always new suffixes and that everybody else should just adjust to that, then it
@@ -1262,7 +1262,7 @@ bool hidden_or_backup_file(const char *filename) {
          * ".foopkg.old" or ".foopkg~" instead.
          */
 
-        return STR_IN_SET(dot + 1,
+        પાછા STR_IN_SET(dot + 1,
                           "ignore",
                           "rpmnew",
                           "rpmsave",
@@ -1283,7 +1283,7 @@ bool hidden_or_backup_file(const char *filename) {
                           "new");
 }
 
-bool is_device_path(const char *path) {
+bool is_device_path(અચલ અક્ષર *path) {
 
         /* Returns true for paths that likely refer to a device, either by path in sysfs or to something in
          * /dev. This accepts any path that starts with /dev/ or /sys/ and has something after that prefix.
@@ -1294,206 +1294,206 @@ bool is_device_path(const char *path) {
          * /../dev/sda, /dev, /sys, /usr/path, /usr/../dev/sda → no.
          */
 
-        const char *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
-        return !isempty(p);
+        અચલ અક્ષર *p = PATH_STARTSWITH_SET(ASSERT_PTR(path), "/dev/", "/sys/");
+        પાછા !isempty(p);
 }
 
-bool valid_device_node_path(const char *path) {
+bool valid_device_ગાંઠ_path(અચલ અક્ષર *path) {
 
         /* Some superficial checks whether the specified path is a valid device node path, all without
          * looking at the actual device node. */
 
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
+        જો (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
+                પાછા false;
 
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
+        જો (endswith(path, "/")) /* can't be a device node if it ends in a slash */
+                પાછા false;
 
-        return path_is_normalized(path);
+        પાછા path_is_normalized(path);
 }
 
-bool valid_device_allow_pattern(const char *path) {
-        assert(path);
+bool valid_device_allow_pattern(અચલ અક્ષર *path) {
+        પ્રતિજ્ઞા(path);
 
         /* Like valid_device_node_path(), but also allows full-subsystem expressions like those accepted by
          * DeviceAllow= and DeviceDeny=. */
 
-        if (STARTSWITH_SET(path, "block-", "char-"))
-                return true;
+        જો (STARTSWITH_SET(path, "block-", "char-"))
+                પાછા true;
 
-        return valid_device_node_path(path);
+        પાછા valid_device_ગાંઠ_path(path);
 }
 
-bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
+bool dot_or_dot_dot(અચલ અક્ષર *path) {
+        જો (!path)
+                પાછા false;
+        જો (path[0] != '.')
+                પાછા false;
+        જો (path[1] == 0)
+                પાછા true;
+        જો (path[1] != '.')
+                પાછા false;
 
-        return path[2] == 0;
+        પાછા path[2] == 0;
 }
 
-bool path_implies_directory(const char *path) {
+bool path_implies_directory(અચલ અક્ષર *path) {
 
         /* Sometimes, if we look at a path we already know it must refer to a directory, because it is
          * suffixed with a slash, or its last component is "." or ".." */
 
-        if (!path)
-                return false;
+        જો (!path)
+                પાછા false;
 
-        if (dot_or_dot_dot(path))
-                return true;
+        જો (dot_or_dot_dot(path))
+                પાછા true;
 
-        return ENDSWITH_SET(path, "/", "/.", "/..");
+        પાછા ENDSWITH_SET(path, "/", "/.", "/..");
 }
 
-bool empty_or_root(const char *path) {
+bool empty_or_મૂળ(અચલ અક્ષર *path) {
 
         /* For operations relative to some root directory, returns true if the specified root directory is
          * redundant, i.e. either / or NULL or the empty string or any equivalent. */
 
-        if (isempty(path))
-                return true;
+        જો (isempty(path))
+                પાછા true;
 
-        return path_equal(path, "/");
+        પાછા path_equal(path, "/");
 }
 
-const char* empty_to_root(const char *path) {
-        return isempty(path) ? "/" : path;
+અચલ અક્ષર* empty_to_મૂળ(અચલ અક્ષર *path) {
+        પાછા isempty(path) ? "/" : path;
 }
 
-int empty_or_root_harder_to_null(const char **path) {
-        int r;
+પૂર્ણાંક empty_or_મૂળ_harder_to_null(અચલ અક્ષર **path) {
+        પૂર્ણાંક r;
 
-        assert(path);
+        પ્રતિજ્ઞા(path);
 
         /* This nullifies the input path when the path is empty or points to "/". */
 
-        if (empty_or_root(*path)) {
-                *path = NULL;
-                return 0;
+        જો (empty_or_મૂળ(*path)) {
+                *path = ખાલી;
+                પાછા 0;
         }
 
-        r = path_is_root(*path);
-        if (r < 0)
-                return r;
-        if (r > 0)
-                *path = NULL;
+        r = path_is_મૂળ(*path);
+        જો (r < 0)
+                પાછા r;
+        જો (r > 0)
+                *path = ખાલી;
 
-        return 0;
+        પાછા 0;
 }
 
-bool path_strv_contains(char * const *l, const char *path) {
-        assert(path);
+bool path_strv_contains(અક્ષર * અચલ *l, અચલ અક્ષર *path) {
+        પ્રતિજ્ઞા(path);
 
         STRV_FOREACH(i, l)
-                if (path_equal(*i, path))
-                        return true;
+                જો (path_equal(*i, path))
+                        પાછા true;
 
-        return false;
+        પાછા false;
 }
 
-bool prefixed_path_strv_contains(char * const *l, const char *path) {
-        assert(path);
+bool prefixed_path_strv_contains(અક્ષર * અચલ *l, અચલ અક્ષર *path) {
+        પ્રતિજ્ઞા(path);
 
         STRV_FOREACH(i, l) {
-                const char *j = *i;
+                અચલ અક્ષર *j = *i;
 
-                if (*j == '-')
+                જો (*j == '-')
                         j++;
-                if (*j == '+')
+                જો (*j == '+')
                         j++;
 
-                if (path_equal(j, path))
-                        return true;
+                જો (path_equal(j, path))
+                        પાછા true;
         }
 
-        return false;
+        પાછા false;
 }
 
-int path_glob_can_match(const char *pattern, const char *prefix, char **ret) {
-        assert(pattern);
-        assert(prefix);
+પૂર્ણાંક path_glob_can_match(અચલ અક્ષર *pattern, અચલ અક્ષર *prefix, અક્ષર **ret) {
+        પ્રતિજ્ઞા(pattern);
+        પ્રતિજ્ઞા(prefix);
 
-        for (const char *a = pattern, *b = prefix;;) {
-                _cleanup_free_ char *g = NULL, *h = NULL;
-                const char *p, *q;
-                int r, s;
+        માટે (અચલ અક્ષર *a = pattern, *b = prefix;;) {
+                _cleanup_free_ અક્ષર *g = ખાલી, *h = ખાલી;
+                અચલ અક્ષર *p, *q;
+                પૂર્ણાંક r, s;
 
                 r = path_find_first_component(&a, /* accept_dot_dot= */ false, &p);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
 
                 s = path_find_first_component(&b, /* accept_dot_dot= */ false, &q);
-                if (s < 0)
-                        return s;
+                જો (s < 0)
+                        પાછા s;
 
-                if (s == 0) {
+                જો (s == 0) {
                         /* The pattern matches the prefix. */
-                        if (ret) {
-                                char *t;
+                        જો (ret) {
+                                અક્ષર *t;
 
                                 t = path_join(prefix, p);
-                                if (!t)
-                                        return -ENOMEM;
+                                જો (!t)
+                                        પાછા -ENOMEM;
 
                                 *ret = t;
                         }
-                        return true;
+                        પાછા true;
                 }
 
-                if (r == 0)
-                        break;
+                જો (r == 0)
+                        તોડો;
 
-                if (r == s && strneq(p, q, r))
-                        continue; /* common component. Check next. */
+                જો (r == s && strneq(p, q, r))
+                        ચાલુ; /* common component. Check next. */
 
                 g = strndup(p, r);
-                if (!g)
-                        return -ENOMEM;
+                જો (!g)
+                        પાછા -ENOMEM;
 
-                if (!string_is_glob(g))
-                        break;
+                જો (!string_is_glob(g))
+                        તોડો;
 
                 /* We found a glob component. Check if the glob pattern matches the prefix component. */
 
                 h = strndup(q, s);
-                if (!h)
-                        return -ENOMEM;
+                જો (!h)
+                        પાછા -ENOMEM;
 
                 r = fnmatch(g, h, 0);
-                if (r == FNM_NOMATCH)
-                        break;
-                if (r != 0) /* Failure to process pattern? */
-                        return -EINVAL;
+                જો (r == FNM_NOMATCH)
+                        તોડો;
+                જો (r != 0) /* Failure to process pattern? */
+                        પાછા -EINVAL;
         }
 
         /* The pattern does not match the prefix. */
-        if (ret)
-                *ret = NULL;
-        return false;
+        જો (ret)
+                *ret = ખાલી;
+        પાછા false;
 }
 
-#if HAVE_SPLIT_BIN
-static bool dir_is_split(const char *a, const char *b) {
-        int r;
+#જો HAVE_SPLIT_BIN
+સ્થિર bool dir_is_split(અચલ અક્ષર *a, અચલ અક્ષર *b) {
+        પૂર્ણાંક r;
 
         r = inode_same(a, b, AT_NO_AUTOMOUNT);
-        if (r < 0 && r != -ENOENT) {
+        જો (r < 0 && r != -ENOENT) {
                 log_debug_errno(r, "Failed to compare \"%s\" and \"%s\", assuming split directories: %m", a, b);
-                return true;
+                પાછા true;
         }
-        return r == 0;
+        પાછા r == 0;
 }
 #endif
 
-const char* default_PATH(void) {
-#if HAVE_SPLIT_BIN
-        static const char *default_path = NULL;
+અચલ અક્ષર* default_PATH(શૂન્ય) {
+#જો HAVE_SPLIT_BIN
+        સ્થિર અચલ અક્ષર *default_path = ખાલી;
 
         /* Return one of the three sets of paths:
          * a) split /usr/s?bin, /usr/local/sbin doesn't matter.
@@ -1503,15 +1503,15 @@ const char* default_PATH(void) {
          * On error the fallback to the safe value with both directories as configured is returned.
          */
 
-        if (default_path)
-                return default_path;
+        જો (default_path)
+                પાછા default_path;
 
-        if (dir_is_split("/usr/sbin", "/usr/bin"))
-                return (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
-        if (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
-                return (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
-        return (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
-#else
-        return DEFAULT_PATH_WITHOUT_SBIN;
+        જો (dir_is_split("/usr/sbin", "/usr/bin"))
+                પાછા (default_path = DEFAULT_PATH_WITH_FULL_SBIN);  /* a */
+        જો (dir_is_split("/usr/local/sbin", "/usr/local/bin"))
+                પાછા (default_path = DEFAULT_PATH_WITH_LOCAL_SBIN); /* b */
+        પાછા (default_path = DEFAULT_PATH_WITHOUT_SBIN);            /* c */
+#નહીંતર
+        પાછા DEFAULT_PATH_WITHOUT_SBIN;
 #endif
 }

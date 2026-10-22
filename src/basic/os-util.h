@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-typedef enum ImageClass {
+પ્રકારવ્યાખ્યા ગણના ImageClass {
         IMAGE_MACHINE,
         IMAGE_PORTABLE,
         IMAGE_SYSEXT,
@@ -20,41 +20,41 @@ DECLARE_STRING_TABLE_LOOKUP(image_class, ImageClass);
  * for sysext images and for /etc/extension-release.d/extension-release.NAME for confext images
  * in accordance with the OS extension specification, rather than for /usr/lib/ or /etc/os-release. */
 
-bool image_name_is_valid(const char *s) _pure_;
-int path_extract_image_name(const char *path, char **ret);
+bool image_name_is_valid(અચલ અક્ષર *s) _pure_;
+પૂર્ણાંક path_extract_image_name(અચલ અક્ષર *path, અક્ષર **ret);
 
-int path_is_extension_tree(ImageClass image_class, const char *path, const char *extension, bool relax_extension_release_check);
-static inline int path_is_os_tree(const char *path) {
-        return path_is_extension_tree(_IMAGE_CLASS_INVALID, path, NULL, false);
+પૂર્ણાંક path_is_extension_વૃક્ષ(ImageClass image_class, અચલ અક્ષર *path, અચલ અક્ષર *extension, bool relax_extension_release_check);
+સ્થિર અંતઃરેખ પૂર્ણાંક path_is_os_વૃક્ષ(અચલ અક્ષર *path) {
+        પાછા path_is_extension_વૃક્ષ(_IMAGE_CLASS_INVALID, path, ખાલી, false);
 }
-int fd_is_os_tree(int fd);
+પૂર્ણાંક fd_is_os_વૃક્ષ(પૂર્ણાંક fd);
 
-int open_extension_release(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_extension_release_at(int rfd, ImageClass image_class, const char *extension, bool relax_extension_release_check, char **ret_path, int *ret_fd);
-int open_os_release(const char *root, char **ret_path, int *ret_fd);
-int open_os_release_at(int rfd, char **ret_path, int *ret_fd);
+પૂર્ણાંક open_extension_release(અચલ અક્ષર *મૂળ, ImageClass image_class, અચલ અક્ષર *extension, bool relax_extension_release_check, અક્ષર **ret_path, પૂર્ણાંક *ret_fd);
+પૂર્ણાંક open_extension_release_at(પૂર્ણાંક rfd, ImageClass image_class, અચલ અક્ષર *extension, bool relax_extension_release_check, અક્ષર **ret_path, પૂર્ણાંક *ret_fd);
+પૂર્ણાંક open_os_release(અચલ અક્ષર *મૂળ, અક્ષર **ret_path, પૂર્ણાંક *ret_fd);
+પૂર્ણાંક open_os_release_at(પૂર્ણાંક rfd, અક્ષર **ret_path, પૂર્ણાંક *ret_fd);
 
-int parse_extension_release_sentinel(const char *root, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
-#define parse_extension_release(root, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_sentinel(root, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
-#define parse_os_release(root, ...)                                     \
-        parse_extension_release_sentinel(root, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+પૂર્ણાંક parse_extension_release_sentinel(અચલ અક્ષર *મૂળ, ImageClass image_class, bool relax_extension_release_check, અચલ અક્ષર *extension, ...) _sentinel_;
+#define parse_extension_release(મૂળ, image_class, extension, relax_extension_release_check, ...) \
+        parse_extension_release_sentinel(મૂળ, image_class, relax_extension_release_check, extension, __VA_ARGS__, ખાલી)
+#define parse_os_release(મૂળ, ...)                                     \
+        parse_extension_release_sentinel(મૂળ, _IMAGE_CLASS_INVALID, false, ખાલી, __VA_ARGS__, ખાલી)
 
-int parse_extension_release_at_sentinel(int rfd, ImageClass image_class, bool relax_extension_release_check, const char *extension, ...) _sentinel_;
+પૂર્ણાંક parse_extension_release_at_sentinel(પૂર્ણાંક rfd, ImageClass image_class, bool relax_extension_release_check, અચલ અક્ષર *extension, ...) _sentinel_;
 #define parse_extension_release_at(rfd, image_class, extension, relax_extension_release_check, ...) \
-        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, NULL)
+        parse_extension_release_at_sentinel(rfd, image_class, relax_extension_release_check, extension, __VA_ARGS__, ખાલી)
 #define parse_os_release_at(rfd, ...)                                     \
-        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, NULL, __VA_ARGS__, NULL)
+        parse_extension_release_at_sentinel(rfd, _IMAGE_CLASS_INVALID, false, ખાલી, __VA_ARGS__, ખાલી)
 
-int load_extension_release_pairs(const char *root, ImageClass image_class, const char *extension, bool relax_extension_release_check, char ***ret);
-static inline int load_os_release_pairs(const char *root, char ***ret) {
-        return load_extension_release_pairs(root, _IMAGE_CLASS_INVALID, NULL, false, ret);
+પૂર્ણાંક load_extension_release_pairs(અચલ અક્ષર *મૂળ, ImageClass image_class, અચલ અક્ષર *extension, bool relax_extension_release_check, અક્ષર ***ret);
+સ્થિર અંતઃરેખ પૂર્ણાંક load_os_release_pairs(અચલ અક્ષર *મૂળ, અક્ષર ***ret) {
+        પાછા load_extension_release_pairs(મૂળ, _IMAGE_CLASS_INVALID, ખાલી, false, ret);
 }
-int load_os_release_pairs_with_prefix(const char *root, const char *prefix, char ***ret);
+પૂર્ણાંક load_os_release_pairs_with_prefix(અચલ અક્ષર *મૂળ, અચલ અક્ષર *prefix, અક્ષર ***ret);
 
-int os_release_support_ended(const char *support_end, bool quiet, usec_t *ret_eol);
+પૂર્ણાંક os_release_support_ended(અચલ અક્ષર *support_end, bool quiet, usec_t *ret_eol);
 
-const char* os_release_pretty_name(const char *pretty_name, const char *name);
+અચલ અક્ષર* os_release_pretty_name(અચલ અક્ષર *pretty_name, અચલ અક્ષર *name);
 
-bool use_fancy_name(const char *fancy_name);
-char *unescape_fancy_name(char **fancy_name);
+bool use_fancy_name(અચલ અક્ષર *fancy_name);
+અક્ષર *unescape_fancy_name(અક્ષર **fancy_name);

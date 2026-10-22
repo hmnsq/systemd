@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
-int capsule_name_is_valid(const char *name);
+પૂર્ણાંક capsule_name_is_valid(અચલ અક્ષર *name);

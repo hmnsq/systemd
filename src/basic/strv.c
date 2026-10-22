@@ -1,217 +1,217 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <fnmatch.h>
-#include <stdio.h>
+#અન્તર્ભાવ <fnmatch.h>
+#અન્તર્ભાવ <stdio.h>
 
-#include "alloc-util.h"
-#include "env-util.h"
-#include "escape.h"
-#include "extract-word.h"
-#include "fileio.h"
-#include "gunicode.h"
-#include "hashmap.h"
-#include "log.h"
-#include "memory-util.h"
-#include "sort-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "utf8.h"
+#અન્તર્ભાવ "alloc-util.h"
+#અન્તર્ભાવ "env-util.h"
+#અન્તર્ભાવ "escape.h"
+#અન્તર્ભાવ "extract-word.h"
+#અન્તર્ભાવ "fileio.h"
+#અન્તર્ભાવ "gunicode.h"
+#અન્તર્ભાવ "hashmap.h"
+#અન્તર્ભાવ "log.h"
+#અન્તર્ભાવ "memory-util.h"
+#અન્તર્ભાવ "sort-util.h"
+#અન્તર્ભાવ "string-util.h"
+#અન્તર્ભાવ "strv.h"
+#અન્તર્ભાવ "utf8.h"
 
-char* strv_find(char * const *l, const char *name) {
-        assert(name);
-
-        STRV_FOREACH(i, l)
-                if (streq(*i, name))
-                        return *i;
-
-        return NULL;
-}
-
-char* strv_find_case(char * const *l, const char *name) {
-        assert(name);
+અક્ષર* strv_find(અક્ષર * અચલ *l, અચલ અક્ષર *name) {
+        પ્રતિજ્ઞા(name);
 
         STRV_FOREACH(i, l)
-                if (strcaseeq(*i, name))
-                        return *i;
+                જો (streq(*i, name))
+                        પાછા *i;
 
-        return NULL;
+        પાછા ખાલી;
 }
 
-char* strv_find_prefix(char * const *l, const char *name) {
-        assert(name);
+અક્ષર* strv_find_case(અક્ષર * અચલ *l, અચલ અક્ષર *name) {
+        પ્રતિજ્ઞા(name);
 
         STRV_FOREACH(i, l)
-                if (startswith(*i, name))
-                        return *i;
+                જો (strcaseeq(*i, name))
+                        પાછા *i;
 
-        return NULL;
+        પાછા ખાલી;
 }
 
-char* strv_find_startswith(char * const *l, const char *name) {
-        assert(name);
+અક્ષર* strv_find_prefix(અક્ષર * અચલ *l, અચલ અક્ષર *name) {
+        પ્રતિજ્ઞા(name);
+
+        STRV_FOREACH(i, l)
+                જો (startswith(*i, name))
+                        પાછા *i;
+
+        પાછા ખાલી;
+}
+
+અક્ષર* strv_find_startswith(અક્ષર * અચલ *l, અચલ અક્ષર *name) {
+        પ્રતિજ્ઞા(name);
 
         /* Like strv_find_prefix, but actually returns only the
          * suffix, not the whole item */
 
         STRV_FOREACH(i, l) {
-                char *e;
+                અક્ષર *e;
 
                 e = startswith(*i, name);
-                if (e)
-                        return e;
+                જો (e)
+                        પાછા e;
         }
 
-        return NULL;
+        પાછા ખાલી;
 }
 
-static char* strv_find_closest_prefix(char * const *l, const char *name) {
+સ્થિર અક્ષર* strv_find_closest_prefix(અક્ષર * અચલ *l, અચલ અક્ષર *name) {
         size_t best_distance = SIZE_MAX;
-        char *best = NULL;
+        અક્ષર *best = ખાલી;
 
-        assert(name);
+        પ્રતિજ્ઞા(name);
 
         STRV_FOREACH(s, l) {
-                char *e = startswith(*s, name);
-                if (!e)
-                        continue;
+                અક્ષર *e = startswith(*s, name);
+                જો (!e)
+                        ચાલુ;
 
                 size_t n = strlen(e);
-                if (n < best_distance) {
+                જો (n < best_distance) {
                         best_distance = n;
                         best = *s;
                 }
         }
 
-        return best;
+        પાછા best;
 }
 
-static char* strv_find_closest_by_levenshtein(char * const *l, const char *name) {
+સ્થિર અક્ષર* strv_find_closest_by_levenshtein(અક્ષર * અચલ *l, અચલ અક્ષર *name) {
         ssize_t best_distance = SSIZE_MAX;
-        char *best = NULL;
+        અક્ષર *best = ખાલી;
 
-        assert(name);
+        પ્રતિજ્ઞા(name);
 
         STRV_FOREACH(i, l) {
                 ssize_t distance;
 
                 distance = strlevenshtein(*i, name);
-                if (distance < 0) {
+                જો (distance < 0) {
                         log_debug_errno(distance, "Failed to determine Levenshtein distance between %s and %s: %m", *i, name);
-                        return NULL;
+                        પાછા ખાલી;
                 }
 
-                if (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
-                        continue;
+                જો (distance > 5) /* If the distance is just too far off, don't make a bad suggestion */
+                        ચાલુ;
 
-                if (distance < best_distance) {
+                જો (distance < best_distance) {
                         best_distance = distance;
                         best = *i;
                 }
         }
 
-        return best;
+        પાછા best;
 }
 
-char* strv_find_closest(char * const *l, const char *name) {
-        assert(name);
+અક્ષર* strv_find_closest(અક્ષર * અચલ *l, અચલ અક્ષર *name) {
+        પ્રતિજ્ઞા(name);
 
         /* Be more helpful to the user, and give a hint what the user might have wanted to type. We search
          * with two mechanisms: a simple prefix match and – if that didn't yield results –, a Levenshtein
          * word distance based match. */
 
-        char *found = strv_find_closest_prefix(l, name);
-        if (found)
-                return found;
+        અક્ષર *found = strv_find_closest_prefix(l, name);
+        જો (found)
+                પાછા found;
 
-        return strv_find_closest_by_levenshtein(l, name);
+        પાછા strv_find_closest_by_levenshtein(l, name);
 }
 
-char* strv_find_first_field(char * const *needles, char * const *haystack) {
+અક્ષર* strv_find_first_field(અક્ષર * અચલ *needles, અક્ષર * અચલ *haystack) {
         STRV_FOREACH(k, needles) {
-                char *value = strv_env_pairs_get((char **)haystack, *k);
-                if (value)
-                        return value;
+                અક્ષર *કિંમત = strv_env_pairs_get((અક્ષર **)haystack, *k);
+                જો (કિંમત)
+                        પાછા કિંમત;
         }
 
-        return NULL;
+        પાછા ખાલી;
 }
 
-char** strv_free(char **l) {
+અક્ષર** strv_free(અક્ષર **l) {
         STRV_FOREACH(k, l)
-                free(*k);
+                મુક્ત(*k);
 
-        return mfree(l);
+        પાછા mfree(l);
 }
 
-char** strv_free_erase(char **l) {
+અક્ષર** strv_free_erase(અક્ષર **l) {
         STRV_FOREACH(i, l)
                 erase_and_freep(i);
 
-        return mfree(l);
+        પાછા mfree(l);
 }
 
-void strv_free_many(char ***strvs, size_t n) {
-        assert(strvs || n == 0);
+શૂન્ય strv_free_many(અક્ષર ***strvs, size_t n) {
+        પ્રતિજ્ઞા(strvs || n == 0);
 
         FOREACH_ARRAY (i, strvs, n)
                 strv_free(*i);
 
-        free(strvs);
+        મુક્ત(strvs);
 }
 
-char** strv_copy_n(char * const *l, size_t n) {
-        _cleanup_strv_free_ char **result = NULL;
-        char **k;
+અક્ષર** strv_copy_n(અક્ષર * અચલ *l, size_t n) {
+        _cleanup_strv_free_ અક્ષર **result = ખાલી;
+        અક્ષર **k;
 
-        result = new(char*, MIN(strv_length(l), n) + 1);
-        if (!result)
-                return NULL;
+        result = new(અક્ષર*, MIN(strv_length(l), n) + 1);
+        જો (!result)
+                પાછા ખાલી;
 
         k = result;
         STRV_FOREACH(i, l) {
-                if (n == 0)
-                        break;
+                જો (n == 0)
+                        તોડો;
 
                 *k = strdup(*i);
-                if (!*k)
-                        return NULL;
+                જો (!*k)
+                        પાછા ખાલી;
                 k++;
 
-                if (n != SIZE_MAX)
+                જો (n != SIZE_MAX)
                         n--;
         }
 
-        *k = NULL;
-        return TAKE_PTR(result);
+        *k = ખાલી;
+        પાછા TAKE_PTR(result);
 }
 
-int strv_copy_unless_empty(char * const *l, char ***ret) {
-        assert(ret);
+પૂર્ણાંક strv_copy_unless_empty(અક્ષર * અચલ *l, અક્ષર ***ret) {
+        પ્રતિજ્ઞા(ret);
 
-        if (strv_isempty(l)) {
-                *ret = NULL;
-                return 0;
+        જો (strv_isempty(l)) {
+                *ret = ખાલી;
+                પાછા 0;
         }
 
-        char **copy = strv_copy(l);
-        if (!copy)
-                return -ENOMEM;
+        અક્ષર **copy = strv_copy(l);
+        જો (!copy)
+                પાછા -ENOMEM;
 
         *ret = TAKE_PTR(copy);
-        return 1;
+        પાછા 1;
 }
 
-size_t strv_length(char * const *l) {
+size_t strv_length(અક્ષર * અચલ *l) {
         size_t n = 0;
 
         STRV_FOREACH(i, l)
                 n++;
 
-        return n;
+        પાછા n;
 }
 
-char** strv_new_ap(const char *x, va_list ap) {
-        _cleanup_strv_free_ char **a = NULL;
+અક્ષર** strv_new_ap(અચલ અક્ષર *x, va_list ap) {
+        _cleanup_strv_free_ અક્ષર **a = ખાલી;
         size_t n = 0, i = 0;
         va_list aq;
 
@@ -221,320 +221,320 @@ char** strv_new_ap(const char *x, va_list ap) {
          * the string list. */
 
         va_copy(aq, ap);
-        for (const char *s = x; s; s = va_arg(aq, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        માટે (અચલ અક્ષર *s = x; s; s = va_arg(aq, અચલ અક્ષર*)) {
+                જો (s == STRV_IGNORE)
+                        ચાલુ;
 
                 n++;
         }
         va_end(aq);
 
-        a = new(char*, n+1);
-        if (!a)
-                return NULL;
+        a = new(અક્ષર*, n+1);
+        જો (!a)
+                પાછા ખાલી;
 
-        for (const char *s = x; s; s = va_arg(ap, const char*)) {
-                if (s == STRV_IGNORE)
-                        continue;
+        માટે (અચલ અક્ષર *s = x; s; s = va_arg(ap, અચલ અક્ષર*)) {
+                જો (s == STRV_IGNORE)
+                        ચાલુ;
 
                 a[i] = strdup(s);
-                if (!a[i])
-                        return NULL;
+                જો (!a[i])
+                        પાછા ખાલી;
 
                 i++;
         }
 
-        a[i] = NULL;
+        a[i] = ખાલી;
 
-        return TAKE_PTR(a);
+        પાછા TAKE_PTR(a);
 }
 
-char** strv_new_internal(const char *x, ...) {
-        char **r;
+અક્ષર** strv_new_internal(અચલ અક્ષર *x, ...) {
+        અક્ષર **r;
         va_list ap;
 
         va_start(ap, x);
         r = strv_new_ap(x, ap);
         va_end(ap);
 
-        return r;
+        પાછા r;
 }
 
-int strv_extend_strv(char ***a, char * const *b, bool filter_duplicates) {
+પૂર્ણાંક strv_extend_strv(અક્ષર ***a, અક્ષર * અચલ *b, bool filter_duplicates) {
         size_t p, q, i = 0;
 
-        assert(a);
+        પ્રતિજ્ઞા(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        જો (q == 0)
+                પાછા 0;
 
         p = strv_length(*a);
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        જો (p >= SIZE_MAX - q)
+                પાછા -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        અક્ષર **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), કદ(અક્ષર *));
+        જો (!t)
+                પાછા -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ખાલી;
         *a = t;
 
         STRV_FOREACH(s, b) {
-                if (filter_duplicates && strv_contains(t, *s))
-                        continue;
+                જો (filter_duplicates && strv_contains(t, *s))
+                        ચાલુ;
 
                 t[p+i] = strdup(*s);
-                if (!t[p+i])
-                        goto rollback;
+                જો (!t[p+i])
+                        જાઓ rollback;
 
                 i++;
-                t[p+i] = NULL;
+                t[p+i] = ખાલી;
         }
 
-        assert(i <= q);
+        પ્રતિજ્ઞા(i <= q);
 
-        return (int) i;
+        પાછા (પૂર્ણાંક) i;
 
 rollback:
         free_many_charp(t + p, i);
-        t[p] = NULL;
-        return -ENOMEM;
+        t[p] = ખાલી;
+        પાછા -ENOMEM;
 }
 
-int strv_extend_strv_consume(char ***a, char **b, bool filter_duplicates) {
-        _cleanup_strv_free_ char **b_consume = b;
+પૂર્ણાંક strv_extend_strv_consume(અક્ષર ***a, અક્ષર **b, bool filter_duplicates) {
+        _cleanup_strv_free_ અક્ષર **b_consume = b;
         size_t p, q, i;
 
-        assert(a);
+        પ્રતિજ્ઞા(a);
 
         q = strv_length(b);
-        if (q == 0)
-                return 0;
+        જો (q == 0)
+                પાછા 0;
 
         p = strv_length(*a);
-        if (p == 0) {
+        જો (p == 0) {
                 strv_free_and_replace(*a, b_consume);
 
-                if (filter_duplicates)
+                જો (filter_duplicates)
                         strv_uniq(*a);
 
-                return strv_length(*a);
+                પાછા strv_length(*a);
         }
 
-        if (p >= SIZE_MAX - q)
-                return -ENOMEM;
+        જો (p >= SIZE_MAX - q)
+                પાછા -ENOMEM;
 
-        char **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), sizeof(char *));
-        if (!t)
-                return -ENOMEM;
+        અક્ષર **t = reallocarray(*a, GREEDY_ALLOC_ROUND_UP(p + q + 1), કદ(અક્ષર *));
+        જો (!t)
+                પાછા -ENOMEM;
 
-        t[p] = NULL;
+        t[p] = ખાલી;
         *a = t;
 
-        if (!filter_duplicates) {
-                *mempcpy_typesafe(t + p, b, q) = NULL;
+        જો (!filter_duplicates) {
+                *mempcpy_typesafe(t + p, b, q) = ખાલી;
                 i = q;
-        } else {
+        } નહીંતર {
                 i = 0;
 
                 STRV_FOREACH(s, b) {
-                        if (strv_contains(t, *s)) {
-                                free(*s);
-                                continue;
+                        જો (strv_contains(t, *s)) {
+                                મુક્ત(*s);
+                                ચાલુ;
                         }
 
                         t[p+i] = *s;
 
                         i++;
-                        t[p+i] = NULL;
+                        t[p+i] = ખાલી;
                 }
         }
 
-        assert(i <= q);
+        પ્રતિજ્ઞા(i <= q);
 
         b_consume = mfree(b_consume);
 
-        return (int) i;
+        પાછા (પૂર્ણાંક) i;
 }
 
-int strv_extend_strv_biconcat(char ***a, const char *prefix, const char* const *b, const char *suffix) {
-        int r;
+પૂર્ણાંક strv_extend_strv_biconcat(અક્ષર ***a, અચલ અક્ષર *prefix, અચલ અક્ષર* અચલ *b, અચલ અક્ષર *suffix) {
+        પૂર્ણાંક r;
 
-        assert(a);
+        પ્રતિજ્ઞા(a);
 
         STRV_FOREACH(s, b) {
-                char *v;
+                અક્ષર *v;
 
                 v = strjoin(strempty(prefix), *s, suffix);
-                if (!v)
-                        return -ENOMEM;
+                જો (!v)
+                        પાછા -ENOMEM;
 
                 r = strv_consume(a, v);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
         }
 
-        return 0;
+        પાછા 0;
 }
 
-int strv_split_newlines_full(char ***ret, const char *s, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+પૂર્ણાંક strv_split_newlines_full(અક્ષર ***ret, અચલ અક્ષર *s, ExtractFlags flags) {
+        _cleanup_strv_free_ અક્ષર **l = ખાલી;
         size_t n;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(ret);
-        assert(s);
+        પ્રતિજ્ઞા(ret);
+        પ્રતિજ્ઞા(s);
 
         /* Special version of strv_split_full() that splits on newlines and
          * suppresses an empty string at the end. */
 
         r = strv_split_full(&l, s, NEWLINE, flags);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
         n = strv_length(l);
-        if (n > 0 && isempty(l[n - 1])) {
+        જો (n > 0 && isempty(l[n - 1])) {
                 l[n - 1] = mfree(l[n - 1]);
                 n--;
         }
 
         *ret = TAKE_PTR(l);
-        return n;
+        પાછા n;
 }
 
-char** strv_split_newlines(const char *s) {
-        char **ret;
+અક્ષર** strv_split_newlines(અચલ અક્ષર *s) {
+        અક્ષર **ret;
 
-        if (strv_split_newlines_full(&ret, s, 0) < 0)
-                return NULL;
+        જો (strv_split_newlines_full(&ret, s, 0) < 0)
+                પાછા ખાલી;
 
-        return ret;
+        પાછા ret;
 }
 
-int strv_split_full(char ***t, const char *s, const char *separators, ExtractFlags flags) {
-        _cleanup_strv_free_ char **l = NULL;
+પૂર્ણાંક strv_split_full(અક્ષર ***t, અચલ અક્ષર *s, અચલ અક્ષર *separators, ExtractFlags flags) {
+        _cleanup_strv_free_ અક્ષર **l = ખાલી;
         size_t n = 0;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(t);
-        assert(s);
+        પ્રતિજ્ઞા(t);
+        પ્રતિજ્ઞા(s);
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
+        માટે (;;) {
+                _cleanup_free_ અક્ષર *word = ખાલી;
 
                 r = extract_first_word(&s, &word, separators, flags);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                જો (r < 0)
+                        પાછા r;
+                જો (r == 0)
+                        તોડો;
 
-                if (!GREEDY_REALLOC(l, n + 2))
-                        return -ENOMEM;
+                જો (!GREEDY_REALLOC(l, n + 2))
+                        પાછા -ENOMEM;
 
                 l[n++] = TAKE_PTR(word);
-                l[n] = NULL;
+                l[n] = ખાલી;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        જો (!l) {
+                l = new0(અક્ષર*, 1);
+                જો (!l)
+                        પાછા -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        પાછા (પૂર્ણાંક) n;
 }
 
-char** strv_split(const char *s, const char *separators) {
-        char **ret;
+અક્ષર** strv_split(અચલ અક્ષર *s, અચલ અક્ષર *separators) {
+        અક્ષર **ret;
 
-        if (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
-                return NULL;
+        જો (strv_split_full(&ret, s, separators, EXTRACT_RETAIN_ESCAPE) < 0)
+                પાછા ખાલી;
 
-        return ret;
+        પાછા ret;
 }
 
-int strv_split_and_extend_full(char ***t, const char *s, const char *separators, bool filter_duplicates, ExtractFlags flags) {
-        char **l;
-        int r;
+પૂર્ણાંક strv_split_and_extend_full(અક્ષર ***t, અચલ અક્ષર *s, અચલ અક્ષર *separators, bool filter_duplicates, ExtractFlags flags) {
+        અક્ષર **l;
+        પૂર્ણાંક r;
 
-        assert(t);
-        assert(s);
+        પ્રતિજ્ઞા(t);
+        પ્રતિજ્ઞા(s);
 
         r = strv_split_full(&l, s, separators, flags);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
         r = strv_extend_strv_consume(t, l, filter_duplicates);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        return (int) strv_length(*t);
+        પાછા (પૂર્ણાંક) strv_length(*t);
 }
 
-int strv_split_and_extend(char ***t, const char *s, const char *separators, bool filter_duplicates) {
-        return strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
+પૂર્ણાંક strv_split_and_extend(અક્ષર ***t, અચલ અક્ષર *s, અચલ અક્ષર *separators, bool filter_duplicates) {
+        પાછા strv_split_and_extend_full(t, s, separators, filter_duplicates, 0);
 }
 
-int strv_split_colon_pairs(char ***t, const char *s) {
-        _cleanup_strv_free_ char **l = NULL;
+પૂર્ણાંક strv_split_colon_pairs(અક્ષર ***t, અચલ અક્ષર *s) {
+        _cleanup_strv_free_ અક્ષર **l = ખાલી;
         size_t n = 0;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(t);
-        assert(s);
+        પ્રતિજ્ઞા(t);
+        પ્રતિજ્ઞા(s);
 
-        for (;;) {
-                _cleanup_free_ char *first = NULL, *second = NULL, *tuple = NULL, *second_or_empty = NULL;
+        માટે (;;) {
+                _cleanup_free_ અક્ષર *first = ખાલી, *second = ખાલી, *tuple = ખાલી, *second_or_empty = ખાલી;
 
-                r = extract_first_word(&s, &tuple, NULL, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        break;
+                r = extract_first_word(&s, &tuple, ખાલી, EXTRACT_UNQUOTE|EXTRACT_RETAIN_ESCAPE);
+                જો (r < 0)
+                        પાછા r;
+                જો (r == 0)
+                        તોડો;
 
-                const char *p = tuple;
-                r = extract_many_words(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
+                અચલ અક્ષર *p = tuple;
+                r = extract_many_શબ્દો(&p, ":", EXTRACT_CUNESCAPE|EXTRACT_UNESCAPE_SEPARATORS,
                                        &first, &second);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        continue;
+                જો (r < 0)
+                        પાછા r;
+                જો (r == 0)
+                        ચાલુ;
                 /* Enforce that at most 2 colon-separated words are contained in each group */
-                if (!isempty(p))
-                        return -EINVAL;
+                જો (!isempty(p))
+                        પાછા -EINVAL;
 
                 second_or_empty = strdup(strempty(second));
-                if (!second_or_empty)
-                        return -ENOMEM;
+                જો (!second_or_empty)
+                        પાછા -ENOMEM;
 
-                if (!GREEDY_REALLOC(l, n + 3))
-                        return -ENOMEM;
+                જો (!GREEDY_REALLOC(l, n + 3))
+                        પાછા -ENOMEM;
 
                 l[n++] = TAKE_PTR(first);
                 l[n++] = TAKE_PTR(second_or_empty);
 
-                l[n] = NULL;
+                l[n] = ખાલી;
         }
 
-        if (!l) {
-                l = new0(char*, 1);
-                if (!l)
-                        return -ENOMEM;
+        જો (!l) {
+                l = new0(અક્ષર*, 1);
+                જો (!l)
+                        પાછા -ENOMEM;
         }
 
         *t = TAKE_PTR(l);
 
-        return (int) n;
+        પાછા (પૂર્ણાંક) n;
 }
 
-char* strv_join_full(char * const *l, const char *separator, const char *prefix) {
-        char *r, *e;
+અક્ષર* strv_join_full(અક્ષર * અચલ *l, અચલ અક્ષર *separator, અચલ અક્ષર *prefix) {
+        અક્ષર *r, *e;
         size_t n, k, m;
 
-        if (!separator)
+        જો (!separator)
                 separator = " ";
 
         k = strlen(separator);
@@ -542,22 +542,22 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         n = 0;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                જો (s != l)
                         n += k;
 
                 n += m + strlen(*s);
         }
 
-        r = new(char, n+1);
-        if (!r)
-                return NULL;
+        r = new(અક્ષર, n+1);
+        જો (!r)
+                પાછા ખાલી;
 
         e = r;
         STRV_FOREACH(s, l) {
-                if (s != l)
+                જો (s != l)
                         e = stpcpy(e, separator);
 
-                if (prefix)
+                જો (prefix)
                         e = stpcpy(e, prefix);
 
                 e = stpcpy(e, *s);
@@ -565,683 +565,683 @@ char* strv_join_full(char * const *l, const char *separator, const char *prefix)
 
         *e = 0;
 
-        return r;
+        પાછા r;
 }
 
-int strv_push_with_size(char ***l, size_t *n, char *value) {
+પૂર્ણાંક strv_ધકેલો_with_size(અક્ષર ***l, size_t *n, અક્ષર *કિંમત) {
         /* n is a pointer to a variable to store the size of l.
          * If not given (i.e. n is NULL or *n is SIZE_MAX), size will be calculated using strv_length().
          * If n is not NULL, the size after the push will be returned.
          * If value is empty, no action is taken and *n is not set. */
 
-        assert(l);
+        પ્રતિજ્ઞા(l);
         POINTER_MAY_BE_NULL(n);
 
-        if (!value)
-                return 0;
+        જો (!કિંમત)
+                પાછા 0;
 
         size_t size = n ? *n : SIZE_MAX;
-        if (size == SIZE_MAX)
+        જો (size == SIZE_MAX)
                 size = strv_length(*l);
 
         /* Check for overflow */
-        if (size > SIZE_MAX-2)
-                return -ENOMEM;
+        જો (size > SIZE_MAX-2)
+                પાછા -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        અક્ષર **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(size + 2), કદ(અક્ષર*));
+        જો (!c)
+                પાછા -ENOMEM;
 
-        c[size] = value;
-        c[size+1] = NULL;
+        c[size] = કિંમત;
+        c[size+1] = ખાલી;
 
         *l = c;
-        if (n)
+        જો (n)
                 *n = size + 1;
-        return 0;
+        પાછા 0;
 }
 
-int strv_push_pair(char ***l, char *a, char *b) {
-        char **c;
+પૂર્ણાંક strv_ધકેલો_pair(અક્ષર ***l, અક્ષર *a, અક્ષર *b) {
+        અક્ષર **c;
         size_t n;
 
-        assert(l);
+        પ્રતિજ્ઞા(l);
 
-        if (!a && !b)
-                return 0;
+        જો (!a && !b)
+                પાછા 0;
 
         n = strv_length(*l);
 
         /* Check for overflow */
-        if (n > SIZE_MAX-3)
-                return -ENOMEM;
+        જો (n > SIZE_MAX-3)
+                પાછા -ENOMEM;
 
         /* increase and check for overflow */
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(n + !!a + !!b + 1), કદ(અક્ષર*));
+        જો (!c)
+                પાછા -ENOMEM;
 
-        if (a)
+        જો (a)
                 c[n++] = a;
-        if (b)
+        જો (b)
                 c[n++] = b;
-        c[n] = NULL;
+        c[n] = ખાલી;
 
         *l = c;
-        return 0;
+        પાછા 0;
 }
 
-int strv_insert(char ***l, size_t position, char *value) {
-        char **c;
+પૂર્ણાંક strv_ઉમેરો(અક્ષર ***l, size_t position, અક્ષર *કિંમત) {
+        અક્ષર **c;
         size_t n, m;
 
-        assert(l);
+        પ્રતિજ્ઞા(l);
 
-        if (!value)
-                return 0;
+        જો (!કિંમત)
+                પાછા 0;
 
         n = strv_length(*l);
         position = MIN(position, n);
 
         /* check for overflow and increase */
-        if (n > SIZE_MAX - 2)
-                return -ENOMEM;
+        જો (n > SIZE_MAX - 2)
+                પાછા -ENOMEM;
         m = n + 2;
 
-        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m), કદ(અક્ષર*));
+        જો (!c)
+                પાછા -ENOMEM;
 
-        if (n > position)
-                memmove(c + position + 1, c + position, (n - position) * sizeof(char*));
+        જો (n > position)
+                memmove(c + position + 1, c + position, (n - position) * કદ(અક્ષર*));
 
-        c[position] = value;
-        c[n + 1] = NULL;
+        c[position] = કિંમત;
+        c[n + 1] = ખાલી;
 
         *l = c;
-        return 0;
+        પાછા 0;
 }
 
-int strv_consume_with_size(char ***l, size_t *n, char *value) {
-        int r;
+પૂર્ણાંક strv_consume_with_size(અક્ષર ***l, size_t *n, અક્ષર *કિંમત) {
+        પૂર્ણાંક r;
 
-        r = strv_push_with_size(l, n, value);
-        if (r < 0)
-                free(value);
+        r = strv_ધકેલો_with_size(l, n, કિંમત);
+        જો (r < 0)
+                મુક્ત(કિંમત);
 
-        return r;
+        પાછા r;
 }
 
-int strv_consume_pair(char ***l, char *a, char *b) {
-        int r;
+પૂર્ણાંક strv_consume_pair(અક્ષર ***l, અક્ષર *a, અક્ષર *b) {
+        પૂર્ણાંક r;
 
-        r = strv_push_pair(l, a, b);
-        if (r < 0) {
-                free(a);
-                free(b);
+        r = strv_ધકેલો_pair(l, a, b);
+        જો (r < 0) {
+                મુક્ત(a);
+                મુક્ત(b);
         }
 
-        return r;
+        પાછા r;
 }
 
-int strv_consume_prepend(char ***l, char *value) {
-        int r;
+પૂર્ણાંક strv_consume_prepend(અક્ષર ***l, અક્ષર *કિંમત) {
+        પૂર્ણાંક r;
 
-        r = strv_push_prepend(l, value);
-        if (r < 0)
-                free(value);
+        r = strv_ધકેલો_prepend(l, કિંમત);
+        જો (r < 0)
+                મુક્ત(કિંમત);
 
-        return r;
+        પાછા r;
 }
 
-int strv_prepend(char ***l, const char *value) {
-        char *v;
+પૂર્ણાંક strv_prepend(અક્ષર ***l, અચલ અક્ષર *કિંમત) {
+        અક્ષર *v;
 
-        if (!value)
-                return 0;
+        જો (!કિંમત)
+                પાછા 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(કિંમત);
+        જો (!v)
+                પાછા -ENOMEM;
 
-        return strv_consume_prepend(l, v);
+        પાછા strv_consume_prepend(l, v);
 }
 
-int strv_extend_with_size(char ***l, size_t *n, const char *value) {
-        char *v;
+પૂર્ણાંક strv_extend_with_size(અક્ષર ***l, size_t *n, અચલ અક્ષર *કિંમત) {
+        અક્ષર *v;
 
-        if (!value)
-                return 0;
+        જો (!કિંમત)
+                પાછા 0;
 
-        v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        v = strdup(કિંમત);
+        જો (!v)
+                પાછા -ENOMEM;
 
-        return strv_consume_with_size(l, n, v);
+        પાછા strv_consume_with_size(l, n, v);
 }
 
-int strv_extend_many_internal(char ***l, const char *value, ...) {
+પૂર્ણાંક strv_extend_many_internal(અક્ષર ***l, અચલ અક્ષર *કિંમત, ...) {
         va_list ap;
         size_t n, m;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(l);
+        પ્રતિજ્ઞા(l);
 
         m = n = strv_length(*l);
 
         r = 0;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, કિંમત);
+        માટે (અચલ અક્ષર *s = કિંમત; s != POINTER_MAX; s = va_arg(ap, અચલ અક્ષર*)) {
+                જો (!s)
+                        ચાલુ;
 
-                if (m > SIZE_MAX-1) { /* overflow */
+                જો (m > SIZE_MAX-1) { /* overflow */
                         r = -ENOMEM;
-                        break;
+                        તોડો;
                 }
                 m++;
         }
         va_end(ap);
 
-        if (r < 0)
-                return r;
-        if (m > SIZE_MAX-1)
-                return -ENOMEM;
+        જો (r < 0)
+                પાછા r;
+        જો (m > SIZE_MAX-1)
+                પાછા -ENOMEM;
 
-        char **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), sizeof(char*));
-        if (!c)
-                return -ENOMEM;
+        અક્ષર **c = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(m+1), કદ(અક્ષર*));
+        જો (!c)
+                પાછા -ENOMEM;
         *l = c;
 
         r = 0;
         size_t i = n;
-        va_start(ap, value);
-        for (const char *s = value; s != POINTER_MAX; s = va_arg(ap, const char*)) {
-                if (!s)
-                        continue;
+        va_start(ap, કિંમત);
+        માટે (અચલ અક્ષર *s = કિંમત; s != POINTER_MAX; s = va_arg(ap, અચલ અક્ષર*)) {
+                જો (!s)
+                        ચાલુ;
 
                 c[i] = strdup(s);
-                if (!c[i]) {
+                જો (!c[i]) {
                         r = -ENOMEM;
-                        break;
+                        તોડો;
                 }
                 i++;
         }
         va_end(ap);
 
-        if (r < 0) {
+        જો (r < 0) {
                 /* rollback on error */
-                for (size_t j = n; j < i; j++)
+                માટે (size_t j = n; j < i; j++)
                         c[j] = mfree(c[j]);
-                return r;
+                પાછા r;
         }
 
-        c[i] = NULL;
-        return 0;
+        c[i] = ખાલી;
+        પાછા 0;
 }
 
-char** strv_uniq(char **l) {
+અક્ષર** strv_uniq(અક્ષર **l) {
         /* Drops duplicate entries. The first identical string will be
          * kept, the others dropped */
 
         STRV_FOREACH(i, l)
                 strv_remove(i+1, *i);
 
-        return l;
+        પાછા l;
 }
 
-bool strv_is_uniq(char * const *l) {
+bool strv_is_uniq(અક્ષર * અચલ *l) {
         STRV_FOREACH(i, l)
-                if (strv_contains(i+1, *i))
-                        return false;
+                જો (strv_contains(i+1, *i))
+                        પાછા false;
 
-        return true;
+        પાછા true;
 }
 
-char** strv_remove(char **l, const char *s) {
-        if (!l)
-                return NULL;
+અક્ષર** strv_remove(અક્ષર **l, અચલ અક્ષર *s) {
+        જો (!l)
+                પાછા ખાલી;
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
         /* Drops every occurrence of s in the string list, edits in-place. */
 
-        char **f, **t;
-        for (f = t = l; *f; f++)
-                if (streq(*f, s))
-                        free(*f);
-                else
+        અક્ષર **f, **t;
+        માટે (f = t = l; *f; f++)
+                જો (streq(*f, s))
+                        મુક્ત(*f);
+                નહીંતર
                         *(t++) = *f;
 
-        *t = NULL;
-        return l;
+        *t = ખાલી;
+        પાછા l;
 }
 
-char** strv_remove_strv(char **l, char *const*ll) {
+અક્ષર** strv_remove_strv(અક્ષર **l, અક્ષર *અચલ*ll) {
 
-        if (strv_isempty(l))
-                return l;
+        જો (strv_isempty(l))
+                પાછા l;
 
         STRV_FOREACH(i, ll)
                 strv_remove(l, *i);
 
-        return l;
+        પાછા l;
 }
 
-bool strv_overlap(char * const *a, char * const *b) {
+bool strv_overlap(અક્ષર * અચલ *a, અક્ષર * અચલ *b) {
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
         STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
+                જો (strv_contains(b, *i))
+                        પાછા true;
 
-        return false;
+        પાછા false;
 }
 
-static int str_compare(char * const *a, char * const *b) {
+સ્થિર પૂર્ણાંક str_compare(અક્ષર * અચલ *a, અક્ષર * અચલ *b) {
         /* This is called from qsort()s inner loops. Correctly implemented qsort will never pass NULL so we
            just suppress the check via POINTER_MAY_BE_NULL instead of assert() to avoid the runtime cost. */
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        return strcmp(*a, *b);
+        પાછા strcmp(*a, *b);
 }
 
-char** strv_sort(char **l) {
+અક્ષર** strv_sort(અક્ષર **l) {
         typesafe_qsort(l, strv_length(l), str_compare);
-        return l;
+        પાછા l;
 }
 
-char** strv_sort_uniq_full(char **l, int (*compare)(char * const *a, char * const *b)) {
-        assert(compare);
+અક્ષર** strv_sort_uniq_full(અક્ષર **l, પૂર્ણાંક (*compare)(અક્ષર * અચલ *a, અક્ષર * અચલ *b)) {
+        પ્રતિજ્ઞા(compare);
 
-        if (strv_isempty(l))
-                return l;
+        જો (strv_isempty(l))
+                પાછા l;
 
         /* Sorts with the given comparison function, then drops entries that compare equal to the previous
          * one. The comparison function hence must only return 0 for entries that are to be merged. */
 
         typesafe_qsort(l, strv_length(l), compare);
 
-        char **tail = l + 1;
+        અક્ષર **tail = l + 1;
         STRV_FOREACH(i, l + 1)
-                if (compare(i, tail - 1) == 0)
-                        free(*i);
-                else
+                જો (compare(i, tail - 1) == 0)
+                        મુક્ત(*i);
+                નહીંતર
                         *(tail++) = *i;
 
-        *tail = NULL;
-        return l;
+        *tail = ખાલી;
+        પાછા l;
 }
 
-char** strv_sort_uniq(char **l) {
-        return strv_sort_uniq_full(l, str_compare);
+અક્ષર** strv_sort_uniq(અક્ષર **l) {
+        પાછા strv_sort_uniq_full(l, str_compare);
 }
 
-int strv_compare(char * const *a, char * const *b) {
-        int r;
+પૂર્ણાંક strv_compare(અક્ષર * અચલ *a, અક્ષર * અચલ *b) {
+        પૂર્ણાંક r;
 
         POINTER_MAY_BE_NULL(a);
         POINTER_MAY_BE_NULL(b);
 
-        if (strv_isempty(a)) {
-                if (strv_isempty(b))
-                        return 0;
-                else
-                        return -1;
+        જો (strv_isempty(a)) {
+                જો (strv_isempty(b))
+                        પાછા 0;
+                નહીંતર
+                        પાછા -1;
         }
 
-        if (strv_isempty(b))
-                return 1;
+        જો (strv_isempty(b))
+                પાછા 1;
 
-        for ( ; *a || *b; ++a, ++b) {
+        માટે ( ; *a || *b; ++a, ++b) {
                 r = strcmp_ptr(*a, *b);
-                if (r != 0)
-                        return r;
+                જો (r != 0)
+                        પાછા r;
         }
 
-        return 0;
+        પાછા 0;
 }
 
-bool strv_equal_ignore_order(char * const *a, char * const *b) {
+bool strv_equal_ignore_order(અક્ષર * અચલ *a, અક્ષર * અચલ *b) {
 
         /* Just like strv_equal(), but doesn't care about the order of elements or about redundant entries
          * (i.e. it's even ok if the number of entries in the array differ, as long as the difference just
          * consists of repetitions). */
 
-        if (a == b)
-                return true;
+        જો (a == b)
+                પાછા true;
 
         STRV_FOREACH(i, a)
-                if (!strv_contains(b, *i))
-                        return false;
+                જો (!strv_contains(b, *i))
+                        પાછા false;
 
         STRV_FOREACH(i, b)
-                if (!strv_contains(a, *i))
-                        return false;
+                જો (!strv_contains(a, *i))
+                        પાછા false;
 
-        return true;
+        પાછા true;
 }
 
-void strv_print_full(char * const *l, const char *prefix) {
+શૂન્ય strv_print_full(અક્ષર * અચલ *l, અચલ અક્ષર *prefix) {
         STRV_FOREACH(s, l)
                 printf("%s%s\n", strempty(prefix), *s);
 }
 
-int strv_extendf_with_size(char ***l, size_t *n, const char *format, ...) {
+પૂર્ણાંક strv_extendf_with_size(અક્ષર ***l, size_t *n, અચલ અક્ષર *format, ...) {
         va_list ap;
-        char *x;
-        int r;
+        અક્ષર *x;
+        પૂર્ણાંક r;
 
         va_start(ap, format);
         r = vasprintf(&x, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        જો (r < 0)
+                પાછા -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        પાછા strv_consume_with_size(l, n, x);
 }
 
-int strv_extend_joined_with_size_sentinel(char ***l, size_t *n, ...) {
+પૂર્ણાંક strv_extend_joined_with_size_sentinel(અક્ષર ***l, size_t *n, ...) {
         va_list ap;
 
         va_start(ap, n);
-        char *x = strextendv_with_separator(/* x= */ NULL, /* separator= */ NULL, ap);
+        અક્ષર *x = strextendv_with_separator(/* x= */ ખાલી, /* separator= */ ખાલી, ap);
         va_end(ap);
-        if (!x)
-                return -ENOMEM;
+        જો (!x)
+                પાછા -ENOMEM;
 
-        return strv_consume_with_size(l, n, x);
+        પાછા strv_consume_with_size(l, n, x);
 }
 
-char* startswith_strv_internal(const char *s, char * const *l) {
+અક્ષર* startswith_strv_internal(અચલ અક્ષર *s, અક્ષર * અચલ *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) startswith(s, *i);
-                if (found)
-                        return found;
+                અક્ષર *found = (અક્ષર*) startswith(s, *i);
+                જો (found)
+                        પાછા found;
         }
 
-        return NULL;
+        પાછા ખાલી;
 }
 
-char* endswith_strv_internal(const char *s, char * const *l) {
+અક્ષર* endswith_strv_internal(અચલ અક્ષર *s, અક્ષર * અચલ *l) {
         STRV_FOREACH(i, l) {
-                char *found = (char*) endswith(s, *i);
-                if (found)
-                        return found;
+                અક્ષર *found = (અક્ષર*) endswith(s, *i);
+                જો (found)
+                        પાછા found;
         }
 
-        return NULL;
+        પાછા ખાલી;
 }
 
-char** strv_reverse(char **l) {
+અક્ષર** strv_reverse(અક્ષર **l) {
         size_t n;
 
         n = strv_length(l);
-        if (n <= 1)
-                return l;
+        જો (n <= 1)
+                પાછા l;
 
-        for (size_t i = 0; i < n / 2; i++)
+        માટે (size_t i = 0; i < n / 2; i++)
                 SWAP_TWO(l[i], l[n-1-i]);
 
-        return l;
+        પાછા l;
 }
 
-char** strv_shell_escape(char **l, const char *bad) {
+અક્ષર** strv_shell_escape(અક્ષર **l, અચલ અક્ષર *bad) {
         /* Escapes every character in every string in l that is in bad,
          * edits in-place, does not roll-back on error. */
 
         STRV_FOREACH(s, l) {
-                char *v;
+                અક્ષર *v;
 
                 v = shell_escape(*s, bad);
-                if (!v)
-                        return NULL;
+                જો (!v)
+                        પાછા ખાલી;
 
                 free_and_replace(*s, v);
         }
 
-        return l;
+        પાછા l;
 }
 
 bool strv_fnmatch_full(
-                char* const* patterns,
-                const char *s,
-                int flags,
+                અક્ષર* અચલ* patterns,
+                અચલ અક્ષર *s,
+                પૂર્ણાંક flags,
                 size_t *ret_matched_pos) {
 
-        assert(s);
+        પ્રતિજ્ઞા(s);
 
-        if (patterns)
-                for (size_t i = 0; patterns[i]; i++)
+        જો (patterns)
+                માટે (size_t i = 0; patterns[i]; i++)
                         /* NB: We treat all fnmatch() errors as equivalent to FNM_NOMATCH, i.e. if fnmatch() fails to
                          * process the pattern for some reason we'll consider this equivalent to non-matching. */
-                        if (fnmatch(patterns[i], s, flags) == 0) {
-                                if (ret_matched_pos)
+                        જો (fnmatch(patterns[i], s, flags) == 0) {
+                                જો (ret_matched_pos)
                                         *ret_matched_pos = i;
-                                return true;
+                                પાછા true;
                         }
 
-        if (ret_matched_pos)
+        જો (ret_matched_pos)
                 *ret_matched_pos = SIZE_MAX;
 
-        return false;
+        પાછા false;
 }
 
-char** strv_skip(char **l, size_t n) {
-        while (n > 0) {
-                if (strv_isempty(l))
-                        return NULL;
+અક્ષર** strv_skip(અક્ષર **l, size_t n) {
+        જ્યારે (n > 0) {
+                જો (strv_isempty(l))
+                        પાછા ખાલી;
 
                 l++, n--;
         }
 
         /* To simplify callers, always return NULL instead of a zero-item array. */
-        if (strv_isempty(l))
-                return NULL;
-        return l;
+        જો (strv_isempty(l))
+                પાછા ખાલી;
+        પાછા l;
 }
 
-int strv_extend_n(char ***l, const char *value, size_t n) {
+પૂર્ણાંક strv_extend_n(અક્ષર ***l, અચલ અક્ષર *કિંમત, size_t n) {
         size_t i, k;
-        char **nl;
+        અક્ષર **nl;
 
-        assert(l);
+        પ્રતિજ્ઞા(l);
 
-        if (!value)
-                return 0;
-        if (n == 0)
-                return 0;
+        જો (!કિંમત)
+                પાછા 0;
+        જો (n == 0)
+                પાછા 0;
 
         /* Adds the value n times to l */
 
         k = strv_length(*l);
-        if (n >= SIZE_MAX - k)
-                return -ENOMEM;
+        જો (n >= SIZE_MAX - k)
+                પાછા -ENOMEM;
 
-        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), sizeof(char *));
-        if (!nl)
-                return -ENOMEM;
+        nl = reallocarray(*l, GREEDY_ALLOC_ROUND_UP(k + n + 1), કદ(અક્ષર *));
+        જો (!nl)
+                પાછા -ENOMEM;
 
         *l = nl;
 
-        for (i = k; i < k + n; i++) {
-                nl[i] = strdup(value);
-                if (!nl[i])
-                        goto rollback;
+        માટે (i = k; i < k + n; i++) {
+                nl[i] = strdup(કિંમત);
+                જો (!nl[i])
+                        જાઓ rollback;
         }
-        nl[i] = NULL;
+        nl[i] = ખાલી;
 
-        return 0;
+        પાછા 0;
 
 rollback:
-        for (size_t j = k; j < i; j++)
-                free(nl[j]);
-        nl[k] = NULL;
+        માટે (size_t j = k; j < i; j++)
+                મુક્ત(nl[j]);
+        nl[k] = ખાલી;
 
-        return -ENOMEM;
+        પાછા -ENOMEM;
 }
 
-int strv_extend_assignment(char ***l, const char *lhs, const char *rhs) {
-        char *j;
+પૂર્ણાંક strv_extend_assignment(અક્ષર ***l, અચલ અક્ષર *lhs, અચલ અક્ષર *rhs) {
+        અક્ષર *j;
 
-        assert(l);
-        assert(lhs);
+        પ્રતિજ્ઞા(l);
+        પ્રતિજ્ઞા(lhs);
 
-        if (!rhs) /* value is optional, in which case we suppress the field */
-                return 0;
+        જો (!rhs) /* value is optional, in which case we suppress the field */
+                પાછા 0;
 
         j = strjoin(lhs, "=", rhs);
-        if (!j)
-                return -ENOMEM;
+        જો (!j)
+                પાછા -ENOMEM;
 
-        return strv_consume(l, j);
+        પાછા strv_consume(l, j);
 }
 
-int fputstrv(FILE *f, char * const *l, const char *separator, bool *space) {
+પૂર્ણાંક fputstrv(FILE *f, અક્ષર * અચલ *l, અચલ અક્ષર *separator, bool *space) {
         bool b = false;
-        int r;
+        પૂર્ણાંક r;
 
-        assert(f);
+        પ્રતિજ્ઞા(f);
 
         /* Like fputs(), but for strv, and with a less stupid argument order */
 
-        if (!space)
+        જો (!space)
                 space = &b;
 
         STRV_FOREACH(s, l) {
                 r = fputs_with_separator(f, *s, separator, space);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
         }
 
-        return 0;
+        પાછા 0;
 }
 
-void string_strv_hashmap_remove(Hashmap *h, const char *key, const char *value) {
-        assert(key);
+શૂન્ય string_strv_hashmap_remove(Hashmap *h, અચલ અક્ષર *ચાવી, અચલ અક્ષર *કિંમત) {
+        પ્રતિજ્ઞા(ચાવી);
 
-        if (value) {
-                char **l = hashmap_get(h, key);
-                if (!l)
-                        return;
+        જો (કિંમત) {
+                અક્ષર **l = hashmap_get(h, ચાવી);
+                જો (!l)
+                        પાછા;
 
-                strv_remove(l, value);
-                if (!strv_isempty(l))
-                        return;
+                strv_remove(l, કિંમત);
+                જો (!strv_isempty(l))
+                        પાછા;
         }
 
-        _unused_ _cleanup_free_ char *key_free = NULL;
-        strv_free(hashmap_remove2(h, key, (void**) &key_free));
+        _unused_ _cleanup_free_ અક્ષર *ચાવી_free = ખાલી;
+        strv_free(hashmap_remove2(h, ચાવી, (શૂન્ય**) &ચાવી_free));
 }
 
-void string_strv_ordered_hashmap_remove(OrderedHashmap *h, const char *key, const char *value) {
-        string_strv_hashmap_remove(PLAIN_HASHMAP(h), key, value);
+શૂન્ય string_strv_ordered_hashmap_remove(OrderedHashmap *h, અચલ અક્ષર *ચાવી, અચલ અક્ષર *કિંમત) {
+        string_strv_hashmap_remove(PLAIN_HASHMAP(h), ચાવી, કિંમત);
 }
 
-static int string_strv_hashmap_put_internal(Hashmap *h, const char *key, const char *value) {
-        char **l;
-        int r;
+સ્થિર પૂર્ણાંક string_strv_hashmap_put_internal(Hashmap *h, અચલ અક્ષર *ચાવી, અચલ અક્ષર *કિંમત) {
+        અક્ષર **l;
+        પૂર્ણાંક r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        પ્રતિજ્ઞા(h);
+        પ્રતિજ્ઞા(ચાવી);
+        પ્રતિજ્ઞા(કિંમત);
 
-        l = hashmap_get(h, key);
-        if (l) {
+        l = hashmap_get(h, ચાવી);
+        જો (l) {
                 /* A list for this key already exists, let's append to it if it is not listed yet */
-                if (strv_contains(l, value))
-                        return 0;
+                જો (strv_contains(l, કિંમત))
+                        પાછા 0;
 
-                r = strv_extend(&l, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l, કિંમત);
+                જો (r < 0)
+                        પાછા r;
 
-                assert_se(hashmap_update(h, key, l) >= 0);
-        } else {
+                assert_se(hashmap_update(h, ચાવી, l) >= 0);
+        } નહીંતર {
                 /* No list for this key exists yet, create one */
-                _cleanup_strv_free_ char **l2 = NULL;
-                _cleanup_free_ char *t = NULL;
+                _cleanup_strv_free_ અક્ષર **l2 = ખાલી;
+                _cleanup_free_ અક્ષર *t = ખાલી;
 
-                t = strdup(key);
-                if (!t)
-                        return -ENOMEM;
+                t = strdup(ચાવી);
+                જો (!t)
+                        પાછા -ENOMEM;
 
-                r = strv_extend(&l2, value);
-                if (r < 0)
-                        return r;
+                r = strv_extend(&l2, કિંમત);
+                જો (r < 0)
+                        પાછા r;
 
                 r = hashmap_put(h, t, l2);
-                if (r < 0)
-                        return r;
+                જો (r < 0)
+                        પાછા r;
 
                 TAKE_PTR(t);
                 TAKE_PTR(l2);
         }
 
-        return 1;
+        પાછા 1;
 }
 
-int string_strv_hashmap_put(Hashmap **h, const char *key, const char *value) {
-        int r;
+પૂર્ણાંક string_strv_hashmap_put(Hashmap **h, અચલ અક્ષર *ચાવી, અચલ અક્ષર *કિંમત) {
+        પૂર્ણાંક r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        પ્રતિજ્ઞા(h);
+        પ્રતિજ્ઞા(ચાવી);
+        પ્રતિજ્ઞા(કિંમત);
 
         r = hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        return string_strv_hashmap_put_internal(*h, key, value);
+        પાછા string_strv_hashmap_put_internal(*h, ચાવી, કિંમત);
 }
 
-int string_strv_ordered_hashmap_put(OrderedHashmap **h, const char *key, const char *value) {
-        int r;
+પૂર્ણાંક string_strv_ordered_hashmap_put(OrderedHashmap **h, અચલ અક્ષર *ચાવી, અચલ અક્ષર *કિંમત) {
+        પૂર્ણાંક r;
 
-        assert(h);
-        assert(key);
-        assert(value);
+        પ્રતિજ્ઞા(h);
+        પ્રતિજ્ઞા(ચાવી);
+        પ્રતિજ્ઞા(કિંમત);
 
         r = ordered_hashmap_ensure_allocated(h, &string_hash_ops_free_strv_free);
-        if (r < 0)
-                return r;
+        જો (r < 0)
+                પાછા r;
 
-        return string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), key, value);
+        પાછા string_strv_hashmap_put_internal(PLAIN_HASHMAP(*h), ચાવી, કિંમત);
 }
 
-static int rebreak_flush_line(
-                char ***broken,
-                const char *start,
-                const char *end,
+સ્થિર પૂર્ણાંક rebreak_flush_લીટી(
+                અક્ષર ***broken,
+                અચલ અક્ષર *start,
+                અચલ અક્ષર *end,
                 bool in_prefix,
-                const char *whitespace_begin,
-                const char *whitespace_end) {
+                અચલ અક્ષર *whitespace_begin,
+                અચલ અક્ષર *whitespace_end) {
 
-        assert(broken);
-        assert(start);
-        assert(end >= start);
+        પ્રતિજ્ઞા(broken);
+        પ્રતિજ્ઞા(start);
+        પ્રતિજ્ઞા(end >= start);
 
-        if (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
-                return strv_extend(broken, "");
+        જો (in_prefix) /* Never seen anything non-whitespace? Generate empty line! */
+                પાછા strv_extend(broken, "");
 
-        if (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
+        જો (whitespace_begin && !whitespace_end) /* Ends in whitespace? Chop it off! */
                 end = whitespace_begin;
 
-        _cleanup_free_ char *truncated = strndup(start, end - start);
-        if (!truncated)
-                return -ENOMEM;
+        _cleanup_free_ અક્ષર *truncated = strndup(start, end - start);
+        જો (!truncated)
+                પાછા -ENOMEM;
 
-        return strv_consume(broken, TAKE_PTR(truncated));
+        પાછા strv_consume(broken, TAKE_PTR(truncated));
 }
 
-int strv_rebreak_lines(char **l, size_t width, char ***ret) {
-        _cleanup_strv_free_ char **broken = NULL;
-        int r;
+પૂર્ણાંક strv_rebreak_લીટીઓ(અક્ષર **l, size_t width, અક્ષર ***ret) {
+        _cleanup_strv_free_ અક્ષર **broken = ખાલી;
+        પૂર્ણાંક r;
 
-        assert(ret);
+        પ્રતિજ્ઞા(ret);
 
         /* Implements a simple UTF-8 line breaking algorithm
          *
@@ -1250,44 +1250,44 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
          * broken. Retains whitespace at beginning of lines, removes it at end of lines. Newlines embedded
          * in an entry are hard line breaks, i.e. result in a separate output entry each. */
 
-        if (width == SIZE_MAX) { /* NOP? */
+        જો (width == SIZE_MAX) { /* NOP? */
                 broken = strv_copy(l);
-                if (!broken)
-                        return -ENOMEM;
+                જો (!broken)
+                        પાછા -ENOMEM;
 
                 *ret = TAKE_PTR(broken);
-                return 0;
+                પાછા 0;
         }
 
         STRV_FOREACH(i, l) {
-                const char *start = *i, *whitespace_begin = NULL, *whitespace_end = NULL;
+                અચલ અક્ષર *start = *i, *whitespace_begin = ખાલી, *whitespace_end = ખાલી;
                 bool in_prefix = true; /* still in the whitespace in the beginning of the line? */
                 bool after_newline = false; /* did we just break at a newline embedded in the input? */
                 size_t w = 0;
 
-                for (const char *p = start; *p != 0; ) {
-                        if (strchr(NEWLINE, *p)) {
+                માટે (અચલ અક્ષર *p = start; *p != 0; ) {
+                        જો (strchr(NEWLINE, *p)) {
                                 /* A newline embedded in the input is a hard line break: flush out what we
                                  * collected so far as its own line, and continue with a new one right after
                                  * it. */
-                                r = rebreak_flush_line(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
-                                if (r < 0)
-                                        return r;
+                                r = rebreak_flush_લીટી(&broken, start, p, in_prefix, whitespace_begin, whitespace_end);
+                                જો (r < 0)
+                                        પાછા r;
 
                                 p += p[0] == '\r' && p[1] == '\n' ? 2 : 1; /* Treat CRLF as a single break */
                                 start = p;
                                 in_prefix = true;
                                 after_newline = true;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = ખાલી;
                                 w = 0;
-                                continue;
-                        } else if (strchr(WHITESPACE, *p)) {
-                                if (!in_prefix && (!whitespace_begin || whitespace_end)) {
+                                ચાલુ;
+                        } નહીંતર જો (strchr(WHITESPACE, *p)) {
+                                જો (!in_prefix && (!whitespace_begin || whitespace_end)) {
                                         whitespace_begin = p;
-                                        whitespace_end = NULL;
+                                        whitespace_end = ખાલી;
                                 }
-                        } else {
-                                if (whitespace_begin && !whitespace_end)
+                        } નહીંતર {
+                                જો (whitespace_begin && !whitespace_end)
                                         whitespace_end = p;
 
                                 in_prefix = false;
@@ -1298,31 +1298,31 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                          * and then break the body here, so if we accepted and measured what that one
                          * refuses we'd be computing a single width from two ideas of what valid UTF-8
                          * is. */
-                        int cw = utf8_char_console_width(p);
-                        if (cw < 0)
-                                return log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
+                        પૂર્ણાંક cw = utf8_char_console_width(p);
+                        જો (cw < 0)
+                                પાછા log_debug_errno(cw, "Line to break contains invalid UTF-8, refusing: %m");
 
                         w += cw;
 
-                        if (w > width && whitespace_begin && whitespace_end) {
-                                _cleanup_free_ char *truncated = NULL;
+                        જો (w > width && whitespace_begin && whitespace_end) {
+                                _cleanup_free_ અક્ષર *truncated = ખાલી;
 
                                 truncated = strndup(start, whitespace_begin - start);
-                                if (!truncated)
-                                        return -ENOMEM;
+                                જો (!truncated)
+                                        પાછા -ENOMEM;
 
                                 r = strv_consume(&broken, TAKE_PTR(truncated));
-                                if (r < 0)
-                                        return r;
+                                જો (r < 0)
+                                        પાછા r;
 
                                 /* Continue with the next line, starting at the first character after the
                                  * whitespace we broke at. Note, that character has not been measured for
                                  * the new line yet, hence reset the width and reprocess it. */
                                 p = start = whitespace_end;
                                 after_newline = false;
-                                whitespace_begin = whitespace_end = NULL;
+                                whitespace_begin = whitespace_end = ખાલી;
                                 w = 0;
-                                continue;
+                                ચાલુ;
                         }
 
                         p = utf8_next_char(p);
@@ -1331,38 +1331,38 @@ int strv_rebreak_lines(char **l, size_t width, char ***ret) {
                 /* Process rest of the line, except if all that's left after the last newline we already
                  * flushed out above is whitespace (possibly nothing): a trailing newline terminates the
                  * last line, it doesn't add a new, empty one. */
-                assert(start);
-                if (after_newline && in_prefix)
-                        continue;
+                પ્રતિજ્ઞા(start);
+                જો (after_newline && in_prefix)
+                        ચાલુ;
 
-                r = rebreak_flush_line(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
-                if (r < 0)
-                        return r;
+                r = rebreak_flush_લીટી(&broken, start, start + strlen(start), in_prefix, whitespace_begin, whitespace_end);
+                જો (r < 0)
+                        પાછા r;
         }
 
         *ret = TAKE_PTR(broken);
-        return 0;
+        પાછા 0;
 }
 
-char** strv_filter_prefix(char * const *l, const char *prefix) {
+અક્ષર** strv_filter_prefix(અક્ષર * અચલ *l, અચલ અક્ષર *prefix) {
 
         /* Allocates a copy of 'l', but only copies over entries starting with 'prefix' */
 
-        if (isempty(prefix))
-                return strv_copy(l);
+        જો (isempty(prefix))
+                પાછા strv_copy(l);
 
-        _cleanup_strv_free_ char **f = NULL;
+        _cleanup_strv_free_ અક્ષર **f = ખાલી;
         size_t sz = 0;
 
         STRV_FOREACH(i, l) {
-                if (!startswith(*i, prefix))
-                        continue;
+                જો (!startswith(*i, prefix))
+                        ચાલુ;
 
-                if (strv_extend_with_size(&f, &sz, *i) < 0)
-                        return NULL;
+                જો (strv_extend_with_size(&f, &sz, *i) < 0)
+                        પાછા ખાલી;
         }
 
-        return TAKE_PTR(f);
+        પાછા TAKE_PTR(f);
 }
 
-const char* const strv_empty[] = { NULL };
+અચલ અક્ષર* અચલ strv_empty[] = { ખાલી };

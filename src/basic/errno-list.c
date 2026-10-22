@@ -1,54 +1,54 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#અન્તર્ભાવ <stdio.h>
+#અન્તર્ભાવ <stdlib.h>
+#અન્તર્ભાવ <string.h>
 
-#include "errno-list.h"
+#અન્તર્ભાવ "errno-list.h"
 
-static const struct errno_name* lookup_errno(register const char *str,
-                                             register GPERF_LEN_TYPE len);
+સ્થિર અચલ સંરચના errno_name* lookup_errno(નોંધણી અચલ અક્ષર *str,
+                                             નોંધણી GPERF_LEN_TYPE len);
 
-#include "errno-from-name.inc"
+#અન્તર્ભાવ "errno-from-name.inc"
 
-int errno_from_name(const char *name) {
-        const struct errno_name *sc;
+પૂર્ણાંક errno_from_name(અચલ અક્ષર *name) {
+        અચલ સંરચના errno_name *sc;
 
-        assert(name);
+        પ્રતિજ્ઞા(name);
 
         sc = lookup_errno(name, strlen(name));
-        if (!sc)
-                return -EINVAL;
+        જો (!sc)
+                પાછા -EINVAL;
 
-        assert(sc->id > 0);
-        return sc->id;
+        પ્રતિજ્ઞા(sc->id > 0);
+        પાછા sc->id;
 }
 
 #ifdef __GLIBC__
-const char* errno_name_no_fallback(int id) {
-        if (id == 0) /* To stay in line with our implementation below.  */
-                return NULL;
+અચલ અક્ષર* errno_name_no_fallback(પૂર્ણાંક id) {
+        જો (id == 0) /* To stay in line with our implementation below.  */
+                પાછા ખાલી;
 
-        return strerrorname_np(ABS(id));
+        પાછા strerrorname_np(ABS(id));
 }
-#else
+#નહીંતર
 #  include "errno-to-name.inc"
 
-const char* errno_name_no_fallback(int id) {
-        if (id < 0)
+અચલ અક્ષર* errno_name_no_fallback(પૂર્ણાંક id) {
+        જો (id < 0)
                 id = -id;
 
-        if ((size_t) id >= ELEMENTSOF(errno_names))
-                return NULL;
+        જો ((size_t) id >= ELEMENTSOF(errno_names))
+                પાછા ખાલી;
 
-        return errno_names[id];
+        પાછા errno_names[id];
 }
 #endif
 
-const char* errno_name(int id, char buf[static ERRNO_NAME_BUF_LEN]) {
-        const char *a = errno_name_no_fallback(id);
-        if (a)
-                return a;
+અચલ અક્ષર* errno_name(પૂર્ણાંક id, અક્ષર buf[સ્થિર ERRNO_NAME_BUF_LEN]) {
+        અચલ અક્ષર *a = errno_name_no_fallback(id);
+        જો (a)
+                પાછા a;
         snprintf(buf, ERRNO_NAME_BUF_LEN, "%d", abs(id));
-        return buf;
+        પાછા buf;
 }

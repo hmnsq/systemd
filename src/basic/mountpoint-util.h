@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "forward.h"
+#અન્તર્ભાવ "forward.h"
 
 /* The limit used for /dev itself. 4MB should be enough since device nodes and symlinks don't
  * consume any space and udev isn't supposed to create regular file either. There's no limit on the
@@ -32,61 +32,61 @@
 #define TMPFS_LIMITS_ROOTFS          TMPFS_LIMITS_VAR
 #define TMPFS_LIMITS_VOLATILE_STATE  TMPFS_LIMITS_VAR
 
-bool is_name_to_handle_at_fatal_error(int err);
+bool is_name_to_handle_at_fatal_error(પૂર્ણાંક err);
 
-int name_to_handle_at_loop(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_try_fid(int fd, const char *path, struct file_handle **ret_handle, int *ret_mnt_id, uint64_t *ret_unique_mnt_id, int flags);
-int name_to_handle_at_u64(int fd, const char *path, uint64_t *ret);
-static inline int path_to_handle_u64(const char *path, uint64_t *ret) {
-        return name_to_handle_at_u64(AT_FDCWD, path, ret);
+પૂર્ણાંક name_to_handle_at_loop(પૂર્ણાંક fd, અચલ અક્ષર *path, સંરચના file_handle **ret_handle, પૂર્ણાંક *ret_mnt_id, uint64_t *ret_unique_mnt_id, પૂર્ણાંક flags);
+પૂર્ણાંક name_to_handle_at_try_fid(પૂર્ણાંક fd, અચલ અક્ષર *path, સંરચના file_handle **ret_handle, પૂર્ણાંક *ret_mnt_id, uint64_t *ret_unique_mnt_id, પૂર્ણાંક flags);
+પૂર્ણાંક name_to_handle_at_u64(પૂર્ણાંક fd, અચલ અક્ષર *path, uint64_t *ret);
+સ્થિર અંતઃરેખ પૂર્ણાંક path_to_handle_u64(અચલ અક્ષર *path, uint64_t *ret) {
+        પાછા name_to_handle_at_u64(AT_FDCWD, path, ret);
 }
-static inline int fd_to_handle_u64(int fd, uint64_t *ret) {
-        return name_to_handle_at_u64(fd, NULL, ret);
-}
-
-bool file_handle_equal(const struct file_handle *a, const struct file_handle *b);
-struct file_handle* file_handle_dup(const struct file_handle *fh);
-
-int path_get_mnt_id_at(int dir_fd, const char *path, int *ret);
-static inline int path_get_mnt_id(const char *path, int *ret) {
-        return path_get_mnt_id_at(AT_FDCWD, path, ret);
-}
-int path_get_unique_mnt_id_at(int dir_fd, const char *path, uint64_t *ret);
-
-int is_mount_point_at(int dir_fd, const char *path, int flags);
-int path_is_mount_point_full(const char *path, const char *root, int flags);
-static inline int path_is_mount_point(const char *path) {
-        return path_is_mount_point_full(path, NULL, 0);
+સ્થિર અંતઃરેખ પૂર્ણાંક fd_to_handle_u64(પૂર્ણાંક fd, uint64_t *ret) {
+        પાછા name_to_handle_at_u64(fd, ખાલી, ret);
 }
 
-bool fstype_is_network(const char *fstype);
-bool fstype_needs_quota(const char *fstype);
-bool fstype_has_internal_quota(const char *fstype);
-bool fstype_is_api_vfs(const char *fstype);
-bool fstype_is_blockdev_backed(const char *fstype);
-bool fstype_is_ro(const char *fsype);
-bool fstype_can_discard(const char *fstype);
-bool fstype_can_ownership(const char *fstype);
-bool fstype_can_uid_gid(const char *fstype);
-bool fstype_can_fmask_dmask(const char *fstype);
+bool file_handle_equal(અચલ સંરચના file_handle *a, અચલ સંરચના file_handle *b);
+સંરચના file_handle* file_handle_dup(અચલ સંરચના file_handle *fh);
 
-const char* fstype_norecovery_option(const char *fstype);
+પૂર્ણાંક path_get_mnt_id_at(પૂર્ણાંક dir_fd, અચલ અક્ષર *path, પૂર્ણાંક *ret);
+સ્થિર અંતઃરેખ પૂર્ણાંક path_get_mnt_id(અચલ અક્ષર *path, પૂર્ણાંક *ret) {
+        પાછા path_get_mnt_id_at(AT_FDCWD, path, ret);
+}
+પૂર્ણાંક path_get_unique_mnt_id_at(પૂર્ણાંક dir_fd, અચલ અક્ષર *path, uint64_t *ret);
 
-int dev_is_devtmpfs(void);
+પૂર્ણાંક is_mount_point_at(પૂર્ણાંક dir_fd, અચલ અક્ષર *path, પૂર્ણાંક flags);
+પૂર્ણાંક path_is_mount_point_full(અચલ અક્ષર *path, અચલ અક્ષર *મૂળ, પૂર્ણાંક flags);
+સ્થિર અંતઃરેખ પૂર્ણાંક path_is_mount_point(અચલ અક્ષર *path) {
+        પાછા path_is_mount_point_full(path, ખાલી, 0);
+}
 
-int mount_nofollow(
-                const char *source,
-                const char *target,
-                const char *filesystemtype,
+bool fstype_is_network(અચલ અક્ષર *fstype);
+bool fstype_needs_quota(અચલ અક્ષર *fstype);
+bool fstype_has_internal_quota(અચલ અક્ષર *fstype);
+bool fstype_is_api_vfs(અચલ અક્ષર *fstype);
+bool fstype_is_blockdev_backed(અચલ અક્ષર *fstype);
+bool fstype_is_ro(અચલ અક્ષર *fsype);
+bool fstype_can_discard(અચલ અક્ષર *fstype);
+bool fstype_can_ownership(અચલ અક્ષર *fstype);
+bool fstype_can_uid_gid(અચલ અક્ષર *fstype);
+bool fstype_can_fmask_dmask(અચલ અક્ષર *fstype);
+
+અચલ અક્ષર* fstype_norecovery_option(અચલ અક્ષર *fstype);
+
+પૂર્ણાંક dev_is_devtmpfs(શૂન્ય);
+
+પૂર્ણાંક mount_nofollow(
+                અચલ અક્ષર *source,
+                અચલ અક્ષર *target,
+                અચલ અક્ષર *filesystemtype,
                 unsigned long mountflags,
-                const void *data);
+                અચલ શૂન્ય *data);
 
-const char* mount_propagation_flag_to_string(unsigned long flags);
-int mount_propagation_flag_from_string(const char *name, unsigned long *ret);
+અચલ અક્ષર* mount_propagation_flag_to_string(unsigned long flags);
+પૂર્ણાંક mount_propagation_flag_from_string(અચલ અક્ષર *name, unsigned long *ret);
 bool mount_propagation_flag_is_valid(unsigned long flag);
 
-bool mount_new_api_supported(void);
+bool mount_new_api_supported(શૂન્ય);
 
-int mount_option_supported(const char *fstype, const char *key, const char *value);
+પૂર્ણાંક mount_option_supported(અચલ અક્ષર *fstype, અચલ અક્ષર *ચાવી, અચલ અક્ષર *કિંમત);
 
-bool path_below_api_vfs(const char *p);
+bool path_below_api_vfs(અચલ અક્ષર *p);

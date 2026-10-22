@@ -37,8 +37,8 @@
 #define SPECIAL_LOCAL_FS_TARGET "local-fs.target"
 #define SPECIAL_LOCAL_FS_PRE_TARGET "local-fs-pre.target"
 #define SPECIAL_INITRD_FS_TARGET "initrd-fs.target"
-#define SPECIAL_INITRD_ROOT_DEVICE_TARGET "initrd-root-device.target"
-#define SPECIAL_INITRD_ROOT_FS_TARGET "initrd-root-fs.target"
+#define SPECIAL_INITRD_મૂળ_DEVICE_TARGET "initrd-root-device.target"
+#define SPECIAL_INITRD_મૂળ_FS_TARGET "initrd-root-fs.target"
 #define SPECIAL_INITRD_USR_FS_TARGET "initrd-usr-fs.target"
 #define SPECIAL_REMOTE_FS_TARGET "remote-fs.target"       /* LSB's $remote_fs */
 #define SPECIAL_REMOTE_FS_PRE_TARGET "remote-fs-pre.target"
@@ -82,19 +82,19 @@
 
 /* Magic early boot services */
 #define SPECIAL_FSCK_SERVICE "systemd-fsck@.service"
-#define SPECIAL_FSCK_ROOT_SERVICE "systemd-fsck-root.service"
+#define SPECIAL_FSCK_મૂળ_SERVICE "systemd-fsck-root.service"
 #define SPECIAL_FSCK_USR_SERVICE "systemd-fsck-usr.service"
 #define SPECIAL_QUOTACHECK_SERVICE "systemd-quotacheck@.service"
-#define SPECIAL_QUOTACHECK_ROOT_SERVICE "systemd-quotacheck-root.service"
+#define SPECIAL_QUOTACHECK_મૂળ_SERVICE "systemd-quotacheck-root.service"
 #define SPECIAL_QUOTAON_SERVICE "quotaon@.service"
-#define SPECIAL_QUOTAON_ROOT_SERVICE "quotaon-root.service"
+#define SPECIAL_QUOTAON_મૂળ_SERVICE "quotaon-root.service"
 #define SPECIAL_REMOUNT_FS_SERVICE "systemd-remount-fs.service"
-#define SPECIAL_VOLATILE_ROOT_SERVICE "systemd-volatile-root.service"
+#define SPECIAL_VOLATILE_મૂળ_SERVICE "systemd-volatile-root.service"
 #define SPECIAL_UDEVD_SERVICE "systemd-udevd.service"
 #define SPECIAL_GROWFS_SERVICE "systemd-growfs@.service"
-#define SPECIAL_GROWFS_ROOT_SERVICE "systemd-growfs-root.service"
+#define SPECIAL_GROWFS_મૂળ_SERVICE "systemd-growfs-root.service"
 #define SPECIAL_PCRFS_SERVICE "systemd-pcrfs@.service"
-#define SPECIAL_PCRFS_ROOT_SERVICE "systemd-pcrfs-root.service"
+#define SPECIAL_PCRFS_મૂળ_SERVICE "systemd-pcrfs-root.service"
 #define SPECIAL_VALIDATEFS_SERVICE "systemd-validatefs@.service"
 #define SPECIAL_HIBERNATE_RESUME_SERVICE "systemd-hibernate-resume.service"
 
@@ -118,13 +118,13 @@
 #define SPECIAL_SYSTEM_SLICE "system.slice"
 #define SPECIAL_USER_SLICE "user.slice"
 #define SPECIAL_MACHINE_SLICE "machine.slice"
-#define SPECIAL_ROOT_SLICE "-.slice"
+#define SPECIAL_મૂળ_SLICE "-.slice"
 
 /* The scope unit systemd itself lives in. */
 #define SPECIAL_INIT_SCOPE "init.scope"
 
 /* The root directory. */
-#define SPECIAL_ROOT_MOUNT "-.mount"
+#define SPECIAL_મૂળ_MOUNT "-.mount"
 
 /* Special slices valid for the user instance */
 #define SPECIAL_SESSION_SLICE "session.slice"

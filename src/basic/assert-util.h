@@ -1,29 +1,29 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #pragma once
 
-#include "../fundamental/assert-util.h" /* IWYU pragma: export */
+#અન્તર્ભાવ "../fundamental/assert-util.h" /* IWYU pragma: export */
 
 /* Logging for various assertions */
 
-bool log_get_assert_return_is_critical(void) _weak_ _pure_;
+bool log_get_assert_return_is_critical(શૂન્ય) _weak_ _pure_;
 
-void log_assert_failed_return(const char *text, const char *file, int line, const char *func);
+શૂન્ય log_assert_failed_return(અચલ અક્ષર *text, અચલ અક્ષર *file, પૂર્ણાંક લીટી, અચલ અક્ષર *func);
 
-#define assert_log(expr)                                                \
-        (_likely_(expr) ?                                               \
+#define assert_log(પદાવલિ)                                                \
+        (_likely_(પદાવલિ) ?                                               \
          true :                                                         \
          (log_assert_failed_return(#expr, PROJECT_FILE, __LINE__, __func__), false))
 
-#define assert_return(expr, r)                                          \
-        do {                                                            \
-                if (!assert_log(expr))                                  \
-                        return (r);                                     \
-        } while (false)
+#define assert_return(પદાવલિ, r)                                          \
+        કરો {                                                            \
+                જો (!assert_log(પદાવલિ))                                  \
+                        પાછા (r);                                     \
+        } જ્યારે (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr)) {                                \
+#define assert_return_errno(પદાવલિ, r, err)                               \
+        કરો {                                                            \
+                જો (!assert_log(પદાવલિ)) {                                \
                         errno = err;                                    \
-                        return (r);                                     \
+                        પાછા (r);                                     \
                 }                                                       \
-        } while (false)
+        } જ્યારે (false)
