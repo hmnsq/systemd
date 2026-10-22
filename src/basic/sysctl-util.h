@@ -6,36 +6,36 @@
 #include "stdio-util.h"
 
 char* sysctl_normalize(char *s);
-int sysctl_read(const char *property, char **ret);
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow);
-int sysctl_writef(const char *property, const char *format, ...) _printf_(2, 3);
-static inline int sysctl_write(const char *property, const char *value) {
-        return sysctl_write_full(property, value, NULL);
+целое sysctl_read(const char *property, char **ret);
+целое sysctl_write_full(const char *property, const char *value, Hashmap **shadow);
+целое sysctl_writef(const char *property, const char *format, ...) _printf_(2, 3);
+static inline целое sysctl_write(const char *property, const char *value) {
+        вернуть sysctl_write_full(property, value, NULL);
 }
-int sysctl_write_verify(const char *property, const char *value);
+целое sysctl_write_verify(const char *property, const char *value);
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret);
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret);
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret);
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow);
+целое sysctl_read_ip_property(целое af, const char *ifname, const char *property, char **ret);
+целое sysctl_read_ip_property_int(целое af, const char *ifname, const char *property, целое *ret);
+целое sysctl_read_ip_property_uint32(целое af, const char *ifname, const char *property, uint32_t *ret);
+целое sysctl_write_ip_property(целое af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
+целое sysctl_write_ip_property_boolean(целое af, const char *ifname, const char *property, bool value, Hashmap **shadow);
 
-static inline int sysctl_write_ip_property_tristate(int af, const char *ifname, const char *property, int value, Hashmap **shadow) {
-        if (value < 0)
-                return 0;
+static inline целое sysctl_write_ip_property_tristate(целое af, const char *ifname, const char *property, целое value, Hashmap **shadow) {
+        если (value < 0)
+                вернуть 0;
 
-        return sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
+        вернуть sysctl_write_ip_property_boolean(af, ifname, property, value, shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow);
+целое sysctl_write_ip_neighbor_property(целое af, const char *ifname, const char *property, const char *value, Hashmap **shadow);
+целое sysctl_write_ip_neighbor_property_uint32(целое af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow);
 
 #define DEFINE_SYSCTL_WRITE_IP_PROPERTY(name, type, format)           \
-        static inline int sysctl_write_ip_property_##name(int af, const char *ifname, const char *property, type value, Hashmap **shadow) { \
+        static inline целое sysctl_write_ip_property_##name(целое af, const char *ifname, const char *property, type value, Hashmap **shadow) { \
                 char buf[DECIMAL_STR_MAX(type)];                        \
                 xsprintf(buf, format, value);                           \
-                return sysctl_write_ip_property(af, ifname, property, buf, shadow); \
+                вернуть sysctl_write_ip_property(af, ifname, property, buf, shadow); \
         }
 
-DEFINE_SYSCTL_WRITE_IP_PROPERTY(int, int, "%i");
+DEFINE_SYSCTL_WRITE_IP_PROPERTY(целое, целое, "%i");
 DEFINE_SYSCTL_WRITE_IP_PROPERTY(uint32, uint32_t, "%" PRIu32);

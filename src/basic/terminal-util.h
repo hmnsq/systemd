@@ -32,9 +32,9 @@
  * 0x1B 0x5c. */
 #define ANSI_ST "\e\\"
 
-bool isatty_safe(int fd);
+bool isatty_safe(целое fd);
 
-int terminal_reset_ansi_seq(int fd);
+целое terminal_reset_ansi_seq(целое fd);
 
 typedef enum TerminalResetFlags {
         TERMINAL_RESET_SWITCH_TO_TEXT = 1 << 0,
@@ -42,13 +42,13 @@ typedef enum TerminalResetFlags {
         TERMINAL_RESET_FORCE_ANSI_SEQ = 1 << 2,
 } TerminalResetFlags;
 
-int terminal_reset_defensive(int fd, TerminalResetFlags flags);
-int terminal_reset_defensive_locked(int fd, TerminalResetFlags flags);
+целое terminal_reset_defensive(целое fd, TerminalResetFlags flags);
+целое terminal_reset_defensive_locked(целое fd, TerminalResetFlags flags);
 
-int terminal_set_cursor_position(int fd, unsigned row, unsigned column);
-int terminal_get_cursor_position(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_column);
+целое terminal_set_cursor_position(целое fd, unsigned row, unsigned column);
+целое terminal_get_cursor_position(целое input_fd, целое output_fd, unsigned *ret_rows, unsigned *ret_column);
 
-int open_terminal(const char *name, int mode);
+целое open_terminal(const char *name, целое mode);
 
 /* Flags for tweaking the way we become the controlling process of a terminal. */
 typedef enum AcquireTerminalFlags {
@@ -71,22 +71,22 @@ typedef enum AcquireTerminalFlags {
         ACQUIRE_TERMINAL_WATCH_SIGTERM = 1 << 3,
 } AcquireTerminalFlags;
 
-int acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
-int release_terminal(void);
+целое acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
+целое release_terminal(void);
 
-int terminal_new_session(void);
+целое terminal_new_session(void);
 void terminal_detach_session(void);
 
-int terminal_vhangup_fd(int fd);
-int terminal_vhangup(const char *tty);
+целое terminal_vhangup_fd(целое fd);
+целое terminal_vhangup(const char *tty);
 
-int terminal_set_size_fd(int fd, const char *ident, unsigned rows, unsigned cols);
-int proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols);
+целое terminal_set_size_fd(целое fd, const char *ident, unsigned rows, unsigned cols);
+целое proc_cmdline_tty_size(const char *tty, unsigned *ret_rows, unsigned *ret_cols);
 
-int chvt(int vt);
+целое chvt(целое vt);
 
-int read_one_char(FILE *f, char *ret, usec_t timeout, bool echo, bool *need_nl);
-int ask_char(char *ret, const char *replies, const char *fmt, ...) _printf_(3, 4);
+целое read_one_char(FILE *f, char *ret, usec_t timeout, bool echo, bool *need_nl);
+целое ask_char(char *ret, const char *replies, const char *fmt, ...) _printf_(3, 4);
 
 typedef enum GetCompletionsFlags {
         /* Only return the items subject to preselection: typically you want to suppress meta entries such as
@@ -94,33 +94,33 @@ typedef enum GetCompletionsFlags {
         GET_COMPLETIONS_PRESELECT = 1 << 0,
 } GetCompletionsFlags;
 
-typedef int (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
-int ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
+typedef целое (*GetCompletionsCallback)(const char *key, GetCompletionsFlags flags, char ***ret_list, void *userdata);
+целое ask_string_full(char **ret, const char *prefill, GetCompletionsCallback get_completions, void *userdata, const char *text, ...) _printf_(5, 6);
 #define ask_string(ret, text, ...) ask_string_full(ret, NULL, NULL, NULL, text, ##__VA_ARGS__)
 
 bool any_key_to_proceed(void);
-int show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
+целое show_menu(char **x, size_t n_columns, size_t column_width, unsigned ellipsize_percentage, const char *grey_prefix, bool with_numbers);
 
-int vt_disallocate(const char *tty_path);
+целое vt_disallocate(const char *tty_path);
 
-int resolve_dev_console(char **ret);
-int get_kernel_consoles(char ***ret);
+целое resolve_dev_console(char **ret);
+целое get_kernel_consoles(char ***ret);
 bool tty_is_vc(const char *tty);
 bool tty_is_vc_resolve(const char *tty);
 bool tty_is_console(const char *tty) _pure_;
-int vtnr_from_tty(const char *tty);
+целое vtnr_from_tty(const char *tty);
 
-void reset_dev_console_fd(int fd, bool switch_to_text);
-int lock_dev_console(void);
-int make_console_stdio(bool switch_to_text);
+void reset_dev_console_fd(целое fd, bool switch_to_text);
+целое lock_dev_console(void);
+целое make_console_stdio(bool switch_to_text);
 
-int getenv_columns(void);
-int fd_columns(int fd);
+целое getenv_columns(void);
+целое fd_columns(целое fd);
 unsigned columns(void);
-int fd_lines(int fd);
+целое fd_lines(целое fd);
 unsigned lines(void);
 
-void columns_lines_cache_reset(int _unused_ signum);
+void columns_lines_cache_reset(целое _unused_ signum);
 void reset_terminal_feature_caches(void);
 
 bool on_tty(void);
@@ -130,21 +130,21 @@ bool terminal_is_dumb(void);
 
 bool dev_console_colors_enabled(void);
 
-int get_ctty_devnr(pid_t pid, dev_t *ret);
-int get_ctty(pid_t pid, dev_t *ret_devnr, char **ret);
+целое get_ctty_devnr(pid_t pid, dev_t *ret);
+целое get_ctty(pid_t pid, dev_t *ret_devnr, char **ret);
 
-int getttyname_malloc(int fd, char **ret);
-int getttyname_harder(int fd, char **ret);
+целое getttyname_malloc(целое fd, char **ret);
+целое getttyname_harder(целое fd, char **ret);
 
-int ptsname_malloc(int fd, char **ret);
+целое ptsname_malloc(целое fd, char **ret);
 
-int openpt_allocate(int flags, char **ret_peer_path);
-int openpt_allocate_in_namespace(const PidRef *pidref, int flags, char **ret_peer_path);
+целое openpt_allocate(целое flags, char **ret_peer_path);
+целое openpt_allocate_in_namespace(const PidRef *pidref, целое flags, char **ret_peer_path);
 
-int vt_restore(int fd);
-int vt_release(int fd, bool restore);
+целое vt_restore(целое fd);
+целое vt_release(целое fd, bool restore);
 
-void get_log_colors(int priority, const char **on, const char **off, const char **highlight);
+void get_log_colors(целое priority, const char **on, const char **off, const char **highlight);
 
 /* Assume TTY_MODE is defined in config.h. Also, this assumes there is a 'tty' group. */
 assert_cc((TTY_MODE & ~0666) == 0);
@@ -162,7 +162,7 @@ void termios_disable_echo(struct termios *termios);
 }
 
 typedef struct TermiosResetContext {
-        int *fd;
+        целое *fd;
         struct termios *termios;
 } TermiosResetContext;
 
@@ -178,26 +178,26 @@ void termios_reset(const TermiosResetContext *c);
 /* The $TERM value we use for terminals other than the Linux console */
 #define FALLBACK_TERM "vt220"
 
-int get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
-int terminal_get_size(int input_fd, int output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
-int terminal_fix_size(int input_fd, int output_fd);
+целое get_default_background_color(double *ret_red, double *ret_green, double *ret_blue);
+целое terminal_get_size(целое input_fd, целое output_fd, unsigned *ret_rows, unsigned *ret_columns, bool try_dsr, bool try_csi18);
+целое terminal_fix_size(целое input_fd, целое output_fd);
 
-int terminal_get_terminfo_by_dcs(int fd, char **ret_name);
-int have_terminfo_file(const char *name);
-int query_term_for_tty(const char *tty, char **ret_term);
+целое terminal_get_terminfo_by_dcs(целое fd, char **ret_name);
+целое have_terminfo_file(const char *name);
+целое query_term_for_tty(const char *tty, char **ret_term);
 
-int terminal_is_pty_fd(int fd);
+целое terminal_is_pty_fd(целое fd);
 
-int pty_open_peer(int fd, int mode);
+целое pty_open_peer(целое fd, целое mode);
 
 static inline bool osc_char_is_valid(char c) {
         /* Checks whether the specified character is safe to be included inside an ANSI OSC sequence, as per
          * ECMA-48 5th edition, section 8.3.89 */
-        return (unsigned char) c >= 32 && (unsigned char) c < 127;
+        вернуть (unsigned char) c >= 32 && (unsigned char) c < 127;
 }
 
 #define VTNR_MAX 63
 
 static inline bool vtnr_is_valid(unsigned n) {
-        return n >= 1 && n <= VTNR_MAX;
+        вернуть n >= 1 && n <= VTNR_MAX;
 }

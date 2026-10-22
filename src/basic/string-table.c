@@ -8,73 +8,73 @@
 #include "string-util.h"
 
 const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+        если (i < 0 || i >= (ssize_t) len)
+                вернуть NULL;
 
         assert(table);
 
-        return table[i];
+        вернуть table[i];
 }
 
 ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        если (!key)
+                вернуть -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        для (size_t i = 0; i < len; ++i)
+                если (streq_ptr(table[i], key))
+                        вернуть (ssize_t) i;
 
-        return -EINVAL;
+        вернуть -EINVAL;
 }
 
 ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+        если (!key)
+                вернуть -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        целое b = parse_boolean(key);
+        если (b == 0)
+                вернуть 0;
+        если (b > 0)
+                вернуть yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        вернуть string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
+целое string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
         char *s;
 
         assert(table);
         assert(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        если (i < 0 || i > (ssize_t) max)
+                вернуть -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        если (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        иначе
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        если (!s)
+                вернуть -ENOMEM;
 
         *ret = s;
-        return 0;
+        вернуть 0;
 }
 
 ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+        если (!s)
+                вернуть -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        если (i >= 0)
+                вернуть i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        если (safe_atou(s, &u) < 0)
+                вернуть -EINVAL;
+        если (u > max)
+                вернуть -EINVAL;
 
-        return u;
+        вернуть u;
 }

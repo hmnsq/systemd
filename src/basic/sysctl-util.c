@@ -24,62 +24,62 @@ char* sysctl_normalize(char *s) {
          * assumed to be normalized and slashes remain slashes
          * and dots remains dots. */
 
-        if (n && *n == '.')
+        если (n && *n == '.')
                 /* Dots become slashes and slashes become dots. Fun. */
                 do {
-                        if (*n == '.')
+                        если (*n == '.')
                                 *n = '/';
-                        else
+                        иначе
                                 *n = '.';
 
                         n = strpbrk(n + 1, "/.");
-                } while (n);
+                } пока (n);
 
         path_simplify(s);
 
         /* Kill the leading slash, but keep the first character of the string in the same place. */
-        if (s[0] == '/' && s[1] != 0)
+        если (s[0] == '/' && s[1] != 0)
                 memmove(s, s+1, strlen(s));
 
-        return s;
+        вернуть s;
 }
 
-static int shadow_update(Hashmap **shadow, const char *property, const char *value) {
+static целое shadow_update(Hashmap **shadow, const char *property, const char *value) {
         _cleanup_free_ char *k = NULL, *v = NULL, *cur_k = NULL, *cur_v = NULL;
-        int r;
+        целое r;
 
         assert(property);
         assert(value);
 
-        if (!shadow)
-                return 0;
+        если (!shadow)
+                вернуть 0;
 
         k = strdup(property);
-        if (!k)
-                return -ENOMEM;
+        если (!k)
+                вернуть -ENOMEM;
 
         v = strdup(value);
-        if (!v)
-                return -ENOMEM;
+        если (!v)
+                вернуть -ENOMEM;
 
         cur_v = hashmap_remove2(*shadow, k, (void**)&cur_k);
 
         r = hashmap_ensure_put(shadow, &path_hash_ops_free_free, k, v);
-        if (r < 0) {
+        если (r < 0) {
                 assert(r != -EEXIST);
 
-                return r;
+                вернуть r;
         }
 
         TAKE_PTR(k);
         TAKE_PTR(v);
 
-        return 0;
+        вернуть 0;
 }
 
-int sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
+целое sysctl_write_full(const char *property, const char *value, Hashmap **shadow) {
         char *p;
-        int r;
+        целое r;
 
         assert(property);
         assert(value);
@@ -87,35 +87,35 @@ int sysctl_write_full(const char *property, const char *value, Hashmap **shadow)
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p))
-                return -EINVAL;
+        если (!path_is_normalized(p))
+                вернуть -EINVAL;
 
         log_debug("Setting '%s' to '%s'", p, value);
 
         r = shadow_update(shadow, p, value);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
+        вернуть write_string_file(p, value, WRITE_STRING_FILE_VERIFY_ON_FAILURE | WRITE_STRING_FILE_DISABLE_BUFFER | WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL);
 }
 
-int sysctl_writef(const char *property, const char *format, ...) {
+целое sysctl_writef(const char *property, const char *format, ...) {
         _cleanup_free_ char *v = NULL;
         va_list ap;
-        int r;
+        целое r;
 
         va_start(ap, format);
         r = vasprintf(&v, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        если (r < 0)
+                вернуть -ENOMEM;
 
-        return sysctl_write(property, v);
+        вернуть sysctl_write(property, v);
 }
 
-int sysctl_write_verify(const char *property, const char *value) {
-        int r;
+целое sysctl_write_verify(const char *property, const char *value) {
+        целое r;
 
         assert(property);
         assert(value);
@@ -128,16 +128,16 @@ int sysctl_write_verify(const char *property, const char *value) {
 
         _cleanup_free_ char *original = NULL;
         r = sysctl_read(property, &original);
-        if (r >= 0 && streq(original, value))
-                return 0; /* Already set. */
+        если (r >= 0 && streq(original, value))
+                вернуть 0; /* Already set. */
 
         r = sysctl_write(property, value);
-        if (r >= 0) {
+        если (r >= 0) {
                 _cleanup_free_ char *current = NULL;
                 r = sysctl_read(property, &current);
-                if (r >= 0) {
-                        if (streq(current, value))
-                                return 0; /* Yay! */
+                если (r >= 0) {
+                        если (streq(current, value))
+                                вернуть 0; /* Yay! */
 
                         /* At least for coredump pattern, this does not happen, but let's handle this as the
                          * same as we wrote something invalid. */
@@ -145,131 +145,131 @@ int sysctl_write_verify(const char *property, const char *value) {
                 }
         }
 
-        if (original)
+        если (original)
                 (void) sysctl_write(property, original);
 
-        return r;
+        вернуть r;
 }
 
-static const char* af_to_sysctl_dir(int af) {
-        if (af == AF_MPLS)
-                return "mpls";
+static const char* af_to_sysctl_dir(целое af) {
+        если (af == AF_MPLS)
+                вернуть "mpls";
 
-        return af_to_ipv4_ipv6(af);
+        вернуть af_to_ipv4_ipv6(af);
 }
 
-int sysctl_write_ip_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
+целое sysctl_write_ip_property(целое af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
         const char *p;
 
         assert(property);
         assert(value);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        если (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                вернуть -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        если (ifname) {
+                если (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        вернуть -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } иначе
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        вернуть sysctl_write_full(p, value, shadow);
 }
 
-int sysctl_write_ip_property_boolean(int af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
-        return sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
+целое sysctl_write_ip_property_boolean(целое af, const char *ifname, const char *property, bool value, Hashmap **shadow) {
+        вернуть sysctl_write_ip_property(af, ifname, property, one_zero(value), shadow);
 }
 
-int sysctl_write_ip_neighbor_property(int af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
+целое sysctl_write_ip_neighbor_property(целое af, const char *ifname, const char *property, const char *value, Hashmap **shadow) {
         const char *p;
 
         assert(property);
         assert(value);
         assert(ifname);
 
-        if (!IN_SET(af, AF_INET, AF_INET6))
-                return -EAFNOSUPPORT;
+        если (!IN_SET(af, AF_INET, AF_INET6))
+                вернуть -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        если (ifname) {
+                если (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        вернуть -EINVAL;
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/", ifname, "/", property);
-        } else
+        } иначе
                 p = strjoina("net/", af_to_ipv4_ipv6(af), "/neigh/default/", property);
 
-        return sysctl_write_full(p, value, shadow);
+        вернуть sysctl_write_full(p, value, shadow);
 }
 
-int sysctl_write_ip_neighbor_property_uint32(int af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
+целое sysctl_write_ip_neighbor_property_uint32(целое af, const char *ifname, const char *property, uint32_t value, Hashmap **shadow) {
         char buf[DECIMAL_STR_MAX(uint32_t)];
         xsprintf(buf, "%u", value);
-        return sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
+        вернуть sysctl_write_ip_neighbor_property(af, ifname, property, buf, shadow);
 }
 
-int sysctl_read(const char *property, char **ret) {
+целое sysctl_read(const char *property, char **ret) {
         char *p;
-        int r;
+        целое r;
 
         assert(property);
 
         p = strjoina("/proc/sys/", property);
 
         path_simplify(p);
-        if (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
-                return -EINVAL;
+        если (!path_is_normalized(p)) /* Filter out attempts to write to /proc/sys/../../…, just in case */
+                вернуть -EINVAL;
 
         r = read_full_virtual_file(p, ret, NULL);
-        if (r < 0)
-                return r;
-        if (ret)
+        если (r < 0)
+                вернуть r;
+        если (ret)
                 delete_trailing_chars(*ret, NEWLINE);
 
-        return r;
+        вернуть r;
 }
 
-int sysctl_read_ip_property(int af, const char *ifname, const char *property, char **ret) {
+целое sysctl_read_ip_property(целое af, const char *ifname, const char *property, char **ret) {
         const char *p;
 
         assert(property);
 
-        if (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
-                return -EAFNOSUPPORT;
+        если (!IN_SET(af, AF_INET, AF_INET6, AF_MPLS))
+                вернуть -EAFNOSUPPORT;
 
-        if (ifname) {
-                if (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
-                        return -EINVAL;
+        если (ifname) {
+                если (!ifname_valid_full(ifname, IFNAME_VALID_SPECIAL))
+                        вернуть -EINVAL;
 
                 p = strjoina("net/", af_to_sysctl_dir(af), "/conf/", ifname, "/", property);
-        } else
+        } иначе
                 p = strjoina("net/", af_to_sysctl_dir(af), "/", property);
 
-        return sysctl_read(p, ret);
+        вернуть sysctl_read(p, ret);
 }
 
-int sysctl_read_ip_property_int(int af, const char *ifname, const char *property, int *ret) {
+целое sysctl_read_ip_property_int(целое af, const char *ifname, const char *property, целое *ret) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        целое r;
 
         assert(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return safe_atoi(s, ret);
+        вернуть safe_atoi(s, ret);
 }
 
-int sysctl_read_ip_property_uint32(int af, const char *ifname, const char *property, uint32_t *ret) {
+целое sysctl_read_ip_property_uint32(целое af, const char *ifname, const char *property, uint32_t *ret) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        целое r;
 
         assert(ret);
 
         r = sysctl_read_ip_property(af, ifname, property, &s);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return safe_atou32(s, ret);
+        вернуть safe_atou32(s, ret);
 }

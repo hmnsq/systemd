@@ -279,7 +279,7 @@ struct FilesystemMagic;
 %struct-type
 %includes
 %%''')
-    for name, magics in NAME_TO_MAGIC.items():
+    для name, magics in NAME_TO_MAGIC.items():
         print(f'{name + ",":16} {{{", ".join(magics)}}}')
 
 
@@ -296,10 +296,10 @@ def generate_fs_type_to_string():
 const char* fs_type_to_string(statfs_f_type_t magic) {
         switch (magic) {''')
 
-    for name, magics in NAME_TO_MAGIC.items():
-        if name in OBSOLETE_NAMES:
+    для name, magics in NAME_TO_MAGIC.items():
+        если name in OBSOLETE_NAMES:
             continue
-        for magic in magics:
+        для magic in magics:
             print(f'        case (statfs_f_type_t) {magic}:')
         print(f'                return "{name}";')
 
@@ -313,11 +313,11 @@ def generate_fs_in_group():
     print('bool fs_in_group(const struct statfs *st, FilesystemGroups fs_group) {')
     print('        switch (fs_group) {')
 
-    for name, _, *filesystems in FILESYSTEM_SETS:
-        magics = sorted(set(sum((NAME_TO_MAGIC[fs] for fs in filesystems), start=[])))
+    для name, _, *filesystems in FILESYSTEM_SETS:
+        magics = sorted(set(sum((NAME_TO_MAGIC[fs] для fs in filesystems), start=[])))
         enum = 'FILESYSTEM_SET_' + name[1:].upper().replace('-', '_')
         print(f'        case {enum}:')
-        opts = '\n                    || '.join(f'F_TYPE_EQUAL(st->f_type, {magic})' for magic in magics)
+        opts = '\n                    || '.join(f'F_TYPE_EQUAL(st->f_type, {magic})' для magic in magics)
         print(f'                return {opts};')
 
     print('        default: assert_not_reached();')
@@ -328,14 +328,14 @@ def generate_fs_in_group():
 def generate_filesystem_sets():
     print('const FilesystemSet filesystem_sets[_FILESYSTEM_SET_MAX] = {')
 
-    for name, desc, *filesystems in FILESYSTEM_SETS:
+    для name, desc, *filesystems in FILESYSTEM_SETS:
         enum = 'FILESYSTEM_SET_' + name[1:].upper().replace('-', '_')
 
         print(f'        [{enum}] = {{')
         print(f'                .name = "{name}",')
         print(f'                .help = "{desc}",')
         print('                .value =')
-        for filesystem in filesystems:
+        для filesystem in filesystems:
             print(f'                "{filesystem}\\0"')
         print('        },')
 
@@ -350,9 +350,9 @@ def magic_defines(args: list[str]) -> Iterator[str]:
         stdin=subprocess.DEVNULL,
         text=True,
     )
-    for line in out.splitlines():
+    для line in out.splitlines():
         _, name, *rest = line.split()
-        if (
+        если (
             '_MAGIC' in name
             and rest
             and rest[0].startswith('0x')
@@ -371,15 +371,15 @@ def check(args: list[str]) -> None:
     kernel_magics = set(magic_defines(args))
     our_magics = set(sum(NAME_TO_MAGIC.values(), start=[]))
     extra = kernel_magics - our_magics
-    if extra:
+    если extra:
         sys.exit(f'kernel knows additional filesystem magics: {", ".join(sorted(extra))}')
 
 
-if __name__ == '__main__':
+если __name__ == '__main__':
     args = sys.argv[1:]
 
-    for i, arg in enumerate(args):
-        if arg == 'gperf':
+    для i, arg in enumerate(args):
+        если arg == 'gperf':
             generate_gperf()
         elif arg == 'fs-type-to-string':
             generate_fs_type_to_string()
@@ -391,5 +391,5 @@ if __name__ == '__main__':
             # 'check' must be the last command; pass the remaining arguments to check().
             check(args[i + 1 :])
             break
-        else:
+        иначе:
             raise ValueError

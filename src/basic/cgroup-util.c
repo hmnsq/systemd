@@ -35,37 +35,37 @@
 #include "user-util.h"
 #include "xattr-util.h"
 
-int cg_is_available(void) {
+целое cg_is_available(void) {
         struct statfs fs;
 
-        if (statfs("/sys/fs/cgroup/", &fs) < 0) {
-                if (errno == ENOENT) /* sysfs not mounted? */
-                        return false;
+        если (statfs("/sys/fs/cgroup/", &fs) < 0) {
+                если (errno == ENOENT) /* sysfs not mounted? */
+                        вернуть false;
 
-                return log_debug_errno(errno, "Failed to statfs /sys/fs/cgroup/: %m");
+                вернуть log_debug_errno(errno, "Failed to statfs /sys/fs/cgroup/: %m");
         }
 
-        return is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
+        вернуть is_fs_type(&fs, CGROUP2_SUPER_MAGIC);
 }
 
-int cg_path_open(const char *path) {
+целое cg_path_open(const char *path) {
         _cleanup_free_ char *fs = NULL;
-        int r;
+        целое r;
 
         r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return RET_NERRNO(open(fs, O_DIRECTORY|O_CLOEXEC));
+        вернуть RET_NERRNO(open(fs, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id) {
-        _cleanup_close_ int fsfd = -EBADF;
+целое cg_cgroupid_open(целое cgroupfs_fd, uint64_t id) {
+        _cleanup_close_ целое fsfd = -EBADF;
 
-        if (cgroupfs_fd < 0) {
+        если (cgroupfs_fd < 0) {
                 fsfd = open("/sys/fs/cgroup", O_CLOEXEC|O_DIRECTORY);
-                if (fsfd < 0)
-                        return -errno;
+                если (fsfd < 0)
+                        вернуть -errno;
 
                 cgroupfs_fd = fsfd;
         }
@@ -80,50 +80,50 @@ int cg_cgroupid_open(int cgroupfs_fd, uint64_t id) {
 
         unaligned_write_ne64(fh.file_handle.f_handle, id);
 
-        return RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
+        вернуть RET_NERRNO(open_by_handle_at(cgroupfs_fd, &fh.file_handle, O_DIRECTORY|O_CLOEXEC));
 }
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret) {
-        _cleanup_close_ int cgfd = -EBADF;
-        int r;
+целое cg_path_from_cgroupid(целое cgroupfs_fd, uint64_t id, char **ret) {
+        _cleanup_close_ целое cgfd = -EBADF;
+        целое r;
 
         cgfd = cg_cgroupid_open(cgroupfs_fd, id);
-        if (cgfd < 0)
-                return cgfd;
+        если (cgfd < 0)
+                вернуть cgfd;
 
         _cleanup_free_ char *path = NULL;
         r = fd_get_path(cgfd, &path);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (!path_startswith(path, "/sys/fs/cgroup/"))
-                return -EXDEV; /* recognizable error */
+        если (!path_startswith(path, "/sys/fs/cgroup/"))
+                вернуть -EXDEV; /* recognizable error */
 
-        if (ret)
+        если (ret)
                 *ret = TAKE_PTR(path);
-        return 0;
+        вернуть 0;
 }
 
-int cg_enumerate_processes(const char *path, FILE **ret) {
+целое cg_enumerate_processes(const char *path, FILE **ret) {
         _cleanup_free_ char *fs = NULL;
         FILE *f;
-        int r;
+        целое r;
 
         assert(ret);
 
         r = cg_get_path(path, "cgroup.procs", &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         f = fopen(fs, "re");
-        if (!f)
-                return -errno;
+        если (!f)
+                вернуть -errno;
 
         *ret = f;
-        return 0;
+        вернуть 0;
 }
 
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
+целое cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
         unsigned long ul;
 
         /* Note that the cgroup.procs might contain duplicates! See cgroups.txt for details. */
@@ -134,134 +134,134 @@ int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags) {
         /* NB: The kernel returns ENODEV if we tried to read from cgroup.procs of a cgroup that has been
          * removed already. Callers should handle that! */
 
-        for (;;) {
+        для (;;) {
                 errno = 0;
-                if (fscanf(f, "%lu", &ul) != 1) {
+                если (fscanf(f, "%lu", &ul) != 1) {
 
-                        if (feof(f)) {
+                        если (feof(f)) {
                                 *ret = 0;
-                                return 0;
+                                вернуть 0;
                         }
 
-                        return errno_or_else(EIO);
+                        вернуть errno_or_else(EIO);
                 }
 
-                if (ul > PID_T_MAX)
-                        return -EIO;
+                если (ul > PID_T_MAX)
+                        вернуть -EIO;
 
                 /* In some circumstances (e.g. WSL), cgroups might contain unmappable PIDs from other
                  * contexts. These show up as zeros, and depending on the caller, can either be plain
                  * skipped over, or returned as-is. */
-                if (ul == 0 && !FLAGS_SET(flags, CGROUP_DONT_SKIP_UNMAPPED))
+                если (ul == 0 && !FLAGS_SET(flags, CGROUP_DONT_SKIP_UNMAPPED))
                         continue;
 
                 *ret = (pid_t) ul;
-                return 1;
+                вернуть 1;
         }
 }
 
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags) {
-        int r;
+целое cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags) {
+        целое r;
 
         assert(f);
         assert(ret);
 
-        for (;;) {
+        для (;;) {
                 pid_t pid;
 
                 r = cg_read_pid(f, &pid, flags);
-                if (r < 0)
-                        return log_debug_errno(r, "Failed to read pid from cgroup item: %m");
-                if (r == 0) {
+                если (r < 0)
+                        вернуть log_debug_errno(r, "Failed to read pid from cgroup item: %m");
+                если (r == 0) {
                         *ret = PIDREF_NULL;
-                        return 0;
+                        вернуть 0;
                 }
 
-                if (pid == 0)
-                        return -EREMOTE;
+                если (pid == 0)
+                        вернуть -EREMOTE;
 
                 r = pidref_set_pid(ret, pid);
-                if (r >= 0)
-                        return 1;
-                if (r != -ESRCH)
-                        return r;
+                если (r >= 0)
+                        вернуть 1;
+                если (r != -ESRCH)
+                        вернуть r;
 
                 /* ESRCH → gone by now? just skip over it, read the next */
         }
 }
 
 bool cg_kill_supported(void) {
-        static thread_local int supported = -1;
+        static thread_local целое supported = -1;
 
-        if (supported >= 0)
-                return supported;
+        если (supported >= 0)
+                вернуть supported;
 
-        if (cg_is_available() <= 0)
-                return (supported = false);
+        если (cg_is_available() <= 0)
+                вернуть (supported = false);
 
-        if (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
-                return (supported = true);
-        if (errno != ENOENT)
+        если (access("/sys/fs/cgroup/init.scope/cgroup.kill", F_OK) >= 0)
+                вернуть (supported = true);
+        если (errno != ENOENT)
                 log_debug_errno(errno, "Failed to check whether cgroup.kill is available, assuming not: %m");
-        return (supported = false);
+        вернуть (supported = false);
 }
 
-int cg_enumerate_subgroups(const char *path, DIR **ret) {
+целое cg_enumerate_subgroups(const char *path, DIR **ret) {
         _cleanup_free_ char *fs = NULL;
         DIR *d;
-        int r;
+        целое r;
 
         assert(ret);
 
         /* This is not recursive! */
 
         r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         d = opendir(fs);
-        if (!d)
-                return -errno;
+        если (!d)
+                вернуть -errno;
 
         *ret = d;
-        return 0;
+        вернуть 0;
 }
 
-int cg_read_subgroup(DIR *d, char **ret) {
+целое cg_read_subgroup(DIR *d, char **ret) {
         assert(d);
         assert(ret);
 
-        FOREACH_DIRENT_ALL(de, d, return -errno) {
-                if (de->d_type != DT_DIR)
+        FOREACH_DIRENT_ALL(de, d, вернуть -errno) {
+                если (de->d_type != DT_DIR)
                         continue;
 
-                if (dot_or_dot_dot(de->d_name))
+                если (dot_or_dot_dot(de->d_name))
                         continue;
 
-                return strdup_to_full(ret, de->d_name);
+                вернуть strdup_to_full(ret, de->d_name);
         }
 
         *ret = NULL;
-        return 0;
+        вернуть 0;
 }
 
-int cg_kill(
+целое cg_kill(
                 const char *path,
-                int sig,
+                целое sig,
                 CGroupFlags flags,
                 Set *killed_pids,
                 cg_kill_log_func_t log_kill,
                 void *userdata) {
 
         _cleanup_set_free_ Set *allocated_set = NULL;
-        int r, ret = 0;
+        целое r, ret = 0;
 
         assert(path);
         assert(sig >= 0);
 
          /* Don't send SIGCONT twice. Also, SIGKILL always works even when process is suspended, hence
           * don't send SIGCONT on SIGKILL. */
-        if (IN_SET(sig, SIGCONT, SIGKILL))
+        если (IN_SET(sig, SIGCONT, SIGKILL))
                 flags &= ~CGROUP_SIGCONT;
 
         /* This goes through the tasks list and kills them all. This is repeated until no further processes
@@ -269,68 +269,68 @@ int cg_kill(
          *
          * When sending SIGKILL, prefer cg_kill_kernel_sigkill(), which is fully atomic. */
 
-        if (!killed_pids) {
+        если (!killed_pids) {
                 killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+                если (!killed_pids)
+                        вернуть -ENOMEM;
         }
 
         bool done;
         do {
                 _cleanup_fclose_ FILE *f = NULL;
-                int ret_log_kill;
+                целое ret_log_kill;
 
                 done = true;
 
                 r = cg_enumerate_processes(path, &f);
-                if (r == -ENOENT)
+                если (r == -ENOENT)
                         break;
-                if (r < 0)
-                        return RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
+                если (r < 0)
+                        вернуть RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup items: %m"));
 
-                for (;;) {
+                для (;;) {
                         _cleanup_(pidref_done) PidRef pidref = PIDREF_NULL;
 
                         r = cg_read_pidref(f, &pidref, flags);
-                        if (r == -ENODEV) {
+                        если (r == -ENODEV) {
                                 /* reading from cgroup.pids will result in ENODEV if the cgroup is
                                  * concurrently removed. Just leave in that case, because a removed cgroup
                                  * contains no processes anymore. */
                                 done = true;
                                 break;
                         }
-                        if (r < 0)
-                                return RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", path));
-                        if (r == 0)
+                        если (r < 0)
+                                вернуть RET_GATHER(ret, log_debug_errno(r, "Failed to read pidref from cgroup '%s': %m", path));
+                        если (r == 0)
                                 break;
 
-                        if ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
+                        если ((flags & CGROUP_IGNORE_SELF) && pidref_is_self(&pidref))
                                 continue;
 
-                        if (set_contains(killed_pids, PID_TO_PTR(pidref.pid)))
+                        если (set_contains(killed_pids, PID_TO_PTR(pidref.pid)))
                                 continue;
 
                         /* Ignore kernel threads to mimic the behavior of cgroup.kill. */
-                        if (pidref_is_kernel_thread(&pidref) > 0) {
+                        если (pidref_is_kernel_thread(&pidref) > 0) {
                                 log_debug("Ignoring kernel thread with pid " PID_FMT " in cgroup '%s'", pidref.pid, path);
                                 continue;
                         }
 
-                        if (log_kill)
+                        если (log_kill)
                                 ret_log_kill = log_kill(&pidref, sig, userdata);
 
                         /* If we haven't killed this process yet, kill it */
                         r = pidref_kill(&pidref, sig);
-                        if (r < 0 && r != -ESRCH)
+                        если (r < 0 && r != -ESRCH)
                                 RET_GATHER(ret, log_debug_errno(r, "Failed to kill process with pid " PID_FMT " from cgroup '%s': %m", pidref.pid, path));
-                        if (r >= 0) {
-                                if (flags & CGROUP_SIGCONT)
+                        если (r >= 0) {
+                                если (flags & CGROUP_SIGCONT)
                                         (void) pidref_kill(&pidref, SIGCONT);
 
-                                if (ret == 0) {
-                                        if (log_kill)
+                                если (ret == 0) {
+                                        если (log_kill)
                                                 ret = ret_log_kill;
-                                        else
+                                        иначе
                                                 ret = 1;
                                 }
                         }
@@ -338,21 +338,21 @@ int cg_kill(
                         done = false;
 
                         r = set_put(killed_pids, PID_TO_PTR(pidref.pid));
-                        if (r < 0)
-                                return RET_GATHER(ret, r);
+                        если (r < 0)
+                                вернуть RET_GATHER(ret, r);
                 }
 
                 /* To avoid racing against processes which fork quicker than we can kill them, we repeat this
                  * until no new pids need to be killed. */
 
-        } while (!done);
+        } пока (!done);
 
-        return ret;
+        вернуть ret;
 }
 
-int cg_kill_recursive(
+целое cg_kill_recursive(
                 const char *path,
-                int sig,
+                целое sig,
                 CGroupFlags flags,
                 Set *killed_pids,
                 cg_kill_log_func_t log_kill,
@@ -360,243 +360,243 @@ int cg_kill_recursive(
 
         _cleanup_set_free_ Set *allocated_set = NULL;
         _cleanup_closedir_ DIR *d = NULL;
-        int r, ret;
+        целое r, ret;
 
         assert(path);
         assert(sig >= 0);
 
-        if (!killed_pids) {
+        если (!killed_pids) {
                 killed_pids = allocated_set = set_new(NULL);
-                if (!killed_pids)
-                        return -ENOMEM;
+                если (!killed_pids)
+                        вернуть -ENOMEM;
         }
 
         ret = cg_kill(path, sig, flags, killed_pids, log_kill, userdata);
 
         r = cg_enumerate_subgroups(path, &d);
-        if (r < 0) {
-                if (r != -ENOENT)
+        если (r < 0) {
+                если (r != -ENOENT)
                         RET_GATHER(ret, log_debug_errno(r, "Failed to enumerate cgroup '%s' subgroups: %m", path));
 
-                return ret;
+                вернуть ret;
         }
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ char *fn = NULL, *p = NULL;
 
                 r = cg_read_subgroup(d, &fn);
-                if (r < 0) {
+                если (r < 0) {
                         RET_GATHER(ret, log_debug_errno(r, "Failed to read subgroup from cgroup '%s': %m", path));
                         break;
                 }
-                if (r == 0)
+                если (r == 0)
                         break;
 
                 p = path_join(empty_to_root(path), fn);
-                if (!p)
-                        return -ENOMEM;
+                если (!p)
+                        вернуть -ENOMEM;
 
                 r = cg_kill_recursive(p, sig, flags, killed_pids, log_kill, userdata);
-                if (r < 0)
+                если (r < 0)
                         log_debug_errno(r, "Failed to recursively kill processes in cgroup '%s': %m", p);
-                if (r != 0 && ret >= 0)
+                если (r != 0 && ret >= 0)
                         ret = r;
         }
 
-        return ret;
+        вернуть ret;
 }
 
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed) {
+целое cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed) {
         _cleanup_free_ char *killfile = NULL;
         uint64_t n_pids = UINT64_MAX;
-        int r;
+        целое r;
 
         /* Kills the cgroup at `path` directly by writing to its cgroup.kill file.  This sends SIGKILL to all
          * processes in the cgroup and has the advantage of being completely atomic, unlike cg_kill_items(). */
 
         assert(path);
 
-        if (!cg_kill_supported())
-                return -EOPNOTSUPP;
+        если (!cg_kill_supported())
+                вернуть -EOPNOTSUPP;
 
         r = cg_get_path(path, "cgroup.kill", &killfile);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret_n_pids_killed) {
+        если (ret_n_pids_killed) {
                 /* This is not and cannot be atomic so there is a chance the counter might not be accurate
                  * if a process starts/stops between this read and the next write, but this is used for
                  * informational purposes so that's ok. */
                 r = cg_get_attribute_as_uint64(path, "pids.current", &n_pids);
-                if (r < 0)
+                если (r < 0)
                         log_debug_errno(r, "Failed to read pids.current from cgroup '%s', ignoring: %m", path);
         }
 
         r = write_string_file(killfile, "1", WRITE_STRING_FILE_DISABLE_BUFFER);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", path);
+        если (r < 0)
+                вернуть log_debug_errno(r, "Failed to write to cgroup.kill for cgroup '%s': %m", path);
 
-        if (ret_n_pids_killed)
+        если (ret_n_pids_killed)
                 *ret_n_pids_killed = n_pids;
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_get_path(const char *path, const char *suffix, char **ret) {
+целое cg_get_path(const char *path, const char *suffix, char **ret) {
         char *t;
 
         assert(ret);
 
-        if (isempty(path))
+        если (isempty(path))
                 path = TAKE_PTR(suffix);
 
         t = path_join("/sys/fs/cgroup", path, suffix);
-        if (!t)
-                return -ENOMEM;
+        если (!t)
+                вернуть -ENOMEM;
 
         *ret = path_simplify(t);
-        return 0;
+        вернуть 0;
 }
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags) {
+целое cg_set_xattr(const char *path, const char *name, const void *value, size_t size, целое flags) {
         _cleanup_free_ char *fs = NULL;
-        int r;
+        целое r;
 
         assert(path);
         assert(name);
         assert(value || size <= 0);
 
         r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return RET_NERRNO(setxattr(fs, name, value, size, flags));
+        вернуть RET_NERRNO(setxattr(fs, name, value, size, flags));
 }
 
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size) {
+целое cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size) {
         _cleanup_free_ char *fs = NULL;
-        int r;
+        целое r;
 
         assert(path);
         assert(name);
 
         r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return lgetxattr_malloc(fs, name, ret, ret_size);
+        вернуть lgetxattr_malloc(fs, name, ret, ret_size);
 }
 
-int cg_get_xattr_bool(const char *path, const char *name) {
+целое cg_get_xattr_bool(const char *path, const char *name) {
         _cleanup_free_ char *fs = NULL;
-        int r;
+        целое r;
 
         assert(path);
         assert(name);
 
         r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
+        вернуть getxattr_at_bool(AT_FDCWD, fs, name, /* at_flags= */ 0);
 }
 
-int cg_remove_xattr(const char *path, const char *name) {
+целое cg_remove_xattr(const char *path, const char *name) {
         _cleanup_free_ char *fs = NULL;
-        int r;
+        целое r;
 
         assert(path);
         assert(name);
 
         r = cg_get_path(path, /* suffix= */ NULL, &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return RET_NERRNO(removexattr(fs, name));
+        вернуть RET_NERRNO(removexattr(fs, name));
 }
 
-int cg_pid_get_path(pid_t pid, char **ret_path) {
+целое cg_pid_get_path(pid_t pid, char **ret_path) {
         _cleanup_fclose_ FILE *f = NULL;
         const char *fs;
-        int r;
+        целое r;
 
         assert(pid >= 0);
         assert(ret_path);
 
         fs = procfs_file_alloca(pid, "cgroup");
         r = fopen_unlocked(fs, "re", &f);
-        if (r == -ENOENT)
-                return -ESRCH;
-        if (r < 0)
-                return r;
+        если (r == -ENOENT)
+                вернуть -ESRCH;
+        если (r < 0)
+                вернуть r;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ char *line = NULL;
                 char *e;
 
                 r = read_line(f, LONG_LINE_MAX, &line);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return -ENODATA;
+                если (r < 0)
+                        вернуть r;
+                если (r == 0)
+                        вернуть -ENODATA;
 
                 e = startswith(line, "0:");
-                if (!e)
+                если (!e)
                         continue;
 
                 e = strchr(e, ':');
-                if (!e)
+                если (!e)
                         continue;
 
                 _cleanup_free_ char *path = strdup(e + 1);
-                if (!path)
-                        return -ENOMEM;
+                если (!path)
+                        вернуть -ENOMEM;
 
                 /* Refuse cgroup paths from outside our cgroup namespace */
-                if (startswith(path, "/../"))
-                        return -EUNATCH;
+                если (startswith(path, "/../"))
+                        вернуть -EUNATCH;
 
                 /* Truncate suffix indicating the process is a zombie */
                 e = endswith(path, " (deleted)");
-                if (e)
+                если (e)
                         *e = 0;
 
                 *ret_path = TAKE_PTR(path);
-                return 0;
+                вернуть 0;
         }
 }
 
-int cg_pidref_get_path(const PidRef *pidref, char **ret_path) {
+целое cg_pidref_get_path(const PidRef *pidref, char **ret_path) {
         _cleanup_free_ char *path = NULL;
-        int r;
+        целое r;
 
         assert(ret_path);
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        если (!pidref_is_set(pidref))
+                вернуть -ESRCH;
+        если (pidref_is_remote(pidref))
+                вернуть -EREMOTE;
 
         // XXX: Ideally we'd use pidfd_get_cgroupid() + cg_path_from_cgroupid() here, to extract this
         // bit of information from pidfd directly. However, the latter requires privilege and it's
         // not entirely clear how to handle cgroups from outer namespace.
 
         r = cg_pid_get_path(pidref->pid, &path);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* Before we return the path, make sure the procfs entry for this pid still matches the pidref */
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         *ret_path = TAKE_PTR(path);
-        return 0;
+        вернуть 0;
 }
 
-int cg_is_empty(const char *path) {
+целое cg_is_empty(const char *path) {
         _cleanup_free_ char *t = NULL;
-        int r;
+        целое r;
 
         /* Check if the cgroup hierarchy under 'path' is empty. On cgroup v2 it's exposed via the "populated"
          * attribute of "cgroup.events". */
@@ -604,50 +604,50 @@ int cg_is_empty(const char *path) {
         assert(path);
 
         /* The root cgroup is always populated */
-        if (empty_or_root(path))
-                return false;
+        если (empty_or_root(path))
+                вернуть false;
 
         r = cg_get_keyed_attribute(path, "cgroup.events", STRV_MAKE("populated"), &t);
-        if (r == -ENOENT)
-                return true;
-        if (r < 0)
-                return r;
+        если (r == -ENOENT)
+                вернуть true;
+        если (r < 0)
+                вернуть r;
 
-        return streq(t, "0");
+        вернуть streq(t, "0");
 }
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path) {
+целое cg_split_spec(const char *spec, char **ret_controller, char **ret_path) {
         _cleanup_free_ char *controller = NULL;
         const char *path;
-        int r;
+        целое r;
 
         assert(spec);
 
         /* This extracts the path part from the deprecated controller:path spec. The path must be absolute or
          * an empty string. No validation is done for the controller part. */
 
-        if (isempty(spec) || path_is_absolute(spec)) {
+        если (isempty(spec) || path_is_absolute(spec)) {
                 /* Assume this does not contain controller. */
                 path = spec;
                 goto finalize;
         }
 
         const char *e = strchr(spec, ':');
-        if (!e) {
+        если (!e) {
                 /* Controller only. */
-                if (ret_controller) {
+                если (ret_controller) {
                         controller = strdup(spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        если (!controller)
+                                вернуть -ENOMEM;
                 }
 
                 path = NULL;
-        } else {
+        } иначе {
                 /* Both controller and path. */
-                if (ret_controller) {
+                если (ret_controller) {
                         controller = strndup(spec, e - spec);
-                        if (!controller)
-                                return -ENOMEM;
+                        если (!controller)
+                                вернуть -ENOMEM;
                 }
 
                 path = e + 1;
@@ -656,145 +656,145 @@ int cg_split_spec(const char *spec, char **ret_controller, char **ret_path) {
 finalize:
         path = empty_to_null(path);
 
-        if (path) {
+        если (path) {
                 /* Non-empty path must be absolute. */
-                if (!path_is_absolute(path))
-                        return -EINVAL;
+                если (!path_is_absolute(path))
+                        вернуть -EINVAL;
 
                 /* Path must not contain dot-dot. */
-                if (!path_is_safe(path))
-                        return -EINVAL;
+                если (!path_is_safe(path))
+                        вернуть -EINVAL;
         }
 
-        if (ret_path) {
+        если (ret_path) {
                 r = path_simplify_alloc(path, ret_path);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        if (ret_controller)
+        если (ret_controller)
                 *ret_controller = TAKE_PTR(controller);
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_get_root_path(char **ret_path) {
+целое cg_get_root_path(char **ret_path) {
         char *p, *e;
-        int r;
+        целое r;
 
         assert(ret_path);
 
         r = cg_pid_get_path(1, &p);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         e = endswith(p, "/" SPECIAL_INIT_SCOPE);
-        if (e)
+        если (e)
                 *e = 0;
 
         *ret_path = p;
-        return 0;
+        вернуть 0;
 }
 
-int cg_shift_path(const char *cgroup, const char *root, const char **ret_shifted) {
-        int r;
+целое cg_shift_path(const char *cgroup, const char *root, const char **ret_shifted) {
+        целое r;
 
         assert(cgroup);
         assert(ret_shifted);
 
         _cleanup_free_ char *rt = NULL;
-        if (!root) {
+        если (!root) {
                 /* If the root was specified let's use that, otherwise
                  * let's determine it from PID 1 */
 
                 r = cg_get_root_path(&rt);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
                 root = rt;
         }
 
         *ret_shifted = path_startswith_full(cgroup, root, PATH_STARTSWITH_RETURN_LEADING_SLASH|PATH_STARTSWITH_REFUSE_DOT_DOT) ?: cgroup;
-        return 0;
+        вернуть 0;
 }
 
-int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
+целое cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
         _cleanup_free_ char *raw = NULL;
         const char *c;
-        int r;
+        целое r;
 
         assert(pid >= 0);
         assert(ret_cgroup);
 
         r = cg_pid_get_path(pid, &raw);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (c == raw) {
+        если (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                вернуть 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        вернуть strdup_to(ret_cgroup, c);
 }
 
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *root, char **ret_cgroup) {
+целое cg_pidref_get_path_shifted(const PidRef *pidref, const char *root, char **ret_cgroup) {
         _cleanup_free_ char *raw = NULL;
         const char *c;
-        int r;
+        целое r;
 
         assert(ret_cgroup);
 
         r = cg_pidref_get_path(pidref, &raw);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = cg_shift_path(raw, root, &c);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (c == raw) {
+        если (c == raw) {
                 *ret_cgroup = TAKE_PTR(raw);
-                return 0;
+                вернуть 0;
         }
 
-        return strdup_to(ret_cgroup, c);
+        вернуть strdup_to(ret_cgroup, c);
 }
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit) {
+целое cg_path_decode_unit(const char *cgroup, char **ret_unit) {
         assert(cgroup);
 
         size_t n = strcspn(cgroup, "/");
-        if (n < 3)
-                return -ENXIO;
+        если (n < 3)
+                вернуть -ENXIO;
 
         char *c = strndupa_safe(cgroup, n);
         c = cg_unescape(c);
 
-        if (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        если (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                вернуть -ENXIO;
 
-        if (ret_unit)
-                return strdup_to(ret_unit, c);
+        если (ret_unit)
+                вернуть strdup_to(ret_unit, c);
 
-        return 0;
+        вернуть 0;
 }
 
 static bool valid_slice_name(const char *p, size_t n) {
         assert(p || n == 0);
 
-        if (n < STRLEN("x.slice"))
-                return false;
+        если (n < STRLEN("x.slice"))
+                вернуть false;
 
         char *c = strndupa_safe(p, n);
-        if (!endswith(c, ".slice"))
-                return false;
+        если (!endswith(c, ".slice"))
+                вернуть false;
 
-        return unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
+        вернуть unit_name_is_valid(cg_unescape(c), UNIT_NAME_PLAIN);
 }
 
 static const char* skip_slices(const char *p) {
@@ -802,21 +802,21 @@ static const char* skip_slices(const char *p) {
 
         /* Skips over all slice assignments */
 
-        for (;;) {
+        для (;;) {
                 size_t n;
 
                 p += strspn(p, "/");
 
                 n = strcspn(p, "/");
-                if (!valid_slice_name(p, n))
-                        return p;
+                если (!valid_slice_name(p, n))
+                        вернуть p;
 
                 p += n;
         }
 }
 
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
-        int r;
+целое cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
+        целое r;
 
         assert(path);
 
@@ -824,24 +824,24 @@ int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup
 
         _cleanup_free_ char *unit = NULL;
         r = cg_path_decode_unit(e, &unit);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* We skipped over the slices, don't accept any now */
-        if (endswith(unit, ".slice"))
-                return -ENXIO;
+        если (endswith(unit, ".slice"))
+                вернуть -ENXIO;
 
-        if (ret_subgroup) {
+        если (ret_subgroup) {
                 _cleanup_free_ char *subgroup = NULL;
                 e += strcspn(e, "/");
                 e += strspn(e, "/");
 
-                if (isempty(e))
+                если (isempty(e))
                         subgroup = NULL;
-                else {
+                иначе {
                         subgroup = strdup(e);
-                        if (!subgroup)
-                                return -ENOMEM;
+                        если (!subgroup)
+                                вернуть -ENOMEM;
                 }
 
                 path_simplify(subgroup);
@@ -849,13 +849,13 @@ int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup
                 *ret_subgroup = TAKE_PTR(subgroup);
         }
 
-        if (ret_unit)
+        если (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_path_get_unit_path(const char *path, char **ret) {
+целое cg_path_get_unit_path(const char *path, char **ret) {
         _cleanup_free_ char *path_copy = NULL;
         char *unit_name;
 
@@ -863,53 +863,53 @@ int cg_path_get_unit_path(const char *path, char **ret) {
         assert(ret);
 
         path_copy = strdup(path);
-        if (!path_copy)
-                return -ENOMEM;
+        если (!path_copy)
+                вернуть -ENOMEM;
 
         unit_name = (char*) skip_slices(path_copy);
         unit_name[strcspn(unit_name, "/")] = 0;
 
-        if (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
+        если (!unit_name_is_valid(cg_unescape(unit_name), UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
+                вернуть -ENXIO;
 
         *ret = TAKE_PTR(path_copy);
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+целое cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
+        целое r;
 
         _cleanup_free_ char *cgroup = NULL;
         r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_path_get_unit_full(cgroup, ret_unit, ret_subgroup);
+        вернуть cg_path_get_unit_full(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+целое cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
+        целое r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        если (!pidref_is_set(pidref))
+                вернуть -ESRCH;
+        если (pidref_is_remote(pidref))
+                вернуть -EREMOTE;
 
         _cleanup_free_ char *unit = NULL, *subgroup = NULL;
         r = cg_pid_get_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret_unit)
+        если (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        если (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        вернуть 0;
 }
 
 static const char* skip_session(const char *p) {
@@ -917,31 +917,31 @@ static const char* skip_session(const char *p) {
 
         /* Skip session-*.scope, but require it to be there. */
 
-        if (isempty(p))
-                return NULL;
+        если (isempty(p))
+                вернуть NULL;
 
         p += strspn(p, "/");
 
         n = strcspn(p, "/");
-        if (n < STRLEN("session-x.scope"))
-                return NULL;
+        если (n < STRLEN("session-x.scope"))
+                вернуть NULL;
 
         const char *s = startswith(p, "session-");
-        if (!s)
-                return NULL;
+        если (!s)
+                вернуть NULL;
 
         /* Note that session scopes never need unescaping, since they cannot conflict with the kernel's
          * own names, hence we don't need to call cg_unescape() here. */
         char *f = strndupa_safe(s, p + n - s),
              *e = endswith(f, ".scope");
-        if (!e)
-                return NULL;
+        если (!e)
+                вернуть NULL;
         *e = '\0';
 
-        if (!session_id_valid(f))
-                return NULL;
+        если (!session_id_valid(f))
+                вернуть NULL;
 
-        return skip_leading_slash(p + n);
+        вернуть skip_leading_slash(p + n);
 }
 
 static const char* skip_user_manager(const char *p) {
@@ -949,35 +949,35 @@ static const char* skip_user_manager(const char *p) {
 
         /* Skip user@*.service or capsule@*.service, but require either of them to be there. */
 
-        if (isempty(p))
-                return NULL;
+        если (isempty(p))
+                вернуть NULL;
 
         p += strspn(p, "/");
 
         n = strcspn(p, "/");
-        if (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
-                return NULL;
+        если (n < CONST_MIN(STRLEN("user@x.service"), STRLEN("capsule@x.service")))
+                вернуть NULL;
 
         /* Any possible errors from functions called below are converted to NULL return, so our callers won't
          * resolve user/capsule name. */
         _cleanup_free_ char *unit_name = strndup(p, n);
-        if (!unit_name)
-                return NULL;
+        если (!unit_name)
+                вернуть NULL;
 
         _cleanup_free_ char *i = NULL;
         UnitNameFlags type = unit_name_to_instance(unit_name, &i);
 
-        if (type != UNIT_NAME_INSTANCE)
-                return NULL;
+        если (type != UNIT_NAME_INSTANCE)
+                вернуть NULL;
 
         /* Note that user manager services never need unescaping, since they cannot conflict with the
          * kernel's own names, hence we don't need to call cg_unescape() here.  Prudently check validity of
          * instance names, they should be always valid as we validate them upon unit start. */
-        if (!(startswith(unit_name, "user@") && parse_uid(i, NULL) >= 0) &&
+        если (!(startswith(unit_name, "user@") && parse_uid(i, NULL) >= 0) &&
             !(startswith(unit_name, "capsule@") && capsule_name_is_valid(i) > 0))
-                return NULL;
+                вернуть NULL;
 
-        return skip_leading_slash(p + n);
+        вернуть skip_leading_slash(p + n);
 }
 
 static const char* skip_user_prefix(const char *path) {
@@ -990,208 +990,208 @@ static const char* skip_user_prefix(const char *path) {
 
         /* Skip the user manager, if it's in the path now... */
         t = skip_user_manager(e);
-        if (t)
-                return t;
+        если (t)
+                вернуть t;
 
         /* Alternatively skip the user session if it is in the path... */
-        return skip_session(e);
+        вернуть skip_session(e);
 }
 
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
+целое cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup) {
         const char *t;
 
         assert(path);
 
         t = skip_user_prefix(path);
-        if (!t)
-                return -ENXIO;
+        если (!t)
+                вернуть -ENXIO;
 
         /* And from here on it looks pretty much the same as for a system unit, hence let's use the same
          * parser. */
-        return cg_path_get_unit_full(t, ret_unit, ret_subgroup);
+        вернуть cg_path_get_unit_full(t, ret_unit, ret_subgroup);
 }
 
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
-        int r;
+целое cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup) {
+        целое r;
 
         _cleanup_free_ char *cgroup = NULL;
         r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_path_get_user_unit_full(cgroup, ret_unit, ret_subgroup);
+        вернуть cg_path_get_user_unit_full(cgroup, ret_unit, ret_subgroup);
 }
 
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
-        int r;
+целое cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup) {
+        целое r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        если (!pidref_is_set(pidref))
+                вернуть -ESRCH;
+        если (pidref_is_remote(pidref))
+                вернуть -EREMOTE;
 
         _cleanup_free_ char *unit = NULL, *subgroup = NULL;
         r = cg_pid_get_user_unit_full(pidref->pid, &unit, &subgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret_unit)
+        если (ret_unit)
                 *ret_unit = TAKE_PTR(unit);
-        if (ret_subgroup)
+        если (ret_subgroup)
                 *ret_subgroup = TAKE_PTR(subgroup);
-        return 0;
+        вернуть 0;
 }
 
-int cg_path_get_machine_name(const char *path, char **ret_machine) {
+целое cg_path_get_machine_name(const char *path, char **ret_machine) {
         _cleanup_free_ char *u = NULL;
         const char *sl;
-        int r;
+        целое r;
 
         r = cg_path_get_unit(path, &u);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         sl = strjoina("/run/systemd/machines/unit:", u);
-        return readlink_malloc(sl, ret_machine);
+        вернуть readlink_malloc(sl, ret_machine);
 }
 
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine) {
+целое cg_pid_get_machine_name(pid_t pid, char **ret_machine) {
         _cleanup_free_ char *cgroup = NULL;
-        int r;
+        целое r;
 
         r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_path_get_machine_name(cgroup, ret_machine);
+        вернуть cg_path_get_machine_name(cgroup, ret_machine);
 }
 
-int cg_path_get_session(const char *path, char **ret_session) {
+целое cg_path_get_session(const char *path, char **ret_session) {
         _cleanup_free_ char *unit = NULL;
         char *start, *end;
-        int r;
+        целое r;
 
         assert(path);
 
         r = cg_path_get_unit(path, &unit);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         start = startswith(unit, "session-");
-        if (!start)
-                return -ENXIO;
+        если (!start)
+                вернуть -ENXIO;
         end = endswith(start, ".scope");
-        if (!end)
-                return -ENXIO;
+        если (!end)
+                вернуть -ENXIO;
 
         *end = 0;
-        if (!session_id_valid(start))
-                return -ENXIO;
+        если (!session_id_valid(start))
+                вернуть -ENXIO;
 
-        if (!ret_session)
-                return 0;
+        если (!ret_session)
+                вернуть 0;
 
-        return strdup_to(ret_session, start);
+        вернуть strdup_to(ret_session, start);
 }
 
-int cg_pid_get_session(pid_t pid, char **ret_session) {
+целое cg_pid_get_session(pid_t pid, char **ret_session) {
         _cleanup_free_ char *cgroup = NULL;
-        int r;
+        целое r;
 
         r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_path_get_session(cgroup, ret_session);
+        вернуть cg_path_get_session(cgroup, ret_session);
 }
 
-int cg_pidref_get_session(const PidRef *pidref, char **ret) {
-        int r;
+целое cg_pidref_get_session(const PidRef *pidref, char **ret) {
+        целое r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        если (!pidref_is_set(pidref))
+                вернуть -ESRCH;
+        если (pidref_is_remote(pidref))
+                вернуть -EREMOTE;
 
         _cleanup_free_ char *session = NULL;
         r = cg_pid_get_session(pidref->pid, &session);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret)
+        если (ret)
                 *ret = TAKE_PTR(session);
-        return 0;
+        вернуть 0;
 }
 
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
+целое cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
         _cleanup_free_ char *slice = NULL;
         char *start, *end;
-        int r;
+        целое r;
 
         assert(path);
 
         r = cg_path_get_slice(path, &slice);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         start = startswith(slice, "user-");
-        if (!start)
-                return -ENXIO;
+        если (!start)
+                вернуть -ENXIO;
 
         end = endswith(start, ".slice");
-        if (!end)
-                return -ENXIO;
+        если (!end)
+                вернуть -ENXIO;
 
         *end = 0;
-        if (parse_uid(start, ret_uid) < 0)
-                return -ENXIO;
+        если (parse_uid(start, ret_uid) < 0)
+                вернуть -ENXIO;
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
+целое cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid) {
         _cleanup_free_ char *cgroup = NULL;
-        int r;
+        целое r;
 
         r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_path_get_owner_uid(cgroup, ret_uid);
+        вернуть cg_path_get_owner_uid(cgroup, ret_uid);
 }
 
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret) {
-        int r;
+целое cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret) {
+        целое r;
 
-        if (!pidref_is_set(pidref))
-                return -ESRCH;
-        if (pidref_is_remote(pidref))
-                return -EREMOTE;
+        если (!pidref_is_set(pidref))
+                вернуть -ESRCH;
+        если (pidref_is_remote(pidref))
+                вернуть -EREMOTE;
 
         uid_t uid;
         r = cg_pid_get_owner_uid(pidref->pid, &uid);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = pidref_verify(pidref);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret)
+        если (ret)
                 *ret = uid;
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_path_get_slice(const char *p, char **ret_slice) {
+целое cg_path_get_slice(const char *p, char **ret_slice) {
         const char *e = NULL;
 
         assert(p);
@@ -1199,61 +1199,61 @@ int cg_path_get_slice(const char *p, char **ret_slice) {
         /* Finds the right-most slice unit from the beginning, but stops before we come to
          * the first non-slice unit. */
 
-        for (;;) {
+        для (;;) {
                 const char *s;
-                int n;
+                целое n;
 
                 n = path_find_first_component(&p, /* accept_dot_dot= */ false, &s);
-                if (n < 0)
-                        return n;
-                if (!valid_slice_name(s, n))
+                если (n < 0)
+                        вернуть n;
+                если (!valid_slice_name(s, n))
                         break;
 
                 e = s;
         }
 
-        if (e)
-                return cg_path_decode_unit(e, ret_slice);
+        если (e)
+                вернуть cg_path_decode_unit(e, ret_slice);
 
-        if (ret_slice)
-                return strdup_to(ret_slice, SPECIAL_ROOT_SLICE);
+        если (ret_slice)
+                вернуть strdup_to(ret_slice, SPECIAL_ROOT_SLICE);
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_pid_get_slice(pid_t pid, char **ret_slice) {
+целое cg_pid_get_slice(pid_t pid, char **ret_slice) {
         _cleanup_free_ char *cgroup = NULL;
-        int r;
+        целое r;
 
         r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_path_get_slice(cgroup, ret_slice);
+        вернуть cg_path_get_slice(cgroup, ret_slice);
 }
 
-int cg_path_get_user_slice(const char *p, char **ret_slice) {
+целое cg_path_get_user_slice(const char *p, char **ret_slice) {
         const char *t;
         assert(p);
 
         t = skip_user_prefix(p);
-        if (!t)
-                return -ENXIO;
+        если (!t)
+                вернуть -ENXIO;
 
         /* And now it looks pretty much the same as for a system slice, so let's just use the same parser
          * from here on. */
-        return cg_path_get_slice(t, ret_slice);
+        вернуть cg_path_get_slice(t, ret_slice);
 }
 
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice) {
+целое cg_pid_get_user_slice(pid_t pid, char **ret_slice) {
         _cleanup_free_ char *cgroup = NULL;
-        int r;
+        целое r;
 
         r = cg_pid_get_path_shifted(pid, NULL, &cgroup);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_path_get_user_slice(cgroup, ret_slice);
+        вернуть cg_path_get_user_slice(cgroup, ret_slice);
 }
 
 bool cg_needs_escape(const char *p) {
@@ -1263,33 +1263,33 @@ bool cg_needs_escape(const char *p) {
          * they shall be used. Also note that various names cannot be made valid by escaping even if we
          * return true here (because too long, or contain the forbidden character "/"). */
 
-        if (!filename_is_valid(p))
-                return true;
+        если (!filename_is_valid(p))
+                вернуть true;
 
-        if (IN_SET(p[0], '_', '.'))
-                return true;
+        если (IN_SET(p[0], '_', '.'))
+                вернуть true;
 
-        if (STR_IN_SET(p, "notify_on_release", "release_agent", "tasks"))
-                return true;
+        если (STR_IN_SET(p, "notify_on_release", "release_agent", "tasks"))
+                вернуть true;
 
-        if (startswith(p, "cgroup."))
-                return true;
+        если (startswith(p, "cgroup."))
+                вернуть true;
 
-        for (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+        для (CGroupController c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
                 const char *q;
 
                 q = startswith(p, cgroup_controller_to_string(c));
-                if (!q)
+                если (!q)
                         continue;
 
-                if (q[0] == '.')
-                        return true;
+                если (q[0] == '.')
+                        вернуть true;
         }
 
-        return false;
+        вернуть false;
 }
 
-int cg_escape(const char *p, char **ret) {
+целое cg_escape(const char *p, char **ret) {
         _cleanup_free_ char *n = NULL;
 
         assert(ret);
@@ -1301,21 +1301,21 @@ int cg_escape(const char *p, char **ret) {
 
         /* The return value of this function (unlike cg_unescape()) needs free()! */
 
-        if (cg_needs_escape(p)) {
+        если (cg_needs_escape(p)) {
                 n = strjoin("_", p);
-                if (!n)
-                        return -ENOMEM;
+                если (!n)
+                        вернуть -ENOMEM;
 
-                if (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
-                        return -EINVAL;
-        } else {
+                если (!filename_is_valid(n)) /* became invalid due to the prefixing? Or contained things like a slash that cannot be fixed by prefixing? */
+                        вернуть -EINVAL;
+        } иначе {
                 n = strdup(p);
-                if (!n)
-                        return -ENOMEM;
+                если (!n)
+                        вернуть -ENOMEM;
         }
 
         *ret = TAKE_PTR(n);
-        return 0;
+        вернуть 0;
 }
 
 char* cg_unescape(const char *p) {
@@ -1324,44 +1324,44 @@ char* cg_unescape(const char *p) {
         /* The return value of this function (unlike cg_escape())
          * doesn't need free()! */
 
-        if (p[0] == '_')
-                return (char*) p+1;
+        если (p[0] == '_')
+                вернуть (char*) p+1;
 
-        return (char*) p;
+        вернуть (char*) p;
 }
 
-int cg_slice_to_path(const char *unit, char **ret) {
+целое cg_slice_to_path(const char *unit, char **ret) {
         _cleanup_free_ char *p = NULL, *s = NULL, *e = NULL;
         const char *dash;
-        int r;
+        целое r;
 
         assert(unit);
         assert(ret);
 
-        if (streq(unit, SPECIAL_ROOT_SLICE))
-                return strdup_to(ret, "");
+        если (streq(unit, SPECIAL_ROOT_SLICE))
+                вернуть strdup_to(ret, "");
 
-        if (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
-                return -EINVAL;
+        если (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
+                вернуть -EINVAL;
 
-        if (!endswith(unit, ".slice"))
-                return -EINVAL;
+        если (!endswith(unit, ".slice"))
+                вернуть -EINVAL;
 
         r = unit_name_to_prefix(unit, &p);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         dash = strchr(p, '-');
 
         /* Don't allow initial dashes */
-        if (dash == p)
-                return -EINVAL;
+        если (dash == p)
+                вернуть -EINVAL;
 
-        while (dash) {
+        пока (dash) {
                 _cleanup_free_ char *escaped = NULL;
                 char n[dash - p + sizeof(".slice")];
 
-#if HAS_FEATURE_MEMORY_SANITIZER
+#если HAS_FEATURE_MEMORY_SANITIZER
                 /* msan doesn't instrument stpncpy, so it thinks
                  * n is later used uninitialized:
                  * https://github.com/google/sanitizers/issues/926
@@ -1370,151 +1370,151 @@ int cg_slice_to_path(const char *unit, char **ret) {
 #endif
 
                 /* Don't allow trailing or double dashes */
-                if (IN_SET(dash[1], 0, '-'))
-                        return -EINVAL;
+                если (IN_SET(dash[1], 0, '-'))
+                        вернуть -EINVAL;
 
                 strcpy(stpncpy(n, p, dash - p), ".slice");
-                if (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
-                        return -EINVAL;
+                если (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
+                        вернуть -EINVAL;
 
                 r = cg_escape(n, &escaped);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
-                if (!strextend(&s, escaped, "/"))
-                        return -ENOMEM;
+                если (!strextend(&s, escaped, "/"))
+                        вернуть -ENOMEM;
 
                 dash = strchr(dash+1, '-');
         }
 
         r = cg_escape(unit, &e);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (!strextend(&s, e))
-                return -ENOMEM;
+        если (!strextend(&s, e))
+                вернуть -ENOMEM;
 
         *ret = TAKE_PTR(s);
-        return 0;
+        вернуть 0;
 }
 
-int cg_is_threaded(const char *path) {
+целое cg_is_threaded(const char *path) {
         _cleanup_free_ char *fs = NULL, *contents = NULL;
         _cleanup_strv_free_ char **v = NULL;
-        int r;
+        целое r;
 
         r = cg_get_path(path, "cgroup.type", &fs);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = read_full_virtual_file(fs, &contents, NULL);
-        if (r == -ENOENT)
-                return false; /* Assume no. */
-        if (r < 0)
-                return r;
+        если (r == -ENOENT)
+                вернуть false; /* Assume no. */
+        если (r < 0)
+                вернуть r;
 
         v = strv_split(contents, NULL);
-        if (!v)
-                return -ENOMEM;
+        если (!v)
+                вернуть -ENOMEM;
 
         /* If the cgroup is in the threaded mode, it contains "threaded".
          * If one of the parents or siblings is in the threaded mode, it may contain "invalid". */
-        return strv_contains(v, "threaded") || strv_contains(v, "invalid");
+        вернуть strv_contains(v, "threaded") || strv_contains(v, "invalid");
 }
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value) {
+целое cg_set_attribute(const char *path, const char *attribute, const char *value) {
         _cleanup_free_ char *p = NULL;
-        int r;
+        целое r;
 
         assert(attribute);
 
         r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* https://lore.kernel.org/all/20250419183545.1982187-1-shakeel.butt@linux.dev/ adds O_NONBLOCK
          * semantics to memory.max and memory.high to skip synchronous memory reclaim when O_NONBLOCK is
          * enabled. Let's always open cgroupv2 attribute files in nonblocking mode to immediately take
          * advantage of this and any other asynchronous resource reclaim that's added to the cgroupv2 API in
          * the future. */
-        return write_string_file(p, value, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
+        вернуть write_string_file(p, value, WRITE_STRING_FILE_DISABLE_BUFFER|WRITE_STRING_FILE_OPEN_NONBLOCKING);
 }
 
-int cg_get_attribute(const char *path, const char *attribute, char **ret) {
+целое cg_get_attribute(const char *path, const char *attribute, char **ret) {
         _cleanup_free_ char *p = NULL;
-        int r;
+        целое r;
 
         assert(attribute);
 
         r = cg_get_path(path, attribute, &p);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return read_one_line_file(p, ret);
+        вернуть read_one_line_file(p, ret);
 }
 
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret) {
+целое cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret) {
         _cleanup_free_ char *value = NULL;
         uint64_t v;
-        int r;
+        целое r;
 
         assert(ret);
 
         r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        если (r == -ENOENT)
+                вернуть -ENODATA;
+        если (r < 0)
+                вернуть r;
 
-        if (streq(value, "max")) {
+        если (streq(value, "max")) {
                 *ret = CGROUP_LIMIT_MAX;
-                return 0;
+                вернуть 0;
         }
 
         r = safe_atou64(value, &v);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         *ret = v;
-        return 0;
+        вернуть 0;
 }
 
-int cg_get_attribute_as_bool(const char *path, const char *attribute) {
+целое cg_get_attribute_as_bool(const char *path, const char *attribute) {
         _cleanup_free_ char *value = NULL;
-        int r;
+        целое r;
 
         r = cg_get_attribute(path, attribute, &value);
-        if (r == -ENOENT)
-                return -ENODATA;
-        if (r < 0)
-                return r;
+        если (r == -ENOENT)
+                вернуть -ENODATA;
+        если (r < 0)
+                вернуть r;
 
-        return parse_boolean(value);
+        вернуть parse_boolean(value);
 }
 
-int cg_get_owner(const char *path, uid_t *ret_uid) {
+целое cg_get_owner(const char *path, uid_t *ret_uid) {
         _cleanup_free_ char *f = NULL;
         struct stat stats;
-        int r;
+        целое r;
 
         assert(ret_uid);
 
         r = cg_get_path(path, /* suffix= */ NULL, &f);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (stat(f, &stats) < 0)
-                return -errno;
+        если (stat(f, &stats) < 0)
+                вернуть -errno;
 
         r = stat_verify_directory(&stats);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         *ret_uid = stats.st_uid;
-        return 0;
+        вернуть 0;
 }
 
-int cg_get_keyed_attribute(
+целое cg_get_keyed_attribute(
                 const char *path,
                 const char *attribute,
                 char * const *keys,
@@ -1522,7 +1522,7 @@ int cg_get_keyed_attribute(
 
         _cleanup_free_ char *filename = NULL, *contents = NULL;
         size_t n;
-        int r;
+        целое r;
 
         assert(path);
         assert(attribute);
@@ -1534,34 +1534,34 @@ int cg_get_keyed_attribute(
          * If the attribute file doesn't exist at all returns ENOENT, if any key is not found returns ENXIO. */
 
         r = cg_get_path(path, attribute, &filename);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = read_full_file(filename, &contents, /* ret_size= */ NULL);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         n = strv_length(keys);
-        if (n == 0) /* No keys to retrieve? That's easy, we are done then */
-                return 0;
+        если (n == 0) /* No keys to retrieve? That's easy, we are done then */
+                вернуть 0;
         assert(strv_is_uniq(keys));
 
         /* Let's build this up in a temporary array for now in order not to clobber the return parameter on failure */
         char **v = newa0(char*, n);
         size_t n_done = 0;
 
-        for (const char *p = contents; *p;) {
+        для (const char *p = contents; *p;) {
                 const char *w;
                 size_t i;
 
-                for (i = 0; i < n; i++) {
+                для (i = 0; i < n; i++) {
                         w = first_word(p, keys[i]);
-                        if (w)
+                        если (w)
                                 break;
                 }
 
-                if (w) {
-                        if (v[i]) { /* duplicate entry? */
+                если (w) {
+                        если (v[i]) { /* duplicate entry? */
                                 r = -EBADMSG;
                                 goto fail;
                         }
@@ -1569,54 +1569,54 @@ int cg_get_keyed_attribute(
                         size_t l = strcspn(w, NEWLINE);
 
                         v[i] = strndup(w, l);
-                        if (!v[i]) {
+                        если (!v[i]) {
                                 r = -ENOMEM;
                                 goto fail;
                         }
 
                         n_done++;
-                        if (n_done >= n)
+                        если (n_done >= n)
                                 break;
 
                         p = w + l;
-                } else
+                } иначе
                         p += strcspn(p, NEWLINE);
 
                 p += strspn(p, NEWLINE);
         }
 
-        if (n_done < n) {
+        если (n_done < n) {
                 r = -ENXIO;
                 goto fail;
         }
 
         memcpy(values, v, sizeof(char*) * n);
-        return 0;
+        вернуть 0;
 
 fail:
         free_many_charp(v, n);
-        return r;
+        вернуть r;
 }
 
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret) {
+целое cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret) {
         _cleanup_free_ char *val = NULL;
-        int r;
+        целое r;
 
         assert(key);
         assert(ret);
 
         r = cg_get_keyed_attribute(path, attribute, STRV_MAKE(key), &val);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = safe_atou64(val, ret);
-        if (r < 0)
-                return log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, key, attribute);
+        если (r < 0)
+                вернуть log_debug_errno(r, "Failed to parse value '%s' of key '%s' in cgroup attribute '%s': %m", val, key, attribute);
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_mask_to_string(CGroupMask mask, char **ret) {
+целое cg_mask_to_string(CGroupMask mask, char **ret) {
         _cleanup_free_ char *s = NULL;
         bool space = false;
         CGroupController c;
@@ -1624,25 +1624,25 @@ int cg_mask_to_string(CGroupMask mask, char **ret) {
 
         assert(ret);
 
-        if (mask == 0) {
+        если (mask == 0) {
                 *ret = NULL;
-                return 0;
+                вернуть 0;
         }
 
-        for (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
+        для (c = 0; c < _CGROUP_CONTROLLER_MAX; c++) {
                 const char *k;
                 size_t l;
 
-                if (!FLAGS_SET(mask, CGROUP_CONTROLLER_TO_MASK(c)))
+                если (!FLAGS_SET(mask, CGROUP_CONTROLLER_TO_MASK(c)))
                         continue;
 
                 k = cgroup_controller_to_string(c);
                 l = strlen(k);
 
-                if (!GREEDY_REALLOC(s, n + space + l + 1))
-                        return -ENOMEM;
+                если (!GREEDY_REALLOC(s, n + space + l + 1))
+                        вернуть -ENOMEM;
 
-                if (space)
+                если (space)
                         s[n] = ' ';
                 memcpy(s + n + space, k, l);
                 n += space + l;
@@ -1655,40 +1655,40 @@ int cg_mask_to_string(CGroupMask mask, char **ret) {
         s[n] = 0;
         *ret = TAKE_PTR(s);
 
-        return 0;
+        вернуть 0;
 }
 
-int cg_mask_from_string(const char *s, CGroupMask *ret) {
+целое cg_mask_from_string(const char *s, CGroupMask *ret) {
         CGroupMask m = 0;
 
         assert(ret);
         assert(s);
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ char *n = NULL;
                 CGroupController v;
-                int r;
+                целое r;
 
                 r = extract_first_word(&s, &n, NULL, 0);
-                if (r < 0)
-                        return r;
-                if (r == 0)
+                если (r < 0)
+                        вернуть r;
+                если (r == 0)
                         break;
 
                 v = cgroup_controller_from_string(n);
-                if (v < 0)
+                если (v < 0)
                         continue;
 
                 m |= CGROUP_CONTROLLER_TO_MASK(v);
         }
 
         *ret = m;
-        return 0;
+        вернуть 0;
 }
 
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
+целое cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
         CGroupMask mask;
-        int r;
+        целое r;
 
         assert(ret);
 
@@ -1699,74 +1699,74 @@ int cg_mask_supported_subtree(const char *root, CGroupMask *ret) {
         /* We can read the supported and accessible controllers from the top-level cgroup attribute */
         _cleanup_free_ char *controllers = NULL, *path = NULL;
         r = cg_get_path(root, "cgroup.controllers", &path);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = read_one_line_file(path, &controllers);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = cg_mask_from_string(controllers, &mask);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* Mask controllers that are not supported in cgroup v2. */
         mask &= CGROUP_MASK_V2;
 
         *ret = mask;
-        return 0;
+        вернуть 0;
 }
 
-int cg_mask_supported(CGroupMask *ret) {
+целое cg_mask_supported(CGroupMask *ret) {
         _cleanup_free_ char *root = NULL;
-        int r;
+        целое r;
 
         r = cg_get_root_path(&root);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return cg_mask_supported_subtree(root, ret);
+        вернуть cg_mask_supported_subtree(root, ret);
 }
 
-int cg_is_delegated(const char *path) {
-        int r;
+целое cg_is_delegated(const char *path) {
+        целое r;
 
         assert(path);
 
         r = cg_get_xattr_bool(path, "trusted.delegate");
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        если (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                вернуть r;
 
         /* If the trusted xattr isn't set (preferred), then check the untrusted one. Under the assumption
          * that whoever is trusted enough to own the cgroup, is also trusted enough to decide if it is
          * delegated or not this should be safe. */
         r = cg_get_xattr_bool(path, "user.delegate");
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        вернуть ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_is_delegated_fd(int fd) {
-        int r;
+целое cg_is_delegated_fd(целое fd) {
+        целое r;
 
         assert(fd >= 0);
 
         r = getxattr_at_bool(fd, /* path= */ NULL, "trusted.delegate", /* at_flags= */ 0);
-        if (!ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return r;
+        если (!ERRNO_IS_NEG_XATTR_ABSENT(r))
+                вернуть r;
 
         r = getxattr_at_bool(fd, /* path= */ NULL, "user.delegate", /* at_flags= */ 0);
-        return ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
+        вернуть ERRNO_IS_NEG_XATTR_ABSENT(r) ? false : r;
 }
 
-int cg_has_coredump_receive(const char *path) {
-        int r;
+целое cg_has_coredump_receive(const char *path) {
+        целое r;
 
         assert(path);
 
         r = cg_get_xattr_bool(path, "user.coredump_receive");
-        if (ERRNO_IS_NEG_XATTR_ABSENT(r))
-                return false;
+        если (ERRNO_IS_NEG_XATTR_ABSENT(r))
+                вернуть false;
 
-        return r;
+        вернуть r;
 }
 
 const uint64_t cgroup_io_limit_defaults[_CGROUP_IO_LIMIT_TYPE_MAX] = {

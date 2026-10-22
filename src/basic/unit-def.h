@@ -312,7 +312,7 @@ typedef enum ExecDirectoryType {
 } ExecDirectoryType;
 
 char* unit_dbus_path_from_name(const char *name);
-int unit_name_from_dbus_path(const char *path, char **name);
+целое unit_name_from_dbus_path(const char *path, char **name);
 
 const char* unit_dbus_interface_from_type(UnitType t);
 const char* unit_dbus_interface_from_name(const char *name);

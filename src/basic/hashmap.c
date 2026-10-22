@@ -3,7 +3,7 @@
 #include <fnmatch.h>
 #include <pthread.h>
 #include <unistd.h>
-#if HAVE_VALGRIND_VALGRIND_H
+#если HAVE_VALGRIND_VALGRIND_H
 #  include <valgrind/valgrind.h>
 #endif
 
@@ -22,7 +22,7 @@
 #include "string-util.h"
 #include "strv.h"
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
 #include "list.h"
 #endif
 
@@ -129,7 +129,7 @@ typedef uint8_t dib_raw_t;
 
 #define DIB_FREE UINT_MAX
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
 struct hashmap_debug_info {
         LIST_FIELDS(struct hashmap_debug_info, debug_list);
         unsigned max_entries;  /* high watermark of n_entries */
@@ -205,7 +205,7 @@ struct HashmapBase {
         bool dirty:1;                /* whether dirtied since last iterated_cache_get() */
         bool cached:1;               /* whether this hashmap is being cached */
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         struct hashmap_debug_info debug;
 #endif
 };
@@ -271,73 +271,73 @@ static _used_ const struct hashmap_type_info hashmap_type_info[_HASHMAP_TYPE_MAX
 };
 
 void hashmap_trim_pools(void) {
-        int r;
+        целое r;
 
         /* The pool is only allocated by the main thread, but the memory can be passed to other
          * threads. Let's clean up if we are the main thread and no other threads are live. */
 
         /* We build our own is_main_thread() here, which doesn't use C11 TLS based caching of the
          * result. That's because valgrind apparently doesn't like TLS to be used from a GCC destructor. */
-        if (getpid() != gettid())
-                return (void) log_debug("Not cleaning up memory pools, not in main thread.");
+        если (getpid() != gettid())
+                вернуть (void) log_debug("Not cleaning up memory pools, not in main thread.");
 
         r = get_process_threads(0);
-        if (r < 0)
-                return (void) log_debug_errno(r, "Failed to determine number of threads, not cleaning up memory pools: %m");
-        if (r != 1)
-                return (void) log_debug("Not cleaning up memory pools, running in multi-threaded process.");
+        если (r < 0)
+                вернуть (void) log_debug_errno(r, "Failed to determine number of threads, not cleaning up memory pools: %m");
+        если (r != 1)
+                вернуть (void) log_debug("Not cleaning up memory pools, running in multi-threaded process.");
 
         mempool_trim(&hashmap_pool);
         mempool_trim(&ordered_hashmap_pool);
 }
 
-#if HAVE_VALGRIND_VALGRIND_H
+#если HAVE_VALGRIND_VALGRIND_H
 _destructor_ static void cleanup_pools(void) {
         /* Be nice to valgrind */
-        if (RUNNING_ON_VALGRIND)
+        если (RUNNING_ON_VALGRIND)
                 hashmap_trim_pools();
 }
 #endif
 
 static inline unsigned n_buckets(HashmapBase *h) {
         assert(h);
-        return h->has_indirect ? h->indirect.n_buckets
+        вернуть h->has_indirect ? h->indirect.n_buckets
                                : hashmap_type_info[h->type].n_direct_buckets;
 }
 
 static unsigned n_entries(HashmapBase *h) {
         assert(h);
-        return h->has_indirect ? h->indirect.n_entries
+        вернуть h->has_indirect ? h->indirect.n_entries
                                : h->n_direct_entries;
 }
 
 static void n_entries_inc(HashmapBase *h) {
         assert(h);
 
-        if (h->has_indirect)
+        если (h->has_indirect)
                 h->indirect.n_entries++;
-        else
+        иначе
                 h->n_direct_entries++;
 }
 
 static void n_entries_dec(HashmapBase *h) {
         assert(h);
 
-        if (h->has_indirect)
+        если (h->has_indirect)
                 h->indirect.n_entries--;
-        else
+        иначе
                 h->n_direct_entries--;
 }
 
 static inline void* storage_ptr(HashmapBase *h) {
         assert(h);
-        return h->has_indirect ? h->indirect.storage
+        вернуть h->has_indirect ? h->indirect.storage
                                : h->direct.storage;
 }
 
 static inline uint8_t* hash_key(HashmapBase *h) {
         assert(h);
-        return h->has_indirect ? h->indirect.hash_key
+        вернуть h->has_indirect ? h->indirect.hash_key
                                : shared_hash_key;
 }
 
@@ -352,11 +352,11 @@ static unsigned base_bucket_hash(HashmapBase *h, const void *p) {
          * 32-bit and big-endian architectures, the result differs from the result of trivial_hash_func(),
          * which hashes the key in native byte order. Only this function maps keys to buckets, so the
          * difference does not matter. */
-        if (h->hash_ops->hash == trivial_hash_func)
+        если (h->hash_ops->hash == trivial_hash_func)
                 hash = siphash24_uint64((uintptr_t) p, hash_key(h));
-        else if (h->hash_ops->hash == (hash_func_t) uint64_hash_func)
+        иначе если (h->hash_ops->hash == (hash_func_t) uint64_hash_func)
                 hash = siphash24_uint64(*(const uint64_t*) p, hash_key(h));
-        else {
+        иначе {
                 siphash24_init(&state, hash_key(h));
                 h->hash_ops->hash(p, &state);
                 hash = siphash24_finalize(&state);
@@ -365,7 +365,7 @@ static unsigned base_bucket_hash(HashmapBase *h, const void *p) {
         /* n_buckets is not a power of two, so a modulo needs a division. Multiplying the upper 32 bits of
          * the hash with n_buckets and keeping the upper 32 bits of the product maps the hash to
          * [0, n_buckets) almost as evenly, without a division. */
-        return (unsigned) (((hash >> 32) * n_buckets(h)) >> 32);
+        вернуть (unsigned) (((hash >> 32) * n_buckets(h)) >> 32);
 }
 #define bucket_hash(h, p) base_bucket_hash(HASHMAP_BASE(h), p)
 
@@ -387,7 +387,7 @@ static void get_hash_key(uint8_t hash_key[HASH_KEY_SIZE], bool reuse_is_ok) {
          * are rehashing an entire hash table because we reached a
          * fill level */
 
-        if (!current_initialized || !reuse_is_ok) {
+        если (!current_initialized || !reuse_is_ok) {
                 random_bytes(current, sizeof(current));
                 current_initialized = true;
         }
@@ -397,60 +397,60 @@ static void get_hash_key(uint8_t hash_key[HASH_KEY_SIZE], bool reuse_is_ok) {
 
 static inline struct hashmap_base_entry* bucket_at(HashmapBase *h, unsigned idx) {
         assert(h);
-        return CAST_ALIGN_PTR(
+        вернуть CAST_ALIGN_PTR(
                         struct hashmap_base_entry,
                         (uint8_t *) storage_ptr(h) + idx * hashmap_type_info[h->type].entry_size);
 }
 
 static struct plain_hashmap_entry* plain_bucket_at(Hashmap *h, unsigned idx) {
-        return (struct plain_hashmap_entry*) bucket_at(HASHMAP_BASE(h), idx);
+        вернуть (struct plain_hashmap_entry*) bucket_at(HASHMAP_BASE(h), idx);
 }
 
 static struct ordered_hashmap_entry* ordered_bucket_at(OrderedHashmap *h, unsigned idx) {
-        return (struct ordered_hashmap_entry*) bucket_at(HASHMAP_BASE(h), idx);
+        вернуть (struct ordered_hashmap_entry*) bucket_at(HASHMAP_BASE(h), idx);
 }
 
 static struct set_entry *set_bucket_at(Set *h, unsigned idx) {
-        return (struct set_entry*) bucket_at(HASHMAP_BASE(h), idx);
+        вернуть (struct set_entry*) bucket_at(HASHMAP_BASE(h), idx);
 }
 
 static struct ordered_hashmap_entry* bucket_at_swap(struct swap_entries *swap, unsigned idx) {
         assert(swap);
-        return &swap->e[idx - _IDX_SWAP_BEGIN];
+        вернуть &swap->e[idx - _IDX_SWAP_BEGIN];
 }
 
 /* Returns a pointer to the bucket at index idx.
  * Understands real indexes and swap indexes, hence "_virtual". */
 static struct hashmap_base_entry* bucket_at_virtual(HashmapBase *h, struct swap_entries *swap,
                                                     unsigned idx) {
-        if (idx < _IDX_SWAP_BEGIN)
-                return bucket_at(h, idx);
+        если (idx < _IDX_SWAP_BEGIN)
+                вернуть bucket_at(h, idx);
 
-        if (idx < _IDX_SWAP_END)
-                return &bucket_at_swap(swap, idx)->p.b;
+        если (idx < _IDX_SWAP_END)
+                вернуть &bucket_at_swap(swap, idx)->p.b;
 
         assert_not_reached();
 }
 
 static inline dib_raw_t* dib_raw_ptr(HashmapBase *h) {
         assert(h);
-        return (dib_raw_t*)
+        вернуть (dib_raw_t*)
                 ((uint8_t*) storage_ptr(h) + hashmap_type_info[h->type].entry_size * n_buckets(h));
 }
 
 static unsigned bucket_distance(HashmapBase *h, unsigned idx, unsigned from) {
-        return idx >= from ? idx - from
+        вернуть idx >= from ? idx - from
                            : n_buckets(h) + idx - from;
 }
 
 static unsigned bucket_calculate_dib(HashmapBase *h, unsigned idx, dib_raw_t raw_dib) {
         unsigned initial_bucket;
 
-        if (raw_dib == DIB_RAW_FREE)
-                return DIB_FREE;
+        если (raw_dib == DIB_RAW_FREE)
+                вернуть DIB_FREE;
 
-        if (_likely_(raw_dib < DIB_RAW_OVERFLOW))
-                return raw_dib;
+        если (_likely_(raw_dib < DIB_RAW_OVERFLOW))
+                вернуть raw_dib;
 
         /*
          * Having an overflow DIB value is very unlikely. The hash function
@@ -463,7 +463,7 @@ static unsigned bucket_calculate_dib(HashmapBase *h, unsigned idx, dib_raw_t raw
          * the unlikely case. XXX Hitting this case could be a hint to rehash.
          */
         initial_bucket = bucket_hash(h, bucket_at(h, idx)->key);
-        return bucket_distance(h, idx, initial_bucket);
+        вернуть bucket_distance(h, idx, initial_bucket);
 }
 
 static void bucket_set_dib(HashmapBase *h, unsigned idx, unsigned dib) {
@@ -475,11 +475,11 @@ static unsigned skip_free_buckets(HashmapBase *h, unsigned idx) {
 
         dibs = dib_raw_ptr(h);
 
-        for ( ; idx < n_buckets(h); idx++)
-                if (dibs[idx] != DIB_RAW_FREE)
-                        return idx;
+        для ( ; idx < n_buckets(h); idx++)
+                если (dibs[idx] != DIB_RAW_FREE)
+                        вернуть idx;
 
-        return IDX_NIL;
+        вернуть IDX_NIL;
 }
 
 static void bucket_mark_free(HashmapBase *h, unsigned idx) {
@@ -501,37 +501,37 @@ static void bucket_move_entry(HashmapBase *h, struct swap_entries *swap,
 
         memcpy(e_to, e_from, hashmap_type_info[h->type].entry_size);
 
-        if (h->type == HASHMAP_TYPE_ORDERED) {
+        если (h->type == HASHMAP_TYPE_ORDERED) {
                 OrderedHashmap *lh = (OrderedHashmap*) h;
                 struct ordered_hashmap_entry *le, *le_to;
 
                 le_to = (struct ordered_hashmap_entry*) e_to;
 
-                if (le_to->iterate_next != IDX_NIL) {
+                если (le_to->iterate_next != IDX_NIL) {
                         le = (struct ordered_hashmap_entry*)
                              bucket_at_virtual(h, swap, le_to->iterate_next);
                         le->iterate_previous = to;
                 }
 
-                if (le_to->iterate_previous != IDX_NIL) {
+                если (le_to->iterate_previous != IDX_NIL) {
                         le = (struct ordered_hashmap_entry*)
                              bucket_at_virtual(h, swap, le_to->iterate_previous);
                         le->iterate_next = to;
                 }
 
-                if (lh->iterate_list_head == from)
+                если (lh->iterate_list_head == from)
                         lh->iterate_list_head = to;
-                if (lh->iterate_list_tail == from)
+                если (lh->iterate_list_tail == from)
                         lh->iterate_list_tail = to;
         }
 }
 
 static inline unsigned next_idx(HashmapBase *h, unsigned idx) {
-        return idx + 1U < n_buckets(h) ? idx + 1U : 0U;
+        вернуть idx + 1U < n_buckets(h) ? idx + 1U : 0U;
 }
 
 static unsigned prev_idx(HashmapBase *h, unsigned idx) {
-        return idx > 0U ? idx - 1U : n_buckets(h) - 1U;
+        вернуть idx > 0U ? idx - 1U : n_buckets(h) - 1U;
 }
 
 static inline void* entry_value(HashmapBase *h, struct hashmap_base_entry *e) {
@@ -542,10 +542,10 @@ static inline void* entry_value(HashmapBase *h, struct hashmap_base_entry *e) {
 
         case HASHMAP_TYPE_PLAIN:
         case HASHMAP_TYPE_ORDERED:
-                return ((struct plain_hashmap_entry*)e)->value;
+                вернуть ((struct plain_hashmap_entry*)e)->value;
 
         case HASHMAP_TYPE_SET:
-                return (void*) e->key;
+                вернуть (void*) e->key;
 
         default:
                 assert_not_reached();
@@ -559,7 +559,7 @@ static void base_remove_entry(HashmapBase *h, unsigned idx) {
         dibs = dib_raw_ptr(h);
         assert(dibs[idx] != DIB_RAW_FREE);
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         assert(h);
         h->debug.rem_count++;
         h->debug.last_rem_idx = idx;
@@ -567,9 +567,9 @@ static void base_remove_entry(HashmapBase *h, unsigned idx) {
 
         left = idx;
         /* Find the stop bucket ("right"). It is either free or has DIB == 0. */
-        for (right = next_idx(h, left); ; right = next_idx(h, right)) {
+        для (right = next_idx(h, left); ; right = next_idx(h, right)) {
                 raw_dib = dibs[right];
-                if (IN_SET(raw_dib, 0, DIB_RAW_FREE))
+                если (IN_SET(raw_dib, 0, DIB_RAW_FREE))
                         break;
 
                 /* The buckets are not supposed to be all occupied and with DIB > 0.
@@ -578,23 +578,23 @@ static void base_remove_entry(HashmapBase *h, unsigned idx) {
                 assert(left != right);
         }
 
-        if (h->type == HASHMAP_TYPE_ORDERED) {
+        если (h->type == HASHMAP_TYPE_ORDERED) {
                 OrderedHashmap *lh = (OrderedHashmap*) h;
                 struct ordered_hashmap_entry *le = ordered_bucket_at(lh, idx);
 
-                if (le->iterate_next != IDX_NIL)
+                если (le->iterate_next != IDX_NIL)
                         ordered_bucket_at(lh, le->iterate_next)->iterate_previous = le->iterate_previous;
-                else
+                иначе
                         lh->iterate_list_tail = le->iterate_previous;
 
-                if (le->iterate_previous != IDX_NIL)
+                если (le->iterate_previous != IDX_NIL)
                         ordered_bucket_at(lh, le->iterate_previous)->iterate_next = le->iterate_next;
-                else
+                иначе
                         lh->iterate_list_head = le->iterate_next;
         }
 
         /* Now shift all buckets in the interval (left, right) one step backwards */
-        for (prev = left, left = next_idx(h, left); left != right;
+        для (prev = left, left = next_idx(h, left); left != right;
              prev = left, left = next_idx(h, left)) {
                 dib = bucket_calculate_dib(h, left, dibs[left]);
                 assert(dib != 0);
@@ -615,16 +615,16 @@ static unsigned hashmap_iterate_in_insertion_order(OrderedHashmap *h, Iterator *
         assert(h);
         assert(i);
 
-        if (i->idx == IDX_NIL)
+        если (i->idx == IDX_NIL)
                 goto at_end;
 
-        if (i->idx == IDX_FIRST && h->iterate_list_head == IDX_NIL)
+        если (i->idx == IDX_FIRST && h->iterate_list_head == IDX_NIL)
                 goto at_end;
 
-        if (i->idx == IDX_FIRST) {
+        если (i->idx == IDX_FIRST) {
                 idx = h->iterate_list_head;
                 e = ordered_bucket_at(h, idx);
-        } else {
+        } иначе {
                 idx = i->idx;
                 e = ordered_bucket_at(h, idx);
                 /*
@@ -633,30 +633,30 @@ static unsigned hashmap_iterate_in_insertion_order(OrderedHashmap *h, Iterator *
                  * To detect when it happens, we remember the key pointer of the entry we were
                  * going to iterate next. If it does not match, there was a backward shift.
                  */
-                if (e->p.b.key != i->next_key) {
+                если (e->p.b.key != i->next_key) {
                         idx = prev_idx(HASHMAP_BASE(h), idx);
                         e = ordered_bucket_at(h, idx);
                 }
                 assert(e->p.b.key == i->next_key);
         }
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         i->prev_idx = idx;
 #endif
 
-        if (e->iterate_next != IDX_NIL) {
+        если (e->iterate_next != IDX_NIL) {
                 struct ordered_hashmap_entry *n;
                 i->idx = e->iterate_next;
                 n = ordered_bucket_at(h, i->idx);
                 i->next_key = n->p.b.key;
-        } else
+        } иначе
                 i->idx = IDX_NIL;
 
-        return idx;
+        вернуть idx;
 
 at_end:
         i->idx = IDX_NIL;
-        return IDX_NIL;
+        вернуть IDX_NIL;
 }
 
 static unsigned hashmap_iterate_in_internal_order(HashmapBase *h, Iterator *i) {
@@ -665,20 +665,20 @@ static unsigned hashmap_iterate_in_internal_order(HashmapBase *h, Iterator *i) {
         assert(h);
         assert(i);
 
-        if (i->idx == IDX_NIL)
+        если (i->idx == IDX_NIL)
                 goto at_end;
 
-        if (i->idx == IDX_FIRST) {
+        если (i->idx == IDX_FIRST) {
                 /* fast forward to the first occupied bucket */
-                if (h->has_indirect) {
+                если (h->has_indirect) {
                         i->idx = skip_free_buckets(h, h->indirect.idx_lowest_entry);
                         h->indirect.idx_lowest_entry = i->idx;
-                } else
+                } иначе
                         i->idx = skip_free_buckets(h, 0);
 
-                if (i->idx == IDX_NIL)
+                если (i->idx == IDX_NIL)
                         goto at_end;
-        } else {
+        } иначе {
                 struct hashmap_base_entry *e;
 
                 assert(i->idx > 0);
@@ -690,41 +690,41 @@ static unsigned hashmap_iterate_in_internal_order(HashmapBase *h, Iterator *i) {
                  * To detect when it happens, we remember the key pointer of the entry we were
                  * going to iterate next. If it does not match, there was a backward shift.
                  */
-                if (e->key != i->next_key)
+                если (e->key != i->next_key)
                         e = bucket_at(h, --i->idx);
 
                 assert(e->key == i->next_key);
         }
 
         idx = i->idx;
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         i->prev_idx = idx;
 #endif
 
         i->idx = skip_free_buckets(h, i->idx + 1);
-        if (i->idx != IDX_NIL)
+        если (i->idx != IDX_NIL)
                 i->next_key = bucket_at(h, i->idx)->key;
-        else
+        иначе
                 i->idx = IDX_NIL;
 
-        return idx;
+        вернуть idx;
 
 at_end:
         i->idx = IDX_NIL;
-        return IDX_NIL;
+        вернуть IDX_NIL;
 }
 
 static unsigned hashmap_iterate_entry(HashmapBase *h, Iterator *i) {
-        if (!h) {
+        если (!h) {
                 i->idx = IDX_NIL;
-                return IDX_NIL;
+                вернуть IDX_NIL;
         }
 
-#if ENABLE_DEBUG_HASHMAP
-        if (i->idx == IDX_FIRST) {
+#если ENABLE_DEBUG_HASHMAP
+        если (i->idx == IDX_FIRST) {
                 i->put_count = h->debug.put_count;
                 i->rem_count = h->debug.rem_count;
-        } else {
+        } иначе {
                 /* While iterating, must not add any new entries */
                 assert(i->put_count == h->debug.put_count);
                 /* ... or remove entries other than the current one */
@@ -736,7 +736,7 @@ static unsigned hashmap_iterate_entry(HashmapBase *h, Iterator *i) {
         }
 #endif
 
-        return h->type == HASHMAP_TYPE_ORDERED ? hashmap_iterate_in_insertion_order((OrderedHashmap*) h, i)
+        вернуть h->type == HASHMAP_TYPE_ORDERED ? hashmap_iterate_in_insertion_order((OrderedHashmap*) h, i)
                                                : hashmap_iterate_in_internal_order(h, i);
 }
 
@@ -746,27 +746,27 @@ bool _hashmap_iterate(HashmapBase *h, Iterator *i, void **value, const void **ke
         unsigned idx;
 
         idx = hashmap_iterate_entry(h, i);
-        if (idx == IDX_NIL) {
-                if (value)
+        если (idx == IDX_NIL) {
+                если (value)
                         *value = NULL;
-                if (key)
+                если (key)
                         *key = NULL;
 
-                return false;
+                вернуть false;
         }
 
         e = bucket_at(h, idx);
         data = entry_value(h, e);
-        if (value)
+        если (value)
                 *value = data;
-        if (key)
+        если (key)
                 *key = e->key;
 
-        return true;
+        вернуть true;
 }
 
 #define HASHMAP_FOREACH_IDX(idx, h, i) \
-        for ((i) = ITERATOR_FIRST, (idx) = hashmap_iterate_entry((h), &(i)); \
+        для ((i) = ITERATOR_FIRST, (idx) = hashmap_iterate_entry((h), &(i)); \
              (idx != IDX_NIL); \
              (idx) = hashmap_iterate_entry((h), &(i)))
 
@@ -776,17 +776,17 @@ IteratedCache* _hashmap_iterated_cache_new(HashmapBase *h) {
         assert(h);
         assert(!h->cached);
 
-        if (h->cached)
-                return NULL;
+        если (h->cached)
+                вернуть NULL;
 
         cache = new0(IteratedCache, 1);
-        if (!cache)
-                return NULL;
+        если (!cache)
+                вернуть NULL;
 
         cache->hashmap = h;
         h->cached = true;
 
-        return cache;
+        вернуть cache;
 }
 
 static void reset_direct_storage(HashmapBase *h) {
@@ -810,14 +810,14 @@ static struct HashmapBase* hashmap_base_new(const struct hash_ops *hash_ops, enu
         bool use_pool = mempool_enabled && mempool_enabled();  /* mempool_enabled is a weak symbol */
 
         h = use_pool ? mempool_alloc0_tile(hi->mempool) : malloc0(hi->head_size);
-        if (!h)
-                return NULL;
+        если (!h)
+                вернуть NULL;
 
         h->type = type;
         h->from_pool = use_pool;
         h->hash_ops = hash_ops ?: &trivial_hash_ops;
 
-        if (type == HASHMAP_TYPE_ORDERED) {
+        если (type == HASHMAP_TYPE_ORDERED) {
                 OrderedHashmap *lh = (OrderedHashmap*)h;
                 lh->iterate_list_head = lh->iterate_list_tail = IDX_NIL;
         }
@@ -827,158 +827,158 @@ static struct HashmapBase* hashmap_base_new(const struct hash_ops *hash_ops, enu
         static pthread_once_t once = PTHREAD_ONCE_INIT;
         assert_se(pthread_once(&once, shared_hash_key_initialize) == 0);
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         assert_se(pthread_mutex_lock(&hashmap_debug_list_mutex) == 0);
         LIST_PREPEND(debug_list, hashmap_debug_list, &h->debug);
         assert_se(pthread_mutex_unlock(&hashmap_debug_list_mutex) == 0);
 #endif
 
-        return h;
+        вернуть h;
 }
 
 Hashmap *hashmap_new(const struct hash_ops *hash_ops) {
-        return (Hashmap*)        hashmap_base_new(hash_ops, HASHMAP_TYPE_PLAIN);
+        вернуть (Hashmap*)        hashmap_base_new(hash_ops, HASHMAP_TYPE_PLAIN);
 }
 
 OrderedHashmap *ordered_hashmap_new(const struct hash_ops *hash_ops) {
-        return (OrderedHashmap*) hashmap_base_new(hash_ops, HASHMAP_TYPE_ORDERED);
+        вернуть (OrderedHashmap*) hashmap_base_new(hash_ops, HASHMAP_TYPE_ORDERED);
 }
 
 Set *set_new(const struct hash_ops *hash_ops) {
-        return (Set*)            hashmap_base_new(hash_ops, HASHMAP_TYPE_SET);
+        вернуть (Set*)            hashmap_base_new(hash_ops, HASHMAP_TYPE_SET);
 }
 
-static int hashmap_base_ensure_allocated(HashmapBase **h, const struct hash_ops *hash_ops,
+static целое hashmap_base_ensure_allocated(HashmapBase **h, const struct hash_ops *hash_ops,
                                          enum HashmapType type) {
         HashmapBase *q;
 
         assert(h);
 
-        if (*h) {
+        если (*h) {
                 assert((*h)->hash_ops == (hash_ops ?: &trivial_hash_ops));
-                return 0;
+                вернуть 0;
         }
 
         q = hashmap_base_new(hash_ops, type);
-        if (!q)
-                return -ENOMEM;
+        если (!q)
+                вернуть -ENOMEM;
 
         *h = q;
-        return 1;
+        вернуть 1;
 }
 
-int hashmap_ensure_allocated(Hashmap **h, const struct hash_ops *hash_ops) {
-        return hashmap_base_ensure_allocated((HashmapBase**)h, hash_ops, HASHMAP_TYPE_PLAIN);
+целое hashmap_ensure_allocated(Hashmap **h, const struct hash_ops *hash_ops) {
+        вернуть hashmap_base_ensure_allocated((HashmapBase**)h, hash_ops, HASHMAP_TYPE_PLAIN);
 }
 
-int ordered_hashmap_ensure_allocated(OrderedHashmap **h, const struct hash_ops *hash_ops) {
-        return hashmap_base_ensure_allocated((HashmapBase**)h, hash_ops, HASHMAP_TYPE_ORDERED);
+целое ordered_hashmap_ensure_allocated(OrderedHashmap **h, const struct hash_ops *hash_ops) {
+        вернуть hashmap_base_ensure_allocated((HashmapBase**)h, hash_ops, HASHMAP_TYPE_ORDERED);
 }
 
-int set_ensure_allocated(Set **s, const struct hash_ops *hash_ops) {
-        return hashmap_base_ensure_allocated((HashmapBase**)s, hash_ops, HASHMAP_TYPE_SET);
+целое set_ensure_allocated(Set **s, const struct hash_ops *hash_ops) {
+        вернуть hashmap_base_ensure_allocated((HashmapBase**)s, hash_ops, HASHMAP_TYPE_SET);
 }
 
-int hashmap_ensure_put(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
-        int r;
+целое hashmap_ensure_put(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+        целое r;
 
         assert(h);
 
         r = hashmap_ensure_allocated(h, hash_ops);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return hashmap_put(*h, key, value);
+        вернуть hashmap_put(*h, key, value);
 }
 
-int ordered_hashmap_ensure_put(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
-        int r;
+целое ordered_hashmap_ensure_put(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+        целое r;
 
         assert(h);
 
         r = ordered_hashmap_ensure_allocated(h, hash_ops);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return ordered_hashmap_put(*h, key, value);
+        вернуть ordered_hashmap_put(*h, key, value);
 }
 
-int ordered_hashmap_ensure_replace(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
-        int r;
+целое ordered_hashmap_ensure_replace(OrderedHashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+        целое r;
 
         assert(h);
 
         r = ordered_hashmap_ensure_allocated(h, hash_ops);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return ordered_hashmap_replace(*h, key, value);
+        вернуть ordered_hashmap_replace(*h, key, value);
 }
 
-int hashmap_ensure_replace(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
-        int r;
+целое hashmap_ensure_replace(Hashmap **h, const struct hash_ops *hash_ops, const void *key, void *value) {
+        целое r;
 
         assert(h);
 
         r = hashmap_ensure_allocated(h, hash_ops);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return hashmap_replace(*h, key, value);
+        вернуть hashmap_replace(*h, key, value);
 }
 
 static void hashmap_free_no_clear(HashmapBase *h) {
         assert(!h->has_indirect);
         assert(h->n_direct_entries == 0);
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         assert_se(pthread_mutex_lock(&hashmap_debug_list_mutex) == 0);
         LIST_REMOVE(debug_list, hashmap_debug_list, &h->debug);
         assert_se(pthread_mutex_unlock(&hashmap_debug_list_mutex) == 0);
 #endif
 
-        if (h->from_pool) {
+        если (h->from_pool) {
                 /* Ensure that the object didn't get migrated between threads. */
                 assert_se(is_main_thread());
                 mempool_free_tile(hashmap_type_info[h->type].mempool, h);
-        } else
+        } иначе
                 free(h);
 }
 
 HashmapBase* _hashmap_free(HashmapBase *h) {
-        if (h) {
+        если (h) {
                 _hashmap_clear(h);
                 hashmap_free_no_clear(h);
         }
 
-        return NULL;
+        вернуть NULL;
 }
 
 void _hashmap_clear(HashmapBase *h) {
-        if (!h)
-                return;
+        если (!h)
+                вернуть;
 
-        if (h->hash_ops->free_key || h->hash_ops->free_value) {
+        если (h->hash_ops->free_key || h->hash_ops->free_value) {
 
                 /* If destructor calls are defined, let's destroy things defensively: let's take the item out of the
                  * hash table, and only then call the destructor functions. If these destructors then try to unregister
                  * themselves from our hash table a second time, the entry is already gone. */
 
-                while (_hashmap_size(h) > 0) {
+                пока (_hashmap_size(h) > 0) {
                         void *k = NULL;
                         void *v;
 
                         v = _hashmap_first_key_and_value(h, true, &k);
 
-                        if (h->hash_ops->free_key)
+                        если (h->hash_ops->free_key)
                                 h->hash_ops->free_key(k);
 
-                        if (h->hash_ops->free_value)
+                        если (h->hash_ops->free_value)
                                 h->hash_ops->free_value(v);
                 }
         }
 
-        if (h->has_indirect) {
+        если (h->has_indirect) {
                 free(h->indirect.storage);
                 h->has_indirect = false;
         }
@@ -986,7 +986,7 @@ void _hashmap_clear(HashmapBase *h) {
         h->n_direct_entries = 0;
         reset_direct_storage(h);
 
-        if (h->type == HASHMAP_TYPE_ORDERED) {
+        если (h->type == HASHMAP_TYPE_ORDERED) {
                 OrderedHashmap *lh = (OrderedHashmap*) h;
                 lh->iterate_list_head = lh->iterate_list_tail = IDX_NIL;
         }
@@ -994,7 +994,7 @@ void _hashmap_clear(HashmapBase *h) {
         base_set_dirty(h);
 }
 
-static int resize_buckets(HashmapBase *h, unsigned entries_add);
+static целое resize_buckets(HashmapBase *h, unsigned entries_add);
 
 /*
  * Finds an empty bucket to put an entry into, starting the scan at 'idx'.
@@ -1010,35 +1010,35 @@ static bool hashmap_put_robin_hood(HashmapBase *h, unsigned idx,
         dib_raw_t raw_dib, *dibs;
         unsigned dib, distance;
 
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         assert(h);
         h->debug.put_count++;
 #endif
 
         dibs = dib_raw_ptr(h);
 
-        for (distance = 0; ; distance++) {
+        для (distance = 0; ; distance++) {
                 raw_dib = dibs[idx];
-                if (IN_SET(raw_dib, DIB_RAW_FREE, DIB_RAW_REHASH)) {
-                        if (raw_dib == DIB_RAW_REHASH)
+                если (IN_SET(raw_dib, DIB_RAW_FREE, DIB_RAW_REHASH)) {
+                        если (raw_dib == DIB_RAW_REHASH)
                                 bucket_move_entry(h, swap, idx, IDX_TMP);
 
-                        if (h->has_indirect && h->indirect.idx_lowest_entry > idx)
+                        если (h->has_indirect && h->indirect.idx_lowest_entry > idx)
                                 h->indirect.idx_lowest_entry = idx;
 
                         bucket_set_dib(h, idx, distance);
                         bucket_move_entry(h, swap, IDX_PUT, idx);
-                        if (raw_dib == DIB_RAW_REHASH) {
+                        если (raw_dib == DIB_RAW_REHASH) {
                                 bucket_move_entry(h, swap, IDX_TMP, IDX_PUT);
-                                return true;
+                                вернуть true;
                         }
 
-                        return false;
+                        вернуть false;
                 }
 
                 dib = bucket_calculate_dib(h, idx, raw_dib);
 
-                if (dib < distance) {
+                если (dib < distance) {
                         /* Found a wealthier entry. Go Robin Hood! */
                         bucket_set_dib(h, idx, distance);
 
@@ -1064,31 +1064,31 @@ static bool hashmap_put_robin_hood(HashmapBase *h, unsigned idx,
  *          -ENOMEM if may_resize==true and resize failed with -ENOMEM.
  *          Cannot return -ENOMEM if !may_resize.
  */
-static int hashmap_base_put_boldly(HashmapBase *h, unsigned idx,
+static целое hashmap_base_put_boldly(HashmapBase *h, unsigned idx,
                                    struct swap_entries *swap, bool may_resize) {
         struct ordered_hashmap_entry *new_entry;
-        int r;
+        целое r;
 
         assert(idx < n_buckets(h));
 
         new_entry = bucket_at_swap(swap, IDX_PUT);
 
-        if (may_resize) {
+        если (may_resize) {
                 r = resize_buckets(h, 1);
-                if (r < 0)
-                        return r;
-                if (r > 0)
+                если (r < 0)
+                        вернуть r;
+                если (r > 0)
                         idx = bucket_hash(h, new_entry->p.b.key);
         }
         assert(n_entries(h) < n_buckets(h));
 
-        if (h->type == HASHMAP_TYPE_ORDERED) {
+        если (h->type == HASHMAP_TYPE_ORDERED) {
                 OrderedHashmap *lh = (OrderedHashmap*) h;
 
                 new_entry->iterate_next = IDX_NIL;
                 new_entry->iterate_previous = lh->iterate_list_tail;
 
-                if (lh->iterate_list_tail != IDX_NIL) {
+                если (lh->iterate_list_tail != IDX_NIL) {
                         struct ordered_hashmap_entry *old_tail;
 
                         old_tail = ordered_bucket_at(lh, lh->iterate_list_tail);
@@ -1097,20 +1097,20 @@ static int hashmap_base_put_boldly(HashmapBase *h, unsigned idx,
                 }
 
                 lh->iterate_list_tail = IDX_PUT;
-                if (lh->iterate_list_head == IDX_NIL)
+                если (lh->iterate_list_head == IDX_NIL)
                         lh->iterate_list_head = IDX_PUT;
         }
 
         assert_se(hashmap_put_robin_hood(h, idx, swap) == false);
 
         n_entries_inc(h);
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
         h->debug.max_entries = MAX(h->debug.max_entries, n_entries(h));
 #endif
 
         base_set_dirty(h);
 
-        return 1;
+        вернуть 1;
 }
 #define hashmap_put_boldly(h, idx, swap, may_resize) \
         hashmap_base_put_boldly(HASHMAP_BASE(h), idx, swap, may_resize)
@@ -1120,7 +1120,7 @@ static int hashmap_base_put_boldly(HashmapBase *h, unsigned idx,
  *         1 if successfully resized.
  *         -ENOMEM on allocation failure.
  */
-static int resize_buckets(HashmapBase *h, unsigned entries_add) {
+static целое resize_buckets(HashmapBase *h, unsigned entries_add) {
         struct swap_entries swap;
         void *new_storage;
         dib_raw_t *old_dibs, *new_dibs;
@@ -1136,12 +1136,12 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
         new_n_entries = n_entries(h) + entries_add;
 
         /* overflow? */
-        if (_unlikely_(new_n_entries < entries_add))
-                return -ENOMEM;
+        если (_unlikely_(new_n_entries < entries_add))
+                вернуть -ENOMEM;
 
         /* For direct storage we allow 100% load, because it's tiny. */
-        if (!h->has_indirect && new_n_entries <= hi->n_direct_buckets)
-                return 0;
+        если (!h->has_indirect && new_n_entries <= hi->n_direct_buckets)
+                вернуть 0;
 
         /*
          * Load factor = n/m = 1 - (1/INV_KEEP_FREE).
@@ -1149,16 +1149,16 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
          */
         new_n_buckets = new_n_entries + new_n_entries / (INV_KEEP_FREE - 1);
         /* overflow? */
-        if (_unlikely_(new_n_buckets < new_n_entries))
-                return -ENOMEM;
+        если (_unlikely_(new_n_buckets < new_n_entries))
+                вернуть -ENOMEM;
 
         old_n_buckets = n_buckets(h);
 
-        if (_likely_(new_n_buckets <= old_n_buckets))
-                return 0;
+        если (_likely_(new_n_buckets <= old_n_buckets))
+                вернуть 0;
 
-        if (_unlikely_(new_n_buckets > UINT_MAX / (hi->entry_size + sizeof(dib_raw_t))))
-                return -ENOMEM;
+        если (_unlikely_(new_n_buckets > UINT_MAX / (hi->entry_size + sizeof(dib_raw_t))))
+                вернуть -ENOMEM;
 
         new_shift = log2u_round_up(MAX(
                         new_n_buckets * (hi->entry_size + sizeof(dib_raw_t)),
@@ -1167,11 +1167,11 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
         /* Realloc storage (buckets and DIB array). */
         new_storage = realloc(h->has_indirect ? h->indirect.storage : NULL,
                               1U << new_shift);
-        if (!new_storage)
-                return -ENOMEM;
+        если (!new_storage)
+                вернуть -ENOMEM;
 
         /* Must upgrade direct to indirect storage. */
-        if (!h->has_indirect) {
+        если (!h->has_indirect) {
                 memcpy(new_storage, h->direct.storage,
                        old_n_buckets * (hi->entry_size + sizeof(dib_raw_t)));
                 h->indirect.n_entries = h->n_direct_entries;
@@ -1198,7 +1198,7 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
          * Note: Overlap is not possible, because we have at least doubled the
          * number of buckets and dib_raw_t is smaller than any entry type.
          */
-        for (idx = 0; idx < old_n_buckets; idx++) {
+        для (idx = 0; idx < old_n_buckets; idx++) {
                 assert(old_dibs[idx] != DIB_RAW_REHASH);
                 new_dibs[idx] = old_dibs[idx] == DIB_RAW_FREE ? DIB_RAW_FREE
                                                               : DIB_RAW_REHASH;
@@ -1214,8 +1214,8 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
 
         /* Rehash entries that need it */
         n_rehashed = 0;
-        for (idx = 0; idx < old_n_buckets; idx++) {
-                if (new_dibs[idx] != DIB_RAW_REHASH)
+        для (idx = 0; idx < old_n_buckets; idx++) {
+                если (new_dibs[idx] != DIB_RAW_REHASH)
                         continue;
 
                 optimal_idx = bucket_hash(h, bucket_at(h, idx)->key);
@@ -1224,7 +1224,7 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
                  * Not much to do if by luck the entry hashes to its current
                  * location. Just set its DIB.
                  */
-                if (optimal_idx == idx) {
+                если (optimal_idx == idx) {
                         new_dibs[idx] = 0;
                         n_rehashed++;
                         continue;
@@ -1244,14 +1244,14 @@ static int resize_buckets(HashmapBase *h, unsigned entries_add) {
                         n_rehashed++;
 
                         /* Did the current entry displace another one? */
-                        if (rehash_next)
+                        если (rehash_next)
                                 optimal_idx = bucket_hash(h, bucket_at_swap(&swap, IDX_PUT)->p.b.key);
-                } while (rehash_next);
+                } пока (rehash_next);
         }
 
         assert_se(n_rehashed == n_entries(h));
 
-        return 1;
+        вернуть 1;
 }
 
 /*
@@ -1266,20 +1266,20 @@ static unsigned base_bucket_scan(HashmapBase *h, unsigned idx, const void *key) 
 
         assert(idx < n_buckets(h));
 
-        for (distance = 0; ; distance++) {
-                if (dibs[idx] == DIB_RAW_FREE)
-                        return IDX_NIL;
+        для (distance = 0; ; distance++) {
+                если (dibs[idx] == DIB_RAW_FREE)
+                        вернуть IDX_NIL;
 
                 dib = bucket_calculate_dib(h, idx, dibs[idx]);
 
-                if (dib < distance)
-                        return IDX_NIL;
-                if (dib == distance) {
+                если (dib < distance)
+                        вернуть IDX_NIL;
+                если (dib == distance) {
                         e = bucket_at(h, idx);
 
                         /* Most maps compare keys by pointer. Do that here, without the indirect call. */
-                        if (compare == trivial_compare_func ? e->key == key : compare(e->key, key) == 0)
-                                return idx;
+                        если (compare == trivial_compare_func ? e->key == key : compare(e->key, key) == 0)
+                                вернуть idx;
                 }
 
                 idx = next_idx(h, idx);
@@ -1287,7 +1287,7 @@ static unsigned base_bucket_scan(HashmapBase *h, unsigned idx, const void *key) 
 }
 #define bucket_scan(h, idx, key) base_bucket_scan(HASHMAP_BASE(h), idx, key)
 
-int hashmap_put(Hashmap *h, const void *key, void *value) {
+целое hashmap_put(Hashmap *h, const void *key, void *value) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
@@ -1296,20 +1296,20 @@ int hashmap_put(Hashmap *h, const void *key, void *value) {
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx != IDX_NIL) {
+        если (idx != IDX_NIL) {
                 e = plain_bucket_at(h, idx);
-                if (e->value == value)
-                        return 0;
-                return -EEXIST;
+                если (e->value == value)
+                        вернуть 0;
+                вернуть -EEXIST;
         }
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p;
         e->b.key = key;
         e->value = value;
-        return hashmap_put_boldly(h, hash, &swap, true);
+        вернуть hashmap_put_boldly(h, hash, &swap, true);
 }
 
-int set_put(Set *s, const void *key) {
+целое set_put(Set *s, const void *key) {
         struct swap_entries swap;
         struct hashmap_base_entry *e;
         unsigned hash, idx;
@@ -1318,44 +1318,44 @@ int set_put(Set *s, const void *key) {
 
         hash = bucket_hash(s, key);
         idx = bucket_scan(s, hash, key);
-        if (idx != IDX_NIL)
-                return 0;
+        если (idx != IDX_NIL)
+                вернуть 0;
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p.b;
         e->key = key;
-        return hashmap_put_boldly(s, hash, &swap, true);
+        вернуть hashmap_put_boldly(s, hash, &swap, true);
 }
 
-int set_ensure_put(Set **s, const struct hash_ops *hash_ops, const void *key) {
-        int r;
+целое set_ensure_put(Set **s, const struct hash_ops *hash_ops, const void *key) {
+        целое r;
 
         assert(s);
 
         r = set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return set_put(*s, key);
+        вернуть set_put(*s, key);
 }
 
-int set_ensure_consume(Set **s, const struct hash_ops *hash_ops, void *key) {
-        int r;
+целое set_ensure_consume(Set **s, const struct hash_ops *hash_ops, void *key) {
+        целое r;
 
         r = set_ensure_put(s, hash_ops, key);
-        if (r <= 0) {
-                if (hash_ops && hash_ops->free_key)
+        если (r <= 0) {
+                если (hash_ops && hash_ops->free_key)
                         hash_ops->free_key(key);
-                else if (hash_ops && hash_ops->free_value)
+                иначе если (hash_ops && hash_ops->free_value)
                         /* Sets store their element in the key slot but may carry a value destructor. */
                         hash_ops->free_value(key);
-                else
+                иначе
                         free(key);
         }
 
-        return r;
+        вернуть r;
 }
 
-int hashmap_replace(Hashmap *h, const void *key, void *value) {
+целое hashmap_replace(Hashmap *h, const void *key, void *value) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
@@ -1364,13 +1364,13 @@ int hashmap_replace(Hashmap *h, const void *key, void *value) {
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx != IDX_NIL) {
+        если (idx != IDX_NIL) {
                 e = plain_bucket_at(h, idx);
-#if ENABLE_DEBUG_HASHMAP
+#если ENABLE_DEBUG_HASHMAP
                 /* Although the key is equal, the key pointer may have changed,
                  * and this would break our assumption for iterating. So count
                  * this operation as incompatible with iteration. */
-                if (e->b.key != key) {
+                если (e->b.key != key) {
                         h->b.debug.put_count++;
                         h->b.debug.rem_count++;
                         h->b.debug.last_rem_idx = idx;
@@ -1380,16 +1380,16 @@ int hashmap_replace(Hashmap *h, const void *key, void *value) {
                 e->value = value;
                 hashmap_set_dirty(h);
 
-                return 0;
+                вернуть 0;
         }
 
         e = &bucket_at_swap(&swap, IDX_PUT)->p;
         e->b.key = key;
         e->value = value;
-        return hashmap_put_boldly(h, hash, &swap, true);
+        вернуть hashmap_put_boldly(h, hash, &swap, true);
 }
 
-int hashmap_update(Hashmap *h, const void *key, void *value) {
+целое hashmap_update(Hashmap *h, const void *key, void *value) {
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
 
@@ -1397,59 +1397,59 @@ int hashmap_update(Hashmap *h, const void *key, void *value) {
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
+        если (idx == IDX_NIL)
+                вернуть -ENOENT;
 
         e = plain_bucket_at(h, idx);
         e->value = value;
         hashmap_set_dirty(h);
 
-        return 0;
+        вернуть 0;
 }
 
 void* _hashmap_get(HashmapBase *h, const void *key) {
         struct hashmap_base_entry *e;
         unsigned hash, idx;
 
-        if (!h)
-                return NULL;
+        если (!h)
+                вернуть NULL;
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
+        если (idx == IDX_NIL)
+                вернуть NULL;
 
         e = bucket_at(h, idx);
-        return entry_value(h, e);
+        вернуть entry_value(h, e);
 }
 
 void* hashmap_get2(Hashmap *h, const void *key, void **ret) {
         struct plain_hashmap_entry *e;
         unsigned hash, idx;
 
-        if (!h)
-                return NULL;
+        если (!h)
+                вернуть NULL;
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
+        если (idx == IDX_NIL)
+                вернуть NULL;
 
         e = plain_bucket_at(h, idx);
-        if (ret)
+        если (ret)
                 *ret = (void*) e->b.key;
 
-        return e->value;
+        вернуть e->value;
 }
 
 bool _hashmap_contains(HashmapBase *h, const void *key) {
         unsigned hash;
 
-        if (!h)
-                return false;
+        если (!h)
+                вернуть false;
 
         hash = bucket_hash(h, key);
-        return bucket_scan(h, hash, key) != IDX_NIL;
+        вернуть bucket_scan(h, hash, key) != IDX_NIL;
 }
 
 void* _hashmap_remove(HashmapBase *h, const void *key) {
@@ -1457,19 +1457,19 @@ void* _hashmap_remove(HashmapBase *h, const void *key) {
         unsigned hash, idx;
         void *data;
 
-        if (!h)
-                return NULL;
+        если (!h)
+                вернуть NULL;
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
+        если (idx == IDX_NIL)
+                вернуть NULL;
 
         e = bucket_at(h, idx);
         data = entry_value(h, e);
         remove_entry(h, idx);
 
-        return data;
+        вернуть data;
 }
 
 void* hashmap_remove2(Hashmap *h, const void *key, void **ret) {
@@ -1477,46 +1477,46 @@ void* hashmap_remove2(Hashmap *h, const void *key, void **ret) {
         unsigned hash, idx;
         void *data;
 
-        if (!h) {
-                if (ret)
+        если (!h) {
+                если (ret)
                         *ret = NULL;
-                return NULL;
+                вернуть NULL;
         }
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL) {
-                if (ret)
+        если (idx == IDX_NIL) {
+                если (ret)
                         *ret = NULL;
-                return NULL;
+                вернуть NULL;
         }
 
         e = plain_bucket_at(h, idx);
         data = e->value;
-        if (ret)
+        если (ret)
                 *ret = (void*) e->b.key;
 
         remove_entry(h, idx);
 
-        return data;
+        вернуть data;
 }
 
-int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value) {
+целое hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned old_hash, new_hash, idx;
 
-        if (!h)
-                return -ENOENT;
+        если (!h)
+                вернуть -ENOENT;
 
         old_hash = bucket_hash(h, old_key);
         idx = bucket_scan(h, old_hash, old_key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
+        если (idx == IDX_NIL)
+                вернуть -ENOENT;
 
         new_hash = bucket_hash(h, new_key);
-        if (bucket_scan(h, new_hash, new_key) != IDX_NIL)
-                return -EEXIST;
+        если (bucket_scan(h, new_hash, new_key) != IDX_NIL)
+                вернуть -EEXIST;
 
         remove_entry(h, idx);
 
@@ -1525,25 +1525,25 @@ int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key,
         e->value = value;
         assert_se(hashmap_put_boldly(h, new_hash, &swap, false) == 1);
 
-        return 0;
+        вернуть 0;
 }
 
-int set_remove_and_put(Set *s, const void *old_key, const void *new_key) {
+целое set_remove_and_put(Set *s, const void *old_key, const void *new_key) {
         struct swap_entries swap;
         struct hashmap_base_entry *e;
         unsigned old_hash, new_hash, idx;
 
-        if (!s)
-                return -ENOENT;
+        если (!s)
+                вернуть -ENOENT;
 
         old_hash = bucket_hash(s, old_key);
         idx = bucket_scan(s, old_hash, old_key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
+        если (idx == IDX_NIL)
+                вернуть -ENOENT;
 
         new_hash = bucket_hash(s, new_key);
-        if (bucket_scan(s, new_hash, new_key) != IDX_NIL)
-                return -EEXIST;
+        если (bucket_scan(s, new_hash, new_key) != IDX_NIL)
+                вернуть -EEXIST;
 
         remove_entry(s, idx);
 
@@ -1551,31 +1551,31 @@ int set_remove_and_put(Set *s, const void *old_key, const void *new_key) {
         e->key = new_key;
         assert_se(hashmap_put_boldly(s, new_hash, &swap, false) == 1);
 
-        return 0;
+        вернуть 0;
 }
 
-int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value) {
+целое hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value) {
         struct swap_entries swap;
         struct plain_hashmap_entry *e;
         unsigned old_hash, new_hash, idx_old, idx_new;
 
-        if (!h)
-                return -ENOENT;
+        если (!h)
+                вернуть -ENOENT;
 
         old_hash = bucket_hash(h, old_key);
         idx_old = bucket_scan(h, old_hash, old_key);
-        if (idx_old == IDX_NIL)
-                return -ENOENT;
+        если (idx_old == IDX_NIL)
+                вернуть -ENOENT;
 
         old_key = bucket_at(HASHMAP_BASE(h), idx_old)->key;
 
         new_hash = bucket_hash(h, new_key);
         idx_new = bucket_scan(h, new_hash, new_key);
-        if (idx_new != IDX_NIL)
-                if (idx_old != idx_new) {
+        если (idx_new != IDX_NIL)
+                если (idx_old != idx_new) {
                         remove_entry(h, idx_new);
                         /* Compensate for a possible backward shift. */
-                        if (old_key != bucket_at(HASHMAP_BASE(h), idx_old)->key)
+                        если (old_key != bucket_at(HASHMAP_BASE(h), idx_old)->key)
                                 idx_old = prev_idx(HASHMAP_BASE(h), idx_old);
                         assert(old_key == bucket_at(HASHMAP_BASE(h), idx_old)->key);
                 }
@@ -1587,37 +1587,37 @@ int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_
         e->value = value;
         assert_se(hashmap_put_boldly(h, new_hash, &swap, false) == 1);
 
-        return 0;
+        вернуть 0;
 }
 
 void* _hashmap_remove_value(HashmapBase *h, const void *key, void *value) {
         struct hashmap_base_entry *e;
         unsigned hash, idx;
 
-        if (!h)
-                return NULL;
+        если (!h)
+                вернуть NULL;
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
+        если (idx == IDX_NIL)
+                вернуть NULL;
 
         e = bucket_at(h, idx);
-        if (entry_value(h, e) != value)
-                return NULL;
+        если (entry_value(h, e) != value)
+                вернуть NULL;
 
         remove_entry(h, idx);
 
-        return value;
+        вернуть value;
 }
 
 static unsigned find_first_entry(HashmapBase *h) {
         Iterator i = ITERATOR_FIRST;
 
-        if (!h || !n_entries(h))
-                return IDX_NIL;
+        если (!h || !n_entries(h))
+                вернуть IDX_NIL;
 
-        return hashmap_iterate_entry(h, &i);
+        вернуть hashmap_iterate_entry(h, &i);
 }
 
 void* _hashmap_first_key_and_value(HashmapBase *h, bool remove, void **ret_key) {
@@ -1626,40 +1626,40 @@ void* _hashmap_first_key_and_value(HashmapBase *h, bool remove, void **ret_key) 
         unsigned idx;
 
         idx = find_first_entry(h);
-        if (idx == IDX_NIL) {
-                if (ret_key)
+        если (idx == IDX_NIL) {
+                если (ret_key)
                         *ret_key = NULL;
-                return NULL;
+                вернуть NULL;
         }
 
         e = bucket_at(h, idx);
         key = (void*) e->key;
         data = entry_value(h, e);
 
-        if (remove)
+        если (remove)
                 remove_entry(h, idx);
 
-        if (ret_key)
+        если (ret_key)
                 *ret_key = key;
 
-        return data;
+        вернуть data;
 }
 
 unsigned _hashmap_size(HashmapBase *h) {
-        if (!h)
-                return 0;
+        если (!h)
+                вернуть 0;
 
-        return n_entries(h);
+        вернуть n_entries(h);
 }
 
 unsigned _hashmap_buckets(HashmapBase *h) {
-        if (!h)
-                return 0;
+        если (!h)
+                вернуть 0;
 
-        return n_buckets(h);
+        вернуть n_buckets(h);
 }
 
-int _hashmap_merge(Hashmap *h, Hashmap *other) {
+целое _hashmap_merge(Hashmap *h, Hashmap *other) {
         Iterator i;
         unsigned idx;
 
@@ -1667,17 +1667,17 @@ int _hashmap_merge(Hashmap *h, Hashmap *other) {
 
         HASHMAP_FOREACH_IDX(idx, HASHMAP_BASE(other), i) {
                 struct plain_hashmap_entry *pe = plain_bucket_at(other, idx);
-                int r;
+                целое r;
 
                 r = hashmap_put(h, pe->b.key, pe->value);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+                если (r < 0 && r != -EEXIST)
+                        вернуть r;
         }
 
-        return 0;
+        вернуть 0;
 }
 
-int set_merge(Set *s, Set *other) {
+целое set_merge(Set *s, Set *other) {
         Iterator i;
         unsigned idx;
 
@@ -1685,26 +1685,26 @@ int set_merge(Set *s, Set *other) {
 
         HASHMAP_FOREACH_IDX(idx, HASHMAP_BASE(other), i) {
                 struct set_entry *se = set_bucket_at(other, idx);
-                int r;
+                целое r;
 
                 r = set_put(s, se->b.key);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        return 0;
+        вернуть 0;
 }
 
-int _hashmap_reserve(HashmapBase *h, unsigned entries_add) {
-        int r;
+целое _hashmap_reserve(HashmapBase *h, unsigned entries_add) {
+        целое r;
 
         assert(h);
 
         r = resize_buckets(h, entries_add);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return 0;
+        вернуть 0;
 }
 
 /*
@@ -1713,17 +1713,17 @@ int _hashmap_reserve(HashmapBase *h, unsigned entries_add) {
  * Returns: 0 on success.
  *          -ENOMEM on alloc failure, in which case no move has been done.
  */
-int _hashmap_move(HashmapBase *h, HashmapBase *other) {
+целое _hashmap_move(HashmapBase *h, HashmapBase *other) {
         struct swap_entries swap;
         struct hashmap_base_entry *e, *n;
         Iterator i;
         unsigned idx;
-        int r;
+        целое r;
 
         assert(h);
 
-        if (!other)
-                return 0;
+        если (!other)
+                вернуть 0;
 
         assert(other->type == h->type);
 
@@ -1734,20 +1734,20 @@ int _hashmap_move(HashmapBase *h, HashmapBase *other) {
          * rollback or return a partial result.
          */
         r = resize_buckets(h, n_entries(other));
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         HASHMAP_FOREACH_IDX(idx, other, i) {
                 unsigned h_hash;
 
                 e = bucket_at(other, idx);
                 h_hash = bucket_hash(h, e->key);
-                if (bucket_scan(h, h_hash, e->key) != IDX_NIL)
+                если (bucket_scan(h, h_hash, e->key) != IDX_NIL)
                         continue;
 
                 n = &bucket_at_swap(&swap, IDX_PUT)->p.b;
                 n->key = e->key;
-                if (h->type != HASHMAP_TYPE_SET)
+                если (h->type != HASHMAP_TYPE_SET)
                         ((struct plain_hashmap_entry*) n)->value =
                                 ((struct plain_hashmap_entry*) e)->value;
                 assert_se(hashmap_put_boldly(h, h_hash, &swap, false) == 1);
@@ -1755,55 +1755,55 @@ int _hashmap_move(HashmapBase *h, HashmapBase *other) {
                 remove_entry(other, idx);
         }
 
-        return 0;
+        вернуть 0;
 }
 
-int _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key) {
+целое _hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key) {
         struct swap_entries swap;
         unsigned h_hash, other_hash, idx;
         struct hashmap_base_entry *e, *n;
-        int r;
+        целое r;
 
         assert(h);
 
         h_hash = bucket_hash(h, key);
-        if (bucket_scan(h, h_hash, key) != IDX_NIL)
-                return -EEXIST;
+        если (bucket_scan(h, h_hash, key) != IDX_NIL)
+                вернуть -EEXIST;
 
-        if (!other)
-                return -ENOENT;
+        если (!other)
+                вернуть -ENOENT;
 
         assert(other->type == h->type);
 
         other_hash = bucket_hash(other, key);
         idx = bucket_scan(other, other_hash, key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
+        если (idx == IDX_NIL)
+                вернуть -ENOENT;
 
         e = bucket_at(other, idx);
 
         n = &bucket_at_swap(&swap, IDX_PUT)->p.b;
         n->key = e->key;
-        if (h->type != HASHMAP_TYPE_SET)
+        если (h->type != HASHMAP_TYPE_SET)
                 ((struct plain_hashmap_entry*) n)->value =
                         ((struct plain_hashmap_entry*) e)->value;
         r = hashmap_put_boldly(h, h_hash, &swap, true);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         remove_entry(other, idx);
-        return 0;
+        вернуть 0;
 }
 
 HashmapBase* _hashmap_copy(HashmapBase *h) {
         HashmapBase *copy;
-        int r;
+        целое r;
 
         assert(h);
 
         copy = hashmap_base_new(h->hash_ops, h->type);
-        if (!copy)
-                return NULL;
+        если (!copy)
+                вернуть NULL;
 
         switch (h->type) {
         case HASHMAP_TYPE_PLAIN:
@@ -1817,10 +1817,10 @@ HashmapBase* _hashmap_copy(HashmapBase *h) {
                 assert_not_reached();
         }
 
-        if (r < 0)
-                return _hashmap_free(copy);
+        если (r < 0)
+                вернуть _hashmap_free(copy);
 
-        return copy;
+        вернуть copy;
 }
 
 char** _hashmap_get_strv(HashmapBase *h) {
@@ -1828,19 +1828,19 @@ char** _hashmap_get_strv(HashmapBase *h) {
         Iterator i;
         unsigned idx, n;
 
-        if (!h)
-                return new0(char*, 1);
+        если (!h)
+                вернуть new0(char*, 1);
 
         sv = new(char*, n_entries(h)+1);
-        if (!sv)
-                return NULL;
+        если (!sv)
+                вернуть NULL;
 
         n = 0;
         HASHMAP_FOREACH_IDX(idx, h, i)
                 sv[n++] = entry_value(h, bucket_at(h, idx));
         sv[n] = NULL;
 
-        return sv;
+        вернуть sv;
 }
 
 char** set_to_strv(Set **s) {
@@ -1849,198 +1849,198 @@ char** set_to_strv(Set **s) {
         /* This is similar to set_get_strv(), but invalidates the set on success. */
 
         char **v = new(char*, set_size(*s) + 1);
-        if (!v)
-                return NULL;
+        если (!v)
+                вернуть NULL;
 
-        for (char **p = v; (*p = set_steal_first(*s)); p++)
+        для (char **p = v; (*p = set_steal_first(*s)); p++)
                 ;
 
         assert(set_isempty(*s));
         *s = set_free(*s);
-        return v;
+        вернуть v;
 }
 
 void* ordered_hashmap_next(OrderedHashmap *h, const void *key) {
         struct ordered_hashmap_entry *e;
         unsigned hash, idx;
 
-        if (!h)
-                return NULL;
+        если (!h)
+                вернуть NULL;
 
         hash = bucket_hash(h, key);
         idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
+        если (idx == IDX_NIL)
+                вернуть NULL;
 
         e = ordered_bucket_at(h, idx);
-        if (e->iterate_next == IDX_NIL)
-                return NULL;
-        return ordered_bucket_at(h, e->iterate_next)->p.value;
+        если (e->iterate_next == IDX_NIL)
+                вернуть NULL;
+        вернуть ordered_bucket_at(h, e->iterate_next)->p.value;
 }
 
-int set_consume(Set *s, void *value) {
-        int r;
+целое set_consume(Set *s, void *value) {
+        целое r;
 
         assert(s);
         assert(value);
 
         r = set_put(s, value);
-        if (r <= 0)
+        если (r <= 0)
                 free(value);
 
-        return r;
+        вернуть r;
 }
 
-int hashmap_put_strdup_full(Hashmap **h, const struct hash_ops *hash_ops, const char *k, const char *v) {
-        int r;
+целое hashmap_put_strdup_full(Hashmap **h, const struct hash_ops *hash_ops, const char *k, const char *v) {
+        целое r;
 
         assert(h);
 
         r = hashmap_ensure_allocated(h, hash_ops);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         _cleanup_free_ char *kdup = NULL, *vdup = NULL;
 
         kdup = strdup(k);
-        if (!kdup)
-                return -ENOMEM;
+        если (!kdup)
+                вернуть -ENOMEM;
 
-        if (v) {
+        если (v) {
                 vdup = strdup(v);
-                if (!vdup)
-                        return -ENOMEM;
+                если (!vdup)
+                        вернуть -ENOMEM;
         }
 
         r = hashmap_put(*h, kdup, vdup);
-        if (r < 0) {
-                if (r == -EEXIST && streq_ptr(v, hashmap_get(*h, kdup)))
-                        return 0;
-                return r;
+        если (r < 0) {
+                если (r == -EEXIST && streq_ptr(v, hashmap_get(*h, kdup)))
+                        вернуть 0;
+                вернуть r;
         }
 
         /* 0 with non-null vdup would mean vdup is already in the hashmap, which cannot be */
         assert(vdup == NULL || r > 0);
-        if (r > 0)
+        если (r > 0)
                 kdup = vdup = NULL;
 
-        return r;
+        вернуть r;
 }
 
-int set_put_strndup_full(Set **s, const struct hash_ops *hash_ops, const char *p, size_t n) {
+целое set_put_strndup_full(Set **s, const struct hash_ops *hash_ops, const char *p, size_t n) {
         char *c;
-        int r;
+        целое r;
 
         assert(s);
         assert(p);
 
         r = set_ensure_allocated(s, hash_ops);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (n == SIZE_MAX) {
-                if (set_contains(*s, (char*) p))
-                        return 0;
+        если (n == SIZE_MAX) {
+                если (set_contains(*s, (char*) p))
+                        вернуть 0;
 
                 c = strdup(p);
-        } else
+        } иначе
                 c = strndup(p, n);
-        if (!c)
-                return -ENOMEM;
+        если (!c)
+                вернуть -ENOMEM;
 
-        return set_consume(*s, c);
+        вернуть set_consume(*s, c);
 }
 
-int set_put_strdupv_full(Set **s, const struct hash_ops *hash_ops, char **l) {
-        int n = 0, r;
+целое set_put_strdupv_full(Set **s, const struct hash_ops *hash_ops, char **l) {
+        целое n = 0, r;
 
         assert(s);
 
         STRV_FOREACH(i, l) {
                 r = set_put_strndup_full(s, hash_ops, *i, SIZE_MAX);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
                 n += r;
         }
 
-        return n;
+        вернуть n;
 }
 
-int set_put_strsplit(Set *s, const char *v, const char *separators, ExtractFlags flags) {
+целое set_put_strsplit(Set *s, const char *v, const char *separators, ExtractFlags flags) {
         const char *p = ASSERT_PTR(v);
-        int r;
+        целое r;
 
         assert(s);
 
-        for (;;) {
+        для (;;) {
                 char *word;
 
                 r = extract_first_word(&p, &word, separators, flags);
-                if (r <= 0)
-                        return r;
+                если (r <= 0)
+                        вернуть r;
 
                 r = set_consume(s, word);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 }
 
 /* expand the cachemem if needed, return true if newly (re)activated. */
-static int cachemem_maintain(CacheMem *mem, size_t size) {
+static целое cachemem_maintain(CacheMem *mem, size_t size) {
         assert(mem);
 
-        if (!GREEDY_REALLOC(mem->ptr, size)) {
-                if (size > 0)
-                        return -ENOMEM;
+        если (!GREEDY_REALLOC(mem->ptr, size)) {
+                если (size > 0)
+                        вернуть -ENOMEM;
         }
 
-        if (!mem->active) {
+        если (!mem->active) {
                 mem->active = true;
-                return true;
+                вернуть true;
         }
 
-        return false;
+        вернуть false;
 }
 
-int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void ***res_values, unsigned *res_n_entries) {
+целое iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void ***res_values, unsigned *res_n_entries) {
         bool sync_keys = false, sync_values = false;
         size_t size;
-        int r;
+        целое r;
 
         assert(cache);
         assert(cache->hashmap);
 
         size = n_entries(cache->hashmap);
 
-        if (res_keys) {
+        если (res_keys) {
                 r = cachemem_maintain(&cache->keys, size);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
                 sync_keys = r;
-        } else
+        } иначе
                 cache->keys.active = false;
 
-        if (res_values) {
+        если (res_values) {
                 r = cachemem_maintain(&cache->values, size);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
                 sync_values = r;
-        } else
+        } иначе
                 cache->values.active = false;
 
-        if (cache->hashmap->dirty) {
-                if (cache->keys.active)
+        если (cache->hashmap->dirty) {
+                если (cache->keys.active)
                         sync_keys = true;
-                if (cache->values.active)
+                если (cache->values.active)
                         sync_values = true;
 
                 cache->hashmap->dirty = false;
         }
 
-        if (sync_keys || sync_values) {
+        если (sync_keys || sync_values) {
                 unsigned i, idx;
                 Iterator iter;
 
@@ -2050,34 +2050,34 @@ int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void 
 
                         e = bucket_at(cache->hashmap, idx);
 
-                        if (sync_keys)
+                        если (sync_keys)
                                 cache->keys.ptr[i] = e->key;
-                        if (sync_values)
+                        если (sync_values)
                                 cache->values.ptr[i] = entry_value(cache->hashmap, e);
                         i++;
                 }
         }
 
-        if (res_keys)
+        если (res_keys)
                 *res_keys = cache->keys.ptr;
-        if (res_values)
+        если (res_values)
                 *res_values = cache->values.ptr;
-        if (res_n_entries)
+        если (res_n_entries)
                 *res_n_entries = size;
 
-        return 0;
+        вернуть 0;
 }
 
 IteratedCache* iterated_cache_free(IteratedCache *cache) {
-        if (cache) {
+        если (cache) {
                 free(cache->keys.ptr);
                 free(cache->values.ptr);
         }
 
-        return mfree(cache);
+        вернуть mfree(cache);
 }
 
-int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **ret) {
+целое set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **ret) {
         _cleanup_free_ char *str = NULL;
         size_t separator_len, len = 0;
         const char *value;
@@ -2085,14 +2085,14 @@ int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **
 
         assert(ret);
 
-        if (set_isempty(s)) {
+        если (set_isempty(s)) {
                 *ret = NULL;
-                return 0;
+                вернуть 0;
         }
 
         separator_len = strlen_ptr(separator);
 
-        if (separator_len == 0)
+        если (separator_len == 0)
                 wrap_with_separator = false;
 
         first = !wrap_with_separator;
@@ -2100,13 +2100,13 @@ int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **
         SET_FOREACH(value, s) {
                 size_t l = strlen_ptr(value);
 
-                if (l == 0)
+                если (l == 0)
                         continue;
 
-                if (!GREEDY_REALLOC(str, len + l + (first ? 0 : separator_len) + (wrap_with_separator ? separator_len : 0) + 1))
-                        return -ENOMEM;
+                если (!GREEDY_REALLOC(str, len + l + (first ? 0 : separator_len) + (wrap_with_separator ? separator_len : 0) + 1))
+                        вернуть -ENOMEM;
 
-                if (separator_len > 0 && !first) {
+                если (separator_len > 0 && !first) {
                         memcpy(str + len, separator, separator_len);
                         len += separator_len;
                 }
@@ -2116,7 +2116,7 @@ int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **
                 first = false;
         }
 
-        if (wrap_with_separator) {
+        если (wrap_with_separator) {
                 memcpy(str + len, separator, separator_len);
                 len += separator_len;
         }
@@ -2124,7 +2124,7 @@ int set_strjoin(Set *s, const char *separator, bool wrap_with_separator, char **
         str[len] = '\0';
 
         *ret = TAKE_PTR(str);
-        return 0;
+        вернуть 0;
 }
 
 bool set_equal(Set *a, Set *b) {
@@ -2133,30 +2133,30 @@ bool set_equal(Set *a, Set *b) {
         /* Checks whether each entry of 'a' is also in 'b' and vice versa, i.e. the two sets contain the same
          * entries */
 
-        if (a == b)
-                return true;
+        если (a == b)
+                вернуть true;
 
-        if (set_isempty(a) && set_isempty(b))
-                return true;
+        если (set_isempty(a) && set_isempty(b))
+                вернуть true;
 
-        if (set_size(a) != set_size(b)) /* Cheap check that hopefully catches a lot of inequality cases
+        если (set_size(a) != set_size(b)) /* Cheap check that hopefully catches a lot of inequality cases
                                          * already */
-                return false;
+                вернуть false;
 
         SET_FOREACH(p, a)
-                if (!set_contains(b, p))
-                        return false;
+                если (!set_contains(b, p))
+                        вернуть false;
 
         /* If we have the same hashops, then we don't need to check things backwards given we compared the
          * size and that all of a is in b. */
-        if (a->b.hash_ops == b->b.hash_ops)
-                return true;
+        если (a->b.hash_ops == b->b.hash_ops)
+                вернуть true;
 
         SET_FOREACH(p, b)
-                if (!set_contains(a, p))
-                        return false;
+                если (!set_contains(a, p))
+                        вернуть false;
 
-        return true;
+        вернуть true;
 }
 
 static bool set_fnmatch_one(Set *patterns, const char *needle) {
@@ -2167,25 +2167,25 @@ static bool set_fnmatch_one(Set *patterns, const char *needle) {
         /* Any failure of fnmatch() is treated as equivalent to FNM_NOMATCH, i.e. as non-matching pattern */
 
         SET_FOREACH(p, patterns)
-                if (fnmatch(p, needle, 0) == 0)
-                        return true;
+                если (fnmatch(p, needle, 0) == 0)
+                        вернуть true;
 
-        return false;
+        вернуть false;
 }
 
 bool set_fnmatch(Set *include_patterns, Set *exclude_patterns, const char *needle) {
         assert(needle);
 
-        if (set_fnmatch_one(exclude_patterns, needle))
-                return false;
+        если (set_fnmatch_one(exclude_patterns, needle))
+                вернуть false;
 
-        if (set_isempty(include_patterns))
-                return true;
+        если (set_isempty(include_patterns))
+                вернуть true;
 
-        return set_fnmatch_one(include_patterns, needle);
+        вернуть set_fnmatch_one(include_patterns, needle);
 }
 
-static int hashmap_entry_compare(
+static целое hashmap_entry_compare(
                 struct hashmap_base_entry * const *a,
                 struct hashmap_base_entry * const *b,
                 compare_func_t compare) {
@@ -2194,10 +2194,10 @@ static int hashmap_entry_compare(
         assert(b && *b);
         assert(compare);
 
-        return compare((*a)->key, (*b)->key);
+        вернуть compare((*a)->key, (*b)->key);
 }
 
-static int _hashmap_dump_entries_sorted(
+static целое _hashmap_dump_entries_sorted(
                 HashmapBase *h,
                 void ***ret,
                 size_t *ret_n) {
@@ -2209,17 +2209,17 @@ static int _hashmap_dump_entries_sorted(
         assert(ret);
         assert(ret_n);
 
-        if (_hashmap_size(h) == 0) {
+        если (_hashmap_size(h) == 0) {
                 *ret = NULL;
                 *ret_n = 0;
-                return 0;
+                вернуть 0;
         }
 
         /* We append one more element than needed so that the resulting array can be used as a strv. We
          * don't count this entry in the returned size. */
         entries = new(void*, _hashmap_size(h) + 1);
-        if (!entries)
-                return -ENOMEM;
+        если (!entries)
+                вернуть -ENOMEM;
 
         HASHMAP_FOREACH_IDX(idx, h, iter)
                 entries[n++] = bucket_at(h, idx);
@@ -2232,47 +2232,47 @@ static int _hashmap_dump_entries_sorted(
 
         *ret = TAKE_PTR(entries);
         *ret_n = n;
-        return 0;
+        вернуть 0;
 }
 
-int _hashmap_dump_keys_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
+целое _hashmap_dump_keys_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
         _cleanup_free_ void **entries = NULL;
         size_t n;
-        int r;
+        целое r;
 
         assert(ret);
 
         r = _hashmap_dump_entries_sorted(h, &entries, &n);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* Reuse the array. */
         FOREACH_ARRAY(e, entries, n)
                 *e = (void*) (*(struct hashmap_base_entry**) e)->key;
 
         *ret = TAKE_PTR(entries);
-        if (ret_n)
+        если (ret_n)
                 *ret_n = n;
-        return 0;
+        вернуть 0;
 }
 
-int _hashmap_dump_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
+целое _hashmap_dump_sorted(HashmapBase *h, void ***ret, size_t *ret_n) {
         _cleanup_free_ void **entries = NULL;
         size_t n;
-        int r;
+        целое r;
 
         assert(ret);
 
         r = _hashmap_dump_entries_sorted(h, &entries, &n);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* Reuse the array. */
         FOREACH_ARRAY(e, entries, n)
                 *e = entry_value(h, *(struct hashmap_base_entry**) e);
 
         *ret = TAKE_PTR(entries);
-        if (ret_n)
+        если (ret_n)
                 *ret_n = n;
-        return 0;
+        вернуть 0;
 }

@@ -37,55 +37,55 @@
 #define EFIVAR_PATH(variable) "/sys/firmware/efi/efivars/" variable
 #define EFIVAR_CACHE_PATH(variable) "/run/systemd/efivars/" variable
 
-#if ENABLE_EFI
+#если ENABLE_EFI
 
-int efi_get_variable(const char *variable, uint32_t *attribute, void **ret_value, size_t *ret_size);
-int efi_get_variable_string(const char *variable, char **ret);
-int efi_get_variable_path(const char *variable, char **ret);
-int efi_set_variable(const char *variable, const void *value, size_t size) _nonnull_if_nonzero_(2, 3);
-int efi_set_variable_string(const char *variable, const char *value);
+целое efi_get_variable(const char *variable, uint32_t *attribute, void **ret_value, size_t *ret_size);
+целое efi_get_variable_string(const char *variable, char **ret);
+целое efi_get_variable_path(const char *variable, char **ret);
+целое efi_set_variable(const char *variable, const void *value, size_t size) _nonnull_if_nonzero_(2, 3);
+целое efi_set_variable_string(const char *variable, const char *value);
 
 bool set_efi_boot(bool b);
 bool is_efi_boot(void);
 bool is_efi_secure_boot(void);
 SecureBootMode efi_get_secure_boot_mode(void);
 
-#else
+#иначе
 
-static inline int efi_get_variable(const char *variable, uint32_t *attribute, void **value, size_t *size) {
-        return -EOPNOTSUPP;
+static inline целое efi_get_variable(const char *variable, uint32_t *attribute, void **value, size_t *size) {
+        вернуть -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_string(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+static inline целое efi_get_variable_string(const char *variable, char **ret) {
+        вернуть -EOPNOTSUPP;
 }
 
-static inline int efi_get_variable_path(const char *variable, char **ret) {
-        return -EOPNOTSUPP;
+static inline целое efi_get_variable_path(const char *variable, char **ret) {
+        вернуть -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable(const char *variable, const void *value, size_t size) {
-        return -EOPNOTSUPP;
+static inline целое efi_set_variable(const char *variable, const void *value, size_t size) {
+        вернуть -EOPNOTSUPP;
 }
 
-static inline int efi_set_variable_string(const char *variable, const char *p) {
-        return -EOPNOTSUPP;
+static inline целое efi_set_variable_string(const char *variable, const char *p) {
+        вернуть -EOPNOTSUPP;
 }
 
 static inline bool set_efi_boot(bool b) {
-        return false;
+        вернуть false;
 }
 
 static inline bool is_efi_boot(void) {
-        return false;
+        вернуть false;
 }
 
 static inline bool is_efi_secure_boot(void) {
-        return false;
+        вернуть false;
 }
 
 static inline SecureBootMode efi_get_secure_boot_mode(void) {
-        return SECURE_BOOT_UNKNOWN;
+        вернуть SECURE_BOOT_UNKNOWN;
 }
 #endif
 

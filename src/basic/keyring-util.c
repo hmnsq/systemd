@@ -4,53 +4,53 @@
 #include "keyring-util.h"
 #include "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+целое keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
         size_t bufsize = 100;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_(erase_and_freep) uint8_t *buf = NULL;
                 long n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                если (!buf)
+                        вернуть -ENOMEM;
 
                 n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                если (n < 0)
+                        вернуть -errno;
 
-                if ((size_t) n <= bufsize) {
+                если ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        если (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
+                        если (ret_size)
                                 *ret_size = n;
 
-                        return 0;
+                        вернуть 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
+целое keyring_describe(key_serial_t serial, char **ret) {
         _cleanup_free_ char *tuple = NULL;
         size_t sz = 64;
-        int c;
+        целое c;
 
         assert(ret);
 
-        for (;;) {
+        для (;;) {
                 tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+                если (!tuple)
+                        вернуть log_oom_debug();
 
                 c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                если (c < 0)
+                        вернуть log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
+                если ((size_t) c <= sz)
                         break;
 
                 sz = c;
@@ -62,5 +62,5 @@ int keyring_describe(key_serial_t serial, char **ret) {
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        вернуть 0;
 }

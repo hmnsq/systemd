@@ -10,35 +10,35 @@
 bool http_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        если (isempty(url))
+                вернуть false;
 
         p = STARTSWITH_SET(url, "http://", "https://");
-        if (!p)
-                return false;
+        если (!p)
+                вернуть false;
 
-        if (isempty(p))
-                return false;
+        если (isempty(p))
+                вернуть false;
 
-        return ascii_is_valid(p);
+        вернуть ascii_is_valid(p);
 }
 
 bool file_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        если (isempty(url))
+                вернуть false;
 
         p = startswith(url, "file:/");
-        if (isempty(p))
-                return false;
+        если (isempty(p))
+                вернуть false;
 
-        return ascii_is_valid(p);
+        вернуть ascii_is_valid(p);
 }
 
-int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
+целое provider_url_parse(const char *url, char **ret_socket, char **ret_resource) {
         const char *p, *e;
-        int r;
+        целое r;
 
         /* Parses a URL of the form "provider:[/path/to/socket]/resource", which refers to a resource
          * offered by a local Varlink service implementing the io.systemd.ResourceProvider interface on the
@@ -47,80 +47,80 @@ int provider_url_parse(const char *url, char **ret_socket, char **ret_resource) 
          * control characters, "." or ".." components. Query and fragment separators are not permitted
          * either, so that generic URL path manipulation works reliably on the resource name. */
 
-        if (isempty(url))
-                return -EINVAL;
+        если (isempty(url))
+                вернуть -EINVAL;
 
         p = startswith(url, "provider:[");
-        if (!p)
-                return -EINVAL;
+        если (!p)
+                вернуть -EINVAL;
 
         e = strchr(p, ']');
-        if (!e || e == p)
-                return -EINVAL;
-        if (e[1] != '/')
-                return -EINVAL;
+        если (!e || e == p)
+                вернуть -EINVAL;
+        если (e[1] != '/')
+                вернуть -EINVAL;
 
         _cleanup_free_ char *s = strndup(p, e - p);
-        if (!s)
-                return -ENOMEM;
+        если (!s)
+                вернуть -ENOMEM;
 
-        if (!path_is_absolute(s) || !path_is_normalized(s))
-                return -EINVAL;
+        если (!path_is_absolute(s) || !path_is_normalized(s))
+                вернуть -EINVAL;
 
         const char *resource = e + 2;
-        if (isempty(resource))
-                return -EINVAL;
-        if (path_is_absolute(resource) || !path_is_normalized(resource))
-                return -EINVAL;
-        if (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
-                return -EINVAL;
+        если (isempty(resource))
+                вернуть -EINVAL;
+        если (path_is_absolute(resource) || !path_is_normalized(resource))
+                вернуть -EINVAL;
+        если (string_has_cc(resource, /* ok= */ NULL) || strpbrk(resource, "?#"))
+                вернуть -EINVAL;
 
         r = strdup_to_full(ret_resource, resource);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret_socket)
+        если (ret_socket)
                 *ret_socket = TAKE_PTR(s);
 
-        return 0;
+        вернуть 0;
 }
 
 bool provider_url_is_valid(const char *url) {
-        return provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
+        вернуть provider_url_parse(url, /* ret_socket= */ NULL, /* ret_resource= */ NULL) >= 0;
 }
 
 bool documentation_url_is_valid(const char *url) {
         const char *p;
 
-        if (isempty(url))
-                return false;
+        если (isempty(url))
+                вернуть false;
 
-        if (http_url_is_valid(url) || file_url_is_valid(url))
-                return true;
+        если (http_url_is_valid(url) || file_url_is_valid(url))
+                вернуть true;
 
         p = STARTSWITH_SET(url, "info:", "man:");
-        if (isempty(p))
-                return false;
+        если (isempty(p))
+                вернуть false;
 
-        return ascii_is_valid(p);
+        вернуть ascii_is_valid(p);
 }
 
 bool http_header_valid(const char *header) {
-        return header &&
+        вернуть header &&
                 ascii_is_valid(header) &&
                 !string_has_cc(header, /* ok= */ NULL) &&
                 strchr(header, ':');
 }
 
 bool http_etag_is_valid(const char *etag) {
-        if (isempty(etag))
-                return false;
+        если (isempty(etag))
+                вернуть false;
 
-        if (!endswith(etag, "\""))
-                return false;
+        если (!endswith(etag, "\""))
+                вернуть false;
 
-        if (!STARTSWITH_SET(etag, "\"", "W/\""))
-                return false;
+        если (!STARTSWITH_SET(etag, "\"", "W/\""))
+                вернуть false;
 
-        return true;
+        вернуть true;
 }

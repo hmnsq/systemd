@@ -17,29 +17,29 @@ char* bus_label_escape(const char *s) {
          * with. Can be reversed with bus_path_unescape(). We special
          * case the empty string. */
 
-        if (*s == 0)
-                return strdup("_");
+        если (*s == 0)
+                вернуть strdup("_");
 
         r = new(char, strlen(s)*3 + 1);
-        if (!r)
-                return NULL;
+        если (!r)
+                вернуть NULL;
 
-        for (f = s, t = r; *f; f++) {
+        для (f = s, t = r; *f; f++) {
 
                 /* Escape everything that is not a-zA-Z0-9. We also escape 0-9 if it's the first character */
 
-                if (!ascii_isalpha(*f) &&
+                если (!ascii_isalpha(*f) &&
                     !(f > s && ascii_isdigit(*f))) {
                         *(t++) = '_';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else
+                } иначе
                         *(t++) = *f;
         }
 
         *t = 0;
 
-        return r;
+        вернуть r;
 }
 
 char* bus_label_unescape_n(const char *f, size_t l) {
@@ -48,35 +48,35 @@ char* bus_label_unescape_n(const char *f, size_t l) {
 
         assert_return(f, NULL);
 
-        if (l == SIZE_MAX)
+        если (l == SIZE_MAX)
                 l = strlen(f);
 
         /* Special case for the empty string */
-        if (l == 1 && *f == '_')
-                return strdup("");
+        если (l == 1 && *f == '_')
+                вернуть strdup("");
 
         r = new(char, l + 1);
-        if (!r)
-                return NULL;
+        если (!r)
+                вернуть NULL;
 
-        for (i = 0, t = r; i < l; ++i) {
-                if (f[i] == '_') {
-                        int a, b;
+        для (i = 0, t = r; i < l; ++i) {
+                если (f[i] == '_') {
+                        целое a, b;
 
-                        if (l - i < 3 ||
+                        если (l - i < 3 ||
                             (a = unhexchar(f[i + 1])) < 0 ||
                             (b = unhexchar(f[i + 2])) < 0) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '_';
-                        } else {
+                        } иначе {
                                 *(t++) = (char) ((a << 4) | b);
                                 i += 2;
                         }
-                } else
+                } иначе
                         *(t++) = f[i];
         }
 
         *t = 0;
 
-        return r;
+        вернуть r;
 }

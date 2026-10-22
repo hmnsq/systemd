@@ -23,7 +23,7 @@ Architecture uname_architecture(void) {
                 const char *machine;
                 Architecture arch;
         } arch_map[] = {
-#if defined(__aarch64__) || defined(__arm__)
+#если defined(__aarch64__) || defined(__arm__)
                 { "aarch64",    ARCHITECTURE_ARM64    },
                 { "aarch64_be", ARCHITECTURE_ARM64_BE },
                 { "armv8l",     ARCHITECTURE_ARM      },
@@ -91,7 +91,7 @@ Architecture uname_architecture(void) {
 #elif defined(__riscv)
                 { "riscv64",    ARCHITECTURE_RISCV64  },
                 { "riscv32",    ARCHITECTURE_RISCV32  },
-#  if __SIZEOF_POINTER__ == 4
+#  если __SIZEOF_POINTER__ == 4
                 { "riscv",      ARCHITECTURE_RISCV32  },
 #  elif __SIZEOF_POINTER__ == 8
                 { "riscv",      ARCHITECTURE_RISCV64  },
@@ -116,7 +116,7 @@ Architecture uname_architecture(void) {
 #elif defined(__tilegx__)
                 { "tilegx",     ARCHITECTURE_TILEGX   },
 
-#else
+#иначе
 #  error "Please register your architecture here!"
 #endif
         };
@@ -124,17 +124,17 @@ Architecture uname_architecture(void) {
         static Architecture cached = _ARCHITECTURE_INVALID;
         struct utsname u;
 
-        if (cached != _ARCHITECTURE_INVALID)
-                return cached;
+        если (cached != _ARCHITECTURE_INVALID)
+                вернуть cached;
 
         assert_se(uname(&u) >= 0);
 
         FOREACH_ELEMENT(entry, arch_map)
-                if (streq(entry->machine, u.machine))
-                        return cached = entry->arch;
+                если (streq(entry->machine, u.machine))
+                        вернуть cached = entry->arch;
 
         assert_not_reached();
-        return _ARCHITECTURE_INVALID;
+        вернуть _ARCHITECTURE_INVALID;
 }
 
 /* Maintain same order as in the table above. */

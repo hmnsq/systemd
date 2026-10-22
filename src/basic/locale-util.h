@@ -28,9 +28,9 @@ typedef enum LocaleVariable {
         _VARIABLE_LC_INVALID = -EINVAL,
 } LocaleVariable;
 
-int get_locales(char ***ret);
+целое get_locales(char ***ret);
 bool locale_is_valid(const char *name);
-int locale_is_installed(const char *name);
+целое locale_is_installed(const char *name);
 
 #define _(String) dgettext(GETTEXT_PACKAGE, String)
 #define N_(String) String
@@ -40,8 +40,8 @@ bool is_locale_utf8(void);
 DECLARE_STRING_TABLE_LOOKUP(locale_variable, LocaleVariable);
 
 static inline void freelocalep(locale_t *p) {
-        if (*p == (locale_t) 0)
-                return;
+        если (*p == (locale_t) 0)
+                вернуть;
 
         freelocale(*p);
 }

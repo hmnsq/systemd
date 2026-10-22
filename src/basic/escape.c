@@ -10,7 +10,7 @@
 #include "strv.h"
 #include "utf8.h"
 
-int cescape_char(char c, char *buf) {
+целое cescape_char(char c, char *buf) {
         char *buf_old = buf;
 
         /* Needs space for 4 characters in the buffer */
@@ -62,17 +62,17 @@ int cescape_char(char c, char *buf) {
                         /* For special chars we prefer octal over
                          * hexadecimal encoding, simply because glib's
                          * g_strescape() does the same */
-                        if ((c < ' ') || (c >= 127)) {
+                        если ((c < ' ') || (c >= 127)) {
                                 *(buf++) = '\\';
                                 *(buf++) = octchar((unsigned char) c >> 6);
                                 *(buf++) = octchar((unsigned char) c >> 3);
                                 *(buf++) = octchar((unsigned char) c);
-                        } else
+                        } иначе
                                 *(buf++) = c;
                         break;
         }
 
-        return buf - buf_old;
+        вернуть buf - buf_old;
 }
 
 char* cescape_length(const char *s, size_t n) {
@@ -83,26 +83,26 @@ char* cescape_length(const char *s, size_t n) {
 
         assert(s || n == 0);
 
-        if (n == SIZE_MAX)
+        если (n == SIZE_MAX)
                 n = strlen(s);
 
-        if (n > (SIZE_MAX - 1) / 4)
-                return NULL;
+        если (n > (SIZE_MAX - 1) / 4)
+                вернуть NULL;
 
         r = new(char, n*4 + 1);
-        if (!r)
-                return NULL;
+        если (!r)
+                вернуть NULL;
 
-        for (f = s, t = r; f < s + n; f++)
+        для (f = s, t = r; f < s + n; f++)
                 t += cescape_char(*f, t);
 
         *t = 0;
 
-        return r;
+        вернуть r;
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
-        int r = 1;
+целое cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
+        целое r = 1;
 
         assert(p);
         assert(ret);
@@ -114,8 +114,8 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
          * instead be copied directly.
          */
 
-        if (length != SIZE_MAX && length < 1)
-                return -EINVAL;
+        если (length != SIZE_MAX && length < 1)
+                вернуть -EINVAL;
 
         switch (p[0]) {
 
@@ -157,22 +157,22 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
 
         case 'x': {
                 /* hexadecimal encoding */
-                int a, b;
+                целое a, b;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                если (length != SIZE_MAX && length < 3)
+                        вернуть -EINVAL;
 
                 a = unhexchar(p[1]);
-                if (a < 0)
-                        return -EINVAL;
+                если (a < 0)
+                        вернуть -EINVAL;
 
                 b = unhexchar(p[2]);
-                if (b < 0)
-                        return -EINVAL;
+                если (b < 0)
+                        вернуть -EINVAL;
 
                 /* Don't allow NUL bytes */
-                if (a == 0 && b == 0 && !accept_nul)
-                        return -EINVAL;
+                если (a == 0 && b == 0 && !accept_nul)
+                        вернуть -EINVAL;
 
                 *ret = (a << 4U) | b;
                 *eight_bit = true;
@@ -183,31 +183,31 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
         case 'u': {
                 /* C++11 style 16-bit unicode */
 
-                int a[4];
+                целое a[4];
                 size_t i;
                 uint32_t c;
 
-                if (length != SIZE_MAX && length < 5)
-                        return -EINVAL;
+                если (length != SIZE_MAX && length < 5)
+                        вернуть -EINVAL;
 
-                for (i = 0; i < 4; i++) {
+                для (i = 0; i < 4; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        если (a[i] < 0)
+                                вернуть a[i];
                 }
 
                 c = ((uint32_t) a[0] << 12U) | ((uint32_t) a[1] << 8U) | ((uint32_t) a[2] << 4U) | (uint32_t) a[3];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                если (c == 0 && !accept_nul)
+                        вернуть -EINVAL;
 
                 /* Don't allow UTF-16 surrogates, they cannot be encoded as valid UTF-8. Note we
                  * deliberately do *not* use unichar_is_valid() here (unlike the \U case below):
                  * it also rejects noncharacters such as U+FFFE, which callers legitimately round-trip
                  * through \u (e.g. systemd.mount-extra= parsing, see test-fstab-generator). */
-                if (utf16_is_surrogate(c))
-                        return -EINVAL;
+                если (utf16_is_surrogate(c))
+                        вернуть -EINVAL;
 
                 *ret = c;
                 r = 5;
@@ -217,29 +217,29 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
         case 'U': {
                 /* C++11 style 32-bit unicode */
 
-                int a[8];
+                целое a[8];
                 size_t i;
                 char32_t c;
 
-                if (length != SIZE_MAX && length < 9)
-                        return -EINVAL;
+                если (length != SIZE_MAX && length < 9)
+                        вернуть -EINVAL;
 
-                for (i = 0; i < 8; i++) {
+                для (i = 0; i < 8; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        если (a[i] < 0)
+                                вернуть a[i];
                 }
 
                 c = ((uint32_t) a[0] << 28U) | ((uint32_t) a[1] << 24U) | ((uint32_t) a[2] << 20U) | ((uint32_t) a[3] << 16U) |
                     ((uint32_t) a[4] << 12U) | ((uint32_t) a[5] <<  8U) | ((uint32_t) a[6] <<  4U) |  (uint32_t) a[7];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                если (c == 0 && !accept_nul)
+                        вернуть -EINVAL;
 
                 /* Don't allow invalid code points */
-                if (!unichar_is_valid(c))
-                        return -EINVAL;
+                если (!unichar_is_valid(c))
+                        вернуть -EINVAL;
 
                 *ret = c;
                 r = 9;
@@ -255,32 +255,32 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
         case '6':
         case '7': {
                 /* octal encoding */
-                int a, b, c;
+                целое a, b, c;
                 char32_t m;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                если (length != SIZE_MAX && length < 3)
+                        вернуть -EINVAL;
 
                 a = unoctchar(p[0]);
-                if (a < 0)
-                        return -EINVAL;
+                если (a < 0)
+                        вернуть -EINVAL;
 
                 b = unoctchar(p[1]);
-                if (b < 0)
-                        return -EINVAL;
+                если (b < 0)
+                        вернуть -EINVAL;
 
                 c = unoctchar(p[2]);
-                if (c < 0)
-                        return -EINVAL;
+                если (c < 0)
+                        вернуть -EINVAL;
 
                 /* don't allow NUL bytes */
-                if (a == 0 && b == 0 && c == 0 && !accept_nul)
-                        return -EINVAL;
+                если (a == 0 && b == 0 && c == 0 && !accept_nul)
+                        вернуть -EINVAL;
 
                 /* Don't allow bytes above 255 */
                 m = ((uint32_t) a << 6U) | ((uint32_t) b << 3U) | (uint32_t) c;
-                if (m > 255)
-                        return -EINVAL;
+                если (m > 255)
+                        вернуть -EINVAL;
 
                 *ret = m;
                 *eight_bit = true;
@@ -289,10 +289,10 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
         }
 
         default:
-                return -EINVAL;
+                вернуть -EINVAL;
         }
 
-        return r;
+        вернуть r;
 }
 
 ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret) {
@@ -300,26 +300,26 @@ ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *p
         char *t;
         const char *f;
         size_t pl;
-        int r;
+        целое r;
 
         assert(s);
         assert(ret);
 
         /* Undoes C style string escaping, and optionally prefixes it. */
 
-        if (length == SIZE_MAX)
+        если (length == SIZE_MAX)
                 length = strlen(s);
 
         pl = strlen_ptr(prefix);
 
         ans = new(char, pl+length+1);
-        if (!ans)
-                return -ENOMEM;
+        если (!ans)
+                вернуть -ENOMEM;
 
-        if (prefix)
+        если (prefix)
                 memcpy(ans, prefix, pl);
 
-        for (f = s, t = ans + pl; f < s + length; f++) {
+        для (f = s, t = ans + pl; f < s + length; f++) {
                 size_t remaining;
                 bool eight_bit = false;
                 char32_t u;
@@ -327,38 +327,38 @@ ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *p
                 remaining = s + length - f;
                 assert(remaining > 0);
 
-                if (*f != '\\') {
+                если (*f != '\\') {
                         /* A literal, copy verbatim */
                         *(t++) = *f;
                         continue;
                 }
 
-                if (remaining == 1) {
-                        if (flags & UNESCAPE_RELAX) {
+                если (remaining == 1) {
+                        если (flags & UNESCAPE_RELAX) {
                                 /* A trailing backslash, copy verbatim */
                                 *(t++) = *f;
                                 continue;
                         }
 
-                        return -EINVAL;
+                        вернуть -EINVAL;
                 }
 
                 r = cunescape_one(f + 1, remaining - 1, &u, &eight_bit, flags & UNESCAPE_ACCEPT_NUL);
-                if (r < 0) {
-                        if (flags & UNESCAPE_RELAX) {
+                если (r < 0) {
+                        если (flags & UNESCAPE_RELAX) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '\\';
                                 continue;
                         }
 
-                        return r;
+                        вернуть r;
                 }
 
                 f += r;
-                if (eight_bit)
+                если (eight_bit)
                         /* One byte? Set directly as specified */
                         *(t++) = u;
-                else
+                иначе
                         /* Otherwise encode as multi-byte UTF-8 */
                         t += utf8_encode_unichar(t, u);
         }
@@ -367,7 +367,7 @@ ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *p
 
         assert(t >= ans); /* Let static analyzers know that the answer is non-negative. */
         *ret = TAKE_PTR(ans);
-        return t - *ret;
+        вернуть t - *ret;
 }
 
 char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags) {
@@ -383,43 +383,43 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
          * If console_width is reached, or XESCAPE_FORCE_ELLIPSIS is set, output is truncated and "..." is
          * appended. */
 
-        if (console_width == 0)
-                return strdup("");
+        если (console_width == 0)
+                вернуть strdup("");
 
         size_t len_forced_ellipsis = FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
         size_t len_s = strlen(s);
 
         size_t len_body = MIN(console_width, SIZE_MAX - 1); /* We need room for the NUL byte */
-        if (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
+        если (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
                 len_body = len_s * 4 + len_forced_ellipsis;
 
         ans = new(char, len_body + 1);
-        if (!ans)
-                return NULL;
+        если (!ans)
+                вернуть NULL;
 
-        for (f = s, t = prev = prev2 = ans; ; f++) {
+        для (f = s, t = prev = prev2 = ans; ; f++) {
                 char *tmp_t = t;
 
-                if (!*f) {
-                        if (len_forced_ellipsis != 0)
+                если (!*f) {
+                        если (len_forced_ellipsis != 0)
                                 break;
 
                         *t = 0;
-                        return ans;
+                        вернуть ans;
                 }
 
-                if ((unsigned char) *f < ' ' ||
+                если ((unsigned char) *f < ' ' ||
                     (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned char) *f >= 127) ||
                     *f == '\\' || (bad && strchr(bad, *f))) {
-                        if ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
+                        если ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
                                 break;
 
                         *(t++) = '\\';
                         *(t++) = 'x';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else {
-                        if ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
+                } иначе {
+                        если ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
                                 break;
 
                         *(t++) = *f;
@@ -433,26 +433,26 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
         /* We can just write where we want, since chars are one-byte */
         size_t c = MIN(len_body, STRLEN("...")); /* If the console is too narrow, write fewer dots */
         size_t off;
-        if (len_body - c >= (size_t) (t - ans))
+        если (len_body - c >= (size_t) (t - ans))
                 off = (size_t) (t - ans);
-        else if (len_body - c >= (size_t) (prev - ans))
+        иначе если (len_body - c >= (size_t) (prev - ans))
                 off = (size_t) (prev - ans);
-        else if (len_body - c >= (size_t) (prev2 - ans))
+        иначе если (len_body - c >= (size_t) (prev2 - ans))
                 off = (size_t) (prev2 - ans);
-        else
+        иначе
                 off = len_body - c;
         assert(off <= (size_t) (t - ans));
 
         memcpy(ans + off, "...", c);
         ans[off + c] = '\0';
-        return ans;
+        вернуть ans;
 }
 
 char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags) {
-        if (FLAGS_SET(flags, XESCAPE_8_BIT))
-                return xescape_full(str, /* bad= */ NULL, console_width, flags);
-        else
-                return utf8_escape_non_printable_full(str,
+        если (FLAGS_SET(flags, XESCAPE_8_BIT))
+                вернуть xescape_full(str, /* bad= */ NULL, console_width, flags);
+        иначе
+                вернуть utf8_escape_non_printable_full(str,
                                                       console_width,
                                                       FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS));
 }
@@ -465,30 +465,30 @@ char* octescape_full(const char *s, size_t len, const char *bad) {
 
         assert(s || len == 0);
 
-        if (len == SIZE_MAX)
+        если (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        если (len > (SIZE_MAX - 1) / 4)
+                вернуть NULL;
 
         t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        если (!buf)
+                вернуть NULL;
 
-        for (size_t i = 0; i < len; i++) {
+        для (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
+                если (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u >> 6);
                         *(t++) = '0' + ((u >> 3) & 7);
                         *(t++) = '0' + (u & 7);
-                } else
+                } иначе
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        вернуть buf;
 }
 
 char* decescape(const char *s, size_t len, const char *bad) {
@@ -498,30 +498,30 @@ char* decescape(const char *s, size_t len, const char *bad) {
 
         assert(s || len == 0);
 
-        if (len == SIZE_MAX)
+        если (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        если (len > (SIZE_MAX - 1) / 4)
+                вернуть NULL;
 
         t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        если (!buf)
+                вернуть NULL;
 
-        for (size_t i = 0; i < len; i++) {
+        для (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
+                если (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u / 100);
                         *(t++) = '0' + ((u / 10) % 10);
                         *(t++) = '0' + (u % 10);
-                } else
+                } иначе
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        вернуть buf;
 }
 
 static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
@@ -529,35 +529,35 @@ static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
         assert(t);
         assert(s);
 
-        while (*s) {
-                int l = utf8_encoded_valid_unichar(s, SIZE_MAX);
+        пока (*s) {
+                целое l = utf8_encoded_valid_unichar(s, SIZE_MAX);
 
-                if (char_is_cc(*s) || l < 0)
+                если (char_is_cc(*s) || l < 0)
                         t += cescape_char(*(s++), t);
-                else if (l == 1) {
-                        if (*s == '\\' || strchr(bad, *s))
+                иначе если (l == 1) {
+                        если (*s == '\\' || strchr(bad, *s))
                                 *(t++) = '\\';
                         *(t++) = *(s++);
-                } else {
+                } иначе {
                         t = mempcpy(t, s, l);
                         s += l;
                 }
         }
 
-        return t;
+        вернуть t;
 }
 
 char* shell_escape(const char *s, const char *bad) {
         char *buf, *t;
 
         buf = new(char, strlen(s)*4+1);
-        if (!buf)
-                return NULL;
+        если (!buf)
+                вернуть NULL;
 
         t = strcpy_backslash_escaped(buf, s, bad);
         *t = 0;
 
-        return buf;
+        вернуть buf;
 }
 
 char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
@@ -568,31 +568,31 @@ char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
 
         /* Encloses a string in quotes if necessary to make it OK as a shell string. */
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
-                return strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
+        если (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
+                вернуть strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
 
-        for (p = s; *p; ) {
-                int l = utf8_encoded_valid_unichar(p, SIZE_MAX);
+        для (p = s; *p; ) {
+                целое l = utf8_encoded_valid_unichar(p, SIZE_MAX);
 
-                if (char_is_cc(*p) || l < 0 ||
+                если (char_is_cc(*p) || l < 0 ||
                     strchr(WHITESPACE SHELL_NEED_QUOTES, *p))
                         break;
 
                 p += l;
         }
 
-        if (!*p)
-                return strdup(s);
+        если (!*p)
+                вернуть strdup(s);
 
         buf = new(char, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
-        if (!buf)
-                return NULL;
+        если (!buf)
+                вернуть NULL;
 
         t = buf;
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
+        если (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
                 *(t++) = '$';
                 *(t++) = '\'';
-        } else
+        } иначе
                 *(t++) = '"';
 
         t = mempcpy(t, s, p - s);
@@ -600,13 +600,13 @@ char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
         t = strcpy_backslash_escaped(t, p,
                                      FLAGS_SET(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
+        если (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
                 *(t++) = '\'';
-        else
+        иначе
                 *(t++) = '"';
         *t = 0;
 
-        return str_realloc(buf);
+        вернуть str_realloc(buf);
 }
 
 char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
@@ -618,12 +618,12 @@ char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
                 _cleanup_free_ char *t = NULL;
 
                 t = shell_maybe_quote(*a, flags);
-                if (!t)
-                        return NULL;
+                если (!t)
+                        вернуть NULL;
 
-                if (!strextend_with_separator(&result, " ", t))
-                        return NULL;
+                если (!strextend_with_separator(&result, " ", t))
+                        вернуть NULL;
         }
 
-        return str_realloc(TAKE_PTR(result));
+        вернуть str_realloc(TAKE_PTR(result));
 }

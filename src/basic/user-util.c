@@ -30,18 +30,18 @@
 
 #define DEFINE_STRERROR_ACCOUNT(type)                                   \
         const char* strerror_##type(                                    \
-                        int errnum,                                     \
+                        целое errnum,                                     \
                         char *buf,                                      \
                         size_t buflen) {                                \
                                                                         \
                 errnum = ABS(errnum);                                   \
                 switch (errnum) {                                       \
                 case ESRCH:                                             \
-                        return "Unknown " STRINGIFY(type);              \
+                        вернуть "Unknown " STRINGIFY(type);              \
                 case ENOEXEC:                                           \
-                        return "Not a system " STRINGIFY(type);         \
+                        вернуть "Not a system " STRINGIFY(type);         \
                 default:                                                \
-                        return strerror_r(errnum, buf, buflen);         \
+                        вернуть strerror_r(errnum, buf, buflen);         \
                 }                                                       \
         }
 
@@ -53,19 +53,19 @@ bool uid_is_valid(uid_t uid) {
         /* Also see POSIX IEEE Std 1003.1-2008, 2016 Edition, 3.436. */
 
         /* Some libc APIs use UID_INVALID as special placeholder */
-        if (uid == (uid_t) UINT32_C(0xFFFFFFFF))
-                return false;
+        если (uid == (uid_t) UINT32_C(0xFFFFFFFF))
+                вернуть false;
 
         /* A long time ago UIDs where 16 bit, hence explicitly avoid the 16-bit -1 too */
-        if (uid == (uid_t) UINT32_C(0xFFFF))
-                return false;
+        если (uid == (uid_t) UINT32_C(0xFFFF))
+                вернуть false;
 
-        return true;
+        вернуть true;
 }
 
-int parse_uid(const char *s, uid_t *ret) {
+целое parse_uid(const char *s, uid_t *ret) {
         uint32_t uid = 0;
-        int r;
+        целое r;
 
         assert(s);
 
@@ -79,85 +79,85 @@ int parse_uid(const char *s, uid_t *ret) {
                              | SAFE_ATO_REFUSE_PLUS_MINUS
                              | SAFE_ATO_REFUSE_LEADING_ZERO
                              | SAFE_ATO_REFUSE_LEADING_WHITESPACE, &uid);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (!uid_is_valid(uid))
-                return -ENXIO; /* we return ENXIO instead of EINVAL
+        если (!uid_is_valid(uid))
+                вернуть -ENXIO; /* we return ENXIO instead of EINVAL
                                 * here, to make it easy to distinguish
                                 * invalid numeric uids from invalid
                                 * strings. */
 
-        if (ret)
+        если (ret)
                 *ret = uid;
 
-        return 0;
+        вернуть 0;
 }
 
-int parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper) {
+целое parse_uid_range(const char *s, uid_t *ret_lower, uid_t *ret_upper) {
         _cleanup_free_ char *word = NULL;
         uid_t l, u;
-        int r;
+        целое r;
 
         assert(s);
         assert(ret_lower);
         assert(ret_upper);
 
         r = extract_first_word(&s, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        если (r < 0)
+                вернуть r;
+        если (r == 0)
+                вернуть -EINVAL;
 
         r = parse_uid(word, &l);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!s)
+        если (!s)
                 /* Single number with no dash. */
                 u = l;
-        else if (!*s)
+        иначе если (!*s)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                вернуть -EINVAL;
+        иначе {
                 r = parse_uid(s, &u);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
-                if (l > u)
-                        return -EINVAL;
+                если (l > u)
+                        вернуть -EINVAL;
         }
 
         *ret_lower = l;
         *ret_upper = u;
-        return 0;
+        вернуть 0;
 }
 
 char* getlogname_malloc(void) {
         uid_t uid;
         struct stat st;
 
-        if (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
+        если (isatty_safe(STDIN_FILENO) && fstat(STDIN_FILENO, &st) >= 0)
                 uid = st.st_uid;
-        else
+        иначе
                 uid = getuid();
 
-        return uid_to_name(uid);
+        вернуть uid_to_name(uid);
 }
 
 char* getusername_malloc(void) {
         const char *e;
 
         e = secure_getenv("USER");
-        if (e)
-                return strdup(e);
+        если (e)
+                вернуть strdup(e);
 
-        return uid_to_name(getuid());
+        вернуть uid_to_name(getuid());
 }
 
 bool is_nologin_shell(const char *shell) {
-        return PATH_IN_SET(shell,
+        вернуть PATH_IN_SET(shell,
                            /* 'nologin' is the friendliest way to disable logins for a user account. It prints a nice
                             * message and exits. Different distributions place the binary at different places though,
                             * hence let's list them all. */
@@ -175,36 +175,36 @@ bool is_nologin_shell(const char *shell) {
 }
 
 bool shell_is_placeholder(const char *shell) {
-        return isempty(shell) || is_nologin_shell(shell);
+        вернуть isempty(shell) || is_nologin_shell(shell);
 }
 
-const char* default_root_shell_at(int rfd) {
+const char* default_root_shell_at(целое rfd) {
         /* We want to use the preferred shell, i.e. DEFAULT_USER_SHELL, which usually
          * will be /bin/bash. Fall back to /bin/sh if DEFAULT_USER_SHELL is not found,
          * or any access errors. */
 
         assert(rfd >= 0 || rfd == AT_FDCWD);
 
-        int r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, NULL, NULL);
-        if (r < 0 && r != -ENOENT)
+        целое r = chaseat(rfd, rfd, DEFAULT_USER_SHELL, /* flags= */ 0, NULL, NULL);
+        если (r < 0 && r != -ENOENT)
                 log_debug_errno(r, "Failed to look up shell '%s': %m", DEFAULT_USER_SHELL);
-        if (r > 0)
-                return DEFAULT_USER_SHELL;
+        если (r > 0)
+                вернуть DEFAULT_USER_SHELL;
 
-        return "/bin/sh";
+        вернуть "/bin/sh";
 }
 
 const char* default_root_shell(const char *root) {
-        _cleanup_close_ int rfd = -EBADF;
+        _cleanup_close_ целое rfd = -EBADF;
 
         rfd = open(empty_to_root(root), O_CLOEXEC | O_DIRECTORY | O_PATH);
-        if (rfd < 0)
-                return "/bin/sh";
+        если (rfd < 0)
+                вернуть "/bin/sh";
 
-        return default_root_shell_at(rfd);
+        вернуть default_root_shell_at(rfd);
 }
 
-static int return_user_creds(
+static целое return_user_creds(
                 const char *username,
                 uid_t uid, gid_t gid,
                 const char *home,
@@ -216,40 +216,40 @@ static int return_user_creds(
         /* Helper function to help with the strdups and atomic setting of return params. */
 
         _cleanup_free_ char *s1 = NULL, *s2 = NULL, *s3 = NULL;
-        int r;
+        целое r;
 
-        if (ret_username) {
+        если (ret_username) {
                 r = strdup_to(&s1, username);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        if (ret_home) {
+        если (ret_home) {
                 r = strdup_to(&s2, home);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        if (ret_shell) {
+        если (ret_shell) {
                 r = strdup_to(&s3, shell);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        if (ret_username)
+        если (ret_username)
                 *ret_username = TAKE_PTR(s1);
-        if (ret_uid)
+        если (ret_uid)
                 *ret_uid = uid;
-        if (ret_gid)
+        если (ret_gid)
                 *ret_gid = gid;
-        if (ret_home)
+        если (ret_home)
                 *ret_home = TAKE_PTR(s2);
-        if (ret_shell)
+        если (ret_shell)
                 *ret_shell = TAKE_PTR(s3);
-        return 0;
+        вернуть 0;
 }
 
-static int synthesize_user_creds(
+static целое synthesize_user_creds(
                 const char *username,
                 UserCredsFlags flags,
                 char **ret_username,
@@ -260,8 +260,8 @@ static int synthesize_user_creds(
 
         /* We enforce some special rules for uid=0 and uid=65534: in order to avoid nss lookups for root we
          * hardcode their user record data. */
-        if (STR_IN_SET(username, "root", "0"))
-                return return_user_creds("root", 0, 0,
+        если (STR_IN_SET(username, "root", "0"))
+                вернуть return_user_creds("root", 0, 0,
                                          "/root",
                                          ret_shell ? default_root_shell(NULL) : NULL,
                                          ret_username,
@@ -269,9 +269,9 @@ static int synthesize_user_creds(
                                          ret_home,
                                          ret_shell);
 
-        if (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
+        если (STR_IN_SET(username, NOBODY_USER_NAME, "65534") &&
             synthesize_nobody())
-                return return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
+                вернуть return_user_creds(NOBODY_USER_NAME, UID_NOBODY, GID_NOBODY,
                                          FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : "/",
                                          FLAGS_SET(flags, USER_CREDS_SUPPRESS_PLACEHOLDER) ? NULL : NOLOGIN,
                                          ret_username,
@@ -279,10 +279,10 @@ static int synthesize_user_creds(
                                          ret_home,
                                          ret_shell);
 
-        return -ENOMEDIUM;
+        вернуть -ENOMEDIUM;
 }
 
-int get_user_creds(
+целое get_user_creds(
                 const char *username,
                 UserCredsFlags flags,
                 char **ret_username,
@@ -292,12 +292,12 @@ int get_user_creds(
 
         uid_t u = UID_INVALID;
         _cleanup_free_ struct passwd *pw = NULL;
-        int r;
+        целое r;
 
         assert(username);
         assert((ret_home || ret_shell) || !(flags & (USER_CREDS_SUPPRESS_PLACEHOLDER|USER_CREDS_CLEAN)));
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
+        если (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS) ||
             (!ret_home && !ret_shell)) {
 
                 /* So here's the deal: normally, we'll try to synthesize all records we can synthesize, and override
@@ -310,48 +310,48 @@ int get_user_creds(
                  * support. */
 
                 r = synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a username we can synthesize */
-                        return r;
+                если (r >= 0)
+                        вернуть 0;
+                если (r != -ENOMEDIUM) /* not a username we can synthesize */
+                        вернуть r;
         }
 
-        if (parse_uid(username, &u) >= 0) {
+        если (parse_uid(username, &u) >= 0) {
                 r = getpwuid_malloc(u, &pw);
 
                 /* If there are multiple users with the same id, make sure to leave $USER to the configured value
                  * instead of the first occurrence in the database. However if the uid was configured by a numeric uid,
                  * then let's pick the real username from /etc/passwd. */
-                if (r >= 0)
+                если (r >= 0)
                         username = pw->pw_name;
 
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
+                иначе если (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING) && !ret_gid && !ret_home && !ret_shell) {
                         /* If the specified user is a numeric UID and it isn't in the user database, and the caller
                          * passed USER_CREDS_ALLOW_MISSING and was only interested in the UID, then just return that
                          * and don't complain. */
-                        if (ret_username)
+                        если (ret_username)
                                 *ret_username = NULL;
-                        if (ret_uid)
+                        если (ret_uid)
                                 *ret_uid = u;
-                        return 0;
+                        вернуть 0;
                 }
-        } else
+        } иначе
                 r = getpwnam_malloc(username, &pw);
 
-        if (r < 0) {
+        если (r < 0) {
                 /* If the user requested that we only synthesize as fallback, do so now */
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+                если (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_user_creds(username, flags, ret_username, ret_uid, ret_gid, ret_home, ret_shell) >= 0)
-                        return 0;
+                        вернуть 0;
 
-                return r;
+                вернуть r;
         }
 
-        if (ret_uid && !uid_is_valid(pw->pw_uid))
-                return -EBADMSG;
+        если (ret_uid && !uid_is_valid(pw->pw_uid))
+                вернуть -EBADMSG;
 
-        if (ret_gid && !gid_is_valid(pw->pw_gid))
-                return -EBADMSG;
+        если (ret_gid && !gid_is_valid(pw->pw_gid))
+                вернуть -EBADMSG;
 
         /* Note: we don't insist on normalized paths, since there are setups that have /./ in the path */
         const char *h =
@@ -364,332 +364,332 @@ int get_user_creds(
                 (FLAGS_SET(flags, USER_CREDS_CLEAN) && (!path_is_valid(pw->pw_shell) || !path_is_absolute(pw->pw_shell)))
                 ? NULL : pw->pw_shell;
 
-        return return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
+        вернуть return_user_creds(username, pw->pw_uid, pw->pw_gid, h, s,
                                  ret_username, ret_uid, ret_gid, ret_home, ret_shell);
 }
 
-static int synthesize_group_creds(const char *groupname, char **ret_name, gid_t *ret_gid) {
+static целое synthesize_group_creds(const char *groupname, char **ret_name, gid_t *ret_gid) {
         assert(groupname);
 
         gid_t id;
         const char *n;
-        int r;
+        целое r;
 
-        if (STR_IN_SET(groupname, "root", "0")) {
+        если (STR_IN_SET(groupname, "root", "0")) {
                 id = 0;
                 n = "root";
-        } else if (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
+        } иначе если (STR_IN_SET(groupname, NOBODY_GROUP_NAME, "65534") &&
                    synthesize_nobody()) {
                 id = GID_NOBODY;
                 n = NOBODY_GROUP_NAME;
-        } else
-                return -ENOMEDIUM;
+        } иначе
+                вернуть -ENOMEDIUM;
 
         r = strdup_to_full(ret_name, n);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        если (r < 0)
+                вернуть r;
+        если (ret_gid)
                 *ret_gid = id;
-        return 0;
+        вернуть 0;
 }
 
-int get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid) {
+целое get_group_creds(const char *groupname, UserCredsFlags flags, char **ret_name, gid_t *ret_gid) {
         _cleanup_free_ struct group *gr = NULL;
         gid_t id;
-        int r;
+        целое r;
 
         assert(groupname);
 
-        if (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
+        если (!FLAGS_SET(flags, USER_CREDS_PREFER_NSS)) {
                 r = synthesize_group_creds(groupname, ret_name, ret_gid);
-                if (r >= 0)
-                        return 0;
-                if (r != -ENOMEDIUM) /* not a groupname we can synthesize */
-                        return r;
+                если (r >= 0)
+                        вернуть 0;
+                если (r != -ENOMEDIUM) /* not a groupname we can synthesize */
+                        вернуть r;
         }
 
-        if (parse_gid(groupname, &id) >= 0) {
+        если (parse_gid(groupname, &id) >= 0) {
                 r = getgrgid_malloc(id, &gr);
-                if (r >= 0)
+                если (r >= 0)
                         groupname = gr->gr_name;
-                else if (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
-                        if (ret_gid)
+                иначе если (FLAGS_SET(flags, USER_CREDS_ALLOW_MISSING)) {
+                        если (ret_gid)
                                 *ret_gid = id;
-                        if (ret_name)
+                        если (ret_name)
                                 *ret_name = NULL;
-                        return 0;
+                        вернуть 0;
                 }
-        } else
+        } иначе
                 r = getgrnam_malloc(groupname, &gr);
 
-        if (r < 0) {
-                if (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
+        если (r < 0) {
+                если (FLAGS_SET(flags, USER_CREDS_PREFER_NSS) &&
                     synthesize_group_creds(groupname, ret_name, ret_gid) >= 0)
-                        return 0;
-                return r;
+                        вернуть 0;
+                вернуть r;
         }
 
-        if (ret_gid && !gid_is_valid(gr->gr_gid))
-                return -EBADMSG;
+        если (ret_gid && !gid_is_valid(gr->gr_gid))
+                вернуть -EBADMSG;
 
         r = strdup_to_full(ret_name, groupname);
-        if (r < 0)
-                return r;
-        if (ret_gid)
+        если (r < 0)
+                вернуть r;
+        если (ret_gid)
                 *ret_gid = gr->gr_gid;
-        return 0;
+        вернуть 0;
 }
 
 char* uid_to_name(uid_t uid) {
         char *ret;
-        int r;
+        целое r;
 
         /* Shortcut things to avoid NSS lookups */
-        if (uid == 0)
-                return strdup("root");
-        if (uid == UID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_USER_NAME);
+        если (uid == 0)
+                вернуть strdup("root");
+        если (uid == UID_NOBODY && synthesize_nobody())
+                вернуть strdup(NOBODY_USER_NAME);
 
-        if (uid_is_valid(uid)) {
+        если (uid_is_valid(uid)) {
                 _cleanup_free_ struct passwd *pw = NULL;
 
                 r = getpwuid_malloc(uid, &pw);
-                if (r >= 0)
-                        return strdup(pw->pw_name);
+                если (r >= 0)
+                        вернуть strdup(pw->pw_name);
         }
 
-        if (asprintf(&ret, UID_FMT, uid) < 0)
-                return NULL;
+        если (asprintf(&ret, UID_FMT, uid) < 0)
+                вернуть NULL;
 
-        return ret;
+        вернуть ret;
 }
 
 char* gid_to_name(gid_t gid) {
         char *ret;
-        int r;
+        целое r;
 
-        if (gid == 0)
-                return strdup("root");
-        if (gid == GID_NOBODY && synthesize_nobody())
-                return strdup(NOBODY_GROUP_NAME);
+        если (gid == 0)
+                вернуть strdup("root");
+        если (gid == GID_NOBODY && synthesize_nobody())
+                вернуть strdup(NOBODY_GROUP_NAME);
 
-        if (gid_is_valid(gid)) {
+        если (gid_is_valid(gid)) {
                 _cleanup_free_ struct group *gr = NULL;
 
                 r = getgrgid_malloc(gid, &gr);
-                if (r >= 0)
-                        return strdup(gr->gr_name);
+                если (r >= 0)
+                        вернуть strdup(gr->gr_name);
         }
 
-        if (asprintf(&ret, GID_FMT, gid) < 0)
-                return NULL;
+        если (asprintf(&ret, GID_FMT, gid) < 0)
+                вернуть NULL;
 
-        return ret;
+        вернуть ret;
 }
 
 static bool gid_list_has(const gid_t *list, size_t size, gid_t val) {
         assert(list || size == 0);
 
         FOREACH_ARRAY(i, list, size)
-                if (*i == val)
-                        return true;
+                если (*i == val)
+                        вернуть true;
 
-        return false;
+        вернуть false;
 }
 
-int in_gid(gid_t gid) {
+целое in_gid(gid_t gid) {
         _cleanup_free_ gid_t *gids = NULL;
-        int ngroups;
+        целое ngroups;
 
-        if (getgid() == gid)
-                return 1;
+        если (getgid() == gid)
+                вернуть 1;
 
-        if (getegid() == gid)
-                return 1;
+        если (getegid() == gid)
+                вернуть 1;
 
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+        если (!gid_is_valid(gid))
+                вернуть -EINVAL;
 
         ngroups = getgroups_alloc(&gids);
-        if (ngroups < 0)
-                return ngroups;
+        если (ngroups < 0)
+                вернуть ngroups;
 
-        return gid_list_has(gids, ngroups, gid);
+        вернуть gid_list_has(gids, ngroups, gid);
 }
 
-int in_group(const char *name) {
-        int r;
+целое in_group(const char *name) {
+        целое r;
         gid_t gid;
 
         r = get_group_creds(name, /* flags= */ 0, /* ret_name= */ NULL, &gid);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return in_gid(gid);
+        вернуть in_gid(gid);
 }
 
-int merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret) {
+целое merge_gid_lists(const gid_t *list1, size_t size1, const gid_t *list2, size_t size2, gid_t **ret) {
         size_t nresult = 0;
 
         assert(size1 == 0 || list1);
         assert(size2 == 0 || list2);
         assert(ret);
 
-        if (size2 > INT_MAX - size1)
-                return -ENOBUFS;
+        если (size2 > INT_MAX - size1)
+                вернуть -ENOBUFS;
 
         gid_t *buf = new(gid_t, size1 + size2);
-        if (!buf)
-                return -ENOMEM;
+        если (!buf)
+                вернуть -ENOMEM;
 
         /* Duplicates need to be skipped on merging, otherwise they'll be passed on and stored in the kernel. */
-        for (size_t i = 0; i < size1; i++)
-                if (!gid_list_has(buf, nresult, list1[i]))
+        для (size_t i = 0; i < size1; i++)
+                если (!gid_list_has(buf, nresult, list1[i]))
                         buf[nresult++] = list1[i];
-        for (size_t i = 0; i < size2; i++)
-                if (!gid_list_has(buf, nresult, list2[i]))
+        для (size_t i = 0; i < size2; i++)
+                если (!gid_list_has(buf, nresult, list2[i]))
                         buf[nresult++] = list2[i];
         *ret = buf;
-        return (int)nresult;
+        вернуть (целое)nresult;
 }
 
-int getgroups_alloc(gid_t **ret) {
-        int ngroups = 8;
+целое getgroups_alloc(gid_t **ret) {
+        целое ngroups = 8;
 
         assert(ret);
 
-        for (unsigned attempt = 0;;) {
+        для (unsigned attempt = 0;;) {
                 _cleanup_free_ gid_t *p = NULL;
 
                 p = new(gid_t, ngroups);
-                if (!p)
-                        return -ENOMEM;
+                если (!p)
+                        вернуть -ENOMEM;
 
                 ngroups = getgroups(ngroups, p);
-                if (ngroups > 0) {
+                если (ngroups > 0) {
                         *ret = TAKE_PTR(p);
-                        return ngroups;
+                        вернуть ngroups;
                 }
-                if (ngroups == 0)
+                если (ngroups == 0)
                         break;
-                if (errno != EINVAL)
-                        return -errno;
+                если (errno != EINVAL)
+                        вернуть -errno;
 
                 /* Give up eventually */
-                if (attempt++ > 10)
-                        return -EINVAL;
+                если (attempt++ > 10)
+                        вернуть -EINVAL;
 
                 /* Get actual size needed, and size the array explicitly. Note that this is potentially racy
                  * to use (in multi-threaded programs), hence let's call this in a loop. */
                 ngroups = getgroups(0, NULL);
-                if (ngroups < 0)
-                        return -errno;
-                if (ngroups == 0)
+                если (ngroups < 0)
+                        вернуть -errno;
+                если (ngroups == 0)
                         break;
         }
 
         *ret = NULL;
-        return 0;
+        вернуть 0;
 }
 
-int get_home_dir(char **ret) {
+целое get_home_dir(char **ret) {
         _cleanup_free_ struct passwd *p = NULL;
         const char *e;
         uid_t u;
-        int r;
+        целое r;
 
         assert(ret);
 
         /* Take the user specified one */
         e = secure_getenv("HOME");
-        if (e && path_is_valid(e) && path_is_absolute(e))
+        если (e && path_is_valid(e) && path_is_absolute(e))
                 goto found;
 
         /* Hardcode home directory for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
+        если (u == 0) {
                 e = "/root";
                 goto found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        если (u == UID_NOBODY && synthesize_nobody()) {
                 e = "/";
                 goto found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         e = p->pw_dir;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        если (!path_is_valid(e) || !path_is_absolute(e))
+                вернуть -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        вернуть path_simplify_alloc(e, ret);
 }
 
-int get_shell(char **ret) {
+целое get_shell(char **ret) {
         _cleanup_free_ struct passwd *p = NULL;
         const char *e;
         uid_t u;
-        int r;
+        целое r;
 
         assert(ret);
 
         /* Take the user specified one */
         e = secure_getenv("SHELL");
-        if (e && path_is_valid(e) && path_is_absolute(e))
+        если (e && path_is_valid(e) && path_is_absolute(e))
                 goto found;
 
         /* Hardcode shell for root and nobody to avoid NSS */
         u = getuid();
-        if (u == 0) {
+        если (u == 0) {
                 e = default_root_shell(NULL);
                 goto found;
         }
-        if (u == UID_NOBODY && synthesize_nobody()) {
+        если (u == UID_NOBODY && synthesize_nobody()) {
                 e = NOLOGIN;
                 goto found;
         }
 
         /* Check the database... */
         r = getpwuid_malloc(u, &p);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         e = p->pw_shell;
-        if (!path_is_valid(e) || !path_is_absolute(e))
-                return -EINVAL;
+        если (!path_is_valid(e) || !path_is_absolute(e))
+                вернуть -EINVAL;
 
  found:
-        return path_simplify_alloc(e, ret);
+        вернуть path_simplify_alloc(e, ret);
 }
 
-int fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids) {
-        int r;
+целое fully_set_uid_gid(uid_t uid, gid_t gid, const gid_t supplementary_gids[], size_t n_supplementary_gids) {
+        целое r;
 
         assert(supplementary_gids || n_supplementary_gids == 0);
 
         /* Sets all UIDs and all GIDs to the specified ones. Drops all auxiliary GIDs */
 
         r = maybe_setgroups(n_supplementary_gids, supplementary_gids);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (gid_is_valid(gid))
-                if (setresgid(gid, gid, gid) < 0)
-                        return -errno;
+        если (gid_is_valid(gid))
+                если (setresgid(gid, gid, gid) < 0)
+                        вернуть -errno;
 
-        if (uid_is_valid(uid))
-                if (setresuid(uid, uid, uid) < 0)
-                        return -errno;
+        если (uid_is_valid(uid))
+                если (setresuid(uid, uid, uid) < 0)
+                        вернуть -errno;
 
-        return 0;
+        вернуть 0;
 }
 
-int take_etc_passwd_lock(const char *root) {
-        int r;
+целое take_etc_passwd_lock(const char *root) {
+        целое r;
 
         /* This is roughly the same as lckpwdf(), but not as awful. We don't want to use alarm() and signals,
          * hence we implement our own trivial version of this.
@@ -699,20 +699,20 @@ int take_etc_passwd_lock(const char *root) {
          * The per-database locks are awfully racy, and thus we just won't do them. */
 
         _cleanup_free_ char *path = path_join(root, ETC_PASSWD_LOCK_PATH);
-        if (!path)
-                return log_oom_debug();
+        если (!path)
+                вернуть log_oom_debug();
 
         (void) mkdir_parents(path, 0755);
 
-        _cleanup_close_ int fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
-        if (fd < 0)
-                return log_debug_errno(errno, "Cannot open %s: %m", path);
+        _cleanup_close_ целое fd = open(path, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_NOFOLLOW, 0600);
+        если (fd < 0)
+                вернуть log_debug_errno(errno, "Cannot open %s: %m", path);
 
         r = unposix_lock(fd, LOCK_EX);
-        if (r < 0)
-                return log_debug_errno(r, "Locking %s failed: %m", path);
+        если (r < 0)
+                вернуть log_debug_errno(r, "Locking %s failed: %m", path);
 
-        return TAKE_FD(fd);
+        вернуть TAKE_FD(fd);
 }
 
 bool valid_user_group_name(const char *u, ValidUserFlags flags) {
@@ -725,14 +725,14 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
          * Whenever we synthesize users ourselves we should use the strict mode. But when we process users
          * created by other stuff, let's be more liberal. */
 
-        if (isempty(u)) /* An empty user name is never valid */
-                return false;
+        если (isempty(u)) /* An empty user name is never valid */
+                вернуть false;
 
-        if (parse_uid(u, NULL) >= 0) /* Something that parses as numeric UID string is valid exactly when the
+        если (parse_uid(u, NULL) >= 0) /* Something that parses as numeric UID string is valid exactly when the
                                       * flag for it is set */
-                return FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
+                вернуть FLAGS_SET(flags, VALID_USER_ALLOW_NUMERIC);
 
-        if (FLAGS_SET(flags, VALID_USER_RELAX)) {
+        если (FLAGS_SET(flags, VALID_USER_RELAX)) {
 
                 /* In relaxed mode we just check very superficially. Apparently SSSD and other stuff is
                  * extremely liberal (way too liberal if you ask me, even inserting "@" in user names, which
@@ -745,52 +745,52 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * outside of POSIX' bounds any day, but I must say in this case I probably wouldn't
                  * have...) */
 
-                if (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
+                если (startswith(u, " ") || endswith(u, " ")) /* At least expect whitespace padding is removed
                                                              * at front and back (accept in the middle, since
                                                              * that's apparently a thing on Windows). Note
                                                              * that this also blocks usernames consisting of
                                                              * whitespace only. */
-                        return false;
+                        вернуть false;
 
-                if (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
-                        return false;
+                если (!utf8_is_valid(u)) /* We want to synthesize JSON from this, hence insist on UTF-8 */
+                        вернуть false;
 
-                if (string_has_cc(u, NULL)) /* CC characters are just dangerous (and \n in particular is the
+                если (string_has_cc(u, NULL)) /* CC characters are just dangerous (and \n in particular is the
                                              * record separator in /etc/passwd), so we can't allow that. */
-                        return false;
+                        вернуть false;
 
-                if (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
+                если (strpbrk(u, ":/")) /* Colons are the field separator in /etc/passwd, we can't allow
                                        * that. Slashes are special to file systems paths and user names
                                        * typically show up in the file system as home directories, hence
                                        * don't allow slashes. */
-                        return false;
+                        вернуть false;
 
-                if (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
+                если (in_charset(u, DIGITS)) /* Don't allow fully numeric strings, they might be confused with
                                             * UIDs (note that this test is more broad than the parse_uid()
                                             * test above, as it will cover more than the 32-bit range, and it
                                             * will detect 65535 (which is in invalid UID, even though in the
                                             * unsigned 32 bit range) */
-                        return false;
+                        вернуть false;
 
-                if (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
+                если (u[0] == '-' && in_charset(u + 1, DIGITS)) /* Don't allow negative fully numeric strings
                                                                * either. After all some people write 65535 as
                                                                * -1 (even though that's not even true on
                                                                * 32-bit uid_t anyway) */
-                        return false;
+                        вернуть false;
 
-                if (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
+                если (dot_or_dot_dot(u)) /* User names typically become home directory names, and these two are
                                         * special in that context, don't allow that. */
-                        return false;
+                        вернуть false;
 
                 /* Compare with strict result and warn if result doesn't match */
-                if (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
+                если (FLAGS_SET(flags, VALID_USER_WARN) && !valid_user_group_name(u, 0))
                         log_struct(LOG_NOTICE,
                                    LOG_MESSAGE("Accepting user/group name '%s', which does not match strict user/group name rules.", u),
                                    LOG_ITEM("USER_GROUP_NAME=%s", u),
                                    LOG_MESSAGE_ID(SD_MESSAGE_UNSAFE_USER_NAME_STR));
 
                 /* Note that we make no restrictions on the length in relaxed mode! */
-        } else {
+        } иначе {
                 long sz;
                 size_t l;
 
@@ -805,48 +805,48 @@ bool valid_user_group_name(const char *u, ValidUserFlags flags) {
                  * Note that other systems are even more restrictive, and don't permit underscores or uppercase characters.
                  */
 
-                if (!ascii_isalpha(u[0]) &&
+                если (!ascii_isalpha(u[0]) &&
                     u[0] != '_')
-                        return false;
+                        вернуть false;
 
-                for (i = u+1; *i; i++)
-                        if (!ascii_isalpha(*i) &&
+                для (i = u+1; *i; i++)
+                        если (!ascii_isalpha(*i) &&
                             !ascii_isdigit(*i) &&
                             !IN_SET(*i, '_', '-'))
-                                return false;
+                                вернуть false;
 
                 l = i - u;
 
                 sz = sysconf(_SC_LOGIN_NAME_MAX);
                 assert_se(sz > 0);
 
-                if (l > (size_t) sz) /* glibc: 256 */
-                        return false;
-                if (l > NAME_MAX) /* must fit in a filename: 255 */
-                        return false;
-                if (l > sizeof_field(struct utmpx, ut_user) - 1) /* must fit in utmp: 31 */
-                        return false;
+                если (l > (size_t) sz) /* glibc: 256 */
+                        вернуть false;
+                если (l > NAME_MAX) /* must fit in a filename: 255 */
+                        вернуть false;
+                если (l > sizeof_field(struct utmpx, ut_user) - 1) /* must fit in utmp: 31 */
+                        вернуть false;
         }
 
-        return true;
+        вернуть true;
 }
 
 bool valid_gecos(const char *d) {
 
-        if (!d)
-                return false;
+        если (!d)
+                вернуть false;
 
-        if (!utf8_is_valid(d))
-                return false;
+        если (!utf8_is_valid(d))
+                вернуть false;
 
-        if (string_has_cc(d, NULL))
-                return false;
+        если (string_has_cc(d, NULL))
+                вернуть false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(d, ':'))
-                return false;
+        если (strchr(d, ':'))
+                вернуть false;
 
-        return true;
+        вернуть true;
 }
 
 char* mangle_gecos(const char *d) {
@@ -857,19 +857,19 @@ char* mangle_gecos(const char *d) {
          * UTF-8 */
 
         mangled = strdup(d);
-        if (!mangled)
-                return NULL;
+        если (!mangled)
+                вернуть NULL;
 
-        for (char *i = mangled; *i; i++) {
-                int len;
+        для (char *i = mangled; *i; i++) {
+                целое len;
 
-                if ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
+                если ((uint8_t) *i < (uint8_t) ' ' || *i == ':') {
                         *i = ' ';
                         continue;
                 }
 
                 len = utf8_encoded_valid_unichar(i, SIZE_MAX);
-                if (len < 0) {
+                если (len < 0) {
                         *i = ' ';
                         continue;
                 }
@@ -877,33 +877,33 @@ char* mangle_gecos(const char *d) {
                 i += len - 1;
         }
 
-        return mangled;
+        вернуть mangled;
 }
 
 bool valid_home(const char *p) {
         /* Note that this function is also called by valid_shell(), any
          * changes must account for that. */
 
-        if (isempty(p))
-                return false;
+        если (isempty(p))
+                вернуть false;
 
-        if (!utf8_is_valid(p))
-                return false;
+        если (!utf8_is_valid(p))
+                вернуть false;
 
-        if (string_has_cc(p, NULL))
-                return false;
+        если (string_has_cc(p, NULL))
+                вернуть false;
 
-        if (!path_is_absolute(p))
-                return false;
+        если (!path_is_absolute(p))
+                вернуть false;
 
-        if (!path_is_normalized(p))
-                return false;
+        если (!path_is_normalized(p))
+                вернуть false;
 
         /* Colons are used as field separators, and hence not OK */
-        if (strchr(p, ':'))
-                return false;
+        если (strchr(p, ':'))
+                вернуть false;
 
-        return true;
+        вернуть true;
 }
 
 bool valid_shell(const char *p) {
@@ -911,45 +911,45 @@ bool valid_shell(const char *p) {
          *
          * Let's ignore /etc/shells because this is only applicable to real and not system users. It is also
          * incompatible with the idea of empty /etc/. */
-        if (!valid_home(p))
-                return false;
+        если (!valid_home(p))
+                вернуть false;
 
-        return !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
+        вернуть !endswith(p, "/"); /* one additional restriction: shells may not be dirs */
 }
 
-int maybe_setgroups(size_t size, const gid_t *list) {
-        int r;
+целое maybe_setgroups(size_t size, const gid_t *list) {
+        целое r;
 
         /* Check if setgroups is allowed before we try to drop all the auxiliary groups */
-        if (size == 0) { /* Dropping all aux groups? */
+        если (size == 0) { /* Dropping all aux groups? */
 
                 /* The kernel refuses setgroups() if there are no GID mappings in the current
                  * user namespace, so check that beforehand and don't try to setgroups() if
                  * there are no GID mappings. */
                 _cleanup_fclose_ FILE *f = fopen("/proc/self/gid_map", "re");
-                if (!f && errno != ENOENT)
-                        return -errno;
-                if (f) {
+                если (!f && errno != ENOENT)
+                        вернуть -errno;
+                если (f) {
                         r = safe_fgetc(f, /* ret= */ NULL);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) {
+                        если (r < 0)
+                                вернуть r;
+                        если (r == 0) {
                                 log_debug("Skipping setgroups(), /proc/self/gid_map is empty");
-                                return 0;
+                                вернуть 0;
                         }
                 }
 
                 _cleanup_free_ char *setgroups_content = NULL;
                 r = read_one_line_file("/proc/self/setgroups", &setgroups_content);
-                if (r < 0 && r != -ENOENT)
-                        return r;
-                if (r > 0 && streq(setgroups_content, "deny")) {
+                если (r < 0 && r != -ENOENT)
+                        вернуть r;
+                если (r > 0 && streq(setgroups_content, "deny")) {
                         log_debug("Skipping setgroups(), /proc/self/setgroups is set to 'deny'");
-                        return 0;
+                        вернуть 0;
                 }
         }
 
-        return RET_NERRNO(setgroups(size, list));
+        вернуть RET_NERRNO(setgroups(size, list));
 }
 
 bool synthesize_nobody(void) {
@@ -960,137 +960,137 @@ bool synthesize_nobody(void) {
          * Note that we do not employ any kind of synchronization on the following caching variable. If the variable is
          * accessed in multi-threaded programs in the worst case it might happen that we initialize twice, but that
          * shouldn't matter as each initialization should come to the same result. */
-        static int cache = -1;
+        static целое cache = -1;
 
-        if (cache < 0)
+        если (cache < 0)
                 cache = access("/etc/systemd/dont-synthesize-nobody", F_OK) < 0;
 
-        return cache;
+        вернуть cache;
 }
 
-int putpwent_sane(const struct passwd *pw, FILE *stream) {
+целое putpwent_sane(const struct passwd *pw, FILE *stream) {
         assert(pw);
         assert(stream);
 
         errno = 0;
-        if (putpwent(pw, stream) != 0)
-                return errno_or_else(EIO);
+        если (putpwent(pw, stream) != 0)
+                вернуть errno_or_else(EIO);
 
-        return 0;
+        вернуть 0;
 }
 
-int putspent_sane(const struct spwd *sp, FILE *stream) {
+целое putspent_sane(const struct spwd *sp, FILE *stream) {
         assert(sp);
         assert(stream);
 
         errno = 0;
-        if (putspent(sp, stream) != 0)
-                return errno_or_else(EIO);
+        если (putspent(sp, stream) != 0)
+                вернуть errno_or_else(EIO);
 
-        return 0;
+        вернуть 0;
 }
 
-int putgrent_sane(const struct group *gr, FILE *stream) {
+целое putgrent_sane(const struct group *gr, FILE *stream) {
         assert(gr);
         assert(stream);
 
         errno = 0;
-        if (putgrent(gr, stream) != 0)
-                return errno_or_else(EIO);
+        если (putgrent(gr, stream) != 0)
+                вернуть errno_or_else(EIO);
 
-        return 0;
+        вернуть 0;
 }
 
-#if ENABLE_GSHADOW
-int putsgent_sane(const struct sgrp *sg, FILE *stream) {
+#если ENABLE_GSHADOW
+целое putsgent_sane(const struct sgrp *sg, FILE *stream) {
         assert(sg);
         assert(stream);
 
         errno = 0;
-        if (putsgent(sg, stream) != 0)
-                return errno_or_else(EIO);
+        если (putsgent(sg, stream) != 0)
+                вернуть errno_or_else(EIO);
 
-        return 0;
+        вернуть 0;
 }
 #endif
 
-int fgetpwent_sane(FILE *stream, struct passwd **pw) {
+целое fgetpwent_sane(FILE *stream, struct passwd **pw) {
         assert(stream);
         assert(pw);
 
         errno = 0;
         struct passwd *p = fgetpwent(stream);
-        if (!p && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        если (!p && !IN_SET(errno, 0, ENOENT))
+                вернуть -errno;
 
         *pw = p;
-        return !!p;
+        вернуть !!p;
 }
 
-int fgetspent_sane(FILE *stream, struct spwd **sp) {
+целое fgetspent_sane(FILE *stream, struct spwd **sp) {
         assert(stream);
         assert(sp);
 
         errno = 0;
         struct spwd *s = fgetspent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        если (!s && !IN_SET(errno, 0, ENOENT))
+                вернуть -errno;
 
         *sp = s;
-        return !!s;
+        вернуть !!s;
 }
 
-int fgetgrent_sane(FILE *stream, struct group **gr) {
+целое fgetgrent_sane(FILE *stream, struct group **gr) {
         assert(stream);
         assert(gr);
 
         errno = 0;
         struct group *g = fgetgrent(stream);
-        if (!g && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        если (!g && !IN_SET(errno, 0, ENOENT))
+                вернуть -errno;
 
         *gr = g;
-        return !!g;
+        вернуть !!g;
 }
 
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg) {
+#если ENABLE_GSHADOW
+целое fgetsgent_sane(FILE *stream, struct sgrp **sg) {
         assert(stream);
         assert(sg);
 
         errno = 0;
         struct sgrp *s = fgetsgent(stream);
-        if (!s && !IN_SET(errno, 0, ENOENT))
-                return -errno;
+        если (!s && !IN_SET(errno, 0, ENOENT))
+                вернуть -errno;
 
         *sg = s;
-        return !!s;
+        вернуть !!s;
 }
 #endif
 
-int is_this_me(const char *username) {
+целое is_this_me(const char *username) {
         uid_t uid;
-        int r;
+        целое r;
 
         /* Checks if the specified username is our current one. Passed string might be a UID or a user name. */
 
         r = get_user_creds(username, /* flags= */ USER_CREDS_ALLOW_MISSING, NULL, &uid, NULL, NULL, NULL);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return uid == getuid();
+        вернуть uid == getuid();
 }
 
 const char* get_home_root(void) {
         /* For debug purposes allow overriding where we look for home dirs */
         const char *e = secure_getenv("SYSTEMD_HOME_ROOT");
-        if (e && path_is_absolute(e) && path_is_normalized(e))
-                return e;
+        если (e && path_is_absolute(e) && path_is_normalized(e))
+                вернуть e;
 
-        return "/home";
+        вернуть "/home";
 }
 
-static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
+static целое copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
         assert(pw);
         assert(ret);
 
@@ -1102,8 +1102,8 @@ static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
                 + strlen_ptr(pw->pw_shell) + 1;
 
         char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        если (!buf)
+                вернуть -ENOMEM;
 
         struct passwd *newpw = (struct passwd *) buf;
 
@@ -1130,18 +1130,18 @@ static int copy_struct_passwd(const struct passwd *pw, struct passwd **ret) {
         p = stpcpy(p, strempty(pw->pw_shell)) + 1;
 
         *ret = newpw;
-        return 0;
+        вернуть 0;
 }
 
 /* Iterate the given list of passwd-format files looking for an entry matching the predicate (by
  * name if 'name' is non-NULL and by 'uid' if valid). Returns -ESRCH if no entry is found. */
-int lookup_pwent_in_files(
+целое lookup_pwent_in_files(
                 char * const *files,
                 const char *name,
                 uid_t uid,
                 struct passwd **ret) {
 
-        int r;
+        целое r;
 
         assert(files);
         assert(name || uid_is_valid(uid));
@@ -1151,143 +1151,143 @@ int lookup_pwent_in_files(
                 struct passwd *pw;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                если (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
-                while ((r = fgetpwent_sane(f, &pw)) > 0) {
-                        if (name && !streq_ptr(pw->pw_name, name))
+                пока ((r = fgetpwent_sane(f, &pw)) > 0) {
+                        если (name && !streq_ptr(pw->pw_name, name))
                                 continue;
-                        if (uid_is_valid(uid) && pw->pw_uid != uid)
+                        если (uid_is_valid(uid) && pw->pw_uid != uid)
                                 continue;
-                        if (ret)
-                                return copy_struct_passwd(pw, ret);
-                        return 0;
+                        если (ret)
+                                вернуть copy_struct_passwd(pw, ret);
+                        вернуть 0;
                 }
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        return -ESRCH;
+        вернуть -ESRCH;
 }
 
-#if !BUILD_STATIC
+#если !BUILD_STATIC
 
 static size_t getpw_buffer_size(void) {
         long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        вернуть bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
-static bool errno_is_user_doesnt_exist(int error) {
+static bool errno_is_user_doesnt_exist(целое error) {
         /* See getpwnam(3) and getgrnam(3): those codes and others can be returned if the user or group are
          * not found. */
-        return IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
+        вернуть IN_SET(abs(error), ENOENT, ESRCH, EBADF, EPERM);
 }
 
 #endif
 
-int getpwnam_malloc(const char *name, struct passwd **ret) {
+целое getpwnam_malloc(const char *name, struct passwd **ret) {
         /* For static builds use a very simplistic implementation that looks at 'passwd' in /etc/
          * and /usr/lib/, and for non-static builds use NSS. The first matching entry wins. The
          * same logic is implemented in getpwnam_malloc, getpwuid_malloc, getgrnam_malloc, and
          * getgrgid_malloc. */
 
-        if (isempty(name))
-                return -EINVAL;
+        если (isempty(name))
+                вернуть -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
-#else
+#если BUILD_STATIC
+        вернуть lookup_pwent_in_files(PASSWD_FILES, name, UID_INVALID, ret);
+#иначе
         size_t bufsize = getpw_buffer_size();
-        int r;
+        целое r;
 
         /* A wrapper around getpwnam_r() that allocates the necessary buffer on the heap. The caller must
          * free() the returned structure! */
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
                 buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                если (!buf)
+                        вернуть -ENOMEM;
 
                 struct passwd *pw = NULL;
                 r = getpwnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                если (r == 0) {
+                        если (pw) {
+                                если (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                вернуть 0;
                         }
 
-                        return -ESRCH;
+                        вернуть -ESRCH;
                 }
 
                 assert(r > 0);
 
                 /* getpwnam() may fail with ENOENT if /etc/passwd is missing.  For us that is equivalent to
                  * the name not being defined. */
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                если (errno_is_user_doesnt_exist(r))
+                        вернуть -ESRCH;
+                если (r != ERANGE)
+                        вернуть -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                если (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
+                        вернуть -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getpwuid_malloc(uid_t uid, struct passwd **ret) {
-        if (!uid_is_valid(uid))
-                return -EINVAL;
+целое getpwuid_malloc(uid_t uid, struct passwd **ret) {
+        если (!uid_is_valid(uid))
+                вернуть -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_pwent_in_files(PASSWD_FILES, /* name= */ NULL, uid, ret);
-#else
+#если BUILD_STATIC
+        вернуть lookup_pwent_in_files(PASSWD_FILES, /* name= */ NULL, uid, ret);
+#иначе
         size_t bufsize = getpw_buffer_size();
-        int r;
+        целое r;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct passwd)));
                 buf = malloc0(ALIGN(sizeof(struct passwd)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                если (!buf)
+                        вернуть -ENOMEM;
 
                 struct passwd *pw = NULL;
                 r = getpwuid_r(uid, buf, (char*) buf + ALIGN(sizeof(struct passwd)), bufsize, &pw);
-                if (r == 0) {
-                        if (pw) {
-                                if (ret)
+                если (r == 0) {
+                        если (pw) {
+                                если (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                вернуть 0;
                         }
 
-                        return -ESRCH;
+                        вернуть -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                если (errno_is_user_doesnt_exist(r))
+                        вернуть -ESRCH;
+                если (r != ERANGE)
+                        вернуть -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
-                        return -ENOMEM;
+                если (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct passwd)))
+                        вернуть -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-static int copy_struct_group(const struct group *gr, struct group **ret) {
+static целое copy_struct_group(const struct group *gr, struct group **ret) {
         assert(gr);
         assert(ret);
 
@@ -1302,8 +1302,8 @@ static int copy_struct_group(const struct group *gr, struct group **ret) {
         need_bytes += sizeof(char*);  /* NULL terminator for gr_mem */
 
         char *buf = malloc(need_bytes);
-        if (!buf)
-                return -ENOMEM;
+        если (!buf)
+                вернуть -ENOMEM;
 
         struct group *newgr = (struct group *) buf;
 
@@ -1323,24 +1323,24 @@ static int copy_struct_group(const struct group *gr, struct group **ret) {
         newgr->gr_gid = gr->gr_gid;
 
         newgr->gr_mem = (char**) (buf + sizeof(struct group));
-        for (size_t i = 0; i < n_mem; i++) {
+        для (size_t i = 0; i < n_mem; i++) {
                 newgr->gr_mem[i] = p;
                 p = stpcpy(p, gr->gr_mem[i]) + 1;
         }
         newgr->gr_mem[n_mem] = NULL;
 
         *ret = newgr;
-        return 0;
+        вернуть 0;
 }
 
 /* See lookup_pwent_in_files() for the analogous passwd-file version. */
-int lookup_grent_in_files(
+целое lookup_grent_in_files(
                 char * const *files,
                 const char *name,
                 gid_t gid,
                 struct group **ret) {
 
-        int r;
+        целое r;
 
         assert(files);
         assert(name || gid_is_valid(gid));
@@ -1350,38 +1350,38 @@ int lookup_grent_in_files(
                 struct group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                если (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (name && !streq_ptr(gr->gr_name, name))
+                пока ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        если (name && !streq_ptr(gr->gr_name, name))
                                 continue;
-                        if (gid_is_valid(gid) && gr->gr_gid != gid)
+                        если (gid_is_valid(gid) && gr->gr_gid != gid)
                                 continue;
-                        if (ret)
-                                return copy_struct_group(gr, ret);
-                        return 0;
+                        если (ret)
+                                вернуть copy_struct_group(gr, ret);
+                        вернуть 0;
                 }
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        return -ESRCH;
+        вернуть -ESRCH;
 }
 
-int sysconf_ngroups_max(void) {
+целое sysconf_ngroups_max(void) {
         /* Query sysconf _SC_NGROUPS_MAX. Returns an int because the expected value is 64k
          * and later on this is used as an int with various glibc consumers. */
 
         errno = 0;
         long ngroups_max = sysconf(_SC_NGROUPS_MAX);
-        if (ngroups_max <= 0)
-                return errno_or_else(EOPNOTSUPP);
-        if (ngroups_max > INT_MAX)
-                return -ERANGE;
-        return ngroups_max;
+        если (ngroups_max <= 0)
+                вернуть errno_or_else(EOPNOTSUPP);
+        если (ngroups_max > INT_MAX)
+                вернуть -ERANGE;
+        вернуть ngroups_max;
 }
 
 ssize_t lookup_groups_in_files(
@@ -1392,18 +1392,18 @@ ssize_t lookup_groups_in_files(
 
         _cleanup_free_ gid_t *arr = NULL;
         ssize_t n_arr = 0;
-        int r;
+        целое r;
 
         assert(files);
         assert(name);
         assert(gid_is_valid(gid));
 
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+        целое ngroups_max = sysconf_ngroups_max();
+        если (ngroups_max < 0)
+                вернуть ngroups_max;
 
-        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                return -ENOMEM;
+        если (!GREEDY_REALLOC(arr, n_arr + 1))
+                вернуть -ENOMEM;
         arr[n_arr++] = gid;
 
         STRV_FOREACH(fname, files) {
@@ -1411,178 +1411,178 @@ ssize_t lookup_groups_in_files(
                 struct group *gr;
 
                 r = fopen_unlocked(*fname, "re", &f);
-                if (r == -ENOENT)
+                если (r == -ENOENT)
                         continue;
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
-                while ((r = fgetgrent_sane(f, &gr)) > 0) {
-                        if (gid == gr->gr_gid)
+                пока ((r = fgetgrent_sane(f, &gr)) > 0) {
+                        если (gid == gr->gr_gid)
                                 continue;
 
                         /* Deduplicate groups, in case the group is doubly defined in the same or
                          * different files. */
-                        if (gid_list_has(arr, n_arr, gr->gr_gid))
+                        если (gid_list_has(arr, n_arr, gr->gr_gid))
                                 continue;
 
-                        if (!strv_contains(gr->gr_mem, name))
+                        если (!strv_contains(gr->gr_mem, name))
                                 continue;
 
                         /* Do not allow more than _SC_NGROUPS_MAX. */
-                        if (n_arr >= ngroups_max)
-                                return -ENOBUFS;
+                        если (n_arr >= ngroups_max)
+                                вернуть -ENOBUFS;
 
-                        if (!GREEDY_REALLOC(arr, n_arr + 1))
-                                return -ENOMEM;
+                        если (!GREEDY_REALLOC(arr, n_arr + 1))
+                                вернуть -ENOMEM;
                         arr[n_arr++] = gr->gr_gid;
                 }
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        if (ret)
+        если (ret)
                 *ret = TAKE_PTR(arr);
-        return n_arr;
+        вернуть n_arr;
 }
 
-int getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret) {
-#if BUILD_STATIC
-        return lookup_groups_in_files(GROUP_FILES, user, gid, ret);
-#else
-        int ngroups_max = sysconf_ngroups_max();
-        if (ngroups_max < 0)
-                return ngroups_max;
+целое getgrouplist_malloc(const char *user, gid_t gid, gid_t **ret) {
+#если BUILD_STATIC
+        вернуть lookup_groups_in_files(GROUP_FILES, user, gid, ret);
+#иначе
+        целое ngroups_max = sysconf_ngroups_max();
+        если (ngroups_max < 0)
+                вернуть ngroups_max;
 
         _cleanup_free_ gid_t *gids = new(gid_t, ngroups_max);
-        if (!gids)
-                return -ENOMEM;
+        если (!gids)
+                вернуть -ENOMEM;
 
-        int k = ngroups_max;
-        if (getgrouplist(user, gid, gids, &k) < 0)
-                return -EIO;  /* getgrouplist does not set errno */
+        целое k = ngroups_max;
+        если (getgrouplist(user, gid, gids, &k) < 0)
+                вернуть -EIO;  /* getgrouplist does not set errno */
 
-        if (ret)
+        если (ret)
                 *ret = TAKE_PTR(gids);
-        return k;
+        вернуть k;
 #endif
 }
 
-int initgroups_wrapper(const char *user, gid_t gid) {
-#if BUILD_STATIC
+целое initgroups_wrapper(const char *user, gid_t gid) {
+#если BUILD_STATIC
         _cleanup_free_ gid_t *groups = NULL;
-        int r, n_groups;
+        целое r, n_groups;
 
         n_groups = getgrouplist_malloc(user, gid, &groups);
-        if (n_groups <= 0)
-                return n_groups;
+        если (n_groups <= 0)
+                вернуть n_groups;
 
         /* Try to set the maximum number of groups the kernel can handle. This is what glibc does. */
-        for (; n_groups > 0; n_groups--) {
+        для (; n_groups > 0; n_groups--) {
                 r = RET_NERRNO(setgroups(n_groups, groups));
-                if (r != -EINVAL)
+                если (r != -EINVAL)
                         break;
         }
 
-        return r;
-#else
-        return RET_NERRNO(initgroups(user, gid));
+        вернуть r;
+#иначе
+        вернуть RET_NERRNO(initgroups(user, gid));
 #endif
 }
 
-#if !BUILD_STATIC
+#если !BUILD_STATIC
 
 static size_t getgr_buffer_size(void) {
         long bufsize = sysconf(_SC_GETGR_R_SIZE_MAX);
-        return bufsize <= 0 ? 4096U : (size_t) bufsize;
+        вернуть bufsize <= 0 ? 4096U : (size_t) bufsize;
 }
 
 #endif
 
-int getgrnam_malloc(const char *name, struct group **ret) {
-        if (isempty(name))
-                return -EINVAL;
+целое getgrnam_malloc(const char *name, struct group **ret) {
+        если (isempty(name))
+                вернуть -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
-#else
+#если BUILD_STATIC
+        вернуть lookup_grent_in_files(GROUP_FILES, name, GID_INVALID, ret);
+#иначе
         size_t bufsize = getgr_buffer_size();
-        int r;
+        целое r;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
                 buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                если (!buf)
+                        вернуть -ENOMEM;
 
                 struct group *gr = NULL;
                 r = getgrnam_r(name, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                если (r == 0) {
+                        если (gr) {
+                                если (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                вернуть 0;
                         }
 
-                        return -ESRCH;
+                        вернуть -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                если (errno_is_user_doesnt_exist(r))
+                        вернуть -ESRCH;
+                если (r != ERANGE)
+                        вернуть -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                если (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
+                        вернуть -ENOMEM;
                 bufsize *= 2;
         }
 #endif
 }
 
-int getgrgid_malloc(gid_t gid, struct group **ret) {
-        if (!gid_is_valid(gid))
-                return -EINVAL;
+целое getgrgid_malloc(gid_t gid, struct group **ret) {
+        если (!gid_is_valid(gid))
+                вернуть -EINVAL;
 
-#if BUILD_STATIC
-        return lookup_grent_in_files(GROUP_FILES, /* name= */ NULL, gid, ret);
-#else
+#если BUILD_STATIC
+        вернуть lookup_grent_in_files(GROUP_FILES, /* name= */ NULL, gid, ret);
+#иначе
         size_t bufsize = getgr_buffer_size();
-        int r;
+        целое r;
 
-        for (;;) {
+        для (;;) {
                 _cleanup_free_ void *buf = NULL;
 
                 /* Silence static analyzers */
                 assert(bufsize <= SIZE_MAX - ALIGN(sizeof(struct group)));
                 buf = malloc0(ALIGN(sizeof(struct group)) + bufsize);
-                if (!buf)
-                        return -ENOMEM;
+                если (!buf)
+                        вернуть -ENOMEM;
 
                 struct group *gr = NULL;
                 r = getgrgid_r(gid, buf, (char*) buf + ALIGN(sizeof(struct group)), bufsize, &gr);
-                if (r == 0) {
-                        if (gr) {
-                                if (ret)
+                если (r == 0) {
+                        если (gr) {
+                                если (ret)
                                         *ret = TAKE_PTR(buf);
-                                return 0;
+                                вернуть 0;
                         }
 
-                        return -ESRCH;
+                        вернуть -ESRCH;
                 }
 
                 assert(r > 0);
 
-                if (errno_is_user_doesnt_exist(r))
-                        return -ESRCH;
-                if (r != ERANGE)
-                        return -r;
+                если (errno_is_user_doesnt_exist(r))
+                        вернуть -ESRCH;
+                если (r != ERANGE)
+                        вернуть -r;
 
-                if (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
-                        return -ENOMEM;
+                если (bufsize > SIZE_MAX/2 - ALIGN(sizeof(struct group)))
+                        вернуть -ENOMEM;
                 bufsize *= 2;
         }
 #endif

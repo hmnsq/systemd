@@ -48,127 +48,127 @@
  * can detect EOFs. */
 #define READ_VIRTUAL_BYTES_MAX (4U * U64_MB - UINT64_C(2))
 
-int fdopen_unlocked(int fd, const char *options, FILE **ret) {
+целое fdopen_unlocked(целое fd, const char *options, FILE **ret) {
         assert(ret);
 
         FILE *f = fdopen(fd, options);
-        if (!f)
-                return -errno;
+        если (!f)
+                вернуть -errno;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        вернуть 0;
 }
 
-int take_fdopen_unlocked(int *fd, const char *options, FILE **ret) {
-        int r;
+целое take_fdopen_unlocked(целое *fd, const char *options, FILE **ret) {
+        целое r;
 
         assert(fd);
 
         r = fdopen_unlocked(*fd, options, ret);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         *fd = -EBADF;
 
-        return 0;
+        вернуть 0;
 }
 
-FILE* take_fdopen(int *fd, const char *options) {
+FILE* take_fdopen(целое *fd, const char *options) {
         assert(fd);
 
         FILE *f = fdopen(*fd, options);
-        if (!f)
-                return NULL;
+        если (!f)
+                вернуть NULL;
 
         *fd = -EBADF;
 
-        return f;
+        вернуть f;
 }
 
-DIR* take_fdopendir(int *dfd) {
+DIR* take_fdopendir(целое *dfd) {
         assert(dfd);
 
         DIR *d = fdopendir(*dfd);
-        if (!d)
-                return NULL;
+        если (!d)
+                вернуть NULL;
 
         *dfd = -EBADF;
 
-        return d;
+        вернуть d;
 }
 
 FILE* open_memstream_unlocked(char **ptr, size_t *sizeloc) {
         FILE *f = open_memstream(ptr, sizeloc);
-        if (!f)
-                return NULL;
+        если (!f)
+                вернуть NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        вернуть f;
 }
 
 FILE* fmemopen_unlocked(void *buf, size_t size, const char *mode) {
         FILE *f = fmemopen(buf, size, mode);
-        if (!f)
-                return NULL;
+        если (!f)
+                вернуть NULL;
 
         (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
-        return f;
+        вернуть f;
 }
 
-int write_string_stream_full(
+целое write_string_stream_full(
                 FILE *f,
                 const char *line,
                 WriteStringFileFlags flags,
                 const struct timespec *ts) {
 
         bool needs_nl;
-        int r, fd = -EBADF;
+        целое r, fd = -EBADF;
 
         assert(f);
         assert(line);
 
-        if (ferror(f))
-                return -EIO;
+        если (ferror(f))
+                вернуть -EIO;
 
-        if (ts) {
+        если (ts) {
                 /* If we shall set the timestamp we need the fd. But fmemopen() streams generally don't have
                  * an fd. Let's fail early in that case. */
                 fd = fileno(f);
-                if (fd < 0)
-                        return -EBADF;
+                если (fd < 0)
+                        вернуть -EBADF;
         }
 
-        if (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
+        если (flags & WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) {
                 _cleanup_free_ char *t = NULL;
 
                 /* If value to be written is same as that of the existing value, then suppress the write. */
 
-                if (fd < 0) {
+                если (fd < 0) {
                         fd = fileno(f);
-                        if (fd < 0)
-                                return -EBADF;
+                        если (fd < 0)
+                                вернуть -EBADF;
                 }
 
                 /* Read an additional byte to detect cases where the prefix matches but the rest
                  * doesn't. Also, 0 returned by read_virtual_file_fd() means the read was truncated and
                  * it won't be equal to the new value. */
-                if (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
+                если (read_virtual_file_fd(fd, strlen(line)+1, &t, NULL) > 0 &&
                     streq_skip_trailing_chars(line, t, NEWLINE)) {
                         log_debug("No change in value '%s', suppressing write", line);
-                        return 0;
+                        вернуть 0;
                 }
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                если (lseek(fd, 0, SEEK_SET) < 0)
+                        вернуть -errno;
         }
 
         needs_nl = !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) && !endswith(line, "\n");
 
-        if (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
+        если (needs_nl && (flags & WRITE_STRING_FILE_DISABLE_BUFFER)) {
                 /* If STDIO buffering was disabled, then let's append the newline character to the string
                  * itself, so that the write goes out in one go, instead of two */
 
@@ -176,29 +176,29 @@ int write_string_stream_full(
                 needs_nl = false;
         }
 
-        if (fputs(line, f) == EOF)
-                return -errno;
+        если (fputs(line, f) == EOF)
+                вернуть -errno;
 
-        if (needs_nl)
-                if (fputc('\n', f) == EOF)
-                        return -errno;
+        если (needs_nl)
+                если (fputc('\n', f) == EOF)
+                        вернуть -errno;
 
-        if (flags & WRITE_STRING_FILE_SYNC)
+        если (flags & WRITE_STRING_FILE_SYNC)
                 r = fflush_sync_and_check(f);
-        else
+        иначе
                 r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ts) {
+        если (ts) {
                 const struct timespec twice[2] = {*ts, *ts};
 
                 assert(fd >= 0);
-                if (futimens(fd, twice) < 0)
-                        return -errno;
+                если (futimens(fd, twice) < 0)
+                        вернуть -errno;
         }
 
-        return 0;
+        вернуть 0;
 }
 
 static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
@@ -210,12 +210,12 @@ static mode_t write_string_file_flags_to_mode(WriteStringFileFlags flags) {
          *     → 0644 (i.e. writable for root, readable for everyone else)
          */
 
-        return FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
+        вернуть FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0600) ? 0600 :
                 FLAGS_SET(flags, WRITE_STRING_FILE_MODE_0444) ? 0444 : 0644;
 }
 
-static int write_string_file_atomic_at(
-                int dir_fd,
+static целое write_string_file_atomic_at(
+                целое dir_fd,
                 const char *fn,
                 const char *line,
                 WriteStringFileFlags flags,
@@ -224,7 +224,7 @@ static int write_string_file_atomic_at(
 
         _cleanup_fclose_ FILE *f = NULL;
         _cleanup_free_ char *p = NULL;
-        int r;
+        целое r;
 
         assert(fn);
         assert(line);
@@ -235,50 +235,50 @@ static int write_string_file_atomic_at(
         mode_t mode = write_string_file_flags_to_mode(flags);
 
         bool call_label_ops_post = false;
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
+        если (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL)) {
                 r = label_ops_pre(dir_fd, fn, mode, label_context);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
                 call_label_ops_post = true;
         }
 
         r = fopen_temporary_at(dir_fd, fn, &f, &p);
-        int k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
+        целое k = call_label_ops_post ? label_ops_post(f ? fileno(f) : dir_fd, f ? NULL : fn, /* created= */ !!f, label_context) : 0;
         /* If fopen_temporary_at() failed in the above, propagate the error code, and ignore failures in
          * label_ops_post(). */
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
         CLEANUP_TMPFILE_AT(dir_fd, p);
-        if (k < 0)
-                return k;
+        если (k < 0)
+                вернуть k;
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = fchmod_umask(fileno(f), mode);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = RET_NERRNO(renameat(dir_fd, p, dir_fd, fn));
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         p = mfree(p); /* disarm CLEANUP_TMPFILE_AT() */
 
-        if (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
+        если (FLAGS_SET(flags, WRITE_STRING_FILE_SYNC)) {
                 /* Sync the rename, too */
                 r = fsync_directory_of_file(fileno(f));
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        return 0;
+        вернуть 0;
 }
 
-int write_string_file_full_label(
-                int dir_fd,
+целое write_string_file_full_label(
+                целое dir_fd,
                 const char *fn,
                 const char *line,
                 WriteStringFileFlags flags,
@@ -288,8 +288,8 @@ int write_string_file_full_label(
 
         bool made_file = false;
         _cleanup_fclose_ FILE *f = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ целое fd = -EBADF;
+        целое r;
 
         assert(dir_fd == AT_FDCWD || dir_fd >= 0);
         assert(line);
@@ -297,39 +297,39 @@ int write_string_file_full_label(
         /* We don't know how to verify whether the file contents was already on-disk. */
         assert(!((flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE) && (flags & WRITE_STRING_FILE_SYNC)));
 
-        if (flags & WRITE_STRING_FILE_MKDIR_0755) {
+        если (flags & WRITE_STRING_FILE_MKDIR_0755) {
                 assert(fn);
 
                 r = mkdirat_parents(dir_fd, fn, 0755);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
-        if (flags & WRITE_STRING_FILE_ATOMIC) {
+        если (flags & WRITE_STRING_FILE_ATOMIC) {
                 assert(fn);
                 assert(flags & WRITE_STRING_FILE_CREATE);
 
                 r = write_string_file_atomic_at(dir_fd, fn, line, flags, ts, label_context);
-                if (r < 0)
+                если (r < 0)
                         goto fail;
 
-                return r;
+                вернуть r;
         }
 
         /* We manually build our own version of fopen(..., "we") that works without O_CREAT and with O_NOFOLLOW if needed. */
-        if (isempty(fn))
+        если (isempty(fn))
                 r = fd = fd_reopen(
                                 ASSERT_FD(dir_fd), O_CLOEXEC | O_NOCTTY |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_TRUNCATE) ? O_TRUNC : 0) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_SUPPRESS_REDUNDANT_VIRTUAL) ? O_RDWR : O_WRONLY) |
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0));
-        else {
+        иначе {
                 mode_t mode = write_string_file_flags_to_mode(flags);
                 bool call_label_ops_post = false;
 
-                if (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
+                если (FLAGS_SET(flags, WRITE_STRING_FILE_LABEL|WRITE_STRING_FILE_CREATE)) {
                         r = label_ops_pre(dir_fd, label_fn ?: fn, mode, label_context);
-                        if (r < 0)
+                        если (r < 0)
                                 goto fail;
 
                         call_label_ops_post = true;
@@ -344,86 +344,86 @@ int write_string_file_full_label(
                                 (FLAGS_SET(flags, WRITE_STRING_FILE_OPEN_NONBLOCKING) ? O_NONBLOCK : 0),
                                 mode,
                                 &made_file);
-                if (call_label_ops_post)
+                если (call_label_ops_post)
                         /* If openat_report_new() failed in the above, propagate the error code, and ignore
                          * failures in label_ops_post(). */
                         RET_GATHER(r, label_ops_post(fd >= 0 ? fd : dir_fd, fd >= 0 ? NULL : fn, made_file, label_context));
         }
-        if (r < 0)
+        если (r < 0)
                 goto fail;
 
         r = take_fdopen_unlocked(&fd, "w", &f);
-        if (r < 0)
+        если (r < 0)
                 goto fail;
 
-        if (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
+        если (flags & WRITE_STRING_FILE_DISABLE_BUFFER)
                 setvbuf(f, NULL, _IONBF, 0);
 
         r = write_string_stream_full(f, line, flags, ts);
-        if (r < 0)
+        если (r < 0)
                 goto fail;
 
-        return 0;
+        вернуть 0;
 
 fail:
-        if (made_file)
+        если (made_file)
                 (void) unlinkat(dir_fd, fn, 0);
 
-        if (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
-                return r;
+        если (!(flags & WRITE_STRING_FILE_VERIFY_ON_FAILURE))
+                вернуть r;
 
         f = safe_fclose(f);
         fd = safe_close(fd);
 
         /* OK, the operation failed, but let's see if the right contents in place already. If so, eat up the
          * error. */
-        if (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
-                return 0;
+        если (verify_file_at(dir_fd, fn, line, !(flags & WRITE_STRING_FILE_AVOID_NEWLINE) || (flags & WRITE_STRING_FILE_VERIFY_IGNORE_NEWLINE)) > 0)
+                вернуть 0;
 
-        return r;
+        вернуть r;
 }
 
-int write_string_filef(
+целое write_string_filef(
                 const char *fn,
                 WriteStringFileFlags flags,
                 const char *format, ...) {
 
         _cleanup_free_ char *p = NULL;
         va_list ap;
-        int r;
+        целое r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        если (r < 0)
+                вернуть -ENOMEM;
 
-        return write_string_file(fn, p, flags);
+        вернуть write_string_file(fn, p, flags);
 }
 
-int write_string_filef_at(
-                int dir_fd,
+целое write_string_filef_at(
+                целое dir_fd,
                 const char *fn,
                 WriteStringFileFlags flags,
                 const char *format, ...) {
 
         _cleanup_free_ char *p = NULL;
         va_list ap;
-        int r;
+        целое r;
 
         va_start(ap, format);
         r = vasprintf(&p, format, ap);
         va_end(ap);
 
-        if (r < 0)
-                return -ENOMEM;
+        если (r < 0)
+                вернуть -ENOMEM;
 
-        return write_string_file_at(dir_fd, fn, p, flags);
+        вернуть write_string_file_at(dir_fd, fn, p, flags);
 }
 
-int write_base64_file_at(
-                int dir_fd,
+целое write_base64_file_at(
+                целое dir_fd,
                 const char *fn,
                 const struct iovec *data,
                 WriteStringFileFlags flags) {
@@ -432,80 +432,80 @@ int write_base64_file_at(
         ssize_t n;
 
         n = base64mem_full(data ? data->iov_base : NULL, data ? data->iov_len : 0, 79, &encoded);
-        if (n < 0)
-                return n;
+        если (n < 0)
+                вернуть n;
 
-        return write_string_file_at(dir_fd, fn, encoded, flags);
+        вернуть write_string_file_at(dir_fd, fn, encoded, flags);
 }
 
-int read_one_line_file_at(int dir_fd, const char *filename, char **ret) {
+целое read_one_line_file_at(целое dir_fd, const char *filename, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        целое r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
         assert(ret);
 
         r = fopen_unlocked_at(dir_fd, filename, "re", /* open_flags= */ 0, &f);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return read_line(f, LONG_LINE_MAX, ret);
+        вернуть read_line(f, LONG_LINE_MAX, ret);
 }
 
-int read_boolean_file_at(int dir_fd, const char *filename) {
+целое read_boolean_file_at(целое dir_fd, const char *filename) {
         _cleanup_free_ char *s = NULL;
-        int r;
+        целое r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(filename);
 
         r = read_one_line_file_at(dir_fd, filename, &s);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return parse_boolean(s);
+        вернуть parse_boolean(s);
 }
 
-int verify_file_at(int dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
+целое verify_file_at(целое dir_fd, const char *fn, const char *blob, bool accept_extra_nl) {
         _cleanup_fclose_ FILE *f = NULL;
         _cleanup_free_ char *buf = NULL;
         size_t l, k;
-        int r;
+        целое r;
 
         assert(blob);
 
         l = strlen(blob);
 
-        if (accept_extra_nl && endswith(blob, "\n"))
+        если (accept_extra_nl && endswith(blob, "\n"))
                 accept_extra_nl = false;
 
         buf = malloc(l + accept_extra_nl + 1);
-        if (!buf)
-                return -ENOMEM;
+        если (!buf)
+                вернуть -ENOMEM;
 
         r = fopen_unlocked_at(dir_fd, strempty(fn), "re", 0, &f);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* We try to read one byte more than we need, so that we know whether we hit eof */
         errno = 0;
         k = fread(buf, 1, l + accept_extra_nl + 1, f);
-        if (ferror(f))
-                return errno_or_else(EIO);
+        если (ferror(f))
+                вернуть errno_or_else(EIO);
 
-        if (k != l && k != l + accept_extra_nl)
-                return 0;
-        if (memcmp(buf, blob, l) != 0)
-                return 0;
-        if (k > l && buf[l] != '\n')
-                return 0;
+        если (k != l && k != l + accept_extra_nl)
+                вернуть 0;
+        если (memcmp(buf, blob, l) != 0)
+                вернуть 0;
+        если (k > l && buf[l] != '\n')
+                вернуть 0;
 
-        return 1;
+        вернуть 1;
 }
 
-int read_virtual_file_at(
-                int dir_fd,
+целое read_virtual_file_at(
+                целое dir_fd,
                 const char *filename,
                 size_t max_size,
                 char **ret_contents,
@@ -513,7 +513,7 @@ int read_virtual_file_at(
 
         _cleanup_free_ char *buf = NULL;
         size_t n, size;
-        int n_retries;
+        целое n_retries;
         bool truncated = false;
 
         /* Virtual filesystems such as sysfs or procfs use kernfs, and kernfs can work with two sorts of
@@ -536,81 +536,81 @@ int read_virtual_file_at(
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(max_size <= READ_VIRTUAL_BYTES_MAX || max_size == SIZE_MAX);
 
-        _cleanup_close_ int fd = -EBADF;
-        if (isempty(filename))
+        _cleanup_close_ целое fd = -EBADF;
+        если (isempty(filename))
                 fd = fd_reopen(ASSERT_FD(dir_fd), O_RDONLY | O_NOCTTY | O_CLOEXEC);
-        else
+        иначе
                 fd = RET_NERRNO(openat(dir_fd, filename, O_RDONLY | O_NOCTTY | O_CLOEXEC));
-        if (fd < 0)
-                return fd;
+        если (fd < 0)
+                вернуть fd;
 
         /* Limit the number of attempts to read the number of bytes returned by fstat(). */
         n_retries = 3;
 
-        for (;;) {
+        для (;;) {
                 struct stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                если (fstat(fd, &st) < 0)
+                        вернуть -errno;
 
-                if (!S_ISREG(st.st_mode))
-                        return -EBADF;
+                если (!S_ISREG(st.st_mode))
+                        вернуть -EBADF;
 
                 /* Be prepared for files from /proc which generally report a file size of 0. */
                 assert_cc(READ_VIRTUAL_BYTES_MAX < SSIZE_MAX);
-                if (st.st_size > 0 && n_retries > 1) {
+                если (st.st_size > 0 && n_retries > 1) {
                         /* Let's use the file size if we have more than 1 attempt left. On the last attempt
                          * we'll ignore the file size */
 
-                        if (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
+                        если (st.st_size > SSIZE_MAX) { /* Avoid overflow with 32-bit size_t and 64-bit off_t. */
 
-                                if (max_size == SIZE_MAX)
-                                        return -EFBIG;
+                                если (max_size == SIZE_MAX)
+                                        вернуть -EFBIG;
 
                                 size = max_size;
-                        } else {
+                        } иначе {
                                 size = MIN((size_t) st.st_size, max_size);
 
-                                if (size > READ_VIRTUAL_BYTES_MAX)
-                                        return -EFBIG;
+                                если (size > READ_VIRTUAL_BYTES_MAX)
+                                        вернуть -EFBIG;
                         }
 
                         n_retries--;
-                } else if (n_retries > 1) {
+                } иначе если (n_retries > 1) {
                         /* Files in /proc are generally smaller than the page size so let's start with
                          * a page size buffer from malloc and only use the max buffer on the final try. */
                         size = MIN3(page_size() - 1, READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 1;
-                } else {
+                } иначе {
                         size = MIN(READ_VIRTUAL_BYTES_MAX, max_size);
                         n_retries = 0;
                 }
 
                 buf = malloc(size + 1);
-                if (!buf)
-                        return -ENOMEM;
+                если (!buf)
+                        вернуть -ENOMEM;
 
                 /* Use a bigger allocation if we got it anyway, but not more than the limit. */
                 size = MIN3(MALLOC_SIZEOF_SAFE(buf) - 1, max_size, READ_VIRTUAL_BYTES_MAX);
 
-                for (;;) {
+                для (;;) {
                         ssize_t k;
 
                         /* Read one more byte so we can detect whether the content of the
                          * file has already changed or the guessed size for files from /proc
                          * wasn't large enough . */
                         k = read(fd, buf, size + 1);
-                        if (k >= 0) {
+                        если (k >= 0) {
                                 n = k;
                                 break;
                         }
 
-                        if (errno != EINTR)
-                                return -errno;
+                        если (errno != EINTR)
+                                вернуть -errno;
                 }
 
                 /* Consider a short read as EOF */
-                if (n <= size)
+                если (n <= size)
                         break;
 
                 /* If a maximum size is specified and we already read more we know the file is larger, and
@@ -618,7 +618,7 @@ int read_virtual_file_at(
                  * maximum size then this doesn't mean truncation, the file might or might not end on that
                  * byte. We need to rerun the loop in that case, with a larger buffer size, so that we read
                  * at least one more byte to be able to distinguish EOF from truncation. */
-                if (max_size != SIZE_MAX && n > max_size) {
+                если (max_size != SIZE_MAX && n > max_size) {
                         n = size; /* Make sure we never use more than what we sized the buffer for (so that
                                    * we have one free byte in it for the trailing NUL we add below). */
                         truncated = true;
@@ -626,34 +626,34 @@ int read_virtual_file_at(
                 }
 
                 /* We have no further attempts left? Then the file is apparently larger than our limits. Give up. */
-                if (n_retries <= 0)
-                        return -EFBIG;
+                если (n_retries <= 0)
+                        вернуть -EFBIG;
 
                 /* Hmm... either we read too few bytes from /proc or less likely the content of the file
                  * might have been changed (and is now bigger) while we were processing, let's try again
                  * either with the new file size. */
 
-                if (lseek(fd, 0, SEEK_SET) < 0)
-                        return -errno;
+                если (lseek(fd, 0, SEEK_SET) < 0)
+                        вернуть -errno;
 
                 buf = mfree(buf);
         }
 
-        if (ret_contents) {
+        если (ret_contents) {
 
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
-                if (!ret_size && memchr(buf, 0, n))
-                        return -EBADMSG;
+                если (!ret_size && memchr(buf, 0, n))
+                        вернуть -EBADMSG;
 
-                if (n < size) {
+                если (n < size) {
                         char *p;
 
                         /* Return rest of the buffer to libc */
                         p = realloc(buf, n + 1);
-                        if (!p)
-                                return -ENOMEM;
+                        если (!p)
+                                вернуть -ENOMEM;
                         buf = p;
                 }
 
@@ -661,13 +661,13 @@ int read_virtual_file_at(
                 *ret_contents = TAKE_PTR(buf);
         }
 
-        if (ret_size)
+        если (ret_size)
                 *ret_size = n;
 
-        return !truncated;
+        вернуть !truncated;
 }
 
-int read_full_stream_full(
+целое read_full_stream_full(
                 FILE *f,
                 const char *filename,
                 uint64_t offset,
@@ -678,38 +678,38 @@ int read_full_stream_full(
 
         _cleanup_free_ char *buf = NULL;
         size_t n, n_next = 0, l, expected_decoded_size = size;
-        int fd, r;
+        целое fd, r;
 
         assert(f);
         assert(ret_contents);
         assert(!FLAGS_SET(flags, READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX));
         assert(size != SIZE_MAX || !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER));
 
-        if (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
-                return -ERANGE;
+        если (offset != UINT64_MAX && offset > LONG_MAX) /* fseek() can only deal with "long" offsets */
+                вернуть -ERANGE;
 
-        if ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
-                if (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
+        если ((flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) != 0) {
+                если (size <= SIZE_MAX / READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY)
                         size *= READ_FULL_FILE_ENCODED_STRING_AMPLIFICATION_BOUNDARY;
-                else
+                иначе
                         size = SIZE_MAX;
         }
 
         fd = fileno(f);
-        if (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
+        если (fd >= 0) { /* If the FILE* object is backed by an fd (as opposed to memory or such, see
                         * fmemopen()), let's optimize our buffering */
                 struct stat st;
 
-                if (fstat(fd, &st) < 0)
-                        return -errno;
+                если (fstat(fd, &st) < 0)
+                        вернуть -errno;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
+                если (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR)) {
                         r = stat_verify_regular(&st);
-                        if (r < 0)
-                                return r;
+                        если (r < 0)
+                                вернуть r;
                 }
 
-                if (S_ISREG(st.st_mode)) {
+                если (S_ISREG(st.st_mode)) {
 
                         /* Try to start with the right file size if we shall read the file in full. Note
                          * that we increase the size to read here by one, so that the first read attempt
@@ -717,59 +717,59 @@ int read_full_stream_full(
                          * avoid this logic however, since quite likely it might be a virtual file in procfs
                          * that all report a zero file size. */
 
-                        if (st.st_size > 0 &&
+                        если (st.st_size > 0 &&
                             (size == SIZE_MAX || FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER))) {
 
                                 uint64_t rsize =
                                         LESS_BY((uint64_t) st.st_size, offset == UINT64_MAX ? 0 : offset);
 
-                                if (rsize < SIZE_MAX) /* overflow check */
+                                если (rsize < SIZE_MAX) /* overflow check */
                                         n_next = rsize + 1;
                         }
 
-                        if (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
+                        если (flags & READ_FULL_FILE_WARN_WORLD_READABLE)
                                 (void) warn_file_is_world_accessible(filename, &st, NULL, 0);
                 }
-        } else if (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
-                return -EBADFD;
+        } иначе если (FLAGS_SET(flags, READ_FULL_FILE_VERIFY_REGULAR))
+                вернуть -EBADFD;
 
         /* If we don't know how much to read, figure it out now. If we shall read a part of the file, then
          * allocate the requested size. If we shall load the full file start with LINE_MAX. Note that if
          * READ_FULL_FILE_FAIL_WHEN_LARGER we consider the specified size a safety limit, and thus also start
          * with LINE_MAX, under assumption the file is most likely much shorter. */
-        if (n_next == 0)
+        если (n_next == 0)
                 n_next = size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) ? size : LINE_MAX;
 
         /* Never read more than we need to determine that our own limit is hit */
-        if (n_next > READ_FULL_BYTES_MAX)
+        если (n_next > READ_FULL_BYTES_MAX)
                 n_next = READ_FULL_BYTES_MAX + 1;
 
-        if (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
-                return -errno;
+        если (offset != UINT64_MAX && fseek(f, offset, SEEK_SET) < 0)
+                вернуть -errno;
 
         n = l = 0;
-        for (;;) {
+        для (;;) {
                 char *t;
                 size_t k;
 
                 /* If we shall fail when reading overly large data, then read exactly one byte more than the
                  * specified size at max, since that'll tell us if there's anymore data beyond the limit. */
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
+                если (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && n_next > size)
                         n_next = size + 1;
 
-                if (flags & READ_FULL_FILE_SECURE) {
+                если (flags & READ_FULL_FILE_SECURE) {
                         t = malloc(n_next + 1);
-                        if (!t) {
+                        если (!t) {
                                 r = -ENOMEM;
                                 goto finalize;
                         }
                         memcpy_safe(t, buf, n);
                         explicit_bzero_safe(buf, n);
                         free(buf);
-                } else {
+                } иначе {
                         t = realloc(buf, n_next + 1);
-                        if (!t)
-                                return -ENOMEM;
+                        если (!t)
+                                вернуть -ENOMEM;
                 }
 
                 buf = t;
@@ -783,14 +783,14 @@ int read_full_stream_full(
                 assert(k <= n - l);
                 l += k;
 
-                if (ferror(f)) {
+                если (ferror(f)) {
                         r = errno_or_else(EIO);
                         goto finalize;
                 }
-                if (feof(f))
+                если (feof(f))
                         break;
 
-                if (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
+                если (size != SIZE_MAX && !FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER)) {
                         /* If we got asked to read some specific size, we already sized the buffer right,
                          * hence leave. */
                         assert(l == size);
@@ -799,12 +799,12 @@ int read_full_stream_full(
 
                 assert(k > 0); /* we can't have read zero bytes because that would have been EOF */
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
+                если (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > size) {
                         r = -E2BIG;
                         goto finalize;
                 }
 
-                if (n >= READ_FULL_BYTES_MAX) {
+                если (n >= READ_FULL_BYTES_MAX) {
                         r = -E2BIG;
                         goto finalize;
                 }
@@ -812,35 +812,35 @@ int read_full_stream_full(
                 n_next = MIN(n * 2, READ_FULL_BYTES_MAX);
         }
 
-        if (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
+        если (flags & (READ_FULL_FILE_UNBASE64 | READ_FULL_FILE_UNHEX)) {
                 _cleanup_free_ void *decoded = NULL;
                 size_t decoded_size;
 
                 buf[l++] = 0;
-                if (flags & READ_FULL_FILE_UNBASE64)
+                если (flags & READ_FULL_FILE_UNBASE64)
                         r = unbase64mem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                else
+                иначе
                         r = unhexmem_full(buf, l, flags & READ_FULL_FILE_SECURE, &decoded, &decoded_size);
-                if (r < 0)
+                если (r < 0)
                         goto finalize;
 
-                if (flags & READ_FULL_FILE_SECURE)
+                если (flags & READ_FULL_FILE_SECURE)
                         explicit_bzero_safe(buf, n);
                 free_and_replace(buf, decoded);
                 n = l = decoded_size;
 
-                if (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
+                если (FLAGS_SET(flags, READ_FULL_FILE_FAIL_WHEN_LARGER) && l > expected_decoded_size) {
                         r = -E2BIG;
                         goto finalize;
                 }
         }
 
-        if (!ret_size) {
+        если (!ret_size) {
                 /* Safety check: if the caller doesn't want to know the size of what we just read it will
                  * rely on the trailing NUL byte. But if there's an embedded NUL byte, then we should refuse
                  * operation as otherwise there'd be ambiguity about what we just read. */
 
-                if (memchr(buf, 0, l)) {
+                если (memchr(buf, 0, l)) {
                         r = -EBADMSG;
                         goto finalize;
                 }
@@ -849,20 +849,20 @@ int read_full_stream_full(
         buf[l] = 0;
         *ret_contents = TAKE_PTR(buf);
 
-        if (ret_size)
+        если (ret_size)
                 *ret_size = l;
 
-        return 0;
+        вернуть 0;
 
 finalize:
-        if (flags & READ_FULL_FILE_SECURE)
+        если (flags & READ_FULL_FILE_SECURE)
                 explicit_bzero_safe(buf, n);
 
-        return r;
+        вернуть r;
 }
 
-int read_full_file_full(
-                int dir_fd,
+целое read_full_file_full(
+                целое dir_fd,
                 const char *filename,
                 uint64_t offset,
                 size_t size,
@@ -873,69 +873,69 @@ int read_full_file_full(
 
         _cleanup_fclose_ FILE *f = NULL;
         XfopenFlags xflags = XFOPEN_UNLOCKED;
-        int r;
+        целое r;
 
         assert(ret_contents);
 
-        if (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
+        если (FLAGS_SET(flags, READ_FULL_FILE_CONNECT_SOCKET) && /* If this is enabled, let's try to connect to it */
             offset == UINT64_MAX)                              /* Seeking is not supported on AF_UNIX sockets */
                 xflags |= XFOPEN_SOCKET;
 
         r = xfopenat_full(dir_fd, filename, "re", 0, xflags, bind_name, &f);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
+        вернуть read_full_stream_full(f, filename, offset, size, flags, ret_contents, ret_size);
 }
 
-int script_get_shebang_interpreter(const char *path, char **ret) {
+целое script_get_shebang_interpreter(const char *path, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        целое r;
 
         assert(path);
 
         f = fopen(path, "re");
-        if (!f)
-                return -errno;
+        если (!f)
+                вернуть -errno;
 
         char c;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '#')
-                return -EMEDIUMTYPE;
+        если (r < 0)
+                вернуть r;
+        если (r == 0)
+                вернуть -EBADMSG;
+        если (c != '#')
+                вернуть -EMEDIUMTYPE;
         r = safe_fgetc(f, &c);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EBADMSG;
-        if (c != '!')
-                return -EMEDIUMTYPE;
+        если (r < 0)
+                вернуть r;
+        если (r == 0)
+                вернуть -EBADMSG;
+        если (c != '!')
+                вернуть -EMEDIUMTYPE;
 
         _cleanup_free_ char *line = NULL;
         r = read_line(f, LONG_LINE_MAX, &line);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         _cleanup_free_ char *p = NULL;
         const char *s = line;
 
         r = extract_first_word(&s, &p, /* separators= */ NULL, /* flags= */ 0);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -ENOEXEC;
+        если (r < 0)
+                вернуть r;
+        если (r == 0)
+                вернуть -ENOEXEC;
 
-        if (ret)
+        если (ret)
                 *ret = TAKE_PTR(p);
-        return 0;
+        вернуть 0;
 }
 
-int get_proc_field(const char *path, const char *key, char **ret) {
+целое get_proc_field(const char *path, const char *key, char **ret) {
         _cleanup_fclose_ FILE *f = NULL;
-        int r;
+        целое r;
 
         /* Retrieve one field from a file like /proc/self/status. "key" matches the beginning of the line
          * and should not include whitespace or the delimiter (':').
@@ -946,79 +946,79 @@ int get_proc_field(const char *path, const char *key, char **ret) {
         assert(key);
 
         r = fopen_unlocked(path, "re", &f);
-        if (r == -ENOENT && proc_mounted() == 0)
-                return -ENOSYS;
-        if (r < 0)
-                return r;
+        если (r == -ENOENT && proc_mounted() == 0)
+                вернуть -ENOSYS;
+        если (r < 0)
+                вернуть r;
 
-        for (;;) {
+        для (;;) {
                  _cleanup_free_ char *line = NULL;
 
                  r = read_line(f, LONG_LINE_MAX, &line);
-                 if (r < 0)
-                         return r;
-                 if (r == 0)
-                         return -ENODATA;
+                 если (r < 0)
+                         вернуть r;
+                 если (r == 0)
+                         вернуть -ENODATA;
 
                  char *l = startswith(line, key);
-                 if (l && *l == ':') {
-                         if (ret) {
+                 если (l && *l == ':') {
+                         если (ret) {
                                  char *s = strdupcspn(skip_leading_chars(l + 1, " \t"), WHITESPACE);
-                                 if (!s)
-                                         return -ENOMEM;
+                                 если (!s)
+                                         вернуть -ENOMEM;
 
                                  *ret = s;
                          }
 
-                         return 0;
+                         вернуть 0;
                  }
         }
 }
 
-DIR* xopendirat(int dir_fd, const char *path, int flags) {
-        _cleanup_close_ int fd = -EBADF;
+DIR* xopendirat(целое dir_fd, const char *path, целое flags) {
+        _cleanup_close_ целое fd = -EBADF;
 
         assert(dir_fd >= 0 || dir_fd == AT_FDCWD);
         assert(!(flags & (O_CREAT|O_TMPFILE)));
 
-        if ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
+        если ((dir_fd == AT_FDCWD || path_is_absolute(path)) &&
             (flags &~ O_DIRECTORY) == 0)
-                return opendir(path);
+                вернуть opendir(path);
 
-        if (isempty(path)) {
+        если (isempty(path)) {
                 path = ".";
                 flags |= O_NOFOLLOW;
         }
 
         fd = openat(dir_fd, path, O_NONBLOCK|O_DIRECTORY|O_CLOEXEC|flags);
-        if (fd < 0)
-                return NULL;
+        если (fd < 0)
+                вернуть NULL;
 
-        return take_fdopendir(&fd);
+        вернуть take_fdopendir(&fd);
 }
 
-int fopen_mode_to_flags(const char *mode) {
+целое fopen_mode_to_flags(const char *mode) {
         const char *p;
-        int flags;
+        целое flags;
 
         assert(mode);
 
-        if ((p = startswith(mode, "r+")))
+        если ((p = startswith(mode, "r+")))
                 flags = O_RDWR;
-        else if ((p = startswith(mode, "r")))
+        иначе если ((p = startswith(mode, "r")))
                 flags = O_RDONLY;
-        else if ((p = startswith(mode, "w+")))
+        иначе если ((p = startswith(mode, "w+")))
                 flags = O_RDWR|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "w")))
+        иначе если ((p = startswith(mode, "w")))
                 flags = O_WRONLY|O_CREAT|O_TRUNC;
-        else if ((p = startswith(mode, "a+")))
+        иначе если ((p = startswith(mode, "a+")))
                 flags = O_RDWR|O_CREAT|O_APPEND;
-        else if ((p = startswith(mode, "a")))
+        иначе если ((p = startswith(mode, "a")))
                 flags = O_WRONLY|O_CREAT|O_APPEND;
-        else
-                return -EINVAL;
+        иначе
+                вернуть -EINVAL;
 
-        for (; *p != 0; p++) {
+        для (; *p != 0; p++) {
 
                 switch (*p) {
 
@@ -1036,14 +1036,14 @@ int fopen_mode_to_flags(const char *mode) {
 
                 case 'c': /* not sure what to do about this one */
                 default:
-                        return -EINVAL;
+                        вернуть -EINVAL;
                 }
         }
 
-        return flags;
+        вернуть flags;
 }
 
-static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int open_flags, FILE **ret) {
+static целое xfopenat_regular(целое dir_fd, const char *path, const char *mode, целое open_flags, FILE **ret) {
         FILE *f;
 
         /* A combination of fopen() with openat() */
@@ -1052,122 +1052,122 @@ static int xfopenat_regular(int dir_fd, const char *path, const char *mode, int 
         assert(mode);
         assert(ret);
 
-        if (dir_fd == AT_FDCWD && path && open_flags == 0)
+        если (dir_fd == AT_FDCWD && path && open_flags == 0)
                 f = fopen(path, mode);
-        else if (dir_fd == XAT_FDROOT && path && open_flags == 0) {
+        иначе если (dir_fd == XAT_FDROOT && path && open_flags == 0) {
                 _cleanup_free_ char *j = strjoin("/", path);
-                if (!j)
-                        return -ENOMEM;
+                если (!j)
+                        вернуть -ENOMEM;
 
                 f = fopen(j, mode);
-        } else {
-                _cleanup_close_ int fd = -EBADF;
-                int mode_flags;
+        } иначе {
+                _cleanup_close_ целое fd = -EBADF;
+                целое mode_flags;
 
                 mode_flags = fopen_mode_to_flags(mode);
-                if (mode_flags < 0)
-                        return mode_flags;
+                если (mode_flags < 0)
+                        вернуть mode_flags;
 
-                if (path) {
+                если (path) {
                         fd = openat(dir_fd, path, mode_flags | open_flags);
-                        if (fd < 0)
-                                return -errno;
-                } else {
-                        if (dir_fd == AT_FDCWD)
-                                return -EBADF;
+                        если (fd < 0)
+                                вернуть -errno;
+                } иначе {
+                        если (dir_fd == AT_FDCWD)
+                                вернуть -EBADF;
 
                         fd = fd_reopen(dir_fd, (mode_flags | open_flags) & ~O_NOFOLLOW);
-                        if (fd < 0)
-                                return fd;
+                        если (fd < 0)
+                                вернуть fd;
                 }
 
                 f = take_fdopen(&fd, mode);
         }
-        if (!f)
-                return -errno;
+        если (!f)
+                вернуть -errno;
 
         *ret = f;
-        return 0;
+        вернуть 0;
 }
 
-static int xfopenat_unix_socket(int dir_fd, const char *path, const char *bind_name, FILE **ret) {
-        _cleanup_close_ int sk = -EBADF;
+static целое xfopenat_unix_socket(целое dir_fd, const char *path, const char *bind_name, FILE **ret) {
+        _cleanup_close_ целое sk = -EBADF;
         FILE *f;
-        int r;
+        целое r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(ret);
 
         sk = socket(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, 0);
-        if (sk < 0)
-                return -errno;
+        если (sk < 0)
+                вернуть -errno;
 
-        if (bind_name) {
+        если (bind_name) {
                 /* If the caller specified a socket name to bind to, do so before connecting. This is
                  * useful to communicate some minor, short meta-information token from the client to
                  * the server. */
                 union sockaddr_union bsa;
 
                 r = sockaddr_un_set_path(&bsa.un, bind_name);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
-                if (bind(sk, &bsa.sa, r) < 0)
-                        return -errno;
+                если (bind(sk, &bsa.sa, r) < 0)
+                        вернуть -errno;
         }
 
         r = connect_unix_path(sk, dir_fd, path);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (shutdown(sk, SHUT_WR) < 0)
-                return -errno;
+        если (shutdown(sk, SHUT_WR) < 0)
+                вернуть -errno;
 
         f = take_fdopen(&sk, "r");
-        if (!f)
-                return -errno;
+        если (!f)
+                вернуть -errno;
 
         *ret = f;
-        return 0;
+        вернуть 0;
 }
 
-int xfopenat_full(
-                int dir_fd,
+целое xfopenat_full(
+                целое dir_fd,
                 const char *path,
                 const char *mode,
-                int open_flags,
+                целое open_flags,
                 XfopenFlags flags,
                 const char *bind_name,
                 FILE **ret) {
 
         FILE *f = NULL;  /* avoid false maybe-uninitialized warning */
-        int r;
+        целое r;
 
         assert(wildcard_fd_is_valid(dir_fd));
         assert(mode);
         assert(ret);
 
         r = xfopenat_regular(dir_fd, path, mode, open_flags, &f);
-        if (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
+        если (r == -ENXIO && FLAGS_SET(flags, XFOPEN_SOCKET)) {
                 /* ENXIO is what Linux returns if we open a node that is an AF_UNIX socket */
                 r = xfopenat_unix_socket(dir_fd, path, bind_name, &f);
-                if (IN_SET(r, -ENOTSOCK, -EINVAL))
-                        return -ENXIO; /* propagate original error if this is not a socket after all */
+                если (IN_SET(r, -ENOTSOCK, -EINVAL))
+                        вернуть -ENXIO; /* propagate original error if this is not a socket after all */
         }
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (FLAGS_SET(flags, XFOPEN_UNLOCKED))
+        если (FLAGS_SET(flags, XFOPEN_UNLOCKED))
                 (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         *ret = f;
-        return 0;
+        вернуть 0;
 }
 
-int fdopen_independent(int fd, const char *mode, FILE **ret) {
-        _cleanup_close_ int copy_fd = -EBADF;
+целое fdopen_independent(целое fd, const char *mode, FILE **ret) {
+        _cleanup_close_ целое copy_fd = -EBADF;
         _cleanup_fclose_ FILE *f = NULL;
-        int mode_flags;
+        целое mode_flags;
 
         assert(fd >= 0);
         assert(mode);
@@ -1177,98 +1177,98 @@ int fdopen_independent(int fd, const char *mode, FILE **ret) {
          * returns a FILE* for it */
 
         mode_flags = fopen_mode_to_flags(mode);
-        if (mode_flags < 0)
-                return mode_flags;
+        если (mode_flags < 0)
+                вернуть mode_flags;
 
         /* Flags returned by fopen_mode_to_flags might contain O_CREAT, but it doesn't make sense for fd_reopen
          * since we're working on an existing fd anyway. Let's drop it here to avoid triggering assertion. */
         copy_fd = fd_reopen(fd, mode_flags & ~O_CREAT);
-        if (copy_fd < 0)
-                return copy_fd;
+        если (copy_fd < 0)
+                вернуть copy_fd;
 
         f = take_fdopen(&copy_fd, mode);
-        if (!f)
-                return -errno;
+        если (!f)
+                вернуть -errno;
 
         *ret = TAKE_PTR(f);
-        return 0;
+        вернуть 0;
 }
 
-static int search_and_open_internal(
+static целое search_and_open_internal(
                 const char *path,
-                int mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
+                целое mode,            /* if ret_fd is NULL this is an [FRWX]_OK mode for access(), otherwise an open mode for open() */
                 const char *root,
                 char **search,
-                int *ret_fd,
+                целое *ret_fd,
                 char **ret_path) {
 
-        int r;
+        целое r;
 
         assert(!ret_fd || !FLAGS_SET(mode, O_CREAT)); /* We don't support O_CREAT for this */
         assert(path);
 
-        if (path_is_absolute(path)) {
-                _cleanup_close_ int fd = -EBADF;
+        если (path_is_absolute(path)) {
+                _cleanup_close_ целое fd = -EBADF;
 
-                if (ret_fd)
+                если (ret_fd)
                         /* We only specify 0777 here to appease static analyzers, it's never used since we
                          * don't support O_CREAT here */
                         r = fd = RET_NERRNO(open(path, mode, 0777));
-                else
+                иначе
                         r = RET_NERRNO(access(path, mode));
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
-                if (ret_path) {
+                если (ret_path) {
                         r = path_simplify_alloc(path, ret_path);
-                        if (r < 0)
-                                return r;
+                        если (r < 0)
+                                вернуть r;
                 }
 
-                if (ret_fd)
+                если (ret_fd)
                         *ret_fd = TAKE_FD(fd);
 
-                return 0;
+                вернуть 0;
         }
 
-        if (!path_strv_resolve_uniq(search, root))
-                return -ENOMEM;
+        если (!path_strv_resolve_uniq(search, root))
+                вернуть -ENOMEM;
 
         STRV_FOREACH(i, search) {
-                _cleanup_close_ int fd = -EBADF;
+                _cleanup_close_ целое fd = -EBADF;
                 _cleanup_free_ char *p = NULL;
 
                 p = path_join(root, *i, path);
-                if (!p)
-                        return -ENOMEM;
+                если (!p)
+                        вернуть -ENOMEM;
 
-                if (ret_fd)
+                если (ret_fd)
                         /* as above, 0777 is static analyzer appeasement */
                         r = fd = RET_NERRNO(open(p, mode, 0777));
-                else
+                иначе
                         r = RET_NERRNO(access(p, F_OK));
-                if (r >= 0) {
-                        if (ret_path)
+                если (r >= 0) {
+                        если (ret_path)
                                 *ret_path = path_simplify(TAKE_PTR(p));
 
-                        if (ret_fd)
+                        если (ret_fd)
                                 *ret_fd = TAKE_FD(fd);
 
-                        return 0;
+                        вернуть 0;
                 }
-                if (r != -ENOENT)
-                        return r;
+                если (r != -ENOENT)
+                        вернуть r;
         }
 
-        return -ENOENT;
+        вернуть -ENOENT;
 }
 
-int search_and_open(
+целое search_and_open(
                 const char *path,
-                int mode,
+                целое mode,
                 const char *root,
                 char **search,
-                int *ret_fd,
+                целое *ret_fd,
                 char **ret_path) {
 
         _cleanup_strv_free_ char **copy = NULL;
@@ -1276,13 +1276,13 @@ int search_and_open(
         assert(path);
 
         copy = strv_copy(search);
-        if (!copy)
-                return -ENOMEM;
+        если (!copy)
+                вернуть -ENOMEM;
 
-        return search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
+        вернуть search_and_open_internal(path, mode, root, copy, ret_fd, ret_path);
 }
 
-static int search_and_fopen_internal(
+static целое search_and_fopen_internal(
                 const char *path,
                 const char *mode,
                 const char *root,
@@ -1291,8 +1291,8 @@ static int search_and_fopen_internal(
                 char **ret_path) {
 
         _cleanup_free_ char *found_path = NULL;
-        _cleanup_close_ int fd = -EBADF;
-        int r;
+        _cleanup_close_ целое fd = -EBADF;
+        целое r;
 
         assert(path);
         assert(mode || !ret_file);
@@ -1304,24 +1304,24 @@ static int search_and_fopen_internal(
                         search,
                         ret_file ? &fd : NULL,
                         ret_path ? &found_path : NULL);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret_file) {
+        если (ret_file) {
                 FILE *f = take_fdopen(&fd, mode);
-                if (!f)
-                        return -errno;
+                если (!f)
+                        вернуть -errno;
 
                 *ret_file = f;
         }
 
-        if (ret_path)
+        если (ret_path)
                 *ret_path = TAKE_PTR(found_path);
 
-        return 0;
+        вернуть 0;
 }
 
-int search_and_fopen(
+целое search_and_fopen(
                 const char *path,
                 const char *mode,
                 const char *root,
@@ -1335,13 +1335,13 @@ int search_and_fopen(
         assert(mode || !ret_file);
 
         copy = strv_copy((char**) search);
-        if (!copy)
-                return -ENOMEM;
+        если (!copy)
+                вернуть -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
+        вернуть search_and_fopen_internal(path, mode, root, copy, ret_file, ret_path);
 }
 
-int search_and_fopen_nulstr(
+целое search_and_fopen_nulstr(
                 const char *path,
                 const char *mode,
                 const char *root,
@@ -1355,83 +1355,83 @@ int search_and_fopen_nulstr(
         assert(mode || !ret_file);
 
         l = strv_split_nulstr(search);
-        if (!l)
-                return -ENOMEM;
+        если (!l)
+                вернуть -ENOMEM;
 
-        return search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
+        вернуть search_and_fopen_internal(path, mode, root, l, ret_file, ret_path);
 }
 
-int fflush_and_check(FILE *f) {
+целое fflush_and_check(FILE *f) {
         assert(f);
 
         errno = 0;
         fflush(f);
 
-        if (ferror(f))
-                return errno_or_else(EIO);
+        если (ferror(f))
+                вернуть errno_or_else(EIO);
 
-        return 0;
+        вернуть 0;
 }
 
-int fflush_sync_and_check(FILE *f) {
-        int r, fd;
+целое fflush_sync_and_check(FILE *f) {
+        целое r, fd;
 
         assert(f);
 
         r = fflush_and_check(f);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         /* Not all file streams have an fd associated (think: fmemopen()), let's handle this gracefully and
          * assume that in that case we need no explicit syncing */
         fd = fileno(f);
-        if (fd < 0)
-                return 0;
+        если (fd < 0)
+                вернуть 0;
 
         r = fsync_full(fd);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        return 0;
+        вернуть 0;
 }
 
-int write_timestamp_file_atomic(const char *fn, usec_t n) {
+целое write_timestamp_file_atomic(const char *fn, usec_t n) {
         char ln[DECIMAL_STR_MAX(n)+2];
 
         /* Creates a "timestamp" file, that contains nothing but a
          * usec_t timestamp, formatted in ASCII. */
 
-        if (!timestamp_is_set(n))
-                return -ERANGE;
+        если (!timestamp_is_set(n))
+                вернуть -ERANGE;
 
         xsprintf(ln, USEC_FMT "\n", n);
 
-        return write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
+        вернуть write_string_file(fn, ln, WRITE_STRING_FILE_CREATE|WRITE_STRING_FILE_ATOMIC);
 }
 
-int read_timestamp_file(const char *fn, usec_t *ret) {
+целое read_timestamp_file(const char *fn, usec_t *ret) {
         _cleanup_free_ char *ln = NULL;
         uint64_t t;
-        int r;
+        целое r;
 
         assert(ret);
 
         r = read_one_line_file(fn, &ln);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = safe_atou64(ln, &t);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (!timestamp_is_set(t))
-                return -ERANGE;
+        если (!timestamp_is_set(t))
+                вернуть -ERANGE;
 
         *ret = (usec_t) t;
-        return 0;
+        вернуть 0;
 }
 
-int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
+целое fputs_with_separator(FILE *f, const char *s, const char *separator, bool *space) {
         assert(s);
         assert(space);
 
@@ -1440,45 +1440,45 @@ int fputs_with_separator(FILE *f, const char *s, const char *separator, bool *sp
          * to false. It is set to true after the first invocation. This call is supposed to be use in loops,
          * where a separator shall be inserted between each element, but not before the first one. */
 
-        if (!f)
+        если (!f)
                 f = stdout;
 
-        if (!separator)
+        если (!separator)
                 separator = " ";
 
-        if (*space)
-                if (fputs(separator, f) < 0)
-                        return -EIO;
+        если (*space)
+                если (fputs(separator, f) < 0)
+                        вернуть -EIO;
 
         *space = true;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        если (fputs(s, f) < 0)
+                вернуть -EIO;
 
-        return 0;
+        вернуть 0;
 }
 
-int fputs_with_newline(FILE *f, const char *s) {
+целое fputs_with_newline(FILE *f, const char *s) {
 
         /* This is like fputs() but outputs a trailing newline char, but only if the string isn't empty
          * and doesn't end in a newline already. Returns 0 in case we didn't append a newline, > 0 otherwise. */
 
-        if (isempty(s))
-                return 0;
+        если (isempty(s))
+                вернуть 0;
 
-        if (!f)
+        если (!f)
                 f = stdout;
 
-        if (fputs(s, f) < 0)
-                return -EIO;
+        если (fputs(s, f) < 0)
+                вернуть -EIO;
 
-        if (endswith(s, "\n"))
-                return 0;
+        если (endswith(s, "\n"))
+                вернуть 0;
 
-        if (fputc('\n', f) < 0)
-                return -EIO;
+        если (fputc('\n', f) < 0)
+                вернуть -EIO;
 
-        return 1;
+        вернуть 1;
 }
 
 /* A bitmask of the EOL markers we know */
@@ -1491,25 +1491,25 @@ typedef enum EndOfLineMarker {
 
 static EndOfLineMarker categorize_eol(char c, ReadLineFlags flags) {
 
-        if (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
-                if (c == '\n')
-                        return EOL_TEN;
-                if (c == '\r')
-                        return EOL_THIRTEEN;
+        если (!FLAGS_SET(flags, READ_LINE_ONLY_NUL)) {
+                если (c == '\n')
+                        вернуть EOL_TEN;
+                если (c == '\r')
+                        вернуть EOL_THIRTEEN;
         }
 
-        if (c == '\0')
-                return EOL_ZERO;
+        если (c == '\0')
+                вернуть EOL_ZERO;
 
-        return EOL_NONE;
+        вернуть EOL_NONE;
 }
 
 DEFINE_TRIVIAL_CLEANUP_FUNC_FULL(FILE*, funlockfile, NULL);
 
-int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
+целое read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
         _cleanup_free_ char *buffer = NULL;
         size_t n = 0, count = 0;
-        int r;
+        целое r;
 
         assert(f);
 
@@ -1537,9 +1537,9 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
          *
          * If a line shall be skipped ret may be initialized as NULL. */
 
-        if (ret) {
-                if (!GREEDY_REALLOC(buffer, 1))
-                        return -ENOMEM;
+        если (ret) {
+                если (!GREEDY_REALLOC(buffer, 1))
+                        вернуть -ENOMEM;
         }
 
         {
@@ -1547,25 +1547,25 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 EndOfLineMarker previous_eol = EOL_NONE;
                 flockfile(f);
 
-                for (;;) {
+                для (;;) {
                         EndOfLineMarker eol;
                         char c;
 
-                        if (n >= limit)
-                                return -ENOBUFS;
+                        если (n >= limit)
+                                вернуть -ENOBUFS;
 
-                        if (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
-                                return -ENOBUFS;
+                        если (count >= INT_MAX) /* We couldn't return the counter anymore as "int", hence refuse this */
+                                вернуть -ENOBUFS;
 
                         r = safe_fgetc(f, &c);
-                        if (r < 0)
-                                return r;
-                        if (r == 0) /* EOF is definitely EOL */
+                        если (r < 0)
+                                вернуть r;
+                        если (r == 0) /* EOF is definitely EOL */
                                 break;
 
                         eol = categorize_eol(c, flags);
 
-                        if (FLAGS_SET(previous_eol, EOL_ZERO) ||
+                        если (FLAGS_SET(previous_eol, EOL_ZERO) ||
                             (eol == EOL_NONE && previous_eol != EOL_NONE) ||
                             (eol != EOL_NONE && (previous_eol & eol) != 0)) {
                                 /* Previous char was a NUL? This is not an EOL, but the previous char was? This type of
@@ -1583,35 +1583,35 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
 
                         count++;
 
-                        if (eol != EOL_NONE) {
+                        если (eol != EOL_NONE) {
                                 /* If we are on a tty, we can't shouldn't wait for more input, because that
                                  * generally means waiting for the user, interactively. In the case of a TTY
                                  * we expect only \n as the single EOL marker, so we are in the lucky
                                  * position that there is no need to wait. We check this condition last, to
                                  * avoid isatty() check if not necessary. */
 
-                                if ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
-                                        int fd;
+                                если ((flags & (READ_LINE_IS_A_TTY|READ_LINE_NOT_A_TTY)) == 0) {
+                                        целое fd;
 
                                         fd = fileno(f);
-                                        if (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
+                                        если (fd < 0) /* Maybe an fmemopen() stream? Handle this gracefully,
                                                      * and don't call isatty() on an invalid fd */
                                                 flags |= READ_LINE_NOT_A_TTY;
-                                        else
+                                        иначе
                                                 flags |= isatty_safe(fd) ? READ_LINE_IS_A_TTY : READ_LINE_NOT_A_TTY;
                                 }
-                                if (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
+                                если (FLAGS_SET(flags, READ_LINE_IS_A_TTY))
                                         break;
                         }
 
-                        if (eol != EOL_NONE) {
+                        если (eol != EOL_NONE) {
                                 previous_eol |= eol;
                                 continue;
                         }
 
-                        if (ret) {
-                                if (!GREEDY_REALLOC(buffer, n + 2))
-                                        return -ENOMEM;
+                        если (ret) {
+                                если (!GREEDY_REALLOC(buffer, n + 2))
+                                        вернуть -ENOMEM;
 
                                 buffer[n] = c;
                         }
@@ -1620,41 +1620,41 @@ int read_line_full(FILE *f, size_t limit, ReadLineFlags flags, char **ret) {
                 }
         }
 
-        if (ret) {
+        если (ret) {
                 buffer[n] = 0;
 
                 *ret = TAKE_PTR(buffer);
         }
 
-        return (int) count;
+        вернуть (целое) count;
 }
 
-int read_stripped_line(FILE *f, size_t limit, char **ret) {
+целое read_stripped_line(FILE *f, size_t limit, char **ret) {
         _cleanup_free_ char *s = NULL;
-        int r, k;
+        целое r, k;
 
         assert(f);
 
         r = read_line(f, limit, ret ? &s : NULL);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
-        if (ret) {
+        если (ret) {
                 const char *p = strstrip(s);
-                if (p == s)
+                если (p == s)
                         *ret = TAKE_PTR(s);
-                else {
+                иначе {
                         k = strdup_to(ret, p);
-                        if (k < 0)
-                                return k;
+                        если (k < 0)
+                                вернуть k;
                 }
         }
 
-        return r > 0;          /* Return 1 if something was read. */
+        вернуть r > 0;          /* Return 1 if something was read. */
 }
 
-int safe_fgetc(FILE *f, char *ret) {
-        int k;
+целое safe_fgetc(FILE *f, char *ret) {
+        целое k;
 
         assert(f);
 
@@ -1664,54 +1664,54 @@ int safe_fgetc(FILE *f, char *ret) {
 
         errno = 0;
         k = fgetc(f);
-        if (k == EOF) {
-                if (ferror(f))
-                        return errno_or_else(EIO);
+        если (k == EOF) {
+                если (ferror(f))
+                        вернуть errno_or_else(EIO);
 
-                if (ret)
+                если (ret)
                         *ret = 0;
 
-                return 0;
+                вернуть 0;
         }
 
-        if (ret)
+        если (ret)
                 *ret = k;
 
-        return 1;
+        вернуть 1;
 }
 
-int warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
+целое warn_file_is_world_accessible(const char *filename, struct stat *st, const char *unit, unsigned line) {
         struct stat _st;
 
-        if (!filename)
-                return 0;
+        если (!filename)
+                вернуть 0;
 
-        if (!st) {
-                if (stat(filename, &_st) < 0)
-                        return -errno;
+        если (!st) {
+                если (stat(filename, &_st) < 0)
+                        вернуть -errno;
                 st = &_st;
         }
 
-        if ((st->st_mode & S_IRWXO) == 0)
-                return 0;
+        если ((st->st_mode & S_IRWXO) == 0)
+                вернуть 0;
 
-        if (unit)
+        если (unit)
                 log_syntax(unit, LOG_WARNING, filename, line, 0,
                            "%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                            filename, st->st_mode & 07777);
-        else
+        иначе
                 log_warning("%s has %04o mode that is too permissive, please adjust the ownership and access mode.",
                             filename, st->st_mode & 07777);
-        return 0;
+        вернуть 0;
 }
 
-int write_data_file_atomic_at(
-                int dir_fd,
+целое write_data_file_atomic_at(
+                целое dir_fd,
                 const char *path,
                 const struct iovec *iovec,
                 WriteDataFileFlags flags) {
 
-        int r;
+        целое r;
 
         assert(wildcard_fd_is_valid(dir_fd));
 
@@ -1720,13 +1720,13 @@ int write_data_file_atomic_at(
 
         _cleanup_free_ char *dn = NULL, *fn = NULL;
         r = path_split_prefix_filename(path, &dn, &fn);
-        if (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
-                return -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
-        if (r < 0)
-                return r;
+        если (IN_SET(r, -EADDRNOTAVAIL, O_DIRECTORY))
+                вернуть -EISDIR; /* path refers to "." or "/" (which are dirs, which we cannot write), or is suffixed with "/" */
+        если (r < 0)
+                вернуть r;
 
-        _cleanup_close_ int mfd = -EBADF;
-        if (dn) {
+        _cleanup_close_ целое mfd = -EBADF;
+        если (dn) {
                 /* If there's a directory component, readjust our position */
                 r = chaseat(XAT_FDROOT,
                             dir_fd,
@@ -1734,33 +1734,33 @@ int write_data_file_atomic_at(
                             FLAGS_SET(flags, WRITE_DATA_FILE_MKDIR_0755) ? CHASE_MKDIR_0755 : 0,
                             /* ret_path= */ NULL,
                             &mfd);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
 
                 dir_fd = mfd;
         }
 
         _cleanup_free_ char *t = NULL;
-        _cleanup_close_ int fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
-        if (fd < 0)
-                return fd;
+        _cleanup_close_ целое fd = open_tmpfile_linkable_at(dir_fd, fn, O_WRONLY|O_CLOEXEC, &t);
+        если (fd < 0)
+                вернуть fd;
 
         CLEANUP_TMPFILE_AT(dir_fd, t);
 
-        if (iovec_is_set(iovec)) {
+        если (iovec_is_set(iovec)) {
                 r = loop_write(fd, iovec->iov_base, iovec->iov_len);
-                if (r < 0)
-                        return r;
+                если (r < 0)
+                        вернуть r;
         }
 
         r = fchmod_umask(fd, FLAGS_SET(flags, WRITE_DATA_FILE_MODE_0400) ? 0400 : 0644);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         r = link_tmpfile_at(fd, dir_fd, t, fn, LINK_TMPFILE_REPLACE);
-        if (r < 0)
-                return r;
+        если (r < 0)
+                вернуть r;
 
         t = mfree(t); /* disarm CLEANUP_TMPFILE_AT */
-        return 0;
+        вернуть 0;
 }

@@ -14,28 +14,28 @@ char* unit_dbus_path_from_name(const char *name) {
         assert(name);
 
         e = bus_label_escape(name);
-        if (!e)
-                return NULL;
+        если (!e)
+                вернуть NULL;
 
-        return strjoin("/org/freedesktop/systemd1/unit/", e);
+        вернуть strjoin("/org/freedesktop/systemd1/unit/", e);
 }
 
-int unit_name_from_dbus_path(const char *path, char **name) {
+целое unit_name_from_dbus_path(const char *path, char **name) {
         const char *e;
         char *n;
 
         assert(name);
 
         e = startswith(path, "/org/freedesktop/systemd1/unit/");
-        if (!e)
-                return -EINVAL;
+        если (!e)
+                вернуть -EINVAL;
 
         n = bus_label_unescape(e);
-        if (!n)
-                return -ENOMEM;
+        если (!n)
+                вернуть -ENOMEM;
 
         *name = n;
-        return 0;
+        вернуть 0;
 }
 
 const char* unit_dbus_interface_from_type(UnitType t) {
@@ -54,30 +54,30 @@ const char* unit_dbus_interface_from_type(UnitType t) {
                 [UNIT_SCOPE]     = "org.freedesktop.systemd1.Scope",
         };
 
-        if (t < 0)
-                return NULL;
-        if (t >= _UNIT_TYPE_MAX)
-                return NULL;
+        если (t < 0)
+                вернуть NULL;
+        если (t >= _UNIT_TYPE_MAX)
+                вернуть NULL;
 
-        return table[t];
+        вернуть table[t];
 }
 
 const char* unit_dbus_interface_from_name(const char *name) {
         UnitType t;
 
         t = unit_name_to_type(name);
-        if (t < 0)
-                return NULL;
+        если (t < 0)
+                вернуть NULL;
 
-        return unit_dbus_interface_from_type(t);
+        вернуть unit_dbus_interface_from_type(t);
 }
 
 const char* unit_type_to_capitalized_string(UnitType t) {
         const char *di = unit_dbus_interface_from_type(t);
-        if (!di)
-                return NULL;
+        если (!di)
+                вернуть NULL;
 
-        return ASSERT_PTR(startswith(di, "org.freedesktop.systemd1."));
+        вернуть ASSERT_PTR(startswith(di, "org.freedesktop.systemd1."));
 }
 
 static const char* const unit_type_table[_UNIT_TYPE_MAX] = {
@@ -149,17 +149,17 @@ FreezerState freezer_state_finish(FreezerState state) {
         assert(state >= 0);
         assert(state < _FREEZER_STATE_MAX);
 
-        return freezer_state_finish_table[state];
+        вернуть freezer_state_finish_table[state];
 }
 
 FreezerState freezer_state_objective(FreezerState state) {
         FreezerState objective;
 
         objective = freezer_state_finish(state);
-        if (objective == FREEZER_FROZEN_BY_PARENT)
+        если (objective == FREEZER_FROZEN_BY_PARENT)
                 objective = FREEZER_FROZEN;
 
-        return objective;
+        вернуть objective;
 }
 
 static const char* const unit_marker_table[_UNIT_MARKER_MAX] = {
@@ -357,7 +357,7 @@ static const char* const unit_dependency_table[_UNIT_DEPENDENCY_MAX] = {
 DEFINE_STRING_TABLE_LOOKUP(unit_dependency, UnitDependency);
 
 bool unit_dependency_can_be_transient(UnitDependency d) {
-        return IN_SET(d,
+        вернуть IN_SET(d,
                       UNIT_REQUIRES,
                       UNIT_REQUISITE,
                       UNIT_WANTS,
@@ -438,9 +438,9 @@ Glyph unit_active_state_to_glyph(UnitActiveState state) {
                 [UNIT_MAINTENANCE]  = GLYPH_WHITE_CIRCLE,
         };
 
-        if (state < 0)
-                return _GLYPH_INVALID;
+        если (state < 0)
+                вернуть _GLYPH_INVALID;
 
         assert(state < _UNIT_ACTIVE_STATE_MAX);
-        return map[state];
+        вернуть map[state];
 }

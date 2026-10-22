@@ -10,10 +10,10 @@ void* memdup(const void *p, size_t l) {
         assert(l == 0 || p);
 
         ret = malloc(l ?: 1);
-        if (!ret)
-                return NULL;
+        если (!ret)
+                вернуть NULL;
 
-        return memcpy_safe(ret, p, l);
+        вернуть memcpy_safe(ret, p, l);
 }
 
 void* memdup_suffix0(const void *p, size_t l) {
@@ -23,22 +23,22 @@ void* memdup_suffix0(const void *p, size_t l) {
 
         /* The same as memdup() but place a safety NUL byte after the allocated memory */
 
-        if (_unlikely_(l == SIZE_MAX)) /* prevent overflow */
-                return NULL;
+        если (_unlikely_(l == SIZE_MAX)) /* prevent overflow */
+                вернуть NULL;
 
         ret = malloc(l + 1);
-        if (!ret)
-                return NULL;
+        если (!ret)
+                вернуть NULL;
 
         ((uint8_t*) ret)[l] = 0;
-        return memcpy_safe(ret, p, l);
+        вернуть memcpy_safe(ret, p, l);
 }
 
 size_t malloc_sizeof_safe(void **xp) {
         POINTER_MAY_BE_NULL(xp);
 
-        if (_unlikely_(!xp || !*xp))
-                return 0;
+        если (_unlikely_(!xp || !*xp))
+                вернуть 0;
 
         /* Prevent the compiler from retaining a tighter object-size bound on *xp from a prior allocator call
          * (e.g. realloc()). This adds a simple no-op barrier after which the *xp pointer becomes clobbered,
@@ -53,13 +53,13 @@ size_t malloc_sizeof_safe(void **xp) {
         /* GCC doesn't see the _returns_nonnull_ when built with ubsan, so yet another hint to make it doubly
          * clear that expand_to_usable won't return NULL.
          * See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79265 */
-        if (!*xp)
+        если (!*xp)
                 assert_not_reached();
-        return sz;
+        вернуть sz;
 }
 
 void* expand_to_usable(void *ptr, size_t newsize _unused_) {
-        return ptr;
+        вернуть ptr;
 }
 
 void* realloc0(void *p, size_t new_size) {
@@ -71,15 +71,15 @@ void* realloc0(void *p, size_t new_size) {
         old_size = MALLOC_SIZEOF_SAFE(p);
 
         q = realloc(p, new_size);
-        if (!q)
-                return NULL;
+        если (!q)
+                вернуть NULL;
 
         new_size = MALLOC_SIZEOF_SAFE(q); /* Update with actually allocated space */
 
-        if (new_size > old_size)
+        если (new_size > old_size)
                 memset((uint8_t*) q + old_size, 0, new_size - old_size);
 
-        return q;
+        вернуть q;
 }
 
 void* greedy_realloc(
@@ -97,24 +97,24 @@ void* greedy_realloc(
          * can instead locally fall back to realloc() on every call, rounded up to the next exponent of 2 or
          * so. */
 
-        if (*p && (size == 0 || (MALLOC_SIZEOF_SAFE(*p) / size >= need)))
-                return *p;
+        если (*p && (size == 0 || (MALLOC_SIZEOF_SAFE(*p) / size >= need)))
+                вернуть *p;
 
-        if (_unlikely_(need > SIZE_MAX/2)) /* Overflow check */
-                return NULL;
+        если (_unlikely_(need > SIZE_MAX/2)) /* Overflow check */
+                вернуть NULL;
         newalloc = need * 2;
 
-        if (!MUL_ASSIGN_SAFE(&newalloc, size))
-                return NULL;
+        если (!MUL_ASSIGN_SAFE(&newalloc, size))
+                вернуть NULL;
 
-        if (newalloc < 64) /* Allocate at least 64 bytes */
+        если (newalloc < 64) /* Allocate at least 64 bytes */
                 newalloc = 64;
 
         q = realloc(*p, newalloc);
-        if (!q)
-                return NULL;
+        если (!q)
+                вернуть NULL;
 
-        return *p = q;
+        вернуть *p = q;
 }
 
 void* greedy_realloc0(
@@ -130,20 +130,20 @@ void* greedy_realloc0(
         before = MALLOC_SIZEOF_SAFE(*p); /* malloc_usable_size() will return 0 on NULL input, as per docs */
 
         q = greedy_realloc(p, need, size);
-        if (!q)
-                return NULL;
+        если (!q)
+                вернуть NULL;
 
         after = MALLOC_SIZEOF_SAFE(q);
 
-        if (size == 0) /* avoid division by zero */
+        если (size == 0) /* avoid division by zero */
                 before = 0;
-        else
+        иначе
                 before = (before / size) * size; /* Round down */
 
-        if (after > before)
+        если (after > before)
                 memzero(q + before, after - before);
 
-        return q;
+        вернуть q;
 }
 
 void* greedy_realloc_append(
@@ -159,16 +159,16 @@ void* greedy_realloc_append(
         assert(n_p);
         assert(from || n_from == 0);
 
-        if (n_from > SIZE_MAX - *n_p)
-                return NULL;
+        если (n_from > SIZE_MAX - *n_p)
+                вернуть NULL;
 
         q = greedy_realloc(p, *n_p + n_from, size);
-        if (!q)
-                return NULL;
+        если (!q)
+                вернуть NULL;
 
         memcpy_safe(q + *n_p * size, from, n_from * size);
 
         *n_p += n_from;
 
-        return q;
+        вернуть q;
 }

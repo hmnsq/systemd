@@ -15,7 +15,7 @@
 #include "time-util.h"
 
 uint32_t poll_events_to_epoll(uint32_t events) {
-        return (events & POLLIN    ? EPOLLIN    : 0) |
+        вернуть (events & POLLIN    ? EPOLLIN    : 0) |
                (events & POLLOUT   ? EPOLLOUT   : 0) |
                (events & POLLPRI   ? EPOLLPRI   : 0) |
                (events & POLLERR   ? EPOLLERR   : 0) |
@@ -24,7 +24,7 @@ uint32_t poll_events_to_epoll(uint32_t events) {
 }
 
 uint32_t epoll_events_to_poll(uint32_t events) {
-        return (events & EPOLLIN    ? POLLIN    : 0) |
+        вернуть (events & EPOLLIN    ? POLLIN    : 0) |
                (events & EPOLLOUT   ? POLLOUT   : 0) |
                (events & EPOLLPRI   ? POLLPRI   : 0) |
                (events & EPOLLERR   ? POLLERR   : 0) |
@@ -32,46 +32,46 @@ uint32_t epoll_events_to_poll(uint32_t events) {
                (events & EPOLLRDHUP ? POLLRDHUP : 0);
 }
 
-int flush_fd(int fd) {
-        int count = 0;
+целое flush_fd(целое fd) {
+        целое count = 0;
 
         /* Read from the specified file descriptor, until POLLIN is not set anymore, throwing away everything
          * read. Note that some file descriptors (notable IP sockets) will trigger POLLIN even when no data can be read
          * (due to IP packet checksum mismatches), hence this function is only safe to be non-blocking if the fd used
          * was set to non-blocking too. */
 
-        for (;;) {
+        для (;;) {
                 char buf[LINE_MAX];
                 ssize_t l;
-                int r;
+                целое r;
 
                 r = fd_wait_for_event(fd, POLLIN, 0);
-                if (r == -EINTR)
+                если (r == -EINTR)
                         continue;
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return count;
+                если (r < 0)
+                        вернуть r;
+                если (r == 0)
+                        вернуть count;
 
                 l = read(fd, buf, sizeof(buf));
-                if (l < 0) {
-                        if (errno == EINTR)
+                если (l < 0) {
+                        если (errno == EINTR)
                                 continue;
-                        if (errno == EAGAIN)
-                                return count;
+                        если (errno == EAGAIN)
+                                вернуть count;
 
-                        return -errno;
-                } else if (l == 0)
-                        return count;
+                        вернуть -errno;
+                } иначе если (l == 0)
+                        вернуть count;
 
-                if (l > INT_MAX-count) /* On overflow terminate */
-                        return INT_MAX;
+                если (l > INT_MAX-count) /* On overflow terminate */
+                        вернуть INT_MAX;
 
-                count += (int) l;
+                count += (целое) l;
         }
 }
 
-ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
+ssize_t loop_read(целое fd, void *buf, size_t nbytes, bool do_poll) {
         uint8_t *p = ASSERT_PTR(buf);
         ssize_t n = 0;
 
@@ -79,36 +79,36 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
 
         /* If called with nbytes == 0, let's call read() at least once, to validate the operation */
 
-        if (nbytes > (size_t) SSIZE_MAX)
-                return -EINVAL;
+        если (nbytes > (size_t) SSIZE_MAX)
+                вернуть -EINVAL;
 
         /* do_poll == false means "don't wait, return what we have if EAGAIN". If the fd is already
          * non-blocking, read() can't block the thread, so the non-fiber path satisfies that semantic
          * correctly even from a fiber. Only use the fiber path when the fd is blocking (where read()
          * would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && !do_poll) {
+        целое flags = 0;
+        если (fiber_ops_is_set() && !do_poll) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                если (flags < 0)
+                        вернуть -errno;
         }
 
         do {
                 ssize_t k;
 
-                if (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
+                если (fiber_ops_is_set() && (do_poll || !FLAGS_SET(flags, O_NONBLOCK))) {
                         /* On a fiber the read op suspends on EAGAIN until data is available, so we don't
                          * need a separate poll step or the do_poll knob. */
                         k = fiber_ops_read(fd, p, nbytes);
-                        if (k < 0)
-                                return n > 0 ? n : k;
-                } else {
+                        если (k < 0)
+                                вернуть n > 0 ? n : k;
+                } иначе {
                         k = read(fd, p, nbytes);
-                        if (k < 0) {
-                                if (errno == EINTR)
+                        если (k < 0) {
+                                если (errno == EINTR)
                                         continue;
 
-                                if (errno == EAGAIN && do_poll) {
+                                если (errno == EAGAIN && do_poll) {
 
                                         /* We knowingly ignore any return value here,
                                          * and expect that any error/EOF is reported
@@ -118,12 +118,12 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
                                         continue;
                                 }
 
-                                return n > 0 ? n : -errno;
+                                вернуть n > 0 ? n : -errno;
                         }
                 }
 
-                if (k == 0)
-                        return n;
+                если (k == 0)
+                        вернуть n;
 
                 assert((size_t) k <= nbytes);
                 assert(k <= SSIZE_MAX - n);
@@ -131,40 +131,40 @@ ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
                 p += k;
                 nbytes -= k;
                 n += k;
-        } while (nbytes > 0);
+        } пока (nbytes > 0);
 
-        return n;
+        вернуть n;
 }
 
-int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll) {
+целое loop_read_exact(целое fd, void *buf, size_t nbytes, bool do_poll) {
         ssize_t n;
 
         n = loop_read(fd, buf, nbytes, do_poll);
-        if (n < 0)
-                return (int) n;
-        if ((size_t) n != nbytes)
-                return -EIO;
+        если (n < 0)
+                вернуть (целое) n;
+        если ((size_t) n != nbytes)
+                вернуть -EIO;
 
-        return 0;
+        вернуть 0;
 }
 
-int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
+целое loop_write_full(целое fd, const void *buf, size_t nbytes, usec_t timeout) {
         const uint8_t *p;
         usec_t end;
-        int r;
+        целое r;
 
         assert(fd >= 0);
         assert(buf || nbytes == 0);
 
-        if (nbytes == 0) {
+        если (nbytes == 0) {
                 static const dummy_t dummy[0];
                 assert_cc(sizeof(dummy) == 0);
                 p = (const void*) dummy; /* Some valid pointer, in case NULL was specified */
-        } else {
-                if (nbytes == SIZE_MAX)
+        } иначе {
+                если (nbytes == SIZE_MAX)
                         nbytes = strlen(buf);
-                else if (_unlikely_(nbytes > (size_t) SSIZE_MAX))
-                        return -EINVAL;
+                иначе если (_unlikely_(nbytes > (size_t) SSIZE_MAX))
+                        вернуть -EINVAL;
 
                 p = buf;
         }
@@ -173,31 +173,31 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
          * non-blocking, write() can't block the thread, so the non-fiber path satisfies that
          * semantic correctly even from a fiber. Only use the fiber path when the fd is blocking
          * (where write() would otherwise block the entire event loop). */
-        int flags = 0;
-        if (fiber_ops_is_set() && timeout == 0) {
+        целое flags = 0;
+        если (fiber_ops_is_set() && timeout == 0) {
                 flags = fcntl(fd, F_GETFL);
-                if (flags < 0)
-                        return -errno;
+                если (flags < 0)
+                        вернуть -errno;
         }
 
-        if (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
+        если (fiber_ops_is_set() && !FLAGS_SET(flags, O_NONBLOCK)) {
                 /* On a fiber the write op suspends on EAGAIN until the fd is writable; honor the
                  * caller's timeout via a deadline scope. */
                 FIBER_OPS_TIMEOUT(timestamp_is_set(timeout) ? timeout : USEC_INFINITY);
 
-                while (nbytes > 0) {
+                пока (nbytes > 0) {
                         ssize_t k = fiber_ops_write(fd, p, nbytes);
-                        if (k < 0)
-                                return (int) k;
-                        if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                                return -EIO;
+                        если (k < 0)
+                                вернуть (целое) k;
+                        если (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                                вернуть -EIO;
 
                         assert((size_t) k <= nbytes);
                         p += k;
                         nbytes -= k;
                 }
 
-                return 0;
+                вернуть 0;
         }
 
         /* When timeout is 0 or USEC_INFINITY this is not used. But we initialize it to a sensible value. */
@@ -207,52 +207,52 @@ int loop_write_full(int fd, const void *buf, size_t nbytes, usec_t timeout) {
                 ssize_t k;
 
                 k = write(fd, p, nbytes);
-                if (k < 0) {
-                        if (errno == EINTR)
+                если (k < 0) {
+                        если (errno == EINTR)
                                 continue;
 
-                        if (errno != EAGAIN || timeout == 0)
-                                return -errno;
+                        если (errno != EAGAIN || timeout == 0)
+                                вернуть -errno;
 
                         usec_t wait_for;
 
-                        if (timeout == USEC_INFINITY)
+                        если (timeout == USEC_INFINITY)
                                 wait_for = USEC_INFINITY;
-                        else {
+                        иначе {
                                 usec_t t = now(CLOCK_MONOTONIC);
-                                if (t >= end)
-                                        return -ETIME;
+                                если (t >= end)
+                                        вернуть -ETIME;
 
                                 wait_for = usec_sub_unsigned(end, t);
                         }
 
                         r = fd_wait_for_event(fd, POLLOUT, wait_for);
-                        if (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
+                        если (timeout == USEC_INFINITY || ERRNO_IS_NEG_TRANSIENT(r))
                                 /* If timeout == USEC_INFINITY we knowingly ignore any return value
                                  * here, and expect that any error/EOF is reported via write() */
                                 continue;
-                        if (r < 0)
-                                return r;
-                        if (r == 0)
-                                return -ETIME;
+                        если (r < 0)
+                                вернуть r;
+                        если (r == 0)
+                                вернуть -ETIME;
                         continue;
                 }
 
-                if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                        return -EIO;
+                если (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
+                        вернуть -EIO;
 
                 assert((size_t) k <= nbytes);
 
                 p += k;
                 nbytes -= k;
-        } while (nbytes > 0);
+        } пока (nbytes > 0);
 
-        return 0;
+        вернуть 0;
 }
 
-int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
+целое pwritev_full(целое fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_t *ret_written) {
         uint64_t written = 0;
-        int r = 0;
+        целое r = 0;
 
         assert(fd >= 0);
         assert(iovec || n == 0);
@@ -260,25 +260,25 @@ int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_
         /* Writes all of the iovecs at the offset. The iovecs are advanced past what was written, and
          * 'ret_written' tells how much that was, also if the write fails halfway. */
 
-        for (size_t i = 0;;) {
+        для (size_t i = 0;;) {
                 size_t m;
                 ssize_t k;
 
-                while (i < n && !iovec_is_set(iovec + i))
+                пока (i < n && !iovec_is_set(iovec + i))
                         i++;
-                if (i >= n)
+                если (i >= n)
                         break;
 
                 m = MIN(n - i, (size_t) IOV_MAX);
                 k = pwritev(fd, iovec + i, m, offset + written);
-                if (k < 0) {
-                        if (errno == EINTR)
+                если (k < 0) {
+                        если (errno == EINTR)
                                 continue;
 
                         r = -errno;
                         break;
                 }
-                if (k == 0) {
+                если (k == 0) {
                         r = -EIO;
                         break;
                 }
@@ -287,30 +287,30 @@ int pwritev_full(int fd, struct iovec *iovec, size_t n, uint64_t offset, uint64_
                 (void) iovec_inc_many(iovec + i, m, k);
         }
 
-        if (ret_written)
+        если (ret_written)
                 *ret_written = written;
-        return r;
+        вернуть r;
 }
 
-int pwrite_full(int fd, const void *buf, size_t nbytes, uint64_t offset) {
+целое pwrite_full(целое fd, const void *buf, size_t nbytes, uint64_t offset) {
         assert(fd >= 0);
         assert(buf || nbytes == 0);
 
-        return pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
+        вернуть pwritev_full(fd, &IOVEC_MAKE((void*) buf, nbytes), 1, offset, /* ret_written= */ NULL);
 }
 
-int pipe_eof(int fd) {
-        int r;
+целое pipe_eof(целое fd) {
+        целое r;
 
         r = fd_wait_for_event(fd, POLLIN, 0);
-        if (r <= 0)
-                return r;
+        если (r <= 0)
+                вернуть r;
 
-        return !!(r & POLLHUP);
+        вернуть !!(r & POLLHUP);
 }
 
-int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
-        int r;
+целое ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigset_t *ss) {
+        целое r;
 
         assert(fds || n_fds == 0);
 
@@ -329,39 +329,39 @@ int ppoll_usec_full(struct pollfd *fds, size_t n_fds, usec_t timeout, const sigs
          *  to handle signals, such as signalfd() or signal handlers. ⚠️ ⚠️ ⚠️
          */
 
-        if (n_fds == 0 && timeout == 0)
-                return 0;
+        если (n_fds == 0 && timeout == 0)
+                вернуть 0;
 
         r = fiber_ops_ppoll(fds, n_fds, timeout == USEC_INFINITY ? NULL : TIMESPEC_STORE(timeout), ss);
-        if (r <= 0)
-                return r;
+        если (r <= 0)
+                вернуть r;
 
-        for (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
-                if (fds[i].revents == 0)
+        для (size_t i = 0, n = r; i < n_fds && n > 0; i++) {
+                если (fds[i].revents == 0)
                         continue;
-                if (fds[i].revents & POLLNVAL)
-                        return -EBADF;
+                если (fds[i].revents & POLLNVAL)
+                        вернуть -EBADF;
                 n--;
         }
 
-        return r;
+        вернуть r;
 }
 
-int fd_wait_for_event(int fd, int event, usec_t timeout) {
+целое fd_wait_for_event(целое fd, целое event, usec_t timeout) {
         struct pollfd pollfd = {
                 .fd = fd,
                 .events = event,
         };
-        int r;
+        целое r;
 
         /* ⚠️ ⚠️ ⚠️ Keep in mind you almost certainly want to handle -EINTR gracefully in the caller, see
          * ppoll_usec() above! ⚠️ ⚠️ ⚠️ */
 
         r = ppoll_usec(&pollfd, 1, timeout);
-        if (r <= 0)
-                return r;
+        если (r <= 0)
+                вернуть r;
 
-        return pollfd.revents;
+        вернуть pollfd.revents;
 }
 
 static size_t nul_length(const uint8_t *p, size_t sz) {
@@ -369,8 +369,8 @@ static size_t nul_length(const uint8_t *p, size_t sz) {
 
         assert(p);
 
-        while (sz > 0) {
-                if (*p != 0)
+        пока (sz > 0) {
+                если (*p != 0)
                         break;
 
                 n++;
@@ -378,16 +378,16 @@ static size_t nul_length(const uint8_t *p, size_t sz) {
                 sz--;
         }
 
-        return n;
+        вернуть n;
 }
 
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
+ssize_t sparse_write(целое fd, const void *p, size_t sz, size_t run_length) {
         const uint8_t *q, *w, *e;
         ssize_t l;
 
         q = w = p;
         e = q + sz;
-        while (q < e) {
+        пока (q < e) {
                 size_t n;
 
                 n = nul_length(q, e - q);
@@ -395,35 +395,35 @@ ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
                 /* If there are more than the specified run length of
                  * NUL bytes, or if this is the beginning or the end
                  * of the buffer, then seek instead of write */
-                if ((n > run_length) ||
+                если ((n > run_length) ||
                     (n > 0 && q == p) ||
                     (n > 0 && q + n >= e)) {
-                        if (q > w) {
+                        если (q > w) {
                                 l = write(fd, w, q - w);
-                                if (l < 0)
-                                        return -errno;
-                                if (l != q -w)
-                                        return -EIO;
+                                если (l < 0)
+                                        вернуть -errno;
+                                если (l != q -w)
+                                        вернуть -EIO;
                         }
 
-                        if (lseek(fd, n, SEEK_CUR) < 0)
-                                return -errno;
+                        если (lseek(fd, n, SEEK_CUR) < 0)
+                                вернуть -errno;
 
                         q += n;
                         w = q;
-                } else if (n > 0)
+                } иначе если (n > 0)
                         q += n;
-                else
+                иначе
                         q++;
         }
 
-        if (q > w) {
+        если (q > w) {
                 l = write(fd, w, q - w);
-                if (l < 0)
-                        return -errno;
-                if (l != q - w)
-                        return -EIO;
+                если (l < 0)
+                        вернуть -errno;
+                если (l != q - w)
+                        вернуть -EIO;
         }
 
-        return q - (const uint8_t*) p;
+        вернуть q - (const uint8_t*) p;
 }
