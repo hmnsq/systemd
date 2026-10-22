@@ -4,54 +4,54 @@
 #include "keyring-util.h"
 #include "log.h"
 
-int keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
+จำนวนเต็ม keyring_read(key_serial_t serial, void **ret, size_t *ret_size) {
         size_t bufsize = 100;
 
-        for (;;) {
+        สำหรับ (;;) {
                 _cleanup_(erase_and_freep) uint8_t *buf = NULL;
                 long n;
 
                 buf = new(uint8_t, bufsize + 1);
-                if (!buf)
-                        return -ENOMEM;
+                ถ้า (!buf)
+                        คืน -ENOMEM;
 
                 n = keyctl(KEYCTL_READ, (unsigned long) serial, (unsigned long) buf, (unsigned long) bufsize, 0);
-                if (n < 0)
-                        return -errno;
+                ถ้า (n < 0)
+                        คืน -errno;
 
-                if ((size_t) n <= bufsize) {
+                ถ้า ((size_t) n <= bufsize) {
                         buf[n] = 0; /* NUL terminate, just in case */
 
-                        if (ret)
+                        ถ้า (ret)
                                 *ret = TAKE_PTR(buf);
-                        if (ret_size)
+                        ถ้า (ret_size)
                                 *ret_size = n;
 
-                        return 0;
+                        คืน 0;
                 }
 
                 bufsize = (size_t) n;
         }
 }
 
-int keyring_describe(key_serial_t serial, char **ret) {
-        _cleanup_free_ char *tuple = NULL;
+จำนวนเต็ม keyring_describe(key_serial_t serial, var_na **ret) {
+        _cleanup_free_ var_na *tuple = NULL;
         size_t sz = 64;
-        int c;
+        จำนวนเต็ม c;
 
         assert(ret);
 
-        for (;;) {
-                tuple = new(char, sz);
-                if (!tuple)
-                        return log_oom_debug();
+        สำหรับ (;;) {
+                tuple = new(var_na, sz);
+                ถ้า (!tuple)
+                        คืน log_oom_debug();
 
                 c = keyctl(KEYCTL_DESCRIBE, serial, (unsigned long) tuple, sz, 0);
-                if (c < 0)
-                        return log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
+                ถ้า (c < 0)
+                        คืน log_debug_errno(errno, "Failed to describe key id %d: %m", serial);
 
-                if ((size_t) c <= sz)
-                        break;
+                ถ้า ((size_t) c <= sz)
+                        bha_nga;
 
                 sz = c;
                 free(tuple);
@@ -62,5 +62,5 @@ int keyring_describe(key_serial_t serial, char **ret) {
 
         *ret = TAKE_PTR(tuple);
 
-        return 0;
+        คืน 0;
 }

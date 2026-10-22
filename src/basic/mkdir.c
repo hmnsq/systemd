@@ -18,9 +18,9 @@
 #include "time-util.h"
 #include "user-util.h"
 
-int mkdirat_safe_internal(
-                int dir_fd,
-                const char *path,
+จำนวนเต็ม mkdirat_safe_internal(
+                จำนวนเต็ม dir_fd,
+                const var_na *path,
                 mode_t mode,
                 uid_t uid,
                 gid_t gid,
@@ -28,86 +28,86 @@ int mkdirat_safe_internal(
                 mkdirat_func_t _mkdirat,
                 LabelContext *label_context) {
 
-        struct stat st;
-        int r;
+        sa_nracanaa stat st;
+        จำนวนเต็ม r;
 
         assert(path);
         assert(mode != MODE_INVALID);
         assert(_mkdirat);
 
         r = _mkdirat(dir_fd, path, mode, label_context);
-        if (r >= 0)
-                return chmod_and_chown_at(dir_fd, path, mode, uid, gid);
-        if (r != -EEXIST)
-                return r;
+        ถ้า (r >= 0)
+                คืน chmod_and_chown_at(dir_fd, path, mode, uid, gid);
+        ถ้า (r != -EEXIST)
+                คืน r;
 
-        if (fstatat(dir_fd, path, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                return -errno;
+        ถ้า (fstatat(dir_fd, path, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                คืน -errno;
 
-        if ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
-                _cleanup_free_ char *p = NULL;
+        ถ้า ((flags & MKDIR_FOLLOW_SYMLINK) && S_ISLNK(st.st_mode)) {
+                _cleanup_free_ var_na *p = NULL;
 
                 r = chaseat(XAT_FDROOT, dir_fd, path, CHASE_NONEXISTENT, &p, NULL);
-                if (r < 0)
-                        return r;
-                if (r == 0)
-                        return mkdirat_safe_internal(dir_fd, p, mode, uid, gid,
+                ถ้า (r < 0)
+                        คืน r;
+                ถ้า (r == 0)
+                        คืน mkdirat_safe_internal(dir_fd, p, mode, uid, gid,
                                                      flags & ~MKDIR_FOLLOW_SYMLINK,
                                                      _mkdirat, label_context);
 
-                if (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
-                        return -errno;
+                ถ้า (fstatat(dir_fd, p, &st, AT_SYMLINK_NOFOLLOW) < 0)
+                        คืน -errno;
         }
 
-        if (flags & MKDIR_IGNORE_EXISTING)
-                return 0;
+        ถ้า (flags & MKDIR_IGNORE_EXISTING)
+                คืน 0;
 
-        if (!S_ISDIR(st.st_mode))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
+        ถ้า (!S_ISDIR(st.st_mode))
+                คืน log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(ENOTDIR),
                                       "Path \"%s\" already exists and is not a directory, refusing.", path);
 
-        if ((st.st_mode & ~mode & 0777) != 0)
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+        ถ้า ((st.st_mode & ~mode & 0777) != 0)
+                คืน log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but has mode %04o that is too permissive (%04o was requested), refusing.",
                                       path, st.st_mode & 0777, mode);
 
-        if ((uid != UID_INVALID && st.st_uid != uid) ||
+        ถ้า ((uid != UID_INVALID && st.st_uid != uid) ||
             (gid != GID_INVALID && st.st_gid != gid))
-                return log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
+                คืน log_full_errno(flags & MKDIR_WARN_MODE ? LOG_WARNING : LOG_DEBUG, SYNTHETIC_ERRNO(EEXIST),
                                       "Directory \"%s\" already exists, but is owned by "UID_FMT":"GID_FMT" (%s:%s was requested), refusing.",
                                       path, st.st_uid, st.st_gid, uid != UID_INVALID ? FORMAT_UID(uid) : "-",
                                       gid != UID_INVALID ? FORMAT_GID(gid) : "-");
 
-        return 0;
+        คืน 0;
 }
 
-int mkdirat_errno_wrapper(int dirfd, const char *pathname, mode_t mode, LabelContext *label_context) {
-        return RET_NERRNO(mkdirat(dirfd, pathname, mode));
+จำนวนเต็ม mkdirat_errno_wrapper(จำนวนเต็ม dirfd, const var_na *pathname, mode_t mode, LabelContext *label_context) {
+        คืน RET_NERRNO(mkdirat(dirfd, pathname, mode));
 }
 
-int mkdirat_safe(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+จำนวนเต็ม mkdirat_safe(จำนวนเต็ม dir_fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
+        คืน mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
 }
 
-int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        const char *e = NULL;
-        int r;
+จำนวนเต็ม mkdirat_parents_internal(จำนวนเต็ม dir_fd, const var_na *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        const var_na *e = NULL;
+        จำนวนเต็ม r;
 
         assert(path);
         assert(_mkdirat);
 
-        if (isempty(path))
-                return 0;
+        ถ้า (isempty(path))
+                คืน 0;
 
-        if (!path_is_safe(path))
-                return -ENOTDIR;
+        ถ้า (!path_is_safe(path))
+                คืน -ENOTDIR;
 
         /* return immediately if directory exists */
         r = path_find_last_component(path, /* accept_dot_dot= */ false, &e, NULL);
-        if (r <= 0) /* r == 0 means path is equivalent to prefix. */
-                return r;
-        if (e == path)
-                return 0;
+        ถ้า (r <= 0) /* r == 0 means path is equivalent to prefix. */
+                คืน r;
+        ถ้า (e == path)
+                คืน 0;
 
         assert(e > path);
         assert(*e == '/');
@@ -115,19 +115,19 @@ int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t ui
         /* drop the last component */
         path = strndupa_safe(path, e - path);
         r = is_dir_at(dir_fd, path, /* follow= */ true);
-        if (r > 0)
-                return 0;
-        if (r == 0)
-                return -ENOTDIR;
+        ถ้า (r > 0)
+                คืน 0;
+        ถ้า (r == 0)
+                คืน -ENOTDIR;
 
         /* create every parent directory in the path, except the last component */
-        for (const char *p = path;;) {
-                char *s;
-                int n;
+        สำหรับ (const var_na *p = path;;) {
+                var_na *s;
+                จำนวนเต็ม n;
 
-                n = path_find_first_component(&p, /* accept_dot_dot= */ false, (const char **) &s);
-                if (n <= 0)
-                        return n;
+                n = path_find_first_component(&p, /* accept_dot_dot= */ false, (const var_na **) &s);
+                ถ้า (n <= 0)
+                        คืน n;
 
                 assert(p);
                 assert(s >= path);
@@ -136,139 +136,139 @@ int mkdirat_parents_internal(int dir_fd, const char *path, mode_t mode, uid_t ui
                 s[n] = '\0';
 
                 r = mkdirat_safe_internal(dir_fd, path, mode, uid, gid, flags | MKDIR_IGNORE_EXISTING, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+                ถ้า (r < 0 && r != -EEXIST)
+                        คืน r;
 
                 s[n] = *p == '\0' ? '\0' : '/';
         }
 }
 
-int mkdir_parents_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        _cleanup_close_ int fd = AT_FDCWD;
-        const char *p;
+จำนวนเต็ม mkdir_parents_internal(const var_na *prefix, const var_na *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        _cleanup_close_ จำนวนเต็ม fd = AT_FDCWD;
+        const var_na *p;
 
         assert(path);
         assert(_mkdirat);
 
-        if (prefix) {
+        ถ้า (prefix) {
                 p = path_startswith_full(path, prefix, PATH_STARTSWITH_REFUSE_DOT_DOT);
-                if (!p)
-                        return -EINVAL;
+                ถ้า (!p)
+                        คืน -EINVAL;
 
                 fd = open(prefix, O_PATH|O_DIRECTORY|O_CLOEXEC);
-                if (fd < 0)
-                        return -errno;
-        } else
+                ถ้า (fd < 0)
+                        คืน -errno;
+        } มิฉะนั้น
                 p = path;
 
-        return mkdirat_parents_internal(fd, p, mode, uid, gid, flags, _mkdirat, label_context);
+        คืน mkdirat_parents_internal(fd, p, mode, uid, gid, flags, _mkdirat, label_context);
 }
 
-int mkdirat_parents(int dir_fd, const char *path, mode_t mode) {
-        return mkdirat_parents_internal(dir_fd, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+จำนวนเต็ม mkdirat_parents(จำนวนเต็ม dir_fd, const var_na *path, mode_t mode) {
+        คืน mkdirat_parents_internal(dir_fd, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
 }
 
-int mkdir_parents_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_parents_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+จำนวนเต็ม mkdir_parents_safe(const var_na *prefix, const var_na *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
+        คืน mkdir_parents_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
 }
 
-int mkdir_p_internal(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
-        int r;
+จำนวนเต็ม mkdir_p_internal(const var_na *prefix, const var_na *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags, mkdirat_func_t _mkdirat, LabelContext *label_context) {
+        จำนวนเต็ม r;
 
         /* Like mkdir -p */
 
         assert(_mkdirat);
 
         r = mkdir_parents_internal(prefix, path, mode, uid, gid, flags | MKDIR_FOLLOW_SYMLINK, _mkdirat, label_context);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
+        ถ้า (!uid_is_valid(uid) && !gid_is_valid(gid) && flags == 0) {
                 r = _mkdirat(AT_FDCWD, path, mode, label_context);
-                if (r < 0 && (r != -EEXIST || is_dir(path, true) <= 0))
-                        return r;
-        } else {
+                ถ้า (r < 0 && (r != -EEXIST || is_dir(path, true) <= 0))
+                        คืน r;
+        } มิฉะนั้น {
                 r = mkdir_safe_internal(path, mode, uid, gid, flags, _mkdirat, label_context);
-                if (r < 0 && r != -EEXIST)
-                        return r;
+                ถ้า (r < 0 && r != -EEXIST)
+                        คืน r;
         }
 
-        return 0;
+        คืน 0;
 }
 
-int mkdir_p(const char *path, mode_t mode) {
-        return mkdir_p_internal(/* prefix= */ NULL, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
+จำนวนเต็ม mkdir_p(const var_na *path, mode_t mode) {
+        คืน mkdir_p_internal(/* prefix= */ NULL, path, mode, UID_INVALID, UID_INVALID, 0, mkdirat_errno_wrapper, /* label_context= */ NULL);
 }
 
-int mkdir_p_safe(const char *prefix, const char *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
-        return mkdir_p_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
+จำนวนเต็ม mkdir_p_safe(const var_na *prefix, const var_na *path, mode_t mode, uid_t uid, gid_t gid, MkdirFlags flags) {
+        คืน mkdir_p_internal(prefix, path, mode, uid, gid, flags, mkdirat_errno_wrapper, /* label_context= */ NULL);
 }
 
-int mkdir_p_root_full(const char *root, const char *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
-        _cleanup_free_ char *pp = NULL, *bn = NULL;
-        _cleanup_close_ int dfd = -EBADF;
-        int r;
+จำนวนเต็ม mkdir_p_root_full(const var_na *root, const var_na *p, uid_t uid, gid_t gid, mode_t m, usec_t ts, Hashmap *subvolumes) {
+        _cleanup_free_ var_na *pp = NULL, *bn = NULL;
+        _cleanup_close_ จำนวนเต็ม dfd = -EBADF;
+        จำนวนเต็ม r;
 
         assert(p);
 
         r = path_extract_directory(p, &pp);
-        if (r == -EDESTADDRREQ) {
+        ถ้า (r == -EDESTADDRREQ) {
                 /* only fname is passed, no prefix to operate on */
                 dfd = open(".", O_RDONLY|O_CLOEXEC|O_DIRECTORY);
-                if (dfd < 0)
-                        return -errno;
-        } else if (r == -EADDRNOTAVAIL)
+                ถ้า (dfd < 0)
+                        คืน -errno;
+        } มิฉะนั้น ถ้า (r == -EADDRNOTAVAIL)
                 /* only root dir or "." was passed, i.e. there is no parent to extract, in that case there's nothing to do. */
-                return 0;
-        else if (r < 0)
-                return r;
-        else {
+                คืน 0;
+        มิฉะนั้น ถ้า (r < 0)
+                คืน r;
+        มิฉะนั้น {
                 /* Extracting the parent dir worked, hence we aren't top-level? Recurse up first. */
                 r = mkdir_p_root_full(root, pp, uid, gid, m, ts, subvolumes);
-                if (r < 0)
-                        return r;
+                ถ้า (r < 0)
+                        คืน r;
 
                 dfd = chase_and_open(pp, root, CHASE_PREFIX_ROOT, O_CLOEXEC|O_DIRECTORY, NULL);
-                if (dfd < 0)
-                        return dfd;
+                ถ้า (dfd < 0)
+                        คืน dfd;
         }
 
         r = path_extract_filename(p, &bn);
-        if (r == -EADDRNOTAVAIL) /* Already top-level */
-                return 0;
-        if (r < 0)
-                return r;
+        ถ้า (r == -EADDRNOTAVAIL) /* Already top-level */
+                คืน 0;
+        ถ้า (r < 0)
+                คืน r;
 
         XOpenFlags flags = 0;
-        if (hashmap_contains(subvolumes, p)) {
+        ถ้า (hashmap_contains(subvolumes, p)) {
                 flags = XO_SUBVOLUME;
-                if ((PTR_TO_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
+                ถ้า ((PTR_TO_INT(hashmap_get(subvolumes, p)) & BTRFS_SUBVOL_NODATACOW))
                         flags |= XO_NOCOW;
         }
 
-        _cleanup_close_ int nfd = xopenat_full(
+        _cleanup_close_ จำนวนเต็ม nfd = xopenat_full(
                                 dfd, bn,
                                 O_DIRECTORY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,
                                 flags,
                                 m);
-        if (nfd == -EEXIST)
-                return 0;
-        if (nfd < 0)
-                return nfd;
+        ถ้า (nfd == -EEXIST)
+                คืน 0;
+        ถ้า (nfd < 0)
+                คืน nfd;
 
-        if ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
-                return -errno;
+        ถ้า ((uid_is_valid(uid) || gid_is_valid(gid)) && fchown(nfd, uid, gid) < 0)
+                คืน -errno;
 
-        if (ts != USEC_INFINITY) {
-                struct timespec tspec;
+        ถ้า (ts != USEC_INFINITY) {
+                sa_nracanaa timespec tspec;
                 timespec_store(&tspec, ts);
 
-                if (futimens(dfd, (const struct timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
-                        return -errno;
+                ถ้า (futimens(dfd, (const sa_nracanaa timespec[2]) { TIMESPEC_OMIT, tspec }) < 0)
+                        คืน -errno;
 
-                if (futimens(nfd, (const struct timespec[2]) { tspec, tspec }) < 0)
-                        return -errno;
+                ถ้า (futimens(nfd, (const sa_nracanaa timespec[2]) { tspec, tspec }) < 0)
+                        คืน -errno;
         }
 
-        return 1;
+        คืน 1;
 }

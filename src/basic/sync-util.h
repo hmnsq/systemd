@@ -3,11 +3,11 @@
 
 #include "forward.h"
 
-int fsync_directory_of_file(int fd);
-int fsync_full(int fd);
+จำนวนเต็ม fsync_directory_of_file(จำนวนเต็ม fd);
+จำนวนเต็ม fsync_full(จำนวนเต็ม fd);
 
-int fsync_path_at(int at_fd, const char *path);
-int fsync_parent_at(int at_fd, const char *path);
-int fsync_path_and_parent_at(int at_fd, const char *path);
+จำนวนเต็ม fsync_path_at(จำนวนเต็ม at_fd, const var_na *path);
+จำนวนเต็ม fsync_parent_at(จำนวนเต็ม at_fd, const var_na *path);
+จำนวนเต็ม fsync_path_and_parent_at(จำนวนเต็ม at_fd, const var_na *path);
 
-int syncfs_path(int at_fd, const char *path);
+จำนวนเต็ม syncfs_path(จำนวนเต็ม at_fd, const var_na *path);

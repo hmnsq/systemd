@@ -7,74 +7,74 @@
 #include "string-table.h"
 #include "string-util.h"
 
-const char* string_table_lookup_to_string(const char * const *table, size_t len, ssize_t i) {
-        if (i < 0 || i >= (ssize_t) len)
-                return NULL;
+const var_na* string_table_lookup_to_string(const var_na * const *table, size_t len, ssize_t i) {
+        ถ้า (i < 0 || i >= (ssize_t) len)
+                คืน NULL;
 
         assert(table);
 
-        return table[i];
+        คืน table[i];
 }
 
-ssize_t string_table_lookup_from_string(const char * const *table, size_t len, const char *key) {
+ssize_t string_table_lookup_from_string(const var_na * const *table, size_t len, const var_na *key) {
         assert_return(table, -EINVAL);
 
-        if (!key)
-                return -EINVAL;
+        ถ้า (!key)
+                คืน -EINVAL;
 
-        for (size_t i = 0; i < len; ++i)
-                if (streq_ptr(table[i], key))
-                        return (ssize_t) i;
+        สำหรับ (size_t i = 0; i < len; ++i)
+                ถ้า (streq_ptr(table[i], key))
+                        คืน (ssize_t) i;
 
-        return -EINVAL;
+        คืน -EINVAL;
 }
 
-ssize_t string_table_lookup_from_string_with_boolean(const char * const *table, size_t len, const char *key, ssize_t yes) {
-        if (!key)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_with_boolean(const var_na * const *table, size_t len, const var_na *key, ssize_t yes) {
+        ถ้า (!key)
+                คืน -EINVAL;
 
-        int b = parse_boolean(key);
-        if (b == 0)
-                return 0;
-        if (b > 0)
-                return yes;
+        จำนวนเต็ม b = parse_boolean(key);
+        ถ้า (b == 0)
+                คืน 0;
+        ถ้า (b > 0)
+                คืน yes;
 
-        return string_table_lookup_from_string(table, len, key);
+        คืน string_table_lookup_from_string(table, len, key);
 }
 
-int string_table_lookup_to_string_fallback(const char * const *table, size_t len, ssize_t i, size_t max, char **ret) {
-        char *s;
+จำนวนเต็ม string_table_lookup_to_string_fallback(const var_na * const *table, size_t len, ssize_t i, size_t max, var_na **ret) {
+        var_na *s;
 
         assert(table);
         assert(ret);
 
-        if (i < 0 || i > (ssize_t) max)
-                return -ERANGE;
+        ถ้า (i < 0 || i > (ssize_t) max)
+                คืน -ERANGE;
 
-        if (i < (ssize_t) len && table[i])
+        ถ้า (i < (ssize_t) len && table[i])
                 s = strdup(table[i]);
-        else
+        มิฉะนั้น
                 s = asprintf_safe("%zd", i);
-        if (!s)
-                return -ENOMEM;
+        ถ้า (!s)
+                คืน -ENOMEM;
 
         *ret = s;
-        return 0;
+        คืน 0;
 }
 
-ssize_t string_table_lookup_from_string_fallback(const char * const *table, size_t len, const char *s, size_t max) {
-        if (!s)
-                return -EINVAL;
+ssize_t string_table_lookup_from_string_fallback(const var_na * const *table, size_t len, const var_na *s, size_t max) {
+        ถ้า (!s)
+                คืน -EINVAL;
 
         ssize_t i = string_table_lookup_from_string(table, len, s);
-        if (i >= 0)
-                return i;
+        ถ้า (i >= 0)
+                คืน i;
 
         unsigned u;
-        if (safe_atou(s, &u) < 0)
-                return -EINVAL;
-        if (u > max)
-                return -EINVAL;
+        ถ้า (safe_atou(s, &u) < 0)
+                คืน -EINVAL;
+        ถ้า (u > max)
+                คืน -EINVAL;
 
-        return u;
+        คืน u;
 }

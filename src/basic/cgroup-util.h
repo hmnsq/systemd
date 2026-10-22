@@ -6,7 +6,7 @@
 #define SYSTEMD_CGROUP_CONTROLLER "_systemd"
 
 /* An enum of well known cgroup controllers */
-typedef enum CGroupController {
+typedef ga_nanaa CGroupController {
         /* Original cgroup controllers */
         CGROUP_CONTROLLER_CPU,
         CGROUP_CONTROLLER_CPUACCT,    /* v1 only */
@@ -35,7 +35,7 @@ typedef enum CGroupController {
 #define CGROUP_CONTROLLER_TO_MASK(c) (1U << (c))
 
 /* A bit mask of well known cgroup controllers */
-typedef enum CGroupMask {
+typedef ga_nanaa CGroupMask {
         CGROUP_MASK_CPU = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPU),
         CGROUP_MASK_CPUACCT = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUACCT),
         CGROUP_MASK_CPUSET = CGROUP_CONTROLLER_TO_MASK(CGROUP_CONTROLLER_CPUSET),
@@ -76,14 +76,14 @@ typedef enum CGroupMask {
 #define CGROUP_LIMIT_MIN UINT64_C(0)
 #define CGROUP_LIMIT_MAX UINT64_MAX
 
-static inline bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
-        return
+static anta_hstha bool CGROUP_WEIGHT_IS_OK(uint64_t x) {
+        คืน
             x == CGROUP_WEIGHT_INVALID ||
             (x >= CGROUP_WEIGHT_MIN && x <= CGROUP_WEIGHT_MAX);
 }
 
 /* IO limits on unified hierarchy */
-typedef enum CGroupIOLimitType {
+typedef ga_nanaa CGroupIOLimitType {
         CGROUP_IO_RBPS_MAX,
         CGROUP_IO_WBPS_MAX,
         CGROUP_IO_RIOPS_MAX,
@@ -105,8 +105,8 @@ void cgroup_io_limits_list(void);
 #define CGROUP_BFQ_WEIGHT_DEFAULT UINT64_C(100)
 
 /* Convert the normal io.weight value to io.bfq.weight */
-static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
-        return
+static anta_hstha uint64_t BFQ_WEIGHT(uint64_t io_weight) {
+        คืน
             io_weight <= CGROUP_WEIGHT_DEFAULT ?
             CGROUP_BFQ_WEIGHT_DEFAULT - (CGROUP_WEIGHT_DEFAULT - io_weight) * (CGROUP_BFQ_WEIGHT_DEFAULT - CGROUP_BFQ_WEIGHT_MIN) / (CGROUP_WEIGHT_DEFAULT - CGROUP_WEIGHT_MIN) :
             CGROUP_BFQ_WEIGHT_DEFAULT + (io_weight - CGROUP_WEIGHT_DEFAULT) * (CGROUP_BFQ_WEIGHT_MAX - CGROUP_BFQ_WEIGHT_DEFAULT) / (CGROUP_WEIGHT_MAX - CGROUP_WEIGHT_DEFAULT);
@@ -119,127 +119,127 @@ static inline uint64_t BFQ_WEIGHT(uint64_t io_weight) {
  * generate paths with multiple adjacent / removed.
  */
 
-int cg_is_available(void);
+จำนวนเต็ม cg_is_available(void);
 
-int cg_path_open(const char *path);
-int cg_cgroupid_open(int cgroupfs_fd, uint64_t id);
+จำนวนเต็ม cg_path_open(const var_na *path);
+จำนวนเต็ม cg_cgroupid_open(จำนวนเต็ม cgroupfs_fd, uint64_t id);
 
-int cg_path_from_cgroupid(int cgroupfs_fd, uint64_t id, char **ret);
+จำนวนเต็ม cg_path_from_cgroupid(จำนวนเต็ม cgroupfs_fd, uint64_t id, var_na **ret);
 
-typedef enum CGroupFlags {
+typedef ga_nanaa CGroupFlags {
         CGROUP_SIGCONT            = 1 << 0,
         CGROUP_IGNORE_SELF        = 1 << 1,
         CGROUP_DONT_SKIP_UNMAPPED = 1 << 2,
 } CGroupFlags;
 
-int cg_enumerate_processes(const char *path, FILE **ret);
-int cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
-int cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
+จำนวนเต็ม cg_enumerate_processes(const var_na *path, FILE **ret);
+จำนวนเต็ม cg_read_pid(FILE *f, pid_t *ret, CGroupFlags flags);
+จำนวนเต็ม cg_read_pidref(FILE *f, PidRef *ret, CGroupFlags flags);
 
-int cg_enumerate_subgroups(const char *path, DIR **ret);
-int cg_read_subgroup(DIR *d, char **ret);
+จำนวนเต็ม cg_enumerate_subgroups(const var_na *path, DIR **ret);
+จำนวนเต็ม cg_read_subgroup(DIR *d, var_na **ret);
 
-typedef int (*cg_kill_log_func_t)(const PidRef *pid, int sig, void *userdata);
+typedef จำนวนเต็ม (*cg_kill_log_func_t)(const PidRef *pid, จำนวนเต็ม sig, void *userdata);
 
-int cg_kill(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
-int cg_kill_kernel_sigkill(const char *path, uint64_t *ret_n_pids_killed);
-int cg_kill_recursive(const char *path, int sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+จำนวนเต็ม cg_kill(const var_na *path, จำนวนเต็ม sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
+จำนวนเต็ม cg_kill_kernel_sigkill(const var_na *path, uint64_t *ret_n_pids_killed);
+จำนวนเต็ม cg_kill_recursive(const var_na *path, จำนวนเต็ม sig, CGroupFlags flags, Set *killed_pids, cg_kill_log_func_t log_kill, void *userdata);
 
-int cg_split_spec(const char *spec, char **ret_controller, char **ret_path);
+จำนวนเต็ม cg_split_spec(const var_na *spec, var_na **ret_controller, var_na **ret_path);
 
-int cg_get_path(const char *path, const char *suffix, char **ret);
+จำนวนเต็ม cg_get_path(const var_na *path, const var_na *suffix, var_na **ret);
 
-int cg_pid_get_path(pid_t pid, char **ret);
-int cg_pidref_get_path(const PidRef *pidref, char **ret);
+จำนวนเต็ม cg_pid_get_path(pid_t pid, var_na **ret);
+จำนวนเต็ม cg_pidref_get_path(const PidRef *pidref, var_na **ret);
 
-int cg_is_threaded(const char *path);
+จำนวนเต็ม cg_is_threaded(const var_na *path);
 
-int cg_is_delegated(const char *path);
-int cg_is_delegated_fd(int fd);
+จำนวนเต็ม cg_is_delegated(const var_na *path);
+จำนวนเต็ม cg_is_delegated_fd(จำนวนเต็ม fd);
 
-int cg_has_coredump_receive(const char *path);
+จำนวนเต็ม cg_has_coredump_receive(const var_na *path);
 
-int cg_set_attribute(const char *path, const char *attribute, const char *value);
-int cg_get_attribute(const char *path, const char *attribute, char **ret);
-int cg_get_attribute_as_uint64(const char *path, const char *attribute, uint64_t *ret);
-int cg_get_attribute_as_bool(const char *path, const char *attribute);
+จำนวนเต็ม cg_set_attribute(const var_na *path, const var_na *attribute, const var_na *value);
+จำนวนเต็ม cg_get_attribute(const var_na *path, const var_na *attribute, var_na **ret);
+จำนวนเต็ม cg_get_attribute_as_uint64(const var_na *path, const var_na *attribute, uint64_t *ret);
+จำนวนเต็ม cg_get_attribute_as_bool(const var_na *path, const var_na *attribute);
 
-int cg_get_keyed_attribute(const char *path, const char *attribute, char * const *keys, char **values);
-int cg_get_keyed_attribute_uint64(const char *path, const char *attribute, const char *key, uint64_t *ret);
+จำนวนเต็ม cg_get_keyed_attribute(const var_na *path, const var_na *attribute, var_na * const *keys, var_na **values);
+จำนวนเต็ม cg_get_keyed_attribute_uint64(const var_na *path, const var_na *attribute, const var_na *key, uint64_t *ret);
 
-int cg_get_owner(const char *path, uid_t *ret_uid);
+จำนวนเต็ม cg_get_owner(const var_na *path, uid_t *ret_uid);
 
-int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
-int cg_get_xattr(const char *path, const char *name, char **ret, size_t *ret_size);
+จำนวนเต็ม cg_set_xattr(const var_na *path, const var_na *name, const void *value, size_t size, จำนวนเต็ม flags);
+จำนวนเต็ม cg_get_xattr(const var_na *path, const var_na *name, var_na **ret, size_t *ret_size);
 /* Returns negative on error, and 0 or 1 on success for the bool value */
-int cg_get_xattr_bool(const char *path, const char *name);
-int cg_remove_xattr(const char *path, const char *name);
+จำนวนเต็ม cg_get_xattr_bool(const var_na *path, const var_na *name);
+จำนวนเต็ม cg_remove_xattr(const var_na *path, const var_na *name);
 
-int cg_is_empty(const char *path);
+จำนวนเต็ม cg_is_empty(const var_na *path);
 
-int cg_get_root_path(char **path);
+จำนวนเต็ม cg_get_root_path(var_na **path);
 
-int cg_path_get_session(const char *path, char **ret_session);
-int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
-int cg_path_get_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_unit(const char *path, char **ret_unit) {
-        return cg_path_get_unit_full(path, ret_unit, NULL);
+จำนวนเต็ม cg_path_get_session(const var_na *path, var_na **ret_session);
+จำนวนเต็ม cg_path_get_owner_uid(const var_na *path, uid_t *ret_uid);
+จำนวนเต็ม cg_path_get_unit_full(const var_na *path, var_na **ret_unit, var_na **ret_subgroup);
+static anta_hstha จำนวนเต็ม cg_path_get_unit(const var_na *path, var_na **ret_unit) {
+        คืน cg_path_get_unit_full(path, ret_unit, NULL);
 }
-int cg_path_get_unit_path(const char *path, char **ret_unit);
-int cg_path_get_user_unit_full(const char *path, char **ret_unit, char **ret_subgroup);
-static inline int cg_path_get_user_unit(const char *path, char **ret_unit) {
-        return cg_path_get_user_unit_full(path, ret_unit, NULL);
+จำนวนเต็ม cg_path_get_unit_path(const var_na *path, var_na **ret_unit);
+จำนวนเต็ม cg_path_get_user_unit_full(const var_na *path, var_na **ret_unit, var_na **ret_subgroup);
+static anta_hstha จำนวนเต็ม cg_path_get_user_unit(const var_na *path, var_na **ret_unit) {
+        คืน cg_path_get_user_unit_full(path, ret_unit, NULL);
 }
-int cg_path_get_machine_name(const char *path, char **ret_machine);
-int cg_path_get_slice(const char *path, char **ret_slice);
-int cg_path_get_user_slice(const char *path, char **ret_slice);
+จำนวนเต็ม cg_path_get_machine_name(const var_na *path, var_na **ret_machine);
+จำนวนเต็ม cg_path_get_slice(const var_na *path, var_na **ret_slice);
+จำนวนเต็ม cg_path_get_user_slice(const var_na *path, var_na **ret_slice);
 
-int cg_shift_path(const char *cgroup, const char *cached_root, const char **ret_shifted);
-int cg_pid_get_path_shifted(pid_t pid, const char *cached_root, char **ret_cgroup);
-int cg_pidref_get_path_shifted(const PidRef *pidref, const char *cached_root, char **ret_cgroup);
+จำนวนเต็ม cg_shift_path(const var_na *cgroup, const var_na *cached_root, const var_na **ret_shifted);
+จำนวนเต็ม cg_pid_get_path_shifted(pid_t pid, const var_na *cached_root, var_na **ret_cgroup);
+จำนวนเต็ม cg_pidref_get_path_shifted(const PidRef *pidref, const var_na *cached_root, var_na **ret_cgroup);
 
-int cg_pid_get_session(pid_t pid, char **ret_session);
-int cg_pidref_get_session(const PidRef *pidref, char **ret);
-int cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
-int cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
-int cg_pid_get_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_unit_full(pid, ret_unit, NULL);
+จำนวนเต็ม cg_pid_get_session(pid_t pid, var_na **ret_session);
+จำนวนเต็ม cg_pidref_get_session(const PidRef *pidref, var_na **ret);
+จำนวนเต็ม cg_pid_get_owner_uid(pid_t pid, uid_t *ret_uid);
+จำนวนเต็ม cg_pidref_get_owner_uid(const PidRef *pidref, uid_t *ret);
+จำนวนเต็ม cg_pid_get_unit_full(pid_t pid, var_na **ret_unit, var_na **ret_subgroup);
+static anta_hstha จำนวนเต็ม cg_pid_get_unit(pid_t pid, var_na **ret_unit) {
+        คืน cg_pid_get_unit_full(pid, ret_unit, NULL);
 }
-int cg_pidref_get_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_unit_full(pidref, ret_unit, NULL);
+จำนวนเต็ม cg_pidref_get_unit_full(const PidRef *pidref, var_na **ret_unit, var_na **ret_subgroup);
+static anta_hstha จำนวนเต็ม cg_pidref_get_unit(const PidRef *pidref, var_na **ret_unit) {
+        คืน cg_pidref_get_unit_full(pidref, ret_unit, NULL);
 }
-int cg_pid_get_user_unit_full(pid_t pid, char **ret_unit, char **ret_subgroup);
-static inline int cg_pid_get_user_unit(pid_t pid, char **ret_unit) {
-        return cg_pid_get_user_unit_full(pid, ret_unit, NULL);
+จำนวนเต็ม cg_pid_get_user_unit_full(pid_t pid, var_na **ret_unit, var_na **ret_subgroup);
+static anta_hstha จำนวนเต็ม cg_pid_get_user_unit(pid_t pid, var_na **ret_unit) {
+        คืน cg_pid_get_user_unit_full(pid, ret_unit, NULL);
 }
-int cg_pidref_get_user_unit_full(const PidRef *pidref, char **ret_unit, char **ret_subgroup);
-static inline int cg_pidref_get_user_unit(const PidRef *pidref, char **ret_unit) {
-        return cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
+จำนวนเต็ม cg_pidref_get_user_unit_full(const PidRef *pidref, var_na **ret_unit, var_na **ret_subgroup);
+static anta_hstha จำนวนเต็ม cg_pidref_get_user_unit(const PidRef *pidref, var_na **ret_unit) {
+        คืน cg_pidref_get_user_unit_full(pidref, ret_unit, NULL);
 }
-int cg_pid_get_machine_name(pid_t pid, char **ret_machine);
-int cg_pid_get_slice(pid_t pid, char **ret_slice);
-int cg_pid_get_user_slice(pid_t pid, char **ret_slice);
+จำนวนเต็ม cg_pid_get_machine_name(pid_t pid, var_na **ret_machine);
+จำนวนเต็ม cg_pid_get_slice(pid_t pid, var_na **ret_slice);
+จำนวนเต็ม cg_pid_get_user_slice(pid_t pid, var_na **ret_slice);
 
-int cg_path_decode_unit(const char *cgroup, char **ret_unit);
+จำนวนเต็ม cg_path_decode_unit(const var_na *cgroup, var_na **ret_unit);
 
-bool cg_needs_escape(const char *p) _pure_;
-int cg_escape(const char *p, char **ret);
-char* cg_unescape(const char *p) _pure_;
+bool cg_needs_escape(const var_na *p) _pure_;
+จำนวนเต็ม cg_escape(const var_na *p, var_na **ret);
+var_na* cg_unescape(const var_na *p) _pure_;
 
-int cg_slice_to_path(const char *unit, char **ret);
+จำนวนเต็ม cg_slice_to_path(const var_na *unit, var_na **ret);
 
-int cg_mask_supported(CGroupMask *ret);
-int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
-int cg_mask_from_string(const char *s, CGroupMask *ret);
-int cg_mask_to_string(CGroupMask mask, char **ret);
+จำนวนเต็ม cg_mask_supported(CGroupMask *ret);
+จำนวนเต็ม cg_mask_supported_subtree(const var_na *root, CGroupMask *ret);
+จำนวนเต็ม cg_mask_from_string(const var_na *s, CGroupMask *ret);
+จำนวนเต็ม cg_mask_to_string(CGroupMask mask, var_na **ret);
 
 bool cg_kill_supported(void);
 
 DECLARE_STRING_TABLE_LOOKUP(cgroup_controller, CGroupController);
 
-typedef enum ManagedOOMMode {
+typedef ga_nanaa ManagedOOMMode {
         MANAGED_OOM_AUTO,
         MANAGED_OOM_KILL,
         _MANAGED_OOM_MODE_MAX,
@@ -248,7 +248,7 @@ typedef enum ManagedOOMMode {
 
 DECLARE_STRING_TABLE_LOOKUP(managed_oom_mode, ManagedOOMMode);
 
-typedef enum ManagedOOMPreference {
+typedef ga_nanaa ManagedOOMPreference {
         MANAGED_OOM_PREFERENCE_NONE = 0,
         MANAGED_OOM_PREFERENCE_AVOID = 1,
         MANAGED_OOM_PREFERENCE_OMIT = 2,

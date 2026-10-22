@@ -10,99 +10,99 @@
 #include "strv.h"
 #include "utf8.h"
 
-int cescape_char(char c, char *buf) {
-        char *buf_old = buf;
+จำนวนเต็ม cescape_char(var_na c, var_na *buf) {
+        var_na *buf_old = buf;
 
         /* Needs space for 4 characters in the buffer */
 
         switch (c) {
 
-                case '\a':
+                pak_sa '\a':
                         *(buf++) = '\\';
                         *(buf++) = 'a';
-                        break;
-                case '\b':
+                        bha_nga;
+                pak_sa '\b':
                         *(buf++) = '\\';
                         *(buf++) = 'b';
-                        break;
-                case '\f':
+                        bha_nga;
+                pak_sa '\f':
                         *(buf++) = '\\';
                         *(buf++) = 'f';
-                        break;
-                case '\n':
+                        bha_nga;
+                pak_sa '\n':
                         *(buf++) = '\\';
                         *(buf++) = 'n';
-                        break;
-                case '\r':
+                        bha_nga;
+                pak_sa '\r':
                         *(buf++) = '\\';
                         *(buf++) = 'r';
-                        break;
-                case '\t':
+                        bha_nga;
+                pak_sa '\t':
                         *(buf++) = '\\';
                         *(buf++) = 't';
-                        break;
-                case '\v':
+                        bha_nga;
+                pak_sa '\v':
                         *(buf++) = '\\';
                         *(buf++) = 'v';
-                        break;
-                case '\\':
+                        bha_nga;
+                pak_sa '\\':
                         *(buf++) = '\\';
                         *(buf++) = '\\';
-                        break;
-                case '"':
+                        bha_nga;
+                pak_sa '"':
                         *(buf++) = '\\';
                         *(buf++) = '"';
-                        break;
-                case '\'':
+                        bha_nga;
+                pak_sa '\'':
                         *(buf++) = '\\';
                         *(buf++) = '\'';
-                        break;
+                        bha_nga;
 
                 default:
                         /* For special chars we prefer octal over
                          * hexadecimal encoding, simply because glib's
                          * g_strescape() does the same */
-                        if ((c < ' ') || (c >= 127)) {
+                        ถ้า ((c < ' ') || (c >= 127)) {
                                 *(buf++) = '\\';
-                                *(buf++) = octchar((unsigned char) c >> 6);
-                                *(buf++) = octchar((unsigned char) c >> 3);
-                                *(buf++) = octchar((unsigned char) c);
-                        } else
+                                *(buf++) = octchar((unsigned var_na) c >> 6);
+                                *(buf++) = octchar((unsigned var_na) c >> 3);
+                                *(buf++) = octchar((unsigned var_na) c);
+                        } มิฉะนั้น
                                 *(buf++) = c;
-                        break;
+                        bha_nga;
         }
 
-        return buf - buf_old;
+        คืน buf - buf_old;
 }
 
-char* cescape_length(const char *s, size_t n) {
-        const char *f;
-        char *r, *t;
+var_na* cescape_length(const var_na *s, size_t n) {
+        const var_na *f;
+        var_na *r, *t;
 
         /* Does C style string escaping. May be reversed with cunescape(). */
 
         assert(s || n == 0);
 
-        if (n == SIZE_MAX)
+        ถ้า (n == SIZE_MAX)
                 n = strlen(s);
 
-        if (n > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ถ้า (n > (SIZE_MAX - 1) / 4)
+                คืน NULL;
 
-        r = new(char, n*4 + 1);
-        if (!r)
-                return NULL;
+        r = new(var_na, n*4 + 1);
+        ถ้า (!r)
+                คืน NULL;
 
-        for (f = s, t = r; f < s + n; f++)
+        สำหรับ (f = s, t = r; f < s + n; f++)
                 t += cescape_char(*f, t);
 
         *t = 0;
 
-        return r;
+        คืน r;
 }
 
-int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
-        int r = 1;
+จำนวนเต็ม cunescape_one(const var_na *p, size_t length, char32_t *ret, bool *eight_bit, bool accept_nul) {
+        จำนวนเต็ม r = 1;
 
         assert(p);
         assert(ret);
@@ -114,212 +114,212 @@ int cunescape_one(const char *p, size_t length, char32_t *ret, bool *eight_bit, 
          * instead be copied directly.
          */
 
-        if (length != SIZE_MAX && length < 1)
-                return -EINVAL;
+        ถ้า (length != SIZE_MAX && length < 1)
+                คืน -EINVAL;
 
         switch (p[0]) {
 
-        case 'a':
+        pak_sa 'a':
                 *ret = '\a';
-                break;
-        case 'b':
+                bha_nga;
+        pak_sa 'b':
                 *ret = '\b';
-                break;
-        case 'f':
+                bha_nga;
+        pak_sa 'f':
                 *ret = '\f';
-                break;
-        case 'n':
+                bha_nga;
+        pak_sa 'n':
                 *ret = '\n';
-                break;
-        case 'r':
+                bha_nga;
+        pak_sa 'r':
                 *ret = '\r';
-                break;
-        case 't':
+                bha_nga;
+        pak_sa 't':
                 *ret = '\t';
-                break;
-        case 'v':
+                bha_nga;
+        pak_sa 'v':
                 *ret = '\v';
-                break;
-        case '\\':
+                bha_nga;
+        pak_sa '\\':
                 *ret = '\\';
-                break;
-        case '"':
+                bha_nga;
+        pak_sa '"':
                 *ret = '"';
-                break;
-        case '\'':
+                bha_nga;
+        pak_sa '\'':
                 *ret = '\'';
-                break;
+                bha_nga;
 
-        case 's':
+        pak_sa 's':
                 /* This is an extension of the XDG syntax files */
                 *ret = ' ';
-                break;
+                bha_nga;
 
-        case 'x': {
+        pak_sa 'x': {
                 /* hexadecimal encoding */
-                int a, b;
+                จำนวนเต็ม a, b;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                ถ้า (length != SIZE_MAX && length < 3)
+                        คืน -EINVAL;
 
                 a = unhexchar(p[1]);
-                if (a < 0)
-                        return -EINVAL;
+                ถ้า (a < 0)
+                        คืน -EINVAL;
 
                 b = unhexchar(p[2]);
-                if (b < 0)
-                        return -EINVAL;
+                ถ้า (b < 0)
+                        คืน -EINVAL;
 
                 /* Don't allow NUL bytes */
-                if (a == 0 && b == 0 && !accept_nul)
-                        return -EINVAL;
+                ถ้า (a == 0 && b == 0 && !accept_nul)
+                        คืน -EINVAL;
 
                 *ret = (a << 4U) | b;
                 *eight_bit = true;
                 r = 3;
-                break;
+                bha_nga;
         }
 
-        case 'u': {
+        pak_sa 'u': {
                 /* C++11 style 16-bit unicode */
 
-                int a[4];
+                จำนวนเต็ม a[4];
                 size_t i;
                 uint32_t c;
 
-                if (length != SIZE_MAX && length < 5)
-                        return -EINVAL;
+                ถ้า (length != SIZE_MAX && length < 5)
+                        คืน -EINVAL;
 
-                for (i = 0; i < 4; i++) {
+                สำหรับ (i = 0; i < 4; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        ถ้า (a[i] < 0)
+                                คืน a[i];
                 }
 
                 c = ((uint32_t) a[0] << 12U) | ((uint32_t) a[1] << 8U) | ((uint32_t) a[2] << 4U) | (uint32_t) a[3];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                ถ้า (c == 0 && !accept_nul)
+                        คืน -EINVAL;
 
                 /* Don't allow UTF-16 surrogates, they cannot be encoded as valid UTF-8. Note we
                  * deliberately do *not* use unichar_is_valid() here (unlike the \U case below):
                  * it also rejects noncharacters such as U+FFFE, which callers legitimately round-trip
                  * through \u (e.g. systemd.mount-extra= parsing, see test-fstab-generator). */
-                if (utf16_is_surrogate(c))
-                        return -EINVAL;
+                ถ้า (utf16_is_surrogate(c))
+                        คืน -EINVAL;
 
                 *ret = c;
                 r = 5;
-                break;
+                bha_nga;
         }
 
-        case 'U': {
+        pak_sa 'U': {
                 /* C++11 style 32-bit unicode */
 
-                int a[8];
+                จำนวนเต็ม a[8];
                 size_t i;
                 char32_t c;
 
-                if (length != SIZE_MAX && length < 9)
-                        return -EINVAL;
+                ถ้า (length != SIZE_MAX && length < 9)
+                        คืน -EINVAL;
 
-                for (i = 0; i < 8; i++) {
+                สำหรับ (i = 0; i < 8; i++) {
                         a[i] = unhexchar(p[1 + i]);
-                        if (a[i] < 0)
-                                return a[i];
+                        ถ้า (a[i] < 0)
+                                คืน a[i];
                 }
 
                 c = ((uint32_t) a[0] << 28U) | ((uint32_t) a[1] << 24U) | ((uint32_t) a[2] << 20U) | ((uint32_t) a[3] << 16U) |
                     ((uint32_t) a[4] << 12U) | ((uint32_t) a[5] <<  8U) | ((uint32_t) a[6] <<  4U) |  (uint32_t) a[7];
 
                 /* Don't allow 0 chars */
-                if (c == 0 && !accept_nul)
-                        return -EINVAL;
+                ถ้า (c == 0 && !accept_nul)
+                        คืน -EINVAL;
 
                 /* Don't allow invalid code points */
-                if (!unichar_is_valid(c))
-                        return -EINVAL;
+                ถ้า (!unichar_is_valid(c))
+                        คืน -EINVAL;
 
                 *ret = c;
                 r = 9;
-                break;
+                bha_nga;
         }
 
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7': {
+        pak_sa '0':
+        pak_sa '1':
+        pak_sa '2':
+        pak_sa '3':
+        pak_sa '4':
+        pak_sa '5':
+        pak_sa '6':
+        pak_sa '7': {
                 /* octal encoding */
-                int a, b, c;
+                จำนวนเต็ม a, b, c;
                 char32_t m;
 
-                if (length != SIZE_MAX && length < 3)
-                        return -EINVAL;
+                ถ้า (length != SIZE_MAX && length < 3)
+                        คืน -EINVAL;
 
                 a = unoctchar(p[0]);
-                if (a < 0)
-                        return -EINVAL;
+                ถ้า (a < 0)
+                        คืน -EINVAL;
 
                 b = unoctchar(p[1]);
-                if (b < 0)
-                        return -EINVAL;
+                ถ้า (b < 0)
+                        คืน -EINVAL;
 
                 c = unoctchar(p[2]);
-                if (c < 0)
-                        return -EINVAL;
+                ถ้า (c < 0)
+                        คืน -EINVAL;
 
                 /* don't allow NUL bytes */
-                if (a == 0 && b == 0 && c == 0 && !accept_nul)
-                        return -EINVAL;
+                ถ้า (a == 0 && b == 0 && c == 0 && !accept_nul)
+                        คืน -EINVAL;
 
                 /* Don't allow bytes above 255 */
                 m = ((uint32_t) a << 6U) | ((uint32_t) b << 3U) | (uint32_t) c;
-                if (m > 255)
-                        return -EINVAL;
+                ถ้า (m > 255)
+                        คืน -EINVAL;
 
                 *ret = m;
                 *eight_bit = true;
                 r = 3;
-                break;
+                bha_nga;
         }
 
         default:
-                return -EINVAL;
+                คืน -EINVAL;
         }
 
-        return r;
+        คืน r;
 }
 
-ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *prefix, UnescapeFlags flags, char **ret) {
-        _cleanup_free_ char *ans = NULL;
-        char *t;
-        const char *f;
+ssize_t cunescape_length_with_prefix(const var_na *s, size_t length, const var_na *prefix, UnescapeFlags flags, var_na **ret) {
+        _cleanup_free_ var_na *ans = NULL;
+        var_na *t;
+        const var_na *f;
         size_t pl;
-        int r;
+        จำนวนเต็ม r;
 
         assert(s);
         assert(ret);
 
         /* Undoes C style string escaping, and optionally prefixes it. */
 
-        if (length == SIZE_MAX)
+        ถ้า (length == SIZE_MAX)
                 length = strlen(s);
 
         pl = strlen_ptr(prefix);
 
-        ans = new(char, pl+length+1);
-        if (!ans)
-                return -ENOMEM;
+        ans = new(var_na, pl+length+1);
+        ถ้า (!ans)
+                คืน -ENOMEM;
 
-        if (prefix)
+        ถ้า (prefix)
                 memcpy(ans, prefix, pl);
 
-        for (f = s, t = ans + pl; f < s + length; f++) {
+        สำหรับ (f = s, t = ans + pl; f < s + length; f++) {
                 size_t remaining;
                 bool eight_bit = false;
                 char32_t u;
@@ -327,38 +327,38 @@ ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *p
                 remaining = s + length - f;
                 assert(remaining > 0);
 
-                if (*f != '\\') {
+                ถ้า (*f != '\\') {
                         /* A literal, copy verbatim */
                         *(t++) = *f;
                         continue;
                 }
 
-                if (remaining == 1) {
-                        if (flags & UNESCAPE_RELAX) {
+                ถ้า (remaining == 1) {
+                        ถ้า (flags & UNESCAPE_RELAX) {
                                 /* A trailing backslash, copy verbatim */
                                 *(t++) = *f;
                                 continue;
                         }
 
-                        return -EINVAL;
+                        คืน -EINVAL;
                 }
 
                 r = cunescape_one(f + 1, remaining - 1, &u, &eight_bit, flags & UNESCAPE_ACCEPT_NUL);
-                if (r < 0) {
-                        if (flags & UNESCAPE_RELAX) {
+                ถ้า (r < 0) {
+                        ถ้า (flags & UNESCAPE_RELAX) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '\\';
                                 continue;
                         }
 
-                        return r;
+                        คืน r;
                 }
 
                 f += r;
-                if (eight_bit)
+                ถ้า (eight_bit)
                         /* One byte? Set directly as specified */
                         *(t++) = u;
-                else
+                มิฉะนั้น
                         /* Otherwise encode as multi-byte UTF-8 */
                         t += utf8_encode_unichar(t, u);
         }
@@ -367,12 +367,12 @@ ssize_t cunescape_length_with_prefix(const char *s, size_t length, const char *p
 
         assert(t >= ans); /* Let static analyzers know that the answer is non-negative. */
         *ret = TAKE_PTR(ans);
-        return t - *ret;
+        คืน t - *ret;
 }
 
-char* xescape_full(const char *s, const char *bad, size_t console_width, XEscapeFlags flags) {
-        char *ans, *t, *prev, *prev2;
-        const char *f;
+var_na* xescape_full(const var_na *s, const var_na *bad, size_t console_width, XEscapeFlags flags) {
+        var_na *ans, *t, *prev, *prev2;
+        const var_na *f;
 
         assert(s);
 
@@ -383,44 +383,44 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
          * If console_width is reached, or XESCAPE_FORCE_ELLIPSIS is set, output is truncated and "..." is
          * appended. */
 
-        if (console_width == 0)
-                return strdup("");
+        ถ้า (console_width == 0)
+                คืน strdup("");
 
         size_t len_forced_ellipsis = FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS) ? STRLEN("...") : 0;
         size_t len_s = strlen(s);
 
         size_t len_body = MIN(console_width, SIZE_MAX - 1); /* We need room for the NUL byte */
-        if (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
+        ถ้า (len_body > len_forced_ellipsis && len_s <= (len_body - len_forced_ellipsis) / 4)
                 len_body = len_s * 4 + len_forced_ellipsis;
 
-        ans = new(char, len_body + 1);
-        if (!ans)
-                return NULL;
+        ans = new(var_na, len_body + 1);
+        ถ้า (!ans)
+                คืน NULL;
 
-        for (f = s, t = prev = prev2 = ans; ; f++) {
-                char *tmp_t = t;
+        สำหรับ (f = s, t = prev = prev2 = ans; ; f++) {
+                var_na *tmp_t = t;
 
-                if (!*f) {
-                        if (len_forced_ellipsis != 0)
-                                break;
+                ถ้า (!*f) {
+                        ถ้า (len_forced_ellipsis != 0)
+                                bha_nga;
 
                         *t = 0;
-                        return ans;
+                        คืน ans;
                 }
 
-                if ((unsigned char) *f < ' ' ||
-                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned char) *f >= 127) ||
+                ถ้า ((unsigned var_na) *f < ' ' ||
+                    (!FLAGS_SET(flags, XESCAPE_8_BIT) && (unsigned var_na) *f >= 127) ||
                     *f == '\\' || (bad && strchr(bad, *f))) {
-                        if ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
-                                break;
+                        ถ้า ((size_t) (t - ans) + 4 + len_forced_ellipsis > len_body)
+                                bha_nga;
 
                         *(t++) = '\\';
                         *(t++) = 'x';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else {
-                        if ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
-                                break;
+                } มิฉะนั้น {
+                        ถ้า ((size_t) (t - ans) + 1 + len_forced_ellipsis > len_body)
+                                bha_nga;
 
                         *(t++) = *f;
                 }
@@ -433,166 +433,166 @@ char* xescape_full(const char *s, const char *bad, size_t console_width, XEscape
         /* We can just write where we want, since chars are one-byte */
         size_t c = MIN(len_body, STRLEN("...")); /* If the console is too narrow, write fewer dots */
         size_t off;
-        if (len_body - c >= (size_t) (t - ans))
+        ถ้า (len_body - c >= (size_t) (t - ans))
                 off = (size_t) (t - ans);
-        else if (len_body - c >= (size_t) (prev - ans))
+        มิฉะนั้น ถ้า (len_body - c >= (size_t) (prev - ans))
                 off = (size_t) (prev - ans);
-        else if (len_body - c >= (size_t) (prev2 - ans))
+        มิฉะนั้น ถ้า (len_body - c >= (size_t) (prev2 - ans))
                 off = (size_t) (prev2 - ans);
-        else
+        มิฉะนั้น
                 off = len_body - c;
         assert(off <= (size_t) (t - ans));
 
         memcpy(ans + off, "...", c);
         ans[off + c] = '\0';
-        return ans;
+        คืน ans;
 }
 
-char* escape_non_printable_full(const char *str, size_t console_width, XEscapeFlags flags) {
-        if (FLAGS_SET(flags, XESCAPE_8_BIT))
-                return xescape_full(str, /* bad= */ NULL, console_width, flags);
-        else
-                return utf8_escape_non_printable_full(str,
+var_na* escape_non_printable_full(const var_na *str, size_t console_width, XEscapeFlags flags) {
+        ถ้า (FLAGS_SET(flags, XESCAPE_8_BIT))
+                คืน xescape_full(str, /* bad= */ NULL, console_width, flags);
+        มิฉะนั้น
+                คืน utf8_escape_non_printable_full(str,
                                                       console_width,
                                                       FLAGS_SET(flags, XESCAPE_FORCE_ELLIPSIS));
 }
 
-char* octescape_full(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+var_na* octescape_full(const var_na *s, size_t len, const var_na *bad) {
+        var_na *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn octal style escaping. May be
          * reversed with cunescape(). */
 
         assert(s || len == 0);
 
-        if (len == SIZE_MAX)
+        ถ้า (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ถ้า (len > (SIZE_MAX - 1) / 4)
+                คืน NULL;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(var_na, len * 4 + 1);
+        ถ้า (!buf)
+                คืน NULL;
 
-        for (size_t i = 0; i < len; i++) {
+        สำหรับ (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
+                ถ้า (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || (bad && strchr(bad, u))) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u >> 6);
                         *(t++) = '0' + ((u >> 3) & 7);
                         *(t++) = '0' + (u & 7);
-                } else
+                } มิฉะนั้น
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        คืน buf;
 }
 
-char* decescape(const char *s, size_t len, const char *bad) {
-        char *buf, *t;
+var_na* decescape(const var_na *s, size_t len, const var_na *bad) {
+        var_na *buf, *t;
 
         /* Escapes all chars in bad, in addition to \ and " chars, in \nnn decimal style escaping. */
 
         assert(s || len == 0);
 
-        if (len == SIZE_MAX)
+        ถ้า (len == SIZE_MAX)
                 len = strlen(s);
 
-        if (len > (SIZE_MAX - 1) / 4)
-                return NULL;
+        ถ้า (len > (SIZE_MAX - 1) / 4)
+                คืน NULL;
 
-        t = buf = new(char, len * 4 + 1);
-        if (!buf)
-                return NULL;
+        t = buf = new(var_na, len * 4 + 1);
+        ถ้า (!buf)
+                คืน NULL;
 
-        for (size_t i = 0; i < len; i++) {
+        สำหรับ (size_t i = 0; i < len; i++) {
                 uint8_t u = (uint8_t) s[i];
 
-                if (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
+                ถ้า (u < ' ' || u >= 127 || IN_SET(u, '\\', '"') || strchr(bad, u)) {
                         *(t++) = '\\';
                         *(t++) = '0' + (u / 100);
                         *(t++) = '0' + ((u / 10) % 10);
                         *(t++) = '0' + (u % 10);
-                } else
+                } มิฉะนั้น
                         *(t++) = u;
         }
 
         *t = 0;
-        return buf;
+        คืน buf;
 }
 
-static char* strcpy_backslash_escaped(char *t, const char *s, const char *bad) {
+static var_na* strcpy_backslash_escaped(var_na *t, const var_na *s, const var_na *bad) {
         assert(bad);
         assert(t);
         assert(s);
 
-        while (*s) {
-                int l = utf8_encoded_valid_unichar(s, SIZE_MAX);
+        ขณะ (*s) {
+                จำนวนเต็ม l = utf8_encoded_valid_unichar(s, SIZE_MAX);
 
-                if (char_is_cc(*s) || l < 0)
+                ถ้า (char_is_cc(*s) || l < 0)
                         t += cescape_char(*(s++), t);
-                else if (l == 1) {
-                        if (*s == '\\' || strchr(bad, *s))
+                มิฉะนั้น ถ้า (l == 1) {
+                        ถ้า (*s == '\\' || strchr(bad, *s))
                                 *(t++) = '\\';
                         *(t++) = *(s++);
-                } else {
+                } มิฉะนั้น {
                         t = mempcpy(t, s, l);
                         s += l;
                 }
         }
 
-        return t;
+        คืน t;
 }
 
-char* shell_escape(const char *s, const char *bad) {
-        char *buf, *t;
+var_na* shell_escape(const var_na *s, const var_na *bad) {
+        var_na *buf, *t;
 
-        buf = new(char, strlen(s)*4+1);
-        if (!buf)
-                return NULL;
+        buf = new(var_na, strlen(s)*4+1);
+        ถ้า (!buf)
+                คืน NULL;
 
         t = strcpy_backslash_escaped(buf, s, bad);
         *t = 0;
 
-        return buf;
+        คืน buf;
 }
 
-char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
-        const char *p;
-        char *buf, *t;
+var_na* shell_maybe_quote(const var_na *s, ShellEscapeFlags flags) {
+        const var_na *p;
+        var_na *buf, *t;
 
         assert(s);
 
         /* Encloses a string in quotes if necessary to make it OK as a shell string. */
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
-                return strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
+        ถ้า (FLAGS_SET(flags, SHELL_ESCAPE_EMPTY) && isempty(s))
+                คืน strdup("\"\""); /* We don't use $'' here in the POSIX mode. "" is fine too. */
 
-        for (p = s; *p; ) {
-                int l = utf8_encoded_valid_unichar(p, SIZE_MAX);
+        สำหรับ (p = s; *p; ) {
+                จำนวนเต็ม l = utf8_encoded_valid_unichar(p, SIZE_MAX);
 
-                if (char_is_cc(*p) || l < 0 ||
+                ถ้า (char_is_cc(*p) || l < 0 ||
                     strchr(WHITESPACE SHELL_NEED_QUOTES, *p))
-                        break;
+                        bha_nga;
 
                 p += l;
         }
 
-        if (!*p)
-                return strdup(s);
+        ถ้า (!*p)
+                คืน strdup(s);
 
-        buf = new(char, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
-        if (!buf)
-                return NULL;
+        buf = new(var_na, FLAGS_SET(flags, SHELL_ESCAPE_POSIX) + 1 + strlen(s)*4 + 1 + 1);
+        ถ้า (!buf)
+                คืน NULL;
 
         t = buf;
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
+        ถ้า (FLAGS_SET(flags, SHELL_ESCAPE_POSIX)) {
                 *(t++) = '$';
                 *(t++) = '\'';
-        } else
+        } มิฉะนั้น
                 *(t++) = '"';
 
         t = mempcpy(t, s, p - s);
@@ -600,30 +600,30 @@ char* shell_maybe_quote(const char *s, ShellEscapeFlags flags) {
         t = strcpy_backslash_escaped(t, p,
                                      FLAGS_SET(flags, SHELL_ESCAPE_POSIX) ? SHELL_NEED_ESCAPE_POSIX : SHELL_NEED_ESCAPE);
 
-        if (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
+        ถ้า (FLAGS_SET(flags, SHELL_ESCAPE_POSIX))
                 *(t++) = '\'';
-        else
+        มิฉะนั้น
                 *(t++) = '"';
         *t = 0;
 
-        return str_realloc(buf);
+        คืน str_realloc(buf);
 }
 
-char* quote_command_line(char * const *argv, ShellEscapeFlags flags) {
-        _cleanup_free_ char *result = NULL;
+var_na* quote_command_line(var_na * const *argv, ShellEscapeFlags flags) {
+        _cleanup_free_ var_na *result = NULL;
 
         assert(argv);
 
         STRV_FOREACH(a, argv) {
-                _cleanup_free_ char *t = NULL;
+                _cleanup_free_ var_na *t = NULL;
 
                 t = shell_maybe_quote(*a, flags);
-                if (!t)
-                        return NULL;
+                ถ้า (!t)
+                        คืน NULL;
 
-                if (!strextend_with_separator(&result, " ", t))
-                        return NULL;
+                ถ้า (!strextend_with_separator(&result, " ", t))
+                        คืน NULL;
         }
 
-        return str_realloc(TAKE_PTR(result));
+        คืน str_realloc(TAKE_PTR(result));
 }

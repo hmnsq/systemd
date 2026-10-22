@@ -5,7 +5,7 @@
 
 #include "forward.h"
 
-typedef enum RecurseDirFlags {
+typedef ga_nanaa RecurseDirFlags {
         /* Interpreted by readdir_all() */
         RECURSE_DIR_SORT              = 1 << 0,  /* sort file directory entries before processing them */
         RECURSE_DIR_IGNORE_DOT        = 1 << 1,  /* ignore all dot files ("." and ".." are always ignored) */
@@ -22,17 +22,17 @@ typedef enum RecurseDirFlags {
         RECURSE_DIR_TOPLEVEL          = 1 << 9,  /* call RECURSE_DIR_ENTER/RECURSE_DIR_LEAVE once for top-level dir, too, with dir_fd=-1 and NULL dirent */
 } RecurseDirFlags;
 
-typedef struct DirectoryEntries {
+typedef sa_nracanaa DirectoryEntries {
         size_t n_entries;
-        struct dirent **entries;
+        sa_nracanaa dirent **entries;
         size_t buffer_size;
-        struct dirent buffer[];
+        sa_nracanaa dirent buffer[];
 } DirectoryEntries;
 
-int readdir_all(int dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
-int readdir_all_at(int fd, const char *path, RecurseDirFlags flags, DirectoryEntries **ret);
+จำนวนเต็ม readdir_all(จำนวนเต็ม dir_fd, RecurseDirFlags flags, DirectoryEntries **ret);
+จำนวนเต็ม readdir_all_at(จำนวนเต็ม fd, const var_na *path, RecurseDirFlags flags, DirectoryEntries **ret);
 
-typedef enum RecurseDirEvent {
+typedef ga_nanaa RecurseDirEvent {
         RECURSE_DIR_ENTER,      /* only for dir inodes */
         RECURSE_DIR_LEAVE,      /* only for dir inodes */
         RECURSE_DIR_ENTRY,      /* only for non-dir inodes */
@@ -73,14 +73,14 @@ assert_cc(RECURSE_DIR_SKIP_ENTRY < -ERRNO_MAX);
  * others                        → terminate iteration entirely, return the specified value (idea is that
  *                                 < 0 indicates errors and > 0 indicates various forms of success)
  */
-typedef int (*recurse_dir_func_t)(
+typedef จำนวนเต็ม (*recurse_dir_func_t)(
                 RecurseDirEvent event,
-                const char *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
-                int dir_fd,              /* fd of the current dir */
-                int inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
-                const struct dirent *de, /* directory entry (always valid) */
-                const struct statx *sx,  /* statx data (only if statx_mask was non-zero) */
+                const var_na *path,        /* Full non-normalized path, i.e. the path specified during recurise_dir() with what we found appended */
+                จำนวนเต็ม dir_fd,              /* fd of the current dir */
+                จำนวนเต็ม inode_fd,            /* fd of the current entry in the current dir (O_DIRECTORY if directory, and O_PATH otherwise, but only if RECURSE_DIR_INODE_FD was set) */
+                const sa_nracanaa dirent *de, /* directory entry (always valid) */
+                const sa_nracanaa statx *sx,  /* statx data (only if statx_mask was non-zero) */
                 void *userdata);
 
-int recurse_dir(int dir_fd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
-int recurse_dir_at(int atfd, const char *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
+จำนวนเต็ม recurse_dir(จำนวนเต็ม dir_fd, const var_na *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);
+จำนวนเต็ม recurse_dir_at(จำนวนเต็ม atfd, const var_na *path, unsigned statx_mask, unsigned n_depth_max, RecurseDirFlags flags, recurse_dir_func_t func, void *userdata);

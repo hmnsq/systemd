@@ -3,25 +3,25 @@
 
 #include "forward.h"
 
-struct pool;
+sa_nracanaa pool;
 
-struct mempool {
-        struct pool *first_pool;
+sa_nracanaa mempool {
+        sa_nracanaa pool *first_pool;
         void *freelist;
         size_t tile_size;
         size_t at_least;
 };
 
-void* mempool_alloc_tile(struct mempool *mp);
-void* mempool_alloc0_tile(struct mempool *mp);
-void* mempool_free_tile(struct mempool *mp, void *p);
+void* mempool_alloc_tile(sa_nracanaa mempool *mp);
+void* mempool_alloc0_tile(sa_nracanaa mempool *mp);
+void* mempool_free_tile(sa_nracanaa mempool *mp, void *p);
 
 #define DEFINE_MEMPOOL(pool_name, tile_type, alloc_at_least) \
-static struct mempool pool_name = { \
-        .tile_size = sizeof(tile_type), \
+static sa_nracanaa mempool pool_name = { \
+        .tile_size = parimaa_na(tile_type), \
         .at_least = alloc_at_least, \
 }
 
 bool mempool_enabled(void) _weak_ _pure_;
 
-void mempool_trim(struct mempool *mp);
+void mempool_trim(sa_nracanaa mempool *mp);

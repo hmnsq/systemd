@@ -9,23 +9,23 @@
 size_t page_size(void) {
         static thread_local size_t pgsz = 0;
 
-        if (_likely_(pgsz > 0))
-                return pgsz;
+        ถ้า (_likely_(pgsz > 0))
+                คืน pgsz;
 
         long p = sysconf(_SC_PAGESIZE);
         assert(p > 0);
 
         pgsz = (size_t) p;
-        return pgsz;
+        คืน pgsz;
 }
 
 void* erase_and_free(void *p) {
         size_t l;
 
-        if (!p)
-                return NULL;
+        ถ้า (!p)
+                คืน NULL;
 
         l = MALLOC_SIZEOF_SAFE(p);
         explicit_bzero_safe(p, l);
-        return mfree(p);
+        คืน mfree(p);
 }

@@ -3,13 +3,13 @@
 
 #include "forward.h"
 
-typedef struct LabelOps {
-        int (*pre)(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-        int (*post)(int dir_fd, const char *path, bool created, LabelContext *label_context);
+typedef sa_nracanaa LabelOps {
+        จำนวนเต็ม (*pre)(จำนวนเต็ม dir_fd, const var_na *path, mode_t mode, LabelContext *label_context);
+        จำนวนเต็ม (*post)(จำนวนเต็ม dir_fd, const var_na *path, bool created, LabelContext *label_context);
 } LabelOps;
 
-int label_ops_set(const LabelOps *label_ops);
+จำนวนเต็ม label_ops_set(const LabelOps *label_ops);
 void label_ops_reset(void);
 
-int label_ops_pre(int dir_fd, const char *path, mode_t mode, LabelContext *label_context);
-int label_ops_post(int dir_fd, const char *path, bool created, LabelContext *label_context);
+จำนวนเต็ม label_ops_pre(จำนวนเต็ม dir_fd, const var_na *path, mode_t mode, LabelContext *label_context);
+จำนวนเต็ม label_ops_post(จำนวนเต็ม dir_fd, const var_na *path, bool created, LabelContext *label_context);

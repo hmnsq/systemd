@@ -32,36 +32,36 @@
          FS_NOCOW_FL        |                   \
          FS_PROJINHERIT_FL)
 
-typedef enum ChattrApplyFlags {
+typedef ga_nanaa ChattrApplyFlags {
         CHATTR_FALLBACK_BITWISE       = 1 << 0,
         CHATTR_WARN_UNSUPPORTED_FLAGS = 1 << 1,
 } ChattrApplyFlags;
 
-int chattr_full(int dir_fd, const char *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
-static inline int chattr_at(int dir_fd, const char *path, unsigned value, unsigned mask) {
-        return chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
+จำนวนเต็ม chattr_full(จำนวนเต็ม dir_fd, const var_na *path, unsigned value, unsigned mask, unsigned *ret_previous, unsigned *ret_final, ChattrApplyFlags flags);
+static anta_hstha จำนวนเต็ม chattr_at(จำนวนเต็ม dir_fd, const var_na *path, unsigned value, unsigned mask) {
+        คืน chattr_full(dir_fd, path, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_fd(int fd, unsigned value, unsigned mask) {
-        return chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
+static anta_hstha จำนวนเต็ม chattr_fd(จำนวนเต็ม fd, unsigned value, unsigned mask) {
+        คืน chattr_full(fd, NULL, value, mask, NULL, NULL, 0);
 }
-static inline int chattr_path(const char *path, unsigned value, unsigned mask) {
-        return chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
+static anta_hstha จำนวนเต็ม chattr_path(const var_na *path, unsigned value, unsigned mask) {
+        คืน chattr_full(AT_FDCWD, path, value, mask, NULL, NULL, 0);
 }
 
-int read_attr_fd(int fd, unsigned *ret);
-int read_attr_at(int dir_fd, const char *path, unsigned *ret);
-int read_fs_xattr_fd(int fd, uint32_t *ret_xflags, uint32_t *ret_projid);
+จำนวนเต็ม read_attr_fd(จำนวนเต็ม fd, unsigned *ret);
+จำนวนเต็ม read_attr_at(จำนวนเต็ม dir_fd, const var_na *path, unsigned *ret);
+จำนวนเต็ม read_fs_xattr_fd(จำนวนเต็ม fd, uint32_t *ret_xflags, uint32_t *ret_projid);
 
-int set_proj_id(int fd, uint32_t proj_id);
-int set_proj_id_recursive(int fd, uint32_t proj_id);
+จำนวนเต็ม set_proj_id(จำนวนเต็ม fd, uint32_t proj_id);
+จำนวนเต็ม set_proj_id_recursive(จำนวนเต็ม fd, uint32_t proj_id);
 
 /* Combination of chattr flags, that should be appropriate for secrets stored on disk: Secure Remove +
  * Exclusion from Dumping + Synchronous Writing (i.e. not caching in memory) + In-Place Updating (i.e. not
  * spurious copies). */
 #define CHATTR_SECRET_FLAGS (FS_SECRM_FL|FS_NODUMP_FL|FS_SYNC_FL|FS_NOCOW_FL)
 
-static inline int chattr_secret(int fd, ChattrApplyFlags flags) {
-        return chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
+static anta_hstha จำนวนเต็ม chattr_secret(จำนวนเต็ม fd, ChattrApplyFlags flags) {
+        คืน chattr_full(fd, NULL, CHATTR_SECRET_FLAGS, CHATTR_SECRET_FLAGS, NULL, NULL, flags|CHATTR_FALLBACK_BITWISE);
 }
 
 bool inode_type_can_chattr(mode_t mode);

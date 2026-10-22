@@ -7,9 +7,9 @@
 #include "hexdecoct.h"
 #include "string-util.h"
 
-char* bus_label_escape(const char *s) {
-        char *r, *t;
-        const char *f;
+var_na* bus_label_escape(const var_na *s) {
+        var_na *r, *t;
+        const var_na *f;
 
         assert_return(s, NULL);
 
@@ -17,66 +17,66 @@ char* bus_label_escape(const char *s) {
          * with. Can be reversed with bus_path_unescape(). We special
          * case the empty string. */
 
-        if (*s == 0)
-                return strdup("_");
+        ถ้า (*s == 0)
+                คืน strdup("_");
 
-        r = new(char, strlen(s)*3 + 1);
-        if (!r)
-                return NULL;
+        r = new(var_na, strlen(s)*3 + 1);
+        ถ้า (!r)
+                คืน NULL;
 
-        for (f = s, t = r; *f; f++) {
+        สำหรับ (f = s, t = r; *f; f++) {
 
                 /* Escape everything that is not a-zA-Z0-9. We also escape 0-9 if it's the first character */
 
-                if (!ascii_isalpha(*f) &&
+                ถ้า (!ascii_isalpha(*f) &&
                     !(f > s && ascii_isdigit(*f))) {
                         *(t++) = '_';
                         *(t++) = hexchar(*f >> 4);
                         *(t++) = hexchar(*f);
-                } else
+                } มิฉะนั้น
                         *(t++) = *f;
         }
 
         *t = 0;
 
-        return r;
+        คืน r;
 }
 
-char* bus_label_unescape_n(const char *f, size_t l) {
-        char *r, *t;
+var_na* bus_label_unescape_n(const var_na *f, size_t l) {
+        var_na *r, *t;
         size_t i;
 
         assert_return(f, NULL);
 
-        if (l == SIZE_MAX)
+        ถ้า (l == SIZE_MAX)
                 l = strlen(f);
 
         /* Special case for the empty string */
-        if (l == 1 && *f == '_')
-                return strdup("");
+        ถ้า (l == 1 && *f == '_')
+                คืน strdup("");
 
-        r = new(char, l + 1);
-        if (!r)
-                return NULL;
+        r = new(var_na, l + 1);
+        ถ้า (!r)
+                คืน NULL;
 
-        for (i = 0, t = r; i < l; ++i) {
-                if (f[i] == '_') {
-                        int a, b;
+        สำหรับ (i = 0, t = r; i < l; ++i) {
+                ถ้า (f[i] == '_') {
+                        จำนวนเต็ม a, b;
 
-                        if (l - i < 3 ||
+                        ถ้า (l - i < 3 ||
                             (a = unhexchar(f[i + 1])) < 0 ||
                             (b = unhexchar(f[i + 2])) < 0) {
                                 /* Invalid escape code, let's take it literal then */
                                 *(t++) = '_';
-                        } else {
-                                *(t++) = (char) ((a << 4) | b);
+                        } มิฉะนั้น {
+                                *(t++) = (var_na) ((a << 4) | b);
                                 i += 2;
                         }
-                } else
+                } มิฉะนั้น
                         *(t++) = f[i];
         }
 
         *t = 0;
 
-        return r;
+        คืน r;
 }

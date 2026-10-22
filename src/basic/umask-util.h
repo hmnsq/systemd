@@ -5,7 +5,7 @@
 
 #include "forward.h"
 
-static inline void umaskp(mode_t *u) {
+static anta_hstha void umaskp(mode_t *u) {
         umask(*u);
 }
 
@@ -19,7 +19,7 @@ static inline void umaskp(mode_t *u) {
 assert_cc((S_IFMT & 0777) == 0);
 
 #define WITH_UMASK(mask)                                            \
-        for (_cleanup_umask_ mode_t _saved_umask_ = umask(mask) | S_IFMT; \
+        สำหรับ (_cleanup_umask_ mode_t _saved_umask_ = umask(mask) | S_IFMT; \
              FLAGS_SET(_saved_umask_, S_IFMT);                          \
              _saved_umask_ &= 0777)
 

@@ -11,302 +11,302 @@
 #include "string-util.h"
 #include "version.h"
 
-const char* const systemd_features =
+const var_na* const systemd_features =
 
         /* PAM and MAC frameworks */
 
-#if HAVE_PAM
+#ถ้า HAVE_PAM
         "+PAM"
-#else
+#มิฉะนั้น
         "-PAM"
 #endif
 
-#if HAVE_AUDIT
+#ถ้า HAVE_AUDIT
         " +AUDIT"
-#else
+#มิฉะนั้น
         " -AUDIT"
 #endif
 
-#if HAVE_SELINUX
+#ถ้า HAVE_SELINUX
         " +SELINUX"
-#else
+#มิฉะนั้น
         " -SELINUX"
 #endif
 
-#if HAVE_APPARMOR
+#ถ้า HAVE_APPARMOR
         " +APPARMOR"
-#else
+#มิฉะนั้น
         " -APPARMOR"
 #endif
 
-#if ENABLE_IMA
+#ถ้า ENABLE_IMA
         " +IMA"
-#else
+#มิฉะนั้น
         " -IMA"
 #endif
 
-#if ENABLE_IPE
+#ถ้า ENABLE_IPE
         " +IPE"
-#else
+#มิฉะนั้น
         " -IPE"
 #endif
 
-#if ENABLE_SMACK
+#ถ้า ENABLE_SMACK
         " +SMACK"
-#else
+#มิฉะนั้น
         " -SMACK"
 #endif
 
-#if HAVE_SECCOMP
+#ถ้า HAVE_SECCOMP
         " +SECCOMP"
-#else
+#มิฉะนั้น
         " -SECCOMP"
 #endif
 
         /* cryptographic libraries */
 
-#if HAVE_GNUTLS
+#ถ้า HAVE_GNUTLS
         " +GNUTLS"
-#else
+#มิฉะนั้น
         " -GNUTLS"
 #endif
 
-#if HAVE_OPENSSL
+#ถ้า HAVE_OPENSSL
         " +OPENSSL"
-#else
+#มิฉะนั้น
         " -OPENSSL"
 #endif
 
         /* all other libraries, sorted alphabetically */
 
-#if HAVE_ACL
+#ถ้า HAVE_ACL
         " +ACL"
-#else
+#มิฉะนั้น
         " -ACL"
 #endif
 
-#if HAVE_BLKID
+#ถ้า HAVE_BLKID
         " +BLKID"
-#else
+#มิฉะนั้น
         " -BLKID"
 #endif
 
-#if HAVE_LIBCURL
+#ถ้า HAVE_LIBCURL
         " +CURL"
-#else
+#มิฉะนั้น
         " -CURL"
 #endif
 
-#if HAVE_ELFUTILS
+#ถ้า HAVE_ELFUTILS
         " +ELFUTILS"
-#else
+#มิฉะนั้น
         " -ELFUTILS"
 #endif
 
-#if HAVE_LIBFIDO2
+#ถ้า HAVE_LIBFIDO2
         " +FIDO2"
-#else
+#มิฉะนั้น
         " -FIDO2"
 #endif
 
-#if HAVE_LIBIDN2
+#ถ้า HAVE_LIBIDN2
         " +IDN2"
-#else
+#มิฉะนั้น
         " -IDN2"
 #endif
 
-#if HAVE_KMOD
+#ถ้า HAVE_KMOD
         " +KMOD"
-#else
+#มิฉะนั้น
         " -KMOD"
 #endif
 
-#if HAVE_LIBCRYPTSETUP
+#ถ้า HAVE_LIBCRYPTSETUP
         " +LIBCRYPTSETUP"
-#else
+#มิฉะนั้น
         " -LIBCRYPTSETUP"
 #endif
 
-#if HAVE_LIBCRYPTSETUP_PLUGINS
+#ถ้า HAVE_LIBCRYPTSETUP_PLUGINS
         " +LIBCRYPTSETUP_PLUGINS"
-#else
+#มิฉะนั้น
         " -LIBCRYPTSETUP_PLUGINS"
 #endif
 
-#if HAVE_LIBFDISK
+#ถ้า HAVE_LIBFDISK
         " +LIBFDISK"
-#else
+#มิฉะนั้น
         " -LIBFDISK"
 #endif
 
-#if HAVE_PCRE2
+#ถ้า HAVE_PCRE2
         " +PCRE2"
-#else
+#มิฉะนั้น
         " -PCRE2"
 #endif
 
-#if HAVE_PWQUALITY
+#ถ้า HAVE_PWQUALITY
         " +PWQUALITY"
-#else
+#มิฉะนั้น
         " -PWQUALITY"
 #endif
 
-#if HAVE_P11KIT
+#ถ้า HAVE_P11KIT
         " +P11KIT"
-#else
+#มิฉะนั้น
         " -P11KIT"
 #endif
 
-#if HAVE_QRENCODE
+#ถ้า HAVE_QRENCODE
         " +QRENCODE"
-#else
+#มิฉะนั้น
         " -QRENCODE"
 #endif
 
-#if HAVE_TPM2
+#ถ้า HAVE_TPM2
         " +TPM2"
-#else
+#มิฉะนั้น
         " -TPM2"
 #endif
 
         /* compressors */
 
-#if HAVE_BZIP2
+#ถ้า HAVE_BZIP2
         " +BZIP2"
-#else
+#มิฉะนั้น
         " -BZIP2"
 #endif
 
-#if HAVE_LZ4
+#ถ้า HAVE_LZ4
         " +LZ4"
-#else
+#มิฉะนั้น
         " -LZ4"
 #endif
 
-#if HAVE_XZ
+#ถ้า HAVE_XZ
         " +XZ"
-#else
+#มิฉะนั้น
         " -XZ"
 #endif
 
-#if HAVE_ZLIB
+#ถ้า HAVE_ZLIB
         " +ZLIB"
-#else
+#มิฉะนั้น
         " -ZLIB"
 #endif
 
-#if HAVE_ZSTD
+#ถ้า HAVE_ZSTD
         " +ZSTD"
-#else
+#มิฉะนั้น
         " -ZSTD"
 #endif
 
         /* other stuff that doesn't fit above */
 
-#if BPF_FRAMEWORK
+#ถ้า BPF_FRAMEWORK
         " +BPF_FRAMEWORK"
-#else
+#มิฉะนั้น
         " -BPF_FRAMEWORK"
 #endif
 
-#if HAVE_VMLINUX_H
+#ถ้า HAVE_VMLINUX_H
         " +BTF"
-#else
+#มิฉะนั้น
         " -BTF"
 #endif
 
-#if HAVE_XKBCOMMON
+#ถ้า HAVE_XKBCOMMON
         " +XKBCOMMON"
-#else
+#มิฉะนั้น
         " -XKBCOMMON"
 #endif
 
-#if ENABLE_UTMP
+#ถ้า ENABLE_UTMP
         " +UTMP"
-#else
+#มิฉะนั้น
         " -UTMP"
 #endif
 
-#if HAVE_LIBARCHIVE
+#ถ้า HAVE_LIBARCHIVE
         " +LIBARCHIVE"
-#else
+#มิฉะนั้น
         " -LIBARCHIVE"
 #endif
 
-#if EXPERIMENTAL == EXPERIMENTAL_ENABLED
+#ถ้า EXPERIMENTAL == EXPERIMENTAL_ENABLED
         " +EXPERIMENTAL"
 #elif EXPERIMENTAL == EXPERIMENTAL_ENVVAR
         " +EXPERIMENTAL-ENVVAR"
-#else
+#มิฉะนั้น
         " -EXPERIMENTAL"
 #endif
         ;
 
-static char* systemd_features_with_color(void) {
-        const char *p = systemd_features;
-        _cleanup_free_ char *ret = NULL;
-        int r;
+static var_na* systemd_features_with_color(void) {
+        const var_na *p = systemd_features;
+        _cleanup_free_ var_na *ret = NULL;
+        จำนวนเต็ม r;
 
-        for (;;) {
-                _cleanup_free_ char *word = NULL;
-                char *q;
+        สำหรับ (;;) {
+                _cleanup_free_ var_na *word = NULL;
+                var_na *q;
 
                 r = extract_first_word(&p, &word, NULL, 0);
-                if (r < 0) {
+                ถ้า (r < 0) {
                         log_warning_errno(r, "Cannot split features string, ignoring: %m");
-                        return NULL;
+                        คืน NULL;
                 }
-                if (r == 0)
-                        return TAKE_PTR(ret);
+                ถ้า (r == 0)
+                        คืน TAKE_PTR(ret);
 
-                if (ret && !strextend(&ret, " ")) {
+                ถ้า (ret && !strextend(&ret, " ")) {
                         log_oom_warning();
-                        return NULL;
+                        คืน NULL;
                 }
 
-                if (word[0] == '+')
+                ถ้า (word[0] == '+')
                         q = strextend(&ret, ANSI_HIGHLIGHT_GREEN, CHAR_TO_STR(word[0]), ANSI_GREEN, word+1, ANSI_NORMAL);
-                else if (word[0] == '-')
+                มิฉะนั้น ถ้า (word[0] == '-')
                         q = strextend(&ret, ANSI_HIGHLIGHT_RED, CHAR_TO_STR(word[0]), ANSI_RED, word+1, ANSI_NORMAL);
-                else
+                มิฉะนั้น
                         q = strextend(&ret, word);
-                if (!q) {
+                ถ้า (!q) {
                         log_oom_warning();
-                        return NULL;
+                        คืน NULL;
                 }
         }
 }
 
-int version(void) {
-        _cleanup_free_ char *b = NULL;
+จำนวนเต็ม version(void) {
+        _cleanup_free_ var_na *b = NULL;
 
-        if (colors_enabled())
+        ถ้า (colors_enabled())
                 b = systemd_features_with_color();
 
         printf("%ssystemd %i%s (" GIT_VERSION ")\n%s\n",
                ansi_highlight(), PROJECT_VERSION, ansi_normal(),
                b ?: systemd_features);
-        return 0;
+        คืน 0;
 }
 
-int version_only(void) {
+จำนวนเต็ม version_only(void) {
         /* Used by udev. Dracut relies on the version being a single integer */
         puts(PROJECT_VERSION_STR);
-        return 0;
+        คืน 0;
 }
 
 bool experimental_enabled(void) {
-#if EXPERIMENTAL == EXPERIMENTAL_DISABLED
-        return false;
-#else
-        int r;
+#ถ้า EXPERIMENTAL == EXPERIMENTAL_DISABLED
+        คืน false;
+#มิฉะนั้น
+        จำนวนเต็ม r;
 
         r = secure_getenv_bool("SYSTEMD_EXPERIMENTAL");
-        if (r >= 0)
-                return r;
-        if (r != -ENXIO)
+        ถ้า (r >= 0)
+                คืน r;
+        ถ้า (r != -ENXIO)
                 log_debug_errno(r, "Failed to parse $SYSTEMD_EXPERIMENTAL, ignoring: %m");
 
-        return EXPERIMENTAL == EXPERIMENTAL_ENABLED;
+        คืน EXPERIMENTAL == EXPERIMENTAL_ENABLED;
 #endif
 }

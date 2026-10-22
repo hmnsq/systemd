@@ -13,57 +13,57 @@
 #include "alloc-util.h"
 #include "prioq.h"
 
-struct prioq_item {
+sa_nracanaa prioq_item {
         void *data;
         unsigned *idx;
 };
 
-struct Prioq {
+sa_nracanaa Prioq {
         compare_func_t compare_func;
         unsigned n_items;
-        struct prioq_item *items;
+        sa_nracanaa prioq_item *items;
 };
 
 Prioq* prioq_new(compare_func_t compare_func) {
         Prioq *q;
 
         q = new(Prioq, 1);
-        if (!q)
-                return q;
+        ถ้า (!q)
+                คืน q;
 
         *q = (Prioq) {
                 .compare_func = compare_func,
         };
 
-        return q;
+        คืน q;
 }
 
 Prioq* prioq_free(Prioq *q) {
-        if (!q)
-                return NULL;
+        ถ้า (!q)
+                คืน NULL;
 
         /* Invalidate the index fields of any remaining objects */
         FOREACH_ARRAY(item, q->items, q->n_items)
-                if (item->idx)
+                ถ้า (item->idx)
                         *(item->idx) = PRIOQ_IDX_NULL;
 
         free(q->items);
-        return mfree(q);
+        คืน mfree(q);
 }
 
-int prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
+จำนวนเต็ม prioq_ensure_allocated(Prioq **q, compare_func_t compare_func) {
         assert(q);
 
-        if (*q) {
+        ถ้า (*q) {
                 assert((*q)->compare_func == compare_func);
-                return 0;
+                คืน 0;
         }
 
         *q = prioq_new(compare_func);
-        if (!*q)
-                return -ENOMEM;
+        ถ้า (!*q)
+                คืน -ENOMEM;
 
-        return 0;
+        คืน 0;
 }
 
 static void swap(Prioq *q, unsigned j, unsigned k) {
@@ -77,10 +77,10 @@ static void swap(Prioq *q, unsigned j, unsigned k) {
         SWAP_TWO(q->items[j].data, q->items[k].data);
         SWAP_TWO(q->items[j].idx, q->items[k].idx);
 
-        if (q->items[j].idx)
+        ถ้า (q->items[j].idx)
                 *q->items[j].idx = j;
 
-        if (q->items[k].idx)
+        ถ้า (q->items[k].idx)
                 *q->items[k].idx = k;
 }
 
@@ -88,42 +88,42 @@ static unsigned shuffle_up(Prioq *q, unsigned idx) {
         assert(q);
         assert(idx < q->n_items);
 
-        while (idx > 0) {
+        ขณะ (idx > 0) {
                 unsigned k;
 
                 k = (idx-1)/2;
 
-                if (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
-                        break;
+                ถ้า (q->compare_func(q->items[k].data, q->items[idx].data) <= 0)
+                        bha_nga;
 
                 swap(q, idx, k);
                 idx = k;
         }
 
-        return idx;
+        คืน idx;
 }
 
 static unsigned shuffle_down(Prioq *q, unsigned idx) {
         assert(q);
 
-        for (;;) {
+        สำหรับ (;;) {
                 unsigned j, k, s;
 
                 k = (idx+1)*2; /* right child */
                 j = k-1;       /* left child */
 
-                if (j >= q->n_items)
-                        break;
+                ถ้า (j >= q->n_items)
+                        bha_nga;
 
-                if (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
+                ถ้า (q->compare_func(q->items[j].data, q->items[idx].data) < 0)
 
                         /* So our left child is smaller than we are, let's
                          * remember this fact */
                         s = j;
-                else
+                มิฉะนั้น
                         s = idx;
 
-                if (k < q->n_items &&
+                ถ้า (k < q->n_items &&
                     q->compare_func(q->items[k].data, q->items[s].data) < 0)
 
                         /* So our right child is smaller than we are, let's
@@ -132,68 +132,68 @@ static unsigned shuffle_down(Prioq *q, unsigned idx) {
 
                 /* s now points to the smallest of the three items */
 
-                if (s == idx)
+                ถ้า (s == idx)
                         /* No swap necessary, we're done */
-                        break;
+                        bha_nga;
 
                 swap(q, idx, s);
                 idx = s;
         }
 
-        return idx;
+        คืน idx;
 }
 
-int prioq_put(Prioq *q, void *data, unsigned *idx) {
+จำนวนเต็ม prioq_put(Prioq *q, void *data, unsigned *idx) {
         unsigned k;
 
         assert(q);
 
-        if (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
-                return -ENOMEM;
+        ถ้า (!GREEDY_REALLOC(q->items, MAX(q->n_items + 1, 16u)))
+                คืน -ENOMEM;
 
         k = q->n_items++;
-        q->items[k] = (struct prioq_item) {
+        q->items[k] = (sa_nracanaa prioq_item) {
                 .data = data,
                 .idx = idx,
         };
 
-        if (idx)
+        ถ้า (idx)
                 *idx = k;
 
         shuffle_up(q, k);
 
-        return 0;
+        คืน 0;
 }
 
-int _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
-        int r;
+จำนวนเต็ม _prioq_ensure_put(Prioq **q, compare_func_t compare_func, void *data, unsigned *idx) {
+        จำนวนเต็ม r;
 
         assert(q);
 
         r = prioq_ensure_allocated(q, compare_func);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        return prioq_put(*q, data, idx);
+        คืน prioq_put(*q, data, idx);
 }
 
-static void remove_item(Prioq *q, struct prioq_item *i) {
-        struct prioq_item *l;
+static void remove_item(Prioq *q, sa_nracanaa prioq_item *i) {
+        sa_nracanaa prioq_item *l;
 
         assert(q);
         assert(i);
 
         /* Let's invalidate the index pointer stored in the user's object to indicate the item is now removed
          * from the priority queue */
-        if (i->idx)
+        ถ้า (i->idx)
                 *(i->idx) = PRIOQ_IDX_NULL;
 
         l = q->items + q->n_items - 1;
 
-        if (i == l)
+        ถ้า (i == l)
                 /* Last entry, let's just remove it */
                 q->n_items--;
-        else {
+        มิฉะนั้น {
                 unsigned k;
 
                 /* Not last entry, let's replace the last entry with
@@ -204,7 +204,7 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
 
                 i->data = l->data;
                 i->idx = l->idx;
-                if (i->idx)
+                ถ้า (i->idx)
                         *i->idx = k;
                 q->n_items--;
 
@@ -213,55 +213,55 @@ static void remove_item(Prioq *q, struct prioq_item *i) {
         }
 }
 
-static struct prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+static sa_nracanaa prioq_item* find_item(Prioq *q, void *data, unsigned *idx) {
+        sa_nracanaa prioq_item *i;
 
         assert(q);
 
-        if (q->n_items <= 0)
-                return NULL;
+        ถ้า (q->n_items <= 0)
+                คืน NULL;
 
-        if (idx) {
-                if (*idx == PRIOQ_IDX_NULL ||
+        ถ้า (idx) {
+                ถ้า (*idx == PRIOQ_IDX_NULL ||
                     *idx >= q->n_items)
-                        return NULL;
+                        คืน NULL;
 
                 i = q->items + *idx;
-                if (i->data != data)
-                        return NULL;
+                ถ้า (i->data != data)
+                        คืน NULL;
 
-                return i;
-        } else {
-                for (i = q->items; i < q->items + q->n_items; i++)
-                        if (i->data == data)
-                                return i;
-                return NULL;
+                คืน i;
+        } มิฉะนั้น {
+                สำหรับ (i = q->items; i < q->items + q->n_items; i++)
+                        ถ้า (i->data == data)
+                                คืน i;
+                คืน NULL;
         }
 }
 
-int prioq_remove(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+จำนวนเต็ม prioq_remove(Prioq *q, void *data, unsigned *idx) {
+        sa_nracanaa prioq_item *i;
 
-        if (!q)
-                return 0;
+        ถ้า (!q)
+                คืน 0;
 
         i = find_item(q, data, idx);
-        if (!i)
-                return 0;
+        ถ้า (!i)
+                คืน 0;
 
         remove_item(q, i);
-        return 1;
+        คืน 1;
 }
 
 void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
-        struct prioq_item *i;
+        sa_nracanaa prioq_item *i;
         unsigned k;
 
         assert(q);
 
         i = find_item(q, data, idx);
-        if (!i)
-                return;
+        ถ้า (!i)
+                คืน;
 
         assert(i >= q->items);
         k = i - q->items;
@@ -270,41 +270,41 @@ void prioq_reshuffle(Prioq *q, void *data, unsigned *idx) {
 }
 
 void* prioq_peek_by_index(Prioq *q, unsigned idx) {
-        if (!q)
-                return NULL;
+        ถ้า (!q)
+                คืน NULL;
 
-        if (idx >= q->n_items)
-                return NULL;
+        ถ้า (idx >= q->n_items)
+                คืน NULL;
 
-        return q->items[idx].data;
+        คืน q->items[idx].data;
 }
 
 void* prioq_pop(Prioq *q) {
         void *data;
 
-        if (!q)
-                return NULL;
+        ถ้า (!q)
+                คืน NULL;
 
-        if (q->n_items <= 0)
-                return NULL;
+        ถ้า (q->n_items <= 0)
+                คืน NULL;
 
         data = q->items[0].data;
         remove_item(q, q->items);
-        return data;
+        คืน data;
 }
 
 unsigned prioq_size(Prioq *q) {
 
-        if (!q)
-                return 0;
+        ถ้า (!q)
+                คืน 0;
 
-        return q->n_items;
+        คืน q->n_items;
 }
 
 bool prioq_isempty(Prioq *q) {
 
-        if (!q)
-                return true;
+        ถ้า (!q)
+                คืน true;
 
-        return q->n_items <= 0;
+        คืน q->n_items <= 0;
 }

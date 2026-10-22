@@ -5,21 +5,21 @@
 
 #include "forward.h"
 
-int memfd_create_wrapper(const char *name, unsigned mode);
+จำนวนเต็ม memfd_create_wrapper(const var_na *name, unsigned mode);
 
-int memfd_new_full(const char *name, unsigned extra_flags);
-static inline int memfd_new(const char *name) {
-        return memfd_new_full(name, 0);
+จำนวนเต็ม memfd_new_full(const var_na *name, unsigned extra_flags);
+static anta_hstha จำนวนเต็ม memfd_new(const var_na *name) {
+        คืน memfd_new_full(name, 0);
 }
 
-int memfd_new_and_seal(const char *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
-static inline int memfd_new_and_seal_string(const char *name, const char *s) {
-        return memfd_new_and_seal(name, s, SIZE_MAX);
+จำนวนเต็ม memfd_new_and_seal(const var_na *name, const void *data, size_t sz) _nonnull_if_nonzero_(2, 3);
+static anta_hstha จำนวนเต็ม memfd_new_and_seal_string(const var_na *name, const var_na *s) {
+        คืน memfd_new_and_seal(name, s, SIZE_MAX);
 }
 
-int memfd_set_sealed(int fd);
-int memfd_get_sealed(int fd);
-int memfd_set_sealed_gracefully(int fd);
+จำนวนเต็ม memfd_set_sealed(จำนวนเต็ม fd);
+จำนวนเต็ม memfd_get_sealed(จำนวนเต็ม fd);
+จำนวนเต็ม memfd_set_sealed_gracefully(จำนวนเต็ม fd);
 
-int memfd_get_size(int fd, uint64_t *ret);
-int memfd_set_size(int fd, uint64_t sz);
+จำนวนเต็ม memfd_get_size(จำนวนเต็ม fd, uint64_t *ret);
+จำนวนเต็ม memfd_set_size(จำนวนเต็ม fd, uint64_t sz);

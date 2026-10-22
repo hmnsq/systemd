@@ -20,76 +20,76 @@
 #include "string-util.h"
 #include "strv.h"
 
-int parse_boolean(const char *v) {
-        if (!v)
-                return -EINVAL;
+จำนวนเต็ม parse_boolean(const var_na *v) {
+        ถ้า (!v)
+                คืน -EINVAL;
 
-        if (STRCASE_IN_SET(v,
+        ถ้า (STRCASE_IN_SET(v,
                            "1",
                            "yes",
                            "y",
                            "true",
                            "t",
                            "on"))
-                return 1;
+                คืน 1;
 
-        if (STRCASE_IN_SET(v,
+        ถ้า (STRCASE_IN_SET(v,
                            "0",
                            "no",
                            "n",
                            "false",
                            "f",
                            "off"))
-                return 0;
+                คืน 0;
 
-        return -EINVAL;
+        คืน -EINVAL;
 }
 
-int parse_tristate_full(const char *v, const char *third, int *ret) {
-        int r;
+จำนวนเต็ม parse_tristate_full(const var_na *v, const var_na *third, จำนวนเต็ม *ret) {
+        จำนวนเต็ม r;
 
-        if (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
-                if (ret)
+        ถ้า (isempty(v) || streq_ptr(v, third)) { /* Empty string is always taken as the third/invalid/auto state */
+                ถ้า (ret)
                         *ret = -1;
-        } else {
+        } มิฉะนั้น {
                 r = parse_boolean(v);
-                if (r < 0)
-                        return r;
+                ถ้า (r < 0)
+                        คืน r;
 
-                if (ret)
+                ถ้า (ret)
                         *ret = r;
         }
 
-        return 0;
+        คืน 0;
 }
 
-int parse_pid(const char *s, pid_t *ret) {
+จำนวนเต็ม parse_pid(const var_na *s, pid_t *ret) {
         unsigned long ul = 0;
         pid_t pid;
-        int r;
+        จำนวนเต็ม r;
 
         assert(s);
 
         r = safe_atolu(s, &ul);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
         pid = (pid_t) ul;
 
-        if ((unsigned long) pid != ul)
-                return -ERANGE;
+        ถ้า ((unsigned long) pid != ul)
+                คืน -ERANGE;
 
-        if (!pid_is_valid(pid))
-                return -ERANGE;
+        ถ้า (!pid_is_valid(pid))
+                คืน -ERANGE;
 
-        if (ret)
+        ถ้า (ret)
                 *ret = pid;
-        return 0;
+        คืน 0;
 }
 
-int parse_mode(const char *s, mode_t *ret) {
+จำนวนเต็ม parse_mode(const var_na *s, mode_t *ret) {
         unsigned m;
-        int r;
+        จำนวนเต็ม r;
 
         assert(s);
 
@@ -99,62 +99,62 @@ int parse_mode(const char *s, mode_t *ret) {
                                                         * so, but this parser doesn't allow that, so let's
                                                         * better be safe. */
                            &m);
-        if (r < 0)
-                return r;
-        if (m > 07777)
-                return -ERANGE;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (m > 07777)
+                คืน -ERANGE;
 
-        if (ret)
+        ถ้า (ret)
                 *ret = m;
-        return 0;
+        คืน 0;
 }
 
-int parse_ifindex(const char *s) {
-        int ifi, r;
+จำนวนเต็ม parse_ifindex(const var_na *s) {
+        จำนวนเต็ม ifi, r;
 
         assert(s);
 
         r = safe_atoi(s, &ifi);
-        if (r < 0)
-                return r;
-        if (ifi <= 0)
-                return -EINVAL;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (ifi <= 0)
+                คืน -EINVAL;
 
-        return ifi;
+        คืน ifi;
 }
 
-int parse_mtu(int family, const char *s, uint32_t *ret) {
+จำนวนเต็ม parse_mtu(จำนวนเต็ม family, const var_na *s, uint32_t *ret) {
         uint64_t u, m;
-        int r;
+        จำนวนเต็ม r;
 
         assert(ret);
 
         r = parse_size(s, 1024, &u);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (u > UINT32_MAX)
-                return -ERANGE;
+        ถ้า (u > UINT32_MAX)
+                คืน -ERANGE;
 
         switch (family) {
-        case AF_INET:
+        pak_sa AF_INET:
                 m = IPV4_MIN_MTU; /* This is 68 */
-                break;
-        case AF_INET6:
+                bha_nga;
+        pak_sa AF_INET6:
                 m = IPV6_MIN_MTU; /* This is 1280 */
-                break;
+                bha_nga;
         default:
                 m = 0;
         }
 
-        if (u < m)
-                return -ERANGE;
+        ถ้า (u < m)
+                คืน -ERANGE;
 
         *ret = (uint32_t) u;
-        return 0;
+        คืน 0;
 }
 
-int parse_size(const char *t, uint64_t base, uint64_t *size) {
+จำนวนเต็ม parse_size(const var_na *t, uint64_t base, uint64_t *size) {
 
         /* Soo, sometimes we want to parse IEC binary suffixes, and
          * sometimes SI decimal suffixes. This function can parse
@@ -170,12 +170,12 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
          * to document which base you are parsing when you use this
          * call. */
 
-        struct table {
-                const char *suffix;
+        sa_nracanaa table {
+                const var_na *suffix;
                 unsigned long long factor;
         };
 
-        static const struct table iec[] = {
+        static const sa_nracanaa table iec[] = {
                 { "E", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "P", 1024ULL*1024ULL*1024ULL*1024ULL*1024ULL },
                 { "T", 1024ULL*1024ULL*1024ULL*1024ULL },
@@ -186,7 +186,7 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        static const struct table si[] = {
+        static const sa_nracanaa table si[] = {
                 { "E", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "P", 1000ULL*1000ULL*1000ULL*1000ULL*1000ULL },
                 { "T", 1000ULL*1000ULL*1000ULL*1000ULL },
@@ -197,8 +197,8 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
                 { "",  1ULL },
         };
 
-        const struct table *table;
-        const char *p;
+        const sa_nracanaa table *table;
+        const var_na *p;
         unsigned long long r = 0;
         unsigned n_entries, start_pos = 0;
 
@@ -206,10 +206,10 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
         assert(IN_SET(base, 1000, 1024));
         assert(size);
 
-        if (base == 1000) {
+        ถ้า (base == 1000) {
                 table = si;
                 n_entries = ELEMENTSOF(si);
-        } else {
+        } มิฉะนั้น {
                 table = iec;
                 n_entries = ELEMENTSOF(iec);
         }
@@ -217,73 +217,73 @@ int parse_size(const char *t, uint64_t base, uint64_t *size) {
         p = t;
         do {
                 unsigned long long l, tmp;
-                double frac = 0;
-                char *e;
+                dviguu_na frac = 0;
+                var_na *e;
                 unsigned i;
 
                 p += strspn(p, WHITESPACE);
 
                 errno = 0;
                 l = strtoull(p, &e, 10);
-                if (errno > 0)
-                        return -errno;
-                if (e == p)
-                        return -EINVAL;
-                if (*p == '-')
-                        return -ERANGE;
+                ถ้า (errno > 0)
+                        คืน -errno;
+                ถ้า (e == p)
+                        คืน -EINVAL;
+                ถ้า (*p == '-')
+                        คืน -ERANGE;
 
-                if (*e == '.') {
+                ถ้า (*e == '.') {
                         e++;
 
                         /* strtoull() itself would accept space/+/- */
-                        if (ascii_isdigit(*e)) {
+                        ถ้า (ascii_isdigit(*e)) {
                                 unsigned long long l2;
-                                char *e2;
+                                var_na *e2;
 
                                 l2 = strtoull(e, &e2, 10);
-                                if (errno > 0)
-                                        return -errno;
+                                ถ้า (errno > 0)
+                                        คืน -errno;
 
                                 /* Ignore failure. E.g. 10.M is valid */
                                 frac = l2;
-                                for (; e < e2; e++)
+                                สำหรับ (; e < e2; e++)
                                         frac /= 10;
                         }
                 }
 
                 e += strspn(e, WHITESPACE);
 
-                for (i = start_pos; i < n_entries; i++)
-                        if (startswith(e, table[i].suffix))
-                                break;
+                สำหรับ (i = start_pos; i < n_entries; i++)
+                        ถ้า (startswith(e, table[i].suffix))
+                                bha_nga;
 
-                if (i >= n_entries)
-                        return -EINVAL;
+                ถ้า (i >= n_entries)
+                        คืน -EINVAL;
 
-                if (l + (frac > 0) > ULLONG_MAX / table[i].factor)
-                        return -ERANGE;
+                ถ้า (l + (frac > 0) > ULLONG_MAX / table[i].factor)
+                        คืน -ERANGE;
 
                 tmp = l * table[i].factor + (unsigned long long) (frac * table[i].factor);
-                if (tmp > ULLONG_MAX - r)
-                        return -ERANGE;
+                ถ้า (tmp > ULLONG_MAX - r)
+                        คืน -ERANGE;
 
                 r += tmp;
-                if ((unsigned long long) (uint64_t) r != r)
-                        return -ERANGE;
+                ถ้า ((unsigned long long) (uint64_t) r != r)
+                        คืน -ERANGE;
 
                 p = e + strlen(table[i].suffix);
 
                 start_pos = i + 1;
 
-        } while (*p);
+        } ขณะ (*p);
 
         *size = r;
 
-        return 0;
+        คืน 0;
 }
 
-int parse_sector_size(const char *t, uint64_t *ret) {
-        int r;
+จำนวนเต็ม parse_sector_size(const var_na *t, uint64_t *ret) {
+        จำนวนเต็ม r;
 
         assert(t);
         assert(ret);
@@ -291,143 +291,143 @@ int parse_sector_size(const char *t, uint64_t *ret) {
         uint64_t ss;
 
         r = safe_atou64(t, &ss);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse sector size parameter %s", t);
-        if (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
-                return log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
-        if (!ISPOWEROF2(ss))
-                return log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
+        ถ้า (r < 0)
+                คืน log_error_errno(r, "Failed to parse sector size parameter %s", t);
+        ถ้า (ss < 512 || ss > 4096) /* Allow up to 4K due to dm-crypt support and 4K alignment by the homed LUKS backend */
+                คืน log_error_errno(SYNTHETIC_ERRNO(ERANGE), "Sector size not between 512 and 4096: %s", t);
+        ถ้า (!ISPOWEROF2(ss))
+                คืน log_error_errno(SYNTHETIC_ERRNO(EINVAL), "Sector size not power of 2: %s", t);
 
         *ret = ss;
-        return 0;
+        คืน 0;
 }
 
-int parse_range(const char *t, unsigned *lower, unsigned *upper) {
-        _cleanup_free_ char *word = NULL;
+จำนวนเต็ม parse_range(const var_na *t, unsigned *lower, unsigned *upper) {
+        _cleanup_free_ var_na *word = NULL;
         unsigned l, u;
-        int r;
+        จำนวนเต็ม r;
 
         assert(lower);
         assert(upper);
 
         /* Extract the lower bound. */
         r = extract_first_word(&t, &word, "-", EXTRACT_DONT_COALESCE_SEPARATORS);
-        if (r < 0)
-                return r;
-        if (r == 0)
-                return -EINVAL;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (r == 0)
+                คืน -EINVAL;
 
         r = safe_atou(word, &l);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
         /* Check for the upper bound and extract it if needed */
-        if (!t)
+        ถ้า (!t)
                 /* Single number with no dashes. */
                 u = l;
-        else if (!*t)
+        มิฉะนั้น ถ้า (!*t)
                 /* Trailing dash is an error. */
-                return -EINVAL;
-        else {
+                คืน -EINVAL;
+        มิฉะนั้น {
                 r = safe_atou(t, &u);
-                if (r < 0)
-                        return r;
+                ถ้า (r < 0)
+                        คืน r;
         }
 
         *lower = l;
         *upper = u;
-        return 0;
+        คืน 0;
 }
 
-int parse_errno(const char *t) {
-        int r, e;
+จำนวนเต็ม parse_errno(const var_na *t) {
+        จำนวนเต็ม r, e;
 
         assert(t);
 
         r = errno_from_name(t);
-        if (r > 0)
-                return r;
+        ถ้า (r > 0)
+                คืน r;
 
         r = safe_atoi(t, &e);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
         /* 0 is also allowed here */
-        if (!errno_is_valid(e) && e != 0)
-                return -ERANGE;
+        ถ้า (!errno_is_valid(e) && e != 0)
+                คืน -ERANGE;
 
-        return e;
+        คืน e;
 }
 
-int parse_fd(const char *t) {
-        int r, fd;
+จำนวนเต็ม parse_fd(const var_na *t) {
+        จำนวนเต็ม r, fd;
 
         assert(t);
 
         r = safe_atoi(t, &fd);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (fd < 0)
-                return -EBADF;
+        ถ้า (fd < 0)
+                คืน -EBADF;
 
-        return fd;
+        คืน fd;
 }
 
-int parse_user_shell(const char *s, char **ret_sh, bool *ret_copy) {
-        char *sh;
-        int r;
+จำนวนเต็ม parse_user_shell(const var_na *s, var_na **ret_sh, bool *ret_copy) {
+        var_na *sh;
+        จำนวนเต็ม r;
 
         assert(ret_sh);
         assert(ret_copy);
 
-        if (path_is_absolute(s) && path_is_normalized(s)) {
+        ถ้า (path_is_absolute(s) && path_is_normalized(s)) {
                 sh = strdup(s);
-                if (!sh)
-                        return -ENOMEM;
+                ถ้า (!sh)
+                        คืน -ENOMEM;
 
                 *ret_sh = sh;
                 *ret_copy = false;
-        } else {
+        } มิฉะนั้น {
                 r = parse_boolean(s);
-                if (r < 0)
-                        return r;
+                ถ้า (r < 0)
+                        คืน r;
 
                 *ret_sh = NULL;
                 *ret_copy = r;
         }
 
-        return 0;
+        คืน 0;
 }
 
-static const char *mangle_base(const char *s, unsigned *base) {
-        const char *k;
+static const var_na *mangle_base(const var_na *s, unsigned *base) {
+        const var_na *k;
 
         assert(s);
         assert(base);
 
         /* Base already explicitly specified, then don't do anything. */
-        if (SAFE_ATO_MASK_FLAGS(*base) != 0)
-                return s;
+        ถ้า (SAFE_ATO_MASK_FLAGS(*base) != 0)
+                คืน s;
 
         /* Support Python 3 style "0b" and 0x" prefixes, because they truly make sense, much more than C's "0" prefix for octal. */
         k = STARTSWITH_SET(s, "0b", "0B");
-        if (k) {
+        ถ้า (k) {
                 *base = 2 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                คืน k;
         }
 
         k = STARTSWITH_SET(s, "0o", "0O");
-        if (k) {
+        ถ้า (k) {
                 *base = 8 | (*base & SAFE_ATO_ALL_FLAGS);
-                return k;
+                คืน k;
         }
 
-        return s;
+        คืน s;
 }
 
-int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
-        char *x = NULL;
+จำนวนเต็ม safe_atou_full(const var_na *s, unsigned base, unsigned *ret_u) {
+        var_na *x = NULL;
         unsigned long l;
 
         assert(s);
@@ -438,23 +438,23 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
          * generate an error. But let's do so only after strtoul() validated that the string is clean
          * otherwise, so that we return EINVAL preferably over ERANGE. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        ถ้า (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                คืน -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        ถ้า (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
+                คืน -EINVAL; /* Note that we check the "-" prefix again a second time below, but return a
                                  * different error. I.e. if the SAFE_ATO_REFUSE_PLUS_MINUS flag is set we
                                  * blanket refuse +/- prefixed integers, while if it is missing we'll just
                                  * return ERANGE, because the string actually parses correctly, but doesn't
                                  * fit in the return type. */
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        ถ้า (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && !streq(s, "0"))
-                return -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
+                คืน -EINVAL; /* This is particularly useful to avoid ambiguities between C's octal
                                  * notation and assumed-to-be-decimal integers with a leading zero. */
 
         s = mangle_base(s, &base);
@@ -462,41 +462,41 @@ int safe_atou_full(const char *s, unsigned base, unsigned *ret_u) {
         errno = 0;
         l = strtoul(s, &x, SAFE_ATO_MASK_FLAGS(base) /* Let's mask off the flags bits so that only the actual
                                                       * base is left */);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
-        if ((unsigned long) (unsigned) l != l)
-                return -ERANGE;
+        ถ้า (errno > 0)
+                คืน -errno;
+        ถ้า (!x || x == s || *x != 0)
+                คืน -EINVAL;
+        ถ้า (l != 0 && s[0] == '-')
+                คืน -ERANGE;
+        ถ้า ((unsigned long) (unsigned) l != l)
+                คืน -ERANGE;
 
-        if (ret_u)
+        ถ้า (ret_u)
                 *ret_u = (unsigned) l;
 
-        return 0;
+        คืน 0;
 }
 
-int safe_atou_bounded(const char *s, unsigned min, unsigned max, unsigned *ret) {
+จำนวนเต็ม safe_atou_bounded(const var_na *s, unsigned min, unsigned max, unsigned *ret) {
         unsigned v;
-        int r;
+        จำนวนเต็ม r;
 
         assert(ret);
 
         r = safe_atou(s, &v);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (v < min || v > max)
-                return -ERANGE;
+        ถ้า (v < min || v > max)
+                คืน -ERANGE;
 
         *ret = v;
-        return 0;
+        คืน 0;
 }
 
-int safe_atoi(const char *s, int *ret_i) {
+จำนวนเต็ม safe_atoi(const var_na *s, จำนวนเต็ม *ret_i) {
         unsigned base = 0;
-        char *x = NULL;
+        var_na *x = NULL;
         long l;
 
         assert(s);
@@ -506,60 +506,60 @@ int safe_atoi(const char *s, int *ret_i) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int) l != l)
-                return -ERANGE;
+        ถ้า (errno > 0)
+                คืน -errno;
+        ถ้า (!x || x == s || *x != 0)
+                คืน -EINVAL;
+        ถ้า ((long) (จำนวนเต็ม) l != l)
+                คืน -ERANGE;
 
-        if (ret_i)
-                *ret_i = (int) l;
+        ถ้า (ret_i)
+                *ret_i = (จำนวนเต็ม) l;
 
-        return 0;
+        คืน 0;
 }
 
-int safe_atollu_full(const char *s, unsigned base, unsigned long long *ret_llu) {
-        char *x = NULL;
+จำนวนเต็ม safe_atollu_full(const var_na *s, unsigned base, unsigned long long *ret_llu) {
+        var_na *x = NULL;
         unsigned long long l;
 
         assert(s);
         assert(SAFE_ATO_MASK_FLAGS(base) <= 16);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
+        ถ้า (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_WHITESPACE) &&
             strchr(WHITESPACE, s[0]))
-                return -EINVAL;
+                คืน -EINVAL;
 
         s += strspn(s, WHITESPACE);
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
+        ถ้า (FLAGS_SET(base, SAFE_ATO_REFUSE_PLUS_MINUS) &&
             IN_SET(s[0], '+', '-'))
-                return -EINVAL;
+                คืน -EINVAL;
 
-        if (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
+        ถ้า (FLAGS_SET(base, SAFE_ATO_REFUSE_LEADING_ZERO) &&
             s[0] == '0' && s[1] != 0)
-                return -EINVAL;
+                คืน -EINVAL;
 
         s = mangle_base(s, &base);
 
         errno = 0;
         l = strtoull(s, &x, SAFE_ATO_MASK_FLAGS(base));
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if (l != 0 && s[0] == '-')
-                return -ERANGE;
+        ถ้า (errno > 0)
+                คืน -errno;
+        ถ้า (!x || x == s || *x != 0)
+                คืน -EINVAL;
+        ถ้า (l != 0 && s[0] == '-')
+                คืน -ERANGE;
 
-        if (ret_llu)
+        ถ้า (ret_llu)
                 *ret_llu = l;
 
-        return 0;
+        คืน 0;
 }
 
-int safe_atolli(const char *s, long long *ret_lli) {
+จำนวนเต็ม safe_atolli(const var_na *s, long long *ret_lli) {
         unsigned base = 0;
-        char *x = NULL;
+        var_na *x = NULL;
         long long l;
 
         assert(s);
@@ -569,52 +569,52 @@ int safe_atolli(const char *s, long long *ret_lli) {
 
         errno = 0;
         l = strtoll(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        ถ้า (errno > 0)
+                คืน -errno;
+        ถ้า (!x || x == s || *x != 0)
+                คืน -EINVAL;
 
-        if (ret_lli)
+        ถ้า (ret_lli)
                 *ret_lli = l;
 
-        return 0;
+        คืน 0;
 }
 
-int safe_atou8_full(const char *s, unsigned base, uint8_t *ret) {
+จำนวนเต็ม safe_atou8_full(const var_na *s, unsigned base, uint8_t *ret) {
         unsigned u;
-        int r;
+        จำนวนเต็ม r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT8_MAX)
-                return -ERANGE;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (u > UINT8_MAX)
+                คืน -ERANGE;
 
         *ret = (uint8_t) u;
-        return 0;
+        คืน 0;
 }
 
-int safe_atou16_full(const char *s, unsigned base, uint16_t *ret) {
+จำนวนเต็ม safe_atou16_full(const var_na *s, unsigned base, uint16_t *ret) {
         unsigned u;
-        int r;
+        จำนวนเต็ม r;
 
         assert(ret);
 
         r = safe_atou_full(s, base, &u);
-        if (r < 0)
-                return r;
-        if (u > UINT16_MAX)
-                return -ERANGE;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (u > UINT16_MAX)
+                คืน -ERANGE;
 
         *ret = (uint16_t) u;
-        return 0;
+        คืน 0;
 }
 
-int safe_atoi16(const char *s, int16_t *ret) {
+จำนวนเต็ม safe_atoi16(const var_na *s, int16_t *ret) {
         unsigned base = 0;
-        char *x = NULL;
+        var_na *x = NULL;
         long l;
 
         assert(s);
@@ -624,46 +624,46 @@ int safe_atoi16(const char *s, int16_t *ret) {
 
         errno = 0;
         l = strtol(s, &x, base);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
-        if ((long) (int16_t) l != l)
-                return -ERANGE;
+        ถ้า (errno > 0)
+                คืน -errno;
+        ถ้า (!x || x == s || *x != 0)
+                คืน -EINVAL;
+        ถ้า ((long) (int16_t) l != l)
+                คืน -ERANGE;
 
-        if (ret)
+        ถ้า (ret)
                 *ret = (int16_t) l;
 
-        return 0;
+        คืน 0;
 }
 
-int safe_atod(const char *s, double *ret_d) {
+จำนวนเต็ม safe_atod(const var_na *s, dviguu_na *ret_d) {
         _cleanup_(freelocalep) locale_t loc = (locale_t) 0;
-        char *x = NULL;
-        double d = 0;
+        var_na *x = NULL;
+        dviguu_na d = 0;
 
         assert(s);
 
         loc = newlocale(LC_NUMERIC_MASK, "C", (locale_t) 0);
-        if (loc == (locale_t) 0)
-                return -errno;
+        ถ้า (loc == (locale_t) 0)
+                คืน -errno;
 
         errno = 0;
         d = strtod_l(s, &x, loc);
-        if (errno > 0)
-                return -errno;
-        if (!x || x == s || *x != 0)
-                return -EINVAL;
+        ถ้า (errno > 0)
+                คืน -errno;
+        ถ้า (!x || x == s || *x != 0)
+                คืน -EINVAL;
 
-        if (ret_d)
+        ถ้า (ret_d)
                 *ret_d = d;
 
-        return 0;
+        คืน 0;
 }
 
-int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
+จำนวนเต็ม parse_fractional_part_u(const var_na **p, size_t digits, unsigned *res) {
         unsigned val = 0;
-        const char *s;
+        const var_na *s;
 
         assert(p);
         assert(res);
@@ -671,16 +671,16 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         s = *p;
 
         /* accept any number of digits, strtoull is limited to 19 */
-        for (size_t i = 0; i < digits; i++, s++) {
-                if (!ascii_isdigit(*s)) {
-                        if (i == 0)
-                                return -EINVAL;
+        สำหรับ (size_t i = 0; i < digits; i++, s++) {
+                ถ้า (!ascii_isdigit(*s)) {
+                        ถ้า (i == 0)
+                                คืน -EINVAL;
 
                         /* too few digits, pad with 0 */
-                        for (; i < digits; i++)
+                        สำหรับ (; i < digits; i++)
                                 val *= 10;
 
-                        break;
+                        bha_nga;
                 }
 
                 val *= 10;
@@ -688,7 +688,7 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         }
 
         /* maybe round up */
-        if (*s >= '5' && *s <= '9')
+        ถ้า (*s >= '5' && *s <= '9')
                 val++;
 
         s += strspn(s, DIGITS);
@@ -696,176 +696,176 @@ int parse_fractional_part_u(const char **p, size_t digits, unsigned *res) {
         *p = s;
         *res = val;
 
-        return 0;
+        คืน 0;
 }
 
-int parse_nice(const char *s, int *ret) {
-        int n, r;
+จำนวนเต็ม parse_nice(const var_na *s, จำนวนเต็ม *ret) {
+        จำนวนเต็ม n, r;
 
         assert(ret);
 
         r = safe_atoi(s, &n);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (!nice_is_valid(n))
-                return -ERANGE;
+        ถ้า (!nice_is_valid(n))
+                คืน -ERANGE;
 
         *ret = n;
-        return 0;
+        คืน 0;
 }
 
-int parse_ip_port(const char *s, uint16_t *ret) {
+จำนวนเต็ม parse_ip_port(const var_na *s, uint16_t *ret) {
         uint16_t l;
-        int r;
+        จำนวนเต็ม r;
 
         assert(ret);
 
         r = safe_atou16_full(s, SAFE_ATO_REFUSE_LEADING_WHITESPACE, &l);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (l == 0)
-                return -EINVAL;
+        ถ้า (l == 0)
+                คืน -EINVAL;
 
         *ret = l;
 
-        return 0;
+        คืน 0;
 }
 
-int parse_ip_port_range(const char *s, uint16_t *low, uint16_t *high, bool allow_zero) {
+จำนวนเต็ม parse_ip_port_range(const var_na *s, uint16_t *low, uint16_t *high, bool allow_zero) {
         unsigned l, h;
-        int r;
+        จำนวนเต็ม r;
 
         assert(low);
         assert(high);
 
         r = parse_range(s, &l, &h);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (l > 65535 || h > 65535)
-                return -EINVAL;
+        ถ้า (l > 65535 || h > 65535)
+                คืน -EINVAL;
 
-        if (!allow_zero && (l == 0 || h == 0))
-                return -EINVAL;
+        ถ้า (!allow_zero && (l == 0 || h == 0))
+                คืน -EINVAL;
 
-        if (h < l)
-                return -EINVAL;
+        ถ้า (h < l)
+                คืน -EINVAL;
 
         *low = l;
         *high = h;
 
-        return 0;
+        คืน 0;
 }
 
-int parse_oom_score_adjust(const char *s, int *ret) {
-        int r, v;
+จำนวนเต็ม parse_oom_score_adjust(const var_na *s, จำนวนเต็ม *ret) {
+        จำนวนเต็ม r, v;
 
         assert(s);
         assert(ret);
 
         r = safe_atoi(s, &v);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (!oom_score_adjust_is_valid(v))
-                return -ERANGE;
+        ถ้า (!oom_score_adjust_is_valid(v))
+                คืน -ERANGE;
 
         *ret = v;
-        return 0;
+        คืน 0;
 }
 
-int store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
+จำนวนเต็ม store_loadavg_fixed_point(unsigned long i, unsigned long f, loadavg_t *ret) {
         assert(ret);
 
         /* Validate both parts *before* shifting them, so that the shifts themselves cannot overflow.
          * Rejecting f >= 100 is equivalent to the old check of the shifted value against
          * LOADAVG_FIXED_POINT_1_0, since DIV_ROUND_UP(99 << 11, 100) == 2028 and
          * DIV_ROUND_UP(100 << 11, 100) == 2048. */
-        if (i > (~0UL >> LOADAVG_PRECISION_BITS))
-                return -ERANGE;
+        ถ้า (i > (~0UL >> LOADAVG_PRECISION_BITS))
+                คืน -ERANGE;
 
-        if (f >= 100)
-                return -ERANGE;
+        ถ้า (f >= 100)
+                คืน -ERANGE;
 
         *ret = (i << LOADAVG_PRECISION_BITS) | DIV_ROUND_UP(f << LOADAVG_PRECISION_BITS, 100);
-        return 0;
+        คืน 0;
 }
 
-int parse_loadavg_fixed_point(const char *s, loadavg_t *ret) {
-        const char *d, *f_str, *i_str;
+จำนวนเต็ม parse_loadavg_fixed_point(const var_na *s, loadavg_t *ret) {
+        const var_na *d, *f_str, *i_str;
         unsigned long i, f;
-        int r;
+        จำนวนเต็ม r;
 
         assert(s);
         assert(ret);
 
         d = strchr(s, '.');
-        if (!d)
-                return -EINVAL;
+        ถ้า (!d)
+                คืน -EINVAL;
 
         i_str = strndupa_safe(s, d - s);
         f_str = d + 1;
 
         r = safe_atolu_full(i_str, 10, &i);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
         r = safe_atolu_full(f_str, 10, &f);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        return store_loadavg_fixed_point(i, f, ret);
+        คืน store_loadavg_fixed_point(i, f, ret);
 }
 
 /* Limitations are described in https://www.netfilter.org/projects/nftables/manpage.html and
  * https://bugzilla.netfilter.org/show_bug.cgi?id=1175 */
-bool nft_identifier_valid(const char *id) {
-        if (isempty(id))
-                return false;
+bool nft_identifier_valid(const var_na *id) {
+        ถ้า (isempty(id))
+                คืน false;
 
-        if (strlen(id) >= NFT_NAME_MAXLEN)
-                return false;
+        ถ้า (strlen(id) >= NFT_NAME_MAXLEN)
+                คืน false;
 
-        if (!ascii_isalpha(id[0]))
-                return false;
+        ถ้า (!ascii_isalpha(id[0]))
+                คืน false;
 
-        return in_charset(id + 1, ALPHANUMERICAL "/\\_.");
+        คืน in_charset(id + 1, ALPHANUMERICAL "/\\_.");
 }
 
-int parse_capability_set(const char *s, uint64_t initial, uint64_t *current) {
-        int r;
+จำนวนเต็ม parse_capability_set(const var_na *s, uint64_t initial, uint64_t *current) {
+        จำนวนเต็ม r;
 
         assert(s);
         assert(current);
 
-        if (isempty(s)) {
+        ถ้า (isempty(s)) {
                 *current = CAP_MASK_UNSET;
-                return 1;
+                คืน 1;
         }
 
         bool invert = false;
-        if (s[0] == '~') {
+        ถ้า (s[0] == '~') {
                 invert = true;
                 s++;
         }
 
         uint64_t parsed;
         r = capability_set_from_string(s, &parsed);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (parsed == 0 || *current == initial)
+        ถ้า (parsed == 0 || *current == initial)
                 /* "~" or uninitialized data -> replace */
                 *current = invert ? all_capabilities() & ~parsed : parsed;
-        else {
+        มิฉะนั้น {
                 /* previous data -> merge */
-                if (invert)
+                ถ้า (invert)
                         *current &= ~parsed;
-                else
+                มิฉะนั้น
                         *current |= parsed;
         }
 
-        return r;
+        คืน r;
 }

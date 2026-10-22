@@ -16,46 +16,46 @@
 
 #include "strxcpyx.h"
 
-size_t strnpcpy_full(char **dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
+size_t strnpcpy_full(var_na **dest, size_t size, const var_na *src, size_t len, bool *ret_truncated) {
         bool truncated = false;
 
         assert(dest);
         assert(src);
 
-        if (size == 0) {
-                if (ret_truncated)
+        ถ้า (size == 0) {
+                ถ้า (ret_truncated)
                         *ret_truncated = len > 0;
-                return 0;
+                คืน 0;
         }
 
-        if (len >= size) {
-                if (size > 1)
+        ถ้า (len >= size) {
+                ถ้า (size > 1)
                         *dest = mempcpy(*dest, src, size-1);
                 size = 0;
                 truncated = true;
-        } else if (len > 0) {
+        } มิฉะนั้น ถ้า (len > 0) {
                 *dest = mempcpy(*dest, src, len);
                 size -= len;
         }
 
-        if (ret_truncated)
+        ถ้า (ret_truncated)
                 *ret_truncated = truncated;
 
         (*dest)[0] = '\0';
-        return size;
+        คืน size;
 }
 
-size_t strpcpy_full(char **dest, size_t size, const char *src, bool *ret_truncated) {
+size_t strpcpy_full(var_na **dest, size_t size, const var_na *src, bool *ret_truncated) {
         assert(dest);
         assert(src);
 
-        return strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
+        คืน strnpcpy_full(dest, size, src, strlen(src), ret_truncated);
 }
 
-size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyf_full(var_na **dest, size_t size, bool *ret_truncated, const var_na *src, ...) {
         bool truncated = false;
         va_list va;
-        int i;
+        จำนวนเต็ม i;
 
         assert(dest);
         assert(src);
@@ -66,21 +66,21 @@ size_t strpcpyf_full(char **dest, size_t size, bool *ret_truncated, const char *
 
         assert(i >= 0);
 
-        if (i < (int) size) {
+        ถ้า (i < (จำนวนเต็ม) size) {
                 *dest += i;
                 size -= i;
-        } else {
+        } มิฉะนั้น {
                 size = 0;
                 truncated = i > 0;
         }
 
-        if (ret_truncated)
+        ถ้า (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        คืน size;
 }
 
-size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strpcpyl_full(var_na **dest, size_t size, bool *ret_truncated, const var_na *src, ...) {
         bool truncated = false;
         va_list va;
 
@@ -93,36 +93,36 @@ size_t strpcpyl_full(char **dest, size_t size, bool *ret_truncated, const char *
 
                 size = strpcpy_full(dest, size, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, var_na *);
+        } ขณะ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ถ้า (ret_truncated)
                 *ret_truncated = truncated;
-        return size;
+        คืน size;
 }
 
-size_t strnscpy_full(char *dest, size_t size, const char *src, size_t len, bool *ret_truncated) {
-        char *s;
+size_t strnscpy_full(var_na *dest, size_t size, const var_na *src, size_t len, bool *ret_truncated) {
+        var_na *s;
 
         assert(dest);
         assert(src);
 
         s = dest;
-        return strnpcpy_full(&s, size, src, len, ret_truncated);
+        คืน strnpcpy_full(&s, size, src, len, ret_truncated);
 }
 
-size_t strscpy_full(char *dest, size_t size, const char *src, bool *ret_truncated) {
+size_t strscpy_full(var_na *dest, size_t size, const var_na *src, bool *ret_truncated) {
         assert(dest);
         assert(src);
 
-        return strnscpy_full(dest, size, src, strlen(src), ret_truncated);
+        คืน strnscpy_full(dest, size, src, strlen(src), ret_truncated);
 }
 
-size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *src, ...) {
+size_t strscpyl_full(var_na *dest, size_t size, bool *ret_truncated, const var_na *src, ...) {
         bool truncated = false;
         va_list va;
-        char *s;
+        var_na *s;
 
         assert(dest);
         assert(src);
@@ -134,12 +134,12 @@ size_t strscpyl_full(char *dest, size_t size, bool *ret_truncated, const char *s
 
                 size = strpcpy_full(&s, size, src, &t);
                 truncated = truncated || t;
-                src = va_arg(va, char *);
-        } while (src);
+                src = va_arg(va, var_na *);
+        } ขณะ (src);
         va_end(va);
 
-        if (ret_truncated)
+        ถ้า (ret_truncated)
                 *ret_truncated = truncated;
 
-        return size;
+        คืน size;
 }

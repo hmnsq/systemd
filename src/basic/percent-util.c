@@ -4,154 +4,154 @@
 #include "percent-util.h"
 #include "string-util.h"
 
-static int parse_parts_value_whole(const char *p, const char *symbol) {
-        const char *pc, *n;
-        int r, v;
+static จำนวนเต็ม parse_parts_value_whole(const var_na *p, const var_na *symbol) {
+        const var_na *pc, *n;
+        จำนวนเต็ม r, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        ถ้า (!pc)
+                คืน -EINVAL;
 
         n = strndupa_safe(p, pc - p);
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (v < 0)
+                คืน -ERANGE;
 
-        return v;
+        คืน v;
 }
 
-static int parse_parts_value_with_tenths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+static จำนวนเต็ม parse_parts_value_with_tenths_place(const var_na *p, const var_na *symbol) {
+        const var_na *pc, *dot, *n;
+        จำนวนเต็ม r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        ถ้า (!pc)
+                คืน -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 2 != pc)
-                        return -EINVAL;
-                if (dot[1] < '0' || dot[1] > '9')
-                        return -EINVAL;
+        ถ้า (dot) {
+                ถ้า (dot + 2 != pc)
+                        คืน -EINVAL;
+                ถ้า (dot[1] < '0' || dot[1] > '9')
+                        คืน -EINVAL;
                 q = dot[1] - '0';
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } มิฉะนั้น {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 10)
-                return -ERANGE;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (v < 0)
+                คืน -ERANGE;
+        ถ้า (v > (INT_MAX - q) / 10)
+                คืน -ERANGE;
 
         v = v * 10 + q;
-        return v;
+        คืน v;
 }
 
-static int parse_parts_value_with_hundredths_place(const char *p, const char *symbol) {
-        const char *pc, *dot, *n;
-        int r, q, v;
+static จำนวนเต็ม parse_parts_value_with_hundredths_place(const var_na *p, const var_na *symbol) {
+        const var_na *pc, *dot, *n;
+        จำนวนเต็ม r, q, v;
 
         pc = endswith(p, symbol);
-        if (!pc)
-                return -EINVAL;
+        ถ้า (!pc)
+                คืน -EINVAL;
 
         dot = memchr(p, '.', pc - p);
-        if (dot) {
-                if (dot + 3 == pc) {
+        ถ้า (dot) {
+                ถ้า (dot + 3 == pc) {
                         /* Support two places after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
-                                return -EINVAL;
+                        ถ้า (dot[1] < '0' || dot[1] > '9' || dot[2] < '0' || dot[2] > '9')
+                                คืน -EINVAL;
                         q = (dot[1] - '0') * 10 + (dot[2] - '0');
 
-                } else if (dot + 2 == pc) {
+                } มิฉะนั้น ถ้า (dot + 2 == pc) {
                         /* Support one place after the dot */
 
-                        if (dot[1] < '0' || dot[1] > '9')
-                                return -EINVAL;
+                        ถ้า (dot[1] < '0' || dot[1] > '9')
+                                คืน -EINVAL;
                         q = (dot[1] - '0') * 10;
-                } else
+                } มิฉะนั้น
                         /* We do not support zero or more than two places */
-                        return -EINVAL;
+                        คืน -EINVAL;
 
                 n = strndupa_safe(p, dot - p);
-        } else {
+        } มิฉะนั้น {
                 q = 0;
                 n = strndupa_safe(p, pc - p);
         }
         r = safe_atoi(n, &v);
-        if (r < 0)
-                return r;
-        if (v < 0)
-                return -ERANGE;
-        if (v > (INT_MAX - q) / 100)
-                return -ERANGE;
+        ถ้า (r < 0)
+                คืน r;
+        ถ้า (v < 0)
+                คืน -ERANGE;
+        ถ้า (v > (INT_MAX - q) / 100)
+                คืน -ERANGE;
 
         v = v * 100 + q;
-        return v;
+        คืน v;
 }
 
-int parse_percent_unbounded(const char *p) {
-        return parse_parts_value_whole(p, "%");
+จำนวนเต็ม parse_percent_unbounded(const var_na *p) {
+        คืน parse_parts_value_whole(p, "%");
 }
 
-int parse_percent(const char *p) {
-        int v;
+จำนวนเต็ม parse_percent(const var_na *p) {
+        จำนวนเต็ม v;
 
         v = parse_percent_unbounded(p);
-        if (v > 100)
-                return -ERANGE;
+        ถ้า (v > 100)
+                คืน -ERANGE;
 
-        return v;
+        คืน v;
 }
 
-int parse_permille_unbounded(const char *p) {
-        const char *pm;
+จำนวนเต็ม parse_permille_unbounded(const var_na *p) {
+        const var_na *pm;
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_whole(p, "‰");
+        ถ้า (pm)
+                คืน parse_parts_value_whole(p, "‰");
 
-        return parse_parts_value_with_tenths_place(p, "%");
+        คืน parse_parts_value_with_tenths_place(p, "%");
 }
 
-int parse_permille(const char *p) {
-        int v;
+จำนวนเต็ม parse_permille(const var_na *p) {
+        จำนวนเต็ม v;
 
         v = parse_permille_unbounded(p);
-        if (v > 1000)
-                return -ERANGE;
+        ถ้า (v > 1000)
+                คืน -ERANGE;
 
-        return v;
+        คืน v;
 }
 
-int parse_permyriad_unbounded(const char *p) {
-        const char *pm;
+จำนวนเต็ม parse_permyriad_unbounded(const var_na *p) {
+        const var_na *pm;
 
         pm = endswith(p, "‱");
-        if (pm)
-                return parse_parts_value_whole(p, "‱");
+        ถ้า (pm)
+                คืน parse_parts_value_whole(p, "‱");
 
         pm = endswith(p, "‰");
-        if (pm)
-                return parse_parts_value_with_tenths_place(p, "‰");
+        ถ้า (pm)
+                คืน parse_parts_value_with_tenths_place(p, "‰");
 
-        return parse_parts_value_with_hundredths_place(p, "%");
+        คืน parse_parts_value_with_hundredths_place(p, "%");
 }
 
-int parse_permyriad(const char *p) {
-        int v;
+จำนวนเต็ม parse_permyriad(const var_na *p) {
+        จำนวนเต็ม v;
 
         v = parse_permyriad_unbounded(p);
-        if (v > 10000)
-                return -ERANGE;
+        ถ้า (v > 10000)
+                คืน -ERANGE;
 
-        return v;
+        คืน v;
 }

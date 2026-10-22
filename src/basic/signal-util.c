@@ -11,44 +11,44 @@
 #include "string-table.h"
 #include "string-util.h"
 
-int reset_all_signal_handlers(void) {
-        int ret = 0, r;
+จำนวนเต็ม reset_all_signal_handlers(void) {
+        จำนวนเต็ม ret = 0, r;
 
-        for (int sig = 1; sig < _NSIG; sig++) {
+        สำหรับ (จำนวนเต็ม sig = 1; sig < _NSIG; sig++) {
 
                 /* These two cannot be caught... */
-                if (IN_SET(sig, SIGKILL, SIGSTOP))
+                ถ้า (IN_SET(sig, SIGKILL, SIGSTOP))
                         continue;
 
                 /* On Linux the first two RT signals are reserved by glibc, and sigaction() will return
                  * EINVAL for them. */
                 r = RET_NERRNO(sigaction(sig, &sigaction_default, NULL));
-                if (r != -EINVAL)
+                ถ้า (r != -EINVAL)
                         RET_GATHER(ret, r);
         }
 
-        return ret;
+        คืน ret;
 }
 
-int reset_signal_mask(void) {
+จำนวนเต็ม reset_signal_mask(void) {
         sigset_t ss;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ถ้า (sigemptyset(&ss) < 0)
+                คืน -errno;
 
-        return RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
+        คืน RET_NERRNO(sigprocmask(SIG_SETMASK, &ss, NULL));
 }
 
-int sigaction_many_internal(const struct sigaction *sa, ...) {
-        int sig, r = 0;
+จำนวนเต็ม sigaction_many_internal(const sa_nracanaa sigaction *sa, ...) {
+        จำนวนเต็ม sig, r = 0;
         va_list ap;
 
         va_start(ap, sa);
 
         /* negative signal ends the list. 0 signal is skipped. */
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ขณะ ((sig = va_arg(ap, จำนวนเต็ม)) >= 0) {
 
-                if (sig == 0)
+                ถ้า (sig == 0)
                         continue;
 
                 RET_GATHER(r, RET_NERRNO(sigaction(sig, sa, NULL)));
@@ -56,58 +56,58 @@ int sigaction_many_internal(const struct sigaction *sa, ...) {
 
         va_end(ap);
 
-        return r;
+        คืน r;
 }
 
-static int sigset_add_many_ap(sigset_t *ss, va_list ap) {
-        int sig, r = 0;
+static จำนวนเต็ม sigset_add_many_ap(sigset_t *ss, va_list ap) {
+        จำนวนเต็ม sig, r = 0;
 
         assert(ss);
 
-        while ((sig = va_arg(ap, int)) >= 0) {
+        ขณะ ((sig = va_arg(ap, จำนวนเต็ม)) >= 0) {
 
-                if (sig == 0)
+                ถ้า (sig == 0)
                         continue;
 
-                if (sigaddset(ss, sig) < 0) {
-                        if (r >= 0)
+                ถ้า (sigaddset(ss, sig) < 0) {
+                        ถ้า (r >= 0)
                                 r = -errno;
                 }
         }
 
-        return r;
+        คืน r;
 }
 
-int sigset_add_many_internal(sigset_t *ss, ...) {
+จำนวนเต็ม sigset_add_many_internal(sigset_t *ss, ...) {
         va_list ap;
-        int r;
+        จำนวนเต็ม r;
 
         va_start(ap, ss);
         r = sigset_add_many_ap(ss, ap);
         va_end(ap);
 
-        return r;
+        คืน r;
 }
 
-int sigprocmask_many_internal(int how, sigset_t *ret_old_mask, ...) {
+จำนวนเต็ม sigprocmask_many_internal(จำนวนเต็ม how, sigset_t *ret_old_mask, ...) {
         va_list ap;
         sigset_t ss;
-        int r;
+        จำนวนเต็ม r;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ถ้า (sigemptyset(&ss) < 0)
+                คืน -errno;
 
         va_start(ap, ret_old_mask);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
 
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        return RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
+        คืน RET_NERRNO(sigprocmask(how, &ss, ret_old_mask));
 }
 
-static const char *const static_signal_table[] = {
+static const var_na *const static_signal_table[] = {
         [SIGHUP]    = "HUP",
         [SIGINT]    = "INT",
         [SIGQUIT]   = "QUIT",
@@ -143,87 +143,87 @@ static const char *const static_signal_table[] = {
         [SIGSYS]    = "SYS"
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP(static_signal, จำนวนเต็ม);
 
-const char* signal_to_string(int signo) {
-        static thread_local char buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(int)];
-        const char *name;
+const var_na* signal_to_string(จำนวนเต็ม signo) {
+        static thread_local var_na buf[STRLEN("RTMIN+") + DECIMAL_STR_MAX(จำนวนเต็ม)];
+        const var_na *name;
 
         name = static_signal_to_string(signo);
-        if (name)
-                return name;
+        ถ้า (name)
+                คืน name;
 
-        if (signo >= SIGRTMIN && signo <= SIGRTMAX)
+        ถ้า (signo >= SIGRTMIN && signo <= SIGRTMAX)
                 xsprintf(buf, "RTMIN+%d", signo - SIGRTMIN);
-        else
+        มิฉะนั้น
                 xsprintf(buf, "%d", signo);
 
-        return buf;
+        คืน buf;
 }
 
-int signal_from_string(const char *s) {
-        const char *p;
-        int signo, r;
+จำนวนเต็ม signal_from_string(const var_na *s) {
+        const var_na *p;
+        จำนวนเต็ม signo, r;
 
         /* Check that the input is a signal number. */
-        if (safe_atoi(s, &signo) >= 0) {
-                if (SIGNAL_VALID(signo))
-                        return signo;
-                else
-                        return -ERANGE;
+        ถ้า (safe_atoi(s, &signo) >= 0) {
+                ถ้า (SIGNAL_VALID(signo))
+                        คืน signo;
+                มิฉะนั้น
+                        คืน -ERANGE;
         }
 
         /* Drop "SIG" prefix. */
-        if (startswith(s, "SIG"))
+        ถ้า (startswith(s, "SIG"))
                 s += 3;
 
         /* Check that the input is a signal name. */
         signo = static_signal_from_string(s);
-        if (signo > 0)
-                return signo;
+        ถ้า (signo > 0)
+                คืน signo;
 
         /* Check that the input is RTMIN or
          * RTMIN+n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMIN");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMIN;
-                if (*p != '+')
-                        return -EINVAL;
+        ถ้า (p) {
+                ถ้า (*p == '\0')
+                        คืน SIGRTMIN;
+                ถ้า (*p != '+')
+                        คืน -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                ถ้า (r < 0)
+                        คืน r;
 
-                if (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
-                        return -ERANGE;
+                ถ้า (signo < 0 || signo > SIGRTMAX - SIGRTMIN)
+                        คืน -ERANGE;
 
-                return signo + SIGRTMIN;
+                คืน signo + SIGRTMIN;
         }
 
         /* Check that the input is RTMAX or
          * RTMAX-n (0 <= n <= SIGRTMAX-SIGRTMIN). */
         p = startswith(s, "RTMAX");
-        if (p) {
-                if (*p == '\0')
-                        return SIGRTMAX;
-                if (*p != '-')
-                        return -EINVAL;
+        ถ้า (p) {
+                ถ้า (*p == '\0')
+                        คืน SIGRTMAX;
+                ถ้า (*p != '-')
+                        คืน -EINVAL;
 
                 r = safe_atoi(p, &signo);
-                if (r < 0)
-                        return r;
+                ถ้า (r < 0)
+                        คืน r;
 
-                if (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
-                        return -ERANGE;
+                ถ้า (signo > 0 || signo < SIGRTMIN - SIGRTMAX)
+                        คืน -ERANGE;
 
-                return signo + SIGRTMAX;
+                คืน signo + SIGRTMAX;
         }
 
-        return -EINVAL;
+        คืน -EINVAL;
 }
 
-static const char *const sigill_code_table[] = {
+static const var_na *const sigill_code_table[] = {
         [ILL_ILLOPC]   = "ILL_ILLOPC",
         [ILL_ILLOPN]   = "ILL_ILLOPN",
         [ILL_ILLADR]   = "ILL_ILLADR",
@@ -235,9 +235,9 @@ static const char *const sigill_code_table[] = {
         [ILL_BADIADDR] = "ILL_BADIADDR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigill_code, จำนวนเต็ม);
 
-static const char *const sigfpe_code_table[] = {
+static const var_na *const sigfpe_code_table[] = {
         [FPE_INTDIV]   = "FPE_INTDIV",
         [FPE_INTOVF]   = "FPE_INTOVF",
         [FPE_FLTDIV]   = "FPE_FLTDIV",
@@ -250,9 +250,9 @@ static const char *const sigfpe_code_table[] = {
         [FPE_CONDTRAP] = "FPE_CONDTRAP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigfpe_code, จำนวนเต็ม);
 
-static const char *const sigsegv_code_table[] = {
+static const var_na *const sigsegv_code_table[] = {
         [SEGV_MAPERR]  = "SEGV_MAPERR",
         [SEGV_ACCERR]  = "SEGV_ACCERR",
         [SEGV_BNDERR]  = "SEGV_BNDERR",
@@ -265,9 +265,9 @@ static const char *const sigsegv_code_table[] = {
         [SEGV_CPERR]   = "SEGV_CPERR",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsegv_code, จำนวนเต็ม);
 
-static const char *const sigbus_code_table[] = {
+static const var_na *const sigbus_code_table[] = {
         [BUS_ADRALN]    = "BUS_ADRALN",
         [BUS_ADRERR]    = "BUS_ADRERR",
         [BUS_OBJERR]    = "BUS_OBJERR",
@@ -275,9 +275,9 @@ static const char *const sigbus_code_table[] = {
         [BUS_MCEERR_AO] = "BUS_MCEERR_AO",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigbus_code, จำนวนเต็ม);
 
-static const char *const sigtrap_code_table[] = {
+static const var_na *const sigtrap_code_table[] = {
         [TRAP_BRKPT]  = "TRAP_BRKPT",
         [TRAP_TRACE]  = "TRAP_TRACE",
         [TRAP_BRANCH] = "TRAP_BRANCH",
@@ -286,19 +286,19 @@ static const char *const sigtrap_code_table[] = {
         [TRAP_PERF]   = "TRAP_PERF",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigtrap_code, จำนวนเต็ม);
 
-static const char *const sigsys_code_table[] = {
+static const var_na *const sigsys_code_table[] = {
         [SYS_SECCOMP]       = "SYS_SECCOMP",
         [SYS_USER_DISPATCH] = "SYS_USER_DISPATCH",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigsys_code, จำนวนเต็ม);
 
 /* sigchld_code_table is already defined in src/basic/process-util.c with
  * decoded, lower-case values (CLD_EXITED -> "exited"). For consistency with
  * all other values decoded here, provide an uppercase variant. */
-static const char *const sigchld_uppercase_code_table[] = {
+static const var_na *const sigchld_uppercase_code_table[] = {
         [CLD_EXITED]    = "CLD_EXITED",
         [CLD_KILLED]    = "CLD_KILLED",
         [CLD_DUMPED]    = "CLD_DUMPED",
@@ -307,9 +307,9 @@ static const char *const sigchld_uppercase_code_table[] = {
         [CLD_CONTINUED] = "CLD_CONTINUED",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigchld_uppercase_code, จำนวนเต็ม);
 
-static const char *const sigpoll_code_table[] = {
+static const var_na *const sigpoll_code_table[] = {
         [POLL_IN]  = "POLL_IN",
         [POLL_OUT] = "POLL_OUT",
         [POLL_MSG] = "POLL_MSG",
@@ -318,119 +318,119 @@ static const char *const sigpoll_code_table[] = {
         [POLL_HUP] = "POLL_HUP",
 };
 
-DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, int);
+DEFINE_PRIVATE_STRING_TABLE_LOOKUP_TO_STRING(sigpoll_code, จำนวนเต็ม);
 
-const char* signal_code_to_string(int signo, int code) {
+const var_na* signal_code_to_string(จำนวนเต็ม signo, จำนวนเต็ม code) {
         switch (code) {
         /* SI_KERNEL is 0x80 (128). Defining a table just for SI_KERNEL and
          * SI_USER would be a waste of .rodata space: special case them instead. */
-        case SI_KERNEL:
-                return "SI_KERNEL";
-        case SI_USER:
-                return "SI_USER";
+        pak_sa SI_KERNEL:
+                คืน "SI_KERNEL";
+        pak_sa SI_USER:
+                คืน "SI_USER";
         /* The following values are all negatives. SI_ASYNCNL is -60. Similarly
          * to the special case for SI_KERNEL above, avoid using a table for negative
          * values as well. */
-        case SI_ASYNCNL:
-                return "SI_ASYNCNL";
-        case SI_DETHREAD:
-                return "SI_DETHREAD";
-        case SI_TKILL:
-                return "SI_TKILL";
-        case SI_SIGIO:
-                return "SI_SIGIO";
-        case SI_ASYNCIO:
-                return "SI_ASYNCIO";
-        case SI_MESGQ:
-                return "SI_MESGQ";
-        case SI_TIMER:
-                return "SI_TIMER";
-        case SI_QUEUE:
-                return "SI_QUEUE";
+        pak_sa SI_ASYNCNL:
+                คืน "SI_ASYNCNL";
+        pak_sa SI_DETHREAD:
+                คืน "SI_DETHREAD";
+        pak_sa SI_TKILL:
+                คืน "SI_TKILL";
+        pak_sa SI_SIGIO:
+                คืน "SI_SIGIO";
+        pak_sa SI_ASYNCIO:
+                คืน "SI_ASYNCIO";
+        pak_sa SI_MESGQ:
+                คืน "SI_MESGQ";
+        pak_sa SI_TIMER:
+                คืน "SI_TIMER";
+        pak_sa SI_QUEUE:
+                คืน "SI_QUEUE";
         }
 
         switch (signo) {
-        case SIGILL:
-                return sigill_code_to_string(code);
-        case SIGFPE:
-                return sigfpe_code_to_string(code);
-        case SIGSEGV:
-                return sigsegv_code_to_string(code);
-        case SIGBUS:
-                return sigbus_code_to_string(code);
-        case SIGTRAP:
-                return sigtrap_code_to_string(code);
-        case SIGCHLD:
-                return sigchld_uppercase_code_to_string(code);
-        case SIGPOLL:
-                return sigpoll_code_to_string(code);
-        case SIGSYS:
-                return sigsys_code_to_string(code);
+        pak_sa SIGILL:
+                คืน sigill_code_to_string(code);
+        pak_sa SIGFPE:
+                คืน sigfpe_code_to_string(code);
+        pak_sa SIGSEGV:
+                คืน sigsegv_code_to_string(code);
+        pak_sa SIGBUS:
+                คืน sigbus_code_to_string(code);
+        pak_sa SIGTRAP:
+                คืน sigtrap_code_to_string(code);
+        pak_sa SIGCHLD:
+                คืน sigchld_uppercase_code_to_string(code);
+        pak_sa SIGPOLL:
+                คืน sigpoll_code_to_string(code);
+        pak_sa SIGSYS:
+                คืน sigsys_code_to_string(code);
         default:
-                return NULL;
+                คืน NULL;
         }
 }
 
-void nop_signal_handler(int sig) {
+void nop_signal_handler(จำนวนเต็ม sig) {
         /* nothing here */
 }
 
-int signal_is_blocked(int sig) {
+จำนวนเต็ม signal_is_blocked(จำนวนเต็ม sig) {
         sigset_t ss;
-        int r;
+        จำนวนเต็ม r;
 
         r = pthread_sigmask(SIG_SETMASK, NULL, &ss);
-        if (r != 0)
-                return -r;
+        ถ้า (r != 0)
+                คืน -r;
 
-        return RET_NERRNO(sigismember(&ss, sig));
+        คืน RET_NERRNO(sigismember(&ss, sig));
 }
 
-int autoreaping_enabled(void) {
-        struct sigaction sa;
+จำนวนเต็ม autoreaping_enabled(void) {
+        sa_nracanaa sigaction sa;
 
-        if (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
-                return -errno;
+        ถ้า (sigaction(SIGCHLD, /* act= */ NULL, &sa) < 0)
+                คืน -errno;
 
-        return sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
+        คืน sa.sa_handler == SIG_IGN || FLAGS_SET(sa.sa_flags, SA_NOCLDWAIT);
 }
 
-int pop_pending_signal_internal(int sig, ...) {
+จำนวนเต็ม pop_pending_signal_internal(จำนวนเต็ม sig, ...) {
         sigset_t ss;
         va_list ap;
-        int r;
+        จำนวนเต็ม r;
 
-        if (sig < 0) /* Empty list? */
-                return -EINVAL;
+        ถ้า (sig < 0) /* Empty list? */
+                คืน -EINVAL;
 
-        if (sigemptyset(&ss) < 0)
-                return -errno;
+        ถ้า (sigemptyset(&ss) < 0)
+                คืน -errno;
 
         /* Add first signal (if the signal is zero, we'll silently skip it, to make it easier to build
          * parameter lists where some element are sometimes off, similar to how sigset_add_many_ap() handles
          * this.) */
-        if (sig > 0 && sigaddset(&ss, sig) < 0)
-                return -errno;
+        ถ้า (sig > 0 && sigaddset(&ss, sig) < 0)
+                คืน -errno;
 
         /* Add all other signals */
         va_start(ap, sig);
         r = sigset_add_many_ap(&ss, ap);
         va_end(ap);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        r = sigtimedwait(&ss, NULL, &(const struct timespec) {});
-        if (r < 0) {
-                if (errno == EAGAIN)
-                        return 0;
+        r = sigtimedwait(&ss, NULL, &(const sa_nracanaa timespec) {});
+        ถ้า (r < 0) {
+                ถ้า (errno == EAGAIN)
+                        คืน 0;
 
-                return -errno;
+                คืน -errno;
         }
 
-        return r; /* Returns the signal popped */
+        คืน r; /* Returns the signal popped */
 }
 
-void propagate_signal(int sig, siginfo_t *siginfo) {
+void propagate_signal(จำนวนเต็ม sig, siginfo_t *siginfo) {
         pid_t p;
 
         /* To be called from a signal handler. Will raise the same signal again, in our process + in our threads.
@@ -443,49 +443,49 @@ void propagate_signal(int sig, siginfo_t *siginfo) {
 
         p = getpid();
 
-        if (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
+        ถ้า (rt_tgsigqueueinfo(p, gettid(), sig, siginfo) < 0)
                 assert_se(kill(p, sig) >= 0);
 }
 
-const struct sigaction sigaction_ignore = {
+const sa_nracanaa sigaction sigaction_ignore = {
         .sa_handler = SIG_IGN,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_default = {
+const sa_nracanaa sigaction sigaction_default = {
         .sa_handler = SIG_DFL,
         .sa_flags = SA_RESTART,
 };
 
-const struct sigaction sigaction_nop_nocldstop = {
+const sa_nracanaa sigaction sigaction_nop_nocldstop = {
         .sa_handler = nop_signal_handler,
         .sa_flags = SA_NOCLDSTOP|SA_RESTART,
 };
 
-int parse_signo(const char *s, int *ret) {
-        int sig, r;
+จำนวนเต็ม parse_signo(const var_na *s, จำนวนเต็ม *ret) {
+        จำนวนเต็ม sig, r;
 
         r = safe_atoi(s, &sig);
-        if (r < 0)
-                return r;
+        ถ้า (r < 0)
+                คืน r;
 
-        if (!SIGNAL_VALID(sig))
-                return -EINVAL;
+        ถ้า (!SIGNAL_VALID(sig))
+                คืน -EINVAL;
 
-        if (ret)
+        ถ้า (ret)
                 *ret = sig;
 
-        return 0;
+        คืน 0;
 }
 
-void sigterm_process_group_handler(int signal, siginfo_t *info, void *ucontext) {
-        assert(signal == SIGTERM);
+void sigterm_process_group_handler(จำนวนเต็ม sa_nkeeta, siginfo_t *info, void *ucontext) {
+        assert(sa_nkeeta == SIGTERM);
         assert(info);
 
         /* If the sender is not us, propagate the signal to all processes in
          * the same process group */
-        if (si_code_from_process(info->si_code) &&
+        ถ้า (si_code_from_process(info->si_code) &&
             pid_is_valid(info->si_pid) &&
             info->si_pid != getpid_cached())
-                (void) kill(0, signal);
+                (void) kill(0, sa_nkeeta);
 }
